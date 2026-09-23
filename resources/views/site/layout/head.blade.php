@@ -11,6 +11,8 @@
         @yield('title')
     </title>
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('img/logo-light.svg') }}" />
 
     <!-- CSS Plugins -->
     <link rel="stylesheet" href="{{ asset('assets/website/css/swiper-bundle.min.css') }}" />

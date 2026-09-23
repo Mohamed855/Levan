@@ -115,7 +115,7 @@
                         </div>
                         <h4 class="mb-0 d-flex align-items-center" style="gap:.5rem;">
                             {{ number_format($myQuickStats['month_total_amount'] ?? 0, 0) }}
-                            <img src="{{ asset('assets/shared/images/Saudi_Riyal.png') }}" alt="SAR"
+                            <img src="{{ asset('assets/img/icons/Saudi_Riyal.png') }}" alt="SAR"
                                 style="width:22px;height:22px;object-fit:contain;">
                         </h4>
                     </div>
@@ -138,7 +138,7 @@
                         </div>
                         <h4 class="mb-0 d-flex align-items-center" style="gap:.5rem;">
                             {{ number_format($myQuickStats['month_approved_amount'] ?? 0, 0) }}
-                            <img src="{{ asset('assets/shared/images/Saudi_Riyal.png') }}" alt="SAR"
+                            <img src="{{ asset('assets/img/icons/Saudi_Riyal.png') }}" alt="SAR"
                                 style="width:22px;height:22px;object-fit:contain;">
                         </h4>
                     </div>
@@ -161,7 +161,7 @@
                         </div>
                         <h4 class="mb-0 d-flex align-items-center" style="gap:.5rem;">
                             {{ number_format($myQuickStats['month_pending_amount'] ?? 0, 0) }}
-                            <img src="{{ asset('assets/shared/images/Saudi_Riyal.png') }}" alt="SAR"
+                            <img src="{{ asset('assets/img/icons/Saudi_Riyal.png') }}" alt="SAR"
                                 style="width:22px;height:22px;object-fit:contain;">
                         </h4>
                     </div>
@@ -186,7 +186,7 @@
                             {{ number_format($myQuickStats['month_vs_last']['this_month_amount'] ?? 0, 0) }}
                             /
                             {{ number_format($myQuickStats['month_vs_last']['last_month_amount'] ?? 0, 0) }}
-                            <img src="{{ asset('assets/shared/images/Saudi_Riyal.png') }}" alt="SAR"
+                            <img src="{{ asset('assets/img/icons/Saudi_Riyal.png') }}" alt="SAR"
                                 style="width:22px;height:22px;object-fit:contain;">
                         </h4>
                     </div>

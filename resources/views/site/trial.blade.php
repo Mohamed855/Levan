@@ -193,7 +193,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2">
                     <div class="w-full">
                         <figure class="scroll-revealed max-w-[480px] mx-auto">
-                            <img src="{{ asset('assets/website/img/about-img.png') }}" alt="About image"
+                            <img src="{{ asset('assets/img/website/about-img.png') }}" alt="About image"
                                 class="rounded-xl" />
                         </figure>
                     </div>

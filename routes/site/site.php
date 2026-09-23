@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Route;
 Route::name('site.')->group(function () {
 
     // Landing Page
-    Route::view('/', 'site.coming-soon')->name('index');
-    // Route::get('/', [LandingPageController::class, 'index'])->name('index');
+    // Route::view('/', 'site.coming-soon')->name('index');
+    Route::get('/', [LandingPageController::class, 'index'])->name('index');
     Route::get('privacy-policy', [LandingPageController::class, 'privacyPolicy'])->name('privacy.policy');
     Route::post('contact', [LandingPageController::class, 'contactRequest'])->name('contact.store');  // contact request
 

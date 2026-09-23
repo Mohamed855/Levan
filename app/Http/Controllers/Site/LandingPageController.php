@@ -18,7 +18,7 @@ class LandingPageController extends Controller
     public function index()
     {
         $plans = Plan::where('is_active', true)->orderBy('sort_order', 'asc')->get();
-         $ourClients = Client::where('status' , 1)->latest()->get();
+        $ourClients = Client::where('status' , 1)->latest()->get();
         $portfolios = Portfolio::where('status' , 1)->latest()->get();
         return view('site.index', compact('plans' , 'ourClients' , 'portfolios'));
     }
