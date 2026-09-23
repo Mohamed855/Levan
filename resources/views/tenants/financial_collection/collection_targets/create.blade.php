@@ -172,7 +172,7 @@
                                         <i class="ti ti-arrow-left ti-xs me-sm-2 me-0"></i>
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
                                     </a>
-                                    <button class="btn btn-primary btn-next btn-submit">
+                                    <button type="submit" class="btn btn-primary btn-next btn-submit">
                                         <span class="align-middle d-sm-inline-block d-none me-sm-2">حفظ</span>
                                     </button>
                                 </div>

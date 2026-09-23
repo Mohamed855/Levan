@@ -413,7 +413,7 @@
             </h4>
             <p>معلومات كاملة عن طلب التحويل البنكي</p>
         </div>
-        <button class="back-btn" onclick="window.history.back()">
+        <button type="button" class="back-btn" onclick="window.history.back()">
             <i class="ti ti-arrow-right"></i>
             <span>رجوع</span>
         </button>

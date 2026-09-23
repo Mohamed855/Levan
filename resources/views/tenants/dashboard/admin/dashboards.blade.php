@@ -801,7 +801,7 @@
                                     style="width:140px;">
                             </div>
 
-                            <button id="exportOverdueTasksExcel" class="btn btn-primary btn-sm">
+                            <button type="button" id="exportOverdueTasksExcel" class="btn btn-primary btn-sm">
                                 <i class="ti ti-download me-1"></i>
                                 تصدير Excel
                             </button>

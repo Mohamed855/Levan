@@ -19,7 +19,7 @@
                 <i class="ti ti-arrow-right me-1"></i>
                 رجوع
             </a>
-            <button class="btn btn-primary" onclick="window.print()">
+            <button type="button" class="btn btn-primary" onclick="window.print()">
                 <i class="ti ti-printer me-1"></i>
                 طباعة
             </button>

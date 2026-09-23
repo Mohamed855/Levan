@@ -964,7 +964,7 @@
                         <td><strong>Name Server 1</strong></td>
                         <td>
                             <code>ns1.levan.com</code>
-                            <button class="btn btn-sm btn-outline-primary me-2" onclick="copyToClipboard('ns1.levan.com')">
+                            <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="copyToClipboard('ns1.levan.com')">
                                 <i class="ti ti-copy"></i> نسخ
                             </button>
                         </td>
@@ -973,7 +973,7 @@
                         <td><strong>Name Server 2</strong></td>
                         <td>
                             <code>ns2.levan.com</code>
-                            <button class="btn btn-sm btn-outline-primary me-2" onclick="copyToClipboard('ns2.levan.com')">
+                            <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="copyToClipboard('ns2.levan.com')">
                                 <i class="ti ti-copy"></i> نسخ
                             </button>
                         </td>
@@ -982,7 +982,7 @@
             </table>
 
             {{-- <div class="code-box">
-                <button class="copy-btn" onclick="copyToClipboard('ns1.levan.com\nns2.levan.com')">
+                <button type="button" class="copy-btn" onclick="copyToClipboard('ns1.levan.com\nns2.levan.com')">
                     <i class="ti ti-copy"></i> نسخ الكل
                 </button>
                 <div style="margin-top: 25px;">

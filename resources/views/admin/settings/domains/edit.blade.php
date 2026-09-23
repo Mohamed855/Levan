@@ -15,7 +15,7 @@
                 <input type="number" name="price" step="0.01" class="form-control" value="{{ $domain->price }}"
                     required>
             </div>
-            <button class="btn btn-primary mt-2" type="submit">تعديل</button>
+            <button type="submit" class="btn btn-primary mt-2">تعديل</button>
         </form>
     </div>
 @endsection

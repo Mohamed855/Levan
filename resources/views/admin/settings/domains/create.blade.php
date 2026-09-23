@@ -14,7 +14,7 @@
                     <input type="number" name="price" placeholder="2000" step="0.01" class="form-control" required>
                 </div>
             </div>
-            <button class="btn btn-primary mt-2" type="submit">حفظ</button>
+            <button type="submit" class="btn btn-primary mt-2">حفظ</button>
         </form>
     </div>
 @endsection

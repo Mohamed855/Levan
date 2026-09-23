@@ -1075,7 +1075,7 @@
                             <div>
                                 <span>${ip}</span>
                             </div>
-                            <button class="copy-dns-btn" onclick="copyToClipboard('${ip}')">
+                            <button type="button" class="copy-dns-btn" onclick="copyToClipboard('${ip}')">
                                 <i class="ti ti-copy"></i> نسخ
                             </button>
                         </div>
@@ -1100,7 +1100,7 @@
                             <strong>A Record المطلوب:</strong>
                             <code class="ms-2">${pointingStatus.server_ip}</code>
                         </div>
-                        <button class="copy-dns-btn" onclick="copyToClipboard('${pointingStatus.server_ip}')">
+                        <button type="button" class="copy-dns-btn" onclick="copyToClipboard('${pointingStatus.server_ip}')">
                             <i class="ti ti-copy"></i> نسخ
                         </button>
                     </div>
@@ -1126,7 +1126,7 @@
                             <div>
                                 <span>${ns}</span>
                             </div>
-                            <button class="copy-dns-btn" onclick="copyToClipboard('${ns}')">
+                            <button type="button" class="copy-dns-btn" onclick="copyToClipboard('${ns}')">
                                 <i class="ti ti-copy"></i> نسخ
                             </button>
                         </div>
@@ -1154,7 +1154,7 @@
                         dnsHtml += `
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <code>${ns}</code>
-                            <button class="copy-dns-btn" onclick="copyToClipboard('${ns}')">
+                            <button type="button" class="copy-dns-btn" onclick="copyToClipboard('${ns}')">
                                 <i class="ti ti-copy"></i> نسخ
                             </button>
                         </div>

@@ -466,14 +466,14 @@ function showImportResults(results) {
                 <i class="ti ti-x-circle text-danger" style="font-size: 2rem;"></i>
                 <h6 class="text-danger mb-2">فشل في بعض السجلات</h6>
                 <p class="mb-3">فشل استيراد <span class="fw-bold">${results.failed.toLocaleString()}</span> سجل.</p>
-                <button class="btn btn-outline-danger" onclick="downloadErrorReport('${results.error_report_path}')">
+                <button type="button" class="btn btn-outline-danger" onclick="downloadErrorReport('${results.error_report_path}')">
                     <i class="ti ti-file-download me-1"></i> تحميل تقرير الأخطاء
                 </button>
             </div>`;
     }
     resultsHtml += `
         <div class="d-flex gap-3 justify-content-center">
-            <button class="btn btn-outline-secondary" onclick="resetImport()">استيراد جديد</button>
+            <button type="button" class="btn btn-outline-secondary" onclick="resetImport()">استيراد جديد</button>
             <a href="${window.routes.collectionsIndex}" class="btn btn-primary">عرض التحصيلات</a>
         </div>`;
     $('#results-summary').html(resultsHtml).show();

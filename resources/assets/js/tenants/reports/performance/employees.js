@@ -526,8 +526,8 @@ function showExportModal(fields, count, filters, isLarge) {
             <small><strong>السجلات:</strong> ${fmt(count)} | <span id="sel-count">0</span> حقل محدد</small>
         </div>
         <div class="text-center mb-3">
-            <button class="btn btn-outline-primary btn-sm px-2 mx-1"  id="selAll">الكل</button>
-            <button class="btn btn-outline-secondary btn-sm px-2 mx-1" id="selNone">إلغاء</button>
+            <button type="button" class="btn btn-outline-primary btn-sm px-2 mx-1"  id="selAll">الكل</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm px-2 mx-1" id="selNone">إلغاء</button>
         </div>
         <div class="row g-2">${grid}</div>
     `);

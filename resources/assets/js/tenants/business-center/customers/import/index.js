@@ -847,7 +847,7 @@ function showImportResults(data) {
                         <i class="ti ti-alert-triangle me-2"></i>
                         يوجد ${data.failed_rows.toLocaleString()} صف لم يتم معالجته
                     </h6>
-                    <button class="btn btn-outline-warning btn-sm" onclick="showQueuedErrorDetails()">
+                    <button type="button" class="btn btn-outline-warning btn-sm" onclick="showQueuedErrorDetails()">
                         <i class="ti ti-eye me-1"></i>عرض تفاصيل الأخطاء
                     </button>
                     <a href="${window.routes.downloadErrorReport}?session_id=${currentSessionId}"
@@ -861,7 +861,7 @@ function showImportResults(data) {
 
     resultsHtml += `
         <div class="d-flex gap-3 justify-content-center mt-4 flex-wrap">
-            <button class="btn btn-outline-secondary btn-sm" onclick="resetImport()">
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetImport()">
                 <i class="ti ti-refresh me-1"></i>استيراد جديد
             </button>
 
@@ -974,7 +974,7 @@ function showImportError(data) {
                 <p class="mb-0">${errorMessage}</p>
             </div>
 
-            <button class="btn btn-outline-secondary btn-sm" onclick="resetImport()">
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetImport()">
                 <i class="ti ti-refresh me-1"></i>محاولة جديدة
             </button>
         </div>
@@ -995,7 +995,7 @@ function showImportCancelled() {
             <h5 class="text-warning mb-2">تم إلغاء العملية</h5>
             <p class="mb-3 fw-medium">تم إلغاء عملية الاستيراد بناءً على طلبك</p>
             <div class="d-flex gap-3 justify-content-center">
-                <button class="btn btn-outline-secondary btn-sm" onclick="resetImport()">
+                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetImport()">
                     <i class="ti ti-refresh me-1"></i>بدء عملية جديدة
                 </button>
             </div>

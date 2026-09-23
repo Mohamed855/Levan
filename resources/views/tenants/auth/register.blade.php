@@ -89,7 +89,7 @@
                                 <a href="{{ tenant_route_name('login') }}">
                                     <p class="mb-0">هل لديك حساب بالفعل؟</p>
                                 </a>
-                                <button class="btn btn-primary">إنشاء حساب</button>
+                                <button type="submit" class="btn btn-primary">إنشاء حساب</button>
                             </div>
                         </form>
                     </div>

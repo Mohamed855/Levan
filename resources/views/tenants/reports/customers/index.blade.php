@@ -286,8 +286,8 @@
                     <!-- الحقول ستظهر هنا ديناميكيًا -->
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button id="confirmExport" class="btn btn-primary">تصدير</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" id="confirmExport" class="btn btn-primary">تصدير</button>
                 </div>
             </div>
         </div>

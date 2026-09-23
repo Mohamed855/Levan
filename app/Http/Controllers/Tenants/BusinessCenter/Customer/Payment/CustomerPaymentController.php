@@ -90,10 +90,10 @@ class CustomerPaymentController extends Controller
                 $actions = '<div class="d-flex justify-content-center">';
                 
                 if ($row->status === 'pending') {
-                    $actions .= '<button title="تعديل التحصيل" onclick="editCustomerPayment(' . $row->id . ')" class="btn btn-sm btn-icon btn-text-secondary me-1">
+                    $actions .= '<button type="button" title="تعديل التحصيل" onclick="editCustomerPayment(' . $row->id . ')" class="btn btn-sm btn-icon btn-text-secondary me-1">
                             <i class="ti ti-edit"></i>
                         </button>
-                        <button title="حذف التحصيل" onclick="deleteCustomerPayment(' . $row->id . ')" class="btn btn-sm btn-icon btn-text-secondary me-1">
+                        <button type="button" title="حذف التحصيل" onclick="deleteCustomerPayment(' . $row->id . ')" class="btn btn-sm btn-icon btn-text-secondary me-1">
                             <i class="ti ti-trash"></i>
                         </button>';
                 }

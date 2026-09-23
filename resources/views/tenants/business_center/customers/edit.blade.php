@@ -197,11 +197,11 @@
 
                                 {{-- أزرار التنقل --}}
                                 <div class="col-12 d-flex justify-content-between">
-                                    <button class="btn btn-label-secondary btn-prev" disabled>
+                                    <button type="button" class="btn btn-label-secondary btn-prev" disabled>
                                         <i class="ti ti-arrow-left ti-xs me-sm-2 me-0"></i>
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
                                     </button>
-                                    <button class="btn btn-primary btn-next">
+                                    <button type="button" class="btn btn-primary btn-next">
                                         <span class="align-middle d-sm-inline-block d-none me-sm-2">التالي</span>
                                         <i class="ti ti-arrow-right ti-xs"></i>
                                     </button>
@@ -267,11 +267,11 @@
                                 </div>
 
                                 <div class="col-12 d-flex justify-content-between">
-                                    <button class="btn btn-label-secondary btn-prev">
+                                    <button type="button" class="btn btn-label-secondary btn-prev">
                                         <i class="ti ti-arrow-left ti-xs me-sm-2 me-0"></i>
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
                                     </button>
-                                    <button class="btn btn-primary btn-next">
+                                    <button type="button" class="btn btn-primary btn-next">
                                         <span class="align-middle d-sm-inline-block d-none me-sm-2">التالي</span>
                                         <i class="ti ti-arrow-right ti-xs"></i>
                                     </button>
@@ -376,17 +376,17 @@
                                 </div>
 
                                 <div class="col-12 d-flex justify-content-between">
-                                    <button class="btn btn-label-secondary btn-prev">
+                                    <button type="button" class="btn btn-label-secondary btn-prev">
                                         <i class="ti ti-arrow-left ti-xs me-sm-2 me-0"></i>
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
                                     </button>
 
                                     @if (auth()->user()->can('تحديث مباشر للبيانات'))
-                                        <button class="btn btn-primary btn-next btn-submit">
+                                        <button type="submit" class="btn btn-primary btn-next btn-submit">
                                             <span class="align-middle d-sm-inline-block d-none me-sm-2">تحديث</span>
                                         </button>
                                     @else
-                                        <button class="btn btn-primary btn-sm btn-next btn-submit">
+                                        <button type="submit" class="btn btn-primary btn-sm btn-next btn-submit">
                                             <span class="align-middle d-sm-inline-block d-none me-sm-2">إرسال الطلب
                                             </span>
                                         </button>

@@ -202,11 +202,11 @@
                             <div class="ps-5">
                                 <p class="text-muted mb-3">اضغط على زر "Save" أو "Add Record" لحفظ السجل الجديد</p>
                                 <div class="d-flex gap-2">
-                                    <button class="btn btn-success" disabled>
+                                    <button type="button" class="btn btn-success" disabled>
                                         <i class="ti ti-device-floppy me-1"></i>
                                         Save Changes
                                     </button>
-                                    <button class="btn btn-primary" disabled>
+                                    <button type="button" class="btn btn-primary" disabled>
                                         <i class="ti ti-plus me-1"></i>
                                         Add Record
                                     </button>

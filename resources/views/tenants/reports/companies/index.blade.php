@@ -439,8 +439,8 @@
                     </div>
                     <div class="modal-body" id="fieldsContainer"></div>
                     <div class="modal-footer">
-                        <button class="btn btn-secondary" data-bs-dismiss="modal"><i class="ti ti-x me-1"></i>إلغاء</button>
-                        <button id="confirmExport" class="btn btn-primary"><i class="ti ti-download me-1"></i>تصدير</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="ti ti-x me-1"></i>إلغاء</button>
+                        <button type="button" id="confirmExport" class="btn btn-primary"><i class="ti ti-download me-1"></i>تصدير</button>
                     </div>
                 </div>
             </div>

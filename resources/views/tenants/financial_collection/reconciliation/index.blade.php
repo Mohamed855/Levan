@@ -187,7 +187,7 @@
                         </div>
 
                         <div class="col-12 d-flex justify-content-end mt-4">
-                            <button class="btn btn-primary btn-next" disabled>
+                            <button type="button" class="btn btn-primary btn-next" disabled>
                                 <span class="align-middle d-sm-inline-block d-none me-sm-2">التالي</span>
                                 <i class="ti ti-arrow-right ti-xs"></i>
                             </button>
@@ -208,11 +208,11 @@
 
                         {{-- Navigation --}}
                         <div class="d-flex justify-content-between mt-4">
-                            <button class="btn btn-outline-secondary btn-prev btn-sm">
+                            <button type="button" class="btn btn-outline-secondary btn-prev btn-sm">
                                 <i class="ti ti-arrow-left me-2"></i>
                                 السابق
                             </button>
-                            <button class="btn btn-primary btn-next" disabled>
+                            <button type="button" class="btn btn-primary btn-next" disabled>
                                 <span class="align-middle d-sm-inline-block d-none me-sm-2">التالي</span>
                                 <i class="ti ti-arrow-right ti-xs"></i>
                             </button>
@@ -322,11 +322,11 @@
 
                         {{-- Navigation --}}
                         <div class="d-flex justify-content-between mt-6">
-                            <button class="btn btn-outline-secondary btn-prev btn-sm">
+                            <button type="button" class="btn btn-outline-secondary btn-prev btn-sm">
                                 <i class="ti ti-arrow-left me-2"></i>
                                 السابق
                             </button>
-                            <button id="new-operation-btn" class="btn btn-primary btn-sm" style="display: none;">
+                            <button type="button" id="new-operation-btn" class="btn btn-primary btn-sm" style="display: none;">
                                 <i class="ti ti-refresh me-2"></i>
                                 إنهاء والبدء بعملية جديدة
                             </button>

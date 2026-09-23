@@ -145,7 +145,7 @@
                         <small class="text-muted">عرض جميع الردود على التذاكر المرسلة</small>
                     </div>
                     <div class="col-md-6 text-end">
-                        <button class="btn btn-primary">
+                        <button type="button" class="btn btn-primary">
                             <i class="ti ti-refresh me-1"></i>تحديث البيانات
                         </button>
                     </div>

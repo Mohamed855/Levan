@@ -50,7 +50,7 @@
                                             <div class="accordion" id="accordion-{{ $loop->index }}">
                                                 <div class="accordion-item">
                                                     <h2 class="accordion-header" id="heading-{{ $loop->index }}">
-                                                        <button class="accordion-button collapsed" type="button"
+                                                        <button type="button" class="accordion-button collapsed"
                                                             data-bs-toggle="collapse"
                                                             data-bs-target="#collapse-{{ $loop->index }}"
                                                             aria-expanded="false"

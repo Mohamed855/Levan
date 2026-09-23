@@ -624,7 +624,7 @@ const CustomerAnalysis = {
                 <h5 class="text-danger mb-2">فشل في تحليل الملف</h5>
                 <p class="mb-3 fw-medium">${data.error_message || 'حدث خطأ أثناء تحليل الملف'}</p>
                 <div class="d-flex gap-3 justify-content-center">
-                    <button class="btn btn-outline-secondary btn-sm" onclick="CustomerAnalysis.resetAnalysis()">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="CustomerAnalysis.resetAnalysis()">
                         <i class="ti ti-refresh me-1"></i>إعادة المحاولة
                     </button>
                 </div>
@@ -647,7 +647,7 @@ const CustomerAnalysis = {
                 <h5 class="text-warning mb-2">تم إلغاء التحليل</h5>
                 <p class="mb-3 fw-medium">تم إلغاء عملية تحليل الملف بناءً على طلبك</p>
                 <div class="d-flex gap-3 justify-content-center">
-                    <button class="btn btn-outline-secondary btn-sm" onclick="CustomerAnalysis.resetAnalysis()">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="CustomerAnalysis.resetAnalysis()">
                         <i class="ti ti-refresh me-1"></i>بدء تحليل جديد
                     </button>
                 </div>

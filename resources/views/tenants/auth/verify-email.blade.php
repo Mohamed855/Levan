@@ -55,7 +55,7 @@
                         <div class="mt-4 d-flex justify-content-between align-items-center">
                             <form method="POST" action="{{ tenant_route_name('verification.send') }}">
                                 @csrf
-                                <button class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary">
                                     إعادة إرسال بريد التحقق
                                 </button>
                             </form>

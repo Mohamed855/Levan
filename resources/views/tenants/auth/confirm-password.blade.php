@@ -59,7 +59,7 @@
                             </div>
 
                             <div class="d-flex justify-content-end mt-4">
-                                <button class="btn btn-primary">تأكيد</button>
+                                <button type="submit" class="btn btn-primary">تأكيد</button>
                             </div>
                         </form>
                     </div>

@@ -856,17 +856,17 @@
 
         {{-- Actions --}}
         {{-- <div class="actions-bar">
-            <button class="btn-action btn-edit" onclick="window.location.href='{{ route('admin.coupons.edit', $couponDetails->id) }}'">
+            <button type="button" class="btn-action btn-edit" onclick="window.location.href='{{ route('admin.coupons.edit', $couponDetails->id) }}'">
                 <i class="ti ti-edit"></i>
                 <span>تعديل الكوبون</span>
             </button>
             
-            <button class="btn-action btn-toggle" onclick="toggleStatus({{ $couponDetails->id }}, {{ $couponDetails->is_active ? 'false' : 'true' }})">
+            <button type="button" class="btn-action btn-toggle" onclick="toggleStatus({{ $couponDetails->id }}, {{ $couponDetails->is_active ? 'false' : 'true' }})">
                 <i class="ti ti-toggle-{{ $couponDetails->is_active ? 'right' : 'left' }}"></i>
                 <span>{{ $couponDetails->is_active ? 'تعطيل' : 'تفعيل' }}</span>
             </button>
             
-            <button class="btn-action btn-delete" onclick="deleteCoupon({{ $couponDetails->id }})">
+            <button type="button" class="btn-action btn-delete" onclick="deleteCoupon({{ $couponDetails->id }})">
                 <i class="ti ti-trash"></i>
                 <span>حذف</span>
             </button>

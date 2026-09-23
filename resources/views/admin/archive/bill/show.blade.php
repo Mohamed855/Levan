@@ -252,7 +252,7 @@
 
                     {{-- زر الطباعة العائم --}}
                     <div class="print-btn">
-                        <button onclick="window.print()" class="btn btn-primary btn-sm">
+                        <button type="button" onclick="window.print()" class="btn btn-primary btn-sm">
                             <i class="ti ti-printer me-2"></i>
                             طباعة الفاتورة
                         </button>

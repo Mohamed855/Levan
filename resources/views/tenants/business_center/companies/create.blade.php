@@ -121,10 +121,10 @@
 
                             {{-- أزرار التحكم --}}
                             <div class="col-12 d-flex justify-content-between mt-4">
-                                <button class="btn btn-label-secondary btn-prev" disabled>
+                                <button type="button" class="btn btn-label-secondary btn-prev" disabled>
                                     السابق
                                 </button>
-                                <button class="btn btn-primary btn-next btn-submit">
+                                <button type="submit" class="btn btn-primary btn-next btn-submit">
                                     حفظ
                                 </button>
                             </div>

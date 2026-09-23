@@ -45,7 +45,7 @@
 
 @section('content')
     <!--  قسم المساعدة والمعرفات -->
-    <button class="help-btn" data-bs-toggle="modal" data-bs-target="#importHelpModal" title="معلومات الاستيراد">
+    <button type="button" class="help-btn" data-bs-toggle="modal" data-bs-target="#importHelpModal" title="معلومات الاستيراد">
         <i class="ti ti-help"></i>
     </button>
 
@@ -293,16 +293,16 @@
 
                     <!--  Tabs Navigation -->
                     <div class="tab-nav">
-                        <button class="tab-btn active js-switch-tab-btn" data-tab="tab-customer-type">
+                        <button type="button" class="tab-btn active js-switch-tab-btn" data-tab="tab-customer-type">
                             نوع العميل
                         </button>
-                        <button class="tab-btn js-switch-tab-btn" data-tab="tab-nationalities">
+                        <button type="button" class="tab-btn js-switch-tab-btn" data-tab="tab-nationalities">
                             الجنسيات
                         </button>
-                        <button class="tab-btn js-switch-tab-btn" data-tab="tab-statuses">
+                        <button type="button" class="tab-btn js-switch-tab-btn" data-tab="tab-statuses">
                             حالات العملاء
                         </button>
-                        <button class="tab-btn js-switch-tab-btn" data-tab="tab-managers">
+                        <button type="button" class="tab-btn js-switch-tab-btn" data-tab="tab-managers">
                             مسؤولو العلاقة
                         </button>
                     </div>

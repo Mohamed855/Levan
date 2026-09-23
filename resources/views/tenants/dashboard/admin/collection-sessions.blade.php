@@ -42,7 +42,7 @@
                             <option value="active">المتواجدون</option>
                             <option value="inactive">غير متواجدين</option>
                         </select>
-                        <button id="exportSessionsExcel" class="btn btn-primary btn-sm">
+                        <button type="button" id="exportSessionsExcel" class="btn btn-primary btn-sm">
                             <i class="ti ti-download me-1"></i>
                             تصدير Excel</button>
                     </div>

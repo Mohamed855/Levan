@@ -505,7 +505,7 @@
 
         {{-- ── Action buttons ── --}}
         <div class="action-row no-print">
-            <button onclick="window.print()" class="btn-brand">طباعة الفاتورة</button>
+            <button type="button" onclick="window.print()" class="btn-brand">طباعة الفاتورة</button>
             <a href="{{ route('admin.bills.show', $bill->id) }}" class="btn-outline">رجوع</a>
         </div>
 
