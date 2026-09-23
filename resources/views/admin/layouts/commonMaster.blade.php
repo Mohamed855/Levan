@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 @php
-    $menuFixed =
-        $configData['layout'] === 'vertical'
-            ? $menuFixed ?? ''
-            : ($configData['layout'] === 'front'
-                ? ''
-                : $configData['headerType']);
-    $navbarType =
-        $configData['layout'] === 'vertical'
-            ? $configData['navbarType'] ?? ''
-            : ($configData['layout'] === 'front'
-                ? 'layout-navbar-fixed'
-                : '');
-    $isFront = ($isFront ?? '') == true ? 'Front' : '';
-    $contentLayout = isset($container) ? ($container === 'container-xxl' ? 'layout-compact' : 'layout-wide') : '';
+$menuFixed =
+$configData['layout'] === 'vertical'
+? $menuFixed ?? ''
+: ($configData['layout'] === 'front'
+? ''
+: $configData['headerType']);
+$navbarType =
+$configData['layout'] === 'vertical'
+? $configData['navbarType'] ?? ''
+: ($configData['layout'] === 'front'
+? 'layout-navbar-fixed'
+: '');
+$isFront = ($isFront ?? '') == true ? 'Front' : '';
+$contentLayout = isset($container) ? ($container === 'container-xxl' ? 'layout-compact' : 'layout-wide') : '';
 @endphp
 
 <html lang="{{ session()->get('locale') ?? app()->getLocale() }}"
@@ -33,7 +33,7 @@
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/branding/logo.svg') }}" />
+    <link rel="icon" type="image/x-icon" href="{{ asset('img/logo-light.svg') }}" />
 
     @include('admin.layouts.sections.styles' . $isFront)
 
@@ -41,17 +41,21 @@
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"
-        integrity="sha384-oMy41mb/qJnpJlpXOF57hSu2KGi47l/UV9+tPNrBOs7/ap5Vubj/3phrCtjutHMQ" crossorigin="anonymous"> --}}
+    {{--
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"
+        integrity="sha384-oMy41mb/qJnpJlpXOF57hSu2KGi47l/UV9+tPNrBOs7/ap5Vubj/3phrCtjutHMQ" crossorigin="anonymous">
+    --}}
 
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"
         integrity="sha384-r+ljwOAhwY4/kdyzMnuBg7MEVoWpTMp5EYUDntB/E9qzNwL9dAEcNrb2XaV+mJc2" crossorigin="anonymous">
     </script> --}}
 
-    {{-- <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap" rel="stylesheet"> --}}
+    {{--
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap" rel="stylesheet"> --}}
 
     <!-- Boxicons CSS -->
-    {{-- <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css'
+    {{--
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css'
         integrity='sha384-42kyIPf7HDYLkGffmxDhSx/3Z/53wGBs3nD6wEFxsbeDc7rMO6mkYbkAcpRsnMU2' crossorigin='anonymous'
         rel='stylesheet'> --}}
 
@@ -76,7 +80,7 @@
     <style>
         :root {
             --primary-color: #372632;
-        }   
+        }
 
         body {
             font-family: "Almarai", sans-serif;

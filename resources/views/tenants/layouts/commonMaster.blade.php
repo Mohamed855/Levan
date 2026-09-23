@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 @php
-    $menuFixed =
-        $configData['layout'] === 'vertical'
-            ? $menuFixed ?? ''
-            : ($configData['layout'] === 'front'
-                ? ''
-                : $configData['headerType']);
-    $navbarType =
-        $configData['layout'] === 'vertical'
-            ? $configData['navbarType'] ?? ''
-            : ($configData['layout'] === 'front'
-                ? 'layout-navbar-fixed'
-                : '');
-    $isFront = ($isFront ?? '') == true ? 'Front' : '';
-    $contentLayout = isset($container) ? ($container === 'container-xxl' ? 'layout-compact' : 'layout-wide') : '';
+$menuFixed =
+$configData['layout'] === 'vertical'
+? $menuFixed ?? ''
+: ($configData['layout'] === 'front'
+? ''
+: $configData['headerType']);
+$navbarType =
+$configData['layout'] === 'vertical'
+? $configData['navbarType'] ?? ''
+: ($configData['layout'] === 'front'
+? 'layout-navbar-fixed'
+: '');
+$isFront = ($isFront ?? '') == true ? 'Front' : '';
+$contentLayout = isset($container) ? ($container === 'container-xxl' ? 'layout-compact' : 'layout-wide') : '';
 @endphp
 
 <html lang="{{ session()->get('locale') ?? app()->getLocale() }}"
@@ -40,10 +40,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     @auth
-        <meta name="user-id" content="{{ auth()->id() }}">
+    <meta name="user-id" content="{{ auth()->id() }}">
     @endauth
 
-    <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/branding/logo.svg') }}" />
+    <link rel="icon" type="image/x-icon" href="{{ asset('img/logo-light.svg') }}" />
 
     <!-- Include Styles -->
     <!-- $isFront is used to append the front layout styles only on the front layout otherwise the variable will be blank -->
@@ -55,9 +55,14 @@
     {{-- for Tostr --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" integrity="sha384-oMy41mb/qJnpJlpXOF57hSu2KGi47l/UV9+tPNrBOs7/ap5Vubj/3phrCtjutHMQ" crossorigin="anonymous"> --}}
+    {{--
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"
+        integrity="sha384-oMy41mb/qJnpJlpXOF57hSu2KGi47l/UV9+tPNrBOs7/ap5Vubj/3phrCtjutHMQ" crossorigin="anonymous">
+    --}}
 
-    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js" integrity="sha384-r+ljwOAhwY4/kdyzMnuBg7MEVoWpTMp5EYUDntB/E9qzNwL9dAEcNrb2XaV+mJc2" crossorigin="anonymous"></script> --}}
+    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"
+        integrity="sha384-r+ljwOAhwY4/kdyzMnuBg7MEVoWpTMp5EYUDntB/E9qzNwL9dAEcNrb2XaV+mJc2" crossorigin="anonymous">
+    </script> --}}
 
     {{-- font page --}}
     {{--

@@ -12,20 +12,6 @@ class TrialController extends Controller
 {
     public function __construct(private EtmamTicketServiceWithOutTenant $ticketService)
     {
-        $this->middleware(function ($request, $next) {
-            if (!$this->ticketService->isConfigured()) {
-                if ($request->expectsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'خدمة التجربة المجانية غير مفعلة'
-                    ], 503);
-                }
-
-                return redirect()->route('site.index')->with('error', 'خدمة التجربية المجانية غير مفعلة. يرجى التواصل مع الإدارة.');
-            }
-
-            return $next($request);
-        });
     }
 
     public function index()

@@ -2,15 +2,14 @@
 <header class="ic-navbar fixed right-0 top-4 z-40 flex w-full items-center bg-transparent" role="banner"
     aria-label="Navigation bar">
     <div class="container">
-        <div class="ic-navbar-floating mx-auto flex items-center justify-between px-5 py-3 rounded-2xl shadow-lg"
+        <div class="ic-navbar-floating mx-auto flex items-center justify-between px-5 py-4 rounded-full shadow-lg"
             style="background-color: #e3d8d1;">
             <!-- Logo (right) -->
-            <a href="{{ route('site.index') }}" class="ic-navbar-logo block text-primary-color"
-                aria-label="ليفـــان">
-                <img src="{{ asset('img/Levan-logo.svg') }}"
-                    data-default-logo="{{ asset('img/Levan-logo.svg') }}"
-                    data-sticky-logo="{{ asset('img/Levan-logo.svg') }}" class="h-10"
-                    alt="ليفـــان">
+            <a href="{{ route('site.index') }}" class="ic-navbar-logo block text-primary-color" aria-label="ليفـــان">
+                <img src="{{ asset('img/Levan-logo.svg') }}" data-default-logo="{{ asset('img/Levan-logo.svg') }}"
+                    data-sticky-logo="{{ asset('img/Levan-logo.svg') }}"
+                    data-light-logo="{{ asset('img/Levan-logo.svg') }}"
+                    data-dark-logo="{{ asset('img/Levan-logo-light.svg') }}" class="h-10" alt="ليفـــان">
             </a>
 
             <!-- Left side: Theme toggle + Contact button -->
@@ -20,19 +19,17 @@
                     aria-label="Switch theme" data-web-trigger="web-theme"></button>
 
                 <!-- Contact button -->
-                <a href="javascript:void(0)"
-                    id="navbar-contact-btn"
-                    class="btn-navbar-float px-5 py-2 rounded-xl text-sm font-semibold text-white transition-all duration-200"
-                    style="background-color: var(--color-primary);"
-                    role="button">تواصل معنا</a>
+                <a href="#contact" id="navbar-contact-btn"
+                    class="btn-navbar-float px-5 py-2 rounded-full text-sm font-semibold text-white transition-all duration-200 hover:text-[#e3d8d1]"
+                    style="background-color: var(--color-primary);" role="button">تواصل معنا</a>
             </div>
         </div>
     </div>
 </header>
 
 {{-- ============================================================
-     navbarMenu — Old full navigation (commented for future use)
-     ============================================================
+navbarMenu — Old full navigation (commented for future use)
+============================================================
 <nav id="navbarMenu" class="ic-navbar-collapse ...">
     <ul>
         <li><a href="#home" class="ic-page-scroll ...">الرئيسية</a></li>

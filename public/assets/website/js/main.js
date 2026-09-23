@@ -18,41 +18,38 @@ const navbar = document.querySelector(".ic-navbar"),
     navbarToggler = navbar.querySelector("[data-web-toggle=navbar-collapse]"),
     navbarLogo = navbar.querySelector("[data-default-logo][data-sticky-logo]");
 
-navbarToggler.addEventListener("click", function () {
-    const dataTarget = this.dataset.webTarget,
-        targetElement = document.getElementById(dataTarget),
-        isExpanded = this.ariaExpanded === "true";
-
-    if (!targetElement) {
+function syncThemeLogo(theme) {
+    if (!navbarLogo) {
         return;
     }
 
-    navbar.classList.toggle("menu-show");
-    this.ariaExpanded = !isExpanded;
-    navbarToggler.innerHTML = navbar.classList.contains("menu-show")
-        ? '<i class="ti ti-close"></i>'
-        : '<i class="ti ti-menu"></i>';
-});
+    const logoSrc =
+        theme === "dark"
+            ? navbarLogo.dataset.darkLogo
+            : navbarLogo.dataset.lightLogo;
 
-function syncStickyNavbar() {
-    const isSticky = window.scrollY >= 72;
-
-    navbar.classList.toggle("sticky", isSticky);
-
-    if (navbarLogo) {
-        const logoSrc = isSticky
-            ? navbarLogo.dataset.stickyLogo
-            : navbarLogo.dataset.defaultLogo;
-
-        if (navbarLogo.getAttribute("src") !== logoSrc) {
-            navbarLogo.setAttribute("src", logoSrc);
-        }
+    if (logoSrc && navbarLogo.getAttribute("src") !== logoSrc) {
+        navbarLogo.setAttribute("src", logoSrc);
     }
 }
 
-// Sticky navbar
-window.addEventListener("scroll", syncStickyNavbar);
-syncStickyNavbar();
+if (navbarToggler) {
+    navbarToggler.addEventListener("click", function () {
+        const dataTarget = this.dataset.webTarget,
+            targetElement = document.getElementById(dataTarget),
+            isExpanded = this.ariaExpanded === "true";
+
+        if (!targetElement) {
+            return;
+        }
+
+        navbar.classList.toggle("menu-show");
+        this.ariaExpanded = !isExpanded;
+        navbarToggler.innerHTML = navbar.classList.contains("menu-show")
+            ? '<i class="ti ti-close"></i>'
+            : '<i class="ti ti-menu"></i>';
+    });
+}
 
 // Web theme
 const webTheme = document.querySelector("[data-web-trigger=web-theme]"),
@@ -72,6 +69,7 @@ window.addEventListener("load", function () {
     }
 
     html.dataset.webTheme = theme;
+    syncThemeLogo(theme);
 });
 
 webTheme.addEventListener("click", function () {
@@ -84,6 +82,7 @@ webTheme.addEventListener("click", function () {
     theme = theme == "dark" ? "light" : "dark";
     localStorage.setItem("Inazuma_WebTheme", theme);
     html.dataset.webTheme = theme;
+    syncThemeLogo(theme);
 });
 
 // Scrollspy
@@ -106,7 +105,9 @@ function scrollspy(event) {
                 targetElement.offsetTop <= topminus &&
                 targetElement.offsetTop + targetElement.offsetHeight > topminus
             ) {
-                document.querySelector(".ic-page-scroll").classList.remove("active");
+                document
+                    .querySelector(".ic-page-scroll")
+                    .classList.remove("active");
                 currentLink.classList.add("active");
             } else {
                 currentLink.classList.remove("active");
@@ -222,16 +223,18 @@ portfolioFilters.forEach((filter) => {
 
         let selected = filter.getAttribute("data-filter"),
             itemsToHide = document.querySelectorAll(
-                '.portfolio-grid .portfolio :not([data-filter="' + selected + '"])'
+                '.portfolio-grid .portfolio :not([data-filter="' +
+                    selected +
+                    '"])',
             ),
             itemsToShow = document.querySelectorAll(
-                '.portfolio-grid .portfolio [data-filter="' + selected + '"]'
+                '.portfolio-grid .portfolio [data-filter="' + selected + '"]',
             );
 
         if (selected == "all") {
             itemsToHide = [];
             itemsToShow = document.querySelectorAll(
-                ".portfolio-grid .portfolio [data-filter]"
+                ".portfolio-grid .portfolio [data-filter]",
             );
         }
 
