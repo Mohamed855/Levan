@@ -1,0 +1,8 @@
+@import 'bootstrap';
+@import 'bootstrap-extended';
+@import 'components';
+@import 'colors';
+
+.divider.divider-vertical:before, .divider.divider-vertical:after {
+    left: 50%;
+}

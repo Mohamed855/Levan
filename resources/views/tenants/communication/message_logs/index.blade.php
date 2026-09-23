@@ -1,0 +1,194 @@
+@extends('tenants.layouts.layoutMaster')
+
+@section('title', 'سجل الرسائل')
+
+@section('vendor-style')
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/shepherd/shepherd.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss', 'resources/assets/vendor/libs/animate-css/animate.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
+@endsection
+
+@section('vendor-script')
+    @vite(['resources/assets/vendor/libs/moment/moment.js', 'resources/assets/vendor/libs/shepherd/shepherd.js', 'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js', 'resources/assets/vendor/libs/cleavejs/cleave.js', 'resources/assets/vendor/libs/cleavejs/cleave-phone.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
+@endsection
+
+@section('toastr')
+    @vite(['resources/css/toastr.css', 'resources/js/toastr.js'])
+@endsection
+
+@section('page-style')
+    @vite(['resources/css/dataTable.css'])
+@endsection
+
+@section('page-script')
+    <script>
+        window.routes = {
+            messageLogsIndex: "{{ tenant_route_name('communication.message-logs.index') }}",
+            messageLogsShow: "{{ tenant_route_name('communication.message-logs.show', ':id') }}",
+            messageLogsDestroy: "{{ tenant_route_name('communication.message-logs.destroy', ':id') }}",
+            massDelete: "{{ tenant_route_name('mass-delete') }}"
+        };
+        window.assets = {
+            arabicDataTable: "{{ asset('assets/json/ar.json') }}"
+        };
+        window.csrfToken = "{{ csrf_token() }}";
+    </script>
+    @vite(['resources/assets/js/tenants/communication/message-logs/message-logs.js'])
+@endsection
+
+@section('content')
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <div id="top_card" class="row g-4 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between">
+                        <div class="content-left">
+                            <span class="text-heading">إجمالي الرسائل</span>
+                            <div class="d-flex align-items-center my-1">
+                                <h4 class="mb-0 me-2">{{ number_format($statistics['total']) }}</h4>
+                            </div>
+                            <small class="mb-0">منذ البداية</small>
+                        </div>
+                        <div class="avatar">
+                            <span class="avatar-initial rounded bg-label-primary">
+                                <i class="ti ti-messages ti-26px"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between">
+                        <div class="content-left">
+                            <span class="text-heading">تم الإرسال</span>
+                            <div class="d-flex align-items-center my-1">
+                                <h4 class="mb-0 me-2">{{ number_format($statistics['sent']) }}</h4>
+                            </div>
+                            <small class="mb-0">معدل النجاح: {{ $statistics['success_rate'] }}%</small>
+                        </div>
+                        <div class="avatar">
+                            <span class="avatar-initial rounded bg-label-success">
+                                <i class="ti ti-check ti-26px"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between">
+                        <div class="content-left">
+                            <span class="text-heading">فشل الإرسال</span>
+                            <div class="d-flex align-items-center my-1">
+                                <h4 class="mb-0 me-2">{{ number_format($statistics['failed']) }}</h4>
+                            </div>
+                            <small class="mb-0">يحتاج مراجعة</small>
+                        </div>
+                        <div class="avatar">
+                            <span class="avatar-initial rounded bg-label-danger">
+                                <i class="ti ti-x ti-26px"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between">
+                        <div class="content-left">
+                            <span class="text-heading">في الانتظار</span>
+                            <div class="d-flex align-items-center my-1">
+                                <h4 class="mb-0 me-2">{{ number_format($statistics['pending']) }}</h4>
+                            </div>
+                            <small class="mb-0">لم يتم الإرسال بعد</small>
+                        </div>
+                        <div class="avatar">
+                            <span class="avatar-initial rounded bg-label-warning">
+                                <i class="ti ti-clock ti-26px"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- جدول سجل الرسائل --}}
+    <div class="card" id="card-message-logs">
+        <div class="card-body">
+            {{-- فلاتر البحث --}}
+            <div class="filters row">
+                <div class="col-md-4">
+                    <label for="filter-status">الحالة</label>
+                    <select id="filter-status" class="form-control select2" data-placeholder="اختر الحالة">
+                        <option value=""></option>
+                        <option value="pending">في الانتظار</option>
+                        <option value="processing">جاري المعالجة</option>
+                        <option value="sent">تم الإرسال</option>
+                        <option value="failed">فشل الإرسال</option>
+                        <option value="cancelled">ملغي</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label for="filter-message-type">نوع الرسالة</label>
+                    <select id="filter-message-type" class="form-control select2" data-placeholder="اختر النوع">
+                        <option value=""></option>
+                        <option value="sms">رسالة نصية</option>
+                        <option value="email">بريد إلكتروني</option>
+                        <option value="whatsapp">واتساب</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label for="filter-sender">المرسل</label>
+                    <select id="filter-sender" class="form-control select2" data-placeholder="اختر المرسل">
+                        <option value=""></option>
+                        @foreach ($filterData['senders'] as $sender)
+                            <option value="{{ $sender->id }}">{{ $sender->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
+            <hr class="mt-10">
+
+            {{-- جدول البيانات --}}
+            <table id="message-logs-table" class="table table-striped table-bordered text-center">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th class="custom-checkbox">
+                            <input type="checkbox" id="select-all">
+                        </th>
+                        <th>المرسل</th>
+                        <th>محتوى الرسالة</th>
+                        <th>المستلمين</th>
+                        <th>الحالة</th>
+                        <th>النتائج</th>
+                        <th>التوقيت</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{-- سيتم تعبئة البيانات بواسطة DataTables --}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+@endsection

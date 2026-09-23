@@ -1,0 +1,246 @@
+<mjml>
+  <mj-head>
+    <mj-title>{{ $preview_text }}</mj-title>
+    <mj-preview>{{ $preview_text }}</mj-preview>
+
+    <mj-font name="IBM Plex Sans Arabic" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" />
+
+    <mj-attributes>
+      <mj-all font-family="'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" />
+      <mj-text color="#333333" line-height="26px" />
+      <mj-section background-color="#f3f4f6" padding="0" />
+    </mj-attributes>
+
+    <mj-style>
+      * {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      body {
+        font-family: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif !important;
+      }
+
+      .details {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        direction: rtl;
+      }
+
+      .details li {
+        background: linear-gradient(135deg, #fafbfc 0%, #ffffff 100%);
+        margin-bottom: 10px;
+        padding: 18px 20px;
+        border-right: 3px solid #1e293b;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      }
+
+      .label {
+        font-weight: 600;
+        display: block;
+        margin-bottom: 6px;
+        color: #1e293b;
+        font-size: 14px;
+      }
+
+      .value {
+        display: block;
+        color: #334155;
+        font-size: 16px;
+        font-weight: 500;
+      }
+
+      .card {
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      }
+
+      .company-info {
+        background-color: #f8fafc;
+        border-radius: 8px;
+        padding: 16px;
+        margin-top: 12px;
+        direction: rtl;
+      }
+
+      .company-info-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        font-size: 13px;
+        color: #475569;
+      }
+
+      .company-info-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .company-info-icon {
+        margin-left: 8px;
+        color: #64748b;
+        font-size: 14px;
+      }
+
+      h1, h2, h3, h4, h5, h6, strong, b {
+        font-family: 'IBM Plex Sans Arabic', -apple-system, Arial, sans-serif !important;
+      }
+    </mj-style>
+  </mj-head>
+
+  <mj-body background-color="#f3f4f6">
+
+    <!-- Header Section -->
+    <mj-section background-color="#1e293b" padding="32px 24px 28px 24px">
+      <mj-column>
+        <mj-image src="https://levan.com/global/levan.png" alt="شعار" width="110px" padding="0 0 20px 0" />
+
+        <mj-text align="center" font-size="20px" line-height="28px" color="#ffffff" padding="0 0 8px 0">
+          <strong style="font-weight: 700;">{{ $office_name }}</strong>
+        </mj-text>
+
+        <mj-text align="center" font-size="14px" line-height="22px" color="#cbd5e1" padding="0 0 6px 0">
+          <span style="direction: rtl; unicode-bidi: embed;">{{ $office_address }}</span>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Main Content Section -->
+    <mj-section background-color="#f3f4f6" padding="0 0 10px 0">
+      <mj-column background-color="#ffffff" css-class="card" padding="40px 32px">
+
+        <!-- Welcome Message -->
+        <mj-text align="right" padding="0 0 12px 0">
+          <h1 style="margin: 0; color: #1e293b; direction: rtl; text-align: right; font-size: 28px; font-weight: 700;">
+            مرحباً {{ $customer_name }}
+          </h1>
+        </mj-text>
+
+        <mj-text align="right" padding="0 0 32px 0" font-size="16px" line-height="26px">
+          <p style="margin: 0; color: #4b5563; direction: rtl; text-align: right;">
+            نود إعلامك بأنه تم <strong style="color: #1e293b; font-weight: 600;">{{ $operation_type }}</strong> بنجاح على حسابك.
+          </p>
+        </mj-text>
+
+        <!-- Subscription Details -->
+        <mj-text align="right" padding="0 0 24px 0" font-size="16px" line-height="28px">
+          <h2 style="margin: 0 0 20px 0; color: #1e293b; direction: rtl; text-align: right; font-size: 22px; font-weight: 700;">
+            تفاصيل الاشتراك
+          </h2>
+          <ul class="details">
+            <li>
+              <span class="label">نوع العملية</span>
+              <span class="value">{{ $operation_type }}</span>
+            </li>
+            <li>
+              <span class="label">الباقة المشترك بها</span>
+              <span class="value">{{ $plan_name }}</span>
+            </li>
+            <li>
+              <span class="label">دورة الفوترة</span>
+              <span class="value">{{ $billing_cycle }}</span>
+            </li>
+            <li>
+              <span class="label">تاريخ الفوترة القادم</span>
+              <span class="value">{{ $next_billing_date }}</span>
+            </li>
+          </ul>
+        </mj-text>
+
+        <!-- CTA Button -->
+        <mj-button href="{{ $url }}" background-color="#1e293b" color="#ffffff" font-size="16px" font-weight="600" border-radius="8px" padding="10px 25px" inner-padding="16px 40px">
+          الدخول إلى لوحة التحكم
+        </mj-button>
+
+        <!-- Additional Info -->
+        <mj-text align="right" padding="32px 0 0 0" font-size="15px" line-height="24px">
+          <div style="background-color: #f1f5f9; border-right: 3px solid #1e293b; border-radius: 8px; padding: 20px; direction: rtl;">
+            <p style="margin: 0; color: #334155; line-height: 24px;">
+              <strong style="font-weight: 600;">💡 نصيحة:</strong> يمكنك إدارة اشتراكك بالكامل، متابعة الفواتير، وتعديل عدد التراخيص في أي وقت من خلال لوحة التحكم.
+            </p>
+          </div>
+        </mj-text>
+
+        <!-- Divider -->
+        <mj-divider border-color="#e5e7eb" border-width="1px" padding="32px 0" />
+
+        <!-- Closing -->
+        <mj-text align="right" padding="0" font-size="16px" line-height="26px" color="#4b5563">
+          <p style="margin: 0 0 12px 0; direction: rtl;">
+            نشكرك على ثقتك بنا ونتطلع لخدمتك بأفضل شكل ممكن.
+          </p>
+          <p style="margin: 0; direction: rtl; font-weight: 600; color: #1e293b;">
+            مع أطيب التحيات،<br/>فريق {{ $office_name }}
+          </p>
+        </mj-text>
+
+      </mj-column>
+    </mj-section>
+
+    <!-- Company Information Section -->
+    <mj-section background-color="#f3f4f6" padding="0">
+      <mj-column background-color="#ffffff" padding="28px 32px">
+
+        <mj-text align="right" padding="0 0 16px 0" font-size="16px" line-height="26px">
+          <h3 style="margin: 0; color: #1e293b; direction: rtl; text-align: right; font-size: 18px; font-weight: 700;">
+            معلومات الشركة
+          </h3>
+        </mj-text>
+
+        <mj-text align="right" padding="0" font-size="14px" line-height="24px">
+          <div class="company-info">
+            <div class="company-info-item" style="display: block; margin-bottom: 10px;">
+              <span style="color: #1e293b; font-weight: 600;">📍 العنوان:</span>
+              <span style="display: block; margin-top: 4px; color: #475569;">{{ $office_address }}</span>
+            </div>
+            <div class="company-info-item" style="display: block; margin-bottom: 10px;">
+              <span style="color: #1e293b; font-weight: 600;">📋 السجل التجاري:</span>
+              <span style="display: block; margin-top: 4px; color: #475569;">{{ $commercial_register }}</span>
+            </div>
+            <div class="company-info-item" style="display: block; margin-bottom: 10px;">
+              <span style="color: #1e293b; font-weight: 600;">🔢 الرقم الضريبي:</span>
+              <span style="display: block; margin-top: 4px; color: #475569;">{{ $tax_number }}</span>
+            </div>
+            <div class="company-info-item" style="display: block; margin-bottom: 10px;">
+              <span style="color: #1e293b; font-weight: 600;">📞 رقم الهاتف:</span>
+              <span style="display: block; margin-top: 4px;">
+                <a href="tel:{{ $phone_number }}" style="color: #475569; text-decoration: none;">{{ $phone_number }}</a>
+              </span>
+            </div>
+            <div class="company-info-item" style="display: block;">
+              <span style="color: #1e293b; font-weight: 600;">✉️ البريد الإلكتروني:</span>
+              <span style="display: block; margin-top: 4px;">
+                <a href="mailto:{{ $email }}" style="color: #475569; text-decoration: none;">{{ $email }}</a>
+              </span>
+            </div>
+          </div>
+        </mj-text>
+
+      </mj-column>
+    </mj-section>
+
+    <!-- Footer Section -->
+    <mj-section background-color="#f9fafb" padding="24px 24px 32px 24px">
+      <mj-column>
+
+        <mj-divider border-color="#e5e7eb" border-width="1px" padding="0 0 20px 0" />
+
+        <mj-text align="center" font-size="14px" line-height="24px" color="#6b7280" padding="10px 25px">
+          <p style="direction: rtl; unicode-bidi: embed; text-align: center; margin: 0 0 8px 0;">
+            شكراً لاستخدامك نظام <strong style="font-weight: 600;">{{ $office_name }}</strong>
+          </p>
+          <p style="direction: rtl; unicode-bidi: embed; text-align: center; margin: 0; font-size: 13px; color: #9ca3af;">
+            هذا البريد الإلكتروني تم إرساله تلقائياً، يرجى عدم الرد عليه
+          </p>
+        </mj-text>
+
+        <mj-text align="center" font-size="13px" line-height="20px" color="#9ca3af" padding="16px 0 0 0">
+          <p style="margin: 0;">© {{ now()->year }} {{ $office_name }}. جميع الحقوق محفوظة.</p>
+        </mj-text>
+
+      </mj-column>
+    </mj-section>
+
+  </mj-body>
+</mjml>

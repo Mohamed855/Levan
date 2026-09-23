@@ -1,0 +1,146 @@
+/* أنماط الطباعة */
+@media print {
+
+    /* إخفاء العناصر غير المرغوب فيها */
+    header,
+    nav,
+    footer.main-footer,
+    .no-print,
+    #layout-menu {
+        display: none !important;
+    }
+
+    /* تنسيق المحتوى للطباعة */
+    body {
+        font-family: 'Times New Roman', Times, serif;
+        color: #000;
+        background: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* إزالة تأثيرات الـ card */
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: none !important;
+    }
+
+    /* إخفاء رأس البطاقة عند الطباعة */
+    .card-header {
+        display: none !important;
+    }
+
+    /* تنسيق محتوى البطاقة */
+    .card-body {
+        padding: 0 !important;
+        margin: 0 !important;
+        /* إضافة مساحة كافية للتذييل والتوقيع */
+        padding-bottom: 200px;
+    }
+
+    /* تحسين الخطوط */
+    p,
+    div,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-size: 14pt;
+        line-height: 1.5;
+    }
+
+    /* تعديل حجم الصور للترويسة والتذييل */
+    .card-body img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    /* ضبط الهوامش والاتجاه */
+    @page {
+        margin: 10mm;
+        size: A4 portrait; /* الافتراضي العمودي */
+    }
+
+    /* إذا كنت ترغب في دعم الاتجاه الأفقي، يمكنك إنشاء ورقة أنماط منفصلة للطباعة الأفقي */
+
+    /* تحسين مظهر الترويسة والتذييل داخل المحتوى */
+    .editor-header,
+    .editor-footer {
+        width: 100%;
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .editor-header img,
+    .editor-footer img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    /* تثبيت التذييل والتوقيع في أسفل الصفحة */
+    .print-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        text-align: center;
+    }
+
+    .print-footer img {
+        width: 100%;
+        height: auto;
+    }
+
+    .card-footer {
+        background-color: #f9f9f9;
+        padding: 10px;
+        border-top: 1px solid #ddd;
+        text-align: center;
+        font-size: 12px; /* تصغير حجم رسائل الشكر */
+        line-height: 1.5;
+        margin-top: 3px
+      }
+
+}
+
+/* تحسين مظهر زر الطباعة خارج وضع الطباعة */
+.print-button {
+    background-color: #007bff; /* لون الخلفية */
+    color: #fff; /* لون النص */
+    border: none; /* إزالة الحدود الافتراضية */
+    padding: 8px 16px; /* حشوة داخلية */
+    border-radius: 4px; /* زوايا مستديرة */
+    cursor: pointer; /* تغيير مؤشر الفأرة */
+    font-size: 14px; /* حجم الخط */
+    transition: background-color 0.3s ease; /* تأثير الانتقال عند التفاعل */
+}
+
+.print-button:hover {
+    background-color: #0056b3; /* لون الخلفية عند التمرير */
+}
+
+/* تحسين الهوامش العامة */
+.card-header.no-print {
+    margin-bottom: 15px;
+}
+
+.card-body {
+    margin-top: 10px;
+}
+
+/* تنسيق التذييل خارج وضع الطباعة */
+.print-footer {
+    display: block; /* إظهار التذييل في العرض */
+    margin-top: 20px;
+    text-align: center;
+}
+
+.print-footer img {
+    width: 100%;
+    height: auto;
+}

@@ -1,0 +1,37 @@
+#form .field-error {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+    font-size: 0.75rem;
+    color: #d62323;
+    border: 0.5px solid #f7c1c1;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-weight: 500;
+    animation: fieldErrorIn 0.5s ease;
+}
+
+@keyframes fieldErrorIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+input.field-invalid,
+textarea.field-invalid {
+    border-color: #d62323 !important;
+    box-shadow: 0 0 0 3px rgba(214, 35, 35, 0.1);
+}
+
+input.field-valid,
+textarea.field-valid {
+    border-color: #22c55e !important;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}

@@ -1,0 +1,204 @@
+<?php
+
+namespace App\DataTables\Admin\TenantManagement;
+
+
+
+use App\DataTables\Abstract\AbstractDataTable;
+use App\Models\Admin\Tenants\Tenant;
+
+class TenantManagementDataTable extends AbstractDataTable
+{
+    private $page  = "admin.tenant_managment";
+    private $route = "admin.tenantManage";
+
+    // table id
+    protected function getTableId()
+    {
+        return "tenant-table";
+    }
+
+
+    protected function resource()
+    {
+        return Tenant::query()->with('lastSubscription');
+    }
+
+
+
+    protected function getColumns(): array
+    {
+        return [
+            ['data' => '', 'orderable' => false, 'searchable' => false],
+            ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
+            [
+                'data'       => 'checkbox',
+                'name'       => 'checkbox',
+                'title'      => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
+                'orderable'  => false,
+                'searchable' => false,
+                'width' => '10px',
+                'className' => 'custom-checkbox',
+                'titleAttr' => 'تحديد الكل',
+            ],
+            ['data'  => 'id',                   'name' => 'id',                 'title' => 'المعرف',],
+            ['data'  => 'company_name',         'name' => 'company_name',       'title' => 'اسم الشركة',],
+            ['data'  => 'commercial_number',    'name' => 'commercial_number',  'title' => 'السجل التجاري'],
+            ['data'  => 'subscription_status',  'name' => 'subscription_status', 'title' => 'حالة الاشتراك', 'orderable' => false],
+            ['data'  => 'actions',              'name' => 'actions',            'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px'],
+        ];
+    }
+
+
+
+
+    protected function addCustomColumns($datatable)
+    {
+        $datatable
+            ->addColumn('checkbox', function ($row) {
+                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+            })
+
+            ->editColumn('code', function ($row) {
+                return $this->copyableCode($row);
+            })
+
+
+
+
+            // ->addColumn('subscription_status', function ($row) {
+            //     // Debug: تحقق من وجود الاشتراكات
+            //     if (!$row->relationLoaded('subscriptions')) {
+            //         Log::warning('Subscriptions not loaded for tenant: ' . $row->id);
+            //     }
+
+            //     $subscriptions = $row->subscriptions;
+
+            //     // Debug: عدد الاشتراكات
+            //     Log::info('Tenant ID: ' . $row->id . ' - Subscriptions count: ' . $subscriptions->count());
+
+            //     if ($subscriptions->isEmpty()) {
+            //         return '<span class="badge bg-label-secondary">
+            //                     <i class="ti ti-ban me-1"></i>
+            //                     لا يوجد اشتراك
+            //                 </span>';
+            //     }
+
+            //     $subscription = $subscriptions->first();
+            //     return $this->getSubscriptionStatusBadge($subscription);
+            // })
+
+            ->addColumn('actions', function ($row) {
+                return view($this->page . '.action', ['row' => $row, 'route' => $this->route])->render();
+            });
+    }
+
+    protected function rawColumns(): array
+    {
+        return ['checkbox', 'code', 'applicable_to', 'discount_type', 'is_active', 'status', 'actions'];
+    }
+
+
+
+    // الحقول المسموح البحث فيها
+    protected function getSearchableColumns(): array
+    {
+        return [
+            'name',
+        ];
+    }
+
+
+    protected function getCustomOrder(): array
+    {
+        return [1, 'desc'];
+    }
+
+
+    // Buttons
+    protected function buttons(): array
+    {
+        return [
+            $this->getActionsDropdownButton(),
+            $this->getAddButton(),
+        ];
+    }
+
+    private function getActionsDropdownButton(): array
+    {
+        $buttons = [
+            ['extend' => 'copy', 'text' => 'نسخ'],
+            ['extend' => 'excel', 'text' => 'إكسل'],
+        ];
+
+        if (auth()->user()->can('حذف كوبون')) {
+            $buttons[] = [
+                'text'      => 'حذف المحدد',
+                'className' => 'btn btn-default btn-delete-selected',
+                'action'    => "function() { handleMassDelete(); }",
+            ];
+        }
+
+        return [
+            'extend'    => 'collection',
+            'className' => 'btn btn-export',
+            'text'      => 'الإجراءات',
+            'buttons'   => $buttons,
+        ];
+    }
+
+    private function getAddButton(): array
+    {
+        if (auth()->user()->can('إضافة كوبون')) {
+            return [
+                'text'      => '<i class="fas fa-plus-circle me-1"></i> إضافة كوبون',
+                'className' => 'btn btn-primary btn-add',
+                'action'    => "function(){ window.location.href='" . route($this->route . '.create') . "'; }",
+            ];
+        } else {
+            return [];
+        }
+    }
+
+
+    /*
+    |============================================================================
+    |                            Private Helper Methods
+    |============================================================================
+    */
+    private function copyableCode($row): string
+    {
+        return sprintf(
+            '<div class="d-flex align-items-center gap-2">
+                <code class="copyable-code"
+                      data-code="%s"
+                      style="cursor: pointer; user-select: none; padding: 4px 8px; background: #f5f5f5; border-radius: 4px; font-weight: 600;"
+                      title="اضغط للنسخ">
+                    %s
+                </code>
+                <i class="ti ti-copy text-muted" style="font-size: 16px;"></i>
+            </div>',
+            $row->code,
+            $row->code
+        );
+    }
+
+
+    private function DiscountTypeBadge($row): string
+    {
+        return sprintf(
+            '<span class="badge  bg-%s">%s</span>',
+            $row->discount_type->color(),
+            $row->discount_type->label()
+        );
+    }
+
+    private function ApplicableToBadge($row): string
+    {
+        return sprintf(
+            '<span class="badge  bg-%s">%s</span>',
+            $row->applicable_to->color(),
+            $row->applicable_to->label()
+        );
+    }
+}

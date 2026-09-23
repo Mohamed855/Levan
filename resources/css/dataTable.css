@@ -1,0 +1,126 @@
+.dt-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.dt-toolbar-left,
+.dt-toolbar-right {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-export {
+    background-color: white !important;
+    color: black !important;
+    border: none !important;
+}
+
+.btn-export,
+.btn-add {
+    margin: 5px;
+}
+
+.btn-add {
+    margin-right: 5px !important;
+}
+
+.dataTables_processing {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+.table {
+    --bs-table-striped-bg: #fffdff !important;
+}
+
+label {
+    display: inline-block;
+    padding-bottom: 3px;
+}
+
+.dataTables_filter input {
+    font-size: 1rem;
+    padding: 0.375rem 0.75rem;
+    height: auto;
+    border-radius: 0.25rem;
+}
+
+.dataTables_length select {
+    font-size: 1rem;
+    padding: 0.375rem 0.75rem;
+    height: auto;
+    border-radius: 0.25rem;
+}
+
+div.dataTables_processing>div:last-child>div {
+    background: white;
+}
+
+.table-striped>tbody>tr:nth-of-type(even)>* {
+    --bs-table-color-type: initial !important;
+    --bs-table-bg-type: initial !important;
+}
+
+.custom-checkbox {
+    justify-content: center;
+    align-items: center;
+}
+
+.custom-checkbox input[type="checkbox"] {
+    transform: scale(1.2);
+    appearance: none;
+    -webkit-appearance: none;
+    width: 15px;
+    height: 15px;
+    border: 2px solid #372632;
+    border-radius: 3px;
+    outline: none;
+    transition: all 0.2s;
+    cursor: pointer;
+    position: relative;
+    background-color: white;
+}
+
+.custom-checkbox input[type="checkbox"]:checked {
+    background-color: #372632;
+    border-color: #372632;
+}
+
+.custom-checkbox input[type="checkbox"]:checked::after {
+    content: "\2714";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+}
+
+.custom-checkbox input[type="checkbox"]:hover {
+    border-color: #372632;
+}
+
+.dt-buttons .dt-button-collection .dropdown-item {
+    text-align: -webkit-center !important;
+}
+
+.custom-checkbox {
+    width: 10px;
+}
+
+#customers-table,
+#customers-table th,
+#customers-table td {
+    color: #000 !important;
+    font-weight: 600;
+}
+
+
+.table-responsive {
+    overflow-x: unset !important;
+}

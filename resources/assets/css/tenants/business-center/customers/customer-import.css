@@ -1,0 +1,170 @@
+    /* تحسين تصميم الحقول */
+    .field-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin: 2px 4px 2px 0;
+      display: inline-block;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .field-static {
+      background: linear-gradient(135deg, #e3f2fd, #f0f4ff);
+      color: #1976d2;
+      border-color: #bbdefb;
+    }
+
+    .field-existing {
+      background: linear-gradient(135deg, #e8f5e8, #f1f8e9);
+      color: #2e7d32;
+      border-color: #c8e6c9;
+    }
+
+    .field-new {
+      background: linear-gradient(135deg, #fff3e0, #fef7ed);
+      color: #f57c00;
+      border-color: #ffcc92;
+    }
+
+    .field-phone {
+      background: linear-gradient(135deg, #f3e5f5, #faf2ff);
+      color: #7b1fa2;
+      border-color: #e1bee7;
+    }
+
+    .field-unknown {
+      background: linear-gradient(135deg, #ffebee, #fdf2f2);
+      color: #c62828;
+      border-color: #ffcdd2;
+    }
+
+    /* تحسين منطقة رفع الملفات */
+    #file-upload-area:hover {
+      border-color: #696cff !important;
+      background: linear-gradient(135deg, #f0f0ff, #fafaff) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(105, 108, 255, 0.1);
+    }
+
+    #file-upload-area.dragover {
+      border-color: #28a745 !important;
+      background: linear-gradient(135deg, #f0fff4, #f8fff9) !important;
+      transform: scale(1.02);
+    }
+
+    /* تحسين جدول المعاينة */
+    #data-preview table {
+      margin: 0;
+      font-size: 0.8rem;
+    }
+
+    #data-preview th {
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      font-weight: 600;
+      color: #495057;
+      border-bottom: 2px solid #dee2e6;
+      padding: 8px 10px;
+      white-space: nowrap;
+    }
+
+    #data-preview td {
+      padding: 6px 10px;
+      border-bottom: 1px solid #f1f3f4;
+      vertical-align: middle;
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    #data-preview tbody tr:hover {
+      background-color: rgba(105, 108, 255, 0.05);
+    }
+
+    /* تحسين نتائج الاستيراد */
+    .result-success {
+      background: linear-gradient(135deg, #f0fff4, #f8fff9);
+      border: 1px solid #d4edda;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(40, 167, 69, 0.1);
+    }
+
+    .result-warning {
+      background: linear-gradient(135deg, #fffbf0, #fefdf8);
+      border: 1px solid #ffeaa7;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(255, 193, 7, 0.1);
+    }
+
+    .result-error {
+      background: linear-gradient(135deg, #fff5f5, #fef8f8);
+      border: 1px solid #f5c6cb;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(220, 53, 69, 0.1);
+    }
+
+    /* تحسين البطاقات */
+    .card {
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .card-header {
+      border-radius: 12px 12px 0 0 !important;
+    }
+
+    /* تحسين الأزرار */
+    .btn {
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+
+    /* إضافة هذا CSS في ملف customer-import.css أو في <style> في index.blade.php */
+
+    #import-progress .progress {
+      height: 35px !important;
+      /* زيادة ارتفاع شريط التقدم */
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      background-color: #f8f9fa;
+    }
+
+    #import-progress .progress-bar {
+      font-size: 16px !important;
+      /* زيادة حجم النص */
+      font-weight: 600;
+      line-height: 35px;
+      /* محاذاة النص مع الارتفاع الجديد */
+      border-radius: 8px;
+      transition: width 0.3s ease;
+    }
+
+    /* تحسين مظهر منطقة التقدم */
+    #import-progress {
+      margin: 20px 0;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      border: 1px solid #e9ecef;
+    }
+
+    /* تحسين النص أسفل شريط التقدم */
+    #import-progress .import-details {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #6c757d;
+    }

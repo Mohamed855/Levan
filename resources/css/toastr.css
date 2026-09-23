@@ -1,0 +1,68 @@
+@import "toastr/build/toastr.min.css";
+
+.toast-success {
+    background-color: #28a745 !important;
+    color: #ffffff !important;
+}
+
+.toast-error {
+    background-color: #dc3545 !important;
+    color: #ffffff !important;
+}
+
+.toast-info {
+    background-color: #17a2b8 !important;
+    color: #ffffff !important;
+}
+
+.toast-warning {
+    background-color: #ffc107 !important;
+    color: #212529 !important;
+}
+
+.toast-top-left {
+    top: 19px;
+    left: 12px;
+}
+
+.toast-bottom-left {
+    bottom: 60px;
+    left: 12px;
+}
+
+div:where(.swal2-container) .swal2-html-container {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.light-style .swal2-popup .swal2-title {
+    font-weight: bold !important;
+}
+
+/* تخصيص شكل العنوان */
+.custom-title {
+    color: #333333;
+    font-size: 1.5em !important;
+    margin: auto !important;
+    font-weight: bold;
+}
+
+/* تخصيص شكل النص */
+.custom-text {
+    color: #555555;
+    font-size: 1.2em;
+}
+
+/* تخصيص زر التأكيد */
+.custom-confirm {
+    background-color: #1aa749 !important;
+    color: white !important;
+    border: none !important;
+}
+
+/* تخصيص زر الإلغاء */
+.custom-cancel {
+    background-color: #dc3545 !important;
+    color: white !important;
+    border: none !important;
+}

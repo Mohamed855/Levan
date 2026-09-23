@@ -1,0 +1,74 @@
+@extends('tenants.layouts.layoutMaster')
+
+@section('title', 'جميع الإشعارات')
+
+@section('vendor-style')
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
+@endsection
+
+@section('vendor-script')
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
+    {!! $dataTable->scripts() !!}
+@endsection
+
+@section('toastr')
+    @vite(['resources/css/toastr.css', 'resources/js/toastr.js'])
+@endsection
+
+@section('page-style')
+    @vite(['resources/css/dataTable.css'])
+@endsection
+
+
+@section('page-script')
+    <script>
+        window.routes = {
+            massDelete: "{{ tenant_route_name('notifications.mass-delete') }}",
+            markAsRead: "/notifications/{id}/read",
+            markAllAsRead: "{{ tenant_route_name('notifications.mark-all-read') }}",
+            deleteNotification: "/notifications/{id}"
+        };
+
+        window.csrfToken = "{{ csrf_token() }}";
+    </script>
+    @vite(['resources/assets/js/tenants/notifications/all.js'])
+@endsection
+
+
+@section('content')
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">جميع الإشعارات</h5>
+        </div>
+        <div class="card-body">
+            {{-- <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label for="filter-type" class="form-label">نوع الإشعار</label>
+                <select id="filter-type" class="form-control select2" data-placeholder="الكل">
+                    <option value=""></option>
+                    <option value="success">نجاح</option>
+                    <option value="warning">تحذير</option>
+                    <option value="info">معلومات</option>
+                    <option value="danger">خطر</option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label for="filter-status" class="form-label">حالة الإشعار</label>
+                <select id="filter-status" class="form-control select2" data-placeholder="الكل">
+                    <option value=""></option>
+                    <option value="read">مقروء</option>
+                    <option value="unread">غير مقروء</option>
+                </select>
+            </div>
+        </div> --}}
+
+            {{--
+        <hr class="mt-10"> --}}
+            {!! $dataTable->table(
+                ['class' => 'table table-striped table-bordered w-100', 'id' => 'notifications-table'],
+                false,
+            ) !!}
+        </div>
+    </div>
+@endsection

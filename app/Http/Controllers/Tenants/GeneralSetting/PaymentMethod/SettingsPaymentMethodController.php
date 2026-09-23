@@ -1,0 +1,63 @@
+<?php
+
+namespace App\Http\Controllers\Tenants\GeneralSetting\PaymentMethod;
+
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\Tenants\Traits\CommonSettingController;
+use App\Models\Tenants\GeneralSetting\PaymentMethod\SettingsPaymentMethod;
+use Illuminate\Http\Request;
+
+class SettingsPaymentMethodController extends Controller
+{
+    public function __construct()
+    {
+        $this->middleware('can:طرق التحصيل')->only([
+            'index',
+            'edit',
+            'store',
+            'update',
+            'destroy',
+        ]);
+    }
+
+    use CommonSettingController;
+
+    protected $model = SettingsPaymentMethod::class;
+
+    public function index()
+    {
+        return $this->index_trait($this->model, 'tenants.general_setting.payment_methods.settings_payment_methods', 'general-settings.settings-payment-methods');
+    }
+
+    public function edit($id) // لتغيير حالة طرق التحصيل
+    {
+        return $this->toggleStatus_trait($this->model, $id);
+    }
+
+    public function store(Request $request)
+    {
+        return $this->store_trait($request, $this->model);
+    }
+
+    public function update(Request $request, $id)
+    {
+        return $this->update_trait($request, $this->model, $id);
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $paymentMethod = SettingsPaymentMethod::findOrFail($id);
+
+            // التحقق من وجود ارتباطات (في حالة وجود فواتير أو معاملات مرتبطة)
+            // if ($paymentMethod->invoices()->count() > 0) {
+            //     throw new \Exception('لا يمكن حذف طريقة التحصيل هذه لأنها مرتبطة بفواتير. يجب حذف الفواتير أولاً.');
+            // }
+
+            $paymentMethod->delete();
+            return redirect()->back()->with('success', 'تم الحذف بنجاح.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+}
