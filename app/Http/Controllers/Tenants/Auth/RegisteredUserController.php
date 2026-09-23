@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
@@ -38,8 +39,11 @@ class RegisteredUserController extends Controller
 
         $user = User::create([
             'name' => $request->name,
+            'employee_number' => 'REG-' . strtoupper(Str::random(8)),
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'global_uid' => (string) Str::uuid(),
+            'status' => 'active',
         ]);
 
         event(new Registered($user));

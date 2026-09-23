@@ -69,7 +69,7 @@ class subscriptionMangmentDataTable extends AbstractDataTable
             })
 
             ->editColumn('tenant_id', function ($row) {
-                $url = url($row->tenant_id . '/login');
+                $url = route('admin.subscriptionManage.tenant-access', ['tenant' => $row->tenant_id]);
                 return '<a href="' . $url . '" class="text-dark d-inline-block" title="رابط العميل" target="_blank">'
                     . '<i class="ti ti-external-link me-1 text-primary"></i>'
                     . $row->tenant_id .

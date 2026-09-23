@@ -13,6 +13,9 @@ use App\Http\Controllers\Tenants\Auth\RegisteredUserController;
 use App\Http\Controllers\Tenants\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('impersonate', [AuthenticatedSessionController::class, 'impersonate'])
+    ->name('impersonate');
+
 Route::middleware('guest:tenant')->group(function () {
     Route::name('register')->get('register', [RegisteredUserController::class, 'create']);
     Route::post('register', [RegisteredUserController::class, 'store']);

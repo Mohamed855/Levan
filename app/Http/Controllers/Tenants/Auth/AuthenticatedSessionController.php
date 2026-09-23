@@ -8,6 +8,7 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
@@ -49,6 +50,36 @@ class AuthenticatedSessionController extends Controller
         ]);
 
         return redirect(RouteServiceProvider::home());
+    }
+
+    public function impersonate(Request $request): RedirectResponse
+    {
+        abort_unless($request->filled('token'), 403);
+
+        try {
+            $payload = json_decode(Crypt::decryptString($request->string('token')->toString()), true, 512, JSON_THROW_ON_ERROR);
+        } catch (\Throwable) {
+            abort(403);
+        }
+
+        abort_unless(
+            ($payload['tenant_id'] ?? null) === tenant('id')
+                && ($payload['expires_at'] ?? 0) >= now()->timestamp,
+            403
+        );
+
+        $user = \App\Models\Tenants\UserMangment\User\User::findOrFail($payload['user_id']);
+
+        Auth::guard('tenant')->login($user);
+        $request->session()->regenerate();
+
+        $user->update([
+            'last_login_at' => now(),
+            'last_login_ip' => $request->ip(),
+            'current_session_id' => $request->session()->getId(),
+        ]);
+
+        return redirect()->to(tenant_route_name('dashboard'));
     }
 
     /*

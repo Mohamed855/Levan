@@ -12,15 +12,11 @@ class TenantDatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-
         $this->call([
-            // SettingsTableSeeder::class,
-            // PermissionsRolesSeeder::class,
-            // UserSeeder::class,
-
-            // SettingsCountrySeeder::class,
-            // ContactResultSeeder::class,
-            // CustomerStatusSeeder::class,
+            PermissionsRolesSeeder::class,
+            SettingsTableSeeder::class,
+            BranchSeeder::class,
+            UserSeeder::class,
         ]);
     }
 }

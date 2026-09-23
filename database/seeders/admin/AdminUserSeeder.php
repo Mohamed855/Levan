@@ -15,9 +15,10 @@ class AdminUserSeeder extends Seeder
     */
     public function run(): void
     {
-        $superAdmin = AdminUser::create([
+        $superAdmin = AdminUser::updateOrCreate(
+            ['email' => 'superadmin@gmail.com'],
+            [
             'name'                  => 'مدير النظام',
-            'email'                 => 'superadmin@gmail.com',
             'email_verified_at'     => now(),
             'password'              => Hash::make('123456789'),
             'phone'                 => '0123456789',
@@ -25,10 +26,9 @@ class AdminUserSeeder extends Seeder
 
             'created_at'            => now(),
             'updated_at'            => now(),
-        ]);
+            ]
+        );
 
-
-
-        $superAdmin->assignRole('SuperAdmin');
+        $superAdmin->syncRoles(['SuperAdmin']);
     }
 }
