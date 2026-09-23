@@ -12,18 +12,28 @@ class DashboardController extends Controller
 {
     public function dashboard()
     {
-        // استخدام بيانات تجريبية (Demo Data) لأخذ لقطة الشاشة (Screenshot)
-        $data = $this->getDemoDashboardData();
+        // Live production data
+        $dashboardService = new DashboardService();
+        $data = $dashboardService->getDashboardData();
 
-        // البيانات الحقيقية الأصلية (يمكن العودة إليها فور طلبك):
-        // $dashboardService = new DashboardService();
-        // $data = $dashboardService->getDashboardData();
+        /*
+        |--------------------------------------------------------------------------
+        | Demo Data Toggle (for presentations / screenshots)
+        |--------------------------------------------------------------------------
+        | Uncomment the line below to populate the dashboard with realistic
+        | mock metrics, charts, and tables without affecting the database.
+        */
+        // $data = $this->getDemoDashboardData();
 
         return view('admin.dashboard.index', $data);
     }
 
     /**
-     * بيانات تجريبية متكاملة للوحة القيادة
+     * Demo Dashboard Data Provider
+     *
+     * Provides comprehensive mock datasets (KPIs, charts, upcoming renewals,
+     * subscriptions, and domains) for presentation and screenshot purposes.
+     * To activate, uncomment `$data = $this->getDemoDashboardData();` in dashboard().
      */
     private function getDemoDashboardData(): array
     {
