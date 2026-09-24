@@ -209,28 +209,9 @@
                             </div>
                         </div>
 
-                        {{-- ───── STEP 2 ─ المديونية + العلاقة + الحقول الديناميكية ───── --}}
+                        {{-- ───── STEP 2 ─ مسؤول العلاقة + الحقول الديناميكية ───── --}}
                         <div id="company-info-validation" class="content">
                             <div class="row g-6">
-                                <div class="col-sm-4">
-                                    <label class="form-label" for="total_debt">إجمالي المديونية</label>
-                                    <div class="input-group">
-                                        <input type="text" id="total_debt" class="form-control"
-                                            value="{{ number_format($financialStats['total_debt'], 2) }}" readonly
-                                            style="background-color: #e9ecef; border-left: none;">
-                                        <span class="input-group-text">ريال</span>
-                                    </div>
-                                </div>
-
-                                <div class="col-sm-4">
-                                    <label class="form-label" for="remaining_debt">المديونية المتبقية</label>
-                                    <div class="input-group">
-                                        <input type="text" id="remaining_debt" class="form-control"
-                                            value="{{ number_format($financialStats['remaining_amount'], 2) }}" readonly
-                                            style="background-color: #e9ecef; border-left: none;">
-                                        <span class="input-group-text">ريال</span>
-                                    </div>
-                                </div>
 
 
 

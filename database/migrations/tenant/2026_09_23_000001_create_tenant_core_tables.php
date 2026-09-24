@@ -36,9 +36,6 @@ return new class extends Migration
             $table->string('sms_sender_id')->nullable();
             $table->string('sms_from_number')->nullable();
             $table->string('sms_callback_url')->nullable();
-            $table->boolean('compare_effort')->default(false);
-            $table->boolean('daily_tasks')->default(false);
-            $table->boolean('Overdue_tasks')->default(false);
             $table->timestamps();
             $table->softDeletes();
         });

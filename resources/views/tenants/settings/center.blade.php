@@ -118,25 +118,6 @@
                                 </div>
                             @endcan
 
-                            @can('أنواع المديونية')
-                                <div class="col-6">
-                                    <a href="{{ tenant_route_name('general-settings.settings-debt-types.index') }}"
-                                        class="d-flex align-items-center p-3 border rounded text-decoration-none">
-                                        <div class="avatar avatar-sm me-3">
-                                            <span class="avatar-initial rounded"
-                                                style="background-color: rgba(40, 183, 141, 0.1); color: #28B78D;">
-                                                <i class="ti ti-file-invoice"></i>
-                                            </span>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-0 text-body fw-medium">أنواع المديونية</h6>
-                                            <small class="text-muted">تصنيف أنواع الديون</small>
-                                        </div>
-                                        <i class="ti ti-chevron-left text-muted"></i>
-                                    </a>
-                                </div>
-                            @endcan
-
                         </div>
                     </div>
                 </div>

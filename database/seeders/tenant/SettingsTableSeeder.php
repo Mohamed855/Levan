@@ -15,9 +15,6 @@ class SettingsTableSeeder extends Seeder
                 'image' => 'default-office.png',
                 'office_name' => 'ليفـــان LEVAN',
                 'logo_text' => 'ليفـــان LEVAN',
-                'compare_effort' => true,
-                'daily_tasks' => true,
-                'Overdue_tasks' => true,
             ]
         );
     }

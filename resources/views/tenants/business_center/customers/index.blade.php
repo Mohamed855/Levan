@@ -224,18 +224,8 @@
                         </select>
                     </div>
                 @else
-                    {{-- في شاشة "عملائي" نكمل الصف الأول بفلاتر المديونية وحالة الإرسال --}}
-                    <div class="col-md-3">
-                        <label for="filter-debt-min">المديونية من</label>
-                        <input type="number" id="filter-debt-min" class="form-control" placeholder="من القيمة">
-                    </div>
-
-                    <div class="col-md-3">
-                        <label for="filter-debt-max">المديونية إلى</label>
-                        <input type="number" id="filter-debt-max" class="form-control" placeholder="إلى القيمة">
-                    </div>
-
-                    <div class="col-md-4">
+                    {{-- في شاشة "عملائي" نكمل الصف الأول بحالة الإرسال --}}
+                    <div class="col-md-6">
                         <label for="filter-sms-status">حالة الإرسال</label>
                         <select id="filter-sms-status" class="form-control select2" data-placeholder="اختر الحالة">
                             <option value=""></option>
@@ -247,17 +237,7 @@
 
                 {{-- الصف الثاني --}}
                 @if ($viewType !== 'my')
-                    <div class="col-md-2 mt-3">
-                        <label for="filter-debt-min">المديونية من</label>
-                        <input type="number" id="filter-debt-min" class="form-control" placeholder="من القيمة">
-                    </div>
-
-                    <div class="col-md-2 mt-3">
-                        <label for="filter-debt-max">المديونية إلى</label>
-                        <input type="number" id="filter-debt-max" class="form-control" placeholder="إلى القيمة">
-                    </div>
-
-                    <div class="col-md-2 mt-3">
+                    <div class="col-md-4 mt-3">
                         <label for="filter-sms-status">حالة الإرسال</label>
                         <select id="filter-sms-status" class="form-control select2" data-placeholder="اختر الحالة">
                             <option value=""></option>

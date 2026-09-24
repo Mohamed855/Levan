@@ -8,9 +8,6 @@ use App\Models\Tenants\BusinessCenter\Customers\Follow\CustomerFollow;
 use App\Models\Tenants\BusinessCenter\Customers\Phone\CustomerPhone;
 use App\Models\Tenants\BusinessCenter\Customers\Task\Task;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
-use App\Models\Tenants\FinancialCollection\Collection\Collection;
-use App\Models\Tenants\FinancialCollection\Collection\CustomerTransaction;
-use App\Models\Tenants\FinancialCollection\Target\CollectionTarget;
 use App\Models\Tenants\GeneralSetting\ContactMethod\SettingsContactMethod;
 use App\Models\Tenants\GeneralSetting\ContactResult\ContactResult;
 use App\Models\Tenants\GeneralSetting\CustomerStatus\SettingsCustomerStatus;
@@ -89,140 +86,10 @@ class CustomerDataSeeder extends Seeder
                 ['type' => 'mobile', 'is_primary' => true]
             );
 
-            // Initial Debt Transaction
-            $debtAmount = ($index + 1) * 7500.00;
-            CustomerTransaction::updateOrCreate(
-                [
-                    'customer_id' => $customer->id,
-                    'type' => 'debit',
-                    'description' => 'مديونية مستحقة افتتاحية',
-                ],
-                [
-                    'amount' => $debtAmount,
-                    'transaction_date' => now()->subMonths(2)->toDateString(),
-                    'created_by' => $user->id,
-                ]
-            );
-
             $customersCreated[] = $customer;
         }
 
-        // 2. Collection Targets for Users
-        $currentYear = (int) now()->format('Y');
-        $currentMonth = (int) now()->format('n');
-
-        foreach ($users as $uIndex => $user) {
-            $targetAmount = 80000 + ($uIndex * 20000);
-
-            CollectionTarget::updateOrCreate(
-                [
-                    'user_id' => $user->id,
-                    'target_type' => 'monthly',
-                    'target_year' => $currentYear,
-                    'target_month' => $currentMonth,
-                ],
-                [
-                    'branch_id' => $user->branch_id,
-                    'target_amount' => $targetAmount,
-                    'status' => 'active',
-                    'added_by' => 1,
-                ]
-            );
-        }
-
-        // 3. Collections (Approved, Pending, Rejected across dates)
-        $paymentMethod = $paymentMethods->first();
-
-        foreach ($customersCreated as $cIndex => $customer) {
-            $user = $users[$cIndex % $users->count()];
-
-            if ($cIndex % 3 === 0) {
-                // Approved collection this month
-                $colAmount = 4500.00;
-                $collection = Collection::updateOrCreate(
-                    [
-                        'receipt_number' => 'REC-' . (3000 + $cIndex),
-                    ],
-                    [
-                        'customer_id' => $customer->id,
-                        'collected_amount' => $colAmount,
-                        'collection_type' => 'cash',
-                        'payment_method_id' => $paymentMethod?->id,
-                        'collection_date' => now()->subDays($cIndex + 1)->toDateString(),
-                        'payment_type' => 'settlement',
-                        'status' => 'approved',
-                        'added_by' => $user->id,
-                        'approved_by' => 1,
-                        'approved_at' => now()->subDays($cIndex + 1),
-                    ]
-                );
-
-                CustomerTransaction::updateOrCreate(
-                    [
-                        'customer_id' => $customer->id,
-                        'type' => 'credit',
-                        'description' => 'سداد معتمد برقم إيصال ' . $collection->receipt_number,
-                    ],
-                    [
-                        'amount' => $colAmount,
-                        'transaction_date' => $collection->collection_date,
-                        'created_by' => $user->id,
-                    ]
-                );
-            } elseif ($cIndex % 3 === 1) {
-                // Pending collection today
-                Collection::updateOrCreate(
-                    [
-                        'receipt_number' => 'REC-' . (3000 + $cIndex),
-                    ],
-                    [
-                        'customer_id' => $customer->id,
-                        'collected_amount' => 2500.00,
-                        'collection_type' => 'bank_transfer',
-                        'payment_method_id' => $paymentMethod?->id,
-                        'collection_date' => now()->toDateString(),
-                        'payment_type' => 'partial',
-                        'status' => 'pending',
-                        'added_by' => $user->id,
-                    ]
-                );
-            } else {
-                // Approved collection today
-                $colAmount = 3000.00;
-                $collection = Collection::updateOrCreate(
-                    [
-                        'receipt_number' => 'REC-' . (3000 + $cIndex),
-                    ],
-                    [
-                        'customer_id' => $customer->id,
-                        'collected_amount' => $colAmount,
-                        'collection_type' => 'pos',
-                        'payment_method_id' => $paymentMethod?->id,
-                        'collection_date' => now()->toDateString(),
-                        'payment_type' => 'partial',
-                        'status' => 'approved',
-                        'added_by' => $user->id,
-                        'approved_by' => 1,
-                        'approved_at' => now(),
-                    ]
-                );
-
-                CustomerTransaction::updateOrCreate(
-                    [
-                        'customer_id' => $customer->id,
-                        'type' => 'credit',
-                        'description' => 'سداد جزئي برقم إيصال ' . $collection->receipt_number,
-                    ],
-                    [
-                        'amount' => $colAmount,
-                        'transaction_date' => $collection->collection_date,
-                        'created_by' => $user->id,
-                    ]
-                );
-            }
-        }
-
-        // 4. Customer Follows & Tasks (Today & Overdue)
+        // 2. Customer Follows & Tasks (Today & Overdue)
         $taskTypes = ['promise', 'callback', 'document_request'];
         $contactMethod = $contactMethods->first();
         $contactResult = $contactResults->first();

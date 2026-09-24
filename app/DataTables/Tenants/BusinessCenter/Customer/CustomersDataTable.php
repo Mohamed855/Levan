@@ -91,18 +91,6 @@ class CustomersDataTable extends AbstractDataTable
                 }
             }
 
-            // فلتر المديونية - من
-            if (request()->filled('debt_min')) {
-                $min = (float) request('debt_min');
-                $query->havingRaw('remaining_debt >= ?', [$min]);
-            }
-
-            // فلتر المديونية - إلى
-            if (request()->filled('debt_max')) {
-                $max = (float) request('debt_max');
-                $query->havingRaw('remaining_debt <= ?', [$max]);
-            }
-
             // فلتر حالة الإرسال
             if (request()->filled('sms_status')) {
                 if (request('sms_status') === 'sent') {
@@ -213,15 +201,11 @@ class CustomersDataTable extends AbstractDataTable
             ['data' => 'identity_info', 'name' => 'identity_info', 'title' => 'رقم الهوية/رقم الجواز', 'orderable' => false, 'searchable' => true],
             ['data' => 'company_portfolio', 'name' => 'company_portfolio', 'title' => 'الشركة/المحفظة', 'orderable' => false, 'searchable' => true],
             ['data' => 'contact_info', 'name' => 'contact_info', 'title' => 'بيانات الاتصال', 'orderable' => false, 'searchable' => true],
-            ['data' => 'total_debit_amount', 'name' => 'total_debit_amount', 'title' => 'إجمالي المديونية', 'searchable' => false],
-            ['data' => 'total_paid_amount', 'name' => 'total_paid_amount', 'title' => 'المبلغ المدفوع', 'searchable' => false],
-            ['data' => 'total_settlement_amount', 'name' => 'total_settlement_amount', 'title' => 'مبلغ التسوية', 'searchable' => false],
-            ['data' => 'remaining_debt', 'name' => 'remaining_debt', 'title' => 'المبلغ المتبقي', 'searchable' => false],
+            ['data' => 'customer_type_label', 'name' => 'customer_type', 'title' => 'نوع العميل', 'searchable' => true],
+            ['data' => 'status', 'name' => 'customer_status_id', 'title' => 'الحالة', 'searchable' => true],
             ['data' => 'relationship_manager', 'name' => 'relationship_manager', 'title' => 'مسؤول العلاقة', 'orderable' => false, 'searchable' => true],
             ['data' => 'last_contact_result', 'name' => 'last_contact_result', 'title' => 'نتيجة الاتصال', 'orderable' => false, 'searchable' => false],
-            // ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'searchable' => true],
-            // ['data' => 'last_follow_up', 'name' => 'last_follow_up', 'title' => 'آخر متابعة', 'orderable' => false, 'searchable' => false],
-            ['data' => 'created_at_formatted', 'name' => 'created_at', 'title' => 'أيام الإسناد', 'searchable' => false],
+            ['data' => 'created_at_formatted', 'name' => 'created_at', 'title' => 'تاريخ الإضافة', 'searchable' => false],
             ['data' => 'action', 'name' => 'action', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'className' => 'text-center'],
             ['data' => 'status_color', 'name' => 'status_color', 'visible' => false, 'orderable' => false, 'searchable' => false]
         ];
@@ -308,17 +292,13 @@ class CustomersDataTable extends AbstractDataTable
                 }
                 return $html ?: '<span>لا يوجد</span>';
             })
-            ->addColumn('total_debit_amount', function (Customer $customer) {
-                return '<span class=" text-danger">' . number_format($customer->total_debit ?? 0, 2) . ' </span>';
+            ->addColumn('customer_type_label', function (Customer $customer) {
+                return $customer->customer_type === 'company' ? 'شركة' : 'فرد';
             })
-            ->addColumn('total_paid_amount', function (Customer $customer) {
-                return '<span class=" text-success">' . number_format($customer->total_credit ?? 0, 2) . ' </span>';
-            })
-            ->addColumn('total_settlement_amount', function (Customer $customer) {
-                return '<span class=" text-warning">' . number_format($customer->total_settlement ?? 0, 2) . ' </span>';
-            })
-            ->addColumn('remaining_debt', function (Customer $customer) {
-                return '<span class="">' . number_format($customer->remaining_debt ?? 0, 2) . '</span>';
+            ->addColumn('status', function (Customer $customer) {
+                $name = e($customer->customerStatus->name ?? 'غير محدد');
+                $color = $customer->customerStatus->color ?? '#6c757d';
+                return '<span class="badge" style="background-color: ' . $color . '">' . $name . '</span>';
             })
             ->addColumn('relationship_manager', function (Customer $customer) {
                 return '<span>' . e($customer->relationshipManager->name ?? 'غير محدد') . '</span>';
@@ -360,18 +340,6 @@ class CustomersDataTable extends AbstractDataTable
                 return $customer->customerStatus ? $customer->customerStatus->color : null;
             })
             ->orderColumn('name', fn($query, $order) => $query->orderBy('name', $order))
-            ->orderColumn('total_debit_amount', function ($query, $order) {
-                return $query->orderByRaw('COALESCE(total_debit, 0) ' . $order);
-            })
-            ->orderColumn('total_paid_amount', function ($query, $order) {
-                return $query->orderByRaw('COALESCE(total_credit, 0) ' . $order);
-            })
-            ->orderColumn('total_settlement_amount', function ($query, $order) {
-                return $query->orderByRaw('COALESCE(total_settlement, 0) ' . $order);
-            })
-            ->orderColumn('remaining_debt', function ($query, $order) {
-                return $query->orderByRaw('(COALESCE(total_debit, 0) - COALESCE(total_credit, 0) - COALESCE(total_settlement, 0)) ' . $order);
-            })
             ->orderColumn('status', fn($query, $order) => $query->orderBy('customer_status_id', $order))
             ->orderColumn('created_at', fn($query, $order) => $query->orderBy('created_at', $order))
             ->filterColumn('name', fn($query, $keyword) => $query->where('name', 'like', "%{$keyword}%"))
@@ -419,7 +387,7 @@ class CustomersDataTable extends AbstractDataTable
     */
     protected function rawColumns(): array
     {
-        return ['checkbox', 'name', 'account_number', 'identity_info', 'company_portfolio', 'contact_info', 'total_debit_amount', 'total_paid_amount', 'total_settlement_amount', 'remaining_debt', 'relationship_manager', 'last_contact_result', 'last_follow_up', 'action'];
+        return ['checkbox', 'name', 'account_number', 'identity_info', 'company_portfolio', 'contact_info', 'customer_type_label', 'status', 'relationship_manager', 'last_contact_result', 'last_follow_up', 'action'];
     }
 
     /*

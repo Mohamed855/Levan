@@ -7,12 +7,9 @@ use App\Models\Tenants\Branch\Branch;
 use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
-use App\Models\Tenants\FinancialCollection\Collection\Collection;
-use App\Models\Tenants\FinancialCollection\Target\CollectionTarget;
 use App\Models\Tenants\GeneralSetting\ContactMethod\SettingsContactMethod;
 use App\Models\Tenants\GeneralSetting\Country\SettingsCountry;
 use App\Models\Tenants\GeneralSetting\CustomerStatus\SettingsCustomerStatus;
-use App\Models\Tenants\GeneralSetting\DebtType\SettingsDebtType;
 use App\Models\Tenants\GeneralSetting\PaymentMethod\SettingsPaymentMethod;
 use App\Models\Tenants\UserMangment\Team\Team;
 use App\Models\Tenants\UserMangment\User\User;
@@ -462,7 +459,6 @@ class TenantCrudFeatureTest extends TestCase
             'company_id'      => $company->id,
             'portfolio_id'    => $portfolio->id,
             'identity_number' => $identityNumber,
-            'debt_amount'     => 15000,
             'phone'           => '05' . rand(10000000, 99999999),
         ]);
         $storeResponse->assertStatus(302);
@@ -486,7 +482,6 @@ class TenantCrudFeatureTest extends TestCase
             'company_id'      => $company->id,
             'portfolio_id'    => $portfolio->id,
             'identity_number' => $identityNumber,
-            'debt_amount'     => 18000,
         ]);
         $updateResponse->assertStatus(302);
         $customer->refresh();
@@ -516,146 +511,7 @@ class TenantCrudFeatureTest extends TestCase
     }
 
     /**
-     * Test 8: Financial Collections CRUD & Archive Lifecycle (Create -> Edit -> Show -> Soft Delete -> Restore -> Permanently Delete)
-     */
-    public function test_collections_crud_and_archive_lifecycle(): void
-    {
-        $customer = Customer::first();
-        $paymentMethod = SettingsPaymentMethod::first();
-
-        // 1. Index
-        $indexResponse = $this->get($this->tenantUrl('financial-collections/collections'));
-        $indexResponse->assertStatus(200);
-
-        // 2. Create view
-        $createResponse = $this->get($this->tenantUrl('financial-collections/collections/create'));
-        $createResponse->assertStatus(200);
-
-        // 3. Store
-        $receiptNumber = 'REC' . rand(100000, 999999);
-        $storeResponse = $this->post($this->tenantUrl('financial-collections/collections'), [
-            'customer_id'       => $customer->id,
-            'collected_amount'  => 2500.50,
-            'collection_type'   => 'cash',
-            'payment_type'      => 'without_settlement',
-            'payment_method_id' => $paymentMethod->id,
-            'receipt_number'    => $receiptNumber,
-            'collection_date'   => now()->format('Y-m-d'),
-            'notes'             => 'سداد تحصيل اختباري',
-        ]);
-        $storeResponse->assertStatus(302);
-
-        $collection = Collection::where('receipt_number', $receiptNumber)->first();
-        $this->assertNotNull($collection, 'Collection was not created in database.');
-
-        // 4. Show view
-        $showResponse = $this->get($this->tenantUrl("financial-collections/collections/{$collection->id}"));
-        $showResponse->assertStatus(200);
-
-        // 5. Edit view
-        $editResponse = $this->get($this->tenantUrl("financial-collections/collections/{$collection->id}/edit"));
-        $editResponse->assertStatus(200);
-
-        // 6. Update
-        $updateResponse = $this->put($this->tenantUrl("financial-collections/collections/{$collection->id}"), [
-            'customer_id'       => $customer->id,
-            'collected_amount'  => 3000.00,
-            'collection_type'   => 'cash',
-            'payment_type'      => 'without_settlement',
-            'payment_method_id' => $paymentMethod->id,
-            'receipt_number'    => $receiptNumber,
-            'collection_date'   => now()->format('Y-m-d'),
-            'notes'             => 'سداد تحصيل معدل',
-        ]);
-        $updateResponse->assertStatus(302);
-        $collection->refresh();
-        $this->assertEquals(3000.00, (float) $collection->collected_amount);
-
-        // 7. Soft Delete (Destroy)
-        $destroyResponse = $this->delete($this->tenantUrl("financial-collections/collections/{$collection->id}"));
-        $destroyResponse->assertStatus(302);
-        $collection->refresh();
-        $this->assertNotNull($collection->deleted_at, 'Collection was not soft-deleted.');
-
-        // 8. Archive Index
-        $archiveIndexResponse = $this->get($this->tenantUrl('archive/collections'));
-        $archiveIndexResponse->assertStatus(200);
-
-        // 9. Restore
-        $restoreResponse = $this->patch($this->tenantUrl("archive/collections/{$collection->id}/restore"));
-        $restoreResponse->assertStatus(302);
-        $collection->refresh();
-        $this->assertNull($collection->deleted_at, 'Collection was not restored.');
-
-        // 10. Force Delete (Permanently Delete)
-        $this->delete($this->tenantUrl("financial-collections/collections/{$collection->id}"));
-        $forceDeleteResponse = $this->delete($this->tenantUrl("archive/collections/{$collection->id}/force-delete"));
-        $forceDeleteResponse->assertStatus(302);
-        $this->assertDatabaseMissing('collections', ['id' => $collection->id]);
-    }
-
-    /**
-     * Test 9: Collection Target CRUD Lifecycle
-     */
-    public function test_collection_targets_crud_lifecycle(): void
-    {
-        $branch = Branch::first();
-
-        // 1. Index
-        $indexResponse = $this->get($this->tenantUrl('financial-collections/collection-targets'));
-        $indexResponse->assertStatus(200);
-
-        // 2. Create view
-        $createResponse = $this->get($this->tenantUrl('financial-collections/collection-targets/create'));
-        $createResponse->assertStatus(200);
-
-        // 3. Store
-        $targetYear = (int) date('Y') + 2;
-        $storeResponse = $this->post($this->tenantUrl('financial-collections/collection-targets'), [
-            'branch_id'     => $branch->id,
-            'user_id'       => $this->user->id,
-            'target_type'   => 'yearly',
-            'target_year'   => $targetYear,
-            'target_amount' => 500000,
-            'status'        => 'active',
-        ]);
-        $storeResponse->assertStatus(302);
-
-        $target = CollectionTarget::where('user_id', $this->user->id)
-            ->where('target_year', $targetYear)
-            ->first();
-        $this->assertNotNull($target, 'Collection Target was not created in database.');
-
-        // 4. Edit view
-        $editResponse = $this->get($this->tenantUrl("financial-collections/collection-targets/{$target->id}/edit"));
-        $editResponse->assertStatus(200);
-
-        // 5. Update
-        $updateResponse = $this->put($this->tenantUrl("financial-collections/collection-targets/{$target->id}"), [
-            'branch_id'     => $branch->id,
-            'user_id'       => $this->user->id,
-            'target_type'   => 'yearly',
-            'target_year'   => $targetYear,
-            'target_amount' => 750000,
-            'status'        => 'active',
-        ]);
-        $updateResponse->assertStatus(302);
-        $target->refresh();
-        $this->assertEquals(750000, (float) $target->target_amount);
-
-        // 6. Toggle Status
-        $toggleResponse = $this->patch($this->tenantUrl("financial-collections/collection-targets/{$target->id}/toggle-status"));
-        $toggleResponse->assertStatus(200);
-        $toggleResponse->assertJson(['success' => true]);
-
-        // 7. Destroy
-        $destroyResponse = $this->delete($this->tenantUrl("financial-collections/collection-targets/{$target->id}"));
-        $destroyResponse->assertStatus(302);
-        $this->assertSoftDeleted('collection_targets', ['id' => $target->id]);
-    }
-
-    /**
-     * Test 10: General Settings CRUD (Countries, Payment Methods, Contact Methods, Customer Status, Document Request Reasons)
+     * Test 8: General Settings CRUD (Countries, Payment Methods, Contact Methods, Customer Status, Document Request Reasons)
      */
     public function test_general_settings_crud_lifecycle(): void
     {
@@ -698,20 +554,10 @@ class TenantCrudFeatureTest extends TestCase
         $this->put($this->tenantUrl("general-settings/settings-customer-status/{$cs->id}"), ['name' => $csName . ' معدلة', 'status' => 'active'])->assertStatus(200)->assertJson(['success' => true]);
         $this->delete($this->tenantUrl("general-settings/settings-customer-status/{$cs->id}"))->assertStatus(302);
         $this->assertSoftDeleted('settings_customer_status', ['id' => $cs->id]);
-
-        // === E. Debt Types ===
-        $this->get($this->tenantUrl('general-settings/settings-debt-types'))->assertStatus(200);
-        $dtName = 'نوع مديونية ' . rand(100, 999);
-        $this->post($this->tenantUrl('general-settings/settings-debt-types'), ['name' => $dtName])->assertStatus(302);
-        $dt = SettingsDebtType::where('name', $dtName)->first();
-        $this->assertNotNull($dt);
-        $this->put($this->tenantUrl("general-settings/settings-debt-types/{$dt->id}"), ['name' => $dtName . ' معدل'])->assertStatus(302);
-        $this->delete($this->tenantUrl("general-settings/settings-debt-types/{$dt->id}"))->assertStatus(302);
-        $this->assertSoftDeleted('settings_debt_types', ['id' => $dt->id]);
     }
 
     /**
-     * Test 11: Verify DataTables AJAX endpoints across the entire system return JSON data correctly
+     * Test 9: Verify DataTables AJAX endpoints across the entire system return JSON data correctly
      */
     public function test_datatables_ajax_returns_json_and_records(): void
     {
@@ -723,13 +569,10 @@ class TenantCrudFeatureTest extends TestCase
             'companies',
             'portfolios',
             'customers',
-            'financial-collections/collections',
-            'financial-collections/collection-targets',
             'archive/users',
             'archive/companies',
             'archive/portfolios',
             'archive/customers',
-            'archive/collections',
             'archive/contracts',
         ];
 

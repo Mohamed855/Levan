@@ -4,7 +4,6 @@ namespace Database\Seeders\tenant;
 
 use App\Models\Tenants\GeneralSetting\ContactMethod\SettingsContactMethod;
 use App\Models\Tenants\GeneralSetting\Country\SettingsCountry;
-use App\Models\Tenants\GeneralSetting\DebtType\SettingsDebtType;
 use App\Models\Tenants\GeneralSetting\PaymentMethod\SettingsPaymentMethod;
 use Illuminate\Database\Seeder;
 
@@ -53,21 +52,6 @@ class GeneralSettingsSeeder extends Seeder
         foreach ($countries as $country) {
             SettingsCountry::updateOrCreate(
                 ['name' => $country['name']],
-                ['status' => 'active']
-            );
-        }
-
-        $debtTypes = [
-            'تمويل شخصي',
-            'بطاقة ائتمانية',
-            'تمويل سيارات',
-            'تمويل عقاري',
-            'فواتير وخدمات',
-        ];
-
-        foreach ($debtTypes as $type) {
-            SettingsDebtType::updateOrCreate(
-                ['name' => $type],
                 ['status' => 'active']
             );
         }

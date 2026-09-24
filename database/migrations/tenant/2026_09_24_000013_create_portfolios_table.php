@@ -12,10 +12,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('company_id')->constrained('companies')->cascadeOnDelete();
             $table->string('name');
-            $table->boolean('has_split_names')->default(false);
-            $table->date('assignment_date')->nullable();
-            $table->time('call_start_time')->nullable();
-            $table->time('call_end_time')->nullable();
             $table->string('status')->default('active')->index();
             $table->timestamps();
             $table->softDeletes();

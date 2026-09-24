@@ -18,7 +18,6 @@ return new class extends Migration
             $table->dateTime('next_contact_datetime')->nullable()->index();
             $table->foreignId('customer_status_id')->nullable()->constrained('settings_customer_status')->nullOnDelete();
             $table->foreignId('contact_result_id')->nullable()->constrained('contact_results')->nullOnDelete();
-            $table->foreignId('collection_id')->nullable()->constrained('collections')->nullOnDelete();
             $table->text('notes')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->json('result_details')->nullable();

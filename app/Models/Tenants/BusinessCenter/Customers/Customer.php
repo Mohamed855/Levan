@@ -50,22 +50,15 @@ class Customer extends Model
         'portfolio_id',
         'identity_number',
         'nationality',
-        // 'debt_amount',
         'relationship_manager_id',
         'customer_status_id',
         'phone',
         'account_number',
         'last_sms_text',
         'last_sms_at',
-        // 'service_number',
-        // 'claims_count',
-        // 'claim_date',
-        // 'job_number',
-        // 'classification',
         'last_contact_result_id',
         'contract_date',
         'commission_rate',
-        'default_date',
         'created_by',
     ];
 
@@ -73,13 +66,9 @@ class Customer extends Model
      * The attributes that should be cast.
      */
     protected $casts = [
-        // 'claim_date' => 'date',
         'contract_date' => 'date',
-        'default_date' => 'date',
         'last_sms_at'   => 'datetime',
-        // 'debt_amount' => 'decimal:2',
         'commission_rate' => 'decimal:2',
-        // 'claims_count' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
@@ -142,7 +131,6 @@ class Customer extends Model
             'account_number' => 'رقم الحساب',
             'contract_date' => 'تاريخ العقد',
             'commission_rate' => 'نسبة العمولة',
-            'default_date' => 'تاريخ التعثر',
             'last_contact_result_id' => 'نتيجة الاتصال',
         ];
 
@@ -313,14 +301,6 @@ class Customer extends Model
 
         // إرجاع لون افتراضي دون تحديد حالات معينة
         return 'bg-label-primary';
-    }
-
-    /**
-     * Get formatted debt amount.
-     */
-    public function getFormattedDebtAmountAttribute(): string
-    {
-        return number_format($this->debt_amount, 2) . ' ريال';
     }
 
     /**
@@ -665,14 +645,6 @@ class Customer extends Model
     public function scopeAssigned($query)
     {
         return $query->whereNotNull('relationship_manager_id');
-    }
-
-    /**
-     * Scope for customers with debt.
-     */
-    public function scopeWithDebt($query)
-    {
-        return $query->where('debt_amount', '>', 0);
     }
 
 

@@ -41,10 +41,6 @@ class Settings extends Model
         'breadcrumb_visibility',
         'force_two_factor_auth',
         'logo_text',
-
-        'compare_effort',
-        'daily_tasks',
-        'Overdue_tasks',
     ];
 
     /**

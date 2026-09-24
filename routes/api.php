@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Api\Integration\Collection\CollectionApiController;
 use App\Http\Controllers\Api\Integration\Customer\CustomerApiController;
 use App\Http\Controllers\Api\SubscriptionController;
 use Illuminate\Http\Request;
@@ -16,13 +15,10 @@ Route::prefix('central')->middleware(['api'])->group(function () {
 });
 
 
-// API التكامل الخارجي: عرض العملاء والتحصيلات الخاصة بالتينانت عبر Token
+// API التكامل الخارجي: عرض العملاء الخاصة بالتينانت عبر Token
 Route::prefix('v1')->middleware(['tenant.token'])->group(function () {
     Route::get('customers', [CustomerApiController::class, 'index']);
     Route::get('customers/{id}', [CustomerApiController::class, 'show']);
-
-    Route::get('collections', [CollectionApiController::class, 'index']);
-    Route::get('collections/{id}', [CollectionApiController::class, 'show']);
 });
 
 

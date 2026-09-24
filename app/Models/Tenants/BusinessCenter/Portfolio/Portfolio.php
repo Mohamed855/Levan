@@ -22,10 +22,6 @@ class Portfolio extends Model
     protected $fillable = [
         'name',
         'company_id',
-        'has_split_names',
-        'assignment_date',
-        'call_start_time',
-        'call_end_time',
         'status',
     ];
 
@@ -35,13 +31,9 @@ class Portfolio extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'assignment_date' => 'date',
-        'call_start_time' => 'datetime:H:i',
-        'call_end_time' => 'datetime:H:i',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
-        'has_split_names' => 'boolean',
     ];
 
     /*
@@ -87,10 +79,6 @@ class Portfolio extends Model
         $fieldNames = [
             'name' => 'الاسم',
             'company_id' => 'الشركة',
-            'assignment_date' => 'تاريخ التخصيص',
-            'call_start_time' => 'وقت بدء الاتصال',
-            'call_end_time' => 'وقت نهاية الاتصال',
-            'has_split_names' => 'تقسيم الأسماء',
             'status' => 'الحالة',
         ];
 

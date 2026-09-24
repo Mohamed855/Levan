@@ -44,14 +44,12 @@ class UpdateCustomerRequest extends FormRequest
             'portfolio_id' => ['required', 'exists:portfolios,id'],
             'identity_number' => ['required', 'string', 'max:50'],
             'nationality' => ['nullable', 'exists:settings_countries,id'],
-            'debt_amount' => ['nullable', 'numeric', 'min:0'],
             'relationship_manager_id' => ['nullable', 'exists:users,id'],
 
             'phone' => ['nullable', 'string', 'max:20'],
             'account_number' => ['nullable', 'string', 'max:100', Rule::unique('customers', 'account_number')->ignore($customerId)->whereNull('deleted_at')],
             'contract_date' => ['nullable', 'date', 'before_or_equal:today'],
             'commission_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'default_date' => ['nullable', 'date', 'before_or_equal:today'],
 
             // بيانات الهواتف - جميعها اختيارية
             'phones' => ['nullable', 'array'],

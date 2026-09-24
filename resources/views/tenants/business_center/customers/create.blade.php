@@ -211,13 +211,7 @@
                         <!-- المرحلة الثانية: معلومات الشركة -->
                         <div id="company-info-validation" class="content">
                             <div class="row g-6">
-                                <div class="col-sm-6">
-                                    <label class="form-label" for="debt_amount">مبلغ المديونية <span
-                                            class="text-danger">*</span></label>
-                                    <input type="number" name="debt_amount" id="debt_amount" class="form-control"
-                                        placeholder="ادخل مبلغ المديونية" step="0.01" min="0.01"
-                                        value="{{ old('debt_amount') }}" />
-                                </div>
+
 
                                 <div class="col-sm-6">
                                     <label class="form-label" for="relationship_manager_id">مسؤول العلاقة </label>

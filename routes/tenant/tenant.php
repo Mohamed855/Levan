@@ -8,7 +8,6 @@ use App\Http\Controllers\Tenants\License\LicenseController;
 use App\Http\Controllers\Tenants\dashboard\DashboardController;
 use App\Http\Controllers\Tenants\Auth\PasswordChangeController;
 use App\Http\Controllers\Tenants\activity_log\ActivityLogController;
-use App\Http\Controllers\Tenants\Archive\Collection\CollectionArchiveController;
 use App\Http\Controllers\Tenants\Archive\Company\CompanyArchiveController;
 use App\Http\Controllers\Tenants\Archive\Contract\ContractArchiveController;
 use App\Http\Controllers\Tenants\Archive\Portfolio\PortfolioArchiveController;
@@ -49,17 +48,12 @@ use App\Http\Controllers\Tenants\Domains\CheckMultipleDomainController as Domain
 use App\Http\Controllers\Tenants\Domains\CpanelController;
 use App\Http\Controllers\Tenants\Domains\DomainController;
 use App\Http\Controllers\Tenants\Domains\GetDomainInfoController;
-use App\Http\Controllers\Tenants\Domains\RenewalDomainController;
-use App\Http\Controllers\Tenants\FinancialCollection\Admin\AdminCollectionsController;
-use App\Http\Controllers\Tenants\FinancialCollection\Collection\CollectionController;
 use App\Http\Controllers\Tenants\FinancialCollection\Import\CollectionImportController;
-use App\Http\Controllers\Tenants\FinancialCollection\Target\CollectionTargetController;
 use App\Http\Controllers\Tenants\FinancialCollection\Reconciliation\PaymentReconciliationController;
 use App\Http\Controllers\Tenants\GeneralSetting\ContactMethod\SettingsContactMethodController;
 use App\Http\Controllers\Tenants\GeneralSetting\ContactResult\ContactResultController;
 use App\Http\Controllers\Tenants\GeneralSetting\Country\SettingsCountryController;
 use App\Http\Controllers\Tenants\GeneralSetting\CustomerStatus\SettingsCustomerStatusController;
-use App\Http\Controllers\Tenants\GeneralSetting\DebtType\SettingsDebtTypeController;
 use App\Http\Controllers\Tenants\GeneralSetting\DocumentRequest\SettingsDocumentRequestReasonController;
 use App\Http\Controllers\Tenants\GeneralSetting\MessageTemplate\MessageTemplateController;
 use App\Http\Controllers\Tenants\GeneralSetting\PaymentMethod\SettingsPaymentMethodController;
@@ -350,7 +344,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             Route::resource('settings-country', SettingsCountryController::class);
             Route::resource('settings-payment-methods', SettingsPaymentMethodController::class);
             Route::resource('settings-contact-methods', SettingsContactMethodController::class);
-            Route::resource('settings-debt-types', SettingsDebtTypeController::class);
 
             // === راوتات أسباب طلب المستندات ===
             Route::resource('settings-document-request-reasons', SettingsDocumentRequestReasonController::class);
@@ -830,12 +823,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
                 Route::name('mass-force-delete')->delete('mass-force-delete', [UserArchiveController::class, 'massForceDelete']);
             });
 
-            //  Collection archive
-            Route::prefix('collections')->name('collections.')->group(function () {
-                Route::name('index')->get('/', [CollectionArchiveController::class, 'index']);
-                Route::name('restore')->patch('{collection}/restore', [CollectionArchiveController::class, 'restore']);
-                Route::name('force-delete')->delete('{collection}/force-delete', [CollectionArchiveController::class, 'forceDelete']);
-            });
         });
 
         /*
@@ -846,52 +833,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         */
         Route::prefix('financial-collections')->name('financial-collections.')->group(function () {
 
-            //collections
-            Route::prefix('collections')->name('collections.')->group(function () {
-                Route::name('index')->get('/', [CollectionController::class, 'index']);
-                Route::name('create')->get('/create', [CollectionController::class, 'create']);
-                Route::name('store')->post('/', [CollectionController::class, 'store']);
-                Route::name('delete-selected')->delete('/delete-selected', [CollectionController::class, 'deleteSelected']);
-                Route::name('search-customers')->get('/search-customers', [CollectionController::class, 'searchCustomers']);
-                Route::name('get-customer')->get('/get-customer/{customer}', [CollectionController::class, 'getCustomer']);
-                Route::name('show')->get('/{collection}', [CollectionController::class, 'show']);
-                Route::name('edit')->get('/{collection}/edit', [CollectionController::class, 'edit']);
-                Route::name('update')->put('/{collection}', [CollectionController::class, 'update']);
-                Route::name('destroy')->delete('/{collection}', [CollectionController::class, 'destroy']);
-                Route::name('approve')->patch('/{collection}/approve', [CollectionController::class, 'approve']);
-                Route::name('reject')->patch('/{collection}/reject', [CollectionController::class, 'reject']);
-                Route::name('generate-receipt-number')->get('/generate/receipt-number', [CollectionController::class, 'generateReceiptNumber']);
-                Route::name('recent-collections')->get('/recent/collections', [CollectionController::class, 'getRecentCollections']);
-            });
 
-            //admin-collections
-            Route::prefix('admin-collections')->name('admin-collections.')->group(function () {
-                Route::name('index')->get('/', [AdminCollectionsController::class, 'index']);
-                Route::name('search-customers')->get('/search-customers', [AdminCollectionsController::class, 'searchCustomers']);
-                Route::name('get-all-ids')->get('/get-all-ids', [AdminCollectionsController::class, 'getAllCollectionIds']);
-                Route::name('delete-selected')->delete('/delete-selected', [AdminCollectionsController::class, 'deleteSelected']);
-                Route::name('show')->get('/{collection}', [AdminCollectionsController::class, 'show']);
-                Route::name('destroy')->delete('/{collection}', [AdminCollectionsController::class, 'destroy']);
-                Route::name('approve')->patch('/{collection}/approve', [AdminCollectionsController::class, 'approve']);
-                Route::name('reject')->patch('/{collection}/reject', [AdminCollectionsController::class, 'reject']);
-                Route::name('approve-selected')->patch('/approve-selected', [AdminCollectionsController::class, 'approveSelected']);
-                Route::name('reject-selected')->patch('/reject-selected', [AdminCollectionsController::class, 'rejectSelected']);
-                Route::name('quick-stats')->get('/stats/quick', [AdminCollectionsController::class, 'getQuickStats']);
-            });
-
-            //financial-collections
-            Route::prefix('collection-targets')->name('collection-targets.')->group(function () {
-                Route::name('index')->get('/', [CollectionTargetController::class, 'index']);
-                Route::name('create')->get('/create', [CollectionTargetController::class, 'create']);
-                Route::name('store')->post('/', [CollectionTargetController::class, 'store']);
-                Route::name('edit')->get('/{collection_target}/edit', [CollectionTargetController::class, 'edit']);
-                Route::name('update')->put('/{collection_target}', [CollectionTargetController::class, 'update']);
-                Route::name('destroy')->delete('/{collection_target}', [CollectionTargetController::class, 'destroy']);
-                Route::name('toggle-status')->patch('/{collection_target}/toggle-status', [CollectionTargetController::class, 'toggleStatus']);
-                Route::name('users-by-branch')->get('/users-by-branch', [CollectionTargetController::class, 'getUsersByBranch']);
-                Route::name('teams-by-branch')->get('/teams-by-branch', [CollectionTargetController::class, 'getTeamsByBranch']);
-                Route::name('user-details')->get('/user-details/{userId}', [CollectionTargetController::class, 'showUserDetails']);
-            });
 
             // import
             Route::prefix('import')->name('import.')->group(function () {

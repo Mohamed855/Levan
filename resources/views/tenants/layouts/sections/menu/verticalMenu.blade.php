@@ -176,76 +176,19 @@ use App\Helpers\Helpers;
         @endcanany
 
 
-        @canany(['أهداف التحصيل', 'تحصيلاتي', 'تحصيلات المستخدمين'])
-        <li class="menu-header small">
-            <span class="menu-header-text">إدارة التحصيل</span>
-        </li>
-
-        <li class="menu-item
-                @if (Helpers::isActiveRoute([
-                        'financial-collections.collection-targets.*',
-                        'financial-collections.collections.*',
-                        'financial-collections.admin-collections.*',
-                        'financial-collections.reconciliation.*',
-                    ])) active open @endif ">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons ti ti-currency-dollar"></i>
-                <div>التحصيلات</div>
-            </a>
-            <ul class="menu-sub">
-                @can('أهداف التحصيل')
-                <li
-                    class="menu-item @if (Helpers::isActiveRoute('financial-collections.collection-targets.*')) active @endif">
-                    <a href="{{ tenant_route_name('financial-collections.collection-targets.index') }}"
-                        class="menu-link">
-                        <div>أهداف التحصيل</div>
-                    </a>
-                </li>
-                @endcan
-                @can(['تحصيلاتي'])
-                <li class="menu-item @if (Helpers::isActiveRoute('financial-collections.collections.*')) active @endif">
-                    <a href="{{ tenant_route_name('financial-collections.collections.index') }}" class="menu-link">
-                        <div>تحصيلاتي</div>
-                    </a>
-                </li>
-                @endcan
-                @can(['تحصيلات المستخدمين'])
-                <li
-                    class="menu-item @if (Helpers::isActiveRoute('financial-collections.admin-collections.*')) active @endif">
-                    <a href="{{ tenant_route_name('financial-collections.admin-collections.index') }}"
-                        class="menu-link">
-                        <div>تحصيلات المستخدمين</div>
-                    </a>
-                </li>
-                @endcan
-
-                @can(['مطابقة السدادات'])
-                <li
-                    class="menu-item @if (Helpers::isActiveRoute('financial-collections.reconciliation.*')) active @endif">
-                    <a href="{{ tenant_route_name('financial-collections.reconciliation.index') }}" class="menu-link">
-                        <div>مطابقة السدادات</div>
-                    </a>
-                </li>
-                @endcan
-            </ul>
-        </li>
-        @endcanany
 
         @canany([
         'تقارير العملاء',
-        'تقارير التحصيل',
-        'أرشيف
-        الشركات',
+        'أرشيف الشركات',
         'أرشيف المحافظ',
         'أرشيف العملاء',
-        'أرشيف التحصيلات',
         'أرشيف المستخدمين',
         ])
         <li class="menu-header small">
             <span class="menu-header-text">التقــارير والأرشيف</span>
         </li>
         {{-- قائمة "التقارير" --}}
-        @canany(['تقارير العملاء', 'تقارير التحصيل'])
+        @canany(['تقارير العملاء'])
         <li class="menu-item
             @if (Helpers::isActiveRoute([
                     'reports.executive.*',
@@ -281,14 +224,6 @@ use App\Helpers\Helpers;
                 <li class="menu-item @if (Helpers::isActiveRoute('reports.customer_follows.*')) active @endif">
                     <a href="{{ tenant_route_name('reports.customer_follows.index') }}" class="menu-link">
                         <div>تقارير متابعات العملاء</div>
-                    </a>
-                </li>
-                @endcan
-
-                @can('تقارير التحصيل')
-                <li class="menu-item @if (Helpers::isActiveRoute('reports.financial.*')) active @endif">
-                    <a href="{{ tenant_route_name('reports.financial.index') }}" class="menu-link">
-                        <div>تقارير التحصيل</div>
                     </a>
                 </li>
                 @endcan

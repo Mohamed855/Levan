@@ -39,8 +39,6 @@ class CustomerService
         return DB::transaction(function () use ($data) {
             $data = $this->handleNameLogic($data);
 
-            $initialDebt = $data['debt_amount'] ?? 0;
-
             $dynamic = $data['dynamic'] ?? [];
             unset($data['dynamic']);
             $phones = $data['phones'] ?? [];
@@ -54,17 +52,6 @@ class CustomerService
 
             if (!empty($data['relationship_manager_id'])) {
                 $this->logRelationshipChange($customer, null, $data['relationship_manager_id']);
-            }
-
-            if ($initialDebt > 0) {
-                CustomerTransaction::create([
-                    'customer_id'       => $customer->id,
-                    'type'              => 'debit',
-                    'amount'            => $initialDebt,
-                    'transaction_date'  => now()->toDateString(),
-                    'description'       => 'المديونية الأولية عند إنشاء ملف العميل',
-                    'created_by'        => Auth::id(),
-                ]);
             }
 
             return $customer;
@@ -218,34 +205,6 @@ class CustomerService
                 'phones'
             ]);
 
-        $hasSettlements = \Illuminate\Support\Facades\Schema::hasTable('customer_settlements');
-
-        $query->addSelect([
-            '*',
-            'total_debit' => CustomerTransaction::selectRaw('COALESCE(SUM(amount),0)')
-                ->whereColumn('customer_id', 'customers.id')
-                ->where('type', 'debit'),
-            'total_credit' => CustomerTransaction::selectRaw('COALESCE(SUM(amount),0)')
-                ->whereColumn('customer_id', 'customers.id')
-                ->where('type', 'credit'),
-            'total_settlement' => $hasSettlements
-                ? CustomerSettlement::selectRaw('COALESCE(SUM(settlement_amount),0)')
-                    ->whereColumn('customer_id', 'customers.id')
-                    ->whereNull('deleted_at')
-                : DB::raw('0 as total_settlement'),
-        ]);
-
-        $settlementSubquery = $hasSettlements
-            ? ' - COALESCE((SELECT SUM(settlement_amount) FROM customer_settlements WHERE customer_settlements.customer_id = customers.id AND customer_settlements.deleted_at IS NULL), 0)'
-            : '';
-
-        $query->addSelect([
-            'remaining_debt' => CustomerTransaction::selectRaw(
-                'COALESCE(SUM(CASE WHEN type="debit" THEN amount WHEN type="credit" THEN -amount ELSE 0 END),0)'
-                . $settlementSubquery
-            )->whereColumn('customer_id', 'customers.id')
-        ]);
-
         if ($viewType === 'my') {
             $query->where('relationship_manager_id', auth()->id());
         }
@@ -326,14 +285,6 @@ class CustomerService
                         $phoneQuery->where('phone', 'like', "%{$searchTerm}%");
                     });
             });
-        }
-
-        if (isset($filters['has_debt'])) {
-            if ($filters['has_debt']) {
-                $query->where('debt_amount', '>', 0);
-            } else {
-                $query->where('debt_amount', '<=', 0);
-            }
         }
 
         return $query;
@@ -572,7 +523,6 @@ class CustomerService
                 ->groupBy('settings_customer_status.name')
                 ->pluck('count', 'name')
                 ->toArray(),
-            'total_debt' => Customer::sum('debt_amount'),
             'customers_with_phones' => Customer::whereNotNull('phone')->where('phone', '!=', '')->count(),
         ];
     }
