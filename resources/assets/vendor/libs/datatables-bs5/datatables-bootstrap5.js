@@ -1,3 +1,8 @@
+import * as bootstrap from "bootstrap";
+try {
+    window.bootstrap = bootstrap;
+} catch (e) {}
+
 import "datatables.net-bs5";
 import "datatables.net-buttons";
 import "datatables.net-buttons-bs5";
@@ -11,6 +16,10 @@ import "datatables.net-rowgroup-bs5";
 import "datatables.net-select-bs5";
 import Checkbox from "jquery-datatables-checkboxes";
 import JSZip from "jszip";
+
+if (window.$ && $.fn.dataTable && $.fn.dataTable.Responsive && typeof $.fn.dataTable.Responsive.bootstrap === "function") {
+    $.fn.dataTable.Responsive.bootstrap(bootstrap);
+}
 
 $.fn.dataTable.ext.Checkbox = Checkbox(window, $);
 window.JSZip = JSZip;

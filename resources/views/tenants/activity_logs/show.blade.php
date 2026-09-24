@@ -68,7 +68,7 @@
                                     $avatar = $activity->causer && method_exists($activity->causer,
                                     'getProfilePhotoUrlAttribute')
                                     ? $activity->causer->profile_photo_url
-                                    : asset('assets/img/branding/logo.svg');
+                                    : asset('img/logo.svg');
                                     @endphp
                                     <img src="{{ $avatar }}" class="rounded-circle" width="70" height="70">
                                 </div>

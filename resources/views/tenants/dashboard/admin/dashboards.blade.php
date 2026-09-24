@@ -166,7 +166,7 @@ $isOn = fn($k) => (int) ($chartSettings[$k] ?? 1) === 1;
                         // Original database-backed tenant logo lookup preserved:
                         // $logoImage = SettingsHelper::get('image');
                         // $logoPath = tasset($logoImage);
-                        $logoPath = asset('assets/img/branding/logo.svg');
+                        $logoPath = asset('img/logo-light.svg');
                         @endphp
                         @if (!$isTeamLeader)
                         <!-- 1) الشركات -->

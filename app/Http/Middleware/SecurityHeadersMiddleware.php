@@ -119,8 +119,8 @@ class SecurityHeadersMiddleware
          * مثال: "'self' wss://ws.example.com https://api.example.com"
          */
         // $connectSrc = "'self'";
-        $connectSrc = "'self' https://cdn.jsdelivr.net https://www.google.com https://www.google.com/recaptcha/api.js";
-
+        // $connectSrc = "'self' https://cdn.jsdelivr.net https://www.google.com https://www.google.com/recaptcha/api.js";
+        $connectSrc = "'self' http://127.0.0.1:5173 ws://127.0.0.1:5173 https://cdn.jsdelivr.net https://www.google.com https://www.google.com/recaptcha/api.js";
 
         $csp = implode('; ', array_filter([
     // للسماح بإطارات reCAPTCHA
@@ -129,7 +129,7 @@ class SecurityHeadersMiddleware
     "default-src 'none'",
 
     // JavaScript: أضفنا 'unsafe-eval' لأن reCAPTCHA تعتمد عليها أحياناً لمعالجة الكود الديناميكي
-    "script-src 'self' 'nonce-{$nonce}' 'strict-dynamic' {$scriptCdn}",
+    "script-src 'self' 'unsafe-eval' 'nonce-{$nonce}' 'strict-dynamic' {$scriptCdn}",
 
     "style-src 'self' 'unsafe-inline' {$styleCdn}",
 
@@ -138,7 +138,7 @@ class SecurityHeadersMiddleware
     "font-src 'self' data: {$fontCdn}",
 
     // أضفنا gstatic هنا أيضاً لضمان جلب ملفات الدعم
-    "connect-src 'self' https://cdn.jsdelivr.net https://www.google.com https://www.gstatic.com https://www.recaptcha.net https://www.google.com/recaptcha/api.js",
+    "connect-src 'self' {$connectSrc} https://www.gstatic.com",
 
     "form-action 'self' https://api.moyasar.com https://payment.moyasar.com",
 

@@ -345,7 +345,7 @@
                         {{-- المميزات --}}
                         <div class="flex-1 text-right">
                             <ul class="space-y-3">
-                                @foreach ($plan->features as $feature)
+                                @foreach ($plan->features ?? [] as $feature)
                                 <li class="flex items-start gap-2.5 w-full">
                                     <i
                                         class="ti ti-circle-check text-primary text-base leading-5 flex-shrink-0 mt-0.5"></i>

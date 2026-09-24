@@ -79,7 +79,7 @@ class RoleController extends Controller
                     ->addColumn('image', function (User $user) {
                         $profilePicture = $user->image
                             ? tasset($user->image)
-                            : asset('assets/img/branding/logo.svg');
+                            : asset('img/logo.svg');
 
                         return '<img src="' . $profilePicture . '" alt="' . $user->name . '"
                              class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">';
@@ -198,7 +198,7 @@ class RoleController extends Controller
     |--------------------------------------------------------------------------
     | Display the specified role.
     */
-    public function show(Role $role): View
+    public function show(Role $role): View|RedirectResponse
     {
         try {
             $roleData = $this->roleService->getRoleWithDetails($role);
@@ -215,7 +215,7 @@ class RoleController extends Controller
     |--------------------------------------------------------------------------
     | Show the form for editing the specified role.
     */
-    public function edit(Role $role): View
+    public function edit(Role $role): View|RedirectResponse
     {
         try {
             $permissions = $this->roleService->getGroupedPermissions();

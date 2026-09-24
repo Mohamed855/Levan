@@ -143,9 +143,9 @@ class CompanyController extends Controller
         ->get();
 
     // Get contracts
-    $contracts = $company->hasMany(Contract::class, 'company_id')
-        ->orderBy('created_at', 'desc')
-        ->get();
+    $contracts = \Illuminate\Support\Facades\Schema::hasTable('contracts')
+        ? $company->hasMany(Contract::class, 'company_id')->orderBy('created_at', 'desc')->get()
+        : collect();
 
     // Get authorized people
     $authorized = CompanyAuthorizedPerson::where('company_id', $company->id)->get();

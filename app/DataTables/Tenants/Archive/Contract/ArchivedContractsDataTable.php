@@ -24,6 +24,10 @@ class ArchivedContractsDataTable extends AbstractDataTable
     */
     public function dataTable($query)
     {
+        if ($query instanceof \Illuminate\Support\Collection) {
+            return datatables()->collection($query)->addIndexColumn();
+        }
+
         $datatable = datatables()->eloquent($query)->addIndexColumn();
         $this->addCustomColumns($datatable);
         $datatable = $this->applyFilters($datatable);
@@ -47,6 +51,10 @@ class ArchivedContractsDataTable extends AbstractDataTable
     */
     protected function resource()
     {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('contracts')) {
+            return collect([]);
+        }
+
         return $this->contractArchiveService->getArchivedContractsQuery();
     }
 

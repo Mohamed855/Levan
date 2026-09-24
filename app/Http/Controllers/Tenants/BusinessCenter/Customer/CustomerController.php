@@ -184,11 +184,13 @@ class CustomerController extends Controller
             'attachments' => 0,
         ];
 
-        $templates = MessageTemplate::active()
-            ->where('category', 'customers')
-            ->select('id', 'name', 'content')
-            ->orderBy('name')
-            ->get();
+        $templates = \Illuminate\Support\Facades\Schema::hasTable('message_templates')
+            ? MessageTemplate::active()
+                ->where('category', 'customers')
+                ->select('id', 'name', 'content')
+                ->orderBy('name')
+                ->get()
+            : collect();
 
         return view('tenants.business_center.customers.show', [
             'customer' => $customer,

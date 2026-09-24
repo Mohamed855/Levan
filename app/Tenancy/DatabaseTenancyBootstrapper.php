@@ -14,7 +14,7 @@ class DatabaseTenancyBootstrapper implements TenancyBootstrapper
 
     public function bootstrap(Tenant $tenant)
     {
-        if (static::$currentTenantId === $tenant->getTenantKey()) {
+        if (static::$currentTenantId === $tenant->getTenantKey() && Config::get('database.connections.tenant.host')) {
             return;
         }
 

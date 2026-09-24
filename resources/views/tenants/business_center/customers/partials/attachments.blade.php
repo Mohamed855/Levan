@@ -39,7 +39,9 @@
             <h6 class="mb-3">المرفقات المحفوظة</h6>
             <div id="saved-attachments">
                 @php
-                    $customerAttachments = $customer->attachments()->with('createdBy:id,name')->latest()->get();
+                    $customerAttachments = \Illuminate\Support\Facades\Schema::hasTable('customer_attachments')
+                        ? $customer->attachments()->with('createdBy:id,name')->latest()->get()
+                        : collect();
                 @endphp
 
                 @include('tenants.business_center.customers.customer_attachments.list', ['customerAttachments' => $customerAttachments])

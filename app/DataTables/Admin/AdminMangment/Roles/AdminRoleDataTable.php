@@ -48,7 +48,7 @@ class AdminRoleDataTable extends AbstractDataTable
             ->addColumn('checkbox', fn($row) => '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">')
 
             ->addColumn('image', function (AdminUser $user) {
-                $profilePicture = $user->image ? asset('storage/' . $user->image) : asset('assets/img/branding/logo.svg');
+                $profilePicture = $user->image ? asset('storage/' . $user->image) : asset('img/logo.svg');
                 return '<img src="' . $profilePicture . '" alt="' . $user->name . '" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">';
             })
 

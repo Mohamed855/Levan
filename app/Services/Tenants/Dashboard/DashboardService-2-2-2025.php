@@ -1021,7 +1021,7 @@ class DashboardService
         return $top20->map(function ($item, $index) use ($users) {
             $user = $users->get($item['user_id']);
 
-            $imageUrl = asset('assets/img/branding/logo.svg');
+            $imageUrl = asset('img/logo.svg');
             if ($user && $user->image) {
                 $imagePath = str_replace('storage/', '', $user->image);
                 $imageUrl = asset('storage/' . $imagePath);
@@ -1032,7 +1032,7 @@ class DashboardService
                 'user_id' => $item['user_id'],
                 'user_name' => $user ? $user->name : 'مستخدم محذوف',
                 'employee_number' => $user ? ($user->employee_number ?? 'غير محدد') : 'غير محدد',
-                'image_url' => $user ? tasset($user->image) : asset('assets/img/branding/logo.svg'),
+                'image_url' => $user ? tasset($user->image) : asset('img/logo.svg'),
                 'total_amount' => $item['total_amount'],
                 'collections_count' => $item['collections_count'],
                 'follows_count' => $item['follows_count'],
@@ -1148,7 +1148,7 @@ class DashboardService
 
                 $amount = $query->sum('collected_amount');
 
-                $imageUrl = asset('assets/img/branding/logo.svg');
+                $imageUrl = asset('img/logo.svg');
                 if ($item->createdBy && $item->createdBy->image) {
                     $imagePath = str_replace('storage/', '', $item->createdBy->image);
                     $imageUrl = asset('storage/' . $imagePath);
@@ -1157,7 +1157,7 @@ class DashboardService
                 return [
                     'user_id' => $userId,
                     'user_name' => $item->createdBy->name ?? 'مستخدم محذوف',
-                    'image_url' => $item->createdBy ? tasset($item->createdBy->image) : asset('assets/img/branding/logo.svg'),
+                    'image_url' => $item->createdBy ? tasset($item->createdBy->image) : asset('img/logo.svg'),
                     'follows_count' => (int)$item->follows_count,
                     'amount' => (float)$amount,
                 ];

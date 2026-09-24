@@ -45,7 +45,7 @@
                 <div class="user-profile-header d-flex flex-column flex-lg-row text-sm-start text-center mb-5">
                     <div class="profile-image-container mt-n5 mx-sm-0 mx-auto"
                         style="position: relative; display: inline-block;">
-                        <img src="{{ $user->profile_picture && Storage::disk('public')->exists($user->profile_picture) ? asset('storage/' . $user->profile_picture) : asset('assets/img/branding/logo.svg') }}"
+                        <img src="{{ $user->profile_picture && Storage::disk('public')->exists($user->profile_picture) ? asset('storage/' . $user->profile_picture) : asset('img/logo.svg') }}"
                             alt="صورة الموظف" class="d-block h-auto ms-0 ms-sm-6"
                             style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%;">
 
@@ -119,7 +119,7 @@
                                 </div>
                                 <div class="d-flex justify-content-center">
                                     <img id="previewImage"
-                                        src="{{ $user->profile_picture ? asset('storage/' . $user->profile_picture) : asset('assets/img/branding/logo.svg') }}"
+                                        src="{{ $user->profile_picture ? asset('storage/' . $user->profile_picture) : asset('img/logo.svg') }}"
                                         alt="صورة المعاينة" class="img-thumbnail" style="max-width: 200px;">
                                 </div>
                             </div>

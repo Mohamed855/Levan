@@ -60,7 +60,7 @@
                                     <li data-bs-toggle="tooltip" data-popup="tooltip-custom" data-bs-placement="top"
                                         title="{{ $user->name }}" class="avatar pull-up">
                                         <img class="rounded-circle"
-                                            src="{{ $user->image ? tasset($user->image) : asset('assets/img/branding/logo.svg') }}"
+                                            src="{{ $user->image ? tasset($user->image) : asset('img/logo.svg') }}"
                                             alt="Avatar" width="40" height="40">
                                     </li>
                                 @endforeach

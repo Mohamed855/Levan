@@ -46,7 +46,7 @@
                                     <li data-bs-toggle="tooltip" data-popup="tooltip-custom" data-bs-placement="top"
                                         title="{{ $user->name }}" class="avatar pull-up">
                                         <img class="rounded-circle"
-                                            src="{{ $user->image ? asset('storage/' . $user->image) : asset('assets/img/branding/logo.svg') }}"
+                                            src="{{ $user->image ? asset('storage/' . $user->image) : asset('img/logo.svg') }}"
                                             alt="Avatar" width="40" height="40">
                                     </li>
                                 @endforeach
@@ -88,7 +88,7 @@
                         <div class="row h-100 w-100 m-0">
                             <div class="col-sm-5 d-flex align-items-center justify-content-center p-3">
                                 <div class="d-flex align-items-center h-100 justify-content-center mt-sm-0 mt-4">
-                                    <img src="{{ asset('assets/img/branding/logo.svg') }}" class="img-fluid mt-sm-4 mt-md-0"
+                                    <img src="{{ asset('img/logo.svg') }}" class="img-fluid mt-sm-4 mt-md-0"
                                         alt="add-new-roles" width="83">
                                 </div>
                             </div>

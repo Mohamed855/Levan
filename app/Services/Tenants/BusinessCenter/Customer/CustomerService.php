@@ -218,6 +218,8 @@ class CustomerService
                 'phones'
             ]);
 
+        $hasSettlements = \Illuminate\Support\Facades\Schema::hasTable('customer_settlements');
+
         $query->addSelect([
             '*',
             'total_debit' => CustomerTransaction::selectRaw('COALESCE(SUM(amount),0)')
@@ -226,16 +228,21 @@ class CustomerService
             'total_credit' => CustomerTransaction::selectRaw('COALESCE(SUM(amount),0)')
                 ->whereColumn('customer_id', 'customers.id')
                 ->where('type', 'credit'),
-            'total_settlement' => CustomerSettlement::selectRaw('COALESCE(SUM(settlement_amount),0)')
-                ->whereColumn('customer_id', 'customers.id')
-                ->whereNull('deleted_at'),
+            'total_settlement' => $hasSettlements
+                ? CustomerSettlement::selectRaw('COALESCE(SUM(settlement_amount),0)')
+                    ->whereColumn('customer_id', 'customers.id')
+                    ->whereNull('deleted_at')
+                : DB::raw('0 as total_settlement'),
         ]);
+
+        $settlementSubquery = $hasSettlements
+            ? ' - COALESCE((SELECT SUM(settlement_amount) FROM customer_settlements WHERE customer_settlements.customer_id = customers.id AND customer_settlements.deleted_at IS NULL), 0)'
+            : '';
 
         $query->addSelect([
             'remaining_debt' => CustomerTransaction::selectRaw(
                 'COALESCE(SUM(CASE WHEN type="debit" THEN amount WHEN type="credit" THEN -amount ELSE 0 END),0)'
-                . ' - COALESCE((SELECT SUM(settlement_amount) FROM customer_settlements'
-                . ' WHERE customer_settlements.customer_id = customers.id AND customer_settlements.deleted_at IS NULL), 0)'
+                . $settlementSubquery
             )->whereColumn('customer_id', 'customers.id')
         ]);
 
@@ -587,9 +594,11 @@ class CustomerService
 
         $remainingAmount = $customer->remaining_debt;
 
-        $settlementAmount = CustomerSettlement::where('customer_id', $customerId)
-            ->whereNull('deleted_at')
-            ->sum('settlement_amount') ?? 0;
+        $settlementAmount = \Illuminate\Support\Facades\Schema::hasTable('customer_settlements')
+            ? (CustomerSettlement::where('customer_id', $customerId)
+                ->whereNull('deleted_at')
+                ->sum('settlement_amount') ?? 0)
+            : 0;
 
         return [
             'total_debt' => $totalDebt,
@@ -722,9 +731,11 @@ class CustomerService
             $totalDebit += $account->total_debit ?? 0;
             $totalCredit += $account->total_credit ?? 0;
 
-            $settlement = CustomerSettlement::where('customer_id', $account->id)
-                ->whereNull('deleted_at')
-                ->sum('settlement_amount') ?? 0;
+            $settlement = \Illuminate\Support\Facades\Schema::hasTable('customer_settlements')
+                ? (CustomerSettlement::where('customer_id', $account->id)
+                    ->whereNull('deleted_at')
+                    ->sum('settlement_amount') ?? 0)
+                : 0;
             $totalSettlement += $settlement;
         }
 

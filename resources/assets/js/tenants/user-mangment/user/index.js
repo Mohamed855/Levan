@@ -29,15 +29,11 @@ function initializeComponents() {
 }
 
 function setupFilters() {
-    if ($.fn.DataTable.isDataTable('#users-table')) {
-        const table = $('#users-table').DataTable();
-        
-        table.on('preXhr.dt', function (e, settings, data) {
-            data.status = $('#filter-status').val();
-            data.role = $('#filter-role').val();
-            data.branch_ids = $('#filter-branch').val();
-        });
-    }
+    $('#users-table').on('preXhr.dt', function (e, settings, data) {
+        data.status = $('#filter-status').val();
+        data.role = $('#filter-role').val();
+        data.branch_ids = $('#filter-branch').val();
+    });
 }
 
 function bindTableEvents() {

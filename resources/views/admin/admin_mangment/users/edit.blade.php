@@ -258,7 +258,7 @@
                                         <label class="form-label">الصورة الشخصية</label>
                                         <div
                                             class="d-flex align-items-start align-items-sm-center gap-6 pb-4 border-bottom">
-                                            <img src="{{ $user->image ? asset('storage/' . $user->image) : asset('assets/img/branding/logo.svg') }}"
+                                            <img src="{{ $user->image ? asset('storage/' . $user->image) : asset('img/logo.svg') }}"
                                                 alt="user-avatar" class="d-block w-px-100 h-px-100 rounded"
                                                 id="uploadedAvatar" />
                                             <div class="button-wrapper">

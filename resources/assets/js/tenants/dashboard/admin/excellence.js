@@ -274,7 +274,7 @@ function initializeTopPerformersChart() {
                     }
 
                     sortedData.forEach((employee) => {
-                        const imageUrl = employee.image_url || '/assets/img/branding/logo.svg';
+                        const imageUrl = employee.image_url || '/img/logo.svg';
                         if (!chart.employeeImages[imageUrl]) {
                             const img = new Image();
                             img.crossOrigin = 'anonymous';
@@ -294,7 +294,7 @@ function initializeTopPerformersChart() {
                         const employee = sortedData[index];
                         const x = bar.x;
                         const y = bar.y - 35;
-                        const imageUrl = employee.image_url || '/assets/img/branding/logo.svg';
+                        const imageUrl = employee.image_url || '/img/logo.svg';
                         const img = chart.employeeImages?.[imageUrl];
 
                         ctx.save();

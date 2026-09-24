@@ -14,6 +14,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class UserService
 {
@@ -190,6 +191,20 @@ class UserService
     */
     public function getUserSessionsData(int $userId): array
     {
+        if (!Schema::hasTable('collection_process_sessions')) {
+            return [
+                'days' => [],
+                'statistics' => [
+                    'attendance_days' => 0,
+                    'total_work_hours' => '0:00',
+                    'total_work_minutes' => 0,
+                    'avg_work_hours' => '0:00',
+                    'total_follows' => 0,
+                    'avg_follows' => 0,
+                ],
+            ];
+        }
+
         $startOfMonth = Carbon::now()->startOfMonth();
         $today = Carbon::today();
 

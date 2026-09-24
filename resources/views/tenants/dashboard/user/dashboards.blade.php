@@ -88,7 +88,7 @@
                             </div>
 
                             <div class="col-lg-4 d-none d-lg-block text-center">
-                                <img src="{{ asset('assets/img/branding/logo.svg') }}" alt="Dashboard Illustration"
+                                <img src="{{ asset('img/logo.svg') }}" alt="Dashboard Illustration"
                                     height="200" class="mt-4">
                             </div>
                         </div>

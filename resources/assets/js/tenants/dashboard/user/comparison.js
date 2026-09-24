@@ -113,7 +113,7 @@ function initializeUserComparisonChart() {
   const currentUserName = window.userDashboardData?.user?.name || '';
   const currentUserImage = (window.userDashboardData?.user?.image_url)
     ? normalizeImageUrl(window.userDashboardData.user.image_url)
-    : (findUserImage(sortedPositives, currentUserId) || '/assets/img/branding/logo.svg');
+    : (findUserImage(sortedPositives, currentUserId) || '/img/logo.svg');
 
   displayUserRankComparison('user-comparison-rank', rankValue, comparisonData?.all_users_count, {
     userName: currentUserName,
@@ -378,7 +378,7 @@ function displayUserRankComparison(elementId, rank, totalCount, opts = {}) {
   const safeRank = +rank;
   const icon = safeRank === 1 ? '🏆' : safeRank === 2 ? '🥈' : safeRank === 3 ? '🥉' : '';
   const userName = (opts.userName || '').trim();
-  const userImage = normalizeImageUrl(opts.userImage || '/assets/img/branding/logo.svg');
+  const userImage = normalizeImageUrl(opts.userImage || '/img/logo.svg');
   const total = Number.isFinite(+totalCount) ? +totalCount : '-';
 
   el.innerHTML = `
@@ -420,7 +420,7 @@ function formatNumber(n) {
 }
 
 function normalizeImageUrl(url) {
-  let imageUrl = url || '/assets/img/branding/logo.svg';
+  let imageUrl = url || '/img/logo.svg';
   if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('/')) imageUrl = '/' + imageUrl;
   if (imageUrl && imageUrl.startsWith('/storage/')) imageUrl = window.location.origin + imageUrl;
   return imageUrl;

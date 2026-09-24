@@ -23,6 +23,17 @@
 
 <script>
     var csrfToken = "{{ csrf_token() }}";
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof jQuery !== 'undefined') {
+            jQuery.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            });
+        }
+    });
 </script>
 
 <script>

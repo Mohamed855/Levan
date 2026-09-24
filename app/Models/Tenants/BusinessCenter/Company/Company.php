@@ -241,8 +241,30 @@ class Company extends Model
             ->latest('effective_from');
     }
 
+    public function getCurrentTargetAttribute()
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('company_targets')) {
+            return null;
+        }
+
+        return $this->getRelationValue('currentTarget');
+    }
+
+    public function getTargetsAttribute()
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('company_targets')) {
+            return collect();
+        }
+
+        return $this->getRelationValue('targets');
+    }
+
     public function getTargetForDate($date)
     {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('company_targets')) {
+            return null;
+        }
+
         return $this->targets()->forDate($date)->first();
     }
 
@@ -253,11 +275,17 @@ class Company extends Model
     */
     public function getCurrentTargetPercentageAttribute(): ?float
     {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('company_targets')) {
+            return 0.0;
+        }
         return $this->currentTarget?->target_percentage;
     }
 
     public function getTargetPercentageForDate($date): ?float
     {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('company_targets')) {
+            return 0.0;
+        }
         return $this->getTargetForDate($date)?->target_percentage;
     }
 }

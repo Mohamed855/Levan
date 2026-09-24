@@ -202,6 +202,62 @@ class CustomerFollow extends Model
         return $this->hasOne(RecoveryDetails::class, 'contact_result_id');
     }
 
+    public function getFullPaymentDetailsAttribute()
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('full_payment_details')) {
+            return null;
+        }
+        return $this->getRelationValue('fullPaymentDetails');
+    }
+
+    public function getPartialPaymentDetailsAttribute()
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('partial_payment_details')) {
+            return null;
+        }
+        return $this->getRelationValue('partialPaymentDetails');
+    }
+
+    public function getPromisePaymentDetailsAttribute()
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('promise_payment_details')) {
+            return null;
+        }
+        return $this->getRelationValue('promisePaymentDetails');
+    }
+
+    public function getCallbackDetailsAttribute()
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('callback_details')) {
+            return null;
+        }
+        return $this->getRelationValue('callbackDetails');
+    }
+
+    public function getDocumentRequestDetailsAttribute()
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('document_request_details')) {
+            return null;
+        }
+        return $this->getRelationValue('documentRequestDetails');
+    }
+
+    public function getObjectionDetailsAttribute()
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('objection_details')) {
+            return null;
+        }
+        return $this->getRelationValue('objectionDetails');
+    }
+
+    public function getRecoveryDetailsAttribute()
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('recovery_details')) {
+            return null;
+        }
+        return $this->getRelationValue('recoveryDetails');
+    }
+
     public function getContactedPersonLabelAttribute(): string
     {
         return match ($this->contacted_person) {

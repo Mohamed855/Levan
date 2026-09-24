@@ -28,12 +28,30 @@ abstract class AbstractDataTable extends DataTable
         return $this->builder()
             ->setTableId($this->getTableId())
             ->columns($this->getColumns())
-            ->minifiedAjax()
+            ->minifiedAjax(url()->current())
             ->processing(true)
             ->serverSide(true)
             ->dom($this->dom())
             ->buttons($this->buttons())
             ->parameters($this->parameters());
+    }
+
+    public function render(?string $view = null, array $data = [], array $mergeData = [])
+    {
+        $action = $this->request()->action;
+        $actionMethod = $action === 'print' ? 'printPreview' : $action;
+
+        if (in_array($action, $this->actions) && method_exists($this, $actionMethod)) {
+            $callback = [$this, $actionMethod];
+
+            return app()->call($callback);
+        }
+
+        if ($this->request()->ajax() || $this->request()->wantsJson() || $this->request()->has('draw')) {
+            return app()->call($this->ajax(...));
+        }
+
+        return parent::render($view, $data, $mergeData);
     }
 
     // دالة لتطبيق الفلاتر المخصصة - يمكن للكلاسات الفرعية تخصيصها
@@ -247,12 +265,20 @@ abstract class AbstractDataTable extends DataTable
 
             'responsive' => [
                 'details' => [
-                    'display' => '$.fn.dataTable.Responsive.display.modal({
-                    header: function(row) {
-                        var data = row.data();
-                        return "التفاصيل";
+                    'display' => 'function(row, update, render, closeCallback) {
+                    if (typeof window.bootstrap !== "undefined" && window.bootstrap && typeof $.fn.dataTable.Responsive.display.modal === "function") {
+                        try {
+                            return $.fn.dataTable.Responsive.display.modal({
+                                header: function(r) {
+                                    return "التفاصيل";
+                                }
+                            })(row, update, render, closeCallback);
+                        } catch (e) {
+                            return $.fn.dataTable.Responsive.display.childRow(row, update, render, closeCallback);
+                        }
                     }
-                })',
+                    return $.fn.dataTable.Responsive.display.childRow(row, update, render, closeCallback);
+                }',
                     'type' => 'column',
                     'renderer' => 'function(api, rowIdx, columns) {
                     var data = $.map(columns, function(col, i) {

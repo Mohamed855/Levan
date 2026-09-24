@@ -11,7 +11,7 @@ use App\Helpers\Helpers;
     @if (!isset($navbarFull))
     <div class="app-brand demo">
         <a href="{{ tenant_route_name('dashboard') }}" class="app-brand-link">
-            <span class="app-brand-logo demo">@include('_partials.macros', ['height' => 20])</span>
+            <span class="app-brand-logo demo">@include('_partials.macros', ['logoPath' => asset('img/logo-light.svg')])</span>
             <span class="app-brand-text demo menu-text fw-bold">
                 {{ App\Helpers\Tenants\Settings\SettingsHelper::get('logo_text') }}
             </span>

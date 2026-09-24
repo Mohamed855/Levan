@@ -142,47 +142,44 @@ class CollectionTargetController extends Controller
         }
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Show Edit Form
-    |--------------------------------------------------------------------------
-    */
-   public function edit(CollectionTarget $collectionTarget)
-{
-    try {
-        $branches = $this->collectionTargetService->getActiveBranches();
-        
-        // جلب المستخدمين بناءً على الفرع
-        $users = $this->collectionTargetService->getUsersByBranch($collectionTarget->branch_id);
-        
-        $months = $this->collectionTargetService->getAvailableMonths();
-        $years = $this->collectionTargetService->getAvailableYears();
-        
-        // جلب المجموعات من جدول teams بناءً على الـ IDs المخزنة في team_ids
-        $teamIds = $collectionTarget->team_ids ?? []; // هذا array مثل [1, 2, 3]
-        
-        // جلب المجموعات من جدول teams
-        $teams = Team::whereIn('id', $teamIds)
-                    ->where('branch_id', $collectionTarget->branch_id)
-                    ->get();
-        
-        return view(
-            'tenants.financial_collection.collection_targets.edit',
-            compact('collectionTarget', 'branches', 'users', 'months', 'years', 'teams')
-        );
-    } catch (\Exception $e) {
-        return redirect()
-            ->to(tenant_route_name('financial-collections.collection-targets.index'))
-            ->with('error', 'حدث خطأ أثناء تحميل صفحة التعديل: ' . $e->getMessage());
+    public function edit(CollectionTarget $collection_target)
+    {
+        $collectionTarget = $collection_target;
+        try {
+            $branches = $this->collectionTargetService->getActiveBranches();
+            
+            // جلب المستخدمين بناءً على الفرع
+            $users = $this->collectionTargetService->getUsersByBranch($collectionTarget->branch_id);
+            
+            $months = $this->collectionTargetService->getAvailableMonths();
+            $years = $this->collectionTargetService->getAvailableYears();
+            
+            // جلب المجموعات من جدول teams بناءً على الـ IDs المخزنة في team_ids
+            $teamIds = $collectionTarget->team_ids ?? []; // هذا array مثل [1, 2, 3]
+            
+            // جلب المجموعات من جدول teams
+            $teams = Team::whereIn('id', $teamIds)
+                        ->where('branch_id', $collectionTarget->branch_id)
+                        ->get();
+            
+            return view(
+                'tenants.financial_collection.collection_targets.edit',
+                compact('collectionTarget', 'branches', 'users', 'months', 'years', 'teams')
+            );
+        } catch (\Exception $e) {
+            return redirect()
+                ->to(tenant_route_name('financial-collections.collection-targets.index'))
+                ->with('error', 'حدث خطأ أثناء تحميل صفحة التعديل: ' . $e->getMessage());
+        }
     }
-}
     /*
     |--------------------------------------------------------------------------
     | Update Collection Target
     |--------------------------------------------------------------------------
     */
-    public function update(UpdateCollectionTargetRequest $request, CollectionTarget $collectionTarget): RedirectResponse
+    public function update(UpdateCollectionTargetRequest $request, CollectionTarget $collection_target): RedirectResponse
     {
+        $collectionTarget = $collection_target;
         try {
             $dto = UpdateCollectionTargetDTO::fromArray($request->validated());
             $this->collectionTargetService->updateCollectionTarget($collectionTarget, $dto);
@@ -209,8 +206,9 @@ class CollectionTargetController extends Controller
     | Delete Collection Target
     |--------------------------------------------------------------------------
     */
-    public function destroy(CollectionTarget $collectionTarget): RedirectResponse
+    public function destroy(CollectionTarget $collection_target): RedirectResponse
     {
+        $collectionTarget = $collection_target;
         try {
             $userId = $collectionTarget->user_id;
             $this->collectionTargetService->deleteCollectionTarget($collectionTarget);
@@ -230,8 +228,9 @@ class CollectionTargetController extends Controller
     | Toggle Collection Target Status
     |--------------------------------------------------------------------------
     */
-    public function toggleStatus(CollectionTarget $collectionTarget): JsonResponse
+    public function toggleStatus(CollectionTarget $collection_target): JsonResponse
     {
+        $collectionTarget = $collection_target;
         try {
             $updatedTarget = $this->collectionTargetService->toggleCollectionTargetStatus($collectionTarget);
             $statusText = $updatedTarget->status === 'active' ? 'نشط' : 'غير نشط';

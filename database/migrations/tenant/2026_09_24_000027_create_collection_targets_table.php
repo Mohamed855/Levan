@@ -10,19 +10,21 @@ return new class extends Migration
     {
         Schema::create('collection_targets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('branch_id')->nullable()->constrained('branches')->nullOnDelete();
-            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('branch_id')->nullable()->constrained('branches')->cascadeOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnDelete();
             $table->json('team_ids')->nullable();
-            $table->string('target_type')->index();
-            $table->unsignedTinyInteger('target_month')->nullable();
-            $table->unsignedSmallInteger('target_year');
-            $table->date('start_date')->nullable();
-            $table->date('end_date')->nullable();
-            $table->decimal('target_amount', 14, 2);
-            $table->string('status')->default('active')->index();
-            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->enum('target_type', ['monthly', 'yearly', 'custom'])->default('monthly')->index();
+            $table->integer('target_month')->nullable();
+            $table->integer('target_year')->nullable();
+            $table->date('custom_start_date')->nullable();
+            $table->date('custom_end_date')->nullable();
+            $table->decimal('target_amount', 15, 2);
+            $table->enum('status', ['active', 'inactive'])->default('active')->index();
+            $table->foreignId('added_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
-            $table->index(['user_id', 'target_year', 'target_month']);
+            $table->softDeletes();
+            $table->index(['branch_id', 'user_id']);
+            $table->index(['target_type', 'target_year', 'target_month']);
         });
     }
 

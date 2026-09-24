@@ -22,23 +22,27 @@
         <div class="card-body" data-customer-id="{{ $customer->id }}">
             <div id="saved-follows">
                 @php
+                $relations = ['contactMethod', 'customerStatus', 'createdBy', 'collection', 'contactResult'];
+                $optional = [
+                    'fullPaymentDetails' => 'full_payment_details',
+                    'partialPaymentDetails' => 'partial_payment_details',
+                    'promisePaymentDetails' => 'promise_payment_details',
+                    'callbackDetails' => 'callback_details',
+                    'documentRequestDetails' => 'document_request_details',
+                    'objectionDetails' => 'objection_details',
+                    'recoveryDetails' => 'recovery_details',
+                ];
+                foreach ($optional as $rel => $table) {
+                    if (\Illuminate\Support\Facades\Schema::hasTable($table)) {
+                        $relations[] = $rel;
+                    }
+                }
+
                 $customerFollows = \App\Models\Tenants\BusinessCenter\Customers\Follow\CustomerFollow::where(
-                'customer_id',
-                $customer->id,
+                    'customer_id',
+                    $customer->id,
                 )
-                ->with([
-                'contactMethod',
-                'customerStatus',
-                'createdBy',
-                'fullPaymentDetails',
-                'partialPaymentDetails',
-                'promisePaymentDetails',
-                'callbackDetails',
-                'documentRequestDetails',
-                'objectionDetails',
-                'recoveryDetails',
-                'collection',
-                ])
+                ->with($relations)
                 ->latest()
                 ->get();
 

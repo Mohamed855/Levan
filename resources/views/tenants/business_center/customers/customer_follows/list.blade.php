@@ -41,17 +41,21 @@ $hasAnyActions = isset($hasAnyActions) ? $hasAnyActions : false;
                     @switch($follow->contact_result_id)
                     @case(1)
                     <!-- تم السداد بالكامل -->
-                    المبلغ: {{ number_format($follow->fullPaymentDetails->payment_amount, 2) }}
+                    @if($follow->fullPaymentDetails)
+                    المبلغ: {{ number_format($follow->fullPaymentDetails->payment_amount ?? 0, 2) }}
                     <br>
-                    التاريخ: {{ $follow->fullPaymentDetails->payment_date->format('Y-m-d') }}
+                    التاريخ: {{ $follow->fullPaymentDetails->payment_date?->format('Y-m-d') ?? '—' }}
+                    @else
+                    <span class="text-muted">لا توجد تفاصيل</span>
+                    @endif
                     @break
 
                     @case(2)
                     <!-- سداد جزئي -->
                     @if($follow->partialPaymentDetails)
-                    المبلغ: {{ number_format($follow->partialPaymentDetails->partial_payment_amount, 2) }}
+                    المبلغ: {{ number_format($follow->partialPaymentDetails->partial_payment_amount ?? 0, 2) }}
                     <br>
-                    التاريخ: {{ $follow->partialPaymentDetails->partial_payment_date->format('Y-m-d') }}
+                    التاريخ: {{ $follow->partialPaymentDetails->partial_payment_date?->format('Y-m-d') ?? '—' }}
                     @else
                     <span class="text-muted">لا توجد تفاصيل</span>
                     @endif
@@ -59,29 +63,49 @@ $hasAnyActions = isset($hasAnyActions) ? $hasAnyActions : false;
 
                     @case(3)
                     <!-- وعد بالسداد -->
-                    المبلغ الموعود: {{ number_format($follow->promisePaymentDetails->promise_amount, 2) }}
+                    @if($follow->promisePaymentDetails)
+                    المبلغ الموعود: {{ number_format($follow->promisePaymentDetails->promise_amount ?? 0, 2) }}
                     <br>
-                    التاريخ الموعود: {{ $follow->promisePaymentDetails->promise_date->format('Y-m-d') }}
+                    التاريخ الموعود: {{ $follow->promisePaymentDetails->promise_date?->format('Y-m-d') ?? '—' }}
+                    @else
+                    <span class="text-muted">لا توجد تفاصيل</span>
+                    @endif
                     @break
 
                     @case(4)
                     <!-- معاودة الاتصال -->
-                    تاريخ المتابعة: {{ $follow->callbackDetails->callback_date->format('Y-m-d H:i') }}
+                    @if($follow->callbackDetails)
+                    تاريخ المتابعة: {{ $follow->callbackDetails->callback_date?->format('Y-m-d H:i') ?? '—' }}
+                    @else
+                    <span class="text-muted">لا توجد تفاصيل</span>
+                    @endif
                     @break
 
                     @case(9)
                     <!-- طلب مستندات -->
-                    تاريخ الطلب: {{ $follow->documentRequestDetails->documents_date->format('Y-m-d') }}
+                    @if($follow->documentRequestDetails)
+                    تاريخ الطلب: {{ $follow->documentRequestDetails->documents_date?->format('Y-m-d') ?? '—' }}
+                    @else
+                    <span class="text-muted">لا توجد تفاصيل</span>
+                    @endif
                     @break
 
                     @case(10)
                     <!-- معترض -->
-                    سبب الاعتراض: {{ $follow->objectionDetails->objection_reason }}
+                    @if($follow->objectionDetails)
+                    سبب الاعتراض: {{ $follow->objectionDetails->objection_reason ?? '—' }}
+                    @else
+                    <span class="text-muted">لا توجد تفاصيل</span>
+                    @endif
                     @break
 
                     @case(11)
                     <!-- حذف مسترد -->
-                    سبب الاسترداد: {{ $follow->recoveryDetails->recovery_reason }}
+                    @if($follow->recoveryDetails)
+                    سبب الاسترداد: {{ $follow->recoveryDetails->recovery_reason ?? '—' }}
+                    @else
+                    <span class="text-muted">لا توجد تفاصيل</span>
+                    @endif
                     @break
 
                     @default

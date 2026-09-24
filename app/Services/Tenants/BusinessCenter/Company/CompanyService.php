@@ -29,7 +29,7 @@ class CompanyService
                 $this->syncAuthorizedPeople($company, $dto->authorized_people);
             }
 
-            if ($dto->target_percentage !== null) {
+            if ($dto->target_percentage !== null && \Illuminate\Support\Facades\Schema::hasTable('company_targets')) {
                 CompanyTarget::create([
                     'company_id' => $company->id,
                     'target_percentage' => $dto->target_percentage,
@@ -39,7 +39,12 @@ class CompanyService
                 ]);
             }
 
-            return $company->fresh(['authorizedPeople', 'currentTarget']);
+            $relations = ['authorizedPeople'];
+            if (\Illuminate\Support\Facades\Schema::hasTable('company_targets')) {
+                $relations[] = 'currentTarget';
+            }
+
+            return $company->fresh($relations);
         });
     }
 
@@ -61,7 +66,7 @@ class CompanyService
                 }
             }
 
-            if ($dto->target_percentage !== null) {
+            if ($dto->target_percentage !== null && \Illuminate\Support\Facades\Schema::hasTable('company_targets')) {
                 $currentTarget = $company->currentTarget;
 
                 if (!$currentTarget || $currentTarget->target_percentage != $dto->target_percentage) {
@@ -82,7 +87,12 @@ class CompanyService
                 }
             }
 
-            return $company->fresh(['authorizedPeople', 'currentTarget']);
+            $relations = ['authorizedPeople'];
+            if (\Illuminate\Support\Facades\Schema::hasTable('company_targets')) {
+                $relations[] = 'currentTarget';
+            }
+
+            return $company->fresh($relations);
         });
     }
 
@@ -165,9 +175,9 @@ class CompanyService
             ->withCount('customers')
             ->get();
 
-        $contract = Contract::forCompany($company->id)
-            ->latest('start_date')
-            ->first();
+        $contract = \Illuminate\Support\Facades\Schema::hasTable('contracts')
+            ? Contract::forCompany($company->id)->latest('start_date')->first()
+            : null;
 
         return [
             'authorizedCount' => (int) $company->authorized_people_count,

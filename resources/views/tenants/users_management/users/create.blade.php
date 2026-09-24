@@ -175,7 +175,7 @@
                                     <label class="form-label">الصورة الشخصية</label>
                                     <div
                                         class="d-flex align-items-start align-items-sm-center gap-6 pb-4 border-bottom">
-                                        <img src="{{ asset('assets/img/branding/logo.svg') }}" alt="user-avatar"
+                                        <img src="{{ asset('img/logo.svg') }}" alt="user-avatar"
                                             class="d-block w-px-100 h-px-100 rounded" id="uploadedAvatar" />
                                         <div class="button-wrapper">
                                             <label for="upload" class="btn btn-primary me-3 mb-4" tabindex="0">

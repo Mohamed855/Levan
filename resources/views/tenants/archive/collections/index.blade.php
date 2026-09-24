@@ -32,7 +32,7 @@
         };
         window.csrfToken = "{{ csrf_token() }}";
     </script>
-    @vite(['resources/assets/js/tenants/archive-collections.js'])
+    @vite(['resources/assets/js/tenants/archive/collections/index.js'])
 @endsection
 
 @section('content')

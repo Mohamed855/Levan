@@ -41,16 +41,10 @@ class DashboardController extends Controller
 
         if ($request->ajax() && $request->has('period')) {
             return response()->json([
-                // Original database call preserved for later reactivation:
-                // 'userPerformance' => $this->dashboardService->getPerformanceByPeriod($request->input('period')),
-                'userPerformance' => $this->dashboardService->getDummyPerformanceByPeriod(),
+                'userPerformance' => $this->dashboardService->getPerformanceByPeriod($request->input('period')),
                 'success' => true
             ]);
         }
-
-        // if (Auth::user()->can('لوحة تحكم الإدارة')) {
-        //     return $this->adminDashboard();
-        // }
 
         if (Auth::user()->can('لوحة تحكم الإدارة') || Auth::user()->canManageTeam()) {
             return $this->adminDashboard();
@@ -66,13 +60,8 @@ class DashboardController extends Controller
     */
     private function adminDashboard()
     {
-        // Original database call preserved for later reactivation:
-        // $data = $this->dashboardService->getAdminDashboardData();
-        $data = $this->dashboardService->getDummyAdminDashboardData();
-
-        // Original database call preserved for later reactivation:
-        // $excellenceData = $this->dashboardService->getExcellenceDashboardData();
-        $excellenceData = $this->dashboardService->getDummyExcellenceDashboardData();
+        $data = $this->dashboardService->getAdminDashboardData();
+        $excellenceData = $this->dashboardService->getExcellenceDashboardData();
         $data = array_merge($data, $excellenceData);
 
         return view('tenants.dashboard.admin.dashboards', $data);
@@ -85,9 +74,7 @@ class DashboardController extends Controller
     */
     private function userDashboard()
     {
-        // Original database call preserved for later reactivation:
-        // $data = $this->dashboardService->getUserDashboardData();
-        $data = $this->dashboardService->getDummyUserDashboardData(Auth::user());
+        $data = $this->dashboardService->getUserDashboardData();
 
         return view('tenants.dashboard.user.dashboards', $data);
     }
@@ -99,9 +86,6 @@ class DashboardController extends Controller
     */
     public function getUpcomingFollowUps(Request $request): JsonResponse
     {
-        // Original database/DataTables query preserved below for later reactivation.
-        return $this->dummyDataTableResponse($request, $this->dummyUpcomingFollowUps());
-
         $today = now()->toDateString();
         $accessibleUserIds = $this->getAccessibleUserIdsForDataTables();
 
@@ -214,9 +198,6 @@ class DashboardController extends Controller
     */
     public function getMyUpcomingFollowUps(Request $request): JsonResponse
     {
-        // Original database/DataTables query preserved below for later reactivation.
-        return $this->dummyDataTableResponse($request, $this->dummyUpcomingFollowUps());
-
         $userId = Auth::id();
         $today = now()->toDateString();
 
@@ -315,9 +296,7 @@ class DashboardController extends Controller
             $period = $request->input('period', 'month');
 
             try {
-                // Original database call preserved for later reactivation:
-                // $data = $this->dashboardService->getExcellenceDashboardData($period);
-                $data = $this->dashboardService->getDummyExcellenceDashboardData();
+                $data = $this->dashboardService->getExcellenceDashboardData($period);
 
                 return response()->json([
                     'success' => true,
@@ -337,9 +316,7 @@ class DashboardController extends Controller
                 ], 500);
             }
         }
-        // Original database call preserved for later reactivation:
-        // $data = $this->dashboardService->getExcellenceDashboardData('month');
-        $data = $this->dashboardService->getDummyExcellenceDashboardData();
+        $data = $this->dashboardService->getExcellenceDashboardData('month');
         return view('dashboard.admin.excellence', $data);
     }
 
@@ -378,9 +355,7 @@ class DashboardController extends Controller
         $userId = Auth::id();
 
         try {
-            // Original database call preserved for later reactivation:
-            // $data = $this->dashboardService->getUserComparisonData($userId, $period, $dataType);
-            $data = $this->dashboardService->getDummyComparisonData();
+            $data = $this->dashboardService->getUserComparisonData($userId, $period, $dataType);
 
             return response()->json([
                 'success' => true,
@@ -408,9 +383,7 @@ class DashboardController extends Controller
         $period = $request->input('period', 'month');
 
         try {
-            // Original database call preserved for later reactivation:
-            // $data = $this->dashboardService->getStatisticsData($period);
-            $data = $this->dashboardService->getDummyStatisticsData();
+            $data = $this->dashboardService->getStatisticsData($period);
 
             return response()->json([
                 'success' => true,
@@ -436,9 +409,7 @@ class DashboardController extends Controller
         $period = $request->input('period', 'month');
 
         try {
-            // Original database call preserved for later reactivation:
-            // $data = $this->dashboardService->getApprovalsData($period);
-            $data = $this->dashboardService->getDummyApprovalsData();
+            $data = $this->dashboardService->getApprovalsData($period);
 
             return response()->json([
                 'success' => true,
@@ -462,9 +433,6 @@ class DashboardController extends Controller
     */
     public function getOverdueTasks(Request $request): JsonResponse
     {
-        // Original database/DataTables query preserved below for later reactivation.
-        return $this->dummyDataTableResponse($request, $this->dummyOverdueTasks());
-
         // ✅ جلب User IDs المسموح بها حسب صلاحيات المستخدم
         $accessibleUserIds = $this->getAccessibleUserIdsForDataTables();
 
@@ -614,9 +582,6 @@ class DashboardController extends Controller
     */
     public function getMyOverdueTasks(Request $request): JsonResponse
     {
-        // Original database/DataTables query preserved below for later reactivation.
-        return $this->dummyDataTableResponse($request, $this->dummyOverdueTasks());
-
         $userId = Auth::id();
 
         $filters = [

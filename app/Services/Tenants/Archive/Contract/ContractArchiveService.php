@@ -42,6 +42,10 @@ class ContractArchiveService
     */
     public function getArchivedContractsQuery(): Builder
     {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('contracts')) {
+            return Contract::query()->whereRaw('1=0');
+        }
+
         return Contract::onlyTrashed()
             ->select([
                 'contracts.id',
@@ -69,6 +73,18 @@ class ContractArchiveService
     */
     public function getArchivedContractStatistics(): array
     {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('contracts')) {
+            return [
+                'total' => 0,
+                'active' => 0,
+                'expired' => 0,
+                'inactive' => 0,
+                'suspended' => 0,
+                'recently_archived' => 0,
+                'by_commission_type' => [],
+            ];
+        }
+
         $baseQuery = Contract::onlyTrashed();
 
         return [

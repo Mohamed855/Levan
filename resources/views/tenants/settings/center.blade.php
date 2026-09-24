@@ -100,7 +100,7 @@
                     <div class="card-body pt-0">
                         <div class="row g-2">
                             @can('طرق التحصيل')
-                                <div class="col-12">
+                                <div class="col-6">
                                     <a href="{{ tenant_route_name('general-settings.settings-payment-methods.index') }}"
                                         class="d-flex align-items-center p-3 border rounded text-decoration-none">
                                         <div class="avatar avatar-sm me-3">
@@ -118,7 +118,7 @@
                                 </div>
                             @endcan
 
-                            {{-- @can('أنواع المديونية')
+                            @can('أنواع المديونية')
                                 <div class="col-6">
                                     <a href="{{ tenant_route_name('general-settings.settings-debt-types.index') }}"
                                         class="d-flex align-items-center p-3 border rounded text-decoration-none">
@@ -135,7 +135,7 @@
                                         <i class="ti ti-chevron-left text-muted"></i>
                                     </a>
                                 </div>
-                            @endcan --}}
+                            @endcan
 
                         </div>
                     </div>
@@ -261,7 +261,7 @@
                                 </div>
                             @endcan
 
-                            @can('أسباب طلب المستندات')
+                            {{-- @can('أسباب طلب المستندات')
                                 <div class="col-12">
                                     <a href="{{ tenant_route_name('general-settings.settings-document-request-reasons.index') }}"
                                         class="d-flex align-items-center p-3 border rounded text-decoration-none">
@@ -278,7 +278,7 @@
                                         <i class="ti ti-chevron-left text-muted"></i>
                                     </a>
                                 </div>
-                            @endcan
+                            @endcan --}}
                         </div>
                     </div>
                 </div>

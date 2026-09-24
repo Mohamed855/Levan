@@ -26,6 +26,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->loadMigrationsFrom(database_path('migrations/admin'));
+
         Fortify::ignoreRoutes(); // مهم جدًا - عشان نسجلها احنا يدويًا داخل tenant group
 
         Blade::directive('cspNonce', function () {

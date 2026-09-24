@@ -251,7 +251,7 @@ class User extends Authenticatable
     {
         return $this->image
             ? asset('storage/' . $this->image)
-            : asset('assets/img/branding/logo.svg');
+            : asset('img/logo.svg');
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -490,9 +490,15 @@ class User extends Authenticatable
     */
     public function canManageTeam(): bool
     {
-        return $this->isTeamLeader()
-            && $this->hasTeam()
-            && $this->hasPermissionTo('إدارة الفريق');
+        if (!$this->isTeamLeader() || !$this->hasTeam()) {
+            return false;
+        }
+
+        try {
+            return $this->hasPermissionTo('إدارة الفريق');
+        } catch (\Throwable) {
+            return false;
+        }
     }
 
     /*

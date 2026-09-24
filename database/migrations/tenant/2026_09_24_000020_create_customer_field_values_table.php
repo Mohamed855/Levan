@@ -14,7 +14,8 @@ return new class extends Migration
             $table->foreignId('portfolio_field_id')->constrained('portfolio_fields')->cascadeOnDelete();
             $table->text('value')->nullable();
             $table->timestamps();
-            $table->unique(['customer_id', 'portfolio_field_id']);
+            $table->softDeletes();
+            $table->index(['customer_id', 'portfolio_field_id'], 'cfv_customer_field_idx');
         });
     }
 

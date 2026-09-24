@@ -21,6 +21,10 @@ class ContractsDataTable extends AbstractDataTable
     */
     public function dataTable($query)
     {
+        if ($query instanceof \Illuminate\Support\Collection) {
+            return datatables()->collection($query)->addIndexColumn();
+        }
+
         $datatable = datatables()->eloquent($query)->addIndexColumn();
         $this->addCustomColumns($datatable);
         return $datatable->rawColumns($this->rawColumns());
@@ -43,6 +47,10 @@ class ContractsDataTable extends AbstractDataTable
     */
     protected function resource()
     {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('contracts')) {
+            return collect([]);
+        }
+
         return Contract::with('company:id,name')->select('contracts.*');
     }
 

@@ -571,7 +571,9 @@ class Customer extends Model
 
         $totalCredit = $this->transactions()->where('type', 'credit')->sum('amount');
 
-        $totalSettlement = $this->settlements()->whereNull('deleted_at')->sum('settlement_amount');
+        $totalSettlement = \Illuminate\Support\Facades\Schema::hasTable('customer_settlements')
+            ? $this->settlements()->whereNull('deleted_at')->sum('settlement_amount')
+            : 0;
 
         return (float) round($totalDebit - $totalCredit - $totalSettlement, 2);
     }
@@ -714,6 +716,14 @@ class Customer extends Model
     {
         return $this->hasMany(CustomerUpdateRequest::class, 'customer_id')
             ->where('request_type', CustomerUpdateRequest::REQUEST_TYPE_ADD_PHONE);
+    }
+
+    public function getPhoneRequestsAttribute()
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('customer_update_requests')) {
+            return collect();
+        }
+        return $this->getRelationValue('phoneRequests');
     }
 
     /*

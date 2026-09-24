@@ -17,7 +17,7 @@ use Stancl\Tenancy\Database\Concerns\HasDomains;
 use Illuminate\Support\Str;
 use Stancl\Tenancy\Database\TenantCollection;
 
-class Tenant extends BaseTenant implements TenantWithDatabase
+class TenantOld16022025 extends BaseTenant implements TenantWithDatabase
 {
     /*
     |============================================================================

@@ -80,24 +80,12 @@
                     <i class="menu-icon tf-icons ti ti-power"></i>
                     <div data-i18n="Collection Process"></div>
                     @php
-                        $pendingFollowsCount = \App\Models\Tenants\BusinessCenter\Customers\Customer::where(
-                            'relationship_manager_id',
-                            auth()->id(),
-                        )
-                            ->whereHas('customerFollows', function ($query) {
-                                $query->whereIn('contact_result_id', [3, 4, 9])->where(function ($q) {
-                                    $q->whereHas('promisePaymentDetails', function ($promise) {
-                                        $promise->whereDate('promise_date', '<=', today());
-                                    })
-                                        ->orWhereHas('callbackDetails', function ($callback) {
-                                            $callback->whereDate('callback_date', '<=', today());
-                                        })
-                                        ->orWhereHas('documentRequestDetails', function ($docs) {
-                                            $docs->whereDate('documents_date', '<=', today()->subDays(3));
-                                        });
-                                });
-                            })
-                            ->count();
+                        $pendingFollowsCount = \Illuminate\Support\Facades\Schema::hasTable('tasks')
+                            ? \App\Models\Tenants\BusinessCenter\Customers\Task\Task::where('status', 'pending')
+                                ->whereDate('due_date', '<=', today())
+                                ->whereHas('customer', fn($q) => $q->where('relationship_manager_id', auth()->id()))
+                                ->count()
+                            : 0;
                     @endphp
                     @if ($pendingFollowsCount > 0)
                         {{-- <span class="badge badge-center rounded-pill bg-danger ms-auto">{{
@@ -298,7 +286,7 @@
                 <span class="position-relative">
                     <i class="ti ti-bell ti-md"></i>
                     <span class="badge rounded-pill bg-danger badge-dot badge-notifications border"
-                        style="{{ auth()->user()->unreadNotifications->count() > 0 ? '' : 'display: none;' }}"></span>
+                        style="{{ (auth()->user()?->unreadNotifications?->count() ?? 0) > 0 ? '' : 'display: none;' }}"></span>
                 </span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end p-0" style="min-width: 350px;">
@@ -307,7 +295,7 @@
                         <h6 class="mb-0 me-auto fw-bold">الإشعارات</h6>
                         <div class="d-flex align-items-center h6 mb-0">
                             <span class="badge bg-label-primary me-2" id="unreadCountBadge">
-                                {{ auth()->user()->unreadNotifications->count() }} جديد
+                                {{ auth()->user()?->unreadNotifications?->count() ?? 0 }} جديد
                             </span>
                             <a href="javascript:void(0)" onclick="markAllAsRead()"
                                 class="btn btn-text-secondary rounded-pill btn-icon" data-bs-toggle="tooltip"
@@ -320,7 +308,7 @@
 
                 <li class="dropdown-notifications-list scrollable-container overflow-auto" style="max-height: 300px;">
                     <ul class="list-group list-group-flush" id="notificationsList">
-                        @forelse(auth()->user()->notifications()->take(10)->get() as $notification)
+                        @forelse(auth()->user()?->notifications()->take(10)->get() ?? [] as $notification)
                             @php
                                 $data = $notification->data;
                                 $iconColors = [

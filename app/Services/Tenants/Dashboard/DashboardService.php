@@ -18,6 +18,7 @@ use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
 
 class DashboardService
@@ -103,8 +104,8 @@ class DashboardService
     {
         return [
             'topPerformers' => [
-                ['rank' => 1, 'user_id' => 1, 'user_name' => 'مسؤول تجريبي', 'employee_number' => 'EMP-001', 'image_url' => asset('assets/img/branding/logo.svg'), 'total_amount' => 76000, 'collections_count' => 24, 'follows_count' => 18],
-                ['rank' => 2, 'user_id' => 2, 'user_name' => 'مسؤول نموذجي', 'employee_number' => 'EMP-002', 'image_url' => asset('assets/img/branding/logo.svg'), 'total_amount' => 68000, 'collections_count' => 21, 'follows_count' => 15],
+                ['rank' => 1, 'user_id' => 1, 'user_name' => 'مسؤول تجريبي', 'employee_number' => 'EMP-001', 'image_url' => asset('img/logo.svg'), 'total_amount' => 76000, 'collections_count' => 24, 'follows_count' => 18],
+                ['rank' => 2, 'user_id' => 2, 'user_name' => 'مسؤول نموذجي', 'employee_number' => 'EMP-002', 'image_url' => asset('img/logo.svg'), 'total_amount' => 68000, 'collections_count' => 21, 'follows_count' => 15],
             ],
             'performanceDistribution' => [],
             'performanceTrend' => [],
@@ -170,7 +171,13 @@ class DashboardService
         $cached['filterCompanies']  = Company::select('id', 'name')->orderBy('name')->get();
         $cached['filterPortfolios'] = Portfolio::select('id', 'name')->orderBy('name')->get();
         $cached['filterManagers']   = User::whereIn('id', $userIds ?? User::pluck('id'))->select('id', 'name')->orderBy('name')->get();
-        $cached['dashboardSetting'] = Settings::first();
+        $settings = Settings::first();
+        $cached['dashboardSetting'] = $settings;
+        $cached['chartSettings']    = [
+            'compare_effort' => $settings ? (int)$settings->compare_effort : 1,
+            'daily_tasks'    => $settings ? (int)$settings->daily_tasks : 1,
+            'Overdue_tasks'  => $settings ? (int)$settings->Overdue_tasks : 1,
+        ];
 
         return $cached;
     }
@@ -252,6 +259,15 @@ class DashboardService
     */
     private function getContractStatistics(): array
     {
+        if (!Schema::hasTable('contracts')) {
+            return [
+                'total'         => 0,
+                'active'        => 0,
+                'expiring_soon' => 0,
+                'expired'       => 0,
+            ];
+        }
+
         $today = now()->toDateString();
 
         return [
@@ -1274,7 +1290,7 @@ class DashboardService
         return $top20->map(function ($item, $index) use ($users) {
             $user = $users->get($item['user_id']);
 
-            $imageUrl = asset('assets/img/branding/logo.svg');
+            $imageUrl = asset('img/logo.svg');
             if ($user && $user->image) {
                 $imagePath = str_replace('storage/', '', $user->image);
                 $imageUrl = asset('storage/' . $imagePath);
@@ -1285,7 +1301,7 @@ class DashboardService
                 'user_id' => $item['user_id'],
                 'user_name' => $user ? $user->name : 'مستخدم محذوف',
                 'employee_number' => $user ? ($user->employee_number ?? 'غير محدد') : 'غير محدد',
-                'image_url' => $user ? tasset($user->image) : asset('assets/img/branding/logo.svg'),
+                'image_url' => $user ? tasset($user->image) : asset('img/logo.svg'),
                 'total_amount' => $item['total_amount'],
                 'collections_count' => $item['collections_count'],
                 'follows_count' => $item['follows_count'],
@@ -1404,7 +1420,7 @@ class DashboardService
 
                 $amount = $query->sum('collected_amount');
 
-                $imageUrl = asset('assets/img/branding/logo.svg');
+                $imageUrl = asset('img/logo.svg');
                 if ($item->createdBy && $item->createdBy->image) {
                     $imagePath = str_replace('storage/', '', $item->createdBy->image);
                     $imageUrl = asset('storage/' . $imagePath);
@@ -1413,7 +1429,7 @@ class DashboardService
                 return [
                     'user_id' => $userId,
                     'user_name' => $item->createdBy->name ?? 'مستخدم محذوف',
-                    'image_url' => $item->createdBy ? tasset($item->createdBy->image) : asset('assets/img/branding/logo.svg'),
+                    'image_url' => $item->createdBy ? tasset($item->createdBy->image) : asset('img/logo.svg'),
                     'follows_count' => (int)$item->follows_count,
                     'amount' => (float)$amount,
                 ];
@@ -1595,6 +1611,10 @@ class DashboardService
     */
     public function getCollectionSessionsData(?string $date = null, ?string $status = null, ?array $userIds = null): array
     {
+        if (!Schema::hasTable('collection_process_sessions')) {
+            return [];
+        }
+
         $query = CollectionProcessSession::with([
             'user:id,name,employee_number,image',
             'workPeriods' => function ($q) {
