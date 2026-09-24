@@ -22,6 +22,116 @@ use Carbon\Carbon;
 
 class DashboardService
 {
+    /**
+     * Temporary business-discovery payloads.
+     * Keep the database implementations below intact until the dashboard
+     * requirements are confirmed.
+     */
+    public function getDummyAdminDashboardData(): array
+    {
+        $filterCompanies = collect([
+            (object) ['id' => 1, 'name' => 'شركة تجريبية'],
+            (object) ['id' => 2, 'name' => 'شركة نموذجية'],
+        ]);
+        $filterPortfolios = collect([
+            (object) ['id' => 1, 'name' => 'محفظة تجريبية'],
+            (object) ['id' => 2, 'name' => 'محفظة نموذجية'],
+        ]);
+        $filterManagers = collect([
+            (object) ['id' => 1, 'name' => 'مسؤول تجريبي'],
+            (object) ['id' => 2, 'name' => 'مسؤول نموذجي'],
+        ]);
+
+        return [
+            'companyStats' => ['total' => 12, 'active' => 9, 'recent' => 3, 'without_delegates' => 1],
+            'contractStats' => ['total' => 28, 'active' => 21, 'expiring_soon' => 4, 'expired' => 3],
+            'portfolioStats' => ['total' => 16, 'active' => 12, 'inactive' => 4, 'recent' => 2],
+            'customerStats' => ['total' => '1.2K', 'active' => '980', 'inactive' => '220', 'recent' => '64', 'with_debt' => '735', 'paid_full_this_month' => '128'],
+            'collectionStatsMonth' => ['total' => '246', 'approved' => '184', 'pending' => '42', 'rejected' => '20'],
+            'collectionStats' => ['total' => 246, 'pending' => 42, 'approved' => 184, 'rejected' => 20, 'total_amount' => 486000],
+            'targetStats' => ['total_targets' => 18, 'active_targets' => 14, 'monthly_targets' => 10, 'yearly_targets' => 4, 'custom_targets' => 4],
+            'userPerformance' => [],
+            'targetVsAchievement' => [
+                ['user_id' => 1, 'user_name' => 'مسؤول تجريبي', 'target_amount' => 100000, 'achieved_amount' => 76000, 'achievement_percentage' => 76, 'remaining_amount' => 24000, 'status' => 'on_track'],
+                ['user_id' => 2, 'user_name' => 'مسؤول نموذجي', 'target_amount' => 80000, 'achieved_amount' => 68000, 'achievement_percentage' => 85, 'remaining_amount' => 12000, 'status' => 'excellent'],
+            ],
+            'timeBasedStats' => ['monthly' => []],
+            'quickStats' => ['pending_today' => 8, 'approved_today' => 24, 'total_amount_today' => 42000, 'active_users_today' => 6],
+            'expiringCompanies' => 4,
+            'pendingCollections' => 42,
+            'paymentMethodDistribution' => [],
+            'kpiMetrics' => [],
+            'collectionSessions' => [],
+            'filterCompanies' => $filterCompanies,
+            'filterPortfolios' => $filterPortfolios,
+            'filterManagers' => $filterManagers,
+            'dashboardSetting' => (object) ['compare_effort' => 1, 'daily_tasks' => 1, 'Overdue_tasks' => 1],
+            'chartSettings' => ['compare_effort' => 1, 'daily_tasks' => 1, 'Overdue_tasks' => 1],
+        ];
+    }
+
+    public function getDummyUserDashboardData($user): array
+    {
+        return [
+            'myCollectionStats' => ['total' => 64, 'pending' => 8, 'approved' => 48, 'rejected' => 8, 'total_amount' => 126000],
+            'myActiveTargets' => [],
+            'myTargetComparison' => [],
+            'myTimeStats' => ['weekly' => []],
+            'myQuickStats' => [
+                'today_collections' => 6,
+                'today_amount' => 12000,
+                'month_total_count' => 64,
+                'month_total_amount' => 126000,
+                'month_approved_count' => 48,
+                'month_approved_amount' => 98000,
+                'month_pending_count' => 8,
+                'month_pending_amount' => 18000,
+                'month_vs_last' => ['this_month_amount' => 98000, 'this_month_count' => 48, 'last_month_amount' => 84000, 'last_month_count' => 41, 'amount_delta_pct' => 16.7, 'count_delta_pct' => 17.1],
+            ],
+            'targetProgress' => [],
+            'performanceComparison' => [],
+            'myWorkStats' => ['today_tasks' => 9, 'overdue_tasks' => 3],
+            'comparisonData' => ['top_collections' => []],
+            'myCustomersData' => ['assigned' => ['count' => 7], 'transferred' => ['count' => 3]],
+            'user' => $user,
+            'welcomeMessage' => 'مرحباً بك في لوحة التحكم',
+            'dashboardSetting' => (object) ['compare_effort' => 1, 'daily_tasks' => 1, 'Overdue_tasks' => 1],
+        ];
+    }
+
+    public function getDummyExcellenceDashboardData(): array
+    {
+        return [
+            'topPerformers' => [
+                ['rank' => 1, 'user_id' => 1, 'user_name' => 'مسؤول تجريبي', 'employee_number' => 'EMP-001', 'image_url' => asset('assets/img/branding/logo.svg'), 'total_amount' => 76000, 'collections_count' => 24, 'follows_count' => 18],
+                ['rank' => 2, 'user_id' => 2, 'user_name' => 'مسؤول نموذجي', 'employee_number' => 'EMP-002', 'image_url' => asset('assets/img/branding/logo.svg'), 'total_amount' => 68000, 'collections_count' => 21, 'follows_count' => 15],
+            ],
+            'performanceDistribution' => [],
+            'performanceTrend' => [],
+            'teamStats' => [],
+        ];
+    }
+
+    public function getDummyPerformanceByPeriod(): array
+    {
+        return [];
+    }
+
+    public function getDummyComparisonData(): array
+    {
+        return ['top_collections' => [], 'top_follows' => []];
+    }
+
+    public function getDummyStatisticsData(): array
+    {
+        return ['followups' => 18, 'collections' => 32, 'total_collected' => 42000];
+    }
+
+    public function getDummyApprovalsData(): array
+    {
+        return ['pending' => 12, 'approved' => 26, 'rejected' => 3];
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Get Admin Dashboard Data

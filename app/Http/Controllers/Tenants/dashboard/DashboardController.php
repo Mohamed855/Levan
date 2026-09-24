@@ -41,7 +41,9 @@ class DashboardController extends Controller
 
         if ($request->ajax() && $request->has('period')) {
             return response()->json([
-                'userPerformance' => $this->dashboardService->getPerformanceByPeriod($request->input('period')),
+                // Original database call preserved for later reactivation:
+                // 'userPerformance' => $this->dashboardService->getPerformanceByPeriod($request->input('period')),
+                'userPerformance' => $this->dashboardService->getDummyPerformanceByPeriod(),
                 'success' => true
             ]);
         }
@@ -64,9 +66,13 @@ class DashboardController extends Controller
     */
     private function adminDashboard()
     {
-        $data = $this->dashboardService->getAdminDashboardData();
+        // Original database call preserved for later reactivation:
+        // $data = $this->dashboardService->getAdminDashboardData();
+        $data = $this->dashboardService->getDummyAdminDashboardData();
 
-        $excellenceData = $this->dashboardService->getExcellenceDashboardData();
+        // Original database call preserved for later reactivation:
+        // $excellenceData = $this->dashboardService->getExcellenceDashboardData();
+        $excellenceData = $this->dashboardService->getDummyExcellenceDashboardData();
         $data = array_merge($data, $excellenceData);
 
         return view('tenants.dashboard.admin.dashboards', $data);
@@ -79,7 +85,9 @@ class DashboardController extends Controller
     */
     private function userDashboard()
     {
-        $data = $this->dashboardService->getUserDashboardData();
+        // Original database call preserved for later reactivation:
+        // $data = $this->dashboardService->getUserDashboardData();
+        $data = $this->dashboardService->getDummyUserDashboardData(Auth::user());
 
         return view('tenants.dashboard.user.dashboards', $data);
     }
@@ -91,6 +99,9 @@ class DashboardController extends Controller
     */
     public function getUpcomingFollowUps(Request $request): JsonResponse
     {
+        // Original database/DataTables query preserved below for later reactivation.
+        return $this->dummyDataTableResponse($request, $this->dummyUpcomingFollowUps());
+
         $today = now()->toDateString();
         $accessibleUserIds = $this->getAccessibleUserIdsForDataTables();
 
@@ -203,6 +214,9 @@ class DashboardController extends Controller
     */
     public function getMyUpcomingFollowUps(Request $request): JsonResponse
     {
+        // Original database/DataTables query preserved below for later reactivation.
+        return $this->dummyDataTableResponse($request, $this->dummyUpcomingFollowUps());
+
         $userId = Auth::id();
         $today = now()->toDateString();
 
@@ -301,7 +315,9 @@ class DashboardController extends Controller
             $period = $request->input('period', 'month');
 
             try {
-                $data = $this->dashboardService->getExcellenceDashboardData($period);
+                // Original database call preserved for later reactivation:
+                // $data = $this->dashboardService->getExcellenceDashboardData($period);
+                $data = $this->dashboardService->getDummyExcellenceDashboardData();
 
                 return response()->json([
                     'success' => true,
@@ -321,7 +337,9 @@ class DashboardController extends Controller
                 ], 500);
             }
         }
-        $data = $this->dashboardService->getExcellenceDashboardData('month');
+        // Original database call preserved for later reactivation:
+        // $data = $this->dashboardService->getExcellenceDashboardData('month');
+        $data = $this->dashboardService->getDummyExcellenceDashboardData();
         return view('dashboard.admin.excellence', $data);
     }
 
@@ -360,7 +378,9 @@ class DashboardController extends Controller
         $userId = Auth::id();
 
         try {
-            $data = $this->dashboardService->getUserComparisonData($userId, $period, $dataType);
+            // Original database call preserved for later reactivation:
+            // $data = $this->dashboardService->getUserComparisonData($userId, $period, $dataType);
+            $data = $this->dashboardService->getDummyComparisonData();
 
             return response()->json([
                 'success' => true,
@@ -388,7 +408,9 @@ class DashboardController extends Controller
         $period = $request->input('period', 'month');
 
         try {
-            $data = $this->dashboardService->getStatisticsData($period);
+            // Original database call preserved for later reactivation:
+            // $data = $this->dashboardService->getStatisticsData($period);
+            $data = $this->dashboardService->getDummyStatisticsData();
 
             return response()->json([
                 'success' => true,
@@ -414,7 +436,9 @@ class DashboardController extends Controller
         $period = $request->input('period', 'month');
 
         try {
-            $data = $this->dashboardService->getApprovalsData($period);
+            // Original database call preserved for later reactivation:
+            // $data = $this->dashboardService->getApprovalsData($period);
+            $data = $this->dashboardService->getDummyApprovalsData();
 
             return response()->json([
                 'success' => true,
@@ -438,6 +462,9 @@ class DashboardController extends Controller
     */
     public function getOverdueTasks(Request $request): JsonResponse
     {
+        // Original database/DataTables query preserved below for later reactivation.
+        return $this->dummyDataTableResponse($request, $this->dummyOverdueTasks());
+
         // ✅ جلب User IDs المسموح بها حسب صلاحيات المستخدم
         $accessibleUserIds = $this->getAccessibleUserIdsForDataTables();
 
@@ -587,6 +614,9 @@ class DashboardController extends Controller
     */
     public function getMyOverdueTasks(Request $request): JsonResponse
     {
+        // Original database/DataTables query preserved below for later reactivation.
+        return $this->dummyDataTableResponse($request, $this->dummyOverdueTasks());
+
         $userId = Auth::id();
 
         $filters = [
@@ -778,6 +808,62 @@ class DashboardController extends Controller
             new OverdueTasksExport($userId, $filters),
             $fileName
         );
+    }
+
+    private function dummyDataTableResponse(Request $request, array $rows): JsonResponse
+    {
+        return response()->json([
+            'draw' => (int) $request->input('draw', 1),
+            'recordsTotal' => count($rows),
+            'recordsFiltered' => count($rows),
+            'data' => $rows,
+        ]);
+    }
+
+    private function dummyUpcomingFollowUps(): array
+    {
+        return [
+            [
+                'DT_RowIndex' => 1,
+                'customer_name' => '<a href="#" class="text-decoration-none text-dark">عميل تجريبي</a><div class="small text-muted">0500000000</div>',
+                'account_number' => 'ACC-1001',
+                'identity_number' => '1000000001',
+                'company_name' => 'شركة تجريبية',
+                'portfolio_name' => 'محفظة تجريبية',
+                'follow_result' => '<span class="badge bg-label-success">وعد بالسداد</span>',
+                'remaining_debt' => '12,500.00 ريال',
+                'relationship_manager' => '<div class="text-center"><div class="fw-semibold">مسؤول تجريبي</div><div class="small text-muted">EMP-001</div></div>',
+            ],
+            [
+                'DT_RowIndex' => 2,
+                'customer_name' => '<a href="#" class="text-decoration-none text-dark">عميل نموذجي</a><div class="small text-muted">0550000000</div>',
+                'account_number' => 'ACC-1002',
+                'identity_number' => '1000000002',
+                'company_name' => 'شركة نموذجية',
+                'portfolio_name' => 'محفظة نموذجية',
+                'follow_result' => '<span class="badge bg-label-primary">معاودة اتصال</span>',
+                'remaining_debt' => '8,750.00 ريال',
+                'relationship_manager' => '<div class="text-center"><div class="fw-semibold">مسؤول نموذجي</div><div class="small text-muted">EMP-002</div></div>',
+            ],
+        ];
+    }
+
+    private function dummyOverdueTasks(): array
+    {
+        return [
+            [
+                'DT_RowIndex' => 1,
+                'customer_name' => '<a href="#" class="text-decoration-none text-dark fw-semibold">عميل تجريبي</a><div class="small text-muted">0500000000</div>',
+                'account_number' => 'ACC-1001',
+                'company_name' => 'شركة تجريبية',
+                'portfolio_name' => 'محفظة تجريبية',
+                'task_type' => '<span class="badge bg-label-warning">طلب مستندات</span>',
+                'scheduled_date' => now()->subDays(3)->format('Y-m-d'),
+                'overdue_days' => '<span class="badge bg-label-warning fw-bold">3 أيام</span>',
+                'remaining_debt' => '12,500.00 ريال',
+                'relationship_manager' => '<div class="text-center"><div class="fw-semibold">مسؤول تجريبي</div><div class="small text-muted">EMP-001</div></div>',
+            ],
+        ];
     }
 
     /*

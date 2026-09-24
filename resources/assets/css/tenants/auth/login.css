@@ -1,625 +1,634 @@
-
-
-        :root {
-            --primary-color: #4cc1bb;
-            --primary-hover: #3db3a8;
-            --primary-dark: #2d8d88;
-            --secondary-color: #372632;
-            --secondary-light: #2a3555;
-            --secondary-lighter: #354263;
-            --text-white: #ffffff;
-            --text-light: #e8f0f8;
-            --text-muted: rgba(255, 255, 255, 0.65);
-            --bg-dark: #383d52;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: "Almarai", sans-serif;
-            font-weight: 300;
-            font-style: normal;
-            direction: rtl;
-            text-align: right;
-            overflow: hidden;
-            background: #372632;
-        }
-
-        .login-container {
-            display: flex;
-            height: 100vh;
-            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--bg-dark) 100%);
-        }
-
-        /* --- Left Side - Slider Styles --- */
-        .slider-section {
-            width: 50%;
-            background: linear-gradient(135deg, #3d5168 0%, #2f4256 100%);
-            position: relative;
-            overflow: hidden;
-            order: 1;
-            border-radius: 40px 0 0 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .slider-container {
-            min-height: 100%;
-            width: 100%;
-            position: relative;
-            padding: 30px 40px 20px 40px;
-            direction: rtl;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .slide {
-            display: none;
-            flex: 1;
-            flex-direction: column;
-            justify-content: flex-start;
-            padding-top: 20px;
-            animation: fadeIn 0.8s ease-in-out;
-            align-items: flex-start;
-            overflow-y: auto;
-        }
-
-        .slide.active {
-            display: flex;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* --- Header (Logo) --- */
-        .slide-header {
-            align-self: flex-start;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 40px;
-            padding-right: 10px;
-        }
-
-        .brand-logo-img {
-            height: 130px;
-            width: auto;
-            object-fit: contain;
-        }
-
-        /* --- Texts Section --- */
-        .slide-welcome {
-            font-size: 42px;
-            color: var(--text-white);
-            font-weight: 900;
-            line-height: 1.3;
-            margin-bottom: 15px;
-            text-align: right;
-            width: 100%;
-            align-self: flex-start;
-            padding-right: 27px !important;
-        }
-
-        .slide-subtitle-group {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            margin-bottom: 60px;
-            width: 100%;
-            padding-right: 30px !important;
-        }
-
-        .slide-subtitle-short {
-            font-size: 18px;
-            color: rgba(255, 255, 255, 0.95);
-            font-weight: 600;
-            text-align: right;
-            margin-bottom: 12px;
-            width: 100%;
-        }
-
-        .slide-divider {
-            width: 140px;
-            height: 3px;
-            background-color: var(--primary-color);
-            opacity: 0.8;
-            margin-bottom: 15px;
-            border-radius: 2px;
-            box-shadow: 0 0 10px rgba(76, 193, 187, 0.4);
-            align-self: flex-start;
-        }
-
-        .slide-subtitle-long {
-            font-size: 15px;
-            color: rgba(255, 255, 255, 0.85);
-            line-height: 1.7;
-            text-align: right;
-            max-width: 550px;
-            font-weight: 500;
-            width: 100%;
-        }
-
-        /* --- Lower Section --- */
-        .slide-icon {
-            margin-top: 50px;
-            margin-bottom: 25px;
-            align-self: center;
-            display: flex;
-            justify-content: center;
-            width: 100%;
-            min-height: 220px;
-            align-items: center;
-        }
-
-        .slide-img {
-            width: 220px;
-            height: 220px;
-            object-fit: contain;
-            filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.25));
-        }
-
-        .slide-title {
-            font-size: 24px;
-            color: var(--text-white);
-            margin-bottom: 12px;
-            font-weight: 700;
-            text-align: center;
-            width: 100%;
-            align-self: center;
-        }
-
-        .slide-description {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.8);
-            line-height: 1.7;
-            max-width: 480px;
-            text-align: center;
-            align-self: center;
-        }
-
-        /* Slider Dots - الحل النهائي */
-        .slider-dots {
-            position: relative;
-            display: flex;
-            gap: 10px;
-            z-index: 100;
-            padding: 20px 0;
-            justify-content: center;
-            margin-top: auto;
-        }
-
-        .dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-
-        .dot.active {
-            background: var(--primary-color);
-            width: 12px;
-            height: 12px;
-            border-color: rgba(76, 193, 187, 0.5);
-            box-shadow: 0 0 12px rgba(76, 193, 187, 0.6);
-        }
-
-        .dot:hover {
-            background: rgba(76, 193, 187, 0.6);
-        }
-
-        /* --- Right Side - Login Form --- */
-        .login-form-section {
-            width: 50%;
-            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--secondary-light) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 30px;
-            position: relative;
-            z-index: 10;
-            order: 2;
-            border-radius: 25px 0 0 25px !important;
-        }
-
-        .login-card {
-            background: linear-gradient(145deg, rgba(42, 58, 85, 0.6) 0%, rgba(31, 42, 68, 0.7) 100%);
-            backdrop-filter: blur(20px);
-            border-radius: 16px;
-            padding: 35px 30px;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            border: 2px solid rgba(255, 255, 255, 0.15);
-        }
-
-        .login-title {
-            color: #ffffff;
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 25px;
-            text-align: center;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        .form-label {
-            color: #ffffff !important;
-            font-size: 13px;
-            margin-bottom: 8px;
-            display: block;
-            font-weight: 600;
-        }
-
-        /* الحقول بيضاء من الداخل */
-        .form-control {
-            width: 100% !important;
-            min-width: 100% !important;
-            max-width: 100% !important;
-            height: 46px !important;
-            min-height: 46px !important;
-            max-height: 46px !important;
-            padding: 12px 16px !important;
-            border-radius: 16px !important;
-            border: 2px solid rgba(255, 255, 255, 0.2) !important;
-            background: #ffffff !important;
-            color: #1f2937 !important;
-            font-size: 14px !important;
-            font-weight: 500 !important;
-            box-sizing: border-box !important;
-            transition: none !important;
-            transform: none !important;
-            box-shadow: none !important;
-        }
-
-        .form-control::placeholder {
-            color: #9ca3af !important;
-        }
-
-        .form-control:hover,
-        .form-control:focus,
-        .form-control:active {
-            width: 100% !important;
-            min-width: 100% !important;
-            max-width: 100% !important;
-            height: 46px !important;
-            min-height: 46px !important;
-            max-height: 46px !important;
-            outline: none !important;
-            background: #ffffff !important;
-            border-color: #4cc1bb !important;
-            box-shadow: none !important;
-            transform: none !important;
-            transition: none !important;
-        }
-
-        /* ✅✅✅ حل مشكلة Autocomplete - الحل الشامل ✅✅✅ */
-        input:-webkit-autofill,
-        input:-webkit-autofill:hover,
-        input:-webkit-autofill:focus,
-        input:-webkit-autofill:active {
-            -webkit-box-shadow: 0 0 0 50px white inset !important;
-            -webkit-text-fill-color: #1f2937 !important;
-            box-shadow: 0 0 0 50px white inset !important;
-            background-color: white !important;
-            color: #1f2937 !important;
-            caret-color: #1f2937 !important;
-            border: 2px solid rgba(255, 255, 255, 0.2) !important;
-        }
-
-        input:-webkit-autofill:focus {
-            border-color: #4cc1bb !important;
-        }
-
-        /* ✅ تنسيق النص المحدد */
-        input[type="email"]::selection,
-        input[type="password"]::selection {
-            background-color: #4cc1bb !important;
-            color: white !important;
-        }
-
-        input[type="email"]::-moz-selection,
-        input[type="password"]::-moz-selection {
-            background-color: #4cc1bb !important;
-            color: white !important;
-        }
-
-        /* تنسيق رسائل الأخطاء */
-        .text-danger {
-            color: #ff4d4f !important;
-            font-size: 12px !important;
-            margin-top: 5px !important;
-            display: block !important;
-            font-weight: 500 !important;
-        }
-
-        .password-toggle {
-            position: relative;
-        }
-
-        .password-toggle .form-control {
-            padding-left: 50px !important;
-        }
-
-        .password-toggle .toggle-icon {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #6b7280;
-            font-size: 20px;
-            z-index: 100;
-            pointer-events: auto;
-            transition: color 0.2s ease;
-        }
-
-        .password-toggle .toggle-icon:hover {
-            color: #4cc1bb;
-        }
-
-        .remember-forgot {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 18px 0 22px 0;
-        }
-
-        .remember-me {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-        }
-
-        .remember-me input[type="checkbox"] {
-            width: 15px;
-            height: 15px;
-            cursor: pointer;
-            accent-color: #4cc1bb;
-        }
-
-        .remember-me label {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 12px;
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        .forgot-password {
-            color: rgba(255, 255, 255, 0.85);
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: 600;
-            transition: color 0.3s ease;
-        }
-
-        .forgot-password:hover {
-            color: var(--primary-color);
-            text-decoration: underline;
-        }
-
-        .btn-login {
-            width: 100%;
-            padding: 13px;
-            background: linear-gradient(135deg, #4cc1bb 0%, #3db3a8 100%);
-            border: none;
-            border-radius: 8px;
-            color: #ffffff;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            margin-top: 8px;
-        }
-
-        .btn-login:hover {
-            background: linear-gradient(135deg, #3db3a8 0%, #2d8d88 100%);
-        }
-
-        .footer-text {
-            text-align: center;
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 12px;
-            margin-top: 22px;
-            line-height: 1.6;
-        }
-
-        .footer-link {
-            color: rgba(255, 255, 255, 0.7);
-            text-decoration: none;
-            transition: color 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .footer-link:hover {
-            color: var(--primary-color);
-        }
-
-        /* ✅✅✅ شعار الفوتر - صغير جداً جداً ✅✅✅ */
-        .footer-logo {
-            height: 14px !important;
-            width: auto !important;
-            display: inline-block !important;
-            vertical-align: middle !important;
-            margin-right: 3px !important;
-            object-fit: contain !important;
-            filter: brightness(0.9);
-        }
-
-        /* Responsive */
-        @media (max-width: 1400px) {
-            .slider-container {
-                padding-bottom: 20px;
-            }
-
-            .brand-logo-img {
-                height: 95px;
-            }
-
-            .slide-welcome {
-                font-size: 36px;
-            }
-
-            .slide-subtitle-short {
-                font-size: 16px;
-            }
-
-            .slide-subtitle-long {
-                font-size: 14px;
-            }
-
-            .slide-img {
-                width: 190px;
-                height: 190px;
-            }
-
-            .slide-icon {
-                min-height: 190px;
-            }
-
-            .slide-title {
-                font-size: 22px;
-            }
-
-            .slide-description {
-                font-size: 13px;
-            }
-        }
-
-        @media (max-width: 1200px) {
-            .slider-container {
-                padding-bottom: 20px;
-            }
-
-            .brand-logo-img {
-                height: 85px;
-            }
-
-            .slide-welcome {
-                font-size: 32px;
-                margin-bottom: 12px;
-            }
-
-            .slide-subtitle-group {
-                margin-bottom: 50px;
-            }
-
-            .slide-subtitle-short {
-                font-size: 15px;
-            }
-
-            .slide-subtitle-long {
-                font-size: 13px;
-            }
-
-            .slide-img {
-                width: 170px;
-                height: 170px;
-            }
-
-            .slide-icon {
-                min-height: 170px;
-                margin-top: 40px;
-            }
-
-            .slide-title {
-                font-size: 20px;
-            }
-
-            .slide-description {
-                font-size: 12px;
-            }
-
-            .login-card {
-                padding: 30px 25px;
-            }
-
-            .login-title {
-                font-size: 22px;
-            }
-        }
-
-        @media (max-width: 1024px) {
-            .slider-section {
-                display: none;
-            }
-
-            .login-form-section {
-                width: 100%;
-                border-radius: 0;
-            }
-
-            .login-card {
-                max-width: 450px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .login-form-section {
-                padding: 20px;
-            }
-
-            .login-card {
-                padding: 30px 20px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .login-card {
-                padding: 25px 18px;
-            }
-
-            .login-title {
-                font-size: 20px;
-            }
-
-            .form-control {
-                padding: 11px 14px !important;
-                font-size: 13px !important;
-                height: 44px !important;
-            }
-
-            .password-toggle .form-control {
-                padding-left: 40px !important;
-            }
-
-            .footer-logo {
-                height: 12px !important;
-            }
-        }
-
-        /* دعم Zoom للشاشات الكبيرة */
-        @media (min-width: 1600px) {
-            .slider-dots {
-                padding: 25px 0;
-            }
-        }
-
-        @media (min-width: 1920px) {
-            .slider-dots {
-                padding: 30px 0;
-            }
-        }
+:root {
+    --primary-color: #4cc1bb;
+    --primary-hover: #3db3a8;
+    --primary-dark: #2d8d88;
+    --secondary-color: #372632;
+    --secondary-light: #2a3555;
+    --secondary-lighter: #354263;
+    --text-white: #ffffff;
+    --text-light: #e8f0f8;
+    --text-muted: rgba(255, 255, 255, 0.65);
+    --bg-dark: #383d52;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Almarai", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+    direction: rtl;
+    text-align: right;
+    overflow: hidden;
+    background: #372632;
+}
+
+.login-container {
+    display: flex;
+    height: 100vh;
+    background: linear-gradient(
+        135deg,
+        var(--secondary-color) 0%,
+        var(--bg-dark) 100%
+    );
+}
+
+/* --- Left Side - Slider Styles --- */
+.slider-section {
+    width: 50%;
+    background: linear-gradient(135deg, #3d5168 0%, #2f4256 100%);
+    position: relative;
+    overflow: hidden;
+    order: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slider-container {
+    min-height: 100%;
+    width: 100%;
+    position: relative;
+    padding: 30px 40px 20px 40px;
+    direction: rtl;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.slide {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: 20px;
+    animation: fadeIn 0.8s ease-in-out;
+    align-items: flex-start;
+    overflow-y: auto;
+}
+
+.slide.active {
+    display: flex;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- Header (Logo) --- */
+.slide-header {
+    align-self: flex-start;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 40px;
+    padding-right: 10px;
+}
+
+.brand-logo-img {
+    height: 130px;
+    width: auto;
+    object-fit: contain;
+}
+
+/* --- Texts Section --- */
+.slide-welcome {
+    font-size: 42px;
+    color: var(--text-white);
+    font-weight: 900;
+    line-height: 1.3;
+    margin-bottom: 15px;
+    text-align: right;
+    width: 100%;
+    align-self: flex-start;
+    padding-right: 27px !important;
+}
+
+.slide-subtitle-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 60px;
+    width: 100%;
+    padding-right: 30px !important;
+}
+
+.slide-subtitle-short {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 600;
+    text-align: right;
+    margin-bottom: 12px;
+    width: 100%;
+}
+
+.slide-divider {
+    width: 140px;
+    height: 3px;
+    background-color: var(--primary-color);
+    opacity: 0.8;
+    margin-bottom: 15px;
+    border-radius: 2px;
+    box-shadow: 0 0 10px rgba(76, 193, 187, 0.4);
+    align-self: flex-start;
+}
+
+.slide-subtitle-long {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.7;
+    text-align: right;
+    max-width: 550px;
+    font-weight: 500;
+    width: 100%;
+}
+
+/* --- Lower Section --- */
+.slide-icon {
+    margin-top: 50px;
+    margin-bottom: 25px;
+    align-self: center;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    min-height: 220px;
+    align-items: center;
+}
+
+.slide-img {
+    width: 220px;
+    height: 220px;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.25));
+}
+
+.slide-title {
+    font-size: 24px;
+    color: var(--text-white);
+    margin-bottom: 12px;
+    font-weight: 700;
+    text-align: center;
+    width: 100%;
+    align-self: center;
+}
+
+.slide-description {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.7;
+    max-width: 480px;
+    text-align: center;
+    align-self: center;
+}
+
+/* Slider Dots - الحل النهائي */
+.slider-dots {
+    position: relative;
+    display: flex;
+    gap: 10px;
+    z-index: 100;
+    padding: 20px 0;
+    justify-content: center;
+    margin-top: auto;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.dot.active {
+    background: var(--primary-color);
+    width: 12px;
+    height: 12px;
+    border-color: rgba(76, 193, 187, 0.5);
+    box-shadow: 0 0 12px rgba(76, 193, 187, 0.6);
+}
+
+.dot:hover {
+    background: rgba(76, 193, 187, 0.6);
+}
+
+/* --- Right Side - Login Form --- */
+.login-form-section {
+    width: 50%;
+    background: linear-gradient(
+        135deg,
+        var(--secondary-color) 0%,
+        var(--secondary-light) 100%
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    position: relative;
+    z-index: 10;
+    order: 2;
+    border-radius: 25px 0 0 25px !important;
+}
+
+.login-card {
+    background: linear-gradient(
+        145deg,
+        rgba(42, 58, 85, 0.6) 0%,
+        rgba(31, 42, 68, 0.7) 100%
+    );
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    padding: 35px 30px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+.login-title {
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 25px;
+    text-align: center;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-label {
+    color: #ffffff !important;
+    font-size: 13px;
+    margin-bottom: 8px;
+    display: block;
+    font-weight: 600;
+}
+
+/* الحقول بيضاء من الداخل */
+.form-control {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    max-height: 46px !important;
+    padding: 12px 16px !important;
+    border-radius: 16px !important;
+    border: 2px solid rgba(255, 255, 255, 0.2) !important;
+    background: #ffffff !important;
+    color: #1f2937 !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    box-sizing: border-box !important;
+    transition: none !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.form-control::placeholder {
+    color: #9ca3af !important;
+}
+
+.form-control:hover,
+.form-control:focus,
+.form-control:active {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    max-height: 46px !important;
+    outline: none !important;
+    background: #ffffff !important;
+    border-color: #4cc1bb !important;
+    box-shadow: none !important;
+    transform: none !important;
+    transition: none !important;
+}
+
+/* ✅✅✅ حل مشكلة Autocomplete - الحل الشامل ✅✅✅ */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 50px white inset !important;
+    -webkit-text-fill-color: #1f2937 !important;
+    box-shadow: 0 0 0 50px white inset !important;
+    background-color: white !important;
+    color: #1f2937 !important;
+    caret-color: #1f2937 !important;
+    border: 2px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+input:-webkit-autofill:focus {
+    border-color: #4cc1bb !important;
+}
+
+/* ✅ تنسيق النص المحدد */
+input[type="email"]::selection,
+input[type="password"]::selection {
+    background-color: #4cc1bb !important;
+    color: white !important;
+}
+
+input[type="email"]::-moz-selection,
+input[type="password"]::-moz-selection {
+    background-color: #4cc1bb !important;
+    color: white !important;
+}
+
+/* تنسيق رسائل الأخطاء */
+.text-danger {
+    color: #ff4d4f !important;
+    font-size: 12px !important;
+    margin-top: 5px !important;
+    display: block !important;
+    font-weight: 500 !important;
+}
+
+.password-toggle {
+    position: relative;
+}
+
+.password-toggle .form-control {
+    padding-left: 50px !important;
+}
+
+.password-toggle .toggle-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #6b7280;
+    font-size: 20px;
+    z-index: 100;
+    pointer-events: auto;
+    transition: color 0.2s ease;
+}
+
+.password-toggle .toggle-icon:hover {
+    color: #4cc1bb;
+}
+
+.remember-forgot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 18px 0 22px 0;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.remember-me input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+    accent-color: #4cc1bb;
+}
+
+.remember-me label {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 12px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.forgot-password {
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.forgot-password:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.btn-login {
+    width: 100%;
+    padding: 13px;
+    background: linear-gradient(135deg, #4cc1bb 0%, #3db3a8 100%);
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin-top: 8px;
+}
+
+.btn-login:hover {
+    background: linear-gradient(135deg, #3db3a8 0%, #2d8d88 100%);
+}
+
+.footer-text {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+    margin-top: 22px;
+    line-height: 1.6;
+}
+
+.footer-link {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: color 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.footer-link:hover {
+    color: var(--primary-color);
+}
+
+/* ✅✅✅ شعار الفوتر - صغير جداً جداً ✅✅✅ */
+.footer-logo {
+    height: 14px !important;
+    width: auto !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+    margin-right: 3px !important;
+    object-fit: contain !important;
+    filter: brightness(0.9);
+}
+
+/* Responsive */
+@media (max-width: 1400px) {
+    .slider-container {
+        padding-bottom: 20px;
+    }
+
+    .brand-logo-img {
+        height: 95px;
+    }
+
+    .slide-welcome {
+        font-size: 36px;
+    }
+
+    .slide-subtitle-short {
+        font-size: 16px;
+    }
+
+    .slide-subtitle-long {
+        font-size: 14px;
+    }
+
+    .slide-img {
+        width: 190px;
+        height: 190px;
+    }
+
+    .slide-icon {
+        min-height: 190px;
+    }
+
+    .slide-title {
+        font-size: 22px;
+    }
+
+    .slide-description {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .slider-container {
+        padding-bottom: 20px;
+    }
+
+    .brand-logo-img {
+        height: 85px;
+    }
+
+    .slide-welcome {
+        font-size: 32px;
+        margin-bottom: 12px;
+    }
+
+    .slide-subtitle-group {
+        margin-bottom: 50px;
+    }
+
+    .slide-subtitle-short {
+        font-size: 15px;
+    }
+
+    .slide-subtitle-long {
+        font-size: 13px;
+    }
+
+    .slide-img {
+        width: 170px;
+        height: 170px;
+    }
+
+    .slide-icon {
+        min-height: 170px;
+        margin-top: 40px;
+    }
+
+    .slide-title {
+        font-size: 20px;
+    }
+
+    .slide-description {
+        font-size: 12px;
+    }
+
+    .login-card {
+        padding: 30px 25px;
+    }
+
+    .login-title {
+        font-size: 22px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .slider-section {
+        display: none;
+    }
+
+    .login-form-section {
+        width: 100%;
+        border-radius: 0;
+    }
+
+    .login-card {
+        max-width: 450px;
+    }
+}
+
+@media (max-width: 768px) {
+    .login-form-section {
+        padding: 20px;
+    }
+
+    .login-card {
+        padding: 30px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-card {
+        padding: 25px 18px;
+    }
+
+    .login-title {
+        font-size: 20px;
+    }
+
+    .form-control {
+        padding: 11px 14px !important;
+        font-size: 13px !important;
+        height: 44px !important;
+    }
+
+    .password-toggle .form-control {
+        padding-left: 40px !important;
+    }
+
+    .footer-logo {
+        height: 12px !important;
+    }
+}
+
+/* دعم Zoom للشاشات الكبيرة */
+@media (min-width: 1600px) {
+    .slider-dots {
+        padding: 25px 0;
+    }
+}
+
+@media (min-width: 1920px) {
+    .slider-dots {
+        padding: 30px 0;
+    }
+}
