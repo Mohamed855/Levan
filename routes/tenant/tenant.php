@@ -48,8 +48,12 @@ use App\Http\Controllers\Tenants\Domains\CheckMultipleDomainController as Domain
 use App\Http\Controllers\Tenants\Domains\CpanelController;
 use App\Http\Controllers\Tenants\Domains\DomainController;
 use App\Http\Controllers\Tenants\Domains\GetDomainInfoController;
+use App\Http\Controllers\Tenants\Domains\RenewalDomainController;
+use App\Http\Controllers\Tenants\FinancialCollection\Admin\AdminCollectionsController;
+use App\Http\Controllers\Tenants\FinancialCollection\Collection\CollectionController;
 use App\Http\Controllers\Tenants\FinancialCollection\Import\CollectionImportController;
 use App\Http\Controllers\Tenants\FinancialCollection\Reconciliation\PaymentReconciliationController;
+use App\Http\Controllers\Tenants\FinancialCollection\Target\CollectionTargetController;
 use App\Http\Controllers\Tenants\GeneralSetting\ContactMethod\SettingsContactMethodController;
 use App\Http\Controllers\Tenants\GeneralSetting\ContactResult\ContactResultController;
 use App\Http\Controllers\Tenants\GeneralSetting\Country\SettingsCountryController;
@@ -355,13 +359,13 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             });
 
             //  === راوتات قوالب الرسائل  ===
-            Route::resource('message-templates', MessageTemplateController::class);
             Route::prefix('message-templates')->name('message-templates.')->group(function () {
-                Route::name('toggle-status')->patch('/{messageTemplate}/toggle-status', [MessageTemplateController::class, 'toggleStatus']);
                 Route::name('preview')->post('/preview', [MessageTemplateController::class, 'preview']);
                 Route::name('get-templates')->get('/get-templates', [MessageTemplateController::class, 'getTemplates']);
                 Route::name('get-variables-by-category')->get('/get-variables-by-category', [MessageTemplateController::class, 'getVariablesByCategory']);
+                Route::name('toggle-status')->patch('/{messageTemplate}/toggle-status', [MessageTemplateController::class, 'toggleStatus']);
             });
+            Route::resource('message-templates', MessageTemplateController::class);
 
             //  === راوتات نتائج الإتصال  ===
             // Route::resource('contact-results', ContactResultController::class);
@@ -833,7 +837,52 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         */
         Route::prefix('financial-collections')->name('financial-collections.')->group(function () {
 
+            //collections
+            Route::prefix('collections')->name('collections.')->group(function () {
+                Route::name('index')->get('/', [CollectionController::class, 'index']);
+                Route::name('create')->get('/create', [CollectionController::class, 'create']);
+                Route::name('store')->post('/', [CollectionController::class, 'store']);
+                Route::name('delete-selected')->delete('/delete-selected', [CollectionController::class, 'deleteSelected']);
+                Route::name('search-customers')->get('/search-customers', [CollectionController::class, 'searchCustomers']);
+                Route::name('get-customer')->get('/get-customer/{customer}', [CollectionController::class, 'getCustomer']);
+                Route::name('show')->get('/{collection}', [CollectionController::class, 'show']);
+                Route::name('edit')->get('/{collection}/edit', [CollectionController::class, 'edit']);
+                Route::name('update')->put('/{collection}', [CollectionController::class, 'update']);
+                Route::name('destroy')->delete('/{collection}', [CollectionController::class, 'destroy']);
+                Route::name('approve')->patch('/{collection}/approve', [CollectionController::class, 'approve']);
+                Route::name('reject')->patch('/{collection}/reject', [CollectionController::class, 'reject']);
+                Route::name('generate-receipt-number')->get('/generate/receipt-number', [CollectionController::class, 'generateReceiptNumber']);
+                Route::name('recent-collections')->get('/recent/collections', [CollectionController::class, 'getRecentCollections']);
+            });
 
+            //admin-collections
+            Route::prefix('admin-collections')->name('admin-collections.')->group(function () {
+                Route::name('index')->get('/', [AdminCollectionsController::class, 'index']);
+                Route::name('search-customers')->get('/search-customers', [AdminCollectionsController::class, 'searchCustomers']);
+                Route::name('get-all-ids')->get('/get-all-ids', [AdminCollectionsController::class, 'getAllCollectionIds']);
+                Route::name('delete-selected')->delete('/delete-selected', [AdminCollectionsController::class, 'deleteSelected']);
+                Route::name('show')->get('/{collection}', [AdminCollectionsController::class, 'show']);
+                Route::name('destroy')->delete('/{collection}', [AdminCollectionsController::class, 'destroy']);
+                Route::name('approve')->patch('/{collection}/approve', [AdminCollectionsController::class, 'approve']);
+                Route::name('reject')->patch('/{collection}/reject', [AdminCollectionsController::class, 'reject']);
+                Route::name('approve-selected')->patch('/approve-selected', [AdminCollectionsController::class, 'approveSelected']);
+                Route::name('reject-selected')->patch('/reject-selected', [AdminCollectionsController::class, 'rejectSelected']);
+                Route::name('quick-stats')->get('/stats/quick', [AdminCollectionsController::class, 'getQuickStats']);
+            });
+
+            //collection-targets
+            Route::prefix('collection-targets')->name('collection-targets.')->group(function () {
+                Route::name('index')->get('/', [CollectionTargetController::class, 'index']);
+                Route::name('create')->get('/create', [CollectionTargetController::class, 'create']);
+                Route::name('store')->post('/', [CollectionTargetController::class, 'store']);
+                Route::name('edit')->get('/{collection_target}/edit', [CollectionTargetController::class, 'edit']);
+                Route::name('update')->put('/{collection_target}', [CollectionTargetController::class, 'update']);
+                Route::name('destroy')->delete('/{collection_target}', [CollectionTargetController::class, 'destroy']);
+                Route::name('toggle-status')->patch('/{collection_target}/toggle-status', [CollectionTargetController::class, 'toggleStatus']);
+                Route::name('users-by-branch')->get('/users-by-branch', [CollectionTargetController::class, 'getUsersByBranch']);
+                Route::name('teams-by-branch')->get('/teams-by-branch', [CollectionTargetController::class, 'getTeamsByBranch']);
+                Route::name('user-details')->get('/user-details/{userId}', [CollectionTargetController::class, 'showUserDetails']);
+            });
 
             // import
             Route::prefix('import')->name('import.')->group(function () {

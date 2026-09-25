@@ -39,7 +39,7 @@ class ActivityLogsExport implements
     | Collection
     |--------------------------------------------------------------------------
     */
-    public function collection()
+    public function collection(): \Illuminate\Support\Enumerable
     {
         return $this->activities;
     }
@@ -96,7 +96,7 @@ class ActivityLogsExport implements
     | Styles
     |--------------------------------------------------------------------------
     */
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): array
     {
         $sheet->getStyle('A1:J1')->applyFromArray([
             'font' => [

@@ -24,7 +24,7 @@ class SystemOnlyReportExport implements FromCollection, WithHeadings, WithMappin
         $this->collections = $collections;
     }
 
-    public function collection()
+    public function collection(): \Illuminate\Support\Enumerable
     {
         return $this->collections;
     }
@@ -48,7 +48,7 @@ class SystemOnlyReportExport implements FromCollection, WithHeadings, WithMappin
         ];
     }
 
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): array
     {
         return [
             1 => [

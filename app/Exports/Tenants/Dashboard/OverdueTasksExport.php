@@ -36,7 +36,7 @@ class OverdueTasksExport implements
         $this->dashboardService = app(DashboardService::class);
     }
 
-    public function collection()
+    public function collection(): \Illuminate\Support\Enumerable
     {
         return $this->dashboardService
             ->getOverdueTasksQuery($this->userId, $this->filters)
@@ -106,7 +106,7 @@ class OverdueTasksExport implements
         return $data;
     }
 
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): array
     {
         $highestColumn = $sheet->getHighestColumn();
         $lastRow = $sheet->getHighestRow();

@@ -29,7 +29,10 @@ class RoleService
     public function createRole(array $data): Role
     {
         return DB::transaction(function () use ($data) {
-            $role = Role::create(['name' => $data['name']]);
+            $role = Role::create([
+                'name' => $data['name'],
+                'guard_name' => 'admin',
+            ]);
 
             $permissions = $this->getPermissionsFromData($data);
             $role->syncPermissions($permissions);
@@ -103,7 +106,7 @@ class RoleService
     private function getPermissionsFromData(array $data): array
     {
         if (!empty($data['select_all'])) {
-            return Permission::pluck('name')->toArray();
+            return Permission::where('guard_name', 'admin')->pluck('name')->toArray();
         }
 
         return $data['permissions'] ?? [];

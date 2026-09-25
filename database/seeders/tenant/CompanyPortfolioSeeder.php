@@ -91,14 +91,38 @@ class CompanyPortfolioSeeder extends Seeder
                         'name' => $pName,
                     ],
                     [
-                        'has_split_names' => false,
-                        'assignment_date' => now()->subMonths(3)->toDateString(),
-                        'call_start_time' => '08:00:00',
-                        'call_end_time' => '17:00:00',
                         'status' => $cData['status'] === 'active' ? 'active' : 'inactive',
                     ]
                 );
             }
+
+            // Seed demo contract for each company
+            $contract = \App\Models\Tenants\BusinessCenter\Contract\Contract::updateOrCreate(
+                ['contract_number' => 'CON-2026-' . str_pad($company->id, 4, '0', STR_PAD_LEFT)],
+                [
+                    'company_id'      => $company->id,
+                    'start_date'      => now()->subMonths(2)->toDateString(),
+                    'duration_months' => 12,
+                    'end_date'        => now()->addMonths(10)->toDateString(),
+                    'auto_renewal'    => true,
+                    'commission_type' => 'duration',
+                    'status'          => $cData['status'] === 'active' ? 'active' : 'inactive',
+                    'notes'           => 'عقد خدمات مع ' . $company->name,
+                ]
+            );
+
+            \App\Models\Tenants\BusinessCenter\Contract\ContractCommission::updateOrCreate(
+                [
+                    'contract_id'     => $contract->id,
+                    'commission_type' => 'duration',
+                ],
+                [
+                    'duration_from'   => 1,
+                    'duration_to'     => 12,
+                    'commission_rate' => 10.00,
+                    'is_active'       => true,
+                ]
+            );
         }
     }
 }

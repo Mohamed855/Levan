@@ -24,7 +24,7 @@ class UnmatchedReportExport implements FromCollection, WithHeadings, WithMapping
         $this->items = $items;
     }
 
-    public function collection()
+    public function collection(): \Illuminate\Support\Enumerable
     {
         return $this->items;
     }
@@ -47,7 +47,7 @@ class UnmatchedReportExport implements FromCollection, WithHeadings, WithMapping
         ];
     }
 
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): array
     {
         return [
             1 => [

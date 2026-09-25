@@ -41,7 +41,7 @@ class ExecutiveKpiSheet implements FromArray, WithTitle, WithStyles, WithColumnW
         return ['A' => 35, 'B' => 28];
     }
 
-    public function styles(Worksheet $sheet): array
+    public function styles(Worksheet $sheet): array: array
     {
         return [
             1 => [

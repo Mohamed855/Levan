@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\Branch\Branch;
 use App\Models\Tenants\BusinessCenter\Company\Company;
+use App\Models\Tenants\BusinessCenter\Contract\Contract;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Models\Tenants\GeneralSetting\ContactMethod\SettingsContactMethod;
@@ -511,7 +512,106 @@ class TenantCrudFeatureTest extends TestCase
     }
 
     /**
-     * Test 8: General Settings CRUD (Countries, Payment Methods, Contact Methods, Customer Status, Document Request Reasons)
+     * Test 8: Contracts CRUD & Archive Lifecycle (Create -> Edit -> Show -> Soft Delete -> Restore -> Permanently Delete)
+     */
+    public function test_contracts_crud_and_archive_lifecycle(): void
+    {
+        $company = Company::first();
+
+        // 1. Index
+        $indexResponse = $this->get($this->tenantUrl('contracts'));
+        $indexResponse->assertStatus(200);
+
+        // 2. Create view
+        $createResponse = $this->get($this->tenantUrl('contracts/create'));
+        $createResponse->assertStatus(200);
+
+        // 3. Store
+        $contractNumber = 'CON-TEST-' . rand(10000, 99999);
+        $storeResponse = $this->post($this->tenantUrl('contracts'), [
+            'company_id'       => $company->id,
+            'contract_number'  => $contractNumber,
+            'start_date'       => now()->toDateString(),
+            'end_date'         => now()->addMonths(12)->toDateString(),
+            'duration_months'  => 12,
+            'auto_renewal'     => 1,
+            'commission_type'  => 'procedure',
+            'status'           => 'active',
+            'notes'            => 'عقد اختباري للتأكد من عمل النظام',
+            'commissions'      => [
+                [
+                    'commission_type' => 'procedure',
+                    'procedure_type'  => 'friendly',
+                    'commission_rate' => 12.50,
+                ],
+            ],
+        ]);
+        $storeResponse->assertStatus(302);
+
+        $contract = Contract::where('contract_number', $contractNumber)->first();
+        $this->assertNotNull($contract, 'Contract was not created in database.');
+
+        // 4. Show view
+        $showResponse = $this->get($this->tenantUrl("contracts/{$contract->id}"));
+        $showResponse->assertStatus(200);
+
+        // 5. Edit view
+        $editResponse = $this->get($this->tenantUrl("contracts/{$contract->id}/edit"));
+        $editResponse->assertStatus(200);
+
+        // 6. Update
+        $updateResponse = $this->put($this->tenantUrl("contracts/{$contract->id}"), [
+            'company_id'       => $company->id,
+            'contract_number'  => $contractNumber,
+            'start_date'       => now()->toDateString(),
+            'end_date'         => now()->addMonths(24)->toDateString(),
+            'duration_months'  => 24,
+            'auto_renewal'     => 1,
+            'commission_type'  => 'procedure',
+            'status'           => 'active',
+            'notes'            => 'عقد اختباري محدث',
+            'commissions'      => [
+                [
+                    'commission_type' => 'procedure',
+                    'procedure_type'  => 'legal',
+                    'commission_rate' => 15.00,
+                ],
+            ],
+        ]);
+        $updateResponse->assertStatus(302);
+        $contract->refresh();
+        $this->assertEquals(24, $contract->duration_months);
+
+        // 7. Toggle Status
+        $toggleResponse = $this->patch($this->tenantUrl("contracts/{$contract->id}/toggle-status"));
+        $toggleResponse->assertStatus(200);
+        $toggleResponse->assertJson(['success' => true]);
+
+        // 8. Soft Delete (Destroy)
+        $destroyResponse = $this->delete($this->tenantUrl("contracts/{$contract->id}"));
+        $destroyResponse->assertStatus(302);
+        $contract->refresh();
+        $this->assertNotNull($contract->deleted_at, 'Contract was not soft-deleted.');
+
+        // 9. Archive Index
+        $archiveIndexResponse = $this->get($this->tenantUrl('archive/contracts'));
+        $archiveIndexResponse->assertStatus(200);
+
+        // 10. Restore
+        $restoreResponse = $this->patch($this->tenantUrl("archive/contracts/{$contract->id}/restore"));
+        $restoreResponse->assertStatus(302);
+        $contract->refresh();
+        $this->assertNull($contract->deleted_at, 'Contract was not restored.');
+
+        // 11. Force Delete (Permanently Delete)
+        $this->delete($this->tenantUrl("contracts/{$contract->id}"));
+        $forceDeleteResponse = $this->delete($this->tenantUrl("archive/contracts/{$contract->id}/force-delete"));
+        $forceDeleteResponse->assertStatus(302);
+        $this->assertDatabaseMissing('contracts', ['id' => $contract->id]);
+    }
+
+    /**
+     * Test 9: General Settings CRUD (Countries, Payment Methods, Contact Methods, Customer Status, Document Request Reasons)
      */
     public function test_general_settings_crud_lifecycle(): void
     {
@@ -557,7 +657,7 @@ class TenantCrudFeatureTest extends TestCase
     }
 
     /**
-     * Test 9: Verify DataTables AJAX endpoints across the entire system return JSON data correctly
+     * Test 10: Verify DataTables AJAX endpoints across the entire system return JSON data correctly
      */
     public function test_datatables_ajax_returns_json_and_records(): void
     {
@@ -569,6 +669,7 @@ class TenantCrudFeatureTest extends TestCase
             'companies',
             'portfolios',
             'customers',
+            'contracts',
             'archive/users',
             'archive/companies',
             'archive/portfolios',

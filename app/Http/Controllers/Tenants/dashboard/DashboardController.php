@@ -316,8 +316,7 @@ class DashboardController extends Controller
                 ], 500);
             }
         }
-        $data = $this->dashboardService->getExcellenceDashboardData('month');
-        return view('dashboard.admin.excellence', $data);
+        return $this->adminDashboard();
     }
 
     /*
@@ -346,7 +345,7 @@ class DashboardController extends Controller
     */
     public function getMyPerformanceComparison(Request $request)
     {
-        if (!$request->ajax()) {
+        if (!$request->ajax() && !$request->wantsJson()) {
             abort(404);
         }
 

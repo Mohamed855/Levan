@@ -39,7 +39,7 @@ class CollectionSessionsExport implements
     | Collection
     |--------------------------------------------------------------------------
     */
-    public function collection()
+    public function collection(): \Illuminate\Support\Enumerable
     {
         $query = CollectionProcessSession::with([
             'user:id,name,employee_number',
@@ -135,7 +135,7 @@ class CollectionSessionsExport implements
     | Styles
     |--------------------------------------------------------------------------
     */
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): array
     {
         $sheet->getStyle('A1:K1')->applyFromArray([
             'font' => [

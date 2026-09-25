@@ -69,11 +69,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
     // Users
     Route::prefix('users')->name('users.')->group(function () {
         Route::patch('{user}/toggle-status', [AdminUserController::class, 'toggleStatus'])->name('toggle-status');
-        Route::get('password/change', [AdminUserController::class, 'showChangePasswordForm'])->name('password.change');
-        Route::post('password/change', [AdminUserController::class, 'updatePassword'])->name('password.update');
         Route::get('profile/{id}', [AdminUserController::class, 'showProfile'])->name('profile');
-        Route::put('{id}/profile/update-profile-picture', [AdminUserController::class, 'updateProfilePicture'])->name('profile.picture.update');
-        Route::put('{id}/profile/update-background-image', [AdminUserController::class, 'updateBackgroundImage'])->name('profile.background.update');
         Route::resource('/', AdminUserController::class)->parameters(['' => 'user']);
 
         // check if email is unique via ajax
@@ -89,7 +85,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
     // Roles
     Route::prefix('roles')->name('roles.')->group(function () {
         Route::resource('/', AdminRoleController::class)->parameters(['' => 'role']);
-        Route::get('show/{id}', [AdminRoleController::class, 'showUser'])->name('show-user');
         Route::get('get-user-roles/{id}', [AdminRoleController::class, 'getUserRoles'])->name('get-user-roles'); // جلب الصلاحيات
         Route::post('update-user-roles/{id}', [AdminRoleController::class, 'updateUserRoles'])->name('update-user-role'); // تعديل الصلاحية للمستخدم
     });

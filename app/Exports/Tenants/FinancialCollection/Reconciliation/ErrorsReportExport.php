@@ -24,7 +24,7 @@ class ErrorsReportExport implements FromCollection, WithHeadings, WithMapping, W
         $this->items = $items;
     }
 
-    public function collection()
+    public function collection(): \Illuminate\Support\Enumerable
     {
         return $this->items;
     }
@@ -45,7 +45,7 @@ class ErrorsReportExport implements FromCollection, WithHeadings, WithMapping, W
         ];
     }
 
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): array
     {
         return [
             1 => [

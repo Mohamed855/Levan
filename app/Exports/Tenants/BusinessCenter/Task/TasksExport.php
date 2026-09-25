@@ -36,7 +36,7 @@ class TasksExport implements FromCollection, WithHeadings, WithMapping, WithStyl
     | Collection
     |--------------------------------------------------------------------------
     */
-    public function collection()
+    public function collection(): \Illuminate\Support\Enumerable
     {
         return $this->tasks;
     }
@@ -128,7 +128,7 @@ class TasksExport implements FromCollection, WithHeadings, WithMapping, WithStyl
     | Styles - تنسيق الجدول
     |--------------------------------------------------------------------------
     */
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): array
     {
         $lastRow = $this->rowCount + 1;
         $lastColumnLetter = 'N'; // عدد الأعمدة = 14

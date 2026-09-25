@@ -24,7 +24,7 @@ class DiscrepanciesReportExport implements FromCollection, WithHeadings, WithMap
         $this->items = $items;
     }
 
-    public function collection()
+    public function collection(): \Illuminate\Support\Enumerable
     {
         return $this->items;
     }
@@ -49,7 +49,7 @@ class DiscrepanciesReportExport implements FromCollection, WithHeadings, WithMap
         ];
     }
 
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): array
     {
         return [
             1 => [

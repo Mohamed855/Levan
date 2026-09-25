@@ -62,7 +62,6 @@ class ContractService
     {
         return DB::transaction(function () use ($contract) {
             $contract->commissions()->delete();
-            $contract->debtTypes()->detach();
             return $contract->delete();
         });
     }

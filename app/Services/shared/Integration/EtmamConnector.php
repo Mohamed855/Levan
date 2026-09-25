@@ -20,6 +20,7 @@ class EtmamConnector
 
     public function isConfigured(): bool
     {
+        $this->settings = Settings::first();
         return $this->settings
             && $this->settings->etmam_enabled
             && !empty($this->settings->etmam_base_url)

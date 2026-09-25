@@ -135,7 +135,7 @@
                                         name="ticketing_sections_id" required data-placeholder="اختر التصنيف">
                                         <option value=""> </option>
                                         @foreach ($sections as $section)
-                                            <option value="{{ $section['id'] }}">{{ $section['name'] }}</option>
+                                            <option value="{{ $section['id'] ?? '' }}">{{ $section['name'] ?? '' }}</option>
                                         @endforeach
                                     </select>
                                 </div>

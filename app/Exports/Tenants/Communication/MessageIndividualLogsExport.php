@@ -38,7 +38,7 @@ class MessageIndividualLogsExport implements FromCollection, WithHeadings, WithM
     |--------------------------------------------------------------------------
     | Return the collection to be exported.
     */
-    public function collection()
+    public function collection(): \Illuminate\Support\Enumerable
     {
         return $this->logs;
     }
@@ -224,7 +224,7 @@ class MessageIndividualLogsExport implements FromCollection, WithHeadings, WithM
     |--------------------------------------------------------------------------
     | Apply styles to the Excel sheet.
     */
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): array
     {
         $lastRow = $this->rowCount + 1;
         $lastColumn = 'O';  // تعديل من 'S' إلى 'M'

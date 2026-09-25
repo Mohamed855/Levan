@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin\ActivityLog;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
-use App\Models\UserMangment\User\User;
 use App\Traits\ActivityLogPresenterTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;

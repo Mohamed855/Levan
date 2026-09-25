@@ -38,7 +38,7 @@ class CustomerUpdateRequestsExport implements FromCollection, WithHeadings, With
     | Collection
     |--------------------------------------------------------------------------
     */
-    public function collection()
+    public function collection(): \Illuminate\Support\Enumerable
     {
         return $this->requests;
     }
@@ -204,7 +204,7 @@ class CustomerUpdateRequestsExport implements FromCollection, WithHeadings, With
     | Styles
     |--------------------------------------------------------------------------
     */
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): array
     {
         $lastRow = $this->rowCount + 1;
         $lastColumn = $this->getColumnLetter(count($this->selectedFields) + 1);

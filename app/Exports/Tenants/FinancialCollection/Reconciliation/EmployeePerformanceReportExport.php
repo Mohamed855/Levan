@@ -24,7 +24,7 @@ class EmployeePerformanceReportExport implements FromCollection, WithHeadings, W
         $this->stats = collect($stats);
     }
 
-    public function collection()
+    public function collection(): \Illuminate\Support\Enumerable
     {
         return $this->stats;
     }
@@ -47,7 +47,7 @@ class EmployeePerformanceReportExport implements FromCollection, WithHeadings, W
         ];
     }
 
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): array
     {
         return [
             1 => [

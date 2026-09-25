@@ -38,7 +38,7 @@ class SummaryReportExport implements WithHeadings, WithStyles, WithTitle, WithCo
         ];
     }
 
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): array
     {
         return [
             1 => [

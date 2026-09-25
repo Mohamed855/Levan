@@ -63,7 +63,7 @@ class PerformanceReportExport implements FromCollection, WithHeadings, WithMappi
     | Collection
     |--------------------------------------------------------------------------
     */
-    public function collection()
+    public function collection(): \Illuminate\Support\Enumerable
     {
         return $this->data;
     }
@@ -152,7 +152,7 @@ class PerformanceReportExport implements FromCollection, WithHeadings, WithMappi
     | Styles
     |--------------------------------------------------------------------------
     */
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): array
     {
         $lastRow = $this->rowCount + 1;
         $lastColumn = count($this->selectedFields) + 1;

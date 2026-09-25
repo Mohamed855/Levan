@@ -81,7 +81,7 @@ class CustomersExport implements FromCollection, WithHeadings, WithMapping, With
         $this->selectedFields = array_values(array_intersect(array_keys(self::FIELD_LABELS), $selectedFields));
     }
 
-    public function collection()
+    public function collection(): \Illuminate\Support\Enumerable
     {
         return $this->customers;
     }
@@ -158,7 +158,7 @@ class CustomersExport implements FromCollection, WithHeadings, WithMapping, With
         }
     }
 
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): array
     {
         $lastRow = $this->rowCount + 1;
         $lastColumnLetter = $this->getColumnLetter(count($this->headings()));

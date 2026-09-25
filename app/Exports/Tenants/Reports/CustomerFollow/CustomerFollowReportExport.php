@@ -58,7 +58,7 @@ class CustomerFollowReportExport implements FromCollection, WithHeadings, WithMa
     | Collection
     |--------------------------------------------------------------------------
     */
-    public function collection()
+    public function collection(): \Illuminate\Support\Enumerable
     {
         if ($this->query instanceof \Illuminate\Support\Collection) {
             return $this->query;
@@ -318,7 +318,7 @@ class CustomerFollowReportExport implements FromCollection, WithHeadings, WithMa
     | Styles
     |--------------------------------------------------------------------------
     */
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): array
     {
         $lastColumn       = count($this->selectedFields) + 1;
         $lastColumnLetter = $this->getColumnLetter($lastColumn);

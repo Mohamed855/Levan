@@ -138,20 +138,21 @@ class ContractController extends Controller
         try {
             $contract->load([
                 'company:id,name',
-                'debtTypes:id,name',
                 'commissions',
                 'creator:id,name',
                 'updater:id,name'
             ]);
 
-            // جلب التحصيلات المعتمدة للعملاء التابعين لنفس الشركة
-            $approvedCollections = Collection::whereHas('customer', function ($query) use ($contract) {
-                $query->where('company_id', $contract->company_id);
-            })
-                ->where('status', 'approved')
-                ->with(['customer', 'paymentMethod'])
-                ->orderBy('collection_date', 'desc')
-                ->get();
+            // جلب التحصيلات المعتمدة إن وجد جدول التحصيلات
+            $approvedCollections = \Illuminate\Support\Facades\Schema::hasTable('collections')
+                ? Collection::whereHas('customer', function ($query) use ($contract) {
+                    $query->where('company_id', $contract->company_id);
+                })
+                    ->where('status', 'approved')
+                    ->with(['customer', 'paymentMethod'])
+                    ->orderBy('collection_date', 'desc')
+                    ->get()
+                : collect();
 
             $totalCollectedAmount = 0;
             $companyCommissionAmount = 0;

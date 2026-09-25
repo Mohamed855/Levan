@@ -40,7 +40,7 @@ class FinancialReportExport implements FromCollection, WithHeadings, WithMapping
     | Collection
     |--------------------------------------------------------------------------
     */
-    public function collection()
+    public function collection(): \Illuminate\Support\Enumerable
     {
         return $this->collections;
     }
@@ -158,7 +158,7 @@ class FinancialReportExport implements FromCollection, WithHeadings, WithMapping
     | Styles - تنسيق الجدول
     |--------------------------------------------------------------------------
     */
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): array
     {
         $lastRow = $this->rowCount + 1; // تعديل هنا من +2 إلى +1
         $lastColumn = count($this->selectedFields) + 1;

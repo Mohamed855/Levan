@@ -45,7 +45,7 @@ class CompanyReportExport implements FromCollection, WithHeadings, WithMapping, 
         ];
     }
 
-    public function collection()
+    public function collection(): \Illuminate\Support\Enumerable
     {
         return $this->companies;
     }
@@ -128,7 +128,7 @@ class CompanyReportExport implements FromCollection, WithHeadings, WithMapping, 
         return $row;
     }
 
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): array
     {
         $lastRow = max($this->rowCount + 1, 2);
         $lastColumn = count($this->selectedFields) + 1;

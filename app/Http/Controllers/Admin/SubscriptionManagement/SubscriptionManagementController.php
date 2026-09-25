@@ -12,7 +12,9 @@ use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Admin\SubscriptionManagement\SubscriptionManagementService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class SubscriptionManagementController extends Controller
@@ -101,79 +103,89 @@ class SubscriptionManagementController extends Controller
         return view(self::VIEW_PATH . '.edit', compact('subscription', 'allStatus', 'plan', 'plans'));
     }
 
-    // public function update(UpdateSubscriptionRequest $request, Subscription $subscription)
-    // {
-    //     // return $request;
-    //     try {
-    //         DB::beginTransaction();
+    public function update(Request $request, Subscription $subscription)
+    {
+        $validated = $request->validate([
+            'tenant_id'         => 'required|exists:tenants,id',
+            'plan_id'           => 'required|exists:plans,id',
+            'price'             => 'required|numeric|min:0',
+            'status'            => 'required|string',
+            'total_users'       => 'required|integer|min:1',
+            'licenses_quota'    => 'nullable|integer|min:0',
+            'starts_at'         => 'required|date',
+            'next_payment_date' => 'nullable|date',
+        ]);
 
-    //         $tenant = Tenant::where('id', $request->tenant_id)->firstOrFail();
+        try {
+            DB::beginTransaction();
 
-    //         // تحديث بيانات الاشتراك
-    //         $subscription->update([
-    //             'plan_id'           => $request->plan_id,
-    //             'price'             => $request->price,
-    //             'status'            => $request->status,
-    //             'payment_status'    => $request->payment_status,
-    //             'total_users'       => $request->total_users,
-    //             'used_users'        => $request->licenses_quota ?? 0,
-    //             'starts_at'         => $request->starts_at,
-    //             'next_payment_date' => $request->next_payment_date,
-    //             'auto_renew'        => $request->has('auto_renew') ? true : false,
-    //         ]);
+            $tenant = Tenant::where('id', $validated['tenant_id'])->firstOrFail();
 
-    //         // إذا تم تغيير الباقة، تحديث بيانات الـ tenant
-    //         if ($subscription->wasChanged('plan_id')) {
-    //             $newPlan = Plan::findOrFail($request->plan_id);
+            $subscription->update([
+                'plan_id'           => $validated['plan_id'],
+                'price'             => $validated['price'],
+                'status'            => $validated['status'],
+                'total_users'       => $validated['total_users'],
+                'used_users'        => $validated['licenses_quota'] ?? 0,
+                'starts_at'         => $validated['starts_at'],
+                'next_payment_date' => $validated['next_payment_date'],
+                'auto_renew'        => $request->has('auto_renew'),
+            ]);
 
-    //             // تحديث حدود الفروع للعميل
-    //             if ($newPlan->unlimited_branches) {
-    //                 $tenant->branches_limit = null;
-    //             } else {
-    //                 $tenant->branches_limit = $newPlan->branches_limit;
-    //             }
+            if ($subscription->wasChanged('plan_id')) {
+                $newPlan = Plan::findOrFail($validated['plan_id']);
+                $tenant->branches_limit = $newPlan->unlimited_branches ? null : $newPlan->branches_limit;
+                $tenant->save();
+            }
 
-    //             $tenant->save();
+            DB::commit();
 
-    //             // تسجيل في activity log
-    //             activity()
-    //                 ->performedOn($subscription)
-    //                 ->causedBy(auth()->user())
-    //                 ->withProperties([
-    //                     'old_plan' => $subscription->getOriginal('plan_id'),
-    //                     'new_plan' => $request->plan_id
-    //                 ])
-    //                 ->log('تم تغيير الباقة للاشتراك');
-    //         }
+            return redirect()
+                ->route(self::ROUTE_NAME . '.index')
+                ->with('success', 'تم تحديث بيانات الاشتراك بنجاح');
+        } catch (\Exception $e) {
+            DB::rollBack();
 
-    //         // إذا تم تغيير حالة الدفع إلى "مدفوع"
-    //         if ($request->payment_status == 'paid' && $subscription->payment_status != 'paid') {
-    //             activity()
-    //                 ->performedOn($subscription)
-    //                 ->causedBy(auth()->user())
-    //                 ->log('تم تأكيد الدفع للاشتراك');
-    //         }
+            Log::error('فشل تحديث الاشتراك: ' . $e->getMessage(), [
+                'subscription_id' => $subscription->id,
+                'request_data'    => $request->all()
+            ]);
 
-    //         // استدعاء الـ service للتحديثات الإضافية إذا لزم الأمر
-    //         // $this->subscriptionManagementService->updateSubscriptionByAdmin($tenant, $subscription, $request);
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'حدث خطأ أثناء تحديث الاشتراك: ' . $e->getMessage());
+        }
+    }
 
-    //         DB::commit();
+    public function destroy(Subscription $subscription)
+    {
+        try {
+            $subscription->delete();
 
-    //         return redirect()
-    //             ->route(self::ROUTE_NAME . '.index')
-    //             ->with('success', 'تم تحديث بيانات الاشتراك بنجاح');
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'تم نقل الاشتراك إلى الأرشيف بنجاح'
+                ]);
+            }
 
-    //         Log::error('فشل تحديث الاشتراك: ' . $e->getMessage(), [
-    //             'subscription_id' => $subscription->id,
-    //             'request_data'    => $request->all()
-    //         ]);
+            return redirect()
+                ->route(self::ROUTE_NAME . '.index')
+                ->with('success', 'تم نقل الاشتراك إلى الأرشيف بنجاح');
+        } catch (\Exception $e) {
+            Log::error('فشل حذف الاشتراك: ' . $e->getMessage());
 
-    //         return redirect()
-    //             ->back()
-    //             ->withInput()
-    //             ->with('error', 'حدث خطأ أثناء تحديث الاشتراك: ' . $e->getMessage());
-    //     }
-    // }
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'حدث خطأ أثناء حذف الاشتراك: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()
+                ->back()
+                ->with('error', 'حدث خطأ أثناء حذف الاشتراك: ' . $e->getMessage());
+        }
+    }
 }

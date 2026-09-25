@@ -30,7 +30,6 @@ class ContractArchiveService
     {
         return DB::transaction(function () use ($contract) {
             $contract->commissions()->forceDelete();
-            $contract->debtTypes()->detach();
             return $contract->forceDelete();
         });
     }
@@ -174,7 +173,6 @@ class ContractArchiveService
 
             foreach ($contracts as $contract) {
                 $contract->commissions()->forceDelete();
-                $contract->debtTypes()->detach();
                 $contract->forceDelete();
             }
 

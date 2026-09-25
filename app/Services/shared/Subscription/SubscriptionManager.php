@@ -202,7 +202,7 @@ class SubscriptionManager
             return 0; // منتهي
         }
 
-        return $today->diffInDays($endDate, false) + 1;
+        return (int) $today->diffInDays($endDate, false) + 1;
     }
     /*
     |============================================================================

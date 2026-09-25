@@ -62,7 +62,7 @@ class EmployeePerformanceExport implements FromCollection, WithHeadings, WithMap
     | Collection
     |--------------------------------------------------------------------------
     */
-    public function collection()
+    public function collection(): \Illuminate\Support\Enumerable
     {
         return $this->employeesPerformance;
     }
@@ -165,7 +165,7 @@ class EmployeePerformanceExport implements FromCollection, WithHeadings, WithMap
     | Styles - تنسيق الجدول
     |--------------------------------------------------------------------------
     */
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): array
     {
         $lastRow = $this->rowCount + 1;
         $lastColumn = count($this->selectedFields) + 1;
