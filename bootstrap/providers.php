@@ -4,18 +4,15 @@ return [
     App\Providers\AppServiceProvider::class,
     App\Providers\AuthServiceProvider::class,
     App\Providers\EventServiceProvider::class,
-    App\Providers\RouteServiceProvider::class,
     App\Providers\FortifyServiceProvider::class,
     App\Providers\MenuServiceProvider::class,
-    App\Providers\ViewServiceProvider::class,
-
-    // Tenancy
-    Stancl\Tenancy\TenancyServiceProvider::class,
+    App\Providers\RouteServiceProvider::class,
+    App\Providers\TelescopeServiceProvider::class,
     App\Providers\TenancyServiceProvider::class,
-
-    // Third-party
+    App\Providers\ViewServiceProvider::class,
     Spatie\Permission\PermissionServiceProvider::class,
+    Stancl\Tenancy\TenancyServiceProvider::class,
+    Yajra\DataTables\ButtonsServiceProvider::class,
     Yajra\DataTables\DataTablesServiceProvider::class,
     Yajra\DataTables\HtmlServiceProvider::class,
-    Yajra\DataTables\ButtonsServiceProvider::class,
 ];

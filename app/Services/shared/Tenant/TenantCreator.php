@@ -13,14 +13,12 @@ class TenantCreator
 
     public function createTenantEnvironment(array $metadata): array
     {
-        return DB::transaction(function () use ($metadata) {
-            [$tenantId, $dbUser] = $this->generateIdentifiers();
-            $connection          = $this->cpanelService->createDatabase($tenantId, $dbUser);
-            $tenant              = $this->registerTenantRecord($tenantId, $connection, $metadata);
-            $user                = $this->tenantInitializer->setupTenantEnvironment($tenant, $metadata);
+        [$tenantId, $dbUser] = $this->generateIdentifiers();
+        $connection          = $this->cpanelService->createDatabase($tenantId, $dbUser);
+        $tenant              = $this->registerTenantRecord($tenantId, $connection, $metadata);
+        $user                = $this->tenantInitializer->setupTenantEnvironment($tenant, $metadata);
 
-            return [$tenant, $user];
-        });
+        return [$tenant, $user];
     }
 
 
@@ -67,8 +65,8 @@ class TenantCreator
             'db_password'       => $connection['password'],
             'company_name'      => $metadata['billing_company_name'] ?? 'غير محدد',
             'commercial_number' => $metadata['billing_commercial_number'] ?? null,
-            'db_host'           => env('DB_HOST', 'localhost'),
-            'db_port'           => '3306',
+            'db_host'           => $connection['host'] ?? env('DB_HOST', '127.0.0.1'),
+            'db_port'           => env('DB_PORT', '3306'),
             'version_id'        => $settings?->default_landing_version_id,
         ];
 

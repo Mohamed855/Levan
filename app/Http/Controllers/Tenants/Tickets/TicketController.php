@@ -40,7 +40,7 @@ class TicketController extends Controller
         try {
             return $dataTable->render($this->page . '.index');
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }
@@ -69,7 +69,7 @@ class TicketController extends Controller
 
             return redirect()->back()->withInput()->with('error', $result['message']);
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->withInput()->with('error', 'حدث خطأ أثناء إنشاء التذكرة');
         }
     }
@@ -146,7 +146,7 @@ class TicketController extends Controller
 
             return redirect()->back()->withInput()->with('error', $result['message']);
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->withInput()->with('error', 'حدث خطأ أثناء إنشاء التذكرة');
         }
     }

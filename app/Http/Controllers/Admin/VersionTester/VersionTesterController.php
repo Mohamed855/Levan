@@ -40,7 +40,7 @@ class VersionTesterController extends Controller
                 // 'inactivePlans'    => $statistics['inactive'],
             ]);
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }

@@ -327,7 +327,7 @@
                                 <td class="fw-medium">
                                     <i class="ti ti-briefcase text-warning me-1"></i>{{ $p->name }}
                                 </td>
-                                <td>{{ $p->assignment_date?->format('Y-m-d') ?? '—' }}</td>
+                                <td>{{ $p->assignment_date ?? '—' }}</td>
                                 <td>
                                     <span class="badge {{ $p->status === 'active' ? 'bg-label-success' : 'bg-label-danger' }}">
                                         {{ $p->status === 'active' ? 'نشط' : 'غير نشط' }}

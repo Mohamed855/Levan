@@ -20,7 +20,13 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(PaymentGatewayInterface::class, MoyasarGateway::class);
 
         $this->app->bind(TenantInitializer::class, function ($app) {
-            return new TenantInitializer([]);
+            return new TenantInitializer([
+                \Database\Seeders\tenant\PermissionsRolesSeeder::class,
+                \Database\Seeders\tenant\CustomerStatusSeeder::class,
+                \Database\Seeders\tenant\ContactResultSeeder::class,
+                \Database\Seeders\tenant\GeneralSettingsSeeder::class,
+                \Database\Seeders\tenant\BranchSeeder::class,
+            ]);
         });
     }
 

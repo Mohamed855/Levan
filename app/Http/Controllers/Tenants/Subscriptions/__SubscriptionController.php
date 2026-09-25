@@ -65,7 +65,7 @@ class __SubscriptionController extends Controller
             return view('tenants.subscription.renew.checkout', compact('plan', 'priceWithoutTax', 'taxAmount'));
             //
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->to(tenant_route_name('subscriptions.index'))->with('error', 'حدث خطأ أثناء تحميل صفحة التجديد');
         }
     }
@@ -86,7 +86,7 @@ class __SubscriptionController extends Controller
             return $this->initiatePayment($request, $couponData, "تجديد الاشتراك في الباقة ", 'createRenewSubscriptionPayment');
             //
         } catch (\Throwable $e) {
-            Log::error($e);
+            report($e);
             return redirect()->to(tenant_route_name('subscriptions.index'))->with('error', 'حدث خطأ أثناء معالجة التجديد');
         }
     }
@@ -126,7 +126,7 @@ class __SubscriptionController extends Controller
 
             return view('tenants.subscription.upgrade.checkout', compact('new_licenses_count', 'plan', 'total', 'priceWithoutTax', 'taxAmount'));
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->to(tenant_route_name('subscriptions.index'))->with('error', 'حدث خطأ أثناء تحميل صفحة شراء تراخيص اضافية ');
         }
     }
@@ -155,7 +155,7 @@ class __SubscriptionController extends Controller
             return $this->initiatePayment($request, $couponData, "شراء تراخيص", 'createUpgradePayment');
             //
         } catch (\Throwable $e) {
-            Log::error($e);
+            report($e);
             return redirect()->to(tenant_route_name('subscriptions.index'))->with('error', 'حدث خطأ أثناء معالجة شراء التراخيص الاضافية');
         }
     }

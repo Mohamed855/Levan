@@ -94,7 +94,13 @@ class TenantInitializer
     private function runSeeders(): void
     {
         foreach ($this->seeders as $seeder) {
-            $seeder->seed();
+            if (is_string($seeder)) {
+                app($seeder)->run();
+            } elseif (is_object($seeder) && method_exists($seeder, 'run')) {
+                $seeder->run();
+            } elseif (is_object($seeder) && method_exists($seeder, 'seed')) {
+                $seeder->seed();
+            }
         }
     }
 }

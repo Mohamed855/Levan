@@ -38,7 +38,7 @@ class TrialController extends Controller
 
             return redirect()->back()->withInput()->with('error', $result['message']);
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->withInput()->with('error', 'حدث خطأ غير متوقع');
         }
     }

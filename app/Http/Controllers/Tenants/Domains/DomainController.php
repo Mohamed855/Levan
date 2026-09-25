@@ -69,7 +69,7 @@ class DomainController extends Controller
                 'inactiveDomains'    => $statistics['inactive'],
             ]);
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }

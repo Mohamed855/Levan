@@ -74,7 +74,7 @@ class SubscriptionController extends Controller
             return redirect()->back()->with('error', $e->getMessage())->withInput();
         } catch (\Throwable $e) {
             //
-            Log::error($e);
+            report($e);
             return redirect()->back()->with('error', 'حدث خطأ غير متوقع.')->withInput();
         }
     }
@@ -96,7 +96,7 @@ class SubscriptionController extends Controller
             return redirect()->route('site.index')->with('error', $e->getMessage());
         } catch (\Throwable $e) {
             //
-            Log::error($e);
+            report($e);
             return redirect()->route('site.index')->with('error', 'حدث خطأ أثناء معالجة نتيجة الدفع');
         }
     }

@@ -47,7 +47,7 @@ class AdminCouponController extends Controller
 
             ]);
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }
@@ -103,7 +103,7 @@ class AdminCouponController extends Controller
 
             return view('admin.coupons.details', compact('couponDetails', 'tenants'));
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return response()->json([
                 'success' => false,
                 'message' => 'حدث خطأ أثناء جلب تفاصيل الكوبون',

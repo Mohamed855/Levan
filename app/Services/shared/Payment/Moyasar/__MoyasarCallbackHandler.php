@@ -129,7 +129,7 @@ class __MoyasarCallbackHandler
                 'message'   => 'تم الدفع بنجاح! يمكنك الان التمتع بكامل خدمات نظام مسند',
             ];
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return $this->errorResponse('حدث خطأ أثناء معالجة عملية الدفع');
         }
     }
@@ -195,7 +195,7 @@ class __MoyasarCallbackHandler
     //             'message'   => 'تم الدفع وإنشاء الحساب بنجاح! يمكنك تسجيل الدخول الآن.',
     //         ];
     //     } catch (\Exception $e) {
-    //         Log::error($e);
+    //         report($e);
     //         return $this->errorResponse('حدث خطأ أثناء معالجة عملية الدفع');
     //     }
     // }
@@ -230,7 +230,7 @@ class __MoyasarCallbackHandler
                 'message'   => 'تم تجديد الاشتراك بنجاح',
             ];
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return $this->errorResponse('حدث خطأ أثناء معالجة عملية التجديد');
         }
     }
@@ -267,7 +267,7 @@ class __MoyasarCallbackHandler
             ];
         } catch (\Exception $e) {
             //
-            Log::error($e);
+            report($e);
             return $this->errorResponse('حدث خطأ أثناء معالجة عملية الترقية');
         }
     }
@@ -303,7 +303,7 @@ class __MoyasarCallbackHandler
                 'message'   => 'تم دفع الفاتورة بنجاح',
             ];
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return $this->errorResponse('حدث خطأ أثناء معالجة عملية  الدفع');
         }
     }

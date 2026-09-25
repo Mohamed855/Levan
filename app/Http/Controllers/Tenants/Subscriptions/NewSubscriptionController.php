@@ -90,7 +90,7 @@ class NewSubscriptionController extends Controller
             return redirect($paymentUrl);
             //
         } catch (\Throwable $e) {
-            Log::error($e);
+            report($e);
             return $this->redirectWithError('subscribe.index', 'حدث خطأ أثناء المعالجة ');
         }
     }
@@ -116,7 +116,7 @@ class NewSubscriptionController extends Controller
             return redirect()->route('site.index')->with('error', $result['message']);
         } catch (\Throwable $e) {
             //
-            Log::error($e);
+            report($e);
             return redirect()->route('site.index')->with('error', 'حدث خطأ أثناء معالجة نتيجة الدفع');
         }
     }

@@ -23,6 +23,11 @@ class Portfolio extends Model
         'name',
         'company_id',
         'status',
+        'assignment_date',
+        'call_start_time',
+        'call_end_time',
+        'has_split_names',
+        'user_id',
     ];
 
     /**
@@ -31,6 +36,8 @@ class Portfolio extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'assignment_date' => 'date',
+        'has_split_names' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',

@@ -37,7 +37,7 @@ class CustomerExportController extends Controller
 
             return response()->json($result);
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return response()->json([
                 'success' => false,
                 'message' => 'حدث خطأ أثناء تصدير البيانات'

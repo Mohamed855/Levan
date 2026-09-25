@@ -23,7 +23,7 @@ class SettingsDomainController extends Controller
         try {
             return $dataTable->render($this->page . '.index');
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }

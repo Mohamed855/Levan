@@ -72,7 +72,7 @@ class TenantSubscriptionController extends Controller
             return view('tenants.subscription.renew.checkout', compact('plan', 'priceWithoutTax', 'taxAmount'));
             //
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->to(tenant_route_name('subscriptions.index'))->with('error', 'حدث خطأ أثناء تحميل صفحة التجديد');
         }
     }
@@ -96,7 +96,7 @@ class TenantSubscriptionController extends Controller
         } catch (PaymentInitiationException $e) {
             return redirect()->back()->with('error', $e->getMessage());
         } catch (\Throwable $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء معالجة التجديد');
         }
     }
@@ -118,7 +118,7 @@ class TenantSubscriptionController extends Controller
             return redirect()->route('site.index')->with('error', $e->getMessage());
         } catch (\Throwable $e) {
             //
-            Log::error($e);
+            report($e);
             return redirect()->route('site.index')->with('error', 'حدث خطأ أثناء معالجة نتيجة الدفع');
         }
     }
@@ -148,7 +148,7 @@ class TenantSubscriptionController extends Controller
             return view('tenants.subscription.upgrade.checkout', compact('newLicensesCount', 'plan', 'total', 'priceWithoutTax', 'taxAmount'));
             //
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->to(tenant_route_name('subscriptions.index'))->with('error', 'حدث خطأ أثناء تحميل صفحة شراء تراخيص اضافية ');
         }
     }
@@ -188,7 +188,7 @@ class TenantSubscriptionController extends Controller
         } catch (PaymentInitiationException $e) {
             return redirect()->back()->with('error', $e->getMessage());
         } catch (\Throwable $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء معالجة شراء التراخيص الإضافية ');
         }
     }
@@ -209,7 +209,7 @@ class TenantSubscriptionController extends Controller
             return redirect()->to(tenant_route_name('subscriptions.index'))->with('error', $e->getMessage());
         } catch (\Throwable $e) {
             //
-            Log::error($e);
+            report($e);
             return redirect()->to(tenant_route_name('subscriptions.index'))->with('error', 'حدث خطأ أثناء معالجة نتيجة الدفع');
         }
     }

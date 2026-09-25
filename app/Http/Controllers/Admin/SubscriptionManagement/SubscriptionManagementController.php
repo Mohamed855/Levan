@@ -36,7 +36,7 @@ class SubscriptionManagementController extends Controller
                 'suspendedSubscriptions' => $statistics['suspended'],
             ]);
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }
@@ -67,7 +67,7 @@ class SubscriptionManagementController extends Controller
 
             return redirect()->route(self::ROUTE_NAME . '.index')->with('success', 'تم إضافة العميل والاشتراك بنجاح');
         } catch (\Throwable $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->withInput()->with('error', 'حدث خطأ أثناء إضافة العميل');
         }
     }

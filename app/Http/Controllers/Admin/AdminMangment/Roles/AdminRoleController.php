@@ -60,7 +60,7 @@ class AdminRoleController extends Controller
                 // 'archivedUsers'   => $statistics['archived'],
             ]);
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }
@@ -190,7 +190,7 @@ class AdminRoleController extends Controller
                 'message' => 'تم تحديث الدور بنجاح.'
             ]);
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return response()->json([
                 'success' => false,
                 'message' => 'فشل في تحديث الدور.'

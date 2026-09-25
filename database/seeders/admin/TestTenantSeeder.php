@@ -80,9 +80,8 @@ class TestTenantSeeder extends Seeder
             return;
         }
 
-        Artisan::call('tenants:migrate', [
+        Artisan::call('tenants:migrate-fresh', [
             '--tenants' => [$tenant->id],
-            '--force'   => true,
         ]);
 
         tenancy()->initialize($tenant);

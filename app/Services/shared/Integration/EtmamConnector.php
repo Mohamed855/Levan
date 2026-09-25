@@ -110,7 +110,7 @@ class EtmamConnector
             return $this->handleResponse($response, 'POST', $endpoint, true);
             //
         } catch (\Throwable $e) {
-            Log::error($e);
+            report($e);
             return $this->handleException($e, 'POST', $endpoint);
         }
     }

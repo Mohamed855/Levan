@@ -40,7 +40,7 @@ class TenantMangmentController extends Controller
                 'without_subscription'      => $statistics['without_subscription'],
             ]);
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }

@@ -33,7 +33,7 @@ class AdminBillsController extends Controller
                 'pendingbills' => $stats->get(BillStatus::PENDING->value, 0),
             ]);
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }
@@ -94,7 +94,7 @@ class AdminBillsController extends Controller
         } catch (SubscriptionCreationException $e) {
             return redirect()->back()->with('error', $e->getMessage());
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء التحقق من الفاتورة.');
         }
     }
@@ -121,7 +121,7 @@ class AdminBillsController extends Controller
 
             return redirect()->route('admin.bills.index')->with('success', "تم رفض الفاتورة رقم {$bill->bill_number}.");
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء رفض الفاتورة.');
         }
     }
@@ -141,7 +141,7 @@ class AdminBillsController extends Controller
 
             return redirect()->route('admin.bills.show', $bill->id)->with('success', 'تم إعادة تفعيل الفاتورة بنجاح.');
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء إعادة التفعيل.');
         }
     }

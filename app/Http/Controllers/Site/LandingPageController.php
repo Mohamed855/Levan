@@ -40,7 +40,7 @@ class LandingPageController extends Controller
                 return redirect()->route('site.index')->with('success', 'شكراً لتواصلك معنا. تم استقبال استفسارك بنجاح وسيتم الرد عليك في أقرب وقت.');
             }
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->withInput()->with('error', 'حدث خطأ غير متوقع');
         }
     }

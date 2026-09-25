@@ -60,6 +60,20 @@ class CpanelService
 
     public function createDatabase(string $tenantName, string $username): array
     {
+        if (empty($this->cpanelUser) || empty($this->cpanelHost) || empty($this->cpanelToken)) {
+            if (app()->environment('local')) {
+                $databaseName = "tenant_{$tenantName}";
+                DB::statement("CREATE DATABASE IF NOT EXISTS `{$databaseName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+
+                return [
+                    'host'     => env('DB_HOST', '127.0.0.1'),
+                    'database' => $databaseName,
+                    'username' => env('DB_USERNAME', 'admin'),
+                    'password' => env('DB_PASSWORD', 'admin'),
+                ];
+            }
+        }
+
         $databaseName = "{$this->cpanelUser}_{$tenantName}";
         $userName     = "{$this->cpanelUser}_{$username}";
         $userPassword = $this->generateSecurePassword();

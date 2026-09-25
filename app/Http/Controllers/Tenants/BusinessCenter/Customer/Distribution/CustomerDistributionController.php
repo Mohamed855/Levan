@@ -60,7 +60,7 @@ class CustomerDistributionController extends Controller
                 'thisMonthDistributions' => $statistics['this_month_distributions'],
             ]);
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }

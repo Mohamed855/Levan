@@ -69,7 +69,7 @@ class BillsController extends Controller
                 // 'inactivePlans'    => $statistics['inactive'],
             ]);
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }
@@ -117,7 +117,7 @@ class BillsController extends Controller
             ));
             //
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء تحميل الصفحة ');
         }
     }
@@ -142,7 +142,7 @@ class BillsController extends Controller
         } catch (PaymentInitiationException $e) {
             return redirect()->back()->with('error', $e->getMessage());
         } catch (\Throwable $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء معالجة الدفع');
         }
     }
@@ -159,7 +159,7 @@ class BillsController extends Controller
             //
             return redirect()->to(tenant_route_name('bills.index'))->with('error', $e->getMessage());
         } catch (\Throwable $e) {
-            Log::error($e);
+            report($e);
             return redirect()->to(tenant_route_name('bills.index'))->with('error', 'حدث خطأ أثناء معالجة نتيجة الدفع');
         }
     }
@@ -174,7 +174,7 @@ class BillsController extends Controller
 
             return view(self::VIEW_PATH . '.bank_transfer', compact('bill', 'banks', 'amount'));
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء تحميل صفحة التحويل البنكي');
         }
     }
@@ -195,7 +195,7 @@ class BillsController extends Controller
 
             return redirect(tenant_route_name('bills.show', $id))->with('success', 'تم رفع الإيصال بنجاح. سيتم التحقق منه قريباً.');
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء رفع الإيصال');
         }
     }
@@ -216,7 +216,7 @@ class BillsController extends Controller
             return view(self::VIEW_PATH . '.bank_transfer', compact('bill', 'banks', 'amount'));
             //
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء تحميل صفحة التحويل البنكي');
         }
     }
@@ -245,7 +245,7 @@ class BillsController extends Controller
 
             return redirect(tenant_route_name('bills.show', $id))->with('success', 'تم رفع إيصال التحويل بنجاح. سيتم التحقق منه قريباً.');
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء رفع الإيصال. يرجى المحاولة مرة أخرى.');
         }
     }

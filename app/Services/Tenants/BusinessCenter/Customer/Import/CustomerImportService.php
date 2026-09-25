@@ -303,7 +303,7 @@ class CustomerImportService
                 'portfolio' => $portfolio
             ];
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
 
             return [
                 'success' => false,
