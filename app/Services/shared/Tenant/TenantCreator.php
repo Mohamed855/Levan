@@ -47,10 +47,11 @@ class TenantCreator
     private function generateIdentifiers(): array
     {
         do {
-            $randomId = 'mo' . random_int(10000, 99999);
+            $random = random_int(10000, 99999);
+            $randomId = 'etmam_levan_' . $random;
         } while (Tenant::whereKey($randomId)->exists());
 
-        return [$randomId, $randomId];
+        return [$randomId, 'u' . $random];
     }
 
     private function registerTenantRecord(string $tenantId, array $connection, array $metadata): Tenant

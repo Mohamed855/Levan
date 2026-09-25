@@ -62,7 +62,7 @@ class CpanelService
     {
         if (empty($this->cpanelUser) || empty($this->cpanelHost) || empty($this->cpanelToken)) {
             if (app()->environment('local')) {
-                $databaseName = "tenant_{$tenantName}";
+                $databaseName = $tenantName;
                 DB::statement("CREATE DATABASE IF NOT EXISTS `{$databaseName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
 
                 return [
