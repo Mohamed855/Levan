@@ -1,0 +1,106 @@
+@php
+    $tenantObj = tenant();
+    $daysRemaining = null;
+    $currentPeriod = null;
+
+    if ($tenantObj && auth()->check()) {
+        $subscription = cache()->remember(
+            "tenant:{$tenantObj->id}:subscription",
+            now()->addMinutes(5),
+            fn() => \Stancl\Tenancy\Facades\Tenancy::central(fn() => $tenantObj->lastSubscription)
+        );
+
+        if ($subscription && $subscription->status === \App\Enums\Admin\Subscriptions\SubscriptionStatus::ACTIVE) {
+            $currentPeriod = $subscription->currentPeriod;
+            if ($currentPeriod) {
+                $daysRemaining = app(\App\Services\shared\Subscription\SubscriptionManager::class)->calculateDaysRemaining($currentPeriod);
+            }
+        }
+    }
+@endphp
+
+@if ($daysRemaining !== null && $daysRemaining > 0 && $daysRemaining <= 30)
+    @if ($daysRemaining > 7)
+        {{-- Warning Alert (من 8 إلى 30 يوم) --}}
+        <div class="alert alert-warning d-flex align-items-center gap-3 mb-4 shadow-sm" role="alert">
+            <span class="alert-icon rounded">
+                <i class="ti ti-bell-ringing ti-md"></i>
+            </span>
+            <div class="d-flex flex-column flex-grow-1">
+                <h6 class="alert-heading mb-1 text-warning fw-bold">تنبيه باقتراب موعد تجديد الاشتراك</h6>
+                <span>
+                    ينتهي اشتراك المنشأة الحالي خلال <strong>{{ $daysRemaining }}</strong> يوماً (بتاريخ <strong>{{ \Carbon\Carbon::parse($currentPeriod->period_end)->format('Y-m-d') }}</strong>). يرجى التجديد لضمان استمرار عمل الخدمات دون انقطاع.
+                </span>
+            </div>
+            <div class="text-nowrap">
+                <a href="{{ tenant_route_name('subscriptions.index') }}" class="btn btn-warning">
+                    <i class="ti ti-refresh me-1"></i> تجديد الاشتراك
+                </a>
+            </div>
+            <button type="button" class="btn-close position-relative" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @else
+        {{-- Danger Alert (7 أيام أو أقل) --}}
+        <div class="alert alert-danger d-flex align-items-center gap-3 mb-4 shadow-sm border border-danger" role="alert">
+            <span class="alert-icon rounded bg-danger text-white p-1">
+                <i class="ti ti-alert-triangle ti-md"></i>
+            </span>
+            <div class="d-flex flex-column flex-grow-1">
+                <h6 class="alert-heading mb-1 text-danger fw-bold">تحذير عاجل: اشتراك المنشأة شارف على الانتهاء!</h6>
+                <span>
+                    متبقي على انتهاء الاشتراك <strong>{{ $daysRemaining }}</strong> {{ $daysRemaining == 1 ? 'يوم واحد' : ($daysRemaining == 2 ? 'يومان' : 'أيام') }} فقط (بتاريخ <strong>{{ \Carbon\Carbon::parse($currentPeriod->period_end)->format('Y-m-d') }}</strong>). سيتم إيقاف النظام وتعليق وصول الموظفين فور انتهاء الصلاحية.
+                </span>
+            </div>
+            <div class="text-nowrap">
+                <a href="{{ tenant_route_name('subscriptions.index') }}" class="btn btn-danger">
+                    <i class="ti ti-bolt me-1"></i> تجديد الاشتراك فوراً
+                </a>
+            </div>
+            <button type="button" class="btn-close position-relative" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        {{-- Popup Modal في الـ Dashboard فقط عند بقاء 7 أيام أو أقل --}}
+        @if (Route::is('*dashboard*'))
+            <div class="modal fade" id="subscriptionExpiringModal" tabindex="-1" aria-labelledby="subscriptionExpiringModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content text-center p-3 shadow-lg border-danger">
+                        <div class="modal-header border-0 pb-0 justify-content-end">
+                            <button type="button" class="btn-close position-relative" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body pt-0">
+                            <div class="avatar avatar-xl bg-label-danger mx-auto mb-3" style="width: 64px; height: 64px;">
+                                <span class="avatar-initial rounded-circle"><i class="ti ti-alert-triangle fs-2"></i></span>
+                            </div>
+                            <h4 class="modal-title fw-bold text-danger mb-2" id="subscriptionExpiringModalLabel">تحذير عاجل: اقتراب انتهاء الاشتراك</h4>
+                            <p class="text-secondary mb-4 fs-6">
+                                متبقي على انتهاء اشتراك المنشأة <strong>{{ $daysRemaining }}</strong> {{ $daysRemaining == 1 ? 'يوم واحد' : ($daysRemaining == 2 ? 'يومان' : 'أيام') }} فقط (بتاريخ <strong>{{ \Carbon\Carbon::parse($currentPeriod->period_end)->format('Y-m-d') }}</strong>).
+                                <br>
+                                <span class="text-danger fw-semibold small">سيتم إيقاف النظام وتعليق وصول الموظفين فور انتهاء الصلاحية.</span>
+                            </p>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="{{ tenant_route_name('subscriptions.index') }}" class="btn btn-danger px-4">
+                                    <i class="ti ti-bolt me-1"></i> تجديد الاشتراك فوراً
+                                </a>
+                                <button type="button" class="btn btn-label-secondary px-3" data-bs-dismiss="modal">إغلاق</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    if (!sessionStorage.getItem('subscription_warning_popup_dismissed')) {
+                        var modalEl = document.getElementById('subscriptionExpiringModal');
+                        if (modalEl && typeof bootstrap !== 'undefined') {
+                            var modal = new bootstrap.Modal(modalEl);
+                            modal.show();
+                            modalEl.addEventListener('hidden.bs.modal', function () {
+                                sessionStorage.setItem('subscription_warning_popup_dismissed', 'true');
+                            });
+                        }
+                    }
+                });
+            </script>
+        @endif
+    @endif
+@endif

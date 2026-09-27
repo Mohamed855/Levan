@@ -57,6 +57,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
 
     // ادارة الاشتراكات
     Route::prefix('subscription-manage')->name('subscriptionManage.')->group(function () {
+        Route::get('expiring', [SubscriptionManagementController::class, 'expiring'])->name('expiring');
         Route::get('tenant/{tenant}/access', [SubscriptionManagementController::class, 'access'])->name('tenant-access');
         Route::resource('/', SubscriptionManagementController::class)->parameters(['' => 'subscription']);
     });

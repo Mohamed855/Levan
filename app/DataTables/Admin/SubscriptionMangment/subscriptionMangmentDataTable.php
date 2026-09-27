@@ -96,10 +96,27 @@ class subscriptionMangmentDataTable extends AbstractDataTable
 
             // عمود الأيام المتبقية
             ->addColumn('days_remaining', function ($row) {
-                $latestPeriod = $row->periods()->latest('period_end')->first();
+                $period = $row->currentPeriod ?? $row->periods()->latest('period_end')->first();
                 $service = app(SubscriptionManager::class);
+                $days = $service->calculateDaysRemaining($period);
 
-                return $service->calculateDaysRemaining($latestPeriod);
+                if ($days === null) {
+                    return '<span class="badge bg-label-secondary">-</span>';
+                }
+
+                if ($days <= 0) {
+                    return '<span class="badge bg-label-danger">منتهي (0 يوم)</span>';
+                }
+
+                if ($days <= 7) {
+                    return '<span class="badge bg-label-danger fw-bold"><i class="ti ti-alert-triangle ti-xs me-1"></i>' . $days . ' ' . ($days == 1 ? 'يوم' : ($days == 2 ? 'يومان' : 'أيام')) . '</span>';
+                }
+
+                if ($days <= 30) {
+                    return '<span class="badge bg-label-warning fw-semibold"><i class="ti ti-clock ti-xs me-1"></i>' . $days . ' يوماً</span>';
+                }
+
+                return '<span class="badge bg-label-success">' . $days . ' يوماً</span>';
             })
 
             ->editColumn('status', function ($row) {
@@ -120,6 +137,15 @@ class subscriptionMangmentDataTable extends AbstractDataTable
     {
         $request = request();
 
+        if ($request->routeIs('*subscriptionManage.expiring*') || $request->boolean('expiring_soon')) {
+            $query->where('status', 'active')
+                ->whereHas('currentPeriod', function ($q) {
+                    $q->where('status', 'active')
+                        ->where('period_end', '<=', now()->addDays(30))
+                        ->where('period_end', '>=', now()->startOfDay());
+                });
+        }
+
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
@@ -128,7 +154,7 @@ class subscriptionMangmentDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'tenant_id', 'plan_id', 'billing_cycle', 'status', 'actions'];
+        return ['checkbox', 'tenant_id', 'plan_id', 'billing_cycle', 'days_remaining', 'status', 'actions'];
     }
 
 

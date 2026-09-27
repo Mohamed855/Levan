@@ -31,11 +31,23 @@ class SubscriptionManagementService
         $baseQuery = Subscription::query();
 
         return [
-            'total'     => (clone $baseQuery)->count(),
-            'active'    => (clone $baseQuery)->where('status', SubscriptionStatus::ACTIVE)->count(),
-            'expired'   => (clone $baseQuery)->where('status', SubscriptionStatus::EXPIRED)->count(),
-            'suspended' => (clone $baseQuery)->where('status', SubscriptionStatus::SUSPENDED)->count(),
+            'total'         => (clone $baseQuery)->count(),
+            'active'        => (clone $baseQuery)->where('status', SubscriptionStatus::ACTIVE)->count(),
+            'expired'       => (clone $baseQuery)->where('status', SubscriptionStatus::EXPIRED)->count(),
+            'suspended'     => (clone $baseQuery)->where('status', SubscriptionStatus::SUSPENDED)->count(),
+            'expiring_soon' => $this->getExpiringSoonCount(),
         ];
+    }
+
+    public function getExpiringSoonCount(): int
+    {
+        return Subscription::where('status', SubscriptionStatus::ACTIVE)
+            ->whereHas('currentPeriod', function ($q) {
+                $q->where('status', SubscriptionPeriodStatus::ACTIVE)
+                    ->where('period_end', '<=', now()->addDays(30))
+                    ->where('period_end', '>=', now()->startOfDay());
+            })
+            ->count();
     }
 
     public function create(array $data): Tenant

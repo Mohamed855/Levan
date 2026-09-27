@@ -33,6 +33,8 @@ class SubscriptionPeriod extends Model
         'used_users_snapshot',
         'status',
         'is_current',
+        'reminded_at_30',
+        'reminded_at_7',
     ];
 
     protected $casts = [
@@ -42,6 +44,8 @@ class SubscriptionPeriod extends Model
         'amount'         => 'decimal:2',
         'is_current'     => 'boolean',
         'price_snapshot' => 'decimal:2',
+        'reminded_at_30' => 'datetime',
+        'reminded_at_7'  => 'datetime',
     ];
 
 

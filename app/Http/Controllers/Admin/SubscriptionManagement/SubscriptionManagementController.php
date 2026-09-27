@@ -34,6 +34,27 @@ class SubscriptionManagementController extends Controller
                 'activeSubscriptions'    => $statistics['active'],
                 'expiredSubscriptions'   => $statistics['expired'],
                 'suspendedSubscriptions' => $statistics['suspended'],
+                'expiringSubscriptions'  => $statistics['expiring_soon'],
+            ]);
+        } catch (\Exception $e) {
+            report($e);
+            return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
+        }
+    }
+
+    public function expiring(subscriptionMangmentDataTable $dataTable)
+    {
+        try {
+            $statistics = $this->subscriptionManagementService->getSubscriptionStatistics();
+
+            return $dataTable->render(self::VIEW_PATH . '.index', [
+                'pageTitle'              => 'اشتراكات تقارب على الانتهاء',
+                'isExpiringPage'         => true,
+                'totalSubscriptions'     => $statistics['total'],
+                'activeSubscriptions'    => $statistics['active'],
+                'expiredSubscriptions'   => $statistics['expired'],
+                'suspendedSubscriptions' => $statistics['suspended'],
+                'expiringSubscriptions'  => $statistics['expiring_soon'],
             ]);
         } catch (\Exception $e) {
             report($e);

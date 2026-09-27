@@ -87,11 +87,34 @@ use App\Helpers\Helpers;
         @endcan --}}
 
         @can('الإشتراكات')
+        @php
+            $expiringCount = cache()->remember('admin:expiring_subscriptions_count', 60, function() {
+                return app(\App\Services\Admin\SubscriptionManagement\SubscriptionManagementService::class)->getExpiringSoonCount();
+            });
+        @endphp
         <li class="menu-item @if (Route::is('admin.subscriptionManage.*')) active open @endif">
-            <a href="{{ route('admin.subscriptionManage.index') }}" class="menu-link">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons ti ti-timeline-event"></i>
                 <div>إدارة الإشتراكات</div>
+                @if($expiringCount > 0)
+                    <div class="badge bg-label-danger rounded-pill ms-auto">{{ $expiringCount }}</div>
+                @endif
             </a>
+            <ul class="menu-sub">
+                <li class="menu-item @if (Route::is('admin.subscriptionManage.index')) active @endif">
+                    <a href="{{ route('admin.subscriptionManage.index') }}" class="menu-link">
+                        <div>جميع الاشتراكات</div>
+                    </a>
+                </li>
+                <li class="menu-item @if (Route::is('admin.subscriptionManage.expiring')) active @endif">
+                    <a href="{{ route('admin.subscriptionManage.expiring') }}" class="menu-link">
+                        <div>تقارب على الانتهاء</div>
+                        @if($expiringCount > 0)
+                            <div class="badge bg-danger rounded-pill ms-auto">{{ $expiringCount }}</div>
+                        @endif
+                    </a>
+                </li>
+            </ul>
         </li>
         @endcan
 

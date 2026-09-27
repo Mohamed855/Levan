@@ -41,9 +41,7 @@
     @endif
 
     <div class="row g-4">
-        <!-- المحادثة والوصف (العمود الأيمن/الأكبر) -->
         <div class="col-lg-8">
-            <!-- تفاصيل المشكلة الأساسية -->
             <div class="card mb-4 shadow-sm">
                 <div class="card-header d-flex justify-content-between align-items-center border-bottom">
                     <h5 class="card-title mb-0">
@@ -73,7 +71,6 @@
                 </div>
             </div>
 
-            <!-- سجل الردود والمحادثة -->
             <div class="card mb-4 shadow-sm">
                 <div class="card-header border-bottom">
                     <h5 class="card-title mb-0">
@@ -155,9 +152,7 @@
             </div>
         </div>
 
-        <!-- معلومات التذكرة والعميل (العمود الأيسر) -->
         <div class="col-lg-4">
-            <!-- تغيير حالة التذكرة -->
             <div class="card mb-4 shadow-sm">
                 <div class="card-header border-bottom">
                     <h5 class="card-title mb-0"><i class="ti ti-adjustments me-2 text-warning"></i> التحكم بالحالة</h5>
@@ -183,7 +178,6 @@
                 </div>
             </div>
 
-            <!-- معلومات المستأجر والعميل -->
             <div class="card mb-4 shadow-sm">
                 <div class="card-header border-bottom">
                     <h5 class="card-title mb-0"><i class="ti ti-user me-2 text-info"></i> بيانات المستأجر</h5>
@@ -222,7 +216,6 @@
                 </div>
             </div>
 
-            <!-- تقييم رضا العميل (إن وجد) -->
             @if (!empty($ticket->survey_result))
                 <div class="card shadow-sm border-warning">
                     <div class="card-header bg-warning-subtle py-3">

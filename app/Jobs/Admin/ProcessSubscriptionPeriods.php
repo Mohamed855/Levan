@@ -6,6 +6,9 @@ use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Subscription\SubscriptionPeriod;
+use App\Notifications\Tenants\General\GeneralNotification;
+use App\Services\shared\Subscription\SubscriptionManager;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -33,10 +36,8 @@ class ProcessSubscriptionPeriods implements ShouldQueue
             // للتاكد فقط اذا كان هناك اي اشتراك نشط ليسه له فترة حالية ولا فترات قادمة
             $this->expireActivesWithoutCurrentOrQueued();
 
-            // $this->expireTrials($now);
-
-            // 3. إرسال تنبيهات قبل الانتهاء (اختياري)
-            // $this->sendExpirationReminders($now);
+            // 3. إرسال تنبيهات قبل الانتهاء (30 يوم و 7 أيام)
+            $this->sendExpirationReminders($now);
 
             Log::info('✅ انتهت معالجة الفترات والاشتراكات');
         });
@@ -155,39 +156,98 @@ class ProcessSubscriptionPeriods implements ShouldQueue
     }
 
     /**
-     * إرسال تنبيهات قبل الانتهاء (اختياري)
+     * إرسال تنبيهات قبل الانتهاء (30 يوم و 7 أيام)
      */
-    // private function sendExpirationReminders($now): void
-    // {
-    //     // البحث عن الاشتراكات التي ستنتهي خلال 7 أيام
-    //     $upcomingExpiry = Subscription::where('status', SubscriptionStatus::ACTIVE)
-    //         ->whereHas('currentPeriod', function ($query) use ($now) {
-    //             $query->where('period_end', '>', $now)
-    //                 ->where('period_end', '<=', $now->copy()->addDays(7))
-    //                 ->where('status', SubscriptionPeriodStatus::ACTIVE);
-    //         } )
-    //         ->whereDoesntHave('periods', function ($query) {
-    //             $query->where('status', SubscriptionPeriodStatus::QUEUED);
-    //         } )
-    //         ->with(['currentPeriod', 'tenant'])
-    //         ->get();
+    private function sendExpirationReminders($now): void
+    {
+        $today = $now->copy()->startOfDay();
 
-    //     foreach ($upcomingExpiry as $subscription) {
-    //         // تحقق من عدم إرسال تنبيه سابق اليوم
-    //         $reminderSentToday = $subscription->reminders()
-    //             ->whereDate('created_at', $now->toDateString())
-    //             ->exists();
+        // 1. تذكيرات قبل 30 يوم (بين 8 و 30 يوماً)
+        $periods30 = SubscriptionPeriod::where('is_current', true)
+            ->where('status', SubscriptionPeriodStatus::ACTIVE)
+            ->whereNull('reminded_at_30')
+            ->where('period_end', '<=', $now->copy()->addDays(30))
+            ->where('period_end', '>', $now->copy()->addDays(7))
+            ->whereDoesntHave('subscription.periods', function ($q) {
+                $q->where('status', SubscriptionPeriodStatus::QUEUED);
+            })
+            ->with(['subscription.tenant'])
+            ->get();
 
-    //         if (!$reminderSentToday) {
-    //             // إرسال الإشعار
-    //             // event(new SubscriptionExpiringReminder($subscription));
+        foreach ($periods30 as $period) {
+            $subscription = $period->subscription;
+            if (!$subscription || !$subscription->tenant) continue;
 
-    //             Log::info('📧 تم إرسال تذكير بانتهاء الاشتراك', [
-    //                 'subscription_id' => $subscription->id,
-    //                 'tenant_id'       => $subscription->tenant_id,
-    //                 'expires_at'      => $subscription->currentPeriod->period_end,
-    //             ]);
-    //         }
-    //     }
-    // }
+            $days = app(SubscriptionManager::class)->calculateDaysRemaining($period) ?? 0;
+
+            $this->notifyTenantSubscriptionExpiring(
+                $subscription->tenant,
+                $days,
+                $period->period_end,
+                'warning'
+            );
+
+            $period->update(['reminded_at_30' => $now]);
+        }
+
+        // 2. تذكيرات عاجلة قبل 7 أيام أو أقل
+        $periods7 = SubscriptionPeriod::where('is_current', true)
+            ->where('status', SubscriptionPeriodStatus::ACTIVE)
+            ->whereNull('reminded_at_7')
+            ->where('period_end', '<=', $now->copy()->addDays(7))
+            ->where('period_end', '>', $now)
+            ->whereDoesntHave('subscription.periods', function ($q) {
+                $q->where('status', SubscriptionPeriodStatus::QUEUED);
+            })
+            ->with(['subscription.tenant'])
+            ->get();
+
+        foreach ($periods7 as $period) {
+            $subscription = $period->subscription;
+            if (!$subscription || !$subscription->tenant) continue;
+
+            $days = app(SubscriptionManager::class)->calculateDaysRemaining($period) ?? 0;
+
+            $this->notifyTenantSubscriptionExpiring(
+                $subscription->tenant,
+                $days,
+                $period->period_end,
+                'danger'
+            );
+
+            $period->update([
+                'reminded_at_7'  => $now,
+                'reminded_at_30' => $period->reminded_at_30 ?? $now,
+            ]);
+        }
+    }
+
+    /**
+     * إرسال إشعار للمستأجر عبر GeneralNotification
+     */
+    private function notifyTenantSubscriptionExpiring($tenant, int $days, $periodEnd, string $level = 'warning'): void
+    {
+        try {
+            $tenant->run(function () use ($days, $periodEnd, $level) {
+                $user = \App\Models\Tenants\UserMangment\User\User::find(1) ?? \App\Models\Tenants\UserMangment\User\User::first();
+                if (!$user) return;
+
+                $formattedDate = Carbon::parse($periodEnd)->format('Y-m-d');
+                $isUrgent = ($level === 'danger');
+
+                $title = $isUrgent ? 'تحذير عاجل: اقتراب انتهاء الاشتراك' : 'تذكير: اقتراب موعد تجديد الاشتراك';
+                $message = $isUrgent
+                    ? "اشتراك المنشأة سينتهي خلال {$days} أيام (بتاريخ {$formattedDate}). يرجى التجديد لتفادي إيقاف الخدمات."
+                    : "اشتراك المنشأة ينتهي خلال {$days} يوماً (بتاريخ {$formattedDate}). يرجى تجديد الاشتراك لضمان استمرار الخدمة.";
+
+                $url = tenant_route_name('subscriptions.index');
+                $icon = $isUrgent ? 'ti ti-alert-triangle' : 'ti ti-calendar-time';
+
+                $notification = new GeneralNotification($title, $message, $level, $icon, $url);
+                $user->notifyNow($notification);
+            });
+        } catch (\Throwable $e) {
+            Log::error('Failed to send subscription expiration reminder: ' . $e->getMessage());
+        }
+    }
 }

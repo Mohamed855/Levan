@@ -66,6 +66,8 @@ isset($configData['contentLayout']) && $configData['contentLayout'] === 'compact
                     <div class="{{ $container }} flex-grow-1 container-p-y">
                         @endif
 
+                        @include('tenants.layouts.sections.subscription_alert')
+
                         @yield('content')
 
                     </div>
