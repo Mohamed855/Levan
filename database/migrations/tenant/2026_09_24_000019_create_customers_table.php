@@ -28,6 +28,7 @@ return new class extends Migration
             $table->timestamp('last_sms_at')->nullable();
             $table->foreignId('last_contact_result_id')->nullable()->constrained('contact_results')->nullOnDelete();
             $table->date('contract_date')->nullable();
+            $table->date('default_date')->nullable();
             $table->decimal('commission_rate', 8, 2)->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();

@@ -8,9 +8,19 @@ use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Models\Tenants\UserMangment\User\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class ExecutiveReportService
 {
+    private static ?bool $hasDefaultDateCol = null;
+
+    private function hasDefaultDate(): bool
+    {
+        if (self::$hasDefaultDateCol === null) {
+            self::$hasDefaultDateCol = Schema::hasColumn('customers', 'default_date');
+        }
+        return self::$hasDefaultDateCol;
+    }
     public function getCount(): array
     {
         return [
@@ -130,14 +140,14 @@ class ExecutiveReportService
         if ($companyId)   $debtQ->where('customers.company_id', $companyId);
         if ($portfolioId) $debtQ->where('customers.portfolio_id', $portfolioId);
 
-        $topDebtors = $debtQ
+        $debtQuery = $debtQ
             ->groupBy('customers.id', 'customers.name')
             ->selectRaw("customers.id, customers.name,
                 SUM(CASE WHEN customer_transactions.type='debit'  THEN customer_transactions.amount ELSE 0 END) as total_debit,
                 SUM(CASE WHEN customer_transactions.type='credit' THEN customer_transactions.amount ELSE 0 END) as total_credit")
             ->havingRaw("SUM(CASE WHEN customer_transactions.type='debit' THEN customer_transactions.amount ELSE 0 END) > SUM(CASE WHEN customer_transactions.type='credit' THEN customer_transactions.amount ELSE 0 END)")
             ->orderByRaw("(SUM(CASE WHEN customer_transactions.type='debit' THEN customer_transactions.amount ELSE 0 END) - SUM(CASE WHEN customer_transactions.type='credit' THEN customer_transactions.amount ELSE 0 END)) DESC");
-        $topDebtors = $this->lim($debtQ, 20, $exportLimit)->get();
+        $topDebtors = $this->lim($debtQuery, 20, $exportLimit)->get();
 
         $debtorNames     = $topDebtors->pluck('name')->toArray();
         $debtorDebit     = $topDebtors->map(fn($c) => round((float) $c->total_debit))->toArray();
@@ -388,9 +398,12 @@ class ExecutiveReportService
             ->whereNull('deleted_at')->where('status', 'approved')
             ->whereBetween('collection_date', [$from, $to])->count();
 
-        $avgDebtAge = (int) DB::table('customers')
-            ->whereNull('deleted_at')->whereNotNull('default_date')
-            ->avg(DB::raw('DATEDIFF(CURDATE(), default_date)'));
+        $avgDebtAge = 0;
+        if ($this->hasDefaultDate()) {
+            $avgDebtAge = (int) DB::table('customers')
+                ->whereNull('deleted_at')->whereNotNull('default_date')
+                ->avg(DB::raw('DATEDIFF(CURDATE(), default_date)'));
+        }
 
         // Summary table (top 8 companies)
         $summaryCollected = DB::table('collections')
@@ -548,14 +561,18 @@ class ExecutiveReportService
             return $due > 0 && $this->rate($due, $collected) < 50;
         })->count();
 
-        $avgCollectionPeriod = (int) DB::table('customers')
-            ->whereNull('deleted_at')->where('company_id', $companyId)->whereNotNull('default_date')
-            ->avg(DB::raw('DATEDIFF(CURDATE(), default_date)'));
+        $avgCollectionPeriod = 0;
+        $avgPeriodByPort     = collect();
+        if ($this->hasDefaultDate()) {
+            $avgCollectionPeriod = (int) DB::table('customers')
+                ->whereNull('deleted_at')->where('company_id', $companyId)->whereNotNull('default_date')
+                ->avg(DB::raw('DATEDIFF(CURDATE(), default_date)'));
 
-        $avgPeriodByPort = DB::table('customers')
-            ->whereNull('deleted_at')->whereIn('portfolio_id', $portIds)->whereNotNull('default_date')
-            ->groupBy('portfolio_id')->selectRaw('portfolio_id, AVG(DATEDIFF(CURDATE(), default_date)) as avg_days')
-            ->get()->keyBy('portfolio_id');
+            $avgPeriodByPort = DB::table('customers')
+                ->whereNull('deleted_at')->whereIn('portfolio_id', $portIds)->whereNotNull('default_date')
+                ->groupBy('portfolio_id')->selectRaw('portfolio_id, AVG(DATEDIFF(CURDATE(), default_date)) as avg_days')
+                ->get()->keyBy('portfolio_id');
+        }
 
         $takeN       = $exportLimit === 0 ? PHP_INT_MAX : ($exportLimit ?? 8);
         $summaryRows = $sorted->take($takeN)->map(function ($p) use ($portDue, $portCollected) {
@@ -683,22 +700,34 @@ class ExecutiveReportService
         })->values()->toArray();
 
         // Customer status distribution
-        $statuses = DB::table('customers')
-            ->whereNull('deleted_at')->where('portfolio_id', $portfolioId)
-            ->selectRaw("
-                SUM(CASE WHEN default_date IS NULL THEN 1 ELSE 0 END) as regular,
-                SUM(CASE WHEN default_date IS NOT NULL AND DATEDIFF(CURDATE(), default_date) BETWEEN 1 AND 30 THEN 1 ELSE 0 END) as late30,
-                SUM(CASE WHEN default_date IS NOT NULL AND DATEDIFF(CURDATE(), default_date) BETWEEN 31 AND 60 THEN 1 ELSE 0 END) as late60,
-                SUM(CASE WHEN default_date IS NOT NULL AND DATEDIFF(CURDATE(), default_date) BETWEEN 61 AND 90 THEN 1 ELSE 0 END) as late90,
-                SUM(CASE WHEN default_date IS NOT NULL AND DATEDIFF(CURDATE(), default_date) > 90 THEN 1 ELSE 0 END) as late90plus
-            ")->first();
+        if ($this->hasDefaultDate()) {
+            $statuses = DB::table('customers')
+                ->whereNull('deleted_at')->where('portfolio_id', $portfolioId)
+                ->selectRaw("
+                    SUM(CASE WHEN default_date IS NULL THEN 1 ELSE 0 END) as regular,
+                    SUM(CASE WHEN default_date IS NOT NULL AND DATEDIFF(CURDATE(), default_date) BETWEEN 1 AND 30 THEN 1 ELSE 0 END) as late30,
+                    SUM(CASE WHEN default_date IS NOT NULL AND DATEDIFF(CURDATE(), default_date) BETWEEN 31 AND 60 THEN 1 ELSE 0 END) as late60,
+                    SUM(CASE WHEN default_date IS NOT NULL AND DATEDIFF(CURDATE(), default_date) BETWEEN 61 AND 90 THEN 1 ELSE 0 END) as late90,
+                    SUM(CASE WHEN default_date IS NOT NULL AND DATEDIFF(CURDATE(), default_date) > 90 THEN 1 ELSE 0 END) as late90plus
+                ")->first();
 
-        $lateCount = DB::table('customers')
-            ->whereNull('deleted_at')->where('portfolio_id', $portfolioId)->whereNotNull('default_date')->count();
+            $lateCount = DB::table('customers')
+                ->whereNull('deleted_at')->where('portfolio_id', $portfolioId)->whereNotNull('default_date')->count();
 
-        $avgDebtAge = (int) DB::table('customers')
-            ->whereNull('deleted_at')->where('portfolio_id', $portfolioId)->whereNotNull('default_date')
-            ->avg(DB::raw('DATEDIFF(CURDATE(), default_date)'));
+            $avgDebtAge = (int) DB::table('customers')
+                ->whereNull('deleted_at')->where('portfolio_id', $portfolioId)->whereNotNull('default_date')
+                ->avg(DB::raw('DATEDIFF(CURDATE(), default_date)'));
+        } else {
+            $statuses = (object) [
+                'regular'    => $customersCount,
+                'late30'     => 0,
+                'late60'     => 0,
+                'late90'     => 0,
+                'late90plus' => 0,
+            ];
+            $lateCount = 0;
+            $avgDebtAge = 0;
+        }
 
         // Highest debt customer (net = debit - credit)
         $topDebtCust = DB::table('customer_transactions')
@@ -747,11 +776,14 @@ class ExecutiveReportService
             ->orderByRaw("(SUM(CASE WHEN customer_transactions.type='debit' THEN customer_transactions.amount ELSE 0 END) - SUM(CASE WHEN customer_transactions.type='credit' THEN customer_transactions.amount ELSE 0 END)) DESC");
         $topCustomers = $this->lim($topCustomers, 8, $exportLimit)->get();
 
-        $ageByCustomer = DB::table('customers')
-            ->whereNull('deleted_at')->where('portfolio_id', $portfolioId)
-            ->whereIn('id', $topCustomers->pluck('id'))->whereNotNull('default_date')
-            ->selectRaw('id, DATEDIFF(CURDATE(), default_date) as debt_age')
-            ->get()->keyBy('id');
+        $ageByCustomer = collect();
+        if ($this->hasDefaultDate() && $topCustomers->isNotEmpty()) {
+            $ageByCustomer = DB::table('customers')
+                ->whereNull('deleted_at')->where('portfolio_id', $portfolioId)
+                ->whereIn('id', $topCustomers->pluck('id'))->whereNotNull('default_date')
+                ->selectRaw('id, DATEDIFF(CURDATE(), default_date) as debt_age')
+                ->get()->keyBy('id');
+        }
 
         $summaryRows = $topCustomers->map(function ($c) use ($ageByCustomer) {
             $due       = (float) $c->total_debit;

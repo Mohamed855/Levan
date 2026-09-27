@@ -601,7 +601,8 @@
                         renderMonthlyTrend(data);
                         renderTables(data);
                     })
-                    .catch(() => {
+                    .catch((err) => {
+                        console.error('Executive report load error:', err);
                         toastr.error('تعذّر تحميل البيانات، يرجى المحاولة مرة أخرى.');
                     })
                     .finally(() => loader.classList.remove('active'));
@@ -773,7 +774,7 @@
                                     total: {
                                         show: true,
                                         label: portfolioFilter.value !== 'all' ? 'عميل' : 'محفظة',
-                                        formatter: () => data.distributionSeries.reduce((a, b) => a + b, 0)
+                                        formatter: () => ((data.distributionSeries || []).reduce((a, b) => a + b, 0) || 0)
                                             .toLocaleString()
                                     }
                                 }

@@ -96,6 +96,16 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     protected static function boot()
     {
         parent::boot();
+
+        static::creating(function ($tenant) {
+            $reservedIdentifiers = ['admin', 'superadmin'];
+            $tenantId = strtolower(trim((string) ($tenant->id ?? '')));
+            $folderName = strtolower(trim((string) ($tenant->folderName ?? '')));
+
+            if (in_array($tenantId, $reservedIdentifiers, true) || in_array($folderName, $reservedIdentifiers, true)) {
+                throw new \InvalidArgumentException("لا يمكن استخدام المعرف 'admin' كـ tenant لأنه محجوز للنظام.");
+            }
+        });
     }
 
     /*

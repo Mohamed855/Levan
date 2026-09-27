@@ -58,6 +58,7 @@ class Customer extends Model
         'last_sms_at',
         'last_contact_result_id',
         'contract_date',
+        'default_date',
         'commission_rate',
         'created_by',
     ];
@@ -67,6 +68,7 @@ class Customer extends Model
      */
     protected $casts = [
         'contract_date' => 'date',
+        'default_date'  => 'date',
         'last_sms_at'   => 'datetime',
         'commission_rate' => 'decimal:2',
         'created_at' => 'datetime',
