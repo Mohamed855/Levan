@@ -61,7 +61,7 @@
 
         {{-- Popup Modal في الـ Dashboard فقط عند بقاء 7 أيام أو أقل --}}
         @if (Route::is('*dashboard*'))
-            <div class="modal fade" id="subscriptionExpiringModal" tabindex="-1" aria-labelledby="subscriptionExpiringModalLabel" aria-hidden="true">
+            <div class="modal fade" id="subscriptionExpiringModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="subscriptionExpiringModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content text-center p-3 shadow-lg border-danger">
                         <div class="modal-body">
