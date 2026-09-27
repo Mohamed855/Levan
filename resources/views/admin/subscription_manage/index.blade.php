@@ -38,7 +38,7 @@
         </div>
     @endif
 
-    @if (!$isExpiringPage)
+    @if (!($isExpiringPage ?? false))
         <div class="row g-4 mb-4">
             <!-- إجمالي الاشتراكات -->
             <div class="col-sm-6 col-xl-3">

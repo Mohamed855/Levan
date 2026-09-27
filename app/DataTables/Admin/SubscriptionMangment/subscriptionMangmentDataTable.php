@@ -26,7 +26,7 @@ class subscriptionMangmentDataTable extends AbstractDataTable
 
     protected function getColumns(): array
     {
-        return [
+        $columns = [
             ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             [
@@ -51,9 +51,13 @@ class subscriptionMangmentDataTable extends AbstractDataTable
 
             ['data' => 'days_remaining',    'name' => 'days_remaining', 'title' => 'الأيام المتبقية', 'orderable' => false,],
             ['data' => 'status',            'name' => 'status',         'title' => 'الحالة',],
-
-            ['data' => 'actions',           'name' => 'actions',        'title' => 'الإجراءات',       'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
+
+        if (!$this->isExpiringRoute()) {
+            $columns[] = ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'];
+        }
+
+        return $columns;
     }
 
 
@@ -127,17 +131,25 @@ class subscriptionMangmentDataTable extends AbstractDataTable
 
             ->editColumn('price', function ($row) {
                 return number_format($row->price, 2) . ' ر.س';
-            })
-            ->addColumn('actions', function ($row) {
+            });
+
+        if (!$this->isExpiringRoute()) {
+            $datatable->addColumn('actions', function ($row) {
                 return view($this->page . '.action', ['row' => $row, 'route' => $this->route])->render();
             });
+        }
+    }
+
+    private function isExpiringRoute(): bool
+    {
+        return request()->routeIs('*subscriptionManage.expiring*') || request()->boolean('expiring_soon');
     }
 
     protected function applyCustomFilters($query)
     {
         $request = request();
 
-        if ($request->routeIs('*subscriptionManage.expiring*') || $request->boolean('expiring_soon')) {
+        if ($this->isExpiringRoute()) {
             $query->where('status', 'active')
                 ->whereHas('currentPeriod', function ($q) {
                     $q->where('status', 'active')
@@ -154,7 +166,13 @@ class subscriptionMangmentDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'tenant_id', 'plan_id', 'billing_cycle', 'days_remaining', 'status', 'actions'];
+        $columns = ['checkbox', 'tenant_id', 'plan_id', 'billing_cycle', 'days_remaining', 'status'];
+
+        if (!$this->isExpiringRoute()) {
+            $columns[] = 'actions';
+        }
+
+        return $columns;
     }
 
 
@@ -172,10 +190,15 @@ class subscriptionMangmentDataTable extends AbstractDataTable
     // Buttons
     protected function buttons(): array
     {
-        return [
+        $buttons = [
             $this->getActionsDropdownButton(),
-            $this->getAddButton(),
         ];
+
+        if (!$this->isExpiringRoute()) {
+            $buttons[] = $this->getAddButton();
+        }
+
+        return $buttons;
     }
 
     private function getActionsDropdownButton(): array

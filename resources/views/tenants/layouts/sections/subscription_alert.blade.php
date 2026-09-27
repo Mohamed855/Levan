@@ -64,24 +64,24 @@
             <div class="modal fade" id="subscriptionExpiringModal" tabindex="-1" aria-labelledby="subscriptionExpiringModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content text-center p-3 shadow-lg border-danger">
-                        <div class="modal-header border-0 pb-0 justify-content-end">
-                            <button type="button" class="btn-close position-relative" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body pt-0">
-                            <div class="avatar avatar-xl bg-label-danger mx-auto mb-3" style="width: 64px; height: 64px;">
-                                <span class="avatar-initial rounded-circle"><i class="ti ti-alert-triangle fs-2"></i></span>
-                            </div>
-                            <h4 class="modal-title fw-bold text-danger mb-2" id="subscriptionExpiringModalLabel">تحذير عاجل: اقتراب انتهاء الاشتراك</h4>
-                            <p class="text-secondary mb-4 fs-6">
-                                متبقي على انتهاء اشتراك المنشأة <strong>{{ $daysRemaining }}</strong> {{ $daysRemaining == 1 ? 'يوم واحد' : ($daysRemaining == 2 ? 'يومان' : 'أيام') }} فقط (بتاريخ <strong>{{ \Carbon\Carbon::parse($currentPeriod->period_end)->format('Y-m-d') }}</strong>).
-                                <br>
-                                <span class="text-danger fw-semibold small">سيتم إيقاف النظام وتعليق وصول الموظفين فور انتهاء الصلاحية.</span>
-                            </p>
-                            <div class="d-flex justify-content-center gap-2">
-                                <a href="{{ tenant_route_name('subscriptions.index') }}" class="btn btn-danger px-4">
-                                    <i class="ti ti-bolt me-1"></i> تجديد الاشتراك فوراً
-                                </a>
-                                <button type="button" class="btn btn-label-secondary px-3" data-bs-dismiss="modal">إغلاق</button>
+                        <div class="modal-body">
+                            <div class="d-flex flex-column align-items-center gap-5">
+                                <div class="avatar avatar-xl">
+                                    <span class="avatar-initial rounded-circle text-danger"><i class="ti ti-alert-triangle fs-2"></i></span>
+                                </div>
+                                <h4 class="modal-title fw-bold text-danger" id="subscriptionExpiringModalLabel">تحذير عاجل: اقتراب انتهاء الاشتراك</h4>
+                                <p class="fs-6 mb-0">
+                                    <span class="d-block mb-2">
+                                        متبقي على انتهاء اشتراك المنشأة <strong>{{ $daysRemaining }}</strong> {{ $daysRemaining == 1 ? 'يوم واحد' : ($daysRemaining == 2 ? 'يومان' : 'أيام') }} فقط (بتاريخ <strong>{{ \Carbon\Carbon::parse($currentPeriod->period_end)->format('Y-m-d') }}</strong>).
+                                    </span>
+                                    <span class="text-danger fw-semibold">سيتم إيقاف النظام وتعليق وصول الموظفين فور انتهاء الصلاحية.</span>
+                                </p>
+                                <div class="w-100 d-flex flex-column gap-2">
+                                    <a href="{{ tenant_route_name('subscriptions.index') }}" class="btn btn-danger">
+                                        <i class="ti ti-bolt me-1"></i> تجديد الاشتراك فوراً
+                                    </a>
+                                    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">تذكيرى لاحقاً</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -89,13 +89,20 @@
             </div>
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
-                    if (!sessionStorage.getItem('subscription_warning_popup_dismissed')) {
+                    const reminderKey = 'subscription_reminder_postponed_until_{{ $tenantObj->id }}';
+                    const postponedUntil = localStorage.getItem(reminderKey);
+
+                    // show modal again after 24 hours
+                    if (!postponedUntil || Date.now() > parseInt(postponedUntil, 10)) {
                         var modalEl = document.getElementById('subscriptionExpiringModal');
                         if (modalEl && typeof bootstrap !== 'undefined') {
                             var modal = new bootstrap.Modal(modalEl);
                             modal.show();
+
                             modalEl.addEventListener('hidden.bs.modal', function () {
-                                sessionStorage.setItem('subscription_warning_popup_dismissed', 'true');
+                                // 24 hours (24 * 60 * 60 * 1000 milliseconds)
+                                const nextReminderTime = Date.now() + (24 * 60 * 60 * 1000);
+                                localStorage.setItem(reminderKey, nextReminderTime.toString());
                             });
                         }
                     }

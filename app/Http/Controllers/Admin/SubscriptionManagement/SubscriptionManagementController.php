@@ -30,6 +30,7 @@ class SubscriptionManagementController extends Controller
             $statistics = $this->subscriptionManagementService->getSubscriptionStatistics();
 
             return $dataTable->render(self::VIEW_PATH . '.index', [
+                'isExpiringPage'         => false,
                 'totalSubscriptions'     => $statistics['total'],
                 'activeSubscriptions'    => $statistics['active'],
                 'expiredSubscriptions'   => $statistics['expired'],
