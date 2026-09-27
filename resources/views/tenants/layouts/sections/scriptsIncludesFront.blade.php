@@ -41,7 +41,8 @@
             }
             return resolvedPaths[path] || path;
         },
-        'controls': <?php echo json_encode(['rtl', 'style']); ?>,
+        // 'controls': <?php echo json_encode(['rtl', 'style']); ?>,
+        'controls': <?php echo json_encode(['rtl']); ?>,
 
     });
 </script>

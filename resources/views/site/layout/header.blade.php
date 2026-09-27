@@ -14,9 +14,9 @@
 
             <!-- Left side: Theme toggle + Contact button -->
             <div class="flex items-center gap-3">
-                <!-- Theme Toggle -->
+                {{-- <!-- Theme Toggle -->
                 <button type="button" class="inline-flex items-center text-primary text-[22px]/none"
-                    aria-label="Switch theme" data-web-trigger="web-theme"></button>
+                    aria-label="Switch theme" data-web-trigger="web-theme"></button> --}}
 
                 <!-- Contact button -->
                 <a href="#contact" id="navbar-contact-btn"

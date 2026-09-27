@@ -100,7 +100,8 @@ window.isDarkStyle = window.Helpers.isDarkStyle();
     });
   }
 
-  //Style Switcher (Light/Dark/System Mode)
+  //Style Switcher (Light/Dark/System Mode) - Disabled
+  /*
   let styleSwitcher = document.querySelector('.dropdown-style-switcher');
   const activeStyle = document.documentElement.getAttribute('data-style');
 
@@ -156,6 +157,8 @@ window.isDarkStyle = window.Helpers.isDarkStyle();
       });
     }
   }
+  */
+  let storedStyle = 'light';
 
   // Run switchImage function based on the stored style
   switchImage(storedStyle);

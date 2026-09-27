@@ -186,6 +186,8 @@ class TemplateCustomizer {
     }
 
     setStyle(style) {
+        // Theme switching to dark disabled
+        /*
         const layoutName = this._getLayoutName();
         const isAdmin = !layoutName.includes("front");
         this._setSetting("Style", style);
@@ -217,6 +219,7 @@ class TemplateCustomizer {
         }
 
         window.location.reload();
+        */
     }
 
     setTheme(themeName, updateStorage = true, cb = null) {
@@ -596,6 +599,8 @@ class TemplateCustomizer {
                 ? style
                 : this.settings.defaultStyle;
 
+        // Dark mode switching disabled - default to light
+        /*
         if (this._getCookie(modeCookieName) === "system") {
             if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
                 this._setCookie(colorPrefCookieName, "dark", 365);
@@ -618,6 +623,8 @@ class TemplateCustomizer {
                         : this.settings.stylesOpt;
             }
         }
+        */
+        this.settings.style = "light";
 
         this.settings.contentLayout =
             contentLayout !== ""
@@ -762,6 +769,8 @@ class TemplateCustomizer {
             ".template-customizer-styles-options",
         );
 
+        // Style switcher control in customizer disabled
+        /*
         if (!this._hasControls("style")) {
             styleW.parentNode.removeChild(styleW);
         } else {
@@ -788,6 +797,10 @@ class TemplateCustomizer {
 
             styleOpt.addEventListener("change", styleCb);
             this._listeners.push([styleOpt, "change", styleCb]);
+        }
+        */
+        if (styleW && styleW.parentNode) {
+            styleW.parentNode.removeChild(styleW);
         }
 
         // Theme

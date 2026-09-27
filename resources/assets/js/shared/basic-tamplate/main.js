@@ -120,7 +120,8 @@ if (document.getElementById('layout-menu')) {
     });
   }
 
-  //Style Switcher (Light/Dark/System Mode)
+  //Style Switcher (Light/Dark/System Mode) - Disabled
+  /*
   let styleSwitcher = document.querySelector('.dropdown-style-switcher');
 
   // Active class on style switcher dropdown items
@@ -177,6 +178,8 @@ if (document.getElementById('layout-menu')) {
       });
     }
   }
+  */
+  let storedStyle = 'light';
 
   // Run switchImage function based on the stored style
   switchImage(storedStyle);

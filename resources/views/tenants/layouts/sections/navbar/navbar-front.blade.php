@@ -175,7 +175,7 @@
             <!-- Menu wrapper: End -->
             <!-- Toolbar: Start -->
             <ul class="navbar-nav flex-row align-items-center ms-auto">
-                @if ($configData['hasCustomizer'] == true)
+                {{-- @if ($configData['hasCustomizer'] == true)
                     <!-- Style Switcher -->
                     <li class="nav-item dropdown-style-switcher dropdown me-2 me-xl-1">
                         <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);"
@@ -202,7 +202,7 @@
                         </ul>
                     </li>
                     <!-- / Style Switcher-->
-                @endif
+                @endif --}}
                 <!-- navbar button: Start -->
                 <li>
                     <a href="{{ tenant_route_name('login') }}" class="btn btn-primary" target="_blank"><span

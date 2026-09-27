@@ -103,6 +103,8 @@ class Helpers
         $modeCookieName = $isAdmin ? 'admin-mode' : 'front-mode';
         $colorPrefCookieName = $isAdmin ? 'admin-colorPref' : 'front-colorPref';
 
+        // Disabled theme switching to dark mode via cookie
+        /*
         if ($layoutName !== 'blank') {
             if (isset($_COOKIE[$modeCookieName])) {
                 $styleVal = $_COOKIE[$modeCookieName];
@@ -112,6 +114,7 @@ class Helpers
                 $styleUpdatedVal = $_COOKIE[$modeCookieName];
             }
         }
+        */
 
         isset($_COOKIE['theme']) ? $themeVal = $_COOKIE['theme'] : $themeVal = $data['myTheme'];
 

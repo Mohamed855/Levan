@@ -51,7 +51,8 @@ if (navbarToggler) {
     });
 }
 
-// Web theme
+// Web theme - Disabled
+/*
 const webTheme = document.querySelector("[data-web-trigger=web-theme]"),
     html = document.querySelector("html");
 
@@ -83,6 +84,16 @@ webTheme.addEventListener("click", function () {
     localStorage.setItem("Inazuma_WebTheme", theme);
     html.dataset.webTheme = theme;
     syncThemeLogo(theme);
+});
+*/
+const html = document.querySelector("html");
+window.addEventListener("load", function () {
+    if (html) {
+        html.dataset.webTheme = "light";
+    }
+    if (typeof syncThemeLogo === "function") {
+        syncThemeLogo("light");
+    }
 });
 
 // Scrollspy

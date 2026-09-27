@@ -373,7 +373,7 @@
         </li>
         <!-- /Notification -->
 
-        @if ($configData['hasCustomizer'] === true)
+        {{-- @if ($configData['hasCustomizer'] === true)
             <!-- Style Switcher -->
             <li class="nav-item dropdown-style-switcher dropdown me-2 me-xl-2 d-none d-md-inline-block">
                 <a class="nav-link btn btn-text-secondary btn-icon rounded-pill dropdown-toggle hide-arrow"
@@ -400,7 +400,7 @@
                 </ul>
             </li>
             <!-- /Style Switcher -->
-        @endif
+        @endif --}}
 
         <!-- User -->
         <li class="nav-item navbar-dropdown dropdown-user dropdown">
