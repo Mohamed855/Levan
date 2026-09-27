@@ -117,7 +117,7 @@ class EtmamConnector
 
 
     // GET Request
-    public function get(string $endpoint): array
+    public function get(string $endpoint, array $query = []): array
     {
         if (!$this->isConfigured()) {
             return [
@@ -126,7 +126,7 @@ class EtmamConnector
             ];
         }
 
-        $url = $this->buildUrl($endpoint);
+        $url = $this->buildUrl($endpoint, $query);
 
         $signature = $this->sign('');
 

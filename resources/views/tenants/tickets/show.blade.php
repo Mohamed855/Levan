@@ -162,7 +162,7 @@
                 <div class="border-1 border-light border-dashed mb-2"></div>
                 <div class="card-body">
 
-                    @if (in_array($ticket->status, ['open', 'in_progress']))
+                    @if (in_array($ticket->status, ['open', 'in_progress', 'reopened']))
                         <div>
                             <h6 class="mb-3">إضافة رد</h6>
                             <form action="{{ tenant_route_name('tickets.reply', $ticket->ticket_number) }}" method="POST"
@@ -221,13 +221,13 @@
                                 </div>
 
                                 {{-- المرفقات --}}
-                                @if (count($reply['attachments']) > 0)
+                                @if (!empty($reply['attachments']) && count($reply['attachments']) > 0)
                                     <div class="mt-2">
                                         @foreach ($reply['attachments'] as $index => $attachment)
-                                            <a href="{{ Storage::url($attachment['url']) }}" target="_blank"
+                                            <a href="{{ Str::startsWith($attachment['url'] ?? '', 'http') ? $attachment['url'] : Storage::url($attachment['url'] ?? '') }}" target="_blank"
                                                 class="attachment-item d-block">
                                                 <i class="ti ti-paperclip me-1"></i>
-                                                مرفق
+                                                {{ $attachment['name'] ?? 'مرفق' }}
                                             </a>
                                         @endforeach
                                     </div>
@@ -287,7 +287,7 @@
                             <table class="table table-striped small text-center">
                                 <tr>
                                     <td class="fw-bold">القسم</td>
-                                    <td>{{ $section['name'] }}</td>
+                                    <td>{{ is_array($section) ? ($section['name'] ?? 'الدعم الفني') : ($section->name ?? 'الدعم الفني') }}</td>
                                 </tr>
 
                                 <tr>
@@ -340,14 +340,14 @@
                     <div class="border-1 border-light border-dashed mb-2"></div>
                     <div class="card-body px-5">
                         <div class="table-responsive small text-center">
-                            @if ($ticket->attachments > 0)
+                            @if (!empty($ticket->attachments) && count($ticket->attachments) > 0)
                                 <div class="mb-3">
                                     <div>
                                         @foreach ($ticket->attachments as $index => $attachment)
-                                            <a href="{{ $attachment['url'] }}" target="_blank"
+                                            <a href="{{ Str::startsWith($attachment['url'] ?? '', 'http') ? $attachment['url'] : Storage::url($attachment['url'] ?? '') }}" target="_blank"
                                                 class="attachment-item d-block">
                                                 <i class="ti ti-paperclip me-1"></i>
-                                                مرفق
+                                                {{ $attachment['name'] ?? 'مرفق' }}
                                             </a>
                                         @endforeach
                                     </div>

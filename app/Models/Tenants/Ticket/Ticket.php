@@ -2,18 +2,9 @@
 
 namespace App\Models\Tenants\Ticket;
 
-use App\Models\Admin\Tenants\Tenant;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Admin\Tickets\Ticket as CentralTicket;
 
-class Ticket extends Model
+class Ticket extends CentralTicket
 {
-    use HasFactory;
-
-    protected $guarded = [];
-
-    public function tenant()
-    {
-        return $this->belongsTo(Tenant::class, 'tenant_id', 'id');
-    }
+    // Inherits all central ticket relationships and attributes
 }

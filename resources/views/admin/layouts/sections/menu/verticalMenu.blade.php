@@ -104,6 +104,18 @@ use App\Helpers\Helpers;
         </li>
         @endcan
 
+        <li class="menu-header small">
+            <span class="menu-header-text">الدعم الفني والتذاكر</span>
+        </li>
+        @can('التذاكر')
+        <li class="menu-item @if (Route::is('admin.tickets.*')) active open @endif">
+            <a href="{{ route('admin.tickets.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-messages"></i>
+                <div>إدارة التذاكر</div>
+            </a>
+        </li>
+        @endcan
+
 
         {{-- <li class="menu-item @if (Route::is('admin.transfer-requests.*')) active open @endif">
             <a href="{{ route('admin.transfer-requests.index') }}" class="menu-link">

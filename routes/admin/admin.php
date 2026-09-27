@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\TenantMangment\TenantMangmentController;
 use App\Http\Controllers\Admin\TransferRequest\TransferRequestController;
 use App\Http\Controllers\Admin\Versions\VersionController;
 use App\Http\Controllers\Admin\VersionTester\VersionTesterController;
+use App\Http\Controllers\Admin\Tickets\AdminTicketController;
 use App\Http\Controllers\Tenants\Auth\NewPasswordController;
 use App\Http\Controllers\Tenants\DeleteBulk\MassDeleteController;
 use Illuminate\Support\Facades\Route;
@@ -116,6 +117,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
         Route::post('/{bill}/verify', [AdminBillsController::class, 'verify'])->name('verify');
         Route::post('/{bill}/reject', [AdminBillsController::class, 'reject'])->name('reject');
         Route::post('{bill}/reactivate', [AdminBillsController::class, 'reactivate'])->name('reactivate');
+    });
+
+    // Tickets Management
+    Route::prefix('tickets')->name('tickets.')->group(function () {
+        Route::get('/', [AdminTicketController::class, 'index'])->name('index');
+        Route::post('/toggle-service', [AdminTicketController::class, 'toggleService'])->name('toggleService');
+        Route::get('/{ticket}', [AdminTicketController::class, 'show'])->name('show');
+        Route::post('/{ticket}/reply', [AdminTicketController::class, 'reply'])->name('reply');
+        Route::post('/{ticket}/status', [AdminTicketController::class, 'updateStatus'])->name('updateStatus');
     });
 
     // super admin archive routes

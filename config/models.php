@@ -28,4 +28,5 @@ return [
     'Tenant' =>  App\Models\Admin\Tenants\Tenant::class,
     'Subscription' => App\Models\Admin\Subscription\Subscription::class,
     'Bill' => App\Models\Admin\Bills\Bill::class,
+    'Ticket' => App\Models\Admin\Tickets\Ticket::class,
 ];

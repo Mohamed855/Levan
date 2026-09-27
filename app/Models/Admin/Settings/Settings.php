@@ -45,11 +45,13 @@ class Settings extends Model
         'microsoft_tenant_id',
         'main_email',
 
+        'tickets_enabled',
     ];
 
     protected $casts = [
         'maintenance_mode'      => 'boolean',
         'force_two_factor_auth' => 'boolean',
+        'tickets_enabled'       => 'boolean',
     ];
 
 
@@ -88,6 +90,7 @@ class Settings extends Model
             'microsoft_redirect_uri'      => 'رابط إعادة التوجيه مايكروسوفت',
             'microsoft_tenant_id'         => 'معرف مستأجر مايكروسوفت',
             'main_email'                  => 'البريد الإلكتروني الرئيسي',
+            'tickets_enabled'             => 'تفعيل خدمة التذاكر',
             'office_address'              => 'عنوان المكتب',
             'commercial_register'         => 'السجل التجاري',
             'tax_number'                  => 'الرقم الضريبي',
@@ -114,6 +117,10 @@ class Settings extends Model
                 1 => 'مفعل',
             ],
             'force_two_factor_auth' => [
+                0 => 'غير مفعل',
+                1 => 'مفعل',
+            ],
+            'tickets_enabled' => [
                 0 => 'غير مفعل',
                 1 => 'مفعل',
             ],

@@ -35,7 +35,7 @@ class TicketsDataTable extends AbstractDataTable
             return collect([]);
         }
 
-        $tickets = $result['data']['data']['data'] ?? [];
+        $tickets = $result['data']['data']['data'] ?? $result['data']['data'] ?? [];
 
         return collect($tickets)->map(function ($ticket) {
             return (object) $ticket;
@@ -131,6 +131,14 @@ class TicketsDataTable extends AbstractDataTable
 
     private function getAddButton(): array
     {
+        if (!$this->ticketService->isServiceEnabled()) {
+            return [
+                'text' => '<i class="fas fa-ban me-1"></i> إضافة تذكرة (الخدمة متوقفة)',
+                'className' => 'btn btn-secondary btn-add disabled',
+                'action' => "function(){ if(typeof toastr !== 'undefined'){ toastr.warning('عذراً، خدمة فتح تذاكر جديدة متوقفة حالياً من قبل الإدارة.'); } else { alert('عذراً، خدمة فتح تذاكر جديدة متوقفة حالياً من قبل الإدارة.'); } }",
+            ];
+        }
+
         return [
             'text' => '<i class="fas fa-plus-circle me-1"></i> إضافة تذكرة',
             'className' => 'btn btn-primary btn-add',

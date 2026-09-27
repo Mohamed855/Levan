@@ -332,7 +332,7 @@
                                             </span>
                                         </div>
                                     </div>
-                                    <div class="flex-grow-1">
+                                    <div class="flex-grow-1" @if(!empty($data['url'])) onclick="window.location.href='{{ $data['url'] }}'" style="cursor: pointer;" @endif>
                                         <h6 class="small mb-1 fw-semibold">{{ $data['title'] ?? 'إشعار' }}</h6>
                                         <p class="mb-1 small text-muted">{{ $data['message'] ?? '' }}</p>
                                         <small

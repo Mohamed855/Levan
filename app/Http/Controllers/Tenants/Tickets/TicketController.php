@@ -48,6 +48,11 @@ class TicketController extends Controller
 
     public function create()
     {
+        if (!$this->ticketService->isServiceEnabled()) {
+            return redirect()->to(tenant_route_name($this->route . '.index'))
+                ->with('error', 'عذراً، خدمة فتح تذاكر جديدة متوقفة حالياً من قبل الإدارة.');
+        }
+
         $sectionsResult = $this->ticketService->getSections();
         $sections = $sectionsResult['success']
             ? ($sectionsResult['data']['data'] ?? [])
@@ -59,6 +64,11 @@ class TicketController extends Controller
 
     public function store(TicketRequest $request)
     {
+        if (!$this->ticketService->isServiceEnabled()) {
+            return redirect()->to(tenant_route_name($this->route . '.index'))
+                ->with('error', 'عذراً، خدمة فتح تذاكر جديدة متوقفة حالياً من قبل الإدارة.');
+        }
+
         try {
             $validated = $request->validated();
             $result    = $this->ticketService->create($validated, $request->file('attachments', []));
@@ -91,19 +101,20 @@ class TicketController extends Controller
             }
 
             $ticket = (object) $ticketData;
+            if (!isset($ticket->resolved_at)) $ticket->resolved_at = null;
+            if (!isset($ticket->closed_at)) $ticket->closed_at = null;
+            if (!isset($ticket->attachments) || !is_array($ticket->attachments)) $ticket->attachments = [];
 
             $status = TicketStatus::toBadge($ticket->status);
 
-            // dd($ticket);
             // جلب الردود
             $repliesResult = $this->ticketService->getReplies($ticketNumber);
             $repliesData = $repliesResult['success']
                 ? ($repliesResult['data']['data'] ?? [])
                 : [];
 
-            // تحويل الردود إلى objects
-            $replies = collect($repliesData)->map(fn($reply) => (object) $reply);
-
+            // تحضير الردود للعرض في Blade
+            $replies = ['data' => $repliesData];
 
             // جلب الأقسام للعرض
             $sectionsResult = $this->ticketService->getSections();
@@ -111,8 +122,7 @@ class TicketController extends Controller
                 ? collect($sectionsResult['data']['data'] ?? [])->keyBy('id')
                 : collect([]);
 
-            $section = $sections->get($ticket->ticketing_sections_id);
-
+            $section = $sections->get($ticket->ticketing_sections_id) ?? ['name' => 'الدعم الفني'];
 
             $surveyQuestions = [
                 'agent_rating'      => 'ما تقييمك لأداء موظف  الدعم الفني ؟',
