@@ -257,7 +257,13 @@ if (document.getElementById('layout-menu')) {
   // Init BS Tooltip
   const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
   tooltipTriggerList.map(function (tooltipTriggerEl) {
-    return new bootstrap.Tooltip(tooltipTriggerEl);
+    return new bootstrap.Tooltip(tooltipTriggerEl, {
+      container: 'body',
+      boundary: 'window',
+      popperConfig: function (defaultConfig) {
+        return Object.assign({}, defaultConfig, { strategy: 'fixed' });
+      }
+    });
   });
 
   // Accordion active class

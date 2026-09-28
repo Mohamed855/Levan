@@ -26,6 +26,20 @@
             transform: scale(1.02);
             transition: all 0.2s ease;
         }
+
+        /* إصلاح تموضع الـ Tooltip بالنسبة للأب المباشر */
+        #card-roles .table-responsive {
+            overflow: visible !important;
+        }
+        #card-roles td {
+            position: relative;
+        }
+        #card-roles .avatar-group {
+            position: relative !important;
+        }
+        #card-roles .avatar {
+            position: relative !important;
+        }
     </style>
 @endsection
 
@@ -44,87 +58,164 @@
     </script>
 
     @vite(['resources/assets/js/tenants/user-mangment/role/index.js'])
+
+    <script>
+        (function() {
+            function initRoleTooltips() {
+                var BS = window.bootstrap || (typeof bootstrap !== 'undefined' ? bootstrap : null);
+                if (!BS || !BS.Tooltip) return;
+
+                var tooltipElements = document.querySelectorAll('#card-roles [data-bs-toggle="tooltip"]');
+                tooltipElements.forEach(function(el) {
+                    var inst = BS.Tooltip.getInstance(el);
+                    if (inst) inst.dispose();
+                    new BS.Tooltip(el, {
+                        container: el.parentNode,
+                        placement: 'top'
+                    });
+                });
+            }
+
+            window.initRoleTooltips = initRoleTooltips;
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initRoleTooltips);
+            } else {
+                initRoleTooltips();
+            }
+
+            window.addEventListener('load', initRoleTooltips);
+            setTimeout(initRoleTooltips, 300);
+            setTimeout(initRoleTooltips, 1000);
+
+            document.addEventListener('mouseover', function(e) {
+                var trigger = e.target.closest('#card-roles [data-bs-toggle="tooltip"]');
+                if (trigger && !trigger._fixedTooltipReady) {
+                    trigger._fixedTooltipReady = true;
+                    var BS = window.bootstrap || (typeof bootstrap !== 'undefined' ? bootstrap : null);
+                    if (BS && BS.Tooltip) {
+                        var existing = BS.Tooltip.getInstance(trigger);
+                        if (existing) existing.dispose();
+                        var tip = new BS.Tooltip(trigger, {
+                            container: trigger.parentNode,
+                            placement: 'top'
+                        });
+                        tip.show();
+                    }
+                }
+            }, true);
+        })();
+
+        $(document).ready(function() {
+            var canAddRole = {{ (auth()->user()?->can('إضافة دور') ?? true) ? 'true' : 'false' }};
+            var roleButtons = [];
+            if (canAddRole) {
+                roleButtons.push({
+                    text: '<i class="fas fa-plus-circle me-1"></i> إضافة دور جديد',
+                    className: 'btn btn-primary btn-add',
+                    action: function() {
+                        window.location.href = "{{ tenant_route_name('roles.create') }}";
+                    }
+                });
+            }
+
+            if ($('#roles-table').length) {
+                $('#roles-table').DataTable({
+                    paging: false,
+                    searching: false,
+                    info: false,
+                    ordering: false,
+                    dom: '<"dt-toolbar mb-3"' +
+                        '<"dt-toolbar-left">' +
+                        '<"dt-toolbar-right"B>' +
+                        '>' +
+                        'rt',
+                    buttons: roleButtons,
+                    language: {
+                        url: window.assets.arabicDataTable
+                    },
+                    drawCallback: function() {
+                        if (typeof window.initRoleTooltips === 'function') {
+                            window.initRoleTooltips();
+                        }
+                    }
+                });
+            }
+        });
+    </script>
 @endsection
 
 @section('content')
-    <!-- عرض قائمة الأدوار -->
-    <div class="row">
-        @foreach ($roles as $role)
-            <div class="col-xl-4 col-lg-6 col-md-6 mb-4">
-                <div class="card h-100 w-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h6 class="fw-normal mb-0 text-body">إجمالي {{ $role->users->count() }} مستخدمين</h6>
-                            <ul class="list-unstyled d-flex align-items-center avatar-group mb-0">
-                                @foreach ($role->users->take(5) as $user)
-                                    <li data-bs-toggle="tooltip" data-popup="tooltip-custom" data-bs-placement="top"
-                                        title="{{ $user->name }}" class="avatar pull-up">
-                                        <img class="rounded-circle"
-                                            src="{{ $user->image ? tasset($user->image) : asset('img/logo.svg') }}"
-                                            alt="Avatar" width="40" height="40">
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-end">
-                            <div class="role-heading">
-                                <h5 class="mb-1">{{ $role->name }}</h5>
-                                @can('تعديل دور')
-                                    <a href="{{ tenant_route_name('roles.edit', $role->id) }}">
-                                        <span>تعديل الدور</span>
-                                    </a>
-                                @endcan
-                            </div>
-                            @can('حذف دور')
-                                @if ($role->id != 1)
-                                    <a href="javascript:void(0);" onclick="confirmDelete({{ $role->id }})">
-                                        <i class="ti ti-trash ti-md text-danger"></i>
-                                    </a>
-                                    <form id="delete-form-{{ $role->id }}"
-                                        action="{{ tenant_route_name('roles.destroy', $role->id) }}" method="POST"
-                                        style="display: none;">
-                                        @csrf
-                                        @method('DELETE')
-                                    </form>
-                                @endif
-                            @endcan
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endforeach
-
-
-        @php
-            use App\Helpers\Tenants\Settings\SettingsHelper;
-
-            $logoImage = SettingsHelper::get('image');
-            $logoPath = tasset($logoImage);
-        @endphp
-
-
-        <!-- بطاقة إضافة دور جديد -->
-        <div class="col-xl-4 col-lg-6 col-md-6 mb-4">
-            <div class="card h-100 w-100">
-                <div class="card-body d-flex h-100">
-                    <div class="row h-100 w-100 m-0">
-                        <div class="col-sm-5 d-flex align-items-center justify-content-center p-3">
-                            <div class="d-flex align-items-center h-100 justify-content-center mt-sm-0 mt-4">
-                                <img src="{{ $logoPath }}" class="img-fluid mt-sm-4 mt-md-0" alt="add-new-roles"
-                                    width="83">
-                            </div>
-                        </div>
-                        {{-- @can('إضافة دور') --}}
-                        <div class="col-sm-7 d-flex align-items-center justify-content-center">
-                            <div class="card-body text-sm-end text-center ps-sm-0">
-                                <a href="{{ tenant_route_name('roles.create') }}" class="btn btn-primary">
-                                    <i class="fas fa-plus-circle me-1"></i> إضافة دور جديد
-                                </a>
-                            </div>
-                        </div>
-                        {{-- @endcan --}}
-                    </div>
-                </div>
+    <!-- جدول قائمة الأدوار -->
+    <div class="card mb-4" id="card-roles">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="roles-table" class="table table-striped table-bordered text-center w-100">
+                    <thead>
+                        <tr>
+                            <th style="width: 70px;">#</th>
+                            <th>اسم الدور</th>
+                            <th>المستخدمين</th>
+                            <th>تاريخ الإضافة</th>
+                            <th style="width: 140px;">الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($roles as $index => $role)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td>
+                                    <span class="fw-semibold text-heading">{{ $role->name }}</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        <span class="badge bg-label-primary">{{ $role->users->count() }} مستخدم</span>
+                                        @if ($role->users->count() > 0)
+                                            <ul class="list-unstyled d-flex align-items-center avatar-group mb-0">
+                                                @foreach ($role->users->take(4) as $user)
+                                                    <li data-bs-toggle="tooltip"
+                                                        data-bs-placement="top" data-bs-title="{{ $user->name }}"
+                                                        class="avatar avatar-xs pull-up">
+                                                        <img class="rounded-circle"
+                                                            src="{{ $user->image ? tasset($user->image) : asset('img/logo.svg') }}"
+                                                            alt="Avatar" width="26" height="26">
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        @endif
+                                    </div>
+                                </td>
+                                <td>
+                                    {{ $role->created_at ? $role->created_at->locale('ar')->translatedFormat('d F Y') : '-' }}
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-center gap-1">
+                                        @can('تعديل دور')
+                                            <a href="{{ tenant_route_name('roles.edit', $role->id) }}"
+                                                class="btn btn-icon btn-label-primary me-1" title="تعديل الدور">
+                                                <i class="ti ti-edit"></i>
+                                            </a>
+                                        @endcan
+                                        @can('حذف دور')
+                                            @if ($role->id != 1)
+                                                <button type="button" class="btn btn-icon btn-label-primary"
+                                                    onclick="confirmDelete({{ $role->id }})" title="حذف الدور">
+                                                    <i class="ti ti-trash"></i>
+                                                </button>
+                                                <form id="delete-form-{{ $role->id }}"
+                                                    action="{{ tenant_route_name('roles.destroy', $role->id) }}" method="POST"
+                                                    style="display: none;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                </form>
+                                            @endif
+                                        @endcan
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

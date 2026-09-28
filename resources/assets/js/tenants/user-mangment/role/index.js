@@ -34,7 +34,13 @@ function initializeComponents() {
     });
 
     // تهيئة Tooltips
-    $('[data-bs-toggle="tooltip"]').tooltip();
+    $('[data-bs-toggle="tooltip"]').tooltip({
+        container: 'body',
+        boundary: 'window',
+        popperConfig: function(defaultConfig) {
+            return Object.assign({}, defaultConfig, { strategy: 'fixed' });
+        }
+    });
 }
 
 /**
