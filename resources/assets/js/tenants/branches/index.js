@@ -75,8 +75,26 @@ $(function () {
 | تبديل الحالة (نشط / غير نشط)
 |--------------------------------------------------------------------------
 */
-function toggleStatus(branchId) {
-    const url = window.routes.toggleStatus.replace(':id', branchId);
+function toggleStatus(element, branchId) {
+    let el = null;
+    let id = branchId;
+    if (typeof element === 'number' || typeof element === 'string') {
+        id = element;
+        el = document.getElementById('status_' + id);
+    } else {
+        el = element;
+    }
+
+    if (!id) {
+        if (typeof toastr !== 'undefined') toastr.error('معرف الفرع غير صحيح');
+        return;
+    }
+
+    if (el) {
+        $(el).prop('disabled', true);
+    }
+
+    const url = window.routes.toggleStatus.replace(':id', id);
 
     $.ajax({
         url: url,
@@ -84,22 +102,33 @@ function toggleStatus(branchId) {
         data: { _token: window.csrfToken },
         success: function (response) {
             if (response.success) {
-                $('#branches-table').DataTable().draw(false);
                 if (typeof toastr !== 'undefined') {
-                    toastr.success(response.message, {
-                    });
+                    toastr.success(response.message);
+                }
+                if (el) {
+                    $(el).prop('disabled', false);
+                } else {
+                    $('#branches-table').DataTable().draw(false);
                 }
             } else {
                 if (typeof toastr !== 'undefined') {
-                    toastr.error(response.message, {
-                    });
+                    toastr.error(response.message);
+                }
+                if (el) {
+                    $(el).prop('checked', !el.checked).prop('disabled', false);
                 }
             }
         },
-        error: function () {
+        error: function (xhr) {
+            let errorMsg = 'حدث خطأ أثناء تبديل الحالة';
+            if (xhr.responseJSON?.message) {
+                errorMsg = xhr.responseJSON.message;
+            }
             if (typeof toastr !== 'undefined') {
-                toastr.error('حدث خطأ أثناء تبديل الحالة', {
-                });
+                toastr.error(errorMsg);
+            }
+            if (el) {
+                $(el).prop('checked', !el.checked).prop('disabled', false);
             }
         }
     });

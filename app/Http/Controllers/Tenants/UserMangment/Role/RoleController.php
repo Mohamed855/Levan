@@ -104,23 +104,38 @@ class RoleController extends Controller
                         }
                     })
                     ->addColumn('status', function (User $user) {
+                        if ($user->id === 1) {
+                            return '<div class="d-flex justify-content-center"><span class="badge bg-label-primary">أساسي</span></div>';
+                        }
+
                         if (auth()->user()->can('تعديل دور')) {
-                            $statusOptions = [
-                                'active' => 'نشط',
-                                'inactive' => 'غير نشط'
-                            ];
-
-                            $currentStatus = $user->status;
-                            $dropdown = '<select class="form-select form-select-sm status-dropdown" data-user-id="' . $user->id . '">';
-                            foreach ($statusOptions as $value => $label) {
-                                $selected = $currentStatus === $value ? 'selected' : '';
-                                $dropdown .= '<option value="' . $value . '" ' . $selected . '>' . $label . '</option>';
-                            }
-                            $dropdown .= '</select>';
-
-                            return $dropdown;
+                            $checked = $user->status === 'active' ? 'checked' : '';
+                            return '
+                                <div class="d-flex justify-content-center">
+                                    <label class="switch switch-primary switch-square mb-0">
+                                        <input
+                                            type="checkbox"
+                                            class="switch-input status-toggle"
+                                            id="status_' . $user->id . '"
+                                            data-user-id="' . $user->id . '"
+                                            ' . $checked . '
+                                            onchange="toggleUserStatus(this, ' . $user->id . ')"
+                                        >
+                                        <span class="switch-toggle-slider">
+                                            <span class="switch-on">
+                                                <i class="icon-base mt-1 ti ti-check text-white"></i>
+                                            </span>
+                                            <span class="switch-off">
+                                                <i class="icon-base mt-1 ti ti-x"></i>
+                                            </span>
+                                        </span>
+                                    </label>
+                                </div>
+                            ';
                         } else {
-                            return $user->status === 'active' ? 'نشط' : 'غير نشط';
+                            $statusClass = $user->status === 'active' ? 'bg-label-success' : 'bg-label-danger';
+                            $statusText = $user->status === 'active' ? 'نشط' : 'غير نشط';
+                            return '<div class="d-flex justify-content-center"><span class="badge ' . $statusClass . '">' . $statusText . '</span></div>';
                         }
                     })
                     ->addColumn('created_at_formatted', function (User $user) {

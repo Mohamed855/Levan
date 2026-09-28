@@ -280,7 +280,10 @@ function bindModalEvents() {
         updateUserRole();
     });
 
-    // التعامل مع تغيير الحالة من القائمة المنسدلة
+    // التعامل مع تغيير الحالة من الـ toggle switch أو القائمة
+    $('#users-table').on('change', '.status-toggle', function () {
+        toggleUserStatus(this, $(this).data('user-id'));
+    });
     $('#users-table').on('change', '.status-dropdown', function () {
         const userId = $(this).data('user-id');
         const newStatus = $(this).val();
@@ -450,6 +453,63 @@ function updateUserRole() {
 
 
 /**
+ * تبديل حالة المستخدم عبر مفتاح التبديل (Switch)
+ */
+function toggleUserStatus(element, userId) {
+    let el = null;
+    let id = userId;
+    if (typeof element === 'number' || typeof element === 'string') {
+        id = element;
+        el = document.getElementById('status_' + id);
+    } else {
+        el = element;
+    }
+
+    if (!id) {
+        toastr.error('معرف المستخدم غير صحيح');
+        return;
+    }
+
+    const newStatus = el && el.checked ? 'active' : 'inactive';
+
+    if (el) {
+        $(el).prop('disabled', true);
+    }
+
+    $.ajax({
+        url: window.routes.updateStatus.replace('___ID___', id),
+        method: 'PATCH',
+        data: {
+            status: newStatus,
+            _token: window.csrfToken
+        },
+        success: function (response) {
+            if (response.success) {
+                toastr.success(response.message);
+                if (el) {
+                    $(el).prop('disabled', false);
+                }
+            } else {
+                toastr.error(response.message || 'فشل في تحديث الحالة.');
+                if (el) {
+                    $(el).prop('checked', !el.checked).prop('disabled', false);
+                }
+            }
+        },
+        error: function (xhr) {
+            let errorMsg = 'فشل في تحديث الحالة.';
+            if (xhr.responseJSON?.message) {
+                errorMsg = xhr.responseJSON.message;
+            }
+            toastr.error(errorMsg);
+            if (el) {
+                $(el).prop('checked', !el.checked).prop('disabled', false);
+            }
+        }
+    });
+}
+
+/**
  * تحديث حالة المستخدم
  */
 function updateUserStatus(userId, newStatus) {
@@ -524,3 +584,5 @@ function resetTextAnimation() {
 
 // تصدير الدوال للاستخدام العام
 window.confirmDelete = confirmDelete;
+window.toggleUserStatus = toggleUserStatus;
+window.updateUserStatus = updateUserStatus;

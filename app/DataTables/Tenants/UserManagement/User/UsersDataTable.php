@@ -113,9 +113,32 @@ class UsersDataTable extends AbstractDataTable
                 return $user->roles->map(fn($role) => '<span class="badge bg-label-info me-1">' . $role->name . '</span>')->implode('');
             })
             ->editColumn('status', function (User $user) {
-                $statusClass = $user->status === 'active' ? 'bg-label-success' : 'bg-label-danger';
-                $statusText = $user->status === 'active' ? 'نشط' : 'غير نشط';
-                return '<span class="badge ' . $statusClass . ' cursor-pointer" onclick="toggleStatus(' . $user->id . ')" title="اضغط لتبديل الحالة">' . $statusText . '</span>';
+                if ($user->id === 1) {
+                    return '<div class="d-flex justify-content-center"><span class="badge bg-label-primary">أساسي</span></div>';
+                }
+                $checked = $user->status === 'active' ? 'checked' : '';
+                return '
+                    <div class="d-flex justify-content-center">
+                        <label class="switch switch-primary switch-square mb-0">
+                            <input
+                                type="checkbox"
+                                class="switch-input status-toggle"
+                                id="status_' . $user->id . '"
+                                data-user-id="' . $user->id . '"
+                                ' . $checked . '
+                                onchange="toggleStatus(this, ' . $user->id . ')"
+                            >
+                            <span class="switch-toggle-slider">
+                                <span class="switch-on">
+                                    <i class="icon-base mt-1 ti ti-check text-white"></i>
+                                </span>
+                                <span class="switch-off">
+                                    <i class="icon-base mt-1 ti ti-x"></i>
+                                </span>
+                            </span>
+                        </label>
+                    </div>
+                ';
             })
             ->addColumn('license_status', function (User $user) {
                 $checked = $user->license_seat_id != null ? 'checked' : '';

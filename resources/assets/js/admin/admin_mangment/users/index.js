@@ -84,7 +84,6 @@ document.addEventListener('click', function (e) {
 });
 
 function toggleStatus(button, userId, url) {
-
     const csrfToken =
         document.querySelector('meta[name="csrf-token"]')?.content
         || window.csrfToken;
@@ -94,11 +93,17 @@ function toggleStatus(button, userId, url) {
         return;
     }
 
-    const originalHtml = button.innerHTML;
-    button.classList.add('disabled');
-    button.innerHTML = '<i class="ti ti-loader ti-spin"></i>';
+    const isCheckbox = button && (button.type === 'checkbox' || button.tagName === 'INPUT');
+    const originalHtml = (!isCheckbox && button) ? button.innerHTML : null;
 
-    console.log('Toggling status for user ID:', userId);
+    if (button) {
+        if (isCheckbox) {
+            button.disabled = true;
+        } else {
+            button.classList.add('disabled');
+            button.innerHTML = '<i class="ti ti-loader ti-spin"></i>';
+        }
+    }
 
     $.ajax({
         url: url,
@@ -108,13 +113,20 @@ function toggleStatus(button, userId, url) {
         },
         success: function (response) {
             if (response.success) {
-                $('#users-table')
-                    .DataTable()
-                    .ajax.reload(null, false);
-
                 toastr.success(response.message || 'تم تغيير الحالة بنجاح');
+                if (button && isCheckbox) {
+                    button.disabled = false;
+                } else {
+                    $('#users-table')
+                        .DataTable()
+                        .ajax.reload(null, false);
+                }
             } else {
                 toastr.error(response.message || 'حدث خطأ ما');
+                if (button && isCheckbox) {
+                    button.checked = !button.checked;
+                    button.disabled = false;
+                }
             }
         },
         error: function (xhr) {
@@ -133,10 +145,16 @@ function toggleStatus(button, userId, url) {
             }
 
             toastr.error(errorMessage);
+            if (button && isCheckbox) {
+                button.checked = !button.checked;
+                button.disabled = false;
+            }
         },
         complete: function () {
-            button.classList.remove('disabled');
-            button.innerHTML = originalHtml;
+            if (button && !isCheckbox) {
+                button.classList.remove('disabled');
+                button.innerHTML = originalHtml;
+            }
         }
     });
 }

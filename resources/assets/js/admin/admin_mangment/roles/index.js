@@ -82,7 +82,11 @@ function bindModalEvents(usersTable) {
         updateUserRole(usersTable);
     });
 
-    // تغيير حالة المستخدم من القائمة المنسدلة
+    // تغيير حالة المستخدم من التوجلر أو القائمة المنسدلة
+    $('#users-table').on('change', '.status-toggle', function () {
+        toggleStatus(this, $(this).data('id'));
+    });
+
     $('#users-table').on('change', '.status-dropdown', function () {
         const userId = $(this).data('user-id');
         const newStatus = $(this).val();
@@ -244,9 +248,18 @@ function confirmDelete(roleId) {
     });
 }
 
-function toggleStatus(userId) {
-    // التحقق من وجود userId
-    if (!userId) {
+function toggleStatus(element, userId) {
+    let el = null;
+    let id = userId;
+    if (typeof element === 'number' || typeof element === 'string') {
+        id = element;
+        el = document.getElementById('status_' + id) || document.querySelector(`[onclick*="toggleStatus(${id})"]`);
+    } else {
+        el = element;
+    }
+
+    // التحقق من وجود id
+    if (!id) {
         toastr.error('معرف المستخدم غير صحيح');
         return;
     }
@@ -259,13 +272,19 @@ function toggleStatus(userId) {
         return;
     }
 
-    // إظهار مؤشر التحميل (اختياري)
-    const $button = $(`[onclick="toggleStatus(${userId})"]`);
-    const originalHtml = $button.html();
-    $button.prop('disabled', true).html('<i class="ti ti-loader ti-spin"></i>');
+    const isCheckbox = el && (el.type === 'checkbox' || el.tagName === 'INPUT');
+    const originalHtml = (!isCheckbox && el) ? $(el).html() : null;
+
+    if (el) {
+        if (isCheckbox) {
+            $(el).prop('disabled', true);
+        } else {
+            $(el).prop('disabled', true).html('<i class="ti ti-loader ti-spin"></i>');
+        }
+    }
 
     $.ajax({
-        url: window.routes.toggleStatus.replace(':id', userId),
+        url: window.routes.toggleStatus.replace(':id', id),
         type: 'PATCH',
         headers: {
             'X-CSRF-TOKEN': csrfToken
@@ -275,11 +294,17 @@ function toggleStatus(userId) {
         },
         success: function (response) {
             if (response.success) {
-                // إعادة تحميل الجدول مع الحفاظ على الصفحة الحالية
-                $('#users-table').DataTable().ajax.reload(null, false);
                 toastr.success(response.message || 'تم تغيير الحالة بنجاح');
+                if (el && isCheckbox) {
+                    $(el).prop('disabled', false);
+                } else {
+                    $('#users-table').DataTable().ajax.reload(null, false);
+                }
             } else {
                 toastr.error(response.message || 'حدث خطأ ما');
+                if (el && isCheckbox) {
+                    $(el).prop('checked', !el.checked).prop('disabled', false);
+                }
             }
         },
         error: function (xhr, status, error) {
@@ -292,7 +317,6 @@ function toggleStatus(userId) {
 
             let errorMessage = 'حدث خطأ أثناء الاتصال بالخادم';
 
-            // معالجة الأخطاء المختلفة
             if (xhr.status === 403) {
                 errorMessage = 'ليس لديك صلاحية لتنفيذ هذا الإجراء';
             } else if (xhr.status === 404) {
@@ -306,11 +330,13 @@ function toggleStatus(userId) {
             }
 
             toastr.error(errorMessage);
+            if (el && isCheckbox) {
+                $(el).prop('checked', !el.checked).prop('disabled', false);
+            }
         },
         complete: function () {
-            // إعادة الزر لحالته الأصلية
-            if ($button.length) {
-                $button.prop('disabled', false).html(originalHtml);
+            if (el && !isCheckbox) {
+                $(el).prop('disabled', false).html(originalHtml);
             }
         }
     });

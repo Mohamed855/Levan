@@ -89,10 +89,29 @@ class BranchDataTable extends AbstractDataTable
             })
 
             ->editColumn('status', function ($row) {
-                $badgeClass = $row->status === 'active' ? 'bg-label-success' : 'bg-label-danger';
-                $label = $row->status === 'active' ? 'نشط' : 'غير نشط';
-                
-                return '<span class="badge ' . $badgeClass . ' cursor-pointer" onclick="toggleStatus(' . $row->id . ')" style="cursor: pointer;">' . $label . '</span>';
+                $checked = $row->status === 'active' ? 'checked' : '';
+                return '
+                    <div class="d-flex justify-content-center">
+                        <label class="switch switch-primary switch-square mb-0">
+                            <input
+                                type="checkbox"
+                                class="switch-input status-toggle"
+                                id="status_' . $row->id . '"
+                                data-id="' . $row->id . '"
+                                ' . $checked . '
+                                onchange="toggleStatus(this, ' . $row->id . ')"
+                            >
+                            <span class="switch-toggle-slider">
+                                <span class="switch-on">
+                                    <i class="icon-base mt-1 ti ti-check text-white"></i>
+                                </span>
+                                <span class="switch-off">
+                                    <i class="icon-base mt-1 ti ti-x"></i>
+                                </span>
+                            </span>
+                        </label>
+                    </div>
+                ';
             })
 
             ->addColumn('actions', function ($row) {

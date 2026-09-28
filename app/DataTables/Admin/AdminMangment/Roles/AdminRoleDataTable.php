@@ -72,7 +72,7 @@ class AdminRoleDataTable extends AbstractDataTable
 
             ->editColumn('status', function ($row) {
                 if ($row->isSuperAdmin()) {
-                    return '<span class="badge bg-primary">سوبر أدمن</span>';
+                    return '<div class="d-flex justify-content-center"><span class="badge bg-primary">سوبر أدمن</span></div>';
                 }
 
                 return $this->UserStatusBadge($row);
@@ -94,7 +94,7 @@ class AdminRoleDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'image', 'name', 'email',  'roles', 'status', 'last_login_at'];
+        return ['checkbox', 'image', 'name', 'email', 'roles', 'status', 'last_login_at', 'actions'];
     }
 
 
@@ -166,10 +166,38 @@ class AdminRoleDataTable extends AbstractDataTable
     */
     private function UserStatusBadge($row): string
     {
-        return sprintf(
-            '<span title="اضغط لتبديل الحالة" class="badge cursor-pointer bg-%s" onclick="toggleStatus(' . $row->id . ')">%s</span>',
-            $row->status->color(),
-            $row->status->label()
-        );
+        $isActive = ($row->status === \App\Enums\Admin\Users\AdminUserStatus::ACTIVE || ($row->status?->value ?? $row->status) === 'active');
+        $checked = $isActive ? 'checked' : '';
+
+        if (auth()->user()?->can('تغيير حالة المستخدم') || auth()->user()?->can('تعديل دور')) {
+            return '
+                <div class="d-flex justify-content-center">
+                    <label class="switch switch-primary switch-square mb-0">
+                        <input
+                            type="checkbox"
+                            class="switch-input status-toggle"
+                            id="status_' . $row->id . '"
+                            data-id="' . $row->id . '"
+                            ' . $checked . '
+                            onchange="toggleStatus(this, ' . $row->id . ')"
+                        >
+                        <span class="switch-toggle-slider">
+                            <span class="switch-on">
+                                <i class="icon-base mt-1 ti ti-check text-white"></i>
+                            </span>
+                            <span class="switch-off">
+                                <i class="icon-base mt-1 ti ti-x"></i>
+                            </span>
+                        </span>
+                    </label>
+                </div>
+            ';
+        } else {
+            return sprintf(
+                '<div class="d-flex justify-content-center"><span class="badge bg-%s">%s</span></div>',
+                $row->status->color(),
+                $row->status->label()
+            );
+        }
     }
 }
