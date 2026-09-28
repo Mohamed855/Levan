@@ -216,6 +216,75 @@
                 </div>
             </div>
 
+            @php
+                $allAttachments = [];
+                if (!empty($ticket->attachments) && is_iterable($ticket->attachments)) {
+                    foreach ($ticket->attachments as $att) {
+                        $url = is_array($att) ? ($att['url'] ?? '') : (is_object($att) ? ($att->url ?? '') : (string)$att);
+                        $name = is_array($att) ? ($att['name'] ?? 'مرفق التذكرة') : (is_object($att) ? ($att->name ?? 'مرفق التذكرة') : 'مرفق التذكرة');
+                        $fullUrl = Str::startsWith($url, 'http') ? $url : Storage::url($url);
+                        $allAttachments[] = [
+                            'name'   => $name,
+                            'url'    => $fullUrl,
+                            'source' => 'التذكرة الأصلية',
+                        ];
+                    }
+                }
+                $repliesCollection = $replies['data'] ?? (is_iterable($replies) ? $replies : []);
+                if (!empty($repliesCollection) && is_iterable($repliesCollection)) {
+                    foreach ($repliesCollection as $reply) {
+                        $replyAtts = is_array($reply) ? ($reply['attachments'] ?? []) : ($reply->attachments ?? []);
+                        $sender = is_array($reply) ? ($reply['sender_type'] ?? '') : ($reply->sender_type ?? '');
+                        $sourceLabel = in_array($sender, ['support_user', 'admin']) ? 'رد الدعم الفني' : 'رد المستأجر';
+                        if (!empty($replyAtts) && is_iterable($replyAtts)) {
+                            foreach ($replyAtts as $att) {
+                                $url = is_array($att) ? ($att['url'] ?? '') : (is_object($att) ? ($att->url ?? '') : (string)$att);
+                                $name = is_array($att) ? ($att['name'] ?? 'مرفق رد') : (is_object($att) ? ($att->name ?? 'مرفق رد') : 'مرفق رد');
+                                $fullUrl = Str::startsWith($url, 'http') ? $url : Storage::url($url);
+                                $allAttachments[] = [
+                                    'name'   => $name,
+                                    'url'    => $fullUrl,
+                                    'source' => $sourceLabel,
+                                ];
+                            }
+                        }
+                    }
+                }
+            @endphp
+
+            {{-- كارت المرفقات الخارجي --}}
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-paperclip text-primary me-2"></i> المرفقات
+                    </h5>
+                    @if (count($allAttachments) > 0)
+                        <span class="badge bg-label-primary">{{ count($allAttachments) }}</span>
+                    @endif
+                </div>
+                <div class="card-body pt-3">
+                    @if (count($allAttachments) > 0)
+                        <div class="d-flex flex-column gap-2">
+                            @foreach ($allAttachments as $attachment)
+                                <a href="{{ $attachment['url'] }}" target="_blank"
+                                    class="d-flex align-items-center justify-content-between p-2 border rounded text-decoration-none text-body bg-light">
+                                    <div class="d-flex align-items-center text-truncate me-2">
+                                        <i class="ti ti-paperclip text-primary me-2"></i>
+                                        <div class="d-flex flex-column text-truncate">
+                                            <span class="small fw-semibold text-truncate">{{ $attachment['name'] }}</span>
+                                            <small class="text-muted" style="font-size: 0.75rem;">{{ $attachment['source'] }}</small>
+                                        </div>
+                                    </div>
+                                    <i class="ti ti-download text-muted"></i>
+                                </a>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-muted text-center mb-0 small">لا توجد مرفقات لهذه التذكرة.</p>
+                    @endif
+                </div>
+            </div>
+
             @if (!empty($ticket->survey_result))
                 <div class="card shadow-sm border-warning">
                     <div class="card-header bg-warning-subtle py-3">
