@@ -55,7 +55,7 @@ class AdminUserDataTable extends AbstractDataTable
 
             ->addColumn('roles', function (AdminUser $user) {
                 if ($user->roles->isEmpty()) {
-                    return '<span class="text-muted">لا يوجد دور</span>';
+                    return '<span class="text-muted">-</span>';
                 }
                 return $user->roles->map(fn($role) => '<span class="badge bg-label-info me-1">' . $role->name . '</span>')->implode('');
             })
@@ -70,7 +70,7 @@ class AdminUserDataTable extends AbstractDataTable
             ->editColumn('last_login_at', function (AdminUser $user) {
                 return $user->last_login_at
                     ? $user->last_login_at->locale('ar')->diffForHumans()
-                    : 'لم يسجل دخول';
+                    : '-';
             })
 
             ->addColumn('actions', function ($row) {

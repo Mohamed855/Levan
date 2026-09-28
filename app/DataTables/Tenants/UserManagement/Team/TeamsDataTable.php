@@ -86,7 +86,7 @@ class TeamsDataTable extends AbstractDataTable
             })
             ->addColumn('branch', function (Team $team) {
                 if (!$team->branch) {
-                    return '<span class="text-muted">غير محدد</span>';
+                    return '<span class="text-muted">-</span>';
                 }
                 return '<span class="badge bg-label-secondary">' . e($team->branch->name) . '</span>';
             })

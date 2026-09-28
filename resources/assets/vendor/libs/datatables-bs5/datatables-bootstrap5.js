@@ -24,6 +24,44 @@ if (window.$ && $.fn.dataTable && $.fn.dataTable.Responsive && typeof $.fn.dataT
 $.fn.dataTable.ext.Checkbox = Checkbox(window, $);
 window.JSZip = JSZip;
 
+if (window.$ && $.fn.dataTable) {
+    $.extend(true, $.fn.dataTable.defaults, {
+        columnDefs: [
+            {
+                targets: "_all",
+                defaultContent: "-",
+                render: function (data, type, full, meta) {
+                    if (
+                        meta &&
+                        meta.settings &&
+                        meta.settings.aoColumns &&
+                        meta.settings.aoColumns[meta.col]
+                    ) {
+                        var colDef = meta.settings.aoColumns[meta.col];
+                        if (
+                            colDef.sClass &&
+                            colDef.sClass.indexOf("control") !== -1
+                        ) {
+                            return "";
+                        }
+                    }
+                    if (type === "display") {
+                        if (
+                            data === null ||
+                            data === undefined ||
+                            data === "" ||
+                            (typeof data === "string" && data.trim() === "")
+                        ) {
+                            return "-";
+                        }
+                    }
+                    return data;
+                },
+            },
+        ],
+    });
+}
+
 Promise.all([import("pdfmake"), import("pdfmake/build/vfs_fonts")]).then(
     ([{ default: pdfMake }]) => {
         if (window.pdfMake?.vfs) {

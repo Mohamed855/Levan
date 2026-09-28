@@ -59,7 +59,7 @@ class TenantDataTable extends AbstractDataTable
 
             ->addColumn('subscription_status', function ($row) {
                 if (!$row->lastSubscription) {
-                    return '<span class="badge bg-label-secondary">لا يوجد اشتراك</span>';
+                    return '<span class="badge bg-label-secondary">-</span>';
                 }
 
                 return $this->SubscriptionStatus($row->lastSubscription->status);

@@ -66,7 +66,7 @@ class AdminTicketsDataTable extends AbstractDataTable
                 return '<span class="badge bg-label-info">' . e($tenant->company_name ?? $tenant->id) . '</span>';
             })
             ->editColumn('customer_name', function ($row) {
-                return '<div><div class="fw-semibold">' . e($row->customer_name ?? 'غير محدد') . '</div>' .
+                return '<div><div class="fw-semibold">' . e($row->customer_name ?? '-') . '</div>' .
                        ($row->customer_email ? '<small class="text-muted">' . e($row->customer_email) . '</small>' : '') .
                        '</div>';
             })

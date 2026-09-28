@@ -54,11 +54,11 @@ class AdminRoleDataTable extends AbstractDataTable
 
             ->addColumn('roles', function ($row) {
                 if ($row->isSuperAdmin()) {
-                    return $row->roles->count() > 0 ? $row->roles->first()->name : 'غير محدد';
+                    return $row->roles->count() > 0 ? $row->roles->first()->name : '-';
                 }
 
                 if (auth()->user()?->can('إسناد دور لمستخدم')) {
-                    $roleName = $row->roles->count() > 0 ? $row->roles->first()->name : 'غير محدد';
+                    $roleName = $row->roles->count() > 0 ? $row->roles->first()->name : '-';
                     $colorClasses = ['bg-label-primary', 'bg-label-success', 'bg-label-warning', 'bg-label-info', 'bg-label-secondary'];
                     $randomColor = $colorClasses[array_rand($colorClasses)];
 
@@ -66,7 +66,7 @@ class AdminRoleDataTable extends AbstractDataTable
                                         <span class="badge ' . htmlspecialchars($randomColor, ENT_QUOTES, 'UTF-8') . '">' . e($roleName) . '</span>
                                     </a>';
                 } else {
-                    return $row->roles->count() > 0 ? $row->roles->first()->name : 'غير محدد';
+                    return $row->roles->count() > 0 ? $row->roles->first()->name : '-';
                 }
             })
 

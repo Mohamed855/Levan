@@ -94,13 +94,13 @@ class DomainDataTable extends AbstractDataTable
             ->editColumn('transfer_code', function ($row) {
                 return $row->transfer_code
                     ? '<span class="text-dark">' . $row->transfer_code . '</span>'
-                    : '<span class="text-muted">لا يوجد</span>';
+                    : '<span class="text-muted">-</span>';
             })
 
             ->editColumn('transfer_status', function ($row) {
                 return $row->transfer_status
-                    ? '<span class="text-dark">' . $row->transfer_status ?: 'لا يوجد' . '</span>'
-                    : '<span class="text-muted">لا يوجد</span>';
+                    ? '<span class="text-dark">' . ($row->transfer_status ?: '-') . '</span>'
+                    : '<span class="text-muted">-</span>';
             })
 
             ->editColumn('created_at', function ($row) {

@@ -256,6 +256,24 @@ abstract class AbstractDataTable extends DataTable
             'orderCellsTop' => true,
             'columnDefs' => [
                 [
+                    'targets' => '_all',
+                    'defaultContent' => '-',
+                    'render' => 'function(data, type, full, meta) {
+                        if (meta && meta.settings && meta.settings.aoColumns && meta.settings.aoColumns[meta.col]) {
+                            var colDef = meta.settings.aoColumns[meta.col];
+                            if (colDef.sClass && colDef.sClass.indexOf("control") !== -1) {
+                                return "";
+                            }
+                        }
+                        if (type === "display") {
+                            if (data === null || data === undefined || data === "" || (typeof data === "string" && data.trim() === "")) {
+                                return "-";
+                            }
+                        }
+                        return data;
+                    }'
+                ],
+                [
                     'className' => 'control',
                     'orderable' => false,
                     'targets' => 0,
@@ -282,8 +300,12 @@ abstract class AbstractDataTable extends DataTable
                     'type' => 'column',
                     'renderer' => 'function(api, rowIdx, columns) {
                     var data = $.map(columns, function(col, i) {
+                        var val = col.data;
+                        if (val === null || val === undefined || val === "" || (typeof val === "string" && val.trim() === "")) {
+                            val = "-";
+                        }
                         return col.title !== "" && col.title.indexOf("checkbox") === -1
-                            ? \'<tr data-dt-row="\' + col.rowIndex + \'" data-dt-column="\' + col.columnIndex + \'"><td>\' + col.title + \':</td><td>\' + col.data + \'</td></tr>\'
+                            ? \'<tr data-dt-row="\' + col.rowIndex + \'" data-dt-column="\' + col.columnIndex + \'"><td>\' + col.title + \':</td><td>\' + val + \'</td></tr>\'
                             : "";
                     }).join("");
                     return data ? $(\'<table class="table"/><tbody />\').append(data) : false;
@@ -310,9 +332,9 @@ abstract class AbstractDataTable extends DataTable
         return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
     }
 
-    protected function emptyDataMessage($message = null): string
+    protected function emptyDataMessage($message = '-'): string
     {
-        return '<span class="text-muted">' . ($message ?? 'غير متوفر') . '</span>';
+        return '<span class="text-muted">' . ($message ?? '-') . '</span>';
     }
 
     protected function routeName($route, $name, $class = '', $target = ""): string

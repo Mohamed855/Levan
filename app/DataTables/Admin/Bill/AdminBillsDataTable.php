@@ -61,7 +61,7 @@ class AdminBillsDataTable extends AbstractDataTable
             })
 
             ->editColumn('tenant_name', function ($row) {
-                return $row->tenant?->company_name ?? "غير محدد";
+                return $row->tenant?->company_name ?? "-";
             })
 
             ->editColumn('type', function ($row) {
@@ -94,7 +94,7 @@ class AdminBillsDataTable extends AbstractDataTable
 
             ->editColumn('due_date', function ($row) {
                 if (!$row->due_date) {
-                    return 'غير محدد';
+                    return '-';
                 }
 
                 $isOverdue = Carbon::parse($row->due_date)->isPast()

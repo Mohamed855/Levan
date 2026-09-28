@@ -58,7 +58,7 @@ class AdminUserDataTable extends AbstractDataTable
 
             ->addColumn('roles', function (AdminUser $user) {
                 if ($user->roles->isEmpty()) {
-                    return '<span class="text-muted">لا يوجد دور</span>';
+                    return '<span class="text-muted">-</span>';
                 }
                 return $user->roles->map(fn($role) => '<span class="badge bg-label-info me-1">' . $role->name . '</span>')->implode('');
             })

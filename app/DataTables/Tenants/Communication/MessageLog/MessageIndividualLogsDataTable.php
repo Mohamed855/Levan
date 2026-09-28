@@ -185,12 +185,12 @@ class MessageIndividualLogsDataTable extends AbstractDataTable
             })
 
             ->addColumn('account_number', function (MessageIndividualLog $log) {
-                return $log->customer?->account_number ?? '—';
+                return $log->customer?->account_number ?? '-';
             })
 
             ->addColumn('company_portfolio', function (MessageIndividualLog $log) {
-                $companyName = $log->company ? $log->company->name : 'غير محدد';
-                $portfolioName = $log->portfolio ? $log->portfolio->name : 'غير محدد';
+                $companyName = $log->company ? $log->company->name : '-';
+                $portfolioName = $log->portfolio ? $log->portfolio->name : '-';
 
                 return '<div>' .
                     '<div class="small">' . e($companyName) . '</div>' .

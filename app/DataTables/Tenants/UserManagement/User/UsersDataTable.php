@@ -98,17 +98,17 @@ class UsersDataTable extends AbstractDataTable
                 $url = tenant_route_name('users.show', $user->id);
                 return '<a href="' . $url . '" class="text-primary fw-bold">' . e($user->name) . '</a>';
             })
-            ->editColumn('employee_number', fn(User $user) => '<span class="badge bg-label-secondary">' . e($user->employee_number ?? 'غير محدد') . '</span>')
+            ->editColumn('employee_number', fn(User $user) => '<span class="badge bg-label-secondary">' . e($user->employee_number ?? '-') . '</span>')
             ->editColumn('email', fn(User $user) => '<a href="mailto:' . $user->email . '">' . $user->email . '</a>')
             ->addColumn('branch', function (User $user) {
                 if (!$user->branch) {
-                    return '<span class="text-muted">غير محدد</span>';
+                    return '<span class="text-muted">-</span>';
                 }
                 return '<span class="badge bg-label-secondary">' . e($user->branch->name) . '</span>';
             })
             ->addColumn('roles', function (User $user) {
                 if ($user->roles->isEmpty()) {
-                    return '<span class="text-muted">لا يوجد دور</span>';
+                    return '<span class="text-muted">-</span>';
                 }
                 return $user->roles->map(fn($role) => '<span class="badge bg-label-info me-1">' . $role->name . '</span>')->implode('');
             })

@@ -104,20 +104,20 @@ class ArchivedUsersDataTable extends AbstractDataTable
                 </div>';
             })
             ->editColumn('employee_number', function ($row) {
-                return '<span class="badge bg-label-primary">' . ($row->employee_number ?? 'غير محدد') . '</span>';
+                return '<span class="badge bg-label-primary">' . ($row->employee_number ?? '-') . '</span>';
             })
             ->editColumn('email', function ($row) {
-                return '<span class="text-primary">' . ($row->email ?? 'غير محدد') . '</span>';
+                return '<span class="text-primary">' . ($row->email ?? '-') . '</span>';
             })
             ->editColumn('phone', function ($row) {
-                return '<span class="text-body">' . ($row->phone ?? 'غير محدد') . '</span>';
+                return '<span class="text-body">' . ($row->phone ?? '-') . '</span>';
             })
             ->editColumn('roles', function ($row) {
                 if ($row->roles && $row->roles->count() > 0) {
                     $roleNames = $row->roles->pluck('name')->toArray();
                     return '<span class="text-info">' . implode(', ', $roleNames) . '</span>';
                 }
-                return '<span class="text-muted">لا يوجد</span>';
+                return '<span class="text-muted">-</span>';
             })
             ->editColumn('status', function ($row) {
                 $statusClass = $row->status === 'active' ? 'bg-label-success' : 'bg-label-danger';
