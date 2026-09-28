@@ -73,37 +73,7 @@
             </li>
         @endcan
 
-        @can('بدء التحصيل')
-            <li class="nav-item dropdown me-2 me-xl-2">
-                <a href="{{ tenant_route_name('collection-process.index') }}" class="menu-link" title="بدء التحصيل"
-                    data-bs-toggle="tooltip" data-bs-placement="bottom">
-                    <i class="menu-icon tf-icons ti ti-power"></i>
-                    <div data-i18n="Collection Process"></div>
-                    @php
-                        $pendingFollowsCount = \Illuminate\Support\Facades\Schema::hasTable('tasks')
-                            ? \App\Models\Tenants\BusinessCenter\Customers\Task\Task::where('status', 'pending')
-                                ->whereDate('due_date', '<=', today())
-                                ->whereHas('customer', fn($q) => $q->where('relationship_manager_id', auth()->id()))
-                                ->count()
-                            : 0;
-                    @endphp
-                    @if ($pendingFollowsCount > 0)
-                        {{-- <span class="badge badge-center rounded-pill bg-danger ms-auto">{{
-                                            $pendingFollowsCount }}</span> --}}
-                    @endif
-                </a>
-            </li>
-        @endcan
 
-        @can('لوحة تحكم الإدارة')
-            <li class="nav-item dropdown me-2 me-xl-2">
-                <a href="{{ tenant_route_name('dashboard.collectionSessionsPage') }}" class="menu-link" title="جلسات التحصيل"
-                    data-bs-toggle="tooltip" data-bs-placement="bottom">
-                    <i class="menu-icon tf-icons ti ti-users-group"></i>
-                    <div data-i18n="Collection Sessions"></div>
-                </a>
-            </li>
-        @endcan
 
         {{-- Settings - يظهر فقط إذا توفرت إحدى الصلاحيات --}}
         @canany([

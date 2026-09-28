@@ -15,12 +15,8 @@ class TenantDatabaseSeeder extends Seeder
             PermissionsRolesSeeder::class,
             SettingsTableSeeder::class,
             BranchSeeder::class,
-            CustomerStatusSeeder::class,
-            ContactResultSeeder::class,
             GeneralSettingsSeeder::class,
             UserSeeder::class,
-            CompanyPortfolioSeeder::class,
-            CustomerDataSeeder::class,
         ]);
     }
 }
