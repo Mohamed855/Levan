@@ -1,0 +1,9 @@
+// =============================================================================
+// Admin Sidebar Menu — Active item color overrides
+// Replaces inline <style> in admin/layouts/commonMaster.blade.php
+// =============================================================================
+
+[dir=rtl] .bg-menu-theme.menu-vertical .menu-item.active > .menu-link:not(.menu-toggle) {
+    background: var(--menu-active-bg) !important;
+    color: var(--menu-active-text) !important;
+}

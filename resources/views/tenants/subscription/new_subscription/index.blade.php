@@ -3,8 +3,7 @@
 @section('title', ' الاشتراك')
 
 @section('page-style')
-    @vite(['resources/assets/css/components/icons.css'])
-
+    @vite(['resources/assets/css/components/icons.css', 'resources/scss/tenants/pages/subscription-plans.scss'])
 @endsection
 
 @section('toastr')
@@ -30,49 +29,6 @@
             </div>
         </div>
     </section>
-
-    <style>
-        .plan-card {
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
-            transition: all 0.25s ease;
-            border: 1px solid #eee;
-        }
-
-        .plan-price {
-            font-size: 32px;
-            font-weight: 800;
-            color: #1a2942;
-        }
-
-        .plan-old-price {
-            opacity: 0.6;
-        }
-
-        .plan-badge {
-            font-size: 13px;
-            padding: 4px 12px;
-            border-radius: 1px;
-        }
-
-        .plan-section-title {
-            font-size: 14px;
-            opacity: 0.8;
-            margin-top: 8px;
-        }
-
-        .plan-feature {
-            font-weight: 600;
-            color: #2c365e;
-            font-size: 15px;
-        }
-
-        .price-note {
-            font-size: 13px;
-            color: #6c757d;
-            margin-top: 4px;
-            opacity: 0.85;
-        }
-    </style>
 
     <div class="">
         <div class="row g-2 mt-3">

@@ -12,6 +12,9 @@
   'resources/assets/css/shared/main.css'])
 @yield('vendor-style')
 
+<!-- Custom Design System -->
+@vite(['resources/scss/admin/app.scss'])
+
 <!-- Page Styles -->
 @yield('page-style')
- 
+

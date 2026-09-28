@@ -21,14 +21,8 @@ $configData['style'] : '') .'.scss',
 ])
 @yield('vendor-style')
 
+<!-- Custom Design System -->
+@vite(['resources/scss/tenants/app.scss'])
+
 <!-- Page Styles -->
 @yield('page-style')
-
-
-<style>
-  body {
-  font-family: "Almarai", sans-serif;
-  font-weight: 300;
-  font-style: normal;
-  }
-</style>

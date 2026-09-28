@@ -17,119 +17,26 @@
 
 @section('page-style')
     @vite(['resources/css/dataTable.css'])
-    <style>
-        /* إصلاح تموضع الـ Tooltip بالنسبة للأب المباشر */
-        #card-roles .table-responsive {
-            overflow: visible !important;
-        }
-        #card-roles td {
-            position: relative;
-        }
-        #card-roles .avatar-group {
-            position: relative !important;
-        }
-        #card-roles .avatar {
-            position: relative !important;
-        }
-    </style>
+    {{-- #card-roles tooltip overflow fix is now in resources/scss/shared/_tables.scss --}}
 @endsection
 
 @section('page-script')
     <script>
-        // متغيرات JavaScript العامة
+        // Route data — must stay in Blade (dynamic per-dashboard)
         window.routes = {
-            rolesIndex: "{{ route('admin.roles.index') }}",
-            getUserRoles: "{{ route('admin.roles.get-user-roles', ':id') }}",
+            rolesIndex:      "{{ route('admin.roles.index') }}",
+            getUserRoles:    "{{ route('admin.roles.get-user-roles', ':id') }}",
             updateUserRoles: "{{ route('admin.roles.update-user-role', ':id') }}",
-            toggleStatus: "{{ route('admin.users.toggle-status', ':id') }}",
+            toggleStatus:    "{{ route('admin.users.toggle-status', ':id') }}",
+        };
+        window.assets = {
+            arabicDataTable: "{{ asset('assets/json/ar.json') }}",
+        };
+        window.permissions = {
+            canAddRole: {{ (auth()->user()?->can('إضافة دور') ?? true) ? 'true' : 'false' }},
         };
     </script>
     @vite(['resources/assets/js/admin/admin_mangment/roles/index.js'])
-
-    <script>
-        (function() {
-            function initRoleTooltips() {
-                var BS = window.bootstrap || (typeof bootstrap !== 'undefined' ? bootstrap : null);
-                if (!BS || !BS.Tooltip) return;
-
-                var tooltipElements = document.querySelectorAll('#card-roles [data-bs-toggle="tooltip"]');
-                tooltipElements.forEach(function(el) {
-                    var inst = BS.Tooltip.getInstance(el);
-                    if (inst) inst.dispose();
-                    new BS.Tooltip(el, {
-                        container: el.parentNode,
-                        placement: 'top'
-                    });
-                });
-            }
-
-            window.initRoleTooltips = initRoleTooltips;
-
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', initRoleTooltips);
-            } else {
-                initRoleTooltips();
-            }
-
-            window.addEventListener('load', initRoleTooltips);
-            setTimeout(initRoleTooltips, 300);
-            setTimeout(initRoleTooltips, 1000);
-
-            document.addEventListener('mouseover', function(e) {
-                var trigger = e.target.closest('#card-roles [data-bs-toggle="tooltip"]');
-                if (trigger && !trigger._fixedTooltipReady) {
-                    trigger._fixedTooltipReady = true;
-                    var BS = window.bootstrap || (typeof bootstrap !== 'undefined' ? bootstrap : null);
-                    if (BS && BS.Tooltip) {
-                        var existing = BS.Tooltip.getInstance(trigger);
-                        if (existing) existing.dispose();
-                        var tip = new BS.Tooltip(trigger, {
-                            container: trigger.parentNode,
-                            placement: 'top'
-                        });
-                        tip.show();
-                    }
-                }
-            }, true);
-        })();
-
-        $(document).ready(function() {
-            var canAddRole = {{ (auth()->user()?->can('إضافة دور') ?? true) ? 'true' : 'false' }};
-            var roleButtons = [];
-            if (canAddRole) {
-                roleButtons.push({
-                    text: '<i class="fas fa-plus-circle me-1"></i> إضافة دور جديد',
-                    className: 'btn btn-primary btn-add',
-                    action: function() {
-                        window.location.href = "{{ route('admin.roles.create') }}";
-                    }
-                });
-            }
-
-            if ($('#roles-table').length) {
-                $('#roles-table').DataTable({
-                    paging: false,
-                    searching: false,
-                    info: false,
-                    ordering: false,
-                    dom: '<"dt-toolbar mb-3"' +
-                        '<"dt-toolbar-left">' +
-                        '<"dt-toolbar-right"B>' +
-                        '>' +
-                        'rt',
-                    buttons: roleButtons,
-                    language: {
-                        url: "{{ asset('assets/json/ar.json') }}"
-                    },
-                    drawCallback: function() {
-                        if (typeof window.initRoleTooltips === 'function') {
-                            window.initRoleTooltips();
-                        }
-                    }
-                });
-            }
-        });
-    </script>
 @endsection
 
 @section('content')
@@ -191,7 +98,7 @@
                                                 </button>
                                                 <form id="delete-form-{{ $role->id }}"
                                                     action="{{ route('admin.roles.destroy', $role->id) }}" method="POST"
-                                                    style="display: none;">
+                                                    class="d-hidden">
                                                     @csrf
                                                     @method('DELETE')
                                                 </form>

@@ -1,0 +1,50 @@
+// =============================================================================
+// Forms — Select2, filters, input overrides
+// =============================================================================
+
+// Filters row spacing
+.filters {
+    margin-bottom: 1rem;
+
+    label {
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+        display: block;
+    }
+}
+
+// Password criteria list (reset / change password pages)
+#password-criteria {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 10px;
+    display: none;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 10px;
+    border-radius: 5px;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    li {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+
+        &.valid::before {
+            content: '✔️';
+            color: #28a745;
+            margin-right: 8px;
+        }
+
+        &.invalid::before {
+            content: '❌';
+            color: #dc3545;
+            margin-right: 8px;
+        }
+    }
+}
+
+#password-strength {
+    margin-top: 10px;
+}

@@ -94,20 +94,6 @@
         </div>
     </div>
 
-    <style>
-        .nav-tabs .nav-link,
-        .nav-pills .nav-link {
-            justify-content: start;
-            margin-bottom: 10px;
-        }
-
-        .nav-tabs .nav-link.active,
-        .nav-tabs .nav-link.active:hover,
-        .nav-tabs .nav-link.active:focus {
-            box-shadow: none;
-            border-left: 5px solid;
-        }
-    </style>
 
     <script>
         $(document).ready(function() {

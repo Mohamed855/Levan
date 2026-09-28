@@ -3,55 +3,6 @@
 
 @section('page-style')
 @vite(['resources/assets/css/components/icons.css', 'resources/assets/vendor/scss/pages/front-page-payment.scss'])
-<style>
-    .card-type-display {
-        font-weight: bold;
-        font-size: 13px;
-        padding: 4px 8px;
-        border-radius: 4px;
-        display: inline-block;
-    }
-
-    .card-type-display.visa {
-        color: #1434CB;
-        background: #e8eaf6;
-    }
-
-    .card-type-display.mastercard {
-        color: #EB001B;
-        background: #ffebee;
-    }
-
-    .card-type-display.amex {
-        color: #006FCF;
-        background: #e3f2fd;
-    }
-
-    .card-type-display.discover {
-        color: #FF6000;
-        background: #fff3e0;
-    }
-
-    .card-type-display.mada {
-        color: #00A859;
-        background: #e8f5e9;
-    }
-
-    .years-option {
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .years-option:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-
-    .years-option.active {
-        border-color: #28a745 !important;
-        background-color: #f0f9f4;
-    }
-</style>
 @endsection
 
 @section('toastr')

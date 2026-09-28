@@ -431,27 +431,5 @@
 
     </div>
 
-    <style>
-        .bg-gradient-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .card {
-            box-shadow: 0 2px 6px 0 rgba(67, 89, 113, 0.12);
-            border: none;
-        }
-
-        .card-header {
-            border-bottom: 1px solid rgba(67, 89, 113, 0.1);
-        }
-
-        .avatar-sm {
-            width: 38px;
-            height: 38px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-    </style>
 
 @endsection

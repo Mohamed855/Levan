@@ -1,0 +1,93 @@
+// =============================================================================
+// Base — body font & root variables
+// Replaces:
+//   - <style> in admin/layouts/commonMaster.blade.php
+//   - <style> in tenants/layouts/commonMaster.blade.php
+//   - <style> in tenants/layouts/sections/styles.blade.php
+//   - body rule in resources/assets/css/shared/main.css
+// =============================================================================
+
+@use '../variables';
+
+// Font-faces (moved from resources/assets/css/shared/main.css)
+@font-face {
+    font-family: 'Zain';
+    src: url('../../../../public/assets/shared/fonts/zain/zain-v4-arabic_latin-200.woff2') format('woff2');
+    font-weight: 200;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Zain';
+    src: url('../../../../public/assets/shared/fonts/zain/zain-v4-arabic_latin-300.woff2') format('woff2');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Zain';
+    src: url('../../../../public/assets/shared/fonts/zain/zain-v4-arabic_latin-300italic.woff2') format('woff2');
+    font-weight: 300;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Zain';
+    src: url('../../../../public/assets/shared/fonts/zain/zain-v4-arabic_latin-regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Zain';
+    src: url('../../../../public/assets/shared/fonts/zain/zain-v4-arabic_latin-italic.woff2') format('woff2');
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Zain';
+    src: url('../../../../public/assets/shared/fonts/zain/zain-v4-arabic_latin-700.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Zain';
+    src: url('../../../../public/assets/shared/fonts/zain/zain-v4-arabic_latin-800.woff2') format('woff2');
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Zain';
+    src: url('../../../../public/assets/shared/fonts/zain/zain-v4-arabic_latin-900.woff2') format('woff2');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+body {
+    font-family: var(--font-family-base) !important;
+    font-weight: var(--font-weight-base);
+    font-style: normal;
+}
+
+code {
+    letter-spacing: 1px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #f8f9fa;
+    color: var(--primary-color);
+}

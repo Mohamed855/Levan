@@ -10,40 +10,6 @@ $total = $price;
 
 @section('page-style')
 @vite(['resources/assets/css/components/icons.css', 'resources/assets/vendor/scss/pages/front-page-payment.scss'])
-<style>
-    .card-type-display {
-        font-weight: bold;
-        font-size: 13px;
-        padding: 4px 8px;
-        border-radius: 4px;
-        display: inline-block;
-    }
-
-    .card-type-display.visa {
-        color: #1434CB;
-        background: #e8eaf6;
-    }
-
-    .card-type-display.mastercard {
-        color: #EB001B;
-        background: #ffebee;
-    }
-
-    .card-type-display.amex {
-        color: #006FCF;
-        background: #e3f2fd;
-    }
-
-    .card-type-display.discover {
-        color: #FF6000;
-        background: #fff3e0;
-    }
-
-    .card-type-display.mada {
-        color: #00A859;
-        background: #e8f5e9;
-    }
-</style>
 @endsection
 
 @section('toastr')

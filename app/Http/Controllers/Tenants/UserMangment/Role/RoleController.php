@@ -104,10 +104,6 @@ class RoleController extends Controller
                         }
                     })
                     ->addColumn('status', function (User $user) {
-                        if ($user->id === 1) {
-                            return '<div class="d-flex justify-content-center"><span class="badge bg-label-primary">أساسي</span></div>';
-                        }
-
                         if (auth()->user()->can('تعديل دور')) {
                             $checked = $user->status === 'active' ? 'checked' : '';
                             return '

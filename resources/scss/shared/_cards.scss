@@ -1,0 +1,17 @@
+// =============================================================================
+// Cards — Common card layout patterns
+// =============================================================================
+
+// Card with no border-radius (used in full-width data cards)
+.card-flush {
+    border-radius: 0;
+}
+
+// Card header with flex toolbar (DataTable toolbar pattern)
+.card-header-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}

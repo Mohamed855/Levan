@@ -1,0 +1,160 @@
+// =============================================================================
+// Shared Details View Components (Client, Portfolio, Coupons, Transfers, etc.)
+// =============================================================================
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.page-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    h4 {
+        margin: 0;
+        color: var(--primary-color);
+        font-weight: 700;
+        font-size: 1.4rem;
+    }
+}
+
+.back-btn,
+.btn-back {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+        background: #5a6268;
+        color: white;
+        transform: translateY(-2px);
+    }
+}
+
+// Details container & grid
+.details-container,
+.client-info-card,
+.portfolio-info-card {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    margin-bottom: 20px;
+}
+
+.details-grid,
+.client-details-grid,
+.portfolio-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    transition: all 0.3s;
+
+    &:hover {
+        background: #e9ecef;
+        transform: translateY(-2px);
+    }
+}
+
+.detail-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    background: #e3d8d1;
+    color: white;
+    flex-shrink: 0;
+}
+
+.detail-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.detail-label {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-bottom: 4px;
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.detail-value {
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: 0.95rem;
+    word-wrap: break-word;
+}
+
+.client-header,
+.portfolio-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.logo-container {
+    text-align: center;
+}
+
+.logo-img {
+    max-width: 200px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+// Status Badges in details
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+
+    &.active {
+        background: rgba(40, 167, 69, 0.15);
+        color: #28a745;
+    }
+
+    &.inactive {
+        background: rgba(220, 53, 69, 0.15);
+        color: #dc3545;
+    }
+
+    &.expired {
+        background: rgba(255, 193, 7, 0.15);
+        color: #ffc107;
+    }
+}

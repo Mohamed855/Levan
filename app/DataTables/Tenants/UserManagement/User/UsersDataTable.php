@@ -113,9 +113,6 @@ class UsersDataTable extends AbstractDataTable
                 return $user->roles->map(fn($role) => '<span class="badge bg-label-info me-1">' . $role->name . '</span>')->implode('');
             })
             ->editColumn('status', function (User $user) {
-                if ($user->id === 1) {
-                    return '<div class="d-flex justify-content-center"><span class="badge bg-label-primary">أساسي</span></div>';
-                }
                 $checked = $user->status === 'active' ? 'checked' : '';
                 return '
                     <div class="d-flex justify-content-center">

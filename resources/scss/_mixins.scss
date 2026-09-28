@@ -1,0 +1,17 @@
+// =============================================================================
+// Shared Mixins
+// =============================================================================
+
+// Flex centering shorthand
+@mixin flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+// Truncate single line
+@mixin text-truncate {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}

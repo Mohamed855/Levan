@@ -20,8 +20,15 @@
 <!-- BEGIN: toastr -->
 @yield('toastr')
 
-
 <!-- END: toastr-->
+
+<!-- BEGIN: Shared JS (extracted from layoutMaster) -->
+@vite([
+    'resources/js/shared/csrf-setup.js',
+    'resources/js/shared/toastr-flash.js',
+    'resources/js/shared/confirm-delete.js',
+])
+<!-- END: Shared JS -->
 
 <!-- END: Theme JS-->
 <!-- Pricing Modal JS-->

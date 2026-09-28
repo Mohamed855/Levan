@@ -14,6 +14,15 @@
 
 <!-- END: toastr-->
 
+<!-- BEGIN: Shared JS (extracted from layoutMaster) -->
+@vite([
+    'resources/js/shared/csrf-setup.js',
+    'resources/js/shared/toastr-flash.js',
+    'resources/js/shared/confirm-delete.js',
+    'resources/js/shared/datatable-search.js',
+])
+<!-- END: Shared JS -->
+
 <!-- END: Theme JS-->
 <!-- Pricing Modal JS-->
 @stack('pricing-script')

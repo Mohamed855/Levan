@@ -217,50 +217,6 @@
             submitButton.disabled = true;
         });
     </script>
-    <style>
-        /* تنسيق قائمة المعايير */
-        #password-criteria {
-            list-style: none;
-            padding-left: 0;
-            margin-top: 10px;
-            display: none;
-            /* إخفاء القائمة بشكل افتراضي */
-            background-color: rgba(255, 255, 255, 0.8);
-            /* خلفية شفافة بيضاء */
-            padding: 10px;
-            border-radius: 5px;
-            backdrop-filter: blur(5px);
-            /* تأثير التمويه */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        #password-criteria li {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
-            font-size: 0.9rem;
-        }
-
-        #password-criteria li.valid::before {
-            content: '✔️';
-            color: #28a745;
-            /* أخضر */
-            margin-right: 8px;
-        }
-
-        #password-criteria li.invalid::before {
-            content: '❌';
-            color: #dc3545;
-            /* أحمر */
-            margin-right: 8px;
-        }
-
-        /* تحسين رؤية الخلفية الشفافة */
-        #password-criteria {
-            backdrop-filter: blur(5px);
-            /* تأثير التمويه */
-        }
-    </style>
 @endsection
 
 @section('content')

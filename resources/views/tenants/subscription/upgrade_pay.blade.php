@@ -5,42 +5,6 @@
 
 @section('vendor-style')
     @vite(['resources/assets/vendor/scss/pages/front-page-payment.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss'])
-    <style>
-        .payment-summary {
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            padding: 1.5rem;
-        }
-
-        .summary-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.75rem;
-        }
-
-        .summary-item.total {
-            border-top: 1px solid #dee2e6;
-            padding-top: 0.75rem;
-            font-weight: 600;
-        }
-
-        .upgrade-details {
-            background-color: #e7f5ff;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .detail-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-        }
-
-        .badge-upgrade {
-            font-size: 0.85rem;
-        }
-    </style>
 @endsection
 
 @section('vendor-script')

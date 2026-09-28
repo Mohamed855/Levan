@@ -455,20 +455,4 @@
         </div>
     </div>
 
-    <style>
-        .accordion-button:not(.collapsed) {
-            background-color: #f8f9fa;
-            color: #696cff;
-        }
-
-        code {
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.9em;
-        }
-
-        .card {
-            box-shadow: 0 2px 6px 0 rgba(67, 89, 113, 0.12);
-        }
-    </style>
 @endsection

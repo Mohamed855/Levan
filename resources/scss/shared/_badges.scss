@@ -1,0 +1,20 @@
+// =============================================================================
+// Badges — Custom badge variants
+// Replaces .badge-custom defined in admin & tenant commonMaster inline <style>
+// =============================================================================
+
+.badge-custom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    color: #fff;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 0.8rem;
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-word;
+    min-height: 40px;
+    max-height: 40px;
+}

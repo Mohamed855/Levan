@@ -16,133 +16,28 @@
 
 @section('page-style')
     @vite(['resources/css/dataTable.css'])
-    <style>
-        .cursor-pointer {
-            cursor: pointer !important;
-        }
-
-        .badge.cursor-pointer:hover {
-            opacity: 0.8;
-            transform: scale(1.02);
-            transition: all 0.2s ease;
-        }
-
-        /* إصلاح تموضع الـ Tooltip بالنسبة للأب المباشر */
-        #card-roles .table-responsive {
-            overflow: visible !important;
-        }
-        #card-roles td {
-            position: relative;
-        }
-        #card-roles .avatar-group {
-            position: relative !important;
-        }
-        #card-roles .avatar {
-            position: relative !important;
-        }
-    </style>
+    {{-- .cursor-pointer and #card-roles tooltip fix are now in resources/scss/shared/ --}}
 @endsection
 
 @section('page-script')
     <script>
+        // Route data — must stay in Blade (dynamic per-dashboard)
         window.routes = {
-            rolesIndex: "{{ tenant_route_name('roles.index') }}",
-            getUserRoles: "{{ tenant_route_name('roles.user.get', ['id' => '___ID___']) }}",
+            rolesIndex:      "{{ tenant_route_name('roles.index') }}",
+            getUserRoles:    "{{ tenant_route_name('roles.user.get', ['id' => '___ID___']) }}",
             updateUserRoles: "{{ tenant_route_name('roles.user.update', ['id' => '___ID___']) }}",
-            updateStatus: "{{ tenant_route_name('roles.user.status', ['userId' => '___ID___']) }}"
+            updateStatus:    "{{ tenant_route_name('roles.user.status', ['userId' => '___ID___']) }}"
         };
         window.assets = {
             arabicDataTable: "{{ asset('assets/json/ar.json') }}"
         };
         window.csrfToken = "{{ csrf_token() }}";
+        window.permissions = {
+            canAddRole: {{ (auth()->user()?->can('إضافة دور') ?? true) ? 'true' : 'false' }},
+        };
     </script>
 
     @vite(['resources/assets/js/tenants/user-mangment/role/index.js'])
-
-    <script>
-        (function() {
-            function initRoleTooltips() {
-                var BS = window.bootstrap || (typeof bootstrap !== 'undefined' ? bootstrap : null);
-                if (!BS || !BS.Tooltip) return;
-
-                var tooltipElements = document.querySelectorAll('#card-roles [data-bs-toggle="tooltip"]');
-                tooltipElements.forEach(function(el) {
-                    var inst = BS.Tooltip.getInstance(el);
-                    if (inst) inst.dispose();
-                    new BS.Tooltip(el, {
-                        container: el.parentNode,
-                        placement: 'top'
-                    });
-                });
-            }
-
-            window.initRoleTooltips = initRoleTooltips;
-
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', initRoleTooltips);
-            } else {
-                initRoleTooltips();
-            }
-
-            window.addEventListener('load', initRoleTooltips);
-            setTimeout(initRoleTooltips, 300);
-            setTimeout(initRoleTooltips, 1000);
-
-            document.addEventListener('mouseover', function(e) {
-                var trigger = e.target.closest('#card-roles [data-bs-toggle="tooltip"]');
-                if (trigger && !trigger._fixedTooltipReady) {
-                    trigger._fixedTooltipReady = true;
-                    var BS = window.bootstrap || (typeof bootstrap !== 'undefined' ? bootstrap : null);
-                    if (BS && BS.Tooltip) {
-                        var existing = BS.Tooltip.getInstance(trigger);
-                        if (existing) existing.dispose();
-                        var tip = new BS.Tooltip(trigger, {
-                            container: trigger.parentNode,
-                            placement: 'top'
-                        });
-                        tip.show();
-                    }
-                }
-            }, true);
-        })();
-
-        $(document).ready(function() {
-            var canAddRole = {{ (auth()->user()?->can('إضافة دور') ?? true) ? 'true' : 'false' }};
-            var roleButtons = [];
-            if (canAddRole) {
-                roleButtons.push({
-                    text: '<i class="fas fa-plus-circle me-1"></i> إضافة دور جديد',
-                    className: 'btn btn-primary btn-add',
-                    action: function() {
-                        window.location.href = "{{ tenant_route_name('roles.create') }}";
-                    }
-                });
-            }
-
-            if ($('#roles-table').length) {
-                $('#roles-table').DataTable({
-                    paging: false,
-                    searching: false,
-                    info: false,
-                    ordering: false,
-                    dom: '<"dt-toolbar mb-3"' +
-                        '<"dt-toolbar-left">' +
-                        '<"dt-toolbar-right"B>' +
-                        '>' +
-                        'rt',
-                    buttons: roleButtons,
-                    language: {
-                        url: window.assets.arabicDataTable
-                    },
-                    drawCallback: function() {
-                        if (typeof window.initRoleTooltips === 'function') {
-                            window.initRoleTooltips();
-                        }
-                    }
-                });
-            }
-        });
-    </script>
 @endsection
 
 @section('content')
@@ -204,7 +99,7 @@
                                                 </button>
                                                 <form id="delete-form-{{ $role->id }}"
                                                     action="{{ tenant_route_name('roles.destroy', $role->id) }}" method="POST"
-                                                    style="display: none;">
+                                                    class="d-hidden">
                                                     @csrf
                                                     @method('DELETE')
                                                 </form>
@@ -290,7 +185,7 @@
                                 الدور
                                 <span data-toggle="tooltip" data-placement="top"
                                     title="عند تحديث دور المستخدم، سيتم حذف جميع الصلاحيات المضافة فردياً والصلاحيات المنزوعة، وسيتم الاعتماد على صلاحيات الدور الجديد."
-                                    style="color: var(--primary-color);">
+                                    class="text-primary-color">
                                     <i class="fa fa-question-circle fa-lg" aria-hidden="true"></i>
                                 </span>
                             </label>
@@ -303,7 +198,7 @@
                         </div>
 
                         <!-- تحديث الحالة (مخفية حالياً) -->
-                        <div class="mb-3" style="display: none;">
+                        <div class="mb-3 d-hidden">
                             <label for="user-status" class="form-label">الحالة</label>
                             <select id="user-status" name="status" class="form-control select2" required>
                                 <option value=""></option>
@@ -314,8 +209,7 @@
 
                         <div class="mb-3">
                             <label class="form-label">الفروع الإضافية المسموح بها</label>
-                            <div id="branches-wrapper" class="border rounded p-2"
-                                style="max-height: 250px; overflow-y: auto;">
+                            <div id="branches-wrapper" class="border rounded p-2 branches-scroll-wrapper">
                             </div>
                         </div>
                     </div>

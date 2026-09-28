@@ -118,6 +118,18 @@ export default defineConfig({
                 ...getFiles("resources/assets/js/**/**/*.js"),
                 ...getFiles("resources/assets/js/**/**/**/*.js"),
                 ...getFiles("resources/assets/js/**/**/**/**/*.js"),
+
+                // ─── Custom SCSS (our design system) ─────────────────────
+                "resources/scss/admin/app.scss",
+                "resources/scss/tenants/app.scss",
+                ...getFiles("resources/scss/admin/pages/!(_)*.scss"),
+                ...getFiles("resources/scss/tenants/pages/!(_)*.scss"),
+
+                // ─── Shared JS (extracted from Blade inline scripts) ──────
+                "resources/js/shared/csrf-setup.js",
+                "resources/js/shared/toastr-flash.js",
+                "resources/js/shared/confirm-delete.js",
+                "resources/js/shared/datatable-search.js",
             ],
             refresh: true,
         }),

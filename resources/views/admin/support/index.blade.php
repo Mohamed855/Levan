@@ -2,34 +2,6 @@
 @section('title', 'فتح تذكرة دعم فني')
 
 @section('content')
-<style>
-    .support-card {
-        border-radius: 15px;
-        box-shadow: 0 0 15px rgba(0,0,0,0.1);
-        padding: 25px;
-        background: #fff;
-    }
-    .support-card h3 {
-        color: #372632;
-        font-weight: bold;
-    }
-    .form-label {
-        font-weight: 600;
-        color: #372632;
-    }
-    .btn-submit {
-        background-color: #372632;
-        color: #fff;
-        border-radius: 10px;
-        padding: 10px 30px;
-        border: none;
-    }
-    .btn-submit:hover {
-        background-color: #1d2033;
-        color: #fff;
-    }
-</style>
-
 <div class="container py-5">
     <div class="support-card">
         <h3 class="mb-4"><i class="ti ti-headset"></i> فتح تذكرة دعم فني</h3>

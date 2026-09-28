@@ -492,25 +492,5 @@
                 };
             });
         </script>
-
-        <style>
-            .cursor-pointer {
-                cursor: pointer;
-                transition: all 0.2s ease;
-            }
-            .cursor-pointer:hover {
-                transform: scale(1.2);
-                color: #007bff !important;
-            }
-            code {
-                letter-spacing: 1px;
-            }
-            .card {
-                transition: all 0.3s ease;
-            }
-            .card:hover {
-                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
-            }
-        </style>
     </div>
 @endsection

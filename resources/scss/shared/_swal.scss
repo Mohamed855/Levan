@@ -1,0 +1,27 @@
+// =============================================================================
+// SweetAlert2 Custom Classes
+// Replaces inline Swal customClass definitions repeated across layouts & pages
+// =============================================================================
+
+.custom-popup {
+    border-radius: 12px;
+}
+
+.custom-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.custom-text {
+    color: #6c757d;
+    font-size: 0.95rem;
+}
+
+.custom-confirm {
+    min-width: 90px;
+}
+
+.custom-cancel {
+    min-width: 90px;
+}
