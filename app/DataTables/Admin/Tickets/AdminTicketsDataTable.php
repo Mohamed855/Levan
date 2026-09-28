@@ -4,6 +4,7 @@ namespace App\DataTables\Admin\Tickets;
 
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Enums\Tenants\Tickets\TicketStatus;
+use App\Models\Admin\Settings\Settings;
 use App\Models\Admin\Tickets\Ticket;
 use Carbon\Carbon;
 
@@ -122,6 +123,47 @@ class AdminTicketsDataTable extends AbstractDataTable
     {
         return [
             $this->getActionsDropdownButton(),
+            $this->getToggleServiceButton(),
+        ];
+    }
+
+    private function getToggleServiceButton(): array
+    {
+        $settings = Settings::first();
+        $ticketsEnabled = $settings?->tickets_enabled ?? true;
+
+        $icon = $ticketsEnabled ? 'ti-toggle-right' : 'ti-toggle-left';
+        $text = $ticketsEnabled ? 'الخدمة مفعلة' : 'الخدمة معطلة';
+        $btnClass = $ticketsEnabled ? 'btn-success' : 'btn-danger';
+
+        return [
+            'text'      => '<i class="ti ' . $icon . ' me-1"></i> ' . $text,
+            'className' => 'btn ' . $btnClass . ' btn-add',
+            'action'    => "function() {
+                var form = document.getElementById('toggle-service-form');
+                if (!form) return;
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'تأكيد تغيير حالة الخدمة',
+                        text: 'هل أنت متأكد من تغيير حالة خدمة التذاكر؟',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'نعم، قم بالتغيير',
+                        cancelButtonText: 'إلغاء',
+                        customClass: {
+                            confirmButton: 'btn btn-primary me-2',
+                            cancelButton: 'btn btn-label-secondary'
+                        },
+                        buttonsStyling: false
+                    }).then(function(result) {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                } else {
+                    form.submit();
+                }
+            }",
         ];
     }
 

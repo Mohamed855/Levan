@@ -123,9 +123,6 @@
                     </h6>
 
                     <div class="d-flex align-items-center gap-2">
-                        <a href="{{ tenant_route_name('tickets.index') }}" class="btn btn-sm btn-outline-secondary">
-                            <i class="ti ti-arrow-right me-1"></i> العودة
-                        </a>
                         {!! $status !!}
                         @if ($ticket->status === 'resolved_pending_survey')
                             <div class="my-1 text-center">
@@ -135,6 +132,10 @@
                                 </button>
                             </div>
                         @endif
+
+                        <a href="{{ tenant_route_name('tickets.index') }}" class="btn btn-sm btn-outline-secondary">
+                            <i class="ti ti-arrow-right me-1"></i> العودة
+                        </a>
                     </div>
 
                 </div>
@@ -165,11 +166,73 @@
                 <div class="border-1 border-light border-dashed mb-2"></div>
                 <div class="card-body">
 
+                    {{-- قائمة الردود --}}
+                    <div class="chat-container overflow-auto mb-3" style="max-height: 500px">
+                        @forelse($replies['data'] as $reply)
+                            <div
+                                class="chat-message {{ $reply['sender_type'] === 'tenant_user' ? 'chat-right' : 'chat-left' }}">
+
+                                <div class="chat-meta mb-3 d-flex justify-content-between">
+                                    <strong>
+                                        {{ $reply['sender_type'] === 'support_user'
+                                            ? $reply['support_user_name'] ?? 'موظف الدعم'
+                                            : $ticket->customer_name }}
+                                    </strong>
+                                    <span>{{ \Carbon\Carbon::parse($reply['created_at'])->diffForHumans() }}</span>
+                                </div>
+
+                                <div class="chat-text mb-1 mx-3">
+                                    {{ $reply['message'] }}
+                                </div>
+
+                                {{-- المرفقات --}}
+                                @if (!empty($reply['attachments']) && count($reply['attachments']) > 0)
+                                    <div class="mt-2">
+                                        @foreach ($reply['attachments'] as $index => $attachment)
+                                            <a href="{{ Str::startsWith($attachment['url'] ?? '', 'http') ? $attachment['url'] : Storage::url($attachment['url'] ?? '') }}"
+                                                target="_blank" class="attachment-item d-block">
+                                                <i class="ti ti-paperclip me-1"></i>
+                                                {{ $attachment['name'] ?? 'مرفق' }}
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                @endif
+
+                                {{-- تقييم الردود (فقط لردود الدعم الفني) --}}
+                                @if ($reply['sender_type'] === 'support_user')
+                                    @php
+                                        $currentStars = $reply['rating']['rating'] ?? null;
+                                    @endphp
+
+                                    <form method="POST" class="m-0"
+                                        action="{{ tenant_route_name('tickets.replies.rate', ['ticket' => $ticket->ticket_number, 'reply' => $reply['id']]) }}">
+                                        @csrf
+                                        <div class="d-flex justify-content-end mt-2">
+                                            <div class="reply-rating">
+                                                @for ($i = 1; $i <= 5; $i++)
+                                                    <button type="submit" name="stars" value="{{ $i }}"
+                                                        class="reply-star-btn {{ $currentStars && $i <= $currentStars ? 'rated' : '' }}">
+                                                        ★
+                                                    </button>
+                                                @endfor
+                                            </div>
+                                        </div>
+                                    </form>
+                                @endif
+
+                            </div>
+                        @empty
+                            <p class="text-center text-muted my-4">
+                                لا توجد ردود حتى الآن
+                            </p>
+                        @endforelse
+                    </div>
+
                     @if (in_array($ticket->status, ['open', 'in_progress', 'reopened']))
                         <div>
                             <h6 class="mb-3">إضافة رد</h6>
-                            <form action="{{ tenant_route_name('tickets.reply', $ticket->ticket_number) }}" method="POST"
-                                enctype="multipart/form-data">
+                            <form action="{{ tenant_route_name('tickets.reply', $ticket->ticket_number) }}"
+                                method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <div class="mb-3">
                                     <textarea name="message" class="form-control @error('message') is-invalid @enderror" rows="4"
@@ -203,69 +266,6 @@
                             لا يمكن إضافة ردود على هذه التذكرة في حالتها الحالية
                         </div>
                     @endif
-
-                    {{-- قائمة الردود --}}
-                    <div class="chat-container">
-                        @forelse($replies['data'] as $reply)
-                            <div
-                                class="chat-message {{ $reply['sender_type'] === 'tenant_user' ? 'chat-right' : 'chat-left' }}">
-
-                                <div class="chat-meta mb-3 d-flex justify-content-between">
-                                    <strong>
-                                        {{ $reply['sender_type'] === 'support_user'
-                                            ? $reply['support_user_name'] ?? 'موظف الدعم'
-                                            : $ticket->customer_name }}
-                                    </strong>
-                                    <span>{{ \Carbon\Carbon::parse($reply['created_at'])->diffForHumans() }}</span>
-                                </div>
-
-                                <div class="chat-text mb-1 mx-3">
-                                    {{ $reply['message'] }}
-                                </div>
-
-                                {{-- المرفقات --}}
-                                @if (!empty($reply['attachments']) && count($reply['attachments']) > 0)
-                                    <div class="mt-2">
-                                        @foreach ($reply['attachments'] as $index => $attachment)
-                                            <a href="{{ Str::startsWith($attachment['url'] ?? '', 'http') ? $attachment['url'] : Storage::url($attachment['url'] ?? '') }}" target="_blank"
-                                                class="attachment-item d-block">
-                                                <i class="ti ti-paperclip me-1"></i>
-                                                {{ $attachment['name'] ?? 'مرفق' }}
-                                            </a>
-                                        @endforeach
-                                    </div>
-                                @endif
-
-                                {{-- تقييم الردود (فقط لردود الدعم الفني) --}}
-                                @if ($reply['sender_type'] === 'support_user')
-                                    @php
-                                        $currentStars = $reply['rating']['rating'] ?? null;
-                                    @endphp
-
-                                    <form method="POST" class="m-0"
-                                        action="{{ tenant_route_name('tickets.replies.rate', ['ticket' => $ticket->ticket_number, 'reply' => $reply['id']]) }}">
-                                        @csrf
-                                        <div class="d-flex justify-content-center mt-2">
-                                            <div class="reply-rating">
-                                                @for ($i = 1; $i <= 5; $i++)
-                                                    <button type="submit" name="stars" value="{{ $i }}"
-                                                        class="reply-star-btn {{ $currentStars && $i <= $currentStars ? 'rated' : '' }}">
-                                                        ★
-                                                    </button>
-                                                @endfor
-                                            </div>
-                                        </div>
-                                    </form>
-                                @endif
-
-                            </div>
-                        @empty
-                            <p class="text-center text-muted my-4">
-                                لا توجد ردود حتى الآن
-                            </p>
-                        @endforelse
-                    </div>
-
                 </div>
             </div>
         </div>
@@ -290,7 +290,8 @@
                             <table class="table table-striped small text-center">
                                 <tr>
                                     <td class="fw-bold">القسم</td>
-                                    <td>{{ is_array($section) ? ($section['name'] ?? 'الدعم الفني') : ($section->name ?? 'الدعم الفني') }}</td>
+                                    <td>{{ is_array($section) ? $section['name'] ?? 'الدعم الفني' : $section->name ?? 'الدعم الفني' }}
+                                    </td>
                                 </tr>
 
                                 <tr>
@@ -347,8 +348,8 @@
                                 <div class="mb-3">
                                     <div>
                                         @foreach ($ticket->attachments as $index => $attachment)
-                                            <a href="{{ Str::startsWith($attachment['url'] ?? '', 'http') ? $attachment['url'] : Storage::url($attachment['url'] ?? '') }}" target="_blank"
-                                                class="attachment-item d-block">
+                                            <a href="{{ Str::startsWith($attachment['url'] ?? '', 'http') ? $attachment['url'] : Storage::url($attachment['url'] ?? '') }}"
+                                                target="_blank" class="attachment-item d-block">
                                                 <i class="ti ti-paperclip me-1"></i>
                                                 {{ $attachment['name'] ?? 'مرفق' }}
                                             </a>

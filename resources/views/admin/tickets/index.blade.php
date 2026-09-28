@@ -29,25 +29,10 @@
 @endsection
 
 @section('content')
-    <!-- Toggle Service -->
-    <div class="card mb-4">
-        <div class="card-body py-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h6 class="mb-0"><i class="ti ti-settings me-2"></i> حالة خدمة التذاكر</h6>
-                    <small class="text-muted">عند الإيقاف، لن يتمكن المستأجرون من إنشاء تذاكر جديدة</small>
-                </div>
-                <form action="{{ route('admin.tickets.toggleService') }}" method="POST" class="d-inline">
-                    @csrf
-                    <input type="hidden" name="tickets_enabled" value="{{ $ticketsEnabled ? '0' : '1' }}">
-                    <button type="submit" class="btn btn-sm {{ $ticketsEnabled ? 'btn-success' : 'btn-danger' }}">
-                        <i class="ti {{ $ticketsEnabled ? 'ti-toggle-right' : 'ti-toggle-left' }} me-1"></i>
-                        {{ $ticketsEnabled ? 'الخدمة مفعلة' : 'الخدمة معطلة' }}
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
+    <form id="toggle-service-form" action="{{ route('admin.tickets.toggleService') }}" method="POST" class="d-none">
+        @csrf
+        <input type="hidden" name="tickets_enabled" value="{{ $ticketsEnabled ? '0' : '1' }}">
+    </form>
 
     <div class="row g-4 mb-4">
         <!-- إجمالي التذاكر -->
