@@ -406,7 +406,7 @@ function updateMembersTable() {
                     <td class="text-center">
                         <button 
                             type="button" 
-                            class="btn btn-sm btn-icon btn-text-danger"
+                            class="btn btn-icon btn-label-primary"
                             onclick="removeMember(${member.id})"
                             data-bs-toggle="tooltip"
                             title="حذف"

@@ -150,10 +150,9 @@
                                     </td>
                                     <td>
                                         <a href="{{ tenant_route_name('activity-logs.download', basename($archive['path'])) }}" 
-                                           class="btn btn-sm btn-success"
+                                           class="btn btn-icon btn-label-primary"
                                            title="تحميل الملف">
-                                            <i class="ti ti-download me-1"></i>
-                                            تحميل
+                                            <i class="ti ti-download"></i>
                                         </a>
                                     </td>
                                 </tr>

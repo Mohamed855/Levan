@@ -15,11 +15,10 @@
             <input type="hidden" name="domain" value="{{ $row->domain }}">
             <input type="hidden" name="tenant_id" value="{{ tenant('id') }}">
 
-            <button type="submit" class="btn btn-sm {{ $row->is_active ? 'btn-success' : 'btn-primary' }}"
+            <button type="submit" class="btn btn-icon btn-label-primary"
                 title="{{ $row->is_active ? 'دومين مفعّل' : 'تفعيل الدومين' }}"
                 @if ($row->is_active) disabled @endif>
-                <i class="mx-1 fas fa-toggle-{{ $row->is_active ? 'on' : 'off' }}"></i>
-                {{ $row->is_active ? 'مفعّل' : 'تفعيل' }}
+                <i class="fas fa-toggle-{{ $row->is_active ? 'on' : 'off' }}"></i>
             </button>
         </form>
 
@@ -31,9 +30,8 @@
                 @csrf
                 <input type="hidden" name="domain_id" value="{{ $row->id }}">
                 <input type="hidden" name="domain_name" value="{{ $row->domain }}">
-                <button type="submit" class="btn btn-sm btn-primary" title="تجديد الدومين">
-                    <i class="fas fa-redo-alt mx-1"></i>
-                    تجديد
+                <button type="submit" class="btn btn-icon btn-label-primary" title="تجديد الدومين">
+                    <i class="fas fa-redo-alt"></i>
                 </button>
             </form>
         @endif

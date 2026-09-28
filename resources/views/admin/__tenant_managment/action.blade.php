@@ -1,19 +1,19 @@
 <div class="d-flex justify-content-center gap-2">
   {{-- إعادة إرسال الإيميل --}}
     <a href="{{ route('admin.tenantManage.resendEmail' , $row) }}"
-       class="btn btn-sm text-primary"
+       class="btn btn-icon btn-label-primary"
        title="إعادة إرسال الإيميل">
         <i class="ti ti-mail-forward"></i>
     </a>
 
     
-    <a href="{{ route($route . '.edit', $row) }}" class="btn btn-sm text-secondary" title="تعديل">
+    <a href="{{ route($route . '.edit', $row) }}" class="btn btn-icon btn-label-primary" title="تعديل">
         <i class="ti ti-edit"></i>
     </a>
 
   
 
-    <button type="button" class="btn btn-sm text-danger js-delete-btn" data-id="{{ $row->id }}" title="حذف">
+    <button type="button" class="btn btn-icon btn-label-primary js-delete-btn" data-id="{{ $row->id }}" title="حذف">
         <i class="ti ti-trash"></i>
     </button>
 

@@ -249,7 +249,7 @@ class ActivityLogController extends Controller
     {
         $showUrl = tenant_route_name('activity-logs.show', $activity->id);
 
-        return '<a href="' . $showUrl . '" title="عرض التفاصيل" class="text-secondary">
+        return '<a href="' . $showUrl . '" title="عرض التفاصيل" class="btn btn-icon btn-label-primary">
                 <i class="ti ti-logs"></i>
             </a>';
     }

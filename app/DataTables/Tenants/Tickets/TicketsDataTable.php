@@ -56,13 +56,14 @@ class TicketsDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'DT_RowIndex',   'name' => 'DT_RowIndex', 'title' => '#', 'orderable' => false, 'searchable' => false, 'width' => '50px'],
+            ['data' => 'DT_RowIndex',           'name' => 'DT_RowIndex', 'title' => '#', 'orderable' => false, 'searchable' => false, 'width' => '50px'],
 
             ['data' => 'ticket_number',         'title' => 'رقم التذكرة', 'className' => 'text-start'],
             ['data' => 'title',                 'title' => 'العنوان', 'className' => 'text-start'],
             ['data' => 'ticketing_sections_id', 'title' => 'التصنيف', 'className' => 'text-start'],
             ['data' => 'status',                'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'created_at',            'title' => 'تاريخ الإنشاء', 'className' => 'text-center'],
+            ['data' => 'actions',               'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'className' => 'text-center', 'width' => '100px'],
         ];
     }
 
@@ -72,7 +73,8 @@ class TicketsDataTable extends AbstractDataTable
             ->editColumn('ticket_number', function ($row) {
                 return $this->routeName(
                     tenant_route_name($this->route . '.show', $row->ticket_number),
-                    $row->ticket_number
+                    '#' . $row->ticket_number,
+                    'fw-bold text-primary'
                 );
             })
 
@@ -90,12 +92,19 @@ class TicketsDataTable extends AbstractDataTable
                 } catch (\Exception $e) {
                     return $row->created_at ?? '-';
                 }
+            })
+
+            ->addColumn('actions', function ($row) {
+                return view('tenants.tickets.action', [
+                    'row'   => $row,
+                    'route' => $this->route,
+                ])->render();
             });
     }
 
     protected function rawColumns(): array
     {
-        return ['ticket_number', 'status'];
+        return ['ticket_number', 'status', 'actions'];
     }
 
     protected function getSearchableColumns(): array

@@ -122,7 +122,10 @@
                         <small class="text-muted">التذكرة #{{ $ticket->ticket_number }} - {{ $ticket->title }}</small>
                     </h6>
 
-                    <div>
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="{{ tenant_route_name('tickets.index') }}" class="btn btn-sm btn-outline-secondary">
+                            <i class="ti ti-arrow-right me-1"></i> العودة
+                        </a>
                         {!! $status !!}
                         @if ($ticket->status === 'resolved_pending_survey')
                             <div class="my-1 text-center">

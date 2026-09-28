@@ -314,7 +314,7 @@ class MessageLogController extends Controller
         $actions = '';
 
         // زر العرض
-        $actions .= '<a href="' . tenant_route_name('communication.message-logs.show', $log->id) . '" title="عرض">
+        $actions .= '<a href="' . tenant_route_name('communication.message-logs.show', $log->id) . '" title="عرض" class="btn btn-icon btn-label-primary me-1">
                     <i class="ti ti-eye"></i>
                  </a>';
 
@@ -323,7 +323,7 @@ class MessageLogController extends Controller
         $deleteUrl = tenant_route_name('communication.message-logs.destroy', $log->id);
 
         $actions .= '
-        <button title="حذف الرسالة" type="button" onclick="confirmDelete(' . $log->id . ')" class="btn btn-sm btn-icon btn-text-secondary">
+        <button title="حذف الرسالة" type="button" onclick="confirmDelete(' . $log->id . ')" class="btn btn-icon btn-label-primary">
             <i class="ti ti-trash"></i>
         </button>
         <form id="' . $formId . '" action="' . $deleteUrl . '" method="POST" style="display: none;">

@@ -1,13 +1,13 @@
-<div class="d-flex justify-content-center">
+<div class="d-flex justify-content-center gap-2">
 
     {{-- @can('تعديل فرع') --}}
-        <a href="{{ tenant_route_name($route . '.edit', $row->id) }}" class="btn btn-sm text-secondary">
+        <a href="{{ tenant_route_name($route . '.edit', $row->id) }}" class="btn btn-icon btn-label-primary">
             <i class="ti ti-edit"></i>
         </a>
     {{-- @endcan --}}
 
     {{-- @can('حذف فرع') --}}
-        <button type="button" class="btn btn-sm text-secondary" onclick="confirmDelete({{ $row->id }})">
+        <button type="button" class="btn btn-icon btn-label-primary" onclick="confirmDelete({{ $row->id }})">
             <i class="ti ti-trash"></i>
         </button>
 

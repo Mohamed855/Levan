@@ -141,9 +141,8 @@
                         </td>
                         <td>
                             <a href="{{ tenant_route_name('communication.message-individual-logs.download', basename($archive['path'])) }}"
-                                class="btn btn-sm btn-success" title="تحميل الملف">
-                                <i class="ti ti-download me-1"></i>
-                                تحميل
+                                class="btn btn-icon btn-label-primary" title="تحميل الملف">
+                                <i class="ti ti-download"></i>
                             </a>
                         </td>
                     </tr>

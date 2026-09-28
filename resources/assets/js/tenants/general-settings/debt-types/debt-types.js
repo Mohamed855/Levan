@@ -47,10 +47,10 @@ $(document).ready(function () {
         order: [[3, 'desc']],
         dom: '<"dt-toolbar mb-3"' +
             '<"dt-toolbar-left"' +
+            'f' +
             'l' +
             '>' +
             '<"dt-toolbar-right"' +
-            'f' +
             'B' +
             '>' +
             '>' +

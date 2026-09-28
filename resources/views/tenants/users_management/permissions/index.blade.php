@@ -107,11 +107,11 @@
                                 <td>{{ $permission->name }}</td>
                                 <td>{{ $permission->created_at }}</td>
                                 <td>
-                                    <a href="#" class="btn btn-sm text-secondary" data-bs-toggle="modal"
+                                    <a href="#" class="btn btn-icon btn-label-primary me-1" data-bs-toggle="modal"
                                         data-bs-target="#editPermissionModal-{{ $permission->id }}">
                                         <i class="ti ti-edit"></i>
                                     </a>
-                                    <button type="button" class="btn btn-sm text-secondary"
+                                    <button type="button" class="btn btn-icon btn-label-primary"
                                         onclick="confirmDelete({{ $permission->id }})">
                                         <i class="ti ti-trash"></i>
                                     </button>

@@ -379,13 +379,13 @@ class MessageTemplateController extends Controller
         $formId = 'delete-form-' . $template->id;
 
         return '<div class="d-flex justify-content-center">
-                    <a title="عرض القالب" href="' . $showUrl . '" class="btn btn-sm btn-icon btn-text-secondary me-1">
+                    <a title="عرض القالب" href="' . $showUrl . '" class="btn btn-icon btn-label-primary me-1">
                         <i class="ti ti-eye"></i>
                     </a>
-                    <a title="تعديل القالب" href="' . $editUrl . '" class="btn btn-sm btn-icon btn-text-secondary me-1">
+                    <a title="تعديل القالب" href="' . $editUrl . '" class="btn btn-icon btn-label-primary me-1">
                         <i class="ti ti-edit"></i>
                     </a>
-                    <button title="حذف القالب" type="button" onclick="confirmDelete(' . $template->id . ')" class="btn btn-sm btn-icon btn-text-secondary">
+                    <button title="حذف القالب" type="button" onclick="confirmDelete(' . $template->id . ')" class="btn btn-icon btn-label-primary">
                         <i class="ti ti-trash"></i>
                     </button>
                     <form id="' . $formId . '" action="' . $deleteUrl . '" method="POST" style="display: none;">

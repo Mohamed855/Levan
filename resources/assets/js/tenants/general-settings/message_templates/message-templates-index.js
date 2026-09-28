@@ -119,8 +119,8 @@ function initializeDataTable() {
  */
 function getDom() {
   return '<"dt-toolbar mb-3"' +
-    '<"dt-toolbar-left d-flex flex-column flex-sm-row align-items-start align-items-sm-center" l >' +
-    '<"dt-toolbar-right d-flex flex-column flex-sm-row align-items-end align-items-sm-center justify-content-between" f B >' +
+    '<"dt-toolbar-left d-flex flex-column flex-sm-row align-items-start align-items-sm-center" f l >' +
+    '<"dt-toolbar-right d-flex flex-column flex-sm-row align-items-end align-items-sm-center justify-content-between" B >' +
     '>' +
     'rt' +
     '<"row mt-3"' +

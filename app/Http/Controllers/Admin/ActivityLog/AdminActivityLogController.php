@@ -159,7 +159,7 @@ class AdminActivityLogController extends Controller
     {
         $showUrl = route('admin.activity-logs.show', $activity->id);
 
-        return '<a href="' . $showUrl . '" title="عرض التفاصيل" class="text-secondary">
+        return '<a href="' . $showUrl . '" title="عرض التفاصيل" class="btn btn-icon btn-label-primary">
                 <i class="ti ti-logs"></i>
             </a>';
     }
