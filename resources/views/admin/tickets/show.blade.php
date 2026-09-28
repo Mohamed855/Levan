@@ -54,14 +54,17 @@
                 </div>
                 <div class="card-body pt-4">
                     <h6 class="fw-bold mb-2">{{ $ticket->title }}</h6>
-                    <div class="p-3 bg-lighter rounded mb-3 text-secondary" style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6;">{{ $ticket->description }}</div>
+                    <div class="p-3 bg-lighter rounded mb-3 text-secondary"
+                        style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6;">{{ $ticket->description }}
+                    </div>
 
                     @if (!empty($ticket->attachments) && count($ticket->attachments) > 0)
                         <div class="mt-3">
                             <h6 class="small text-muted mb-2"><i class="ti ti-paperclip me-1"></i> المرفقات:</h6>
                             <div class="d-flex flex-wrap gap-2">
                                 @foreach ($ticket->attachments as $file)
-                                    <a href="{{ Storage::url($file['url'] ?? $file) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                    <a href="{{ Storage::url($file['url'] ?? $file) }}" target="_blank"
+                                        class="btn btn-sm btn-outline-primary">
                                         <i class="ti ti-download me-1"></i> {{ $file['name'] ?? 'مرفق' }}
                                     </a>
                                 @endforeach
@@ -85,7 +88,8 @@
                                 $isAdmin = in_array($reply->sender_type, ['support_user', 'admin']);
                             @endphp
                             <div class="d-flex {{ $isAdmin ? 'justify-content-start' : 'justify-content-end' }} mb-4">
-                                <div class="card border {{ $isAdmin ? 'bg-primary-subtle border-primary' : 'bg-light border-secondary' }} shadow-none" style="max-width: 80%;">
+                                <div class="card border {{ $isAdmin ? 'bg-primary-subtle border-primary' : 'bg-light border-secondary' }} shadow-none"
+                                    style="max-width: 80%;">
                                     <div class="card-body p-3">
                                         <div class="d-flex justify-content-between align-items-center mb-2 gap-3">
                                             <div class="d-flex align-items-center gap-2">
@@ -97,12 +101,14 @@
                                                 {{ \Carbon\Carbon::parse($reply->created_at)->diffForHumans() }}
                                             </small>
                                         </div>
-                                        <div class="text-dark" style="white-space: pre-wrap; line-height: 1.5;">{{ $reply->message }}</div>
+                                        <div class="text-dark" style="white-space: pre-wrap; line-height: 1.5;">
+                                            {{ $reply->message }}</div>
 
                                         @if (!empty($reply->attachments) && count($reply->attachments) > 0)
                                             <div class="mt-2 pt-2 border-top">
                                                 @foreach ($reply->attachments as $att)
-                                                    <a href="{{ Storage::url($att['url'] ?? $att) }}" target="_blank" class="badge bg-label-info text-decoration-none me-1">
+                                                    <a href="{{ Storage::url($att['url'] ?? $att) }}" target="_blank"
+                                                        class="badge bg-label-info text-decoration-none me-1">
                                                         <i class="ti ti-paperclip me-1"></i> {{ $att['name'] ?? 'مرفق' }}
                                                     </a>
                                                 @endforeach
@@ -130,22 +136,54 @@
 
                     <!-- نموذج إضافة رد -->
                     <hr class="my-4">
-                    <form action="{{ route('admin.tickets.reply', $ticket->ticket_number) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('admin.tickets.reply', $ticket->ticket_number) }}" method="POST"
+                        enctype="multipart/form-data">
                         @csrf
                         <div class="mb-3">
                             <label class="form-label fw-bold" for="replyMessage">إضافة رد على التذكرة:</label>
-                            <textarea class="form-control" id="replyMessage" name="message" rows="4" placeholder="اكتب رد الدعم الفني هنا..." required>{{ old('message') }}</textarea>
+                            <div class="position-relative border rounded @error('message') border-danger @enderror"
+                                style="background-color: var(--bs-paper-bg, var(--bs-card-bg, #fff));">
+                                <textarea class="form-control border-0 shadow-none" id="replyMessage" name="message" rows="4"
+                                    placeholder="اكتب رد الدعم الفني هنا..."
+                                    style="resize: vertical; min-height: 140px; margin-bottom: 48px; background: transparent;" required>{{ old('message') }}</textarea>
+
+                                {{-- شريط المرفقات المدمج داخل الـ textarea --}}
+                                <div class="position-absolute bottom-0 start-0 end-0 px-3 py-2 border-top d-flex justify-content-between align-items-center rounded-bottom"
+                                    dir="rtl"
+                                    style="z-index: 5; height: 48px; background-color: var(--bs-paper-bg, var(--bs-card-bg, #fff));">
+                                    {{-- النص ع اليمين --}}
+                                    <div id="attachment-status-container" class="d-flex align-items-center">
+                                        <span id="attachment-status-text"
+                                            class="badge bg-label-primary small d-none align-items-center">
+                                            <i class="ti ti-paperclip me-1"></i> <span id="attachment-count-label"></span>
+                                            <i class="ti ti-x ms-2 cursor-pointer" id="btn-clear-attachments"
+                                                title="إلغاء المرفقات"></i>
+                                        </span>
+                                    </div>
+
+                                    {{-- الـ icon ع الشمال --}}
+                                    <div class="d-flex align-items-center">
+                                        <input type="file" id="attachments" name="attachments[]" multiple class="d-none"
+                                            accept="image/*,application/pdf,.doc,.docx">
+                                        <button type="button" id="btn-trigger-attachments"
+                                            class="btn btn-icon mb-0 cursor-pointer" title="إرفاق ملفات">
+                                            <i class="ti ti-paperclip fs-5"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            @error('message')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                            @error('attachments.*')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
-                        <div class="row align-items-center">
-                            <div class="col-md-8 mb-2 mb-md-0">
-                                <label class="form-label small text-muted mb-1" for="attachments">مرفقات (اختياري):</label>
-                                <input type="file" class="form-control form-control-sm" id="attachments" name="attachments[]" multiple accept="image/*,application/pdf,.doc,.docx">
-                            </div>
-                            <div class="col-md-4 text-md-end">
-                                <button type="submit" class="btn btn-primary mt-3 mt-md-0">
-                                    <i class="ti ti-send me-1"></i> إرسال الرد
-                                </button>
-                            </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="ti ti-send me-1"></i> إرسال الرد
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -163,12 +201,19 @@
                         <div class="mb-3">
                             <label class="form-label small">الحالة الحالية:</label>
                             <select name="status" class="form-select">
-                                <option value="open" {{ $ticket->status === 'open' ? 'selected' : '' }}>جديدة (Open)</option>
-                                <option value="in_progress" {{ $ticket->status === 'in_progress' ? 'selected' : '' }}>قيد المعالجة (In Progress)</option>
-                                <option value="resolved_pending_survey" {{ $ticket->status === 'resolved_pending_survey' ? 'selected' : '' }}>تم الحل وفي انتظار التقييم</option>
-                                <option value="resolved" {{ $ticket->status === 'resolved' ? 'selected' : '' }}>تم المعالجة والحل (Resolved)</option>
-                                <option value="reopened" {{ $ticket->status === 'reopened' ? 'selected' : '' }}>معادة (Reopened)</option>
-                                <option value="closed" {{ $ticket->status === 'closed' ? 'selected' : '' }}>مغلقة (Closed)</option>
+                                <option value="open" {{ $ticket->status === 'open' ? 'selected' : '' }}>جديدة (Open)
+                                </option>
+                                <option value="in_progress" {{ $ticket->status === 'in_progress' ? 'selected' : '' }}>قيد
+                                    المعالجة (In Progress)</option>
+                                <option value="resolved_pending_survey"
+                                    {{ $ticket->status === 'resolved_pending_survey' ? 'selected' : '' }}>تم الحل وفي
+                                    انتظار التقييم</option>
+                                <option value="resolved" {{ $ticket->status === 'resolved' ? 'selected' : '' }}>تم
+                                    المعالجة والحل (Resolved)</option>
+                                <option value="reopened" {{ $ticket->status === 'reopened' ? 'selected' : '' }}>معادة
+                                    (Reopened)</option>
+                                <option value="closed" {{ $ticket->status === 'closed' ? 'selected' : '' }}>مغلقة (Closed)
+                                </option>
                             </select>
                         </div>
                         <button type="submit" class="btn btn-outline-warning w-100">
@@ -220,12 +265,16 @@
                 $allAttachments = [];
                 if (!empty($ticket->attachments) && is_iterable($ticket->attachments)) {
                     foreach ($ticket->attachments as $att) {
-                        $url = is_array($att) ? ($att['url'] ?? '') : (is_object($att) ? ($att->url ?? '') : (string)$att);
-                        $name = is_array($att) ? ($att['name'] ?? 'مرفق التذكرة') : (is_object($att) ? ($att->name ?? 'مرفق التذكرة') : 'مرفق التذكرة');
+                        $url = is_array($att) ? $att['url'] ?? '' : (is_object($att) ? $att->url ?? '' : (string) $att);
+                        $name = is_array($att)
+                            ? $att['name'] ?? 'مرفق التذكرة'
+                            : (is_object($att)
+                                ? $att->name ?? 'مرفق التذكرة'
+                                : 'مرفق التذكرة');
                         $fullUrl = Str::startsWith($url, 'http') ? $url : Storage::url($url);
                         $allAttachments[] = [
-                            'name'   => $name,
-                            'url'    => $fullUrl,
+                            'name' => $name,
+                            'url' => $fullUrl,
                             'source' => 'التذكرة الأصلية',
                         ];
                     }
@@ -233,17 +282,25 @@
                 $repliesCollection = $replies['data'] ?? (is_iterable($replies) ? $replies : []);
                 if (!empty($repliesCollection) && is_iterable($repliesCollection)) {
                     foreach ($repliesCollection as $reply) {
-                        $replyAtts = is_array($reply) ? ($reply['attachments'] ?? []) : ($reply->attachments ?? []);
-                        $sender = is_array($reply) ? ($reply['sender_type'] ?? '') : ($reply->sender_type ?? '');
+                        $replyAtts = is_array($reply) ? $reply['attachments'] ?? [] : $reply->attachments ?? [];
+                        $sender = is_array($reply) ? $reply['sender_type'] ?? '' : $reply->sender_type ?? '';
                         $sourceLabel = in_array($sender, ['support_user', 'admin']) ? 'رد الدعم الفني' : 'رد المستأجر';
                         if (!empty($replyAtts) && is_iterable($replyAtts)) {
                             foreach ($replyAtts as $att) {
-                                $url = is_array($att) ? ($att['url'] ?? '') : (is_object($att) ? ($att->url ?? '') : (string)$att);
-                                $name = is_array($att) ? ($att['name'] ?? 'مرفق رد') : (is_object($att) ? ($att->name ?? 'مرفق رد') : 'مرفق رد');
+                                $url = is_array($att)
+                                    ? $att['url'] ?? ''
+                                    : (is_object($att)
+                                        ? $att->url ?? ''
+                                        : (string) $att);
+                                $name = is_array($att)
+                                    ? $att['name'] ?? 'مرفق رد'
+                                    : (is_object($att)
+                                        ? $att->name ?? 'مرفق رد'
+                                        : 'مرفق رد');
                                 $fullUrl = Str::startsWith($url, 'http') ? $url : Storage::url($url);
                                 $allAttachments[] = [
-                                    'name'   => $name,
-                                    'url'    => $fullUrl,
+                                    'name' => $name,
+                                    'url' => $fullUrl,
                                     'source' => $sourceLabel,
                                 ];
                             }
@@ -272,7 +329,8 @@
                                         <i class="ti ti-paperclip text-primary me-2"></i>
                                         <div class="d-flex flex-column text-truncate">
                                             <span class="small fw-semibold text-truncate">{{ $attachment['name'] }}</span>
-                                            <small class="text-muted" style="font-size: 0.75rem;">{{ $attachment['source'] }}</small>
+                                            <small class="text-muted"
+                                                style="font-size: 0.75rem;">{{ $attachment['source'] }}</small>
                                         </div>
                                     </div>
                                     <i class="ti ti-download text-muted"></i>
@@ -295,8 +353,9 @@
                     <div class="card-body pt-3">
                         <div class="mb-2">
                             <strong>هل تم حل المشكلة؟:</strong>
-                            <span class="badge {{ ($ticket->survey_result['solved'] ?? false) ? 'bg-success' : 'bg-danger' }}">
-                                {{ ($ticket->survey_result['solved'] ?? false) ? 'نعم' : 'لا' }}
+                            <span
+                                class="badge {{ $ticket->survey_result['solved'] ?? false ? 'bg-success' : 'bg-danger' }}">
+                                {{ $ticket->survey_result['solved'] ?? false ? 'نعم' : 'لا' }}
                             </span>
                         </div>
                         @if (isset($ticket->survey_result['agent_rating']))
@@ -327,4 +386,47 @@
             @endif
         </div>
     </div>
+@endsection
+
+@section('page-script')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var fileInput = document.getElementById('attachments');
+            var triggerBtn = document.getElementById('btn-trigger-attachments');
+            var statusText = document.getElementById('attachment-status-text');
+            var countLabel = document.getElementById('attachment-count-label');
+            var clearBtn = document.getElementById('btn-clear-attachments');
+
+            if (triggerBtn && fileInput) {
+                triggerBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    fileInput.click();
+                });
+            }
+
+            if (fileInput) {
+                fileInput.addEventListener('change', function() {
+                    var count = this.files ? this.files.length : 0;
+                    if (count > 0) {
+                        countLabel.textContent = 'تم إرفاق ' + count + ' ملف';
+                        statusText.classList.remove('d-none');
+                        statusText.classList.add('d-inline-flex');
+                    } else {
+                        countLabel.textContent = '';
+                        statusText.classList.add('d-none');
+                        statusText.classList.remove('d-inline-flex');
+                    }
+                });
+            }
+
+            if (clearBtn && fileInput) {
+                clearBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    fileInput.value = '';
+                    fileInput.dispatchEvent(new Event('change'));
+                });
+            }
+        });
+    </script>
 @endsection

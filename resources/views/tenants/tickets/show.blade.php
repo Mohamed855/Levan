@@ -284,30 +284,50 @@
                             @csrf
                             <div class="mb-3">
                                 <label class="form-label fw-bold" for="replyMessage">إضافة رد على التذكرة:</label>
-                                <textarea class="form-control @error('message') is-invalid @enderror" id="replyMessage" name="message"
-                                    rows="4" placeholder="اكتب ردك هنا..." required>{{ old('message') }}</textarea>
+                                <div class="position-relative border rounded @error('message') border-danger @enderror"
+                                    style="background-color: var(--bs-paper-bg, var(--bs-card-bg, #fff));">
+                                    <textarea class="form-control border-0 shadow-none" id="replyMessage" name="message" rows="4"
+                                        placeholder="اكتب ردك هنا..."
+                                        style="resize: vertical; min-height: 140px; margin-bottom: 48px; background: transparent;" required>{{ old('message') }}</textarea>
+
+                                    {{-- شريط المرفقات المدمج داخل الـ textarea --}}
+                                    <div class="position-absolute bottom-0 start-0 end-0 px-3 py-2 border-top d-flex justify-content-between align-items-center rounded-bottom"
+                                        dir="rtl"
+                                        style="z-index: 5; height: 48px; background-color: var(--bs-paper-bg, var(--bs-card-bg, #fff));">
+                                        {{-- النص ع اليمين --}}
+                                        <div id="attachment-status-container" class="d-flex align-items-center">
+                                            <span id="attachment-status-text"
+                                                class="badge bg-label-primary small d-none align-items-center">
+                                                <i class="ti ti-paperclip me-1"></i> <span
+                                                    id="attachment-count-label"></span>
+                                                <i class="ti ti-x ms-2 cursor-pointer" id="btn-clear-attachments"
+                                                    title="إلغاء المرفقات"></i>
+                                            </span>
+                                        </div>
+
+                                        {{-- الـ icon ع الشمال --}}
+                                        <div class="d-flex align-items-center">
+                                            <input type="file" id="attachments" name="attachments[]" multiple
+                                                class="d-none" accept="image/*,application/pdf,.doc,.docx">
+                                            <button type="button" id="btn-trigger-attachments"
+                                                class="btn btn-icon mb-0 cursor-pointer" title="إرفاق ملفات">
+                                                <i class="ti ti-paperclip fs-5"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                                 @error('message')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                                @error('attachments.*')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
-                            <div class="row align-items-center">
-                                <div class="col-md-8 mb-2 mb-md-0">
-                                    <label class="form-label small text-muted mb-1" for="attachments">مرفقات
-                                        (اختياري):</label>
-                                    <input type="file"
-                                        class="form-control form-control-sm @error('attachments.*') is-invalid @enderror"
-                                        id="attachments" name="attachments[]" multiple
-                                        accept="image/*,application/pdf,.doc,.docx">
-                                    <small class="text-muted d-block mt-1">يمكنك إرفاق صور أو ملفات PDF أو Word</small>
-                                    @error('attachments.*')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-4 text-md-end">
-                                    <button type="submit" class="btn btn-primary mt-3 mt-md-0">
-                                        <i class="ti ti-send me-1"></i> إرسال الرد
-                                    </button>
-                                </div>
+
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="ti ti-send me-1"></i> إرسال الرد
+                                </button>
                             </div>
                         </form>
                     @else
@@ -404,12 +424,16 @@
                 $allAttachments = [];
                 if (!empty($ticket->attachments) && is_iterable($ticket->attachments)) {
                     foreach ($ticket->attachments as $att) {
-                        $url = is_array($att) ? ($att['url'] ?? '') : (is_object($att) ? ($att->url ?? '') : (string)$att);
-                        $name = is_array($att) ? ($att['name'] ?? 'مرفق التذكرة') : (is_object($att) ? ($att->name ?? 'مرفق التذكرة') : 'مرفق التذكرة');
+                        $url = is_array($att) ? $att['url'] ?? '' : (is_object($att) ? $att->url ?? '' : (string) $att);
+                        $name = is_array($att)
+                            ? $att['name'] ?? 'مرفق التذكرة'
+                            : (is_object($att)
+                                ? $att->name ?? 'مرفق التذكرة'
+                                : 'مرفق التذكرة');
                         $fullUrl = Str::startsWith($url, 'http') ? $url : Storage::url($url);
                         $allAttachments[] = [
-                            'name'   => $name,
-                            'url'    => $fullUrl,
+                            'name' => $name,
+                            'url' => $fullUrl,
                             'source' => 'التذكرة الأصلية',
                         ];
                     }
@@ -417,17 +441,25 @@
                 $repliesCollection = $replies['data'] ?? (is_iterable($replies) ? $replies : []);
                 if (!empty($repliesCollection) && is_iterable($repliesCollection)) {
                     foreach ($repliesCollection as $reply) {
-                        $replyAtts = is_array($reply) ? ($reply['attachments'] ?? []) : ($reply->attachments ?? []);
-                        $sender = is_array($reply) ? ($reply['sender_type'] ?? '') : ($reply->sender_type ?? '');
+                        $replyAtts = is_array($reply) ? $reply['attachments'] ?? [] : $reply->attachments ?? [];
+                        $sender = is_array($reply) ? $reply['sender_type'] ?? '' : $reply->sender_type ?? '';
                         $sourceLabel = $sender === 'tenant_user' ? 'ردك' : 'رد الدعم الفني';
                         if (!empty($replyAtts) && is_iterable($replyAtts)) {
                             foreach ($replyAtts as $att) {
-                                $url = is_array($att) ? ($att['url'] ?? '') : (is_object($att) ? ($att->url ?? '') : (string)$att);
-                                $name = is_array($att) ? ($att['name'] ?? 'مرفق رد') : (is_object($att) ? ($att->name ?? 'مرفق رد') : 'مرفق رد');
+                                $url = is_array($att)
+                                    ? $att['url'] ?? ''
+                                    : (is_object($att)
+                                        ? $att->url ?? ''
+                                        : (string) $att);
+                                $name = is_array($att)
+                                    ? $att['name'] ?? 'مرفق رد'
+                                    : (is_object($att)
+                                        ? $att->name ?? 'مرفق رد'
+                                        : 'مرفق رد');
                                 $fullUrl = Str::startsWith($url, 'http') ? $url : Storage::url($url);
                                 $allAttachments[] = [
-                                    'name'   => $name,
-                                    'url'    => $fullUrl,
+                                    'name' => $name,
+                                    'url' => $fullUrl,
                                     'source' => $sourceLabel,
                                 ];
                             }
@@ -456,7 +488,8 @@
                                         <i class="ti ti-paperclip text-warning me-2"></i>
                                         <div class="d-flex flex-column text-truncate">
                                             <span class="small fw-semibold text-truncate">{{ $attachment['name'] }}</span>
-                                            <small class="text-muted" style="font-size: 0.75rem;">{{ $attachment['source'] }}</small>
+                                            <small class="text-muted"
+                                                style="font-size: 0.75rem;">{{ $attachment['source'] }}</small>
                                         </div>
                                     </div>
                                     <i class="ti ti-download text-muted"></i>
@@ -513,4 +546,47 @@
             @endif
         </div>
     </div>
+@endsection
+
+@section('page-script')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var fileInput = document.getElementById('attachments');
+            var triggerBtn = document.getElementById('btn-trigger-attachments');
+            var statusText = document.getElementById('attachment-status-text');
+            var countLabel = document.getElementById('attachment-count-label');
+            var clearBtn = document.getElementById('btn-clear-attachments');
+
+            if (triggerBtn && fileInput) {
+                triggerBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    fileInput.click();
+                });
+            }
+
+            if (fileInput) {
+                fileInput.addEventListener('change', function() {
+                    var count = this.files ? this.files.length : 0;
+                    if (count > 0) {
+                        countLabel.textContent = 'تم إرفاق ' + count + ' ملف';
+                        statusText.classList.remove('d-none');
+                        statusText.classList.add('d-inline-flex');
+                    } else {
+                        countLabel.textContent = '';
+                        statusText.classList.add('d-none');
+                        statusText.classList.remove('d-inline-flex');
+                    }
+                });
+            }
+
+            if (clearBtn && fileInput) {
+                clearBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    fileInput.value = '';
+                    fileInput.dispatchEvent(new Event('change'));
+                });
+            }
+        });
+    </script>
 @endsection
