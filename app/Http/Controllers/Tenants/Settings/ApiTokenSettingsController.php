@@ -9,7 +9,7 @@ class ApiTokenSettingsController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('can:إعدادات النظام');
+        $this->middleware('can:system.settings');
     }
 
     /*

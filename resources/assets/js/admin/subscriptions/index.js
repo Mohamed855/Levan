@@ -1,5 +1,7 @@
-
 'use strict';
+
+let currentAction = null;
+let currentTargetIds = [];
 
 $(document).ready(function () {
     initializeComponents();
@@ -8,6 +10,8 @@ $(document).ready(function () {
     $('#subscriptions-table').on('init.dt', function () {
         bindTableEvents();
     });
+
+    initConfirmModalEvents();
 });
 
 function initializeComponents() {
@@ -41,6 +45,21 @@ function bindTableEvents() {
     tableWrapper.on('change', '.row-checkbox', function () {
         if (!this.checked) {
             $('#select-all').prop('checked', false);
+        } else {
+            const allChecked = $('.row-checkbox:checked', table.rows({ search: 'applied' }).nodes()).length ===
+                               $('.row-checkbox', table.rows({ search: 'applied' }).nodes()).length;
+            $('#select-all').prop('checked', allChecked);
+        }
+    });
+
+    $('#subscriptions-table').on('draw.dt', function () {
+        $('#select-all').prop('checked', false);
+        // Initialize tooltips if bootstrap tooltips are available
+        if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
         }
     });
 }
@@ -52,85 +71,175 @@ function handleMassDelete() {
     });
 
     if (selectedIds.length === 0) {
-        toastr.warning('يرجى تحديد مستخدم واحد على الأقل');
+        toastr.warning('يرجى تحديد اشتراك واحد على الأقل');
         return;
     }
 
-    confirmDeleteSelectedmss(selectedIds, window.routes.massDelete, 'Subscription');
+    if (typeof confirmDeleteSelectedmss === 'function') {
+        confirmDeleteSelectedmss(selectedIds, window.routes.massDelete, 'Subscription');
+    }
 }
 
-// function toggleStatus(userId) {
-//     // التحقق من وجود userId
-//     if (!userId) {
-//         toastr.error('معرف المستخدم غير صحيح');
-//         return;
-//     }
+function handleMassAccept() {
+    const selectedIds = [];
+    $('.row-checkbox:checked').each(function () {
+        selectedIds.push($(this).val());
+    });
 
-//     // التحقق من وجود CSRF token
-//     const csrfToken = $('meta[name="csrf-token"]').attr('content') || window.csrfToken;
+    if (selectedIds.length === 0) {
+        toastr.warning('يرجى تحديد اشتراك واحد على الأقل للقبول');
+        return;
+    }
 
-//     if (!csrfToken) {
-//         toastr.error('رمز الأمان مفقود');
-//         return;
-//     }
+    openConfirmModal('mass-accept', selectedIds);
+}
 
-//     // إظهار مؤشر التحميل (اختياري)
-//     const $button = $(`[onclick="toggleStatus(${userId})"]`);
-//     const originalHtml = $button.html();
-//     $button.prop('disabled', true).html('<i class="ti ti-loader ti-spin"></i>');
+function handleMassReject() {
+    const selectedIds = [];
+    $('.row-checkbox:checked').each(function () {
+        selectedIds.push($(this).val());
+    });
 
-//     $.ajax({
-//         url: window.routes.toggleStatus.replace(':id', userId),
-//         type: 'PATCH',
-//         headers: {
-//             'X-CSRF-TOKEN': csrfToken
-//         },
-//         data: {
-//             _token: csrfToken
-//         },
-//         success: function (response) {
-//             if (response.success) {
-//                 // إعادة تحميل الجدول مع الحفاظ على الصفحة الحالية
-//                 $('#subscriptions-table').DataTable().ajax.reload(null, false);
-//                 toastr.success(response.message || 'تم تغيير الحالة بنجاح');
-//             } else {
-//                 toastr.error(response.message || 'حدث خطأ ما');
-//             }
-//         },
-//         error: function (xhr, status, error) {
-//             console.error('Toggle Status Error:', {
-//                 status: xhr.status,
-//                 statusText: xhr.statusText,
-//                 response: xhr.responseText,
-//                 error: error
-//             });
+    if (selectedIds.length === 0) {
+        toastr.warning('يرجى تحديد اشتراك واحد على الأقل للرفض');
+        return;
+    }
 
-//             let errorMessage = 'حدث خطأ أثناء الاتصال بالخادم';
+    openConfirmModal('mass-reject', selectedIds);
+}
 
-//             // معالجة الأخطاء المختلفة
-//             if (xhr.status === 403) {
-//                 errorMessage = 'ليس لديك صلاحية لتنفيذ هذا الإجراء';
-//             } else if (xhr.status === 404) {
-//                 errorMessage = 'المستخدم غير موجود';
-//             } else if (xhr.status === 419) {
-//                 errorMessage = 'انتهت صلاحية الجلسة، يرجى تحديث الصفحة';
-//             } else if (xhr.status === 422) {
-//                 errorMessage = 'بيانات غير صالحة';
-//             } else if (xhr.responseJSON && xhr.responseJSON.message) {
-//                 errorMessage = xhr.responseJSON.message;
-//             }
+function openConfirmModal(action, ids, name = '') {
+    currentAction = action;
+    currentTargetIds = Array.isArray(ids) ? ids : [ids];
 
-//             toastr.error(errorMessage);
-//         },
-//         complete: function () {
-//             // إعادة الزر لحالته الأصلية
-//             if ($button.length) {
-//                 $button.prop('disabled', false).html(originalHtml);
-//             }
-//         }
-//     });
-// }
+    const $modal = $('#subscriptionConfirmModal');
+    const $title = $('#subscriptionConfirmModalTitle');
+    const $heading = $('#subscriptionConfirmModalHeading');
+    const $message = $('#subscriptionConfirmModalMessage');
+    const $iconContainer = $('#subscriptionConfirmModalIcon');
+    const $submitBtn = $('#subscriptionConfirmModalSubmitBtn');
+    const $rejectReasonContainer = $('#subscriptionRejectReasonContainer');
+    const $rejectReason = $('#subscription_reject_reason');
+    const $rejectError = $('#subscription_reject_reason_error');
+
+    // إعادة تعيين الحقول
+    $rejectReason.val('');
+    $rejectError.addClass('d-none').text('');
+    $rejectReasonContainer.addClass('d-none');
+
+    // إعادة تعيين فئات الأزرار والأيقونات
+    $submitBtn.removeClass('btn-success btn-danger btn-primary');
+    $iconContainer.removeClass('bg-label-success bg-label-danger bg-label-warning');
+
+    if (action === 'accept') {
+        $title.text('تأكيد قبول طلب الاشتراك');
+        $heading.text('تأكيد قبول الاشتراك');
+        const displayName = name ? `<strong class="text-heading">${name}</strong>` : 'هذا الاشتراك';
+        $message.html(`هل أنت متأكد من رغبتك في قبول طلب الاشتراك الخاص بـ ${displayName}؟`);
+        $iconContainer.addClass('bg-label-success').html('<i class="ti ti-check ti-lg"></i>');
+        $submitBtn.addClass('btn-success').text('تأكيد القبول');
+    } else if (action === 'reject') {
+        $title.text('تأكيد رفض طلب الاشتراك');
+        $heading.text('تأكيد رفض الاشتراك');
+        const displayName = name ? `<strong class="text-heading">${name}</strong>` : 'هذا الاشتراك';
+        $message.html(`هل أنت متأكد من رغبتك في رفض طلب الاشتراك الخاص بـ ${displayName}؟`);
+        $iconContainer.addClass('bg-label-danger').html('<i class="ti ti-x ti-lg"></i>');
+        $rejectReasonContainer.removeClass('d-none');
+        $submitBtn.addClass('btn-danger').text('تأكيد الرفض');
+    } else if (action === 'mass-accept') {
+        $title.text('تأكيد قبول الاشتراكات المحددة');
+        $heading.text(`تأكيد قبول ${currentTargetIds.length} طلب اشتراك`);
+        $message.html(`هل أنت متأكد من رغبتك في قبول <strong class="text-heading">${currentTargetIds.length}</strong> من طلبات الاشتراك المحددة؟`);
+        $iconContainer.addClass('bg-label-success').html('<i class="ti ti-check ti-lg"></i>');
+        $submitBtn.addClass('btn-success').text('تأكيد القبول');
+    } else if (action === 'mass-reject') {
+        $title.text('تأكيد رفض الاشتراكات المحددة');
+        $heading.text(`تأكيد رفض ${currentTargetIds.length} طلب اشتراك`);
+        $message.html(`هل أنت متأكد من رغبتك في رفض <strong class="text-heading">${currentTargetIds.length}</strong> من طلبات الاشتراك المحددة؟`);
+        $iconContainer.addClass('bg-label-danger').html('<i class="ti ti-x ti-lg"></i>');
+        $rejectReasonContainer.removeClass('d-none');
+        $submitBtn.addClass('btn-danger').text('تأكيد الرفض');
+    }
+
+    $modal.modal('show');
+}
+
+function initConfirmModalEvents() {
+    $('#subscriptionConfirmModalSubmitBtn').on('click', function () {
+        const $btn = $(this);
+        const rejectReason = $('#subscription_reject_reason').val().trim();
+
+        let url = '';
+        const csrfToken = $('meta[name="csrf-token"]').attr('content');
+        let payload = {
+            _token: csrfToken
+        };
+
+        if (currentAction === 'accept') {
+            if (!window.routes?.acceptSubscription) return;
+            url = window.routes.acceptSubscription.replace(':id', currentTargetIds[0]);
+        } else if (currentAction === 'reject') {
+            if (!window.routes?.rejectSubscription) return;
+            url = window.routes.rejectSubscription.replace(':id', currentTargetIds[0]);
+            payload.reject_reason = rejectReason;
+        } else if (currentAction === 'mass-accept') {
+            if (!window.routes?.massAccept) return;
+            url = window.routes.massAccept;
+            payload.ids = currentTargetIds;
+        } else if (currentAction === 'mass-reject') {
+            if (!window.routes?.massReject) return;
+            url = window.routes.massReject;
+            payload.ids = currentTargetIds;
+            payload.reject_reason = rejectReason;
+        }
+
+        if (!url) {
+            toastr.error('مسار العملية غير معرف');
+            return;
+        }
+
+        const originalBtnText = $btn.html();
+        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> جاري التنفيذ...');
+
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: payload,
+            dataType: 'json',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken
+            },
+            success: function (response) {
+                $('#subscriptionConfirmModal').modal('hide');
+                if (response.success) {
+                    toastr.success(response.message || 'تم تنفيذ العملية بنجاح');
+                    if ($.fn.DataTable.isDataTable('#subscriptions-table')) {
+                        $('#subscriptions-table').DataTable().ajax.reload(null, false);
+                    }
+                    $('#select-all').prop('checked', false);
+                } else {
+                    toastr.error(response.message || 'حدث خطأ ما');
+                }
+            },
+            error: function (xhr) {
+                let errorMessage = 'حدث خطأ أثناء الاتصال بالخادم';
+                if (xhr.status === 422 && xhr.responseJSON?.errors) {
+                    const firstError = Object.values(xhr.responseJSON.errors)[0];
+                    errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+                } else if (xhr.responseJSON?.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+                toastr.error(errorMessage);
+            },
+            complete: function () {
+                $btn.prop('disabled', false).html(originalBtnText);
+            }
+        });
+    });
+}
 
 // تصدير الدوال للاستخدام العام
-// window.toggleStatus = toggleStatus;
 window.handleMassDelete = handleMassDelete;
+window.handleMassAccept = handleMassAccept;
+window.handleMassReject = handleMassReject;
+window.openConfirmModal = openConfirmModal;

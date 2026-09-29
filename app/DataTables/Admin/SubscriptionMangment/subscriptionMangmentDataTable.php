@@ -135,7 +135,11 @@ class subscriptionMangmentDataTable extends AbstractDataTable
 
         if (!$this->isExpiringRoute()) {
             $datatable->addColumn('actions', function ($row) {
-                return view($this->page . '.action', ['row' => $row, 'route' => $this->route])->render();
+                return view($this->page . '.action', [
+                    'row'       => $row,
+                    'route'     => $this->route,
+                    'isPending' => $this->isPendingRoute(),
+                ])->render();
             });
         }
     }
@@ -163,11 +167,10 @@ class subscriptionMangmentDataTable extends AbstractDataTable
                         ->where('period_end', '<=', now()->addDays(30))
                         ->where('period_end', '>=', now()->startOfDay());
                 });
-        }
-
-        if ($request->filled('status')) {
+        } elseif ($request->filled('status')) {
             $query->where('status', $request->status);
         }
+
         return $query;
     }
 
@@ -201,7 +204,7 @@ class subscriptionMangmentDataTable extends AbstractDataTable
             $this->getActionsDropdownButton(),
         ];
 
-        if (!$this->isExpiringRoute()) {
+        if (!$this->isExpiringRoute() && !$this->isPendingRoute()) {
             $buttons[] = $this->getAddButton();
         }
 
@@ -217,13 +220,26 @@ class subscriptionMangmentDataTable extends AbstractDataTable
             ]],
         ];
 
-        // if (auth()->user()?->can('حذف إصدارة')) {
-        $buttons[] = [
-            'text'      => 'حذف المحدد',
-            'className' => 'btn btn-default btn-delete-selected',
-            'action'    => "function() { handleMassDelete(); }",
-        ];
-        // }
+        if ($this->isPendingRoute()) {
+            $buttons[] = [
+                'text'      => 'قبول المحدد',
+                'className' => 'btn btn-default btn-accept-selected',
+                'action'    => "function() { handleMassAccept(); }",
+            ];
+            $buttons[] = [
+                'text'      => 'رفض المحدد',
+                'className' => 'btn btn-default btn-reject-selected',
+                'action'    => "function() { handleMassReject(); }",
+            ];
+        } else {
+            // if (auth()->user()?->can('حذف إصدارة')) {
+            $buttons[] = [
+                'text'      => 'حذف المحدد',
+                'className' => 'btn btn-default btn-delete-selected',
+                'action'    => "function() { handleMassDelete(); }",
+            ];
+            // }
+        }
 
         return [
             'extend'    => 'collection',

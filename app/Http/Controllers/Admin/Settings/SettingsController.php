@@ -16,7 +16,7 @@ class SettingsController extends Controller
 
     public function __construct(private MicrosoftConnectionTester $msTester)
     {
-        $this->middleware('can:إعدادات النظام')->only(['index', 'update']);
+        $this->middleware('can:system.settings')->only(['index', 'update']);
     }
 
 

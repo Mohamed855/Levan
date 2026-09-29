@@ -11,7 +11,7 @@ class SettingsPaymentMethodController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('can:طرق التحصيل')->only([
+        $this->middleware('can:payment_methods.view')->only([
             'index',
             'edit',
             'store',

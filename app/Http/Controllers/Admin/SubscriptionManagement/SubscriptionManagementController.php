@@ -3,13 +3,16 @@
 namespace App\Http\Controllers\Admin\SubscriptionManagement;
 
 use App\DataTables\Admin\SubscriptionMangment\subscriptionMangmentDataTable;
+use App\Enums\Admin\Billing\BillStatus;
+use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\SubscriptionManagement\StoreSubscriptionRequest;
+use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Tenants\Tenant;
-use App\Models\Admin\Tenants\User;
+use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Admin\SubscriptionManagement\SubscriptionManagementService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -195,6 +198,213 @@ class SubscriptionManagementController extends Controller
                 ->back()
                 ->withInput()
                 ->with('error', 'حدث خطأ أثناء تحديث الاشتراك: ' . $e->getMessage());
+        }
+    }
+
+    public function accept(Subscription $subscription)
+    {
+        try {
+            DB::beginTransaction();
+
+            $subscription->update([
+                'status' => SubscriptionStatus::ACTIVE,
+            ]);
+
+            $subscription->periods()->update([
+                'status' => SubscriptionPeriodStatus::ACTIVE,
+            ]);
+
+            Bill::where('subscription_id', $subscription->id)
+                ->whereIn('status', [BillStatus::PENDING, BillStatus::PENDING_VERIFICATION, BillStatus::UNPAID])
+                ->update([
+                    'status'      => BillStatus::PAID,
+                    'paid_at'     => now(),
+                    'verified_by' => auth()->id(),
+                    'verified_at' => now(),
+                ]);
+
+            DB::commit();
+
+            cache()->forget('admin:pending_subscriptions_count');
+
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'تم قبول طلب الاشتراك بنجاح',
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'تم قبول طلب الاشتراك بنجاح');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            report($e);
+
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'حدث خطأ أثناء قبول طلب الاشتراك: ' . $e->getMessage(),
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'حدث خطأ أثناء قبول طلب الاشتراك');
+        }
+    }
+
+    public function reject(Request $request, Subscription $subscription)
+    {
+        $validated = $request->validate([
+            'reject_reason' => 'nullable|string|max:1000',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $subscription->update([
+                'status'              => SubscriptionStatus::CANCELLED,
+                'cancelled_at'        => now(),
+                'cancellation_reason' => $validated['reject_reason'] ?? null,
+            ]);
+
+            $subscription->periods()->update([
+                'status' => SubscriptionPeriodStatus::CANCELLED,
+            ]);
+
+            Bill::where('subscription_id', $subscription->id)
+                ->whereIn('status', [BillStatus::PENDING, BillStatus::PENDING_VERIFICATION, BillStatus::UNPAID])
+                ->update([
+                    'status'        => BillStatus::CANCELLED,
+                    'cancelled_at'  => now(),
+                    'reject_reason' => $validated['reject_reason'] ?? null,
+                ]);
+
+            DB::commit();
+
+            cache()->forget('admin:pending_subscriptions_count');
+
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'تم رفض طلب الاشتراك بنجاح',
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'تم رفض طلب الاشتراك بنجاح');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            report($e);
+
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'حدث خطأ أثناء رفض طلب الاشتراك: ' . $e->getMessage(),
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'حدث خطأ أثناء رفض طلب الاشتراك');
+        }
+    }
+
+    public function massAccept(Request $request)
+    {
+        $validated = $request->validate([
+            'ids'   => 'required|array|min:1',
+            'ids.*' => 'required|integer|exists:subscriptions,id',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            foreach ($validated['ids'] as $id) {
+                $subscription = Subscription::find($id);
+                if ($subscription) {
+                    $subscription->update([
+                        'status' => SubscriptionStatus::ACTIVE,
+                    ]);
+
+                    $subscription->periods()->update([
+                        'status' => SubscriptionPeriodStatus::ACTIVE,
+                    ]);
+
+                    Bill::where('subscription_id', $subscription->id)
+                        ->whereIn('status', [BillStatus::PENDING, BillStatus::PENDING_VERIFICATION, BillStatus::UNPAID])
+                        ->update([
+                            'status'      => BillStatus::PAID,
+                            'paid_at'     => now(),
+                            'verified_by' => auth()->id(),
+                            'verified_at' => now(),
+                        ]);
+                }
+            }
+
+            DB::commit();
+
+            cache()->forget('admin:pending_subscriptions_count');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم قبول طلبات الاشتراك المحددة بنجاح',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            report($e);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء قبول الاشتراكات المحددة: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function massReject(Request $request)
+    {
+        $validated = $request->validate([
+            'ids'           => 'required|array|min:1',
+            'ids.*'         => 'required|integer|exists:subscriptions,id',
+            'reject_reason' => 'nullable|string|max:1000',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            foreach ($validated['ids'] as $id) {
+                $subscription = Subscription::find($id);
+                if ($subscription) {
+                    $subscription->update([
+                        'status'              => SubscriptionStatus::CANCELLED,
+                        'cancelled_at'        => now(),
+                        'cancellation_reason' => $validated['reject_reason'] ?? null,
+                    ]);
+
+                    $subscription->periods()->update([
+                        'status' => SubscriptionPeriodStatus::CANCELLED,
+                    ]);
+
+                    Bill::where('subscription_id', $subscription->id)
+                        ->whereIn('status', [BillStatus::PENDING, BillStatus::PENDING_VERIFICATION, BillStatus::UNPAID])
+                        ->update([
+                            'status'        => BillStatus::CANCELLED,
+                            'cancelled_at'  => now(),
+                            'reject_reason' => $validated['reject_reason'] ?? null,
+                        ]);
+                }
+            }
+
+            DB::commit();
+
+            cache()->forget('admin:pending_subscriptions_count');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم رفض طلبات الاشتراك المحددة بنجاح',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            report($e);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء رفض الاشتراكات المحددة: ' . $e->getMessage(),
+            ], 500);
         }
     }
 

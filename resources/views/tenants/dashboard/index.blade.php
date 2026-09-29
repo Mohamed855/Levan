@@ -13,12 +13,12 @@
                         <p class="text-body mb-0">لوحة تحكم المنشأة - جاهزة للانطلاق في إدارة المزادات العقارية</p>
                     </div>
                     <div class="d-flex gap-2">
-                        @can('الفروع')
+                        @can('branches.view')
                             <a href="{{ tenant_route_name('branches.index') }}" class="btn btn-label-primary">
                                 <i class="ti ti-git-fork me-1"></i> الفروع
                             </a>
                         @endcan
-                        @can('المستخدمين')
+                        @can('users.view')
                             <a href="{{ tenant_route_name('users.index') }}" class="btn btn-primary">
                                 <i class="ti ti-users me-1"></i> إدارة المستخدمين
                             </a>

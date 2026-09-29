@@ -10,7 +10,7 @@
     @if (!isset($navbarFull))
         <div class="app-brand demo">
             <a href="{{ route('admin.dashboard') }}" class="app-brand-link">
-                <span class="app-brand-logo demo">@include('_partials.macros', ['height' => 30, 'logoPath' => asset('img/logo-light.svg')])</span>
+                <span class="app-brand-logo demo">@include('_partials.macros', ['height' => 30, 'logoPath' => asset('img/logo.svg')])</span>
                 <span class="app-brand-text demo menu-text fw-bold">
                     {{ App\Helpers\Admin\Settings\AdminSettingsHelper::get('logo_text') }}
                 </span>
@@ -31,7 +31,7 @@
             <span class="menu-header-text">الرئيسية</span>
         </li>
 
-        @can('لوحة القيادة الرئيسية')
+        @can('dashboard.main')
             <li class="menu-item @if (Route::is('admin.dashboard')) active open @endif">
                 <a href="{{ route('admin.dashboard') }}" class="menu-link">
                     <i class="menu-icon tf-icons ti ti-layout-dashboard"></i>
@@ -40,7 +40,7 @@
             </li>
         @endcan
 
-        @can('المستخدمين')
+        @can('users.view')
             <li class="menu-item @if (Route::is('admin.users.*')) active open @endif">
                 <a href="{{ route('admin.users.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons ti ti-user-cog"></i>
@@ -52,7 +52,7 @@
         <li class="menu-header small">
             <span class="menu-header-text">الباقات والعروض</span>
         </li>
-        @can('الباقات')
+        @can('plans.view')
             <li class="menu-item @if (Route::is('admin.plans.*')) active open @endif">
                 <a href="{{ route('admin.plans.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons ti ti-package"></i>
@@ -62,7 +62,7 @@
         @endcan
 
 
-        @can('الكوبونات')
+        @can('coupons.view')
             <li class="menu-item @if (Route::is('admin.coupons.*')) active open @endif">
                 <a href="{{ route('admin.coupons.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons ti ti-ticket"></i>
@@ -75,7 +75,7 @@
             <span class="menu-header-text">العملاء والمالية</span>
         </li>
 
-        {{-- @can('العملاء')
+        {{-- @can('clients.view')
         <li class="menu-item @if (Route::is('admin.tenantManage.*')) active open @endif">
             <a href="{{ route('admin.tenantManage.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-users"></i>
@@ -85,7 +85,7 @@
         </li>
         @endcan --}}
 
-        @can('الإشتراكات')
+        @can('subscriptions.view')
             @php
                 $expiringCount = cache()->remember('admin:expiring_subscriptions_count', 60, function () {
                     return app(
@@ -134,7 +134,7 @@
             </li>
         @endcan
 
-        @can('المعاملات المالية')
+        @can('financial_transactions.view')
             <li class="menu-item @if (Route::is('admin.bills.*')) active open @endif">
                 <a href="{{ route('admin.bills.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons ti ti-credit-card"></i>
@@ -146,7 +146,7 @@
         <li class="menu-header small">
             <span class="menu-header-text">الدعم الفني والتذاكر</span>
         </li>
-        @can('التذاكر')
+        @can('tickets.view')
             <li class="menu-item @if (Route::is('admin.tickets.*')) active open @endif">
                 <a href="{{ route('admin.tickets.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons ti ti-messages"></i>
@@ -213,7 +213,7 @@
             <span class="menu-header-text">التطوير والإصدارات</span>
         </li>
 
-        @can('الإصدارات')
+        @can('versions.view')
             <li class="menu-item @if (Route::is('admin.versions.*')) active open @endif">
                 <a href="{{ route('admin.versions.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons ti ti-git-pull-request-draft"></i>
@@ -222,7 +222,7 @@
             </li>
         @endcan
 
-        @can('فريق إختبار الإصدارات')
+        @can('version_testers.view')
             <li class="menu-item @if (Route::is('admin.version_testers.*')) active open @endif">
                 <a href="{{ route('admin.version_testers.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons ti ti-swipe"></i>

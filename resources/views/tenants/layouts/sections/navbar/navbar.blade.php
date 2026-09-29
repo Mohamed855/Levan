@@ -48,7 +48,7 @@
         @endif
 
         @if (!empty($tenantHasUpgrade) && $tenantHasUpgrade && !empty($latestVersion))
-            @can('الترقية للنسخة الجديدة')
+            @can('subscriptions.upgrade')
                 <li class="nav-item mx-2 mx-md-5">
                     <a class="btn btn-sm btn-primary px-2" style="white-space: nowrap; font-size: 10px;"
                         href="{{ tenant_route_name('versions.latest') }}" title="عرض تفاصيل الإصدارة الجديدة">
@@ -64,7 +64,7 @@
             @endcan
         @endif
 
-        @can('إعدادات الدومين')
+        @can('domain.view')
             <li class="nav-item dropdown me-2 me-xl-2">
                 <a href="{{ tenant_route_name('domains.setting') }}" class="menu-link" title="إدارة النطاقات"
                     data-bs-toggle="tooltip" data-bs-placement="bottom">
@@ -77,23 +77,20 @@
 
         {{-- Settings - يظهر فقط إذا توفرت إحدى الصلاحيات --}}
         @canany([
-            'إعدادات النظام',
-            'المستخدمين',
-            'الانظمة الامنية',
-            'سجل النشاطات',
-            'سجل الرسائل',
-            'قائمة
-            الفروع',
-            'قائمة الفئات',
-            'قائمة الدول',
-            'طرق التحصيل',
-            'حالات العميل',
-            'وسائل الاتصال بالعميل',
-            'نماذج
-            الرسائل',
-            'الإشتراك',
-            'الفواتير',
-            'المجموعات',
+            'system.settings',
+            'users.view',
+            'roles.view',
+            'activity_log.view',
+            'message_logs.view',
+            'branches_settings.view',
+            'countries.view',
+            'payment_methods.view',
+            'client_statuses.view',
+            'contact_channels.view',
+            'message_templates.view',
+            'subscriptions.view',
+            'bills.view',
+            'system.groups',
             ])
             <li class="nav-item dropdown me-2 me-xl-2">
                 <a class="nav-link btn btn-text-secondary btn-icon rounded-pill dropdown-toggle hide-arrow"
@@ -103,7 +100,7 @@
                 <div class="dropdown-menu dropdown-menu-end p-3 nav-min-width">
                     <div class="row g-2">
                         {{-- الصف الأول: إعدادات النظام --}}
-                        @can('إعدادات النظام')
+                        @can('system.settings')
                             <div class="col-12">
                                 <a href="{{ tenant_route_name('settings.index') }}"
                                     class="d-flex align-items-center p-3 border rounded hover-bg-light text-decoration-none">
@@ -122,7 +119,7 @@
                         @endcan
 
                         {{-- الصف الثاني: المستخدمين والأنظمة الأمنية --}}
-                        @can('المستخدمين')
+                        @can('users.view')
                             <div class="col-6">
                                 <a href="{{ tenant_route_name('users.index') }}"
                                     class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
@@ -136,7 +133,7 @@
                             </div>
                         @endcan
 
-                        @can('الانظمة الامنية')
+                        @can('roles.view')
                             <div class="col-6">
                                 <a href="{{ tenant_route_name('roles.index') }}"
                                     class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
@@ -151,7 +148,7 @@
                         @endcan
 
                         {{-- الصف الثالث: السجلات --}}
-                        @can('سجل النشاطات')
+                        @can('activity_log.view')
                             <div class="col-6">
                                 <a href="{{ tenant_route_name('activity-logs.index') }}"
                                     class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
@@ -165,7 +162,7 @@
                             </div>
                         @endcan
 
-                        @can('سجل الرسائل')
+                        @can('message_logs.view')
                             <div class="col-6">
                                 <a href="{{ tenant_route_name('communication.message-individual-logs.index') }}"
                                     class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
@@ -180,7 +177,7 @@
                         @endcan
 
                         {{-- المجموعات --}}
-                        @can('المجموعات')
+                        @can('system.groups')
                             <div class="col-6">
                                 <a href="{{ tenant_route_name('teams.index') }}"
                                     class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
@@ -193,7 +190,7 @@
                                 </a>
                             </div>
                         @endcan
-                        @can('الإشتراك')
+                        @can('subscriptions.view')
                             <div class="col-6">
                                 <a href="{{ tenant_route_name('subscriptions.index') }}"
                                     class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
@@ -208,7 +205,7 @@
                         @endcan
 
 
-                        @can('الفواتير')
+                        @can('bills.view')
                             <div class="col-12">
                                 <a href="{{ tenant_route_name('bills.index') }}"
                                     class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
@@ -226,14 +223,12 @@
 
                     {{-- رابط المركز التفصيلي --}}
                     @canany([
-                        'قائمة الفروع',
-                        'قائمة الفئات',
-                        'قائمة الدول',
-                        'طرق التحصيل',
-                        'حالات العميل',
-                        'وسائل الاتصال
-                        بالعميل',
-                        'نماذج الرسائل',
+                        'branches_settings.view',
+                        'countries.view',
+                        'payment_methods.view',
+                        'client_statuses.view',
+                        'contact_channels.view',
+                        'message_templates.view',
                         ])
                         <div class="dropdown-divider my-3"></div>
                         <div class="d-grid">

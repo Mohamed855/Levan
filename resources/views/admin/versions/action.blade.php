@@ -1,12 +1,12 @@
 <div class="d-flex justify-content-center gap-2">
 
-    @can('تعديل إصدارة')
+    @can('versions.edit')
         <a href="{{ route($route . '.edit', $row->id) }}" class="btn btn-icon btn-label-primary">
             <i class="ti ti-edit"></i>
         </a>
     @endcan
 
-    @can('حذف إصدارة')
+    @can('versions.delete')
         <button type="button" class="btn btn-icon btn-label-primary js-delete-btn" data-id="{{ $row->id }}">
             <i class="ti ti-trash"></i>
         </button>

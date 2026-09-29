@@ -15,7 +15,7 @@ class SettingsDomainController extends Controller
 
     public function __construct()
     {
-        $this->middleware('can:إعدادات البنوك');
+        $this->middleware('can:domain_extension_prices.settings');
     }
 
     public function index(SettingDomainDataTable $dataTable)

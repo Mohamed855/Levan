@@ -19,10 +19,10 @@ class PlanController extends Controller
     public function __construct(private PlanService $planService)
     {
         $this->middleware('auth:admin');
-        $this->middleware('can:الباقات')->only(['index']);
-        $this->middleware('can:إضافة باقة')->only(['create', 'store']);
-        $this->middleware('can:تعديل باقة')->only(['edit', 'update']);
-        $this->middleware('can:حذف باقة')->only(['destroy']);
+        $this->middleware('can:plans.view')->only(['index']);
+        $this->middleware('can:plans.create')->only(['create', 'store']);
+        $this->middleware('can:plans.edit')->only(['edit', 'update']);
+        $this->middleware('can:plans.delete')->only(['destroy']);
     }
 
 

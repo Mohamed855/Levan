@@ -11,7 +11,7 @@ class SettingsBranchController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('can:قائمة الفروع')->only([
+        $this->middleware('can:branches_settings.view')->only([
             'index',
             'edit',
             'store',

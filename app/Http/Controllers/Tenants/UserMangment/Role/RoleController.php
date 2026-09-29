@@ -35,11 +35,11 @@ class RoleController extends Controller
         $this->userService = $userService;
         $this->roleService = $roleService;
 
-        $this->middleware('can:الانظمة الامنية')->only(['index']);
-        $this->middleware('can:إضافة دور')->only(['create', 'store']);
-        $this->middleware('can:تعديل دور')->only(['edit', 'update']);
-        $this->middleware('can:حذف دور')->only(['destroy']);
-        $this->middleware('can:إسناد دور لمستخدم')->only([
+        $this->middleware('can:roles.view')->only(['index']);
+        $this->middleware('can:roles.create')->only(['create', 'store']);
+        $this->middleware('can:roles.edit')->only(['edit', 'update']);
+        $this->middleware('can:roles.delete')->only(['destroy']);
+        $this->middleware('can:roles.assign')->only([
             'getUserRoles',
             'updateUserRoles',
             'updateStatus'

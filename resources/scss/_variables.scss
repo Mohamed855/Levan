@@ -2,10 +2,17 @@
 // Design Tokens — shared across admin & tenants
 // =============================================================================
 
+$primary-color:     #372632;
+$secondary-color:   #f3edea;
+// Darken secondary color (~5.5% lightness reduction) to obtain #e9ddd8
+$secondary-darker:  darken($secondary-color, 5.5%);
+
 :root {
-    --primary-color:    #372632;
-    --menu-active-bg:   #e3d8d1;
-    --menu-active-text: #372632;
+    --primary-color:        #{$primary-color};
+    --secondary-color:      #{$secondary-color};
+    --secondary-color-dark: #{$secondary-darker};
+    --menu-active-bg:       #{$secondary-darker};
+    --menu-active-text:     #{$primary-color};
 
     --font-family-base: "Zain", sans-serif;
     --font-weight-base: 400;

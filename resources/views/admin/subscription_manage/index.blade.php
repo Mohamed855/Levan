@@ -21,10 +21,17 @@
 @section('page-script')
 <script>
     window.routes = {
-        massDelete: "{{ route('admin.mass-delete') }}"
-     };
+        massDelete: "{{ route('admin.mass-delete') }}",
+        acceptSubscription: "{{ route('admin.subscriptionManage.accept', ':id') }}",
+        rejectSubscription: "{{ route('admin.subscriptionManage.reject', ':id') }}",
+        massAccept: "{{ route('admin.subscriptionManage.mass-accept') }}",
+        massReject: "{{ route('admin.subscriptionManage.mass-reject') }}"
+    };
 </script>
-    @vite(['resources/assets/js/admin/subscriptions/filter.js' , 'resources/assets/js/admin/subscriptions/index.js'])
+    @if (!($isPendingPage ?? false))
+        @vite(['resources/assets/js/admin/subscriptions/filter.js'])
+    @endif
+    @vite(['resources/assets/js/admin/subscriptions/index.js'])
 @endsection
 
 @section('content')
@@ -38,7 +45,7 @@
         </div>
     @endif
 
-    @if (!($isExpiringPage ?? false))
+    @if (!($isExpiringPage ?? false) && !($isPendingPage ?? false))
         <div class="row g-4 mb-4">
             <!-- إجمالي الاشتراكات -->
             <div class="col-sm-6 col-xl-3">
@@ -132,39 +139,26 @@
 
     <div class="card">
         <div class="card-body">
-             <div class="filters row g-3">
-              {{--  <div class="col-md-4">
-                    <label for="filter-employee">الموظف</label>
-                    <select id="filter-employee" class="form-control select2" data-placeholder="اختر الموظف">
-                        <option value=""></option>
-                        @foreach ($employees as $employee)
-                            <option value="{{ $employee->id }}">{{ $employee->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label for="filter-type">نوع السلفة</label>
-                    <select id="filter-type" class="form-control select2" data-placeholder="اختر نوع السلفة">
-                        <option value=""></option>
-                        @foreach ($advanceTypes as $type)
-                            <option value="{{ $type['id'] }}">{{ $type['name'] }}</option>
-                        @endforeach
-                    </select>
-                </div>--}}
-                <div class="col-md-6">
-                    <label for="filter-status">حالة الاشتراكات</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر  حالة الاشتراك">
-                        <option value=""></option>
+            @if (!($isPendingPage ?? false))
+                <div class="filters row g-3">
+                    <div class="col-md-6">
+                        <label for="filter-status">حالة الاشتراكات</label>
+                        <select id="filter-status" class="form-control select2" data-placeholder="اختر  حالة الاشتراك">
+                            <option value=""></option>
                             <option value="pending">قيد المراجعة</option>
                             <option value="active">نشط</option>
                             <option value="suspended">معلق</option>
                             <option value="cancelled">ملغي</option>
                             <option value="expired">منتهي</option>
-                    </select>
-                </div>
-            </div> 
-            <hr class="mt-10">
+                        </select>
+                    </div>
+                </div> 
+                <hr class="mt-10">
+            @endif
             {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100'], false) !!}
         </div>
     </div>
+
+    {{-- Confirmation Modal for Accept/Reject --}}
+    @include('admin.subscription_manage.partials.confirm_modal')
 @endsection

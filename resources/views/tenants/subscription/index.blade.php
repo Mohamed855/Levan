@@ -229,7 +229,7 @@
                     <hr class="mb-4 mt-7">
 
                     <div class="text-end">
-                        @can('تجديد الإشتراك')
+                        @can('subscriptions.renew')
                             <a href="{{ tenant_route_name('subscriptions.renew.checkout') }}" class="btn btn-primary ">
                                 تجديد الاشتراك
                                 <i class="ti ti-refresh mx-2"></i>
@@ -324,7 +324,7 @@
                             <hr class="mb-4">
 
 
-                            @can('شراء تراخيص إضافية')
+                            @can('subscriptions.add_licenses')
                                 <div class="mt-5 text-end">
                                     <button type="submit" class="btn btn-primary disabled">
                                         تحديث الاشتراك

@@ -20,10 +20,10 @@ class VersionController extends Controller
     public function __construct(private VersionService $versionService)
     {
         $this->middleware('auth:admin');
-        $this->middleware('can:الإصدارات')->only(['index']);
-        $this->middleware('can:إضافة إصدارة')->only(['create', 'store']);
-        $this->middleware('can:تعديل إصدارة')->only(['edit', 'update']);
-        $this->middleware('can:حذف إصدارة')->only(['destroy']);
+        $this->middleware('can:versions.view')->only(['index']);
+        $this->middleware('can:versions.create')->only(['create', 'store']);
+        $this->middleware('can:versions.edit')->only(['edit', 'update']);
+        $this->middleware('can:versions.delete')->only(['destroy']);
     }
 
 

@@ -11,64 +11,64 @@ class PermissionsRolesSeeder extends Seeder
     public function run(): void
     {
         $permissions = [
-            'لوحة القيادة' => [
-                'لوحة القيادة',
+            'dashboard' => [
+                'dashboard.view',
             ],
-            'إدارة الإشتراك' => [
-                'الإشتراك',
-                'تجديد الإشتراك',
-                'شراء تراخيص إضافية',
-                'الترقية للنسخة الجديدة'
+            'subscriptions_management' => [
+                'subscriptions.view',
+                'subscriptions.renew',
+                'subscriptions.add_licenses',
+                'subscriptions.upgrade',
             ],
-            'إعدادات الدومين' => [
-                'إعدادات الدومين',
-                'حجز دومين',
-                'ربط دومين',
-                'نقل دومين',
+            'domain_management' => [
+                'domain.view',
+                'domain.reserve',
+                'domain.connect',
+                'domain.transfer',
             ],
-            'إدارة الفواتير' => [
-                'الفواتير',
-                'دفع فاتورة'
+            'bills_management' => [
+                'bills.view',
+                'bills.pay',
             ],
-            'إدارة المستخدمين' => [
-                'المستخدمين',
-                'إضافة مستخدم',
-                'تعديل مستخدم',
-                'حذف مستخدم',
-                'المجموعات',
-                'إدارة الفريق',
+            'users_management' => [
+                'users.view',
+                'users.create',
+                'users.edit',
+                'users.delete',
+                'system.groups',
+                'teams.manage',
             ],
-            'إدارة الفروع' => [
-                'الفروع',
-                'إضافة فرع',
-                'تعديل فرع',
-                'حذف فرع',
+            'branches_management' => [
+                'branches.view',
+                'branches.create',
+                'branches.edit',
+                'branches.delete',
             ],
-            'إدارة النظام' => [
-                'إعدادات النظام',
-                'قائمة الدول',
-                'طرق الدفع',
-                'نماذج الرسائل',
-                'الانظمة الامنية',
-                'إضافة دور',
-                'تعديل دور',
-                'حذف دور',
-                'إسناد دور لمستخدم',
-                'سجل النشاطات',
-                'سجل الرسائل',
-                'عرض سجلات الرسائل',
-                'حذف سجلات الرسائل',
-                'تصدير سجلات الرسائل',
+            'system_management' => [
+                'system.settings',
+                'countries.view',
+                'payment_methods.view',
+                'message_templates.view',
+                'roles.view',
+                'roles.create',
+                'roles.edit',
+                'roles.delete',
+                'roles.assign',
+                'activity_log.view',
+                'message_logs.view',
+                'message_logs.show',
+                'message_logs.delete',
+                'message_logs.export',
             ],
-            'الأرشيف' => [
-                'أرشيف المستخدمين',
-                'إسترجاع السجلات',
-                'حذف نهائي للسجلات',
+            'archive_management' => [
+                'user_archive.view',
+                'user_archive.restore',
+                'user_archive.force_delete',
             ],
-            'الدعم الفني' => [
-                'الدعم الفني',
-                'إنشاء تذكرة',
-            ]
+            'tickets_management' => [
+                'tickets.view',
+                'tickets.create',
+            ],
         ];
 
         foreach ($permissions as $section => $perms) {
@@ -86,7 +86,7 @@ class PermissionsRolesSeeder extends Seeder
         $userRole = Role::firstOrCreate(['name' => 'User', 'guard_name' => 'tenant']);
         $userRole->syncPermissions(
             Permission::where('guard_name', 'tenant')
-                ->whereIn('name', ['لوحة القيادة', 'الدعم الفني'])
+                ->whereIn('name', ['dashboard.view', 'tickets.view'])
                 ->get()
         );
     }

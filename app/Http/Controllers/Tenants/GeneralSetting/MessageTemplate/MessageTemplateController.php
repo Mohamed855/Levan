@@ -22,7 +22,7 @@ class MessageTemplateController extends Controller
     */
     public function __construct()
     {
-        $this->middleware('can:نماذج الرسائل');
+        $this->middleware('can:message_templates.view');
     }
 
     /*

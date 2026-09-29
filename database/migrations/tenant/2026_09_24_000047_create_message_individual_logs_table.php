@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('message_individual_logs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('batch_log_id')->constrained('message_logs')->onDelete('cascade');
-            $table->foreignId('customer_id')->nullable()->constrained('customers')->onDelete('set null');
+            $table->unsignedBigInteger('customer_id')->nullable();
             $table->string('customer_name');
             $table->json('phone_numbers');
-            $table->foreignId('company_id')->nullable()->constrained('companies')->onDelete('set null');
-            $table->foreignId('portfolio_id')->nullable()->constrained('portfolios')->onDelete('set null');
+            $table->unsignedBigInteger('company_id')->nullable();
+            $table->unsignedBigInteger('portfolio_id')->nullable();
             $table->longText('message_content');
             $table->string('message_type')->default('sms');
             $table->string('platform')->default('4jawaly');

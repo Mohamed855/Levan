@@ -33,7 +33,7 @@
         };
         window.csrfToken = "{{ csrf_token() }}";
         window.permissions = {
-            canAddRole: {{ (auth()->user()?->can('إضافة دور') ?? true) ? 'true' : 'false' }},
+            canAddRole: {{ (auth()->user()?->can('roles.create') ?? true) ? 'true' : 'false' }},
         };
     </script>
 
@@ -85,13 +85,13 @@
                                 </td>
                                 <td>
                                     <div class="d-flex justify-content-center gap-1">
-                                        @can('تعديل دور')
+                                        @can('roles.edit')
                                             <a href="{{ tenant_route_name('roles.edit', $role->id) }}"
                                                 class="btn btn-icon btn-label-primary me-1" title="تعديل الدور">
                                                 <i class="ti ti-edit"></i>
                                             </a>
                                         @endcan
-                                        @can('حذف دور')
+                                        @can('roles.delete')
                                             @if ($role->id != 1)
                                                 <button type="button" class="btn btn-icon btn-label-primary"
                                                     onclick="confirmDelete({{ $role->id }})" title="حذف الدور">

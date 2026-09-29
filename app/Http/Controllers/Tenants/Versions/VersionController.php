@@ -14,7 +14,7 @@ class VersionController extends Controller
 
     public function __construct()
     {
-        $this->middleware('can:الترقية للنسخة الجديدة');
+        $this->middleware('can:subscriptions.upgrade');
     }
 
     public function latest(VersionService $service)

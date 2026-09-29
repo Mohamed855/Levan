@@ -2,7 +2,6 @@
 
 namespace Database\Seeders\admin;
 
-
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -12,89 +11,84 @@ class PermissionsRolesSeeder extends Seeder
     public function run()
     {
         $permissions = [
-
-            'لوحة القيادة' => [
-                'لوحة القيادة الرئيسية'
+            'dashboard' => [
+                'dashboard.main',
             ],
 
-            'إدارة المستخدمين' => [
-                'المستخدمين',
-                'إضافة مستخدم',
-                'تعديل مستخدم',
-                'حذف مستخدم',
-                'تغيير حالة المستخدم',
+            'users_management' => [
+                'users.view',
+                'users.create',
+                'users.edit',
+                'users.delete',
+                'users.change_status',
             ],
 
-            'إدارة الباقات' => [
-                'الباقات',
-                'إضافة باقة',
-                'تعديل باقة',
-                'حذف باقة',
+            'plans_management' => [
+                'plans.view',
+                'plans.create',
+                'plans.edit',
+                'plans.delete',
             ],
 
-
-            'إدارة الكوبونات' => [
-                'الكوبونات',
-                'إضافة كوبون',
-                'تعديل كوبون',
-                'حذف كوبون',
+            'coupons_management' => [
+                'coupons.view',
+                'coupons.create',
+                'coupons.edit',
+                'coupons.delete',
             ],
 
-            'إدارة الإشتراكات' => [
-                'الإشتراكات',
-                'إضافة إشتراك',
-                'تعديل إشتراك',
-                'حذف إشتراك',
+            'subscriptions_management' => [
+                'subscriptions.view',
+                'subscriptions.create',
+                'subscriptions.edit',
+                'subscriptions.delete',
             ],
 
-            'إدارة المعاملات المالية' => [
-                'المعاملات المالية',
+            'financial_transactions_management' => [
+                'financial_transactions.view',
             ],
 
-            'إدارة التذاكر والدعم الفني' => [
-                'التذاكر',
-                'عرض تذكرة',
-                'الرد على تذكرة',
+            'tickets_management' => [
+                'tickets.view',
+                'tickets.show',
+                'tickets.reply',
             ],
 
-            'إدارة العملاء' => [
-                'العملاء',
-                'إضافة عميل',
-                'تعديل عميل',
-                'حذف عميل',
+            'clients_management' => [
+                'clients.view',
+                'clients.create',
+                'clients.edit',
+                'clients.delete',
             ],
 
-
-            'إدارة الإصدارات' => [
-                'الإصدارات',
-                'إضافة إصدارة',
-                'تعديل إصدارة',
-                'حذف إصدارة',
+            'versions_management' => [
+                'versions.view',
+                'versions.create',
+                'versions.edit',
+                'versions.delete',
             ],
 
-            'إدارة فريق إختبار الإصدارات' => [
-                'فريق إختبار الإصدارات',
-                'إضافة عضو',
-                'تعديل عضو',
-                'حذف عضو',
+            'version_testers_management' => [
+                'version_testers.view',
+                'version_testers.create',
+                'version_testers.edit',
+                'version_testers.delete',
             ],
 
-            'إدارة النظام' => [
-                'إعدادات النظام',
-                'المجموعات',
-                'الانظمة الامنية',
-                'إضافة دور',
-                'تعديل دور',
-                'حذف دور',
-                'إسناد دور لمستخدم',
-                'سجل النشاطات',
-
-                'إعدادات اسعار الامتدادات',
-                'إعدادات البنوك',
+            'system_management' => [
+                'system.settings',
+                'system.groups',
+                'system.security_systems',
+                'roles.view',
+                'roles.create',
+                'roles.edit',
+                'roles.delete',
+                'roles.assign',
+                'activity_log.view',
+                'domain_extension_prices.settings',
+                'bank_settings.view',
             ],
-
         ];
-
 
         foreach ($permissions as $section => $perms) {
             foreach ($perms as $perm) {
@@ -105,6 +99,7 @@ class PermissionsRolesSeeder extends Seeder
                 ]);
             }
         }
+
         $roleSuperAdmin = Role::firstOrCreate(
             [
                 'name'             => 'SuperAdmin',
@@ -112,6 +107,6 @@ class PermissionsRolesSeeder extends Seeder
             ]
         );
 
-        $roleSuperAdmin->syncPermissions(Permission::all());
+        $roleSuperAdmin->syncPermissions(Permission::where('guard_name', 'admin')->get());
     }
 }

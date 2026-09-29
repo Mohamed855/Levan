@@ -34,9 +34,9 @@ class TenantSubscriptionController extends Controller
         private PaymentService          $paymentService,
         private SubscriptionService     $subscriptionService,
     ) {
-        $this->middleware('can:الإشتراك')->only(['index']);
-        $this->middleware('can:تجديد الإشتراك')->only(['renewCheckout', 'processRenew', 'renewCallback']);
-        $this->middleware('can:شراء تراخيص إضافية')->only(['licenseCheckout', 'processLicense', 'licenseCallback']);
+        $this->middleware('can:subscriptions.view')->only(['index']);
+        $this->middleware('can:subscriptions.renew')->only(['renewCheckout', 'processRenew', 'renewCallback']);
+        $this->middleware('can:subscriptions.add_licenses')->only(['licenseCheckout', 'processLicense', 'licenseCallback']);
     }
 
     public function index()

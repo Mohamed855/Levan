@@ -25,11 +25,11 @@ class AdminUserController extends Controller
 
     public function __construct(private UserService $userService)
     {
-        $this->middleware('can:المستخدمين')->only(['index', 'showProfile']);
-        $this->middleware('can:إضافة مستخدم')->only(['create', 'store']);
-        $this->middleware('can:تعديل مستخدم')->only(['edit', 'update']);
-        $this->middleware('can:حذف مستخدم')->only(['destroy']);
-        $this->middleware('can:تغيير حالة المستخدم')->only(['toggleStatus']);
+        $this->middleware('can:users.view')->only(['index', 'showProfile']);
+        $this->middleware('can:users.create')->only(['create', 'store']);
+        $this->middleware('can:users.edit')->only(['edit', 'update']);
+        $this->middleware('can:users.delete')->only(['destroy']);
+        $this->middleware('can:users.change_status')->only(['toggleStatus']);
     }
 
 

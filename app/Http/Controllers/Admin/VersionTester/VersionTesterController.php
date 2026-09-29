@@ -22,10 +22,10 @@ class VersionTesterController extends Controller
     public function __construct(private VersionTestersService $versionTestersService)
     {
         $this->middleware('auth:admin');
-        $this->middleware('can:فريق إختبار الإصدارات')->only(['index']);
-        $this->middleware('can:إضافة عضو')->only(['create', 'store']);
-        $this->middleware('can:تعديل عضو')->only(['edit', 'update']);
-        $this->middleware('can:حذف عضو')->only(['destroy']);
+        $this->middleware('can:version_testers.view')->only(['index']);
+        $this->middleware('can:version_testers.create')->only(['create', 'store']);
+        $this->middleware('can:version_testers.edit')->only(['edit', 'update']);
+        $this->middleware('can:version_testers.delete')->only(['destroy']);
     }
 
 

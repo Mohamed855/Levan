@@ -17,7 +17,7 @@ class SettingsBankController extends Controller
 
     public function __construct()
     {
-        $this->middleware('can:إعدادات اسعار الامتدادات');
+        $this->middleware('can:bank_settings.view');
     }
 
     public function index(BankDataTable $dataTable)

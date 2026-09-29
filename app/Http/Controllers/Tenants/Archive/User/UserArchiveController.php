@@ -26,9 +26,9 @@ class UserArchiveController extends Controller
     {
         $this->userArchiveService = $userArchiveService;
         $this->middleware('auth');
-        $this->middleware('can:أرشيف المستخدمين')->only(['index']);
-        $this->middleware('can:إسترجاع السجلات')->only(['restore', 'massRestore']);
-        $this->middleware('can:حذف نهائي للسجلات')->only(['forceDelete', 'massForceDelete']);
+        $this->middleware('can:user_archive.view')->only(['index']);
+        $this->middleware('can:user_archive.restore')->only(['restore', 'massRestore']);
+        $this->middleware('can:user_archive.force_delete')->only(['forceDelete', 'massForceDelete']);
     }
 
     /*

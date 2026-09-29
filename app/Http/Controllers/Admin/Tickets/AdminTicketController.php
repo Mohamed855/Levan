@@ -19,8 +19,8 @@ class AdminTicketController extends Controller
 
     public function __construct(private AdminTicketService $ticketService)
     {
-        $this->middleware('can:التذاكر')->only(['index', 'show']);
-        $this->middleware('can:الرد على تذكرة')->only(['reply', 'updateStatus']);
+        $this->middleware('can:tickets.view')->only(['index', 'show']);
+        $this->middleware('can:tickets.reply')->only(['reply', 'updateStatus']);
     }
 
     /**

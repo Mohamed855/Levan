@@ -23,161 +23,146 @@ class TenantPermissionSeeder implements TenantSeeder
     |============================================================================
     */
     private array $permissions = [
-        'لوحة القيادة' => [
-            'لوحة تحكم الإدارة'
+        'dashboard' => [
+            'dashboard.view'
         ],
 
-        'إدارة الإشتراك' => [
-            'الإشتراك',
-            'تجديد الإشتراك',
-            'شراء تراخيص إضافية',
-            'الترقية للنسخة الجديدة'
+        'subscriptions_management' => [
+            'subscriptions.view',
+            'subscriptions.renew',
+            'subscriptions.add_licenses',
+            'subscriptions.upgrade'
         ],
 
-        'إعدادات الدومين' => [
-            'إعدادات الدومين',
-            'حجز دومين',
-            'ربط دومين',
-            'نقل دومين',
+        'domain_management' => [
+            'domain.view',
+            'domain.reserve',
+            'domain.connect',
+            'domain.transfer',
         ],
 
-        'إدارة الفواتير' => [
-            'الفواتير',
-            'دفع فاتورة'
+        'bills_management' => [
+            'bills.view',
+            'bills.pay'
         ],
 
-        'إدارة المهام' => [
-            'المهام',
-            'مهامي'
+        'tasks_management' => [
+            'tasks.view',
+            'tasks.my_tasks'
         ],
 
-        'مركز العمليات' => [
-            'الشركات',
-            'إضافة شركة',
-            'تعديل شركة',
-            'حذف شركة',
+        'operations_center' => [
+            'companies.view',
+            'companies.create',
+            'companies.edit',
+            'companies.delete',
 
-            'العقود',
-            'إضافة عقد',
-            'تعديل عقد',
-            'حذف عقد',
+            'contracts.view',
+            'contracts.create',
+            'contracts.edit',
+            'contracts.delete',
 
-            'المحافظ',
-            'إضافة محفظة',
-            'تعديل محفظة',
-            'حذف محفظة',
+            'portfolios.view',
+            'portfolios.create',
+            'portfolios.edit',
+            'portfolios.delete',
 
-            'العملاء',
-            'عملائي',
+            'clients.view',
+            'clients.my_clients',
 
-            'توزيع العملاء',
-            'إضافة توزيع',
-            'طلبات تحديث البيانات',
+            'clients.distribution_view',
+            'clients.distribution_create',
+            'clients.update_requests',
 
-            'إضافة عميل',
-            'تعديل عميل',
-            'تعديل جميع العملاء',
-            'حذف عميل',
-            'حذف جميع العملاء',
-            'تحديث مباشر للبيانات',
-            'تغيير مسؤول العلاقة للعميل',
-            'تصدير أكسل',
-            'إرسال رسالة',
+            'clients.create',
+            'clients.edit',
+            'clients.edit_all',
+            'clients.delete',
+            'clients.delete_all',
+            'clients.live_update',
+            'clients.change_relationship_officer',
+            'clients.export_excel',
+            'clients.send_message',
 
-            'تفاصيل العميل',
-            'متابعة العميل',
-            'إضافة متابعة',
-            'تعديل متابعة',
-            'حذف متابعة',
-            // 'تفاصيل السداد',
-            'خطة سداد',
-            'طلبات التسوية',
-            'ملاحظات',
-            'المرفقات',
-            'إضافة رقم هاتف',
+            'clients.details',
+            'clients.follow_up_view',
+            'clients.follow_up_create',
+            'clients.follow_up_edit',
+            'clients.follow_up_delete',
+            'clients.payment_plan',
+            'clients.settlement_requests',
+            'clients.notes',
+            'clients.attachments',
+            'clients.add_phone',
 
-            'إعتماد',
-            'رفض',
+            'operations.approve',
+            'operations.reject',
 
-            'المستخدمين',
-            'إضافة مستخدم',
-            'تعديل مستخدم',
-            'حذف مستخدم',
-            'إدارة الفريق',
+            'users.view',
+            'users.create',
+            'users.edit',
+            'users.delete',
+            'teams.manage',
         ],
 
-        'إدارة التحصيل' => [
+        'collection_management' => [
+            'collection_targets.view',
+            'collection_targets.create',
+            'collection_targets.delete',
+            'collection_targets.edit',
 
-            'أهداف التحصيل',
-            'إضافة هدف',
-            'حذف هدف',
-            'تعديل هدف',
+            'collections.my_collections',
+            'collections.create',
+            'collections.edit',
+            'collections.delete',
+            'collections.approve',
+            'collections.reject',
 
-            'تحصيلاتي',
-            'إضافة تحصيل',
-            'تعديل تحصيل',
-            'حذف تحصيل',
-            'إعتماد تحصيل',
-            'رفض تحصيل',
+            'collections.users_collections',
+            'collections.mass_approve',
+            'collections.mass_reject',
+            'collections.mass_delete',
 
-            'تحصيلات المستخدمين',
-            'إعتماد تحصيل',
-            'رفض تحصيل',
-            'إعتماد الكل',
-            'رفض الكل',
-            'حذف المحدد',
-
-            'مطابقة السدادات',
-            'بدء التحصيل',
+            'collections.payment_reconciliation',
+            'collections.start_collection',
         ],
 
-        'إدارة النظام' => [
-            'إعدادات النظام',
-
-            'حالات العميل',
-            'نتائج الاتصال',   /// new
-
-            'طرق التحصيل',
-            'أنواع المديونية', /// new
-
-            'قائمة الفروع',
-            // 'قائمة الفئات',
-            'قائمة الدول',
-
-            'نماذج الرسائل',
-            'وسائل الاتصال بالعميل',
-            'أسباب طلب المستندات',
-
-            'الانظمة الامنية',
-            'إضافة دور',
-            'تعديل دور',
-            'حذف دور',
-            'إسناد دور لمستخدم',
-
-            'سجل النشاطات',
-
-            'سجل الرسائل',
-
-            'المجموعات',
-
+        'system_management' => [
+            'system.settings',
+            'client_statuses.view',
+            'contact_results.view',
+            'payment_methods.view',
+            'debt_types.view',
+            'branches_settings.view',
+            'countries.view',
+            'message_templates.view',
+            'contact_channels.view',
+            'document_request_reasons.view',
+            'roles.view',
+            'roles.create',
+            'roles.edit',
+            'roles.delete',
+            'roles.assign',
+            'activity_log.view',
+            'message_logs.view',
+            'system.groups',
         ],
 
-        'التفارير والأرشيف' => [
-            'التقارير التنفيذية',
-            'تقارير العملاء',
-            'تقارير التحصيل',
-            'تقارير الشركات',
-            'تقارير أداء الموظفين',
-            'تقارير المستخدمين',
+        'reports_and_archives' => [
+            'reports.executive',
+            'reports.clients',
+            'reports.collections',
+            'reports.companies',
+            'reports.employee_performance',
+            'reports.users',
 
-
-            'أرشيف الشركات',
-            'أرشيف المحافظ',
-            'أرشيف العملاء',
-            'أرشيف العقود',
-            'أرشيف المستخدمين',
-            'إسترجاع السجلات',
-            'حذف نهائي للسجلات',
+            'archives.companies',
+            'archives.portfolios',
+            'archives.clients',
+            'archives.contracts',
+            'user_archive.view',
+            'user_archive.restore',
+            'user_archive.force_delete',
         ]
     ];
 

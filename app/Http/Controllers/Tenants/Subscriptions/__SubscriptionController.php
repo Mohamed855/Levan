@@ -26,9 +26,9 @@ class __SubscriptionController extends Controller
         private CouponService                   $couponService
     ) {
 
-        $this->middleware('can:الإشتراك')->only(['index', 'store']);
-        $this->middleware('can:تجديد الإشتراك')->only(['renew', 'checkout_renew', 'callback_renew_subscription_payment']);
-        $this->middleware('can:شراء تراخيص إضافية')->only(['upgrade', 'checkout_upgrade', 'upgrade_callback']);
+        $this->middleware('can:subscriptions.view')->only(['index', 'store']);
+        $this->middleware('can:subscriptions.renew')->only(['renew', 'checkout_renew', 'callback_renew_subscription_payment']);
+        $this->middleware('can:subscriptions.add_licenses')->only(['upgrade', 'checkout_upgrade', 'upgrade_callback']);
     }
 
 

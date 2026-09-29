@@ -11,7 +11,7 @@ class SettingsCountryController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('can:قائمة الدول')->only([
+        $this->middleware('can:countries.view')->only([
             'index',
             'edit',
             'store',

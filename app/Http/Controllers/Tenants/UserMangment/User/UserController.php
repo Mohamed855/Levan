@@ -38,10 +38,10 @@ class UserController extends Controller
     ) {
 
         $this->middleware('auth');
-        $this->middleware('can:المستخدمين')->only(['index']);
-        $this->middleware('can:إضافة مستخدم')->only(['create', 'store']);
-        $this->middleware('can:تعديل مستخدم')->only(['edit', 'update']);
-        $this->middleware('can:حذف مستخدم')->only(['destroy']);
+        $this->middleware('can:users.view')->only(['index']);
+        $this->middleware('can:users.create')->only(['create', 'store']);
+        $this->middleware('can:users.edit')->only(['edit', 'update']);
+        $this->middleware('can:users.delete')->only(['destroy']);
     }
 
     /*

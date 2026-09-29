@@ -2,11 +2,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ── الألوان الأساسية ──────────────────────────────────────────
     const colors = {
-        primary:   '#4cc1bb',
+        primary:   '#372632',
         success:   '#28a745',
         warning:   '#ffc107',
         danger:    '#dc3545',
-        secondary: '#6c757d',
+        secondary: '#7c7c7cff',
         info:      '#17a2b8',
     };
 
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     label:           'النشاط الإجمالي',
                     data:            dataPoints.map(d => d.count),
                     borderColor:     colors.primary,
-                    backgroundColor: 'rgba(76, 193, 187, 0.12)',
+                    backgroundColor: 'rgba(55, 38, 50, 0.12)',
                     tension:         0.4,
                     fill:            true,
                     pointRadius:     4,
@@ -144,4 +144,11 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+
+    // ── ضمان تحديث مقاس الرسم البياني عند تصغير أو تكبير النافذة ──
+    window.addEventListener('resize', function () {
+        if (platformChart) {
+            platformChart.resize();
+        }
+    });
 });

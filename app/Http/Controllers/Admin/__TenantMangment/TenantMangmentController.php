@@ -22,10 +22,10 @@ class TenantMangmentController extends Controller
     public function __construct(private TenantService $tenantService, public MicrosoftMailService $mailService)
     {
         $this->middleware('auth:admin');
-        $this->middleware('can:العملاء')->only(['index']);
-        $this->middleware('can:إضافة عميل')->only(['create', 'store']);
-        $this->middleware('can:تعديل عميل')->only(['edit', 'update']);
-        $this->middleware('can:حذف عميل')->only(['destroy']);
+        $this->middleware('can:clients.view')->only(['index']);
+        $this->middleware('can:clients.create')->only(['create', 'store']);
+        $this->middleware('can:clients.edit')->only(['edit', 'update']);
+        $this->middleware('can:clients.delete')->only(['destroy']);
     }
 
     public function index(TenantManagementDataTable $dataTable)

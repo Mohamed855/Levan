@@ -9,7 +9,7 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">تفاصيل الدور: {{ $role->name }}</h5>
                 <div>
-                    @can('تعديل دور')
+                    @can('roles.edit')
                         <a href="{{ tenant_route_name('roles.edit', $role->id) }}" class="btn btn-primary btn-sm">
                             <i class="ti ti-edit me-1"></i> تعديل
                         </a>
@@ -44,7 +44,7 @@
                 <h6 class="fw-semibold mb-3">الصلاحيات المخصصة لهذا الدور:</h6>
                 <div class="d-flex flex-wrap gap-2">
                     @forelse ($role->permissions as $permission)
-                        <span class="badge bg-label-primary fs-6">{{ $permission->name }}</span>
+                        <span class="badge bg-label-primary fs-6">{{ trans()->has('permissions.' . $permission->name) ? __('permissions.' . $permission->name) : $permission->name }}</span>
                     @empty
                         <p class="text-muted">لا توجد صلاحيات مخصصة لهذا الدور حالياً.</p>
                     @endforelse

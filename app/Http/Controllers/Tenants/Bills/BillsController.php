@@ -35,7 +35,7 @@ class BillsController extends Controller
         private BillService            $billService,
         private SubscriptionService    $subscriptionService,
     ) {
-        $this->middleware('can:الفواتير');
+        $this->middleware('can:bills.view');
 
         $this->middleware(function (Request $request, Closure $next) {
             $id   = $request->route('id');

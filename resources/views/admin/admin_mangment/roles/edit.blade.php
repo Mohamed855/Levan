@@ -69,7 +69,7 @@
                                                             data-bs-target="#collapse-{{ $loop->index }}"
                                                             aria-expanded="false"
                                                             aria-controls="collapse-{{ $loop->index }}">
-                                                            {{ $section }}
+                                                            {{ trans()->has('permissions.sections.' . $section) ? __('permissions.sections.' . $section) : (trans()->has('permissions.' . $section) ? __('permissions.' . $section) : $section) }}
                                                         </button>
                                                     </h2>
                                                     <div id="collapse-{{ $loop->index }}"
@@ -105,7 +105,7 @@
                                                                                 {{ $role->hasPermissionTo($permission->name) ? 'checked' : '' }}>
                                                                             <label class="form-check-label"
                                                                                 for="permission-{{ $permission->id }}">
-                                                                                {{ $permission->name }}
+                                                                                {{ trans()->has('permissions.' . $permission->name) ? __('permissions.' . $permission->name) : $permission->name }}
                                                                             </label>
                                                                         </div>
                                                                     @endif

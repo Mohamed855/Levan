@@ -21,10 +21,10 @@ class AdminCouponController extends Controller
     public function __construct(private CouponService $couponService)
     {
         $this->middleware('auth:admin');
-        $this->middleware('can:الكوبونات')->only(['index']);
-        $this->middleware('can:إضافة كوبون')->only(['create', 'store']);
-        $this->middleware('can:تعديل كوبون')->only(['edit', 'update']);
-        $this->middleware('can:حذف كوبون')->only(['destroy']);
+        $this->middleware('can:coupons.view')->only(['index']);
+        $this->middleware('can:coupons.create')->only(['create', 'store']);
+        $this->middleware('can:coupons.edit')->only(['edit', 'update']);
+        $this->middleware('can:coupons.delete')->only(['destroy']);
     }
 
 

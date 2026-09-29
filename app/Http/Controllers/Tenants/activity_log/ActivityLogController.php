@@ -31,7 +31,7 @@ class ActivityLogController extends Controller
 
     public function __construct()
     {
-        $this->middleware('can:سجل النشاطات');
+        $this->middleware('can:activity_log.view');
     }
 
 
