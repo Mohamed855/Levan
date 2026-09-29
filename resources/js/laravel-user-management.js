@@ -170,7 +170,7 @@ $(function () {
       buttons: [
         {
           extend: 'collection',
-          className: 'btn btn-label-secondary dropdown-toggle mx-4 waves-effect waves-light',
+          className: 'btn btn-secondary dropdown-toggle mx-4 waves-effect waves-light',
           text: '<i class="ti ti-upload me-2 ti-xs"></i>Export',
           buttons: [
             {
@@ -377,7 +377,7 @@ $(function () {
       confirmButtonText: 'Yes, delete it!',
       customClass: {
         confirmButton: 'btn btn-primary me-3',
-        cancelButton: 'btn btn-label-secondary'
+        cancelButton: 'btn btn-secondary'
       },
       buttonsStyling: false
     }).then(function (result) {

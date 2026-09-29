@@ -116,8 +116,7 @@
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-label-secondary"
-                                    data-bs-dismiss="modal">إلغاء</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
                                 <button type="submit" class="btn btn-primary">
                                     <span class="d-flex align-items-center">
                                         <i class="ti ti-device-floppy me-2"></i>
@@ -263,7 +262,7 @@
                                             <div class="fw-semibold" style="font-size: 0.875rem;">
                                                 {{ $user->phone ??
                                                     'غير
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            محدد' }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            محدد' }}
                                             </div>
                                         </div>
                                     </div>

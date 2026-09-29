@@ -73,7 +73,7 @@
                                     <p class="text-muted small mb-3">
                                         استخدمها للدخول في حال فقدت الوصول لتطبيق المصادقة. كل كود يُستخدم مرة واحدة فقط.
                                     </p>
-                                    <button type="button" id="showRecoveryBtn" class="btn btn-label-secondary btn-sm">
+                                    <button type="button" id="showRecoveryBtn" class="btn btn-secondary btn-sm">
                                         <i class="ti ti-refresh me-1"></i>
                                         توليد أكواد جديدة
                                     </button>

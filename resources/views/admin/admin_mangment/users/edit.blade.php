@@ -16,133 +16,147 @@
 
 @section('page-script')
     @vite(['resources/assets/js/admin/admin_mangment/users/form-validation.js'])
-    
-   <script>
-    $(document).ready(function() {
-        let emailCheckTimeout;
-        let ajaxRequest = null;
-        const originalEmail = "{{ $user->email }}";
-        const $nextButton = $('#basic-info-validation .btn-next');
-        
-        // دالة لتحديث حالة الزر
-        function updateButtonState() {
-            const $email = $('#email');
-            const email = $email.val().trim();
-            
-            // لو الإيميل فاضي أو invalid، disable الزر
-            if (email === '' || $email.hasClass('is-invalid')) {
-                $nextButton.prop('disabled', true).addClass('disabled');
-            } else if ($email.hasClass('is-valid') || email === originalEmail) {
-                $nextButton.prop('disabled', false).removeClass('disabled');
+
+    <script>
+        $(document).ready(function() {
+            let emailCheckTimeout;
+            let ajaxRequest = null;
+            const originalEmail = "{{ $user->email }}";
+            const $nextButton = $('#basic-info-validation .btn-next');
+
+            // دالة لتحديث حالة الزر
+            function updateButtonState() {
+                const $email = $('#email');
+                const email = $email.val().trim();
+
+                // لو الإيميل فاضي أو invalid، disable الزر
+                if (email === '' || $email.hasClass('is-invalid')) {
+                    $nextButton.prop('disabled', true).addClass('disabled');
+                } else if ($email.hasClass('is-valid') || email === originalEmail) {
+                    $nextButton.prop('disabled', false).removeClass('disabled');
+                }
             }
-        }
-        
-        $('#email').on('keyup change paste', function() {
-            clearTimeout(emailCheckTimeout);
-            
-            if (ajaxRequest && ajaxRequest.abort) {
-                ajaxRequest.abort();
-            }
-            
-            const email = $(this).val().trim();
-            const $emailFeedback = $('#email-feedback');
-            
-            $emailFeedback.remove();
-            $(this).removeClass('is-valid is-invalid');
-            
-            // تحديث حالة الزر
-            updateButtonState();
-            
-            if (email === '') {
-                return;
-            }
-            
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                $(this).after('<div id="email-feedback" class="invalid-feedback d-block"><i class="ti ti-x me-1"></i>صيغة البريد الإلكتروني غير صحيحة</div>');
-                $(this).addClass('is-invalid');
+
+            $('#email').on('keyup change paste', function() {
+                clearTimeout(emailCheckTimeout);
+
+                if (ajaxRequest && ajaxRequest.abort) {
+                    ajaxRequest.abort();
+                }
+
+                const email = $(this).val().trim();
+                const $emailFeedback = $('#email-feedback');
+
+                $emailFeedback.remove();
+                $(this).removeClass('is-valid is-invalid');
+
+                // تحديث حالة الزر
                 updateButtonState();
-                return;
-            }
-            
-            if (email === originalEmail) {
-                $(this).after('<div id="email-feedback" class="valid-feedback d-block"><i class="ti ti-check me-1"></i>البريد الإلكتروني الحالي</div>');
-                $(this).addClass('is-valid');
-                updateButtonState();
-                return;
-            }
-            
-            emailCheckTimeout = setTimeout(function() {
-                $('#email').after('<div id="email-feedback" class="form-text text-muted"><i class="ti ti-loader ti-spin me-1"></i>جاري التحقق...</div>');
-                
-                // disable الزر أثناء التحقق
-                $nextButton.prop('disabled', true).addClass('disabled');
-                
-                ajaxRequest = $.ajax({
-                    url: "{{ route('admin.users.check-email-unique') }}",
-                    method: 'POST',
-                    data: {
-                        email: email,
-                        user_id: "{{ $user->id }}",
-                        _token: "{{ csrf_token() }}"
-                    },
-                    success: function(response) {
-                        $('#email-feedback').remove();
-                        
-                        if (response.available) {
-                            $('#email').addClass('is-valid').removeClass('is-invalid');
-                            $('#email').after('<div id="email-feedback" class="valid-feedback d-block"><i class="ti ti-check me-1"></i>' + response.message + '</div>');
-                        } else {
+
+                if (email === '') {
+                    return;
+                }
+
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    $(this).after(
+                        '<div id="email-feedback" class="invalid-feedback d-block"><i class="ti ti-x me-1"></i>صيغة البريد الإلكتروني غير صحيحة</div>'
+                    );
+                    $(this).addClass('is-invalid');
+                    updateButtonState();
+                    return;
+                }
+
+                if (email === originalEmail) {
+                    $(this).after(
+                        '<div id="email-feedback" class="valid-feedback d-block"><i class="ti ti-check me-1"></i>البريد الإلكتروني الحالي</div>'
+                    );
+                    $(this).addClass('is-valid');
+                    updateButtonState();
+                    return;
+                }
+
+                emailCheckTimeout = setTimeout(function() {
+                    $('#email').after(
+                        '<div id="email-feedback" class="form-text text-muted"><i class="ti ti-loader ti-spin me-1"></i>جاري التحقق...</div>'
+                    );
+
+                    // disable الزر أثناء التحقق
+                    $nextButton.prop('disabled', true).addClass('disabled');
+
+                    ajaxRequest = $.ajax({
+                        url: "{{ route('admin.users.check-email-unique') }}",
+                        method: 'POST',
+                        data: {
+                            email: email,
+                            user_id: "{{ $user->id }}",
+                            _token: "{{ csrf_token() }}"
+                        },
+                        success: function(response) {
+                            $('#email-feedback').remove();
+
+                            if (response.available) {
+                                $('#email').addClass('is-valid').removeClass(
+                                    'is-invalid');
+                                $('#email').after(
+                                    '<div id="email-feedback" class="valid-feedback d-block"><i class="ti ti-check me-1"></i>' +
+                                    response.message + '</div>');
+                            } else {
+                                $('#email').addClass('is-invalid').removeClass(
+                                    'is-valid');
+                                $('#email').after(
+                                    '<div id="email-feedback" class="invalid-feedback d-block"><i class="ti ti-x me-1"></i>' +
+                                    response.message + '</div>');
+                            }
+
+                            // تحديث حالة الزر بعد النتيجة
+                            updateButtonState();
+                        },
+                        error: function(xhr) {
+                            if (xhr.statusText === 'abort') {
+                                return;
+                            }
+
+                            $('#email-feedback').remove();
                             $('#email').addClass('is-invalid').removeClass('is-valid');
-                            $('#email').after('<div id="email-feedback" class="invalid-feedback d-block"><i class="ti ti-x me-1"></i>' + response.message + '</div>');
+                            $('#email').after(
+                                '<div id="email-feedback" class="invalid-feedback d-block"><i class="ti ti-x me-1"></i>حدث خطأ أثناء التحقق</div>'
+                            );
+
+                            updateButtonState();
+                        },
+                        complete: function() {
+                            ajaxRequest = null;
                         }
-                        
-                        // تحديث حالة الزر بعد النتيجة
-                        updateButtonState();
-                    },
-                    error: function(xhr) {
-                        if (xhr.statusText === 'abort') {
-                            return;
-                        }
-                        
-                        $('#email-feedback').remove();
-                        $('#email').addClass('is-invalid').removeClass('is-valid');
-                        $('#email').after('<div id="email-feedback" class="invalid-feedback d-block"><i class="ti ti-x me-1"></i>حدث خطأ أثناء التحقق</div>');
-                        
-                        updateButtonState();
-                    },
-                    complete: function() {
-                        ajaxRequest = null;
-                    }
-                });
-            }, 1000);
+                    });
+                }, 1000);
+            });
+
+            // منع الانتقال للخطوة التالية لو الإيميل invalid
+            $nextButton.on('click', function(e) {
+                const $email = $('#email');
+
+                if ($email.hasClass('is-invalid')) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    toastr.error('يرجى إدخال بريد إلكتروني صحيح ومتاح');
+                    return false;
+                }
+            });
+
+            // منع الإرسال لو الإيميل مش متاح
+            $('#wizard-validation-form').on('submit', function(e) {
+                if ($('#email').hasClass('is-invalid')) {
+                    e.preventDefault();
+                    toastr.error('يرجى إدخال بريد إلكتروني صحيح ومتاح');
+                    return false;
+                }
+            });
+
+            // التحقق الأولي عند تحميل الصفحة
+            updateButtonState();
         });
-        
-        // منع الانتقال للخطوة التالية لو الإيميل invalid
-        $nextButton.on('click', function(e) {
-            const $email = $('#email');
-            
-            if ($email.hasClass('is-invalid')) {
-                e.preventDefault();
-                e.stopImmediatePropagation();
-                toastr.error('يرجى إدخال بريد إلكتروني صحيح ومتاح');
-                return false;
-            }
-        });
-        
-        // منع الإرسال لو الإيميل مش متاح
-        $('#wizard-validation-form').on('submit', function(e) {
-            if ($('#email').hasClass('is-invalid')) {
-                e.preventDefault();
-                toastr.error('يرجى إدخال بريد إلكتروني صحيح ومتاح');
-                return false;
-            }
-        });
-        
-        // التحقق الأولي عند تحميل الصفحة
-        updateButtonState();
-    });
-</script>
+    </script>
 
 @endsection
 
@@ -216,8 +230,8 @@
                                 </div>
 
                                 <div class="col-12 d-flex justify-content-between">
-                                    <button type="button" class="btn btn-label-secondary btn-prev" disabled>
-                                        <i class="ti ti-arrow-left ti-xs me-sm-2 me-0"></i>
+                                    <button type="button" class="btn btn-secondary btn-prev" disabled>
+                                        <i class="ti ti-arrow-right ti-xs me-sm-2 me-0"></i>
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
                                     </button>
                                     <button type="button" class="btn btn-primary btn-next">
@@ -276,8 +290,8 @@
                                 </div>
 
                                 <div class="col-12 d-flex justify-content-between">
-                                    <button type="button" class="btn btn-label-secondary btn-prev">
-                                        <i class="ti ti-arrow-left ti-xs me-sm-2 me-0"></i>
+                                    <button type="button" class="btn btn-secondary btn-prev">
+                                        <i class="ti ti-arrow-right ti-xs me-sm-2 me-0"></i>
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
                                     </button>
                                     <button type="button" class="btn btn-primary btn-next btn-submit">

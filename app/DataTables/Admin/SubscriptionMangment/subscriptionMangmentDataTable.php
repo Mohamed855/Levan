@@ -20,7 +20,7 @@ class subscriptionMangmentDataTable extends AbstractDataTable
 
     protected function resource()
     {
-        return Subscription::query()->with(['plan', 'currentPeriod', 'tenant']);
+        return Subscription::query()->with(['plan', 'currentPeriod', 'tenant.city']);
     }
 
     protected function getColumns(): array
@@ -39,6 +39,9 @@ class subscriptionMangmentDataTable extends AbstractDataTable
                 'titleAttr' => 'تحديد الكل',
             ],
             ['data' => 'company_name',    'name' => 'company_name',     'title' => 'اسم الشركة'],
+            ['data' => 'city', 'name' => 'city_id', 'title' => 'المدينة'],
+            ['data' => 'tax_number', 'name' => 'tax_number', 'title' => 'الرقم الضريبي'],
+            ['data' => 'tenant_status', 'name' => 'tenant_status', 'title' => 'حالة الشركة'],
             ['data' => 'tenant_id',       'name' => 'tenant_id',        'title' => 'معرف العميل'],
             ['data' => 'version',              'name' => 'version',            'title' => 'رقم الإصدار'],
 
@@ -47,6 +50,7 @@ class subscriptionMangmentDataTable extends AbstractDataTable
             ['data' => 'used_users',      'name' => 'used_users',       'title' => 'التراخيص المستخدمة'],
             ['data' => 'starts_at',       'name' => 'starts_at',        'title' => 'بداية اول اشتراك'],
             ['data' => 'period_end',      'name' => 'period_end',       'title' => 'نهاية الإشتراك الحالي'],
+            ['data' => 'ends_at', 'name' => 'ends_at', 'title' => 'نهاية الاشتراك'],
 
             ['data' => 'days_remaining',    'name' => 'days_remaining', 'title' => 'الأيام المتبقية', 'orderable' => false],
             ['data' => 'status',            'name' => 'status',         'title' => 'الحالة'],
@@ -70,6 +74,14 @@ class subscriptionMangmentDataTable extends AbstractDataTable
                 return $row->tenant->company_name ?? '-';
             })
 
+            ->addColumn('city', fn ($row) => $row->tenant?->city?->name ?? '-')
+            ->addColumn('tax_number', fn ($row) => $row->tenant?->tax_number ?? '-')
+            ->addColumn('tenant_status', function ($row) {
+                $status = $row->tenant?->status ?? 'pending';
+                $labels = ['draft' => 'مسودة', 'pending' => 'قيد المراجعة', 'active' => 'نشطة'];
+                $classes = ['draft' => 'secondary', 'pending' => 'warning', 'active' => 'success'];
+                return '<span class="badge bg-label-' . ($classes[$status] ?? 'secondary') . '">' . ($labels[$status] ?? $status) . '</span>';
+            })
             ->editColumn('tenant_id', function ($row) {
                 $url = route('admin.companies.tenant-access', ['tenant' => $row->tenant_id]);
 
@@ -91,6 +103,7 @@ class subscriptionMangmentDataTable extends AbstractDataTable
                 return $row->starts_at?->format('Y-m-d') ?? '-';
             })
 
+            ->editColumn('ends_at', fn ($row) => $row->ends_at?->format('Y-m-d') ?? '-')
             ->editColumn('period_end', function ($row) {
                 $latestPeriod = $row->periods()->latest('period_end')->first();
 
@@ -180,7 +193,7 @@ class subscriptionMangmentDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        $columns = ['checkbox', 'tenant_id', 'plan_id', 'billing_cycle', 'days_remaining', 'status'];
+        $columns = ['checkbox', 'tenant_id', 'plan_id', 'billing_cycle', 'city', 'tax_number', 'tenant_status', 'days_remaining', 'status'];
 
         if (! $this->isExpiringRoute()) {
             $columns[] = 'actions';

@@ -152,7 +152,7 @@ class AdminTicketsDataTable extends AbstractDataTable
                         cancelButtonText: 'إلغاء',
                         customClass: {
                             confirmButton: 'btn btn-primary me-2',
-                            cancelButton: 'btn btn-label-secondary'
+                            cancelButton: 'btn btn-secondary'
                         },
                         buttonsStyling: false
                     }).then(function(result) {

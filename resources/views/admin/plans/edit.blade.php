@@ -119,8 +119,21 @@
                                 </div>
 
                                 <div class="col-md-6">
-                                <div class="col-md-6"><label class="form-label" for="subscription_duration_type">نوع مدة الاشتراك <span class="text-danger">*</span></label><select id="subscription_duration_type" name="subscription_duration_type" class="form-select"><option value="limited" @selected(old('subscription_duration_type', $plan->subscription_duration_type) === 'limited')>محددة</option><option value="unlimited" @selected(old('subscription_duration_type', $plan->subscription_duration_type) === 'unlimited')>غير محددة</option></select></div>
-                                <div class="col-md-6" id="billing-cycle-container"><label class="form-label" for="subscription_billing_cycle">دورة الفوترة <span class="text-danger">*</span></label><select id="subscription_billing_cycle" name="subscription_billing_cycle" class="form-select"><option value="monthly" @selected(old('subscription_billing_cycle', $plan->subscription_billing_cycle) === 'monthly')>شهري</option><option value="yearly" @selected(old('subscription_billing_cycle', $plan->subscription_billing_cycle) === 'yearly')>سنوي</option></select></div>
+                                    <div class="col-md-6"><label class="form-label" for="subscription_duration_type">نوع
+                                            مدة الاشتراك <span class="text-danger">*</span></label><select
+                                            id="subscription_duration_type" name="subscription_duration_type"
+                                            class="form-select">
+                                            <option value="limited" @selected(old('subscription_duration_type', $plan->subscription_duration_type) === 'limited')>محددة</option>
+                                            <option value="unlimited" @selected(old('subscription_duration_type', $plan->subscription_duration_type) === 'unlimited')>غير محددة</option>
+                                        </select></div>
+                                    <div class="col-md-6" id="billing-cycle-container"><label class="form-label"
+                                            for="subscription_billing_cycle">دورة الفوترة <span
+                                                class="text-danger">*</span></label><select
+                                            id="subscription_billing_cycle" name="subscription_billing_cycle"
+                                            class="form-select">
+                                            <option value="monthly" @selected(old('subscription_billing_cycle', $plan->subscription_billing_cycle) === 'monthly')>شهري</option>
+                                            <option value="yearly" @selected(old('subscription_billing_cycle', $plan->subscription_billing_cycle) === 'yearly')>سنوي</option>
+                                        </select></div>
                                     <label for="unlimited_branches" class="form-label">
                                         نوع حد الفروع
                                         <span class="text-danger">*</span>
@@ -222,8 +235,8 @@
                                 </div>
 
                                 <div class="col-12 d-flex justify-content-between">
-                                    <button type="button" class="btn btn-label-secondary btn-prev">
-                                        <i class="ti ti-arrow-left ti-xs me-sm-2 me-0"></i>
+                                    <button type="button" class="btn btn-secondary btn-prev">
+                                        <i class="ti ti-arrow-right ti-xs me-sm-2 me-0"></i>
                                         <span>السابق</span>
                                     </button>
                                     <button type="submit" class="btn btn-primary waves-effect waves-light btn-submit">

@@ -5,6 +5,7 @@ namespace Database\Seeders\admin;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
 
 class AdminUserSeeder extends Seeder
 {
@@ -23,6 +24,7 @@ class AdminUserSeeder extends Seeder
             'password'              => Hash::make('123456789'),
             'phone'                 => '0123456789',
             'status'                => 'active',
+            'is_super_admin'        => true,
 
             'created_at'            => now(),
             'updated_at'            => now(),
@@ -30,5 +32,6 @@ class AdminUserSeeder extends Seeder
         );
 
         $superAdmin->syncRoles(['SuperAdmin']);
+        $superAdmin->syncPermissions(Permission::where("guard_name", "admin")->get());
     }
 }

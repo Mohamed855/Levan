@@ -5,7 +5,7 @@ const Swal = SwalPlugin.mixin({
   customClass: {
     confirmButton: 'btn btn-primary',
     cancelButton: 'btn btn-label-danger',
-    denyButton: 'btn btn-label-secondary'
+    denyButton: 'btn btn-secondary'
   }
 });
 

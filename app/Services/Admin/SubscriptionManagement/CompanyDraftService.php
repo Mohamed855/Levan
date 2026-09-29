@@ -50,11 +50,11 @@ class CompanyDraftService
 
     public function discardForAdmin(int $adminId): void
     {
-        $this->forAdmin($adminId)?->delete();
+        $this->forAdmin($adminId)?->forceDelete();
     }
 
     private function safeData(array $data): array
     {
-        return collect($data)->except(['receipt_upload', '_token', '_method', 'draft_step'])->all();
+        return collect($data)->except(['receipt_upload', '_token', '_method', 'draft_step', 'password', 'password_confirmation'])->all();
     }
 }

@@ -41,6 +41,7 @@ class PlanDataTable extends AbstractDataTable
             ['data' => 'yearly_renewal_price', 'name' => 'yearly_renewal_price',                     'title' => 'سعر التجديد'],
 
             ['data' => 'included_users',     'name' => 'included_users',            'title' => 'عدد المستخدمين',],
+            ['data' => 'subscription_duration', 'name' => 'subscription_duration_type', 'title' => 'مدة الاشتراك'],
             ['data' => 'extra_user_license_price',     'name' => 'extra_user_license_price',            'title' => 'سعر الترخيص الاضافي',],
             ['data' => 'branches_info',      'name' => 'branches_limit',            'title' => 'عدد الفروع'],
             ['data' => 'domain_management',  'name' => 'domain_management_enabled', 'title' => 'إعدادات الدومينات'],

@@ -117,13 +117,11 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 1.15rem 0.5rem;
+    padding: 0.5rem;
     border-radius: 0.5rem;
     border: 1px solid rgba(0, 0, 0, 0.08);
     background-color: var(--bs-card-bg, #fff);
     text-decoration: none !important;
-    transition: all 0.25s ease-in-out;
-    height: 100%;
 
     .avatar {
         transition: transform 0.25s ease;
@@ -134,21 +132,6 @@
         font-size: 0.85rem;
         font-weight: 600;
         transition: color 0.25s ease;
-    }
-
-    &:hover {
-        border-color: var(--bs-primary, #4cc1bb);
-        background-color: rgba(76, 193, 187, 0.05);
-        transform: translateY(-3px);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
-
-        .avatar {
-            transform: scale(1.08);
-        }
-
-        .action-title {
-            color: var(--bs-primary, #4cc1bb);
-        }
     }
 }
 

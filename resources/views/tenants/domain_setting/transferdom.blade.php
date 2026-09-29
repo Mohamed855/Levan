@@ -6,30 +6,29 @@
 @endsection
 
 @php
-    $extensions = tenancy()->central(function() {
+    $extensions = tenancy()->central(function () {
         return App\Models\Admin\ControlDomain\ControlDomain::where('is_active', 1)->get();
     });
 
     $domainPrice = 100;
-    
+
     if (isset($domain) && !empty($domain)) {
         $domainParts = explode('.', trim($domain));
         $extension = strtolower(end($domainParts));
-        
-        $priceData = tenancy()->central(function() use ($extension) {
-            return App\Models\Admin\ControlDomain\ControlDomain::where(function($query) use ($extension) {
-                $query->where('domain_extension', $extension)
-                      ->orWhere('domain_extension', '.' . $extension);
+
+        $priceData = tenancy()->central(function () use ($extension) {
+            return App\Models\Admin\ControlDomain\ControlDomain::where(function ($query) use ($extension) {
+                $query->where('domain_extension', $extension)->orWhere('domain_extension', '.' . $extension);
             })
-            ->where('is_active', 1)
-            ->first();
+                ->where('is_active', 1)
+                ->first();
         });
-        
+
         if ($priceData && isset($priceData->price) && $priceData->price > 0) {
             $domainPrice = $priceData->price;
         }
     }
-    
+
     $amountInHalalas = $domainPrice * 100;
 @endphp
 
@@ -93,7 +92,7 @@
 
         <!-- Main Card -->
         <div class="main-card fade-in">
-            
+
             <div class="card-body" style="padding:16px">
 
                 <!-- Step 1: Check Domain -->
@@ -120,8 +119,8 @@
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="text" id="domain" name="domain" class="form-control"
-                                            placeholder="example.com" dir="ltr" value="{{ old('domain') }}"
-                                            required autofocus>
+                                            placeholder="example.com" dir="ltr" value="{{ old('domain') }}" required
+                                            autofocus>
                                         <small class="form-text">مثال: example.com أو mywebsite.net</small>
                                     </div>
                                 </div>
@@ -186,7 +185,8 @@
                                 </div>
                             </div>
 
-                            <form method="POST" action="{{ url('/' . tenant('id') . '/domains/transfer-dom-blade') }}" id="step2Form">
+                            <form method="POST" action="{{ url('/' . tenant('id') . '/domains/transfer-dom-blade') }}"
+                                id="step2Form">
                                 @csrf
                                 <input type="hidden" name="step" value="3">
                                 <input type="hidden" name="domain" value="{{ $domain }}">
@@ -228,7 +228,7 @@
                                         متابعة للدفع
                                     </button>
                                     <a href="{{ url('/' . tenant('id') . '/domains/transfer-dom-blade') }}"
-                                        class="btn btn-label-secondary">
+                                        class="btn btn-secondary">
                                         <i class="ti ti-arrow-right"></i>
                                         رجوع
                                     </a>
@@ -280,13 +280,15 @@
                                         <ul class="mb-0">
                                             <li>رسوم النقل تشمل تجديد الدومين لمدة سنة إضافية</li>
                                             <li>عملية النقل قد تستغرق من 5-7 أيام عمل</li>
-                                            <li>السعر النهائي: <strong>{{ number_format($domainPrice, 2) }} ريال</strong></li>
+                                            <li>السعر النهائي: <strong>{{ number_format($domainPrice, 2) }} ريال</strong>
+                                            </li>
                                         </ul>
                                     </div>
                                 </div>
                             </div>
 
-                            <form method="POST" action="{{ tenant_route_name('domains.process-transfer-payment') }}" id="paymentForm">
+                            <form method="POST" action="{{ tenant_route_name('domains.process-transfer-payment') }}"
+                                id="paymentForm">
                                 @csrf
                                 <input type="hidden" name="domain" value="{{ $domain }}">
                                 <input type="hidden" name="eppCode" value="{{ request('eppCode') }}">
@@ -307,8 +309,8 @@
                                         </label>
                                         <div class="input-group">
                                             <input type="text" class="form-control" id="cardNumber"
-                                                name="card_number" placeholder="1234 5678 9012 3456"
-                                                dir="ltr" maxlength="19" required autocomplete="cc-number">
+                                                name="card_number" placeholder="1234 5678 9012 3456" dir="ltr"
+                                                maxlength="19" required autocomplete="cc-number">
                                             <span class="input-group-text" id="cardTypeIcon">
                                                 <i class="ti ti-credit-card"></i>
                                             </span>
@@ -323,9 +325,9 @@
                                             اسم حامل البطاقة
                                             <span class="text-danger">*</span>
                                         </label>
-                                        <input type="text" class="form-control" id="cardHolder"
-                                            name="card_holder" placeholder="كما هو مكتوب على البطاقة"
-                                            dir="ltr" required autocomplete="cc-name">
+                                        <input type="text" class="form-control" id="cardHolder" name="card_holder"
+                                            placeholder="كما هو مكتوب على البطاقة" dir="ltr" required
+                                            autocomplete="cc-name">
                                         <small class="form-text">الاسم باللغة الإنجليزية كما هو على البطاقة</small>
                                     </div>
 
@@ -338,8 +340,8 @@
                                                 <span class="text-danger">*</span>
                                             </label>
                                             <input type="text" class="form-control" id="expiryDate"
-                                                name="expiry_date" placeholder="MM/YY" dir="ltr"
-                                                maxlength="5" required autocomplete="cc-exp">
+                                                name="expiry_date" placeholder="MM/YY" dir="ltr" maxlength="5"
+                                                required autocomplete="cc-exp">
                                             <small class="form-text">مثال: 12/25</small>
                                         </div>
 
@@ -350,15 +352,16 @@
                                                 CVC/CVV
                                                 <span class="text-danger">*</span>
                                             </label>
-                                            <input type="text" class="form-control" id="cvc"
-                                                name="cvc" placeholder="123" dir="ltr"
-                                                maxlength="4" required autocomplete="cc-csc">
+                                            <input type="text" class="form-control" id="cvc" name="cvc"
+                                                placeholder="123" dir="ltr" maxlength="4" required
+                                                autocomplete="cc-csc">
                                             <small class="form-text">الرقم خلف البطاقة (3-4 أرقام)</small>
                                         </div>
                                     </div>
 
                                     <!-- Security Info -->
-                                    <div class="d-flex align-items-start gap-2 p-3 rounded" style="background: #f0fdf4; border: 1px solid #bbf7d0;">
+                                    <div class="d-flex align-items-start gap-2 p-3 rounded"
+                                        style="background: #f0fdf4; border: 1px solid #bbf7d0;">
                                         <i class="ti ti-shield-check" style="font-size: 18px; color: #15803d;"></i>
                                         <div style="font-size: 12px; color: #14532d;">
                                             <strong>دفع آمن ومشفر بنسبة 100%</strong><br>
@@ -373,7 +376,7 @@
                                         إتمام الدفع ({{ number_format($domainPrice, 2) }} ر.س)
                                     </button>
                                     <a href="{{ url('/' . tenant('id') . '/domains/transfer-dom-blade?step=2&domain=' . $domain . '&eppCode=' . request('eppCode')) }}"
-                                        class="btn btn-label-secondary">
+                                        class="btn btn-secondary">
                                         <i class="ti ti-arrow-right"></i>
                                         رجوع
                                     </a>
@@ -399,7 +402,8 @@
                                 سيتم معالجة طلبك في أقرب وقت ممكن
                             </p>
 
-                            <div class="info-card d-inline-flex align-items-center justify-content-center mb-4" style="max-width: 400px;">
+                            <div class="info-card d-inline-flex align-items-center justify-content-center mb-4"
+                                style="max-width: 400px;">
                                 <i class="ti ti-clock" style="font-size: 20px; color: #0284c7;"></i>
                                 <span style="margin-right: 8px; font-weight: 600; color: #0c4a6e;">
                                     عملية النقل قد تستغرق من 5 إلى 7 أيام عمل
@@ -411,7 +415,8 @@
                                     <i class="ti ti-home"></i>
                                     العودة للوحة التحكم
                                 </a>
-                                <a href="{{ url('/' . tenant('id') . '/domains/transfer-dom-blade') }}" class="btn btn-label-secondary">
+                                <a href="{{ url('/' . tenant('id') . '/domains/transfer-dom-blade') }}"
+                                    class="btn btn-secondary">
                                     <i class="ti ti-plus"></i>
                                     نقل دومين آخر
                                 </a>
@@ -461,7 +466,7 @@
                         warning: 'ti-alert-triangle',
                         info: 'ti-info-circle'
                     };
-                    
+
                     const alertHtml = `
                         <div class="alert alert-${type} alert-dismissible fade-in" style="margin-bottom: 20px;">
                             <i class="ti ${icons[type] || 'ti-info-circle'}" style="font-size: 18px;"></i>
@@ -470,7 +475,10 @@
                         </div>
                     `;
                     alertContainer.innerHTML = alertHtml;
-                    alertContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    alertContainer.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest'
+                    });
                 }
             }
 
@@ -490,13 +498,15 @@
 
                     const domainRegex = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
                     if (!domainRegex.test(fullDomain)) {
-                        showAlert('<strong>خطأ:</strong> صيغة الدومين غير صحيحة. يرجى التحقق من الاسم المدخل', 'danger');
+                        showAlert('<strong>خطأ:</strong> صيغة الدومين غير صحيحة. يرجى التحقق من الاسم المدخل',
+                            'danger');
                         return;
                     }
 
                     showLoading('جاري التحقق من الدومين...', 'يرجى الانتظار بضع ثوان');
 
-                    const baseUrl = "{{ tenant_route_name('domains.checkExistTransferDomain', ['domain' => ':domain']) }}";
+                    const baseUrl =
+                        "{{ tenant_route_name('domains.checkExistTransferDomain', ['domain' => ':domain']) }}";
                     const finalUrl = baseUrl.replace(':domain', fullDomain);
 
                     $.ajax({
@@ -521,19 +531,25 @@
                                 );
 
                                 setTimeout(() => {
-                                    window.location.href = `/${tenantId}/domains/transfer-dom-blade?step=2&domain=${encodeURIComponent(fullDomain)}`;
+                                    window.location.href =
+                                        `/${tenantId}/domains/transfer-dom-blade?step=2&domain=${encodeURIComponent(fullDomain)}`;
                                 }, 1500);
-                            } else if(response.status == 'exists'){
-                                showAlert('<strong>تنبيه:</strong> هذا الدومين منقول بالفعل إلى حسابك', 'warning');
+                            } else if (response.status == 'exists') {
+                                showAlert(
+                                    '<strong>تنبيه:</strong> هذا الدومين منقول بالفعل إلى حسابك',
+                                    'warning');
                                 return;
                             } else {
-                                showAlert('<strong>خطأ:</strong> لا يمكن التحقق من هذا الدومين. يرجى المحاولة لاحقاً', 'warning');
+                                showAlert(
+                                    '<strong>خطأ:</strong> لا يمكن التحقق من هذا الدومين. يرجى المحاولة لاحقاً',
+                                    'warning');
                                 return;
                             }
                         },
                         error: function(xhr) {
                             hideLoading();
-                            const errorMsg = xhr.responseJSON?.message || 'حدث خطأ أثناء البحث. يرجى المحاولة مرة أخرى';
+                            const errorMsg = xhr.responseJSON?.message ||
+                                'حدث خطأ أثناء البحث. يرجى المحاولة مرة أخرى';
                             showAlert('<strong>خطأ:</strong> ' + errorMsg, 'danger');
                         }
                     });
@@ -571,20 +587,30 @@
                         const firstFourDigits = value.substring(0, 4);
 
                         if (firstDigit === '4') {
-                            cardTypeIcon.innerHTML = '<i class="ti ti-credit-card" style="color: #1434CB;"></i>';
-                            cardTypeText.innerHTML = '<span style="color: #1434CB; font-weight: 600;">بطاقة Visa</span>';
+                            cardTypeIcon.innerHTML =
+                            '<i class="ti ti-credit-card" style="color: #1434CB;"></i>';
+                            cardTypeText.innerHTML =
+                                '<span style="color: #1434CB; font-weight: 600;">بطاقة Visa</span>';
                         } else if (firstTwoDigits >= '51' && firstTwoDigits <= '55') {
-                            cardTypeIcon.innerHTML = '<i class="ti ti-credit-card" style="color: #EB001B;"></i>';
-                            cardTypeText.innerHTML = '<span style="color: #EB001B; font-weight: 600;">بطاقة Mastercard</span>';
+                            cardTypeIcon.innerHTML =
+                            '<i class="ti ti-credit-card" style="color: #EB001B;"></i>';
+                            cardTypeText.innerHTML =
+                                '<span style="color: #EB001B; font-weight: 600;">بطاقة Mastercard</span>';
                         } else if (firstTwoDigits === '34' || firstTwoDigits === '37') {
-                            cardTypeIcon.innerHTML = '<i class="ti ti-credit-card" style="color: #006FCF;"></i>';
-                            cardTypeText.innerHTML = '<span style="color: #006FCF; font-weight: 600;">بطاقة American Express</span>';
+                            cardTypeIcon.innerHTML =
+                            '<i class="ti ti-credit-card" style="color: #006FCF;"></i>';
+                            cardTypeText.innerHTML =
+                                '<span style="color: #006FCF; font-weight: 600;">بطاقة American Express</span>';
                         } else if (firstFourDigits >= '2221' && firstFourDigits <= '2720') {
-                            cardTypeIcon.innerHTML = '<i class="ti ti-credit-card" style="color: #EB001B;"></i>';
-                            cardTypeText.innerHTML = '<span style="color: #EB001B; font-weight: 600;">بطاقة Mastercard</span>';
+                            cardTypeIcon.innerHTML =
+                            '<i class="ti ti-credit-card" style="color: #EB001B;"></i>';
+                            cardTypeText.innerHTML =
+                                '<span style="color: #EB001B; font-weight: 600;">بطاقة Mastercard</span>';
                         } else if (firstTwoDigits === '60' || firstTwoDigits === '65') {
-                            cardTypeIcon.innerHTML = '<i class="ti ti-credit-card" style="color: #FF6000;"></i>';
-                            cardTypeText.innerHTML = '<span style="color: #FF6000; font-weight: 600;">بطاقة Discover</span>';
+                            cardTypeIcon.innerHTML =
+                            '<i class="ti ti-credit-card" style="color: #FF6000;"></i>';
+                            cardTypeText.innerHTML =
+                                '<span style="color: #FF6000; font-weight: 600;">بطاقة Discover</span>';
                         } else {
                             cardTypeIcon.innerHTML = '<i class="ti ti-credit-card"></i>';
                             cardTypeText.innerHTML = 'أدخل رقم البطاقة';
@@ -646,7 +672,8 @@
 
                     const expiryDate = document.getElementById('expiryDate');
                     const expiryParts = expiryDate.value.split('/');
-                    if (expiryParts.length !== 2 || expiryParts[0].length !== 2 || expiryParts[1].length !== 2) {
+                    if (expiryParts.length !== 2 || expiryParts[0].length !== 2 || expiryParts[1].length !==
+                        2) {
                         alert('⚠️ تاريخ الانتهاء غير صحيح. الصيغة الصحيحة: MM/YY');
                         expiryDate.focus();
                         return;

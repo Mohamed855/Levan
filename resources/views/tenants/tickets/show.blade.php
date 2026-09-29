@@ -111,7 +111,7 @@
             <p class="text-muted mb-0">{{ $ticket->title }}</p>
         </div>
         <div>
-            <a href="{{ tenant_route_name('tickets.index') }}" class="btn btn-label-secondary">
+            <a href="{{ tenant_route_name('tickets.index') }}" class="btn btn-secondary">
                 <i class="ti ti-arrow-right me-1"></i> العودة لقائمة التذاكر
             </a>
         </div>

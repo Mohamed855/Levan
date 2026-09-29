@@ -76,22 +76,27 @@
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label" for="tax_number">الرقم الضريبي <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="tax_number" name="tax_number" value="{{ old('tax_number', $subscription->tenant->tax_number) }}" required>
+                                    <label class="form-label" for="tax_number">الرقم الضريبي <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="tax_number" name="tax_number"
+                                        value="{{ old('tax_number', $subscription->tenant->tax_number) }}" required>
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label" for="city_id">المدينة <span class="text-danger">*</span></label>
+                                    <label class="form-label" for="city_id">المدينة <span
+                                            class="text-danger">*</span></label>
                                     <select class="form-select select2" id="city_id" name="city_id" required>
                                         <option value="">اختر المدينة</option>
                                         @foreach ($cities as $city)
-                                            <option value="{{ $city->id }}" @selected(old('city_id', $subscription->tenant->city_id) == $city->id)>{{ $city->name }}</option>
+                                            <option value="{{ $city->id }}" @selected(old('city_id', $subscription->tenant->city_id) == $city->id)>
+                                                {{ $city->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label" for="address">العنوان <span class="text-danger">*</span></label>
+                                    <label class="form-label" for="address">العنوان <span
+                                            class="text-danger">*</span></label>
                                     <textarea class="form-control" id="address" name="address" rows="2" required>{{ old('address', $subscription->tenant->address) }}</textarea>
                                 </div>
 
@@ -108,6 +113,8 @@
                                             <option value="{{ $plan->id }}" data-price="{{ $plan->price }}"
                                                 data-yearly-price="{{ $plan->yearly_renewal_price }}"
                                                 data-users="{{ $plan->included_users }}"
+                                                data-duration="{{ $plan->subscription_duration_type }}"
+                                                data-cycle="{{ $plan->subscription_billing_cycle }}"
                                                 {{ old('plan_id', $subscription->plan_id) == $plan->id ? 'selected' : '' }}>
                                                 {{ $plan->name }} - ({{ number_format($plan->price, 2) }} ريال)
                                             </option>
@@ -152,7 +159,8 @@
                                         عدد التراخيص الإضافية
                                     </label>
                                     <input type="number" class="form-control" name="licenses_quota" id="licenses-count"
-                                        min="0" value="{{ old('licenses_quota', $subscription->used_users ?? 0) }}"
+                                        min="0"
+                                        value="{{ old('licenses_quota', $subscription->used_users ?? 0) }}"
                                         step="1" placeholder="0">
                                     <small class="text-muted">سعر الترخيص الإضافي:
                                         {{ number_format($subscription->plan->extra_user_license_price, 2) }} ريال</small>
@@ -164,8 +172,8 @@
                                         <i class="ti ti-info-circle me-1"></i>
                                         حالة الاشتراك
                                     </label>
-                                    <select class="form-select select2" data-placeholder="اختر حالة الاشتراك" name="status"
-                                        id="status" required>
+                                    <select class="form-select select2" data-placeholder="اختر حالة الاشتراك"
+                                        name="status" id="status" required>
                                         <option value=""></option>
                                         @foreach ($allStatus as $status)
                                             <option value="{{ $status['id'] }}"
@@ -211,9 +219,13 @@
                                         required>
                                 </div>
 
+                                <div class="col-md-6"><label class="form-label" for="ends_at">تاريخ نهاية الاشتراك <span
+                                            id="ends-at-required" class="text-danger">*</span></label><input
+                                        type="date" class="form-control" name="ends_at" id="ends_at"
+                                        value="{{ old('ends_at', $subscription->ends_at ? \Carbon\Carbon::parse($subscription->ends_at)->format('Y-m-d') : '') }}"><small
+                                        id="ends-at-hint" class="text-muted"></small></div>
                                 <!-- تاريخ الدفع التالي -->
                                 <div class="col-md-6">
-                                <div class="col-md-6"><label class="form-label" for="ends_at">تاريخ نهاية الاشتراك</label><input type="date" class="form-control" name="ends_at" id="ends_at" value="{{ old('ends_at', $subscription->ends_at ? \Carbon\Carbon::parse($subscription->ends_at)->format('Y-m-d') : '') }}"></div>
                                     <label class="form-label" for="next_payment_date">
                                         <i class="ti ti-calendar-event me-1"></i>
                                         تاريخ الدفع التالي
@@ -249,12 +261,14 @@
                                                     ريال</strong></li>
                                             <li>سعر التجديد السنوي:
                                                 <strong>{{ number_format($subscription->plan->yearly_renewal_price, 2) }}
-                                                    ريال</strong></li>
+                                                    ريال</strong>
+                                            </li>
                                             <li>عدد المستخدمين المضمن: <strong>{{ $subscription->plan->included_users }}
                                                     مستخدم</strong></li>
                                             <li>سعر الترخيص الإضافي:
                                                 <strong>{{ number_format($subscription->plan->extra_user_license_price, 2) }}
-                                                    ريال</strong></li>
+                                                    ريال</strong>
+                                            </li>
                                             @if ($subscription->plan->unlimited_branches)
                                                 <li>الفروع: <strong>غير محدودة</strong></li>
                                             @endif
@@ -265,7 +279,7 @@
                             </div>
 
                             <div class="col-12 d-flex justify-content-end mt-4">
-                                <a href="{{ route('admin.companies.index') }}" class="btn btn-label-secondary me-2">
+                                <a href="{{ route('admin.companies.index') }}" class="btn btn-secondary me-2">
                                     <i class="ti ti-arrow-right me-1"></i>
                                     إلغاء
                                 </a>

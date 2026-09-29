@@ -802,7 +802,7 @@ function handleExecute() {
         showCancelButton: true,
         confirmButtonText: 'نعم، نفذ الآن!',
         cancelButtonText: 'إلغاء',
-        customClass: { confirmButton: 'btn btn-primary me-2', cancelButton: 'btn btn-label-secondary' },
+        customClass: { confirmButton: 'btn btn-primary me-2', cancelButton: 'btn btn-secondary' },
         buttonsStyling: false
     }).then(result => {
         if (result.isConfirmed) {

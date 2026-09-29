@@ -121,4 +121,25 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
         });
     }
+    const planSelect = document.getElementById("plan_id");
+    const startsAt = document.getElementById("starts_at");
+    const endsAt = document.getElementById("ends_at");
+    const totalUsers = document.getElementById("total_users");
+    const endsAtHint = document.getElementById("ends-at-hint");
+    const endsAtRequired = document.getElementById("ends-at-required");
+    function syncSubscriptionEndDate() {
+        const option = planSelect?.options[planSelect.selectedIndex];
+        if (!option || !endsAt || !startsAt) return;
+        const limited = option.dataset.duration === "limited";
+        endsAt.disabled = limited;
+        endsAt.required = !limited;
+        if (endsAtRequired) endsAtRequired.style.display = limited ? "none" : "inline";
+        if (totalUsers && option.dataset.users && Number(totalUsers.value || 0) < Number(option.dataset.users)) totalUsers.value = option.dataset.users;
+        if (!limited) { if (endsAtHint) endsAtHint.textContent = "مطلوب للباقة غير محددة المدة"; return; }
+        if (startsAt.value) { const date = new Date(startsAt.value + "T00:00:00"); date.setMonth(date.getMonth() + (option.dataset.cycle === "monthly" ? 1 : 12)); endsAt.value = date.toISOString().slice(0, 10); }
+        if (endsAtHint) endsAtHint.textContent = "محسوب تلقائيًا وفق دورة الباقة";
+    }
+    planSelect?.addEventListener("change", syncSubscriptionEndDate);
+    startsAt?.addEventListener("change", syncSubscriptionEndDate);
+    syncSubscriptionEndDate();
 });

@@ -56,7 +56,7 @@ function deleteSingleTarget(targetId, deleteRoute) {
         cancelButtonText: 'إلغاء',
         customClass: {
             confirmButton: 'btn btn-danger me-2',
-            cancelButton: 'btn btn-label-secondary'
+            cancelButton: 'btn btn-secondary'
         },
         buttonsStyling: false
     }).then((result) => {

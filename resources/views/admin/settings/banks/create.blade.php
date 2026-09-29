@@ -11,7 +11,7 @@
                 <i class="ti ti-building-bank me-2"></i>
                 إضافة بنك جديد
             </h4>
-            <a href="{{ route('admin.settings.banks.index') }}" class="btn btn-label-secondary">
+            <a href="{{ route('admin.settings.banks.index') }}" class="btn btn-secondary">
                 <i class="ti ti-arrow-right me-1"></i>
                 العودة للقائمة
             </a>
@@ -120,7 +120,7 @@
                             <i class="ti ti-device-floppy me-1"></i>
                             حفظ البنك
                         </button>
-                        <a href="{{ route('admin.settings.banks.index') }}" class="btn btn-label-secondary">
+                        <a href="{{ route('admin.settings.banks.index') }}" class="btn btn-secondary">
                             <i class="ti ti-x me-1"></i>
                             إلغاء
                         </a>

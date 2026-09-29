@@ -246,10 +246,12 @@ class SubscriptionService
     // For the Admin
     private function processAdminSubscription(Bill $bill, array $data): array
     {
-        [$subscriptionStatus, $periodStatus] = $this->resolveSubscriptionStatus($data['payment_type']);
         if (! empty($data['activate_immediately'])) {
             $subscriptionStatus = SubscriptionStatus::ACTIVE;
             $periodStatus = SubscriptionPeriodStatus::ACTIVE;
+        } else {
+            $subscriptionStatus = SubscriptionStatus::PENDING;
+            $periodStatus = SubscriptionPeriodStatus::PENDING_PAYMENT;
         }
 
         // Get Plan

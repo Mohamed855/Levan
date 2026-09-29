@@ -22,6 +22,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class SubscriptionManagementController extends Controller
 {
@@ -209,11 +210,28 @@ class SubscriptionManagementController extends Controller
             DB::beginTransaction();
 
             $tenant = Tenant::where('id', $validated['tenant_id'])->firstOrFail();
+            $plan = Plan::findOrFail($validated['plan_id']);
+            if ($validated['total_users'] < $plan->included_users) {
+                throw new InvalidArgumentException('لا يمكن أن يقل عدد المستخدمين عن المستخدمين المشمولين في الباقة.');
+            }
+
+            if ($plan->subscription_duration_type === 'limited') {
+                $startsAt = Carbon::parse($validated['starts_at']);
+                $endsAt = $plan->subscription_billing_cycle === 'monthly'
+                    ? $startsAt->copy()->addMonth()
+                    : $startsAt->copy()->addYear();
+            } else {
+                if (empty($validated['ends_at'])) {
+                    return redirect()->back()->withInput()->with('error', 'تاريخ نهاية الاشتراك مطلوب للباقات غير محددة المدة');
+                }
+                $endsAt = Carbon::parse($validated['ends_at']);
+            }
 
             $tenant->update([
                 'tax_number' => $validated['tax_number'],
                 'city_id'    => $validated['city_id'],
                 'address'    => $validated['address'],
+                'status'     => $validated['status'] === SubscriptionStatus::ACTIVE->value ? 'active' : 'pending',
             ]);
 
             $subscription->update([
@@ -221,16 +239,24 @@ class SubscriptionManagementController extends Controller
                 'price'             => $validated['price'],
                 'status'            => $validated['status'],
                 'total_users'       => $validated['total_users'],
-                'used_users'        => $validated['licenses_quota'] ?? 0,
+                'used_users'        => $validated['licenses_quota'] ?? $subscription->used_users,
                 'starts_at'         => $validated['starts_at'],
-                'ends_at'           => $validated['ends_at'] ?? $subscription->ends_at,
-                'next_payment_date' => $validated['next_payment_date'],
+                'ends_at'           => $endsAt,
+                'next_payment_date' => $validated['next_payment_date'] ?? $subscription->next_payment_date,
                 'auto_renew'        => $request->has('auto_renew'),
             ]);
 
+            // مزامنة فترة الاشتراك
+            $period = $subscription->currentPeriod ?? $subscription->periods()->latest('period_end')->first();
+            if ($period) {
+                $period->update([
+                    'period_start' => $validated['starts_at'],
+                    'period_end'   => $endsAt,
+                ]);
+            }
+
             if ($subscription->wasChanged('plan_id')) {
-                $newPlan = Plan::findOrFail($validated['plan_id']);
-                $tenant->branches_limit = $newPlan->unlimited_branches ? null : $newPlan->branches_limit;
+                $tenant->branches_limit = $plan->unlimited_branches ? null : $plan->branches_limit;
                 $tenant->save();
             }
 
@@ -262,6 +288,7 @@ class SubscriptionManagementController extends Controller
             $subscription->update([
                 'status' => SubscriptionStatus::ACTIVE,
             ]);
+            Tenant::whereKey($subscription->tenant_id)->update(['status' => 'active']);
 
             $subscription->periods()->update([
                 'status' => SubscriptionPeriodStatus::ACTIVE,
@@ -373,6 +400,7 @@ class SubscriptionManagementController extends Controller
                     $subscription->update([
                         'status' => SubscriptionStatus::ACTIVE,
                     ]);
+                    Tenant::whereKey($subscription->tenant_id)->update(['status' => 'active']);
 
                     $subscription->periods()->update([
                         'status' => SubscriptionPeriodStatus::ACTIVE,

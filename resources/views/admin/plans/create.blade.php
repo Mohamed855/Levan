@@ -16,40 +16,42 @@
 
 @section('page-script')
     @vite(['resources/assets/js/admin/plans/form-validation.js'])
-    
+
     <script>
         $(document).ready(function() {
             const $form = $('#wizard-validation-form');
             const $submitBtn = $('.btn-submit');
             const originalText = $submitBtn.html();
             let isSubmitting = false;
-            
+
             // منع الإرسال الافتراضي وإعادة الإرسال يدوياً
             $submitBtn.on('click', function(e) {
                 e.preventDefault();
-                
+
                 // منع الإرسال المتكرر
                 if (isSubmitting) {
                     return false;
                 }
-                
+
                 // التحقق من وجود ميزات
                 const featuresCount = $('#features-list .feature-item').length;
                 if (featuresCount === 0) {
                     toastr.error('يجب إضافة ميزة واحدة على الأقل');
                     return false;
                 }
-                
+
                 // تعيين حالة الإرسال
                 isSubmitting = true;
-                
+
                 // تعطيل الزر وتغيير النص
                 $submitBtn.prop('disabled', true).addClass('disabled');
-                $submitBtn.html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>جاري الحفظ...');
-                
+                $submitBtn.html(
+                    '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>جاري الحفظ...'
+                );
+
                 // تعطيل زر السابق
                 $('.btn-prev').prop('disabled', true);
-                
+
                 // إرسال الفورم
                 $form[0].submit();
             });
@@ -156,8 +158,21 @@
                                 </div>
 
                                 <div class="col-md-6">
-                                <div class="col-md-6"><label class="form-label" for="subscription_duration_type">نوع مدة الاشتراك <span class="text-danger">*</span></label><select id="subscription_duration_type" name="subscription_duration_type" class="form-select"><option value="limited" @selected(old('subscription_duration_type', 'limited') === 'limited')>محددة</option><option value="unlimited" @selected(old('subscription_duration_type') === 'unlimited')>غير محددة</option></select></div>
-                                <div class="col-md-6" id="billing-cycle-container"><label class="form-label" for="subscription_billing_cycle">دورة الفوترة <span class="text-danger">*</span></label><select id="subscription_billing_cycle" name="subscription_billing_cycle" class="form-select"><option value="monthly" @selected(old('subscription_billing_cycle') === 'monthly')>شهري</option><option value="yearly" @selected(old('subscription_billing_cycle', 'yearly') === 'yearly')>سنوي</option></select></div>
+                                    <div class="col-md-6"><label class="form-label" for="subscription_duration_type">نوع
+                                            مدة الاشتراك <span class="text-danger">*</span></label><select
+                                            id="subscription_duration_type" name="subscription_duration_type"
+                                            class="form-select">
+                                            <option value="limited" @selected(old('subscription_duration_type', 'limited') === 'limited')>محددة</option>
+                                            <option value="unlimited" @selected(old('subscription_duration_type') === 'unlimited')>غير محددة</option>
+                                        </select></div>
+                                    <div class="col-md-6" id="billing-cycle-container"><label class="form-label"
+                                            for="subscription_billing_cycle">دورة الفوترة <span
+                                                class="text-danger">*</span></label><select
+                                            id="subscription_billing_cycle" name="subscription_billing_cycle"
+                                            class="form-select">
+                                            <option value="monthly" @selected(old('subscription_billing_cycle') === 'monthly')>شهري</option>
+                                            <option value="yearly" @selected(old('subscription_billing_cycle', 'yearly') === 'yearly')>سنوي</option>
+                                        </select></div>
                                     <label for="unlimited_branches" class="form-label">
                                         نوع حد الفروع
                                         <span class="text-danger">*</span>
@@ -244,8 +259,8 @@
                                 </div>
 
                                 <div class="col-12 d-flex justify-content-between">
-                                    <button type="button" class="btn btn-label-secondary btn-prev">
-                                        <i class="ti ti-arrow-left ti-xs me-sm-2 me-0"></i>
+                                    <button type="button" class="btn btn-secondary btn-prev">
+                                        <i class="ti ti-arrow-right ti-xs me-sm-2 me-0"></i>
                                         <span>السابق</span>
                                     </button>
                                     <button type="button" class="btn btn-primary waves-effect waves-light btn-submit">

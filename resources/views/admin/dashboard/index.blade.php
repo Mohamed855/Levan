@@ -238,7 +238,7 @@
 
         {{-- أحدث طلبات الإشتراك --}}
         <div class="col-lg-8">
-            <div class="card dashboard-chart-card">
+            <div class="card h-100 dashboard-chart-card">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <h5 class="card-title mb-0">
                         <i class="ti ti-file me-1 text-primary"></i>

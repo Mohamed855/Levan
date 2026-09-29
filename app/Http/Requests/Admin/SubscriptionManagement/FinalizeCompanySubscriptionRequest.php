@@ -16,7 +16,7 @@ class FinalizeCompanySubscriptionRequest extends FormRequest
     {
         return [
             'company_name' => ['required', 'string', 'min:2', 'max:255'],
-            'commercial_number' => ['required', 'digits:10', 'unique:tenants,commercial_number'],
+            'commercial_number' => ['required', 'digits:10', Rule::unique('tenants', 'commercial_number')->where(fn($q) => $q->where('status', '!=', 'draft'))],
             'tax_number' => ['required', 'string', 'max:255'], 'city_id' => ['required', 'exists:cities,id'],
             'address' => ['required', 'string', 'max:1000'],
             'name' => ['required', 'string', 'min:2', 'max:255'], 'phone' => ['required', 'regex:/^05[0-9]{8}$/'],
