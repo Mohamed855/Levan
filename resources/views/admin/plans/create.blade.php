@@ -156,6 +156,8 @@
                                 </div>
 
                                 <div class="col-md-6">
+                                <div class="col-md-6"><label class="form-label" for="subscription_duration_type">نوع مدة الاشتراك <span class="text-danger">*</span></label><select id="subscription_duration_type" name="subscription_duration_type" class="form-select"><option value="limited" @selected(old('subscription_duration_type', 'limited') === 'limited')>محددة</option><option value="unlimited" @selected(old('subscription_duration_type') === 'unlimited')>غير محددة</option></select></div>
+                                <div class="col-md-6" id="billing-cycle-container"><label class="form-label" for="subscription_billing_cycle">دورة الفوترة <span class="text-danger">*</span></label><select id="subscription_billing_cycle" name="subscription_billing_cycle" class="form-select"><option value="monthly" @selected(old('subscription_billing_cycle') === 'monthly')>شهري</option><option value="yearly" @selected(old('subscription_billing_cycle', 'yearly') === 'yearly')>سنوي</option></select></div>
                                     <label for="unlimited_branches" class="form-label">
                                         نوع حد الفروع
                                         <span class="text-danger">*</span>

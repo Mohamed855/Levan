@@ -117,8 +117,9 @@
          Tables Row
     ═══════════════════════════════════════ --}}
     <div class="row g-3 mb-4">
-        <div class="col-lg-4">
-            <div class="card h-100 dashboard-chart-card mb-4">
+        <div class="col-lg-4 d-flex flex-column gap-3">
+            {{-- إجراءات سريعة --}}
+            <div class="card dashboard-chart-card">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <h5 class="card-title mb-0">
                         <i class="ti ti-bolt me-1 text-primary"></i>
@@ -126,32 +127,180 @@
                     </h5>
                 </div>
                 <div class="card-body">
-
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <a href="{{ route('admin.companies.create') }}" class="quick-action-box">
+                                <div class="avatar avatar-md mb-2">
+                                    <span class="avatar-initial rounded bg-label-primary">
+                                        <i class="ti ti-building fs-4"></i>
+                                    </span>
+                                </div>
+                                <span class="action-title">إضافة شركة</span>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{{ route('admin.plans.create') }}" class="quick-action-box">
+                                <div class="avatar avatar-md mb-2">
+                                    <span class="avatar-initial rounded bg-label-success">
+                                        <i class="ti ti-template fs-4"></i>
+                                    </span>
+                                </div>
+                                <span class="action-title">إضافة باقة</span>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{{ route('admin.subscriptionManage.expired') }}" class="quick-action-box">
+                                <div class="avatar avatar-md mb-2">
+                                    <span class="avatar-initial rounded bg-label-warning">
+                                        <i class="ti ti-user fs-4"></i>
+                                    </span>
+                                </div>
+                                <span class="action-title">تفعيل اشتراك</span>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{{ route('admin.subscriptionManage.pending') }}" class="quick-action-box">
+                                <div class="avatar avatar-md mb-2">
+                                    <span class="avatar-initial rounded bg-label-info">
+                                        <i class="ti ti-list fs-4"></i>
+                                    </span>
+                                </div>
+                                <span class="action-title">طلبات الاشتراك</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="card h-100 dashboard-chart-card">
+
+            {{-- أحدث الأنشطة --}}
+            <div class="card dashboard-chart-card flex-grow-1">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <h5 class="card-title mb-0">
                         <i class="ti ti-clock me-1 text-primary"></i>
                         أحدث الأنشطة
                     </h5>
+                    <a href="{{ route('admin.activity-logs.index') }}" class="btn btn-sm btn-label-primary">
+                        عرض الكل
+                    </a>
                 </div>
-                <div class="card-body">
-
+                <div class="card-body p-0">
+                    <div class="table-responsive text-nowrap">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>المستخدم</th>
+                                    <th>النشاط</th>
+                                    <th>الوقت</th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-border-bottom-0">
+                                @forelse($recentActivities as $activity)
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar avatar-xs me-2">
+                                                    <span class="avatar-initial rounded-circle bg-label-secondary">
+                                                        <i class="ti ti-user ti-xs"></i>
+                                                    </span>
+                                                </div>
+                                                <span
+                                                    class="fw-medium text-heading small">{{ $activity->causer_name }}</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-1">
+                                                <span
+                                                    class="badge bg-label-primary small">{{ $activity->formatted_event }}</span>
+                                                @if ($activity->formatted_module)
+                                                    <span
+                                                        class="text-muted small">({{ $activity->formatted_module }})</span>
+                                                @endif
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">{{ $activity->time_ago }}</small>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="3" class="text-center py-4 text-muted">
+                                            <i class="ti ti-info-circle fs-4 d-block mb-1"></i>
+                                            لا توجد أنشطة حديثة
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
 
+        {{-- أحدث طلبات الإشتراك --}}
         <div class="col-lg-8">
-            <div class="card h-100 dashboard-chart-card">
-                <div class="card-header d-flex align-items-center">
+            <div class="card dashboard-chart-card">
+                <div class="card-header d-flex align-items-center justify-content-between">
                     <h5 class="card-title mb-0">
                         <i class="ti ti-file me-1 text-primary"></i>
                         أحدث طلبات الإشتراك
                     </h5>
+                    <a href="{{ route('admin.subscriptionManage.pending') }}" class="btn btn-sm btn-label-primary">
+                        عرض الكل
+                    </a>
                 </div>
-                <div class="card-body">
-
+                <div class="card-body p-0">
+                    <div class="table-responsive text-nowrap">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>اسم الشركة</th>
+                                    <th>الباقة</th>
+                                    <th>تاريخ الطلب</th>
+                                    <th>المبلغ</th>
+                                    <th>الحالة</th>
+                                    <th class="text-center">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-border-bottom-0">
+                                @forelse($latestSubscriptionRequests as $request)
+                                    <tr>
+                                        <td>
+                                            <span class="fw-medium text-heading">
+                                                {{ $request->tenant->company_name ?? ($request->tenant_id ?? '-') }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-label-info">
+                                                {{ $request->plan->name ?? '-' }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">{{ $request->created_at?->format('Y-m-d') }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold">{{ number_format($request->price, 2) }} ر.س</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-label-warning">قيد المراجعة</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="{{ route('admin.subscriptionManage.pending') }}"
+                                                class="btn btn-icon btn-sm btn-label-primary" title="عرض في الطلبات">
+                                                <i class="ti ti-arrow-left"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center py-5 text-muted">
+                                            <i class="ti ti-inbox fs-2 d-block mb-2"></i>
+                                            لا توجد طلبات اشتراك معلقة حالياً
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

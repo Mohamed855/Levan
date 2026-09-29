@@ -28,7 +28,7 @@
             massReject: "{{ route('admin.subscriptionManage.mass-reject') }}"
         };
     </script>
-    @if (!($isPendingPage ?? false))
+    @if (!($isPendingPage ?? false) && !($isExpiringPage ?? false) && !($isExpiredPage ?? false))
         @vite(['resources/assets/js/admin/subscriptions/filter.js'])
     @endif
     @vite(['resources/assets/js/admin/subscriptions/index.js'])
@@ -45,7 +45,7 @@
         </div>
     @endif
 
-    @if (!($isExpiringPage ?? false) && !($isPendingPage ?? false))
+    @if (!($isExpiringPage ?? false) && !($isPendingPage ?? false) && !($isExpiredPage ?? false))
         <div class="row g-4 mb-4">
             <!-- إجمالي الشركات -->
             <div class="col-sm-6 col-xl-3">
@@ -139,7 +139,7 @@
 
     <div class="card">
         <div class="card-body">
-            @if (!($isPendingPage ?? false))
+            @if (!($isPendingPage ?? false) && !($isExpiringPage ?? false) && !($isExpiredPage ?? false))
                 <div class="filters row g-3">
                     <div class="col-md-6">
                         <label for="filter-status">حالة الشركات</label>

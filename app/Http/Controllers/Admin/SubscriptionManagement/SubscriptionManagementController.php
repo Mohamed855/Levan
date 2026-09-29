@@ -8,13 +8,15 @@ use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Models\Admin\City;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\SubscriptionManagement\StoreSubscriptionRequest;
+use App\Http\Requests\Admin\SubscriptionManagement\FinalizeCompanySubscriptionRequest;
+use App\Http\Requests\Admin\SubscriptionManagement\SaveCompanyDraftRequest;
 use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Admin\SubscriptionManagement\SubscriptionManagementService;
+use App\Services\Admin\SubscriptionManagement\CompanyDraftService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
@@ -26,7 +28,7 @@ class SubscriptionManagementController extends Controller
     protected const VIEW_PATH  = "admin.subscription_manage";
     protected const ROUTE_NAME =  "admin.companies";
 
-    public function __construct(private SubscriptionManagementService $subscriptionManagementService) {}
+    public function __construct(private SubscriptionManagementService $subscriptionManagementService, private CompanyDraftService $companyDraftService) {}
 
     public function index(subscriptionMangmentDataTable $dataTable)
     {
@@ -88,6 +90,26 @@ class SubscriptionManagementController extends Controller
         }
     }
 
+    public function expired(subscriptionMangmentDataTable $dataTable)
+    {
+        try {
+            $statistics = $this->subscriptionManagementService->getSubscriptionStatistics();
+
+            return $dataTable->render(self::VIEW_PATH . '.index', [
+                'pageTitle'              => 'الاشتراكات المنتهية',
+                'isExpiredPage'          => true,
+                'totalSubscriptions'     => $statistics['total'],
+                'activeSubscriptions'    => $statistics['active'],
+                'expiredSubscriptions'   => $statistics['expired'],
+                'suspendedSubscriptions' => $statistics['suspended'],
+                'expiringSubscriptions'  => $statistics['expiring_soon'],
+            ]);
+        } catch (\Exception $e) {
+            report($e);
+            return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
+        }
+    }
+
     public function create()
     {
         $cities = City::orderBy('name')->get(['id', 'name']);
@@ -96,12 +118,28 @@ class SubscriptionManagementController extends Controller
                 'id'                   => $plan->id,
                 'name'                 => $plan->name,
                 'price_after_discount' => $plan->price_after_discount,
+                'included_users' => $plan->included_users,
+                'subscription_duration_type' => $plan->subscription_duration_type,
+                'subscription_billing_cycle' => $plan->subscription_billing_cycle,
             ]);
 
-        return view(self::VIEW_PATH . '.create', compact('plans', 'cities'));
+        $draft = $this->companyDraftService->forAdmin((int) auth('admin')->id());
+
+        return view(self::VIEW_PATH . '.create', compact('plans', 'cities', 'draft'));
     }
 
-    public function store(StoreSubscriptionRequest $request)
+    public function saveDraft(SaveCompanyDraftRequest $request)
+    {
+        $draft = $this->companyDraftService->save((int) auth('admin')->id(), $request->validated(), $request->integer('draft_step'));
+        return response()->json(['message' => 'تم حفظ المسودة.', 'draft_step' => $draft->draft_step]);
+    }
+
+    public function planDuration(Plan $plan)
+    {
+        return response()->json($plan->only(['id', 'subscription_duration_type', 'subscription_billing_cycle', 'included_users']));
+    }
+
+    public function store(FinalizeCompanySubscriptionRequest $request)
     {
         try {
             $data = $request->validated();
@@ -111,6 +149,7 @@ class SubscriptionManagementController extends Controller
             }
 
             $this->subscriptionManagementService->create($data);
+            $this->companyDraftService->discardForAdmin((int) auth('admin')->id());
 
             return redirect()->route(self::ROUTE_NAME . '.index')->with('success', 'تم إضافة العميل والاشتراك بنجاح');
         } catch (\Throwable $e) {
@@ -162,6 +201,7 @@ class SubscriptionManagementController extends Controller
             'total_users'       => 'required|integer|min:1',
             'licenses_quota'    => 'nullable|integer|min:0',
             'starts_at'         => 'required|date',
+            'ends_at'           => 'nullable|date|after:starts_at',
             'next_payment_date' => 'nullable|date',
         ]);
 
@@ -183,6 +223,7 @@ class SubscriptionManagementController extends Controller
                 'total_users'       => $validated['total_users'],
                 'used_users'        => $validated['licenses_quota'] ?? 0,
                 'starts_at'         => $validated['starts_at'],
+                'ends_at'           => $validated['ends_at'] ?? $subscription->ends_at,
                 'next_payment_date' => $validated['next_payment_date'],
                 'auto_renew'        => $request->has('auto_renew'),
             ]);

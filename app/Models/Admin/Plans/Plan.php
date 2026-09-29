@@ -22,6 +22,8 @@ class Plan extends Model
         'price',
         'yearly_renewal_price',
         'included_users',
+        'subscription_duration_type',
+        'subscription_billing_cycle',
         'features',
         'is_active',
 

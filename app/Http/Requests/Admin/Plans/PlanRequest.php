@@ -11,6 +11,14 @@ class PlanRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            "subscription_duration_type" => $this->input("subscription_duration_type", "limited"),
+            "subscription_billing_cycle" => $this->input("subscription_billing_cycle", "yearly"),
+        ]);
+    }
+
     public function rules(): array
     {
         return [
@@ -20,6 +28,8 @@ class PlanRequest extends FormRequest
             'extra_user_license_price'  => ['required', 'numeric', 'min:0'],
             'yearly_renewal_price'   => ['required', 'numeric', 'min:0'],
             'included_users'         => ['required', 'numeric', 'min:0'],
+            'subscription_duration_type' => ['required', 'in:limited,unlimited'],
+            'subscription_billing_cycle' => ['nullable', 'required_if:subscription_duration_type,limited', 'in:monthly,yearly'],
             'description'            => ['nullable', 'string', 'max:1000'],
 
             'discount_percentage'    => ['nullable', 'numeric', 'min:0', 'max:100'],

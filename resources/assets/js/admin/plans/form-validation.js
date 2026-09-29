@@ -318,4 +318,9 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
     })();
+    const durationType = document.getElementById("subscription_duration_type");
+    const billingCycleContainer = document.getElementById("billing-cycle-container");
+    const billingCycle = document.getElementById("subscription_billing_cycle");
+    function toggleBillingCycle() { if (!durationType || !billingCycleContainer) return; const limited = durationType.value === "limited"; billingCycleContainer.style.display = limited ? "block" : "none"; billingCycle.required = limited; if (!limited) billingCycle.value = ""; }
+    if (durationType) { durationType.addEventListener("change", toggleBillingCycle); toggleBillingCycle(); }
 });

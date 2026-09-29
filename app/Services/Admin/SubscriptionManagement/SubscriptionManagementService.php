@@ -65,6 +65,10 @@ class SubscriptionManagementService
             'billing_city_id'           => $data['city_id'],
             'billing_address'           => $data['address'],
             'billing_commercial_number' => $data['commercial_number'],
+            'start_date' => $data['start_date'],
+            'end_date' => $data['end_date'] ?? null,
+            'total_users' => $data['total_users'],
+            'activate_immediately' => (bool) $data['activate_immediately'],
         ];
 
         //  إنشاء الفاتورة

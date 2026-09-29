@@ -49,6 +49,15 @@
             </li>
         @endcan
 
+        @can('activity_log.view')
+            <li class="menu-item @if (Route::is('admin.activity-logs.*')) active open @endif">
+                <a href="{{ route('admin.activity-logs.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons ti ti-history"></i>
+                    <div>سجل النشاطات</div>
+                </a>
+            </li>
+        @endcan
+
 
         @can('subscriptions.view')
             <li class="menu-item @if (Route::is('admin.companies.*')) active open @endif">
@@ -107,7 +116,13 @@
                         \App\Enums\Admin\Subscriptions\SubscriptionStatus::PENDING,
                     )->count();
                 });
-                $totalBadgeCount = $expiringCount + $pendingCount;
+                $expiredCount = cache()->remember('admin:expired_subscriptions_count', 60, function () {
+                    return \App\Models\Admin\Subscription\Subscription::where(
+                        'status',
+                        \App\Enums\Admin\Subscriptions\SubscriptionStatus::EXPIRED,
+                    )->count();
+                });
+                $totalBadgeCount = $expiringCount + $pendingCount + $expiredCount;
             @endphp
             <li class="menu-item @if (Route::is('admin.subscriptionManage.*')) active open @endif">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -131,6 +146,14 @@
                             <div>تقارب على الانتهاء</div>
                             @if ($expiringCount > 0)
                                 <div class="badge bg-danger rounded-pill ms-auto">{{ $expiringCount }}</div>
+                            @endif
+                        </a>
+                    </li>
+                    <li class="menu-item @if (Route::is('admin.subscriptionManage.expired')) active @endif">
+                        <a href="{{ route('admin.subscriptionManage.expired') }}" class="menu-link">
+                            <div>الاشتراكات المنتهية</div>
+                            @if ($expiredCount > 0)
+                                <div class="badge bg-secondary rounded-pill ms-auto">{{ $expiredCount }}</div>
                             @endif
                         </a>
                     </li>

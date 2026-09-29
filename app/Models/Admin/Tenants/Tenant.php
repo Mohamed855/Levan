@@ -52,6 +52,10 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         'tax_number',
         'city_id',
         'address',
+        'status',
+        'draft_step',
+        'draft_data',
+        'drafted_by',
         'custom_domain_active',
         'domain_activated_at',
     ];
@@ -76,6 +80,10 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'tax_number',
             'city_id',
             'address',
+            'status',
+            'draft_step',
+            'draft_data',
+            'drafted_by',
             'access_type',
             'custom_domain_active',
             'domain_activated_at',
@@ -85,6 +93,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
 
     protected $casts = [
         'data' => 'array',
+        'draft_data' => 'array',
         'api_token_regenerated_at' => 'datetime',
     ];
 

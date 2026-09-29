@@ -247,12 +247,20 @@ class SubscriptionService
     private function processAdminSubscription(Bill $bill, array $data): array
     {
         [$subscriptionStatus, $periodStatus] = $this->resolveSubscriptionStatus($data['payment_type']);
+        if (! empty($data['activate_immediately'])) {
+            $subscriptionStatus = SubscriptionStatus::ACTIVE;
+            $periodStatus = SubscriptionPeriodStatus::ACTIVE;
+        }
 
         // Get Plan
         $plan = Plan::findOrFail($bill->metadata['plan_id']);
 
         [$tenant, $user]  = $this->tenantCreator->createTenantEnvironment($bill->metadata);
-        $subscription     = $this->subscriptionManager->createSubscription($tenant, $plan, $bill->amount, $subscriptionStatus, $periodStatus, $data['trial_end_date'] ?? null);
+        $subscription = $this->subscriptionManager->createSubscription(
+            $tenant, $plan, $bill->amount, $subscriptionStatus, $periodStatus, $data['trial_end_date'] ?? null,
+            ['start_date' => $data['start_date'] ?? null, 'end_date' => $data['end_date'] ?? null, 'total_users' => $data['total_users'] ?? $plan->included_users]
+        );
+        $tenant->update(['status' => ! empty($data['activate_immediately']) ? 'active' : 'pending']);
 
         //  ربط المستخدم بالترخيص
         $this->tenantInitializer->createCoreSeat($tenant, $subscription, $user);

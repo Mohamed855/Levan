@@ -89,6 +89,10 @@ class PlanDataTable extends AbstractDataTable
                 return number_format($row->yearly_renewal_price);
             })
 
+            ->addColumn('subscription_duration', function ($row) {
+                return $row->subscription_duration_type === 'unlimited' ? 'غير محددة' : ($row->subscription_billing_cycle === 'monthly' ? 'محددة - شهرية' : 'محددة - سنوية');
+            })
+
             ->addColumn('branches_info', function ($row) {
                 if ($row->unlimited_branches) {
                     return '<span class="badge bg-label-primary">غير محدود</span>';

@@ -146,6 +146,11 @@ class subscriptionMangmentDataTable extends AbstractDataTable
         return request()->routeIs('*subscriptionManage.expiring*') || request()->boolean('expiring_soon');
     }
 
+    private function isExpiredRoute(): bool
+    {
+        return request()->routeIs('*subscriptionManage.expired*') || request()->boolean('expired');
+    }
+
     private function isPendingRoute(): bool
     {
         return request()->routeIs('*subscriptionManage.pending*');
@@ -157,6 +162,8 @@ class subscriptionMangmentDataTable extends AbstractDataTable
 
         if ($this->isPendingRoute()) {
             $query->where('status', 'pending');
+        } elseif ($this->isExpiredRoute()) {
+            $query->where('status', 'expired');
         } elseif ($this->isExpiringRoute()) {
             $query->where('status', 'active')
                 ->whereHas('currentPeriod', function ($q) {
@@ -199,7 +206,7 @@ class subscriptionMangmentDataTable extends AbstractDataTable
             $this->getActionsDropdownButton(),
         ];
 
-        if (! $this->isExpiringRoute() && ! $this->isPendingRoute()) {
+        if (! $this->isExpiringRoute() && ! $this->isPendingRoute() && ! $this->isExpiredRoute()) {
             $buttons[] = $this->getAddButton();
         }
 

@@ -1,5 +1,6 @@
 @extends('admin.layouts.layoutMaster')
 
+@php($draftData = $draft?->draft_data ?? [])
 @section('title', 'إنشاء شركة جديد')
 
 @section('vendor-style')
@@ -18,6 +19,7 @@
     @vite(['resources/assets/js/admin/subscriptions/create-form.js'])
     <script>
         window.plansData = @json($plans);
+        window.companyDraftData = @json($draftData);
     </script>
 @endsection
 
@@ -127,6 +129,7 @@
                             <div class="mt-4 d-flex justify-content-end">
                                 <button type="button" class="btn btn-primary btn-next" id="btn-next-plan">
                                     التالي <i class="ti ti-arrow-right ms-2"></i>
+                                <button type="button" class="btn btn-label-secondary btn-save-draft" data-step="1">حفظ كمسودة</button>
                                 </button>
                             </div>
                         </div>
@@ -182,6 +185,7 @@
                             <div class="mt-4 d-flex justify-content-end">
                                 <button type="button" class="btn btn-primary btn-next" id="btn-next-plan">
                                     التالي <i class="ti ti-arrow-right ms-2"></i>
+                                <button type="button" class="btn btn-label-secondary btn-save-draft" data-step="2">حفظ كمسودة</button>
                                 </button>
                             </div>
                         </div>
@@ -205,6 +209,10 @@
                                     </select>
                                 </div>
 
+                                <div class="col-md-6"><label class="form-label" for="start_date">تاريخ البداية <span class="text-danger">*</span></label><input type="date" class="form-control" id="start_date" name="start_date" value="{{ old('start_date', $draftData['start_date'] ?? now()->toDateString()) }}" required></div>
+                                <div class="col-md-6"><label class="form-label" for="end_date">تاريخ النهاية <span class="text-danger">*</span></label><input type="date" class="form-control" id="end_date" name="end_date" value="{{ old('end_date', $draftData['end_date'] ?? '') }}"></div>
+                                <div class="col-md-6"><label class="form-label" for="total_users">إجمالي المستخدمين <span class="text-danger">*</span></label><input type="number" min="1" class="form-control" id="total_users" name="total_users" value="{{ old('total_users', $draftData['total_users'] ?? '') }}" required></div>
+                                <div class="col-md-6"><div class="form-check form-switch mt-4"><input type="hidden" name="activate_immediately" value="0"><input class="form-check-input" type="checkbox" id="activate_immediately" name="activate_immediately" value="1" @checked(old('activate_immediately', $draftData['activate_immediately'] ?? false))><label class="form-check-label" for="activate_immediately">تفعيل الشركة فورًا</label></div></div>
                                 <!-- حالة الدفع -->
                                 <div class="col-md-6">
                                     <label class="form-label" for="payment-status">
@@ -369,6 +377,7 @@
                                 <button type="button" class="btn btn-label-secondary btn-prev">
                                     <i class="ti ti-arrow-left me-2"></i> السابق
                                 </button>
+                                <button type="button" class="btn btn-label-secondary btn-save-draft" data-step="3">حفظ كمسودة</button>
                                 <button type="submit" class="btn btn-primary">
                                     حفظ
                                 </button>

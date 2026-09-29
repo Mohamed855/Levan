@@ -25,13 +25,12 @@ class SubscriptionManager
     }
 
     //  إنشاء اشتراك جديد
-    public function createSubscription(Tenant $tenant, Plan $plan, float  $paidAmount, SubscriptionStatus  $subscriptionStatus = SubscriptionStatus::ACTIVE, SubscriptionPeriodStatus $subscriptionPeriodStatus = SubscriptionPeriodStatus::ACTIVE, ?string $trialEndDate = null): Subscription
+    public function createSubscription(Tenant $tenant, Plan $plan, float  $paidAmount, SubscriptionStatus  $subscriptionStatus = SubscriptionStatus::ACTIVE, SubscriptionPeriodStatus $subscriptionPeriodStatus = SubscriptionPeriodStatus::ACTIVE, ?string $trialEndDate = null, array $options = []): Subscription
     {
-        return Tenancy::central(function () use ($tenant, $plan, $paidAmount, $subscriptionStatus, $subscriptionPeriodStatus, $trialEndDate) {
-            return DB::connection('mysql')->transaction(function () use ($tenant, $plan, $paidAmount, $subscriptionStatus, $subscriptionPeriodStatus, $trialEndDate) {
-                $startDate  = now();
-
-                $endDate = $trialEndDate ? Carbon::parse($trialEndDate) : $this->calculatePeriodEnd($startDate);
+        return Tenancy::central(function () use ($tenant, $plan, $paidAmount, $subscriptionStatus, $subscriptionPeriodStatus, $trialEndDate, $options) {
+            return DB::connection('mysql')->transaction(function () use ($tenant, $plan, $paidAmount, $subscriptionStatus, $subscriptionPeriodStatus, $trialEndDate, $options) {
+                $startDate = isset($options['start_date']) ? Carbon::parse($options['start_date']) : now();
+                $endDate = isset($options['end_date']) ? Carbon::parse($options['end_date']) : ($trialEndDate ? Carbon::parse($trialEndDate) : $this->calculatePeriodEndForPlan($startDate, $plan));
 
                 // إنشاء الاشتراك
                 $subscription = Subscription::create([
@@ -41,10 +40,11 @@ class SubscriptionManager
                     'price'             => $paidAmount,
                     'status'            => $subscriptionStatus,
 
-                    'total_users'       => $plan->included_users,
+                    'total_users'       => $options['total_users'] ?? $plan->included_users,
                     'used_users'        => 1,
 
                     'starts_at'         => $startDate,
+                    'ends_at'           => $endDate,
                     'next_payment_date' => $endDate,
 
                     'auto_renew'        => false,
@@ -228,7 +228,16 @@ class SubscriptionManager
     // حساب نهاية الفترة
     private function calculatePeriodEnd(Carbon $startDate): Carbon
     {
-        return  $startDate->copy()->addYear();
+        return $startDate->copy()->addYear();
+    }
+
+    private function calculatePeriodEndForPlan(Carbon $startDate, Plan $plan): Carbon
+    {
+        if ($plan->subscription_duration_type === 'limited' && $plan->subscription_billing_cycle === 'monthly') {
+            return $startDate->copy()->addMonth();
+        }
+
+        return $startDate->copy()->addYear();
     }
 
     // مسح كاش الاشتراك

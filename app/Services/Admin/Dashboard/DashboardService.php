@@ -9,6 +9,7 @@ use App\Models\Admin\Coupons\Coupon;
 use App\Models\Admin\ControlDomain\ControlDomain;
 use App\Models\Admin\Tenants\Domain;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
+use Spatie\Activitylog\Models\Activity;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -18,11 +19,17 @@ class DashboardService
     {
         return [
             // KPIs
-            'kpis'               => $this->getKPIs(),
+            'kpis'                       => $this->getKPIs(),
 
             // Charts Data
-            'platformActivity'   => $this->getPlatformActivity('1month'),
-            'subscriptionStatus' => $this->getSubscriptionStatusDistribution(),
+            'platformActivity'           => $this->getPlatformActivity('1month'),
+            'subscriptionStatus'         => $this->getSubscriptionStatusDistribution(),
+
+            // Recent Activities
+            'recentActivities'           => $this->getRecentActivities(10),
+
+            // Recent Subscription Requests
+            'latestSubscriptionRequests' => $this->getRecentSubscriptionRequests(10),
         ];
     }
 
@@ -182,5 +189,56 @@ class DashboardService
     public function getPendingCount(): int
     {
         return Subscription::where('status', SubscriptionStatus::PENDING)->count();
+    }
+
+    // ==========================================
+    // Recent Activities (10 records)
+    // ==========================================
+    public function getRecentActivities(int $limit = 10)
+    {
+        $eventMap = [
+            'created'  => 'إضافة',
+            'updated'  => 'تحديث',
+            'deleted'  => 'حذف',
+            'restored' => 'استعادة',
+            'login'    => 'تسجيل دخول',
+            'logout'   => 'تسجيل خروج',
+        ];
+
+        $logMap = [
+            'companies'     => 'الشركات',
+            'plans'         => 'الباقات',
+            'coupons'       => 'الكوبونات',
+            'users'         => 'المستخدمين',
+            'auth'          => 'تسجيل الدخول',
+            'subscriptions' => 'الاشتراكات',
+            'bills'         => 'المعاملات المالية',
+            'tickets'       => 'التذاكر',
+        ];
+
+        return Activity::with(['causer', 'subject'])
+            ->latest()
+            ->limit($limit)
+            ->get()
+            ->map(function ($activity) use ($eventMap, $logMap) {
+                $activity->formatted_event = $eventMap[$activity->event] ?? ($activity->description ?? $activity->event ?? 'نشاط');
+                $activity->formatted_module = $logMap[$activity->log_name] ?? ($activity->log_name ?? '');
+                $activity->causer_name = $activity->causer ? $activity->causer->name : 'النظام';
+                $activity->time_ago = $activity->created_at ? Carbon::parse($activity->created_at)->locale('ar')->diffForHumans() : '-';
+
+                return $activity;
+            });
+    }
+
+    // ==========================================
+    // Latest Subscription Requests (10 records)
+    // ==========================================
+    public function getRecentSubscriptionRequests(int $limit = 10)
+    {
+        return Subscription::with(['tenant', 'plan'])
+            ->where('status', SubscriptionStatus::PENDING)
+            ->latest()
+            ->limit($limit)
+            ->get();
     }
 }

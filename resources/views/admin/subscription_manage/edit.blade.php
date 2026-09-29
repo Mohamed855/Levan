@@ -213,6 +213,7 @@
 
                                 <!-- تاريخ الدفع التالي -->
                                 <div class="col-md-6">
+                                <div class="col-md-6"><label class="form-label" for="ends_at">تاريخ نهاية الاشتراك</label><input type="date" class="form-control" name="ends_at" id="ends_at" value="{{ old('ends_at', $subscription->ends_at ? \Carbon\Carbon::parse($subscription->ends_at)->format('Y-m-d') : '') }}"></div>
                                     <label class="form-label" for="next_payment_date">
                                         <i class="ti ti-calendar-event me-1"></i>
                                         تاريخ الدفع التالي

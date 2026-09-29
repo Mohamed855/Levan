@@ -18,6 +18,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const plansData = window.plansData || [];
+    const draftData = window.companyDraftData || {};
+    Object.entries(draftData).forEach(([name, value]) => { const field = form.querySelector(`[name="${name}"]`); if (field && !field.value && value !== null && name !== "password") { field.value = value; } });
     let selectedPlan = null;
     let validationStepper = null;
 
@@ -581,4 +583,26 @@ document.addEventListener('DOMContentLoaded', function () {
     if (discountType && discountType.value) {
         handleDiscountTypeChange(discountType.value);
     }
+    const startDateInput = document.getElementById("start_date");
+    const endDateInput = document.getElementById("end_date");
+    const totalUsersInput = document.getElementById("total_users");
+    function syncPlanDuration() {
+        const plan = plansData.find(p => String(p.id) === String(document.getElementById("plan_id").value));
+        if (!plan || !startDateInput || !endDateInput) return;
+        if (totalUsersInput && !totalUsersInput.value) totalUsersInput.value = plan.included_users || 1;
+        const limited = plan.subscription_duration_type === "limited";
+        endDateInput.disabled = limited;
+        endDateInput.required = !limited;
+        if (limited && startDateInput.value) { const d = new Date(startDateInput.value + "T00:00:00"); d.setMonth(d.getMonth() + (plan.subscription_billing_cycle === "monthly" ? 1 : 12)); endDateInput.value = d.toISOString().slice(0, 10); }
+    }
+    if (startDateInput) startDateInput.addEventListener("change", syncPlanDuration);
+    const planSelect = document.getElementById("plan_id");
+    if (planSelect) planSelect.addEventListener("change", syncPlanDuration);
+    syncPlanDuration();
+    document.querySelectorAll(".btn-save-draft").forEach(button => button.addEventListener("click", async () => {
+        const payload = Object.fromEntries(new FormData(form).entries()); payload.draft_step = button.dataset.step;
+        const response = await fetch("/admin/companies/draft", { method: "POST", headers: { "X-CSRF-TOKEN": form.querySelector("[name=_token]").value, "Accept": "application/json", "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+        if (response.ok && typeof toastr !== "undefined") toastr.success("تم حفظ المسودة");
+        else if (typeof toastr !== "undefined") toastr.error("تعذر حفظ المسودة");
+    }));
 });

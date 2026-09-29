@@ -31,6 +31,7 @@ class Subscription extends Model
         'tenant_id',
         'plan_id',
         'starts_at',
+        'ends_at',
         'status',
         'price',
         'total_users',
