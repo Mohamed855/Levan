@@ -38,10 +38,10 @@ class TenantRequest extends FormRequest
     {
         return [
             // company_name
-            'company_name.required' => 'اسم المنشأة مطلوب',
-            'company_name.string'   => 'اسم المنشأة يجب أن يكون نصاً',
-            'company_name.min'      => 'اسم المنشأة يجب أن يكون حرفين على الأقل',
-            'company_name.max'      => 'اسم المنشأة يجب ألا يتجاوز 255 حرفاً',
+            'company_name.required' => 'اسم الشركة مطلوب',
+            'company_name.string'   => 'اسم الشركة يجب أن يكون نصاً',
+            'company_name.min'      => 'اسم الشركة يجب أن يكون حرفين على الأقل',
+            'company_name.max'      => 'اسم الشركة يجب ألا يتجاوز 255 حرفاً',
 
             // commercial_number
             'commercial_number.required'    => 'رقم السجل التجاري مطلوب',
@@ -98,7 +98,7 @@ class TenantRequest extends FormRequest
     public function attributes()
     {
         return [
-            'company_name'      => 'اسم المنشأة',
+            'company_name'      => 'اسم الشركة',
             'commercial_number' => 'رقم السجل التجاري',
             'name'              => 'اسم المستخدم',
             'phone'             => 'رقم الجوال',

@@ -100,9 +100,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // ═══════════════════════════════════════════════════════════
     const fieldRules = {
         'billing_company_name': [
-            { type: 'notEmpty', message: 'اسم المنشأة مطلوب' },
-            { type: 'minLength', min: 3, message: 'اسم المنشأة يجب أن يكون 3 أحرف على الأقل' },
-            { type: 'maxLength', max: 100, message: 'اسم المنشأة يجب ألا يتجاوز 100 حرف' }
+            { type: 'notEmpty', message: 'اسم الشركة مطلوب' },
+            { type: 'minLength', min: 3, message: 'اسم الشركة يجب أن يكون 3 أحرف على الأقل' },
+            { type: 'maxLength', max: 100, message: 'اسم الشركة يجب ألا يتجاوز 100 حرف' }
         ],
         'billing_commercial_number': [
             { type: 'notEmpty', message: 'رقم السجل التجاري مطلوب' },

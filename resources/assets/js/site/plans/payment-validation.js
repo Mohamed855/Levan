@@ -11,11 +11,11 @@ document.addEventListener('DOMContentLoaded', function () {
         fields: {
             billing_company_name: {
                 validators: {
-                    notEmpty: { message: 'اسم المنشأة مطلوب' },
+                    notEmpty: { message: 'اسم الشركة مطلوب' },
                     stringLength: {
                         min: 3,
                         max: 100,
-                        message: 'اسم المنشأة يجب أن يكون بين 3 و 100 حرف'
+                        message: 'اسم الشركة يجب أن يكون بين 3 و 100 حرف'
                     }
                 }
             },

@@ -5,19 +5,18 @@ namespace App\DataTables\Admin\SubscriptionMangment;
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Models\Admin\Subscription\Subscription;
 use App\Services\shared\Subscription\SubscriptionManager;
-use Carbon\Carbon;
 
 class subscriptionMangmentDataTable extends AbstractDataTable
 {
-    private $page  = "admin.subscription_manage";
-    private $route = "admin.subscriptionManage";
+    private $page = 'admin.subscription_manage';
+
+    private $route = 'admin.companies';
 
     // table id
     protected function getTableId()
     {
-        return "subscriptions-table";
+        return 'subscriptions-table';
     }
-
 
     protected function resource()
     {
@@ -30,42 +29,41 @@ class subscriptionMangmentDataTable extends AbstractDataTable
             ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             [
-                'data'       => 'checkbox',
-                'name'       => 'checkbox',
-                'title'      => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
-                'orderable'  => false,
+                'data' => 'checkbox',
+                'name' => 'checkbox',
+                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
+                'orderable' => false,
                 'searchable' => false,
                 'width' => '10px',
                 'className' => 'custom-checkbox',
                 'titleAttr' => 'تحديد الكل',
             ],
-            ['data' => 'company_name',    'name' => 'company_name',     'title' => 'اسم المنشأة'],
+            ['data' => 'company_name',    'name' => 'company_name',     'title' => 'اسم الشركة'],
             ['data' => 'tenant_id',       'name' => 'tenant_id',        'title' => 'معرف العميل'],
-            ['data'  => 'version',              'name' => 'version',            'title' => 'رقم الإصدار'],
+            ['data' => 'version',              'name' => 'version',            'title' => 'رقم الإصدار'],
 
             ['data' => 'plan_id',         'name' => 'plan_id',          'title' => 'الباقة'],
             ['data' => 'total_users',     'name' => 'total_users',      'title' => 'عدد المستخدمين '],
             ['data' => 'used_users',      'name' => 'used_users',       'title' => 'التراخيص المستخدمة'],
-            ['data' => 'starts_at',       'name' => 'starts_at',        'title' => 'بداية اول اشتراك',],
-            ['data' => 'period_end',      'name' => 'period_end',       'title' => 'نهاية الإشتراك الحالي',],
+            ['data' => 'starts_at',       'name' => 'starts_at',        'title' => 'بداية اول اشتراك'],
+            ['data' => 'period_end',      'name' => 'period_end',       'title' => 'نهاية الإشتراك الحالي'],
 
-            ['data' => 'days_remaining',    'name' => 'days_remaining', 'title' => 'الأيام المتبقية', 'orderable' => false,],
-            ['data' => 'status',            'name' => 'status',         'title' => 'الحالة',],
+            ['data' => 'days_remaining',    'name' => 'days_remaining', 'title' => 'الأيام المتبقية', 'orderable' => false],
+            ['data' => 'status',            'name' => 'status',         'title' => 'الحالة'],
         ];
 
-        if (!$this->isExpiringRoute()) {
+        if (! $this->isExpiringRoute()) {
             $columns[] = ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'];
         }
 
         return $columns;
     }
 
-
     protected function addCustomColumns($datatable)
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
 
             ->editColumn('company_name', function ($row) {
@@ -73,10 +71,11 @@ class subscriptionMangmentDataTable extends AbstractDataTable
             })
 
             ->editColumn('tenant_id', function ($row) {
-                $url = route('admin.subscriptionManage.tenant-access', ['tenant' => $row->tenant_id]);
-                return '<a href="' . $url . '" class="text-dark d-inline-block" title="رابط العميل" target="_blank">'
-                    . '<i class="ti ti-external-link me-1 text-primary"></i>'
-                    . $row->tenant_id .
+                $url = route('admin.companies.tenant-access', ['tenant' => $row->tenant_id]);
+
+                return '<a href="'.$url.'" class="text-dark d-inline-block" title="رابط العميل" target="_blank">'
+                    .'<i class="ti ti-external-link me-1 text-primary"></i>'
+                    .$row->tenant_id.
                     '</a>';
             })
 
@@ -113,31 +112,29 @@ class subscriptionMangmentDataTable extends AbstractDataTable
                 }
 
                 if ($days <= 7) {
-                    return '<span class="badge bg-label-danger fw-bold"><i class="ti ti-alert-triangle ti-xs me-1"></i>' . $days . ' ' . ($days == 1 ? 'يوم' : ($days == 2 ? 'يومان' : 'أيام')) . '</span>';
+                    return '<span class="badge bg-label-danger fw-bold"><i class="ti ti-alert-triangle ti-xs me-1"></i>'.$days.' '.($days == 1 ? 'يوم' : ($days == 2 ? 'يومان' : 'أيام')).'</span>';
                 }
 
                 if ($days <= 30) {
-                    return '<span class="badge bg-label-warning fw-semibold"><i class="ti ti-clock ti-xs me-1"></i>' . $days . ' يوماً</span>';
+                    return '<span class="badge bg-label-warning fw-semibold"><i class="ti ti-clock ti-xs me-1"></i>'.$days.' يوماً</span>';
                 }
 
-                return '<span class="badge bg-label-success">' . $days . ' يوماً</span>';
+                return '<span class="badge bg-label-success">'.$days.' يوماً</span>';
             })
 
             ->editColumn('status', function ($row) {
                 return $this->StageBadge($row);
             })
 
-
-
             ->editColumn('price', function ($row) {
-                return number_format($row->price, 2) . ' ر.س';
+                return number_format($row->price, 2).' ر.س';
             });
 
-        if (!$this->isExpiringRoute()) {
+        if (! $this->isExpiringRoute()) {
             $datatable->addColumn('actions', function ($row) {
-                return view($this->page . '.action', [
-                    'row'       => $row,
-                    'route'     => $this->route,
+                return view($this->page.'.action', [
+                    'row' => $row,
+                    'route' => $this->route,
                     'isPending' => $this->isPendingRoute(),
                 ])->render();
             });
@@ -178,19 +175,17 @@ class subscriptionMangmentDataTable extends AbstractDataTable
     {
         $columns = ['checkbox', 'tenant_id', 'plan_id', 'billing_cycle', 'days_remaining', 'status'];
 
-        if (!$this->isExpiringRoute()) {
+        if (! $this->isExpiringRoute()) {
             $columns[] = 'actions';
         }
 
         return $columns;
     }
 
-
     protected function getSearchableColumns(): array
     {
         return ['version', 'name', 'stage', 'file_path'];
     }
-
 
     protected function getCustomOrder(): array
     {
@@ -204,7 +199,7 @@ class subscriptionMangmentDataTable extends AbstractDataTable
             $this->getActionsDropdownButton(),
         ];
 
-        if (!$this->isExpiringRoute() && !$this->isPendingRoute()) {
+        if (! $this->isExpiringRoute() && ! $this->isPendingRoute()) {
             $buttons[] = $this->getAddButton();
         }
 
@@ -216,52 +211,51 @@ class subscriptionMangmentDataTable extends AbstractDataTable
         $buttons = [
             ['extend' => 'copy', 'text' => 'نسخ'],
             ['extend' => 'excel', 'text' => 'إكسل', 'exportOptions' => [
-                'columns' => [11, 10, 9, 8, 7, 6, 5, 4, 3]
+                'columns' => [11, 10, 9, 8, 7, 6, 5, 4, 3],
             ]],
         ];
 
         if ($this->isPendingRoute()) {
             $buttons[] = [
-                'text'      => 'قبول المحدد',
+                'text' => 'قبول المحدد',
                 'className' => 'btn btn-default btn-accept-selected',
-                'action'    => "function() { handleMassAccept(); }",
+                'action' => 'function() { handleMassAccept(); }',
             ];
             $buttons[] = [
-                'text'      => 'رفض المحدد',
+                'text' => 'رفض المحدد',
                 'className' => 'btn btn-default btn-reject-selected',
-                'action'    => "function() { handleMassReject(); }",
+                'action' => 'function() { handleMassReject(); }',
             ];
         } else {
             // if (auth()->user()?->can('versions.delete')) {
             $buttons[] = [
-                'text'      => 'حذف المحدد',
+                'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
-                'action'    => "function() { handleMassDelete(); }",
+                'action' => 'function() { handleMassDelete(); }',
             ];
             // }
         }
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
 
     private function getAddButton(): array
     {
-        // if (!auth()->user()?->can('إضافة إشتراك')) {
+        // if (!auth()->user()?->can('إضافة شركة')) {
         //     return [];
         // }
 
         return [
-            'text'      => '<i class="fas fa-plus-circle me-1"></i> إضافة إشتراك',
+            'text' => '<i class="fas fa-plus-circle me-1"></i> إضافة شركة',
             'className' => 'btn btn-primary btn-add',
-            'action'    => "function(){ window.location.href='" . route($this->route . '.create') . "'; }",
+            'action' => "function(){ window.location.href='".route($this->route.'.create')."'; }",
         ];
     }
-
 
     /*
     |============================================================================

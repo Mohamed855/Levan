@@ -52,9 +52,9 @@
 
                         <div id="info-validation" class="content">
                             <div class="row g-3">
-                                <!-- اسم المنشأة -->
+                                <!-- اسم الشركة -->
                                 <div class="col-md-6">
-                                    <label for="company_name" class="form-label"> اسم المنشأة
+                                    <label for="company_name" class="form-label"> اسم الشركة
                                         <span class="text-danger">*</span>
                                     </label>
                                     <input type="text" class="form-control" id="company_name" name="company_name"

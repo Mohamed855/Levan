@@ -36,10 +36,10 @@
             </a>
         </li>
 
-        {{-- إدارة المنشأة وفريق العمل --}}
+        {{-- إدارة الشركة وفريق العمل --}}
         @canany(['branches.view', 'users.view', 'system.groups', 'roles.view'])
             <li class="menu-header small">
-                <span class="menu-header-text">المنشأة وفريق العمل</span>
+                <span class="menu-header-text">الشركة وفريق العمل</span>
             </li>
 
             @can('branches.view')
@@ -147,7 +147,7 @@
             <li class="menu-item @if (Helpers::isActiveRoute('settings.*')) active @endif">
                 <a href="{{ tenant_route_name('settings.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons ti ti-settings"></i>
-                    <div>إعدادات المنشأة</div>
+                    <div>إعدادات الشركة</div>
                 </a>
             </li>
         @endcan

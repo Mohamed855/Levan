@@ -83,8 +83,8 @@ class SubscriptionCheckoutRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'billing_company_name.required'      => 'اسم المنشأة مطلوب',
-            'billing_company_name.unique'        => 'اسم المنشأة مستخدم مسبقًا',
+            'billing_company_name.required'      => 'اسم الشركة مطلوب',
+            'billing_company_name.unique'        => 'اسم الشركة مستخدم مسبقًا',
 
             'billing_commercial_number.required' => 'رقم السجل التجاري مطلوب',
             'billing_commercial_number.unique'   => 'رقم السجل التجاري مستخدم مسبقًا',

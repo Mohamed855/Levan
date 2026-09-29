@@ -43,7 +43,7 @@
                         <div class="col-md-7">
                             <h6 class="fw-bold mb-3">تفاصيل العميل</h6>
                             <div class="mb-1">
-                                <span class="fw-semibold">اسم المنشأة:
+                                <span class="fw-semibold">اسم الشركة:
                                 </span>{{ $bill->tenant->company_name }}
                             </div>
                             <div class="mb-1">

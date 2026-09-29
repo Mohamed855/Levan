@@ -1,6 +1,6 @@
 @extends('admin.layouts.layoutMaster')
 
-@section('title', 'إنشاء اشتراك جديد')
+@section('title', 'إنشاء شركة جديد')
 
 @section('vendor-style')
     @vite(['resources/assets/css/components/icons.css', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss'])
@@ -32,8 +32,8 @@
                         <button type="button" class="step-trigger">
                             <span class="bs-stepper-circle">1</span>
                             <span class="bs-stepper-label">
-                                <span class="bs-stepper-title">بيانات العميل</span>
-                                <span class="bs-stepper-subtitle">بيانات العميل الاساسية </span>
+                                <span class="bs-stepper-title">بيانات الشركة</span>
+                                <span class="bs-stepper-subtitle">بيانات الشركة الاساسية </span>
                             </span>
                         </button>
                     </div>
@@ -61,7 +61,7 @@
                         </div>
                     @endif
 
-                    <form id="subscription-form" action="{{ route('admin.subscriptionManage.store') }}" method="POST"
+                    <form id="subscription-form" action="{{ route('admin.companies.store') }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
 
@@ -69,14 +69,14 @@
                             <div class="row g-2">
                                 <!-- الاسم -->
                                 <div class="col-md-6">
-                                    <label for="company_name" class="form-label"> اسم المنشأة
+                                    <label for="company_name" class="form-label"> اسم الشركة
                                         <span class="text-danger">*</span>
                                     </label>
                                     <input type="text" class="form-control" id="company_name" name="company_name"
-                                        value="{{ old('company_name') }}" placeholder="مثال:  أحمد محمد للتحصيل " required>
+                                        value="{{ old('company_name') }}" placeholder="مثال:  شركة المجد العقارية "
+                                        required>
                                 </div>
 
-                                <!-- قيمة الخصم -->
                                 <div class="col-md-6">
                                     <label for="commercial_number" class="form-label">رقم السجل التجاري
                                         <span id="discountUnit"></span>

@@ -56,7 +56,7 @@
             {{-- Tenant Information --}}
             <h5 class="section-title">
                 <i class="ti ti-building"></i>
-                معلومات المنشأة
+                معلومات الشركة
             </h5>
             <div class="info-grid">
                 <div class="info-item">
@@ -64,7 +64,7 @@
                         <i class="ti ti-building"></i>
                     </div>
                     <div class="content">
-                        <span class="label">اسم المنشأة</span>
+                        <span class="label">اسم الشركة</span>
                         <div class="value">{{ $subscriptionDetails->tenant->company_name ?? '-' }}</div>
                     </div>
                 </div>

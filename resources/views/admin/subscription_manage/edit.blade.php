@@ -47,7 +47,7 @@
                 </div>
                 @endif
 
-                <form id="wizard-validation-form" action="{{ route('admin.subscriptionManage.update', $subscription->id) }}" method="POST" enctype="multipart/form-data">
+                <form id="wizard-validation-form" action="{{ route('admin.companies.update', $subscription->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
@@ -212,7 +212,7 @@
                     </div>
 
                     <div class="col-12 d-flex justify-content-end mt-4">
-                        <a href="{{ route('admin.subscriptionManage.index') }}" class="btn btn-label-secondary me-2">
+                        <a href="{{ route('admin.companies.index') }}" class="btn btn-label-secondary me-2">
                             <i class="ti ti-arrow-right me-1"></i>
                             إلغاء
                         </a>

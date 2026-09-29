@@ -37,7 +37,7 @@ class TenantManagementDataTable extends AbstractDataTable
                 'titleAttr'  => 'تحديد الكل',
             ],
             ['data'  => 'id',                   'name' => 'id',                 'title' => 'المعرف'],
-            ['data'  => 'company_name',         'name' => 'company_name',       'title' => 'اسم المنشأة'],
+            ['data'  => 'company_name',         'name' => 'company_name',       'title' => 'اسم الشركة'],
             ['data'  => 'version',              'name' => 'version',            'title' => 'رقم الإصدار'],
             ['data'  => 'tenant_link',          'name' => 'tenant_link',       'title' => 'رابط النسخه'],
             ['data'  => 'commercial_number',    'name' => 'commercial_number',  'title' => 'السجل التجاري'],

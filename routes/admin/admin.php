@@ -56,18 +56,22 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
     //     Route::resource('/', TenantMangmentController::class)->parameters(['' => 'tenant']);
     // });
 
-    // ادارة الاشتراكات
+    // تنبيهات الاشتراكات
     Route::prefix('subscription-manage')->name('subscriptionManage.')->group(function () {
         Route::get('pending', [SubscriptionManagementController::class, 'pending'])->name('pending');
         Route::get('expiring', [SubscriptionManagementController::class, 'expiring'])->name('expiring');
-        Route::get('tenant/{tenant}/access', [SubscriptionManagementController::class, 'access'])->name('tenant-access');
         Route::post('{subscription}/accept', [SubscriptionManagementController::class, 'accept'])->name('accept');
         Route::post('{subscription}/reject', [SubscriptionManagementController::class, 'reject'])->name('reject');
         Route::post('mass-accept', [SubscriptionManagementController::class, 'massAccept'])->name('mass-accept');
         Route::post('mass-reject', [SubscriptionManagementController::class, 'massReject'])->name('mass-reject');
-        Route::resource('/', SubscriptionManagementController::class)->parameters(['' => 'subscription']);
     });
 
+    // ادارة الشركات
+    Route::prefix('companies')->name('companies.')->group(function () {
+        Route::get('tenant/{tenant}/access', [SubscriptionManagementController::class, 'access'])->name('tenant-access');
+        Route::resource('/', SubscriptionManagementController::class)->parameters(['' => 'subscription']);
+
+    });
     // الكوبونات
     Route::prefix('coupons')->name('coupons.')->group(function () {
         Route::get('details/{coupon}', [AdminCouponController::class, 'getCouponDetails'])->name('details');

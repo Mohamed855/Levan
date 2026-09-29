@@ -10,7 +10,7 @@
                 <div class="card-body d-flex flex-column flex-sm-row justify-content-between align-items-sm-center p-4">
                     <div class="mb-3 mb-sm-0">
                         <h4 class="card-title text-primary mb-1">مرحباً بك، {{ auth()->user()->name }} 👋</h4>
-                        <p class="text-body mb-0">لوحة تحكم المنشأة - جاهزة للانطلاق في إدارة المزادات العقارية</p>
+                        <p class="text-body mb-0">لوحة تحكم الشركة - جاهزة للانطلاق في إدارة المزادات العقارية</p>
                     </div>
                     <div class="d-flex gap-2">
                         @can('branches.view')
@@ -121,7 +121,7 @@
                     </p>
                     <div class="d-flex justify-content-center gap-2">
                         <a href="{{ tenant_route_name('settings.index') }}" class="btn btn-outline-primary">
-                            <i class="ti ti-settings me-1"></i> إعدادات المنشأة
+                            <i class="ti ti-settings me-1"></i> إعدادات الشركة
                         </a>
                         <a href="{{ tenant_route_name('tickets.index') }}" class="btn btn-outline-secondary">
                             <i class="ti ti-headset me-1"></i> الدعم الفني

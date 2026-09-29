@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', function () {
         fields: {
             company_name: {
                 validators: {
-                    notEmpty: { message: 'يرجى إدخال اسم المنشأة' },
-                    stringLength: { min: 2, max: 255, message: 'اسم المنشأة يجب أن يكون بين 2 و 255 حرفاً' }
+                    notEmpty: { message: 'يرجى إدخال اسم الشركة' },
+                    stringLength: { min: 2, max: 255, message: 'اسم الشركة يجب أن يكون بين 2 و 255 حرفاً' }
                 }
             },
             commercial_number: {

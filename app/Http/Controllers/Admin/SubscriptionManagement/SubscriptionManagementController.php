@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Log;
 class SubscriptionManagementController extends Controller
 {
     protected const VIEW_PATH  = "admin.subscription_manage";
-    protected const ROUTE_NAME =  "admin.subscriptionManage";
+    protected const ROUTE_NAME =  "admin.companies";
 
     public function __construct(private SubscriptionManagementService $subscriptionManagementService) {}
 

@@ -49,6 +49,15 @@
             </li>
         @endcan
 
+
+        @can('subscriptions.view')
+            <li class="menu-item @if (Route::is('admin.companies.*')) active open @endif">
+                <a href="{{ route('admin.companies.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons ti ti-building"></i>
+                    <div>إدارة الشركات</div>
+                </a>
+            </li>
+        @endcan
         <li class="menu-header small">
             <span class="menu-header-text">الباقات والعروض</span>
         </li>
@@ -115,11 +124,6 @@
                             @if ($pendingCount > 0)
                                 <div class="badge bg-warning rounded-pill ms-auto">{{ $pendingCount }}</div>
                             @endif
-                        </a>
-                    </li>
-                    <li class="menu-item @if (Route::is('admin.subscriptionManage.index')) active @endif">
-                        <a href="{{ route('admin.subscriptionManage.index') }}" class="menu-link">
-                            <div>جميع الاشتراكات</div>
                         </a>
                     </li>
                     <li class="menu-item @if (Route::is('admin.subscriptionManage.expiring')) active @endif">

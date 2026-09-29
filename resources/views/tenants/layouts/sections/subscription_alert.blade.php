@@ -29,7 +29,7 @@
             <div class="d-flex flex-column flex-grow-1">
                 <h6 class="alert-heading mb-1 text-warning fw-bold">تنبيه باقتراب موعد تجديد الاشتراك</h6>
                 <span>
-                    ينتهي اشتراك المنشأة الحالي خلال <strong>{{ $daysRemaining }}</strong> يوماً (بتاريخ <strong>{{ \Carbon\Carbon::parse($currentPeriod->period_end)->format('Y-m-d') }}</strong>). يرجى التجديد لضمان استمرار عمل الخدمات دون انقطاع.
+                    ينتهي اشتراك الشركة الحالي خلال <strong>{{ $daysRemaining }}</strong> يوماً (بتاريخ <strong>{{ \Carbon\Carbon::parse($currentPeriod->period_end)->format('Y-m-d') }}</strong>). يرجى التجديد لضمان استمرار عمل الخدمات دون انقطاع.
                 </span>
             </div>
             <div class="text-nowrap">
@@ -46,7 +46,7 @@
                 <i class="ti ti-alert-triangle ti-md"></i>
             </span>
             <div class="d-flex flex-column flex-grow-1">
-                <h6 class="alert-heading mb-1 text-danger fw-bold">تحذير عاجل: اشتراك المنشأة شارف على الانتهاء!</h6>
+                <h6 class="alert-heading mb-1 text-danger fw-bold">تحذير عاجل: اشتراك الشركة شارف على الانتهاء!</h6>
                 <span>
                     متبقي على انتهاء الاشتراك <strong>{{ $daysRemaining }}</strong> {{ $daysRemaining == 1 ? 'يوم واحد' : ($daysRemaining == 2 ? 'يومان' : 'أيام') }} فقط (بتاريخ <strong>{{ \Carbon\Carbon::parse($currentPeriod->period_end)->format('Y-m-d') }}</strong>). سيتم إيقاف النظام وتعليق وصول الموظفين فور انتهاء الصلاحية.
                 </span>
@@ -72,7 +72,7 @@
                                 <h4 class="modal-title fw-bold text-danger" id="subscriptionExpiringModalLabel">تحذير عاجل: اقتراب انتهاء الاشتراك</h4>
                                 <p class="fs-6 mb-0">
                                     <span class="d-block mb-2">
-                                        متبقي على انتهاء اشتراك المنشأة <strong>{{ $daysRemaining }}</strong> {{ $daysRemaining == 1 ? 'يوم واحد' : ($daysRemaining == 2 ? 'يومان' : 'أيام') }} فقط (بتاريخ <strong>{{ \Carbon\Carbon::parse($currentPeriod->period_end)->format('Y-m-d') }}</strong>).
+                                        متبقي على انتهاء اشتراك الشركة <strong>{{ $daysRemaining }}</strong> {{ $daysRemaining == 1 ? 'يوم واحد' : ($daysRemaining == 2 ? 'يومان' : 'أيام') }} فقط (بتاريخ <strong>{{ \Carbon\Carbon::parse($currentPeriod->period_end)->format('Y-m-d') }}</strong>).
                                     </span>
                                     <span class="text-danger fw-semibold">سيتم إيقاف النظام وتعليق وصول الموظفين فور انتهاء الصلاحية.</span>
                                 </p>

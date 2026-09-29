@@ -34,7 +34,7 @@ class TenantDataTable extends AbstractDataTable
                 'titleAttr' => 'تحديد الكل',
             ],
             ['data'  => 'id',                   'name' => 'id',                 'title' => 'المعرف'],
-            ['data'  => 'company_name',         'name' => 'company_name',       'title' => 'اسم المنشأة'],
+            ['data'  => 'company_name',         'name' => 'company_name',       'title' => 'اسم الشركة'],
             ['data'  => 'commercial_number',    'name' => 'commercial_number',  'title' => 'السجل التجاري'],
             ['data'  => 'deleted_at',           'name' => 'deleted_at',         'title' => 'حالة العميل', 'orderable' => false],
             ['data'  => 'subscription_status',  'name' => 'subscription_status', 'title' => 'حالة الاشتراك', 'orderable' => false],

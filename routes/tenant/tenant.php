@@ -281,7 +281,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             });
         });
 
-        // إعدادات المنشأة
+        // إعدادات الشركة
         Route::prefix('settings')->name('settings.')->group(function () {
             Route::name('index')->get('/', [SettingsController::class, 'index']);
             Route::name('update')->put('/', [SettingsController::class, 'update']);

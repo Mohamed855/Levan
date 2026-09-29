@@ -237,8 +237,8 @@ class ProcessSubscriptionPeriods implements ShouldQueue
 
                 $title = $isUrgent ? 'تحذير عاجل: اقتراب انتهاء الاشتراك' : 'تذكير: اقتراب موعد تجديد الاشتراك';
                 $message = $isUrgent
-                    ? "اشتراك المنشأة سينتهي خلال {$days} أيام (بتاريخ {$formattedDate}). يرجى التجديد لتفادي إيقاف الخدمات."
-                    : "اشتراك المنشأة ينتهي خلال {$days} يوماً (بتاريخ {$formattedDate}). يرجى تجديد الاشتراك لضمان استمرار الخدمة.";
+                    ? "اشتراك الشركة سينتهي خلال {$days} أيام (بتاريخ {$formattedDate}). يرجى التجديد لتفادي إيقاف الخدمات."
+                    : "اشتراك الشركة ينتهي خلال {$days} يوماً (بتاريخ {$formattedDate}). يرجى تجديد الاشتراك لضمان استمرار الخدمة.";
 
                 $url = tenant_route_name('subscriptions.index');
                 $icon = $isUrgent ? 'ti ti-alert-triangle' : 'ti ti-calendar-time';

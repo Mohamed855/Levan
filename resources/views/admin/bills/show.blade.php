@@ -338,7 +338,7 @@
 
                             @if (!empty($metadata['billing_company_name']))
                                 <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
-                                    <span class="text-muted small"><i class="ti ti-building me-1"></i>المنشأة</span>
+                                    <span class="text-muted small"><i class="ti ti-building me-1"></i>الشركة</span>
                                     <span class="fw-medium small">{{ $metadata['billing_company_name'] }}</span>
                                 </div>
                             @endif

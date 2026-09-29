@@ -84,7 +84,7 @@
                                 </div>
                                 <div class="flex-grow-1">
                                     <h6 class="mb-0 text-body fw-medium">الفروع</h6>
-                                    <small class="text-muted">إدارة فروع المنشأة</small>
+                                    <small class="text-muted">إدارة فروع الشركة</small>
                                 </div>
                                 <i class="ti ti-chevron-left text-muted"></i>
                             </a>

@@ -75,12 +75,12 @@
                             {{-- العمود الرئيسي --}}
                             <div class="lg:col-span-8 flex flex-col gap-4">
 
-                                {{-- بيانات المنشأة --}}
+                                {{-- بيانات الشركة --}}
                                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                                     <div class="px-6 py-4 border-b border-dashed border-gray-200">
                                         <h6 class="text-sm font-semibold text-gray-800 flex items-center gap-2 mb-0">
                                             <i class="ti ti-components text-green-500 text-base"></i>
-                                            معلومات المنشأة
+                                            معلومات الشركة
                                         </h6>
                                     </div>
                                     <div class="p-6">
@@ -88,7 +88,7 @@
                                             <div class="md:col-span-2">
                                                 <label class="block text-sm font-medium text-gray-700 mb-1.5"
                                                     for="billing_company_name">
-                                                    اسم المنشأة <span class="text-red-500">*</span>
+                                                    اسم الشركة <span class="text-red-500">*</span>
                                                 </label>
                                                 <input type="text" id="billing_company_name" name="billing_company_name"
                                                     class="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"

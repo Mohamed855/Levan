@@ -411,18 +411,18 @@ class AdminDashboardCrudFeatureTest extends TestCase
     public function test_admin_subscriptions_and_bills_lifecycle(): void
     {
         // 1. Subscriptions Index & Create view
-        $this->get($this->adminUrl('subscription-manage'))->assertStatus(200);
-        $this->get($this->adminUrl('subscription-manage/create'))->assertStatus(200);
+        $this->get($this->adminUrl('companies'))->assertStatus(200);
+        $this->get($this->adminUrl('companies/create'))->assertStatus(200);
 
         $subscription = Subscription::first();
         if ($subscription) {
-            $this->get($this->adminUrl("subscription-manage/{$subscription->id}/edit"))->assertStatus(200);
+            $this->get($this->adminUrl("companies/{$subscription->id}/edit"))->assertStatus(200);
         }
 
         // 2. Tenant Impersonation / Access endpoint
         $tenant = Tenant::find('test');
         if ($tenant) {
-            $accessResponse = $this->get($this->adminUrl("subscription-manage/tenant/{$tenant->id}/access"));
+            $accessResponse = $this->get($this->adminUrl("companies/tenant/{$tenant->id}/access"));
             $accessResponse->assertStatus(302);
         }
 
@@ -603,7 +603,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
             'settings/banks',
             'settings/domains',
             'plans',
-            'subscription-manage',
+            'companies',
             'coupons',
             'bills',
             'versions',
