@@ -34,25 +34,23 @@
          KPI Cards (6 كروت)
     ═══════════════════════════════════════ --}}
     <div class="row g-3 mb-4">
-        <x-admin.dashboard-card title="طلبات الاشتراك الجديدة" :value="number_format($kpis['new_subscription_requests'])" subtitle="طلبات قيد المراجعة"
-            icon="ti-user-plus" color="primary" />
+        <x-admin.dashboard-card col="col-sm-4 col-lg-6 col-xxl-2" title="طلبات الاشتراك الجديدة" :value="number_format($kpis['new_subscription_requests'])"
+            subtitle="طلبات قيد المراجعة" icon="ti-user-plus" color="primary" avatarClass="circle" />
 
-        <x-admin.dashboard-card title="الشركات المشتركة" :value="number_format($kpis['subscribed_companies'])" subtitle="شركات لديها اشتراك نشط" icon="ti-building"
-            color="success" />
+        <x-admin.dashboard-card col="col-sm-4 col-lg-6 col-xxl-2" title="الشركات المشتركة" :value="number_format($kpis['subscribed_companies'])"
+            subtitle="شركات لديها اشتراك نشط" icon="ti-building" color="success" avatarClass="circle" />
 
-        <x-admin.dashboard-card title="الاشتراكات النشطة" :value="number_format($kpis['active_subscriptions'])" subtitle="اشتراكات فعّالة حالياً"
-            icon="ti-file-text" color="info" />
+        <x-admin.dashboard-card col="col-sm-4 col-lg-6 col-xxl-2" title="الاشتراكات النشطة" :value="number_format($kpis['active_subscriptions'])"
+            subtitle="اشتراكات فعّالة حالياً" icon="ti-file-text" color="info" avatarClass="circle" />
 
-        <x-admin.dashboard-card title="الاشتراكات المعلقة" :value="number_format($kpis['suspended_subscriptions'])" subtitle="اشتراكات موقوفة مؤقتاً"
-            icon="ti-clock" color="warning" />
+        <x-admin.dashboard-card col="col-sm-4 col-lg-6 col-xxl-2" title="الاشتراكات المعلقة" :value="number_format($kpis['suspended_subscriptions'])"
+            subtitle="اشتراكات موقوفة مؤقتاً" icon="ti-clock" color="warning" avatarClass="circle" />
 
-        <x-admin.dashboard-card title="القوالب المركزية" :value="number_format($kpis['central_templates'])" subtitle="قالب متاح للتطبيق" icon="ti-template"
-            color="primary" />
+        <x-admin.dashboard-card col="col-sm-4 col-lg-6 col-xxl-2" title="القوالب المركزية" :value="number_format($kpis['central_templates'])"
+            subtitle="قالب متاح للتطبيق" icon="ti-template" color="primary" avatarClass="circle" />
 
-        {{-- 6. المدفوعات هذا الشهر --}}
-        <x-admin.dashboard-card title="المدفوعات هذا الشهر" :value="number_format($kpis['monthly_payments'], 0)" subtitle="ر.س إجمالي هذا الشهر"
-            icon="ti-wallet" color="success" />
-
+        <x-admin.dashboard-card col="col-sm-4 col-lg-6 col-xxl-2" title="المدفوعات هذا الشهر" :value="number_format($kpis['monthly_payments'], 0)"
+            subtitle="ر.س إجمالي هذا الشهر" icon="ti-wallet" color="success" avatarClass="circle" />
     </div>
 
     {{-- ═══════════════════════════════════════
@@ -113,6 +111,49 @@
                 </div>
             </div>
         </div>
+    </div>
 
+    {{-- ═══════════════════════════════════════
+         Tables Row
+    ═══════════════════════════════════════ --}}
+    <div class="row g-3 mb-4">
+        <div class="col-lg-4">
+            <div class="card h-100 dashboard-chart-card mb-4">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-bolt me-1 text-primary"></i>
+                        إجراءات سريعة
+                    </h5>
+                </div>
+                <div class="card-body">
+
+                </div>
+            </div>
+            <div class="card h-100 dashboard-chart-card">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-clock me-1 text-primary"></i>
+                        أحدث الأنشطة
+                    </h5>
+                </div>
+                <div class="card-body">
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card h-100 dashboard-chart-card">
+                <div class="card-header d-flex align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-file me-1 text-primary"></i>
+                        أحدث طلبات الإشتراك
+                    </h5>
+                </div>
+                <div class="card-body">
+
+                </div>
+            </div>
+        </div>
     </div>
 @endsection

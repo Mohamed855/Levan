@@ -8,7 +8,6 @@ use App\Enums\Admin\Billing\BillType;
 use App\Exceptions\Subscription\SubscriptionCreationException;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Bills\Bill;
-use App\Models\Admin\Settings\Settings;
 use App\Services\shared\Bills\BillService;
 use App\Services\shared\Subscription\SubscriptionService;
 use Illuminate\Http\Request;
@@ -60,14 +59,9 @@ class AdminBillsController extends Controller
 
     public function print(Bill $bill)
     {
-        $vatRate         = 0.15;
-        $vatAmount       = round($bill->original_amount * $vatRate, 2); // استخراج سعر الضريبة
-        $priceWithoutTax = round($bill->original_amount - $vatAmount, 2);
-        $discount        = max(0.0, (float) $bill->discount_amount);
-        $settings        = Settings::firstOrFail();
-
-        return view(self::VIEW_PATH . '.print', compact('bill', 'vatRate', 'vatAmount', 'priceWithoutTax', 'discount', 'settings'));
+        return $this->renderPrint(self::VIEW_PATH . '.print', $this->billService->getPrintData($bill));
     }
+
 
     public function verify(Bill $bill)
     {

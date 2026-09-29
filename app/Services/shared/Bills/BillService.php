@@ -6,10 +6,27 @@ use App\Enums\Admin\Billing\BillStatus;
 use App\Enums\Admin\Billing\BillType;
 use App\Enums\Admin\Billing\PaymentMethod;
 use App\Models\Admin\Bills\Bill;
+use App\Models\Admin\Settings\Settings;
 use Illuminate\Support\Facades\Auth;
 
 class BillService
 {
+    /**
+     * Build the data array required by the bill print view.
+     * Centralises VAT / discount calculations so controllers stay thin.
+     */
+    public function getPrintData(Bill $bill): array
+    {
+        $vatRate         = 0.15;
+        $vatAmount       = round($bill->original_amount * $vatRate, 2);
+        $priceWithoutTax = round($bill->original_amount - $vatAmount, 2);
+        $discount        = max(0.0, (float) $bill->discount_amount);
+        $settings        = Settings::firstOrFail();
+
+        return compact('bill', 'vatRate', 'vatAmount', 'priceWithoutTax', 'discount', 'settings');
+    }
+
+
     // فاتورة مبدئية
     public function createPendingBill(float $amount, ?PaymentMethod $paymentMethod, float $originalAmount, BillType $type, array $couponData, array $metadata = []): Bill
     {
