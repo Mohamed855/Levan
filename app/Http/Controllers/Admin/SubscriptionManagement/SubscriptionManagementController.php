@@ -9,7 +9,7 @@ use App\Http\Requests\Admin\SubscriptionManagement\StoreSubscriptionRequest;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Tenants\Tenant;
-use App\Models\Tenants\UserMangment\User\User;
+use App\Models\Admin\Tenants\User;
 use App\Services\Admin\SubscriptionManagement\SubscriptionManagementService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -31,6 +31,27 @@ class SubscriptionManagementController extends Controller
 
             return $dataTable->render(self::VIEW_PATH . '.index', [
                 'isExpiringPage'         => false,
+                'totalSubscriptions'     => $statistics['total'],
+                'activeSubscriptions'    => $statistics['active'],
+                'expiredSubscriptions'   => $statistics['expired'],
+                'suspendedSubscriptions' => $statistics['suspended'],
+                'expiringSubscriptions'  => $statistics['expiring_soon'],
+            ]);
+        } catch (\Exception $e) {
+            report($e);
+            return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
+        }
+    }
+
+    public function pending(subscriptionMangmentDataTable $dataTable)
+    {
+        try {
+            $statistics = $this->subscriptionManagementService->getSubscriptionStatistics();
+
+            return $dataTable->render(self::VIEW_PATH . '.index', [
+                'pageTitle'              => 'طلبات الاشتراك الجديدة',
+                'isExpiringPage'         => false,
+                'isPendingPage'          => true,
                 'totalSubscriptions'     => $statistics['total'],
                 'activeSubscriptions'    => $statistics['active'],
                 'expiredSubscriptions'   => $statistics['expired'],
@@ -80,7 +101,6 @@ class SubscriptionManagementController extends Controller
         try {
             $data = $request->validated();
 
-            // dd($data);
             if ($request->hasFile('receipt_upload')) {
                 $data['receipt_path'] = $request->file('receipt_upload')->store('receipts', 'public');
             }
@@ -115,10 +135,8 @@ class SubscriptionManagementController extends Controller
         return redirect()->to(url($tenant->id . '/impersonate?token=' . urlencode($handoff)));
     }
 
-
     public function edit(Subscription $subscription)
     {
-        // return $subscription;
         $plan = $subscription->plan;
         $plans = Plan::get();
         $allStatus  = SubscriptionStatus::options();

@@ -145,11 +145,18 @@ class subscriptionMangmentDataTable extends AbstractDataTable
         return request()->routeIs('*subscriptionManage.expiring*') || request()->boolean('expiring_soon');
     }
 
+    private function isPendingRoute(): bool
+    {
+        return request()->routeIs('*subscriptionManage.pending*');
+    }
+
     protected function applyCustomFilters($query)
     {
         $request = request();
 
-        if ($this->isExpiringRoute()) {
+        if ($this->isPendingRoute()) {
+            $query->where('status', 'pending');
+        } elseif ($this->isExpiringRoute()) {
             $query->where('status', 'active')
                 ->whereHas('currentPeriod', function ($q) {
                     $q->where('status', 'active')

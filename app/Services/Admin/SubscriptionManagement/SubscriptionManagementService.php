@@ -32,6 +32,7 @@ class SubscriptionManagementService
 
         return [
             'total'         => (clone $baseQuery)->count(),
+            'pending'       => (clone $baseQuery)->where('status', SubscriptionStatus::PENDING)->count(),
             'active'        => (clone $baseQuery)->where('status', SubscriptionStatus::ACTIVE)->count(),
             'expired'       => (clone $baseQuery)->where('status', SubscriptionStatus::EXPIRED)->count(),
             'suspended'     => (clone $baseQuery)->where('status', SubscriptionStatus::SUSPENDED)->count(),

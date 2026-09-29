@@ -155,12 +155,11 @@
                     <label for="filter-status">حالة الاشتراكات</label>
                     <select id="filter-status" class="form-control select2" data-placeholder="اختر  حالة الاشتراك">
                         <option value=""></option>
-                        {{-- @foreach ($advanceStatus as $status) --}}
+                            <option value="pending">قيد المراجعة</option>
                             <option value="active">نشط</option>
+                            <option value="suspended">معلق</option>
                             <option value="cancelled">ملغي</option>
                             <option value="expired">منتهي</option>
-                            <option value="suspended">معلق</option>
-                        {{-- @endforeach --}}
                     </select>
                 </div>
             </div> 

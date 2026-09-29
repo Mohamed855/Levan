@@ -1,9 +1,18 @@
 // =============================================================================
 // Admin Sidebar Menu — Active item color overrides
 // Replaces inline <style> in admin/layouts/commonMaster.blade.php
+// Note: :root[dir=rtl] gives one extra specificity point over the vendor
+//       [dir=rtl] rule that injects linear-gradient(-270deg,...) !important
 // =============================================================================
 
-[dir=rtl] .bg-menu-theme.menu-vertical .menu-item.active > .menu-link:not(.menu-toggle) {
+// LTR: override for when dir=ltr is on html (shouldn't apply normally, but covers the base LTR vendor rule too)
+.bg-menu-theme.menu-vertical .menu-item.active > .menu-link:not(.menu-toggle) {
+    background: var(--menu-active-bg) !important;
+    color: var(--menu-active-text) !important;
+}
+
+// RTL: must outrank [dir=rtl] .bg-menu-theme... !important from vendor theme CSS
+:root[dir=rtl] .bg-menu-theme.menu-vertical .menu-item.active > .menu-link:not(.menu-toggle) {
     background: var(--menu-active-bg) !important;
     color: var(--menu-active-text) !important;
 }

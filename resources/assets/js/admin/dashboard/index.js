@@ -1,145 +1,71 @@
 document.addEventListener('DOMContentLoaded', function () {
+
+    // ── الألوان الأساسية ──────────────────────────────────────────
     const colors = {
-        primary: '#4cc1bb',
-        success: '#28a745',
-        warning: '#8cb8cfff',
-        orange: '#70b7c7ff',
-        danger: '#dc3545',
-        info: '#17a2b8',
-        cyan: '#00bcd4',
-        purple: '#686868ff',
-        secondary: '#6c757d'
+        primary:   '#4cc1bb',
+        success:   '#28a745',
+        warning:   '#ffc107',
+        danger:    '#dc3545',
+        secondary: '#6c757d',
+        info:      '#17a2b8',
     };
-
-
 
     Chart.defaults.font.family = 'Cairo, sans-serif';
     Chart.defaults.color = '#666';
 
-    const commonOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                display: true,
-                position: 'top',
-                labels: {
-                    padding: 12,
-                    usePointStyle: true,
-                    font: {
-                        size: 11
-                    }
-                }
-            },
-            tooltip: {
-                backgroundColor: colors.primary,
-                titleColor: '#fff',
-                bodyColor: '#fff',
-                padding: 10,
-                cornerRadius: 6,
-                displayColors: true
-            }
+    // ════════════════════════════════════════════════════════
+    // Chart 1: استخدام المنصة (Platform Activity)
+    // ════════════════════════════════════════════════════════
+    let platformChart = null;
+
+    function buildPlatformChart(dataPoints) {
+        const ctx = document.getElementById('platformActivityChart');
+        if (!ctx) return;
+
+        if (platformChart) {
+            platformChart.destroy();
         }
-    };
 
-    // Chart 1: العملاء الجدد
-    if (dashboardData.monthlyCustomers.length > 0) {
-        new Chart(document.getElementById('monthlyCustomersChart'), {
-            type: 'bar',
-            data: {
-                labels: dashboardData.monthlyCustomers.map(item => item.month),
-                datasets: [{
-                    label: 'عدد العملاء',
-                    data: dashboardData.monthlyCustomers.map(item => item.count),
-                    backgroundColor: colors.orange,
-                    borderRadius: 6,
-                    barThickness: 32
-                }]
-            },
-            options: {
-                ...commonOptions,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: '#f0f0f0'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    // Chart 2: أعلى 10 عملاء
-    if (dashboardData.topCustomers.length > 0) {
-        new Chart(document.getElementById('topCustomersChart'), {
-            type: 'bar',
-            data: {
-                labels: dashboardData.topCustomers.map(item => item.name.substring(0, 20)),
-                datasets: [{
-                    label: 'عدد المستخدمين',
-                    data: dashboardData.topCustomers.map(item => item.users),
-                    backgroundColor: colors.warning,
-                    borderRadius: 6
-                }]
-            },
-            options: {
-                ...commonOptions,
-                indexAxis: 'y',
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        grid: {
-                            color: '#f0f0f0'
-                        }
-                    },
-                    y: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    // Chart 3: الإيرادات الشهرية
-    if (dashboardData.monthlyRevenue.length > 0) {
-        new Chart(document.getElementById('monthlyRevenueChart'), {
+        platformChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: dashboardData.monthlyRevenue.map(item => item.month),
+                labels:   dataPoints.map(d => d.label),
                 datasets: [{
-                    label: 'الإيرادات (ر.س)',
-                    data: dashboardData.monthlyRevenue.map(item => item.revenue),
-                    borderColor: colors.success,
-                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                    tension: 0.4,
-                    fill: true,
-                    pointRadius: 4,
-                    pointHoverRadius: 6
+                    label:           'النشاط الإجمالي',
+                    data:            dataPoints.map(d => d.count),
+                    borderColor:     colors.primary,
+                    backgroundColor: 'rgba(76, 193, 187, 0.12)',
+                    tension:         0.4,
+                    fill:            true,
+                    pointRadius:     4,
+                    pointHoverRadius: 7,
+                    borderWidth:     2.5,
                 }]
             },
             options: {
-                ...commonOptions,
+                responsive:          true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: colors.primary,
+                        titleColor:      '#fff',
+                        bodyColor:       '#fff',
+                        padding:         10,
+                        cornerRadius:    6,
+                    }
+                },
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grid: {
-                            color: '#f0f0f0'
-                        },
-                        ticks: {
-                            callback: value => value.toLocaleString() + ' ر.س'
-                        }
+                        grid: { color: '#f0f0f0' },
+                        ticks: { precision: 0 }
                     },
                     x: {
-                        grid: {
-                            display: false
+                        grid: { display: false },
+                        ticks: {
+                            maxTicksLimit: 12,
+                            maxRotation: 45,
                         }
                     }
                 }
@@ -147,104 +73,71 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Chart 4: توزيع الاشتراكات
-    if (dashboardData.subscriptionStatus.length > 0) {
-        new Chart(document.getElementById('subscriptionStatusChart'), {
+    // الرسم الأولي بالبيانات المُمرَّرة من الـ backend
+    if (dashboardData.platformActivity && dashboardData.platformActivity.length > 0) {
+        buildPlatformChart(dashboardData.platformActivity);
+    }
+
+    // تغيير المدة عبر الـ dropdown
+    const rangeSelect = document.getElementById('platform-activity-range');
+    if (rangeSelect) {
+        rangeSelect.addEventListener('change', function () {
+            const range = this.value;
+            const url   = dashboardData.platformActivityUrl + '?range=' + range;
+
+            fetch(url)
+                .then(r => r.json())
+                .then(json => {
+                    if (json.data) buildPlatformChart(json.data);
+                })
+                .catch(err => console.error('Platform activity fetch error:', err));
+        });
+    }
+
+    // ════════════════════════════════════════════════════════
+    // Chart 2: توزيع حالات الاشتراكات (Doughnut)
+    // ════════════════════════════════════════════════════════
+    const statusCtx = document.getElementById('subscriptionStatusChart');
+    if (statusCtx && dashboardData.subscriptionStatus && dashboardData.subscriptionStatus.length > 0) {
+
+        const colorMap = {
+            primary:   colors.primary,
+            success:   colors.success,
+            warning:   colors.warning,
+            danger:    colors.danger,
+            secondary: colors.secondary,
+        };
+
+        const chartColors = dashboardData.subscriptionStatus.map(s => colorMap[s.color] || '#999');
+
+        new Chart(statusCtx, {
             type: 'doughnut',
             data: {
-                labels: dashboardData.subscriptionStatus.map(item => item.status),
+                labels:   dashboardData.subscriptionStatus.map(s => s.label),
                 datasets: [{
-                    data: dashboardData.subscriptionStatus.map(item => item.count),
-                    backgroundColor: [colors.success, colors.warning, colors.danger, colors
-                        .secondary
-                    ],
-                    borderWidth: 0,
-                    hoverOffset: 8
+                    data:            dashboardData.subscriptionStatus.map(s => s.count),
+                    backgroundColor: chartColors,
+                    borderWidth:     0,
+                    hoverOffset:     8,
                 }]
             },
             options: {
-                ...commonOptions,
-                cutout: '60%',
+                responsive:          true,
+                maintainAspectRatio: false,
+                cutout:              '65%',
                 plugins: {
-                    ...commonOptions.plugins,
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 15
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    // Chart 5: استخدام المستخدمين
-    if (dashboardData.userUsage.length > 0) {
-        new Chart(document.getElementById('userUsageChart'), {
-            type: 'bar',
-            data: {
-                labels: dashboardData.userUsage.map(item => item.subscription),
-                datasets: [{
-                    label: 'مستخدَم',
-                    data: dashboardData.userUsage.map(item => item.used),
-                    backgroundColor: colors.primary,
-                    borderRadius: 6
-                },
-                {
-                    label: 'متاح',
-                    data: dashboardData.userUsage.map(item => item.total - item.used),
-                    backgroundColor: '#e0e0e0',
-                    borderRadius: 6
-                }
-                ]
-            },
-            options: {
-                ...commonOptions,
-                scales: {
-                    x: {
-                        stacked: true,
-                        grid: {
-                            display: false
-                        }
-                    },
-                    y: {
-                        stacked: true,
-                        beginAtZero: true,
-                        grid: {
-                            color: '#f0f0f0'
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    // Chart 6: الكوبونات
-    if (dashboardData.couponUsage.length > 0) {
-        new Chart(document.getElementById('couponUsageChart'), {
-            type: 'bar',
-            data: {
-                labels: dashboardData.couponUsage.map(item => item.code),
-                datasets: [{
-                    label: 'عدد مرات الاستخدام',
-                    data: dashboardData.couponUsage.map(item => item.used),
-                    backgroundColor: colors.purple,
-                    borderRadius: 6
-                }]
-            },
-            options: {
-                ...commonOptions,
-                indexAxis: 'y',
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        grid: {
-                            color: '#f0f0f0'
-                        }
-                    },
-                    y: {
-                        grid: {
-                            display: false
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#333',
+                        titleColor:      '#fff',
+                        bodyColor:       '#fff',
+                        padding:         10,
+                        cornerRadius:    6,
+                        callbacks: {
+                            label: function(ctx) {
+                                const item = dashboardData.subscriptionStatus[ctx.dataIndex];
+                                return ` ${item.label}: ${item.count} (${item.percentage}%)`;
+                            }
                         }
                     }
                 }

@@ -18,333 +18,169 @@ class DashboardService
     {
         return [
             // KPIs
-            'kpis'                  => $this->getKPIs(),
+            'kpis'               => $this->getKPIs(),
 
             // Charts Data
-            'monthlyCustomers'      => $this->getMonthlyCustomersData(),
-            'topCustomersByUsers'   => $this->getTopCustomersByUsers(),
-            'monthlyRevenue'        => $this->getMonthlyRevenue(),
-            'subscriptionStatus'    => $this->getSubscriptionStatusDistribution(),
-            'userUsage'             => $this->getUserUsageAnalysis(),
-            'couponUsage'           => $this->getCouponUsageStats(),
-            'domainsByExtension'    => $this->getDomainsByExtension(), // جديد
-
-            // Tables Data
-            'upcomingRenewals'      => $this->getUpcomingRenewals(),
-            'recentSubscriptions'   => $this->getRecentSubscriptions(),
-            'expiringSubscriptions' => $this->getExpiringSubscriptions(),
-            'controlDomains'        => $this->getControlDomainsTable(), // جديد
-            'recentDomains'         => $this->getRecentDomains(), // جديد
-
-            // Growth Metrics
-            'growthRate'            => $this->getGrowthRate(),
+            'platformActivity'   => $this->getPlatformActivity('1month'),
+            'subscriptionStatus' => $this->getSubscriptionStatusDistribution(),
         ];
     }
 
+    public function getPlatformActivityByRange(string $range = '1month'): array
+    {
+        return $this->getPlatformActivity($range);
+    }
+
     // ==========================================
-    // KPIs - المؤشرات الرئيسية
+    // KPIs - المؤشرات الرئيسية (6 كروت)
     // ==========================================
-    private function getKPIs()
+    private function getKPIs(): array
     {
         return [
-            'total_tenants'          => Tenant::whereNull('deleted_at')->count(),
-            'active_subscriptions'   => Subscription::where('status', SubscriptionStatus::ACTIVE)->count(),
-            'mrr'                    => $this->calculateMRR(),
-            'total_users'            => $this->getTotalUsers(),
-            'new_tenants_this_month' => Tenant::whereMonth('created_at', now()->month)
-                ->whereYear('created_at', now()->year)
+            // 1. طلبات الاشتراك الجديدة (pending)
+            'new_subscription_requests' => Subscription::where('status', SubscriptionStatus::PENDING)->count(),
+
+            // 2. الشركات المشتركة (tenants لديهم اشتراك active)
+            'subscribed_companies'      => Tenant::whereNull('deleted_at')
+                ->whereHas('lastSubscription', fn($q) => $q->where('status', SubscriptionStatus::ACTIVE))
                 ->count(),
-            'expiring_soon'          => $this->getExpiringSoonCount(),
-            'active_coupons'         => $this->getActiveCouponsCount(),
-            'revenue_this_month'     => $this->getRevenueThisMonth(),
+
+            // 3. الاشتراكات النشطة
+            'active_subscriptions'      => Subscription::where('status', SubscriptionStatus::ACTIVE)->count(),
+
+            // 4. الاشتراكات المعلقة
+            'suspended_subscriptions'   => Subscription::where('status', SubscriptionStatus::SUSPENDED)->count(),
+
+            // 5. القوالب المركزية (ثابت 0 حتى يتم إنشاء الموديل)
+            'central_templates'         => 0,
+
+            // 6. المدفوعات هذا الشهر
+            'monthly_payments'          => $this->getMonthlyPayments(),
         ];
     }
 
-    private function calculateMRR()
+    private function getMonthlyPayments(): float
     {
-        return Subscription::where('status', SubscriptionStatus::ACTIVE)->sum('price');
-    }
-
-    private function getTotalUsers()
-    {
-        return Subscription::where('status', SubscriptionStatus::ACTIVE)->sum('total_users');
-    }
-
-    private function getExpiringSoonCount()
-    {
-        return SubscriptionPeriod::where('is_current', true)
-            ->whereBetween('period_end', [now(), now()->addDays(30)])
-            ->count();
-    }
-
-    private function getActiveCouponsCount()
-    {
-        return Coupon::where('is_active', true)
-            ->where(function ($query) {
-                $query->whereNull('expiry_date')
-                    ->orWhere('expiry_date', '>=', now());
-            })
-            ->count();
-    }
-
-    private function getRevenueThisMonth()
-    {
-        return Subscription::whereMonth('created_at', now()->month)
+        // مجموع سعر الاشتراكات المُنشأة هذا الشهر والتي حالتها active
+        return (float) Subscription::where('status', SubscriptionStatus::ACTIVE)
+            ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->sum('price');
     }
 
     // ==========================================
-    // Charts - المخططات البيانية
+    // Platform Activity Chart
     // ==========================================
 
-    public function getMonthlyCustomersData()
+    /**
+     * إجمالي النشاط للمنصة (عدد سجلات الـ activity_log في كل tenant)
+     * مجمّعة حسب اليوم/الأسبوع/الشهر بناءً على المدة المختارة
+     */
+    public function getPlatformActivity(string $range = '1month'): array
     {
-        $months = collect();
+        [$startDate, $groupFormat, $labelFormat, $carbonInterval] = $this->resolveRangeConfig($range);
 
-        for ($i = 11; $i >= 0; $i--) {
-            $date = now()->subMonths($i);
-            $count = Tenant::whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->count();
+        $data = $this->aggregateActivityFromSubscriptions($startDate, $groupFormat, $labelFormat, $carbonInterval);
 
-            $months->push([
-                'month' => $date->locale('ar')->translatedFormat('M Y'),
-                'count' => $count
-            ]);
+        return $data;
+    }
+
+    private function resolveRangeConfig(string $range): array
+    {
+        return match ($range) {
+            '3months' => [now()->subMonths(3), '%Y-%m', 'M Y', 'month'],
+            '6months' => [now()->subMonths(6), '%Y-%m', 'M Y', 'month'],
+            '1year'   => [now()->subYear(),    '%Y-%m', 'M Y', 'month'],
+            default   => [now()->subMonth(),   '%Y-%m-%d', 'Y-m-d', 'day'], // آخر شهر
+        };
+    }
+
+    private function aggregateActivityFromSubscriptions(
+        Carbon $startDate,
+        string $groupFormat,
+        string $labelFormat,
+        string $interval
+    ): array {
+        $rawData = DB::connection('mysql')
+            ->table('subscriptions')
+            ->selectRaw("DATE_FORMAT(created_at, ?) as period, COUNT(*) as total", [$groupFormat])
+            ->where('created_at', '>=', $startDate)
+            ->groupBy('period')
+            ->orderBy('period')
+            ->get()
+            ->keyBy('period');
+
+        $periods = [];
+        $cursor  = clone $startDate;
+        $now     = now();
+
+        while ($cursor->lte($now)) {
+            $key    = $cursor->format($this->phpFormatFromMySql($groupFormat));
+            $label  = $cursor->locale('ar')->translatedFormat($this->phpLabelFormat($labelFormat));
+            $count  = $rawData->get($key)?->total ?? 0;
+
+            $periods[] = ['label' => $label, 'count' => (int) $count];
+
+            if ($interval === 'day') {
+                $cursor->addDay();
+            } else {
+                $cursor->addMonth();
+            }
         }
 
-        return $months;
+        return $periods;
     }
 
-    public function getTopCustomersByUsers()
+    private function phpFormatFromMySql(string $mysqlFormat): string
     {
-        return Tenant::with('lastSubscription')
-            ->whereHas('lastSubscription', function ($q) {
-                $q->where('status', SubscriptionStatus::ACTIVE);
-            })
-            ->get()
-            ->map(function ($tenant) {
-                return [
-                    'name'  => $tenant->company_name,
-                    'users' => $tenant->lastSubscription->total_users ?? 0
-                ];
-            })
-            ->sortByDesc('users')
-            ->take(10)
-            ->values();
+        return match ($mysqlFormat) {
+            '%Y-%m-%d' => 'Y-m-d',
+            '%Y-%m'    => 'Y-m',
+            default    => 'Y-m',
+        };
     }
 
-    public function getMonthlyRevenue()
+    private function phpLabelFormat(string $format): string
     {
-        $months = collect();
-
-        for ($i = 11; $i >= 0; $i--) {
-            $date = now()->subMonths($i);
-
-            $revenue = Subscription::whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->sum('price');
-
-            $months->push([
-                'month'   => $date->locale('ar')->translatedFormat('M Y'),
-                'revenue' => $revenue
-            ]);
-        }
-
-        return $months;
-    }
-
-    public function getSubscriptionStatusDistribution()
-    {
-        return [
-            ['status' => 'نشط', 'count' => Subscription::where('status', SubscriptionStatus::ACTIVE)->count()],
-            ['status' => 'معلق', 'count' => Subscription::where('status', SubscriptionStatus::SUSPENDED)->count()],
-            ['status' => 'ملغي', 'count' => Subscription::where('status', SubscriptionStatus::CANCELLED)->count()],
-            ['status' => 'منتهي', 'count' => Subscription::where('status', SubscriptionStatus::EXPIRED)->count()],
-        ];
-    }
-
-    public function getUserUsageAnalysis()
-    {
-        return Subscription::where('status', SubscriptionStatus::ACTIVE)
-            ->select('subscription_number', 'total_users', 'used_users')
-            ->get()
-            ->map(function ($sub) {
-                $usagePercentage = $sub->total_users > 0
-                    ? round(($sub->used_users / $sub->total_users) * 100, 2)
-                    : 0;
-
-                return [
-                    'subscription'     => $sub->subscription_number,
-                    'total'            => $sub->total_users,
-                    'used'             => $sub->used_users,
-                    'usage_percentage' => $usagePercentage
-                ];
-            })
-            ->sortByDesc('usage_percentage')
-            ->take(10)
-            ->values();
-    }
-
-    public function getCouponUsageStats()
-    {
-        return Coupon::select('code', 'name', 'usage_limit', 'used_count', 'discount_type', 'discount_value')
-            ->where('is_active', true)
-            ->where('used_count', '>', 0)
-            ->orderByDesc('used_count')
-            ->take(10)
-            ->get()
-            ->map(function ($coupon) {
-                return [
-                    'code'  => $coupon->code,
-                    'name'  => $coupon->name,
-                    'used'  => $coupon->used_count,
-                    'limit' => $coupon->usage_limit ?? 'غير محدود'
-                ];
-            });
-    }
-
-    /**
-     * توزيع النطاقات حسب الامتداد
-     * يعرض عدد النطاقات لكل امتداد
-     */
-    public function getDomainsByExtension()
-    {
-        return Domain::select(DB::raw('
-                SUBSTRING_INDEX(domain, ".", -1) as extension,
-                COUNT(*) as count
-            '))
-            ->whereNull('deleted_at')
-            ->groupBy('extension')
-            ->orderByDesc('count')
-            ->take(10)
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'extension' => '.' . $item->extension,
-                    'count'     => $item->count
-                ];
-            });
+        return match ($format) {
+            'Y-m-d' => 'j M',
+            'M Y'   => 'M Y',
+            default => 'M Y',
+        };
     }
 
     // ==========================================
-    // Tables - الجداول التفصيلية
+    // Subscription Status Distribution
     // ==========================================
-
-    public function getUpcomingRenewals()
+    public function getSubscriptionStatusDistribution(): array
     {
-        return Subscription::with(['tenant', 'plan'])
-            ->where('status', SubscriptionStatus::ACTIVE)
-            ->where('auto_renew', true)
-            ->whereBetween('next_payment_date', [now(), now()->addDays(30)])
-            ->orderBy('next_payment_date')
-            ->take(10)
-            ->get()
-            ->map(function ($sub) {
-                return [
-                    'tenant'       => $sub->tenant->company_name,
-                    'subscription' => $sub->subscription_number,
-                    'amount'       => number_format($sub->price, 2),
-                    'renewal_date' => $sub->next_payment_date->format('Y-m-d'),
-                    'days_until'   => now()->diffInDays($sub->next_payment_date, false)
-                ];
-            });
-    }
+        $total = Subscription::count();
 
-    public function getRecentSubscriptions()
-    {
-        return Subscription::with(['tenant', 'plan'])
-            ->orderBy('created_at', 'desc')
-            ->take(10)
-            ->get()
-            ->map(function ($sub) {
-                return [
-                    'tenant'       => $sub->tenant->company_name ?? 'لا يوجد',
-                    'subscription' => $sub->subscription_number,
-                    'plan'         => $sub->plan->name ?? 'N/A',
-                    'price'        => number_format($sub->price, 2),
-                    'status'       => $sub->status->value,
-                    'created_at'   => $sub->created_at ? $sub->created_at->format('Y-m-d') : 'N/A'
-                ];
-            });
-    }
-
-    public function getExpiringSubscriptions()
-    {
-        return SubscriptionPeriod::with('subscription.tenant')
-            ->where('is_current', true)
-            ->whereBetween('period_end', [now(), now()->addDays(30)])
-            ->orderBy('period_end')
-            ->take(10)
-            ->get()
-            ->map(function ($period) {
-                return [
-                    'tenant'       => $period->subscription->tenant->company_name,
-                    'subscription' => $period->subscription->subscription_number,
-                    'expires_at'   => $period->period_end->format('Y-m-d'),
-                    'days_left'    => now()->diffInDays($period->period_end, false)
-                ];
-            });
-    }
-
-    /**
-     * جدول أسعار الامتدادات
-     * يعرض جميع امتدادات النطاقات وأسعارها
-     */
-    public function getControlDomainsTable()
-    {
-        return ControlDomain::where('is_active', true)
-            ->orderBy('domain_extension')
-            ->get()
-            ->map(function ($domain) {
-                return [
-                    'extension' => $domain->domain_extension,
-                    'price'     => number_format($domain->price, 2),
-                    'status'    => $domain->is_active ? 'نشط' : 'غير نشط'
-                ];
-            });
-    }
-
-    /**
-     * النطاقات المسجلة حديثاً
-     * آخر 10 نطاقات تم تسجيلها
-     */
-    public function getRecentDomains()
-    {
-        return Domain::with('tenant')
-            ->orderBy('created_at', 'desc')
-            ->take(10)
-            ->get()
-            ->map(function ($domain) {
-                return [
-                    'domain'     => $domain->domain,
-                    'tenant'     => $domain->tenant->company_name ?? 'N/A',
-                    'type'       => $domain->type == 'registered' ? 'مسجل' : 'مربوط',
-                    'is_active'  => $domain->is_active,
-                    'created_at' => $domain->created_at->format('Y-m-d')
-                ];
-            });
-    }
-
-    public function getGrowthRate()
-    {
-        $currentMonth = Tenant::whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->count();
-        $lastMonth = Tenant::whereMonth('created_at', now()->subMonth()->month)
-            ->whereYear('created_at', now()->subMonth()->year)
-            ->count();
-
-        $growthRate = $lastMonth > 0
-            ? round((($currentMonth - $lastMonth) / $lastMonth) * 100, 2)
-            : 0;
-
-        return [
-            'current_month' => $currentMonth,
-            'last_month'    => $lastMonth,
-            'growth_rate'   => $growthRate,
-            'trend'         => $growthRate >= 0 ? 'up' : 'down'
+        $statuses = [
+            ['key' => 'pending',   'label' => 'قيد المراجعة', 'color' => 'primary',   'status' => SubscriptionStatus::PENDING],
+            ['key' => 'active',    'label' => 'نشط',           'color' => 'success',   'status' => SubscriptionStatus::ACTIVE],
+            ['key' => 'suspended', 'label' => 'معلق',          'color' => 'warning',   'status' => SubscriptionStatus::SUSPENDED],
+            ['key' => 'cancelled', 'label' => 'ملغي',          'color' => 'danger',    'status' => SubscriptionStatus::CANCELLED],
+            ['key' => 'expired',   'label' => 'منتهي',         'color' => 'secondary', 'status' => SubscriptionStatus::EXPIRED],
         ];
+
+        return collect($statuses)->map(function ($item) use ($total) {
+            $count = Subscription::where('status', $item['status'])->count();
+            return [
+                'key'        => $item['key'],
+                'label'      => $item['label'],
+                'color'      => $item['color'],
+                'count'      => $count,
+                'percentage' => $total > 0 ? round(($count / $total) * 100, 1) : 0,
+            ];
+        })->values()->toArray();
+    }
+
+    // ==========================================
+    // Pending Subscriptions count (for sidebar)
+    // ==========================================
+    public function getPendingCount(): int
+    {
+        return Subscription::where('status', SubscriptionStatus::PENDING)->count();
     }
 }

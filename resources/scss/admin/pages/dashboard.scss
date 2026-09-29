@@ -1,0 +1,89 @@
+// =============================================================================
+// Admin Dashboard Page SCSS
+// =============================================================================
+
+/* ── Status List ── */
+.status-list-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+
+    & + .status-list-row {
+        border-top: 1px solid rgba(0, 0, 0, 0.06);
+    }
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+
+    &.status-dot-primary {
+        background-color: var(--bs-primary, #4cc1bb);
+    }
+    &.status-dot-success {
+        background-color: var(--bs-success, #28a745);
+    }
+    &.status-dot-warning {
+        background-color: var(--bs-warning, #ffc107);
+    }
+    &.status-dot-danger {
+        background-color: var(--bs-danger, #dc3545);
+    }
+    &.status-dot-secondary {
+        background-color: var(--bs-secondary, #6c757d);
+    }
+}
+
+.status-name-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 130px;
+
+    .status-label {
+        font-size: 0.85rem;
+    }
+}
+
+.status-pct {
+    font-size: 0.8rem;
+    color: #888;
+    min-width: 42px;
+    text-align: center;
+}
+
+.status-count {
+    font-weight: 700;
+    font-size: 0.9rem;
+    min-width: 32px;
+    text-align: end;
+}
+
+/* ── KPI icon circle ── */
+.avatar.circle .avatar-initial {
+    border-radius: 50% !important;
+}
+
+/* ── Chart card header ── */
+.chart-range-select {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 6px;
+}
+
+/* ── Chart containers ── */
+.platform-activity-chart-wrap {
+    position: relative;
+    height: 300px;
+}
+
+.subscription-status-chart-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 200px;
+    height: 200px;
+}

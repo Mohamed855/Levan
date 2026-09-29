@@ -34,6 +34,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
     Route::name('password.store')->post('reset-password', [NewPasswordController::class, 'updatePassword']);
 
     Route::get('/', [DashboardController::class, 'dashboard'])->name('dashboard');
+    Route::get('dashboard/platform-activity', [DashboardController::class, 'platformActivity'])->name('dashboard.platform-activity');
 
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::prefix('banks')->name('banks.')->group(function () {
@@ -57,6 +58,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
 
     // ادارة الاشتراكات
     Route::prefix('subscription-manage')->name('subscriptionManage.')->group(function () {
+        Route::get('pending', [SubscriptionManagementController::class, 'pending'])->name('pending');
         Route::get('expiring', [SubscriptionManagementController::class, 'expiring'])->name('expiring');
         Route::get('tenant/{tenant}/access', [SubscriptionManagementController::class, 'access'])->name('tenant-access');
         Route::resource('/', SubscriptionManagementController::class)->parameters(['' => 'subscription']);
