@@ -40,6 +40,22 @@ document.addEventListener('DOMContentLoaded', function () {
                     digits: { message: 'رقم السجل التجاري يجب أن يحتوي على أرقام فقط' }
                 }
             },
+            tax_number: {
+                validators: {
+                    notEmpty: { message: 'يرجى إدخال الرقم الضريبي' }
+                }
+            },
+            city_id: {
+                validators: {
+                    notEmpty: { message: 'يرجى اختيار المدينة' }
+                }
+            },
+            address: {
+                validators: {
+                    notEmpty: { message: 'يرجى إدخال العنوان' },
+                    stringLength: { max: 1000, message: 'العنوان يجب ألا يتجاوز 1000 حرف' }
+                }
+            },
             name: {
                 validators: {
                     notEmpty: { message: 'يرجى إدخال اسم المستخدم' },
@@ -438,6 +454,9 @@ document.addEventListener('DOMContentLoaded', function () {
             Promise.all([
                 fv.validateField('company_name'),
                 fv.validateField('commercial_number'),
+                fv.validateField('tax_number'),
+                fv.validateField('city_id'),
+                fv.validateField('address'),
                 fv.validateField('name'),
                 fv.validateField('phone'),
                 fv.validateField('email'),

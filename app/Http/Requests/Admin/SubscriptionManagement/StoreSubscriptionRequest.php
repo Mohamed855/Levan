@@ -20,6 +20,9 @@ class StoreSubscriptionRequest extends FormRequest
         return [
             'company_name'      => 'required|string|min:2|max:255',
             'commercial_number' => ['required', 'digits:10', 'unique:tenants,commercial_number,' . $tenantId],
+            'tax_number'        => ['required', 'string', 'max:255'],
+            'city_id'           => ['required', 'integer', 'exists:cities,id'],
+            'address'           => ['required', 'string', 'max:1000'],
             'name'              => 'required|string|min:2|max:255',
             'phone'             => ['required', 'regex:/^05[0-9]{8}$/'],
             'email'             => ['required', 'email', 'max:255'],
@@ -49,6 +52,11 @@ class StoreSubscriptionRequest extends FormRequest
             'commercial_number.required'    => 'رقم السجل التجاري مطلوب',
             'commercial_number.digits'      => 'رقم السجل التجاري يجب أن يتكون من 10 أرقام',
             'commercial_number.unique'      => 'رقم السجل التجاري مسجل مسبقاً',
+
+            'tax_number.required'           => 'الرقم الضريبي مطلوب',
+            'city_id.required'              => 'المدينة مطلوبة',
+            'city_id.exists'                => 'المدينة المختارة غير موجودة',
+            'address.required'              => 'العنوان مطلوب',
 
             // name
             'name.required'     => 'اسم المستخدم مطلوب',
@@ -102,6 +110,9 @@ class StoreSubscriptionRequest extends FormRequest
         return [
             'company_name'      => 'اسم الشركة',
             'commercial_number' => 'رقم السجل التجاري',
+            'tax_number'        => 'الرقم الضريبي',
+            'city_id'           => 'المدينة',
+            'address'           => 'العنوان',
             'name'              => 'اسم المستخدم',
             'phone'             => 'رقم الجوال',
             'email'             => 'البريد الإلكتروني',

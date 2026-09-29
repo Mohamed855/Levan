@@ -38,6 +38,16 @@
                         </button>
                     </div>
                     <div class="line"><i class="ti ti-chevron-right"></i></div>
+                    <div class="step" data-target="#step-admin">
+                        <button type="button" class="step-trigger">
+                            <span class="bs-stepper-circle">2</span>
+                            <span class="bs-stepper-label">
+                                <span class="bs-stepper-title">بيانات المستخدم</span>
+                                <span class="bs-stepper-subtitle">بيانات المستخدم الرئيسي </span>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="line"><i class="ti ti-chevron-right"></i></div>
 
                     <div class="step" data-target="#step-payment">
                         <button type="button" class="step-trigger">
@@ -89,6 +99,41 @@
                                 </div>
 
                                 <div class="col-md-6">
+                                    <label for="tax_number" class="form-label">الرقم الضريبي <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="tax_number" name="tax_number"
+                                        value="{{ old('tax_number') }}" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="city_id" class="form-label">المدينة <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-select" id="city_id" name="city_id" required>
+                                        <option value="">اختر المدينة</option>
+                                        @foreach ($cities as $city)
+                                            <option value="{{ $city->id }}" @selected(old('city_id') == $city->id)>
+                                                {{ $city->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="address" class="form-label">العنوان <span
+                                            class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="address" name="address" rows="2" required>{{ old('address') }}</textarea>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 d-flex justify-content-end">
+                                <button type="button" class="btn btn-primary btn-next" id="btn-next-plan">
+                                    التالي <i class="ti ti-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="step-admin" class="content">
+                            <div class="row g-2">
+                                <div class="col-md-6">
                                     <label for="name" class="form-label"> اسم المستخدم
                                         <span class="text-danger">*</span>
                                     </label>
@@ -106,7 +151,7 @@
                                         oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
                                 </div>
 
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <label for="email" class="form-label"> البريد الإلكتروني
                                         <span class="text-danger">*</span>
                                     </label>
@@ -114,7 +159,7 @@
                                         value="{{ old('email') }}" placeholder="example@domain.com" required>
                                 </div>
 
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <label class="form-label" for="password">
                                         كلمة المرور
                                         <span class="text-danger">*</span>
@@ -124,7 +169,7 @@
                                 </div>
 
                                 <!-- تأكيد كلمة المرور -->
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <label class="form-label" for="password_confirmation">
                                         تأكيد كلمة المرور
                                         <span class="text-danger">*</span>
@@ -142,7 +187,6 @@
                         </div>
 
                         <div id="step-payment" class="content">
-
                             <div class="row g-2">
                                 <div class="col-md-6">
                                     <label for="plan_id" class="form-label">

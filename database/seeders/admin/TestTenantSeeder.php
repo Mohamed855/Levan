@@ -4,6 +4,7 @@ namespace Database\Seeders\admin;
 
 use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
+use App\Models\Admin\City;
 use App\Models\Admin\Licenses\LicenseSeat;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
@@ -54,6 +55,9 @@ class TestTenantSeeder extends Seeder
                 'company_name'         => 'مستخدم النسخة الثانية',
                 'commercial_number'    => '2222222222',
                 'version_id'           => $version?->id ?? 1,
+                'tax_number'           => '300000000000003',
+                'city_id'              => City::firstOrCreate(['name' => 'الرياض'])->id,
+                'address'              => 'حي العليا، الرياض',
                 'access_type'          => 'path',
                 'custom_domain_active' => 0,
                 'api_token'            => hash('sha256', 'test-tenant-token'),

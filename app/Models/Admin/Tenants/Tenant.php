@@ -3,6 +3,7 @@
 namespace App\Models\Admin\Tenants;
 
 use App\Models\Admin\Bills\Bill;
+use App\Models\Admin\City;
 use App\Models\Admin\Licenses\LicenseSeat;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Version\Version;
@@ -48,6 +49,9 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         'commercial_number',
 
         'access_type',
+        'tax_number',
+        'city_id',
+        'address',
         'custom_domain_active',
         'domain_activated_at',
     ];
@@ -69,6 +73,9 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'company_name',
             'commercial_number',
 
+            'tax_number',
+            'city_id',
+            'address',
             'access_type',
             'custom_domain_active',
             'domain_activated_at',
@@ -198,6 +205,12 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     {
         return $this->belongsTo(Version::class, 'version_id');
     }
+
+    public function city()
+    {
+        return $this->belongsTo(City::class);
+    }
+
     public function tickets()
     {
         return $this->hasMany(Ticket::class, 'tenant_id', 'id');

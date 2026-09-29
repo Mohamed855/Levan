@@ -6,6 +6,7 @@ use App\DataTables\Admin\SubscriptionMangment\subscriptionMangmentDataTable;
 use App\Enums\Admin\Billing\BillStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
+use App\Models\Admin\City;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\SubscriptionManagement\StoreSubscriptionRequest;
 use App\Models\Admin\Bills\Bill;
@@ -89,6 +90,7 @@ class SubscriptionManagementController extends Controller
 
     public function create()
     {
+        $cities = City::orderBy('name')->get(['id', 'name']);
         $plans = Plan::where('is_active', true)->orderBy('sort_order', 'asc')->get()
             ->map(fn($plan) => [
                 'id'                   => $plan->id,
@@ -96,7 +98,7 @@ class SubscriptionManagementController extends Controller
                 'price_after_discount' => $plan->price_after_discount,
             ]);
 
-        return view(self::VIEW_PATH . '.create', compact('plans'));
+        return view(self::VIEW_PATH . '.create', compact('plans', 'cities'));
     }
 
     public function store(StoreSubscriptionRequest $request)
@@ -142,14 +144,18 @@ class SubscriptionManagementController extends Controller
     {
         $plan = $subscription->plan;
         $plans = Plan::get();
+        $cities = City::orderBy('name')->get(['id', 'name']);
         $allStatus  = SubscriptionStatus::options();
-        return view(self::VIEW_PATH . '.edit', compact('subscription', 'allStatus', 'plan', 'plans'));
+        return view(self::VIEW_PATH . '.edit', compact('subscription', 'allStatus', 'plan', 'plans', 'cities'));
     }
 
     public function update(Request $request, Subscription $subscription)
     {
         $validated = $request->validate([
             'tenant_id'         => 'required|exists:tenants,id',
+            'tax_number'        => 'required|string|max:255',
+            'city_id'           => 'required|exists:cities,id',
+            'address'           => 'required|string|max:1000',
             'plan_id'           => 'required|exists:plans,id',
             'price'             => 'required|numeric|min:0',
             'status'            => 'required|string',
@@ -163,6 +169,12 @@ class SubscriptionManagementController extends Controller
             DB::beginTransaction();
 
             $tenant = Tenant::where('id', $validated['tenant_id'])->firstOrFail();
+
+            $tenant->update([
+                'tax_number' => $validated['tax_number'],
+                'city_id'    => $validated['city_id'],
+                'address'    => $validated['address'],
+            ]);
 
             $subscription->update([
                 'plan_id'           => $validated['plan_id'],

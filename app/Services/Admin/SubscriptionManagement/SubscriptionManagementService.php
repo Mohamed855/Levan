@@ -61,6 +61,9 @@ class SubscriptionManagementService
             'billing_password'          => $data['password'],
 
             'billing_company_name'      => $data['company_name'],
+            'billing_tax_number'        => $data['tax_number'],
+            'billing_city_id'           => $data['city_id'],
+            'billing_address'           => $data['address'],
             'billing_commercial_number' => $data['commercial_number'],
         ];
 
