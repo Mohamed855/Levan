@@ -24,9 +24,9 @@ class ContractArchiveController extends Controller
         protected ContractArchiveService $contractArchiveService
     ) {
         $this->middleware('auth');
-        $this->middleware('can:أرشيف العقود')->only(['index']);
-        $this->middleware('can:إسترجاع السجلات')->only(['restore', 'massRestore']);
-        $this->middleware('can:حذف نهائي للسجلات')->only(['forceDelete', 'massForceDelete']);
+        $this->middleware('can:contracts_archive.view')->only(['index']);
+        $this->middleware('can:contracts_archive.restore')->only(['restore', 'massRestore']);
+        $this->middleware('can:contracts_archive.force_delete')->only(['forceDelete', 'massForceDelete']);
     }
 
     /*

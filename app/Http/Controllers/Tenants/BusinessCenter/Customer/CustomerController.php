@@ -46,8 +46,8 @@ class CustomerController extends Controller
         $this->middleware(function ($request, $next) {
 
             $currentRoute = optional($request->route())->getName() ?? '';
-            $hasAllCustomers = auth()->user()->can('العملاء');
-            $hasMyCustomers = auth()->user()->can('عملائي');
+            $hasAllCustomers = auth()->user()->can('customers.view');
+            $hasMyCustomers = auth()->user()->can('customers.my_view');
 
             if (str_ends_with($currentRoute, 'customers.index')) {
                 if (!$hasAllCustomers) {
@@ -66,10 +66,10 @@ class CustomerController extends Controller
         })->only(['index']);
 
         // $this->middleware('can:العملاء')->only(['index']);
-        $this->middleware('can:إضافة عميل')->only(['create', 'store']);
-        $this->middleware('can:تعديل عميل')->only(['edit', 'update']);
-        $this->middleware('can:حذف عميل')->only(['destroy']);
-        $this->middleware('can:إرسال رسالة')->only(['sendSMS', 'showSMSForm']);
+        $this->middleware('can:customers.create')->only(['create', 'store']);
+        $this->middleware('can:customers.edit')->only(['edit', 'update']);
+        $this->middleware('can:customers.delete')->only(['destroy']);
+        $this->middleware('can:customers.send_message')->only(['sendSMS', 'showSMSForm']);
     }
 
     /*
@@ -153,7 +153,7 @@ class CustomerController extends Controller
     public function show(Customer $customer): View
     {
         if (
-            !auth()->user()->can('العملاء') &&
+            !auth()->user()->can('customers.view') &&
             $customer->relationship_manager_id !== auth()->id()
         ) {
             abort(403, 'ليس لديك صلاحية لعرض هذا العميل');
@@ -210,7 +210,7 @@ class CustomerController extends Controller
     public function edit(Customer $customer): View
     {
         if (
-            !auth()->user()->can('تعديل جميع العملاء') &&
+            !auth()->user()->can('customers.edit_all') &&
             !(auth()->user()->can('تعديل عميل') && $customer->relationship_manager_id === auth()->id())
         ) {
             abort(403, 'ليس لديك صلاحية لتعديل هذا العميل');
@@ -236,14 +236,14 @@ class CustomerController extends Controller
     public function update(UpdateCustomerRequest $request, Customer $customer): RedirectResponse
     {
         if (
-            !auth()->user()->can('تعديل جميع العملاء') &&
+            !auth()->user()->can('customers.edit_all') &&
             !(auth()->user()->can('تعديل عميل') && $customer->relationship_manager_id === auth()->id())
         ) {
             abort(403, 'ليس لديك صلاحية لتعديل هذا العميل');
         }
 
         try {
-            if (auth()->user()->can('تحديث مباشر للبيانات')) {
+            if (auth()->user()->can('customers.update_directly')) {
                 $this->customerService->updateCustomer($customer, $request->validated());
                 return redirect()
                     ->to(tenant_route_name('customers.index'))
@@ -291,7 +291,7 @@ class CustomerController extends Controller
     {
 
         if (
-            !auth()->user()->can('حذف جميع العملاء') &&
+            !auth()->user()->can('customers.delete_all') &&
             !(auth()->user()->can('حذف عميل') && $customer->relationship_manager_id === auth()->id())
         ) {
             abort(403, 'ليس لديك صلاحية لحذف هذا العميل');
@@ -730,9 +730,9 @@ class CustomerController extends Controller
     private function canAccessViewType(string $viewType): bool
     {
         if ($viewType === 'all') {
-            return auth()->user()->can('العملاء');
+            return auth()->user()->can('customers.view');
         } else {
-            return auth()->user()->can('عملائي');
+            return auth()->user()->can('customers.my_view');
         }
     }
 
@@ -744,7 +744,7 @@ class CustomerController extends Controller
     */
     public function setPrimaryPhone(Request $request, Customer $customer): JsonResponse
     {
-        if (!auth()->user()->can('إضافة رقم هاتف')) {
+        if (!auth()->user()->can('customers.add_phone')) {
             return response()->json([
                 'success' => false,
                 'message' => 'ليس لديك صلاحية لتعديل هذا العميل'

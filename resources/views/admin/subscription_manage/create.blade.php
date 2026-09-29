@@ -123,7 +123,7 @@
                                     </label>
                                     <input type="text" class="form-control" id="tax_number" name="tax_number"
                                         value="{{ old('tax_number', $draftData['tax_number'] ?? '') }}"
-                                        placeholder="مثال: 300000000000003" required>
+                                        placeholder="مثال: 300000000000003" required autocomplete="off">
                                 </div>
 
                                 <!-- المدينة -->
@@ -159,7 +159,7 @@
                                         <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
                                     </button>
                                     <button type="button" class="btn btn-primary" id="btn-next-company">
-                                        التالي <i class="ti ti-arrow-right ms-2"></i>
+                                        التالي <i class="ti ti-arrow-left ms-2"></i>
                                     </button>
                                 </div>
                             </div>
@@ -224,7 +224,7 @@
                                         <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
                                     </button>
                                     <button type="button" class="btn btn-primary" id="btn-next-admin">
-                                        التالي <i class="ti ti-arrow-right ms-2"></i>
+                                        التالي <i class="ti ti-arrow-left ms-2"></i>
                                     </button>
                                 </div>
                             </div>
@@ -399,7 +399,7 @@
                                         <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
                                     </button>
                                     <button type="button" class="btn btn-primary" id="btn-next-payment">
-                                        التالي: مراجعة واعتماد <i class="ti ti-arrow-right ms-2"></i>
+                                        التالي: مراجعة واعتماد <i class="ti ti-arrow-left ms-2"></i>
                                     </button>
                                 </div>
                             </div>

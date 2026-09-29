@@ -46,7 +46,7 @@ class UpdateUserRequest extends FormRequest
             ],
             'email'    => [
                 'required',
-                'email:rfc,dns',
+                'email',
                 'max:255',
                 Rule::unique('users', 'email')->ignore($userId)
             ],

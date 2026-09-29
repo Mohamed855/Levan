@@ -180,7 +180,7 @@ class TenantCrudFeatureTest extends TestCase
         $storeResponse = $this->post($this->tenantUrl('roles'), [
             'name'        => $roleName,
             'description' => 'وصف الدور التجريبي',
-            'permissions' => ['لوحة تحكم الإدارة'],
+            'permissions' => ['dashboard.view'],
         ]);
         $storeResponse->assertStatus(302);
 
@@ -200,7 +200,7 @@ class TenantCrudFeatureTest extends TestCase
         $updateResponse = $this->put($this->tenantUrl("roles/{$role->id}"), [
             'name'        => $updatedRoleName,
             'description' => 'وصف الدور بعد التعديل',
-            'permissions' => ['لوحة تحكم الإدارة'],
+            'permissions' => ['dashboard.view'],
         ]);
         $updateResponse->assertStatus(302);
         $role->refresh();

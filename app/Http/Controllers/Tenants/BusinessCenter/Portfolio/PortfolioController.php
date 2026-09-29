@@ -28,10 +28,10 @@ class PortfolioController extends Controller
         $this->portfolioService = $portfolioService;
 
         $this->middleware('auth');
-        $this->middleware('can:المحافظ')->only(['index', 'show']);
-        $this->middleware('can:إضافة محفظة')->only(['create', 'store']);
-        $this->middleware('can:تعديل محفظة')->only(['edit', 'update', 'toggleStatus']);
-        $this->middleware('can:حذف محفظة')->only(['destroy']);
+        $this->middleware('can:portfolios.view')->only(['index', 'show']);
+        $this->middleware('can:portfolios.create')->only(['create', 'store']);
+        $this->middleware('can:portfolios.edit')->only(['edit', 'update', 'toggleStatus']);
+        $this->middleware('can:portfolios.delete')->only(['destroy']);
     }
 
     /*

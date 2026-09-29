@@ -28,7 +28,7 @@ class CollectionProcessController extends Controller
         private CustomerFollowService $customerFollowService,
         private CollectionSessionService $collectionSessionService
     ) {
-        $this->middleware('can:بدء التحصيل');
+        $this->middleware('can:collection_process.start');
     }
 
     // عرض شاشة بدء التحصيل
@@ -558,8 +558,8 @@ class CollectionProcessController extends Controller
     public function addCustomerPhone(Request $request, Customer $customer): JsonResponse
     {
         if (
-            !auth()->user()->can('تعديل جميع العملاء') &&
-            !(auth()->user()->can('تعديل عميل') && $customer->relationship_manager_id === auth()->id())
+            !auth()->user()->can('customers.edit_all') &&
+            !(auth()->user()->can('customers.edit') && $customer->relationship_manager_id === auth()->id())
         ) {
             return response()->json([
                 'success' => false,
@@ -618,8 +618,8 @@ class CollectionProcessController extends Controller
     public function setPrimaryPhone(Request $request, Customer $customer): JsonResponse
     {
         if (
-            !auth()->user()->can('تعديل جميع العملاء') &&
-            !(auth()->user()->can('تعديل عميل') && $customer->relationship_manager_id === auth()->id())
+            !auth()->user()->can('customers.edit_all') &&
+            !(auth()->user()->can('customers.edit') && $customer->relationship_manager_id === auth()->id())
         ) {
             return response()->json([
                 'success' => false,

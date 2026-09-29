@@ -16,7 +16,7 @@ class CompanyReportController extends Controller
 {
     public function __construct(private readonly CompanyReportService $reportService)
     {
-        $this->middleware('can:تقارير الشركات');
+        $this->middleware('can:reports.companies.view');
     }
 
     public function index(CompanyReportDataTable $dataTable, Request $request)

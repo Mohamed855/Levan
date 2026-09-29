@@ -21,7 +21,7 @@ class SettingsCustomerStatusController extends Controller
     */
     public function __construct()
     {
-        $this->middleware('can:حالات العميل')->only([
+        $this->middleware('can:customer_statuses.view')->only([
             'index',
             'store',
             'update',

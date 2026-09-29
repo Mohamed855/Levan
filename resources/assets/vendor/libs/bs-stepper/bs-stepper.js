@@ -4,6 +4,18 @@ const bsStepper = document.querySelectorAll('.bs-stepper');
 
 // Adds crossed class
 bsStepper.forEach(el => {
+  // Keep wizard navigation controlled by its Next and Previous buttons.
+  el.querySelector('.bs-stepper-header')?.addEventListener(
+    'click',
+    event => {
+      if (event.target.closest('.step-trigger')) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+    },
+    true
+  );
+
   el.addEventListener('show.bs-stepper', function (event) {
     var index = event.detail.indexStep;
     var numberOfSteps = el.querySelectorAll('.line').length;

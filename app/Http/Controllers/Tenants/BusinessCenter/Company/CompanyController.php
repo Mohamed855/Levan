@@ -33,10 +33,10 @@ class CompanyController extends Controller
     {
         $this->companyService = $companyService;
         $this->middleware('auth');
-        $this->middleware('can:الشركات')->only(['index', 'show']);
-        $this->middleware('can:إضافة شركة')->only(['create', 'store']);
-        $this->middleware('can:تعديل شركة')->only(['edit', 'update', 'toggleStatus']);
-        $this->middleware('can:حذف شركة')->only(['destroy']);
+        $this->middleware('can:companies.view')->only(['index', 'show']);
+        $this->middleware('can:companies.create')->only(['create', 'store']);
+        $this->middleware('can:companies.edit')->only(['edit', 'update', 'toggleStatus']);
+        $this->middleware('can:companies.delete')->only(['destroy']);
     }
 
     /*

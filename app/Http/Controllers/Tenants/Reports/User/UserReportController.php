@@ -17,7 +17,7 @@ class UserReportController extends Controller
     {
         $this->userReportService = $userReportService;
 
-        $this->middleware('can:تقارير المستخدمين');
+        $this->middleware('can:reports.users.view');
     }
 
     /*

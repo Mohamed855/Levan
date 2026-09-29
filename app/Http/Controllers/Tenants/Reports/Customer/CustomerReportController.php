@@ -18,7 +18,7 @@ class CustomerReportController extends Controller
     public function __construct(CustomerReportService $customerReportService)
     {
         $this->customerReportService = $customerReportService;
-        $this->middleware('can:تقارير العملاء');
+        $this->middleware('can:reports.customers.view');
     }
 
     /*

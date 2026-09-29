@@ -26,7 +26,7 @@ class MyTaskController extends Controller
         $this->taskService = $taskService;
 
         $this->middleware('auth');
-        $this->middleware('can:مهامي')->only(['index']);
+        $this->middleware('can:my_tasks.view')->only(['index']);
     }
 
     /*

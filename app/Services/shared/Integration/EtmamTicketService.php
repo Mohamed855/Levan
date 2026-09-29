@@ -2,6 +2,8 @@
 
 namespace App\Services\shared\Integration;
 
+use App\Models\Admin\Settings\Settings;
+
 use App\Models\Admin\Tickets\Ticket;
 use App\Models\Admin\Tickets\TicketReply;
 use App\Models\Admin\Tickets\TicketSection;
@@ -44,8 +46,7 @@ class EtmamTicketService
      */
     public function isServiceEnabled(): bool
     {
-        $settings = \App\Models\Admin\Settings\Settings::on('mysql')->first();
-        return $settings ? (bool) $settings->tickets_enabled : true;
+        return (bool) (Settings::on('mysql')->value('tickets_enabled') ?? true);
     }
 
     /**

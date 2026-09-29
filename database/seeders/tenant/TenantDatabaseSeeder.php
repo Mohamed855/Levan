@@ -16,7 +16,9 @@ class TenantDatabaseSeeder extends Seeder
             SettingsTableSeeder::class,
             BranchSeeder::class,
             GeneralSettingsSeeder::class,
+            CompanyPortfolioSeeder::class,
             UserSeeder::class,
+            CustomerDataSeeder::class,
         ]);
     }
 }

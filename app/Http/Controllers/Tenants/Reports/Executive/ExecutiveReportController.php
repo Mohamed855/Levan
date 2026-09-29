@@ -13,7 +13,7 @@ class ExecutiveReportController extends Controller
 {
     public function __construct(private readonly ExecutiveReportService $service)
     {
-        $this->middleware('can:التقارير التنفيذية');
+        $this->middleware('can:reports.executive.view');
     }
 
     public function index()

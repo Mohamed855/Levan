@@ -35,10 +35,10 @@ class ContractController extends Controller
     {
         $this->contractService = $contractService;
         $this->middleware('auth');
-        $this->middleware('can:العقود')->only(['index', 'show']);
-        $this->middleware('can:إضافة عقد')->only(['create', 'store']);
-        $this->middleware('can:تعديل عقد')->only(['edit', 'update', 'toggleStatus']);
-        $this->middleware('can:حذف عقد')->only(['destroy']);
+        $this->middleware('can:contracts.view')->only(['index', 'show']);
+        $this->middleware('can:contracts.create')->only(['create', 'store']);
+        $this->middleware('can:contracts.edit')->only(['edit', 'update', 'toggleStatus']);
+        $this->middleware('can:contracts.delete')->only(['destroy']);
     }
 
     /*
@@ -369,7 +369,7 @@ class ContractController extends Controller
     public function toggleStatus(Contract $contract): JsonResponse
     {
         try {
-            if (!auth()->user()->can('تعديل عقد')) {
+            if (!auth()->user()->can('contracts.edit')) {
                 return response()->json([
                     'success' => false,
                     'message' => 'ليس لديك صلاحية لتعديل حالة العقد'

@@ -33,10 +33,10 @@ class CollectionController extends Controller
     {
         $this->collectionService = $collectionService;
 
-        $this->middleware('can:تحصيلاتي')->only(['index','show']);
-        $this->middleware('can:إضافة تحصيل')->only(['create', 'store']);
-        $this->middleware('can:تعديل تحصيل')->only(['edit', 'update']);
-        $this->middleware('can:حذف تحصيل')->only(['destroy', 'deleteSelected']);
+        $this->middleware('can:collections.view')->only(['index','show']);
+        $this->middleware('can:collections.create')->only(['create', 'store']);
+        $this->middleware('can:collections.edit')->only(['edit', 'update']);
+        $this->middleware('can:collections.delete')->only(['destroy', 'deleteSelected']);
         $this->middleware('can:إعتماد تحصيل')->only(['approve']);
         $this->middleware('can:رفض تحصيل')->only(['reject']);
     }

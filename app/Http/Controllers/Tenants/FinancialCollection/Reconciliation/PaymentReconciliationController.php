@@ -29,7 +29,7 @@ class PaymentReconciliationController extends Controller
     {
         $this->reconciliationService = $reconciliationService;
         $this->middleware('auth');
-        $this->middleware('can:مطابقة السدادات');
+        $this->middleware('can:reconciliation.view');
     }
 
     /*

@@ -19,7 +19,7 @@ class TicketController extends Controller
     public function __construct(private EtmamTicketService $ticketService)
     {
         $this->middleware(function ($request, $next) {
-            if (!$this->ticketService->isConfigured()) {
+            if (!$this->ticketService->isServiceEnabled()) {
                 if ($request->expectsJson()) {
                     return response()->json([
                         'success' => false,

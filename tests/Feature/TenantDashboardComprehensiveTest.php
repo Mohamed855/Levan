@@ -211,11 +211,11 @@ class TenantDashboardComprehensiveTest extends TestCase
     public function test_tickets(): void
     {
         $settings = \App\Models\Admin\Settings\Settings::first();
-        $originalEnabled = $settings?->etmam_enabled ?? false;
+        $originalEnabled = $settings?->tickets_enabled ?? false;
 
         try {
             // 1. Unconfigured redirects to dashboard with error message
-            $settings?->update(['etmam_enabled' => 0]);
+            $settings?->update(['tickets_enabled' => 0]);
             $this->get($this->tenantUrl('tickets'))
                 ->assertRedirect($this->tenantUrl('dashboard'));
 
@@ -225,7 +225,7 @@ class TenantDashboardComprehensiveTest extends TestCase
             ]);
 
             $settings?->update([
-                'etmam_enabled' => 1,
+                'tickets_enabled' => 1,
                 'etmam_base_url' => 'https://api.example.com',
                 'etmam_api_token' => 'token123',
                 'etmam_system_code' => 'SYS123',
@@ -236,7 +236,7 @@ class TenantDashboardComprehensiveTest extends TestCase
             $this->get($this->tenantUrl('tickets/create'))->assertStatus(200);
         } finally {
             $settings?->update([
-                'etmam_enabled' => $originalEnabled,
+                'tickets_enabled' => $originalEnabled,
             ]);
         }
     }

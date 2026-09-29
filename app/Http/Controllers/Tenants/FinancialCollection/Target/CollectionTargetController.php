@@ -35,10 +35,10 @@ class CollectionTargetController extends Controller
     public function __construct(CollectionTargetService $collectionTargetService)
     {
         $this->collectionTargetService = $collectionTargetService;
-        $this->middleware('can:أهداف التحصيل')->only(['index', 'showUserDetails']);
-        $this->middleware('can:إضافة هدف')->only(['create', 'store', 'getUsersByBranch']);
-        $this->middleware('can:تعديل هدف')->only(['edit', 'update', 'toggleStatus', 'getUsersByBranch']);
-        $this->middleware('can:حذف هدف')->only(['destroy', 'deleteSelected']);
+        $this->middleware('can:collection_targets.view')->only(['index', 'showUserDetails']);
+        $this->middleware('can:collection_targets.create')->only(['create', 'store', 'getUsersByBranch']);
+        $this->middleware('can:collection_targets.edit')->only(['edit', 'update', 'toggleStatus', 'getUsersByBranch']);
+        $this->middleware('can:collection_targets.delete')->only(['destroy', 'deleteSelected']);
     }
 
     /*

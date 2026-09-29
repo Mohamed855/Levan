@@ -269,7 +269,7 @@ class ArchivedContractsDataTable extends AbstractDataTable
             ['extend' => 'excel', 'text' => 'إكسل'],
         ];
 
-        if (auth()->user()?->can('إسترجاع السجلات')) {
+        if (auth()->user()?->can('archive.restore')) {
             $buttons[] = [
                 'text'      => 'استرجاع المحدد',
                 'className' => 'btn btn-default btn-restore-selected',
@@ -277,7 +277,7 @@ class ArchivedContractsDataTable extends AbstractDataTable
             ];
         }
 
-        if (auth()->user()?->can('حذف نهائي للسجلات')) {
+        if (auth()->user()?->can('archive.force_delete')) {
             $buttons[] = [
                 'text'      => 'حذف نهائي للمحدد',
                 'className' => 'btn btn-default btn-force-delete-selected',

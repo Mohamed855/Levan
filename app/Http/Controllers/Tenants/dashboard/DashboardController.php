@@ -25,7 +25,7 @@ class DashboardController extends Controller
 
     public function __construct(private DashboardService $dashboardService)
     {
-        $this->middleware('can:لوحة تحكم الإدارة')->only('collectionSessionsPage');
+        $this->middleware('can:dashboard.view')->only('collectionSessionsPage');
     }
 
     /*
@@ -46,7 +46,7 @@ class DashboardController extends Controller
             ]);
         }
 
-        if (Auth::user()->can('لوحة تحكم الإدارة') || Auth::user()->canManageTeam()) {
+        if (Auth::user()->can('dashboard.view') || Auth::user()->canManageTeam()) {
             return $this->adminDashboard();
         }
 
@@ -843,7 +843,7 @@ class DashboardController extends Controller
             return $ids;
         }
 
-        if ($user->can('لوحة تحكم الإدارة')) {
+        if ($user->can('dashboard.view')) {
             return null;
         }
         return [$user->id];

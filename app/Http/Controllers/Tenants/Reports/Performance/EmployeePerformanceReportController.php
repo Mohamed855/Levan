@@ -15,7 +15,7 @@ class EmployeePerformanceReportController extends Controller
 {
     public function __construct(private readonly EmployeePerformanceService $service)
     {
-        $this->middleware('can:تقارير أداء الموظفين');
+        $this->middleware('can:reports.performance.view');
     }
 
     public function index(EmployeePerformanceDataTable $dataTable): mixed

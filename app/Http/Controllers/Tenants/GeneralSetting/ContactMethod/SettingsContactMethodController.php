@@ -11,7 +11,7 @@ class SettingsContactMethodController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('can:وسائل الاتصال بالعميل')->only([
+        $this->middleware('can:contact_methods.view')->only([
             'index',
             'edit',
             'store',

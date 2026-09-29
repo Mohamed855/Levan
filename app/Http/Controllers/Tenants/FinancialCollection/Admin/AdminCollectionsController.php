@@ -27,7 +27,7 @@ class AdminCollectionsController extends Controller
     {
         $this->collectionService = $collectionService;
 
-        $this->middleware('can:تحصيلات المستخدمين')->only(['index', 'show']);
+        $this->middleware('can:admin_collections.view')->only(['index', 'show']);
         $this->middleware('can:إعتماد تحصيل')->only(['approve']);
         $this->middleware('can:رفض تحصيل')->only(['reject']);
         $this->middleware('can:إعتماد الكل')->only(['approveSelected']);

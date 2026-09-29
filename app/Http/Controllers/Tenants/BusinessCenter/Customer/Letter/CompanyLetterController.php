@@ -25,8 +25,8 @@ class CompanyLetterController extends Controller
     {
         $this->letterService = $letterService;
         $this->middleware('auth');
-        $this->middleware('can:خطابات الشركات')->only(['index', 'show', 'getStatistics']);
-        $this->middleware('can:إرسال خطاب')->only(['previewTemplate', 'send']);
+        $this->middleware('can:company_letters.view')->only(['index', 'show', 'getStatistics']);
+        $this->middleware('can:company_letters.send')->only(['previewTemplate', 'send']);
     }
 
 

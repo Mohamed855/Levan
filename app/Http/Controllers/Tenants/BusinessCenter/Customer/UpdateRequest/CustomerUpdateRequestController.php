@@ -26,9 +26,9 @@ class CustomerUpdateRequestController extends Controller
     {
         $this->updateRequestService = $updateRequestService;
         $this->middleware('auth');
-        $this->middleware('can:طلبات تحديث البيانات')->only(['index', 'show']);
-        $this->middleware('can:اعتماد طلب تحديث')->only(['approve', 'bulkApprove']);
-        $this->middleware('can:رفض طلب تحديث')->only(['reject', 'bulkReject']);
+        $this->middleware('can:customer_update_requests.view')->only(['index', 'show']);
+        $this->middleware('can:customer_update_requests.approve')->only(['approve', 'bulkApprove']);
+        $this->middleware('can:customer_update_requests.reject')->only(['reject', 'bulkReject']);
     }
 
 

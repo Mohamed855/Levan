@@ -28,9 +28,9 @@ class CustomerArchiveController extends Controller
     {
         $this->customerArchiveService = $customerArchiveService;
         $this->middleware('auth');
-        $this->middleware('can:أرشيف العملاء')->only(['index']);
-        $this->middleware('can:إسترجاع السجلات')->only(['restore', 'massRestore']);
-        $this->middleware('can:حذف نهائي للسجلات')->only(['forceDelete', 'massForceDelete']);
+        $this->middleware('can:customers_archive.view')->only(['index']);
+        $this->middleware('can:customers_archive.restore')->only(['restore', 'massRestore']);
+        $this->middleware('can:customers_archive.force_delete')->only(['forceDelete', 'massForceDelete']);
     }
 
     /*

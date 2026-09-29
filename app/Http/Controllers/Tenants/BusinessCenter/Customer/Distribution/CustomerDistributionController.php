@@ -37,8 +37,8 @@ class CustomerDistributionController extends Controller
     {
         $this->distributionService = $distributionService;
         $this->middleware('auth');
-        $this->middleware('can:توزيع العملاء')->only(['index', 'show']);
-        $this->middleware('can:إضافة توزيع')->only(['create', 'execute']);
+        $this->middleware('can:customer_distributions.view')->only(['index', 'show']);
+        $this->middleware('can:customer_distributions.create')->only(['create', 'execute']);
     }
 
     /*
