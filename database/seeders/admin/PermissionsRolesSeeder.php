@@ -52,6 +52,7 @@ class PermissionsRolesSeeder extends Seeder
                 'tickets.view',
                 'tickets.show',
                 'tickets.reply',
+                'tickets.delete',
             ],
 
             'clients_management' => [

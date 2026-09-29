@@ -70,7 +70,7 @@
             </a>
             <div class="dropdown-menu dropdown-menu-end p-3" style="min-width: 320px;">
                 <div class="row g-2">
-                    @can('إعدادات النظام')
+                    @can('system.settings')
                         <div class="col-12">
                             <a href="{{ route('admin.settings.index') }}"
                                 class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
@@ -85,7 +85,7 @@
                     @endcan
 
 
-                    @can('الانظمة الامنية')
+                    @can('roles.view')
                         <div class="col-6">
                             <a href="{{ route('admin.roles.index') }}"
                                 class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
@@ -100,7 +100,7 @@
                     @endcan
 
 
-                    @can('سجل النشاطات')
+                    @can('activity_log.view')
                         <div class="col-6">
                             <a href="{{ route('admin.activity-logs.index') }}"
                                 class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
@@ -115,7 +115,7 @@
                     @endcan
 
 
-                    @can('إعدادات اسعار الامتدادات')
+                    @can('domain_extension_prices.settings')
                         <div class="col-6">
                             <a href="{{ route('admin.settings.domains.index') }}"
                                 class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
@@ -130,7 +130,7 @@
                     @endcan
 
 
-                    @can('إعدادات البنوك')
+                    @can('bank_settings.view')
                         <div class="col-6">
                             <a href="{{ route('admin.settings.banks.index') }}"
                                 class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">

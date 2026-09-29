@@ -232,7 +232,7 @@ class subscriptionMangmentDataTable extends AbstractDataTable
                 'action'    => "function() { handleMassReject(); }",
             ];
         } else {
-            // if (auth()->user()?->can('حذف إصدارة')) {
+            // if (auth()->user()?->can('versions.delete')) {
             $buttons[] = [
                 'text'      => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',

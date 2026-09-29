@@ -143,7 +143,7 @@ class CouponDataTable extends AbstractDataTable
                 ]],
         ];
 
-        if (auth()->user()?->can('حذف كوبون')) {
+        if (auth()->user()?->can('coupons.delete')) {
             $buttons[] = [
                 'text'      => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
@@ -161,7 +161,7 @@ class CouponDataTable extends AbstractDataTable
 
     private function getAddButton(): array
     {
-        if (auth()->user()?->can('إضافة كوبون')) {
+        if (auth()->user()?->can('coupons.create')) {
             return [
                 'text'      => '<i class="fas fa-plus-circle me-1"></i> إضافة كوبون',
                 'className' => 'btn btn-primary btn-add',

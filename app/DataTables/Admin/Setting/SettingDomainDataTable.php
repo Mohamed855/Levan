@@ -151,7 +151,7 @@ class SettingDomainDataTable extends AbstractDataTable
             ['extend' => 'excel', 'text' => 'إكسل'],
         ];
 
-        // if (auth()->user()?->can('حذف كوبون')) {
+        // if (auth()->user()?->can('coupons.delete')) {
         $buttons[] = [
             'text'      => 'حذف المحدد',
             'className' => 'btn btn-default btn-delete-selected',
@@ -169,7 +169,7 @@ class SettingDomainDataTable extends AbstractDataTable
 
     private function getAddButton(): array
     {
-        // if (!auth()->user()?->can('إضافة كوبون')) {
+        // if (!auth()->user()?->can('coupons.create')) {
         //     return [];
         // }
 

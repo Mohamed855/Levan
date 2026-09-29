@@ -140,7 +140,7 @@ class AdminUserDataTable extends AbstractDataTable
             ]],
         ];
 
-        if (auth()->user()?->can('حذف مستخدم')) {
+        if (auth()->user()?->can('users.delete')) {
             $buttons[] = [
                 'text'      => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
@@ -158,7 +158,7 @@ class AdminUserDataTable extends AbstractDataTable
 
     private function getAddButton(): array
     {
-        if (auth()->user()?->can('إضافة مستخدم')) {
+        if (auth()->user()?->can('users.create')) {
             return [
                 'text'      => '<i class="fas fa-plus-circle me-1"></i> إضافة مستخدم',
                 'className' => 'btn btn-primary btn-add',
@@ -180,7 +180,7 @@ class AdminUserDataTable extends AbstractDataTable
         $isActive = ($row->status === \App\Enums\Admin\Users\AdminUserStatus::ACTIVE || ($row->status?->value ?? $row->status) === 'active');
         $checked = $isActive ? 'checked' : '';
 
-        if (auth()->user()?->can('تغيير حالة المستخدم')) {
+        if (auth()->user()?->can('users.change_status')) {
             $url = route('admin.users.toggle-status', $row->id);
             return '
                 <div class="d-flex justify-content-center">

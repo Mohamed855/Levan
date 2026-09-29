@@ -176,7 +176,7 @@ class AdminTicketsDataTable extends AbstractDataTable
             ]],
         ];
 
-        if (auth()->user()?->can('حذف تذكرة') || auth()->user()?->hasRole('Super Admin')) {
+        if (auth()->user()?->can('tickets.delete') || auth()->user()?->hasRole('Super Admin')) {
             $buttons[] = [
                 'text'      => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',

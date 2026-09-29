@@ -95,7 +95,7 @@ class VersionTesterDataTable extends AbstractDataTable
             ['extend' => 'excel', 'text' => 'إكسل'],
         ];
 
-        if (auth()->user()?->can('حذف عضو')) {
+        if (auth()->user()?->can('version_testers.delete')) {
             $buttons[] = [
                 'text'      => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
@@ -113,7 +113,7 @@ class VersionTesterDataTable extends AbstractDataTable
 
     private function getAddButton(): array
     {
-        if (auth()->user()?->can('إضافة عضو')) {
+        if (auth()->user()?->can('version_testers.create')) {
             return [
                 'text'      => '<i class="fas fa-plus-circle me-1"></i> إضافة عضو',
                 'className' => 'btn btn-primary btn-add',

@@ -136,7 +136,7 @@ class BankDataTable extends AbstractDataTable
             ['extend' => 'excel', 'text' => 'إكسل'],
         ];
 
-        // if (auth()->user()?->can('حذف إصدارة')) {
+        // if (auth()->user()?->can('versions.delete')) {
         $buttons[] = [
             'text'      => 'حذف المحدد',
             'className' => 'btn btn-default btn-delete-selected',

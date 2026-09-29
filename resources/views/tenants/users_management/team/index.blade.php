@@ -48,69 +48,14 @@
 
 @section('content')
 <div id="top_card" class="row g-4 mb-4">
-    <div class="col-sm-6 col-xl-4">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex align-items-start justify-content-between">
-                    <div class="content-left">
-                        <span class="text-heading">المجموعات</span>
-                        <div class="d-flex align-items-center my-1">
-                            <h4 class="mb-0 me-2">{{ $totalTeams }}</h4>
-                        </div>
-                        <small class="mb-0">إجمالي المجموعات</small>
-                    </div>
-                    <div class="avatar">
-                        <span class="avatar-initial rounded bg-label-primary">
-                            <i class="ti ti-users-group ti-26px"></i>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-sm-6 col-xl-4">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex align-items-start justify-content-between">
-                    <div class="content-left">
-                        <span class="text-heading">المجموعات النشطة</span>
-                        <div class="d-flex align-items-center my-1">
-                            <h4 class="mb-0 me-2">{{ $activeTeams }}</h4>
-                        </div>
-                        <small class="mb-0">المجموعات النشطة</small>
-                    </div>
-                    <div class="avatar">
-                        <span class="avatar-initial rounded bg-label-success">
-                            <i class="ti ti-circle-check ti-26px"></i>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-sm-6 col-xl-4">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex align-items-start justify-content-between">
-                    <div class="content-left">
-                        <span class="text-heading">المجموعات غير النشطة</span>
-                        <div class="d-flex align-items-center my-1">
-                            <h4 class="mb-0 me-2">{{ $inactiveTeams }}</h4>
-                        </div>
-                        <small class="mb-0">المجموعات غير النشطة</small>
-                    </div>
-                    <div class="avatar">
-                        <span class="avatar-initial rounded bg-label-danger">
-                            <i class="ti ti-circle-x ti-26px"></i>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-admin.dashboard-card col="col-sm-6 col-xl-4" title="المجموعات" :value="$totalTeams" subtitle="إجمالي المجموعات"
+        icon="ti-users-group" color="primary" />
+    <x-admin.dashboard-card col="col-sm-6 col-xl-4" title="المجموعات النشطة" :value="$activeTeams"
+        subtitle="المجموعات النشطة" icon="ti-circle-check" color="success" />
+    <x-admin.dashboard-card col="col-sm-6 col-xl-4" title="المجموعات غير النشطة" :value="$inactiveTeams"
+        subtitle="المجموعات غير النشطة" icon="ti-circle-x" color="danger" />
 </div>
+
 
 <div class="card" id="card-teams">
     <div class="card-body">

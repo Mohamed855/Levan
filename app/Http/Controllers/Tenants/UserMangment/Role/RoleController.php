@@ -91,7 +91,7 @@ class RoleController extends Controller
                         return '<a href="mailto:' . $user->email . '">' . $user->email . '</a>';
                     })
                     ->addColumn('role', function ($row) {
-                        if (auth()->user()->can('تعديل دور')) {
+                        if (auth()->user()->can('roles.edit')) {
                             $roleName = $row->roles->count() > 0 ? $row->roles->first()->name : 'غير محدد';
                             $colorClasses = ['bg-label-primary', 'bg-label-success', 'bg-label-warning', 'bg-label-info', 'bg-label-secondary'];
                             $randomColor = $colorClasses[array_rand($colorClasses)];
@@ -104,7 +104,7 @@ class RoleController extends Controller
                         }
                     })
                     ->addColumn('status', function (User $user) {
-                        if (auth()->user()->can('تعديل دور')) {
+                        if (auth()->user()->can('roles.edit')) {
                             $checked = $user->status === 'active' ? 'checked' : '';
                             return '
                                 <div class="d-flex justify-content-center">

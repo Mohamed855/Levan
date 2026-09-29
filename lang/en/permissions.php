@@ -66,6 +66,7 @@ return [
     'tickets.create' => 'Create Ticket',
     'tickets.show' => 'View Ticket',
     'tickets.reply' => 'Reply to Ticket',
+    'tickets.delete' => 'Delete Ticket',
 
     // Clients
     'clients.view' => 'Clients',

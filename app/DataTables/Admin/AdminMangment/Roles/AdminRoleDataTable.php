@@ -57,7 +57,7 @@ class AdminRoleDataTable extends AbstractDataTable
                     return $row->roles->count() > 0 ? $row->roles->first()->name : '-';
                 }
 
-                if (auth()->user()?->can('إسناد دور لمستخدم')) {
+                if (auth()->user()?->can('roles.assign')) {
                     $roleName = $row->roles->count() > 0 ? $row->roles->first()->name : '-';
                     $colorClasses = ['bg-label-primary', 'bg-label-success', 'bg-label-warning', 'bg-label-info', 'bg-label-secondary'];
                     $randomColor = $colorClasses[array_rand($colorClasses)];
@@ -169,7 +169,7 @@ class AdminRoleDataTable extends AbstractDataTable
         $isActive = ($row->status === \App\Enums\Admin\Users\AdminUserStatus::ACTIVE || ($row->status?->value ?? $row->status) === 'active');
         $checked = $isActive ? 'checked' : '';
 
-        if (auth()->user()?->can('تغيير حالة المستخدم') || auth()->user()?->can('تعديل دور')) {
+        if (auth()->user()?->can('users.change_status') || auth()->user()?->can('roles.edit')) {
             return '
                 <div class="d-flex justify-content-center">
                     <label class="switch switch-primary switch-square mb-0">

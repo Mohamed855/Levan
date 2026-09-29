@@ -140,7 +140,7 @@ class CouponDataTable extends AbstractDataTable
             ]],
         ];
 
-        if (auth()->user()?->can('حذف كوبون')) {
+        if (auth()->user()?->can('coupons.delete')) {
             $buttons[] = [
                 'text'      => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',

@@ -165,7 +165,7 @@ class PlanDataTable extends AbstractDataTable
             ]],
         ];
 
-        if (auth()->user()?->can('حذف باقة')) {
+        if (auth()->user()?->can('plans.delete')) {
             $buttons[] = [
                 'text'      => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',

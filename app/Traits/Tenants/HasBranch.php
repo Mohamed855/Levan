@@ -95,7 +95,7 @@ trait HasBranch
             return false;
         }
 
-        if ($user->hasPermissionTo('لوحة تحكم الإدارة')) {
+        if ($user->hasPermissionTo('dashboard.view')) {
             return true;
         }
 

@@ -28,7 +28,7 @@ class BranchScope implements Scope
             return;
         }
         
-        if ($user->hasPermissionTo('لوحة تحكم الإدارة')) {
+        if ($user->hasPermissionTo('dashboard.view')) {
             return;
         }
         

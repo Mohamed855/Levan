@@ -168,7 +168,7 @@ class PlanDataTable extends AbstractDataTable
             ]],
         ];
 
-        if (auth()->user()?->can('حذف باقة')) {
+        if (auth()->user()?->can('plans.delete')) {
             $buttons[] = [
                 'text'      => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
@@ -186,7 +186,7 @@ class PlanDataTable extends AbstractDataTable
 
     private function getAddButton(): array
     {
-        if (auth()->user()?->can('إضافة باقة')) {
+        if (auth()->user()?->can('plans.create')) {
             return [
                 'text'      => '<i class="fas fa-plus-circle me-1"></i> إضافة باقة',
                 'className' => 'btn btn-primary btn-add',

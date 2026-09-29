@@ -66,6 +66,7 @@ return [
     'tickets.create' => 'إنشاء تذكرة',
     'tickets.show' => 'عرض تذكرة',
     'tickets.reply' => 'الرد على تذكرة',
+    'tickets.delete' => 'حذف تذكرة',
 
     // Clients
     'clients.view' => 'العملاء',

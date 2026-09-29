@@ -128,7 +128,7 @@ class TenantDataTable extends AbstractDataTable
             ]],
         ];
 
-        if (auth()->user()?->can('حذف عميل')) {
+        if (auth()->user()?->can('clients.delete')) {
             $buttons[] = [
                 'text'      => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',

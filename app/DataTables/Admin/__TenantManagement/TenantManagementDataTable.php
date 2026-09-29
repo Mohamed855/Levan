@@ -154,7 +154,7 @@ class TenantManagementDataTable extends AbstractDataTable
             ]],
         ];
 
-        if (auth()->user()?->can('حذف عميل')) {
+        if (auth()->user()?->can('clients.delete')) {
             $buttons[] = [
                 'text'      => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
@@ -172,7 +172,7 @@ class TenantManagementDataTable extends AbstractDataTable
 
     private function getAddButton(): array
     {
-        if (auth()->user()?->can('إضافة عميل')) {
+        if (auth()->user()?->can('clients.create')) {
             return [
                 'text'      => '<i class="fas fa-plus-circle me-1"></i> إضافة عميل',
                 'className' => 'btn btn-primary btn-add',

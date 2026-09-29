@@ -58,108 +58,29 @@
     @endif
 
     <div id="top_card" class="row g-4 mb-4">
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">المستخدمين</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $totalUsers }}</h4>
-                            </div>
-                            <small class="mb-0">إجمالي المستخدمين</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-primary">
-                                <i class="ti ti-users ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
+        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="المستخدمين" :value="$totalUsers" subtitle="إجمالي المستخدمين"
+            icon="ti-users" color="primary" />
+        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="المستخدمين النشطين" :value="$activeUsers"
+            subtitle="المستخدمين النشطين" icon="ti-user-check" color="success" />
+        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="المستخدمين غير النشطين" :value="$inactiveUsers"
+            subtitle="المستخدمين غير النشطين" icon="ti-user-off" color="danger" />
+        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="التراخيص"
+            :value="($subscription_formatted['used_users'] ?? 0) . ' / ' . ($subscription_formatted['total_users'] ?? 0)"
+            :subtitle="'متبقي ' . (($subscription_formatted['total_users'] ?? 0) - ($subscription_formatted['used_users'] ?? 0)) . ' ترخيص'"
+            icon="ti-license" color="primary" valueClass="badge bg-label-primary rounded-pill">
+            <div class="text-end">
+                {{ $subscription_formatted['total_users'] > 0 ? round(($subscription_formatted['used_users'] / $subscription_formatted['total_users']) * 100) : 0 }}%
+            </div>
+            <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-primary" role="progressbar"
+                    style="width: {{ $subscription_formatted['total_users'] > 0 ? ($subscription_formatted['used_users'] / $subscription_formatted['total_users']) * 100 : 0 }}%"
+                    aria-valuenow="{{ $subscription_formatted['used_users'] ?? 0 }}" aria-valuemin="0"
+                    aria-valuemax="{{ $subscription_formatted['total_users'] ?? 0 }}">
                 </div>
             </div>
-        </div>
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">المستخدمين النشطين</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $activeUsers }}</h4>
-                            </div>
-                            <small class="mb-0">المستخدمين النشطين</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-success">
-                                <i class="ti ti-user-check ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">المستخدمين غير النشطين</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $inactiveUsers }}</h4>
-                            </div>
-                            <small class="mb-0">المستخدمين غير النشطين</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-danger">
-                                <i class="ti ti-user-off ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-6 col-xl-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">التراخيص</span>
-                            <small class="text-muted mb-0 small">
-                                متبقي
-                                {{ ($subscription_formatted['total_users'] ?? 0) - ($subscription_formatted['used_users'] ?? 0) }}
-                                ترخيص
-                            </small>
-                            <div class="d-flex align-items-center my-1">
-                                <span class="badge bg-label-primary rounded-pill">
-                                    {{ $subscription_formatted['used_users'] ?? 0 }} /
-                                    {{ $subscription_formatted['total_users'] ?? 0 }}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="avatar flex-shrink-0">
-                            <span class="avatar-initial rounded bg-label-primary">
-                                <i class="ti ti-license ti-28px"></i>
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="text-end">
-                        {{ $subscription_formatted['total_users'] > 0 ? round(($subscription_formatted['used_users'] / $subscription_formatted['total_users']) * 100) : 0 }}%
-                    </div>
-
-                    <div class="progress" style="height: 8px;">
-                        <div class="progress-bar bg-primary" role="progressbar"
-                            style="width: {{ $subscription_formatted['total_users'] > 0 ? ($subscription_formatted['used_users'] / $subscription_formatted['total_users']) * 100 : 0 }}%"
-                            aria-valuenow="{{ $subscription_formatted['used_users'] ?? 0 }}" aria-valuemin="0"
-                            aria-valuemax="{{ $subscription_formatted['total_users'] ?? 0 }}">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </x-admin.dashboard-card>
     </div>
+
 
     {{-- جدول المستخدمين --}}
     <div class="card" id="card-users">

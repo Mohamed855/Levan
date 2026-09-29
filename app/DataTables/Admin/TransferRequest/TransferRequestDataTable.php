@@ -156,7 +156,7 @@ class TransferRequestDataTable extends AbstractDataTable
             ]],
         ];
 
-        // if (auth()->user()?->can('حذف إصدارة')) {
+        // if (auth()->user()?->can('versions.delete')) {
         // $buttons[] = [
         //     'text'      => 'حذف المحدد',
         //     'className' => 'btn btn-default btn-delete-selected',

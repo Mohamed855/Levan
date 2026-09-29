@@ -303,7 +303,7 @@ class UserController extends Controller
     public function updateImage(Request $request, User $user): JsonResponse
     {
         // التحقق من الصلاحيات
-        // if (auth()->id() !== (int) $user->id && !auth()->user()->can('تعديل مستخدم')) {
+        // if (auth()->id() !== (int) $user->id && !auth()->user()->can('users.edit')) {
         //     return response()->json([
         //         'success' => false,
         //         'message' => 'ليس لديك صلاحية لتعديل هذا المستخدم'

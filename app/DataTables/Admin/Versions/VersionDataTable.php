@@ -115,7 +115,7 @@ class VersionDataTable extends AbstractDataTable
             ['extend' => 'excel', 'text' => 'إكسل'],
         ];
 
-        if (auth()->user()?->can('حذف إصدارة')) {
+        if (auth()->user()?->can('versions.delete')) {
             $buttons[] = [
                 'text'      => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
@@ -133,7 +133,7 @@ class VersionDataTable extends AbstractDataTable
 
     private function getAddButton(): array
     {
-        if (auth()->user()?->can('إضافة إصدارة')) {
+        if (auth()->user()?->can('versions.create')) {
             return [
                 'text'      => '<i class="fas fa-plus-circle me-1"></i> إضافة إصدارة',
                 'className' => 'btn btn-primary btn-add',

@@ -36,6 +36,9 @@
                     </div>
                 @endif
             </div>
+            @if (trim($slot))
+                {{ $slot }}
+            @endif
         </div>
     </div>
 </div>

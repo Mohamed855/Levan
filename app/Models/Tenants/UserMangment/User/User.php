@@ -378,7 +378,7 @@ class User extends Authenticatable
     //         return $query;
     //     }
 
-    //     if ($user->hasPermissionTo('لوحة تحكم الإدارة')) {
+    //     if ($user->hasPermissionTo('dashboard.view')) {
     //         return $query;
     //     }
 
@@ -495,7 +495,7 @@ class User extends Authenticatable
         }
 
         try {
-            return $this->hasPermissionTo('إدارة الفريق');
+            return $this->hasPermissionTo('teams.manage');
         } catch (\Throwable) {
             return false;
         }
@@ -530,7 +530,7 @@ class User extends Authenticatable
             return $query;
         }
 
-        if ($user->hasPermissionTo('لوحة تحكم الإدارة')) {
+        if ($user->hasPermissionTo('dashboard.view')) {
             return $query;
         }
 

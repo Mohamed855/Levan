@@ -36,7 +36,7 @@
                     style="position: relative; width: 100%; height: 100%; overflow: hidden;">
                     <img src="{{ $user->background_image ? tasset($user->background_image) : asset('img/cta-bg-light.png') }}"
                         alt="صورة الغلاف" class="rounded-top" style="width: 100%; height: 100%; object-fit: cover;">
-                    @if (auth()->id() === $user->id || auth()->user()->can('تعديل مستخدم'))
+                    @if (auth()->id() === $user->id || auth()->user()->can('users.edit'))
                         <button type="button" class="btn btn-primary btn-sm edit-button" data-bs-toggle="modal"
                             data-bs-target="#editBackgroundImageModal"
                             style="position: absolute; top: 10px; right: 10px; transition: opacity 0.3s;">
@@ -53,7 +53,7 @@
                             style="width: 150px; height: 150px; object-fit: cover; border: none !important; outline: none !important; box-shadow: none !important;">
 
                         <!-- زر تعديل الصورة -->
-                        @if (auth()->id() === $user->id || auth()->user()->can('تعديل مستخدم'))
+                        @if (auth()->id() === $user->id || auth()->user()->can('users.edit'))
                             <button type="button"
                                 class="btn btn-sm btn-icon btn-primary rounded-circle position-absolute bottom-0 end-0 me-4 mb-1"
                                 data-bs-toggle="modal" data-bs-target="#changeProfileImageModal"

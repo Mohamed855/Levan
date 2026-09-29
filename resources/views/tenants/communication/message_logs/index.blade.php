@@ -46,87 +46,16 @@
     @endif
 
     <div id="top_card" class="row g-4 mb-4">
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">إجمالي الرسائل</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ number_format($statistics['total']) }}</h4>
-                            </div>
-                            <small class="mb-0">منذ البداية</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-primary">
-                                <i class="ti ti-messages ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">تم الإرسال</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ number_format($statistics['sent']) }}</h4>
-                            </div>
-                            <small class="mb-0">معدل النجاح: {{ $statistics['success_rate'] }}%</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-success">
-                                <i class="ti ti-check ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">فشل الإرسال</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ number_format($statistics['failed']) }}</h4>
-                            </div>
-                            <small class="mb-0">يحتاج مراجعة</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-danger">
-                                <i class="ti ti-x ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">في الانتظار</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ number_format($statistics['pending']) }}</h4>
-                            </div>
-                            <small class="mb-0">لم يتم الإرسال بعد</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-warning">
-                                <i class="ti ti-clock ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="إجمالي الرسائل" :value="number_format($statistics['total'])"
+            subtitle="منذ البداية" icon="ti-messages" color="primary" />
+        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="تم الإرسال" :value="number_format($statistics['sent'])"
+            :subtitle="'معدل النجاح: ' . $statistics['success_rate'] . '%'" icon="ti-check" color="success" />
+        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="فشل الإرسال" :value="number_format($statistics['failed'])"
+            subtitle="يحتاج مراجعة" icon="ti-x" color="danger" />
+        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="في الانتظار" :value="number_format($statistics['pending'])"
+            subtitle="لم يتم الإرسال بعد" icon="ti-clock" color="warning" />
     </div>
+
 
     {{-- جدول سجل الرسائل --}}
     <div class="card" id="card-message-logs">

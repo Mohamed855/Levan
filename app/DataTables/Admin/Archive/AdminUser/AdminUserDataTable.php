@@ -138,7 +138,7 @@ class AdminUserDataTable extends AbstractDataTable
             ],
         ];
 
-        if (auth()->user()?->can('حذف مستخدم')) {
+        if (auth()->user()?->can('users.delete')) {
             $buttons[] = [
                 'text'      => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
@@ -167,7 +167,7 @@ class AdminUserDataTable extends AbstractDataTable
     */
     private function UserStatusBadge($row)
     {
-        if (auth()->user()?->can('تغيير حالة المستخدم')) {
+        if (auth()->user()?->can('users.change_status')) {
           
             return sprintf(
                 '<span class="badge bg-%s">%s</span>',

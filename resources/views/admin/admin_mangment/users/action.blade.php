@@ -2,13 +2,13 @@
    <a href="{{ route('admin.users.profile' , $row->id) }}" class="btn btn-icon btn-label-primary">
         <i class="ti ti-eye"></i>
     </a>
-    @can('تعديل مستخدم')
+    @can('users.edit')
     <a href="{{ route($route . '.edit', $row->id) }}" class="btn btn-icon btn-label-primary">
         <i class="ti ti-edit"></i>
     </a>
     @endcan
 
-    @can('حذف مستخدم')
+    @can('users.delete')
     <button type="button" class="btn btn-icon btn-label-primary js-delete-btn" data-id="{{ $row->id }}">
         <i class="ti ti-trash"></i>
     </button>
