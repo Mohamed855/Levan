@@ -45,11 +45,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
 
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::prefix('banks')->name('banks.')->group(function () {
-            Route::resource('/', SettingsBankController::class)->parameters(['' => 'bank']);
+        Route::resource('/', SettingsBankController::class)->except('show')->parameters(['' => 'bank']);
         });
 
         Route::prefix('domains')->name('domains.')->group(function () {
-            Route::resource('/', SettingsDomainController::class)->parameters(['' => 'domain']);
+        Route::resource('/', SettingsDomainController::class)->except('show')->parameters(['' => 'domain']);
         });
 
         // اعدادات النظاام
@@ -78,20 +78,20 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
     Route::prefix('companies')->name('companies.')->group(function () {
         Route::get('plans/{plan}/duration', [SubscriptionManagementController::class, 'planDuration'])->name('plan-duration');
         Route::get('tenant/{tenant}/access', [SubscriptionManagementController::class, 'access'])->name('tenant-access');
-        Route::resource('/', SubscriptionManagementController::class)->parameters(['' => 'subscription']);
+        Route::resource('/', SubscriptionManagementController::class)->except('show')->parameters(['' => 'subscription']);
 
     });
     // الكوبونات
     Route::prefix('coupons')->name('coupons.')->group(function () {
         Route::get('details/{coupon}', [AdminCouponController::class, 'getCouponDetails'])->name('details');
-        Route::resource('/', AdminCouponController::class)->parameters(['' => 'coupon']);
+        Route::resource('/', AdminCouponController::class)->except('show')->parameters(['' => 'coupon']);
     });
 
     // Users
     Route::prefix('users')->name('users.')->group(function () {
         Route::patch('{user}/toggle-status', [AdminUserController::class, 'toggleStatus'])->name('toggle-status');
         Route::get('profile/{id}', [AdminUserController::class, 'showProfile'])->name('profile');
-        Route::resource('/', AdminUserController::class)->parameters(['' => 'user']);
+        Route::resource('/', AdminUserController::class)->except('show')->parameters(['' => 'user']);
 
         // check if email is unique via ajax
         Route::post('check-email-unique', [AdminUserController::class, 'checkEmailUnique'])->name('check-email-unique');
@@ -105,7 +105,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
 
     // Roles
     Route::prefix('roles')->name('roles.')->group(function () {
-        Route::resource('/', AdminRoleController::class)->parameters(['' => 'role']);
+        Route::resource('/', AdminRoleController::class)->except('show')->parameters(['' => 'role']);
         Route::get('get-user-roles/{id}', [AdminRoleController::class, 'getUserRoles'])->name('get-user-roles'); // جلب الصلاحيات
         Route::post('update-user-roles/{id}', [AdminRoleController::class, 'updateUserRoles'])->name('update-user-role'); // تعديل الصلاحية للمستخدم
     });
@@ -128,7 +128,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
     Route::prefix('plans')->name('plans.')->group(function () {
         Route::post('update-sort-order', [PlanController::class, 'updateSortOrder'])->name('update-sort-order');
         Route::patch('{plan}/toggle-active', [PlanController::class, 'toggleActive'])->name('toggle-active');
-        Route::resource('/', PlanController::class)->parameters(['' => 'plan']);
+        Route::resource('/', PlanController::class)->except('show')->parameters(['' => 'plan']);
     });
 
     Route::prefix('bills')->name('bills.')->group(function () {
@@ -152,7 +152,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
     // super admin archive routes
     Route::prefix('archives')->name('archives.')->group(function () {
         Route::get('/', [AdminUserAdminUserController::class, 'index'])->name('index');
-        Route::get('/create', [AdminUserAdminUserController::class, 'create'])->name('create');
         Route::patch('{user}/toggle-status', [AdminUserController::class, 'toggleStatus'])->name('toggle-status');
         Route::patch('/restore/{id}', [AdminUserAdminUserController::class, 'restore'])->name('restore');
         Route::delete('/force-delete/{id}', [AdminUserAdminUserController::class, 'forceDelete'])->name('force-delete');
@@ -196,7 +195,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
 
     // Versions Tester Routes
     Route::prefix('version_testers')->name('version_testers.')->group(function () {
-        Route::resource('/', VersionTesterController::class)->parameters(['' => 'version_tester']);
+        Route::resource('/', VersionTesterController::class)->except('show')->parameters(['' => 'version_tester']);
     });
     Route::name('mass-delete')->post('/mass-delete', [MassDeleteController::class, 'massDelete']);
 

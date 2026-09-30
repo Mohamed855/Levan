@@ -100,7 +100,49 @@ div.dataTables_processing>div:last-child>div {
 }
 
 .dt-buttons .dt-button-collection .dropdown-item {
-    text-align: -webkit-center !important;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    text-align: start;
+}
+
+.dt-buttons .dt-button-collection .dropdown-item::before {
+    content: "\ea96";
+    font-family: "tabler-icons";
+    font-size: 1.125rem;
+    line-height: 1;
+}
+
+.dt-buttons .dt-button-collection .buttons-copy::before {
+    content: "\ea7a";
+}
+
+.dt-buttons .dt-button-collection .buttons-excel::before,
+.dt-buttons .dt-button-collection .buttons-csv::before {
+    content: "\fb1b";
+}
+
+.dt-buttons .dt-button-collection .buttons-pdf::before {
+    content: "\fb10";
+}
+
+.dt-buttons .dt-button-collection .buttons-print::before {
+    content: "\eb0e";
+}
+
+.dt-buttons .dt-button-collection .btn-delete-selected::before {
+    content: "\eb41";
+}
+
+.dataTable .d-flex.justify-content-center > .switch {
+    margin-inline: 0;
+}
+
+.dataTable .d-flex.justify-content-center > .switch .switch-toggle-slider {
+    left: 50%;
+    right: auto;
+    transform: translate(-50%, -50%);
 }
 
 .custom-checkbox {

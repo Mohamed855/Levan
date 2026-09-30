@@ -198,6 +198,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
             },
+            has_discount: {
+                validators: {
+                    callback: {
+                        message: 'يرجى تحديد حالة التسوية',
+                        callback: function (input) {
+                            return document.getElementById('payment-status')?.value === 'trial' || input.value !== '';
+                        }
+                    }
+                }
+            },
             discount_value: {
                 validators: {
                     callback: {
@@ -815,6 +825,50 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    function finalValidationFields() {
+        const fields = [
+            'company_name', 'commercial_number', 'tax_number', 'city_id', 'address',
+            'name', 'phone', 'email', 'password', 'password_confirmation',
+            'plan_id', 'start_date', 'total_users', 'payment_type'
+        ];
+        const plan = plansData.find((item) => String(item.id) === String(planSelect?.value));
+        const paymentType = document.getElementById('payment-status')?.value;
+
+        if (plan?.subscription_duration_type === 'unlimited') fields.push('end_date');
+
+        if (paymentType === 'paid') {
+            fields.push('payment_method', 'has_discount');
+            if (document.getElementById('payment-method-select')?.value === 'bank_transfer') {
+                fields.push('receipt_upload');
+            }
+            if (document.getElementById('discount-type')?.value === 'yes') fields.push('discount_value');
+        } else if (paymentType === 'unpaid') {
+            fields.push('has_discount');
+            if (document.getElementById('discount-type')?.value === 'yes') fields.push('discount_value');
+        } else if (paymentType === 'trial') {
+            fields.push('trial_end_date');
+        }
+
+        return fields;
+    }
+
+    function showFinalValidationError(results, fields) {
+        const firstInvalidIndex = results.findIndex((result) => result !== 'Valid');
+        if (firstInvalidIndex >= 0 && validationStepper) {
+            const field = fields[firstInvalidIndex];
+            const step = ['company_name', 'commercial_number', 'tax_number', 'city_id', 'address'].includes(field)
+                ? 0
+                : ['name', 'phone', 'email', 'password', 'password_confirmation'].includes(field)
+                    ? 1
+                    : 2;
+            validationStepper.to(step);
+        }
+
+        if (typeof toastr !== 'undefined') {
+            toastr.error('يرجى مراجعة البيانات المطلوبة قبل الحفظ');
+        }
+    }
+
     // Step 4: Final Submit Validation & Form Submission
     form.addEventListener('submit', function (e) {
         e.preventDefault();
@@ -824,22 +878,28 @@ document.addEventListener('DOMContentLoaded', function () {
             endDateInput.disabled = false;
         }
 
-        fv.validate().then(function (status) {
-            if (status === 'Valid') {
-                if (btnSubmit) {
-                    btnSubmit.setAttribute('disabled', 'disabled');
-                    btnSubmit.innerHTML = 'جار الاعتماد والحفظ <span class="spinner-border spinner-border-sm mx-2" role="status"></span>';
+        const fields = finalValidationFields();
+        Promise.all(fields.map((field) => fv.validateField(field)))
+            .then(function (results) {
+                if (results.every((result) => result === 'Valid')) {
+                    if (btnSubmit) {
+                        btnSubmit.setAttribute('disabled', 'disabled');
+                        btnSubmit.innerHTML = 'جار الاعتماد والحفظ <span class="spinner-border spinner-border-sm mx-2" role="status"></span>';
+                    }
+                    form.submit();
+                } else {
+                    if (endDateInput && selectedPlan && selectedPlan.subscription_duration_type === 'limited') {
+                        endDateInput.disabled = true;
+                    }
+                    showFinalValidationError(results, fields);
                 }
-                form.submit();
-            } else {
-                if (endDateInput && selectedPlan && selectedPlan.subscription_duration_type === 'limited') {
-                    endDateInput.disabled = true;
-                }
+            })
+            .catch(function (error) {
+                console.error('Final subscription validation failed:', error);
                 if (typeof toastr !== 'undefined') {
-                    toastr.error('يرجى مراجعة كافة البيانات والتأكد من صحتها قبل الحفظ');
+                    toastr.error('تعذر التحقق من البيانات. يرجى المحاولة مرة أخرى.');
                 }
-            }
-        });
+            });
     });
 
     // ── Initial State Restoration ──

@@ -2,16 +2,12 @@
 
 namespace App\Services\Admin\Dashboard;
 
-use App\Models\Admin\Tenants\Tenant;
-use App\Models\Admin\Subscription\Subscription;
-use App\Models\Admin\Subscription\SubscriptionPeriod;
-use App\Models\Admin\Coupons\Coupon;
-use App\Models\Admin\ControlDomain\ControlDomain;
-use App\Models\Admin\Tenants\Domain;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
-use Spatie\Activitylog\Models\Activity;
-use Illuminate\Support\Facades\DB;
+use App\Models\Admin\Subscription\Subscription;
+use App\Models\Admin\Tenants\Tenant;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Spatie\Activitylog\Models\Activity;
 
 class DashboardService
 {
@@ -19,14 +15,14 @@ class DashboardService
     {
         return [
             // KPIs
-            'kpis'                       => $this->getKPIs(),
+            'kpis' => $this->getKPIs(),
 
             // Charts Data
-            'platformActivity'           => $this->getPlatformActivity('1month'),
-            'subscriptionStatus'         => $this->getSubscriptionStatusDistribution(),
+            'platformActivity' => $this->getPlatformActivity('1month'),
+            'subscriptionStatus' => $this->getSubscriptionStatusDistribution(),
 
             // Recent Activities
-            'recentActivities'           => $this->getRecentActivities(10),
+            'recentActivities' => $this->getRecentActivities(5),
 
             // Recent Subscription Requests
             'latestSubscriptionRequests' => $this->getRecentSubscriptionRequests(10),
@@ -48,21 +44,21 @@ class DashboardService
             'new_subscription_requests' => Subscription::where('status', SubscriptionStatus::PENDING)->count(),
 
             // 2. الشركات المشتركة (tenants لديهم اشتراك active)
-            'subscribed_companies'      => Tenant::whereNull('deleted_at')
-                ->whereHas('lastSubscription', fn($q) => $q->where('status', SubscriptionStatus::ACTIVE))
+            'subscribed_companies' => Tenant::whereNull('deleted_at')
+                ->whereHas('lastSubscription', fn ($q) => $q->where('status', SubscriptionStatus::ACTIVE))
                 ->count(),
 
             // 3. الاشتراكات النشطة
-            'active_subscriptions'      => Subscription::where('status', SubscriptionStatus::ACTIVE)->count(),
+            'active_subscriptions' => Subscription::where('status', SubscriptionStatus::ACTIVE)->count(),
 
             // 4. الاشتراكات المعلقة
-            'suspended_subscriptions'   => Subscription::where('status', SubscriptionStatus::SUSPENDED)->count(),
+            'suspended_subscriptions' => Subscription::where('status', SubscriptionStatus::SUSPENDED)->count(),
 
             // 5. القوالب المركزية (ثابت 0 حتى يتم إنشاء الموديل)
-            'central_templates'         => 0,
+            'central_templates' => 0,
 
             // 6. المدفوعات هذا الشهر
-            'monthly_payments'          => $this->getMonthlyPayments(),
+            'monthly_payments' => $this->getMonthlyPayments(),
         ];
     }
 
@@ -97,8 +93,8 @@ class DashboardService
         return match ($range) {
             '3months' => [now()->subMonths(3), '%Y-%m', 'M Y', 'month'],
             '6months' => [now()->subMonths(6), '%Y-%m', 'M Y', 'month'],
-            '1year'   => [now()->subYear(),    '%Y-%m', 'M Y', 'month'],
-            default   => [now()->subMonth(),   '%Y-%m-%d', 'Y-m-d', 'day'], // آخر شهر
+            '1year' => [now()->subYear(),    '%Y-%m', 'M Y', 'month'],
+            default => [now()->subMonth(),   '%Y-%m-%d', 'Y-m-d', 'day'], // آخر شهر
         };
     }
 
@@ -110,7 +106,7 @@ class DashboardService
     ): array {
         $rawData = DB::connection('mysql')
             ->table('subscriptions')
-            ->selectRaw("DATE_FORMAT(created_at, ?) as period, COUNT(*) as total", [$groupFormat])
+            ->selectRaw('DATE_FORMAT(created_at, ?) as period, COUNT(*) as total', [$groupFormat])
             ->where('created_at', '>=', $startDate)
             ->groupBy('period')
             ->orderBy('period')
@@ -118,13 +114,13 @@ class DashboardService
             ->keyBy('period');
 
         $periods = [];
-        $cursor  = clone $startDate;
-        $now     = now();
+        $cursor = clone $startDate;
+        $now = now();
 
         while ($cursor->lte($now)) {
-            $key    = $cursor->format($this->phpFormatFromMySql($groupFormat));
-            $label  = $cursor->locale('ar')->translatedFormat($this->phpLabelFormat($labelFormat));
-            $count  = $rawData->get($key)?->total ?? 0;
+            $key = $cursor->format($this->phpFormatFromMySql($groupFormat));
+            $label = $cursor->locale('ar')->translatedFormat($this->phpLabelFormat($labelFormat));
+            $count = $rawData->get($key)?->total ?? 0;
 
             $periods[] = ['label' => $label, 'count' => (int) $count];
 
@@ -142,8 +138,8 @@ class DashboardService
     {
         return match ($mysqlFormat) {
             '%Y-%m-%d' => 'Y-m-d',
-            '%Y-%m'    => 'Y-m',
-            default    => 'Y-m',
+            '%Y-%m' => 'Y-m',
+            default => 'Y-m',
         };
     }
 
@@ -151,7 +147,7 @@ class DashboardService
     {
         return match ($format) {
             'Y-m-d' => 'j M',
-            'M Y'   => 'M Y',
+            'M Y' => 'M Y',
             default => 'M Y',
         };
     }
@@ -173,11 +169,12 @@ class DashboardService
 
         return collect($statuses)->map(function ($item) use ($total) {
             $count = Subscription::where('status', $item['status'])->count();
+
             return [
-                'key'        => $item['key'],
-                'label'      => $item['label'],
-                'color'      => $item['color'],
-                'count'      => $count,
+                'key' => $item['key'],
+                'label' => $item['label'],
+                'color' => $item['color'],
+                'count' => $count,
                 'percentage' => $total > 0 ? round(($count / $total) * 100, 1) : 0,
             ];
         })->values()->toArray();
@@ -194,26 +191,26 @@ class DashboardService
     // ==========================================
     // Recent Activities (10 records)
     // ==========================================
-    public function getRecentActivities(int $limit = 10)
+    public function getRecentActivities(int $limit = 5)
     {
         $eventMap = [
-            'created'  => 'إضافة',
-            'updated'  => 'تحديث',
-            'deleted'  => 'حذف',
+            'created' => 'إضافة',
+            'updated' => 'تحديث',
+            'deleted' => 'حذف',
             'restored' => 'استعادة',
-            'login'    => 'تسجيل دخول',
-            'logout'   => 'تسجيل خروج',
+            'login' => 'تسجيل دخول',
+            'logout' => 'تسجيل خروج',
         ];
 
         $logMap = [
-            'companies'     => 'الشركات',
-            'plans'         => 'الباقات',
-            'coupons'       => 'الكوبونات',
-            'users'         => 'المستخدمين',
-            'auth'          => 'تسجيل الدخول',
+            'companies' => 'الشركات',
+            'plans' => 'الباقات',
+            'coupons' => 'الكوبونات',
+            'users' => 'المستخدمين',
+            'auth' => 'تسجيل الدخول',
             'subscriptions' => 'الاشتراكات',
-            'bills'         => 'المعاملات المالية',
-            'tickets'       => 'التذاكر',
+            'bills' => 'المعاملات المالية',
+            'tickets' => 'التذاكر',
         ];
 
         return Activity::with(['causer', 'subject'])

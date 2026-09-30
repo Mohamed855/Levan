@@ -10,14 +10,14 @@ use App\Models\Tenants\UserMangment\User\User;
 use App\Services\shared\Subscription\SubscriptionFormatter;
 use App\Services\shared\Subscription\SubscriptionManager;
 use App\Services\Tenants\UserManagement\User\UserService;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Permission\Models\Role;
 use Yajra\DataTables\Facades\DataTables;
@@ -33,7 +33,7 @@ class UserController extends Controller
 
     public function __construct(
         private UserService $userService,
-        private SubscriptionManager  $subscriptionManager,
+        private SubscriptionManager $subscriptionManager,
         private SubscriptionFormatter $subscriptionFormatter
     ) {
 
@@ -56,9 +56,9 @@ class UserController extends Controller
         $roles = Role::select('id', 'name')->orderBy('name', 'asc')->get();
         $branches = $this->userService->getActiveBranches();
 
-        $tenant        = tenant();
-        $subscription  = $this->subscriptionManager->getTenantSubscription($tenant->id);
-        $formatted     = $this->subscriptionFormatter->format($subscription);
+        $tenant = tenant();
+        $subscription = $this->subscriptionManager->getTenantSubscription($tenant->id);
+        $formatted = $this->subscriptionFormatter->format($subscription);
 
         return $dataTable->render('tenants.users_management.users.index', [
             'totalUsers' => $statistics['total'],
@@ -67,11 +67,10 @@ class UserController extends Controller
             'archivedUsers' => $statistics['archived'],
             'roles' => $roles,
             'branches' => $branches,
-            'subscription_formatted'    => $formatted,
+            'subscription_formatted' => $formatted,
 
         ]);
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -159,7 +158,7 @@ class UserController extends Controller
 
         $recentActivities = Activity::where('causer_id', $user->id)
             ->latest()
-            ->take(10)
+            ->take(5)
             ->get();
 
         $sessionsData = $this->userService->getUserSessionsData($user->id);
@@ -181,7 +180,6 @@ class UserController extends Controller
             ->take(5)
             ->get();
         $sessionsData = $this->userService->getUserSessionsData($user->id);
-
 
         return view('tenants.users_management.users.show', compact('user', 'recentActivities', 'sessionsData'));
     }
@@ -219,8 +217,6 @@ class UserController extends Controller
         }
     }
 
-
-
     /*
     |--------------------------------------------------------------------------
     | Toggle User Status
@@ -239,12 +235,12 @@ class UserController extends Controller
                 'success' => true,
                 'message' => 'تم تبديل الحالة بنجاح',
                 'new_status' => $newStatus,
-                'status_text' => $statusText
+                'status_text' => $statusText,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تبديل الحالة'
+                'message' => 'حدث خطأ أثناء تبديل الحالة',
             ], 500);
         }
     }
@@ -278,7 +274,7 @@ class UserController extends Controller
 
         $user = Auth::user();
 
-        if (!Hash::check($request->current_password, $user->password)) {
+        if (! Hash::check($request->current_password, $user->password)) {
             throw ValidationException::withMessages([
                 'current_password' => ['كلمة المرور الحالية غير صحيحة.'],
             ]);
@@ -325,12 +321,12 @@ class UserController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'تم تحديث الصورة بنجاح',
-                'image_url' => tasset($user->fresh()->image)
+                'image_url' => tasset($user->fresh()->image),
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تحديث الصورة: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء تحديث الصورة: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -352,13 +348,14 @@ class UserController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'تم تحديث الصورة بنجاح',
-                'image_url' => tasset($user->fresh()->background_image)
+                'image_url' => tasset($user->fresh()->background_image),
             ]);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تحديث الصورة: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء تحديث الصورة: '.$e->getMessage(),
             ], 500);
         }
     }

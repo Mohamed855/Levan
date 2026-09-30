@@ -1,5 +1,8 @@
 # Project Conventions & Coding Standards
 
+## Frontend Build Verification (Mandatory)
+- After every update to any `.scss`, `.css`, or `.js` file, run `npm run build` before completing the task.
+
 ## 1. Database Keys and Localization Mapping (Mandatory Invariant)
 - **English-Only Database Keys & Identifiers**:
   - NEVER store Arabic letters, words, or phrases as keys, codes, slugs, or identifiers in any database column.

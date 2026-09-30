@@ -28,7 +28,7 @@
         {{-- @endcan --}}
 
         {{-- @can('subscriptions.delete') --}}
-        <button type="button" class="btn btn-icon btn-label-primary" title="حذف" data-bs-toggle="tooltip" onclick="confirmDelete({{ $row->id }})">
+        <button type="button" class="btn btn-icon btn-label-primary js-delete-btn" title="حذف" data-id="{{ $row->id }}" data-bs-toggle="tooltip">
             <i class="ti ti-trash"></i>
         </button>
 

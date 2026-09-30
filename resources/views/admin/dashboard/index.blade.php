@@ -114,7 +114,7 @@
     </div>
 
     {{-- ═══════════════════════════════════════
-         Tables Row
+        Tables Row
     ═══════════════════════════════════════ --}}
     <div class="row g-3 mb-4">
         <div class="col-lg-6 d-flex flex-column gap-3">

@@ -9,14 +9,25 @@ use App\Models\Admin\ContentManagement\Client;
 use App\Models\Admin\ContentManagement\Portfolio;
 use App\Models\Admin\ControlDomain\ControlDomain;
 use App\Models\Admin\Coupons\Coupon;
+use App\Models\Admin\City;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Settings\Settings;
 use App\Models\Admin\Subscription\Subscription;
+use App\Models\Admin\Subscription\SubscriptionPeriod;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Admin\Version\Version;
 use App\Models\Admin\Version\VersionTester;
+use App\Models\Admin\Tickets\Ticket;
+use App\Models\Admin\Tickets\TicketReply;
+use App\Models\Admin\Tickets\TicketSection;
+use App\Enums\Admin\Billing\BillStatus;
+use App\Enums\Admin\Billing\BillType;
+use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
+use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -40,6 +51,32 @@ class AdminDashboardCrudFeatureTest extends TestCase
     {
         $path = ltrim($path, '/');
         return $path ? 'http://localhost/admin/' . $path : 'http://localhost/admin';
+    }
+
+    /**
+     * Every registered Super Admin route must point to an existing controller method.
+     */
+    public function test_all_super_admin_routes_target_existing_controller_methods(): void
+    {
+        $routes = collect(Route::getRoutes()->getRoutes())
+            ->filter(fn ($route) => str_starts_with($route->uri(), 'admin'));
+
+        $this->assertNotEmpty($routes, 'No Super Admin routes are registered.');
+
+        foreach ($routes as $route) {
+            $action = $route->getActionName();
+
+            if ($action === 'Closure') {
+                continue;
+            }
+
+            [$controller, $method] = explode('@', $action, 2);
+
+            $this->assertTrue(
+                class_exists($controller) && method_exists($controller, $method),
+                "Route [{$route->getName()}] targets unavailable action [{$action}]."
+            );
+        }
     }
 
     /**
@@ -339,6 +376,290 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $this->delete($this->adminUrl("plans/{$plan->id}"));
         $this->delete($this->adminUrl("archives/plans/force-delete/{$plan->id}"))->assertStatus(302);
         $this->assertDatabaseMissing('plans', ['id' => $plan->id]);
+    }
+
+    /**
+     * Test 6: Plan actions, mass deletion, archive restore, and company wizard validation.
+     */
+    public function test_admin_plan_actions_mass_deletion_and_company_wizard_validation(): void
+    {
+        $planName = 'باقة حذف جماعي ' . rand(1000, 9999);
+        $this->post($this->adminUrl('plans'), [
+            'name'                       => $planName,
+            'is_active'                  => 1,
+            'price'                      => 1000,
+            'extra_user_license_price'   => 100,
+            'yearly_renewal_price'       => 900,
+            'included_users'             => 2,
+            'subscription_duration_type' => 'limited',
+            'subscription_billing_cycle' => 'monthly',
+            'unlimited_branches'         => 1,
+            'domain_management_enabled'  => 1,
+            'features'                   => ['اختبار الحذف الجماعي'],
+        ])->assertStatus(302);
+
+        $plan = Plan::where('name', $planName)->firstOrFail();
+
+        $this->patchJson($this->adminUrl("plans/{$plan->id}/toggle-active"))
+            ->assertOk()
+            ->assertJson(['success' => true, 'is_active' => false]);
+
+        $this->postJson($this->adminUrl('plans/update-sort-order'), [
+            'order' => [['id' => $plan->id, 'sort_order' => 99]],
+        ])->assertOk()
+            ->assertJson(['success' => true]);
+
+        $this->postJson($this->adminUrl('mass-delete'), [
+            'model' => 'Plan',
+            'ids'   => [$plan->id],
+        ])->assertOk()
+            ->assertJson(['success' => true]);
+
+        $this->assertSoftDeleted('plans', ['id' => $plan->id]);
+
+        $this->patch($this->adminUrl("archives/plans/restore/{$plan->id}"))->assertStatus(302);
+        $this->assertDatabaseHas('plans', ['id' => $plan->id, 'deleted_at' => null]);
+
+        $this->delete($this->adminUrl("plans/{$plan->id}"))->assertStatus(302);
+        $this->delete($this->adminUrl("archives/plans/force-delete/{$plan->id}"))->assertStatus(302);
+        $this->assertDatabaseMissing('plans', ['id' => $plan->id]);
+
+        $city = City::query()->firstOrFail();
+        $stepUrl = $this->adminUrl('wizard-drafts/validate-step');
+
+        $this->postJson($stepUrl, [
+            'target_path' => '/admin/companies',
+            'fields'      => ['company_name'],
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors(['company_name']);
+
+        $this->postJson($stepUrl, [
+            'target_path'       => '/admin/companies',
+            'fields'            => ['company_name', 'commercial_number', 'tax_number', 'city_id', 'address'],
+            'company_name'      => 'شركة اختبار خطوات ' . rand(1000, 9999),
+            'commercial_number' => (string) rand(1000000000, 9999999999),
+            'tax_number'        => (string) rand(100000000000000, 999999999999999),
+            'city_id'           => $city->id,
+            'address'           => 'عنوان اختبار التحقق من خطوات النموذج',
+        ])->assertOk()
+            ->assertJson(['success' => true]);
+    }
+
+    /**
+     * Test 7: Subscription approval/rejection, bill actions, and ticket actions use real records.
+     */
+    public function test_admin_subscription_bill_and_ticket_actions_with_real_records(): void
+    {
+        $tenant = Tenant::findOrFail('test');
+        $plan = Plan::query()->firstOrFail();
+
+        $createSubscription = function () use ($tenant, $plan): Subscription {
+            $subscription = Subscription::create([
+                'tenant_id'   => $tenant->id,
+                'plan_id'     => $plan->id,
+                'starts_at'   => now(),
+                'ends_at'     => now()->addMonth(),
+                'status'      => SubscriptionStatus::PENDING,
+                'price'       => $plan->price,
+                'total_users' => max(1, $plan->included_users),
+                'used_users'  => 0,
+                'auto_renew'  => false,
+            ]);
+
+            SubscriptionPeriod::create([
+                'subscription_id'        => $subscription->id,
+                'period_start'           => now(),
+                'period_end'             => now()->addMonth(),
+                'plan_id_snapshot'       => $plan->id,
+                'price_snapshot'         => $plan->price,
+                'total_users_snapshot'   => max(1, $plan->included_users),
+                'used_users_snapshot'    => 0,
+                'status'                 => SubscriptionPeriodStatus::PENDING_PAYMENT,
+                'is_current'             => true,
+            ]);
+
+            return $subscription;
+        };
+
+        $acceptedSubscription = $createSubscription();
+        $this->postJson($this->adminUrl("subscription-manage/{$acceptedSubscription->id}/accept"))
+            ->assertOk()
+            ->assertJson(['success' => true]);
+        $this->assertSame(SubscriptionStatus::ACTIVE, $acceptedSubscription->fresh()->status);
+
+        $rejectedSubscription = $createSubscription();
+        $this->postJson($this->adminUrl("subscription-manage/{$rejectedSubscription->id}/reject"), [
+            'reject_reason' => 'سبب رفض اختبار',
+        ])->assertOk()
+            ->assertJson(['success' => true]);
+        $this->assertSame(SubscriptionStatus::CANCELLED, $rejectedSubscription->fresh()->status);
+
+        $massAcceptedSubscription = $createSubscription();
+        $this->postJson($this->adminUrl('subscription-manage/mass-accept'), [
+            'ids' => [$massAcceptedSubscription->id],
+        ])->assertOk()
+            ->assertJson(['success' => true]);
+        $this->assertSame(SubscriptionStatus::ACTIVE, $massAcceptedSubscription->fresh()->status);
+
+        $massRejectedSubscription = $createSubscription();
+        $this->postJson($this->adminUrl('subscription-manage/mass-reject'), [
+            'ids'           => [$massRejectedSubscription->id],
+            'reject_reason' => 'رفض جماعي للاختبار',
+        ])->assertOk()
+            ->assertJson(['success' => true]);
+        $this->assertSame(SubscriptionStatus::CANCELLED, $massRejectedSubscription->fresh()->status);
+
+        $rejectedBill = Bill::create([
+            'tenant_id'       => $tenant->id,
+            'subscription_id' => $acceptedSubscription->id,
+            'amount'          => 100,
+            'original_amount' => 100,
+            'type'            => BillType::NEW_SUBSCRIPTION,
+            'status'          => BillStatus::PENDING_VERIFICATION,
+        ]);
+        $this->post($this->adminUrl("bills/{$rejectedBill->id}/reject"), [
+            'reject_reason' => 'إيصال اختبار غير صالح',
+        ])->assertStatus(302);
+        $this->assertSame(BillStatus::UNPAID, $rejectedBill->fresh()->status);
+
+        $reactivatedBill = Bill::create([
+            'tenant_id'       => $tenant->id,
+            'subscription_id' => $acceptedSubscription->id,
+            'amount'          => 100,
+            'original_amount' => 100,
+            'type'            => BillType::NEW_SUBSCRIPTION,
+            'status'          => BillStatus::CANCELLED,
+        ]);
+        $this->post($this->adminUrl("bills/{$reactivatedBill->id}/reactivate"))->assertStatus(302);
+        $this->assertSame(BillStatus::UNPAID, $reactivatedBill->fresh()->status);
+
+        $verifiedBill = Bill::create([
+            'tenant_id'       => $tenant->id,
+            'subscription_id' => $acceptedSubscription->id,
+            'amount'          => 100,
+            'original_amount' => 100,
+            'type'            => BillType::NEW_SUBSCRIPTION,
+            'status'          => BillStatus::PENDING_VERIFICATION,
+        ]);
+        $this->post($this->adminUrl("bills/{$verifiedBill->id}/verify"))->assertStatus(302);
+        $this->assertSame(BillStatus::PAID, $verifiedBill->fresh()->status);
+
+        $section = TicketSection::query()->firstOrCreate(
+            ['name' => 'قسم اختبار الدعم'],
+            ['is_active' => true],
+        );
+        $ticket = Ticket::create([
+            'ticket_number'          => 'TICKET-TEST-' . uniqid(),
+            'tenant_id'              => $tenant->id,
+            'ticketing_sections_id'  => $section->id,
+            'title'                  => 'تذكرة اختبار Super Admin',
+            'description'            => 'تذكرة لاختبار الرد وتغيير الحالة.',
+            'status'                 => 'open',
+            'priority'               => 'medium',
+        ]);
+
+        $this->post($this->adminUrl("tickets/{$ticket->ticket_number}/reply"), [
+            'message' => 'رد اختبار من Super Admin',
+        ])->assertStatus(302);
+        $this->assertDatabaseHas('ticket_replies', [
+            'ticket_id' => $ticket->id,
+            'message'   => 'رد اختبار من Super Admin',
+        ]);
+        $this->assertSame('in_progress', $ticket->fresh()->status);
+
+        $this->post($this->adminUrl("tickets/{$ticket->ticket_number}/status"), [
+            'status' => 'resolved',
+        ])->assertStatus(302);
+        $this->assertSame('resolved', $ticket->fresh()->status);
+
+        $settings = Settings::firstOrFail();
+        $originalTicketServiceStatus = $settings->tickets_enabled;
+        $this->post($this->adminUrl('tickets/toggle-service'), [
+            'tickets_enabled' => ! $originalTicketServiceStatus,
+        ])->assertStatus(302);
+        $this->assertSame(! $originalTicketServiceStatus, (bool) $settings->fresh()->tickets_enabled);
+        $settings->update(['tickets_enabled' => $originalTicketServiceStatus]);
+
+        TicketReply::where('ticket_id', $ticket->id)->delete();
+        $ticket->delete();
+        Bill::whereKey([$rejectedBill->id, $reactivatedBill->id, $verifiedBill->id])->forceDelete();
+        Subscription::whereKey([
+            $acceptedSubscription->id,
+            $rejectedSubscription->id,
+            $massAcceptedSubscription->id,
+            $massRejectedSubscription->id,
+        ])->forceDelete();
+    }
+
+    /**
+     * Test 8: Company creation provisions a local tenant database and supports update and archive lifecycle.
+     */
+    public function test_admin_company_creation_update_and_archive_lifecycle(): void
+    {
+        $plan = Plan::query()->where('is_active', true)->firstOrFail();
+        $city = City::query()->firstOrFail();
+        $commercialNumber = (string) rand(1000000000, 9999999999);
+        $tenant = null;
+        $tenantDatabase = null;
+
+        try {
+            $this->post($this->adminUrl('companies'), [
+                'company_name'          => 'شركة اختبار إنشاء محلي ' . rand(1000, 9999),
+                'commercial_number'     => $commercialNumber,
+                'tax_number'            => (string) rand(100000000000000, 999999999999999),
+                'city_id'               => $city->id,
+                'address'               => 'عنوان اختبار إنشاء شركة محليًا',
+                'name'                  => 'مدير شركة الاختبار',
+                'phone'                 => '05' . rand(10000000, 99999999),
+                'email'                 => 'company-' . uniqid() . '@example.test',
+                'password'              => 'Password123!',
+                'password_confirmation' => 'Password123!',
+                'plan_id'               => $plan->id,
+                'start_date'            => now()->toDateString(),
+                'total_users'           => max(1, $plan->included_users),
+                'payment_type'          => 'paid',
+                'payment_method'        => 'cash',
+                'has_discount'          => 'no',
+                'activate_immediately'  => 1,
+            ])->assertRedirect($this->adminUrl('companies'));
+
+            $tenant = Tenant::where('commercial_number', $commercialNumber)->firstOrFail();
+            $tenantDatabase = $tenant->db_database;
+            $subscription = Subscription::where('tenant_id', $tenant->id)->firstOrFail();
+
+            $this->put($this->adminUrl("companies/{$subscription->id}"), [
+                'tenant_id'         => $tenant->id,
+                'tax_number'        => $tenant->tax_number,
+                'city_id'           => $city->id,
+                'address'           => 'عنوان محدث لاختبار الشركة',
+                'plan_id'           => $plan->id,
+                'price'             => $plan->price,
+                'status'            => SubscriptionStatus::ACTIVE->value,
+                'total_users'       => max(1, $plan->included_users),
+                'licenses_quota'    => 0,
+                'starts_at'         => now()->toDateString(),
+                'next_payment_date' => now()->addMonth()->toDateString(),
+            ])->assertRedirect($this->adminUrl('companies'));
+            $this->assertSame('عنوان محدث لاختبار الشركة', $tenant->fresh()->address);
+
+            $this->delete($this->adminUrl("companies/{$subscription->id}"))->assertRedirect($this->adminUrl('companies'));
+            $this->assertSoftDeleted('subscriptions', ['id' => $subscription->id]);
+
+            $this->patch($this->adminUrl("archives/subscriptions/restore/{$subscription->id}"))->assertStatus(302);
+            $this->assertDatabaseHas('subscriptions', ['id' => $subscription->id, 'deleted_at' => null]);
+
+            $this->delete($this->adminUrl("companies/{$subscription->id}"))->assertRedirect($this->adminUrl('companies'));
+            $this->delete($this->adminUrl("archives/subscriptions/force-delete/{$subscription->id}"))->assertStatus(302);
+            $this->assertDatabaseMissing('subscriptions', ['id' => $subscription->id]);
+        } finally {
+            if ($tenant) {
+                Tenant::withTrashed()->whereKey($tenant->id)->forceDelete();
+            }
+
+            if ($tenantDatabase && preg_match('/^[A-Za-z0-9_]+$/', $tenantDatabase)) {
+                DB::connection('mysql')->statement('DROP DATABASE IF EXISTS ' . $tenantDatabase);
+            }
+        }
     }
 
     /**

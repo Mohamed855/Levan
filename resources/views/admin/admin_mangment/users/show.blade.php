@@ -33,7 +33,8 @@
                 <div class="background-image-container"
                     style="position: relative; width: 100%; height: 100%; overflow: hidden;">
                     <img src="{{ $user->background_image ? asset('storage/' . $user->background_image) : asset('profile.jpg') }}"
-                        alt="صورة الغلاف" class="rounded-top" style="width: 100%; height: 143px !important; object-fit: cover;">
+                        alt="صورة الغلاف" class="rounded-top"
+                        style="width: 100%; height: 143px !important; object-fit: cover;">
                     @if (auth()->guard('admin')->check() && auth()->guard('admin')->id() === $user->id)
                         <button type="button" class="btn btn-primary btn-sm edit-button" data-bs-toggle="modal"
                             data-bs-target="#editBackgroundImageModal"
@@ -230,7 +231,7 @@
                                     <i class="ti ti-history text-warning me-2"></i>
                                     سجل النشاطات
                                 </h6>
-                                <h6 class="small mb-0">اخر 3 نشاطات</h6>
+                                <h6 class="small mb-0">اخر 5 نشاطات</h6>
 
                             </div>
                             <div class="border-1 border-light border-dashed mb-2"></div>
@@ -276,12 +277,16 @@
                             <div class="card-body">
                                 @forelse ($coupons as $coupon)
                                     @php
-                                        $expiryDate = $coupon->expiry_date ? \Carbon\Carbon::parse($coupon->expiry_date) : null;
+                                        $expiryDate = $coupon->expiry_date
+                                            ? \Carbon\Carbon::parse($coupon->expiry_date)
+                                            : null;
                                         $isExpired = $expiryDate && $expiryDate->isPast();
-                                        $isExhausted = $coupon->usage_limit && $coupon->used_count >= $coupon->usage_limit;
+                                        $isExhausted =
+                                            $coupon->usage_limit && $coupon->used_count >= $coupon->usage_limit;
                                     @endphp
-                                    
-                                    <div class="card mb-3 border border-2 {{ $coupon->is_active && !$isExpired && !$isExhausted ? 'border-primary' : 'border-secondary' }}" style="border-radius: 12px; overflow: hidden;">
+
+                                    <div class="card mb-3 border border-2 {{ $coupon->is_active && !$isExpired && !$isExhausted ? 'border-primary' : 'border-secondary' }}"
+                                        style="border-radius: 12px; overflow: hidden;">
                                         <div class="card-body p-4">
                                             <!-- الصف الأول: العنوان والحالة -->
                                             <div class="d-flex justify-content-between align-items-start mb-3">
@@ -294,13 +299,16 @@
                                                     </div>
                                                     <div class="d-flex align-items-center gap-2">
                                                         <span class="text-muted small">الكود:</span>
-                                                        <code class="bg-light px-2 py-1 rounded fw-bold" style="font-size: 14px;">{{ $coupon->code }}</code>
-                                                        <i class="ti ti-copy text-primary cursor-pointer" onclick="navigator.clipboard.writeText('{{ $coupon->code }}')" title="نسخ الكود"></i>
+                                                        <code class="bg-light px-2 py-1 rounded fw-bold"
+                                                            style="font-size: 14px;">{{ $coupon->code }}</code>
+                                                        <i class="ti ti-copy text-primary cursor-pointer"
+                                                            onclick="navigator.clipboard.writeText('{{ $coupon->code }}')"
+                                                            title="نسخ الكود"></i>
                                                     </div>
                                                 </div>
-                                                
+
                                                 <div class="text-end">
-                                                    @if(!$coupon->is_active)
+                                                    @if (!$coupon->is_active)
                                                         <span class="badge bg-secondary rounded-pill mb-1">
                                                             <i class="ti ti-circle-x me-1"></i>
                                                             غير نشط
@@ -335,7 +343,7 @@
                                                         <small class="text-muted">قيمة الخصم</small>
                                                     </div>
                                                     <div class="fw-bold fs-5 text-success">
-                                                        @if($coupon->discount_type === 'fixed')
+                                                        @if ($coupon->discount_type === 'fixed')
                                                             {{ number_format($coupon->discount_value, 0) }} جنيه
                                                         @else
                                                             {{ number_format($coupon->discount_value, 0) }}%
@@ -349,8 +357,9 @@
                                                         <i class="ti ti-users text-info fs-5"></i>
                                                         <small class="text-muted">حد الاستخدام</small>
                                                     </div>
-                                                    <div class="fw-bold fs-5 {{ $isExhausted ? 'text-danger' : 'text-info' }}">
-                                                        @if($coupon->usage_limit)
+                                                    <div
+                                                        class="fw-bold fs-5 {{ $isExhausted ? 'text-danger' : 'text-info' }}">
+                                                        @if ($coupon->usage_limit)
                                                             {{ $coupon->used_count }} / {{ $coupon->usage_limit }}
                                                             <i class="ti ti-user-check fs-6"></i>
                                                         @else
@@ -375,15 +384,17 @@
                                                 <!-- تاريخ الانتهاء -->
                                                 <div class="col-md-3">
                                                     <div class="d-flex align-items-center gap-2 mb-1">
-                                                        <i class="ti ti-calendar-time {{ $isExpired ? 'text-danger' : 'text-primary' }} fs-5"></i>
+                                                        <i
+                                                            class="ti ti-calendar-time {{ $isExpired ? 'text-danger' : 'text-primary' }} fs-5"></i>
                                                         <small class="text-muted">تاريخ الانتهاء</small>
                                                     </div>
-                                                    @if($expiryDate)
-                                                        <div class="fw-bold fs-6 {{ $isExpired ? 'text-danger' : 'text-primary' }}">
+                                                    @if ($expiryDate)
+                                                        <div
+                                                            class="fw-bold fs-6 {{ $isExpired ? 'text-danger' : 'text-primary' }}">
                                                             {{ $expiryDate->locale('ar')->isoFormat('D MMMM YYYY') }}
                                                         </div>
                                                         <small class="text-muted">
-                                                            @if($isExpired)
+                                                            @if ($isExpired)
                                                                 منذ {{ $expiryDate->locale('ar')->diffForHumans() }}
                                                             @else
                                                                 {{ $expiryDate->locale('ar')->diffForHumans() }}
@@ -398,26 +409,31 @@
                                                 </div>
                                             </div>
 
-                                            @if($coupon->max_discount)
+                                            @if ($coupon->max_discount)
                                                 <div class="alert alert-info mt-3 mb-0 py-2" role="alert">
                                                     <i class="ti ti-info-circle me-1"></i>
-                                                    <small>الحد الأقصى للخصم: <strong>{{ number_format($coupon->max_discount, 0) }}</strong> جنيه</small>
+                                                    <small>الحد الأقصى للخصم:
+                                                        <strong>{{ number_format($coupon->max_discount, 0) }}</strong>
+                                                        جنيه</small>
                                                 </div>
                                             @endif
 
                                             <!-- التواريخ السفلية -->
-                                            <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                                            <div
+                                                class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
                                                 <small class="text-muted">
                                                     <i class="ti ti-calendar-plus me-1"></i>
-                                                    تاريخ الإنشاء: 
-                                                    <span class="fw-semibold">{{ $coupon->created_at->locale('ar')->isoFormat('D MMMM YYYY') }}</span>
+                                                    تاريخ الإنشاء:
+                                                    <span
+                                                        class="fw-semibold">{{ $coupon->created_at->locale('ar')->isoFormat('D MMMM YYYY') }}</span>
                                                 </small>
-                                                
-                                                @if($coupon->updated_at && $coupon->updated_at->ne($coupon->created_at))
+
+                                                @if ($coupon->updated_at && $coupon->updated_at->ne($coupon->created_at))
                                                     <small class="text-muted">
                                                         <i class="ti ti-refresh me-1"></i>
-                                                        آخر تحديث: 
-                                                        <span class="fw-semibold">{{ $coupon->updated_at->locale('ar')->diffForHumans() }}</span>
+                                                        آخر تحديث:
+                                                        <span
+                                                            class="fw-semibold">{{ $coupon->updated_at->locale('ar')->diffForHumans() }}</span>
                                                     </small>
                                                 @endif
                                             </div>
@@ -426,7 +442,8 @@
                                 @empty
                                     <div class="text-center py-5">
                                         <div class="mb-3">
-                                            <i class="ti ti-ticket-off text-muted" style="font-size: 80px; opacity: 0.3;"></i>
+                                            <i class="ti ti-ticket-off text-muted"
+                                                style="font-size: 80px; opacity: 0.3;"></i>
                                         </div>
                                         <h5 class="text-muted mb-2">لا توجد كوبونات</h5>
                                         <p class="text-muted small">لم يتم إسناد أي كوبونات لهذا المستخدم حتى الآن</p>
