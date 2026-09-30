@@ -28,6 +28,10 @@ function wizardFor(form) {
   return form.closest('.bs-stepper');
 }
 
+function hooksFor(form) {
+  return window.wizardCreateHooks?.[form.id] || {};
+}
+
 function stepperFor(form) {
   const wizard = wizardFor(form);
   if (!wizard || typeof Stepper === 'undefined') return null;
@@ -36,7 +40,14 @@ function stepperFor(form) {
 }
 
 function stepNumber(pane) {
-  return [...pane.parentElement.children].indexOf(pane) + 1;
+  const form = pane.closest('form');
+  const panes = form ? [...form.querySelectorAll('.content, .bs-stepper-pane')] : [];
+
+  return panes.indexOf(pane) + 1;
+}
+
+function csrfTokenFor(form) {
+  return csrfToken || form.querySelector('input[name="_token"]')?.value || '';
 }
 
 function clearServerErrors(form) {
@@ -73,7 +84,7 @@ async function validateOnServer(form, pane) {
 
   const response = await fetch(`${draftUrl.replace(/\/$/, '')}/validate-step`, {
     method: 'POST',
-    headers: { 'X-CSRF-TOKEN': csrfToken, Accept: 'application/json' },
+    headers: { 'X-CSRF-TOKEN': csrfTokenFor(form), Accept: 'application/json' },
     body: payload,
   });
 
@@ -89,6 +100,16 @@ async function validateOnServer(form, pane) {
   }
 
   throw new Error('Unable to validate this step.');
+}
+
+async function validateCurrentStep(form, pane) {
+  const hooks = hooksFor(form);
+
+  if (typeof hooks.validateStep === 'function') {
+    return hooks.validateStep({ form, pane, step: stepNumber(pane) });
+  }
+
+  return validatePane(pane, true);
 }
 
 function addHiddenField(form, name, value) {
@@ -154,7 +175,7 @@ async function saveDraft(form, pane) {
 
   const response = await fetch(draftUrl, {
     method: 'POST',
-    headers: { 'X-CSRF-TOKEN': csrfToken, Accept: 'application/json' },
+    headers: { 'X-CSRF-TOKEN': csrfTokenFor(form), Accept: 'application/json' },
     body: payload,
   });
 
@@ -173,28 +194,110 @@ function updateNextState(form) {
   });
 }
 
+function setButtonIcon(button, iconClass, position = 'start') {
+  if (!button) return;
+
+  const icon = button.querySelector('i') || document.createElement('i');
+  icon.className = `ti ${iconClass} ${position === 'start' ? 'me-1' : 'ms-2'}`;
+  icon.setAttribute('aria-hidden', 'true');
+
+  if (position === 'start') {
+    button.prepend(icon);
+  } else {
+    button.append(' ', icon);
+  }
+}
+
+function actionRowFor(pane, actionButton) {
+  const previousButton = pane.querySelector('.btn-prev');
+  if (!previousButton) return actionButton.parentElement;
+
+  for (let candidate = actionButton.parentElement; candidate && candidate !== pane; candidate = candidate.parentElement) {
+    if (candidate.contains(previousButton) && (candidate.classList.contains('d-flex') || candidate.classList.contains('col-12'))) {
+      return candidate;
+    }
+  }
+
+  return actionButton.parentElement;
+}
+
+function existingBackAction(pane, actionButton) {
+  for (let candidate = actionButton.parentElement; candidate && candidate !== pane; candidate = candidate.parentElement) {
+    const backAction = [...candidate.children].find((child) =>
+      child !== actionButton && child.matches?.('a.btn, button.btn') && !child.classList.contains('btn-save-draft')
+    );
+
+    if (backAction) return backAction;
+  }
+
+  return null;
+}
+
+function normalizeActionRow(actions) {
+  if (!actions) return;
+
+  actions.classList.remove('col-12', 'justify-content-end', 'gap-2');
+  actions.classList.add('mt-4', 'd-flex', 'justify-content-between');
+
+  const previousButton = actions.querySelector('.btn-prev');
+  if (!previousButton || actions.querySelector(':scope > .wizard-next-actions')) return;
+
+  const nextActions = document.createElement('div');
+  nextActions.className = 'd-flex gap-2 wizard-next-actions';
+
+  [...actions.children]
+    .filter((child) => child !== previousButton)
+    .forEach((child) => nextActions.append(child));
+
+  actions.append(nextActions);
+}
+
 function installDraftButtons(form) {
   form.querySelectorAll('.content, .bs-stepper-pane').forEach((pane) => {
+    const draftButtons = [...pane.querySelectorAll('.btn-save-draft')];
+    draftButtons.slice(1).forEach((button) => button.remove());
+
     const actionButton = pane.querySelector('button.btn-next, button.btn-preview, button.btn-execute, button[type="submit"]');
     if (!actionButton) return;
 
     if (actionButton.type === 'submit') actionButton.classList.add('btn-next');
-    const actions = actionButton.parentElement;
-    if (!actions || actions.querySelector('.btn-save-draft')) return;
+    let actions = actionButton.parentElement;
+    if (!actions || pane.querySelector('.btn-save-draft')) return;
 
     if (pane && !pane.querySelector('.btn-prev')) {
-      const previousButton = document.createElement('button');
-      previousButton.type = 'button';
-      previousButton.className = 'btn btn-secondary btn-prev';
-      previousButton.textContent = 'السابق';
-      actions.prepend(previousButton);
+      const existingBackButton = existingBackAction(pane, actionButton);
+      if (existingBackButton) {
+        existingBackButton.classList.add('btn-prev');
+      } else {
+        const previousButton = document.createElement('button');
+        previousButton.type = 'button';
+        previousButton.className = 'btn btn-secondary btn-prev waves-effect waves-light';
+        previousButton.textContent = 'السابق';
+        actions.prepend(previousButton);
+      }
     }
 
     const saveButton = document.createElement('button');
     saveButton.type = 'button';
-    saveButton.className = 'btn btn-secondary btn-save-draft';
+    saveButton.className = 'btn btn-secondary btn-save-draft waves-effect waves-light';
     saveButton.textContent = 'حفظ كمسودة';
     actions.insertBefore(saveButton, actionButton);
+
+    actions = actionRowFor(pane, actionButton);
+    normalizeActionRow(actions);
+
+    const previousButton = actions.querySelector('.btn-prev');
+    previousButton?.classList.add('waves-effect', 'waves-light');
+    actionButton.classList.add('waves-effect', 'waves-light');
+    setButtonIcon(previousButton, 'ti-arrow-left');
+    setButtonIcon(saveButton, 'ti-device-floppy');
+    setButtonIcon(
+      actionButton,
+      actionButton.classList.contains('btn-submit') || actionButton.type === 'submit'
+        ? 'ti-check'
+        : 'ti-arrow-right',
+      actionButton.classList.contains('btn-submit') || actionButton.type === 'submit' ? 'start' : 'end',
+    );
   });
 }
 
@@ -202,7 +305,6 @@ function initializeForm(form) {
   if (
     form.dataset.wizardEnhanced ||
     !wizardFor(form) ||
-    form.closest('#subscription-wizard') ||
     form.querySelector('input[name="_method"][value="PUT"], input[name="_method"][value="PATCH"]')
   ) return;
   form.dataset.wizardEnhanced = 'true';
@@ -255,7 +357,7 @@ function initialize() {
     }
 
     if (nextButton.classList.contains('btn-submit') || nextButton.type === 'submit') {
-      if (!validatePane(pane, true)) {
+      if (!await validateCurrentStep(form, pane)) {
         event.preventDefault();
         event.stopImmediatePropagation();
       }
@@ -264,11 +366,14 @@ function initialize() {
 
     event.preventDefault();
     event.stopImmediatePropagation();
-    if (!validatePane(pane, true)) return;
+    if (!await validateCurrentStep(form, pane)) return;
 
     nextButton.disabled = true;
     try {
-      if (await validateOnServer(form, pane)) stepperFor(form)?.next();
+      if (await validateOnServer(form, pane)) {
+        await hooksFor(form).afterStepValidated?.({ form, pane, step: stepNumber(pane) });
+        stepperFor(form)?.next();
+      }
     } catch {
       window.toastr?.error?.('تعذر التحقق من بيانات هذه الخطوة.');
     } finally {

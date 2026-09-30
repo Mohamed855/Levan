@@ -100,7 +100,7 @@
                                         </div>
                                     </div>
                                 @endforeach
-                                <div class="col-12 d-flex justify-content-between">
+                                <div class="mt-4 d-flex justify-content-between">
                                     <a href="{{ tenant_route_name('customers.distribution.index') }}"
                                         class="btn btn-label-secondary">
                                         <i class="ti ti-arrow-left ti-xs me-sm-2 me-0"></i>
@@ -312,13 +312,15 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-12 d-flex justify-content-between mt-4">
+                            <div class="mt-4 d-flex justify-content-between">
                                 <button type="button" class="btn btn-label-secondary btn-prev">
                                     <i class="ti ti-arrow-left me-1"></i> السابق
                                 </button>
-                                <button type="button" class="btn btn-primary btn-preview">
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-primary btn-preview">
                                     معاينة <i class="ti ti-arrow-left me-1"></i>
                                 </button>
+                                    </div>
                             </div>
                         </div>
                         <div id="step-preview" class="content p-8">
@@ -368,9 +370,11 @@
                                     <button type="button" class="btn btn-label-secondary btn-prev">
                                         <i class="ti ti-arrow-left me-1"></i> السابق
                                     </button>
-                                    <button type="button" class="btn btn-primary btn-execute" disabled>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-primary btn-execute" disabled>
                                         تنفيذ التوزيع
                                     </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

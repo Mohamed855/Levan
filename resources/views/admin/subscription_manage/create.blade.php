@@ -1,6 +1,5 @@
 @extends('admin.layouts.layoutMaster')
 
-@php($draftData = array_merge($draft?->draft_data ?? [], ['draft_step' => $draft?->draft_step]))
 @section('title', 'إنشاء شركة جديدة')
 
 @section('vendor-style')
@@ -18,7 +17,6 @@
 @section('page-script')
     <script>
         window.plansData = @json($plans);
-        window.companyDraftData = @json($draftData);
     </script>
     @vite(['resources/assets/js/admin/subscriptions/create-form.js'])
 @endsection
@@ -100,7 +98,7 @@
                                         اسم الشركة <span class="text-danger">*</span>
                                     </label>
                                     <input type="text" class="form-control" id="company_name" name="company_name"
-                                        value="{{ old('company_name', $draftData['company_name'] ?? '') }}"
+                                        value="{{ old('company_name') }}"
                                         placeholder="مثال: شركة المجد العقارية" required>
                                 </div>
 
@@ -112,7 +110,7 @@
                                     <input type="text" inputmode="numeric" pattern="[0-9]{10}" maxlength="10"
                                         class="form-control" id="commercial_number" name="commercial_number"
                                         placeholder="مثال: 1010123456"
-                                        value="{{ old('commercial_number', $draftData['commercial_number'] ?? '') }}"
+                                        value="{{ old('commercial_number') }}"
                                         required oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
                                 </div>
 
@@ -122,8 +120,8 @@
                                         الرقم الضريبي <span class="text-danger">*</span>
                                     </label>
                                     <input type="text" class="form-control" id="tax_number" name="tax_number"
-                                        value="{{ old('tax_number', $draftData['tax_number'] ?? '') }}"
-                                        placeholder="مثال: 300000000000003" required autocomplete="off">
+                                        value="{{ old('tax_number') }}" autocomplete="off" inputmode="numeric"
+                                        placeholder="مثال: 300000000000003" required>
                                 </div>
 
                                 <!-- المدينة -->
@@ -135,7 +133,7 @@
                                         data-placeholder="اختر المدينة" required>
                                         <option value=""></option>
                                         @foreach ($cities as $city)
-                                            <option value="{{ $city->id }}" @selected(old('city_id', $draftData['city_id'] ?? '') == $city->id)>
+                                            <option value="{{ $city->id }}" @selected(old('city_id') == $city->id)>
                                                 {{ $city->name }}
                                             </option>
                                         @endforeach
@@ -148,21 +146,26 @@
                                         العنوان <span class="text-danger">*</span>
                                     </label>
                                     <textarea class="form-control" id="address" name="address" rows="2"
-                                        placeholder="مثال: الرياض - طريق الملك فهد" required>{{ old('address', $draftData['address'] ?? '') }}</textarea>
+                                        placeholder="مثال: الرياض - طريق الملك فهد" required>{{ old('address') }}</textarea>
                                 </div>
                             </div>
 
                             <div class="mt-4 d-flex justify-content-between">
-                                <button type="button" class="btn btn-secondary" id="btn-prev-company">
-                                    <i class="ti ti-arrow-right me-1"></i> السابق
+                                <button type="button" class="btn btn-secondary btn-prev waves-effect waves-light"
+                                    id="btn-prev-company">
+                                    <i class="ti ti-arrow-left me-1"></i> السابق
                                 </button>
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-secondary btn-save-draft" data-step="1">
+                                    <button type="button"
+                                        class="btn btn-secondary btn-save-draft waves-effect waves-light" data-step="1">
                                         <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
                                     </button>
-                                    <button type="button" class="btn btn-primary" id="btn-next-company">
-                                        التالي <i class="ti ti-arrow-left ms-2"></i>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-primary btn-next waves-effect waves-light"
+                                        id="btn-next-company">
+                                        التالي <i class="ti ti-arrow-right ms-2"></i>
                                     </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -177,7 +180,7 @@
                                         اسم المستخدم <span class="text-danger">*</span>
                                     </label>
                                     <input type="text" class="form-control" id="name" name="name"
-                                        value="{{ old('name', $draftData['name'] ?? '') }}" placeholder="اسم المستخدم"
+                                        value="{{ old('name') }}" placeholder="اسم المستخدم"
                                         required>
                                 </div>
 
@@ -187,7 +190,7 @@
                                     </label>
                                     <input type="tel" inputmode="numeric" pattern="05[0-9]{8}" maxlength="10"
                                         class="form-control" id="phone" name="phone" placeholder="05xxxxxxxx"
-                                        value="{{ old('phone', $draftData['phone'] ?? '') }}" required
+                                        value="{{ old('phone') }}" required
                                         oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
                                 </div>
 
@@ -196,7 +199,7 @@
                                         البريد الإلكتروني <span class="text-danger">*</span>
                                     </label>
                                     <input type="email" class="form-control" id="email" name="email"
-                                        value="{{ old('email', $draftData['email'] ?? '') }}"
+                                        value="{{ old('email') }}"
                                         placeholder="example@domain.com" required>
                                 </div>
 
@@ -218,16 +221,21 @@
                             </div>
 
                             <div class="mt-4 d-flex justify-content-between">
-                                <button type="button" class="btn btn-secondary" id="btn-prev-admin">
-                                    <i class="ti ti-arrow-right me-2"></i> السابق
+                                <button type="button" class="btn btn-secondary btn-prev waves-effect waves-light"
+                                    id="btn-prev-admin">
+                                    <i class="ti ti-arrow-left me-1"></i> السابق
                                 </button>
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-secondary btn-save-draft" data-step="2">
+                                    <button type="button"
+                                        class="btn btn-secondary btn-save-draft waves-effect waves-light" data-step="2">
                                         <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
                                     </button>
-                                    <button type="button" class="btn btn-primary" id="btn-next-admin">
-                                        التالي <i class="ti ti-arrow-left ms-2"></i>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-primary btn-next waves-effect waves-light"
+                                        id="btn-next-admin">
+                                        التالي <i class="ti ti-arrow-right ms-2"></i>
                                     </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -245,7 +253,7 @@
                                         data-placeholder="اختر الباقة">
                                         <option value=""></option>
                                         @foreach ($plans as $plan)
-                                            <option value="{{ $plan['id'] }}" @selected(old('plan_id', $draftData['plan_id'] ?? '') == $plan['id'])>
+                                            <option value="{{ $plan['id'] }}" @selected(old('plan_id') == $plan['id'])>
                                                 {{ $plan['name'] }}
                                             </option>
                                         @endforeach
@@ -257,7 +265,7 @@
                                         تاريخ البداية <span class="text-danger">*</span>
                                     </label>
                                     <input type="date" class="form-control" id="start_date" name="start_date"
-                                        value="{{ old('start_date', $draftData['start_date'] ?? now()->toDateString()) }}"
+                                        value="{{ old('start_date', now()->toDateString()) }}"
                                         required>
                                 </div>
 
@@ -266,7 +274,7 @@
                                         تاريخ النهاية <span class="text-danger" id="end-date-required">*</span>
                                     </label>
                                     <input type="date" class="form-control" id="end_date" name="end_date"
-                                        value="{{ old('end_date', $draftData['end_date'] ?? '') }}">
+                                        value="{{ old('end_date') }}">
                                     <small class="text-muted" id="end-date-hint"></small>
                                 </div>
 
@@ -276,7 +284,7 @@
                                     </label>
                                     <input type="number" min="1" class="form-control" id="total_users"
                                         name="total_users"
-                                        value="{{ old('total_users', $draftData['total_users'] ?? '') }}" required>
+                                        value="{{ old('total_users') }}" required>
                                 </div>
 
                                 <div class="col-md-6">
@@ -286,9 +294,9 @@
                                     <select class="form-select select2" data-placeholder="اختر حالة الدفع"
                                         name="payment_type" id="payment-status" required>
                                         <option value=""></option>
-                                        <option value="paid" @selected(old('payment_type', $draftData['payment_type'] ?? '') == 'paid')>تم الدفع</option>
-                                        <option value="unpaid" @selected(old('payment_type', $draftData['payment_type'] ?? '') == 'unpaid')>لم يتم الدفع</option>
-                                        <option value="trial" @selected(old('payment_type', $draftData['payment_type'] ?? '') == 'trial')>فترة تجربة</option>
+                                        <option value="paid" @selected(old('payment_type') == 'paid')>تم الدفع</option>
+                                        <option value="unpaid" @selected(old('payment_type') == 'unpaid')>لم يتم الدفع</option>
+                                        <option value="trial" @selected(old('payment_type') == 'trial')>فترة تجربة</option>
                                     </select>
                                 </div>
 
@@ -299,9 +307,9 @@
                                     <select class="form-select select2" name="payment_method"
                                         data-placeholder="اختر وسيلة الدفع" id="payment-method-select">
                                         <option value=""></option>
-                                        <option value="cash" @selected(old('payment_method', $draftData['payment_method'] ?? '') == 'cash')>نقداً</option>
-                                        <option value="online" @selected(old('payment_method', $draftData['payment_method'] ?? '') == 'online')>دفع إلكتروني</option>
-                                        <option value="bank_transfer" @selected(old('payment_method', $draftData['payment_method'] ?? '') == 'bank_transfer')>تحويل بنكي</option>
+                                        <option value="cash" @selected(old('payment_method') == 'cash')>نقداً</option>
+                                        <option value="online" @selected(old('payment_method') == 'online')>دفع إلكتروني</option>
+                                        <option value="bank_transfer" @selected(old('payment_method') == 'bank_transfer')>تحويل بنكي</option>
                                     </select>
                                 </div>
 
@@ -319,8 +327,8 @@
                                     <select class="form-select select2" name="has_discount" id="discount-type"
                                         data-placeholder="هل يوجد تسوية">
                                         <option value=""></option>
-                                        <option value="no" @selected(old('has_discount', $draftData['has_discount'] ?? 'no') == 'no')>بدون تسوية</option>
-                                        <option value="yes" @selected(old('has_discount', $draftData['has_discount'] ?? '') == 'yes')>دفع بتسوية</option>
+                                        <option value="no" @selected(old('has_discount', 'no') == 'no')>بدون تسوية</option>
+                                        <option value="yes" @selected(old('has_discount') == 'yes')>دفع بتسوية</option>
                                     </select>
                                 </div>
 
@@ -329,7 +337,7 @@
                                         تاريخ نهاية التجربة <span class="text-danger">*</span>
                                     </label>
                                     <input type="date" class="form-control" name="trial_end_date" id="trial-end-date"
-                                        value="{{ old('trial_end_date', $draftData['trial_end_date'] ?? '') }}"
+                                        value="{{ old('trial_end_date') }}"
                                         min="{{ now()->toDateString() }}">
                                 </div>
 
@@ -337,14 +345,14 @@
                                     <label class="form-label" for="discount-value-input">قيمة التسوية (ر.س)</label>
                                     <input type="number" class="form-control" name="discount_value"
                                         id="discount-value-input" min="0" step="0.01"
-                                        value="{{ old('discount_value', $draftData['discount_value'] ?? 0) }}">
+                                        value="{{ old('discount_value', 0) }}">
                                 </div>
 
                                 <div class="col-md-6">
                                     <div class="form-check form-switch mt-4">
                                         <input type="hidden" name="activate_immediately" value="0">
                                         <input class="form-check-input" type="checkbox" id="activate_immediately"
-                                            name="activate_immediately" value="1" @checked(old('activate_immediately', $draftData['activate_immediately'] ?? false))>
+                                            name="activate_immediately" value="1" @checked(old('activate_immediately', false))>
                                         <label class="form-check-label fw-bold" for="activate_immediately">تفعيل الشركة
                                             فورًا</label>
                                     </div>
@@ -393,16 +401,21 @@
                             </div>
 
                             <div class="mt-4 d-flex justify-content-between">
-                                <button type="button" class="btn btn-secondary" id="btn-prev-payment">
-                                    <i class="ti ti-arrow-right me-2"></i> السابق
+                                <button type="button" class="btn btn-secondary btn-prev waves-effect waves-light"
+                                    id="btn-prev-payment">
+                                    <i class="ti ti-arrow-left me-1"></i> السابق
                                 </button>
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-secondary btn-save-draft" data-step="3">
+                                    <button type="button"
+                                        class="btn btn-secondary btn-save-draft waves-effect waves-light" data-step="3">
                                         <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
                                     </button>
-                                    <button type="button" class="btn btn-primary" id="btn-next-payment">
-                                        التالي: مراجعة واعتماد <i class="ti ti-arrow-left ms-2"></i>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-primary btn-next waves-effect waves-light"
+                                        id="btn-next-payment">
+                                        التالي <i class="ti ti-arrow-right ms-2"></i>
                                     </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -540,16 +553,21 @@
                             </div>
 
                             <div class="mt-4 d-flex justify-content-between">
-                                <button type="button" class="btn btn-secondary" id="btn-prev-review">
-                                    <i class="ti ti-arrow-right me-2"></i> السابق
+                                <button type="button" class="btn btn-secondary btn-prev waves-effect waves-light"
+                                    id="btn-prev-review">
+                                    <i class="ti ti-arrow-left me-1"></i> السابق
                                 </button>
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-secondary btn-save-draft" data-step="4">
+                                    <button type="button"
+                                        class="btn btn-secondary btn-save-draft waves-effect waves-light" data-step="4">
                                         <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
                                     </button>
-                                    <button type="submit" class="btn btn-primary btn-submit">
+                                    <div class="d-flex gap-2">
+                                        <button type="submit"
+                                        class="btn btn-primary btn-next btn-submit waves-effect waves-light">
                                         <i class="ti ti-check me-1"></i> اعتماد وحفظ نهائي
                                     </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

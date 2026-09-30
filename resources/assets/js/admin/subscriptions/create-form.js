@@ -631,6 +631,38 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    window.wizardCreateHooks = window.wizardCreateHooks || {};
+    window.wizardCreateHooks[form.id] = {
+        async validateStep({ step }) {
+            const fieldsByStep = {
+                1: ['company_name', 'commercial_number', 'tax_number', 'city_id', 'address'],
+                2: ['name', 'phone', 'email', 'password', 'password_confirmation'],
+                3: ['plan_id', 'start_date', 'total_users', 'payment_type']
+            };
+            const fields = [...(fieldsByStep[step] || [])];
+
+            if (step === 3) {
+                const plan = plansData.find((item) => String(item.id) === String(document.getElementById('plan_id')?.value));
+                const paymentType = document.getElementById('payment-status')?.value;
+
+                if (plan?.subscription_duration_type === 'unlimited') fields.push('end_date');
+                if (paymentType === 'paid') {
+                    fields.push('payment_method');
+                    if (document.getElementById('payment-method-select')?.value === 'bank_transfer') fields.push('receipt_upload');
+                    if (document.getElementById('discount-type')?.value === 'yes') fields.push('discount_value');
+                } else if (paymentType === 'trial') {
+                    fields.push('trial_end_date');
+                }
+            }
+
+            const results = await Promise.all(fields.map((field) => fv.validateField(field)));
+            return results.every((result) => result === 'Valid');
+        },
+        afterStepValidated({ step }) {
+            if (step === 3) updateReviewSummary();
+        }
+    };
+
     // ── Stepper Navigation Buttons ──
 
     async function validateServerStep(fields) {

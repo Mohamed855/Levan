@@ -76,7 +76,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
 
     // ادارة الشركات
     Route::prefix('companies')->name('companies.')->group(function () {
-        Route::post('draft', [SubscriptionManagementController::class, 'saveDraft'])->name('draft');
         Route::get('plans/{plan}/duration', [SubscriptionManagementController::class, 'planDuration'])->name('plan-duration');
         Route::get('tenant/{tenant}/access', [SubscriptionManagementController::class, 'access'])->name('tenant-access');
         Route::resource('/', SubscriptionManagementController::class)->parameters(['' => 'subscription']);

@@ -39,7 +39,7 @@ class WizardDraftController extends Controller
     public function store(StoreWizardDraftRequest $request): JsonResponse
     {
         $validated = $request->validated();
-        $draft = $this->drafts->save($request, $validated['resource_key'], $validated['step']);
+        $draft = $this->drafts->save($request, $validated['resource_key'], (int) $validated['step']);
 
         return response()->json([
             'success' => true,

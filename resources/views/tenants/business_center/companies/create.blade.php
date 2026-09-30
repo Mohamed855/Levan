@@ -120,13 +120,15 @@
                             </div>
 
                             {{-- أزرار التحكم --}}
-                            <div class="col-12 d-flex justify-content-between mt-4">
+                            <div class="mt-4 d-flex justify-content-between">
                                 <button type="button" class="btn btn-label-secondary btn-prev" disabled>
                                     السابق
                                 </button>
-                                <button type="submit" class="btn btn-primary btn-next btn-submit">
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary btn-next btn-submit">
                                     حفظ
                                 </button>
+                                    </div>
                             </div>
                         </div>
                     </div>

@@ -9,7 +9,7 @@ use Illuminate\Foundation\Http\FormRequest;
 
 abstract class WizardFormRequest extends FormRequest
 {
-    protected function validationData(): array
+    public function validationData(): array
     {
         if (! $this->filled('_wizard_draft_id') || ! $this->filled('_wizard_resource_key')) {
             return parent::validationData();

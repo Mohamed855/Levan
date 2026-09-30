@@ -166,7 +166,7 @@
                                 </div>
 
                                 {{-- أزرار التحكم --}}
-                                <div class="col-12 d-flex justify-content-between mt-4">
+                                <div class="mt-4 d-flex justify-content-between">
                                     <a href="{{ tenant_route_name('financial-collections.collection-targets.index') }}"
                                         class="btn btn-label-secondary">
                                         <i class="ti ti-arrow-left ti-xs me-sm-2 me-0"></i>

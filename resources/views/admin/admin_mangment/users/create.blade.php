@@ -372,11 +372,24 @@
                                         placeholder="ادخل رقم الهاتف" value="{{ old('phone') }}" />
                                 </div>
 
-                                <div class="col-12 d-flex justify-content-end">
-                                    <button type="button" class="btn btn-primary btn-next" disabled>
-                                        <span class="align-middle d-sm-inline-block d-none me-sm-2">التالي</span>
-                                        <i class="ti ti-arrow-right ti-xs"></i>
+                                <div class="mt-4 d-flex justify-content-between">
+                                    <button type="button" class="btn btn-secondary btn-prev waves-effect waves-light"
+                                        disabled>
+                                        <i class="ti ti-arrow-left me-1"></i> السابق
                                     </button>
+                                    <div class="d-flex gap-2">
+                                        <button type="button"
+                                            class="btn btn-secondary btn-save-draft waves-effect waves-light"
+                                            data-step="1">
+                                            <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
+                                        </button>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-primary btn-next waves-effect waves-light"
+                                            disabled>
+                                            التالي <i class="ti ti-arrow-right ms-2"></i>
+                                        </button>
+                                    </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -431,14 +444,23 @@
                                     </div>
                                 </div>
 
-                                <div class="col-12 d-flex justify-content-between">
-                                    <button type="button" class="btn btn-secondary btn-prev">
-                                        <i class="ti ti-arrow-right ti-xs me-sm-2 me-0"></i>
-                                        <span class="align-middle d-sm-inline-block d-none">السابق</span>
+                                <div class="mt-4 d-flex justify-content-between">
+                                    <button type="button" class="btn btn-secondary btn-prev waves-effect waves-light">
+                                        <i class="ti ti-arrow-left me-1"></i> السابق
                                     </button>
-                                    <button type="submit" class="btn btn-primary btn-next btn-submit">
-                                        <span class="align-middle d-sm-inline-block d-none me-sm-2">حفظ</span>
-                                    </button>
+                                    <div class="d-flex gap-2">
+                                        <button type="button"
+                                            class="btn btn-secondary btn-save-draft waves-effect waves-light"
+                                            data-step="2">
+                                            <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
+                                        </button>
+                                    <div class="d-flex gap-2">
+                                        <button type="submit"
+                                            class="btn btn-primary btn-next btn-submit waves-effect waves-light">
+                                            <i class="ti ti-check me-1"></i> حفظ
+                                        </button>
+                                    </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

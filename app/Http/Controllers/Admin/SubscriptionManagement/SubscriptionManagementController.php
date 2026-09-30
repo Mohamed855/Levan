@@ -9,14 +9,12 @@ use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Models\Admin\City;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\SubscriptionManagement\FinalizeCompanySubscriptionRequest;
-use App\Http\Requests\Admin\SubscriptionManagement\SaveCompanyDraftRequest;
 use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Admin\SubscriptionManagement\SubscriptionManagementService;
-use App\Services\Admin\SubscriptionManagement\CompanyDraftService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
@@ -29,7 +27,7 @@ class SubscriptionManagementController extends Controller
     protected const VIEW_PATH  = "admin.subscription_manage";
     protected const ROUTE_NAME =  "admin.companies";
 
-    public function __construct(private SubscriptionManagementService $subscriptionManagementService, private CompanyDraftService $companyDraftService) {}
+    public function __construct(private SubscriptionManagementService $subscriptionManagementService) {}
 
     public function index(subscriptionMangmentDataTable $dataTable)
     {
@@ -124,15 +122,7 @@ class SubscriptionManagementController extends Controller
                 'subscription_billing_cycle' => $plan->subscription_billing_cycle,
             ]);
 
-        $draft = $this->companyDraftService->forAdmin((int) auth('admin')->id());
-
-        return view(self::VIEW_PATH . '.create', compact('plans', 'cities', 'draft'));
-    }
-
-    public function saveDraft(SaveCompanyDraftRequest $request)
-    {
-        $draft = $this->companyDraftService->save((int) auth('admin')->id(), $request->validated(), $request->integer('draft_step'));
-        return response()->json(['message' => 'تم حفظ المسودة.', 'draft_step' => $draft->draft_step]);
+        return view(self::VIEW_PATH . '.create', compact('plans', 'cities'));
     }
 
     public function planDuration(Plan $plan)
@@ -150,8 +140,6 @@ class SubscriptionManagementController extends Controller
             }
 
             $this->subscriptionManagementService->create($data);
-            $this->companyDraftService->discardForAdmin((int) auth('admin')->id());
-
             return redirect()->route(self::ROUTE_NAME . '.index')->with('success', 'تم إضافة العميل والاشتراك بنجاح');
         } catch (\Throwable $e) {
             report($e);

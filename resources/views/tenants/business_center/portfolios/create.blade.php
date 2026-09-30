@@ -110,7 +110,7 @@
                                             العملاء بشكل مقسم (الاسم الأول، الأب، ...)</label>
                                     </div>
                                 </div>
-                                <div class="col-12 d-flex justify-content-between mt-4">
+                                <div class="mt-4 d-flex justify-content-between">
                                     <a href="{{ tenant_route_name('portfolios.index') }}" class="btn btn-label-secondary">
                                         <i class="ti ti-arrow-left ti-xs me-sm-2 me-0"></i>
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
@@ -187,14 +187,16 @@
                                     </div>
                                 </div>
 
-                                <div class="col-12 d-flex justify-content-between mt-4">
+                                <div class="mt-4 d-flex justify-content-between">
                                     <button type="button" class="btn btn-label-secondary btn-prev">
                                         <i class="ti ti-arrow-left ti-xs me-sm-2 me-0"></i>
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
                                     </button>
-                                    <button type="submit" class="btn btn-primary btn-submit">
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary btn-submit">
                                         <span class="align-middle d-sm-inline-block d-none me-sm-2">حفظ</span>
                                     </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

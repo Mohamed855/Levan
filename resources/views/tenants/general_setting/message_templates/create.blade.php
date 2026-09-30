@@ -108,15 +108,17 @@
                                 </div>
 
 
-                                <div class="col-12 d-flex justify-content-between">
+                                <div class="mt-4 d-flex justify-content-between">
                                     <button type="button" class="btn btn-secondary btn-prev" disabled>
                                         <i class="ti ti-arrow-right ti-xs me-sm-2 me-0"></i>
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
                                     </button>
-                                    <button type="button" class="btn btn-primary btn-next">
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-primary btn-next">
                                         <span class="align-middle d-sm-inline-block d-none me-sm-2">التالي</span>
                                         <i class="ti ti-arrow-right ti-xs"></i>
                                     </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -229,14 +231,16 @@
                                     </div>
                                 </div>
 
-                                <div class="col-12 d-flex justify-content-between">
+                                <div class="mt-4 d-flex justify-content-between">
                                     <button type="button" class="btn btn-secondary btn-prev">
                                         <i class="ti ti-arrow-right ti-xs me-sm-2 me-0"></i>
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
                                     </button>
-                                    <button type="submit" class="btn btn-primary btn-next btn-submit">
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary btn-next btn-submit">
                                         <span class="align-middle d-sm-inline-block d-none me-sm-2">حفظ</span>
                                     </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
