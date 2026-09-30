@@ -9,5 +9,15 @@ toastr.options = {
     "timeOut": "5000",
 };
 
+['success', 'info', 'warning', 'error'].forEach((type) => {
+    const showToast = toastr[type].bind(toastr);
+
+    toastr[type] = (...args) => {
+        toastr.clear();
+
+        return showToast(...args);
+    };
+});
+
 // جعل Toastr متاحًا عالميًا
 window.toastr = toastr;

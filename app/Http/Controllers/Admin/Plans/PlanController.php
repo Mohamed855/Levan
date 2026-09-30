@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Plans\PlanRequest;
 use App\Models\Admin\Plans\Plan;
 use App\Services\Admin\Plans\PlanService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -21,8 +22,28 @@ class PlanController extends Controller
         $this->middleware('auth:admin');
         $this->middleware('can:plans.view')->only(['index']);
         $this->middleware('can:plans.create')->only(['create', 'store']);
-        $this->middleware('can:plans.edit')->only(['edit', 'update']);
+        $this->middleware('can:plans.edit')->only(['edit', 'update', 'toggleActive']);
         $this->middleware('can:plans.delete')->only(['destroy']);
+    }
+
+    public function toggleActive(Plan $plan): JsonResponse
+    {
+        try {
+            $plan = $this->planService->toggleActive($plan);
+
+            return response()->json([
+                'success' => true,
+                'message' => $plan->is_active ? 'تم تفعيل الباقة بنجاح' : 'تم تعطيل الباقة بنجاح',
+                'is_active' => $plan->is_active,
+            ]);
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'تعذر تحديث حالة الباقة',
+            ], 500);
+        }
     }
 
 

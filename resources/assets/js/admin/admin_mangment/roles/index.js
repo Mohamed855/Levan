@@ -1,6 +1,9 @@
 'use strict';
 
+import { initializeTableStatusToggles } from '../../../shared/table-status-toggle';
+
 $(function () {
+    initializeTableStatusToggles();
     // ==============================
     // 🔹 تهيئة Select2
     // ==============================
@@ -80,11 +83,6 @@ function bindModalEvents(usersTable) {
     $('#updateRoleForm').on('submit', function (e) {
         e.preventDefault();
         updateUserRole(usersTable);
-    });
-
-    // تغيير حالة المستخدم من التوجلر أو القائمة المنسدلة
-    $('#users-table').on('change', '.status-toggle', function () {
-        toggleStatus(this, $(this).data('id'));
     });
 
     $('#users-table').on('change', '.status-dropdown', function () {
@@ -248,99 +246,4 @@ function confirmDelete(roleId) {
     });
 }
 
-function toggleStatus(element, userId) {
-    let el = null;
-    let id = userId;
-    if (typeof element === 'number' || typeof element === 'string') {
-        id = element;
-        el = document.getElementById('status_' + id) || document.querySelector(`[onclick*="toggleStatus(${id})"]`);
-    } else {
-        el = element;
-    }
-
-    // التحقق من وجود id
-    if (!id) {
-        toastr.error('معرف المستخدم غير صحيح');
-        return;
-    }
-
-    // التحقق من وجود CSRF token
-    const csrfToken = $('meta[name="csrf-token"]').attr('content') || window.csrfToken;
-
-    if (!csrfToken) {
-        toastr.error('رمز الأمان مفقود');
-        return;
-    }
-
-    const isCheckbox = el && (el.type === 'checkbox' || el.tagName === 'INPUT');
-    const originalHtml = (!isCheckbox && el) ? $(el).html() : null;
-
-    if (el) {
-        if (isCheckbox) {
-            $(el).prop('disabled', true);
-        } else {
-            $(el).prop('disabled', true).html('<i class="ti ti-loader ti-spin"></i>');
-        }
-    }
-
-    $.ajax({
-        url: window.routes.toggleStatus.replace(':id', id),
-        type: 'PATCH',
-        headers: {
-            'X-CSRF-TOKEN': csrfToken
-        },
-        data: {
-            _token: csrfToken
-        },
-        success: function (response) {
-            if (response.success) {
-                toastr.success(response.message || 'تم تغيير الحالة بنجاح');
-                if (el && isCheckbox) {
-                    $(el).prop('disabled', false);
-                } else {
-                    $('#users-table').DataTable().ajax.reload(null, false);
-                }
-            } else {
-                toastr.error(response.message || 'حدث خطأ ما');
-                if (el && isCheckbox) {
-                    $(el).prop('checked', !el.checked).prop('disabled', false);
-                }
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error('Toggle Status Error:', {
-                status: xhr.status,
-                statusText: xhr.statusText,
-                response: xhr.responseText,
-                error: error
-            });
-
-            let errorMessage = 'حدث خطأ أثناء الاتصال بالخادم';
-
-            if (xhr.status === 403) {
-                errorMessage = 'ليس لديك صلاحية لتنفيذ هذا الإجراء';
-            } else if (xhr.status === 404) {
-                errorMessage = 'المستخدم غير موجود';
-            } else if (xhr.status === 419) {
-                errorMessage = 'انتهت صلاحية الجلسة، يرجى تحديث الصفحة';
-            } else if (xhr.status === 422) {
-                errorMessage = 'بيانات غير صالحة';
-            } else if (xhr.responseJSON && xhr.responseJSON.message) {
-                errorMessage = xhr.responseJSON.message;
-            }
-
-            toastr.error(errorMessage);
-            if (el && isCheckbox) {
-                $(el).prop('checked', !el.checked).prop('disabled', false);
-            }
-        },
-        complete: function () {
-            if (el && !isCheckbox) {
-                $(el).prop('disabled', false).html(originalHtml);
-            }
-        }
-    });
-}
-
-window.toggleStatus = toggleStatus;
 window.confirmDelete = confirmDelete;

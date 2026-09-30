@@ -3,7 +3,10 @@
  */
 'use strict';
 
+import { initializeTableStatusToggles } from '../../../shared/table-status-toggle';
+
 $(document).ready(function () {
+    initializeTableStatusToggles();
     initializeComponents();
     
     $('#users-table').on('preInit.dt', function () {
@@ -70,56 +73,4 @@ function handleMassDelete() {
     confirmDeleteSelectedmss(selectedIds, window.routes.massDelete, 'User');
 }
 
-function toggleStatus(element, userId) {
-    let el = null;
-    let id = userId;
-    if (typeof element === 'number' || typeof element === 'string') {
-        id = element;
-        el = document.getElementById('status_' + id);
-    } else {
-        el = element;
-    }
-
-    if (!id) {
-        toastr.error('معرف المستخدم غير صحيح');
-        return;
-    }
-
-    if (el) {
-        $(el).prop('disabled', true);
-    }
-
-    $.ajax({
-        url: window.routes.toggleStatus.replace('___ID___', id),
-        type: 'PATCH',
-        data: { _token: window.csrfToken },
-        success: function (response) {
-            if (response.success) {
-                toastr.success(response.message);
-                if (el) {
-                    $(el).prop('disabled', false);
-                } else {
-                    $('#users-table').DataTable().ajax.reload(null, false);
-                }
-            } else {
-                toastr.error(response.message || 'حدث خطأ ما');
-                if (el) {
-                    $(el).prop('checked', !el.checked).prop('disabled', false);
-                }
-            }
-        },
-        error: function (xhr) {
-            let errorMsg = 'حدث خطأ أثناء الاتصال بالخادم';
-            if (xhr.responseJSON?.message) {
-                errorMsg = xhr.responseJSON.message;
-            }
-            toastr.error(errorMsg);
-            if (el) {
-                $(el).prop('checked', !el.checked).prop('disabled', false);
-            }
-        }
-    });
-}
-
-window.toggleStatus = toggleStatus;
 window.handleMassDelete = handleMassDelete;

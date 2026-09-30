@@ -169,6 +169,25 @@ $bs-stepper-vertical-header-min-width: 18rem !default;
   }
 }
 
+// Keep upcoming steps visually subordinate while completed steps match the active state.
+.bs-stepper .step:not(.active):not(.crossed) {
+  opacity: 0.5;
+}
+
+.bs-stepper .step.crossed {
+  opacity: 1;
+
+  .bs-stepper-circle {
+    background-color: var(--bs-primary) !important;
+    color: var(--bs-white, #fff) !important;
+  }
+
+  .bs-stepper-label,
+  .bs-stepper-icon i {
+    color: var(--bs-primary) !important;
+  }
+}
+
 @include app-rtl(false) {
   .bs-stepper.wizard-icons .bs-stepper-header .step-trigger {
     @include light.media-breakpoint-down(lg) {

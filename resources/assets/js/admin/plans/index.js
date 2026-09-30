@@ -1,8 +1,10 @@
 'use strict';
 
 import Sortable from 'sortablejs';
+import { initializeTableStatusToggles } from '../../shared/table-status-toggle';
 
 $(document).ready(function () {
+    initializeTableStatusToggles();
     $('#paln-table').on('init.dt', function () {
         bindTableEvents();
         initSortable();

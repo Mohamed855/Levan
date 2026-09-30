@@ -35,7 +35,7 @@ class AdminUserDataTable extends AbstractDataTable
             ['data' => 'email',     'name' => 'email',      'title' => 'البريد الإلكتروني'],
             ['data' => 'phone',     'name' => 'phone',      'title' => 'رقم الهاتف'],
             ['data' => 'roles',     'name' => 'roles.name', 'title' => 'الأدوار',   'orderable' => false, 'searchable' => true],
-            ['data' => 'status',    'name' => 'status',     'title' => 'الحالة'],
+            ['data' => 'status',    'name' => 'status',     'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'last_login_at', 'name' => 'last_login_at', 'title' => 'آخر دخول'],
             ['data' => 'actions',        'name' => 'actions',            'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
@@ -187,12 +187,11 @@ class AdminUserDataTable extends AbstractDataTable
                     <label class="switch switch-primary switch-square mb-0">
                         <input
                             type="checkbox"
-                            class="switch-input status-toggle"
+                            class="switch-input js-table-status-toggle"
                             id="status_' . $row->id . '"
-                            data-id="' . $row->id . '"
                             data-url="' . $url . '"
                             ' . $checked . '
-                            onchange="toggleStatus(this, ' . $row->id . ', \'' . $url . '\')"
+                            aria-label="تبديل حالة المستخدم"
                         >
                         <span class="switch-toggle-slider">
                             <span class="switch-on">

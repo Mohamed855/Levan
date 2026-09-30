@@ -55,7 +55,7 @@ class BranchDataTable extends AbstractDataTable
             ['data' => 'code',   'name' => 'code',   'title' => 'الكود',      'className' => 'text-start', 'width' => '100px'],
             ['data' => 'city',   'name' => 'city',   'title' => 'المدينة',    'className' => 'text-start', 'width' => '120px'],
             ['data' => 'phone',  'name' => 'phone',  'title' => 'الهاتف',     'className' => 'text-start', 'width' => '120px'],
-            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة',     'width' => '100px'],
+            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة',     'width' => '100px', 'className' => 'text-center'],
             ['data' => 'actions','name' => 'actions','title' => 'الإجراءات',  'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
@@ -90,16 +90,17 @@ class BranchDataTable extends AbstractDataTable
 
             ->editColumn('status', function ($row) {
                 $checked = $row->status === 'active' ? 'checked' : '';
+                $url = tenant_route_name('branches.toggle-status', ['branch' => $row->id]);
                 return '
                     <div class="d-flex justify-content-center">
                         <label class="switch switch-primary switch-square mb-0">
                             <input
                                 type="checkbox"
-                                class="switch-input status-toggle"
+                                class="switch-input js-table-status-toggle"
                                 id="status_' . $row->id . '"
-                                data-id="' . $row->id . '"
+                                data-url="' . e($url) . '"
                                 ' . $checked . '
-                                onchange="toggleStatus(this, ' . $row->id . ')"
+                                aria-label="تبديل حالة الفرع"
                             >
                             <span class="switch-toggle-slider">
                                 <span class="switch-on">

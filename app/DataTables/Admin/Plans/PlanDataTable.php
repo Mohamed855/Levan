@@ -45,7 +45,7 @@ class PlanDataTable extends AbstractDataTable
             ['data' => 'extra_user_license_price',     'name' => 'extra_user_license_price',            'title' => 'سعر الترخيص الاضافي',],
             ['data' => 'branches_info',      'name' => 'branches_limit',            'title' => 'عدد الفروع'],
             ['data' => 'domain_management',  'name' => 'domain_management_enabled', 'title' => 'إعدادات الدومينات'],
-            ['data' => 'is_active',          'name' => 'is_active',                 'title' => 'الحالة',],
+            ['data' => 'is_active',          'name' => 'is_active',                 'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'actions',            'name' => 'actions',                   'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
@@ -112,9 +112,25 @@ class PlanDataTable extends AbstractDataTable
 
 
             ->editColumn('is_active', function ($row) {
-                return $row->is_active
-                    ? '<span class="badge bg-success">مفعل</span>'
-                    : '<span class="badge bg-danger">غير مفعل</span>';
+                if (! auth()->user()?->can('plans.edit')) {
+                    return $row->is_active
+                        ? '<span class="badge bg-success">مفعل</span>'
+                        : '<span class="badge bg-danger">غير مفعل</span>';
+                }
+
+                $checked = $row->is_active ? 'checked' : '';
+                $url = route('admin.plans.toggle-active', $row);
+
+                return '
+                    <div class="d-flex justify-content-center">
+                        <label class="switch switch-primary switch-square mb-0">
+                            <input type="checkbox" class="switch-input js-table-status-toggle" data-url="' . e($url) . '" ' . $checked . ' aria-label="تبديل حالة الباقة">
+                            <span class="switch-toggle-slider">
+                                <span class="switch-on"><i class="icon-base mt-1 ti ti-check text-white"></i></span>
+                                <span class="switch-off"><i class="icon-base mt-1 ti ti-x"></i></span>
+                            </span>
+                        </label>
+                    </div>';
             })
 
             ->addColumn('actions', function ($row) {

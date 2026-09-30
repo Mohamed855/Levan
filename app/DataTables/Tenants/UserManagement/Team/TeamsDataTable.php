@@ -64,7 +64,7 @@ class TeamsDataTable extends AbstractDataTable
             ['data' => 'branch', 'name' => 'branch.name', 'title' => 'الفرع', 'orderable' => false, 'searchable' => true],
             ['data' => 'members_count', 'name' => 'members_count', 'title' => 'عدد الأعضاء', 'orderable' => false, 'searchable' => false],
             ['data' => 'leaders_count', 'name' => 'leaders_count', 'title' => 'عدد القادة', 'orderable' => false, 'searchable' => false],
-            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة'],
+            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء'],
             ['data' => 'action', 'name' => 'action', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false],
         ];
@@ -102,16 +102,17 @@ class TeamsDataTable extends AbstractDataTable
             })
             ->editColumn('status', function (Team $team) {
                 $checked = $team->status === 'active' ? 'checked' : '';
+                $url = tenant_route_name('teams.toggle-status', ['team' => $team->id]);
                 return '
                     <div class="d-flex justify-content-center">
                         <label class="switch switch-primary switch-square mb-0">
                             <input
                                 type="checkbox"
-                                class="switch-input status-toggle"
+                                class="switch-input js-table-status-toggle"
                                 id="status_' . $team->id . '"
-                                data-id="' . $team->id . '"
+                                data-url="' . e($url) . '"
                                 ' . $checked . '
-                                onchange="toggleStatus(this, ' . $team->id . ')"
+                                aria-label="تبديل حالة المجموعة"
                             >
                             <span class="switch-toggle-slider">
                                 <span class="switch-on">

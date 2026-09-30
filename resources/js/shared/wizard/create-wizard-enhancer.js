@@ -349,7 +349,10 @@ function initialize() {
       event.preventDefault();
       event.stopImmediatePropagation();
       if (stepNumber(pane) === 1) {
-        window.location.assign(form.action);
+        const backUrl = previousButton instanceof HTMLAnchorElement
+          ? previousButton.href
+          : form.dataset.wizardBackUrl || form.action;
+        window.location.assign(backUrl);
       } else {
         stepperFor(form)?.previous();
       }

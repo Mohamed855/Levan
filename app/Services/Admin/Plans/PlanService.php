@@ -81,6 +81,16 @@ class PlanService
         });
     }
 
+    public function toggleActive(Plan $plan): Plan
+    {
+        $plan->update([
+            'is_active' => ! $plan->is_active,
+            'updated_by' => auth()->id(),
+        ]);
+
+        return $plan->refresh();
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Get plan statistics

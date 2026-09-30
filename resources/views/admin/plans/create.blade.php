@@ -157,22 +157,22 @@
                                         required />
                                 </div>
 
+                                <div class="col-md-6"><label class="form-label" for="subscription_duration_type">نوع
+                                        مدة الاشتراك <span class="text-danger">*</span></label><select
+                                        id="subscription_duration_type" name="subscription_duration_type"
+                                        class="form-select">
+                                        <option value="limited" @selected(old('subscription_duration_type', 'limited') === 'limited')>محددة</option>
+                                        <option value="unlimited" @selected(old('subscription_duration_type') === 'unlimited')>غير محددة</option>
+                                    </select></div>
+                                <div class="col-md-6" id="billing-cycle-container"><label class="form-label"
+                                        for="subscription_billing_cycle">دورة الفوترة <span
+                                            class="text-danger">*</span></label><select id="subscription_billing_cycle"
+                                        name="subscription_billing_cycle" class="form-select">
+                                        <option value="monthly" @selected(old('subscription_billing_cycle') === 'monthly')>شهري</option>
+                                        <option value="yearly" @selected(old('subscription_billing_cycle', 'yearly') === 'yearly')>سنوي</option>
+                                    </select>
+                                </div>
                                 <div class="col-md-6">
-                                    <div class="col-md-6"><label class="form-label" for="subscription_duration_type">نوع
-                                            مدة الاشتراك <span class="text-danger">*</span></label><select
-                                            id="subscription_duration_type" name="subscription_duration_type"
-                                            class="form-select">
-                                            <option value="limited" @selected(old('subscription_duration_type', 'limited') === 'limited')>محددة</option>
-                                            <option value="unlimited" @selected(old('subscription_duration_type') === 'unlimited')>غير محددة</option>
-                                        </select></div>
-                                    <div class="col-md-6" id="billing-cycle-container"><label class="form-label"
-                                            for="subscription_billing_cycle">دورة الفوترة <span
-                                                class="text-danger">*</span></label><select
-                                            id="subscription_billing_cycle" name="subscription_billing_cycle"
-                                            class="form-select">
-                                            <option value="monthly" @selected(old('subscription_billing_cycle') === 'monthly')>شهري</option>
-                                            <option value="yearly" @selected(old('subscription_billing_cycle', 'yearly') === 'yearly')>سنوي</option>
-                                        </select></div>
                                     <label for="unlimited_branches" class="form-label">
                                         نوع حد الفروع
                                         <span class="text-danger">*</span>
@@ -227,25 +227,29 @@
                                     </select>
                                 </div>
 
-                                <div class="col-12">
+                                <div class="col-md-6">
                                     <label class="form-label" for="description">الوصف</label>
                                     <textarea name="description" id="description" class="form-control" rows="3"
                                         placeholder="وصف تفصيلي للباقة ومميزاتها...">{{ old('description') }}</textarea>
                                 </div>
 
                                 <div class="mt-4 d-flex justify-content-between">
-                                    <a href="{{ route('admin.plans.index') }}" class="btn btn-secondary btn-prev waves-effect waves-light">
+                                    <a href="{{ route('admin.plans.index') }}"
+                                        class="btn btn-secondary btn-prev waves-effect waves-light">
                                         <i class="ti ti-arrow-left me-1"></i> السابق
                                     </a>
                                     <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-secondary btn-save-draft waves-effect waves-light" data-step="1">
+                                        <button type="button"
+                                            class="btn btn-secondary btn-save-draft waves-effect waves-light"
+                                            data-step="1">
                                             <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
                                         </button>
-                                    <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-primary btn-next waves-effect waves-light">
-                                            التالي <i class="ti ti-arrow-right ms-2"></i>
-                                        </button>
-                                    </div>
+                                        <div class="d-flex gap-2">
+                                            <button type="button"
+                                                class="btn btn-primary btn-next waves-effect waves-light">
+                                                التالي <i class="ti ti-arrow-right ms-2"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -272,14 +276,17 @@
                                         <i class="ti ti-arrow-left me-1"></i> السابق
                                     </button>
                                     <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-secondary btn-save-draft waves-effect waves-light" data-step="2">
+                                        <button type="button"
+                                            class="btn btn-secondary btn-save-draft waves-effect waves-light"
+                                            data-step="2">
                                             <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
                                         </button>
-                                    <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-primary waves-effect waves-light btn-submit">
-                                            <i class="ti ti-check me-1"></i> حفظ
-                                        </button>
-                                    </div>
+                                        <div class="d-flex gap-2">
+                                            <button type="button"
+                                                class="btn btn-primary waves-effect waves-light btn-submit">
+                                                <i class="ti ti-check me-1"></i> حفظ
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

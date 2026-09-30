@@ -73,7 +73,7 @@ class UsersDataTable extends AbstractDataTable
             ['data' => 'branch', 'name' => 'branch.name', 'title' => 'الفرع', 'orderable' => false, 'searchable' => true], // ✅ تغيير
             ['data' => 'phone', 'name' => 'phone', 'title' => 'رقم الهاتف'],
             ['data' => 'roles', 'name' => 'roles.name', 'title' => 'الأدوار', 'orderable' => false, 'searchable' => true],
-            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة'],
+            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'license_status', 'name' => 'license_status', 'title' => 'الترخيص', 'orderable' => false, 'searchable' => false],
             ['data' => 'last_login_at', 'name' => 'last_login_at', 'title' => 'آخر دخول'],
             ['data' => 'action', 'name' => 'action', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false],
@@ -114,16 +114,17 @@ class UsersDataTable extends AbstractDataTable
             })
             ->editColumn('status', function (User $user) {
                 $checked = $user->status === 'active' ? 'checked' : '';
+                $url = tenant_route_name('users.toggle-status', ['user' => $user->id]);
                 return '
                     <div class="d-flex justify-content-center">
                         <label class="switch switch-primary switch-square mb-0">
                             <input
                                 type="checkbox"
-                                class="switch-input status-toggle"
+                                class="switch-input js-table-status-toggle"
                                 id="status_' . $user->id . '"
-                                data-user-id="' . $user->id . '"
+                                data-url="' . e($url) . '"
                                 ' . $checked . '
-                                onchange="toggleStatus(this, ' . $user->id . ')"
+                                aria-label="تبديل حالة المستخدم"
                             >
                             <span class="switch-toggle-slider">
                                 <span class="switch-on">

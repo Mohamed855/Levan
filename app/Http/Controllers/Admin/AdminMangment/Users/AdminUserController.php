@@ -35,7 +35,7 @@ class AdminUserController extends Controller
         try {
             $statistics = $this->userService->getUserStatistics();
             $roles = Role::select('id', 'name')->orderBy('name', 'asc')->get();
-            $totalUsers = AdminUser::withTrashed()->count();
+            $totalUsers = AdminUser::count();
             $activeUsers = AdminUser::where('status', AdminUserStatus::ACTIVE)->count();
             $inactiveUsers = AdminUser::where('status', AdminUserStatus::INACTIVE)->count();
 

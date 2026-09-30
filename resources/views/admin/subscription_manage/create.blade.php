@@ -98,8 +98,7 @@
                                         اسم الشركة <span class="text-danger">*</span>
                                     </label>
                                     <input type="text" class="form-control" id="company_name" name="company_name"
-                                        value="{{ old('company_name') }}"
-                                        placeholder="مثال: شركة المجد العقارية" required>
+                                        value="{{ old('company_name') }}" placeholder="مثال: شركة المجد العقارية" required>
                                 </div>
 
                                 <!-- رقم السجل التجاري -->
@@ -109,9 +108,8 @@
                                     </label>
                                     <input type="text" inputmode="numeric" pattern="[0-9]{10}" maxlength="10"
                                         class="form-control" id="commercial_number" name="commercial_number"
-                                        placeholder="مثال: 1010123456"
-                                        value="{{ old('commercial_number') }}"
-                                        required oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
+                                        placeholder="مثال: 1010123456" value="{{ old('commercial_number') }}" required
+                                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
                                 </div>
 
                                 <!-- الرقم الضريبي -->
@@ -162,9 +160,9 @@
                                     </button>
                                     <div class="d-flex gap-2">
                                         <button type="button" class="btn btn-primary btn-next waves-effect waves-light"
-                                        id="btn-next-company">
-                                        التالي <i class="ti ti-arrow-right ms-2"></i>
-                                    </button>
+                                            id="btn-next-company">
+                                            التالي <i class="ti ti-arrow-right ms-2"></i>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -180,8 +178,7 @@
                                         اسم المستخدم <span class="text-danger">*</span>
                                     </label>
                                     <input type="text" class="form-control" id="name" name="name"
-                                        value="{{ old('name') }}" placeholder="اسم المستخدم"
-                                        required>
+                                        value="{{ old('name') }}" placeholder="اسم المستخدم" required>
                                 </div>
 
                                 <div class="col-md-6">
@@ -199,8 +196,7 @@
                                         البريد الإلكتروني <span class="text-danger">*</span>
                                     </label>
                                     <input type="email" class="form-control" id="email" name="email"
-                                        value="{{ old('email') }}"
-                                        placeholder="example@domain.com" required>
+                                        value="{{ old('email') }}" placeholder="example@domain.com" required>
                                 </div>
 
                                 <div class="col-md-6">
@@ -232,9 +228,9 @@
                                     </button>
                                     <div class="d-flex gap-2">
                                         <button type="button" class="btn btn-primary btn-next waves-effect waves-light"
-                                        id="btn-next-admin">
-                                        التالي <i class="ti ti-arrow-right ms-2"></i>
-                                    </button>
+                                            id="btn-next-admin">
+                                            التالي <i class="ti ti-arrow-right ms-2"></i>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -265,8 +261,7 @@
                                         تاريخ البداية <span class="text-danger">*</span>
                                     </label>
                                     <input type="date" class="form-control" id="start_date" name="start_date"
-                                        value="{{ old('start_date', now()->toDateString()) }}"
-                                        required>
+                                        value="{{ old('start_date', now()->toDateString()) }}" required>
                                 </div>
 
                                 <div class="col-md-6">
@@ -283,8 +278,7 @@
                                         إجمالي المستخدمين <span class="text-danger">*</span>
                                     </label>
                                     <input type="number" min="1" class="form-control" id="total_users"
-                                        name="total_users"
-                                        value="{{ old('total_users') }}" required>
+                                        name="total_users" value="{{ old('total_users') }}" required>
                                 </div>
 
                                 <div class="col-md-6">
@@ -337,8 +331,7 @@
                                         تاريخ نهاية التجربة <span class="text-danger">*</span>
                                     </label>
                                     <input type="date" class="form-control" name="trial_end_date" id="trial-end-date"
-                                        value="{{ old('trial_end_date') }}"
-                                        min="{{ now()->toDateString() }}">
+                                        value="{{ old('trial_end_date') }}" min="{{ now()->toDateString() }}">
                                 </div>
 
                                 <div class="col-md-6" id="discount-value-wrapper" style="display: none;">
@@ -362,7 +355,7 @@
 
                                 <!-- ملخص التسعير الداخلي للخطوة 3 -->
                                 <div class="col-12 mt-2">
-                                    <div class="card border shadow-none">
+                                    <div class="card border shadow-none mt-3">
                                         <div class="card-header py-2 bg-light">
                                             <h6 class="mb-0 card-title small fw-bold">
                                                 <i class="ti ti-calculator text-primary me-1"></i> ملخص التسعير
@@ -412,9 +405,9 @@
                                     </button>
                                     <div class="d-flex gap-2">
                                         <button type="button" class="btn btn-primary btn-next waves-effect waves-light"
-                                        id="btn-next-payment">
-                                        التالي <i class="ti ti-arrow-right ms-2"></i>
-                                    </button>
+                                            id="btn-next-payment">
+                                            التالي <i class="ti ti-arrow-right ms-2"></i>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -564,9 +557,9 @@
                                     </button>
                                     <div class="d-flex gap-2">
                                         <button type="submit"
-                                        class="btn btn-primary btn-next btn-submit waves-effect waves-light">
-                                        <i class="ti ti-check me-1"></i> اعتماد وحفظ نهائي
-                                    </button>
+                                            class="btn btn-primary btn-next btn-submit waves-effect waves-light">
+                                            <i class="ti ti-check me-1"></i> اعتماد وحفظ نهائي
+                                        </button>
                                     </div>
                                 </div>
                             </div>

@@ -1,7 +1,10 @@
 
 'use strict';
 
+import { initializeTableStatusToggles } from '../../../shared/table-status-toggle';
+
 $(document).ready(function () {
+    initializeTableStatusToggles();
     initializeComponents();
 
     // انتظر تحميل DataTable بشكل كامل
@@ -68,98 +71,4 @@ function handleMassDelete() {
     confirmDeleteSelectedmss(selectedIds, window.routes.massDelete, 'AdminUser');
 }
 
-document.addEventListener('click', function (e) {
-    const btn = e.target.closest('.js-toggle-btn');
-    if (!btn) return;
-
-    const userId = btn.dataset.id;
-    const url = btn.dataset.url;
-
-    if (!userId || !url) {
-        toastr.error('بيانات المستخدم غير مكتملة');
-        return;
-    }
-
-    toggleStatus(btn, userId, url);
-});
-
-function toggleStatus(button, userId, url) {
-    const csrfToken =
-        document.querySelector('meta[name="csrf-token"]')?.content
-        || window.csrfToken;
-
-    if (!csrfToken) {
-        toastr.error('رمز الأمان مفقود');
-        return;
-    }
-
-    const isCheckbox = button && (button.type === 'checkbox' || button.tagName === 'INPUT');
-    const originalHtml = (!isCheckbox && button) ? button.innerHTML : null;
-
-    if (button) {
-        if (isCheckbox) {
-            button.disabled = true;
-        } else {
-            button.classList.add('disabled');
-            button.innerHTML = '<i class="ti ti-loader ti-spin"></i>';
-        }
-    }
-
-    $.ajax({
-        url: url,
-        type: 'PATCH',
-        headers: {
-            'X-CSRF-TOKEN': csrfToken
-        },
-        success: function (response) {
-            if (response.success) {
-                toastr.success(response.message || 'تم تغيير الحالة بنجاح');
-                if (button && isCheckbox) {
-                    button.disabled = false;
-                } else {
-                    $('#users-table')
-                        .DataTable()
-                        .ajax.reload(null, false);
-                }
-            } else {
-                toastr.error(response.message || 'حدث خطأ ما');
-                if (button && isCheckbox) {
-                    button.checked = !button.checked;
-                    button.disabled = false;
-                }
-            }
-        },
-        error: function (xhr) {
-            let errorMessage = 'حدث خطأ أثناء الاتصال بالخادم';
-
-            if (xhr.status === 403) {
-                errorMessage = 'ليس لديك صلاحية لتنفيذ هذا الإجراء';
-            } else if (xhr.status === 404) {
-                errorMessage = 'المستخدم غير موجود';
-            } else if (xhr.status === 419) {
-                errorMessage = 'انتهت صلاحية الجلسة، يرجى تحديث الصفحة';
-            } else if (xhr.status === 422) {
-                errorMessage = 'بيانات غير صالحة';
-            } else if (xhr.responseJSON?.message) {
-                errorMessage = xhr.responseJSON.message;
-            }
-
-            toastr.error(errorMessage);
-            if (button && isCheckbox) {
-                button.checked = !button.checked;
-                button.disabled = false;
-            }
-        },
-        complete: function () {
-            if (button && !isCheckbox) {
-                button.classList.remove('disabled');
-                button.innerHTML = originalHtml;
-            }
-        }
-    });
-}
-
-
-// تصدير الدوال للاستخدام العام
-window.toggleStatus = toggleStatus;
 window.handleMassDelete = handleMassDelete;
