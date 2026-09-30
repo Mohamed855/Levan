@@ -35,93 +35,18 @@
     </form>
 
     <div class="row g-4 mb-4">
-        <!-- إجمالي التذاكر -->
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">إجمالي التذاكر</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ number_format($stats['total'] ?? 0) }}</h4>
-                            </div>
-                            <small class="mb-0">كل تذاكر الدعم</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-primary">
-                                <i class="ti ti-messages ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- تذاكر جديدة / مفتوحة -->
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">تذاكر جديدة</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2 text-danger">{{ number_format($stats['open'] ?? 0) }}</h4>
-                            </div>
-                            <small class="mb-0">تحتاج للرد والمعالجة</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-danger">
-                                <i class="ti ti-bell-ringing ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="إجمالي التذاكر" :value="number_format($stats['total'] ?? 0)" subtitle="إجمالي التذاكر"
+            icon="ti-messages" color="primary" />
 
-        <!-- قيد المعالجة -->
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">قيد المعالجة</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2 text-warning">{{ number_format($stats['in_progress'] ?? 0) }}</h4>
-                            </div>
-                            <small class="mb-0">جارٍ العمل عليها</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-warning">
-                                <i class="ti ti-clock ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="تذاكر جديدة" :value="number_format($stats['open'] ?? 0)"
+            subtitle="تحتاج للرد والمعالجة" icon="ti-bell-ringing" color="info" />
 
-        <!-- تم الحل -->
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">تم الحل</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2 text-success">{{ number_format($stats['resolved'] ?? 0) }}</h4>
-                            </div>
-                            <small class="mb-0">تم الانتهاء منها</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-success">
-                                <i class="ti ti-circle-check ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="قيد المعالجة" :value="number_format($stats['in_progress'] ?? 0)" subtitle="جارٍ العمل عليها"
+            icon="ti-clock" color="warning" />
+
+        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="تم الحل" :value="number_format($stats['resolved'] ?? 0)" subtitle="تم الانتهاء منها"
+            icon="ti-circle-check" color="success" />
     </div>
 
     @if ($errors->any())

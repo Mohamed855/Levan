@@ -32,71 +32,12 @@
 
 @section('content')
     <div class="row g-4 mb-4">
-        <!-- بطاقات الإحصائيات -->
-        <div class="col-sm-6 col-xl-4">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">الباقات</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $totalPlans }}</h4>
-                            </div>
-                            <small class="mb-0">إجمالي الباقات</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-primary">
-                                <i class="ti ti-package ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-6 col-xl-4">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">الباقات النشطة</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $activePlans }}</h4>
-                            </div>
-                            <small class="mb-0"> إجمالي الباقات النشطة </small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-warning">
-                                <i class="ti ti-bolt ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-6 col-xl-4">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">الباقات الغير نشطة</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $inactivePlans }}</h4>
-                            </div>
-                            <small class="mb-0"> إجمالي الباقات الغير نشطة</small>
-
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-success">
-                                <i class="ti ti-circle-off ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+        <x-admin.dashboard-card col="col-sm-6 col-xl-4" title="إجمالي الباقات" :value="$totalPlans" subtitle="إجمالي الباقات"
+            icon="ti-packages" color="primary" />
+        <x-admin.dashboard-card col="col-sm-6 col-xl-4" title="الباقات النشطة" :value="$activePlans" subtitle="الباقات النشطة"
+            icon="ti-bolt" color="success" />
+        <x-admin.dashboard-card col="col-sm-6 col-xl-4" title="الباقات غير النشطة" :value="$inactivePlans"
+            subtitle="الباقات غير النشطة" icon="ti-circle-off" color="warning" />
     </div>
 
     @if ($errors->any())

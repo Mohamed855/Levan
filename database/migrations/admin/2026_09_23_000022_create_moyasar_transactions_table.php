@@ -64,7 +64,6 @@ return new class extends Migration
             $table->timestamp('voided_at')->nullable();
 
             $table->timestamps();
-            $table->softDeletes();
 
             $table->index('created_at');
             $table->index(['status', 'payment_method']);

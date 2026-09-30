@@ -1,6 +1,6 @@
 @extends('tenants.layouts.layoutMaster')
 
-@section('title', 'أرشيف العملاء')
+@section('title', 'العملاء المحذوفون')
 
 @section('vendor-style')
 @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
@@ -48,11 +48,11 @@
             <div class="card-body">
                 <div class="d-flex align-items-start justify-content-between">
                     <div class="content-left">
-                        <span class="text-heading">العملاء المؤرشفين</span>
+                        <span class="text-heading">العملاء المحذوفون</span>
                         <div class="d-flex align-items-center my-1">
                             <h4 class="mb-0 me-2">{{ $totalArchivedCustomers }}</h4>
                         </div>
-                        <small class="mb-0">إجمالي العملاء المؤرشفين</small>
+                        <small class="mb-0">إجمالي العملاء المحذوفين</small>
                     </div>
                     <div class="avatar">
                         <span class="avatar-initial rounded bg-label-warning">
@@ -73,7 +73,7 @@
                         <div class="d-flex align-items-center my-1">
                             <h4 class="mb-0 me-2">{{ $archivedIndividualCustomers }}</h4>
                         </div>
-                        <small class="mb-0">العملاء الأفراد المؤرشفين</small>
+                        <small class="mb-0">العملاء الأفراد المحذوفين</small>
                     </div>
                     <div class="avatar">
                         <span class="avatar-initial rounded bg-label-info">
@@ -94,7 +94,7 @@
                         <div class="d-flex align-items-center my-1">
                             <h4 class="mb-0 me-2">{{ $archivedCompanyCustomers }}</h4>
                         </div>
-                        <small class="mb-0">عملاء الشركات المؤرشفين</small>
+                        <small class="mb-0">عملاء الشركات المحذوفين</small>
                     </div>
                     <div class="avatar">
                         <span class="avatar-initial rounded bg-label-secondary">

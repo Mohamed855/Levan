@@ -47,7 +47,6 @@ return new class extends Migration
             $table->string('email')->nullable(); // البريد الإلكتروني
 
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

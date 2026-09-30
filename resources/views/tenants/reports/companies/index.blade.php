@@ -191,7 +191,7 @@
                                     id="kpi1-active">{{ number_format($globalStats['companies']['active']) }}</strong></span>
                             <span class="text-danger">غير نشطة <strong
                                     id="kpi1-inactive">{{ number_format($globalStats['companies']['inactive']) }}</strong></span>
-                            <span>مؤرشفة <strong
+                            <span>محذوفة <strong
                                     id="kpi1-archived">{{ number_format($globalStats['companies']['archived']) }}</strong></span>
                         </div>
                         <div class="kpi-meta mt-2">جديدة هذا الشهر: <strong

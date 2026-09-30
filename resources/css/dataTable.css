@@ -14,12 +14,6 @@
     gap: 10px;
 }
 
-.btn-export {
-    background-color: white !important;
-    color: black !important;
-    border: none !important;
-}
-
 .btn-export,
 .btn-add {
     margin: 5px;

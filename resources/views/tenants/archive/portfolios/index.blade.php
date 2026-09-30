@@ -1,6 +1,6 @@
 @extends('tenants.layouts.layoutMaster')
 
-@section('title', 'أرشيف المحافظ')
+@section('title', 'المحافظ المحذوفة')
 
 @section('vendor-style')
     @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
@@ -41,11 +41,11 @@
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">
                         <div class="content-left">
-                            <span class="text-heading">المحافظ المؤرشفة</span>
+                            <span class="text-heading">المحافظ المحذوفة</span>
                             <div class="d-flex align-items-center my-1">
                                 <h4 class="mb-0 me-2">{{ $totalArchivedPortfolios }}</h4>
                             </div>
-                            <small class="mb-0">إجمالي المحافظ المؤرشفة</small>
+                            <small class="mb-0">إجمالي المحافظ المحذوفة</small>
                         </div>
                         <div class="avatar">
                             <span class="avatar-initial rounded bg-label-warning">
@@ -66,7 +66,7 @@
                             <div class="d-flex align-items-center my-1">
                                 <h4 class="mb-0 me-2">{{ $archivedActivePortfolios }}</h4>
                             </div>
-                            <small class="mb-0">المحافظ النشطة المؤرشفة</small>
+                            <small class="mb-0">المحافظ النشطة المحذوفة</small>
                         </div>
                         <div class="avatar">
                             <span class="avatar-initial rounded bg-label-success">
@@ -87,7 +87,7 @@
                             <div class="d-flex align-items-center my-1">
                                 <h4 class="mb-0 me-2">{{ $archivedInactivePortfolios }}</h4>
                             </div>
-                            <small class="mb-0">المحافظ غير النشطة المؤرشفة</small>
+                            <small class="mb-0">المحافظ غير النشطة المحذوفة</small>
                         </div>
                         <div class="avatar">
                             <span class="avatar-initial rounded bg-label-danger">
@@ -104,7 +104,7 @@
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">
                         <div class="content-left">
-                            <span class="text-heading">مؤرشف مؤخراً</span>
+                            <span class="text-heading">محذوف مؤخراً</span>
                             <div class="d-flex align-items-center my-1">
                                 <h4 class="mb-0 me-2">{{ $recentlyArchivedPortfolios }}</h4>
                             </div>

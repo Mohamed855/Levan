@@ -1,6 +1,6 @@
 @extends('tenants.layouts.layoutMaster')
 
-@section('title', 'أرشيف العقود')
+@section('title', 'العقود المحذوفة')
 
 @section('vendor-style')
     @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
@@ -43,11 +43,11 @@
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">
                         <div class="content-left">
-                            <span class="text-heading">العقود المؤرشفة</span>
+                            <span class="text-heading">العقود المحذوفة</span>
                             <div class="d-flex align-items-center my-1">
                                 <h4 class="mb-0 me-2">{{ $totalArchivedContracts }}</h4>
                             </div>
-                            <small class="mb-0">إجمالي العقود المؤرشفة</small>
+                            <small class="mb-0">إجمالي العقود المحذوفة</small>
                         </div>
                         <div class="avatar">
                             <span class="avatar-initial rounded bg-label-warning">
@@ -68,7 +68,7 @@
                             <div class="d-flex align-items-center my-1">
                                 <h4 class="mb-0 me-2">{{ $archivedActiveContracts }}</h4>
                             </div>
-                            <small class="mb-0">العقود النشطة المؤرشفة</small>
+                            <small class="mb-0">العقود النشطة المحذوفة</small>
                         </div>
                         <div class="avatar">
                             <span class="avatar-initial rounded bg-label-success">
@@ -89,7 +89,7 @@
                             <div class="d-flex align-items-center my-1">
                                 <h4 class="mb-0 me-2">{{ $archivedExpiredContracts }}</h4>
                             </div>
-                            <small class="mb-0">العقود المنتهية المؤرشفة</small>
+                            <small class="mb-0">العقود المنتهية المحذوفة</small>
                         </div>
                         <div class="avatar">
                             <span class="avatar-initial rounded bg-label-danger">
@@ -110,7 +110,7 @@
                             <div class="d-flex align-items-center my-1">
                                 <h4 class="mb-0 me-2">{{ $archivedInactiveContracts }}</h4>
                             </div>
-                            <small class="mb-0">العقود غير النشطة المؤرشفة</small>
+                            <small class="mb-0">العقود غير النشطة المحذوفة</small>
                         </div>
                         <div class="avatar">
                             <span class="avatar-initial rounded bg-label-secondary">

@@ -142,97 +142,14 @@
 
 @section('content')
     <div class="row g-4 mb-4">
-        <!-- بطاقات الإحصائيات -->
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">الكوبونات</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $totalPlans }}</h4>
-                            </div>
-                            <small class="mb-0">إجمالي الكوبونات</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-primary">
-                                <i class="ti ti-ticket ti-26px"></i>
-
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">الكوبونات النشطة</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $activecoupons }}</h4>
-                            </div>
-                            <small class="mb-0"> إجمالي الكوبونات النشطة </small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-warning">
-                                <i class="ti ti-discount-check ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">الكوبونات الغير نشطة</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $inactivecoupons }}</h4>
-                            </div>
-                            <small class="mb-0"> الكوبونات الغير نشطة</small>
-
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-success">
-                                <i class="ti ti-discount-off ti-26px"></i>
-
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">عدد الكوبونات المستخدمة</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $couponCount }}</h4>
-                            </div>
-                            <small class="mb-0">إجمالي الكوبونات المستخدمة</small>
-
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-success">
-                                <i class="ti ti-discount-off ti-26px"></i>
-
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
+        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="إجمالي الكوبونات" :value="$totalPlans" subtitle="إجمالي الكوبونات"
+            icon="ti-ticket" color="primary" />
+        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="الكوبونات النشطة" :value="$activecoupons" subtitle="الكوبونات النشطة"
+            icon="ti-rosette-discount" color="success" />
+        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="الكوبونات الغير نشطة" :value="$inactivecoupons"
+            subtitle="الكوبونات الغير نشطة" icon="ti-rosette-discount-off" color="warning" />
+        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="عدد الكوبونات المستخدمة" :value="$couponCount"
+            subtitle="عدد الكوبونات المستخدمة" icon="ti-discount-check" color="danger" />
     </div>
 
     @if ($errors->any())

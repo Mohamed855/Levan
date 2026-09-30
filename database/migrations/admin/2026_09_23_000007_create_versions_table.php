@@ -30,7 +30,6 @@ return new class extends Migration
             $table->foreignId('updated_by')->nullable()->constrained('admin_users')->onDelete('cascade');
 
             $table->index(['stage', 'is_active']);
-            $table->softDeletes();
         });
     }
 

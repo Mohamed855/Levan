@@ -138,7 +138,7 @@
             <li class="menu-item @if (Helpers::isActiveRoute('archive.users.*')) active @endif">
                 <a href="{{ tenant_route_name('archive.users.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons ti ti-archive"></i>
-                    <div>أرشيف المستخدمين</div>
+                    <div>المستخدمون المحذوفون</div>
                 </a>
             </li>
         @endcan

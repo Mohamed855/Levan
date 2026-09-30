@@ -199,7 +199,7 @@
                                             <i class="ti ti-report"></i>
                                         </span>
                                     </div> --}}
-                                <small class="fw-medium text-black">الأرشيف</small>
+                                <small class="fw-medium text-black">المحذوفة</small>
                             </div>
                             <div class="row g-2">
                                 <div class="col-6">

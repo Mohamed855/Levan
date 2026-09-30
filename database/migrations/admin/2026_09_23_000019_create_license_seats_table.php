@@ -28,7 +28,6 @@ return new class extends Migration {
             // يمنع مقعدين لنفس المستخدم داخل نفس التيننت
             $table->unique(['tenant_id', 'assigned_user_uid']);
 
-            $table->softDeletes();
         });
     }
 

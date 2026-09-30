@@ -8,7 +8,6 @@ use App\Models\Admin\Tenants\Tenant;
 use App\Traits\ActivityLogTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 
 class Version extends Model

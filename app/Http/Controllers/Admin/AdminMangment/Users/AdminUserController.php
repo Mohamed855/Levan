@@ -11,17 +11,15 @@ use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\Coupons\Coupon;
 use App\Services\Admin\AdminMangment\Users\UserService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Microsoft\Graph\Model\Admin;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Permission\Models\Role;
 
 class AdminUserController extends Controller
 {
-    private $page   = "admin.admin_mangment.users";
-    private $route  = "admin.users";
+    private $page = 'admin.admin_mangment.users';
 
+    private $route = 'admin.users';
 
     public function __construct(private UserService $userService)
     {
@@ -32,7 +30,6 @@ class AdminUserController extends Controller
         $this->middleware('can:users.change_status')->only(['toggleStatus']);
     }
 
-
     public function index(AdminUserDataTable $dataTable)
     {
         try {
@@ -41,48 +38,47 @@ class AdminUserController extends Controller
             $totalUsers = AdminUser::withTrashed()->count();
             $activeUsers = AdminUser::where('status', AdminUserStatus::ACTIVE)->count();
             $inactiveUsers = AdminUser::where('status', AdminUserStatus::INACTIVE)->count();
-            $archivedUsers = AdminUser::onlyTrashed()->count();
-            return $dataTable->render($this->page . '.index', [
-                'totalUsers'       => $totalUsers,
-                'activeUsers'      => $activeUsers,
-                'inactiveUsers'    => $inactiveUsers,
-                'archivedUsers'   => $archivedUsers,
-                'roles'            => $roles,
+
+            // $archivedUsers = AdminUser::onlyTrashed()->count();
+            return $dataTable->render($this->page.'.index', [
+                'totalUsers' => $totalUsers,
+                'activeUsers' => $activeUsers,
+                'inactiveUsers' => $inactiveUsers,
+                // 'archivedUsers'   => $archivedUsers,
+                'roles' => $roles,
             ]);
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }
 
-
     public function create()
     {
-        return view($this->page . '.create');
+        return view($this->page.'.create');
     }
-
 
     public function store(AdminUserStoreRequest $request)
     {
         $this->userService->create($request->validated());
 
-        return redirect()->route($this->route . '.index')->with('success', 'تم إضافة المستخدم بنجاح');
+        return redirect()->route($this->route.'.index')->with('success', 'تم إضافة المستخدم بنجاح');
     }
-
 
     public function edit(AdminUser $user)
     {
         if ($user->isSuperAdmin()) {
-            return redirect()->route($this->route . '.index')->with('error', 'لا يمكن تعديل بيانات السوبر أدمن');
+            return redirect()->route($this->route.'.index')->with('error', 'لا يمكن تعديل بيانات السوبر أدمن');
         }
-        return view($this->page . '.edit', compact('user'));
-    }
 
+        return view($this->page.'.edit', compact('user'));
+    }
 
     public function update(AdminUserUpdateRequest $request, AdminUser $user)
     {
         if ($user->isSuperAdmin()) {
-            return redirect()->route($this->route . '.index')->with('error', 'لا يمكن تعديل بيانات السوبر أدمن');
+            return redirect()->route($this->route.'.index')->with('error', 'لا يمكن تعديل بيانات السوبر أدمن');
         }
 
         $this->userService->update($user, $request->validated());
@@ -90,18 +86,16 @@ class AdminUserController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'تم تحديث المستخدم بنجاح');
     }
 
-
     public function destroy(AdminUser $user)
     {
         if ($user->isSuperAdmin()) {
-            return redirect()->route($this->route . '.index')->with('error', 'لا يمكن حذف السوبر أدمن');
+            return redirect()->route($this->route.'.index')->with('error', 'لا يمكن حذف السوبر أدمن');
         }
 
         $user->delete();
 
         return redirect()->route('admin.users.index')->with('success', 'تم حذف المستخدم بنجاح');
     }
-
 
     // تغيير حالة المستخدم
     public function toggleStatus(AdminUser $user)
@@ -110,10 +104,10 @@ class AdminUserController extends Controller
             if ($user->isSuperAdmin()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'لا يمكن تغيير حالة السوبر أدمن'
+                    'message' => 'لا يمكن تغيير حالة السوبر أدمن',
                 ], 403);
             }
-            Log::info($user . 'user in toggle');
+            Log::info($user.'user in toggle');
             $newStatus = $user->status === AdminUserStatus::ACTIVE
                 ? AdminUserStatus::INACTIVE
                 : AdminUserStatus::ACTIVE;
@@ -124,100 +118,99 @@ class AdminUserController extends Controller
             $statusText = $newStatus === AdminUserStatus::ACTIVE ? 'نشط' : 'غير نشط';
 
             return response()->json([
-                'success'       => true,
-                'message'       => 'تم تعديل الحالة بنجاح',
-                'new_status'    => $newStatus,
-                'status_text'   => $statusText
+                'success' => true,
+                'message' => 'تم تعديل الحالة بنجاح',
+                'new_status' => $newStatus,
+                'status_text' => $statusText,
             ]);
         } catch (\Exception $e) {
-            Log::error('Toggle status error: ' . $e->getMessage());
+            Log::error('Toggle status error: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تبديل الحالة: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء تبديل الحالة: '.$e->getMessage(),
             ], 500);
         }
     }
 
+    public function showProfile($id)
+    {
+        $user = AdminUser::where('id', $id)->first();
+        $role = $user->roles->first() ?? null;
 
-   public function showProfile($id)
-{
-    $user = AdminUser::where('id', $id)->first();
-    $role = $user->roles->first() ?? null;
-    
-    $recentActivities = Activity::where('causer_id', $user->id)
-        ->orderBy('created_at', 'desc')
-        ->take(5)
-        ->get();
+        $recentActivities = Activity::where('causer_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
 
-    // جلب جميع الكوبونات المسندة لهذا المستخدم
-    $coupons = Coupon::where('admin_user_id', $user->id)
-        ->orderBy('created_at', 'desc')
-        ->get();
+        // جلب جميع الكوبونات المسندة لهذا المستخدم
+        $coupons = Coupon::where('admin_user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-    return view($this->page . '.show', compact('user', 'recentActivities', 'role', 'coupons'));
-}
+        return view($this->page.'.show', compact('user', 'recentActivities', 'role', 'coupons'));
+    }
 
     public function checkEmailUnique(Request $request)
-{
-    $email = $request->input('email');
-    
-    $exists = AdminUser::where('email', $email)->exists();
-    
-    if ($exists) {
-        return response()->json([
-            'available' => false,
-            'message' => 'البريد الإلكتروني مستخدم من قبل'
-        ]);
-    }
-    
-    return response()->json([
-        'available' => true,
-        'message' => 'البريد الإلكتروني متاح'
-    ]);
-}
+    {
+        $email = $request->input('email');
 
-/**
- * التحقق من تفرد الاسم
- */
-public function checkNameUnique(Request $request)
-{
-    $name = $request->input('name');
-    
-    $exists = AdminUser::where('name', $name)->exists();
-    
-    if ($exists) {
-        return response()->json([
-            'available' => false,
-            'message' => 'الاسم مستخدم من قبل'
-        ]);
-    }
-    
-    return response()->json([
-        'available' => true,
-        'message' => 'الاسم متاح'
-    ]);
-}
+        $exists = AdminUser::where('email', $email)->exists();
 
-/**
- * التحقق من تفرد رقم الهاتف
- */
-public function checkPhoneUnique(Request $request)
-{
-    $phone = $request->input('phone');
-    
-    $exists = AdminUser::where('phone', $phone)->exists();
-    
-    if ($exists) {
+        if ($exists) {
+            return response()->json([
+                'available' => false,
+                'message' => 'البريد الإلكتروني مستخدم من قبل',
+            ]);
+        }
+
         return response()->json([
-            'available' => false,
-            'message' => 'رقم الهاتف مستخدم من قبل'
+            'available' => true,
+            'message' => 'البريد الإلكتروني متاح',
         ]);
     }
-    
-    return response()->json([
-        'available' => true,
-        'message' => 'رقم الهاتف متاح'
-    ]);
-}
+
+    /**
+     * التحقق من تفرد الاسم
+     */
+    public function checkNameUnique(Request $request)
+    {
+        $name = $request->input('name');
+
+        $exists = AdminUser::where('name', $name)->exists();
+
+        if ($exists) {
+            return response()->json([
+                'available' => false,
+                'message' => 'الاسم مستخدم من قبل',
+            ]);
+        }
+
+        return response()->json([
+            'available' => true,
+            'message' => 'الاسم متاح',
+        ]);
+    }
+
+    /**
+     * التحقق من تفرد رقم الهاتف
+     */
+    public function checkPhoneUnique(Request $request)
+    {
+        $phone = $request->input('phone');
+
+        $exists = AdminUser::where('phone', $phone)->exists();
+
+        if ($exists) {
+            return response()->json([
+                'available' => false,
+                'message' => 'رقم الهاتف مستخدم من قبل',
+            ]);
+        }
+
+        return response()->json([
+            'available' => true,
+            'message' => 'رقم الهاتف متاح',
+        ]);
+    }
 }

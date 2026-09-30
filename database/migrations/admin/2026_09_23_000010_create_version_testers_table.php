@@ -26,7 +26,6 @@ return new class extends Migration
             //
             $table->unique('tenant_id');
             $table->index(['type', 'is_active']);
-            $table->softDeletes();
         });
     }
 

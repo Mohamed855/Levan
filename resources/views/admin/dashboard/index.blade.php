@@ -130,7 +130,7 @@
                     <div class="row g-2">
                         <div class="col-4">
                             <a href="{{ route('admin.companies.create') }}" class="quick-action-box">
-                                <div class="avatar avatar-md mb-2">
+                                <div class="avatar avatar-md mb-4">
                                     <span class="avatar-initial rounded bg-label-primary">
                                         <i class="ti ti-building fs-4"></i>
                                     </span>
@@ -140,7 +140,7 @@
                         </div>
                         <div class="col-4">
                             <a href="{{ route('admin.users.create') }}" class="quick-action-box">
-                                <div class="avatar avatar-md mb-2">
+                                <div class="avatar avatar-md mb-4">
                                     <span class="avatar-initial rounded bg-label-success">
                                         <i class="ti ti-user-cog fs-4"></i>
                                     </span>
@@ -150,7 +150,7 @@
                         </div>
                         <div class="col-4">
                             <a href="{{ route('admin.plans.create') }}" class="quick-action-box">
-                                <div class="avatar avatar-md mb-2">
+                                <div class="avatar avatar-md mb-4">
                                     <span class="avatar-initial rounded bg-label-info">
                                         <i class="ti ti-package fs-4"></i>
                                     </span>
@@ -160,7 +160,7 @@
                         </div>
                         <div class="col-4">
                             <a href="{{ route('admin.coupons.create') }}" class="quick-action-box">
-                                <div class="avatar avatar-md mb-2">
+                                <div class="avatar avatar-md mb-4">
                                     <span class="avatar-initial rounded bg-label-warning">
                                         <i class="ti ti-ticket fs-4"></i>
                                     </span>
@@ -170,7 +170,7 @@
                         </div>
                         <div class="col-4">
                             <a href="{{ route('admin.subscriptionManage.expired') }}" class="quick-action-box">
-                                <div class="avatar avatar-md mb-2">
+                                <div class="avatar avatar-md mb-4">
                                     <span class="avatar-initial rounded bg-label-danger">
                                         <i class="ti ti-timeline-event fs-4"></i>
                                     </span>
@@ -180,7 +180,7 @@
                         </div>
                         <div class="col-4">
                             <a href="{{ route('admin.tickets.index') }}" class="quick-action-box">
-                                <div class="avatar avatar-md mb-2">
+                                <div class="avatar avatar-md mb-4">
                                     <span class="avatar-initial rounded bg-label-dark">
                                         <i class="ti ti-messages fs-4"></i>
                                     </span>

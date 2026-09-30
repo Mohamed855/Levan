@@ -20,7 +20,6 @@ return new class extends Migration
             $table->unsignedInteger('old_user_license_snapshot');
             $table->decimal('extra_user_license_price_snapshot', 10, 2);
 
-            $table->softDeletes();
 
             $table->timestamps();
         });

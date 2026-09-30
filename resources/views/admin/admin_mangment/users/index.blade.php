@@ -33,14 +33,12 @@
 @section('content')
 
     <div id="top_card" class="row g-4 mb-4">
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="المستخدمين" :value="$totalUsers" subtitle="إجمالي المستخدمين"
-            icon="ti-users" color="primary" />
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="المستخدمين النشطين" :value="$activeUsers"
+        <x-admin.dashboard-card col="col-sm-6 col-xl-4" title="إجمالي المستخدمين" :value="$totalUsers"
+            subtitle="إجمالي المستخدمين" icon="ti-users" color="primary" />
+        <x-admin.dashboard-card col="col-sm-6 col-xl-4" title="المستخدمين النشطين" :value="$activeUsers"
             subtitle="المستخدمين النشطين" icon="ti-user-check" color="success" />
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="المستخدمين غير النشطين" :value="$inactiveUsers"
-            subtitle="المستخدمين غير النشطين" icon="ti-user-off" color="danger" />
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="المستخدمين المؤرشفين" :value="$archivedUsers"
-            subtitle="المستخدمين المحذوفين" icon="ti-archive" color="warning" />
+        <x-admin.dashboard-card col="col-sm-6 col-xl-4" title="المستخدمين غير النشطين" :value="$inactiveUsers"
+            subtitle="المستخدمين غير النشطين" icon="ti-user-off" color="warning" />
     </div>
 
     @if ($errors->any())

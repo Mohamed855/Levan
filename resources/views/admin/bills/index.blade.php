@@ -30,91 +30,17 @@
 
 @section('content')
     <div class="mb-4 row g-4">
-        <!-- بطاقات الإحصائيات -->
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">المعاملات</span>
-                            <div class="my-1 d-flex align-items-center">
-                                <h4 class="mb-0 me-2">{{ $billcounts }}</h4>
-                            </div>
-                            <small class="mb-0">إجمالي المعاملات</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="rounded avatar-initial bg-label-primary">
-                                <i class="ti ti-receipt-2 ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="المعاملات" :value="$billcounts" subtitle="إجمالي المعاملات"
+            icon="ti-receipt-2" color="primary" />
 
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">المعاملات المدفوعة</span>
-                            <div class="my-1 d-flex align-items-center">
-                                <h4 class="mb-0 me-2">{{ $paidbills }}</h4>
-                            </div>
-                            <small class="mb-0"> إجمالي المعاملات المدفوعة</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="rounded avatar-initial bg-label-warning">
-                                <i class="ti ti-cash ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="المعاملات المدفوعة" :value="$paidbills"
+            subtitle="إجمالي المعاملات المدفوعة" icon="ti-cash" color="success" />
 
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">المعاملات الغير مدفوعة</span>
-                            <div class="my-1 d-flex align-items-center">
-                                <h4 class="mb-0 me-2">{{ $unpaidbills }}</h4>
-                            </div>
-                            <small class="mb-0"> إجمالي المعاملات الغير مدفوعة</small>
+        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="المعاملات الغير مدفوعة" :value="$unpaidbills"
+            subtitle="إجمالي المعاملات الغير مدفوعة" icon="ti-file-invoice" color="warning" />
 
-                        </div>
-                        <div class="avatar">
-                            <span class="rounded avatar-initial bg-label-success">
-                                <i class="ti ti-file-invoice ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">معاملات لم يوافق عليها</span>
-                            <div class="my-1 d-flex align-items-center">
-                                <h4 class="mb-0 me-2">{{ $pendingbills }}</h4>
-                            </div>
-                            <small class="mb-0">إجمالي المعاملات التي لم يوافق عليها</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="rounded avatar-initial bg-label-danger">
-                                <i class="ti ti-ban ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="معاملات لم يوافق عليها" :value="$pendingbills"
+            subtitle="إجمالي المعاملات التي لم يوافق عليها" icon="ti-ban" color="danger" />
     </div>
 
     @if ($errors->any())

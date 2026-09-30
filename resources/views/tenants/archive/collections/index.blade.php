@@ -1,6 +1,6 @@
 @extends('tenants.layouts.layoutMaster')
 
-@section('title', 'أرشيف التحصيلات')
+@section('title', 'التحصيلات المحذوفة')
 
 @section('vendor-style')
     @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/shepherd/shepherd.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss', 'resources/assets/vendor/libs/animate-css/animate.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss'])
@@ -46,18 +46,18 @@
         </div>
     @endif
 
-    {{-- إحصائيات التحصيلات المؤرشفة --}}
+    {{-- إحصائيات التحصيلات المحذوفة --}}
     <div id="top_card" class="row g-4 mb-4">
         <div class="col-sm-6 col-xl-3">
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">
                         <div class="content-left">
-                            <span class="text-heading">التحصيلات المؤرشفة</span>
+                            <span class="text-heading">التحصيلات المحذوفة</span>
                             <div class="d-flex align-items-center my-1">
                                 <h4 class="mb-0 me-2">{{ $totalArchivedCollections }}</h4>
                             </div>
-                            <small class="mb-0">إجمالي التحصيلات المؤرشفة</small>
+                            <small class="mb-0">إجمالي التحصيلات المحذوفة</small>
                         </div>
                         <div class="avatar">
                             <span class="avatar-initial rounded bg-label-warning">
@@ -78,7 +78,7 @@
                             <div class="d-flex align-items-center my-1">
                                 <h4 class="mb-0 me-2">{{ $archivedPendingCollections }}</h4>
                             </div>
-                            <small class="mb-0">تحصيلات مؤرشفة معلقة</small>
+                            <small class="mb-0">تحصيلات محذوفة معلقة</small>
                         </div>
                         <div class="avatar">
                             <span class="avatar-initial rounded bg-label-info">
@@ -99,7 +99,7 @@
                             <div class="d-flex align-items-center my-1">
                                 <h4 class="mb-0 me-2">{{ $archivedApprovedCollections }}</h4>
                             </div>
-                            <small class="mb-0">تحصيلات مؤرشفة معتمدة</small>
+                            <small class="mb-0">تحصيلات محذوفة معتمدة</small>
                         </div>
                         <div class="avatar">
                             <span class="avatar-initial rounded bg-label-success">
@@ -120,7 +120,7 @@
                             <div class="d-flex align-items-center my-1">
                                 <h4 class="mb-0 me-2">{{ $archivedRejectedCollections }}</h4>
                             </div>
-                            <small class="mb-0">تحصيلات مؤرشفة مرفوضة</small>
+                            <small class="mb-0">تحصيلات محذوفة مرفوضة</small>
                         </div>
                         <div class="avatar">
                             <span class="avatar-initial rounded bg-label-danger">
@@ -133,7 +133,7 @@
         </div>
     </div>
 
-    {{-- جدول التحصيلات المؤرشفة --}}
+    {{-- جدول التحصيلات المحذوفة --}}
     <div class="card" id="card-archived-collections">
         <div class="card-body">
             {{-- فلاتر البحث --}}

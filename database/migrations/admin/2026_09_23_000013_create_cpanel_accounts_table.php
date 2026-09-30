@@ -42,7 +42,6 @@ return new class extends Migration
             // ✅ Indexes للبحث السريع
             $table->index('status');
             $table->index('created_at');
-            $table->softDeletes();
         });
     }
 
