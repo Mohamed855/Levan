@@ -1,4 +1,5 @@
 import html from "@rollup/plugin-html";
+import { readFileSync } from "node:fs";
 import { glob } from "glob";
 import laravel from "laravel-vite-plugin";
 import { defineConfig } from "vite";
@@ -9,45 +10,27 @@ import { defineConfig } from "vite";
  * @param {string} query
  * @returns array
  */
-function GetFilesArray(query) {
-    return glob.sync(query);
+function getBladeViteEntries() {
+    const entries = new Set([
+        "resources/assets/vendor/scss/rtl/core.scss",
+        "resources/assets/vendor/scss/rtl/theme-semi-dark.scss",
+    ]);
+
+    for (const viewPath of glob.sync("resources/views/**/*.blade.php")) {
+        const view = readFileSync(viewPath, "utf8");
+        const directives = view.matchAll(/@vite\s*\((?:\[(?:.|\n)*?\]|'[^']+'|\"[^\"]+\")\)/g);
+
+        for (const directive of directives) {
+            for (const asset of directive[0].matchAll(/['\"](resources\/[^'\"]+\.(?:css|scss|js))['\"]/g)) {
+                if (!asset[1].endsWith("template-customizer.js")) entries.add(asset[1]);
+            }
+        }
+    }
+
+    return [...entries];
 }
 
-// alias صغير
-const getFiles = GetFilesArray;
-/**
- * Js Files
- */
-// Page JS Files
-const pageJsFiles = GetFilesArray("resources/assets/js/*.js");
-
-// Page JS Files
-const pageCssFiles = GetFilesArray("resources/assets/css/*.css");
-
-// Processing Vendor JS Files
-const vendorJsFiles = GetFilesArray("resources/assets/vendor/js/*.js");
-
-// Processing Libs JS Files
-const LibsJsFiles = GetFilesArray("resources/assets/vendor/libs/**/*.js");
-
-/**
- * Scss Files
- */
-// Processing Core, Themes & Pages Scss Files
-const CoreScssFiles = GetFilesArray(
-    "resources/assets/vendor/scss/**/!(_)*.scss",
-);
-
-// Processing Libs Scss & Css Files
-const LibsScssFiles = GetFilesArray(
-    "resources/assets/vendor/libs/**/!(_)*.scss",
-);
-const LibsCssFiles = GetFilesArray("resources/assets/vendor/libs/**/*.css");
-
-// Processing Fonts Scss Files
-const FontsScssFiles = GetFilesArray(
-    "resources/assets/vendor/fonts/!(_)*.scss",
-);
+const bladeViteEntries = getBladeViteEntries();
 
 // Processing Window Assignment for Libs like jKanban, pdfMake
 function libsWindowAssignment() {
@@ -90,49 +73,7 @@ export default defineConfig({
     },
     plugins: [
         laravel({
-            input: [
-                "resources/css/app.css",
-                ...pageCssFiles,
-                "resources/js/app.js",
-                "resources/css/dataTable.css",
-                "resources/css/toastr.css",
-                "resources/js/toastr.js",
-                "resources/js/task-modal-shared.js",
-                "resources/css/printTemplate.css",
-                "resources/assets/js/site/landing.js",
-                ...pageJsFiles,
-                ...vendorJsFiles,
-                ...LibsJsFiles,
-                ...CoreScssFiles,
-                ...LibsScssFiles,
-                ...LibsCssFiles,
-                ...FontsScssFiles,
-                ...getFiles("resources/assets/css/*.css"),
-                ...getFiles("resources/assets/css/**/*.css"),
-                ...getFiles("resources/assets/css/**/**/*.css"),
-                ...getFiles("resources/assets/css/**/**/**/*.css"),
-                ...getFiles("resources/assets/css/**/**/**/**/*.css"),
-
-                ...getFiles("resources/assets/js/*.js"),
-                ...getFiles("resources/assets/js/**/*.js"),
-                ...getFiles("resources/assets/js/**/**/*.js"),
-                ...getFiles("resources/assets/js/**/**/**/*.js"),
-                ...getFiles("resources/assets/js/**/**/**/**/*.js"),
-
-                // ─── Custom SCSS (our design system) ─────────────────────
-                "resources/scss/admin/app.scss",
-                "resources/scss/admin/print.scss",
-                "resources/scss/tenants/app.scss",
-                ...getFiles("resources/scss/admin/pages/!(_)*.scss"),
-                ...getFiles("resources/scss/tenants/pages/!(_)*.scss"),
-
-
-                // ─── Shared JS (extracted from Blade inline scripts) ──────
-                "resources/js/shared/csrf-setup.js",
-                "resources/js/shared/toastr-flash.js",
-                "resources/js/shared/confirm-delete.js",
-                "resources/js/shared/datatable-search.js",
-            ],
+            input: bladeViteEntries,
             refresh: true,
         }),
         html(),

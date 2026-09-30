@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Tenants\BusinessCenter\Customer\Distribution;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 
-class CreateDistributionRequest extends FormRequest
+class CreateDistributionRequest extends WizardFormRequest
 {
     /*
     |--------------------------------------------------------------------------

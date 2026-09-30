@@ -36,6 +36,8 @@ return new class extends Migration
 
             // هل هذه الفترة الحالية؟
             $table->boolean('is_current')->default(false);
+            $table->timestamp('reminded_at_30')->nullable();
+            $table->timestamp('reminded_at_7')->nullable();
 
             $table->timestamps();
             $table->softDeletes();

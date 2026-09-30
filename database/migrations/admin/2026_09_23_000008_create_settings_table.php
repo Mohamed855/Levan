@@ -27,6 +27,7 @@ return new class extends Migration
 
             //
             $table->boolean('etmam_enabled')->default(false);
+            $table->boolean('tickets_enabled')->default(true);
             $table->string('etmam_base_url')->nullable();
             $table->string('etmam_system_code')->nullable();
             $table->string('etmam_api_token', 120)->nullable();

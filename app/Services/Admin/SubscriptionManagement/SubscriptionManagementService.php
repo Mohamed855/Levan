@@ -29,12 +29,22 @@ class SubscriptionManagementService
     public function getSubscriptionStatistics(): array
     {
         $baseQuery = Subscription::query();
+        $now = now();
 
         return [
             'total'         => (clone $baseQuery)->count(),
             'pending'       => (clone $baseQuery)->where('status', SubscriptionStatus::PENDING)->count(),
-            'active'        => (clone $baseQuery)->where('status', SubscriptionStatus::ACTIVE)->count(),
-            'expired'       => (clone $baseQuery)->where('status', SubscriptionStatus::EXPIRED)->count(),
+            'active'        => (clone $baseQuery)
+                ->where('status', SubscriptionStatus::ACTIVE)
+                ->whereHas('currentPeriod', function ($query) use ($now) {
+                    $query->where('status', SubscriptionPeriodStatus::ACTIVE)
+                        ->where('period_start', '<=', $now)
+                        ->where('period_end', '>=', $now);
+                })
+                ->count(),
+            'expired'       => (clone $baseQuery)
+                ->whereIn('status', [SubscriptionStatus::EXPIRED, SubscriptionStatus::CANCELLED])
+                ->count(),
             'suspended'     => (clone $baseQuery)->where('status', SubscriptionStatus::SUSPENDED)->count(),
             'expiring_soon' => $this->getExpiringSoonCount(),
         ];

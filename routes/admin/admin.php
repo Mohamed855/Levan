@@ -27,10 +27,17 @@ use App\Http\Controllers\Admin\Tickets\AdminTicketController;
 use App\Http\Controllers\Tenants\Auth\NewPasswordController;
 use App\Http\Controllers\Tenants\DeleteBulk\MassDeleteController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Shared\Wizard\WizardDraftController;
 
 Route::name('password.reset')->get('reset-password/{token}', [NewPasswordController::class, 'create']);
 
 Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active', 'admin.2fa.force'])->group(function () {
+    Route::prefix('wizard-drafts')->name('wizard-drafts.')->group(function () {
+        Route::get('/', [WizardDraftController::class, 'show'])->name('index');
+        Route::post('/', [WizardDraftController::class, 'store'])->name('store');
+        Route::post('validate-step', [WizardDraftController::class, 'validateStep'])->name('validate-step');
+    });
+
     Route::name('password.store')->post('reset-password', [NewPasswordController::class, 'updatePassword']);
 
     Route::get('/', [DashboardController::class, 'dashboard'])->name('dashboard');

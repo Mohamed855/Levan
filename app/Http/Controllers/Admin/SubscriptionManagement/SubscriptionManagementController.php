@@ -41,7 +41,7 @@ class SubscriptionManagementController extends Controller
                 'totalSubscriptions'     => $statistics['total'],
                 'activeSubscriptions'    => $statistics['active'],
                 'expiredSubscriptions'   => $statistics['expired'],
-                'suspendedSubscriptions' => $statistics['suspended'],
+                'pendingSubscriptions'   => $statistics['pending'],
                 'expiringSubscriptions'  => $statistics['expiring_soon'],
             ]);
         } catch (\Exception $e) {
@@ -62,7 +62,7 @@ class SubscriptionManagementController extends Controller
                 'totalSubscriptions'     => $statistics['total'],
                 'activeSubscriptions'    => $statistics['active'],
                 'expiredSubscriptions'   => $statistics['expired'],
-                'suspendedSubscriptions' => $statistics['suspended'],
+                'pendingSubscriptions'   => $statistics['pending'],
                 'expiringSubscriptions'  => $statistics['expiring_soon'],
             ]);
         } catch (\Exception $e) {
@@ -82,7 +82,7 @@ class SubscriptionManagementController extends Controller
                 'totalSubscriptions'     => $statistics['total'],
                 'activeSubscriptions'    => $statistics['active'],
                 'expiredSubscriptions'   => $statistics['expired'],
-                'suspendedSubscriptions' => $statistics['suspended'],
+                'pendingSubscriptions'   => $statistics['pending'],
                 'expiringSubscriptions'  => $statistics['expiring_soon'],
             ]);
         } catch (\Exception $e) {
@@ -102,7 +102,7 @@ class SubscriptionManagementController extends Controller
                 'totalSubscriptions'     => $statistics['total'],
                 'activeSubscriptions'    => $statistics['active'],
                 'expiredSubscriptions'   => $statistics['expired'],
-                'suspendedSubscriptions' => $statistics['suspended'],
+                'pendingSubscriptions'   => $statistics['pending'],
                 'expiringSubscriptions'  => $statistics['expiring_soon'],
             ]);
         } catch (\Exception $e) {

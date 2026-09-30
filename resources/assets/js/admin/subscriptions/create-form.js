@@ -633,10 +633,37 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ── Stepper Navigation Buttons ──
 
+    async function validateServerStep(fields) {
+        const endpoint = document.body.dataset.wizardDraftsUrl;
+        if (!endpoint) return true;
+
+        const payload = new FormData(form);
+        payload.append('target_path', new URL(form.action).pathname);
+        fields.forEach(field => payload.append('fields[]', field));
+
+        const response = await fetch(`${endpoint.replace(/\/$/, '')}/validate-step`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                Accept: 'application/json'
+            },
+            body: payload
+        });
+
+        return response.ok;
+    }
+
+    const btnPrevCompany = document.getElementById('btn-prev-company');
+    if (btnPrevCompany) {
+        btnPrevCompany.addEventListener('click', function () {
+            window.location.assign(form.action);
+        });
+    }
+
     // Step 1 -> Next: Validate Step 1 fields
     const btnNextCompany = document.getElementById('btn-next-company');
     if (btnNextCompany) {
-        btnNextCompany.addEventListener('click', function (e) {
+        btnNextCompany.addEventListener('click', async function (e) {
             e.preventDefault();
             Promise.all([
                 fv.validateField('company_name'),
@@ -644,8 +671,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 fv.validateField('tax_number'),
                 fv.validateField('city_id'),
                 fv.validateField('address'),
-            ]).then(function (results) {
-                if (results.every(r => r === 'Valid') && validationStepper) {
+            ]).then(async function (results) {
+                if (results.every(r => r === 'Valid') && await validateServerStep([
+                    'company_name', 'commercial_number', 'tax_number', 'city_id', 'address'
+                ]) && validationStepper) {
                     saveDraftData(1);
                     validationStepper.to(1);
                 }
@@ -664,7 +693,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Step 2 -> Next: Validate Step 2 fields
     const btnNextAdmin = document.getElementById('btn-next-admin');
     if (btnNextAdmin) {
-        btnNextAdmin.addEventListener('click', function (e) {
+        btnNextAdmin.addEventListener('click', async function (e) {
             e.preventDefault();
             Promise.all([
                 fv.validateField('name'),
@@ -672,8 +701,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 fv.validateField('email'),
                 fv.validateField('password'),
                 fv.validateField('password_confirmation'),
-            ]).then(function (results) {
-                if (results.every(r => r === 'Valid') && validationStepper) {
+            ]).then(async function (results) {
+                if (results.every(r => r === 'Valid') && await validateServerStep([
+                    'name', 'phone', 'email', 'password', 'password_confirmation'
+                ]) && validationStepper) {
                     saveDraftData(2);
                     validationStepper.to(2);
                 }
@@ -692,7 +723,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Step 3 -> Next: Validate Step 3 fields, update review screen, go to Step 4
     const btnNextPayment = document.getElementById('btn-next-payment');
     if (btnNextPayment) {
-        btnNextPayment.addEventListener('click', function (e) {
+        btnNextPayment.addEventListener('click', async function (e) {
             e.preventDefault();
 
             const validations = [
@@ -721,8 +752,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 validations.push(fv.validateField('trial_end_date'));
             }
 
-            Promise.all(validations).then(function (results) {
-                if (results.every(r => r === 'Valid') && validationStepper) {
+            Promise.all(validations).then(async function (results) {
+                if (results.every(r => r === 'Valid') && await validateServerStep([
+                    'plan_id', 'start_date', 'end_date', 'total_users', 'payment_type', 'payment_method',
+                    'receipt_upload', 'has_discount', 'discount_value', 'trial_end_date', 'activate_immediately'
+                ]) && validationStepper) {
                     updateReviewSummary();
                     saveDraftData(3);
                     validationStepper.to(3);

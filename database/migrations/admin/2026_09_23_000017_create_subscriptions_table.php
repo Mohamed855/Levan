@@ -14,10 +14,11 @@ return new class extends Migration
             $table->id();
             $table->string('subscription_number')->unique();
             $table->timestamp('starts_at')->nullable();
+            $table->timestamp('ends_at')->nullable();
             $table->string('tenant_id');
             $table->foreign('tenant_id')->references('id')->on('tenants')->cascadeOnDelete();
             $table->foreignId('plan_id')->nullable()->constrained('plans')->nullOnDelete();
-            $table->enum('status', array_column(SubscriptionStatus::cases(), 'value'))->default(SubscriptionStatus::SUSPENDED->value);
+            $table->enum('status', array_column(SubscriptionStatus::cases(), 'value'))->default(SubscriptionStatus::PENDING->value);
             $table->decimal('price', 10, 2);
             $table->unsignedInteger('total_users')->default(0);
             $table->unsignedInteger('used_users')->default(0);

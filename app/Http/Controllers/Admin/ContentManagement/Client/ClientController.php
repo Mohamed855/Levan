@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\ContentManagement\Client;
 
 use App\DataTables\Admin\ContentManagement\Client\ClientDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ContentManagement\StoreClientRequest;
 use App\Models\Admin\ContentManagement\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -27,20 +28,9 @@ class ClientController extends Controller
         return view('admin.content_management.client.create');
     }
 
-    public function store(Request $request)
+    public function store(StoreClientRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'status' => 'required|boolean',
-        ], [
-            'name.required' => 'اسم العميل مطلوب',
-            'name.string' => 'اسم العميل يجب أن يكون نص',
-            'name.max' => 'اسم العميل لا يمكن أن يتجاوز 255 حرف',
-            'logo.image' => 'الشعار يجب أن يكون صورة',
-            'logo.mimes' => 'الشعار يجب أن يكون من نوع: jpeg, png, jpg, gif',
-            'status.required' => 'حالة العميل مطلوبة',
-        ]);
+        $validated = $request->validated();
 
         try {
             if ($request->hasFile('logo')) {

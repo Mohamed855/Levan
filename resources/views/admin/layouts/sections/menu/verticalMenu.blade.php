@@ -49,6 +49,15 @@
             </li>
         @endcan
 
+        @can('subscriptions.view')
+            <li class="menu-item @if (Route::is('admin.companies.*')) active open @endif">
+                <a href="{{ route('admin.companies.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons ti ti-building"></i>
+                    <div>إدارة الشركات</div>
+                </a>
+            </li>
+        @endcan
+
         @can('activity_log.view')
             <li class="menu-item @if (Route::is('admin.activity-logs.*')) active open @endif">
                 <a href="{{ route('admin.activity-logs.index') }}" class="menu-link">
@@ -58,18 +67,10 @@
             </li>
         @endcan
 
-
-        @can('subscriptions.view')
-            <li class="menu-item @if (Route::is('admin.companies.*')) active open @endif">
-                <a href="{{ route('admin.companies.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons ti ti-building"></i>
-                    <div>إدارة الشركات</div>
-                </a>
-            </li>
-        @endcan
         <li class="menu-header small">
             <span class="menu-header-text">الباقات والعروض</span>
         </li>
+
         @can('plans.view')
             <li class="menu-item @if (Route::is('admin.plans.*')) active open @endif">
                 <a href="{{ route('admin.plans.index') }}" class="menu-link">

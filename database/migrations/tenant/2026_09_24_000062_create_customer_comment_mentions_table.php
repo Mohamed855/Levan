@@ -21,9 +21,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('customer_comment_mentions', function (Blueprint $table) {
-            $table->dropUnique('comment_user_unique');
-        });
         Schema::dropIfExists('customer_comment_mentions');
     }
 };

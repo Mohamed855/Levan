@@ -3,9 +3,9 @@
 namespace App\Http\Requests\Tenants\BusinessCenter\Company;
 
 use App\Data\Tenants\BusinessCenter\Company\CompanyCreateDTO;
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 
-class StoreCompanyRequest extends FormRequest
+class StoreCompanyRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {

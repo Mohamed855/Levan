@@ -23,6 +23,8 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->integer('sort_order')->default(0);
             $table->unsignedInteger('included_users')->default(1);
+            $table->enum('subscription_duration_type', ['limited', 'unlimited'])->default('limited');
+            $table->enum('subscription_billing_cycle', ['monthly', 'yearly'])->nullable();
             $table->foreignId('created_by')->constrained('admin_users')->onDelete('cascade');
             $table->foreignId('updated_by')->nullable()->constrained('admin_users')->onDelete('cascade');
             $table->timestamps();

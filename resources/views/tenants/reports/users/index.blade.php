@@ -35,7 +35,7 @@
             usersPerformance: @json($users_performance_chart),
         };
     </script>
-    @vite(['resources/assets/js/tenants/users-report.js'])
+    @vite(['resources/assets/js/tenants/reports/users/index.js'])
 @endsection
 
 @section('content')

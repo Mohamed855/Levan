@@ -3,10 +3,7 @@
 @section('title', ' الاشتراك')
 
 @section('page-style')
-    @vite(['resources/assets/css/site/plans/index.css', 'resources/assets/css/components/icons.css', 'resources/assets/vendor/scss/pages/front-page-pricing.scss'])
-@endsection
-@section('page-style')
-    @vite(['resources/assets/css/site/plans/index.css', 'resources/assets/css/components/icons.css', 'resources/assets/vendor/scss/pages/front-page-pricing.scss'])
+    @vite(['resources/scss/tenants/pages/subscription-plans.scss', 'resources/assets/css/components/icons.css', 'resources/assets/vendor/scss/pages/front-page-pricing.scss'])
 @endsection
 
 <script>

@@ -47,93 +47,17 @@
 
     @if (!($isExpiringPage ?? false) && !($isPendingPage ?? false) && !($isExpiredPage ?? false))
         <div class="row g-4 mb-4">
-            <!-- إجمالي الشركات -->
-            <div class="col-sm-6 col-xl-3">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-start justify-content-between">
-                            <div class="content-left">
-                                <span class="text-heading">إجمالي الشركات</span>
-                                <div class="d-flex align-items-center my-1">
-                                    <h4 class="mb-0 me-2">{{ $totalSubscriptions }}</h4>
-                                </div>
-                                <small class="mb-0">عدد جميع الشركات</small>
-                            </div>
-                            <div class="avatar">
-                                <span class="avatar-initial rounded bg-label-primary">
-                                    <i class="ti ti-file-invoice ti-26px"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="إجمالي الشركات" :value="$totalSubscriptions"
+                subtitle="عدد جميع الشركات" icon="ti-building" color="primary" />
 
-            <!-- الشركات الفعالة -->
-            <div class="col-sm-6 col-xl-3">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-start justify-content-between">
-                            <div class="content-left">
-                                <span class="text-heading">الشركات الفعالة</span>
-                                <div class="d-flex align-items-center my-1">
-                                    <h4 class="mb-0 me-2">{{ $activeSubscriptions }}</h4>
-                                </div>
-                                <small class="mb-0">شركات فعالة حاليًا</small>
-                            </div>
-                            <div class="avatar">
-                                <span class="avatar-initial rounded bg-label-success">
-                                    <i class="ti ti-bolt ti-26px"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="الشركات الفعالة" :value="$activeSubscriptions"
+                subtitle="شركات فعالة حاليًا" icon="ti-bolt" color="success" />
 
-            <!-- الشركات المنتهية -->
-            <div class="col-sm-6 col-xl-3">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-start justify-content-between">
-                            <div class="content-left">
-                                <span class="text-heading">الشركات المنتهية</span>
-                                <div class="d-flex align-items-center my-1">
-                                    <h4 class="mb-0 me-2">{{ $expiredSubscriptions }}</h4>
-                                </div>
-                                <small class="mb-0">انتهت صلاحيتها </small>
-                            </div>
-                            <div class="avatar">
-                                <span class="avatar-initial rounded bg-label-warning">
-                                    <i class="ti ti-alert-circle ti-26px"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="الشركات المعلقة" :value="$pendingSubscriptions"
+                subtitle="لم تتم الموافقة عليها بعد" icon="ti-alert-circle" color="warning" />
 
-            <!-- الشركات المعلّقة -->
-            <div class="col-sm-6 col-xl-3">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-start justify-content-between">
-                            <div class="content-left">
-                                <span class="text-heading">الشركات المعلقة</span>
-                                <div class="d-flex align-items-center my-1">
-                                    <h4 class="mb-0 me-2">{{ $suspendedSubscriptions }}</h4>
-                                </div>
-                                <small class="mb-0">لم يتم تفعيلها بعد</small>
-                            </div>
-                            <div class="avatar">
-                                <span class="avatar-initial rounded bg-label-danger">
-                                    <i class="ti ti-clock-pause ti-26px"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="الشركات المنتهية" :value="$expiredSubscriptions"
+                subtitle="أوقف اشتراكها أو انتهت مدته" icon="ti-clock-pause" color="danger" />
         </div>
     @endif
 

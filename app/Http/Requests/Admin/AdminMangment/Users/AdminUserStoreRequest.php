@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Admin\AdminMangment\Users;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 
-class AdminUserStoreRequest extends FormRequest
+class AdminUserStoreRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {

@@ -28,6 +28,13 @@ class CreateTenantsTable extends Migration
 
             $table->string('company_name');
             $table->string('commercial_number');
+            $table->string('tax_number')->nullable();
+            $table->foreignId('city_id')->nullable()->constrained('cities')->nullOnDelete();
+            $table->string('address')->nullable();
+            $table->enum('status', ['draft', 'pending', 'active'])->default('pending');
+            $table->unsignedTinyInteger('draft_step')->nullable();
+            $table->json('draft_data')->nullable();
+            $table->foreignId('drafted_by')->nullable()->constrained('admin_users')->nullOnDelete();
 
 
             $table->unsignedBigInteger('version_id')->nullable();

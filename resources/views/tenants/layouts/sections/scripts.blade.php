@@ -20,6 +20,7 @@
     'resources/js/shared/toastr-flash.js',
     'resources/js/shared/confirm-delete.js',
     'resources/js/shared/datatable-search.js',
+    'resources/js/shared/wizard/create-wizard-enhancer.js',
 ])
 <!-- END: Shared JS -->
 

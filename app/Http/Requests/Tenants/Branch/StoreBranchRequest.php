@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Tenants\Branch;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 
-class StoreBranchRequest extends FormRequest
+class StoreBranchRequest extends WizardFormRequest
 {
     /*
     |--------------------------------------------------------------------------

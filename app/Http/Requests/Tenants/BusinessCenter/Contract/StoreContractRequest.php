@@ -3,10 +3,10 @@
 namespace App\Http\Requests\Tenants\BusinessCenter\Contract;
 
 use App\Data\Tenants\BusinessCenter\Contract\ContractCreateDTO;
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 use Illuminate\Support\Carbon;
 
-class StoreContractRequest extends FormRequest
+class StoreContractRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {

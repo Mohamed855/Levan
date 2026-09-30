@@ -3,11 +3,11 @@
 namespace App\Http\Requests\Admin\VersionTesters;
 
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 use App\Enums\Admin\Version\VersionTesterType;
 use Illuminate\Validation\Rule;
 
-class VersionTesterRequest extends FormRequest
+class VersionTesterRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {

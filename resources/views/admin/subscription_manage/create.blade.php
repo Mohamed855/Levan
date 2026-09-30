@@ -153,7 +153,9 @@
                             </div>
 
                             <div class="mt-4 d-flex justify-content-between">
-                                <div></div>
+                                <button type="button" class="btn btn-secondary" id="btn-prev-company">
+                                    <i class="ti ti-arrow-right me-1"></i> السابق
+                                </button>
                                 <div class="d-flex gap-2">
                                     <button type="button" class="btn btn-secondary btn-save-draft" data-step="1">
                                         <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة

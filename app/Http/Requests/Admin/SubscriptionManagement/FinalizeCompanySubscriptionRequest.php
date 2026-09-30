@@ -5,10 +5,10 @@ namespace App\Http\Requests\Admin\SubscriptionManagement;
 use App\Enums\Admin\Billing\PaymentMethod;
 use App\Models\Admin\Plans\Plan;
 use Carbon\Carbon;
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 use Illuminate\Validation\Rule;
 
-class FinalizeCompanySubscriptionRequest extends FormRequest
+class FinalizeCompanySubscriptionRequest extends WizardFormRequest
 {
     public function authorize(): bool { return true; }
 

@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Admin\Coupons;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 
-class CouponRequest extends FormRequest
+class CouponRequest extends WizardFormRequest
 {
     public function authorize()
     {

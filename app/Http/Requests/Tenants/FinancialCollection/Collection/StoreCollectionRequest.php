@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests\Tenants\FinancialCollection\Collection;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreCollectionRequest extends FormRequest
+class StoreCollectionRequest extends WizardFormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

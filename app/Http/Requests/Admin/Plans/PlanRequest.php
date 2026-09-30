@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Admin\Plans;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 
-class PlanRequest extends FormRequest
+class PlanRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {

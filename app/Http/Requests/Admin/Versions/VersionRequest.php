@@ -4,10 +4,10 @@ namespace App\Http\Requests\Admin\Versions;
 
 
 use App\Enums\Admin\Version\VersionStage;
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 use Illuminate\Validation\Rule;
 
-class VersionRequest extends FormRequest
+class VersionRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {

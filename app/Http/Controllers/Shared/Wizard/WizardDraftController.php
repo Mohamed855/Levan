@@ -1,0 +1,163 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Controllers\Shared\Wizard;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Shared\Wizard\StoreWizardDraftRequest;
+use App\Http\Requests\Shared\Wizard\ValidateWizardStepRequest;
+use App\Services\Shared\Wizard\WizardDraftService;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
+class WizardDraftController extends Controller
+{
+    public function __construct(private readonly WizardDraftService $drafts)
+    {
+    }
+
+    public function show(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'resource_key' => ['required', 'string', 'max:255'],
+        ]);
+        $draft = $this->drafts->find($request, $validated['resource_key']);
+
+        return response()->json([
+            'data' => $draft?->draft_data ?? [],
+            'draft_id' => $draft?->getKey(),
+            'step' => $draft?->last_step,
+            'files' => $this->fileNames($draft?->draft_files ?? []),
+        ]);
+    }
+
+    public function store(StoreWizardDraftRequest $request): JsonResponse
+    {
+        $validated = $request->validated();
+        $draft = $this->drafts->save($request, $validated['resource_key'], $validated['step']);
+
+        return response()->json([
+            'success' => true,
+            'draft_id' => $draft->getKey(),
+            'message' => 'تم حفظ المسودة بنجاح.',
+        ]);
+    }
+
+    public function validateStep(ValidateWizardStepRequest $request): JsonResponse
+    {
+        $targetRoute = $this->resolveStoreRoute($request->validated('target_path'));
+        $formRequest = $this->makeResourceRequest($request, $targetRoute);
+        $this->prepareForValidation($formRequest);
+
+        $rules = $this->rulesForFields($formRequest->rules(), $request->validated('fields'));
+        $validator = Validator::make(
+            $this->validationData($formRequest),
+            $rules,
+            method_exists($formRequest, 'messages') ? $formRequest->messages() : [],
+            method_exists($formRequest, 'attributes') ? $formRequest->attributes() : [],
+        );
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    private function resolveStoreRoute(string $targetPath): Route
+    {
+        $path = parse_url($targetPath, PHP_URL_PATH);
+
+        if (! is_string($path) || ! str_starts_with($path, '/')) {
+            throw new NotFoundHttpException();
+        }
+
+        try {
+            $route = app('router')->getRoutes()->match(Request::create($path, 'POST'));
+        } catch (\Throwable) {
+            throw new NotFoundHttpException();
+        }
+
+        $action = $route->getActionMethod();
+        abort_unless($action === 'store', 404);
+
+        return $route;
+    }
+
+    private function makeResourceRequest(Request $request, Route $route): FormRequest
+    {
+        [$controller, $method] = explode('@', $route->getActionName());
+        $reflection = new \ReflectionMethod($controller, $method);
+
+        foreach ($reflection->getParameters() as $parameter) {
+            $type = $parameter->getType();
+            $class = $type instanceof \ReflectionNamedType ? $type->getName() : null;
+
+            if ($class && is_a($class, FormRequest::class, true)) {
+                /** @var FormRequest $formRequest */
+                $formRequest = $class::createFromBase($request);
+                $formRequest->setContainer(app());
+                $formRequest->setRedirector(app('redirect'));
+                $formRequest->setRouteResolver(fn (): Route => $route);
+
+                return $formRequest;
+            }
+        }
+
+        abort(422, 'This wizard does not have a dedicated store request.');
+    }
+
+    private function prepareForValidation(FormRequest $request): void
+    {
+        (function (): void {
+            $this->prepareForValidation();
+        })->call($request);
+    }
+
+    private function validationData(FormRequest $request): array
+    {
+        return (function (): array {
+            return $this->validationData();
+        })->call($request);
+    }
+
+    private function rulesForFields(array $rules, array $fields): array
+    {
+        $roots = array_unique(array_map(
+            static fn (string $field): string => preg_split('/[.\[]/', $field)[0],
+            $fields,
+        ));
+
+        return array_filter(
+            $rules,
+            static fn (string $ruleKey): bool => in_array(strtok($ruleKey, '.'), $roots, true),
+            ARRAY_FILTER_USE_KEY,
+        );
+    }
+
+    private function fileNames(array $files): array
+    {
+        $names = [];
+
+        foreach ($files as $key => $file) {
+            if (is_array($file) && ! array_key_exists('name', $file)) {
+                $names[$key] = $this->fileNames($file);
+                continue;
+            }
+
+            if (is_array($file) && isset($file['name'])) {
+                $names[$key] = $file['name'];
+            }
+        }
+
+        return $names;
+    }
+}

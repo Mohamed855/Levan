@@ -56,6 +56,7 @@ $contentLayout = isset($container) ? ($container === 'container-xxl' ? 'layout-c
     data-flash-info="{{ Session::get('info') }}"
     data-flash-warning="{{ Session::get('warning') }}"
     data-username="{{ Auth::user()->name ?? '' }}"
+    data-wizard-drafts-url="{{ tenant_route_name('wizard-drafts.index') }}"
 >
 
     <!-- Layout Content -->

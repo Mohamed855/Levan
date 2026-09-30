@@ -3,9 +3,9 @@
 namespace App\Http\Requests\Tenants\BusinessCenter\Portfolio;
 
 use App\Data\Tenants\BusinessCenter\Portfolio\PortfolioCreateDTO;
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 
-class StorePortfolioRequest extends FormRequest
+class StorePortfolioRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {

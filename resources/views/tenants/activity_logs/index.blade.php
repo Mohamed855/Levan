@@ -41,13 +41,13 @@
 @section('content')
     <div id="top_card" class="row g-3 mb-4">
         <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="إجمالي النشاطات" :value="number_format($statistics['total'])" subtitle="منذ البداية"
-            icon="ti-users" color="primary" avatarClass="circle" />
+            icon="ti-users" color="primary" />
         <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="اليوم" :value="number_format($statistics['today'])" subtitle="نشاطات اليوم"
-            icon="ti-calendar-week" color="success" avatarClass="circle" />
+            icon="ti-calendar-week" color="success" />
         <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="هذا الأسبوع" :value="number_format($statistics['this_week'])" subtitle="نشاطات الأسبوع"
-            icon="ti-calendar-week" color="info" avatarClass="circle" />
+            icon="ti-calendar-week" color="info" />
         <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="هذا الشهر" :value="number_format($statistics['this_month'])" subtitle="نشاطات الشهر"
-            icon="ti-calendar-month" color="warning" avatarClass="circle" />
+            icon="ti-calendar-month" color="warning" />
     </div>
 
     {{-- جدول سجل النشاطات --}}

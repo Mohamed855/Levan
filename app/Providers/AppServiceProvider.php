@@ -2,11 +2,13 @@
 
 namespace App\Providers;
 
+use App\Support\Vite as AppVite;
 use Carbon\Carbon;
+use Illuminate\Foundation\Vite;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Vite;
+use Illuminate\Support\Facades\Vite as ViteFacade;
 use Laravel\Fortify\Fortify;
 
 use App\Services\shared\Payment\Contracts\PaymentGatewayInterface;
@@ -17,6 +19,8 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->singleton(Vite::class, AppVite::class);
+
         $this->app->bind(PaymentGatewayInterface::class, MoyasarGateway::class);
 
         $this->app->bind(TenantInitializer::class, function ($app) {
@@ -43,7 +47,7 @@ class AppServiceProvider extends ServiceProvider
         Carbon::setLocale('ar');
         Paginator::useBootstrapFive();
 
-        Vite::useStyleTagAttributes(function (?string $src, string $url, ?array $chunk, ?array $manifest) {
+        $cssClassResolver = function (?string $src, string $url, ?array $chunk, ?array $manifest): array {
             if ($src !== null) {
                 return [
                     'class' => preg_match("/(resources\/assets\/vendor\/scss\/(rtl\/)?core)-?.*/i", $src)
@@ -54,6 +58,9 @@ class AppServiceProvider extends ServiceProvider
                 ];
             }
             return [];
-        });
+        };
+
+        ViteFacade::useStyleTagAttributes($cssClassResolver);
+        ViteFacade::useScriptTagAttributes($cssClassResolver);
     }
 }

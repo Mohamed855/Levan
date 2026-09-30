@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Tenants\BusinessCenter\Customer;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 
-class StoreCustomerRequest extends FormRequest
+class StoreCustomerRequest extends WizardFormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

@@ -3,9 +3,9 @@
 namespace App\Http\Requests\Tenants\UserManagement\Team;
 
 use App\Models\Tenants\UserMangment\User\User;
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 
-class StoreTeamRequest extends FormRequest
+class StoreTeamRequest extends WizardFormRequest
 {
     /*
     |--------------------------------------------------------------------------

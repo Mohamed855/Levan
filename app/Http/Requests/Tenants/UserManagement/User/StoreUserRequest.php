@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Tenants\UserManagement\User;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 
-class StoreUserRequest extends FormRequest
+class StoreUserRequest extends WizardFormRequest
 {
     /*
     |--------------------------------------------------------------------------

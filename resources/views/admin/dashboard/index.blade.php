@@ -35,22 +35,22 @@
     ═══════════════════════════════════════ --}}
     <div class="row g-3 mb-4">
         <x-admin.dashboard-card col="col-sm-4 col-lg-6 col-xxl-2" title="طلبات الاشتراك الجديدة" :value="number_format($kpis['new_subscription_requests'])"
-            subtitle="طلبات قيد المراجعة" icon="ti-user-plus" color="primary" avatarClass="circle" />
+            subtitle="طلبات قيد المراجعة" icon="ti-user-plus" color="primary" />
 
         <x-admin.dashboard-card col="col-sm-4 col-lg-6 col-xxl-2" title="الشركات المشتركة" :value="number_format($kpis['subscribed_companies'])"
-            subtitle="شركات لديها اشتراك نشط" icon="ti-building" color="success" avatarClass="circle" />
+            subtitle="شركات لديها اشتراك نشط" icon="ti-building" color="success" />
 
         <x-admin.dashboard-card col="col-sm-4 col-lg-6 col-xxl-2" title="الاشتراكات النشطة" :value="number_format($kpis['active_subscriptions'])"
-            subtitle="اشتراكات فعّالة حالياً" icon="ti-file-text" color="info" avatarClass="circle" />
+            subtitle="اشتراكات فعّالة حالياً" icon="ti-file-text" color="info" />
 
         <x-admin.dashboard-card col="col-sm-4 col-lg-6 col-xxl-2" title="الاشتراكات المعلقة" :value="number_format($kpis['suspended_subscriptions'])"
-            subtitle="اشتراكات موقوفة مؤقتاً" icon="ti-clock" color="warning" avatarClass="circle" />
+            subtitle="اشتراكات موقوفة مؤقتاً" icon="ti-clock" color="warning" />
 
         <x-admin.dashboard-card col="col-sm-4 col-lg-6 col-xxl-2" title="القوالب المركزية" :value="number_format($kpis['central_templates'])"
-            subtitle="قالب متاح للتطبيق" icon="ti-template" color="primary" avatarClass="circle" />
+            subtitle="قالب متاح للتطبيق" icon="ti-template" color="danger" />
 
         <x-admin.dashboard-card col="col-sm-4 col-lg-6 col-xxl-2" title="المدفوعات هذا الشهر" :value="number_format($kpis['monthly_payments'], 0)"
-            subtitle="ر.س إجمالي هذا الشهر" icon="ti-wallet" color="success" avatarClass="circle" />
+            subtitle="ر.س إجمالي هذا الشهر" icon="ti-wallet" color="dark" />
     </div>
 
     {{-- ═══════════════════════════════════════
@@ -117,7 +117,7 @@
          Tables Row
     ═══════════════════════════════════════ --}}
     <div class="row g-3 mb-4">
-        <div class="col-lg-4 d-flex flex-column gap-3">
+        <div class="col-lg-6 d-flex flex-column gap-3">
             {{-- إجراءات سريعة --}}
             <div class="card dashboard-chart-card">
                 <div class="card-header d-flex align-items-center justify-content-between">
@@ -128,7 +128,7 @@
                 </div>
                 <div class="card-body">
                     <div class="row g-2">
-                        <div class="col-6">
+                        <div class="col-4">
                             <a href="{{ route('admin.companies.create') }}" class="quick-action-box">
                                 <div class="avatar avatar-md mb-2">
                                     <span class="avatar-initial rounded bg-label-primary">
@@ -138,34 +138,54 @@
                                 <span class="action-title">إضافة شركة</span>
                             </a>
                         </div>
-                        <div class="col-6">
-                            <a href="{{ route('admin.plans.create') }}" class="quick-action-box">
+                        <div class="col-4">
+                            <a href="{{ route('admin.users.create') }}" class="quick-action-box">
                                 <div class="avatar avatar-md mb-2">
                                     <span class="avatar-initial rounded bg-label-success">
-                                        <i class="ti ti-template fs-4"></i>
+                                        <i class="ti ti-user-cog fs-4"></i>
+                                    </span>
+                                </div>
+                                <span class="action-title">إضافة مستخدم</span>
+                            </a>
+                        </div>
+                        <div class="col-4">
+                            <a href="{{ route('admin.plans.create') }}" class="quick-action-box">
+                                <div class="avatar avatar-md mb-2">
+                                    <span class="avatar-initial rounded bg-label-info">
+                                        <i class="ti ti-package fs-4"></i>
                                     </span>
                                 </div>
                                 <span class="action-title">إضافة باقة</span>
                             </a>
                         </div>
-                        <div class="col-6">
-                            <a href="{{ route('admin.subscriptionManage.expired') }}" class="quick-action-box">
+                        <div class="col-4">
+                            <a href="{{ route('admin.coupons.create') }}" class="quick-action-box">
                                 <div class="avatar avatar-md mb-2">
                                     <span class="avatar-initial rounded bg-label-warning">
-                                        <i class="ti ti-user fs-4"></i>
+                                        <i class="ti ti-ticket fs-4"></i>
+                                    </span>
+                                </div>
+                                <span class="action-title">إضافة كوبون</span>
+                            </a>
+                        </div>
+                        <div class="col-4">
+                            <a href="{{ route('admin.subscriptionManage.expired') }}" class="quick-action-box">
+                                <div class="avatar avatar-md mb-2">
+                                    <span class="avatar-initial rounded bg-label-danger">
+                                        <i class="ti ti-timeline-event fs-4"></i>
                                     </span>
                                 </div>
                                 <span class="action-title">تفعيل اشتراك</span>
                             </a>
                         </div>
-                        <div class="col-6">
-                            <a href="{{ route('admin.subscriptionManage.pending') }}" class="quick-action-box">
+                        <div class="col-4">
+                            <a href="{{ route('admin.tickets.index') }}" class="quick-action-box">
                                 <div class="avatar avatar-md mb-2">
-                                    <span class="avatar-initial rounded bg-label-info">
-                                        <i class="ti ti-list fs-4"></i>
+                                    <span class="avatar-initial rounded bg-label-dark">
+                                        <i class="ti ti-messages fs-4"></i>
                                     </span>
                                 </div>
-                                <span class="action-title">طلبات الاشتراك</span>
+                                <span class="action-title">الدعم الفنى</span>
                             </a>
                         </div>
                     </div>
@@ -237,11 +257,11 @@
         </div>
 
         {{-- أحدث طلبات الإشتراك --}}
-        <div class="col-lg-8">
+        <div class="col-lg-6">
             <div class="card h-100 dashboard-chart-card">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <h5 class="card-title mb-0">
-                        <i class="ti ti-file me-1 text-primary"></i>
+                        <i class="ti ti-list me-1 text-primary"></i>
                         أحدث طلبات الإشتراك
                     </h5>
                     <a href="{{ route('admin.subscriptionManage.pending') }}" class="btn btn-sm btn-label-primary">

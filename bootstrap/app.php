@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Global middleware
         $middleware->append(SecurityHeadersMiddleware::class);
         $middleware->append(changeEnvAttributes::class);
+        $middleware->append(\App\Http\Middleware\DiscardCompletedWizardDraft::class);
 
         // Middleware groups
         $middleware->group('admin', [

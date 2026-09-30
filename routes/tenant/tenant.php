@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\APILayer\APILayerController;
 use App\Http\Controllers\Admin\Payments\Moyaser\MoyaserController;
 use App\Http\Controllers\Tenants\__LinkDomain\LinkDomainController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Shared\Wizard\WizardDraftController;
 use App\Http\Controllers\Tenants\License\LicenseController;
 use App\Http\Controllers\Tenants\dashboard\DashboardController;
 use App\Http\Controllers\Tenants\Auth\PasswordChangeController;
@@ -92,6 +93,12 @@ use App\Http\Controllers\Tenants\Versions\VersionController;
 */
 
 Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
+    Route::prefix('wizard-drafts')->name('wizard-drafts.')->group(function () {
+        Route::get('/', [WizardDraftController::class, 'show'])->name('index');
+        Route::post('/', [WizardDraftController::class, 'store'])->name('store');
+        Route::post('validate-step', [WizardDraftController::class, 'validateStep'])->name('validate-step');
+    });
+
 
     // لا يوجد اشتراك
     Route::prefix('subscribe')->name('subscribe.')->group(function () {

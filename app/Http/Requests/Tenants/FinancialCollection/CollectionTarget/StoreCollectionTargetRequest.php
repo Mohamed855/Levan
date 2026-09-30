@@ -3,11 +3,11 @@
 namespace App\Http\Requests\Tenants\FinancialCollection\CollectionTarget;
 
 use App\Data\Tenants\FinancialCollection\Target\CreateCollectionTargetDTO;
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 use App\Models\Tenants\FinancialCollection\Target\CollectionTarget;
 use Illuminate\Validation\Rule;
 
-class StoreCollectionTargetRequest extends FormRequest
+class StoreCollectionTargetRequest extends WizardFormRequest
 {
     /*
     |--------------------------------------------------------------------------

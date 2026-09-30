@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests\Tenants\GeneralSetting\MessageTemplate;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 use App\Models\Tenants\GeneralSetting\MessageTemplate\MessageTemplate;
 
-class StoreMessageTemplateRequest extends FormRequest
+class StoreMessageTemplateRequest extends WizardFormRequest
 {
     /*
     |--------------------------------------------------------------------------

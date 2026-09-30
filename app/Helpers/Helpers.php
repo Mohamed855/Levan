@@ -18,18 +18,13 @@ class Helpers
     {
         $data = config('custom.custom');
 
-        // تعيين اللغة الافتراضية للعربية إذا لم يتم تعيينها
-        if (!session()->has('locale')) {
-            session()->put('locale', 'ar');
-            app()->setLocale('ar');
-        } else {
-            app()->setLocale(session()->get('locale'));
-        }
+        session()->put('locale', 'ar');
+        app()->setLocale('ar');
 
         // default data array
         $DefaultData = [
             'myLayout' => 'vertical',
-            'myTheme' => 'theme-default',
+            'myTheme' => 'theme-semi-dark',
             'myStyle' => 'light',
             'myRTLSupport' => true,
             'myRTLMode' => true,
@@ -55,6 +50,14 @@ class Helpers
         ];
 
         $data = array_merge($DefaultData, $data);
+
+        $data['myTheme'] = 'theme-semi-dark';
+        $data['myStyle'] = 'light';
+        $data['myRTLSupport'] = true;
+        $data['myRTLMode'] = true;
+        $data['hasCustomizer'] = false;
+        $data['displayCustomizer'] = false;
+        $data['customizerControls'] = [];
 
         $allOptions = [
             'myLayout' => ['vertical', 'horizontal', 'blank', 'front'],
@@ -116,9 +119,9 @@ class Helpers
         }
         */
 
-        isset($_COOKIE['theme']) ? $themeVal = $_COOKIE['theme'] : $themeVal = $data['myTheme'];
+        $themeVal = $data['myTheme'];
 
-        $directionVal = isset($_COOKIE['direction']) ? ($_COOKIE['direction'] === "true" ? 'rtl' : 'rtl') : $data['myRTLMode'];
+        $directionVal = 'rtl';
 
         if (session()->get('locale') == 'ar') {
             $layoutClasses['rtlMode'] = 'rtl';
