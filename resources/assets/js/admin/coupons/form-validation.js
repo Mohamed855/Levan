@@ -102,10 +102,72 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // ==================== COUPON CODE GENERATOR ====================
+    window.generateCouponCode = function () {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let code = '';
+        for (let i = 0; i < 8; i++) {
+            code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+
+        const codeInput = document.getElementById('code');
+        if (codeInput) {
+            codeInput.value = code;
+            codeInput.dispatchEvent(new Event('input', { bubbles: true }));
+            codeInput.dispatchEvent(new Event('change', { bubbles: true }));
+            if (fv) {
+                fv.revalidateField('code');
+            }
+        }
+
+        const btn = document.querySelector('.btn-generate-code, #btn-generate-code');
+        const icon = btn ? btn.querySelector('i') : null;
+        if (icon) {
+            icon.classList.add('ti-spin');
+            setTimeout(() => icon.classList.remove('ti-spin'), 500);
+        }
+
+        return code;
+    };
+    window.generateCode = window.generateCouponCode;
+
+    const codeInput = formEl.querySelector('#code');
+    if (codeInput) {
+        if (!codeInput.value.trim()) {
+            window.generateCouponCode();
+        }
+
+        codeInput.addEventListener('input', function () {
+            const start = this.selectionStart;
+            const end = this.selectionEnd;
+            this.value = this.value.toUpperCase();
+            this.setSelectionRange(start, end);
+        });
+    }
+
+    const generateBtn = document.querySelector('#btn-generate-code, .btn-generate-code');
+    if (generateBtn) {
+        generateBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            window.generateCouponCode();
+        });
+    }
+
     // ==================== NAVIGATION (Stepper) ====================
-    if (nextButtons.length && prevButtons.length && validationStepper) {
+    if (nextButtons.length && validationStepper) {
         nextButtons.forEach(btn => {
             btn.addEventListener('click', e => {
+                const isSubmit = btn.type === 'submit' || btn.classList.contains('btn-submit');
+                if (isSubmit) {
+                    e.preventDefault();
+                    fv.validate().then(status => {
+                        if (status === 'Valid') {
+                            formEl.submit();
+                        }
+                    });
+                    return;
+                }
+
                 e.preventDefault();
                 fv.validate().then(status => {
                     if (status === 'Valid') validationStepper.next();
@@ -113,7 +175,9 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
 
-        prevButtons.forEach(btn => btn.addEventListener('click', () => validationStepper.previous()));
+        if (prevButtons.length) {
+            prevButtons.forEach(btn => btn.addEventListener('click', () => validationStepper.previous()));
+        }
     }
 
     // ==================== FORM SUBMISSION ====================

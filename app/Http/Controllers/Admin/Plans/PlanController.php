@@ -20,7 +20,7 @@ class PlanController extends Controller
     public function __construct(private PlanService $planService)
     {
         $this->middleware('auth:admin');
-        $this->middleware('can:plans.view')->only(['index']);
+        $this->middleware('can:plans.view')->only(['index', 'show']);
         $this->middleware('can:plans.create')->only(['create', 'store']);
         $this->middleware('can:plans.edit')->only(['edit', 'update', 'toggleActive']);
         $this->middleware('can:plans.delete')->only(['destroy']);
@@ -60,6 +60,22 @@ class PlanController extends Controller
         } catch (\Exception $e) {
             report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
+        }
+    }
+
+    public function show(Plan $plan)
+    {
+        try {
+            $data = $this->planService->getPlanDetails($plan);
+
+            return view($this->page . '.show', [
+                'plan'          => $data['plan'],
+                'subscriptions' => $data['subscriptions'],
+                'statistics'    => $data['statistics'],
+            ]);
+        } catch (\Exception $e) {
+            report($e);
+            return redirect()->route($this->route . '.index')->with('error', 'حدث خطأ أثناء جلب تفاصيل الباقة');
         }
     }
 

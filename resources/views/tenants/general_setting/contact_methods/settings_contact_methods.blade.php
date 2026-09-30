@@ -172,7 +172,7 @@
                         </div>
                         <div class="col-12 text-center demo-vertical-spacing">
                             <button type="submit" class="btn btn-primary me-4">إضافة</button>
-                            <button type="reset" class="btn btn-label-secondary" data-bs-dismiss="modal"
+                            <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal"
                                 aria-label="Close">إلغاء</button>
                         </div>
                     </form>
@@ -202,7 +202,7 @@
                         </div>
                         <div class="col-12 text-center demo-vertical-spacing">
                             <button type="submit" class="btn btn-primary me-4">تحديث</button>
-                            <button type="reset" class="btn btn-label-secondary" data-bs-dismiss="modal"
+                            <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal"
                                 aria-label="Close">إلغاء</button>
                         </div>
                     </form>

@@ -17,7 +17,7 @@
 @section('content')
     <div class="row g-3">
         <!-- طرق الدفع -->
-        <div class="col-lg-6">
+        <div class="col-md-6">
             <div class="card h-100 border">
                 <div class="card-header bg-transparent border-0 pb-2">
                     <div class="d-flex align-items-center">
@@ -56,7 +56,7 @@
         </div>
 
         <!-- الإعدادات الجغرافية والفروع -->
-        <div class="col-lg-6">
+        <div class="col-md-6">
             <div class="card h-100 border">
                 <div class="card-header bg-transparent border-0 pb-2">
                     <div class="d-flex align-items-center">
@@ -112,7 +112,7 @@
         </div>
 
         <!-- إعدادات التواصل والقوالب -->
-        <div class="col-lg-6">
+        <div class="col-md-6">
             <div class="card h-100 border">
                 <div class="card-header bg-transparent border-0 pb-2">
                     <div class="d-flex align-items-center">
@@ -151,7 +151,7 @@
         </div>
 
         <!-- التكامل والـ API -->
-        <div class="col-lg-6">
+        <div class="col-md-6">
             <div class="card h-100 border">
                 <div class="card-header bg-transparent border-0 pb-2">
                     <div class="d-flex align-items-center">

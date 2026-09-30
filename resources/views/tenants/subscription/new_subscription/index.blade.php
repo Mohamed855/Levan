@@ -33,7 +33,7 @@
     <div class="">
         <div class="row g-2 mt-3">
             @foreach ($plans as $plan)
-                <div class="col-xxl-3 col-lg-6">
+                <div class="col-xxl-3 col-md-6">
                     <div class="card plan-card h-100 d-flex flex-column">
                         <div class="card-header text-center">
                             <h4 class="mb-1 fw-bold">{{ $plan->name }}</h4>

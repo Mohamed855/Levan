@@ -117,23 +117,22 @@
                                         class="form-control" value="{{ old('included_users', $plan->included_users) }}"
                                         required />
                                 </div>
+                                <div class="col-md-6"><label class="form-label" for="subscription_duration_type">نوع
+                                        مدة الاشتراك <span class="text-danger">*</span></label><select
+                                        id="subscription_duration_type" name="subscription_duration_type"
+                                        class="form-select">
+                                        <option value="limited" @selected(old('subscription_duration_type', $plan->subscription_duration_type) === 'limited')>محددة</option>
+                                        <option value="unlimited" @selected(old('subscription_duration_type', $plan->subscription_duration_type) === 'unlimited')>غير محددة</option>
+                                    </select></div>
+                                <div class="col-md-6" id="billing-cycle-container"><label class="form-label"
+                                        for="subscription_billing_cycle">دورة الفوترة <span
+                                            class="text-danger">*</span></label><select id="subscription_billing_cycle"
+                                        name="subscription_billing_cycle" class="form-select">
+                                        <option value="monthly" @selected(old('subscription_billing_cycle', $plan->subscription_billing_cycle) === 'monthly')>شهري</option>
+                                        <option value="yearly" @selected(old('subscription_billing_cycle', $plan->subscription_billing_cycle) === 'yearly')>سنوي</option>
+                                    </select></div>
 
                                 <div class="col-md-6">
-                                    <div class="col-md-6"><label class="form-label" for="subscription_duration_type">نوع
-                                            مدة الاشتراك <span class="text-danger">*</span></label><select
-                                            id="subscription_duration_type" name="subscription_duration_type"
-                                            class="form-select">
-                                            <option value="limited" @selected(old('subscription_duration_type', $plan->subscription_duration_type) === 'limited')>محددة</option>
-                                            <option value="unlimited" @selected(old('subscription_duration_type', $plan->subscription_duration_type) === 'unlimited')>غير محددة</option>
-                                        </select></div>
-                                    <div class="col-md-6" id="billing-cycle-container"><label class="form-label"
-                                            for="subscription_billing_cycle">دورة الفوترة <span
-                                                class="text-danger">*</span></label><select
-                                            id="subscription_billing_cycle" name="subscription_billing_cycle"
-                                            class="form-select">
-                                            <option value="monthly" @selected(old('subscription_billing_cycle', $plan->subscription_billing_cycle) === 'monthly')>شهري</option>
-                                            <option value="yearly" @selected(old('subscription_billing_cycle', $plan->subscription_billing_cycle) === 'yearly')>سنوي</option>
-                                        </select></div>
                                     <label for="unlimited_branches" class="form-label">
                                         نوع حد الفروع
                                         <span class="text-danger">*</span>
@@ -141,12 +140,10 @@
                                     <select id="unlimited_branches" name="unlimited_branches" class="form-select select2"
                                         data-placeholder="اختر النوع">
                                         <option value=""></option>
-                                        <option value="0"
-                                            @selected((string) old('unlimited_branches', $plan->unlimited_branches) === '0')>
+                                        <option value="0" @selected((string) old('unlimited_branches', $plan->unlimited_branches) === '0')>
                                             محدود
                                         </option>
-                                        <option value="1"
-                                            @selected((string) old('unlimited_branches', $plan->unlimited_branches) === '1')>
+                                        <option value="1" @selected((string) old('unlimited_branches', $plan->unlimited_branches) === '1')>
                                             غير محدود
                                         </option>
                                     </select>
@@ -167,12 +164,10 @@
                                     <select name="domain_management_enabled" id="domain_management_enabled"
                                         class="form-select select2" data-placeholder="اختر حالة إدارة الدومينات">
                                         <option value=""></option>
-                                        <option value="0"
-                                            @selected((string) old('domain_management_enabled', $plan->domain_management_enabled) === '0')>
+                                        <option value="0" @selected((string) old('domain_management_enabled', $plan->domain_management_enabled) === '0')>
                                             غير مفعلة
                                         </option>
-                                        <option value="1"
-                                            @selected((string) old('domain_management_enabled', $plan->domain_management_enabled) === '1')>
+                                        <option value="1" @selected((string) old('domain_management_enabled', $plan->domain_management_enabled) === '1')>
                                             مفعلة
                                         </option>
                                     </select>
@@ -182,15 +177,13 @@
                                     <label for="is_active" class="form-label">حالة الباقة <span
                                             class="text-danger">*</span></label>
                                     <select id="is_active" name="is_active" class="form-select select2">
-                                        <option value="1"
-                                            @selected((string) old('is_active', $plan->is_active) === '1')>مفعلة</option>
-                                        <option value="0"
-                                            @selected((string) old('is_active', $plan->is_active) === '0')>غير مفعلة
+                                        <option value="1" @selected((string) old('is_active', $plan->is_active) === '1')>مفعلة</option>
+                                        <option value="0" @selected((string) old('is_active', $plan->is_active) === '0')>غير مفعلة
                                         </option>
                                     </select>
                                 </div>
 
-                                <div class="col-12">
+                                <div class="col-md-6">
                                     <label class="form-label" for="description">الوصف</label>
                                     <textarea name="description" id="description" class="form-control" rows="3">{{ old('description', $plan->description) }}</textarea>
                                 </div>
@@ -216,7 +209,13 @@
                                         </button>
                                     </div>
                                     <div id="features-list">
-                                        @foreach ($plan->features as $i => $feature)
+                                        @php
+                                            $features = old('features', $plan->features ?? []);
+                                            if (!is_array($features)) {
+                                                $features = [];
+                                            }
+                                        @endphp
+                                        @foreach ($features as $i => $feature)
                                             <div class="border rounded p-3 mb-3 feature-item">
                                                 <div class="d-flex align-items-end gap-2">
                                                     <div class="flex-grow-1">

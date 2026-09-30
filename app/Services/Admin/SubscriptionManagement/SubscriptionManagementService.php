@@ -36,10 +36,12 @@ class SubscriptionManagementService
             'pending'       => (clone $baseQuery)->where('status', SubscriptionStatus::PENDING)->count(),
             'active'        => (clone $baseQuery)
                 ->where('status', SubscriptionStatus::ACTIVE)
-                ->whereHas('currentPeriod', function ($query) use ($now) {
-                    $query->where('status', SubscriptionPeriodStatus::ACTIVE)
-                        ->where('period_start', '<=', $now)
-                        ->where('period_end', '>=', $now);
+                ->where(function ($query) use ($now) {
+                    $query->whereHas('currentPeriod', function ($q) use ($now) {
+                        $q->where('status', SubscriptionPeriodStatus::ACTIVE)
+                            ->where('period_start', '<=', $now)
+                            ->where('period_end', '>=', $now);
+                    })->orWhereDoesntHave('periods');
                 })
                 ->count(),
             'expired'       => (clone $baseQuery)

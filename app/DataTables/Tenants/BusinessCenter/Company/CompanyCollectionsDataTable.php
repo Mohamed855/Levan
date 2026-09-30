@@ -183,7 +183,7 @@ class CompanyCollectionsDataTable extends AbstractDataTable
     {
         return [
             'extend' => 'collection',
-            'className' => 'btn btn-sm btn-label-secondary dropdown-toggle',
+            'className' => 'btn btn-sm btn-secondary dropdown-toggle',
             'text' => '<i class="ti ti-download me-1"></i>تصدير',
             'buttons' => [
                 ['extend' => 'copy', 'text' => 'نسخ'],

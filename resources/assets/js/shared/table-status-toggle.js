@@ -35,7 +35,11 @@ function handleStatusToggle(event) {
         url,
         type: 'PATCH',
         headers: { 'X-CSRF-TOKEN': token },
-        data: { _token: token },
+        data: {
+            _token: token,
+            status: toggle.checked ? 1 : 0,
+            is_active: toggle.checked ? 1 : 0,
+        },
         success(response) {
             if (response.success) {
                 notify('success', response.message || 'تم تحديث الحالة بنجاح');

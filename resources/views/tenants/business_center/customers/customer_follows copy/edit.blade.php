@@ -13,13 +13,13 @@
                 <select name="contact_method_id" id="edit_contact_method_id" class="form-control select2-modal"
                     data-placeholder="اختر وسيلة الاتصال" required>
                     <option value=""></option>
-                    @if(isset($contact_methods))
-                    @foreach($contact_methods as $method)
-                    <option value="{{ $method->id }}" {{ $customerFollow->contact_method_id == $method->id ? 'selected'
-                        : '' }}>
-                        {{ $method->name }}
-                    </option>
-                    @endforeach
+                    @if (isset($contact_methods))
+                        @foreach ($contact_methods as $method)
+                            <option value="{{ $method->id }}"
+                                {{ $customerFollow->contact_method_id == $method->id ? 'selected' : '' }}>
+                                {{ $method->name }}
+                            </option>
+                        @endforeach
                     @endif
                 </select>
                 <div class="invalid-feedback"></div>
@@ -38,8 +38,8 @@
                 <select name="contacted_person" id="edit_contacted_person" class="form-control select2-modal"
                     data-placeholder="اختر الشخص المتصل به">
                     <option value=""></option>
-                    <option value="customer" {{ $customerFollow->contacted_person == 'customer' ? 'selected' : ''
-                        }}>العميل نفسه</option>
+                    <option value="customer" {{ $customerFollow->contacted_person == 'customer' ? 'selected' : '' }}>
+                        العميل نفسه</option>
                     <option value="relative" {{ $customerFollow->contacted_person == 'relative' ? 'selected' : '' }}>أحد
                         أقارب العميل</option>
                 </select>
@@ -59,13 +59,13 @@
                 <select name="customer_status_id" id="edit_customer_status_id" class="form-control select2-modal"
                     data-placeholder="اختر حالة العميل">
                     <option value=""></option>
-                    @if(isset($customer_statuses))
-                    @foreach($customer_statuses as $status)
-                    <option value="{{ $status->id }}" {{ $customerFollow->customer_status_id == $status->id ? 'selected'
-                        : '' }}>
-                        {{ $status->name }}
-                    </option>
-                    @endforeach
+                    @if (isset($customer_statuses))
+                        @foreach ($customer_statuses as $status)
+                            <option value="{{ $status->id }}"
+                                {{ $customerFollow->customer_status_id == $status->id ? 'selected' : '' }}>
+                                {{ $status->name }}
+                            </option>
+                        @endforeach
                     @endif
                 </select>
                 <div class="invalid-feedback"></div>
@@ -76,13 +76,13 @@
                 <select name="contact_result_id" id="edit_contact_result_id" class="form-control select2-modal"
                     data-placeholder="اختر نتيجة الاتصال" required>
                     <option value=""></option>
-                    @if(isset($contact_results))
-                    @foreach($contact_results as $result)
-                    <option value="{{ $result->id }}" {{ $customerFollow->contact_result_id == $result->id ? 'selected'
-                        : '' }}>
-                        {{ $result->name }}
-                    </option>
-                    @endforeach
+                    @if (isset($contact_results))
+                        @foreach ($contact_results as $result)
+                            <option value="{{ $result->id }}"
+                                {{ $customerFollow->contact_result_id == $result->id ? 'selected' : '' }}>
+                                {{ $result->name }}
+                            </option>
+                        @endforeach
                     @endif
                 </select>
                 <div class="invalid-feedback"></div>
@@ -108,7 +108,7 @@
     </form>
 </div>
 <div class="modal-footer">
-    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
     <button type="button" id="updateCustomerFollow" class="btn btn-primary">
         <span class="spinner-border spinner-border-sm me-2" style="display: none;"></span>
         تحديث المتابعة
@@ -119,65 +119,65 @@
 <script>
     window.currentFollowDetails = {
         contact_result_id: {{ $customerFollow->contact_result_id }},
-        @if($customerFollow->fullPaymentDetails)
-         fullPaymentDetails: {
-             payment_amount: {{ $customerFollow->fullPaymentDetails->payment_amount }},
-             payment_date: "{{ $customerFollow->fullPaymentDetails->payment_date }}",
-             payment_type: "{{ $customerFollow->fullPaymentDetails->payment_type }}",
-             collection_type: "{{ $customerFollow->fullPaymentDetails->collection_type ?? 'cash' }}",
-             payment_method_id: {{ $customerFollow->fullPaymentDetails->payment_method_id }},
-             payment_receipt_path: "{{ $customerFollow->fullPaymentDetails->payment_receipt_path ?? '' }}"
-         },
-         @endif
+        @if ($customerFollow->fullPaymentDetails)
+            fullPaymentDetails: {
+                payment_amount: {{ $customerFollow->fullPaymentDetails->payment_amount }},
+                payment_date: "{{ $customerFollow->fullPaymentDetails->payment_date }}",
+                payment_type: "{{ $customerFollow->fullPaymentDetails->payment_type }}",
+                collection_type: "{{ $customerFollow->fullPaymentDetails->collection_type ?? 'cash' }}",
+                payment_method_id: {{ $customerFollow->fullPaymentDetails->payment_method_id }},
+                payment_receipt_path: "{{ $customerFollow->fullPaymentDetails->payment_receipt_path ?? '' }}"
+            },
+        @endif
 
-       @if($customerFollow->partialPaymentDetails)
-       partialPaymentDetails: {
-           partial_payment_amount: {{ $customerFollow->partialPaymentDetails->partial_payment_amount }},
-           partial_payment_date: "{{ $customerFollow->partialPaymentDetails->partial_payment_date }}",
-           partial_payment_type: "{{ $customerFollow->partialPaymentDetails->partial_payment_type }}",
-           collection_type: "{{ $customerFollow->partialPaymentDetails->collection_type ?? 'scheduled' }}",
-           payment_method_id: {{ $customerFollow->partialPaymentDetails->payment_method_id }},
-           next_partial_payment_date: "{{ $customerFollow->partialPaymentDetails->next_partial_payment_date ?? '' }}",
-           partial_payment_receipt_path: "{{ $customerFollow->partialPaymentDetails->partial_payment_receipt_path ?? '' }}"
-       },
-       @endif
+        @if ($customerFollow->partialPaymentDetails)
+            partialPaymentDetails: {
+                partial_payment_amount: {{ $customerFollow->partialPaymentDetails->partial_payment_amount }},
+                partial_payment_date: "{{ $customerFollow->partialPaymentDetails->partial_payment_date }}",
+                partial_payment_type: "{{ $customerFollow->partialPaymentDetails->partial_payment_type }}",
+                collection_type: "{{ $customerFollow->partialPaymentDetails->collection_type ?? 'scheduled' }}",
+                payment_method_id: {{ $customerFollow->partialPaymentDetails->payment_method_id }},
+                next_partial_payment_date: "{{ $customerFollow->partialPaymentDetails->next_partial_payment_date ?? '' }}",
+                partial_payment_receipt_path: "{{ $customerFollow->partialPaymentDetails->partial_payment_receipt_path ?? '' }}"
+            },
+        @endif
 
-        @if($customerFollow->promisePaymentDetails)
-        promisePaymentDetails: {
-            promise_amount: {{ $customerFollow->promisePaymentDetails->promise_amount }},
-            promise_date: "{{ $customerFollow->promisePaymentDetails->promise_date }}"
-        },
+        @if ($customerFollow->promisePaymentDetails)
+            promisePaymentDetails: {
+                promise_amount: {{ $customerFollow->promisePaymentDetails->promise_amount }},
+                promise_date: "{{ $customerFollow->promisePaymentDetails->promise_date }}"
+            },
         @endif
-      @if($customerFollow->callbackDetails)
-         callbackDetails: {
-             callback_date: "{{ $customerFollow->callbackDetails->callback_date }}",
-             callback_reason: "{{ $customerFollow->callbackDetails->callback_reason }}",
-             callback_reason_other: "{{ $customerFollow->callbackDetails->callback_reason_other }}"
-         },
-         @endif
-        @if($customerFollow->documentRequestDetails)
-        documentRequestDetails: {
-            documents_date: "{{ $customerFollow->documentRequestDetails->documents_date }}",
-            documents_reason: "{{ $customerFollow->documentRequestDetails->documents_reason }}",
-            documents_reason_id: {{ $customerFollow->documentRequestDetails->documents_reason_id }}
-        },
+        @if ($customerFollow->callbackDetails)
+            callbackDetails: {
+                callback_date: "{{ $customerFollow->callbackDetails->callback_date }}",
+                callback_reason: "{{ $customerFollow->callbackDetails->callback_reason }}",
+                callback_reason_other: "{{ $customerFollow->callbackDetails->callback_reason_other }}"
+            },
         @endif
-        @if($customerFollow->objectionDetails)
-        objectionDetails: {
-            objection_reason: "{{ $customerFollow->objectionDetails->objection_reason }}"
-        },
+        @if ($customerFollow->documentRequestDetails)
+            documentRequestDetails: {
+                documents_date: "{{ $customerFollow->documentRequestDetails->documents_date }}",
+                documents_reason: "{{ $customerFollow->documentRequestDetails->documents_reason }}",
+                documents_reason_id: {{ $customerFollow->documentRequestDetails->documents_reason_id }}
+            },
         @endif
-        @if($customerFollow->recoveryDetails)
-        recoveryDetails: {
-            recovery_reason: "{{ $customerFollow->recoveryDetails->recovery_reason }}",
-            recovery_reason_other: "{{ $customerFollow->recoveryDetails->recovery_reason_other }}"
-        },
-     @endif
-   @if($customerFollow->temporaryContactLossDetails)
-    temporaryContactLossDetails: {
-      temporary_contact_reason: "{{ $customerFollow->temporaryContactLossDetails->temporary_contact_reason }}",
-      temporary_contact_reason_other: "{{ $customerFollow->temporaryContactLossDetails->temporary_contact_reason_other ?? '' }}"
-    },
-    @endif
+        @if ($customerFollow->objectionDetails)
+            objectionDetails: {
+                objection_reason: "{{ $customerFollow->objectionDetails->objection_reason }}"
+            },
+        @endif
+        @if ($customerFollow->recoveryDetails)
+            recoveryDetails: {
+                recovery_reason: "{{ $customerFollow->recoveryDetails->recovery_reason }}",
+                recovery_reason_other: "{{ $customerFollow->recoveryDetails->recovery_reason_other }}"
+            },
+        @endif
+        @if ($customerFollow->temporaryContactLossDetails)
+            temporaryContactLossDetails: {
+                temporary_contact_reason: "{{ $customerFollow->temporaryContactLossDetails->temporary_contact_reason }}",
+                temporary_contact_reason_other: "{{ $customerFollow->temporaryContactLossDetails->temporary_contact_reason_other ?? '' }}"
+            },
+        @endif
     };
 </script>

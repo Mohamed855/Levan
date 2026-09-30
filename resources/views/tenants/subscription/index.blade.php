@@ -145,7 +145,7 @@
     </div>
 
     <div class="row g-4 mb-4">
-        <div class="col-lg-6">
+        <div class="col-md-6">
             <!---- تفاصيل الاشتراك  --->
             <div class="card h-100">
                 <div class="card-header py-4">
@@ -243,7 +243,7 @@
         </div>
 
         <!----  التراخيص  --->
-        <div class="col-lg-6">
+        <div class="col-md-6">
             <div class="card h-100">
                 <div class="card-header py-4">
                     <h6 class="card-title mb-0">

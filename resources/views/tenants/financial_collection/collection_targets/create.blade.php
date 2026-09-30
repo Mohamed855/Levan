@@ -168,7 +168,7 @@
                                 {{-- أزرار التحكم --}}
                                 <div class="mt-4 d-flex justify-content-between">
                                     <a href="{{ tenant_route_name('financial-collections.collection-targets.index') }}"
-                                        class="btn btn-label-secondary">
+                                        class="btn btn-secondary">
                                         <i class="ti ti-arrow-left ti-xs me-sm-2 me-0"></i>
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
                                     </a>

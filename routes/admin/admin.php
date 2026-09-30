@@ -83,6 +83,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
     });
     // الكوبونات
     Route::prefix('coupons')->name('coupons.')->group(function () {
+        Route::patch('{coupon}/toggle-status', [AdminCouponController::class, 'toggleStatus'])->name('toggle-status');
         Route::get('details/{coupon}', [AdminCouponController::class, 'getCouponDetails'])->name('details');
         Route::resource('/', AdminCouponController::class)->except('show')->parameters(['' => 'coupon']);
     });
@@ -128,7 +129,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
     Route::prefix('plans')->name('plans.')->group(function () {
         Route::post('update-sort-order', [PlanController::class, 'updateSortOrder'])->name('update-sort-order');
         Route::patch('{plan}/toggle-active', [PlanController::class, 'toggleActive'])->name('toggle-active');
-        Route::resource('/', PlanController::class)->except('show')->parameters(['' => 'plan']);
+        Route::get('details/{plan}', [PlanController::class, 'show'])->name('details');
+        Route::resource('/', PlanController::class)->parameters(['' => 'plan']);
     });
 
     Route::prefix('bills')->name('bills.')->group(function () {

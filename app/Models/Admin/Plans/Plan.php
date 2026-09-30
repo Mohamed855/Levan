@@ -115,6 +115,11 @@ class Plan extends Model
         return $this->belongsTo(AdminUser::class, 'updated_by');
     }
 
+    public function subscriptions()
+    {
+        return $this->hasMany(\App\Models\Admin\Subscription\Subscription::class, 'plan_id');
+    }
+
 
 
 
@@ -135,6 +140,20 @@ class Plan extends Model
         $discount = ($this->price * $this->discount_percentage) / 100;
 
         return (float) ($this->price - $discount);
+    }
+
+    public function getFeaturesAttribute($value): array
+    {
+        if (is_null($value)) {
+            return [];
+        }
+
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        return is_array($value) ? $value : [];
     }
 
 

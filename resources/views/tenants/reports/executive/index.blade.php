@@ -508,7 +508,7 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
                     <button type="button" class="btn btn-primary" id="confirmExportBtn">
                         <i class="ti ti-download me-1"></i>
                         تصدير الآن
@@ -774,7 +774,8 @@
                                     total: {
                                         show: true,
                                         label: portfolioFilter.value !== 'all' ? 'عميل' : 'محفظة',
-                                        formatter: () => ((data.distributionSeries || []).reduce((a, b) => a + b, 0) || 0)
+                                        formatter: () => ((data.distributionSeries || []).reduce((a, b) =>
+                                                a + b, 0) || 0)
                                             .toLocaleString()
                                     }
                                 }

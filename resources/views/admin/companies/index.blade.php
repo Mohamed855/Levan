@@ -30,6 +30,20 @@
         </div>
     @endif
 
+    <div class="row g-4 mb-4">
+        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="إجمالي الشركات" :value="$totalSubscriptions ?? $totalCompanies ?? 0"
+            subtitle="عدد جميع الشركات" icon="ti-building" color="primary" />
+
+        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="الشركات الفعالة" :value="$activeSubscriptions ?? $activeCompanies ?? 0"
+            subtitle="شركات فعالة حاليًا" icon="ti-bolt" color="success" />
+
+        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="الشركات المعلقة" :value="$pendingSubscriptions ?? $pendingCompanies ?? 0"
+            subtitle="لم تتم الموافقة عليها بعد" icon="ti-alert-circle" color="warning" />
+
+        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="الشركات المنتهية" :value="$expiredSubscriptions ?? $expiredCompanies ?? 0"
+            subtitle="أوقف اشتراكها أو انتهت مدته" icon="ti-clock-pause" color="danger" />
+    </div>
+
     <div class="card">
         <div class="card-body">
             {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100'], false) !!}

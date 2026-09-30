@@ -102,7 +102,7 @@
                                 @endforeach
                                 <div class="mt-4 d-flex justify-content-between">
                                     <a href="{{ tenant_route_name('customers.distribution.index') }}"
-                                        class="btn btn-label-secondary">
+                                        class="btn btn-secondary">
                                         <i class="ti ti-arrow-left ti-xs me-sm-2 me-0"></i>
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
                                     </a>
@@ -313,14 +313,14 @@
                                 </div>
                             </div>
                             <div class="mt-4 d-flex justify-content-between">
-                                <button type="button" class="btn btn-label-secondary btn-prev">
+                                <button type="button" class="btn btn-secondary btn-prev">
                                     <i class="ti ti-arrow-left me-1"></i> السابق
                                 </button>
-                                    <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-primary btn-preview">
-                                    معاينة <i class="ti ti-arrow-left me-1"></i>
-                                </button>
-                                    </div>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-primary btn-preview">
+                                        معاينة <i class="ti ti-arrow-left me-1"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <div id="step-preview" class="content p-8">
@@ -367,13 +367,13 @@
                                     </div>
                                 </div>
                                 <div class="d-flex justify-content-between mt-4">
-                                    <button type="button" class="btn btn-label-secondary btn-prev">
+                                    <button type="button" class="btn btn-secondary btn-prev">
                                         <i class="ti ti-arrow-left me-1"></i> السابق
                                     </button>
                                     <div class="d-flex gap-2">
                                         <button type="button" class="btn btn-primary btn-execute" disabled>
-                                        تنفيذ التوزيع
-                                    </button>
+                                            تنفيذ التوزيع
+                                        </button>
                                     </div>
                                 </div>
                             </div>

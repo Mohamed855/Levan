@@ -121,7 +121,7 @@
                                     </div>
                                 </div>
                                 <div class="col-12 d-flex justify-content-between mt-4">
-                                    <a href="{{ tenant_route_name('portfolios.index') }}" class="btn btn-label-secondary">
+                                    <a href="{{ tenant_route_name('portfolios.index') }}" class="btn btn-secondary">
                                         <i class="ti ti-arrow-left ti-xs me-sm-2 me-0"></i>
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
                                     </a>
@@ -199,7 +199,7 @@
                                 </div>
 
                                 <div class="col-12 d-flex justify-content-between mt-4">
-                                    <button type="button" class="btn btn-label-secondary btn-prev">
+                                    <button type="button" class="btn btn-secondary btn-prev">
                                         <i class="ti ti-arrow-left ti-xs me-sm-2 me-0"></i>
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
                                     </button>

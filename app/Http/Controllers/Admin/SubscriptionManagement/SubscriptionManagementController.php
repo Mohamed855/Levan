@@ -40,7 +40,14 @@ class SubscriptionManagementController extends Controller
                 'activeSubscriptions'    => $statistics['active'],
                 'expiredSubscriptions'   => $statistics['expired'],
                 'pendingSubscriptions'   => $statistics['pending'],
-                'expiringSubscriptions'  => $statistics['expiring_soon'],
+                'suspendedSubscriptions' => $statistics['suspended'] ?? 0,
+                'expiringSubscriptions'  => $statistics['expiring_soon'] ?? 0,
+                'totalCompanies'         => $statistics['total'],
+                'activeCompanies'        => $statistics['active'],
+                'expiredCompanies'       => $statistics['expired'],
+                'pendingCompanies'       => $statistics['pending'],
+                'suspendedCompanies'     => $statistics['suspended'] ?? 0,
+                'statistics'             => $statistics,
             ]);
         } catch (\Exception $e) {
             report($e);

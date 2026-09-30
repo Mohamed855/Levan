@@ -57,7 +57,7 @@
          Charts Row
     ═══════════════════════════════════════ --}}
     <div class="row g-3 mb-4">
-        <div class="col-lg-6">
+        <div class="col-md-6">
             <div class="card h-100 dashboard-chart-card">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <h5 class="card-title mb-0">
@@ -79,7 +79,7 @@
             </div>
         </div>
 
-        <div class="col-lg-6">
+        <div class="col-md-6">
             <div class="card h-100 dashboard-chart-card">
                 <div class="card-header d-flex align-items-center">
                     <h5 class="card-title mb-0">
@@ -257,7 +257,7 @@
         </div>
 
         {{-- أحدث طلبات الإشتراك --}}
-        <div class="col-lg-6">
+        <div class="col-md-6">
             <div class="card h-100 dashboard-chart-card">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <h5 class="card-title mb-0">
@@ -305,7 +305,7 @@
                                         </td>
                                         <td class="text-center">
                                             <a href="{{ route('admin.subscriptionManage.pending') }}"
-                                                class="btn btn-icon btn-sm btn-label-primary" title="عرض في الطلبات">
+                                                class="btn btn-icon btn-label-primary" title="عرض في الطلبات">
                                                 <i class="ti ti-arrow-left"></i>
                                             </a>
                                         </td>

@@ -34,7 +34,7 @@ class CouponRequest extends WizardFormRequest
             'max_discount'  => 'nullable|numeric|min:0',
             'expiry_date'   => 'nullable|date|after_or_equal:today',
             'usage_limit'   => 'nullable|integer|min:1',
-            'is_active'     => 'boolean',
+            'is_active'     => 'required|boolean',
             'admin_user_id' => 'nullable|exists:admin_users,id',
         ];
     }
@@ -51,17 +51,24 @@ class CouponRequest extends WizardFormRequest
             'discount_value.numeric'        => 'قيمة الخصم يجب أن تكون رقم',
             'discount_value.min'            => 'قيمة الخصم يجب أن تكون أكبر من أو تساوي صفر',
             'max_discount.numeric'          => 'الحد الأقصى للخصم يجب أن يكون رقم',
-            'max_discount.min'              => 'الحد الأقصى للخصم يجب أن يكون أكبر من أو يساوي صفر',
+            'max_discount.min'              => 'الحد الأقصى للخصم يجب أن يكون أكبر من أو تساوي صفر',
             'expiry_date.date'              => 'تاريخ الانتهاء غير صحيح',
             'expiry_date.after_or_equal'    => 'تاريخ الانتهاء يجب أن يكون اليوم أو في المستقبل',
             'usage_limit.integer'           => 'حد الاستخدام يجب أن يكون رقم صحيح',
-            'usage_limit.min'               => 'حد الاستخدام يجب أن يكون على الأقل 1'
+            'usage_limit.min'               => 'حد الاستخدام يجب أن يكون على الأقل 1',
+            'is_active.required'            => 'حالة الكوبون مطلوبة',
+            'is_active.boolean'             => 'حالة الكوبون غير صالحة',
         ];
     }
 
 
     protected function prepareForValidation(): void
     {
+        if ($this->has('is_active')) {
+            $this->merge([
+                'is_active' => filter_var($this->is_active, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? (bool) $this->is_active,
+            ]);
+        }
 
         if ($this->discount_type === 'fixed') {
             $this->merge([

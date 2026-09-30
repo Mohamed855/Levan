@@ -42,7 +42,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-label-secondary btn-sm" data-bs-dismiss="modal">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
                     إلغاء
                 </button>
                 <button type="button" id="confirmAccountsSelection" class="btn btn-primary btn-sm">

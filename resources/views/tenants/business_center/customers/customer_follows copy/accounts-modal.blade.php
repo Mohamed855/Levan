@@ -21,14 +21,16 @@
                     <div class="alert alert-info mb-3 py-2">
                         <small class="d-flex align-items-start mb-0">
                             <i class="ti ti-info-circle me-2 mt-1 flex-shrink-0" style="font-size: 14px;"></i>
-                            <span style="font-size: 0.85rem;">الحساب الحالي محدد افتراضياً. يمكنك اختيار حسابات إضافية</span>
+                            <span style="font-size: 0.85rem;">الحساب الحالي محدد افتراضياً. يمكنك اختيار حسابات
+                                إضافية</span>
                         </small>
                     </div>
 
                     <div class="mb-2">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="selectAllAccounts">
-                            <label class="form-check-label fw-semibold" for="selectAllAccounts" style="font-size: 0.9rem;">
+                            <label class="form-check-label fw-semibold" for="selectAllAccounts"
+                                style="font-size: 0.9rem;">
                                 تحديد الكل
                             </label>
                         </div>
@@ -40,7 +42,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-label-secondary btn-sm" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">إلغاء</button>
                 <button type="button" id="confirmAccountsSelection" class="btn btn-primary btn-sm">
                     تأكيد
                     <span class="spinner-border spinner-border-sm ms-2" style="display: none;"></span>

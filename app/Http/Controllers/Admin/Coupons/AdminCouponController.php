@@ -10,6 +10,7 @@ use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\Coupons\Coupon;
 use App\Models\Admin\Tenants\Tenant;
 use App\Services\Admin\Coupons\CouponService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 
 class AdminCouponController extends Controller
@@ -23,8 +24,37 @@ class AdminCouponController extends Controller
         $this->middleware('auth:admin');
         $this->middleware('can:coupons.view')->only(['index']);
         $this->middleware('can:coupons.create')->only(['create', 'store']);
-        $this->middleware('can:coupons.edit')->only(['edit', 'update']);
+        $this->middleware('can:coupons.edit')->only(['edit', 'update', 'toggleStatus']);
         $this->middleware('can:coupons.delete')->only(['destroy']);
+    }
+
+    public function toggleStatus(Coupon $coupon): JsonResponse
+    {
+        try {
+            $requestedStatus = null;
+            if (request()->has('status')) {
+                $requestedStatus = request()->boolean('status');
+            } elseif (request()->has('is_active')) {
+                $requestedStatus = request()->boolean('is_active');
+            }
+
+            $coupon = $this->couponService->toggleActive($coupon, $requestedStatus);
+
+            return response()->json([
+                'success'     => true,
+                'message'     => $coupon->is_active ? 'تم تفعيل الكوبون بنجاح' : 'تم تعطيل الكوبون بنجاح',
+                'is_active'   => (bool) $coupon->is_active,
+                'status'      => (bool) $coupon->is_active,
+                'status_text' => $coupon->is_active ? 'نشط' : 'غير نشط',
+            ]);
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'تعذر تحديث حالة الكوبون: ' . $exception->getMessage(),
+            ], 500);
+        }
     }
 
 
@@ -56,7 +86,8 @@ class AdminCouponController extends Controller
     public function create()
     {
         $admin_users = AdminUser::get();
-        return view($this->page . '.create', compact('admin_users'));
+        $generatedCode = $this->couponService->generateUniqueCode();
+        return view($this->page . '.create', compact('admin_users', 'generatedCode'));
     }
 
 
@@ -69,7 +100,8 @@ class AdminCouponController extends Controller
 
     public function edit(Coupon $coupon)
     {
-        return view($this->page . '.edit', compact('coupon'));
+        $admin_users = AdminUser::get();
+        return view($this->page . '.edit', compact('coupon', 'admin_users'));
     }
 
 

@@ -27,116 +27,81 @@
     </script>
     @vite(['resources/assets/js/admin/coupons/filter.js', 'resources/assets/js/admin/coupons/index.js'])
     <script>
+        function copyTextToClipboard(text, onSuccess, onError) {
+            if (!text) return;
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(function() {
+                    if (typeof onSuccess === 'function') onSuccess();
+                }).catch(function() {
+                    fallbackCopyText(text, onSuccess, onError);
+                });
+            } else {
+                fallbackCopyText(text, onSuccess, onError);
+            }
+        }
+
+        function fallbackCopyText(text, onSuccess, onError) {
+            try {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.top = '-9999px';
+                textArea.style.left = '-9999px';
+                textArea.setAttribute('readonly', '');
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                textArea.setSelectionRange(0, textArea.value.length);
+                const successful = document.execCommand('copy');
+                document.body.removeChild(textArea);
+
+                if (successful) {
+                    if (typeof onSuccess === 'function') onSuccess();
+                } else if (typeof onError === 'function') {
+                    onError();
+                }
+            } catch (err) {
+                if (typeof onError === 'function') onError();
+            }
+        }
+
         $(document).ready(function() {
-            // استخدام event delegation على body أو على الجدول مباشرة
-            $(document).on('click', '.copyable-code', function(e) {
+            $(document).on('click', '.copyable-code-wrapper, .copyable-code, .copy-icon', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
 
-                const code = $(this).data('code');
-                const $icon = $(this).parent().find('.ti-copy');
+                const $wrapper = $(this).closest('.copyable-code-wrapper');
+                const code = ($wrapper.length ? $wrapper.data('code') : null) || $(this).data('code') || $(this).text().trim();
+                const $icon = $wrapper.length ? $wrapper.find('.copy-icon, .ti-copy') : $(this).parent().find('.ti-copy, .copy-icon');
 
-                console.log('Copying code:', code); // للتأكد من أن الحدث يعمل
+                if (!code) return;
 
-                // نسخ النص
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(code).then(function() {
-                        // تغيير الأيقونة مؤقتاً
-                        const originalClass = $icon.attr('class');
-                        $icon.removeClass().addClass('ti ti-check text-success');
-
-                        // إظهار رسالة Toast
-                        if (typeof toastr !== 'undefined') {
-                            toastr.success('تم نسخ الكود: ' + code, 'نجح!', {
-                                closeButton: true,
-                                progressBar: true,
-                                timeOut: 2000,
-                                positionClass: 'toast-top-right'
-                            });
-                        } else {
-                            showCopyNotification(code);
-                        }
-
-                        // إعادة الأيقونة بعد ثانيتين
-                        setTimeout(function() {
-                            $icon.removeClass().addClass(originalClass);
-                        }, 2000);
-
-                    }).catch(function(err) {
-                        console.error('فشل النسخ:', err);
-                        fallbackCopyTextToClipboard(code);
-                    });
-                } else {
-                    // استخدام الطريقة البديلة مباشرة
-                    fallbackCopyTextToClipboard(code, $icon);
-                }
-            });
-        });
-
-        // دالة بديلة للنسخ (للمتصفحات القديمة)
-        function fallbackCopyTextToClipboard(text, $icon) {
-            const textArea = document.createElement('textarea');
-            textArea.value = text;
-            textArea.style.position = 'fixed';
-            textArea.style.top = '0';
-            textArea.style.left = '0';
-            textArea.style.opacity = '0';
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-
-            try {
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    if ($icon && $icon.length) {
-                        const originalClass = $icon.attr('class');
-                        $icon.removeClass().addClass('ti ti-check text-success');
-
-                        setTimeout(function() {
-                            $icon.removeClass().addClass(originalClass);
-                        }, 2000);
-                    }
+                copyTextToClipboard(code, function() {
+                    const originalClass = $icon.attr('class') || 'ti ti-copy text-muted copy-icon';
+                    $icon.removeClass('ti-copy text-muted').addClass('ti ti-check text-success');
 
                     if (typeof toastr !== 'undefined') {
-                        toastr.success('تم نسخ الكود: ' + text, 'نجح!', {
+                        toastr.success('تم نسخ الكود: ' + code, 'نجح!', {
                             closeButton: true,
                             progressBar: true,
                             timeOut: 2000,
                             positionClass: 'toast-top-right'
                         });
+                    }
+
+                    setTimeout(function() {
+                        $icon.attr('class', originalClass);
+                    }, 2000);
+                }, function() {
+                    if (typeof toastr !== 'undefined') {
+                        toastr.error('تعذر نسخ الكود');
                     } else {
-                        showCopyNotification(text);
+                        alert('تعذر نسخ الكود: ' + code);
                     }
-                }
-            } catch (err) {
-                console.error('فشل النسخ:', err);
-                alert('فشل نسخ الكود. الرجاء المحاولة مرة أخرى.');
-            }
-
-            document.body.removeChild(textArea);
-        }
-
-        // إظهار إشعار بسيط إذا لم يكن toastr موجود
-        function showCopyNotification(code) {
-            const notification = document.createElement('div');
-            notification.innerHTML = `
-                <div style="position: fixed; top: 20px; right: 20px; z-index: 9999; background: #28a745; color: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideIn 0.3s ease;">
-                    <i class="ti ti-check me-2"></i>
-                    تم نسخ الكود: <strong>${code}</strong>
-                </div>
-            `;
-
-            document.body.appendChild(notification);
-
-            setTimeout(function() {
-                notification.firstElementChild.style.animation = 'slideOut 0.3s ease';
-                setTimeout(function() {
-                    if (notification.parentNode) {
-                        document.body.removeChild(notification);
-                    }
-                }, 300);
-            }, 2000);
-        }
+                });
+            });
+        });
     </script>
 @endsection
 

@@ -20,7 +20,7 @@ function ensureModalCloseControl(modal) {
 
     const closeButton = document.createElement('button');
     closeButton.type = 'button';
-    closeButton.className = 'btn btn-label-secondary';
+    closeButton.className = 'btn btn-secondary';
     closeButton.dataset.bsDismiss = 'modal';
     closeButton.textContent = 'إغلاق';
     modalFooter.append(closeButton);

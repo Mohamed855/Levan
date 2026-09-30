@@ -64,13 +64,12 @@
                                 <div class="col-md-6">
                                     <label for="code" class="form-label">كود الكوبون <span class="text-danger">*</span>
                                         <small class="text-muted">سيتم تحويل الكود إلى أحرف كبيرة تلقائيًا</small>
-
                                     </label>
                                     <div class="input-group">
                                         <input type="text" class="form-control" id="code" name="code"
                                             value="{{ old('code', $coupon->code) }}" style="text-transform: uppercase;"
                                             required>
-                                        <button type="button" class="btn btn-outline-secondary" onclick="generateCode()">
+                                        <button type="button" class="btn btn-outline-secondary btn-generate-code" id="btn-generate-code" onclick="generateCode()">
                                             <i class="ti ti-wand"></i> توليد
                                         </button>
                                     </div>
@@ -84,10 +83,10 @@
                                         onchange="updateDiscountFields()" data-placeholder="اختر النوع">
                                         <option value=""> </option>
                                         <option value="fixed"
-                                            {{ old('discount_type', $coupon->discount_type->value) == 'fixed' ? 'selected' : '' }}>
+                                            {{ old('discount_type', is_object($coupon->discount_type) ? $coupon->discount_type->value : $coupon->discount_type) == 'fixed' ? 'selected' : '' }}>
                                             مبلغ ثابت</option>
                                         <option value="percentage"
-                                            {{ old('discount_type', $coupon->discount_type->value) == 'percentage' ? 'selected' : '' }}>
+                                            {{ old('discount_type', is_object($coupon->discount_type) ? $coupon->discount_type->value : $coupon->discount_type) == 'percentage' ? 'selected' : '' }}>
                                             نسبة مئوية</option>
                                     </select>
                                 </div>
@@ -135,14 +134,30 @@
                                 <div class="col-md-6 mb-4">
                                     <label for="is_active" class="form-label">حالة الكوبون <span
                                             class="text-danger">*</span></label>
-                                    <select id="is_active" name="is_active" class="form-select select2">
-                                        <option value="">اختر الحالة</option>
-                                        <option value="1"
-                                            {{ old('is_active', $coupon->is_active) == 1 ? 'selected' : '' }}>مفعلة
+                                    @php
+                                        $currentStatus = old('is_active', $coupon->is_active);
+                                        $isActiveSelected = ($currentStatus === true || $currentStatus === 1 || (string)$currentStatus === '1');
+                                        $isInactiveSelected = ($currentStatus === false || $currentStatus === 0 || (string)$currentStatus === '0');
+                                    @endphp
+                                    <select id="is_active" name="is_active" class="form-select select2" data-placeholder="اختر الحالة">
+                                        <option value=""></option>
+                                        <option value="1" @selected($isActiveSelected)>مفعلة</option>
+                                        <option value="0" @selected($isInactiveSelected)>غير مفعلة</option>
+                                    </select>
+                                </div>
+
+                                <!-- إسناد الكوبون -->
+                                <div class="col-md-6 mb-4">
+                                    <label for="users" class="form-label">إسناد الكوبون</label>
+                                    <select id="users" name="admin_user_id" class="form-select select2" data-placeholder="اختر الاسناد">
+                                        <option value="">اختر الاسناد</option>
+                                        @forelse($admin_users as $admin_user)
+                                        <option value="{{ $admin_user->id }}" {{ (string) old('admin_user_id', $coupon->admin_user_id) === (string) $admin_user->id ? 'selected' : '' }}>
+                                        {{ $admin_user->name }}
                                         </option>
-                                        <option value="0"
-                                            {{ old('is_active', $coupon->is_active) == 0 ? 'selected' : '' }}>غير مفعلة
-                                        </option>
+                                        @empty
+                                        <option value="">لا يوجد مستخدمين إداريين</option>
+                                        @endforelse
                                     </select>
                                 </div>
                             </div>
@@ -162,10 +177,14 @@
 
     <script>
         function updateDiscountFields() {
-            const type = document.getElementById('discount_type').value;
+            const typeEl = document.getElementById('discount_type');
             const maxField = document.getElementById('maxDiscountField');
             const unit = document.getElementById('discountUnit');
             const value = document.getElementById('discount_value');
+
+            if (!typeEl || !maxField || !unit || !value) return;
+
+            const type = typeEl.value;
 
             if (type === 'percentage') {
                 maxField.style.display = 'block';
@@ -182,10 +201,31 @@
         }
 
         function generateCode() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            if (typeof window.generateCouponCode === 'function') {
+                return window.generateCouponCode();
+            }
+
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
             let code = '';
-            for (let i = 0; i < 8; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
-            document.getElementById('code').value = code;
+            for (let i = 0; i < 8; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+
+            const input = document.getElementById('code');
+            if (input) {
+                input.value = code;
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+
+            const btn = document.getElementById('btn-generate-code');
+            const icon = btn ? btn.querySelector('i') : null;
+            if (icon) {
+                icon.classList.add('ti-spin');
+                setTimeout(() => icon.classList.remove('ti-spin'), 500);
+            }
+
+            return code;
         }
 
         document.addEventListener('DOMContentLoaded', () => {

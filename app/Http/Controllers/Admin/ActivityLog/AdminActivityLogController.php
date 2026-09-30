@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\Admin\ActivityLog;
 
-
 use App\Http\Controllers\Controller;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Traits\ActivityLogPresenterTrait;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Spatie\Activitylog\Models\Activity;
 use Yajra\DataTables\Facades\DataTables;
@@ -35,7 +34,7 @@ class AdminActivityLogController extends Controller
                     'causer_id',
                     'causer_type',
                     'properties',
-                    'created_at'
+                    'created_at',
                 ]);
 
             // تطبيق الفلاتر
@@ -44,11 +43,11 @@ class AdminActivityLogController extends Controller
             return DataTables::of($query)
                 ->addIndexColumn()
                 ->addColumn('checkbox', function ($activity) {
-                    return '<input type="checkbox" class="row-checkbox" value="' . $activity->id . '">';
+                    return '<input type="checkbox" class="row-checkbox" value="'.$activity->id.'">';
                 })
 
                 ->addColumn('log_name_formatted', function ($activity) {
-                    return '<span class="badge bg-primary">' . $this->activityLogNameLabel($activity->log_name) . '</span>';
+                    return '<span class="badge bg-primary">'.$this->activityLogNameLabel($activity->log_name).'</span>';
                 })
 
                 ->addColumn('causer_name', function ($activity) {
@@ -63,31 +62,29 @@ class AdminActivityLogController extends Controller
                     return $this->getActionsColumn($activity);
                 })
 
-                ->orderColumn('created_at', fn($query, $order) => $query->orderBy('created_at', $order))
+                ->orderColumn('created_at', fn ($query, $order) => $query->orderBy('created_at', $order))
                 ->rawColumns(['checkbox', 'log_name_formatted',  'created_at', 'action'])
                 ->make(true);
         }
 
         // الإحصائيات للعرض
         $statistics = $this->getStatistics();
-        $users      = AdminUser::select('id', 'name')->orderBy('name')->get();
+        $users = AdminUser::select('id', 'name')->orderBy('name')->get();
 
         return view('admin.activity_logs.index', [
             'users' => $users,
-            'statistics' => $statistics
+            'statistics' => $statistics,
         ]);
     }
 
-
     public function show($id): View
     {
-        $activity     = Activity::with('causer', 'subject')->findOrFail($id);
+        $activity = Activity::with('causer', 'subject')->findOrFail($id);
         $activityData = $this->prepareActivityData($activity);
-        $arabicEvent  = $activityData['event_arabic'];
+        $arabicEvent = $activityData['event_arabic'];
 
         return view('admin.activity_logs.show', compact('activity', 'arabicEvent', 'activityData'));
     }
-
 
     /*
     |============================================================================
@@ -99,10 +96,10 @@ class AdminActivityLogController extends Controller
     private function prepareActivityData($activity): array
     {
         $eventMap = [
-            'created'   => 'إضافة',
-            'updated'   => 'تحديث',
-            'deleted'   => 'حذف',
-            'restored'  => 'استعادة'
+            'created' => 'إضافة',
+            'updated' => 'تحديث',
+            'deleted' => 'حذف',
+            'restored' => 'استعادة',
         ];
         $arabicEvent = $eventMap[$activity->event] ?? ($activity->event ?? 'غير محدد');
 
@@ -112,7 +109,6 @@ class AdminActivityLogController extends Controller
             'connection_info' => $this->getActivityConnectionInfo($activity),
         ];
     }
-
 
     private function applyFilters($query, Request $request): void
     {
@@ -133,7 +129,7 @@ class AdminActivityLogController extends Controller
         }
 
         $search = $request->input('search.value');
-        if (!empty($search)) {
+        if (! empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('description', 'like', "%{$search}%")
                     ->orWhere('log_name', 'like', "%{$search}%");
@@ -141,15 +137,14 @@ class AdminActivityLogController extends Controller
         }
     }
 
-
     private function getStatistics(): array
     {
         return [
-            'total'         => Activity::count(),
-            'today'         => Activity::whereDate('created_at', today())->count(),
-            'this_week'     => Activity::whereBetween('created_at', [
+            'total' => Activity::count(),
+            'today' => Activity::whereDate('created_at', today())->count(),
+            'this_week' => Activity::whereBetween('created_at', [
                 now()->startOfWeek(),
-                now()->endOfWeek()
+                now()->endOfWeek(),
             ])->count(),
             'this_month' => Activity::whereMonth('created_at', now()->month)->count(),
         ];
@@ -159,8 +154,8 @@ class AdminActivityLogController extends Controller
     {
         $showUrl = route('admin.activity-logs.show', $activity->id);
 
-        return '<a href="' . $showUrl . '" title="عرض التفاصيل" class="btn btn-icon btn-label-primary">
-                <i class="ti ti-logs"></i>
+        return '<a href="'.$showUrl.'" title="عرض التفاصيل" class="btn btn-icon btn-label-primary">
+                <i class="ti ti-eye"></i>
             </a>';
     }
 }

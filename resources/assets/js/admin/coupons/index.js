@@ -1,7 +1,10 @@
 
 'use strict';
 
+import { initializeTableStatusToggles } from '../../shared/table-status-toggle';
+
 $(document).ready(function () {
+    initializeTableStatusToggles();
     initializeComponents();
 
     // انتظر تحميل DataTable بشكل كامل
@@ -42,6 +45,58 @@ function bindTableEvents() {
         if (!this.checked) {
             $('#select-all').prop('checked', false);
         }
+    });
+
+    // نسخ الكود
+    $(document).on('click', '.copyable-code-wrapper, .copyable-code, .copy-icon', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const $wrapper = $(this).closest('.copyable-code-wrapper');
+        const code = ($wrapper.length ? $wrapper.data('code') : null) || $(this).data('code') || $(this).text().trim();
+        const $icon = $wrapper.length ? $wrapper.find('.copy-icon, .ti-copy') : $(this).parent().find('.ti-copy, .copy-icon');
+
+        if (!code) return;
+
+        const copyText = function (text, cb) {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(cb).catch(function () {
+                    fallback(text, cb);
+                });
+            } else {
+                fallback(text, cb);
+            }
+        };
+
+        const fallback = function (text, cb) {
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.top = '-9999px';
+                ta.style.left = '-9999px';
+                ta.setAttribute('readonly', '');
+                document.body.appendChild(ta);
+                ta.select();
+                ta.setSelectionRange(0, ta.value.length);
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                if (typeof cb === 'function') cb();
+            } catch (err) {}
+        };
+
+        copyText(code, function () {
+            const originalClass = $icon.attr('class') || 'ti ti-copy text-muted copy-icon';
+            $icon.removeClass('ti-copy text-muted').addClass('ti ti-check text-success');
+
+            if (typeof toastr !== 'undefined') {
+                toastr.success('تم نسخ الكود: ' + code);
+            }
+
+            setTimeout(function () {
+                $icon.attr('class', originalClass);
+            }, 2000);
+        });
     });
 }
 

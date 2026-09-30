@@ -51,6 +51,21 @@ class CouponService
     }
 
 
+    // Toggle active status
+    public function toggleActive(Coupon $coupon, ?bool $status = null): Coupon
+    {
+        return DB::transaction(function () use ($coupon, $status) {
+            $newStatus = $status !== null ? $status : ! $coupon->is_active;
+
+            $coupon->update([
+                'is_active'  => $newStatus,
+                'updated_by' => auth('admin')->id() ?? auth()->id(),
+            ]);
+
+            return $coupon->fresh();
+        });
+    }
+
     // Get coupon statistics
     public function getCouponStatistics(): array
     {
@@ -61,5 +76,19 @@ class CouponService
             'active'   => (clone $baseQuery)->where('is_active', 1)->count(),
             'inactive' => (clone $baseQuery)->where('is_active', 0)->count(),
         ];
+    }
+
+    // Generate unique coupon code
+    public function generateUniqueCode(int $length = 8): string
+    {
+        $characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        do {
+            $code = '';
+            for ($i = 0; $i < $length; $i++) {
+                $code .= $characters[random_int(0, strlen($characters) - 1)];
+            }
+        } while (Coupon::where('code', $code)->exists());
+
+        return $code;
     }
 }

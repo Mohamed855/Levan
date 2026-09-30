@@ -106,4 +106,36 @@ class PlanService
             'inactive' => (clone $baseQuery)->where('is_active', 0)->count(),
         ];
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Get plan full details
+    |--------------------------------------------------------------------------
+    */
+    public function getPlanDetails(Plan $plan): array
+    {
+        $plan->load(['creator', 'updater']);
+
+        $subscriptions = \App\Models\Admin\Subscription\Subscription::where('plan_id', $plan->id)
+            ->with(['tenant.city', 'currentPeriod'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $statistics = [
+            'total_subscriptions'   => $subscriptions->count(),
+            'active_subscriptions'  => $subscriptions->where('status', \App\Enums\Admin\Subscriptions\SubscriptionStatus::ACTIVE)->count(),
+            'pending_subscriptions' => $subscriptions->where('status', \App\Enums\Admin\Subscriptions\SubscriptionStatus::PENDING)->count(),
+            'expired_subscriptions' => $subscriptions->whereIn('status', [
+                \App\Enums\Admin\Subscriptions\SubscriptionStatus::EXPIRED,
+                \App\Enums\Admin\Subscriptions\SubscriptionStatus::CANCELLED
+            ])->count(),
+            'total_revenue'         => (float) $subscriptions->sum('price'),
+        ];
+
+        return [
+            'plan'          => $plan,
+            'subscriptions' => $subscriptions,
+            'statistics'    => $statistics,
+        ];
+    }
 }

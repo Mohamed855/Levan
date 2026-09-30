@@ -60,11 +60,10 @@
                             <div class="col-md-6">
                                 <label for="code" class="form-label">كود الكوبون <span class="text-danger">*</span>
                                     <small class="text-muted">سيتم تحويل الكود إلى أحرف كبيرة تلقائيًا</small>
-
                                 </label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="code" name="code" value="{{ old('code') }}" style="text-transform: uppercase;" required>
-                                    <button type="button" class="btn btn-outline-secondary" onclick="generateCode()">
+                                    <input type="text" class="form-control" id="code" name="code" value="{{ old('code', $generatedCode ?? '') }}" style="text-transform: uppercase;" required>
+                                    <button type="button" class="btn btn-outline-secondary btn-generate-code" id="btn-generate-code" onclick="generateCode()">
                                         <i class="ti ti-wand"></i> توليد
                                     </button>
                                 </div>
@@ -114,21 +113,24 @@
                             <!-- الحالة -->
                             <div class="col-md-6 mb-4">
                                 <label for="is_active" class="form-label">حالة الكوبون <span class="text-danger">*</span></label>
-                                <select id="is_active" name="is_active" class="form-select select2">
-                                    <option value="">اختر الحالة</option>
-                                    <option value="1" {{ old('is_active') == 1 ? 'selected' : '' }}>مفعلة
-                                    </option>
-                                    <option value="0" {{ old('is_active') == 0 ? 'selected' : '' }}>غير مفعلة
-                                    </option>
+                                @php
+                                    $createStatus = old('is_active', '1');
+                                    $createIsActive = ($createStatus === true || $createStatus === 1 || (string)$createStatus === '1');
+                                    $createIsInactive = ($createStatus === false || $createStatus === 0 || (string)$createStatus === '0');
+                                @endphp
+                                <select id="is_active" name="is_active" class="form-select select2" data-placeholder="اختر الحالة">
+                                    <option value=""></option>
+                                    <option value="1" @selected($createIsActive)>مفعلة</option>
+                                    <option value="0" @selected($createIsInactive)>غير مفعلة</option>
                                 </select>
                             </div>
 
                             <div class="col-md-6 mb-4">
-                                <label for="users" class="form-label">إسناد الكوبون <span class="text-danger">*</span></label>
-                                <select id="users" name="admin_user_id" class="form-select select2">
+                                <label for="users" class="form-label">إسناد الكوبون</label>
+                                <select id="users" name="admin_user_id" class="form-select select2" data-placeholder="اختر الاسناد">
                                     <option value="">اختر الاسناد</option>
                                     @forelse($admin_users as $admin_user)
-                                    <option value="{{ $admin_user->id }}" {{ old('admin_users') == $admin_user->id ? 'selected' : '' }}>
+                                    <option value="{{ $admin_user->id }}" {{ (string) old('admin_user_id') === (string) $admin_user->id ? 'selected' : '' }}>
                                     {{ $admin_user->name }}
                                     </option>
                                     @empty
@@ -163,10 +165,14 @@
 
 <script>
     function updateDiscountFields() {
-        const type = document.getElementById('discount_type').value;
+        const typeEl = document.getElementById('discount_type');
         const maxField = document.getElementById('maxDiscountField');
         const unit = document.getElementById('discountUnit');
         const value = document.getElementById('discount_value');
+
+        if (!typeEl || !maxField || !unit || !value) return;
+
+        const type = typeEl.value;
 
         if (type === 'percentage') {
             maxField.style.display = 'block';
@@ -183,15 +189,40 @@
     }
 
     function generateCode() {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        if (typeof window.generateCouponCode === 'function') {
+            return window.generateCouponCode();
+        }
+
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
         let code = '';
-        for (let i = 0; i < 8; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
-        document.getElementById('code').value = code;
+        for (let i = 0; i < 8; i++) {
+            code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+
+        const input = document.getElementById('code');
+        if (input) {
+            input.value = code;
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        const btn = document.getElementById('btn-generate-code');
+        const icon = btn ? btn.querySelector('i') : null;
+        if (icon) {
+            icon.classList.add('ti-spin');
+            setTimeout(() => icon.classList.remove('ti-spin'), 500);
+        }
+
+        return code;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
         updateDiscountFields();
-    });
 
+        const codeInput = document.getElementById('code');
+        if (codeInput && !codeInput.value.trim()) {
+            generateCode();
+        }
+    });
 </script>
 @endsection

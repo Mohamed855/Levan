@@ -1,5 +1,11 @@
 <div class="d-flex justify-content-center gap-2">
 
+    @can('plans.view')
+        <a href="{{ route($route . '.show', $row->id) }}" class="btn btn-icon btn-label-primary" title="عرض تفاصيل الباقة">
+            <i class="ti ti-eye"></i>
+        </a>
+    @endcan
+
     @can('plans.edit')
         <a href="{{ route($route . '.edit', $row->id) }}" class="btn btn-icon btn-label-primary">
             <i class="ti ti-edit"></i>

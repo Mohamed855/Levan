@@ -14,7 +14,8 @@
                         class="text-danger">*</span></label>
                 <div class="input-group">
                     <input type="number" name="collected_amount" id="edit_collected_amount" class="form-control"
-                        placeholder="0.00" step="0.01" min="0" value="{{ $collection->collected_amount }}" required>
+                        placeholder="0.00" step="0.01" min="0" value="{{ $collection->collected_amount }}"
+                        required>
                     <span class="input-group-text">ريال</span>
                 </div>
                 <div class="invalid-feedback"></div>
@@ -40,10 +41,10 @@
                     data-placeholder="اختر طريقة التحصيل" required>
                     <option value=""></option>
                     @foreach ($paymentMethods as $method)
-                    <option value="{{ $method->id }}" {{ $collection->payment_method_id == $method->id ? 'selected' : ''
-                        }}>
-                        {{ $method->name }}
-                    </option>
+                        <option value="{{ $method->id }}"
+                            {{ $collection->payment_method_id == $method->id ? 'selected' : '' }}>
+                            {{ $method->name }}
+                        </option>
                     @endforeach
                 </select>
                 <div class="invalid-feedback"></div>
@@ -56,8 +57,9 @@
                     <option value=""></option>
                     <option value="settlement" {{ $collection->payment_type == 'settlement' ? 'selected' : '' }}>سداد
                         بتسوية</option>
-                    <option value="without_settlement" {{ $collection->payment_type == 'without_settlement' ? 'selected'
-                        : '' }}>سداد بدون تسوية</option>
+                    <option value="without_settlement"
+                        {{ $collection->payment_type == 'without_settlement' ? 'selected' : '' }}>
+                        سداد بدون تسوية</option>
                 </select>
                 <div class="invalid-feedback"></div>
             </div>
@@ -93,113 +95,114 @@
             <div class="col-12">
                 <label class="form-label" for="edit_attachment">المرفق</label>
 
-                @if($collection->attachment)
-                <div class="mb-2 p-2 border rounded bg-light">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center">
-                            <i class="ti ti-paperclip me-2 text-primary"></i>
-                            <div>
-                                <small class="text-muted d-block">المرفق الحالي:</small>
-                                <a href="{{ asset('storage/' . $collection->attachment) }}" target="_blank"
-                                    class="text-primary fw-medium">
-                                    {{ basename($collection->attachment) }}
-                                </a>
+                @if ($collection->attachment)
+                    <div class="mb-2 p-2 border rounded bg-light">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <i class="ti ti-paperclip me-2 text-primary"></i>
+                                <div>
+                                    <small class="text-muted d-block">المرفق الحالي:</small>
+                                    <a href="{{ asset('storage/' . $collection->attachment) }}" target="_blank"
+                                        class="text-primary fw-medium">
+                                        {{ basename($collection->attachment) }}
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="remove_attachment"
+                                    id="remove_attachment">
+                                <label class="form-check-label text-danger" for="remove_attachment">
+                                    <small>حذف المرفق</small>
+                                </label>
                             </div>
                         </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="remove_attachment"
-                                id="remove_attachment">
-                            <label class="form-check-label text-danger" for="remove_attachment">
-                                <small>حذف المرفق</small>
-                            </label>
-                        </div>
                     </div>
-                </div>
                 @endif
 
                 <input type="file" name="attachment" id="edit_attachment" class="form-control"
                     accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx">
                 <div class="form-text">
                     أنواع الملفات المدعومة: PDF, JPG, PNG, DOC, DOCX, XLS, XLSX (الحد الأقصى: 10 ميجابايت)
-                    @if($collection->attachment)
-                    <br><small class="text-info">اختر ملف جديد لاستبدال المرفق الحالي، أو اتركه فارغاً للاحتفاظ بالمرفق
-                        الحالي</small>
+                    @if ($collection->attachment)
+                        <br><small class="text-info">اختر ملف جديد لاستبدال المرفق الحالي، أو اتركه فارغاً للاحتفاظ
+                            بالمرفق
+                            الحالي</small>
                     @endif
                 </div>
                 <div class="invalid-feedback"></div>
             </div>
 
-            @if($collection->status !== 'pending')
-            <div class="col-12">
-                <div class="alert alert-warning">
-                    <i class="ti ti-alert-triangle me-2"></i>
-                    <strong>تنبيه:</strong> هذا التحصيل تمت مراجعته بالفعل وحالته:
-                    <span class="badge {{ $collection->status_class }}">{{ $collection->status_label }}</span>
-                    @if($collection->status === 'rejected' && $collection->rejection_reason)
-                    <br><small>سبب الرفض: {{ $collection->rejection_reason }}</small>
-                    @endif
-                    @if($collection->approvedBy)
-                    <br><small>تمت المراجعة بواسطة: {{ $collection->approvedBy->name }} في {{
-                        $collection->approved_at?->format('Y-m-d H:i') }}</small>
-                    @endif
+            @if ($collection->status !== 'pending')
+                <div class="col-12">
+                    <div class="alert alert-warning">
+                        <i class="ti ti-alert-triangle me-2"></i>
+                        <strong>تنبيه:</strong> هذا التحصيل تمت مراجعته بالفعل وحالته:
+                        <span class="badge {{ $collection->status_class }}">{{ $collection->status_label }}</span>
+                        @if ($collection->status === 'rejected' && $collection->rejection_reason)
+                            <br><small>سبب الرفض: {{ $collection->rejection_reason }}</small>
+                        @endif
+                        @if ($collection->approvedBy)
+                            <br><small>تمت المراجعة بواسطة: {{ $collection->approvedBy->name }} في
+                                {{ $collection->approved_at?->format('Y-m-d H:i') }}</small>
+                        @endif
+                    </div>
                 </div>
-            </div>
             @endif
         </div>
     </form>
 </div>
 <div class="modal-footer">
-    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
-    @if($collection->status === 'pending')
-    <button type="button" id="updateCustomerPayment" class="btn btn-primary">
-        <span class="spinner-border spinner-border-sm me-2" style="display: none;"></span>
-        تحديث التحصيل
-    </button>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+    @if ($collection->status === 'pending')
+        <button type="button" id="updateCustomerPayment" class="btn btn-primary">
+            <span class="spinner-border spinner-border-sm me-2" style="display: none;"></span>
+            تحديث التحصيل
+        </button>
     @else
-    <button type="button" class="btn btn-secondary" disabled>
-        لا يمكن التعديل بعد المراجعة
-    </button>
+        <button type="button" class="btn btn-secondary" disabled>
+            لا يمكن التعديل بعد المراجعة
+        </button>
     @endif
 </div>
 
 <script>
     // توليد رقم سند جديد في التعديل
-$('#edit-generate-receipt').on('click', function() {
-    $.ajax({
-        url: `/customers/${window.customerId}/payments/generate-receipt`,
-        type: 'GET',
-        success: function(response) {
-            if (response.success) {
-                $('#edit_receipt_number').val(response.receipt_number);
-                // إزالة رسائل الخطأ إن وجدت
-                $('#edit_receipt_number').removeClass('is-invalid');
-                $('#edit_receipt_number').siblings('.invalid-feedback').remove();
+    $('#edit-generate-receipt').on('click', function() {
+        $.ajax({
+            url: `/customers/${window.customerId}/payments/generate-receipt`,
+            type: 'GET',
+            success: function(response) {
+                if (response.success) {
+                    $('#edit_receipt_number').val(response.receipt_number);
+                    // إزالة رسائل الخطأ إن وجدت
+                    $('#edit_receipt_number').removeClass('is-invalid');
+                    $('#edit_receipt_number').siblings('.invalid-feedback').remove();
+                }
+            },
+            error: function() {
+                toastr.error('حدث خطأ أثناء توليد رقم السند');
             }
-        },
-        error: function() {
-            toastr.error('حدث خطأ أثناء توليد رقم السند');
+        });
+    });
+
+    // التحكم في عرض/إخفاء خيار حذف المرفق
+    $('#remove_attachment').on('change', function() {
+        const isChecked = $(this).is(':checked');
+        const attachmentInput = $('#edit_attachment');
+
+        if (isChecked) {
+            attachmentInput.prop('disabled', true);
+            attachmentInput.closest('.col-12').find('.form-text').addClass('text-muted');
+        } else {
+            attachmentInput.prop('disabled', false);
+            attachmentInput.closest('.col-12').find('.form-text').removeClass('text-muted');
         }
     });
-});
 
-// التحكم في عرض/إخفاء خيار حذف المرفق
-$('#remove_attachment').on('change', function() {
-    const isChecked = $(this).is(':checked');
-    const attachmentInput = $('#edit_attachment');
-    
-    if (isChecked) {
-        attachmentInput.prop('disabled', true);
-        attachmentInput.closest('.col-12').find('.form-text').addClass('text-muted');
-    } else {
-        attachmentInput.prop('disabled', false);
-        attachmentInput.closest('.col-12').find('.form-text').removeClass('text-muted');
-    }
-});
-
-// التحقق من تغيير الملف الجديد
-$('#edit_attachment').on('change', function() {
-    if ($(this).val()) {
-        $('#remove_attachment').prop('checked', false);
-    }
-});
+    // التحقق من تغيير الملف الجديد
+    $('#edit_attachment').on('change', function() {
+        if ($(this).val()) {
+            $('#remove_attachment').prop('checked', false);
+        }
+    });
 </script>

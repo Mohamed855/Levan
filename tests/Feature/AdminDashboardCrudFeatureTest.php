@@ -340,7 +340,21 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $plan = Plan::where('name', $planName)->first();
         $this->assertNotNull($plan, 'Plan was not created in database.');
 
-        // 4. Edit view
+        // 3.5 Show & Details view
+        $showResponse = $this->get($this->adminUrl("plans/{$plan->id}"));
+        $showResponse->assertStatus(200);
+        $showResponse->assertSee($plan->name);
+        $showResponse->assertSee('تفاصيل الباقة');
+        $showResponse->assertSee('ميزات الباقة');
+        $showResponse->assertSee('الشركات المشتركة');
+
+        $detailsResponse = $this->get($this->adminUrl("plans/details/{$plan->id}"));
+        $detailsResponse->assertStatus(200);
+        $detailsResponse->assertSee($plan->name);
+
+        // 4. Edit view (including when features is null)
+        $this->get($this->adminUrl("plans/{$plan->id}/edit"))->assertStatus(200);
+        $plan->update(['features' => null]);
         $this->get($this->adminUrl("plans/{$plan->id}/edit"))->assertStatus(200);
 
         // 5. Update

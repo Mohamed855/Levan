@@ -76,9 +76,31 @@ class CouponDataTable extends AbstractDataTable
             })
 
             ->editColumn('is_active', function ($row) {
-                return $row->is_active
-                    ? '<span class="badge bg-success">مفعل</span>'
-                    : '<span class="badge bg-danger">غير مفعل</span>';
+                $user = auth('admin')->user() ?? auth()->user();
+                if (! $user?->can('coupons.edit')) {
+                    return $row->is_active
+                        ? '<span class="badge bg-success">مفعل</span>'
+                        : '<span class="badge bg-danger">غير مفعل</span>';
+                }
+
+                $checked = $row->is_active ? 'checked' : '';
+                $url = route('admin.coupons.toggle-status', $row->id, false);
+
+                return '
+                    <div class="d-flex justify-content-center">
+                        <label class="switch switch-primary switch-square mb-0">
+                            <input type="checkbox"
+                                   class="switch-input js-table-status-toggle"
+                                   id="status_' . $row->id . '"
+                                   data-url="' . e($url) . '"
+                                   ' . $checked . '
+                                   aria-label="تبديل حالة الكوبون">
+                            <span class="switch-toggle-slider">
+                                <span class="switch-on"><i class="icon-base mt-1 ti ti-check text-white"></i></span>
+                                <span class="switch-off"><i class="icon-base mt-1 ti ti-x"></i></span>
+                            </span>
+                        </label>
+                    </div>';
             })
 
             ->editColumn('expiry_date', function ($row) {
@@ -180,18 +202,22 @@ class CouponDataTable extends AbstractDataTable
     */
     private function copyableCode($row): string
     {
+        $code = htmlspecialchars((string) $row->code, ENT_QUOTES, 'UTF-8');
         return sprintf(
-            '<div class="d-flex align-items-center gap-2">
+            '<div class="d-inline-flex align-items-center gap-2 copyable-code-wrapper"
+                  data-code="%s"
+                  style="cursor: pointer; padding: 2px 6px; border-radius: 4px; transition: background 0.15s ease-in-out;"
+                  title="اضغط لنسخ الكود">
                 <code class="copyable-code"
                       data-code="%s"
-                      style="cursor: pointer; user-select: none; padding: 4px 8px; background: #f5f5f5; border-radius: 4px; font-weight: 600;"
-                      title="اضغط للنسخ">
+                      style="cursor: pointer; padding: 4px 8px; background: #f5f5f5; border-radius: 4px; font-weight: 600;">
                     %s
                 </code>
-                <i class="ti ti-copy text-muted" style="font-size: 16px;"></i>
+                <i class="ti ti-copy text-muted copy-icon" style="font-size: 16px; cursor: pointer;"></i>
             </div>',
-            $row->code,
-            $row->code
+            $code,
+            $code,
+            $code
         );
     }
 

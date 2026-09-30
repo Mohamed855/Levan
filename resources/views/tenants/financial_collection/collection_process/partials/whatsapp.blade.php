@@ -12,16 +12,16 @@
                     <div class="row g-3">
                         <div class="col-12">
                             <label class="form-label fw-semibold mb-2">
-                                اختر قالب الرسالة 
+                                اختر قالب الرسالة
                                 <span class="text-danger">*</span>
                             </label>
                             <select name="template_id" id="whatsapp_template_id" class="form-control select2-modal"
                                 data-placeholder="اختر قالب الرسالة" required>
                                 <option value=""></option>
-                                @foreach($templates as $template)
-                                <option value="{{ $template->id }}" data-content="{{ $template->content }}">
-                                    {{ $template->name }}
-                                </option>
+                                @foreach ($templates as $template)
+                                    <option value="{{ $template->id }}" data-content="{{ $template->content }}">
+                                        {{ $template->name }}
+                                    </option>
                                 @endforeach
                             </select>
                             <div class="invalid-feedback"></div>
@@ -47,20 +47,17 @@
 
                         <div class="col-12">
                             <label class="form-label fw-semibold mb-2">معاينة الرسالة</label>
-                            <div class="border rounded p-3" style="min-height: 150px; max-height: 250px; overflow-y: auto;">
-                                <textarea name="message" id="whatsapp_message" 
-                                    class="form-control border-0 bg-transparent p-0" 
-                                    rows="6" 
-                                    readonly
-                                    placeholder="سيتم عرض الرسالة هنا بعد اختيار القالب"
-                                    style="resize: none; box-shadow: none;"></textarea>
+                            <div class="border rounded p-3"
+                                style="min-height: 150px; max-height: 250px; overflow-y: auto;">
+                                <textarea name="message" id="whatsapp_message" class="form-control border-0 bg-transparent p-0" rows="6" readonly
+                                    placeholder="سيتم عرض الرسالة هنا بعد اختيار القالب" style="resize: none; box-shadow: none;"></textarea>
                             </div>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-label-secondary btn-sm" data-bs-dismiss="modal">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
                     إلغاء
                 </button>
                 <button type="button" id="openWhatsAppBtn" class="btn btn-primary btn-sm" disabled>
