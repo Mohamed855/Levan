@@ -53,6 +53,7 @@ class Subscription extends Model
         'licenses_quota'           => 'integer',
         'trial_ends_at'            => 'datetime',
         'starts_at'                => 'datetime',
+        'ends_at'                  => 'datetime',
         'cancelled_at'             => 'datetime',
         'auto_renew'               => 'boolean',
         'metadata'                 => 'array',

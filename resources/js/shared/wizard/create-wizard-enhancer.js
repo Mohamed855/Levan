@@ -163,8 +163,7 @@ async function restoreDraft(form) {
   addHiddenField(form, '_wizard_resource_key', resourceKey);
   fillDraft(form, draft.data);
 
-  const panes = [...form.querySelectorAll('.content, .bs-stepper-pane')];
-  if (draft.step > 1 && panes[draft.step - 1]) stepperFor(form)?.to(draft.step - 1);
+  stepperFor(form)?.to(0);
 }
 
 async function saveDraft(form, pane) {

@@ -131,6 +131,14 @@ div.dataTables_processing>div:last-child>div {
     content: "\eb0e";
 }
 
+.dt-buttons .dt-button-collection .btn-accept-selected::before {
+    content: "\ea67";
+}
+
+.dt-buttons .dt-button-collection .btn-reject-selected::before {
+    content: "\ea6a";
+}
+
 .dt-buttons .dt-button-collection .btn-delete-selected::before {
     content: "\eb41";
 }

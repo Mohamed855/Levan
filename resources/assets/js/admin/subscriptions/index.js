@@ -5,14 +5,28 @@ let currentTargetIds = [];
 
 $(document).ready(function () {
     initializeComponents();
+    bindSubscriptionActionEvents();
 
-    // انتظر تحميل DataTable بشكل كامل
-    $('#subscriptions-table').on('init.dt', function () {
+    if ($.fn.DataTable.isDataTable('#subscriptions-table')) {
         bindTableEvents();
-    });
+    } else {
+        $('#subscriptions-table').one('init.dt', bindTableEvents);
+    }
 
     initConfirmModalEvents();
 });
+
+function bindSubscriptionActionEvents() {
+    $(document).on('click', '.js-subscription-action', function () {
+        const $button = $(this);
+
+        openConfirmModal(
+            $button.data('action'),
+            Number($button.data('subscription-id')),
+            $button.data('company-name') || ''
+        );
+    });
+}
 
 function initializeComponents() {
     $('.filters .select2').each(function () {
@@ -161,7 +175,13 @@ function openConfirmModal(action, ids, name = '') {
         $submitBtn.addClass('btn-danger').text('تأكيد الرفض');
     }
 
-    $modal.modal('show');
+    const modalElement = $modal.get(0);
+    if (!modalElement || typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+        toastr.error('تعذر فتح نافذة تأكيد الإجراء');
+        return;
+    }
+
+    bootstrap.Modal.getOrCreateInstance(modalElement).show();
 }
 
 function initConfirmModalEvents() {
@@ -210,7 +230,11 @@ function initConfirmModalEvents() {
                 'X-CSRF-TOKEN': csrfToken
             },
             success: function (response) {
-                $('#subscriptionConfirmModal').modal('hide');
+                const modalElement = document.getElementById('subscriptionConfirmModal');
+                if (modalElement) {
+                    bootstrap.Modal.getInstance(modalElement)?.hide();
+                }
+
                 if (response.success) {
                     toastr.success(response.message || 'تم تنفيذ العملية بنجاح');
                     if ($.fn.DataTable.isDataTable('#subscriptions-table')) {

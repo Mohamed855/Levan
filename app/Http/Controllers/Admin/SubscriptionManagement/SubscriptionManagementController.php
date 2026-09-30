@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\SubscriptionManagement;
 
 use App\DataTables\Admin\SubscriptionMangment\subscriptionMangmentDataTable;
+use App\DataTables\Admin\Companies\CompanyDataTable;
 use App\Enums\Admin\Billing\BillStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
@@ -29,13 +30,12 @@ class SubscriptionManagementController extends Controller
 
     public function __construct(private SubscriptionManagementService $subscriptionManagementService) {}
 
-    public function index(subscriptionMangmentDataTable $dataTable)
+    public function index(CompanyDataTable $dataTable)
     {
         try {
             $statistics = $this->subscriptionManagementService->getSubscriptionStatistics();
 
-            return $dataTable->render(self::VIEW_PATH . '.index', [
-                'isExpiringPage'         => false,
+            return $dataTable->render('admin.companies.index', [
                 'totalSubscriptions'     => $statistics['total'],
                 'activeSubscriptions'    => $statistics['active'],
                 'expiredSubscriptions'   => $statistics['expired'],
@@ -122,7 +122,7 @@ class SubscriptionManagementController extends Controller
                 'subscription_billing_cycle' => $plan->subscription_billing_cycle,
             ]);
 
-        return view(self::VIEW_PATH . '.create', compact('plans', 'cities'));
+        return view('admin.companies.create', compact('plans', 'cities'));
     }
 
     public function planDuration(Plan $plan)
@@ -174,7 +174,7 @@ class SubscriptionManagementController extends Controller
         $plans = Plan::get();
         $cities = City::orderBy('name')->get(['id', 'name']);
         $allStatus  = SubscriptionStatus::options();
-        return view(self::VIEW_PATH . '.edit', compact('subscription', 'allStatus', 'plan', 'plans', 'cities'));
+        return view('admin.companies.edit', compact('subscription', 'allStatus', 'plan', 'plans', 'cities'));
     }
 
     public function update(Request $request, Subscription $subscription)

@@ -10,8 +10,6 @@ class subscriptionMangmentDataTable extends AbstractDataTable
 {
     private $page = 'admin.subscription_manage';
 
-    private $route = 'admin.companies';
-
     // table id
     protected function getTableId()
     {
@@ -53,10 +51,10 @@ class subscriptionMangmentDataTable extends AbstractDataTable
             ['data' => 'ends_at', 'name' => 'ends_at', 'title' => 'نهاية الاشتراك'],
 
             ['data' => 'days_remaining',    'name' => 'days_remaining', 'title' => 'الأيام المتبقية', 'orderable' => false],
-            ['data' => 'status',            'name' => 'status',         'title' => 'الحالة'],
+            ['data' => 'status', 'name' => 'status', 'title' => 'حالة الإشتراك'],
         ];
 
-        if (! $this->isExpiringRoute()) {
+        if ($this->isPendingRoute()) {
             $columns[] = ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'];
         }
 
@@ -80,7 +78,8 @@ class subscriptionMangmentDataTable extends AbstractDataTable
                 $status = $row->tenant?->status ?? 'pending';
                 $labels = ['draft' => 'مسودة', 'pending' => 'قيد المراجعة', 'active' => 'نشطة'];
                 $classes = ['draft' => 'secondary', 'pending' => 'warning', 'active' => 'success'];
-                return '<span class="badge bg-label-' . ($classes[$status] ?? 'secondary') . '">' . ($labels[$status] ?? $status) . '</span>';
+
+                return '<span class="badge bg-label-'.($classes[$status] ?? 'secondary').'">'.($labels[$status] ?? $status).'</span>';
             })
             ->editColumn('tenant_id', function ($row) {
                 $url = route('admin.companies.tenant-access', ['tenant' => $row->tenant_id]);
@@ -143,11 +142,10 @@ class subscriptionMangmentDataTable extends AbstractDataTable
                 return number_format($row->price, 2).' ر.س';
             });
 
-        if (! $this->isExpiringRoute()) {
+        if ($this->isPendingRoute()) {
             $datatable->addColumn('actions', function ($row) {
                 return view($this->page.'.action', [
                     'row' => $row,
-                    'route' => $this->route,
                     'isPending' => $this->isPendingRoute(),
                 ])->render();
             });
@@ -195,7 +193,7 @@ class subscriptionMangmentDataTable extends AbstractDataTable
     {
         $columns = ['checkbox', 'tenant_id', 'plan_id', 'billing_cycle', 'city', 'tax_number', 'tenant_status', 'days_remaining', 'status'];
 
-        if (! $this->isExpiringRoute()) {
+        if ($this->isPendingRoute()) {
             $columns[] = 'actions';
         }
 
@@ -215,15 +213,9 @@ class subscriptionMangmentDataTable extends AbstractDataTable
     // Buttons
     protected function buttons(): array
     {
-        $buttons = [
+        return [
             $this->getActionsDropdownButton(),
         ];
-
-        if (! $this->isExpiringRoute() && ! $this->isPendingRoute() && ! $this->isExpiredRoute()) {
-            $buttons[] = $this->getAddButton();
-        }
-
-        return $buttons;
     }
 
     private function getActionsDropdownButton(): array
@@ -246,14 +238,6 @@ class subscriptionMangmentDataTable extends AbstractDataTable
                 'className' => 'btn btn-default btn-reject-selected',
                 'action' => 'function() { handleMassReject(); }',
             ];
-        } else {
-            // if (auth()->user()?->can('versions.delete')) {
-            $buttons[] = [
-                'text' => 'حذف المحدد',
-                'className' => 'btn btn-default btn-delete-selected',
-                'action' => 'function() { handleMassDelete(); }',
-            ];
-            // }
         }
 
         return [
@@ -261,19 +245,6 @@ class subscriptionMangmentDataTable extends AbstractDataTable
             'className' => 'btn btn-export',
             'text' => 'الإجراءات',
             'buttons' => $buttons,
-        ];
-    }
-
-    private function getAddButton(): array
-    {
-        // if (!auth()->user()?->can('إضافة شركة')) {
-        //     return [];
-        // }
-
-        return [
-            'text' => '<i class="fas fa-plus-circle me-1"></i> إضافة شركة',
-            'className' => 'btn btn-primary btn-add',
-            'action' => "function(){ window.location.href='".route($this->route.'.create')."'; }",
         ];
     }
 

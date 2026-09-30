@@ -24,6 +24,7 @@ use App\Enums\Admin\Billing\BillStatus;
 use App\Enums\Admin\Billing\BillType;
 use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
+use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -596,36 +597,62 @@ class AdminDashboardCrudFeatureTest extends TestCase
      */
     public function test_admin_company_creation_update_and_archive_lifecycle(): void
     {
-        $plan = Plan::query()->where('is_active', true)->firstOrFail();
+        $plan = Plan::query()
+            ->where('is_active', true)
+            ->where('subscription_duration_type', 'limited')
+            ->firstOrFail();
         $city = City::query()->firstOrFail();
         $commercialNumber = (string) rand(1000000000, 9999999999);
         $tenant = null;
         $tenantDatabase = null;
+        $startDate = now()->toDateString();
+        $expectedEndDate = $plan->subscription_billing_cycle === 'monthly'
+            ? now()->addMonth()->toDateString()
+            : now()->addYear()->toDateString();
+        $companyPayload = [
+            'company_name'          => 'شركة اختبار إنشاء محلي ' . rand(1000, 9999),
+            'commercial_number'     => $commercialNumber,
+            'tax_number'            => (string) rand(100000000000000, 999999999999999),
+            'city_id'               => $city->id,
+            'address'               => 'عنوان اختبار إنشاء شركة محليًا',
+            'name'                  => 'مدير شركة الاختبار',
+            'phone'                 => '05' . rand(10000000, 99999999),
+            'email'                 => 'company-' . uniqid() . '@example.test',
+            'password'              => 'Password123!',
+            'password_confirmation' => 'Password123!',
+            'plan_id'               => $plan->id,
+            'start_date'            => $startDate,
+            'total_users'           => max(1, $plan->included_users),
+            'payment_type'          => 'paid',
+            'payment_method'        => 'cash',
+            'has_discount'          => 'no',
+            'activate_immediately'  => 1,
+        ];
 
         try {
-            $this->post($this->adminUrl('companies'), [
-                'company_name'          => 'شركة اختبار إنشاء محلي ' . rand(1000, 9999),
-                'commercial_number'     => $commercialNumber,
-                'tax_number'            => (string) rand(100000000000000, 999999999999999),
-                'city_id'               => $city->id,
-                'address'               => 'عنوان اختبار إنشاء شركة محليًا',
-                'name'                  => 'مدير شركة الاختبار',
-                'phone'                 => '05' . rand(10000000, 99999999),
-                'email'                 => 'company-' . uniqid() . '@example.test',
-                'password'              => 'Password123!',
-                'password_confirmation' => 'Password123!',
-                'plan_id'               => $plan->id,
-                'start_date'            => now()->toDateString(),
-                'total_users'           => max(1, $plan->included_users),
-                'payment_type'          => 'paid',
-                'payment_method'        => 'cash',
-                'has_discount'          => 'no',
-                'activate_immediately'  => 1,
-            ])->assertRedirect($this->adminUrl('companies'));
+            $invalidPayload = $companyPayload;
+            $invalidPayload['end_date'] = now()->addDays(2)->toDateString();
+            $this->post($this->adminUrl('companies'), $invalidPayload)
+                ->assertSessionHasErrors('end_date');
+
+            $companyPayload['end_date'] = $expectedEndDate;
+            $this->post($this->adminUrl('companies'), $companyPayload)->assertRedirect($this->adminUrl('companies'));
 
             $tenant = Tenant::where('commercial_number', $commercialNumber)->firstOrFail();
             $tenantDatabase = $tenant->db_database;
             $subscription = Subscription::where('tenant_id', $tenant->id)->firstOrFail();
+            $this->assertSame($expectedEndDate, Carbon::parse($subscription->ends_at)->toDateString());
+
+            $tableResponse = $this->withHeaders([
+                'X-Requested-With' => 'XMLHttpRequest',
+                'Accept' => 'application/json, text/javascript, */*',
+            ])->get($this->adminUrl('companies?draw=1&start=0&length=10'));
+            $tableResponse->assertOk()->assertJsonPath('draw', 1);
+            $this->assertTrue(
+                collect($tableResponse->json('data'))->contains('id', $subscription->id),
+                'The newly created subscription was not returned by the companies DataTable.',
+            );
+            $this->withoutHeader('X-Requested-With')->withoutHeader('Accept');
 
             $this->put($this->adminUrl("companies/{$subscription->id}"), [
                 'tenant_id'         => $tenant->id,

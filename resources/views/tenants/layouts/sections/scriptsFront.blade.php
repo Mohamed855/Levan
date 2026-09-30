@@ -7,6 +7,7 @@
 {{-- @if (!request()->is('collection-process*'))
     @vite(['resources/assets/js/shared/basic-tamplate/front-main.js'])
 @endif --}}
+@vite(['resources/js/shared/modal-close-controls.js'])
 <!-- END: Theme JS-->
 <!-- Pricing Modal JS-->
 @stack('pricing-script')
