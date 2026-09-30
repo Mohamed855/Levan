@@ -24,13 +24,23 @@ class DiscardCompletedWizardDraft
         $userId = auth($guard)->id();
 
         if ($userId) {
-            WizardDraft::query()->where([
-                'id' => $request->attributes->get('wizard_draft_id'),
-                'resource_key' => $request->attributes->get('wizard_resource_key'),
-                'tenant_id' => $request->attributes->get('wizard_tenant_id'),
-                'guard' => $guard,
-                'user_id' => $userId,
-            ])->delete();
+            $draftId = $request->input('_wizard_draft_id') ?: $request->attributes->get('wizard_draft_id');
+            $resourceKey = $request->input('_wizard_resource_key') ?: $request->attributes->get('wizard_resource_key');
+            $tenantId = $request->attributes->get('wizard_tenant_id') ?? (tenant()?->getKey() ?? '');
+
+            if ($draftId) {
+                $query = WizardDraft::query()
+                    ->where('id', $draftId)
+                    ->where('guard', $guard)
+                    ->where('user_id', $userId)
+                    ->where('tenant_id', $tenantId);
+
+                if ($resourceKey) {
+                    $query->where('resource_key', $resourceKey);
+                }
+
+                $query->get()->each->delete();
+            }
         }
 
         return $response;
@@ -38,7 +48,9 @@ class DiscardCompletedWizardDraft
 
     private function wasStoredSuccessfully(Request $request, Response $response): bool
     {
-        if (! $request->isMethod('POST') || ! $request->attributes->has('wizard_draft_id')) {
+        $hasDraftId = $request->filled('_wizard_draft_id') || $request->attributes->has('wizard_draft_id');
+
+        if (! $request->isMethod('POST') || ! $hasDraftId) {
             return false;
         }
 
@@ -46,8 +58,6 @@ class DiscardCompletedWizardDraft
             return false;
         }
 
-        $targetPath = parse_url($response->getTargetUrl(), PHP_URL_PATH);
-
-        return is_string($targetPath) && rtrim($targetPath, '/') === rtrim($request->getPathInfo(), '/');
+        return $response->getSession()?->has('success') ?? false;
     }
 }

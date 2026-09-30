@@ -164,14 +164,27 @@ document.addEventListener('DOMContentLoaded', function () {
         const addFeatureBtn = document.getElementById('btn-add-feature');
         let featureIndex = featuresList ? featuresList.querySelectorAll('.feature-item').length : 0;
 
-        function addFeature() {
+        function addFeature(value = '') {
             const template = document.getElementById('feature-template');
             if (!template) return;
             const clone = template.content.cloneNode(true);
             const html = clone.querySelector('.feature-item').outerHTML.replace(/{index}/g, featureIndex);
             featuresList.insertAdjacentHTML('beforeend', html);
+            featuresList.lastElementChild.querySelector('input[name*="features"]').value = value;
             addFeatureValidation(featureIndex);
             featureIndex++;
+        }
+
+        function restoreFeatures(values = []) {
+            featuresList.querySelectorAll('.feature-item').forEach((item) => {
+                const input = item.querySelector('input[name*="features"]');
+                const match = input?.name.match(/features\[(\d+)\]/);
+                if (match) removeFeatureValidation(parseInt(match[1]));
+                item.remove();
+            });
+            featureIndex = 0;
+            values.filter((value) => String(value).trim() !== '').forEach(addFeature);
+            if (featuresList.querySelectorAll('.feature-item').length === 0) addFeature();
         }
 
         function addFeatureValidation(index) {
@@ -214,6 +227,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (featuresList.querySelectorAll('.feature-item').length === 0) addFeature();
         }
+
+        window.wizardCreateHooks = window.wizardCreateHooks || {};
+        window.wizardCreateHooks[formEl.id] = {
+            beforeRestoreDraft({ values, localValues }) {
+                const localFeatures = Object.entries(localValues)
+                    .filter(([name]) => /^features\[\d+\]$/.test(name))
+                    .sort(([first], [second]) => first.localeCompare(second, undefined, { numeric: true }))
+                    .map(([, value]) => value);
+
+                restoreFeatures(localFeatures.length > 0 ? localFeatures : (values.features || []));
+            }
+        };
 
         // ==================== STEPPER NAVIGATION ====================
         nextButtons.forEach(btn => {
@@ -314,6 +339,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     dir: 'rtl'
                 }).on('change', function () {
                     fv.revalidateField($this.attr('name'));
+                    this.dispatchEvent(new Event('change', { bubbles: true }));
                 });
             });
         }

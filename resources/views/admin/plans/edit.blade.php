@@ -142,11 +142,11 @@
                                         data-placeholder="اختر النوع">
                                         <option value=""></option>
                                         <option value="0"
-                                            {{ old('unlimited_branches', (int) $plan->unlimited_branches) === 0 ? 'selected' : '' }}>
+                                            @selected((string) old('unlimited_branches', $plan->unlimited_branches) === '0')>
                                             محدود
                                         </option>
                                         <option value="1"
-                                            {{ old('unlimited_branches', (int) $plan->unlimited_branches) === 1 ? 'selected' : '' }}>
+                                            @selected((string) old('unlimited_branches', $plan->unlimited_branches) === '1')>
                                             غير محدود
                                         </option>
                                     </select>
@@ -168,11 +168,11 @@
                                         class="form-select select2" data-placeholder="اختر حالة إدارة الدومينات">
                                         <option value=""></option>
                                         <option value="0"
-                                            {{ old('domain_management_enabled', (int) $plan->domain_management_enabled) === 0 ? 'selected' : '' }}>
+                                            @selected((string) old('domain_management_enabled', $plan->domain_management_enabled) === '0')>
                                             غير مفعلة
                                         </option>
                                         <option value="1"
-                                            {{ old('domain_management_enabled', (int) $plan->domain_management_enabled) === 1 ? 'selected' : '' }}>
+                                            @selected((string) old('domain_management_enabled', $plan->domain_management_enabled) === '1')>
                                             مفعلة
                                         </option>
                                     </select>
@@ -183,9 +183,9 @@
                                             class="text-danger">*</span></label>
                                     <select id="is_active" name="is_active" class="form-select select2">
                                         <option value="1"
-                                            {{ old('is_active', $plan->is_active) == 1 ? 'selected' : '' }}>مفعلة</option>
+                                            @selected((string) old('is_active', $plan->is_active) === '1')>مفعلة</option>
                                         <option value="0"
-                                            {{ old('is_active', $plan->is_active) == 0 ? 'selected' : '' }}>غير مفعلة
+                                            @selected((string) old('is_active', $plan->is_active) === '0')>غير مفعلة
                                         </option>
                                     </select>
                                 </div>
@@ -218,16 +218,15 @@
                                     <div id="features-list">
                                         @foreach ($plan->features as $i => $feature)
                                             <div class="border rounded p-3 mb-3 feature-item">
-                                                <div class="row align-items-end g-2">
-                                                    <div class="col-md-11">
+                                                <div class="d-flex align-items-end gap-2">
+                                                    <div class="flex-grow-1">
                                                         <input type="text" name="features[{{ $i }}]"
                                                             value="{{ $feature }}" class="form-control" required />
                                                     </div>
-                                                    <div class="col-md-1 text-center">
-                                                        <button type="button"
-                                                            class="btn btn-sm btn-outline-danger btn-remove-feature"><i
-                                                                class="ti ti-trash fs-5"></i></button>
-                                                    </div>
+                                                    <button type="button"
+                                                        class="btn btn-icon btn-label-danger btn-remove-feature">
+                                                        <i class="ti ti-trash fs-5"></i>
+                                                    </button>
                                                 </div>
                                             </div>
                                         @endforeach
@@ -255,17 +254,14 @@
     {{-- Templates --}}
     <template id="feature-template">
         <div class="border rounded p-3 mb-3 feature-item">
-            <div class="row align-items-end g-2">
-                <div class="col-md-11">
-                    <label class="form-label mb-1 small">اسم الميزة</label>
+            <div class="d-flex align-items-end gap-2">
+                <div class="flex-grow-1">
                     <input type="text" name="features[{index}]" class="form-control"
                         placeholder="مثال: دعم فني على مدار الساعة" required />
                 </div>
-                <div class="col-md-1 text-center">
-                    <button type="button" class="btn btn-sm btn-outline-danger w-50 btn-remove-feature" title="حذف">
-                        <i class="ti ti-trash fs-5"></i>
-                    </button>
-                </div>
+                <button type="button" class="btn btn-icon btn-label-danger btn-remove-feature">
+                    <i class="ti ti-trash fs-5"></i>
+                </button>
             </div>
         </div>
     </template>

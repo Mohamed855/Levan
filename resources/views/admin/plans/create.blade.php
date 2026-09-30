@@ -52,6 +52,8 @@
                 // تعطيل زر السابق
                 $('.btn-prev').prop('disabled', true);
 
+                sessionStorage.removeItem(`wizard-draft:${new URL($form.attr('action')).pathname}`);
+
                 // إرسال الفورم
                 $form[0].submit();
             });
@@ -180,9 +182,9 @@
                                     <select id="unlimited_branches" name="unlimited_branches" class="form-select select2"
                                         data-placeholder="اختر النوع">
                                         <option value=""></option>
-                                        <option value="0" {{ old('unlimited_branches') == '0' ? 'selected' : '' }}>
+                                        <option value="0" @selected(old('unlimited_branches') !== null && (string) old('unlimited_branches') === '0')>
                                             محدود</option>
-                                        <option value="1" {{ old('unlimited_branches') == '1' ? 'selected' : '' }}>غير
+                                        <option value="1" @selected((string) old('unlimited_branches') === '1')>غير
                                             محدود</option>
                                     </select>
                                 </div>
@@ -202,11 +204,9 @@
                                     <select name="domain_management_enabled" id="domain_management_enabled"
                                         class="form-select select2" data-placeholder="اختر حالة إدارة الدومينات">
                                         <option value=""></option>
-                                        <option value="0"
-                                            {{ old('domain_management_enabled') == '0' ? 'selected' : '' }}>غير مفعلة
+                                        <option value="0" @selected(old('domain_management_enabled') !== null && (string) old('domain_management_enabled') === '0')>غير مفعلة
                                         </option>
-                                        <option value="1"
-                                            {{ old('domain_management_enabled') == '1' ? 'selected' : '' }}>مفعلة</option>
+                                        <option value="1" @selected((string) old('domain_management_enabled') === '1')>مفعلة</option>
                                     </select>
                                 </div>
 
@@ -217,10 +217,10 @@
                                         data-placeholder="اختر الحالة">
                                         <option value=""></option>
 
-                                        <option value="0" {{ old('is_active') == 0 ? 'selected' : '' }}>
+                                        <option value="0" @selected(old('is_active') !== null && (string) old('is_active') === '0')>
                                             غير مفعلة
                                         </option>
-                                        <option value="1" {{ old('is_active') == 1 ? 'selected' : '' }}>
+                                        <option value="1" @selected((string) old('is_active') === '1')>
                                             مفعلة
                                         </option>
 
@@ -267,7 +267,20 @@
                                         </button>
                                     </div>
                                     <div id="features-list">
-                                        {{-- سيتم إضافة الميزات هنا ديناميكياً --}}
+                                        @foreach (old('features', []) as $index => $feature)
+                                            <div class="border rounded p-3 mb-3 feature-item">
+                                                <div class="d-flex align-items-end gap-2">
+                                                    <div class="flex-grow-1">
+                                                        <label class="form-label mb-1 small">اسم الميزة</label>
+                                                        <input type="text" name="features[{{ $index }}]" class="form-control"
+                                                            value="{{ $feature }}" placeholder="مثال: دعم فني على مدار الساعة" required />
+                                                    </div>
+                                                    <button type="button" class="btn btn-icon btn-label-danger btn-remove-feature" title="حذف">
+                                                        <i class="ti ti-trash fs-5"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        @endforeach
                                     </div>
                                 </div>
 
@@ -301,17 +314,15 @@
     {{-- Templates --}}
     <template id="feature-template">
         <div class="border rounded p-3 mb-3 feature-item">
-            <div class="row align-items-end g-2">
-                <div class="col-md-11">
+            <div class="d-flex align-items-end gap-2">
+                <div class="flex-grow-1">
                     <label class="form-label mb-1 small">اسم الميزة</label>
                     <input type="text" name="features[{index}]" class="form-control"
                         placeholder="مثال: دعم فني على مدار الساعة" required />
                 </div>
-                <div class="col-md-1 text-center">
-                    <button type="button" class="btn btn-sm btn-outline-danger w-50 btn-remove-feature" title="حذف">
-                        <i class="ti ti-trash fs-5"></i>
-                    </button>
-                </div>
+                <button type="button" class="btn btn-icon btn-label-danger btn-remove-feature" title="حذف">
+                    <i class="ti ti-trash fs-5"></i>
+                </button>
             </div>
         </div>
     </template>

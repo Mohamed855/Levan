@@ -27,6 +27,13 @@ abstract class WizardFormRequest extends FormRequest
         $this->attributes->set('wizard_resource_key', (string) $this->input('_wizard_resource_key'));
         $this->attributes->set('wizard_tenant_id', tenant()?->getKey() ?? '');
 
+        if (app()->bound('request')) {
+            $rootRequest = app('request');
+            $rootRequest->attributes->set('wizard_draft_id', (string) $this->input('_wizard_draft_id'));
+            $rootRequest->attributes->set('wizard_resource_key', (string) $this->input('_wizard_resource_key'));
+            $rootRequest->attributes->set('wizard_tenant_id', tenant()?->getKey() ?? '');
+        }
+
         return parent::validationData();
     }
 }

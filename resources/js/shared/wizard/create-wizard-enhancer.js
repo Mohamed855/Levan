@@ -2,6 +2,52 @@
 
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
 const draftUrl = document.body?.dataset.wizardDraftsUrl;
+const autoSaveDelay = 750;
+
+function draftStateKey(form) {
+  return `wizard-draft:${new URL(form.action).pathname}`;
+}
+
+function saveLocalDraftState(form) {
+  const values = {};
+
+  new FormData(form).forEach((value, name) => {
+    if (value instanceof File || /password/i.test(name)) return;
+    if (Object.prototype.hasOwnProperty.call(values, name)) {
+      if (!Array.isArray(values[name])) {
+        values[name] = [values[name]];
+      }
+      values[name].push(value);
+    } else {
+      values[name] = value;
+    }
+  });
+
+  form.querySelectorAll('select[name]').forEach((select) => {
+    if (select.disabled) return;
+    const name = select.name;
+    if (select.multiple) {
+      const selected = [...select.selectedOptions].map((opt) => opt.value);
+      values[name] = selected;
+    } else if (select.value !== '') {
+      values[name] = select.value;
+    }
+  });
+
+  const pane = form.querySelector('.content.active, .bs-stepper-pane.active');
+  sessionStorage.setItem(draftStateKey(form), JSON.stringify({
+    values,
+    step: pane ? stepNumber(pane) : 1,
+  }));
+}
+
+function localDraftState(form) {
+  try {
+    return JSON.parse(sessionStorage.getItem(draftStateKey(form)) || '{}');
+  } catch {
+    return {};
+  }
+}
 
 function activePane(button) {
   return button.closest('.content, .bs-stepper-pane');
@@ -123,6 +169,52 @@ function addHiddenField(form, name, value) {
   input.value = value;
 }
 
+function fillSelectElement(select, value) {
+  if (value === undefined || value === null) return;
+
+  const normalized = Array.isArray(value) ? value.map(String) : [String(value)];
+  let matched = false;
+
+  [...select.options].forEach((option) => {
+    const isSelected = normalized.includes(String(option.value));
+    option.selected = isSelected;
+    if (isSelected) {
+      option.setAttribute('selected', 'selected');
+      matched = true;
+    } else {
+      option.removeAttribute('selected');
+    }
+  });
+
+  if (!select.multiple) {
+    select.value = matched ? normalized[0] : '';
+  }
+
+  if (window.jQuery) {
+    const $select = window.jQuery(select);
+    $select.val(select.multiple ? normalized : (matched ? normalized[0] : ''));
+    $select.trigger('change');
+    $select.trigger('change.select2');
+  }
+
+  select.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
+function syncSelects(form) {
+  if (!window.jQuery) return;
+  form.querySelectorAll('select').forEach((select) => {
+    const $select = window.jQuery(select);
+    if ($select.data('select2') || select.classList.contains('select2')) {
+      const val = select.multiple
+        ? [...select.selectedOptions].map((opt) => opt.value)
+        : select.value;
+      if (val !== '' && val !== null && (!Array.isArray(val) || val.length > 0)) {
+        $select.val(val).trigger('change.select2');
+      }
+    }
+  });
+}
+
 function fillDraft(form, values, prefix = '') {
   Object.entries(values || {}).forEach(([key, value]) => {
     const name = prefix ? `${prefix}[${key}]` : key;
@@ -139,6 +231,9 @@ function fillDraft(form, values, prefix = '') {
       if (element.type === 'password' || element.type === 'file') return;
       if (element.type === 'checkbox' || element.type === 'radio') {
         element.checked = String(element.value) === String(value) || value === true || value === 1;
+      } else if (element.tagName === 'SELECT') {
+        fillSelectElement(element, value);
+        return;
       } else {
         element.value = Array.isArray(value) ? value : String(value ?? '');
       }
@@ -150,6 +245,7 @@ function fillDraft(form, values, prefix = '') {
 async function restoreDraft(form) {
   if (!draftUrl) return;
 
+  const localDraft = localDraftState(form);
   const resourceKey = new URL(form.action).pathname;
   const response = await fetch(`${draftUrl}?resource_key=${encodeURIComponent(resourceKey)}`, {
     headers: { Accept: 'application/json' },
@@ -157,16 +253,30 @@ async function restoreDraft(form) {
   if (!response.ok) return;
 
   const draft = await response.json();
-  if (!draft.draft_id) return;
+  const values = draft.data || {};
 
-  addHiddenField(form, '_wizard_draft_id', draft.draft_id);
-  addHiddenField(form, '_wizard_resource_key', resourceKey);
-  fillDraft(form, draft.data);
+  await hooksFor(form).beforeRestoreDraft?.({ form, values, localValues: localDraft.values || {} });
 
-  stepperFor(form)?.to(0);
+  if (draft.draft_id) {
+    addHiddenField(form, '_wizard_draft_id', draft.draft_id);
+    addHiddenField(form, '_wizard_resource_key', resourceKey);
+  }
+
+  const hasServerErrors = Boolean(
+    form.querySelector('.is-invalid, .wizard-server-error') || document.querySelector('.alert-danger')
+  );
+
+  if (!hasServerErrors) {
+    fillDraft(form, values);
+    fillDraft(form, localDraft.values || {});
+  }
+  syncSelects(form);
+
+  const step = Number(localDraft.step || draft.step || 1);
+  stepperFor(form)?.to(Math.max(0, step - 1));
 }
 
-async function saveDraft(form, pane) {
+async function saveDraft(form, pane, notify = true) {
   const payload = new FormData(form);
   const resourceKey = new URL(form.action).pathname;
   payload.set('resource_key', resourceKey);
@@ -183,7 +293,8 @@ async function saveDraft(form, pane) {
   const draft = await response.json();
   addHiddenField(form, '_wizard_draft_id', draft.draft_id);
   addHiddenField(form, '_wizard_resource_key', resourceKey);
-  window.toastr?.success?.(draft.message);
+  saveLocalDraftState(form);
+  if (notify) window.toastr?.success?.(draft.message);
 }
 
 function updateNextState(form) {
@@ -315,8 +426,24 @@ function initializeForm(form) {
   updateNextState(form);
   restoreDraft(form).finally(() => updateNextState(form));
 
-  form.addEventListener('input', () => updateNextState(form));
-  form.addEventListener('change', () => updateNextState(form));
+  let autoSaveTimer;
+  const persistAndAutoSave = () => {
+    updateNextState(form);
+    saveLocalDraftState(form);
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(() => {
+      const pane = form.querySelector('.content.active, .bs-stepper-pane.active');
+      if (pane) saveDraft(form, pane, false).catch(() => {});
+    }, autoSaveDelay);
+  };
+
+  form.addEventListener('input', persistAndAutoSave);
+  form.addEventListener('change', persistAndAutoSave);
+  if (window.jQuery) {
+    window.jQuery(form).on('change', 'select, input, textarea', persistAndAutoSave);
+    window.jQuery(form).on('change.select2', 'select', persistAndAutoSave);
+  }
+  wizardFor(form)?.addEventListener('shown.bs-stepper', persistAndAutoSave);
 }
 
 function initialize() {
