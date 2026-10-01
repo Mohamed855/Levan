@@ -4,7 +4,6 @@
 
 @use '../variables' as vars;
 
-// 1. Vertical Menu Background (Secondary Color: #f3edea)
 .bg-menu-theme.menu-vertical,
 #layout-menu.menu-vertical {
     background-color: var(--secondary-color, #{vars.$secondary-color}) !important;

@@ -61,7 +61,7 @@
             <div class="card h-100 dashboard-chart-card">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <h5 class="card-title mb-0">
-                        <i class="ti ti-chart-line me-1 text-primary"></i>
+                        <i class="ti ti-chart-bar me-1 text-primary"></i>
                         استخدام المنصة
                     </h5>
                     <select id="platform-activity-range" class="form-select chart-range-select w-25">

@@ -57,13 +57,12 @@
     </div>
 
 
-    {{-- جدول سجل الرسائل --}}
-    <div class="card" id="card-message-logs">
+    {{-- Filters Card --}}
+    <div class="card mb-4">
         <div class="card-body">
-            {{-- فلاتر البحث --}}
-            <div class="filters row">
+            <div class="row g-4">
                 <div class="col-md-4">
-                    <label for="filter-status">الحالة</label>
+                    <label class="form-label" for="filter-status">الحالة</label>
                     <select id="filter-status" class="form-control select2" data-placeholder="اختر الحالة">
                         <option value=""></option>
                         <option value="pending">في الانتظار</option>
@@ -75,7 +74,7 @@
                 </div>
 
                 <div class="col-md-4">
-                    <label for="filter-message-type">نوع الرسالة</label>
+                    <label class="form-label" for="filter-message-type">نوع الرسالة</label>
                     <select id="filter-message-type" class="form-control select2" data-placeholder="اختر النوع">
                         <option value=""></option>
                         <option value="sms">رسالة نصية</option>
@@ -85,7 +84,7 @@
                 </div>
 
                 <div class="col-md-4">
-                    <label for="filter-sender">المرسل</label>
+                    <label class="form-label" for="filter-sender">المرسل</label>
                     <select id="filter-sender" class="form-control select2" data-placeholder="اختر المرسل">
                         <option value=""></option>
                         @foreach ($filterData['senders'] as $sender)
@@ -95,9 +94,17 @@
                 </div>
             </div>
 
-            <hr class="mt-10">
+            <div class="d-flex justify-content-end mt-3 gap-2">
+                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
+                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
+                </button>
+            </div>
+        </div>
+    </div>
 
-            {{-- جدول البيانات --}}
+    {{-- جدول سجل الرسائل --}}
+    <div class="card">
+        <div class="card-body">
             <table id="message-logs-table" class="table table-striped table-bordered text-center">
                 <thead>
                     <tr>

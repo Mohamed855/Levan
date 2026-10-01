@@ -2,52 +2,6 @@
 
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
 const draftUrl = document.body?.dataset.wizardDraftsUrl;
-const autoSaveDelay = 750;
-
-function draftStateKey(form) {
-  return `wizard-draft:${new URL(form.action).pathname}`;
-}
-
-function saveLocalDraftState(form) {
-  const values = {};
-
-  new FormData(form).forEach((value, name) => {
-    if (value instanceof File || /password/i.test(name)) return;
-    if (Object.prototype.hasOwnProperty.call(values, name)) {
-      if (!Array.isArray(values[name])) {
-        values[name] = [values[name]];
-      }
-      values[name].push(value);
-    } else {
-      values[name] = value;
-    }
-  });
-
-  form.querySelectorAll('select[name]').forEach((select) => {
-    if (select.disabled) return;
-    const name = select.name;
-    if (select.multiple) {
-      const selected = [...select.selectedOptions].map((opt) => opt.value);
-      values[name] = selected;
-    } else if (select.value !== '') {
-      values[name] = select.value;
-    }
-  });
-
-  const pane = form.querySelector('.content.active, .bs-stepper-pane.active');
-  sessionStorage.setItem(draftStateKey(form), JSON.stringify({
-    values,
-    step: pane ? stepNumber(pane) : 1,
-  }));
-}
-
-function localDraftState(form) {
-  try {
-    return JSON.parse(sessionStorage.getItem(draftStateKey(form)) || '{}');
-  } catch {
-    return {};
-  }
-}
 
 function activePane(button) {
   return button.closest('.content, .bs-stepper-pane');
@@ -94,6 +48,11 @@ function stepNumber(pane) {
 
 function csrfTokenFor(form) {
   return csrfToken || form.querySelector('input[name="_token"]')?.value || '';
+}
+
+function resourceKeyFor(form) {
+  return form.querySelector('input[name="_wizard_resource_key"]')?.value
+    || new URL(form.action).pathname;
 }
 
 function clearServerErrors(form) {
@@ -242,11 +201,47 @@ function fillDraft(form, values, prefix = '') {
   });
 }
 
+async function shouldRestoreDraft() {
+  if (window.Swal) {
+    const result = await window.Swal.fire({
+      title: 'مسودة محفوظة',
+      text: 'توجد مسودة محفوظة مسبقاً. هل ترغب في استعادتها؟',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'نعم، استعادة المسودة',
+      cancelButtonText: 'تجاهل والبدء من جديد',
+      customClass: {
+        confirmButton: 'btn btn-primary me-2',
+        cancelButton: 'btn btn-secondary',
+      },
+      buttonsStyling: false,
+    });
+
+    return result.isConfirmed;
+  }
+
+  return window.confirm('توجد مسودة محفوظة مسبقاً. هل ترغب في استعادتها؟');
+}
+
+async function discardDraft(form, resourceKey) {
+  const response = await fetch(`${draftUrl}?resource_key=${encodeURIComponent(resourceKey)}`, {
+    method: 'DELETE',
+    headers: {
+      'X-CSRF-TOKEN': csrfTokenFor(form),
+      Accept: 'application/json',
+    },
+  });
+
+  if (!response.ok) throw new Error('Unable to discard the draft.');
+
+  const draftId = form.querySelector('input[name="_wizard_draft_id"]');
+  if (draftId) draftId.value = '';
+}
+
 async function restoreDraft(form) {
   if (!draftUrl) return;
 
-  const localDraft = localDraftState(form);
-  const resourceKey = new URL(form.action).pathname;
+  const resourceKey = resourceKeyFor(form);
   const response = await fetch(`${draftUrl}?resource_key=${encodeURIComponent(resourceKey)}`, {
     headers: { Accept: 'application/json' },
   });
@@ -255,12 +250,17 @@ async function restoreDraft(form) {
   const draft = await response.json();
   const values = draft.data || {};
 
-  await hooksFor(form).beforeRestoreDraft?.({ form, values, localValues: localDraft.values || {} });
+  if (!draft.draft_id) return;
 
-  if (draft.draft_id) {
-    addHiddenField(form, '_wizard_draft_id', draft.draft_id);
-    addHiddenField(form, '_wizard_resource_key', resourceKey);
+  if (!await shouldRestoreDraft()) {
+    await discardDraft(form, resourceKey);
+    return;
   }
+
+  await hooksFor(form).beforeRestoreDraft?.({ form, values, localValues: {} });
+
+  addHiddenField(form, '_wizard_draft_id', draft.draft_id);
+  addHiddenField(form, '_wizard_resource_key', resourceKey);
 
   const hasServerErrors = Boolean(
     form.querySelector('.is-invalid, .wizard-server-error') || document.querySelector('.alert-danger')
@@ -268,17 +268,16 @@ async function restoreDraft(form) {
 
   if (!hasServerErrors) {
     fillDraft(form, values);
-    fillDraft(form, localDraft.values || {});
   }
   syncSelects(form);
 
-  const step = Number(localDraft.step || draft.step || 1);
+  const step = Number(draft.step || 1);
   stepperFor(form)?.to(Math.max(0, step - 1));
 }
 
 async function saveDraft(form, pane, notify = true) {
   const payload = new FormData(form);
-  const resourceKey = new URL(form.action).pathname;
+  const resourceKey = resourceKeyFor(form);
   payload.set('resource_key', resourceKey);
   payload.set('step', String(stepNumber(pane)));
 
@@ -293,7 +292,6 @@ async function saveDraft(form, pane, notify = true) {
   const draft = await response.json();
   addHiddenField(form, '_wizard_draft_id', draft.draft_id);
   addHiddenField(form, '_wizard_resource_key', resourceKey);
-  saveLocalDraftState(form);
   if (notify) window.toastr?.success?.(draft.message);
 }
 
@@ -424,26 +422,19 @@ function initializeForm(form) {
     if (pane && stepNumber(pane) === 1) button.disabled = false;
   });
   updateNextState(form);
-  restoreDraft(form).finally(() => updateNextState(form));
+  restoreDraft(form)
+    .catch(() => window.toastr?.error?.('تعذر التعامل مع المسودة. يرجى المحاولة مرة أخرى.'))
+    .finally(() => updateNextState(form));
 
-  let autoSaveTimer;
-  const persistAndAutoSave = () => {
-    updateNextState(form);
-    saveLocalDraftState(form);
-    clearTimeout(autoSaveTimer);
-    autoSaveTimer = setTimeout(() => {
-      const pane = form.querySelector('.content.active, .bs-stepper-pane.active');
-      if (pane) saveDraft(form, pane, false).catch(() => {});
-    }, autoSaveDelay);
-  };
+  const updateValidationState = () => updateNextState(form);
 
-  form.addEventListener('input', persistAndAutoSave);
-  form.addEventListener('change', persistAndAutoSave);
+  form.addEventListener('input', updateValidationState);
+  form.addEventListener('change', updateValidationState);
   if (window.jQuery) {
-    window.jQuery(form).on('change', 'select, input, textarea', persistAndAutoSave);
-    window.jQuery(form).on('change.select2', 'select', persistAndAutoSave);
+    window.jQuery(form).on('change', 'select, input, textarea', updateValidationState);
+    window.jQuery(form).on('change.select2', 'select', updateValidationState);
   }
-  wizardFor(form)?.addEventListener('shown.bs-stepper', persistAndAutoSave);
+  wizardFor(form)?.addEventListener('shown.bs-stepper', updateValidationState);
 }
 
 function initialize() {

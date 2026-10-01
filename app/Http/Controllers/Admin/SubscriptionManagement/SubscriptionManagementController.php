@@ -34,6 +34,35 @@ class SubscriptionManagementController extends Controller
     {
         try {
             $statistics = $this->subscriptionManagementService->getSubscriptionStatistics();
+            $cities = City::select('id', 'name')->get();
+            $plans = Plan::select('id', 'name')->active()->get();
+
+            $filterOptions = [
+                'statuses' => [
+                    ['value' => 'active', 'label' => 'نشط'],
+                    ['value' => 'pending', 'label' => 'بانتظار التفعيل'],
+                    ['value' => 'suspended', 'label' => 'موقوف'],
+                ],
+                'subscriptionStatuses' => [
+                    ['value' => 'active', 'label' => 'نشط'],
+                    ['value' => 'pending', 'label' => 'معلق'],
+                    ['value' => 'suspended', 'label' => 'موقوف'],
+                    ['value' => 'expired', 'label' => 'منتهي'],
+                    ['value' => 'trial', 'label' => 'تجريبي'],
+                ],
+                'plans' => $plans->map(fn ($plan): array => [
+                    'value' => $plan->id,
+                    'label' => $plan->name,
+                ]),
+                'cities' => $cities->map(fn ($city): array => [
+                    'value' => $city->id,
+                    'label' => $city->name,
+                ]),
+                'expiring' => [
+                    ['value' => '7', 'label' => 'خلال 7 أيام'],
+                    ['value' => '30', 'label' => 'خلال 30 يوماً'],
+                ],
+            ];
 
             return $dataTable->render('admin.companies.index', [
                 'totalSubscriptions'     => $statistics['total'],
@@ -48,6 +77,9 @@ class SubscriptionManagementController extends Controller
                 'pendingCompanies'       => $statistics['pending'],
                 'suspendedCompanies'     => $statistics['suspended'] ?? 0,
                 'statistics'             => $statistics,
+                'cities'                 => $cities,
+                'plans'                  => $plans,
+                'filterOptions'          => $filterOptions,
             ]);
         } catch (\Exception $e) {
             report($e);

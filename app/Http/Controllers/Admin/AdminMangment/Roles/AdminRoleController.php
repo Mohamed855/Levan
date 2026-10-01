@@ -49,9 +49,21 @@ class AdminRoleController extends Controller
             $roles          = $this->roleService->getAllRoles();
             $permissions    = $this->roleService->getGroupedPermissions();
 
+            $filterOptions = [
+                'statuses' => [
+                    ['value' => 'active', 'label' => 'نشط'],
+                    ['value' => 'inactive', 'label' => 'غير نشط'],
+                ],
+                'roles' => $roles->map(fn ($role): array => [
+                    'value' => $role->id,
+                    'label' => $role->name,
+                ]),
+            ];
+
             return $dataTable->render($this->page . '.index', [
                 'roles'             => $roles,
                 'permissions'       => $permissions,
+                'filterOptions'     => $filterOptions,
 
 
                 // 'totalUsers'       => $statistics['total'],

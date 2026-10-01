@@ -29,7 +29,7 @@ function initializeComponents() {
             width: '100%',
             language: 'ar',
             dir: 'rtl',
-            dropdownParent: $(this).closest('#card-message-logs')
+            dropdownParent: $(this).closest('.card')
         });
     });
 
@@ -250,6 +250,12 @@ function handleTableRowCreation(row, data, dataIndex) {
 function bindEvents() {
     // تحديث الجدول عند تغيير الفلاتر
     $('#filter-status, #filter-message-type, #filter-sender').on('change', function() {
+        messageLogsTable.draw();
+    });
+
+    // إعادة تعيين الفلاتر
+    $('#btn-reset-filters').on('click', function() {
+        $('#filter-status, #filter-message-type, #filter-sender').val('').trigger('change.select2');
         messageLogsTable.draw();
     });
 

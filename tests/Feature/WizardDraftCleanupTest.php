@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\Admin\AdminMangment\Users\AdminUser;
+use App\Models\Shared\WizardDraft;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -96,6 +97,53 @@ class WizardDraftCleanupTest extends TestCase
 
         // Draft must NOT be deleted
         $this->assertDatabaseHas('wizard_drafts', ['id' => $draft['draft_id']]);
+    }
+
+    public function test_saving_the_same_draft_twice_updates_its_existing_record(): void
+    {
+        $resourceKey = '/admin/draft-update-'.Str::uuid();
+
+        $firstDraft = $this->postJson($this->adminUrl('wizard-drafts'), [
+            'resource_key' => $resourceKey,
+            'step' => 1,
+            'name' => 'البيانات الأولى',
+        ])->assertOk()->json();
+
+        $secondDraft = $this->postJson($this->adminUrl('wizard-drafts'), [
+            'resource_key' => $resourceKey,
+            'step' => 2,
+            'name' => 'البيانات المحدّثة',
+        ])->assertOk()->json();
+
+        $this->assertSame($firstDraft['draft_id'], $secondDraft['draft_id']);
+        $this->assertSame(1, WizardDraft::query()
+            ->where('guard', 'admin')
+            ->where('user_id', $this->admin->id)
+            ->where('tenant_id', '')
+            ->where('resource_key', $resourceKey)
+            ->count());
+        $this->assertDatabaseHas('wizard_drafts', [
+            'id' => $firstDraft['draft_id'],
+            'last_step' => 2,
+        ]);
+
+        WizardDraft::query()->findOrFail($firstDraft['draft_id'])->delete();
+    }
+
+    public function test_a_user_can_discard_a_saved_draft(): void
+    {
+        $resourceKey = '/admin/draft-discard-'.Str::uuid();
+        $draft = $this->postJson($this->adminUrl('wizard-drafts'), [
+            'resource_key' => $resourceKey,
+            'step' => 1,
+            'name' => 'مسودة للحذف',
+        ])->assertOk()->json();
+
+        $this->deleteJson($this->adminUrl('wizard-drafts').'?resource_key='.urlencode($resourceKey))
+            ->assertOk()
+            ->assertJsonPath('success', true);
+
+        $this->assertDatabaseMissing('wizard_drafts', ['id' => $draft['draft_id']]);
     }
 
     private function adminUrl(string $path): string

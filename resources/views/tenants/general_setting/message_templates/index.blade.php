@@ -131,13 +131,12 @@
         </div>
     </div>
 
-    {{-- جدول القوالب --}}
-    <div class="card">
+    {{-- Filters Card --}}
+    <div class="card mb-4">
         <div class="card-body">
-            {{-- فلاتر البحث --}}
-            <div class="filters row mb-3">
+            <div class="row g-4">
                 <div class="col-md-3">
-                    <label for="filter-category">الفئة</label>
+                    <label class="form-label" for="filter-category">الفئة</label>
                     <select id="filter-category" class="form-control select2" data-placeholder="اختر الفئة">
                         <option value=""></option>
                         @foreach ($categories as $key => $value)
@@ -147,7 +146,7 @@
                 </div>
 
                 <div class="col-md-3">
-                    <label for="filter-channel">القناة</label>
+                    <label class="form-label" for="filter-channel">القناة</label>
                     <select id="filter-channel" class="form-control select2" data-placeholder="اختر القناة">
                         <option value=""></option>
                         @foreach ($channels as $key => $value)
@@ -157,23 +156,31 @@
                 </div>
 
                 <div class="col-md-3">
-                    <label for="filter-status">الحالة</label>
+                    <label class="form-label" for="filter-status">الحالة</label>
                     <select id="filter-status" class="form-control select2" data-placeholder="اختر الحالة">
                         <option value=""></option>
-                        <option value="1">نشط</option>
-                        <option value="0">غير نشط</option>
+                        <option value="active">نشط</option>
+                        <option value="inactive">غير نشط</option>
                     </select>
                 </div>
 
                 <div class="col-md-3">
-                    <label for="filter-search">البحث</label>
+                    <label class="form-label" for="filter-search">البحث</label>
                     <input type="text" id="filter-search" class="form-control" placeholder="البحث في الاسم أو المحتوى">
                 </div>
             </div>
 
-            <hr>
+            <div class="d-flex justify-content-end mt-3 gap-2">
+                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
+                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
+                </button>
+            </div>
+        </div>
+    </div>
 
-            {{-- جدول البيانات --}}
+    {{-- جدول القوالب --}}
+    <div class="card">
+        <div class="card-body">
             <table id="message-templates-table" class="table table-striped table-bordered text-center">
                 <thead>
                     <tr>

@@ -161,6 +161,13 @@ function bindEvents() {
       messageTemplatesTable.draw();
     }, 500);
   });
+
+  // إعادة تعيين الفلاتر
+  $('#btn-reset-filters').on('click', function () {
+    $('#filter-category, #filter-channel, #filter-status').val('').trigger('change');
+    $('#filter-search').val('');
+    messageTemplatesTable.draw();
+  });
 }
 
 /**

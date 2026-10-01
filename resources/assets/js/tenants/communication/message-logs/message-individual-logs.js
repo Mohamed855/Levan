@@ -75,6 +75,14 @@ $(function () {
             searchTimeout = setTimeout(applyFilters, 500);
         });
 
+        // زر إعادة تعيين الفلاتر
+        $('#btn-reset-filters').on('click', function () {
+            $('#filter-status, #filter-company, #filter-portfolio, #filter-customer, #filter-date-from, #filter-date-to, #filter-search').val('').trigger('change.select2');
+            resetPortfolioFilter();
+            resetCustomerFilter();
+            applyFilters();
+        });
+
         // تحميل المحافظ بحسب الشركة
         function loadPortfoliosByCompany(companyId) {
             const portfolioSelect = $('#filter-portfolio');

@@ -38,6 +38,16 @@ class AdminUserController extends Controller
             $totalUsers = AdminUser::count();
             $activeUsers = AdminUser::where('status', AdminUserStatus::ACTIVE)->count();
             $inactiveUsers = AdminUser::where('status', AdminUserStatus::INACTIVE)->count();
+            $filterOptions = [
+                'statuses' => [
+                    ['value' => 'active', 'label' => 'نشط'],
+                    ['value' => 'inactive', 'label' => 'غير نشط'],
+                ],
+                'roles' => $roles->map(fn (Role $role): array => [
+                    'value' => $role->id,
+                    'label' => $role->name,
+                ]),
+            ];
 
             // $archivedUsers = AdminUser::onlyTrashed()->count();
             return $dataTable->render($this->page.'.index', [
@@ -46,6 +56,7 @@ class AdminUserController extends Controller
                 'inactiveUsers' => $inactiveUsers,
                 // 'archivedUsers'   => $archivedUsers,
                 'roles' => $roles,
+                'filterOptions' => $filterOptions,
             ]);
         } catch (\Exception $e) {
             report($e);

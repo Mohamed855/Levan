@@ -36,6 +36,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
     Route::prefix('wizard-drafts')->name('wizard-drafts.')->group(function () {
         Route::get('/', [WizardDraftController::class, 'show'])->name('index');
         Route::post('/', [WizardDraftController::class, 'store'])->name('store');
+        Route::delete('/', [WizardDraftController::class, 'destroy'])->name('destroy');
         Route::post('validate-step', [WizardDraftController::class, 'validateStep'])->name('validate-step');
     });
 

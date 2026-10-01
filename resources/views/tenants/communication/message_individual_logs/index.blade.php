@@ -100,9 +100,10 @@
         </div>
     </div>
 
-    <div class="card">
+    {{-- Filters Card --}}
+    <div class="card mb-4">
         <div class="card-body">
-            <div class="row g-4 mb-3">
+            <div class="row g-4">
                 <div class="col-md-2">
                     <label for="filter-status" class="form-label">الحالة</label>
                     <select id="filter-status" class="form-control select2" data-placeholder="الكل">
@@ -124,16 +125,16 @@
                 </div>
 
                 <div class="col-md-2">
-                    <label class="form-label">المحفظة</label>
-                    <select id="filter-portfolio" class="form-select select2" name="portfolio_id">
-                        <option value="">الكل</option>
+                    <label for="filter-portfolio" class="form-label">المحفظة</label>
+                    <select id="filter-portfolio" class="form-control select2" name="portfolio_id" data-placeholder="الكل">
+                        <option value=""></option>
                     </select>
                 </div>
 
                 <div class="col-md-2">
-                    <label class="form-label">العميل</label>
-                    <select id="filter-customer" class="form-select select2" name="customer_id">
-                        <option value="">الكل</option>
+                    <label for="filter-customer" class="form-label">العميل</label>
+                    <select id="filter-customer" class="form-control select2" name="customer_id" data-placeholder="الكل">
+                        <option value=""></option>
                     </select>
                 </div>
 
@@ -148,8 +149,17 @@
                 </div>
             </div>
 
+            <div class="d-flex justify-content-end mt-3 gap-2">
+                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
+                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
+                </button>
+            </div>
+        </div>
+    </div>
 
-            <hr class="mt-8">
+    {{-- DataTable Card --}}
+    <div class="card">
+        <div class="card-body">
             {!! $dataTable->table(
                 ['class' => 'table table-striped table-bordered w-100', 'id' => 'message-individual-logs-table'],
                 false,

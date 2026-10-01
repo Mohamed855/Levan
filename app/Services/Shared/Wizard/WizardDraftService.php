@@ -61,6 +61,17 @@ class WizardDraftService
             ->first();
     }
 
+    public function discard(Request $request, string $resourceKey): bool
+    {
+        $draft = $this->find($request, $resourceKey);
+
+        if (! $draft) {
+            return false;
+        }
+
+        return (bool) $draft->delete();
+    }
+
     public function mergeIntoRequest(Request $request, string $draftId, string $resourceKey): array
     {
         $draft = $this->find($request, $resourceKey, $draftId);

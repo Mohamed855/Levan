@@ -52,10 +52,22 @@ class PlanController extends Controller
         try {
             $statistics = $this->planService->getPlanStatistics();
 
+            $filterOptions = [
+                'statuses' => [
+                    ['value' => 'active', 'label' => 'نشط'],
+                    ['value' => 'inactive', 'label' => 'غير نشط'],
+                ],
+                'domains' => [
+                    ['value' => 'active', 'label' => 'نشط'],
+                    ['value' => 'inactive', 'label' => 'غير نشط'],
+                ],
+            ];
+
             return $dataTable->render($this->page . '.index', [
                 'totalPlans'       => $statistics['total'],
                 'activePlans'      => $statistics['active'],
                 'inactivePlans'    => $statistics['inactive'],
+                'filterOptions'    => $filterOptions,
             ]);
         } catch (\Exception $e) {
             report($e);

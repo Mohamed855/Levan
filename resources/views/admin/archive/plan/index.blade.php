@@ -51,16 +51,16 @@
                     <label class="form-label" for="filter-status">حالة الباقة</label>
                     <select id="filter-status" class="form-control select2" data-placeholder="اختر حالة الباقة">
                         <option value=""></option>
-                        <option value="1">نشط</option>
-                        <option value="0">غير نشط</option>
+                        <option value="active">نشط</option>
+                        <option value="inactive">غير نشط</option>
                     </select>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label" for="filter-domain">إدارة الدومينات</label>
                     <select id="filter-domain" class="form-control select2" data-placeholder="اختر حالة إدارة الدومين">
                         <option value=""></option>
-                        <option value="1">مفعلة</option>
-                        <option value="0">غير مفعلة</option>
+                        <option value="active">نشط</option>
+                        <option value="inactive">غير نشط</option>
                     </select>
                 </div>
             </div>

@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const plansData = window.plansData || [];
-    const resourceKey = window.wizardResourceKey || 'admin.company-create';
 
     let validationStepper = null;
     if (typeof Stepper !== 'undefined') {
@@ -363,129 +362,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Generic Draft Saving via /admin/wizard-drafts
-    async function saveDraft(step) {
-        try {
-            const formData = new FormData(form);
-            formData.set('resource_key', resourceKey);
-            formData.set('step', String(step));
-            formData.delete('password');
-            formData.delete('password_confirmation');
-
-            const response = await fetch('/admin/wizard-drafts', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-                    'Accept': 'application/json'
-                },
-                body: formData
-            });
-
-            const data = await response.json();
-            if (response.ok && data.draft_id) {
-                document.getElementById('_wizard_draft_id').value = data.draft_id;
-                return true;
-            }
-            return false;
-        } catch (e) {
-            console.error('Draft save failed:', e);
-            return false;
-        }
-    }
-
-    // Attach Draft Save buttons
-    document.querySelectorAll('.btn-save-draft').forEach(btn => {
-        btn.addEventListener('click', async function () {
-            const step = this.dataset.step || '1';
-            btn.disabled = true;
-            const ok = await saveDraft(step);
-            btn.disabled = false;
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    icon: ok ? 'success' : 'error',
-                    title: ok ? 'تم حفظ المسودة بنجاح' : 'تعذر حفظ المسودة',
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 2500
-                });
-            }
-        });
-    });
-
-    // Restore draft on initial load
-    async function restoreDraft() {
-        try {
-            const response = await fetch(`/admin/wizard-drafts?resource_key=${encodeURIComponent(resourceKey)}`, {
-                headers: { 'Accept': 'application/json' }
-            });
-            if (!response.ok) return;
-
-            const res = await response.json();
-            const draftData = res.data || (res.draft ? res.draft.payload : null);
-            if (draftData && Object.keys(draftData).length > 0) {
-                if (typeof Swal !== 'undefined') {
-                    const result = await Swal.fire({
-                        title: 'مسودة محفوظة',
-                        text: 'توجد مسودة محفوظة مسبقاً لإنشاء هذه الشركة. هل ترغب في استعادتها؟',
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonText: 'نعم، استعادة المسودة',
-                        cancelButtonText: 'تجاهل والبدء من جديد',
-                        customClass: {
-                            confirmButton: 'btn btn-primary me-2',
-                            cancelButton: 'btn btn-secondary'
-                        },
-                        buttonsStyling: false
-                    });
-
-                    if (result.isConfirmed) {
-                        applyCompanyDraftData(draftData, res.draft_id || res.draft?.id, res.step || res.draft?.step);
-                    }
-                } else {
-                    applyCompanyDraftData(draftData, res.draft_id || res.draft?.id, res.step || res.draft?.step);
-                }
-            }
-        } catch (e) {
-            console.error('Draft restore failed:', e);
-        }
-    }
-
-    function applyCompanyDraftData(data, draftId, step) {
-        if (draftId) {
-            document.getElementById('_wizard_draft_id').value = draftId;
-        }
-
-        Object.entries(data).forEach(([key, val]) => {
-            if (key === 'password' || key === 'password_confirmation') return;
-            const field = form.querySelector(`[name="${key}"]`);
-            if (field) {
-                if (field.type === 'checkbox') {
-                    field.checked = Boolean(val);
-                } else {
-                    field.value = val;
-                    if (typeof jQuery !== 'undefined' && $(field).hasClass('select2')) {
-                        $(field).trigger('change');
-                    }
-                }
-            }
-        });
-
-        if (data.plan_id) {
-            updatePlanDetails(data.plan_id);
-        }
-        if (data.payment_type) {
-            handlePaymentStatusChange(data.payment_type);
-        }
-
-        if (step && validationStepper && parseInt(step) > 1) {
-            const stepIdx = Math.min(3, parseInt(step) - 1);
-            setTimeout(() => validationStepper.to(stepIdx), 250);
-        }
-    }
-
-    restoreDraft();
-
     // Step 1 -> Next
     document.getElementById('btn-next-company')?.addEventListener('click', async function (e) {
         e.preventDefault();
@@ -493,7 +369,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const results = await Promise.all(step1Fields.map(f => fv.validateField(f)));
 
         if (results.every(r => r === 'Valid') && await validateServerStep(step1Fields)) {
-            saveDraft(1);
             if (validationStepper) validationStepper.to(1);
         }
     });
@@ -510,7 +385,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const results = await Promise.all(step2Fields.map(f => fv.validateField(f)));
 
         if (results.every(r => r === 'Valid') && await validateServerStep(step2Fields)) {
-            saveDraft(2);
             if (validationStepper) validationStepper.to(2);
         }
     });
@@ -533,7 +407,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const results = await Promise.all(step3Fields.map(f => fv.validateField(f)));
         if (results.every(r => r === 'Valid') && await validateServerStep(step3Fields)) {
-            saveDraft(3);
             updateReviewSummary();
             if (validationStepper) validationStepper.to(3);
         }

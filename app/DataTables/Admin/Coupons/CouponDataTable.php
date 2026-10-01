@@ -118,7 +118,14 @@ class CouponDataTable extends AbstractDataTable
         $request = request();
    
         if ($request->filled('is_active')) {
-            $query->where('is_active', $request->is_active);
+            $val = $request->is_active;
+            if ($val === 'active' || $val === '1' || $val === 1) {
+                $query->where('is_active', 1);
+            } elseif ($val === 'inactive' || $val === '0' || $val === 0) {
+                $query->where('is_active', 0);
+            } else {
+                $query->where('is_active', $val);
+            }
         }
 
         if ($request->filled('discount_type')) {

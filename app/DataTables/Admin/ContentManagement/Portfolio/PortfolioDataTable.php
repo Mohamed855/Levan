@@ -105,7 +105,14 @@ protected function applyCustomFilters($query)
     $request = request();
 
     if ($request->filled('status')) {
-        $query->where('status', $request->status);
+        $val = $request->status;
+        if ($val === 'active' || $val === '1' || $val === 1) {
+            $query->where('status', 1);
+        } elseif ($val === 'inactive' || $val === '0' || $val === 0) {
+            $query->where('status', 0);
+        } else {
+            $query->where('status', $val);
+        }
     }
 
     return $query;

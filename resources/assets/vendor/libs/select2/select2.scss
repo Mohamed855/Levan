@@ -38,14 +38,15 @@ $select2-multiple-selection-line-height: 1.5rem !default;
     border-radius: light.$border-radius;
     padding: 0.543rem light.$spacer;
 
-    &[aria-selected='true'] {
-      background-color: light.$primary;
-      color: light.$component-active-color;
+    &[aria-selected='true'],
+    &.select2-results__option--selected {
+      background-color: light.$component-hover-bg !important;
+      color: light.$component-hover-color !important;
     }
   }
 }
 
-.select2-container--default .select2-results__option--highlighted:not([aria-selected='true']) {
+.select2-container--default .select2-results__option--highlighted {
   background-color: light.$component-hover-bg !important;
   color: light.$component-hover-color !important;
 }

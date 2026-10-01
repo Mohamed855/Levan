@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Shared\Wizard;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Shared\Wizard\DiscardWizardDraftRequest;
 use App\Http\Requests\Shared\Wizard\StoreWizardDraftRequest;
 use App\Http\Requests\Shared\Wizard\ValidateWizardStepRequest;
 use App\Services\Shared\Wizard\WizardDraftService;
@@ -45,6 +46,16 @@ class WizardDraftController extends Controller
             'success' => true,
             'draft_id' => $draft->getKey(),
             'message' => 'تم حفظ المسودة بنجاح.',
+        ]);
+    }
+
+    public function destroy(DiscardWizardDraftRequest $request): JsonResponse
+    {
+        $this->drafts->discard($request, $request->validated('resource_key'));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم حذف المسودة.',
         ]);
     }
 

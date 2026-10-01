@@ -49,44 +49,14 @@
     <div class="card mb-4">
         <div class="card-body">
             <div class="row g-4">
-                <div class="col-md-3">
-                    <label class="form-label" for="filter-sub-status">حالة الاشتراك</label>
-                    <select id="filter-sub-status" class="form-control select2" data-placeholder="اختر حالة الاشتراك">
-                        <option value=""></option>
-                        <option value="active">نشط</option>
-                        <option value="pending">معلق</option>
-                        <option value="suspended">موقوف</option>
-                        <option value="expired">منتهي</option>
-                        <option value="trial">تجريبي</option>
-                        <option value="cancelled">ملغي</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label" for="filter-plan">الباقة</label>
-                    <select id="filter-plan" class="form-control select2" data-placeholder="اختر الباقة">
-                        <option value=""></option>
-                        @foreach ($plans ?? [] as $plan)
-                            <option value="{{ $plan->id }}">{{ $plan->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label" for="filter-city">مدينة الشركة</label>
-                    <select id="filter-city" class="form-control select2" data-placeholder="اختر المدينة">
-                        <option value=""></option>
-                        @foreach ($cities ?? [] as $city)
-                            <option value="{{ $city->id }}">{{ $city->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label" for="filter-expiring">قرب الانتهاء</label>
-                    <select id="filter-expiring" class="form-control select2" data-placeholder="قرب الانتهاء">
-                        <option value=""></option>
-                        <option value="7">تنتهي خلال 7 أيام</option>
-                        <option value="30">تنتهي خلال 30 يوماً</option>
-                    </select>
-                </div>
+                <x-filter.select col="col-md-3" id="filter-sub-status" label="حالة الاشتراك"
+                    placeholder="اختر حالة الاشتراك" :options="$filterOptions['statuses'] ?? []" />
+                <x-filter.select col="col-md-3" id="filter-plan" label="الباقة"
+                    placeholder="اختر الباقة" :options="$filterOptions['plans'] ?? []" />
+                <x-filter.select col="col-md-3" id="filter-city" label="مدينة الشركة"
+                    placeholder="اختر المدينة" :options="$filterOptions['cities'] ?? []" />
+                <x-filter.select col="col-md-3" id="filter-expiring" label="قرب الانتهاء"
+                    placeholder="قرب الانتهاء" :options="$filterOptions['expiring'] ?? []" />
             </div>
             <div class="d-flex justify-content-end mt-3 gap-2">
                 <button type="button" id="btn-reset-filters" class="btn btn-secondary">

@@ -32,8 +32,31 @@ class SubscriptionController extends Controller
     public function index(SubscriptionDataTable $dataTable)
     {
         $statistics = $this->subscriptionService->getSubscriptionStatistics();
-        $plans = Plan::active()->get();
-        $cities = City::all();
+        $plans = Plan::select('id', 'name')->active()->get();
+        $cities = City::select('id', 'name')->get();
+
+        $filterOptions = [
+            'statuses' => [
+                ['value' => 'active', 'label' => 'نشط'],
+                ['value' => 'pending', 'label' => 'معلق'],
+                ['value' => 'suspended', 'label' => 'موقوف'],
+                ['value' => 'expired', 'label' => 'منتهي'],
+                ['value' => 'trial', 'label' => 'تجريبي'],
+                ['value' => 'cancelled', 'label' => 'ملغي'],
+            ],
+            'plans' => $plans->map(fn ($plan): array => [
+                'value' => $plan->id,
+                'label' => $plan->name,
+            ]),
+            'cities' => $cities->map(fn ($city): array => [
+                'value' => $city->id,
+                'label' => $city->name,
+            ]),
+            'expiring' => [
+                ['value' => '7', 'label' => 'تنتهي خلال 7 أيام'],
+                ['value' => '30', 'label' => 'تنتهي خلال 30 يوماً'],
+            ],
+        ];
 
         return $dataTable->render('admin.subscriptions.index', [
             'totalSubscriptions'     => $statistics['total'],
@@ -43,6 +66,7 @@ class SubscriptionController extends Controller
             'expiringSubscriptions'  => $statistics['expiring_soon'],
             'plans'                  => $plans,
             'cities'                 => $cities,
+            'filterOptions'          => $filterOptions,
         ]);
     }
 

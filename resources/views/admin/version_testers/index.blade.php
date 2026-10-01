@@ -51,8 +51,8 @@
                     <label class="form-label" for="filter-status">الحالة</label>
                     <select id="filter-status" class="form-control select2" data-placeholder="اختر الحالة">
                         <option value=""></option>
-                        <option value="1">مفعل</option>
-                        <option value="0">غير مفعل</option>
+                        <option value="active">نشط</option>
+                        <option value="inactive">غير نشط</option>
                     </select>
                 </div>
             </div>

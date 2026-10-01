@@ -49,52 +49,16 @@
     <div class="card mb-4">
         <div class="card-body">
             <div class="row g-4">
-                <div class="col-md-3">
-                    <label class="form-label" for="filter-status">حالة الشركة</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر حالة الشركة">
-                        <option value=""></option>
-                        <option value="active">نشط</option>
-                        <option value="pending">بانتظار التفعيل</option>
-                        <option value="suspended">موقوف</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label" for="filter-sub-status">حالة آخر اشتراك</label>
-                    <select id="filter-sub-status" class="form-control select2" data-placeholder="اختر حالة الاشتراك">
-                        <option value=""></option>
-                        <option value="active">نشط</option>
-                        <option value="pending">معلق</option>
-                        <option value="suspended">موقوف</option>
-                        <option value="expired">منتهي</option>
-                        <option value="trial">تجريبي</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label" for="filter-plan">الباقة</label>
-                    <select id="filter-plan" class="form-control select2" data-placeholder="اختر الباقة">
-                        <option value=""></option>
-                        @foreach ($plans ?? [] as $plan)
-                            <option value="{{ $plan->id }}">{{ $plan->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label" for="filter-city">المدينة</label>
-                    <select id="filter-city" class="form-control select2" data-placeholder="اختر المدينة">
-                        <option value=""></option>
-                        @foreach ($cities ?? [] as $city)
-                            <option value="{{ $city->id }}">{{ $city->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label" for="filter-expiring">انتهاء الاشتراك</label>
-                    <select id="filter-expiring" class="form-control select2" data-placeholder="انتهاء الاشتراك">
-                        <option value=""></option>
-                        <option value="7">خلال 7 أيام</option>
-                        <option value="30">خلال 30 يوماً</option>
-                    </select>
-                </div>
+                <x-filter.select col="col-md-3" id="filter-status" label="حالة الشركة"
+                    placeholder="اختر حالة الشركة" :options="$filterOptions['statuses'] ?? []" />
+                <x-filter.select col="col-md-3" id="filter-sub-status" label="حالة آخر اشتراك"
+                    placeholder="اختر حالة الاشتراك" :options="$filterOptions['subscriptionStatuses'] ?? []" />
+                <x-filter.select col="col-md-2" id="filter-plan" label="الباقة"
+                    placeholder="اختر الباقة" :options="$filterOptions['plans'] ?? []" />
+                <x-filter.select col="col-md-2" id="filter-city" label="المدينة"
+                    placeholder="اختر المدينة" :options="$filterOptions['cities'] ?? []" />
+                <x-filter.select col="col-md-2" id="filter-expiring" label="انتهاء الاشتراك"
+                    placeholder="انتهاء الاشتراك" :options="$filterOptions['expiring'] ?? []" />
             </div>
             <div class="d-flex justify-content-end mt-3 gap-2">
                 <button type="button" id="btn-reset-filters" class="btn btn-secondary">

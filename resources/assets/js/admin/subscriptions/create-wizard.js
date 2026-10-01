@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const companiesData = window.companiesData || [];
     const plansData = window.plansData || [];
-    const resourceKey = window.wizardResourceKey || 'admin.subscription-create';
 
     let validationStepper = null;
     if (typeof Stepper !== 'undefined') {
@@ -342,133 +341,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('sub_review-final-total').textContent = formatNumber(finalPrice) + ' ر.س';
     }
 
-    // Generic Draft Saving via /admin/wizard-drafts
-    async function saveDraft(step) {
-        try {
-            const formData = new FormData(form);
-            formData.set('resource_key', resourceKey);
-            formData.set('step', String(step));
-
-            const response = await fetch('/admin/wizard-drafts', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-                    'Accept': 'application/json'
-                },
-                body: formData
-            });
-
-            const data = await response.json();
-            if (response.ok && data.draft_id) {
-                document.getElementById('_wizard_draft_id').value = data.draft_id;
-                return true;
-            }
-            return false;
-        } catch (e) {
-            console.error('Draft save failed:', e);
-            return false;
-        }
-    }
-
-    // Attach Draft Save buttons
-    document.querySelectorAll('.btn-save-draft').forEach(btn => {
-        btn.addEventListener('click', async function () {
-            const step = this.dataset.step || '1';
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> جاري الحفظ...';
-
-            const success = await saveDraft(step);
-            btn.disabled = false;
-            btn.innerHTML = '<i class="ti ti-device-floppy me-1"></i> حفظ كمسودة';
-
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    icon: success ? 'success' : 'error',
-                    title: success ? 'تم حفظ المسودة بنجاح' : 'تعذر حفظ المسودة',
-                    text: success ? 'يمكنك العودة لاحقاً واستكمال إنشاء الاشتراك.' : 'يرجى المحاولة مرة أخرى.',
-                    confirmButtonText: 'حسناً',
-                    customClass: { confirmButton: 'btn btn-primary' },
-                    buttonsStyling: false
-                });
-            }
-        });
-    });
-
-    // Check for draft restoration on load
-    async function checkDraft() {
-        try {
-            const response = await fetch(`/admin/wizard-drafts?resource_key=${resourceKey}`, {
-                headers: { 'Accept': 'application/json' }
-            });
-            if (!response.ok) return;
-
-            const res = await response.json();
-            const draftData = res.data || (res.draft ? res.draft.payload : null);
-            if (draftData && Object.keys(draftData).length > 0) {
-                if (typeof Swal !== 'undefined') {
-                    const result = await Swal.fire({
-                        title: 'مسودة محفوظة',
-                        text: 'توجد مسودة محفوظة مسبقاً لإنشاء هذا الاشتراك. هل ترغب في استعادتها؟',
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonText: 'نعم، استعادة المسودة',
-                        cancelButtonText: 'تجاهل والبدء من جديد',
-                        customClass: {
-                            confirmButton: 'btn btn-primary me-2',
-                            cancelButton: 'btn btn-secondary'
-                        },
-                        buttonsStyling: false
-                    });
-
-                    if (result.isConfirmed) {
-                        applyDraftData(draftData, res.draft_id || res.draft?.id, res.step || res.draft?.step);
-                    }
-                } else {
-                    applyDraftData(draftData, res.draft_id || res.draft?.id, res.step || res.draft?.step);
-                }
-            }
-        } catch (e) {
-            console.warn('Draft check bypassed:', e);
-        }
-    }
-
-    function applyDraftData(payload, draftId, step) {
-        if (draftId) {
-            document.getElementById('_wizard_draft_id').value = draftId;
-        }
-
-        for (const [key, val] of Object.entries(payload)) {
-            const input = form.querySelector(`[name="${key}"]`);
-            if (!input || val === null || val === undefined) continue;
-
-            if (input.type === 'checkbox') {
-                input.checked = !!val;
-            } else if (input.type === 'radio') {
-                const radio = form.querySelector(`[name="${key}"][value="${val}"]`);
-                if (radio) radio.checked = true;
-            } else {
-                input.value = val;
-                if ($(input).hasClass('select2')) {
-                    $(input).val(val).trigger('change');
-                }
-            }
-        }
-
-        if (payload.company_id) updateCompanyCard(payload.company_id);
-        if (payload.plan_id) updatePlanDetails(payload.plan_id);
-        if (payload.payment_type) handlePaymentStatusChange(payload.payment_type);
-        if (payload.has_discount) {
-            discountWrapper.style.display = payload.has_discount === 'yes' ? 'block' : 'none';
-        }
-
-        if (step && validationStepper) {
-            const targetStep = parseInt(step, 10);
-            if (!isNaN(targetStep) && targetStep > 1) {
-                validationStepper.to(targetStep);
-            }
-        }
-    }
-
     // Step navigation buttons
     const stepFields = {
         1: ['company_id', 'plan_id'],
@@ -489,9 +361,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (!isValid) return;
-
-            // Auto-save draft on step advance
-            saveDraft(stepNum + 1);
 
             if (stepNum === 2) {
                 updateReviewSummary();
@@ -520,6 +389,4 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Check for existing draft
-    checkDraft();
 });

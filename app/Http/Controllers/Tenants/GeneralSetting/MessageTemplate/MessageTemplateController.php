@@ -54,7 +54,14 @@ class MessageTemplateController extends Controller
             }
 
             if ($request->filled('status')) {
-                $query->where('is_active', $request->status == '1');
+                $status = $request->status;
+                if ($status === 'active' || $status === '1' || $status === 1) {
+                    $query->where('is_active', 1);
+                } elseif ($status === 'inactive' || $status === '0' || $status === 0) {
+                    $query->where('is_active', 0);
+                } else {
+                    $query->where('is_active', $status);
+                }
             }
 
             if ($request->filled('search')) {
