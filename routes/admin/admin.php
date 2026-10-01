@@ -139,6 +139,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
     // Plans Management
     Route::prefix('plans')->name('plans.')->group(function () {
         Route::post('update-sort-order', [PlanController::class, 'updateSortOrder'])->name('update-sort-order');
+        Route::post('reorder', [PlanController::class, 'updateSortOrder'])->name('reorder');
         Route::patch('{plan}/toggle-active', [PlanController::class, 'toggleActive'])->name('toggle-active');
         Route::get('details/{plan}', [PlanController::class, 'show'])->name('details');
         Route::resource('/', PlanController::class)->parameters(['' => 'plan']);

@@ -43,6 +43,9 @@ return [
     'plans.create' => 'إضافة باقة',
     'plans.edit' => 'تعديل باقة',
     'plans.delete' => 'حذف باقة',
+    'plans.reorder' => 'إعادة ترتيب الباقات',
+    'plans.restore' => 'استعادة باقة من الأرشيف',
+    'plans.force_delete' => 'الحذف النهائي للباقة',
 
     // Coupons
     'coupons.view' => 'الكوبونات',

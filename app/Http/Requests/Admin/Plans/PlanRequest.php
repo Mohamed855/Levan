@@ -1,8 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Admin\Plans;
 
+use App\Enums\Admin\Plans\PlanColor;
+use App\Enums\Admin\Plans\PlanLimitsMode;
+use App\Enums\Admin\Plans\PlanType;
+use App\Enums\Admin\Subscriptions\SubscriptionBillingCycle;
 use App\Http\Requests\Concerns\WizardFormRequest;
+use App\Models\Admin\Plans\Plan;
+use Illuminate\Validation\Rule;
 
 class PlanRequest extends WizardFormRequest
 {
@@ -13,100 +21,166 @@ class PlanRequest extends WizardFormRequest
 
     protected function prepareForValidation(): void
     {
-        $this->merge([
-            "subscription_duration_type" => $this->input("subscription_duration_type", "limited"),
-            "subscription_billing_cycle" => $this->input("subscription_billing_cycle", "yearly"),
-        ]);
+        $plan = $this->route('plan');
+        if (is_numeric($plan)) {
+            $plan = Plan::find($plan);
+        }
+
+        $code = $this->input('code');
+        if ($code !== null) {
+            $code = strtoupper(trim((string) $code));
+        }
+
+        $limitsMode = (string) $this->input('limits_mode', 'limited');
+
+        $mergeData = [
+            'code'        => $code,
+            'limits_mode' => $limitsMode,
+        ];
+
+        // If editing a plan that already has subscriptions, lock down critical contract columns
+        if ($plan instanceof Plan && $plan->hasSubscriptions()) {
+            $mergeData['code']                       = $plan->code;
+            $mergeData['subscription_billing_cycle'] = $plan->subscription_billing_cycle instanceof SubscriptionBillingCycle
+                ? $plan->subscription_billing_cycle->value
+                : (string) $plan->subscription_billing_cycle;
+            $mergeData['limits_mode']                = $plan->limits_mode instanceof PlanLimitsMode
+                ? $plan->limits_mode->value
+                : (string) $plan->limits_mode;
+        }
+
+        // When limits_mode is unlimited, force limits to null and unlimited_branches to true
+        if ($limitsMode === PlanLimitsMode::UNLIMITED->value) {
+            $mergeData['included_users']        = null;
+            $mergeData['properties_limit']      = null;
+            $mergeData['storage_quota_gb']      = null;
+            $mergeData['active_auctions_limit'] = null;
+            $mergeData['branches_limit']        = null;
+            $mergeData['unlimited_branches']    = true;
+        }
+
+        $this->merge($mergeData);
     }
 
     public function rules(): array
     {
-        return [
-            'name'                   => ['required', 'string', 'max:255'],
-            'is_active'              => ['required', 'boolean'],
-            'price'                  => ['required', 'numeric', 'min:0'],
-            'extra_user_license_price'  => ['required', 'numeric', 'min:0'],
-            'yearly_renewal_price'   => ['required', 'numeric', 'min:0'],
-            'included_users'         => ['required', 'numeric', 'min:0'],
-            'subscription_duration_type' => ['required', 'in:limited,unlimited'],
-            'subscription_billing_cycle' => ['nullable', 'required_if:subscription_duration_type,limited', 'in:monthly,yearly'],
-            'description'            => ['nullable', 'string', 'max:1000'],
+        $plan = $this->route('plan');
+        $planId = $plan instanceof Plan ? $plan->id : (is_numeric($plan) ? (int) $plan : null);
 
-            'discount_percentage'    => ['nullable', 'numeric', 'min:0', 'max:100'],
+        $limitsMode = (string) $this->input('limits_mode', 'limited');
+        $billingCycle = (string) $this->input('subscription_billing_cycle', 'monthly');
 
-            'properties_limit'       => ['nullable', 'integer', 'min:0'],
-            'storage_quota_gb'       => ['nullable', 'integer', 'min:0'],
-            'active_auctions_limit'  => ['nullable', 'integer', 'min:0'],
-
-            // نوع حد الفروع (محدود / غير محدود)
-            'unlimited_branches'     => ['required', 'boolean'],
-
-            // عدد الفروع - مطلوب إذا كان النوع محدود
-            'branches_limit'         => ['nullable', 'integer', 'min:1', 'required_if:unlimited_branches,0'],
-
-            // ميزة إدارة الدومينات
-            'domain_management_enabled' => ['required', 'boolean'],
-
-            // المميزات
-            'features'               => ['required', 'array', 'min:1'],
-            'features.*'             => ['required', 'string', 'max:255'],
+        $rules = [
+            'name'                       => ['required', 'string', 'max:255'],
+            'code'                       => [
+                'required',
+                'string',
+                'max:50',
+                'regex:/^[A-Z][A-Z0-9_]*$/',
+                Rule::unique('plans', 'code')->ignore($planId),
+            ],
+            'plan_type'                  => ['required', 'string', Rule::in(PlanType::values())],
+            'color'                      => ['required', 'string', Rule::in(PlanColor::values())],
+            'description'                => ['nullable', 'string', 'max:1000'],
+            'price'                      => ['required', 'numeric', 'min:0'],
+            'discount_percentage'        => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'yearly_renewal_price'       => ['nullable', 'numeric', 'min:0'],
+            'subscription_billing_cycle' => ['required', 'string', Rule::in(SubscriptionBillingCycle::values())],
+            'available_from'             => ['nullable', 'date'],
+            'admin_notes'                => ['nullable', 'string', 'max:2000'],
+            'is_active'                  => ['required', 'boolean'],
+            'domain_management_enabled'  => ['required', 'boolean'],
+            'limits_mode'                => ['required', 'string', Rule::in(PlanLimitsMode::values())],
+            'features'                   => ['required', 'array', 'min:1'],
+            'features.*'                 => ['required', 'string', 'max:255'],
         ];
+
+        if ($limitsMode === PlanLimitsMode::LIMITED->value) {
+            $rules['included_users']           = ['required', 'integer', 'min:1'];
+            $rules['properties_limit']         = ['required', 'integer', 'min:1'];
+            $rules['storage_quota_gb']         = ['required', 'integer', 'min:1'];
+            $rules['active_auctions_limit']    = ['required', 'integer', 'min:1'];
+            $rules['branches_limit']           = ['required', 'integer', 'min:1'];
+            $rules['unlimited_branches']       = ['nullable', 'boolean'];
+            $rules['extra_user_license_price'] = ['required', 'numeric', 'min:0'];
+        } else {
+            $rules['included_users']           = ['nullable'];
+            $rules['properties_limit']         = ['nullable'];
+            $rules['storage_quota_gb']         = ['nullable'];
+            $rules['active_auctions_limit']    = ['nullable'];
+            $rules['branches_limit']           = ['nullable'];
+            $rules['unlimited_branches']       = ['nullable', 'boolean'];
+            $rules['extra_user_license_price'] = ['nullable', 'numeric', 'min:0'];
+        }
+
+        return $rules;
     }
 
     public function messages(): array
     {
         return [
-            'name.required'              => 'اسم الباقة مطلوب',
-            'name.max'                   => 'اسم الباقة يجب ألا يتجاوز 255 حرف',
+            'name.required'                       => 'اسم الباقة مطلوب.',
+            'name.max'                            => 'اسم الباقة يجب ألا يتجاوز 255 حرفاً.',
 
-            'is_active.required'         => 'يجب تحديد حالة الباقة',
-            'is_active.boolean'          => 'قيمة حالة الباقة غير صحيحة',
+            'code.required'                       => 'كود الباقة مطلوب.',
+            'code.regex'                          => 'كود الباقة يجب أن يبدأ بحرف إنجليزي كبير ويحتوي على أحرف كبيرة وأرقام وشرطة سفلية فقط (مثال: PRO_2026).',
+            'code.unique'                         => 'كود الباقة مستخدم مسبقاً، يرجى اختيار كود فريد.',
+            'code.max'                            => 'كود الباقة يجب ألا يتجاوز 50 حرفاً.',
 
-            'price.required'             => 'السعر  مطلوب',
-            'price.numeric'              => 'السعر  يجب أن يكون رقمًا صحيحًا',
-            'price.min'                  => 'السعر  يجب أن يكون أكبر من 0',
+            'plan_type.required'                  => 'نوع الباقة مطلوب.',
+            'plan_type.in'                        => 'نوع الباقة المحدد غير صالح.',
 
+            'color.required'                      => 'لون الباقة مطلوب.',
+            'color.in'                            => 'لون الباقة المحدد غير صالح.',
 
-            'extra_user_license_price.required'             => 'سعر الترخيص  مطلوب',
-            'extra_user_license_price.numeric'              => 'سعر الترخيص  يجب أن يكون رقمًا صحيحًا',
-            'extra_user_license_price.min'                  => 'سعر الترخيص  يجب أن يكون أكبر من 0',
+            'price.required'                      => 'سعر الدورة الأساسية للباقة مطلوب.',
+            'price.numeric'                       => 'السعر يجب أن يكون رقماً.',
+            'price.min'                           => 'السعر يجب ألا يقل عن 0.',
 
+            'yearly_renewal_price.numeric'        => 'سعر العرض السنوي يجب أن يكون رقماً.',
+            'yearly_renewal_price.min'            => 'سعر العرض السنوي لا يمكن أن يقل عن 0.',
 
-            'yearly_renewal_price.required' => 'سعر التجديد السنوي  مطلوب',
-            'yearly_renewal_price.numeric'  => 'سعر التجديد السنوي  يجب أن يكون رقمًا صحيحًا',
-            'yearly_renewal_price.min'      => 'سعر التجديد السنوي  يجب أن يكون أكبر من 0',
+            'extra_user_license_price.required'   => 'سعر ترخيص المستخدم الإضافي مطلوب للباقة المحدودة.',
+            'extra_user_license_price.numeric'    => 'سعر ترخيص المستخدم الإضافي يجب أن يكون رقماً.',
+            'extra_user_license_price.min'        => 'سعر ترخيص المستخدم الإضافي لا يمكن أن يقل عن 0.',
 
+            'discount_percentage.numeric'         => 'نسبة الخصم يجب أن تكون رقماً.',
+            'discount_percentage.min'             => 'نسبة الخصم لا يمكن أن تقل عن 0%.',
+            'discount_percentage.max'             => 'نسبة الخصم لا يمكن أن تزيد عن 100%.',
 
-            'included_users.required'    => 'عدد المستخدمين مطلوب',
-            'included_users.numeric'     => 'عدد المستخدمين يجب أن يكون رقمًا صحيحًا',
-            'included_users.min'         => 'عدد المستخدمين يجب أن يكون أكبر من 0',
+            'subscription_billing_cycle.required' => 'دورة الفوترة مطلوبة.',
+            'subscription_billing_cycle.in'       => 'دورة الفوترة المحددة غير صالحة.',
 
-            'description.max'            => 'الوصف يجب ألا يتجاوز 1000 حرف',
+            'limits_mode.required'                => 'وضع الحدود مطلوب.',
+            'limits_mode.in'                      => 'وضع الحدود المحدد غير صالح.',
 
-            // نسبة الخصم
-            'discount_percentage.numeric' => 'نسبة الخصم يجب أن تكون رقمًا صحيحًا',
-            'discount_percentage.min'     => 'نسبة الخصم لا يمكن أن تكون أقل من 0',
-            'discount_percentage.max'     => 'نسبة الخصم لا يمكن أن تتجاوز 100',
+            'included_users.required'             => 'عدد المستخدمين مطلوب للباقات المحدودة.',
+            'included_users.integer'              => 'عدد المستخدمين يجب أن يكون رقماً صحيحاً.',
+            'included_users.min'                  => 'عدد المستخدمين يجب أن يكون 1 على الأقل.',
 
-            // نوع حد الفروع
-            'unlimited_branches.required' => 'يجب تحديد نوع حد الفروع',
-            'unlimited_branches.boolean' => 'قيمة نوع حد الفروع غير صحيحة',
+            'properties_limit.required'           => 'حد العقارات مطلوب للباقات المحدودة.',
+            'properties_limit.integer'            => 'حد العقارات يجب أن يكون رقماً صحيحاً.',
+            'properties_limit.min'                => 'حد العقارات يجب أن يكون 1 على الأقل.',
 
-            // عدد الفروع
-            'branches_limit.required_if' => 'عدد الفروع مطلوب عندما يكون نوع الحد محدودًا',
-            'branches_limit.integer'     => 'عدد الفروع يجب أن يكون رقمًا صحيحًا',
-            'branches_limit.min'         => 'عدد الفروع يجب أن يكون أكبر من 0',
+            'storage_quota_gb.required'           => 'حصة التخزين مطلوبة للباقات المحدودة.',
+            'storage_quota_gb.integer'            => 'حصة التخزين يجب أن تكون رقماً صحيحاً.',
+            'storage_quota_gb.min'                => 'حصة التخزين يجب أن تكون 1 جيجابايت على الأقل.',
 
-            // إدارة الدومينات
-            'domain_management_enabled.required' => 'يجب تحديد حالة ميزة إدارة الدومينات',
-            'domain_management_enabled.boolean'  => 'قيمة ميزة إدارة الدومينات غير صحيحة',
+            'active_auctions_limit.required'      => 'حد المزادات النشطة مطلوب للباقات المحدودة.',
+            'active_auctions_limit.integer'       => 'حد المزادات النشطة يجب أن يكون رقماً صحيحاً.',
+            'active_auctions_limit.min'           => 'حد المزادات النشطة يجب أن يكون 1 على الأقل.',
 
-            // المميزات
-            'features.required'          => 'يجب إضافة ميزة واحدة على الأقل',
-            'features.array'             => 'تنسيق المميزات غير صحيح',
-            'features.min'               => 'يجب إضافة ميزة واحدة على الأقل',
-            'features.*.required'        => 'كل ميزة يجب أن تحتوي على نص',
-            'features.*.max'             => 'الميزة يجب ألا تتجاوز 255 حرف',
+            'branches_limit.required'             => 'حد الفروع مطلوب للباقات المحدودة.',
+            'branches_limit.integer'              => 'حد الفروع يجب أن يكون رقماً صحيحاً.',
+            'branches_limit.min'                  => 'حد الفروع يجب أن يكون 1 على الأقل.',
+
+            'is_active.required'                  => 'حالة تفعيل الباقة مطلوبة.',
+            'domain_management_enabled.required'  => 'حالة إدارة الدومينات مطلوبة.',
+
+            'features.required'                   => 'يجب إضافة ميزة واحدة على الأقل للباقة.',
+            'features.min'                        => 'يجب إضافة ميزة واحدة على الأقل للباقة.',
+            'features.*.required'                 => 'كل ميزة يجب أن تحتوي على نص صالح.',
+            'features.*.max'                      => 'نص الميزة يجب ألا يتجاوز 255 حرفاً.',
         ];
     }
 }

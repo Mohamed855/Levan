@@ -1,3 +1,4 @@
+'use strict';
 
 $(function () {
     $('.select2').select2({
@@ -8,28 +9,46 @@ $(function () {
     $('#paln-table').on('init.dt', function () {
         const table = $(this).DataTable();
 
+        const filterIds = [
+            '#filter-status',
+            '#filter-plan-type',
+            '#filter-billing-cycle',
+            '#filter-limits-mode',
+            '#filter-availability',
+            '#filter-discounts',
+            '#filter-domain',
+            '#filter-most-requested',
+        ];
+
         function applyFilters() {
             const filters = {
                 is_active: $('#filter-status').val() || '',
+                plan_type: $('#filter-plan-type').val() || '',
+                subscription_billing_cycle: $('#filter-billing-cycle').val() || '',
+                limits_mode: $('#filter-limits-mode').val() || '',
+                availability: $('#filter-availability').val() || '',
+                discounts: $('#filter-discounts').val() || '',
                 domain_management_enabled: $('#filter-domain').val() || '',
+                most_requested: $('#filter-most-requested').val() || '',
             };
 
             const baseUrl = window.location.pathname;
             const params = new URLSearchParams();
 
-            if (filters.is_active) params.append('is_active', filters.is_active);
-            if (filters.domain_management_enabled) params.append('domain_management_enabled', filters.domain_management_enabled);
+            Object.entries(filters).forEach(([key, val]) => {
+                if (val !== '') {
+                    params.append(key, val);
+                }
+            });
 
             const newUrl = baseUrl + (params.toString() ? '?' + params.toString() : '');
-
             table.ajax.url(newUrl).load();
         }
 
-        $('#filter-status').on('change', applyFilters);
-        $('#filter-domain').on('change', applyFilters);
+        $(filterIds.join(', ')).on('change', applyFilters);
 
         $('#btn-reset-filters').on('click', function () {
-            $('#filter-status, #filter-domain').val('').trigger('change');
+            $(filterIds.join(', ')).val('').trigger('change');
         });
     });
 });

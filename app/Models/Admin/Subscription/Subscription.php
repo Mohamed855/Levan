@@ -29,6 +29,7 @@ class Subscription extends Model
         'subscription_number',
         'tenant_id',
         'plan_id',
+        'billing_cycle',
         'starts_at',
         'ends_at',
         'status',
@@ -48,6 +49,7 @@ class Subscription extends Model
 
     protected $casts = [
         'status'                   => SubscriptionStatus::class,
+        'billing_cycle'            => SubscriptionBillingCycle::class,
         'price'                    => 'decimal:2',
         'licenses_quota'           => 'integer',
         'trial_ends_at'            => 'datetime',

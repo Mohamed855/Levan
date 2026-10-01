@@ -202,8 +202,8 @@
                             </div>
 
                             <div class="mt-4 d-flex justify-content-between">
-                                <a href="{{ route('admin.companies.index') }}" class="btn btn-secondary waves-effect">
-                                    <i class="ti ti-arrow-left me-1"></i> إلغاء
+                                <a href="{{ route('admin.companies.index') }}" class="btn btn-secondary btn-prev waves-effect waves-light">
+                                    <i class="ti ti-arrow-left me-1"></i> السابق
                                 </a>
                                 <div class="d-flex gap-2">
                                     <button type="button" class="btn btn-secondary btn-save-draft" data-step="1">

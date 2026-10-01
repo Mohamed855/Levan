@@ -4,43 +4,29 @@ namespace App\Http\Middleware\Tenancy\CheckLimits;
 
 use Closure;
 use Illuminate\Http\Request;
-use Stancl\Tenancy\Facades\Tenancy;
-use App\Models\Admin\Subscription\Subscription;
 use App\Models\Tenants\Branch\Branch;
+use App\Services\shared\Subscription\SubscriptionLimitsResolver;
 
 class CheckBranchesLimits
 {
+    protected SubscriptionLimitsResolver $limitsResolver;
+
+    public function __construct(?SubscriptionLimitsResolver $limitsResolver = null)
+    {
+        $this->limitsResolver = $limitsResolver ?? app(SubscriptionLimitsResolver::class);
+    }
+
     public function handle(Request $request, Closure $next)
     {
         $tenantId = tenant('id');
 
-        $subscriptionData = Tenancy::central(function () use ($tenantId) {
-            $subscription = Subscription::where('tenant_id', $tenantId)
-                ->where('status', \App\Enums\Admin\Subscriptions\SubscriptionStatus::ACTIVE)
-                ->with('plan')
-                ->latest('id')
-                ->first()
-                ?? Subscription::where('tenant_id', $tenantId)
-                    ->with('plan')
-                    ->latest('id')
-                    ->first();
+        $limits = $this->limitsResolver->resolveForTenant($tenantId);
 
-            if (!$subscription || !$subscription->plan) {
-                return null;
-            }
-
-            return [
-                'unlimited_branches' => $subscription->plan->unlimited_branches,
-                'branches_limit'     => $subscription->plan->branches_limit,
-                'plan_name'          => $subscription->plan->name,
-            ];
-        });
-
-        if (!$subscriptionData) {
+        if ($limits['plan_name'] === '-' && $limits['branches_limit'] === 0 && !$limits['is_unlimited']) {
             return redirect()->back()->with('error', 'لا يوجد اشتراك نشط');
         }
 
-        if ($subscriptionData['unlimited_branches']) {
+        if ($limits['is_unlimited'] || $limits['unlimited_branches']) {
             $request->merge([
                 'subscription_limit' => null, // غير محدود
                 'unlimited_branches' => true,
@@ -50,13 +36,13 @@ class CheckBranchesLimits
             return $next($request);
         }
 
-        $currentCount   = Branch::count();
-        $limit          = $subscriptionData['branches_limit'] ?? 0;
+        $currentCount = Branch::count();
+        $limit        = $limits['branches_limit'] ?? 0;
 
         if ($currentCount >= $limit) {
             return redirect()->back()->with(
                 'error',
-                "لقد وصلت للحد الأقصى المسموح في باقتك ({$subscriptionData['plan_name']}). الحد الأقصى: {$limit} فرع"
+                "لقد وصلت للحد الأقصى المسموح في باقتك ({$limits['plan_name']}). الحد الأقصى: {$limit} فرع"
             );
         }
 

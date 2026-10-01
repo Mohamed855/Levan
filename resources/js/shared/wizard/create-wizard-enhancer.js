@@ -202,6 +202,13 @@ function fillDraft(form, values, prefix = '') {
 }
 
 async function shouldRestoreDraft() {
+  if (!window.Swal) {
+    await Promise.all([
+      import('../../../assets/vendor/libs/sweetalert2/sweetalert2.js'),
+      import('../../../assets/vendor/libs/sweetalert2/sweetalert2.scss'),
+    ]);
+  }
+
   if (window.Swal) {
     const result = await window.Swal.fire({
       title: 'مسودة محفوظة',

@@ -22,10 +22,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
+use App\Services\shared\Subscription\SubscriptionPeriod\SubscriptionPeriodService;
+
 class AdminSubscriptionService
 {
     public function __construct(
-        private readonly BillService $billService
+        private readonly BillService $billService,
+        private readonly SubscriptionPeriodService $subscriptionPeriodService
     ) {}
 
     public function getSubscriptionStatistics(): array
@@ -79,12 +82,13 @@ class AdminSubscriptionService
             $plan = Plan::findOrFail($data['plan_id']);
             $activateImmediately = ! empty($data['activate_immediately']);
 
+            $billingCycle = $data['billing_cycle'] ?? $plan->subscription_billing_cycle?->value ?? (string) $plan->subscription_billing_cycle ?: 'monthly';
             $startDate = ! empty($data['start_date']) ? Carbon::parse($data['start_date']) : now();
             $endDate = ! empty($data['end_date'])
                 ? Carbon::parse($data['end_date'])
                 : (! empty($data['trial_end_date'])
                     ? Carbon::parse($data['trial_end_date'])
-                    : $this->calculatePeriodEndForPlan($startDate, $plan));
+                    : $this->calculatePeriodEndForPlan($startDate, $plan, $billingCycle));
 
             $paymentType = $data['payment_type'] ?? 'unpaid';
 
@@ -102,12 +106,16 @@ class AdminSubscriptionService
                 $periodStatus = SubscriptionPeriodStatus::PENDING_PAYMENT;
             }
 
+            $basePrice = ($billingCycle === 'yearly' && $plan->annual_offer_enabled)
+                ? (float) $plan->calculateAnnualOfferPrice()
+                : (float) $plan->price_after_discount;
             $discount = (($data['has_discount'] ?? 'no') === 'yes') ? (float) ($data['discount_value'] ?? 0) : 0;
-            $amount = $paymentType === 'trial' ? 0.00 : max(0.00, (float) $plan->price_after_discount - $discount);
+            $amount = $paymentType === 'trial' ? 0.00 : max(0.00, $basePrice - $discount);
 
             $subscription = Subscription::create([
                 'tenant_id'         => $company->id,
                 'plan_id'           => $plan->id,
+                'billing_cycle'     => $billingCycle,
                 'price'             => $amount,
                 'status'            => $subStatus,
                 'total_users'       => $plan->included_users,
@@ -119,18 +127,8 @@ class AdminSubscriptionService
                 'trial_end_date'    => ! empty($data['trial_end_date']) ? $data['trial_end_date'] : null,
             ]);
 
-            // Create subscription period
-            $nextPeriodNumber = ((int) SubscriptionPeriod::where('subscription_id', $subscription->id)->max('period_number')) + 1;
-            SubscriptionPeriod::create([
-                'subscription_id'  => $subscription->id,
-                'period_number'    => $nextPeriodNumber,
-                'period_start'     => $startDate,
-                'period_end'       => $endDate,
-                'plan_id_snapshot' => $plan->id,
-                'price_snapshot'   => $amount,
-                'status'           => $periodStatus,
-                'is_current'       => true,
-            ]);
+            // Create subscription period with full snapshots
+            $this->subscriptionPeriodService->createNewPeriod($subscription, $startDate, $endDate, $periodStatus, true, $plan);
 
             // Handle bill
             $paymentMethod = null;

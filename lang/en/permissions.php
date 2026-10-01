@@ -42,6 +42,9 @@ return [
     'plans.create' => 'Create Plan',
     'plans.edit' => 'Edit Plan',
     'plans.delete' => 'Delete Plan',
+    'plans.reorder' => 'Reorder Plans',
+    'plans.restore' => 'Restore Plan',
+    'plans.force_delete' => 'Force Delete Plan',
 
     // Coupons
     'coupons.view' => 'Coupons',

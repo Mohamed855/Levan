@@ -28,6 +28,9 @@ class PermissionsRolesSeeder extends Seeder
                 'plans.create',
                 'plans.edit',
                 'plans.delete',
+                'plans.reorder',
+                'plans.restore',
+                'plans.force_delete',
             ],
 
             'coupons_management' => [
