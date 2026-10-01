@@ -21,7 +21,7 @@
 
   .select2-container--default {
     .select2-results__option--highlighted[aria-selected] {
-      background-color: $background !important;
+      background-color: lighten($background, 0.5) !important;
       color: $color !important;
     }
 

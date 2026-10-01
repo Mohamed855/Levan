@@ -72,8 +72,10 @@
                 e.stopPropagation();
 
                 const $wrapper = $(this).closest('.copyable-code-wrapper');
-                const code = ($wrapper.length ? $wrapper.data('code') : null) || $(this).data('code') || $(this).text().trim();
-                const $icon = $wrapper.length ? $wrapper.find('.copy-icon, .ti-copy') : $(this).parent().find('.ti-copy, .copy-icon');
+                const code = ($wrapper.length ? $wrapper.data('code') : null) || $(this).data('code') || $(
+                    this).text().trim();
+                const $icon = $wrapper.length ? $wrapper.find('.copy-icon, .ti-copy') : $(this).parent()
+                    .find('.ti-copy, .copy-icon');
 
                 if (!code) return;
 
@@ -127,35 +129,39 @@
         </div>
     @endif
 
-    <div class="card">
+    {{-- Filters Card --}}
+    <div class="card mb-4">
         <div class="card-body">
-            <div class="filters row g-3">
-
+            <div class="row g-4">
                 <div class="col-md-6">
-                    <label for="filter-status">حالة الكوبونات</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر  حالة الكوبون">
+                    <label class="form-label" for="filter-status">حالة الكوبونات</label>
+                    <select id="filter-status" class="form-control select2" data-placeholder="اختر حالة الكوبون">
                         <option value=""></option>
-                        {{-- @foreach ($advanceStatus as $status) --}}
                         <option value="1">نشط</option>
                         <option value="0">غير نشط</option>
-                        {{-- @endforeach --}}
                     </select>
                 </div>
 
-
                 <div class="col-md-6">
-                    <label for="filter-type">نوع الخصم</label>
-                    <select id="filter-type" class="form-control select2" data-placeholder="اختر  نوع الخصم">
+                    <label class="form-label" for="filter-type">نوع الخصم</label>
+                    <select id="filter-type" class="form-control select2" data-placeholder="اختر نوع الخصم">
                         <option value=""></option>
-                        {{-- @foreach ($advanceStatus as $status) --}}
                         <option value="percentage">نسبة مئوية</option>
                         <option value="fixed">نسبة رقمية</option>
-                        {{-- @endforeach --}}
                     </select>
                 </div>
             </div>
-            <hr class="mt-10">
-            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100'], false) !!}
+            <div class="d-flex justify-content-end mt-3 gap-2">
+                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
+                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'coupon-table'], false) !!}
         </div>
     </div>
 

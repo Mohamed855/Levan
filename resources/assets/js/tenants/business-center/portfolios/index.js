@@ -30,6 +30,10 @@ $(function () {
 
         $('#filter-status, #filter-company').on('change', applyFilters);
 
+        $('#btn-reset-filters').on('click', function () {
+            $('#filter-status, #filter-company').val('').trigger('change');
+        });
+
     
         const tableWrapper = $('#portfolios-table_wrapper');
 

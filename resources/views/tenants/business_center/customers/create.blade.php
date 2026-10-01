@@ -232,7 +232,7 @@
                                 <!-- … داخل div.row الخاص بالمحفظة -->
                                 <div class="col-12 mt-4">
                                     {{-- <h5>حقول إضافية حسب المحفظة</h5> --}}
-                                    <div id="dynamic-fields" class="row g-3"></div>
+                                    <div id="dynamic-fields" class="row g-4"></div>
                                 </div>
 
 

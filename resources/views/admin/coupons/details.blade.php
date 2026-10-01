@@ -58,7 +58,7 @@
                                     class="btn btn-sm btn-label-primary">
                                     <i class="ti ti-edit me-1"></i>تعديل الكوبون
                                 </a>
-                                <a href="{{ route('admin.coupons.index') }}" class="btn btn-sm btn-secondary">
+                                <a href="{{ route('admin.coupons.index') }}" class="btn btn-secondary">
                                     <i class="ti ti-arrow-right me-1"></i>رجوع
                                 </a>
                             </div>

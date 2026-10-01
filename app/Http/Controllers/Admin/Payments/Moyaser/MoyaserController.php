@@ -358,8 +358,8 @@ class MoyaserController extends Controller
 
             $tenant = tenant('id');
 
-            $subscription = Subscription::where('tenant_id', $tenant)->first();
-            $period = $subscription->currentPeriod;
+            $subscription = Subscription::where('tenant_id', $tenant)->latest('id')->first();
+            $period = $subscription?->currentPeriod;
             $this->billService->createNewDomainBill($subscription, $period, $payment, $request->amount, $tenant);
             // tenant()->update([
             //     'folderName' => $domainname,
@@ -830,8 +830,8 @@ class MoyaserController extends Controller
         if ($payment['status'] === 'paid') {
             $tenant = tenant('id');
 
-            $subscription = Subscription::where('tenant_id', $tenant)->first();
-            $period = $subscription->currentPeriod;
+            $subscription = Subscription::where('tenant_id', $tenant)->latest('id')->first();
+            $period = $subscription?->currentPeriod;
             $this->billService->createRenewalDomainBill($subscription, $period, $payment, $payment['amount'], $tenant);
             return $this->renewalDomainService->renewDomain($request->domain_name, $request->years);
         }

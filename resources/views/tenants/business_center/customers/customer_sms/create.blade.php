@@ -8,13 +8,13 @@
     <form id="createSmsForm">
         @csrf
 
-        <div class="row g-3">
+        <div class="row g-4">
             <!-- اختيار رقم الهاتف -->
             <div class="col-12">
                 <label class="form-label">رقم الهاتف <span class="text-danger">*</span></label>
                 <select name="phone_number" id="phone_number" class="form-control select2-phone" required>
                     <option value="">اختر رقم الهاتف</option>
-                    @foreach($phoneNumbers as $phone)
+                    @foreach ($phoneNumbers as $phone)
                         <option value="{{ $phone['phone'] }}" data-type="{{ $phone['type'] }}">
                             {{ $phone['phone'] }}
                         </option>
@@ -28,7 +28,7 @@
                 <label class="form-label">قالب الرسالة <span class="text-danger">*</span></label>
                 <select name="template_id" id="template_id" class="form-control select2-template" required>
                     <option value="">اختر قالب الرسالة</option>
-                    @foreach($templates as $template)
+                    @foreach ($templates as $template)
                         <option value="{{ $template->id }}">
                             {{ $template->name }}
                         </option>

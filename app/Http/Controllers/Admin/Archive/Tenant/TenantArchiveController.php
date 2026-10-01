@@ -1,44 +1,56 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin\Archive\Tenant;
+
 use App\DataTables\Admin\Archive\Tenant\TenantDataTable;
 use App\Http\Controllers\Controller;
-use App\Models\Admin\Tenants\Tenant;
+use App\Services\Admin\Companies\CompanyService;
 use Illuminate\Support\Facades\Log;
 
 class TenantArchiveController extends Controller
 {
+    public function __construct(
+        private readonly CompanyService $companyService
+    ) {
+        $this->middleware('can:companies.view')->only(['index']);
+        $this->middleware('can:companies.restore')->only(['restore']);
+        $this->middleware('can:companies.force_delete')->only(['forceDelete']);
+    }
+
     public function index(TenantDataTable $dataTable)
     {
         return $dataTable->render('admin.archive.tenant.index');
     }
+
     public function restore($id)
     {
         try {
-             $tenant = Tenant::withTrashed()->findOrFail($id);
-            $tenant->restore();
+            $company = $this->companyService->restoreCompany((string) $id);
 
             return redirect()->route('admin.archives.tenants.index')
-                ->with('success', 'تم استرجاع العميل بنجاح.');
-        } catch (\Exception $e) {
-            Log::error('Error restoring tenant: ' . $e->getMessage());
+                ->with('success', "تم استرجاع الشركة {$company->company_name} بنجاح.");
+        } catch (\Throwable $e) {
+            Log::error('Error restoring company: ' . $e->getMessage());
 
-            return redirect()->route('admin.archives.teantns.index')
-                ->with('error', 'حدث خطأ أثناء استرجاع العميل .');
+            return redirect()->route('admin.archives.tenants.index')
+                ->with('error', 'حدث خطأ أثناء استرجاع الشركة.');
         }
     }
+
     public function forceDelete($id)
     {
         try {
-            $tenant = Tenant::withTrashed()->findOrFail($id);
-            $tenant->forceDelete();
+            $this->companyService->forceDeleteCompany((string) $id);
 
             return redirect()->route('admin.archives.tenants.index')
-                ->with('success', 'تم حذف العميل نهائيًا بنجاح.');
-        } catch (\Exception $e) {
-            Log::error('Error force deleting tenant: ' . $e->getMessage());
+                ->with('success', 'تم حذف الشركة نهائيًا بنجاح.');
+        } catch (\Throwable $e) {
+            Log::error('Error force deleting company: ' . $e->getMessage());
 
             return redirect()->route('admin.archives.tenants.index')
-                ->with('error', 'حدث خطأ أثناء الحذف النهائي للعميل .');
+                ->with('error', 'حدث خطأ أثناء الحذف النهائي للشركة.');
         }
     }
 }

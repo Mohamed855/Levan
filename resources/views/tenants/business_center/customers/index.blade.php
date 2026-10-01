@@ -157,14 +157,14 @@
         </div>
     </div>
 
-    {{-- جدول العملاء --}}
-    <div class="card" id="card-customers">
+    {{-- فلاتر البحث --}}
+    {{-- Filters Card --}}
+    <div class="card mb-4">
         <div class="card-body">
-            {{-- فلاتر البحث --}}
-            <div class="filters row g-3">
+            <div class="row g-4">
                 {{-- الصف الأول --}}
                 <div class="col-md-2">
-                    <label for="filter-status">حالة العميل</label>
+                    <label class="form-label" for="filter-status">حالة العميل</label>
                     <select id="filter-status" class="form-control select2" data-placeholder="اختر الحالة">
                         <option value=""></option>
                         @foreach ($customerStatuses as $status)
@@ -174,7 +174,7 @@
                 </div>
 
                 <div class="col-md-2">
-                    <label for="filter-contact-result">نتيجة الاتصال</label>
+                    <label class="form-label" for="filter-contact-result">نتيجة الاتصال</label>
                     <select id="filter-contact-result" class="form-control select2" data-placeholder="اختر نتيجة الاتصال">
                         <option value=""></option>
                         @foreach ($contactResults as $result)
@@ -184,7 +184,7 @@
                 </div>
 
                 <div class="col-md-2">
-                    <label for="filter-customer-type">نوع العميل</label>
+                    <label class="form-label" for="filter-customer-type">نوع العميل</label>
                     <select id="filter-customer-type" class="form-control select2" data-placeholder="اختر النوع">
                         <option value=""></option>
                         <option value="individual">فردي</option>
@@ -194,7 +194,7 @@
 
                 @if ($viewType !== 'my')
                     <div class="col-md-2">
-                        <label for="filter-company">الشركة</label>
+                        <label class="form-label" for="filter-company">الشركة</label>
                         <select id="filter-company" class="form-control select2" data-placeholder="اختر الشركة">
                             <option value=""></option>
                             @foreach ($companies as $company)
@@ -204,7 +204,7 @@
                     </div>
 
                     <div class="col-md-2">
-                        <label for="filter-portfolio">المحفظة</label>
+                        <label class="form-label" for="filter-portfolio">المحفظة</label>
                         <select id="filter-portfolio" class="form-control select2" data-placeholder="اختر المحفظة">
                             <option value=""></option>
                             @foreach ($portfolios as $portfolio)
@@ -216,7 +216,7 @@
                     </div>
 
                     <div class="col-md-2">
-                        <label for="filter-manager">مسؤول العلاقة</label>
+                        <label class="form-label" for="filter-manager">مسؤول العلاقة</label>
                         <select id="filter-manager" class="form-control select2" data-placeholder="اختر المسؤول" multiple>
                             @foreach ($users as $user)
                                 <option value="{{ $user->id }}">{{ $user->name }}</option>
@@ -226,7 +226,7 @@
                 @else
                     {{-- في شاشة "عملائي" نكمل الصف الأول بحالة الإرسال --}}
                     <div class="col-md-6">
-                        <label for="filter-sms-status">حالة الإرسال</label>
+                        <label class="form-label" for="filter-sms-status">حالة الإرسال</label>
                         <select id="filter-sms-status" class="form-control select2" data-placeholder="اختر الحالة">
                             <option value=""></option>
                             <option value="sent">تم الإرسال</option>
@@ -237,8 +237,8 @@
 
                 {{-- الصف الثاني --}}
                 @if ($viewType !== 'my')
-                    <div class="col-md-4 mt-3">
-                        <label for="filter-sms-status">حالة الإرسال</label>
+                    <div class="col-md-4">
+                        <label class="form-label" for="filter-sms-status">حالة الإرسال</label>
                         <select id="filter-sms-status" class="form-control select2" data-placeholder="اختر الحالة">
                             <option value=""></option>
                             <option value="sent">تم الإرسال</option>
@@ -246,31 +246,38 @@
                         </select>
                     </div>
 
-                    <div class="col-md-3 mt-3">
-                        <label for="filter-sms-date-from">تاريخ الإرسال من</label>
+                    <div class="col-md-4">
+                        <label class="form-label" for="filter-sms-date-from">تاريخ الإرسال من</label>
                         <input type="date" id="filter-sms-date-from" class="form-control" placeholder="من التاريخ">
                     </div>
 
-                    <div class="col-md-3 mt-3">
-                        <label for="filter-sms-date-to">تاريخ الإرسال إلى</label>
+                    <div class="col-md-4">
+                        <label class="form-label" for="filter-sms-date-to">تاريخ الإرسال إلى</label>
                         <input type="date" id="filter-sms-date-to" class="form-control" placeholder="إلى التاريخ">
                     </div>
                 @else
                     {{-- في شاشة "عملائي" الصف الثاني يحتوي فقط على تواريخ الإرسال --}}
-                    <div class="col-md-4 mt-3">
-                        <label for="filter-sms-date-from">تاريخ الإرسال من</label>
+                    <div class="col-md-6">
+                        <label class="form-label" for="filter-sms-date-from">تاريخ الإرسال من</label>
                         <input type="date" id="filter-sms-date-from" class="form-control" placeholder="من التاريخ">
                     </div>
 
-                    <div class="col-md-4 mt-3">
-                        <label for="filter-sms-date-to">تاريخ الإرسال إلى</label>
+                    <div class="col-md-6">
+                        <label class="form-label" for="filter-sms-date-to">تاريخ الإرسال إلى</label>
                         <input type="date" id="filter-sms-date-to" class="form-control" placeholder="إلى التاريخ">
                     </div>
                 @endif
             </div>
+            <div class="d-flex justify-content-end mt-3 gap-2">
+                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
+                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
+                </button>
+            </div>
+        </div>
+    </div>
 
-            <hr class="mt-10">
-
+    <div class="card" id="card-customers">
+        <div class="card-body">
             <div class="table-responsive">
                 {!! $dataTable->table([
                     'class' => 'table table-striped table-bordered w-100 text-center',

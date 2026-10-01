@@ -77,48 +77,16 @@ class SettingDomainDataTable extends AbstractDataTable
     }
 
 
-    // protected function applyCustomFilters($query)
-    // {
-    //     $request = request();
+    protected function applyCustomFilters($query)
+    {
+        $request = request();
 
-    //     if ($request->filled('status')) {
-    //         $query->where('status', $request->status);
-    //     }
+        if ($request->filled('is_active')) {
+            $query->where('is_active', $request->is_active);
+        }
 
-    //     if ($request->filled('authorized_count')) {
-    //         switch ($request->authorized_count) {
-    //             case '0':
-    //                 $query->has('authorizedPeople', '=', 0);
-    //                 break;
-    //             case '1':
-    //                 $query->has('authorizedPeople', '=', 1);
-    //                 break;
-    //             case '2-5':
-    //                 $query->has('authorizedPeople', '>=', 2)
-    //                     ->has('authorizedPeople', '<=', 5);
-    //                 break;
-    //             case '6+':
-    //                 $query->has('authorizedPeople', '>=', 6);
-    //                 break;
-    //         }
-    //     }
-
-    //     if ($request->filled('search_query')) {
-    //         $searchTerm = $request->search_query;
-    //         $query->where(function ($q) use ($searchTerm) {
-    //             $q->where('name', 'like', "%{$searchTerm}%")
-    //                 ->orWhereHas('authorizedPeople', function ($qq) use ($searchTerm) {
-    //                     $qq->where('name', 'like', "%{$searchTerm}%")
-    //                         ->orWhere('phone', 'like', "%{$searchTerm}%")
-    //                         ->orWhere('email', 'like', "%{$searchTerm}%")
-    //                         ->orWhere('position', 'like', "%{$searchTerm}%");
-    //                 });
-    //         });
-    //     }
-
-    //     return $query;
-    // }
-
+        return $query;
+    }
 
     // الحقول المسموح البحث فيها
     protected function getSearchableColumns(): array

@@ -25,10 +25,16 @@ class TicketsDataTable extends AbstractDataTable
 
     protected function resource()
     {
+        $status = request('status');
+        $filters = [];
+        if ($status) {
+            $filters['status'] = $status;
+        }
+
         $result = $this->ticketService->list(
             page: 1,
             perPage: 1000,
-            filters: []
+            filters: $filters
         );
 
         if (!$result['success']) {
@@ -37,9 +43,15 @@ class TicketsDataTable extends AbstractDataTable
 
         $tickets = $result['data']['data']['data'] ?? $result['data']['data'] ?? [];
 
-        return collect($tickets)->map(function ($ticket) {
+        $collection = collect($tickets)->map(function ($ticket) {
             return (object) $ticket;
         });
+
+        if ($status) {
+            $collection = $collection->where('status', $status);
+        }
+
+        return $collection;
     }
 
     public function dataTable($query)

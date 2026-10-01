@@ -141,7 +141,7 @@
             </div>
         </div>
 
-        <div class="row g-3 mb-3">
+        <div class="row g-4 mb-3">
             {{-- <div id="stat-col-employees" class="col-sm-6 col-xl-3">
                 <div class="card stats-card">
                     <div class="card-body">
@@ -272,7 +272,7 @@
             </div>
         </div>
 
-        <div class="row g-3 mb-4">
+        <div class="row g-4 mb-4">
             <div class="col-sm-6 col-xl-4">
                 <div class="card kpi-card kpi-border-danger h-100">
                     <div class="card-body">
@@ -339,7 +339,7 @@
             </div>
         </div>
 
-        <div class="row g-3 mb-4">
+        <div class="row g-4 mb-4">
             <div class="col-lg-4">
                 <div class="card h-100">
                     <div class="card-header py-2">
@@ -397,7 +397,7 @@
 
             <div class="table-filters d-none" id="filtersSection">
                 <div class="card-body border-bottom">
-                    <div class="row g-3">
+                    <div class="row g-4">
                         <div class="col-md-4">
                             <label for="filter-status" class="form-label form-label-sm">الحالة</label>
                             <select id="filter-status" class="form-select form-select-sm">
@@ -439,8 +439,10 @@
                     </div>
                     <div class="modal-body" id="fieldsContainer"></div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="ti ti-x me-1"></i>إلغاء</button>
-                        <button type="button" id="confirmExport" class="btn btn-primary"><i class="ti ti-download me-1"></i>تصدير</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i
+                                class="ti ti-x me-1"></i>إلغاء</button>
+                        <button type="button" id="confirmExport" class="btn btn-primary"><i
+                                class="ti ti-download me-1"></i>تصدير</button>
                     </div>
                 </div>
             </div>

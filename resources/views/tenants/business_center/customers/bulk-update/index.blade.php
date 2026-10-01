@@ -74,7 +74,7 @@
                                             <div class="row g-4">
                                                 {{-- نوع العملية --}}
                                                 <div class="col-12">
-                                                    <div class="row g-3">
+                                                    <div class="row g-4">
                                                         <div class="col-md-6">
                                                             <input type="radio" class="btn-check" name="operation_type"
                                                                 id="update-type" value="update" checked>
@@ -235,7 +235,7 @@
                                     </h5>
                                 </div>
                                 <div class="card-body">
-                                    <div id="field-mappings" class="row g-3">
+                                    <div id="field-mappings" class="row g-4">
                                         <!-- سيتم ملؤها بواسطة JavaScript -->
                                     </div>
                                     <div class="d-flex justify-content-end mt-4">
@@ -343,7 +343,8 @@
                                 <i class="ti ti-arrow-left me-2"></i>
                                 السابق
                             </button>
-                            <button type="button" id="new-operation-btn" class="btn btn-primary btn-sm" style="display: none;">
+                            <button type="button" id="new-operation-btn" class="btn btn-primary btn-sm"
+                                style="display: none;">
                                 <i class="ti ti-refresh me-2"></i>
                                 إنهاء والبدء بعملية جديدة
                             </button>

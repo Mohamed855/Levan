@@ -25,11 +25,19 @@ class TransferRequestController extends Controller
 
     public function index(TransferRequestDataTable $datatable)
     {
-        $all_transfer_requests = Subscription::where('status', 'suspended')->whereNotNull('transfer_bank_attachment')->get()->count();
-        $approved_transfer_requests = Subscription::where('status', 'active')->whereNotNull('transfer_bank_attachment')->get()->count();
-        $rejected_transfer_requests = Subscription::where('status', 'cancelled')->whereNotNull('transfer_bank_attachment')->get()->count();
+        $all_transfer_requests = Subscription::whereNotNull('transfer_bank_attachment')->count();
+        $approved_transfer_requests = Subscription::where('status', 'active')->whereNotNull('transfer_bank_attachment')->count();
+        $rejected_transfer_requests = Subscription::where('status', 'cancelled')->whereNotNull('transfer_bank_attachment')->count();
+        $pending_transfer_requests = Subscription::where('status', 'suspended')->whereNotNull('transfer_bank_attachment')->count();
+        $plans = \App\Models\Admin\Plan\Plan::all(['id', 'name']);
 
-        return $datatable->render('admin.transferrequests.index', compact('all_transfer_requests', 'approved_transfer_requests', 'rejected_transfer_requests'));
+        return $datatable->render('admin.transferrequests.index', compact(
+            'all_transfer_requests',
+            'approved_transfer_requests',
+            'rejected_transfer_requests',
+            'pending_transfer_requests',
+            'plans'
+        ));
     }
 
     public function details(Subscription $subscription)

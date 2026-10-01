@@ -64,6 +64,12 @@ function bindFilters(table) {
         });
         portfolioSelect.select2();
     });
+
+    $('#btn-reset-filters').on('click', function () {
+        $('#filter-customer-type, #filter-company, #filter-portfolio, #filter-manager, #filter-contact-result').val('').trigger('change');
+        $('#filter-search').val('');
+        applyFilters(table);
+    });
 }
 
 /*

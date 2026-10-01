@@ -15,7 +15,15 @@ class CheckDomainManagement
 
         $subscriptionData = Tenancy::central(function () use ($tenantId) {
 
-            $subscription = Subscription::where('tenant_id', $tenantId)->with('plan')->first();
+            $subscription = Subscription::where('tenant_id', $tenantId)
+                ->where('status', \App\Enums\Admin\Subscriptions\SubscriptionStatus::ACTIVE)
+                ->with('plan')
+                ->latest('id')
+                ->first()
+                ?? Subscription::where('tenant_id', $tenantId)
+                    ->with('plan')
+                    ->latest('id')
+                    ->first();
 
             if (!$subscription || !$subscription->plan) {
                 return null;

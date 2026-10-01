@@ -37,11 +37,12 @@ class SubscriptionController extends Controller
         if (!$plan->is_active) abort(404);
 
         $banks           = Bank::where('is_active', true)->get();
+        $cities          = \App\Models\Admin\City::all();
         $taxRate         = 0.15;
         $taxAmount       = round($plan->price_after_discount * $taxRate, 2);
         $priceWithoutTax = round($plan->price_after_discount - $taxAmount, 2);
 
-        return view('site.checkout', compact('plan', 'priceWithoutTax', 'taxAmount', 'banks'));
+        return view('site.checkout', compact('plan', 'priceWithoutTax', 'taxAmount', 'banks', 'cities'));
     }
 
     //  Checkout store
@@ -125,6 +126,9 @@ class SubscriptionController extends Controller
 
                 'billing_company_name'      => $request->billing_company_name,
                 'billing_commercial_number' => $request->billing_commercial_number,
+                'billing_tax_number'        => $request->billing_tax_number,
+                'billing_city_id'           => $request->billing_city_id,
+                'billing_address'           => $request->billing_address,
             ]
         );
     }

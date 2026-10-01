@@ -64,9 +64,9 @@
             subtitle="المستخدمين النشطين" icon="ti-user-check" color="success" />
         <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="المستخدمين غير النشطين" :value="$inactiveUsers"
             subtitle="المستخدمين غير النشطين" icon="ti-user-off" color="danger" />
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="التراخيص"
-            :value="($subscription_formatted['used_users'] ?? 0) . ' / ' . ($subscription_formatted['total_users'] ?? 0)"
-            :subtitle="'متبقي ' . (($subscription_formatted['total_users'] ?? 0) - ($subscription_formatted['used_users'] ?? 0)) . ' ترخيص'"
+        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="التراخيص" :value="($subscription_formatted['used_users'] ?? 0) . ' / ' . ($subscription_formatted['total_users'] ?? 0)" :subtitle="'متبقي ' .
+            (($subscription_formatted['total_users'] ?? 0) - ($subscription_formatted['used_users'] ?? 0)) .
+            ' ترخيص'"
             icon="ti-license" color="primary" valueClass="badge bg-label-primary rounded-pill">
             <div class="text-end">
                 {{ $subscription_formatted['total_users'] > 0 ? round(($subscription_formatted['used_users'] / $subscription_formatted['total_users']) * 100) : 0 }}%
@@ -82,13 +82,12 @@
     </div>
 
 
-    {{-- جدول المستخدمين --}}
-    <div class="card" id="card-users">
+    {{-- Filters Card --}}
+    <div class="card mb-4">
         <div class="card-body">
-            {{-- فلاتر البحث --}}
-            <div class="filters row">
+            <div class="row g-4">
                 <div class="col-md-4">
-                    <label for="filter-status">حالة المستخدم</label>
+                    <label class="form-label" for="filter-status">حالة المستخدم</label>
                     <select id="filter-status" class="form-control select2" data-placeholder="اختر حالة المستخدم">
                         <option value=""></option>
                         <option value="active">نشط</option>
@@ -97,7 +96,7 @@
                 </div>
 
                 <div class="col-md-4">
-                    <label for="filter-role">دور المستخدم</label>
+                    <label class="form-label" for="filter-role">دور المستخدم</label>
                     <select id="filter-role" class="form-control select2" data-placeholder="اختر الدور">
                         <option value=""></option>
                         @foreach ($roles as $role)
@@ -106,8 +105,8 @@
                     </select>
                 </div>
 
-                <div class="col-md-4"> {{-- جديد --}}
-                    <label for="filter-branch">الفرع</label>
+                <div class="col-md-4">
+                    <label class="form-label" for="filter-branch">الفرع</label>
                     <select id="filter-branch" class="form-control select2" data-placeholder="اختر الفرع">
                         <option value=""></option>
                         @foreach ($branches as $branch)
@@ -116,8 +115,16 @@
                     </select>
                 </div>
             </div>
-            <hr class="mt-10">
+            <div class="d-flex justify-content-end mt-3 gap-2">
+                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
+                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
+                </button>
+            </div>
+        </div>
+    </div>
 
+    <div class="card" id="card-users">
+        <div class="card-body">
             <div class="table-responsive">
                 {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100']) !!}
             </div>

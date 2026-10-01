@@ -52,7 +52,7 @@
                         @method('PUT')
 
                         <div id="info-validation" class="content">
-                            <div class="row g-3">
+                            <div class="row g-4">
                                 <!-- العميل (التينانت) -->
                                 <div class="col-md-6">
                                     <label for="tenant_id" class="form-label">العميل (التينانت)

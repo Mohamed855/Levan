@@ -173,6 +173,15 @@ function setupOptimizedFilters() {
             }, 200);
         });
 
+    $('#btn-reset-filters').on('click', function () {
+        $('#filter-status, #filter-customer-type, #filter-company, #filter-portfolio, #filter-nationality, #filter-manager, #filter-contact-result, #filter-sms-status').val('').trigger('change');
+        $('#filter-debt-min, #filter-debt-max, #filter-sms-date-from, #filter-sms-date-to').val('');
+        table.search('');
+        table.page(0);
+        table.ajax.reload(null, false);
+        CustomerSelection.clearAll();
+    });
+
     // معالج تغيير الشركة والمحفظة
     $('#filter-company').on('change', function () {
         const selectedCompany = $(this).val();

@@ -50,7 +50,7 @@
                         @csrf
 
                         <div id="info-validation" class="content">
-                            <div class="row g-3">
+                            <div class="row g-4">
                                 <!-- الاسم -->
                                 <div class="col-md-6">
                                     <label for="company_name" class="form-label"> اسم الشركة
@@ -92,7 +92,8 @@
                                         <span class="text-danger">*</span>
                                     </label>
                                     <input type="email" class="form-control" id="email" name="email"
-                                        value="{{ old('email') }}" placeholder="example@domain.com" autocomplete="off" required>
+                                        value="{{ old('email') }}" placeholder="example@domain.com" autocomplete="off"
+                                        required>
                                 </div>
 
                                 <div class="col-md-4">

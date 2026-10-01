@@ -132,6 +132,10 @@ function setupFilterEvents() {
         applyFilters();
     });
 
+    $('#btn-reset-filters').on('click', function () {
+        $('#filter-status, #filter-company').val('').trigger('change');
+    });
+
     // البحث مع تأخير لتحسين الأداء
     let searchTimeout;
     $('.dataTables_filter input').on('keyup', function () {

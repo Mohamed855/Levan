@@ -27,5 +27,9 @@ $(function () {
 
         $('#filter-status').on('change', applyFilters);
         $('#filter-domain').on('change', applyFilters);
+
+        $('#btn-reset-filters').on('click', function () {
+            $('#filter-status, #filter-domain').val('').trigger('change');
+        });
     });
 });

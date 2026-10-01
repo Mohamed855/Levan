@@ -37,9 +37,9 @@ class subscriptionMangmentDataTable extends AbstractDataTable
                 'titleAttr' => 'تحديد الكل',
             ],
             ['data' => 'company_name',    'name' => 'company_name',     'title' => 'اسم الشركة'],
+            ['data' => 'tenant_status', 'name' => 'tenant_status', 'title' => 'حالة الشركة'],
             ['data' => 'city', 'name' => 'city_id', 'title' => 'المدينة'],
             ['data' => 'tax_number', 'name' => 'tax_number', 'title' => 'الرقم الضريبي'],
-            ['data' => 'tenant_status', 'name' => 'tenant_status', 'title' => 'حالة الشركة'],
             ['data' => 'tenant_id',       'name' => 'tenant_id',        'title' => 'معرف العميل'],
             ['data' => 'version',              'name' => 'version',            'title' => 'رقم الإصدار'],
 

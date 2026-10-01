@@ -27,31 +27,24 @@ function initializeDataTableEvents() {
 }
 
 function bindFilters(table) {
-    $('#filter-status, #filter-authorized-count').on('change', function () {
+    $('#filter-status, #filter-role').on('change', function () {
         applyFilters(table);
     });
 
-    $('#filter-search').on('keyup', function () {
-        clearTimeout(window.searchTimeout);
-        window.searchTimeout = setTimeout(function () {
-            applyFilters(table);
-        }, 500);
+    $('#btn-reset-filters').on('click', function () {
+        $('#filter-status, #filter-role').val('').trigger('change');
     });
 }
 
 function applyFilters(table) {
-    const filters = {
-        status: $('#filter-status').val() || '',
-        authorizedCount: $('#filter-authorized-count').val() || '',
-        searchQuery: $('#filter-search').val() || ''
-    };
+    const status = $('#filter-status').val() || '';
+    const role = $('#filter-role').val() || '';
 
     const baseUrl = window.location.pathname;
     const params = new URLSearchParams();
 
-    if (filters.status) params.append('status', filters.status);
-    if (filters.authorizedCount) params.append('authorized_count', filters.authorizedCount);
-    if (filters.searchQuery) params.append('search_query', filters.searchQuery);
+    if (status) params.append('status', status);
+    if (role) params.append('role', role);
 
     const query = params.toString();
     const newUrl = query ? baseUrl + '?' + query : baseUrl;

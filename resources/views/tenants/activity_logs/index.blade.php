@@ -39,7 +39,7 @@
 @endsection
 
 @section('content')
-    <div id="top_card" class="row g-3 mb-4">
+    <div id="top_card" class="row g-4 mb-4">
         <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="إجمالي النشاطات" :value="number_format($statistics['total'])" subtitle="منذ البداية"
             icon="ti-users" color="primary" />
         <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="اليوم" :value="number_format($statistics['today'])" subtitle="نشاطات اليوم"
@@ -50,13 +50,12 @@
             icon="ti-calendar-month" color="warning" />
     </div>
 
-    {{-- جدول سجل النشاطات --}}
-    <div class="card" id="card-activity-logs">
+    {{-- Filters Card --}}
+    <div class="card mb-4">
         <div class="card-body">
-            {{-- فلاتر البحث --}}
-            <div class="filters row g-3">
+            <div class="row g-4">
                 <div class="col-md-3">
-                    <label for="filter-user">المستخدم</label>
+                    <label class="form-label" for="filter-user">المستخدم</label>
                     <select id="filter-user" class="form-control select2" data-placeholder="اختر المستخدم">
                         <option value=""></option>
                         @foreach ($users as $user)
@@ -66,7 +65,7 @@
                 </div>
 
                 <div class="col-md-3">
-                    <label for="filter-log-name">نوع النشاط</label>
+                    <label class="form-label" for="filter-log-name">نوع النشاط</label>
                     <select id="filter-log-name" class="form-control select2" data-placeholder="اختر النوع">
                         <option value=""></option>
                         <option value="companies">الشركات</option>
@@ -76,7 +75,6 @@
                         <option value="customer_payment_plan">خطط السداد</option>
                         <option value="customer_phone">أرقام الاتصال</option>
                         <option value="customer_settlement">طلبات التسوية</option>
-
                         <option value="users">المستخدمين</option>
                         <option value="portfolios">المحافظ</option>
                         <option value="collections">التحصيلات</option>
@@ -85,18 +83,25 @@
                 </div>
 
                 <div class="col-md-3">
-                    <label for="filter-date-from">من تاريخ</label>
+                    <label class="form-label" for="filter-date-from">من تاريخ</label>
                     <input type="date" id="filter-date-from" class="form-control">
                 </div>
 
                 <div class="col-md-3">
-                    <label for="filter-date-to">إلى تاريخ</label>
+                    <label class="form-label" for="filter-date-to">إلى تاريخ</label>
                     <input type="date" id="filter-date-to" class="form-control">
                 </div>
             </div>
+            <div class="d-flex justify-content-end mt-3 gap-2">
+                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
+                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
+                </button>
+            </div>
+        </div>
+    </div>
 
-            <hr class="mt-10">
-
+    <div class="card" id="card-activity-logs">
+        <div class="card-body">
             {{-- جدول البيانات --}}
             <table id="activity-logs-table" class="table table-striped table-bordered text-center">
                 <thead>

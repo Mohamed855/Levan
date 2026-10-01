@@ -214,7 +214,7 @@ const CustomerSMS = {
             <!-- نوع الرسالة -->
             <div class="mb-4">
                 <label class="form-label fw-semibold text-dark mb-3">نوع الرسالة</label>
-                <div class="row g-3">
+                <div class="row g-4">
                     <div class="col-md-6">
                         <div class="form-check message-type-option">
                             <input class="form-check-input" type="radio" name="message_type" id="template_type" value="template" checked>

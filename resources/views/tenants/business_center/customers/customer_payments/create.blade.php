@@ -6,7 +6,7 @@
     <form id="createCustomerPaymentForm" data-customer-id="{{ $customer->id }}" novalidate enctype="multipart/form-data">
         @csrf
 
-        <div class="row g-3">
+        <div class="row g-4">
             <div class="col-md-6">
                 <label class="form-label" for="collected_amount">المبلغ المحصل <span
                         class="text-danger">*</span></label>

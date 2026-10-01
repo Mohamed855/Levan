@@ -40,7 +40,7 @@ function addAttachmentField() {
 
     const fieldHtml = `
         <div class="attachment-field border rounded p-3 mb-3" data-index="${attachmentIndex}">
-            <div class="row g-3 align-items-center">
+            <div class="row g-4 align-items-center">
                 <div class="col-md-12">
                     <label class="form-label">المرفق <span class="text-danger">*</span></label>
                     <input type="file"

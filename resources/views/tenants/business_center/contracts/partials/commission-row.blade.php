@@ -1,7 +1,7 @@
 @php
-$ctype = $commission['commission_type'] ?? null;
-$showProc = $ctype === 'procedure';
-$showDur = in_array($ctype, ['duration', 'delinquency']);
+    $ctype = $commission['commission_type'] ?? null;
+    $showProc = $ctype === 'procedure';
+    $showDur = in_array($ctype, ['duration', 'delinquency']);
 @endphp
 
 <div class="commission-row border rounded p-3 mb-3 bg-white" data-index="{{ $index }}">
@@ -15,13 +15,13 @@ $showDur = in_array($ctype, ['duration', 'delinquency']);
         </button>
     </div>
 
-    <div class="row g-3">
+    <div class="row g-4">
         <div class="col-md-4 commission-type-col{{ $ctype ? '' : '' }}">
             <label class="form-label fw-semibold">نوع الشريحة <span class="text-danger">*</span></label>
             <select name="commissions[{{ $index }}][commission_type]" class="form-select commission-type-select">
-                <option value="procedure" {{ ($ctype==='procedure' ) ? 'selected' : '' }}>إجراء</option>
-                <option value="duration" {{ ($ctype==='duration' ) ? 'selected' : '' }}>مدة</option>
-                <option value="delinquency" {{ ($ctype==='delinquency' ) ? 'selected' : '' }}>مدة التعثر</option>
+                <option value="procedure" {{ $ctype === 'procedure' ? 'selected' : '' }}>إجراء</option>
+                <option value="duration" {{ $ctype === 'duration' ? 'selected' : '' }}>مدة</option>
+                <option value="delinquency" {{ $ctype === 'delinquency' ? 'selected' : '' }}>مدة التعثر</option>
             </select>
         </div>
 
@@ -29,10 +29,12 @@ $showDur = in_array($ctype, ['duration', 'delinquency']);
             <label class="form-label fw-semibold">نوع الإجراء <span class="text-danger">*</span></label>
             <select name="commissions[{{ $index }}][procedure_type]" class="form-select">
                 <option value="">اختر نوع الإجراء</option>
-                <option value="friendly" {{ (isset($commission['procedure_type']) &&
-                    $commission['procedure_type']==='friendly' ) ? 'selected' : '' }}>ودي</option>
-                <option value="legal" {{ (isset($commission['procedure_type']) &&
-                    $commission['procedure_type']==='legal' ) ? 'selected' : '' }}>قانوني</option>
+                <option value="friendly"
+                    {{ isset($commission['procedure_type']) && $commission['procedure_type'] === 'friendly' ? 'selected' : '' }}>
+                    ودي</option>
+                <option value="legal"
+                    {{ isset($commission['procedure_type']) && $commission['procedure_type'] === 'legal' ? 'selected' : '' }}>
+                    قانوني</option>
             </select>
         </div>
 

@@ -83,7 +83,7 @@
                                 <span class="badge bg-primary">{{ $plan->name }}</span>
                             </div>
                             <div class="card-body mt-3">
-                                <div class="row g-3">
+                                <div class="row g-4">
                                     <div class="col-md-6">
                                         <div class="d-flex align-items-center mb-3">
                                             <div class="avatar avatar-sm bg-label-primary rounded me-3">

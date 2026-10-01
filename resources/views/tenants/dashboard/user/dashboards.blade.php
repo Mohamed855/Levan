@@ -88,8 +88,8 @@
                             </div>
 
                             <div class="col-lg-4 d-none d-lg-block text-center">
-                                <img src="{{ asset('img/logo.svg') }}" alt="Dashboard Illustration"
-                                    height="200" class="mt-4">
+                                <img src="{{ asset('img/logo.svg') }}" alt="Dashboard Illustration" height="200"
+                                    class="mt-4">
                             </div>
                         </div>
                     </div>
@@ -98,7 +98,7 @@
         </div>
 
         {{-- ===== Quick Stats Cards ===== --}}
-        <div class="row g-3 mb-4">
+        <div class="row g-4 mb-4">
             {{-- 1) إجمالي تحصيلاتي --}}
             <div class="col-md-3 col-sm-6">
                 <div class="card h-100">

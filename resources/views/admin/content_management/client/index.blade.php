@@ -29,12 +29,12 @@
     </script>
     @vite(['resources/assets/js/admin/clients/filter.js', 'resources/assets/js/admin/clients/index.js'])
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
             // event delegation on body or table directly
-            $(document).on('click', '.js-delete-btn', function (e) {
+            $(document).on('click', '.js-delete-btn', function(e) {
                 e.preventDefault();
                 const id = $(this).data('id');
-                
+
                 confirmDelete(id);
             });
         });
@@ -50,7 +50,7 @@
                         <div class="content-left">
                             <span class="text-heading">إجمالي العملاء</span>
                             <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $stats['total']}}</h4>
+                                <h4 class="mb-0 me-2">{{ $stats['total'] }}</h4>
                             </div>
                             <small class="mb-0">إجمالي العملاء</small>
                         </div>
@@ -145,22 +145,30 @@
         </div>
     @endif
 
-    <div class="card">
+    {{-- Filters Card --}}
+    <div class="card mb-4">
         <div class="card-body">
-            <div class="filters row g-3">
-
+            <div class="row g-4">
                 <div class="col-md-6">
-                    <label for="filter-status">حالة العميل</label>
+                    <label class="form-label" for="filter-status">حالة العميل</label>
                     <select id="filter-status" class="form-control select2" data-placeholder="اختر حالة العميل">
                         <option value=""></option>
                         <option value="1">نشط</option>
                         <option value="0">غير نشط</option>
                     </select>
                 </div>
-
             </div>
-            <hr class="mt-10">
-            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100'], false) !!}
+            <div class="d-flex justify-content-end mt-3 gap-2">
+                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
+                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'client-table'], false) !!}
         </div>
     </div>
 

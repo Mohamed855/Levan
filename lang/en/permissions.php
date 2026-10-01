@@ -49,11 +49,23 @@ return [
     'coupons.edit' => 'Edit Coupon',
     'coupons.delete' => 'Delete Coupon',
 
+    // Companies
+    'companies.view' => 'View Companies',
+    'companies.create' => 'Create Company',
+    'companies.show' => 'View Company Details',
+    'companies.edit' => 'Edit Company',
+    'companies.delete' => 'Delete Company',
+    'companies.restore' => 'Restore Company',
+    'companies.force_delete' => 'Force Delete Company',
+
     // Subscriptions
-    'subscriptions.view' => 'Subscriptions',
+    'subscriptions.view' => 'View Subscriptions',
     'subscriptions.create' => 'Create Subscription',
-    'subscriptions.edit' => 'Edit Subscription',
     'subscriptions.delete' => 'Delete Subscription',
+    'subscriptions.toggle_status' => 'Toggle Subscription Status',
+    'subscriptions.pending.view' => 'View Pending Subscriptions',
+    'subscriptions.pending.approve' => 'Approve Subscription Request',
+    'subscriptions.pending.reject' => 'Reject Subscription Request',
     'subscriptions.renew' => 'Renew Subscription',
     'subscriptions.add_licenses' => 'Buy Additional Licenses',
     'subscriptions.upgrade' => 'Upgrade to New Version',

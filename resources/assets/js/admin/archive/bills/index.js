@@ -27,31 +27,26 @@ function initializeDataTableEvents() {
 }
 
 function bindFilters(table) {
-    $('#filter-status, #filter-authorized-count').on('change', function () {
+    $('#filter-type, #filter-status, #filter-payment-method').on('change', function () {
         applyFilters(table);
     });
 
-    $('#filter-search').on('keyup', function () {
-        clearTimeout(window.searchTimeout);
-        window.searchTimeout = setTimeout(function () {
-            applyFilters(table);
-        }, 500);
+    $('#btn-reset-filters').on('click', function () {
+        $('#filter-type, #filter-status, #filter-payment-method').val('').trigger('change');
     });
 }
 
 function applyFilters(table) {
-    const filters = {
-        status: $('#filter-status').val() || '',
-        authorizedCount: $('#filter-authorized-count').val() || '',
-        searchQuery: $('#filter-search').val() || ''
-    };
+    const type = $('#filter-type').val() || '';
+    const status = $('#filter-status').val() || '';
+    const paymentMethod = $('#filter-payment-method').val() || '';
 
     const baseUrl = window.location.pathname;
     const params = new URLSearchParams();
 
-    if (filters.status) params.append('status', filters.status);
-    if (filters.authorizedCount) params.append('authorized_count', filters.authorizedCount);
-    if (filters.searchQuery) params.append('search_query', filters.searchQuery);
+    if (type) params.append('type', type);
+    if (status) params.append('status', status);
+    if (paymentMethod) params.append('payment_method', paymentMethod);
 
     const query = params.toString();
     const newUrl = query ? baseUrl + '?' + query : baseUrl;

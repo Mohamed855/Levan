@@ -205,7 +205,7 @@
 
         <div class="collapse" id="filtersSection">
             <div class="card-body border-bottom">
-                <div class="row g-3 mb-4">
+                <div class="row g-4 mb-4">
                     <div class="col-md-6">
                         <label for="filter-company" class="form-label">الشركة</label>
                         <select id="filter-company" class="form-control select2" data-placeholder="جميع الشركات">
@@ -223,7 +223,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="row g-3 mb-4">
+                <div class="row g-4 mb-4">
                     <div class="col-md-3">
                         <label for="filter-date-from" class="form-label">من تاريخ</label>
                         <input type="date" id="filter-date-from" class="form-control" placeholder="اختر التاريخ">
@@ -243,7 +243,7 @@
                             placeholder="اختر التاريخ">
                     </div>
                 </div>
-                <div class="row g-3 mb-4">
+                <div class="row g-4 mb-4">
                     <div class="col-md-4">
                         <label for="filter-customer" class="form-label">العميل</label>
                         <select id="filter-customer" class="form-control select2-ajax"
@@ -274,7 +274,7 @@
                     </div>
                 </div>
 
-                <div class="row g-3 mb-4">
+                <div class="row g-4 mb-4">
                     <div class="col-md-5">
                         <label for="filter-contact-result" class="form-label">نتيجة الاتصال</label>
                         <select id="filter-contact-result" class="form-control select2" data-placeholder="جميع النتائج">

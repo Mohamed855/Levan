@@ -58,7 +58,7 @@
                     <!-- قسم ربط الحقول -->
                     <div class="card mb-4">
                         <div class="card-body">
-                            <div class="row g-3">
+                            <div class="row g-4">
                                 <div class="col-md-3">
                                     <label class="form-label">حقل رقم حساب العميل <span class="text-danger">*</span></label>
                                     <select class="form-select select2" name="account_column" required
@@ -89,7 +89,7 @@
                     <!-- قسم إعدادات التحصيل -->
                     <div class="card mb-4">
                         <div class="card-body">
-                            <div class="row g-3">
+                            <div class="row g-4">
                                 <div class="col-md-3">
                                     <label class="form-label">طريقة التحصيل <span class="text-danger">*</span></label>
                                     <select class="form-select select2" name="payment_method_id" required

@@ -191,7 +191,7 @@
                                             </div>
                                             <div class="card-body">
                                                 {{-- حقول الحاسبة --}}
-                                                <div class="row g-3">
+                                                <div class="row g-4">
                                                     <div class="col-md-4">
                                                         <label class="form-label">الهدف الشهري (ريال)</label>
                                                         <input type="number" id="monthly-target" class="form-control"

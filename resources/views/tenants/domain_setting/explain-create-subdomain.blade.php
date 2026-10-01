@@ -108,7 +108,7 @@
                             </div>
                             <div class="ps-5">
                                 <p class="text-muted mb-3">ابحث عن قسم إدارة DNS أو DNS Management في لوحة التحكم</p>
-                                <div class="row g-3">
+                                <div class="row g-4">
                                     <div class="col-md-4">
                                         <div class="card bg-label-primary">
                                             <div class="card-body text-center">

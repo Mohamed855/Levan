@@ -37,6 +37,12 @@ function bindFilters(table) {
             applyFilters(table);
         }, 500);
     });
+
+    $('#btn-reset-filters').on('click', function () {
+        $('#filter-status, #filter-company').val('').trigger('change');
+        $('#filter-search').val('');
+        applyFilters(table);
+    });
 }
 
 function applyFilters(table) {

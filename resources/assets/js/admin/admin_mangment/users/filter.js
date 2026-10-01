@@ -29,6 +29,9 @@ $(function () {
 
         $('#filter-status').on('change', applyFilters);
         $('#filter-role').on('change', applyFilters);
-        // $('#filter-employee').on('change', applyFilters);
+
+        $('#btn-reset-filters').on('click', function () {
+            $('#filter-status, #filter-role').val('').trigger('change');
+        });
     });
 });

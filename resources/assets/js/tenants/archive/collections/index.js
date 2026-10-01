@@ -29,7 +29,7 @@ function initializeComponents() {
             width: '100%',
             language: 'ar',
             dir: 'rtl',
-            dropdownParent: $(this).closest('#card-archived-collections')
+            dropdownParent: $(this).closest('.card')
         });
     });
 
@@ -268,6 +268,13 @@ function bindEvents() {
 
     // تحديث الجدول عند تغيير التواريخ
     $('#filter-date-from, #filter-date-to').on('change', function () {
+        archivedCollectionsTable.draw();
+    });
+
+    // إعادة تعيين الفلاتر
+    $('#btn-reset-filters').on('click', function () {
+        $('#filter-status, #filter-customer, #filter-payment-method, #filter-collection-type, #filter-payment-type, #filter-added-by').val('').trigger('change');
+        $('#filter-date-from, #filter-date-to').val('').trigger('change');
         archivedCollectionsTable.draw();
     });
 

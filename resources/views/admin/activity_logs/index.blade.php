@@ -45,13 +45,12 @@
             icon="ti-calendar-month" color="warning" />
     </div>
 
-    {{-- جدول سجل النشاطات --}}
-    <div class="card" id="card-activity-logs">
+    {{-- Filters Card --}}
+    <div class="card mb-4">
         <div class="card-body">
-            {{-- فلاتر البحث --}}
-            <div class="filters row g-3">
-                <div class="col">
-                    <label for="filter-user">المستخدم</label>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <label class="form-label" for="filter-user">المستخدم</label>
                     <select id="filter-user" class="form-control select2" data-placeholder="اختر المستخدم">
                         <option value=""></option>
                         @foreach ($users as $user)
@@ -60,19 +59,26 @@
                     </select>
                 </div>
 
-                <div class="col">
-                    <label for="filter-date-from">من تاريخ</label>
+                <div class="col-md-4">
+                    <label class="form-label" for="filter-date-from">من تاريخ</label>
                     <input type="date" id="filter-date-from" class="form-control">
                 </div>
 
-                <div class="col">
-                    <label for="filter-date-to">إلى تاريخ</label>
+                <div class="col-md-4">
+                    <label class="form-label" for="filter-date-to">إلى تاريخ</label>
                     <input type="date" id="filter-date-to" class="form-control">
                 </div>
             </div>
+            <div class="d-flex justify-content-end mt-3 gap-2">
+                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
+                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
+                </button>
+            </div>
+        </div>
+    </div>
 
-            <hr class="mt-10">
-
+    <div class="card" id="card-activity-logs">
+        <div class="card-body">
             {{-- جدول البيانات --}}
             <table id="activity-logs-table" class="table table-striped table-bordered text-center">
                 <thead>

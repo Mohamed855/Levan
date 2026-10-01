@@ -51,24 +51,21 @@
         </div>
     @endif
 
-    <div class="card">
+    {{-- Filters Card --}}
+    <div class="card mb-4">
         <div class="card-body">
-            <div class="filters row g-3">
-
-
+            <div class="row g-4">
                 <div class="col-md-6">
-                    <label for="filter-status">حالة المستخدمين</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="حالة المستخدمين">
+                    <label class="form-label" for="filter-status">حالة المستخدمين</label>
+                    <select id="filter-status" class="form-control select2" data-placeholder="اختر حالة المستخدم">
                         <option value=""></option>
-                        {{-- @foreach ($advanceStatus as $status) --}}
                         <option value="active">نشط</option>
                         <option value="inactive">غير نشط</option>
-                        {{-- @endforeach --}}
                     </select>
                 </div>
 
                 <div class="col-md-6">
-                    <label for="filter-role">دور المستخدم</label>
+                    <label class="form-label" for="filter-role">دور المستخدم</label>
                     <select id="filter-role" class="form-control select2" data-placeholder="اختر الدور">
                         <option value=""></option>
                         @foreach ($roles as $role)
@@ -76,10 +73,18 @@
                         @endforeach
                     </select>
                 </div>
-
             </div>
-            <hr class="mt-10">
-            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100'], false) !!}
+            <div class="d-flex justify-content-end mt-3 gap-2">
+                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
+                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'users-table'], false) !!}
         </div>
     </div>
 @endsection

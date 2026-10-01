@@ -174,18 +174,7 @@
                                             <small class="text-muted">الكوبونات</small>
                                         </a>
                                     </div>
-                                    <div class="col-6">
-                                        <a href="{{ route('admin.archives.tenants.index') }}"
-                                            class="d-block p-2 text-center border rounded hover-bg-light text-decoration-none">
-                                            <small class="text-muted">العملاء</small>
-                                        </a>
-                                    </div>
-                                    <div class="col-12">
-                                        <a href="{{ route('admin.archives.subscriptions.index') }}"
-                                            class="d-block p-2 text-center border rounded hover-bg-light text-decoration-none">
-                                            <small class="text-muted">الاشتراكات</small>
-                                        </a>
-                                    </div> --}}
+                                    --}}
                             </div>
                         </div>
                     </div>
@@ -223,13 +212,7 @@
                                 <div class="col-6">
                                     <a href="{{ route('admin.archives.tenants.index') }}"
                                         class="d-block p-2 text-center border rounded hover-bg-light text-decoration-none">
-                                        <small class="text-muted">العملاء</small>
-                                    </a>
-                                </div>
-                                <div class="col-12">
-                                    <a href="{{ route('admin.archives.subscriptions.index') }}"
-                                        class="d-block p-2 text-center border rounded hover-bg-light text-decoration-none">
-                                        <small class="text-muted">الاشتراكات</small>
+                                        <small class="text-muted">الشركات</small>
                                     </a>
                                 </div>
                             </div>

@@ -16,7 +16,18 @@ class TenantCreator
         [$tenantId, $dbUser] = $this->generateIdentifiers();
         $connection          = $this->cpanelService->createDatabase($tenantId, $dbUser);
         $tenant              = $this->registerTenantRecord($tenantId, $connection, $metadata);
-        $user                = $this->tenantInitializer->setupTenantEnvironment($tenant, $metadata);
+
+        $tenant->companySettings()->create([
+            'email_notifications_enabled'   => (bool) ($metadata['email_notifications_enabled'] ?? true),
+            'two_factor_enabled'            => (bool) ($metadata['two_factor_enabled'] ?? false),
+            'external_integrations_enabled' => (bool) ($metadata['external_integrations_enabled'] ?? false),
+        ]);
+
+        $user = $this->tenantInitializer->setupTenantEnvironment($tenant, $metadata);
+
+        if ($user && isset($user->global_uid)) {
+            $tenant->update(['primary_user_global_uid' => $user->global_uid]);
+        }
 
         return [$tenant, $user];
     }
@@ -64,12 +75,15 @@ class TenantCreator
             'db_database'       => $connection['database'],
             'db_username'       => $connection['username'],
             'db_password'       => $connection['password'],
-            'company_name'      => $metadata['billing_company_name'] ?? 'غير محدد',
-            'tax_number'        => $metadata['billing_tax_number'] ?? null,
-            'city_id'           => $metadata['billing_city_id'] ?? null,
-            'address'           => $metadata['billing_address'] ?? null,
-            'commercial_number' => $metadata['billing_commercial_number'] ?? null,
-            'db_host'           => $connection['host'] ?? env('DB_HOST', '127.0.0.1'),
+            'company_name'           => $metadata['billing_company_name'] ?? 'غير محدد',
+            'tax_number'             => $metadata['billing_tax_number'] ?? null,
+            'city_id'                => $metadata['billing_city_id'] ?? null,
+            'address'                => $metadata['billing_address'] ?? null,
+            'commercial_number'      => $metadata['billing_commercial_number'] ?? null,
+            'primary_contact_name'   => $metadata['billing_name'] ?? null,
+            'primary_contact_email'  => $metadata['billing_email'] ?? null,
+            'primary_contact_phone'  => $metadata['billing_phone'] ?? null,
+            'db_host'                => $connection['host'] ?? env('DB_HOST', '127.0.0.1'),
             'db_port'           => env('DB_PORT', '3306'),
             'version_id'        => $settings?->default_landing_version_id,
         ];

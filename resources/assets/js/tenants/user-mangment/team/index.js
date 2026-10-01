@@ -64,6 +64,10 @@ function bindTableEvents() {
         table.ajax.reload(null, false);
     });
 
+    $('#btn-reset-filters').on('click', function () {
+        $('#filter-status, #filter-branch').val('').trigger('change');
+    });
+
     const tableWrapper = $('#teams-table_wrapper');
     
     tableWrapper.on('click', '#select-all', function () {

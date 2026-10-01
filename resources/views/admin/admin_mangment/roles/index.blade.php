@@ -24,16 +24,16 @@
     <script>
         // Route data — must stay in Blade (dynamic per-dashboard)
         window.routes = {
-            rolesIndex:      "{{ route('admin.roles.index') }}",
-            getUserRoles:    "{{ route('admin.roles.get-user-roles', ':id') }}",
+            rolesIndex: "{{ route('admin.roles.index') }}",
+            getUserRoles: "{{ route('admin.roles.get-user-roles', ':id') }}",
             updateUserRoles: "{{ route('admin.roles.update-user-role', ':id') }}",
-            toggleStatus:    "{{ route('admin.users.toggle-status', ':id') }}",
+            toggleStatus: "{{ route('admin.users.toggle-status', ':id') }}",
         };
         window.assets = {
             arabicDataTable: "{{ asset('assets/json/ar.json') }}",
         };
         window.permissions = {
-            canAddRole: {{ (auth()->user()?->can('roles.create') ?? true) ? 'true' : 'false' }},
+            canAddRole: {{ auth()->user()?->can('roles.create') ?? true ? 'true' : 'false' }},
         };
     </script>
     @vite(['resources/assets/js/admin/admin_mangment/roles/index.js'])
@@ -67,8 +67,8 @@
                                         @if ($role->users->count() > 0)
                                             <ul class="list-unstyled d-flex align-items-center avatar-group mb-0">
                                                 @foreach ($role->users->take(4) as $user)
-                                                    <li data-bs-toggle="tooltip"
-                                                        data-bs-placement="top" data-bs-title="{{ $user->name }}"
+                                                    <li data-bs-toggle="tooltip" data-bs-placement="top"
+                                                        data-bs-title="{{ $user->name }}"
                                                         class="avatar avatar-xs pull-up">
                                                         <img class="rounded-circle"
                                                             src="{{ $user->image ? asset('storage/' . $user->image) : asset('img/logo.svg') }}"
@@ -114,13 +114,12 @@
         </div>
     </div>
 
-    <!-- عرض الفلاتر و الجدول الخاص بالمستخدمين -->
-    <div class="card" id="card-users">
+    {{-- Filters Card --}}
+    <div class="card mb-4">
         <div class="card-body">
-            <!-- الفلاتر -->
-            <div class="filters row g-3">
+            <div class="row g-4">
                 <div class="col-md-6">
-                    <label for="filter-status">حالة المستخدم</label>
+                    <label class="form-label" for="filter-status">حالة المستخدم</label>
                     <select id="filter-status" class="form-control select2" data-placeholder="اختر حالة المستخدم">
                         <option value=""></option>
                         <option value="active">نشط</option>
@@ -129,7 +128,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label for="filter-role">الدور</label>
+                    <label class="form-label" for="filter-role">الدور</label>
                     <select id="filter-role" class="form-control select2" data-placeholder="اختر الدور">
                         <option value=""></option>
                         @foreach ($roles as $role)
@@ -138,11 +137,18 @@
                     </select>
                 </div>
             </div>
+            <div class="d-flex justify-content-end mt-3 gap-2">
+                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
+                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
+                </button>
+            </div>
+        </div>
+    </div>
 
-            <hr class="mt-10">
-
-            <!-- جدول المستخدمين -->
-            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100'], false) !!}
+    {{-- DataTable Card --}}
+    <div class="card" id="card-users">
+        <div class="card-body">
+            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'users-table'], false) !!}
         </div>
     </div>
 

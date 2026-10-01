@@ -350,7 +350,7 @@
 
                         <!-- المعلومات الأساسية -->
                         <div id="basic-info-validation" class="content">
-                            <div class="row g-3">
+                            <div class="row g-4">
                                 <div class="col-sm-6">
                                     <label class="form-label" for="name">الاسم الكامل <span
                                             class="text-danger">*</span></label>
@@ -362,7 +362,8 @@
                                     <label class="form-label" for="email">البريد الإلكتروني <span
                                             class="text-danger">*</span></label>
                                     <input type="email" name="email" id="email" class="form-control"
-                                        placeholder="ادخل البريد الإلكتروني" value="{{ old('email') }}" autocomplete="off" />
+                                        placeholder="ادخل البريد الإلكتروني" value="{{ old('email') }}"
+                                        autocomplete="off" />
                                 </div>
 
                                 <div class="col-sm-6">
@@ -383,12 +384,12 @@
                                             data-step="1">
                                             <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
                                         </button>
-                                    <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-primary btn-next waves-effect waves-light"
-                                            disabled>
-                                            التالي <i class="ti ti-arrow-right ms-2"></i>
-                                        </button>
-                                    </div>
+                                        <div class="d-flex gap-2">
+                                            <button type="button" class="btn btn-primary btn-next waves-effect waves-light"
+                                                disabled>
+                                                التالي <i class="ti ti-arrow-right ms-2"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -396,7 +397,7 @@
 
                         <!-- كلمة المرور والصورة -->
                         <div id="security-info-validation" class="content">
-                            <div class="row g-3">
+                            <div class="row g-4">
 
                                 <div class="col-sm-6">
                                     <label class="form-label" for="password">كلمة المرور <span
@@ -415,7 +416,8 @@
                                             class="text-danger">*</span></label>
                                     <div class="input-group input-group-merge">
                                         <input type="password" name="password_confirmation" id="password_confirmation"
-                                            class="form-control" placeholder="أعد إدخال كلمة المرور" autocomplete="new-password" />
+                                            class="form-control" placeholder="أعد إدخال كلمة المرور"
+                                            autocomplete="new-password" />
                                         <span class="input-group-text cursor-pointer">
                                             <i class="ti ti-eye-off"></i>
                                         </span>
@@ -454,12 +456,12 @@
                                             data-step="2">
                                             <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
                                         </button>
-                                    <div class="d-flex gap-2">
-                                        <button type="submit"
-                                            class="btn btn-primary btn-next btn-submit waves-effect waves-light">
-                                            <i class="ti ti-check me-1"></i> حفظ
-                                        </button>
-                                    </div>
+                                        <div class="d-flex gap-2">
+                                            <button type="submit"
+                                                class="btn btn-primary btn-next btn-submit waves-effect waves-light">
+                                                <i class="ti ti-check me-1"></i> حفظ
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

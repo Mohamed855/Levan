@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const row = document.createElement('div');
             row.className = 'authorized-person-item mb-3 p-3 border rounded';
             row.innerHTML = `
-                <div class="row g-3">
+                <div class="row g-4">
                     <div class="col-md-3">
                         <label class="form-label small">اسم المفوّض</label>
                         <input type="text" class="form-control" name="authorized_people[${idx}][name]" placeholder="ادخل اسم المفوّض" value="">

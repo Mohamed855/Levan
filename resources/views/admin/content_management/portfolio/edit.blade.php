@@ -3,21 +3,11 @@
 @section('title', 'تعديل المحفظة')
 
 @section('vendor-style')
-    @vite([
-        'resources/assets/vendor/libs/select2/select2.scss',
-        'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss',
-        'resources/assets/vendor/libs/@form-validation/form-validation.scss'
-    ])
+    @vite(['resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite([
-        'resources/assets/vendor/libs/select2/select2.js',
-        'resources/assets/vendor/libs/bs-stepper/bs-stepper.js',
-        'resources/assets/vendor/libs/@form-validation/popular.js',
-        'resources/assets/vendor/libs/@form-validation/bootstrap5.js',
-        'resources/assets/vendor/libs/@form-validation/auto-focus.js'
-    ])
+    @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js'])
 @endsection
 
 @section('toastr')
@@ -27,20 +17,20 @@
 @section('page-script')
     @vite(['resources/assets/js/admin/client/form-validation.js'])
     <script>
-    function previewImage(event) {
-        const file = event.target.files[0];
-        const preview = document.getElementById('logo-preview');
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('logo-preview');
 
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                preview.src = e.target.result;
-                preview.style.display = 'block';
-            };
-            reader.readAsDataURL(file);
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
         }
-    }
-</script>
+    </script>
 @endsection
 
 @section('content')
@@ -77,15 +67,15 @@
                         @method('PUT')
 
                         <div id="info-validation" class="content">
-                            <div class="row g-3">
+                            <div class="row g-4">
 
                                 <!-- الاسم -->
                                 <div class="col-md-6">
                                     <label for="name" class="form-label">
                                         اسم المحفظة <span class="text-danger">*</span>
                                     </label>
-                                    <input type="text" class="form-control @error('name') is-invalid @enderror" id="name"
-                                        name="name" value="{{ old('name', $portfolio->name) }}" required>
+                                    <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                        id="name" name="name" value="{{ old('name', $portfolio->name) }}" required>
                                     @error('name')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
@@ -96,15 +86,16 @@
                                     <label for="logo" class="form-label">
                                         الشعار <span class="text-muted">(صورة اختيارية)</span>
                                     </label>
-                                    <input type="file" class="form-control @error('logo') is-invalid @enderror" id="logo"
-                                        name="logo" accept="image/*" onchange="previewImage(event)">
+                                    <input type="file" class="form-control @error('logo') is-invalid @enderror"
+                                        id="logo" name="logo" accept="image/*" onchange="previewImage(event)">
                                     <small class="text-muted">صيغ مقبولة: jpg, png, gif - الحد الأقصى: 2MB</small>
 
                                     {{-- عرض الصورة الحالية أو البريفيو --}}
                                     <div class="mt-3" id="logo-preview-wrapper">
-                                        @if($portfolio->logo)
+                                        @if ($portfolio->logo)
                                             <p class="text-muted mb-1" style="font-size:12px;">الشعار الحالي:</p>
-                                            <img id="logo-preview" src="{{ asset('storage/' . $portfolio->logo) }}" alt="Logo"
+                                            <img id="logo-preview" src="{{ asset('storage/' . $portfolio->logo) }}"
+                                                alt="Logo"
                                                 style="max-width: 120px; height: 80px; object-fit: contain; border: 1px solid #ddd; border-radius: 8px; padding: 4px;">
                                         @else
                                             <img id="logo-preview" src="#" alt="معاينة"
@@ -125,9 +116,11 @@
                                     <select id="status" name="status"
                                         class="form-select select2 @error('status') is-invalid @enderror" required>
                                         <option value="">اختر الحالة</option>
-                                        <option value="1" {{ old('status', $portfolio->status) == 1 ? 'selected' : '' }}>نشط
+                                        <option value="1"
+                                            {{ old('status', $portfolio->status) == 1 ? 'selected' : '' }}>نشط
                                         </option>
-                                        <option value="0" {{ old('status', $portfolio->status) == 0 ? 'selected' : '' }}>غير
+                                        <option value="0"
+                                            {{ old('status', $portfolio->status) == 0 ? 'selected' : '' }}>غير
                                             نشط</option>
                                     </select>
                                     @error('status')

@@ -345,7 +345,7 @@ class TicketDataTable_old extends AbstractDataTable
         }
 
         $html = '<div class="dropdown">';
-        $html .= '<button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">';
+        $html .= '<button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">';
         $html .= '<i class="ti ti-dots-vertical"></i>';
         $html .= '</button>';
         $html .= '<ul class="dropdown-menu dropdown-menu-end">';

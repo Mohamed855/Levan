@@ -68,7 +68,7 @@
                                         <i class="ti ti-edit me-1"></i>تعديل الباقة
                                     </a>
                                 @endcan
-                                <a href="{{ route('admin.plans.index') }}" class="btn btn-sm btn-secondary">
+                                <a href="{{ route('admin.plans.index') }}" class="btn btn-secondary">
                                     <i class="ti ti-arrow-right me-1"></i>رجوع
                                 </a>
                             </div>
@@ -132,7 +132,7 @@
                             </div>
 
                             {{-- بطاقات المؤشرات المالية والتشغيلية --}}
-                            <div class="row g-3 mb-4">
+                            <div class="row g-4 mb-4">
                                 <div class="col-md-3 col-sm-6">
                                     <div class="card border h-100 shadow-none">
                                         <div class="card-body">
@@ -290,7 +290,7 @@
                                     </h6>
                                 </div>
                                 <div class="card-body py-3">
-                                    <div class="row g-3">
+                                    <div class="row g-4">
                                         <div class="col-sm-6 col-md-4">
                                             <span class="text-muted small d-block">ترتيب الظهور:</span>
                                             <span class="fw-semibold">{{ $plan->sort_order ?? 0 }}</span>
@@ -349,7 +349,7 @@
                         <div class="border-1 border-light border-dashed mb-2"></div>
                         <div class="card-body">
                             @if (!empty($plan->features) && count($plan->features) > 0)
-                                <div class="row g-3">
+                                <div class="row g-4">
                                     @foreach ($plan->features as $feature)
                                         <div class="col-md-6">
                                             <div
@@ -397,7 +397,7 @@
                         <div class="border-1 border-light border-dashed mb-2"></div>
                         <div class="card-body">
                             {{-- إحصائيات سريعة للاشتراكات --}}
-                            <div class="row g-3 mb-4">
+                            <div class="row g-4 mb-4">
                                 <div class="col-md-4">
                                     <div class="card border shadow-none">
                                         <div class="card-body p-3 d-flex align-items-center">

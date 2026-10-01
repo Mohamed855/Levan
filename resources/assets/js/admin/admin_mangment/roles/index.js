@@ -16,7 +16,7 @@ $(function () {
             width: '100%',
             language: 'ar',
             dir: 'rtl',
-            dropdownParent: $(this).closest('#card-users')
+            dropdownParent: $(this).closest('.card-body')
         });
     });
 
@@ -46,6 +46,10 @@ $(function () {
         }
 
         $('#filter-status, #filter-role').on('change', applyFilters);
+
+        $('#btn-reset-filters').on('click', function () {
+            $('#filter-status, #filter-role').val('').trigger('change');
+        });
 
         // ==============================
         // 🔹 تحديد الكل

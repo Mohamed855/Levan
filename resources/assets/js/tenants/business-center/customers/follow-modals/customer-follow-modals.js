@@ -108,7 +108,7 @@ function renderContactResultFields(fields, containerSelector, isEditMode = false
     }
 
     const prefix = isEditMode ? 'edit_' : '';
-    const fieldsContainer = $('<div class="row g-3"></div>');
+    const fieldsContainer = $('<div class="row g-4"></div>');
     container.append(fieldsContainer);
 
     fields.forEach((field, index) => {

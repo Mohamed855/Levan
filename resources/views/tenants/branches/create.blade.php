@@ -50,16 +50,18 @@
                         @csrf
 
                         <div id="info-validation" class="content">
-                            <div class="row g-3">
+                            <div class="row g-4">
 
                                 <div class="col-md-6">
-                                    <label for="name" class="form-label">اسم الفرع <span class="text-danger">*</span></label>
+                                    <label for="name" class="form-label">اسم الفرع <span
+                                            class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="name" name="name"
                                         value="{{ old('name') }}" placeholder="ادخل اسم الفرع" required>
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label for="code" class="form-label">كود الفرع <span class="text-danger">*</span></label>
+                                    <label for="code" class="form-label">كود الفرع <span
+                                            class="text-danger">*</span></label>
                                     <div class="input-group">
                                         <input type="text" class="form-control" id="code" name="code"
                                             value="{{ old('code', $generatedCode) }}" style="text-transform: uppercase;"
@@ -84,8 +86,7 @@
 
                                 <div class="col-12">
                                     <label for="address" class="form-label">العنوان</label>
-                                    <textarea class="form-control" id="address" name="address" rows="3"
-                                        placeholder="ادخل العنوان">{{ old('address') }}</textarea>
+                                    <textarea class="form-control" id="address" name="address" rows="3" placeholder="ادخل العنوان">{{ old('address') }}</textarea>
                                 </div>
 
                                 <div class="col-12 d-flex justify-content-end">

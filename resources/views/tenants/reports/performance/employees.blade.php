@@ -69,7 +69,7 @@
     {{-- قسم الفلاتر --}}
     <div class="card mb-4" id="filters-card">
         <div class="card-body border-bottom">
-            <div class="row g-3 mb-3">
+            <div class="row g-4 mb-3">
                 <div class="col-md-4">
                     <label class="form-label">السنة</label>
                     <select id="filter-year" class="form-control select2" data-placeholder="اختر السنة">
@@ -384,8 +384,10 @@
                 </div>
                 <div class="modal-body" id="fieldsContainer"></div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="ti ti-x me-1"></i>إلغاء</button>
-                    <button type="button" id="confirmExport" class="btn btn-primary"><i class="ti ti-download me-1"></i>تصدير</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i
+                            class="ti ti-x me-1"></i>إلغاء</button>
+                    <button type="button" id="confirmExport" class="btn btn-primary"><i
+                            class="ti ti-download me-1"></i>تصدير</button>
                 </div>
             </div>
         </div>

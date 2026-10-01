@@ -108,24 +108,16 @@ class RoleController extends Controller
                             $checked = $user->status === 'active' ? 'checked' : '';
                             return '
                                 <div class="d-flex justify-content-center">
-                                    <label class="switch switch-primary switch-square mb-0">
+                                    <div class="form-check form-switch mb-0">
                                         <input
                                             type="checkbox"
-                                            class="switch-input status-toggle"
+                                            class="form-check-input status-toggle"
                                             id="status_' . $user->id . '"
                                             data-user-id="' . $user->id . '"
                                             ' . $checked . '
                                             onchange="toggleUserStatus(this, ' . $user->id . ')"
                                         >
-                                        <span class="switch-toggle-slider">
-                                            <span class="switch-on">
-                                                <i class="icon-base mt-1 ti ti-check text-white"></i>
-                                            </span>
-                                            <span class="switch-off">
-                                                <i class="icon-base mt-1 ti ti-x"></i>
-                                            </span>
-                                        </span>
-                                    </label>
+                                    </div>
                                 </div>
                             ';
                         } else {

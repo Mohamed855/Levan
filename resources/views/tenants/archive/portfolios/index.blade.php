@@ -121,12 +121,13 @@
         </div>
     </div>
 
-    <div class="card">
+    {{-- Filters Card --}}
+    <div class="card mb-4">
         <div class="card-body">
-            <div class="row g-3 mb-3">
+            <div class="row g-4">
                 <div class="col-md-6">
                     <label for="filter-status" class="form-label">حالة المحفظة</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="الكل">
+                    <select id="filter-status" class="form-control select2" data-placeholder="اختر حالة المحفظة">
                         <option value=""></option>
                         <option value="active">نشط</option>
                         <option value="inactive">غير نشط</option>
@@ -135,23 +136,24 @@
 
                 <div class="col-md-6">
                     <label for="filter-company" class="form-label">الشركة</label>
-                    <select id="filter-company" class="form-control select2" data-placeholder="الكل">
+                    <select id="filter-company" class="form-control select2" data-placeholder="اختر الشركة">
                         <option value=""></option>
                         @foreach ($companies as $company)
                             <option value="{{ $company->id }}">{{ $company->name }}</option>
                         @endforeach
                     </select>
                 </div>
-
-  
-
-                {{-- <div class="col-md-3">
-                <label for="filter-search" class="form-label">البحث</label>
-                <input type="text" id="filter-search" class="form-control" placeholder="البحث في اسم المحفظة">
-            </div> --}}
             </div>
+            <div class="d-flex justify-content-end mt-3 gap-2">
+                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
+                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
+                </button>
+            </div>
+        </div>
+    </div>
 
-            <hr class="mt-10">
+    <div class="card">
+        <div class="card-body">
             {!! $dataTable->table(
                 ['class' => 'table table-striped table-bordered w-100', 'id' => 'archived-portfolios-table'],
                 false,

@@ -162,6 +162,10 @@ function bindFilterEvents() {
             adminCollectionsTable.ajax.url(newUrl).load();
         }
     });
+
+    $('#btn-reset-filters').on('click', function () {
+        $(filterSelectors.join(', ')).val('').trigger('change');
+    });
 }
 
 /*

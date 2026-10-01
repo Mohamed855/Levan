@@ -217,7 +217,7 @@
                                                     </button>
                                                 </div>
 
-                                                <div class="row g-3">
+                                                <div class="row g-4">
                                                     <input type="hidden"
                                                         name="commissions[{{ $index }}][commission_type]"
                                                         value="{{ $commissionType }}">
@@ -234,7 +234,8 @@
                                                                     {{ $procedureType === 'friendly' ? 'selected' : '' }}>
                                                                     ودي</option>
                                                                 <option value="legal"
-                                                                    {{ $procedureType === 'legal' ? 'selected' : '' }}>قانوني
+                                                                    {{ $procedureType === 'legal' ? 'selected' : '' }}>
+                                                                    قانوني
                                                                 </option>
                                                             </select>
                                                         </div>
@@ -326,7 +327,7 @@
                 </button>
             </div>
 
-            <div class="row g-3">
+            <div class="row g-4">
                 <input type="hidden" name="commissions[__INDEX__][commission_type]" value="__TYPE__">
 
                 <div class="col-md-6 procedure-type-col" style="display:none;">

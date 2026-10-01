@@ -120,7 +120,7 @@ function addPaymentPlanField() {
 
     const fieldHtml = `
         <div class="border rounded p-3 mb-3" data-index="${planIndex}">
-            <div class="row g-3">
+            <div class="row g-4">
                 <div class="col-md-5">
                     <label class="form-label">تاريخ الاستحقاق <span class="text-danger">*</span></label>
                     <input type="date"

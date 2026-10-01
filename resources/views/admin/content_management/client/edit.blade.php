@@ -14,7 +14,7 @@
     @vite(['resources/css/toastr.css', 'resources/js/toastr.js'])
 @endsection
 @section('page-script')
-@vite(['resources/assets/js/admin/client/form-validation.js'])
+    @vite(['resources/assets/js/admin/client/form-validation.js'])
 @endsection
 
 @section('content')
@@ -44,48 +44,57 @@
                         </div>
                     @endif
 
-                    <form id="wizard-validation-form" action="{{ route('admin.content_management.client.update', $client->id) }}"
-                        method="POST" enctype="multipart/form-data">
+                    <form id="wizard-validation-form"
+                        action="{{ route('admin.content_management.client.update', $client->id) }}" method="POST"
+                        enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
                         <div id="info-validation" class="content">
-                            <div class="row g-3">
+                            <div class="row g-4">
                                 <!-- الاسم -->
                                 <div class="col-md-6">
-                                    <label for="name" class="form-label">اسم العميل <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name"
-                                        value="{{ old('name', $client->name) }}" required>
+                                    <label for="name" class="form-label">اسم العميل <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                        id="name" name="name" value="{{ old('name', $client->name) }}" required>
                                     @error('name')
-                                    <span class="invalid-feedback">{{ $message }}</span>
+                                        <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
 
                                 <!-- الشعار -->
                                 <div class="col-md-6">
-                                    <label for="logo" class="form-label">الشعار <span class="text-muted">(صورة اختيارية)</span></label>
-                                    <input type="file" class="form-control @error('logo') is-invalid @enderror" id="logo" name="logo" accept="image/*">
+                                    <label for="logo" class="form-label">الشعار <span class="text-muted">(صورة
+                                            اختيارية)</span></label>
+                                    <input type="file" class="form-control @error('logo') is-invalid @enderror"
+                                        id="logo" name="logo" accept="image/*">
                                     <small class="text-muted">صيغ مقبولة: jpg, png, gif - الحد الأقصى: 2MB</small>
-                                    @if($client->logo)
+                                    @if ($client->logo)
                                         <div class="mt-2">
-                                            <img src="{{ asset('storage/' . $client->logo) }}" alt="Logo" style="max-width: 100px; height: auto;">
+                                            <img src="{{ asset('storage/' . $client->logo) }}" alt="Logo"
+                                                style="max-width: 100px; height: auto;">
                                         </div>
                                     @endif
                                     @error('logo')
-                                    <span class="invalid-feedback d-block">{{ $message }}</span>
+                                        <span class="invalid-feedback d-block">{{ $message }}</span>
                                     @enderror
                                 </div>
 
                                 <!-- الحالة -->
                                 <div class="col-md-6">
-                                    <label for="status" class="form-label">الحالة <span class="text-danger">*</span></label>
-                                    <select id="status" name="status" class="form-select select2 @error('status') is-invalid @enderror" required>
+                                    <label for="status" class="form-label">الحالة <span
+                                            class="text-danger">*</span></label>
+                                    <select id="status" name="status"
+                                        class="form-select select2 @error('status') is-invalid @enderror" required>
                                         <option value="">اختر الحالة</option>
-                                        <option value="1" {{ old('status', $client->status) == 1 ? 'selected' : '' }}>نشط</option>
-                                        <option value="0" {{ old('status', $client->status) == 0 ? 'selected' : '' }}>غير نشط</option>
+                                        <option value="1" {{ old('status', $client->status) == 1 ? 'selected' : '' }}>
+                                            نشط</option>
+                                        <option value="0" {{ old('status', $client->status) == 0 ? 'selected' : '' }}>
+                                            غير نشط</option>
                                     </select>
                                     @error('status')
-                                    <span class="invalid-feedback">{{ $message }}</span>
+                                        <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </div>
                             </div>

@@ -165,6 +165,8 @@ class LicenseService
     private function getActiveSubscription(string $tenantId): Subscription
     {
         $subscription = Subscription::where('tenant_id', $tenantId)
+            ->where('status', \App\Enums\Admin\Subscriptions\SubscriptionStatus::ACTIVE)
+            ->latest('id')
             ->lockForUpdate()
             ->first();
 

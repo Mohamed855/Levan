@@ -42,6 +42,14 @@ $(function () {
         $('#filter-company, #filter-portfolio, #filter-manager, #filter-task-type, #filter-status, #filter-overdue-days').on('change', applyFilters);
         $('#filter-date-from, #filter-date-to').on('change', applyFilters);
 
+        // Reset Filters Event
+        $('#btn-reset-filters').on('click', function () {
+            $('#filter-company, #filter-portfolio, #filter-manager, #filter-task-type, #filter-status, #filter-overdue-days').val('').trigger('change');
+            $('#filter-date-from, #filter-date-to').val('');
+            $('#custom-date-range').addClass('d-none');
+            applyFilters();
+        });
+
         // Custom Date Range Toggle
         $('#filter-overdue-days').on('change', function() {
             if ($(this).val() === 'custom') {

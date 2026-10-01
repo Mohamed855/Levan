@@ -3,21 +3,11 @@
 @section('title', 'إدارة المحافظ')
 
 @section('vendor-style')
-    @vite([
-        'resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
-        'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
-        'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss',
-        'resources/assets/vendor/libs/select2/select2.scss',
-        'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'
-    ])
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite([
-        'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js',
-        'resources/assets/vendor/libs/select2/select2.js',
-        'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'
-    ])
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
     {!! $dataTable->scripts() !!}
 @endsection
 
@@ -35,13 +25,10 @@
             massDelete: "{{ route('admin.mass-delete') }}"
         };
     </script>
-    @vite([
-        'resources/assets/js/admin/portfolios/filter.js',
-        'resources/assets/js/admin/portfolios/index.js'
-    ])
+    @vite(['resources/assets/js/admin/portfolios/filter.js', 'resources/assets/js/admin/portfolios/index.js'])
     <script>
-        $(document).ready(function () {
-            $(document).on('click', '.js-delete-btn', function (e) {
+        $(document).ready(function() {
+            $(document).on('click', '.js-delete-btn', function(e) {
                 e.preventDefault();
                 const id = $(this).data('id');
                 confirmDelete(id);
@@ -128,11 +115,12 @@
         </div>
     @endif
 
-    <div class="card">
+    {{-- Filters Card --}}
+    <div class="card mb-4">
         <div class="card-body">
-            <div class="filters row g-3">
+            <div class="row g-4">
                 <div class="col-md-6">
-                    <label for="filter-status">حالة المحفظة</label>
+                    <label class="form-label" for="filter-status">حالة المحفظة</label>
                     <select id="filter-status" class="form-control select2" data-placeholder="اختر حالة المحفظة">
                         <option value=""></option>
                         <option value="1">نشط</option>
@@ -140,8 +128,17 @@
                     </select>
                 </div>
             </div>
-            <hr class="mt-10">
-            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100'], false) !!}
+            <div class="d-flex justify-content-end mt-3 gap-2">
+                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
+                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'portfolio-table'], false) !!}
         </div>
     </div>
 @endsection

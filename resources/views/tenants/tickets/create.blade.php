@@ -50,14 +50,14 @@
                         @csrf
 
                         <div id="info-validation" class="content">
-                            <div class="row g-3">
+                            <div class="row g-4">
                                 <div class="col-md-6">
                                     <label for="title" class="form-label">عنوان التذكرة <span
                                             class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="title" name="title"
                                         value="{{ old('title') }}" placeholder="أدخل عنوان التذكرة" required>
                                 </div>
-                                 <div class="col-md-6">
+                                <div class="col-md-6">
                                     <label for="ticketing_sections_id" class="form-label"> تصنيف التذكرة <span
                                             class="text-danger">*</span></label>
                                     <select class="form-select select2" id="ticketing_sections_id"
@@ -86,7 +86,7 @@
                                         <span class="badge bg-primary">عدد الملفات المحددة: <span
                                                 id="count">0</span></span>
                                     </div>
-                                    
+
                                     <!-- Preview Container -->
                                     <div id="preview-container" class="preview-container"></div>
                                 </div>
@@ -113,7 +113,7 @@
             const previewContainer = document.getElementById('preview-container');
             const fileCountDiv = document.getElementById('file-count');
             const countSpan = document.getElementById('count');
-            
+
             // Clear previous previews
             previewContainer.innerHTML = '';
             selectedFiles = Array.from(input.files);
@@ -147,17 +147,18 @@
                         // For non-image files, show icon
                         const fileIcon = document.createElement('div');
                         fileIcon.className = 'file-icon';
-                        
+
                         // Choose icon based on file type
                         let iconClass = 'bx-file';
                         if (file.type.includes('pdf')) {
                             iconClass = 'bx-file-pdf';
-                        } else if (file.type.includes('word') || file.name.endsWith('.doc') || file.name.endsWith('.docx')) {
+                        } else if (file.type.includes('word') || file.name.endsWith('.doc') || file.name.endsWith(
+                                '.docx')) {
                             iconClass = 'bx-file-doc';
                         } else if (file.type.includes('text')) {
                             iconClass = 'bx-file-txt';
                         }
-                        
+
                         fileIcon.innerHTML = `<i class="bx ${iconClass}"></i>`;
                         previewItem.appendChild(fileIcon);
                     }

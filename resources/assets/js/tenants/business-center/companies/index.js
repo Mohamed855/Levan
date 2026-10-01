@@ -35,6 +35,10 @@ $(function () {
 
         $('#filter-status, #filter-authorized-count').on('change', applyFilters);
 
+        $('#btn-reset-filters').on('click', function () {
+            $('#filter-status, #filter-authorized-count').val('').trigger('change');
+        });
+
         const tableWrapper = $('#companies-table_wrapper');
 
         tableWrapper.on('click', '#select-all', function () {

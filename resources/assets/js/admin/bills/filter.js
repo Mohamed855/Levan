@@ -30,5 +30,9 @@ $(function () {
         $('#filter-status').on('change', applyFilters);
         $('#filter-paid').on('change', applyFilters);
         $('#filter-type').on('change', applyFilters);
+
+        $('#btn-reset-filters').on('click', function () {
+            $('#filter-status, #filter-paid, #filter-type').val('').trigger('change');
+        });
     });
 });

@@ -27,7 +27,7 @@
 @section('toastr')
     @vite(['resources/css/toastr.css', 'resources/js/toastr.js'])
 @endsection
- @section('content')
+@section('content')
     <div class="">
         <div class="card px-3 ">
             <div class="card-header py-4">
@@ -48,7 +48,7 @@
                     <div id="form-credit-card" class="col-lg-7 card-body border-end p-md-8 m-auto">
 
                         <div id="form-credit-card" class="mt-5">
-                            <div class="row g-3">
+                            <div class="row g-4">
                                 <!-- رقم البطاقة -->
                                 <div class="col-12">
                                     <label class="form-label" for="card_number">

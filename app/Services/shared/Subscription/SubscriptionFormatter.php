@@ -30,10 +30,18 @@ class SubscriptionFormatter
 
             'subscription_number'      => $subscription->subscription_number,
             'next_payment_date'        => $subscription->next_payment_date?->format('Y/m/d') ?? 'غير محدد',
-            'yearly_renewal_price'     => number_format($subscription->plan?->yearly_renewal_price, 2),
+            'yearly_renewal_price'     => number_format((float) ($subscription->plan?->yearly_renewal_price ?? 0), 2),
             'auto_renew'               => $subscription->auto_renew,
             'status_value'             => $subscription->status->value,
-            'extra_user_license_price' => number_format($subscription->plan?->extra_user_license_price, 2),
+            'extra_user_license_price' => number_format((float) ($subscription->plan?->extra_user_license_price ?? 0), 2),
+
+            'properties_limit'         => $subscription->plan?->properties_limit,
+            'unlimited_properties'     => (bool) ($subscription->plan?->unlimited_properties ?? false),
+            'storage_quota_gb'         => $subscription->plan?->storage_quota_gb,
+            'active_auctions_limit'    => $subscription->plan?->active_auctions_limit,
+            'unlimited_auctions'       => (bool) ($subscription->plan?->unlimited_auctions ?? false),
+            'branches_limit'           => $subscription->plan?->branches_limit,
+            'unlimited_branches'       => (bool) ($subscription->plan?->unlimited_branches ?? false),
         ];
     }
 
@@ -73,6 +81,13 @@ class SubscriptionFormatter
             'auto_renew'               => 'غير محدد',
             'status_value'             => 'غير محدد',
             'extra_user_license_price' => 0,
+            'properties_limit'         => null,
+            'unlimited_properties'     => false,
+            'storage_quota_gb'         => null,
+            'active_auctions_limit'    => null,
+            'unlimited_auctions'       => false,
+            'branches_limit'           => null,
+            'unlimited_branches'       => false,
         ];
     }
 }

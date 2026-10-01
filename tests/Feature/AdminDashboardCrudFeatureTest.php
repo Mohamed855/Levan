@@ -645,7 +645,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
 
         try {
             $invalidPayload = $companyPayload;
-            $invalidPayload['end_date'] = now()->addDays(2)->toDateString();
+            $invalidPayload['end_date'] = now()->subDays(2)->toDateString();
             $this->post($this->adminUrl('companies'), $invalidPayload)
                 ->assertSessionHasErrors('end_date');
 
@@ -663,34 +663,28 @@ class AdminDashboardCrudFeatureTest extends TestCase
             ])->get($this->adminUrl('companies?draw=1&start=0&length=10'));
             $tableResponse->assertOk()->assertJsonPath('draw', 1);
             $this->assertTrue(
-                collect($tableResponse->json('data'))->contains('id', $subscription->id),
-                'The newly created subscription was not returned by the companies DataTable.',
+                collect($tableResponse->json('data'))->contains('id', $tenant->id),
+                'The newly created company was not returned by the companies DataTable.',
             );
             $this->withoutHeader('X-Requested-With')->withoutHeader('Accept');
 
-            $this->put($this->adminUrl("companies/{$subscription->id}"), [
-                'tenant_id'         => $tenant->id,
+            $this->put($this->adminUrl("companies/{$tenant->id}"), [
+                'company_name'      => $tenant->company_name,
+                'commercial_number' => $tenant->commercial_number,
                 'tax_number'        => $tenant->tax_number,
                 'city_id'           => $city->id,
                 'address'           => 'عنوان محدث لاختبار الشركة',
-                'plan_id'           => $plan->id,
-                'price'             => $plan->price,
-                'status'            => SubscriptionStatus::ACTIVE->value,
-                'total_users'       => max(1, $plan->included_users),
-                'licenses_quota'    => 0,
-                'starts_at'         => now()->toDateString(),
-                'next_payment_date' => now()->addMonth()->toDateString(),
             ])->assertRedirect($this->adminUrl('companies'));
             $this->assertSame('عنوان محدث لاختبار الشركة', $tenant->fresh()->address);
 
-            $this->delete($this->adminUrl("companies/{$subscription->id}"))->assertRedirect($this->adminUrl('companies'));
-            $this->assertSoftDeleted('subscriptions', ['id' => $subscription->id]);
+            // Soft delete company: soft deletes tenant and hard deletes its subscriptions
+            $this->delete($this->adminUrl("companies/{$tenant->id}"))->assertRedirect($this->adminUrl('companies'));
+            $this->assertSoftDeleted('tenants', ['id' => $tenant->id]);
+            $this->assertDatabaseMissing('subscriptions', ['id' => $subscription->id]);
 
-            $this->patch($this->adminUrl("archives/subscriptions/restore/{$subscription->id}"))->assertStatus(302);
-            $this->assertDatabaseHas('subscriptions', ['id' => $subscription->id, 'deleted_at' => null]);
-
-            $this->delete($this->adminUrl("companies/{$subscription->id}"))->assertRedirect($this->adminUrl('companies'));
-            $this->delete($this->adminUrl("archives/subscriptions/force-delete/{$subscription->id}"))->assertStatus(302);
+            // Restore company from archive: restores tenant only
+            $this->patch($this->adminUrl("archives/tenants/restore/{$tenant->id}"))->assertStatus(302);
+            $this->assertDatabaseHas('tenants', ['id' => $tenant->id, 'deleted_at' => null]);
             $this->assertDatabaseMissing('subscriptions', ['id' => $subscription->id]);
         } finally {
             if ($tenant) {
@@ -772,27 +766,23 @@ class AdminDashboardCrudFeatureTest extends TestCase
      */
     public function test_admin_subscriptions_and_bills_lifecycle(): void
     {
-        // 1. Subscriptions Index & Create view
+        // 1. Companies & Subscriptions Index & Create view
         $this->get($this->adminUrl('companies'))->assertStatus(200);
         $this->get($this->adminUrl('companies/create'))->assertStatus(200);
 
-        $subscription = Subscription::first();
-        if ($subscription) {
-            $this->get($this->adminUrl("companies/{$subscription->id}/edit"))->assertStatus(200);
-        }
+        $this->get($this->adminUrl('subscriptions'))->assertStatus(200);
+        $this->get($this->adminUrl('subscriptions/create'))->assertStatus(200);
 
-        // 2. Tenant Impersonation / Access endpoint
-        $tenant = Tenant::find('test');
+        $tenant = Tenant::first();
         if ($tenant) {
-            $accessResponse = $this->get($this->adminUrl("companies/tenant/{$tenant->id}/access"));
-            $accessResponse->assertStatus(302);
+            $this->get($this->adminUrl("companies/{$tenant->id}/edit"))->assertStatus(200);
+            $this->get($this->adminUrl("companies/{$tenant->id}"))->assertStatus(200);
         }
 
-        // 3. Subscriptions & Tenants Archive
-        $this->get($this->adminUrl('archives/subscriptions'))->assertStatus(200);
+        // 2. Tenants Archive
         $this->get($this->adminUrl('archives/tenants'))->assertStatus(200);
 
-        // 4. Bills Index & Archive
+        // 3. Bills Index & Archive
         $this->get($this->adminUrl('bills'))->assertStatus(200);
         $this->get($this->adminUrl('archives/bills'))->assertStatus(200);
 
@@ -976,7 +966,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
             'archives/plans',
             'archives/coupons',
             'archives/tenants',
-            'archives/subscriptions',
+            'subscriptions',
             'archives/bills',
         ];
 

@@ -23,5 +23,9 @@ $(function () {
         }
 
         $('#filter-status').on('change', applyFilters);
+
+        $('#btn-reset-filters').on('click', function () {
+            $('#filter-status').val('').trigger('change');
+        });
     });
 });

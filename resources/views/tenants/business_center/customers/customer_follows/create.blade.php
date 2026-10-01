@@ -5,7 +5,7 @@
 <div class="modal-body">
     <form id="createCustomerFollowForm" data-customer-id="{{ $customer->id }}" novalidate>
         @csrf
-        <div class="row g-3">
+        <div class="row g-4">
             <div class="col-md-6">
                 <label class="form-label fw-semibold">وسيلة الاتصال <span class="text-danger">*</span></label>
                 <select name="contact_method_id" id="contact_method_id" class="form-control select2-modal"

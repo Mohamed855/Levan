@@ -15,7 +15,7 @@
 @endsection
 
 @section('content')
-    <div class="row g-3">
+    <div class="row g-4">
         <!-- طرق الدفع -->
         <div class="col-md-6">
             <div class="card h-100 border">

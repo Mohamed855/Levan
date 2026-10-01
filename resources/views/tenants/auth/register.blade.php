@@ -63,6 +63,14 @@
                                 <x-input-error :messages="$errors->get('email')" class="mt-2" />
                             </div>
 
+                            <!-- Phone Number -->
+                            <div class="mb-4">
+                                <label for="phone" class="form-label">رقم الجوال</label>
+                                <input id="phone" class="form-control" type="tel" name="phone"
+                                    value="{{ old('phone') }}" placeholder="05xxxxxxxx" autocomplete="tel" />
+                                <x-input-error :messages="$errors->get('phone')" class="mt-2" />
+                            </div>
+
                             <!-- Password -->
                             <div class="mb-4 form-password-toggle">
                                 <label for="password" class="form-label">كلمة المرور</label>

@@ -178,7 +178,7 @@ class CompanyCustomersDataTable extends AbstractDataTable
 
         return [
             'extend' => 'collection',
-            'className' => 'btn btn-sm btn-secondary dropdown-toggle mx-3',
+            'className' => 'btn btn-secondary dropdown-toggle mx-3',
             'text' => '<i class="ti ti-download me-1"></i>تصدير',
             'buttons' => $buttons,
         ];

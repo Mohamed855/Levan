@@ -49,6 +49,12 @@ $(function () {
         $('#filter-status').on('change', applyFilters);
         $('#filter-city').on('keyup', applyFilters);
 
+        $('#btn-reset-filters').on('click', function () {
+            $('#filter-status').val('').trigger('change');
+            $('#filter-city').val('');
+            applyFilters();
+        });
+
         const tableWrapper = $('#branches-table_wrapper');
 
         /*

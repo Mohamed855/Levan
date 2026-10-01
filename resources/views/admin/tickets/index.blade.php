@@ -59,12 +59,11 @@
         </div>
     @endif
 
-    <div class="card">
+    <div class="card mb-4">
         <div class="card-body">
-            <div class="filters row g-3">
-
+            <div class="row g-4">
                 <div class="col-md-4">
-                    <label for="filter-status">حالة التذكرة</label>
+                    <label class="form-label" for="filter-status">حالة التذكرة</label>
                     <select id="filter-status" class="form-control select2" data-placeholder="اختر حالة التذكرة">
                         <option value=""></option>
                         <option value="open">جديدة</option>
@@ -77,7 +76,7 @@
                 </div>
 
                 <div class="col-md-4">
-                    <label for="filter-section">القسم</label>
+                    <label class="form-label" for="filter-section">القسم</label>
                     <select id="filter-section" class="form-control select2" data-placeholder="اختر القسم">
                         <option value=""></option>
                         @foreach ($sections as $section)
@@ -87,8 +86,8 @@
                 </div>
 
                 <div class="col-md-4">
-                    <label for="filter-tenant">المستأجر</label>
-                    <select id="filter-tenant" class="form-control select2" data-placeholder="اختر المستأجر">
+                    <label class="form-label" for="filter-tenant">الشركة / المستأجر</label>
+                    <select id="filter-tenant" class="form-control select2" data-placeholder="اختر الشركة">
                         <option value=""></option>
                         @foreach ($tenants as $tenant)
                             <option value="{{ $tenant->id }}">{{ $tenant->company_name ?? $tenant->id }}</option>
@@ -96,8 +95,20 @@
                     </select>
                 </div>
             </div>
-            <hr class="mt-10">
-            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100'], false) !!}
+            <div class="d-flex justify-content-end mt-3 gap-2">
+                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
+                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {!! $dataTable->table(
+                ['class' => 'table table-striped table-bordered w-100', 'id' => 'admin-tickets-table'],
+                false,
+            ) !!}
         </div>
     </div>
 

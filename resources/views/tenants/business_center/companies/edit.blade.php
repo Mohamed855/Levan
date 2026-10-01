@@ -134,7 +134,7 @@
                                         @if (!empty($oldPeople))
                                             @foreach ($oldPeople as $idx => $person)
                                                 <div class="authorized-person-item mb-3 p-3 border rounded">
-                                                    <div class="row g-3">
+                                                    <div class="row g-4">
                                                         <div class="col-md-3">
                                                             <label class="form-label small">اسم المفوّض</label>
                                                             <input type="text" class="form-control"

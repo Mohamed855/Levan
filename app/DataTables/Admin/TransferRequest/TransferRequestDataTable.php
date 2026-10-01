@@ -20,7 +20,7 @@ class TransferRequestDataTable extends AbstractDataTable
 
     protected function resource()
     {
-        return Subscription::query()->with(['plan', 'periods', 'tenant'])->where('status', 'suspended')->whereNotNull('transfer_bank_attachment');
+        return Subscription::query()->with(['plan', 'periods', 'tenant'])->whereNotNull('transfer_bank_attachment');
     }
 
     protected function getColumns(): array
@@ -104,6 +104,10 @@ class TransferRequestDataTable extends AbstractDataTable
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
+        }
+
+        if ($request->filled('plan_id')) {
+            $query->where('plan_id', $request->plan_id);
         }
 
         return $query;

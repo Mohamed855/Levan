@@ -68,11 +68,12 @@
                 }
             });
         });
-function confirmDelete(id) {
-    if(confirm('هل أنت متأكد من الحذف؟')) {
-        document.getElementById('delete-form-' + id).submit();
-    }
-}
+
+        function confirmDelete(id) {
+            if (confirm('هل أنت متأكد من الحذف؟')) {
+                document.getElementById('delete-form-' + id).submit();
+            }
+        }
 
         // دالة بديلة للنسخ (للمتصفحات القديمة)
         function fallbackCopyTextToClipboard(text, $icon) {
@@ -242,7 +243,7 @@ function confirmDelete(id) {
 
     <div class="card">
         <div class="card-body">
-            {{-- <div class="filters row g-3">
+            {{-- <div class="filters row g-4">
                 <div class="col-md-4">
                     <label for="filter-employee">الموظف</label>
                     <select id="filter-employee" class="form-control select2" data-placeholder="اختر الموظف">

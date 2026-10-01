@@ -7,9 +7,10 @@ use App\Http\Controllers\Admin\Archive\AdminUser\AdminUserController as AdminUse
 use App\Http\Controllers\Admin\Archive\Bill\BillArchiveController;
 use App\Http\Controllers\Admin\Archive\Coupon\CouponArchiveController;
 use App\Http\Controllers\Admin\Archive\Plan\PlanArchiveController;
-use App\Http\Controllers\Admin\Archive\Subscription\SubscriptionArchiveController;
 use App\Http\Controllers\Admin\Archive\Tenant\TenantArchiveController;
 use App\Http\Controllers\Admin\Bills\AdminBillsController;
+use App\Http\Controllers\Admin\Companies\CompanyController;
+use App\Http\Controllers\Admin\Subscriptions\SubscriptionController as CentralSubscriptionController;
 use App\Http\Controllers\Admin\ContentManagement\Client\ClientController;
 use App\Http\Controllers\Admin\ContentManagement\Portfolio\PortfolioController;
 use App\Http\Controllers\Admin\Coupons\AdminCouponController;
@@ -76,10 +77,19 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
 
     // ادارة الشركات
     Route::prefix('companies')->name('companies.')->group(function () {
-        Route::get('plans/{plan}/duration', [SubscriptionManagementController::class, 'planDuration'])->name('plan-duration');
-        Route::get('tenant/{tenant}/access', [SubscriptionManagementController::class, 'access'])->name('tenant-access');
-        Route::resource('/', SubscriptionManagementController::class)->except('show')->parameters(['' => 'subscription']);
+        Route::get('plans/{plan}/duration', [CompanyController::class, 'planDuration'])->name('plan-duration');
+        Route::resource('/', CompanyController::class)->parameters(['' => 'company']);
+    });
 
+    // ادارة الاشتراكات
+    Route::prefix('subscriptions')->name('subscriptions.')->group(function () {
+        Route::get('/', [CentralSubscriptionController::class, 'index'])->name('index');
+        Route::get('create', [CentralSubscriptionController::class, 'create'])->name('create');
+        Route::post('/', [CentralSubscriptionController::class, 'store'])->name('store');
+        Route::delete('{subscription}', [CentralSubscriptionController::class, 'destroy'])->name('destroy');
+        Route::patch('{subscription}/toggle-status', [CentralSubscriptionController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('plans/{plan}/duration', [CentralSubscriptionController::class, 'planDuration'])->name('plan-duration');
+        Route::get('companies/{company}/details', [CentralSubscriptionController::class, 'companyDetails'])->name('company-details');
     });
     // الكوبونات
     Route::prefix('coupons')->name('coupons.')->group(function () {
@@ -174,12 +184,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
             Route::get('/', [TenantArchiveController::class, 'index'])->name('index');
             Route::patch('/restore/{id}', [TenantArchiveController::class, 'restore'])->name('restore');
             Route::delete('/force-delete/{id}', [TenantArchiveController::class, 'forceDelete'])->name('force-delete');
-        });
-
-        Route::prefix('subscriptions')->name('subscriptions.')->group(function () {
-            Route::get('/', [SubscriptionArchiveController::class, 'index'])->name('index');
-            Route::patch('/restore/{id}', [SubscriptionArchiveController::class, 'restore'])->name('restore');
-            Route::delete('/force-delete/{id}', [SubscriptionArchiveController::class, 'forceDelete'])->name('force-delete');
         });
 
         Route::prefix('bills')->name('bills.')->group(function () {

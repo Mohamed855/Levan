@@ -131,7 +131,7 @@
                                 </div>
 
                                 {{-- الاسم المقسَّم --}}
-                                <div id="split-names-wrapper" class="row g-3 d-none">
+                                <div id="split-names-wrapper" class="row g-4 d-none">
                                     <div class="col-sm-3">
                                         <label class="form-label" for="first_name">الاسم الأول <span
                                                 class="text-danger">*</span></label>
@@ -244,7 +244,7 @@
 
                                 {{-- الحقول الإضافية التابعة للمحفظة --}}
                                 <div class="col-12 mt-4">
-                                    <div id="dynamic-fields" class="row g-3"></div>
+                                    <div id="dynamic-fields" class="row g-4"></div>
                                 </div>
 
                                 <div class="col-12 d-flex justify-content-between">

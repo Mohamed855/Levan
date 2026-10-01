@@ -50,7 +50,7 @@
                         @csrf
 
                         <div id="info-validation" class="content">
-                            <div class="row g-3">
+                            <div class="row g-4">
                                 <div class="col-md-6">
                                     <label for="tenant_id" class="form-label">العميل (التينانت)
                                         <span class="text-danger">*</span>
@@ -95,17 +95,20 @@
                             </div>
 
                             <div class="mt-4 d-flex justify-content-between">
-                                <a href="{{ route('admin.version_testers.index') }}" class="btn btn-secondary btn-prev waves-effect waves-light">
+                                <a href="{{ route('admin.version_testers.index') }}"
+                                    class="btn btn-secondary btn-prev waves-effect waves-light">
                                     <i class="ti ti-arrow-left me-1"></i> السابق
                                 </a>
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-secondary btn-save-draft waves-effect waves-light" data-step="1">
+                                    <button type="button" class="btn btn-secondary btn-save-draft waves-effect waves-light"
+                                        data-step="1">
                                         <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
                                     </button>
                                     <div class="d-flex gap-2">
-                                        <button type="submit" class="btn btn-primary waves-effect waves-light btn-next btn-submit">
-                                        <i class="ti ti-check me-1"></i> حفظ
-                                    </button>
+                                        <button type="submit"
+                                            class="btn btn-primary waves-effect waves-light btn-next btn-submit">
+                                            <i class="ti ti-check me-1"></i> حفظ
+                                        </button>
                                     </div>
                                 </div>
                             </div>

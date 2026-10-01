@@ -10,7 +10,6 @@ use App\Models\Admin\Tenants\Tenant;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 class Subscription extends Model
@@ -22,7 +21,7 @@ class Subscription extends Model
     |============================================================================
     |============================================================================
     */
-    use SoftDeletes, HasFactory;
+    use HasFactory;
 
     protected $connection = 'mysql';
 
@@ -185,9 +184,24 @@ class Subscription extends Model
     |============================================================================
     |============================================================================
     */
+    public function scopeForCompany($query, string $tenantId)
+    {
+        return $query->where('tenant_id', $tenantId);
+    }
+
     public function scopeActive($query)
     {
         return $query->where('status', SubscriptionStatus::ACTIVE);
+    }
+
+    public function scopeExpired($query)
+    {
+        return $query->where('status', SubscriptionStatus::EXPIRED);
+    }
+
+    public function scopeStatus($query, $status)
+    {
+        return $query->where('status', $status);
     }
 
     public function isTrialExpired(): bool

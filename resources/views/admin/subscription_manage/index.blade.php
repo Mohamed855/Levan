@@ -61,13 +61,14 @@
         </div>
     @endif
 
-    <div class="card">
-        <div class="card-body">
-            @if (!($isPendingPage ?? false) && !($isExpiringPage ?? false) && !($isExpiredPage ?? false))
-                <div class="filters row g-3">
+    @if (!($isPendingPage ?? false) && !($isExpiringPage ?? false) && !($isExpiredPage ?? false))
+        {{-- Filters Card --}}
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row g-4">
                     <div class="col-md-6">
-                        <label for="filter-status">حالة الشركات</label>
-                        <select id="filter-status" class="form-control select2" data-placeholder="اختر  حالة الشرك">
+                        <label class="form-label" for="filter-status">حالة الشركات</label>
+                        <select id="filter-status" class="form-control select2" data-placeholder="اختر حالة الشركة">
                             <option value=""></option>
                             <option value="pending">قيد المراجعة</option>
                             <option value="active">نشط</option>
@@ -77,9 +78,21 @@
                         </select>
                     </div>
                 </div>
-                <hr class="mt-10">
-            @endif
-            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100'], false) !!}
+                <div class="d-flex justify-content-end mt-3 gap-2">
+                    <button type="button" id="btn-reset-filters" class="btn btn-secondary">
+                        <i class="ti ti-refresh me-1"></i>إعادة تعيين
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <div class="card">
+        <div class="card-body">
+            {!! $dataTable->table(
+                ['class' => 'table table-striped table-bordered w-100', 'id' => 'subscriptions-table'],
+                false,
+            ) !!}
         </div>
     </div>
 

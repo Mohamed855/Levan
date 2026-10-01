@@ -7,6 +7,7 @@ return [
         'users_management' => 'إدارة المستخدمين',
         'plans_management' => 'إدارة الباقات',
         'coupons_management' => 'إدارة الكوبونات',
+        'companies_management' => 'إدارة الشركات',
         'subscriptions_management' => 'إدارة الإشتراكات',
         'financial_transactions_management' => 'إدارة المعاملات المالية',
         'tickets_management' => 'إدارة التذاكر والدعم الفني',
@@ -49,11 +50,23 @@ return [
     'coupons.edit' => 'تعديل كوبون',
     'coupons.delete' => 'حذف كوبون',
 
+    // Companies
+    'companies.view' => 'عرض الشركات',
+    'companies.create' => 'إضافة شركة',
+    'companies.show' => 'تفاصيل الشركة',
+    'companies.edit' => 'تعديل الشركة',
+    'companies.delete' => 'حذف الشركة',
+    'companies.restore' => 'استعادة الشركة',
+    'companies.force_delete' => 'حذف الشركة نهائياً',
+
     // Subscriptions
-    'subscriptions.view' => 'الإشتراكات',
+    'subscriptions.view' => 'عرض الإشتراكات',
     'subscriptions.create' => 'إضافة إشتراك',
-    'subscriptions.edit' => 'تعديل إشتراك',
     'subscriptions.delete' => 'حذف إشتراك',
+    'subscriptions.toggle_status' => 'تغيير حالة الإشتراك',
+    'subscriptions.pending.view' => 'عرض طلبات الإشتراك المعلقة',
+    'subscriptions.pending.approve' => 'قبول طلب الإشتراك',
+    'subscriptions.pending.reject' => 'رفض طلب الإشتراك',
     'subscriptions.renew' => 'تجديد الإشتراك',
     'subscriptions.add_licenses' => 'شراء تراخيص إضافية',
     'subscriptions.upgrade' => 'الترقية للنسخة الجديدة',

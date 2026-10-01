@@ -17,15 +17,22 @@ class DashboardController extends Controller
     public function index(Request $request = null)
     {
         $tenant = tenant();
-        $subscription = $tenant?->subscription;
+        $subscription = $tenant?->lastSubscription;
+
+        $statusLabel = 'غير نشط';
+        if ($subscription?->status) {
+            $statusLabel = $subscription->status instanceof \App\Enums\Admin\Subscriptions\SubscriptionStatus
+                ? $subscription->status->label()
+                : (string) $subscription->status;
+        }
 
         $stats = [
-            'total_users'     => User::count(),
-            'active_users'    => User::where('status', 'active')->count(),
-            'total_branches'  => Branch::count(),
-            'total_teams'     => Team::count(),
-            'plan_name'       => $subscription?->plan?->name ?? 'غير محدد',
-            'subscription_status' => $subscription?->status ?? 'غير نشط',
+            'total_users'         => User::count(),
+            'active_users'        => User::where('status', 'active')->count(),
+            'total_branches'      => Branch::count(),
+            'total_teams'         => Team::count(),
+            'plan_name'           => $subscription?->plan?->name ?? 'غير محدد',
+            'subscription_status' => $statusLabel,
             'next_payment_date'   => $subscription?->next_payment_date ?? null,
             'total_seats'         => $subscription?->total_users ?? 0,
         ];

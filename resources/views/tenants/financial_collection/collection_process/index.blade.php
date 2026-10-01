@@ -93,7 +93,7 @@
                 </div>
 
                 <!-- Main Content -->
-                <div class="row g-3">
+                <div class="row g-4">
                     <div class="col-lg-8">
                         <div class="card border-0 h-100">
 

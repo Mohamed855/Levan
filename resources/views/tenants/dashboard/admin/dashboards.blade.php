@@ -138,7 +138,7 @@
         $isOn = fn($k) => (int) ($chartSettings[$k] ?? 1) === 1;
     @endphp
 
-    <div class="row g-3 mb-3">
+    <div class="row g-4 mb-3">
         @php
             // ✅ المنطق الصحيح
             $user = Auth::user();
@@ -562,7 +562,7 @@
         </div>
     </div>
 
-    <div class="row g-3 mb-3">
+    <div class="row g-4 mb-3">
         <div class="col-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -573,7 +573,7 @@
                     <span class="badge bg-label-secondary">تطبيق فوري</span>
                 </div>
                 <div class="card-body">
-                    <div class="row g-3">
+                    <div class="row g-4">
 
                         {{-- Compare Effort --}}
                         <div class="col-12 col-md-6 col-lg-4">
@@ -632,7 +632,7 @@
         </div>
     </div>
 
-    <div class="row g-3 mb-3">
+    <div class="row g-4 mb-3">
         <div class="col-lg-12">
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-3">
@@ -685,7 +685,7 @@
 
     {{-- المهام اليومية --}}
     @if ($isOn('daily_tasks'))
-        <div class="row g-3 mb-3" id="section-daily_tasks">
+        <div class="row g-4 mb-3" id="section-daily_tasks">
             <div class="col-12">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-3">
@@ -747,7 +747,7 @@
 
     {{-- المهام المتأخرة --}}
     @if ($isOn('Overdue_tasks'))
-        <div class="row g-3 mb-3" id="section-Overdue_tasks">
+        <div class="row g-4 mb-3" id="section-Overdue_tasks">
             <div class="col-12">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-3">
@@ -837,7 +837,7 @@
     @endif
 
     {{-- جلسات التحصيل اليومية --}}
-    <div class="row g-3 mb-3">
+    <div class="row g-4 mb-3">
         <div class="col-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-3">

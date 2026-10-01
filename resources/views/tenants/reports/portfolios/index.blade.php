@@ -17,7 +17,7 @@
 
 @section('page-style')
     @vite(['resources/css/dataTable.css'])
-        @vite(['resources/assets/js/tenants/business-center/contracts/index.js'])
+    @vite(['resources/assets/js/tenants/business-center/contracts/index.js'])
 
 @endsection
 
@@ -122,7 +122,7 @@
 
     <div class="card">
         <div class="card-body">
-            {{-- <div class="filters row g-3">
+            {{-- <div class="filters row g-4">
                 <div class="col-md-4">
                     <label for="filter-employee">الموظف</label>
                     <select id="filter-employee" class="form-control select2" data-placeholder="اختر الموظف">
@@ -151,49 +151,49 @@
                     </select>
                 </div>
             </div> --}}
-               <div class="d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">تقارير المحافظ </h5>
-            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="collapse"
-                data-bs-target="#filtersSection" aria-expanded="false">
-                <i class="ti ti-filter me-1"></i>
-                فلاتر البحث
-                <i class="ti ti-chevron-down ms-1"></i>
-            </button>
-        </div>
- 
-    <div class="collapse" id="filtersSection">
-        <div class="card-body border-bottom">
-            <div class="row g-3 mb-4">
-                <div class="col-md-3">
-                    <label for="filter-date-from" class="form-label">من تاريخ</label>
-                    <input type="date" id="filter-date-from" class="form-control" placeholder="اختر التاريخ">
-                </div>
-                <div class="col-md-3">
-                    <label for="filter-date-to" class="form-label">إلى تاريخ</label>
-                    <input type="date" id="filter-date-to" class="form-control" placeholder="اختر التاريخ">
-                </div>
- 
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">تقارير المحافظ </h5>
+                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#filtersSection"
+                    aria-expanded="false">
+                    <i class="ti ti-filter me-1"></i>
+                    فلاتر البحث
+                    <i class="ti ti-chevron-down ms-1"></i>
+                </button>
             </div>
 
+            <div class="collapse" id="filtersSection">
+                <div class="card-body border-bottom">
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-3">
+                            <label for="filter-date-from" class="form-label">من تاريخ</label>
+                            <input type="date" id="filter-date-from" class="form-control" placeholder="اختر التاريخ">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="filter-date-to" class="form-label">إلى تاريخ</label>
+                            <input type="date" id="filter-date-to" class="form-control" placeholder="اختر التاريخ">
+                        </div>
 
-            <div class="row g-3 mb-4">
-                <div class="col-md-4">
-                    <label for="filter-debt-from" class="form-label">مديونية من</label>
-                    <input type="number" id="filter-debt-from" class="form-control" placeholder="0" step="0.01">
-                </div>
-                <div class="col-md-4">
-                    <label for="filter-debt-to" class="form-label">مديونية إلى</label>
-                    <input type="number" id="filter-debt-to" class="form-control" placeholder="0" step="0.01">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">&nbsp;</label>
-                    <button type="button" id="reset-filters" class="btn btn-outline-secondary w-100 d-block">
-                        <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                    </button>
+                    </div>
+
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-4">
+                            <label for="filter-debt-from" class="form-label">مديونية من</label>
+                            <input type="number" id="filter-debt-from" class="form-control" placeholder="0" step="0.01">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="filter-debt-to" class="form-label">مديونية إلى</label>
+                            <input type="number" id="filter-debt-to" class="form-control" placeholder="0" step="0.01">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="button" id="reset-filters" class="btn btn-outline-secondary w-100 d-block">
+                                <i class="ti ti-refresh me-1"></i>إعادة تعيين
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
 
             <hr class="mt-10">
             {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100'], false) !!}

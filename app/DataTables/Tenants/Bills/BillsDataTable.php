@@ -97,6 +97,25 @@ class BillsDataTable extends AbstractDataTable
         return ['checkbox', 'bill_number', 'type', 'payment_method', 'status', 'actions'];
     }
 
+    protected function applyCustomFilters($query)
+    {
+        $request = request();
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $request->payment_method);
+        }
+
+        return $query;
+    }
+
     protected function getSearchableColumns(): array
     {
         return ['type', 'created_at'];

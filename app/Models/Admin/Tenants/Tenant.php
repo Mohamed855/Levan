@@ -6,6 +6,7 @@ use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\City;
 use App\Models\Admin\Licenses\LicenseSeat;
 use App\Models\Admin\Subscription\Subscription;
+use App\Models\Admin\Tenants\CompanySetting;
 use App\Models\Admin\Version\Version;
 use App\Models\Tenants\Settings\TransferDomain;
 use App\Models\Tenants\Ticket\Ticket;
@@ -47,15 +48,16 @@ class Tenant extends BaseTenant implements TenantWithDatabase
 
         'company_name',
         'commercial_number',
+        'primary_contact_name',
+        'primary_contact_email',
+        'primary_contact_phone',
+        'primary_user_global_uid',
 
         'access_type',
         'tax_number',
         'city_id',
         'address',
         'status',
-        'draft_step',
-        'draft_data',
-        'drafted_by',
         'custom_domain_active',
         'domain_activated_at',
     ];
@@ -76,14 +78,15 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'cpanel_username',
             'company_name',
             'commercial_number',
+            'primary_contact_name',
+            'primary_contact_email',
+            'primary_contact_phone',
+            'primary_user_global_uid',
 
             'tax_number',
             'city_id',
             'address',
             'status',
-            'draft_step',
-            'draft_data',
-            'drafted_by',
             'access_type',
             'custom_domain_active',
             'domain_activated_at',
@@ -93,7 +96,6 @@ class Tenant extends BaseTenant implements TenantWithDatabase
 
     protected $casts = [
         'data' => 'array',
-        'draft_data' => 'array',
         'api_token_regenerated_at' => 'datetime',
     ];
 
@@ -190,9 +192,24 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     |============================================================================
     |============================================================================
     */
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class, 'tenant_id');
+    }
+
     public function lastSubscription()
     {
-        return $this->hasOne(Subscription::class, 'tenant_id');
+        return $this->hasOne(Subscription::class, 'tenant_id')->latestOfMany('id');
+    }
+
+    public function subscription()
+    {
+        return $this->lastSubscription();
+    }
+
+    public function companySettings()
+    {
+        return $this->hasOne(CompanySetting::class, 'tenant_id');
     }
 
     public function seats()

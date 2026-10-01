@@ -31,6 +31,9 @@ class SubscriptionCheckoutRequest extends FormRequest
         return [
             'billing_company_name'      => ['required', 'string', 'min:2', 'max:255', Rule::unique('tenants', 'company_name')],
             'billing_commercial_number' => ['required', 'string', 'min:10', 'max:20', 'regex:/^[0-9]+$/', Rule::unique('tenants', 'commercial_number')],
+            'billing_tax_number'        => ['nullable', 'string', 'max:50'],
+            'billing_city_id'           => ['nullable', 'exists:cities,id'],
+            'billing_address'           => ['nullable', 'string', 'max:255'],
             'billing_name'              => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\p{Arabic}a-zA-Z\s\.\-]+$/u'],
             'billing_email'             => ['required', 'email', 'max:255'],
             'billing_phone'             => ['required', 'regex:/^(05\d{8}|966\d{9})$/'],

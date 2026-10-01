@@ -19,11 +19,15 @@
     @vite(['resources/css/dataTable.css'])
 @endsection
 
+@section('page-script')
+    @vite(['resources/assets/js/admin/version_testers/filter.js'])
+@endsection
+
 @section('content')
 
     @if ($errors->any())
         <div class="alert alert-danger">
-            <ul>
+            <ul class="mb-0">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -31,9 +35,41 @@
         </div>
     @endif
 
+    {{-- Filters Card --}}
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="form-label" for="filter-type">نوع المختبر</label>
+                    <select id="filter-type" class="form-control select2" data-placeholder="اختر نوع المختبر">
+                        <option value=""></option>
+                        <option value="developer">مطور</option>
+                        <option value="tester">مختبر</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="filter-status">الحالة</label>
+                    <select id="filter-status" class="form-control select2" data-placeholder="اختر الحالة">
+                        <option value=""></option>
+                        <option value="1">مفعل</option>
+                        <option value="0">غير مفعل</option>
+                    </select>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end mt-3 gap-2">
+                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
+                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-body">
-            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100'], false) !!}
+            {!! $dataTable->table(
+                ['class' => 'table table-striped table-bordered w-100', 'id' => 'version-testers-table'],
+                false,
+            ) !!}
         </div>
     </div>
 

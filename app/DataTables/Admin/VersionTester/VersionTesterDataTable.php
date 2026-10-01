@@ -70,6 +70,21 @@ class VersionTesterDataTable extends AbstractDataTable
         return ['checkbox', 'type', 'is_active', 'actions'];
     }
 
+    protected function applyCustomFilters($query)
+    {
+        $request = request();
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        if ($request->filled('is_active')) {
+            $query->where('is_active', $request->is_active);
+        }
+
+        return $query;
+    }
+
     protected function getSearchableColumns(): array
     {
         return ['tenant.name', 'type'];

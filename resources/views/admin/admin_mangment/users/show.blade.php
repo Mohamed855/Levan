@@ -174,7 +174,7 @@
             </div>
 
             <div class="tab-pane fade show active" id="general_info_tab">
-                <div class="row g-3 d-flex align-items-stretch">
+                <div class="row g-4 d-flex align-items-stretch">
                     <div class="col-xl-8">
                         <!-- معلومات عن الموظف -->
                         <div class="card mb-6">
@@ -261,7 +261,7 @@
                 </div>
 
                 <!-- قسم الكوبونات -->
-                <div class="row g-3 mt-3">
+                <div class="row g-4 mt-3">
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header py-4 d-flex justify-content-between align-items-center">
@@ -335,7 +335,7 @@
                                             <hr class="my-3">
 
                                             <!-- الصف الثاني: المعلومات الأساسية -->
-                                            <div class="row g-3">
+                                            <div class="row g-4">
                                                 <!-- قيمة الخصم -->
                                                 <div class="col-md-3">
                                                     <div class="d-flex align-items-center gap-2 mb-1">

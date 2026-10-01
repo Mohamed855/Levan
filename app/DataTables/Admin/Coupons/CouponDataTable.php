@@ -88,18 +88,14 @@ class CouponDataTable extends AbstractDataTable
 
                 return '
                     <div class="d-flex justify-content-center">
-                        <label class="switch switch-primary switch-square mb-0">
+                        <div class="form-check form-switch mb-0">
                             <input type="checkbox"
-                                   class="switch-input js-table-status-toggle"
+                                   class="form-check-input js-table-status-toggle"
                                    id="status_' . $row->id . '"
                                    data-url="' . e($url) . '"
                                    ' . $checked . '
                                    aria-label="تبديل حالة الكوبون">
-                            <span class="switch-toggle-slider">
-                                <span class="switch-on"><i class="icon-base mt-1 ti ti-check text-white"></i></span>
-                                <span class="switch-off"><i class="icon-base mt-1 ti ti-x"></i></span>
-                            </span>
-                        </label>
+                        </div>
                     </div>';
             })
 

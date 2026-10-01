@@ -34,6 +34,10 @@ class PlanRequest extends WizardFormRequest
 
             'discount_percentage'    => ['nullable', 'numeric', 'min:0', 'max:100'],
 
+            'properties_limit'       => ['nullable', 'integer', 'min:0'],
+            'storage_quota_gb'       => ['nullable', 'integer', 'min:0'],
+            'active_auctions_limit'  => ['nullable', 'integer', 'min:0'],
+
             // نوع حد الفروع (محدود / غير محدود)
             'unlimited_branches'     => ['required', 'boolean'],
 

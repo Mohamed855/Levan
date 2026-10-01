@@ -22,6 +22,9 @@ class Plan extends Model
         'price',
         'yearly_renewal_price',
         'included_users',
+        'properties_limit',
+        'storage_quota_gb',
+        'active_auctions_limit',
         'subscription_duration_type',
         'subscription_billing_cycle',
         'features',
@@ -42,10 +45,13 @@ class Plan extends Model
     ];
 
     protected $casts = [
-        'price'             => 'decimal:2',
-        'included_users'    => 'integer',
-        'features'          => 'array',
-        'is_active'         => 'boolean',
+        'price'                 => 'decimal:2',
+        'included_users'        => 'integer',
+        'properties_limit'      => 'integer',
+        'storage_quota_gb'      => 'integer',
+        'active_auctions_limit' => 'integer',
+        'features'              => 'array',
+        'is_active'             => 'boolean',
 
         'discount_percentage'       => 'float',
         'unlimited_branches'        => 'boolean',

@@ -7,7 +7,7 @@
     <form id="editPaymentPlanForm" data-plan-id="{{ $paymentPlan->id }}">
         @csrf
         @method('PUT')
-        <div class="row g-3">
+        <div class="row g-4">
             <div class="col-md-6">
                 <label class="form-label">تاريخ الاستحقاق <span class="text-danger">*</span></label>
                 <input type="date" name="due_date" class="form-control"

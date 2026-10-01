@@ -224,6 +224,42 @@
                                 </h6>
                             </div>
                         </div>
+
+                        <div class="col-md-6 col-lg-4">
+                            <div class="d-flex flex-column">
+                                <small class="small mb-1">حد العقارات</small>
+                                <h6 class="mb-0">
+                                    {{ !empty($subscription_formatted['unlimited_properties']) ? 'غير محدود' : ($subscription_formatted['properties_limit'] ?? 'غير محدد') }}
+                                </h6>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-4">
+                            <div class="d-flex flex-column">
+                                <small class="small mb-1">المساحة التخزينية</small>
+                                <h6 class="mb-0">
+                                    {{ !empty($subscription_formatted['storage_quota_gb']) ? $subscription_formatted['storage_quota_gb'] . ' جيجابايت' : 'غير محدد' }}
+                                </h6>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-4">
+                            <div class="d-flex flex-column">
+                                <small class="small mb-1">المزادات النشطة</small>
+                                <h6 class="mb-0">
+                                    {{ !empty($subscription_formatted['unlimited_auctions']) ? 'غير محدود' : ($subscription_formatted['active_auctions_limit'] ?? 'غير محدد') }}
+                                </h6>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-4">
+                            <div class="d-flex flex-column">
+                                <small class="small mb-1">حد الفروع</small>
+                                <h6 class="mb-0">
+                                    {{ !empty($subscription_formatted['unlimited_branches']) ? 'غير محدود' : ($subscription_formatted['branches_limit'] ?? 'غير محدد') }}
+                                </h6>
+                            </div>
+                        </div>
                     </div>
 
                     <hr class="mb-4 mt-7">

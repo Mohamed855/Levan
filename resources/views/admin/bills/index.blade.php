@@ -53,43 +53,22 @@
         </div>
     @endif
 
-    <div class="card">
+    <div class="card mb-4">
         <div class="card-body">
-            <div class="filters row g-3">
-                {{-- <div class="col-md-4">
-                    <label for="filter-employee">الموظف</label>
-                    <select id="filter-employee" class="form-control select2" data-placeholder="اختر الموظف">
-                        <option value=""></option>
-                        @foreach ($employees as $employee)
-                            <option value="{{ $employee->id }}">{{ $employee->name }}</option>
-            @endforeach
-            </select>
-        </div>
-        <div class="col-md-4">
-            <label for="filter-type">نوع السلفة</label>
-            <select id="filter-type" class="form-control select2" data-placeholder="اختر نوع السلفة">
-                <option value=""></option>
-                @foreach ($advanceTypes as $type)
-                <option value="{{ $type['id'] }}">{{ $type['name'] }}</option>
-                @endforeach
-            </select>
-        </div> --}}
+            <div class="row g-4">
                 <div class="col-md-4">
-                    <label for="filter-status">نوع العملية</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر  نوع العملية">
+                    <label class="form-label" for="filter-status">نوع العملية</label>
+                    <select id="filter-status" class="form-control select2" data-placeholder="اختر نوع العملية">
                         <option value=""></option>
-                        {{-- @foreach ($advanceStatus as $status) --}}
                         <option value="new_subscription">دفع الكتروني</option>
                         <option value="renewal">تجديد اشتراك</option>
                         <option value="license_purchase">شراء ترخيص</option>
                         <option value="billing_cycle_change">تغيير دورة الفاتورة</option>
-                        {{-- @endforeach --}}
                     </select>
                 </div>
 
-
                 <div class="col-md-4">
-                    <label for="filter-paid">حالة العملية</label>
+                    <label class="form-label" for="filter-paid">حالة العملية</label>
                     <select id="filter-paid" class="form-control select2" data-placeholder="اختر حالة العملية">
                         <option value=""></option>
                         <option value="paid">مدفوع</option>
@@ -103,9 +82,8 @@
                     </select>
                 </div>
 
-
                 <div class="col-md-4">
-                    <label for="filter-type">نوع الدفع</label>
+                    <label class="form-label" for="filter-type">نوع الدفع</label>
                     <select id="filter-type" class="form-control select2" data-placeholder="اختر نوع الدفع">
                         <option value=""></option>
                         <option value="online">دفع الكتروني</option>
@@ -113,10 +91,18 @@
                         <option value="bank_transfer">تحويل بنكي</option>
                     </select>
                 </div>
-
             </div>
-            <hr class="mt-10">
-            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100'], false) !!}
+            <div class="d-flex justify-content-end mt-3 gap-2">
+                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
+                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'bill-table'], false) !!}
         </div>
     </div>
 

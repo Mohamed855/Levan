@@ -143,11 +143,10 @@
         </div>
     </div>
 
-    {{-- جدول التحصيلات --}}
-    <div class="card">
+    {{-- Filters Card --}}
+    <div class="card mb-4">
         <div class="card-body">
-            {{-- فلاتر البحث --}}
-            <div class="row g-3 mb-3">
+            <div class="row g-4">
                 <div class="col-md-2">
                     <label for="filter-status" class="form-label">الحالة</label>
                     <select id="filter-status" class="form-control select2" data-placeholder="اختر الحالة">
@@ -216,10 +215,16 @@
                     <input type="date" id="filter-date-to" class="form-control" placeholder="اختر التاريخ">
                 </div>
             </div>
+            <div class="d-flex justify-content-end mt-3 gap-2">
+                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
+                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
+                </button>
+            </div>
+        </div>
+    </div>
 
-            <hr>
-
-            {{-- جدول البيانات --}}
+    <div class="card">
+        <div class="card-body">
             {!! $dataTable->table(
                 ['class' => 'table table-striped table-bordered w-100', 'id' => 'admin-collections-table'],
                 false,

@@ -20,7 +20,7 @@
 @endsection
 
 @section('content')
-    <div class="row g-3 align-items-stretch">
+    <div class="row g-4 align-items-stretch">
         <div class="col-6">
             <div class="card h-100">
                 <div class="card-header py-4">

@@ -347,7 +347,7 @@
 
         <div class="collapse" id="filtersSection">
             <div class="card-body border-bottom">
-                <div class="row g-3 mb-4">
+                <div class="row g-4 mb-4">
                     <div class="col-md-3">
                         <label for="filter-year" class="form-label">السنة</label>
                         <select id="filter-year" class="form-control select2" data-placeholder="اختر السنة">
@@ -409,7 +409,7 @@
                     </div>
                 </div>
 
-                <div class="row g-3 mb-4">
+                <div class="row g-4 mb-4">
                     <div class="col-md-3">
                         <label for="filter-branch" class="form-label">الفرع</label>
                         <select id="filter-branch" class="form-control select2" data-placeholder="جميع الفروع">

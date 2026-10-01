@@ -49,6 +49,12 @@ function bindFilters(table) {
     $('#filter-search').on('keyup', debounce(function () {
         applyFilters(table);
     }, 500));
+
+    $('#btn-reset-filters').on('click', function () {
+        $('#filter-status, #filter-company, #filter-commission-type, #filter-auto-renewal').val('').trigger('change');
+        $('#filter-search').val('');
+        applyFilters(table);
+    });
 }
 
 /*

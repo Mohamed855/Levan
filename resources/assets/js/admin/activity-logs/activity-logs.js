@@ -29,7 +29,7 @@ function initializeComponents() {
             width: '100%',
             language: 'ar',
             dir: 'rtl',
-            dropdownParent: $(this).closest('#card-activity-logs')
+            dropdownParent: $(this).closest('.card')
         });
     });
 
@@ -244,6 +244,12 @@ function handleTableRowCreation(row, data, dataIndex) {
 function bindEvents() {
     // تحديث الجدول عند تغيير الفلاتر
     $('#filter-user, #filter-log-name, #filter-date-from, #filter-date-to').on('change', function () {
+        activityLogsTable.draw();
+    });
+
+    $('#btn-reset-filters').on('click', function () {
+        $('#filter-user').val('').trigger('change');
+        $('#filter-date-from, #filter-date-to').val('');
         activityLogsTable.draw();
     });
 

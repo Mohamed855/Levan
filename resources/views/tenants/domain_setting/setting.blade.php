@@ -124,7 +124,7 @@
         </div>
     @endif
 
-    <div class="row g-3">
+    <div class="row g-4">
         <div class="col-md-6 mb-4">
             <div class="card h-100" style="border: 2px solid #e9ecef;">
                 <div class="card-body">

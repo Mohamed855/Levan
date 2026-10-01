@@ -292,7 +292,7 @@
             </div>
 
 
-            <div class="row g-3">
+            <div class="row g-4">
                 <input type="hidden" name="commissions[__INDEX__][commission_type]" value="__TYPE__">
 
 

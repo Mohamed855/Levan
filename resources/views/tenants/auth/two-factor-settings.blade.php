@@ -63,7 +63,7 @@
                             </div>
                         </div>
 
-                        <div class="row g-3">
+                        <div class="row g-4">
                             <div class="col-12 col-sm-6">
                                 <div class="border rounded p-3 h-100">
                                     <div class="d-flex align-items-center mb-2">

@@ -200,7 +200,7 @@
                     <div id="mapping-step" class="content">
                         <div class="mb-4">
                             <div class="card-body">
-                                <div id="field-mappings" class="row g-3">
+                                <div id="field-mappings" class="row g-4">
                                     {{-- سيتم ملؤها بواسطة JavaScript --}}
                                 </div>
                             </div>
@@ -271,7 +271,7 @@
                                     {{-- التقارير --}}
                                     <div id="reports-section" class="mt-4" style="display: none;">
                                         <h6 class="mb-3">التقارير المتاحة:</h6>
-                                        <div class="row g-3">
+                                        <div class="row g-4">
                                             <div class="col-md-4">
                                                 <a href="#" id="report-summary"
                                                     class="btn btn-outline-primary w-100">
@@ -326,7 +326,8 @@
                                 <i class="ti ti-arrow-left me-2"></i>
                                 السابق
                             </button>
-                            <button type="button" id="new-operation-btn" class="btn btn-primary btn-sm" style="display: none;">
+                            <button type="button" id="new-operation-btn" class="btn btn-primary btn-sm"
+                                style="display: none;">
                                 <i class="ti ti-refresh me-2"></i>
                                 إنهاء والبدء بعملية جديدة
                             </button>

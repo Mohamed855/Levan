@@ -202,7 +202,7 @@ class FollowFormManager {
             return;
         }
 
-        let html = '<div class="row g-3">';
+        let html = '<div class="row g-4">';
 
         fields.forEach(field => {
             const fieldId = field.name;

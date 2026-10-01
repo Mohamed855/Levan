@@ -85,6 +85,21 @@ class VersionDataTable extends AbstractDataTable
         return ['checkbox', 'version', 'stage', 'is_active', 'actions'];
     }
 
+    protected function applyCustomFilters($query)
+    {
+        $request = request();
+
+        if ($request->filled('stage')) {
+            $query->where('stage', $request->stage);
+        }
+
+        if ($request->filled('is_active')) {
+            $query->where('is_active', $request->is_active);
+        }
+
+        return $query;
+    }
+
 
     // الحقول المسموح البحث فيها
     protected function getSearchableColumns(): array

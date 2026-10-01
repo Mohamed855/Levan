@@ -7,7 +7,7 @@
         novalidate>
         @csrf
         @method('PUT')
-        <div class="row g-3">
+        <div class="row g-4">
             <div class="col-md-6">
                 <label class="form-label fw-semibold">وسيلة الاتصال <span class="text-danger">*</span></label>
                 <select name="contact_method_id" id="edit_contact_method_id" class="form-control select2-modal"

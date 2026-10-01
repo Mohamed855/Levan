@@ -203,7 +203,7 @@
     <div class="executive-reports-page">
 
         <div class="report-toolbar mb-3">
-            <div class="row g-3 align-items-end">
+            <div class="row g-4 align-items-end">
                 <div class="col-lg-3 col-md-6">
                     <label class="form-label">الفترة</label>
                     <input type="text" id="dateRange" class="form-control filter-control">
@@ -246,7 +246,7 @@
         </div>
 
         <!--- الاحصائيات --->
-        <div class="row g-3 mb-4" id="kpiCards">
+        <div class="row g-4 mb-4" id="kpiCards">
             @for ($i = 0; $i < 5; $i++)
                 <div class="col-sm-6 col-xl">
                     <div class="card">
@@ -264,7 +264,7 @@
         <!--- الرسومات --->
         <div class="row">
             <div class="col-xl-12">
-                <div class="row g-3 mb-3 align-items-stretch">
+                <div class="row g-4 mb-3 align-items-stretch">
                     <div class="col-lg-6 d-flex">
                         <div class="card h-100 w-100">
                             <div class="card-header">

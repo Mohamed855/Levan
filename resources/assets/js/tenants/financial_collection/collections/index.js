@@ -167,6 +167,13 @@ function bindFilterEvents() {
     $('#filter-customer').on('select2:select select2:clear', function () {
         refreshDataTable();
     });
+
+    // زر إعادة تعيين الفلاتر
+    $('#btn-reset-filters').on('click', function () {
+        $(filterSelectors.join(', ')).val('').trigger('change');
+        $('#filter-customer').val(null).trigger('change');
+        refreshDataTable();
+    });
 }
 
 function refreshDataTable() {

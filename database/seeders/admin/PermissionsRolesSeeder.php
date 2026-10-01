@@ -37,11 +37,24 @@ class PermissionsRolesSeeder extends Seeder
                 'coupons.delete',
             ],
 
+            'companies_management' => [
+                'companies.view',
+                'companies.create',
+                'companies.show',
+                'companies.edit',
+                'companies.delete',
+                'companies.restore',
+                'companies.force_delete',
+            ],
+
             'subscriptions_management' => [
                 'subscriptions.view',
                 'subscriptions.create',
-                'subscriptions.edit',
                 'subscriptions.delete',
+                'subscriptions.toggle_status',
+                'subscriptions.pending.view',
+                'subscriptions.pending.approve',
+                'subscriptions.pending.reject',
             ],
 
             'financial_transactions_management' => [

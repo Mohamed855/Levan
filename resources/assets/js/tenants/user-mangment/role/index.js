@@ -28,8 +28,7 @@ function initializeComponents() {
             allowClear: true,
             width: '100%',
             language: 'ar',
-            dir: 'rtl',
-            dropdownParent: $(this).closest('#card-users')
+            dir: 'rtl'
         });
     });
 
@@ -242,6 +241,10 @@ function bindEvents() {
     // تحديث الجدول عند تغيير الفلاتر
     $('#filter-status, #filter-role').on('change', function () {
         usersTable.draw();
+    });
+
+    $('#btn-reset-filters').on('click', function () {
+        $('#filter-status, #filter-role').val('').trigger('change');
     });
 
     // تحديد الكل

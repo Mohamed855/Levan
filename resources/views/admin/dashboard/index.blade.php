@@ -33,7 +33,7 @@
     {{-- ═══════════════════════════════════════
          KPI Cards (6 كروت)
     ═══════════════════════════════════════ --}}
-    <div class="row g-3 mb-4">
+    <div class="row g-4 mb-4">
         <x-admin.dashboard-card col="col-sm-4 col-lg-6 col-xxl-2" title="طلبات الاشتراك الجديدة" :value="number_format($kpis['new_subscription_requests'])"
             subtitle="طلبات قيد المراجعة" icon="ti-user-plus" color="primary" />
 
@@ -56,7 +56,7 @@
     {{-- ═══════════════════════════════════════
          Charts Row
     ═══════════════════════════════════════ --}}
-    <div class="row g-3 mb-4">
+    <div class="row g-4 mb-4">
         <div class="col-md-6">
             <div class="card h-100 dashboard-chart-card">
                 <div class="card-header d-flex align-items-center justify-content-between">
@@ -116,7 +116,7 @@
     {{-- ═══════════════════════════════════════
         Tables Row
     ═══════════════════════════════════════ --}}
-    <div class="row g-3 mb-4">
+    <div class="row g-4 mb-4">
         <div class="col-lg-6 d-flex flex-column gap-3">
             {{-- إجراءات سريعة --}}
             <div class="card dashboard-chart-card">

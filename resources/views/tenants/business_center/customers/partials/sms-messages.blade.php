@@ -35,7 +35,7 @@
                     <div class="card sms-card mb-3" id="sms-{{ $sms->id }}">
                         <div class="card-body">
                             <!-- الصف الأول: البيانات الأساسية -->
-                            <div class="row g-3 mb-3">
+                            <div class="row g-4 mb-3">
                                 <div class="col-lg-3 col-md-6">
                                     <div class="d-flex flex-column">
                                         <label class="form-label small text-muted mb-1">رقم الهاتف</label>
@@ -74,7 +74,8 @@
                                     <div class="border rounded p-2 bg-light">
                                         <p class="mb-0 small">{{ $sms->message_preview }}</p>
                                         @if (strlen($sms->message_content) > 100)
-                                            <button type="button" class="btn btn-link btn-sm p-0 small js-toggle-sms-btn"
+                                            <button type="button"
+                                                class="btn btn-link btn-sm p-0 small js-toggle-sms-btn"
                                                 data-id="{{ $sms->id }}">
                                                 عرض كامل
                                             </button>
@@ -138,9 +139,9 @@
 
         {{-- إحصائيات بسيطة --}}
         @php
-            $statistics = app(\App\Services\Tenants\BusinessCenter\Customer\CustomerSmsService::class)->getSimpleStatistics(
-                $customer->id,
-            );
+            $statistics = app(
+                \App\Services\Tenants\BusinessCenter\Customer\CustomerSmsService::class,
+            )->getSimpleStatistics($customer->id);
         @endphp
 
         @if ($statistics['total_count'] > 0)
@@ -150,7 +151,7 @@
                         <h6 class="card-title mb-3 text-center">
                             <i class="ti ti-chart-bar me-2"></i>ملخص الرسائل النصية
                         </h6>
-                        <div class="row g-3">
+                        <div class="row g-4">
                             <div class="col-6 col-lg-3">
                                 <div class="text-center">
                                     <div class="fs-4 fw-bold text-primary">{{ $statistics['total_count'] }}</div>

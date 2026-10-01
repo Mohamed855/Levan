@@ -51,7 +51,7 @@
                         @method('PUT')
 
                         <div id="info-validation" class="content">
-                            <div class="row g-3">
+                            <div class="row g-4">
                                 <!-- اسم الشركة -->
                                 <div class="col-md-6">
                                     <label for="company_name" class="form-label"> اسم الشركة

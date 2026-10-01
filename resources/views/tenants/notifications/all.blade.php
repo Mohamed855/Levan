@@ -41,7 +41,7 @@
             <h5 class="mb-0">جميع الإشعارات</h5>
         </div>
         <div class="card-body">
-            {{-- <div class="row g-3 mb-3">
+            {{-- <div class="row g-4 mb-3">
             <div class="col-md-6">
                 <label for="filter-type" class="form-label">نوع الإشعار</label>
                 <select id="filter-type" class="form-control select2" data-placeholder="الكل">

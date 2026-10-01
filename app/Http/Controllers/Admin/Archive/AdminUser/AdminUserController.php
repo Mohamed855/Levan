@@ -12,7 +12,8 @@ class AdminUserController extends Controller
 {
     public function index(AdminUserDataTable $dataTable)
     {
-        return $dataTable->render('admin.archive.admin_user.index');
+        $roles = \Spatie\Permission\Models\Role::select('id', 'name')->orderBy('name', 'asc')->get();
+        return $dataTable->render('admin.archive.admin_user.index', compact('roles'));
     }
 
     public function restore(int $id)

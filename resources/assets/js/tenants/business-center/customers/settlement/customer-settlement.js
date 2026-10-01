@@ -203,7 +203,7 @@ function addSettlementField() {
 
     const fieldHtml = `
         <div class="border rounded p-3 mb-3" data-index="${settlementIndex}">
-            <div class="row g-3">
+            <div class="row g-4">
                 <div class="col-md-6">
                     <label class="form-label">تاريخ التسوية <span class="text-danger">*</span></label>
                     <input type="date"

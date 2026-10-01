@@ -136,9 +136,10 @@
         </div>
     </div>
 
-    <div class="card">
+    {{-- Filters Card --}}
+    <div class="card mb-4">
         <div class="card-body">
-            <div class="row g-3 mb-3">
+            <div class="row g-4">
                 <div class="col-md-3">
                     <label for="filter-status" class="form-label">الحالة</label>
                     <select id="filter-status" class="form-control select2" data-placeholder="اختر الحالة">
@@ -170,7 +171,7 @@
                 <div class="col-md-2">
                     <label for="filter-customer" class="form-label">العميل</label>
                     <select id="filter-customer" class="form-control select2-ajax-filter"
-                        data-placeholder=" اختر رقم حساب العميل">
+                        data-placeholder="اختر رقم حساب العميل">
                         <option value=""></option>
                         @if (empty($initialCustomers))
                             <option value="" disabled>لا يوجد عملاء متاحين</option>
@@ -202,7 +203,16 @@
                     <input type="date" id="filter-date-to" class="form-control" placeholder="اختر التاريخ">
                 </div>
             </div>
-            <hr>
+            <div class="d-flex justify-content-end mt-3 gap-2">
+                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
+                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
             {!! $dataTable->table(
                 ['class' => 'table table-striped table-bordered w-100', 'id' => 'collections-table'],
                 false,

@@ -9,7 +9,7 @@
             <div class="modal-body">
                 <form id="whatsappShareForm">
                     @csrf
-                    <div class="row g-3">
+                    <div class="row g-4">
                         <div class="col-12">
                             <label class="form-label fw-semibold mb-2">
                                 اختر قالب الرسالة

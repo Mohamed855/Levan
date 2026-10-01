@@ -28,8 +28,7 @@ function initializeComponents() {
             allowClear: true,
             width: '100%',
             language: 'ar',
-            dir: 'rtl',
-            dropdownParent: $(this).closest('#card-activity-logs')
+            dir: 'rtl'
         });
     });
 
@@ -269,6 +268,13 @@ function handleTableRowCreation(row, data, dataIndex) {
 function bindEvents() {
     // تحديث الجدول عند تغيير الفلاتر، وإلغاء أي تحديد سابق لأنه لم يعد يطابق الفلاتر الجديدة
     $('#filter-user, #filter-log-name, #filter-date-from, #filter-date-to').on('change', function () {
+        ActivityLogSelection.clearAll();
+        activityLogsTable.draw();
+    });
+
+    $('#btn-reset-filters').on('click', function () {
+        $('#filter-user, #filter-log-name').val('').trigger('change');
+        $('#filter-date-from, #filter-date-to').val('');
         ActivityLogSelection.clearAll();
         activityLogsTable.draw();
     });

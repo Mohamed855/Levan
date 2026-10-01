@@ -115,6 +115,10 @@ function bindFilterEvents() {
             collectionTargetsTable.draw();
         }
     });
+
+    $('#btn-reset-filters').on('click', function () {
+        $('#filter-status, #filter-branch, #filter-user').val('').trigger('change');
+    });
 }
 
 /*

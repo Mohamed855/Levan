@@ -51,7 +51,7 @@
                         @method('PUT')
 
                         <div id="info-validation" class="content">
-                            <div class="row g-3">
+                            <div class="row g-4">
                                 <!-- رقم الإصدار -->
                                 <div class="col-md-6">
                                     <label for="version" class="form-label">رقم الإصدارة <span

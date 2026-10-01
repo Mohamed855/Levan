@@ -3,11 +3,11 @@
 @section('title', 'إنشاء شركة جديدة')
 
 @section('vendor-style')
-    @vite(['resources/assets/css/components/icons.css', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss'])
+    @vite(['resources/assets/css/components/icons.css', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js'])
+    @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
 @endsection
 
 @section('toastr')
@@ -17,15 +17,15 @@
 @section('page-script')
     <script>
         window.plansData = @json($plans);
+        window.wizardResourceKey = 'admin.company-create';
     </script>
-    @vite(['resources/assets/js/admin/subscriptions/create-form.js'])
+    @vite(['resources/assets/js/admin/companies/create-wizard.js'])
 @endsection
 
 @section('content')
-
     <div class="row">
         <div class="col-12">
-            <div id="subscription-wizard" class="bs-stepper">
+            <div id="company-wizard" class="bs-stepper">
                 <!-- Stepper Header (4 Steps) -->
                 <div class="bs-stepper-header">
                     <div class="step" data-target="#step-company">
@@ -33,7 +33,7 @@
                             <span class="bs-stepper-circle">1</span>
                             <span class="bs-stepper-label">
                                 <span class="bs-stepper-title">بيانات الشركة</span>
-                                <span class="bs-stepper-subtitle">البيانات الأساسية</span>
+                                <span class="bs-stepper-subtitle">البيانات الأساسية والإعدادات</span>
                             </span>
                         </button>
                     </div>
@@ -43,8 +43,8 @@
                         <button type="button" class="step-trigger">
                             <span class="bs-stepper-circle">2</span>
                             <span class="bs-stepper-label">
-                                <span class="bs-stepper-title">بيانات المستخدم</span>
-                                <span class="bs-stepper-subtitle">المستخدم الرئيسي</span>
+                                <span class="bs-stepper-title">المستخدم الإداري الأول</span>
+                                <span class="bs-stepper-subtitle">حساب المسؤول الرئيسي</span>
                             </span>
                         </button>
                     </div>
@@ -55,7 +55,7 @@
                             <span class="bs-stepper-circle">3</span>
                             <span class="bs-stepper-label">
                                 <span class="bs-stepper-title">الاشتراك والدفع</span>
-                                <span class="bs-stepper-subtitle">تفاصيل الباقة والدفع</span>
+                                <span class="bs-stepper-subtitle">الباقة وحدودها وتفاصيل الدفع</span>
                             </span>
                         </button>
                     </div>
@@ -74,7 +74,7 @@
 
                 <div class="p-4 bs-stepper-content">
                     @if ($errors->any())
-                        <div class="alert alert-danger">
+                        <div class="alert alert-danger mb-4">
                             <ul class="mb-0">
                                 @foreach ($errors->all() as $error)
                                     <li>{{ $error }}</li>
@@ -83,54 +83,52 @@
                         </div>
                     @endif
 
-                    <form id="subscription-form" action="{{ route('admin.companies.store') }}" method="POST"
+                    <form id="company-wizard-form" action="{{ route('admin.companies.store') }}" method="POST"
                         enctype="multipart/form-data" autocomplete="off">
                         @csrf
+                        <input type="hidden" name="_wizard_draft_id" id="_wizard_draft_id" value="">
+                        <input type="hidden" name="_wizard_resource_key" value="admin.company-create">
 
                         {{-- ═══════════════════════════════════════
                              الخطوة 1: بيانات الشركة
                         ═══════════════════════════════════════ --}}
                         <div id="step-company" class="content">
-                            <div class="row g-3">
+                            <div class="row g-4">
                                 <!-- اسم الشركة -->
                                 <div class="col-md-6">
                                     <label for="company_name" class="form-label">
                                         اسم الشركة <span class="text-danger">*</span>
                                     </label>
                                     <input type="text" class="form-control" id="company_name" name="company_name"
-                                        value="{{ old('company_name') }}" placeholder="مثال: شركة المجد العقارية" required>
+                                        value="{{ old('company_name') }}" placeholder="مثال: شركة التطوير العقاري" required>
                                 </div>
 
-                                <!-- رقم السجل التجاري -->
+                                <!-- السجل التجاري -->
                                 <div class="col-md-6">
                                     <label for="commercial_number" class="form-label">
                                         رقم السجل التجاري <span class="text-danger">*</span>
                                     </label>
-                                    <input type="text" inputmode="numeric" pattern="[0-9]{10}" maxlength="10"
-                                        class="form-control" id="commercial_number" name="commercial_number"
-                                        placeholder="مثال: 1010123456" value="{{ old('commercial_number') }}" required
-                                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
+                                    <input type="text" class="form-control" id="commercial_number"
+                                        name="commercial_number" value="{{ old('commercial_number') }}"
+                                        placeholder="10 أرقام" maxlength="10" required>
                                 </div>
 
-                                    <!-- الرقم الضريبي -->
-                                    <div class="col-md-6">
-                                        <label for="tax_number" class="form-label">
-                                            الرقم الضريبي <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="text" class="form-control" id="tax_number" name="tax_number"
-                                            value="{{ old('tax_number') }}" autocomplete="one-time-code" inputmode="numeric"
-                                            pattern="[0-9]{15}" maxlength="15"
-                                            oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 15)"
-                                            placeholder="مثال: 300000000000003" required>
-                                    </div>
+                                <!-- الرقم الضريبي -->
+                                <div class="col-md-6">
+                                    <label for="tax_number" class="form-label">
+                                        الرقم الضريبي <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="tax_number" name="tax_number"
+                                        value="{{ old('tax_number') }}" placeholder="الرقم الضريبي للشركة" required>
+                                </div>
 
                                 <!-- المدينة -->
                                 <div class="col-md-6">
                                     <label for="city_id" class="form-label">
                                         المدينة <span class="text-danger">*</span>
                                     </label>
-                                    <select class="form-select select2" id="city_id" name="city_id"
-                                        data-placeholder="اختر المدينة" required>
+                                    <select class="form-select select2" id="city_id" name="city_id" required
+                                        data-placeholder="اختر المدينة">
                                         <option value=""></option>
                                         @foreach ($cities as $city)
                                             <option value="{{ $city->id }}" @selected(old('city_id') == $city->id)>
@@ -148,49 +146,95 @@
                                     <textarea class="form-control" id="address" name="address" rows="2"
                                         placeholder="مثال: الرياض - طريق الملك فهد" required>{{ old('address') }}</textarea>
                                 </div>
+
+                                <!-- إعدادات الشركة الإضافية -->
+                                <div class="col-12 mt-4">
+                                    <h6 class="fw-bold text-primary mb-3">
+                                        <i class="ti ti-settings me-1"></i>إعدادات الشركة الخاصة
+                                    </h6>
+                                    <div class="row g-4">
+                                        <div class="col-md-4">
+                                            <div class="card border p-3">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <h6 class="mb-0 fw-semibold">تنبيهات البريد</h6>
+                                                        <small class="text-muted">إرسال إشعارات البريد</small>
+                                                    </div>
+                                                    <div class="form-check form-switch mb-0">
+                                                        <input type="checkbox" class="form-check-input"
+                                                            name="email_notifications_enabled" value="1" checked>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <div class="card border p-3">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <h6 class="mb-0 fw-semibold">التحقق الثنائي (2FA)</h6>
+                                                        <small class="text-muted">فرض 2FA على مستخدمي الشركة</small>
+                                                    </div>
+                                                    <div class="form-check form-switch mb-0">
+                                                        <input type="checkbox" class="form-check-input"
+                                                            name="two_factor_enabled" value="1">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <div class="card border p-3">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <h6 class="mb-0 fw-semibold">التكاملات الخارجية</h6>
+                                                        <small class="text-muted">السماح بربط API والأنظمة</small>
+                                                    </div>
+                                                    <div class="form-check form-switch mb-0">
+                                                        <input type="checkbox" class="form-check-input"
+                                                            name="external_integrations_enabled" value="1">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="mt-4 d-flex justify-content-between">
-                                <button type="button" class="btn btn-secondary btn-prev waves-effect waves-light"
-                                    id="btn-prev-company">
-                                    <i class="ti ti-arrow-left me-1"></i> السابق
-                                </button>
+                                <a href="{{ route('admin.companies.index') }}" class="btn btn-secondary waves-effect">
+                                    <i class="ti ti-arrow-left me-1"></i> إلغاء
+                                </a>
                                 <div class="d-flex gap-2">
-                                    <button type="button"
-                                        class="btn btn-secondary btn-save-draft waves-effect waves-light" data-step="1">
+                                    <button type="button" class="btn btn-secondary btn-save-draft" data-step="1">
                                         <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
                                     </button>
-                                    <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-primary btn-next waves-effect waves-light"
-                                            id="btn-next-company">
-                                            التالي <i class="ti ti-arrow-right ms-2"></i>
-                                        </button>
-                                    </div>
+                                    <button type="button" class="btn btn-primary btn-next" id="btn-next-company">
+                                        التالي <i class="ti ti-arrow-right ms-1"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
 
                         {{-- ═══════════════════════════════════════
-                             الخطوة 2: بيانات المستخدم
+                             الخطوة 2: المستخدم الإداري الأول
                         ═══════════════════════════════════════ --}}
                         <div id="step-admin" class="content">
-                            <div class="row g-3">
+                            <div class="row g-4">
                                 <div class="col-md-6">
                                     <label for="name" class="form-label">
-                                        اسم المستخدم <span class="text-danger">*</span>
+                                        اسم المستخدم المسؤول <span class="text-danger">*</span>
                                     </label>
                                     <input type="text" class="form-control" id="name" name="name"
-                                        value="{{ old('name') }}" placeholder="اسم المستخدم" required>
+                                        value="{{ old('name') }}" placeholder="اسم المسؤول" required>
                                 </div>
 
                                 <div class="col-md-6">
                                     <label for="phone" class="form-label">
                                         رقم الجوال <span class="text-danger">*</span>
                                     </label>
-                                    <input type="tel" inputmode="numeric" pattern="05[0-9]{8}" maxlength="10"
-                                        class="form-control" id="phone" name="phone" placeholder="05xxxxxxxx"
-                                        value="{{ old('phone') }}" required
-                                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
+                                    <input type="tel" class="form-control" id="phone" name="phone"
+                                        placeholder="05xxxxxxxx" value="{{ old('phone') }}" maxlength="10" required>
                                 </div>
 
                                 <div class="col-md-6">
@@ -198,7 +242,8 @@
                                         البريد الإلكتروني <span class="text-danger">*</span>
                                     </label>
                                     <input type="email" class="form-control" id="email" name="email"
-                                        value="{{ old('email') }}" placeholder="example@domain.com" autocomplete="off" required>
+                                        value="{{ old('email') }}" placeholder="admin@domain.com" autocomplete="off"
+                                        required>
                                 </div>
 
                                 <div class="col-md-6">
@@ -214,35 +259,31 @@
                                         تأكيد كلمة المرور <span class="text-danger">*</span>
                                     </label>
                                     <input type="password" id="password_confirmation" name="password_confirmation"
-                                        class="form-control" placeholder="••••••••" autocomplete="new-password" required />
+                                        class="form-control" placeholder="••••••••" autocomplete="new-password"
+                                        required />
                                 </div>
                             </div>
 
                             <div class="mt-4 d-flex justify-content-between">
-                                <button type="button" class="btn btn-secondary btn-prev waves-effect waves-light"
-                                    id="btn-prev-admin">
+                                <button type="button" class="btn btn-secondary btn-prev" id="btn-prev-admin">
                                     <i class="ti ti-arrow-left me-1"></i> السابق
                                 </button>
                                 <div class="d-flex gap-2">
-                                    <button type="button"
-                                        class="btn btn-secondary btn-save-draft waves-effect waves-light" data-step="2">
+                                    <button type="button" class="btn btn-secondary btn-save-draft" data-step="2">
                                         <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
                                     </button>
-                                    <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-primary btn-next waves-effect waves-light"
-                                            id="btn-next-admin">
-                                            التالي <i class="ti ti-arrow-right ms-2"></i>
-                                        </button>
-                                    </div>
+                                    <button type="button" class="btn btn-primary btn-next" id="btn-next-admin">
+                                        التالي <i class="ti ti-arrow-right ms-1"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
 
                         {{-- ═══════════════════════════════════════
-                             الخطوة 3: الاشتراك والدفع
+                             الخطوة 3: بيانات الاشتراك والدفع
                         ═══════════════════════════════════════ --}}
                         <div id="step-payment" class="content">
-                            <div class="row g-3">
+                            <div class="row g-4">
                                 <div class="col-md-6">
                                     <label for="plan_id" class="form-label">
                                         الباقة <span class="text-danger">*</span>
@@ -268,20 +309,42 @@
 
                                 <div class="col-md-6">
                                     <label class="form-label" for="end_date">
-                                        تاريخ النهاية <span class="text-danger" id="end-date-required">*</span>
+                                        تاريخ النهاية
                                     </label>
                                     <input type="date" class="form-control" id="end_date" name="end_date"
                                         value="{{ old('end_date') }}">
-                                    <small class="text-muted" id="end-date-hint"></small>
+                                    <small class="text-muted" id="end-date-hint">يُحسب تلقائياً حسب نوع الباقة</small>
                                 </div>
 
-                                <div class="col-md-6">
-                                    <label class="form-label" for="total_users">
-                                        إجمالي المستخدمين <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="number" min="1" class="form-control" id="total_users"
-                                        name="total_users" value="{{ old('total_users') }}" required>
-                                </div>
+                                {{-- <div class="col-12 mt-2">
+                                    <div class="p-3 bg-light rounded border">
+                                        <h6 class="mb-2 fw-semibold text-dark"><i
+                                                class="ti ti-shield-check me-1 text-primary"></i>حدود الباقة المحددة
+                                            (للقراءة فقط)</h6>
+                                        <div class="row g-2">
+                                            <div class="col-md-3">
+                                                <label class="form-label small">عدد المستخدمين المشمولين</label>
+                                                <input type="text" class="form-control form-control-sm bg-white"
+                                                    id="plan_users_display" readonly disabled value="-">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label small">حد العقارات</label>
+                                                <input type="text" class="form-control form-control-sm bg-white"
+                                                    id="plan_properties_display" readonly disabled value="-">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label small">مساحة التخزين (GB)</label>
+                                                <input type="text" class="form-control form-control-sm bg-white"
+                                                    id="plan_storage_display" readonly disabled value="-">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label small">عدد المزادات النشطة</label>
+                                                <input type="text" class="form-control form-control-sm bg-white"
+                                                    id="plan_auctions_display" readonly disabled value="-">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div> --}}
 
                                 <div class="col-md-6">
                                     <label class="form-label" for="payment-status">
@@ -291,19 +354,18 @@
                                         name="payment_type" id="payment-status" required>
                                         <option value=""></option>
                                         <option value="paid" @selected(old('payment_type') == 'paid')>تم الدفع</option>
-                                        <option value="unpaid" @selected(old('payment_type') == 'unpaid')>لم يتم الدفع</option>
+                                        <option value="unpaid" @selected(old('payment_type', 'unpaid') == 'unpaid')>لم يتم الدفع</option>
                                         <option value="trial" @selected(old('payment_type') == 'trial')>فترة تجربة</option>
                                     </select>
                                 </div>
 
-                                <div class="col-md-6" id="payment-method-wrapper">
+                                <div class="col-md-6" id="payment-method-wrapper" style="display: none;">
                                     <label class="form-label" for="payment-method-select">
                                         وسيلة الدفع <span class="text-danger">*</span>
                                     </label>
                                     <select class="form-select select2" name="payment_method"
                                         data-placeholder="اختر وسيلة الدفع" id="payment-method-select">
                                         <option value=""></option>
-                                        <option value="cash" @selected(old('payment_method') == 'cash')>نقداً</option>
                                         <option value="online" @selected(old('payment_method') == 'online')>دفع إلكتروني</option>
                                         <option value="bank_transfer" @selected(old('payment_method') == 'bank_transfer')>تحويل بنكي</option>
                                     </select>
@@ -315,80 +377,45 @@
                                     </label>
                                     <input type="file" class="form-control" name="receipt_upload" id="receipt-upload"
                                         accept="image/*,.pdf">
-                                    <small class="text-muted">يرجى رفع صورة أو ملف PDF للإيصال البنكي</small>
+                                    <small class="text-muted">ملف صورة أو PDF بحجم أقصى 5MB</small>
                                 </div>
 
-                                <div class="col-md-6" id="discount-type-wrapper">
-                                    <label class="form-label" for="discount-type">التسوية (الخصم)</label>
-                                    <select class="form-select select2" name="has_discount" id="discount-type"
-                                        data-placeholder="هل يوجد تسوية">
-                                        <option value=""></option>
-                                        <option value="no" @selected(old('has_discount', 'no') == 'no')>بدون تسوية</option>
-                                        <option value="yes" @selected(old('has_discount') == 'yes')>دفع بتسوية</option>
-                                    </select>
-                                </div>
-
-                                <div class="col-md-6" id="trial-end-date-wrapper" style="display: none;">
+                                <div class="col-md-6" id="trial-date-wrapper" style="display: none;">
                                     <label class="form-label" for="trial-end-date">
                                         تاريخ نهاية التجربة <span class="text-danger">*</span>
                                     </label>
                                     <input type="date" class="form-control" name="trial_end_date" id="trial-end-date"
-                                        value="{{ old('trial_end_date') }}" min="{{ now()->toDateString() }}">
-                                </div>
-
-                                <div class="col-md-6" id="discount-value-wrapper" style="display: none;">
-                                    <label class="form-label" for="discount-value-input">قيمة التسوية (ر.س)</label>
-                                    <input type="number" class="form-control" name="discount_value"
-                                        id="discount-value-input" min="0" step="0.01"
-                                        value="{{ old('discount_value', 0) }}">
+                                        value="{{ old('trial_end_date') }}">
                                 </div>
 
                                 <div class="col-md-6">
-                                    <div class="form-check form-switch mt-4">
-                                        <input type="hidden" name="activate_immediately" value="0">
-                                        <input class="form-check-input" type="checkbox" id="activate_immediately"
-                                            name="activate_immediately" value="1" @checked(old('activate_immediately', false))>
-                                        <label class="form-check-label fw-bold" for="activate_immediately">تفعيل الشركة
-                                            فورًا</label>
-                                    </div>
-                                    <small class="text-muted">عند التفعيل، تصبح الشركة والاشتراك بحالة (نشط) مباشرة، وإلا
-                                        تظل (قيد المراجعة).</small>
+                                    <label class="form-label" for="discount-type">هل يوجد خصم أو تسوية؟</label>
+                                    <select class="form-select" id="discount-type" name="has_discount">
+                                        <option value="no" @selected(old('has_discount') == 'no')>لا</option>
+                                        <option value="yes" @selected(old('has_discount') == 'yes')>نعم</option>
+                                    </select>
                                 </div>
 
-                                <!-- ملخص التسعير الداخلي للخطوة 3 -->
-                                <div class="col-12 mt-2">
-                                    <div class="card border shadow-none mt-3">
-                                        <div class="card-header py-2 bg-light">
-                                            <h6 class="mb-0 card-title small fw-bold">
-                                                <i class="ti ti-calculator text-primary me-1"></i> ملخص التسعير
-                                            </h6>
-                                        </div>
-                                        <div class="card-body p-0">
-                                            <div class="table-responsive">
-                                                <table class="table table-sm text-center table-bordered mb-0 small">
-                                                    <tbody>
-                                                        <tr>
-                                                            <td class="fw-bold">الباقة المختارة</td>
-                                                            <td id="final-plan-name">-</td>
-                                                            <td class="fw-bold">سعر الباقة</td>
-                                                            <td><span id="final-plan-price">0.00</span> ر.س</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td class="fw-bold">ضريبة القيمة المضافة (15%)</td>
-                                                            <td><span id="final-vat">0.00</span> ر.س</td>
-                                                            <td class="fw-bold">الخصم / التسوية</td>
-                                                            <td class="text-danger">- <span
-                                                                    id="final-discount">0.00</span> ر.س</td>
-                                                        </tr>
-                                                        <tr class="table-primary">
-                                                            <td colspan="2" class="fw-bold">الإجمالي النهائي المستحق
-                                                            </td>
-                                                            <td colspan="2" class="fw-bold fs-6 text-primary">
-                                                                <span id="final-total">0.00</span> ر.س
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
+                                <div class="col-md-6" id="discount-wrapper" style="display: none;">
+                                    <label class="form-label" for="discount_value">مبلغ الخصم / التسوية (ر.س)</label>
+                                    <input type="number" step="0.01" min="0" class="form-control"
+                                        id="discount_value" name="discount_value"
+                                        value="{{ old('discount_value', 0) }}">
+                                </div>
+
+                                <!-- التفعيل الفوري -->
+                                <div class="col-12 mt-3">
+                                    <div class="card border p-3 bg-light">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="mb-0 fw-bold text-dark">تفعيل الشركة والاشتراك فوراً</h6>
+                                                <small class="text-muted">عند التفعيل، تصبح الشركة والاشتراك بحالة نشطة
+                                                    مباشرة حتى لو لم يتم الدفع</small>
+                                            </div>
+                                            <div class="form-check form-switch mb-0">
+                                                <input type="checkbox" class="form-check-input"
+                                                    name="activate_immediately" id="activate_immediately" value="1"
+                                                    @checked(old('activate_immediately', true))>
                                             </div>
                                         </div>
                                     </div>
@@ -396,21 +423,16 @@
                             </div>
 
                             <div class="mt-4 d-flex justify-content-between">
-                                <button type="button" class="btn btn-secondary btn-prev waves-effect waves-light"
-                                    id="btn-prev-payment">
+                                <button type="button" class="btn btn-secondary btn-prev" id="btn-prev-payment">
                                     <i class="ti ti-arrow-left me-1"></i> السابق
                                 </button>
                                 <div class="d-flex gap-2">
-                                    <button type="button"
-                                        class="btn btn-secondary btn-save-draft waves-effect waves-light" data-step="3">
+                                    <button type="button" class="btn btn-secondary btn-save-draft" data-step="3">
                                         <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
                                     </button>
-                                    <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-primary btn-next waves-effect waves-light"
-                                            id="btn-next-payment">
-                                            التالي <i class="ti ti-arrow-right ms-2"></i>
-                                        </button>
-                                    </div>
+                                    <button type="button" class="btn btn-primary btn-next" id="btn-next-payment">
+                                        التالي <i class="ti ti-arrow-right ms-1"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -420,24 +442,19 @@
                         ═══════════════════════════════════════ --}}
                         <div id="step-review" class="content">
                             <div class="row g-4">
-                                <!-- Card 1: بيانات الشركة -->
-                                <div class="col-12 col-lg-4">
+                                <!-- Card 1: ملخص بيانات الشركة -->
+                                <div class="col-12 col-lg-6">
                                     <div class="card border shadow-none h-100">
-                                        <div
-                                            class="card-header d-flex justify-content-between align-items-center py-2 bg-light">
+                                        <div class="card-header py-2 bg-light">
                                             <h6 class="card-title mb-0 small fw-bold">
-                                                <i class="ti ti-building me-1 text-primary"></i> بيانات الشركة
+                                                <i class="ti ti-building me-1 text-primary"></i> ملخص بيانات الشركة
                                             </h6>
-                                            <button type="button" class="btn btn-xs btn-label-primary btn-edit-step"
-                                                data-target-step="0">
-                                                <i class="ti ti-edit me-1"></i> تعديل
-                                            </button>
                                         </div>
                                         <div class="card-body pt-3">
                                             <ul class="list-unstyled mb-0 d-flex flex-column gap-2 small">
                                                 <li class="d-flex justify-content-between">
                                                     <span class="text-muted">اسم الشركة:</span>
-                                                    <span class="fw-bold text-heading" id="review-company-name">-</span>
+                                                    <span class="fw-bold" id="review-company-name">-</span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="text-muted">السجل التجاري:</span>
@@ -453,32 +470,30 @@
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="text-muted">العنوان:</span>
-                                                    <span class="fw-semibold text-wrap text-end" id="review-address"
-                                                        style="max-width: 60%;">-</span>
+                                                    <span class="fw-semibold" id="review-address">-</span>
+                                                </li>
+                                                <li class="d-flex justify-content-between border-top pt-2">
+                                                    <span class="text-muted">الإعدادات الإضافية:</span>
+                                                    <span class="fw-semibold" id="review-settings-summary">-</span>
                                                 </li>
                                             </ul>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Card 2: بيانات المستخدم -->
-                                <div class="col-12 col-lg-4">
+                                <!-- Card 2: ملخص المستخدم المسؤول -->
+                                <div class="col-12 col-lg-6">
                                     <div class="card border shadow-none h-100">
-                                        <div
-                                            class="card-header d-flex justify-content-between align-items-center py-2 bg-light">
+                                        <div class="card-header py-2 bg-light">
                                             <h6 class="card-title mb-0 small fw-bold">
                                                 <i class="ti ti-user me-1 text-primary"></i> بيانات المستخدم المسؤول
                                             </h6>
-                                            <button type="button" class="btn btn-xs btn-label-primary btn-edit-step"
-                                                data-target-step="1">
-                                                <i class="ti ti-edit me-1"></i> تعديل
-                                            </button>
                                         </div>
                                         <div class="card-body pt-3">
                                             <ul class="list-unstyled mb-0 d-flex flex-column gap-2 small">
                                                 <li class="d-flex justify-content-between">
                                                     <span class="text-muted">اسم المسؤول:</span>
-                                                    <span class="fw-bold text-heading" id="review-admin-name">-</span>
+                                                    <span class="fw-bold" id="review-admin-name">-</span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="text-muted">رقم الجوال:</span>
@@ -493,25 +508,55 @@
                                     </div>
                                 </div>
 
-                                <!-- Card 3: تفاصيل الاشتراك والدفع -->
-                                <div class="col-12 col-lg-4">
+                                <!-- Card 3: ملخص الباقة وحدودها والمميزات -->
+                                <div class="col-12 col-lg-6">
                                     <div class="card border shadow-none h-100">
-                                        <div
-                                            class="card-header d-flex justify-content-between align-items-center py-2 bg-light">
+                                        <div class="card-header py-2 bg-light">
                                             <h6 class="card-title mb-0 small fw-bold">
-                                                <i class="ti ti-credit-card me-1 text-primary"></i> تفاصيل الاشتراك والدفع
+                                                <i class="ti ti-packages me-1 text-primary"></i> ملخص الباقة والحدود
                                             </h6>
-                                            <button type="button" class="btn btn-xs btn-label-primary btn-edit-step"
-                                                data-target-step="2">
-                                                <i class="ti ti-edit me-1"></i> تعديل
-                                            </button>
                                         </div>
                                         <div class="card-body pt-3">
                                             <ul class="list-unstyled mb-0 d-flex flex-column gap-2 small">
                                                 <li class="d-flex justify-content-between">
-                                                    <span class="text-muted">الباقة:</span>
+                                                    <span class="text-muted">اسم الباقة:</span>
                                                     <span class="fw-bold text-primary" id="review-plan-name">-</span>
                                                 </li>
+                                                <li class="d-flex justify-content-between">
+                                                    <span class="text-muted">المستخدمون المشمولون:</span>
+                                                    <span class="fw-semibold" id="review-plan-users">-</span>
+                                                </li>
+                                                <li class="d-flex justify-content-between">
+                                                    <span class="text-muted">حد العقارات:</span>
+                                                    <span class="fw-semibold" id="review-plan-props">-</span>
+                                                </li>
+                                                <li class="d-flex justify-content-between">
+                                                    <span class="text-muted">مساحة التخزين:</span>
+                                                    <span class="fw-semibold" id="review-plan-storage">-</span>
+                                                </li>
+                                                <li class="d-flex justify-content-between">
+                                                    <span class="text-muted">المزادات النشطة:</span>
+                                                    <span class="fw-semibold" id="review-plan-auctions">-</span>
+                                                </li>
+                                                <li class="border-top pt-2">
+                                                    <span class="text-muted d-block mb-1">مميزات الباقة:</span>
+                                                    <div id="review-plan-features" class="d-flex flex-wrap gap-1">-</div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Card 4: ملخص الاشتراك والدفع -->
+                                <div class="col-12 col-lg-6">
+                                    <div class="card border shadow-none h-100">
+                                        <div class="card-header py-2 bg-light">
+                                            <h6 class="card-title mb-0 small fw-bold">
+                                                <i class="ti ti-credit-card me-1 text-primary"></i> تفاصيل الاشتراك والدفع
+                                            </h6>
+                                        </div>
+                                        <div class="card-body pt-3">
+                                            <ul class="list-unstyled mb-0 d-flex flex-column gap-2 small">
                                                 <li class="d-flex justify-content-between">
                                                     <span class="text-muted">تاريخ البدء:</span>
                                                     <span class="fw-semibold" id="review-start-date">-</span>
@@ -521,11 +566,7 @@
                                                     <span class="fw-semibold" id="review-end-date">-</span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
-                                                    <span class="text-muted">المستخدمين:</span>
-                                                    <span class="fw-semibold" id="review-total-users">-</span>
-                                                </li>
-                                                <li class="d-flex justify-content-between">
-                                                    <span class="text-muted">التفعيل الفوري:</span>
+                                                    <span class="text-muted">حالة التفعيل:</span>
                                                     <span class="badge" id="review-activation-status">-</span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
@@ -536,7 +577,7 @@
                                                     <span class="text-muted">وسيلة الدفع:</span>
                                                     <span class="fw-semibold" id="review-payment-method">-</span>
                                                 </li>
-                                                <li class="d-flex justify-content-between border-top pt-2 mt-2">
+                                                <li class="d-flex justify-content-between border-top pt-2 mt-1">
                                                     <span class="fw-bold">المبلغ الإجمالي:</span>
                                                     <span class="fw-bold text-success fs-6" id="review-final-total">0.00
                                                         ر.س</span>
@@ -545,24 +586,31 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- رسالة التنبيه الإلزامية -->
+                                <div class="col-12">
+                                    <div class="alert alert-warning d-flex align-items-center" role="alert">
+                                        <i class="ti ti-alert-triangle ti-md me-2"></i>
+                                        <div>
+                                            <strong>تنبيه هام:</strong> تفعيل الشركة والاشتراك فوراً سيجعل الشركة والاشتراك
+                                            بحالة <strong>نشطة (Active)</strong> ومتاحة للاستخدام المباشر فور الاعتماد، حتى
+                                            لو لم يتم الدفع بعد.
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="mt-4 d-flex justify-content-between">
-                                <button type="button" class="btn btn-secondary btn-prev waves-effect waves-light"
-                                    id="btn-prev-review">
+                                <button type="button" class="btn btn-secondary btn-prev" id="btn-prev-review">
                                     <i class="ti ti-arrow-left me-1"></i> السابق
                                 </button>
                                 <div class="d-flex gap-2">
-                                    <button type="button"
-                                        class="btn btn-secondary btn-save-draft waves-effect waves-light" data-step="4">
+                                    <button type="button" class="btn btn-secondary btn-save-draft" data-step="4">
                                         <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
                                     </button>
-                                    <div class="d-flex gap-2">
-                                        <button type="submit"
-                                            class="btn btn-primary btn-next btn-submit waves-effect waves-light">
-                                            <i class="ti ti-check me-1"></i> اعتماد وحفظ نهائي
-                                        </button>
-                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-submit">
+                                        <i class="ti ti-check me-1"></i> إنشاء واعتماد الشركة
+                                    </button>
                                 </div>
                             </div>
                         </div>

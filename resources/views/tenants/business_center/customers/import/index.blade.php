@@ -60,7 +60,7 @@
         <div class="mb-2 border-dashed border-1 border-light"></div>
 
         <div class="card-body">
-            <div class="row g-3">
+            <div class="row g-4">
                 <div class="col-md-6 mb-3">
                     <label for="company_id" class="form-label">الشركة <span class="text-danger">*</span></label>
                     <select id="company_id" class="form-select select2" data-placeholder="اختر الشركة">

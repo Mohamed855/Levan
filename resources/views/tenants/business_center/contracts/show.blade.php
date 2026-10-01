@@ -155,7 +155,7 @@
                     </div>
                     <div class="card-body">
                         <!-- الملخص المالي -->
-                        <div class="row g-3 mb-4">
+                        <div class="row g-4 mb-4">
                             <div class="col-md-4">
                                 <div class="d-flex align-items-center p-3 bg-label-success rounded">
                                     <div

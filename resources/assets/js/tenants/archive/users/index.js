@@ -30,6 +30,11 @@ function bindFilters(table) {
     $('#filter-status, #filter-role').on('change', function () {
         applyFilters(table);
     });
+
+    $('#btn-reset-filters').on('click', function () {
+        $('#filter-status, #filter-role').val('').trigger('change');
+        applyFilters(table);
+    });
 }
 
 function applyFilters(table) {

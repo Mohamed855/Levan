@@ -51,7 +51,7 @@
                         @method('PUT')
 
                         <div id="info-validation" class="content">
-                            <div class="row g-3">
+                            <div class="row g-4">
 
                                 <div class="col-md-6">
                                     <label for="name" class="form-label">اسم الفرع <span
@@ -87,8 +87,7 @@
 
                                 <div class="col-12">
                                     <label for="address" class="form-label">العنوان</label>
-                                    <textarea class="form-control" id="address" name="address" rows="3"
-                                        placeholder="ادخل العنوان">{{ old('address', $branch->address) }}</textarea>
+                                    <textarea class="form-control" id="address" name="address" rows="3" placeholder="ادخل العنوان">{{ old('address', $branch->address) }}</textarea>
                                 </div>
 
                                 <div class="col-12 d-flex justify-content-end">

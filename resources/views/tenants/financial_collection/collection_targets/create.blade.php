@@ -188,7 +188,7 @@
     <script type="text/template" id="monthly-fields-template">
         <div class="period-fields-container">
             <label class="form-label">الشهر والسنة <span class="text-danger">*</span></label>
-            <div class="row g-3">
+            <div class="row g-4">
                 <div class="col-6">
                     <select name="target_month" id="target_month" class="form-control select2" data-placeholder="الشهر">
                         <option value=""></option>
@@ -218,7 +218,7 @@
     <script type="text/template" id="custom-fields-template">
         <div class="period-fields-container">
             <label class="form-label">الفترة المخصصة <span class="text-danger">*</span></label>
-            <div class="row g-3">
+            <div class="row g-4">
                 <div class="col-6">
                     <input type="date" name="custom_start_date" id="custom_start_date"
                            class="form-control" placeholder="تاريخ البداية">
