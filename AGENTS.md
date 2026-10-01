@@ -3,6 +3,11 @@
 ## Frontend Build Verification (Mandatory)
 - After every update to any `.scss`, `.css`, or `.js` file, run `npm run build` before completing the task.
 
+## DataTable Activity Statuses (Mandatory)
+- Any index table that permits changing an activity state must render it with the reusable `js-table-status-toggle` switch, not an active/inactive text badge.
+- The `الحالة` column must be immediately before the `الإجراءات` column.
+- Reuse `resources/assets/js/shared/table-status-toggle.js`; do not introduce a per-page status-toggle AJAX handler.
+
 ## 1. Database Keys and Localization Mapping (Mandatory Invariant)
 - **English-Only Database Keys & Identifiers**:
   - NEVER store Arabic letters, words, or phrases as keys, codes, slugs, or identifiers in any database column.
