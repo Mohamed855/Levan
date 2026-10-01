@@ -119,7 +119,7 @@ class CustomerService
     */
     public function canUpdateDirectly(): bool
     {
-        return auth()->user()->can('تحديث مباشر للبيانات');
+        return auth()->user()->can('customers.update_directly');
     }
 
     /*

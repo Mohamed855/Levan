@@ -19,6 +19,10 @@
     @vite(['resources/css/dataTable.css'])
 @endsection
 
+@section('page-script')
+    @vite(['resources/assets/js/admin/subscriptions/index.js'])
+@endsection
+
 @section('content')
     @if ($errors->any())
         <div class="alert alert-danger mb-4">
@@ -117,47 +121,6 @@
             $('#btn-reset-filters').on('click', function() {
                 $('#filter-sub-status, #filter-plan, #filter-city, #filter-expiring').val('').trigger(
                     'change');
-            });
-
-            // Toggle subscription status
-            $(document).on('change', '.js-subscription-status-toggle', function() {
-                const checkbox = $(this);
-                const url = checkbox.data('url');
-                checkbox.prop('disabled', true);
-
-                $.ajax({
-                    url: url,
-                    type: 'PATCH',
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                        'Accept': 'application/json'
-                    },
-                    success: function(res) {
-                        checkbox.prop('disabled', false);
-                        Swal.fire({
-                            icon: 'success',
-                            title: res.message || 'تم تحديث حالة الاشتراك بنجاح',
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 2500
-                        });
-                        const table = getTable();
-                        if (table) table.ajax.reload(null, false);
-                    },
-                    error: function() {
-                        checkbox.prop('disabled', false);
-                        checkbox.prop('checked', !checkbox.prop('checked'));
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'تعذر تغيير حالة الاشتراك',
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000
-                        });
-                    }
-                });
             });
 
             // Delete subscription confirmation

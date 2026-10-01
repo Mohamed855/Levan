@@ -215,7 +215,7 @@
 
 
 
-                                @can('تغيير مسؤول العلاقة للعميل')
+                                @can('customers.edit_all')
                                     <div class="col-sm-4">
                                         <label class="form-label" for="relationship_manager_id">مسؤول العلاقة</label>
                                         <select name="relationship_manager_id" id="relationship_manager_id"

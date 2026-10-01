@@ -132,7 +132,7 @@
             <div>
                 <ul class="nav nav-tabs flex-column border-bottom-0">
                     <!-- تبويب تفاصيل العميل -->
-                    @can('تفاصيل العميل')
+                    @can('customers.view')
                         <li class="card rounded-0 mb-3 nav-item shadow-none">
                             <a class="py-3 nav-link fw-bold active m-0" data-bs-toggle="tab" href="#customerDetails">
                                 <i class="ti ti-info-circle ti-sm me-1"></i><span>تفاصيل العميل</span>
@@ -141,7 +141,7 @@
                     @endcan
 
                     <!-- تبويب متابعة العميل -->
-                    @can('متابعة العميل')
+                    @can('customers.edit')
                         <li class="card rounded-0 mb-3 nav-item shadow-none">
                             <a class="py-3 nav-link fw-bold m-0" data-bs-toggle="tab" href="#customerFollow">
                                 <i class="ti ti-eye ti-sm me-1"></i><span>متابعة العميل</span>
@@ -166,7 +166,7 @@
                 </li> --}}
 
                     <!-- تبويب خطة سداد -->
-                    @can('خطة سداد')
+                    @can('customers.edit')
                         <li class="card rounded-0 mb-3 nav-item shadow-none">
                             <a class="py-3 nav-link fw-bold m-0" data-bs-toggle="tab" href="#paymentPlan">
                                 <i class="ti ti-calendar-event ti-sm me-1"></i><span>خطط السداد</span>
@@ -186,7 +186,7 @@
 
 
                     <!-- تبويب طلبات التسوية -->
-                    @can('طلبات التسوية')
+                    @can('customers.edit')
                         <li class="card rounded-0 mb-3 nav-item shadow-none">
                             <a class="py-3 nav-link fw-bold m-0" data-bs-toggle="tab" href="#settlementRequests">
                                 <i class="ti ti-file-check ti-sm me-1"></i><span>طلبات التسوية</span>
@@ -195,7 +195,7 @@
                     @endcan
 
                     <!-- تبويب الملاحظات -->
-                    @can('ملاحظات')
+                    @can('customers.edit')
                         <li class="card rounded-0 mb-3 nav-item shadow-none">
                             <a class="py-3 nav-link fw-bold m-0" data-bs-toggle="tab" href="#notes">
                                 <i class="ti ti-notes ti-sm me-1"></i><span>ملاحظات</span>
@@ -204,7 +204,7 @@
                     @endcan
 
                     <!-- تبويب التعليقات والمنشنات (الجديد) -->
-                    @can('ملاحظات')
+                    @can('customers.edit')
                         <!-- استخدم نفس صلاحية الملاحظات أو أنشئ صلاحية جديدة -->
                         <li class="card rounded-0 mb-3 nav-item shadow-none">
                             <a class="py-3 nav-link fw-bold m-0" data-bs-toggle="tab" href="#comments">
@@ -214,7 +214,7 @@
                     @endcan
 
                     <!-- تبويب المرفقات -->
-                    @can('المرفقات')
+                    @can('customers.edit')
                         <li class="card rounded-0 mb-3 nav-item shadow-none">
                             <a class="py-3 nav-link fw-bold m-0" data-bs-toggle="tab" href="#attachments">
                                 <i class="ti ti-paperclip ti-sm me-1"></i><span>المرفقات</span>
@@ -223,7 +223,7 @@
                     @endcan
 
                     <!-- تبويب إضافة هاتف إضافي -->
-                    @can('إضافة رقم هاتف')
+                    @can('customers.add_phone')
                         <li class="card rounded-0 mb-3 nav-item shadow-none">
                             <a class="py-3 nav-link fw-bold m-0" data-bs-toggle="tab" href="#addPhone">
                                 <i class="ti ti-phone-plus ti-sm me-1"></i><span>إضافة رقم هاتف</span>

@@ -1,6 +1,9 @@
 'use strict';
 
+import { initializeTableStatusToggles } from '../../shared/table-status-toggle';
+
 $(document).ready(function () {
+    initializeTableStatusToggles();
     initializeComponents();
 
     $('#client-table').on('init.dt', function () {
@@ -41,42 +44,6 @@ function bindTableEvents() {
         }
     });
 
-    // ==================== STATUS BADGE CLICK ====================
-    tableWrapper.on('click', '.status-badge', function () {
-        const $badge = $(this);
-        const id = $badge.data('id');
-        const name = $badge.data('name');
-
-        $badge.css('opacity', '0.6').css('pointer-events', 'none');
-
-        $.ajax({
-            url: `/admin/content-management/client/${id}/toggle-status`,
-            method: 'PATCH',
-            dataType: 'json',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function (response) {
-                if (response.success) {
-                    const $currentBadge = tableWrapper.find(`.status-badge[data-id="${id}"]`);
-                    $currentBadge.removeClass('bg-success bg-danger');
-                    $currentBadge.addClass(response.status ? 'bg-success' : 'bg-danger');
-                    $currentBadge.html(response.status ? 'نشط' : 'غير نشط');
-                    toastr.success(response.message, name);
-                } else {
-                    toastr.error(response.message, 'خطأ');
-                }
-            },
-            error: function (xhr) {
-                const errorMsg = xhr.responseJSON?.message || 'حدث خطأ أثناء التحديث';
-                toastr.error(errorMsg, 'خطأ');
-            },
-            complete: function () {
-                const $currentBadge = tableWrapper.find(`.status-badge[data-id="${id}"]`);
-                $currentBadge.css('opacity', '1').css('pointer-events', 'auto');
-            }
-        });
-    });
 }
 
 function handleMassDelete() {

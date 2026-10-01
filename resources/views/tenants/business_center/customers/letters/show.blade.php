@@ -334,7 +334,7 @@
         @endif
 
         {{-- ═══ قسم إرسال البريد ═══ --}}
-        @can('إرسال خطاب')
+        @can('company_letters.send')
         <div class="card">
             <div class="card-header">
                 <h5 class="card-title mb-0">

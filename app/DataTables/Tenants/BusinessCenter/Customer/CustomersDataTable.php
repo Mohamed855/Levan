@@ -400,19 +400,19 @@ class CustomersDataTable extends AbstractDataTable
         $buttons = [];
         $actionButtons = [];
 
-        if (auth()->user()?->can('إرسال رسالة')) {
+        if (auth()->user()?->can('customers.send_message')) {
             $actionButtons[] = ['text' => 'إرسال رسالة', 'action' => "function() { handleSendSMS(); }"];
         }
 
         $actionButtons[] = ['text' => 'استيراد العملاء', 'action' => "function() { handleImportCustomers(); }"];
 
-        if (auth()->user()?->can('تصدير أكسل')) {
+        if (auth()->user()?->can('customers.export')) {
             $actionButtons[] = ['text' => 'تصدير Excel', 'action' => "function() { handleExport(); }"];
         }
 
         $actionButtons[] = ['text' => 'تحديث بيانات', 'action' => "function() { handleBulkUpdateCustomers(); }"];
 
-        if (auth()->user()?->can('حذف جميع العملاء')) {
+        if (auth()->user()?->can('customers.delete_all')) {
             $actionButtons[] = ['text' => 'حذف المحدد', 'action' => "function() { handleMassDelete(); }"];
         }
 
@@ -425,7 +425,7 @@ class CustomersDataTable extends AbstractDataTable
             ];
         }
 
-        if (auth()->user()?->can('إضافة عميل')) {
+        if (auth()->user()?->can('customers.create')) {
             $buttons[] = [
                 'text' => '<i class="fas fa-plus-circle me-1"></i> إضافة عميل',
                 'className' => 'btn btn-primary btn-add',

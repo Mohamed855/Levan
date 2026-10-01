@@ -357,8 +357,13 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             Route::resource('settings-payment-methods', SettingsPaymentMethodController::class);
             Route::resource('settings-contact-methods', SettingsContactMethodController::class);
 
+            Route::patch('settings-country/{id}/toggle-status', [SettingsCountryController::class, 'edit'])->name('settings-country.toggle-status');
+            Route::patch('settings-payment-methods/{id}/toggle-status', [SettingsPaymentMethodController::class, 'edit'])->name('settings-payment-methods.toggle-status');
+            Route::patch('settings-contact-methods/{id}/toggle-status', [SettingsContactMethodController::class, 'edit'])->name('settings-contact-methods.toggle-status');
+
             // === راوتات أسباب طلب المستندات ===
             Route::resource('settings-document-request-reasons', SettingsDocumentRequestReasonController::class);
+            Route::patch('settings-document-request-reasons/{id}/toggle-status', [SettingsDocumentRequestReasonController::class, 'edit'])->name('settings-document-request-reasons.toggle-status');
 
             //  === راوتات حالات العملاء ===
             Route::resource('settings-customer-status', SettingsCustomerStatusController::class);

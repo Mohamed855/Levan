@@ -146,18 +146,17 @@ class SubscriptionDataTable extends AbstractDataTable
                     $url = route('admin.subscriptions.toggle-status', $row->id);
 
                     return '
-                        <div class="d-flex align-items-center gap-2">
+                        <div class="d-flex justify-content-center">
                             <div class="form-check form-switch mb-0">
                                 <input
                                     type="checkbox"
-                                    class="form-check-input js-subscription-status-toggle"
+                                    class="form-check-input js-table-status-toggle"
                                     id="sub_status_'.$row->id.'"
                                     data-url="'.$url.'"
                                     '.$checked.'
                                     aria-label="تبديل حالة الاشتراك"
                                 >
                             </div>
-                            <span class="badge bg-'.$row->status->color().'">'.$row->status->label().'</span>
                         </div>
                     ';
                 }

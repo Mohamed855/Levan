@@ -34,128 +34,29 @@
 
 
 @section('content')
-    <div class="row g-4 mb-4">
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">الشركات</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $totalCompanies }}</h4>
-                            </div>
-                            <small class="mb-0">إجمالي الشركات</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-primary">
-                                <i class="ti ti-building ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <x-data-table.page table-id="companies-table">
+        <x-slot:stats>
+            <x-ui.stat-card col="col-sm-6 col-xl-3" title="الشركات" :value="$totalCompanies" subtitle="إجمالي الشركات"
+                icon="ti-building" color="primary" />
+            <x-ui.stat-card col="col-sm-6 col-xl-3" title="الشركات النشطة" :value="$activeCompanies" subtitle="الشركات النشطة"
+                icon="ti-building-store" color="success" />
+            <x-ui.stat-card col="col-sm-6 col-xl-3" title="الشركات غير النشطة" :value="$inactiveCompanies" subtitle="الشركات غير النشطة"
+                icon="ti-ban" color="danger" />
+            <x-ui.stat-card col="col-sm-6 col-xl-3" title="شركات أُضيفت مؤخرًا" :value="$recentCompanies" subtitle="خلال آخر 30 يوم"
+                icon="ti-calendar-stats" color="info" />
+        </x-slot:stats>
 
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">الشركات النشطة</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $activeCompanies }}</h4>
-                            </div>
-                            <small class="mb-0">الشركات النشطة</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-success">
-                                <i class="ti ti-building-store ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-slot:filters>
+            <x-data-table.filters>
+                <x-filter.select col="col-md-6" id="filter-status" label="حالة الشركة" placeholder="اختر حالة الشركة"
+                    :options="['active' => 'نشط', 'inactive' => 'غير نشط']" />
+                <x-filter.select col="col-md-6" id="filter-authorized-count" label="عدد المفوضين" placeholder="اختر عدد المفوضين"
+                    :options="['0' => 'بدون مفوضين', '1' => 'مفوض واحد', '2-5' => 'من 2 إلى 5 مفوضين', '6+' => 'أكثر من 5 مفوضين']" />
+            </x-data-table.filters>
+        </x-slot:filters>
 
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">الشركات غير النشطة</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $inactiveCompanies }}</h4>
-                            </div>
-                            <small class="mb-0">الشركات غير النشطة</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-danger">
-                                <i class="ti ti-ban ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">شركات أُضيفت مؤخرًا</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $recentCompanies }}</h4>
-                            </div>
-                            <small class="mb-0">خلال آخر 30 يوم</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-info">
-                                <i class="ti ti-calendar-stats ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <label for="filter-status" class="form-label">حالة الشركة</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر حالة الشركة">
-                        <option value=""></option>
-                        <option value="active">نشط</option>
-                        <option value="inactive">غير نشط</option>
-                    </select>
-                </div>
-
-                <div class="col-md-6">
-                    <label for="filter-authorized-count" class="form-label">عدد المفوضين</label>
-                    <select id="filter-authorized-count" class="form-control select2" data-placeholder="اختر عدد المفوضين">
-                        <option value=""></option>
-                        <option value="0">بدون مفوضين</option>
-                        <option value="1">مفوض واحد</option>
-                        <option value="2-5">من 2 إلى 5 مفوضين</option>
-                        <option value="6+">أكثر من 5 مفوضين</option>
-                    </select>
-                </div>
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card-body">
+        <x-slot:table>
             {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'companies-table'], false) !!}
-        </div>
-    </div>
+        </x-slot:table>
+    </x-data-table.page>
 @endsection

@@ -5,15 +5,20 @@
 
 'use strict';
 
+import { initializeTableStatusToggles } from '../../../shared/table-status-toggle';
+
 // متغيرات عامة
 let messageTemplatesTable;
 
 // تهيئة التطبيق
 $(document).ready(function () {
+  initializeTableStatusToggles();
   initializeComponents();
   initializeDataTable();
   bindEvents();
   loadStatistics();
+
+  document.addEventListener('table-status-toggled', loadStatistics);
 });
 
 /**
@@ -62,7 +67,6 @@ function initializeDataTable() {
       { data: 'category_label',  name: 'category' },
       // ملاحظة: إن كان السيرفر يعيد (channel_label) كبادج استخدمه، وإلا استخدم 'channel'
       { data: 'channel_label',   name: 'channel', defaultContent: '' },
-      { data: 'status',          name: 'is_active' },
       {
         data: 'creator_name',
         name: 'creator_name',
@@ -70,6 +74,7 @@ function initializeDataTable() {
         searchable: false
       },
       { data: 'created_at',      name: 'created_at' },
+      { data: 'status',          name: 'is_active' },
       {
         data: 'actions',
         name: 'actions',
@@ -78,8 +83,8 @@ function initializeDataTable() {
         className: 'text-center'
       }
     ],
-    // created_at بالعمود السابع (index=6)
-    order: [[6, 'desc']],
+    // created_at بالعمود السادس (index=5)
+    order: [[5, 'desc']],
     dom: getDom(),
     buttons: getButtons(),
     language: { url: window.assets.arabicDataTable },
@@ -170,44 +175,4 @@ function bindEvents() {
   });
 }
 
-/**
- * تبديل حالة القالب
- */
-function toggleTemplateStatus(templateId) {
-  const statusElement = event.target;
-
-  $.ajax({
-    url: window.routes.toggleStatus.replace(':id', templateId),
-    type: 'PATCH',
-    data: { _token: window.csrfToken },
-    success: function (response) {
-      if (response.success) {
-        updateStatusElement(statusElement, response.new_status);
-        toastr.success(response.message);
-        loadStatistics(); // تحديث الإحصائيات
-      } else {
-        toastr.error(response.message);
-      }
-    },
-    error: function () {
-      toastr.error('حدث خطأ أثناء تبديل الحالة');
-    }
-  });
-}
-
-/**
- * تحديث عنصر الحالة
- */
-function updateStatusElement(element, newStatus) {
-  if (newStatus) {
-    element.className = 'badge bg-label-success cursor-pointer';
-    element.textContent = 'نشط';
-  } else {
-    element.className = 'badge bg-label-danger cursor-pointer';
-    element.textContent = 'غير نشط';
-  }
-}
-
-// تصدير الدوال للاستخدام العام
-window.toggleTemplateStatus = toggleTemplateStatus;
 window.confirmDelete = confirmDelete;

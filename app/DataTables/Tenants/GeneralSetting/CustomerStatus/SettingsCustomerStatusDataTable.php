@@ -80,8 +80,8 @@ class SettingsCustomerStatusDataTable extends AbstractDataTable
                 'titleAttr' => 'تحديد الكل',
             ],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم الحالة', 'width' => '200px', 'className' => 'text-start'],
-            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'width' => '100px'],
             ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء', 'width' => '120px'],
+            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'width' => '100px', 'className' => 'text-center'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
@@ -102,9 +102,10 @@ class SettingsCustomerStatusDataTable extends AbstractDataTable
                 return '<span class="text-body fw-medium">' . $row->name . '</span>';
             })
             ->editColumn('status', function ($row) {
-                $statusClass = $row->status === 'active' ? 'bg-label-success' : 'bg-label-danger';
-                $statusText = $row->status === 'active' ? 'نشط' : 'غير نشط';
-                return '<span class="badge ' . $statusClass . ' cursor-pointer" onclick="toggleStatus(' . $row->id . ')">' . $statusText . '</span>';
+                $checked = $row->status === 'active' ? 'checked' : '';
+                $url = tenant_route_name('general-settings.settings-customer-status.toggleStatus', $row->id);
+
+                return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_' . $row->id . '" data-url="' . e($url) . '" ' . $checked . ' aria-label="تبديل حالة العميل"></div></div>';
             })
             ->editColumn('created_at', function ($row) {
                 return $row->created_at ? Carbon::parse($row->created_at)->format('Y-m-d') : '';

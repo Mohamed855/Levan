@@ -127,13 +127,13 @@ class CollectionTargetsDataTable extends AbstractDataTable
                 'className' => 'text-center',
                 'orderable' => false,
             ],
-            // [
-            //     'data' => 'status',
-            //     'name' => 'status',
-            //     'title' => 'الحالة',
-            //     'className' => 'text-center',
-            //     'width' => '90px'
-            // ],
+            [
+                'data' => 'status',
+                'name' => 'status',
+                'title' => 'الحالة',
+                'className' => 'text-center',
+                'width' => '90px',
+            ],
             [
                 'data' => 'actions',
                 'name' => 'actions',
@@ -262,12 +262,10 @@ class CollectionTargetsDataTable extends AbstractDataTable
 
 
             ->addColumn('status', function ($row) {
-                $statusTitle = $row->status === 'active' ? 'اضغط لتعطيل' : 'اضغط لتفعيل';
+                $checked = $row->status === 'active' ? 'checked' : '';
+                $url = tenant_route_name('financial-collections.collection-targets.toggle-status', $row->id);
 
-                return '<span class="badge ' . $row->status_class . ' cursor-pointer px-3 py-2"
-                          onclick="event.stopPropagation(); toggleStatus(' . $row->id . ')"
-                          title="' . $statusTitle . '">' .
-                    e($row->status_label) . '</span>';
+                return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_' . $row->id . '" data-url="' . e($url) . '" ' . $checked . ' aria-label="تبديل حالة هدف التحصيل"></div></div>';
             })
 
             ->addColumn('actions', function ($row) {
@@ -390,7 +388,7 @@ class CollectionTargetsDataTable extends AbstractDataTable
     */
     private function getAddButton(): array
     {
-        if (!auth()->user()?->can('إضافة هدف')) {
+        if (!auth()->user()?->can('collection_targets.create')) {
             return [];
         }
 

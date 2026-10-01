@@ -15,7 +15,7 @@
                 <hr class="dropdown-divider">
             </li>
 
-            @can('إعتماد تحصيل')
+            @can('collections.approve')
                 <li>
                     <a class="dropdown-item text-dark" href="#"
                         onclick="confirmApproveCollection({{ $id }})">
@@ -24,7 +24,7 @@
                 </li>
             @endcan
 
-            @can('رفض تحصيل')
+            @can('collections.reject')
                 <li>
                     <a class="dropdown-item text-dark" href="#" onclick="showRejectModal({{ $id }})">
                         <i class="ti ti-x me-2"></i>رفض
@@ -37,7 +37,7 @@
             </li>
         @endif
 
-        @can('حذف تحصيل')
+        @can('admin_collections.delete_selected')
             <li>
                 <a class="dropdown-item text-dark" href="#" onclick="confirmDelete({{ $id }})">
                     <i class="ti ti-trash me-2"></i>حذف

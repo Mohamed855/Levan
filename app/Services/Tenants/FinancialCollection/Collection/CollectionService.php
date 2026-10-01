@@ -440,7 +440,7 @@ class CollectionService
     public function canUserViewCollection(Collection $collection, int $userId): bool
     {
         // يمكن للمستخدم عرض تحصيلاته، أو للمدير عرض أي تحصيل
-        return $collection->added_by === $userId || auth()->user()->can('قائمة تحصيلات المستخدمين');
+        return $collection->added_by === $userId || auth()->user()->can('admin_collections.view');
     }
 
     /*
@@ -674,11 +674,11 @@ class CollectionService
     {
         $query = Customer::select('id', 'name', 'phone', 'account_number');
 
-        if (auth()->user()->can('العملاء')) {
+        if (auth()->user()->can('customers.view')) {
             return $query->orderBy('account_number')->get();
         }
 
-        if (auth()->user()->can('عملائي')) {
+        if (auth()->user()->can('customers.my_view')) {
             return $query->where('relationship_manager_id', auth()->id())
                 ->orderBy('account_number')
                 ->get();
@@ -1062,8 +1062,8 @@ class CollectionService
     {
         $query = Customer::select('id', 'name', 'account_number', 'phone');
 
-        if (auth()->user()->can('العملاء')) {
-        } elseif (auth()->user()->can('عملائي')) {
+        if (auth()->user()->can('customers.view')) {
+        } elseif (auth()->user()->can('customers.my_view')) {
             $query->where('relationship_manager_id', auth()->id());
         } else {
             return [];
@@ -1103,8 +1103,8 @@ class CollectionService
             return null;
         }
         if (
-            !auth()->user()->can('العملاء') &&
-            auth()->user()->can('عملائي') &&
+            !auth()->user()->can('customers.view') &&
+            auth()->user()->can('customers.my_view') &&
             $customer->relationship_manager_id !== auth()->id()
         ) {
             return null;
@@ -1127,9 +1127,9 @@ class CollectionService
     {
         $query = Customer::select('id', 'name', 'account_number', 'phone');
 
-        if (!auth()->user()->can('العملاء') && auth()->user()->can('عملائي')) {
+        if (!auth()->user()->can('customers.view') && auth()->user()->can('customers.my_view')) {
             $query->where('relationship_manager_id', auth()->id());
-        } elseif (!auth()->user()->can('العملاء')) {
+        } elseif (!auth()->user()->can('customers.view')) {
             return [];
         }
 

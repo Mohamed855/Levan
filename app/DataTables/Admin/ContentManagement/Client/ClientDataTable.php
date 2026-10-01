@@ -41,8 +41,8 @@ class ClientDataTable extends AbstractDataTable
             ],
             ['data' => 'name',     'name' => 'name',   'title' => 'اسم العميل',   'className' => 'text-start'],
             ['data' => 'logo',     'name' => 'logo',   'title' => 'الشعار',          'className' => 'text-start'],
-            ['data' => 'status',         'name' => 'status',          'title' => 'الحالة',],
             ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء', 'className' => 'text-start'],
+            ['data' => 'status',         'name' => 'status',          'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'actions',           'name' => 'actions',            'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
@@ -74,16 +74,10 @@ class ClientDataTable extends AbstractDataTable
             })
 
             ->editColumn('status', function ($row) {
-                $badgeClass = $row->status ? 'bg-success' : 'bg-danger';
-                $badgeText = $row->status ? 'نشط' : 'غير نشط';
-                
-                return sprintf(
-                    '<span class="status-badge badge %s" data-id="%d" data-name="%s" style="cursor: pointer; padding: 6px 12px; font-weight: 600; user-select: none;" title="اضغط لتغيير الحالة">%s</span>',
-                    $badgeClass,
-                    $row->id,
-                    htmlspecialchars($row->name),
-                    $badgeText
-                );
+                $checked = $row->status ? 'checked' : '';
+                $url = route('admin.content_management.client.toggle-status', $row->id);
+
+                return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_' . $row->id . '" data-url="' . e($url) . '" ' . $checked . ' aria-label="تبديل حالة العميل"></div></div>';
             })
 
             ->editColumn('created_at', function ($row) {

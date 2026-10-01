@@ -19,6 +19,7 @@
 @endsection
 
 @section('page-script')
+    @vite(['resources/assets/js/tenants/general-settings/common-status-toggle.js'])
     <script>
         $(document).ready(function() {
             // تهيئة Select2
@@ -53,11 +54,11 @@
                     data: 'name',
                     name: 'name'
                 }, {
-                    data: 'status',
-                    name: 'status'
-                }, {
                     data: 'created_at',
                     name: 'created_at'
+                }, {
+                    data: 'status',
+                    name: 'status'
                 }, {
                     data: 'action',
                     name: 'action',
@@ -65,7 +66,7 @@
                     searchable: false
                 }],
                 order: [
-                    [3, 'desc']
+                    [2, 'desc']
                 ],
                 dom: '<"dt-toolbar mb-3"' +
                     '<"dt-toolbar-left"' +
@@ -262,34 +263,5 @@
             $('#editSectionModal').modal('show');
         });
 
-
-        // التعامل مع تغيير الحالة عند النقر على الشارة
-        $(document).on('click', '.status-toggle', function() {
-            var badge = $(this);
-            var id = badge.data('id');
-
-            $.ajax({
-                url: "{{ tenant_route_name($route . '.edit', ':id') }}".replace(':id', id),
-                method: 'get',
-                data: {
-                    _token: '{{ csrf_token() }}'
-                },
-                success: function(response) {
-                    if (response.success) {
-                        if (response.status === 'active') {
-                            badge.removeClass('bg-danger').addClass('bg-success').text('نشط');
-                        } else if (response.status === 'inactive') {
-                            badge.removeClass('bg-success').addClass('bg-danger').text('غير نشط');
-                        }
-                        toastr.success('تم تغيير الحالة بنجاح.');
-                    } else {
-                        toastr.error('فشل في تغيير الحالة.');
-                    }
-                },
-                error: function(xhr) {
-                    toastr.error('حدث خطأ أثناء تغيير الحالة.');
-                }
-            });
-        });
     </script>
 @endsection

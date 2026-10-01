@@ -380,7 +380,7 @@
                                 <tr>
                                     <th class="border-0 py-1" style="font-size: 0.75rem;">رقم الهاتف</th>
                                     <th class="border-0 py-1" style="font-size: 0.75rem;">النوع</th>
-                                    @can('إضافة رقم هاتف')
+                                    @can('customers.add_phone')
                                         <th class="border-0 py-1 text-center" style="font-size: 0.75rem;">الإجراءات</th>
                                     @endcan
                                 </tr>
@@ -399,7 +399,7 @@
                                                 أساسي
                                             </span>
                                         </td>
-                                        @can('إضافة رقم هاتف')
+                                        @can('customers.add_phone')
                                             <td class="py-1 text-center">
                                                 <span class="text-muted" style="font-size: 0.7rem;">الأساسي</span>
                                             </td>
@@ -421,7 +421,7 @@
                                                 <span class="badge bg-info" style="font-size: 0.65rem;">إضافي</span>
                                             @endif
                                         </td>
-                                        @can('إضافة رقم هاتف')
+                                    @can('customers.add_phone')
                                             <td class="py-1 text-center">
                                                 @if (!$phone->is_primary)
                                                     <button type="button" class="btn btn-xs set-primary-phone-btn"

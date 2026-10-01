@@ -7,9 +7,13 @@
 
 'use strict';
 
+import { initializeTableStatusToggles } from '../../../shared/table-status-toggle';
+
 let customerStatusDataTable = null;
 
 $(function () {
+    initializeTableStatusToggles();
+
     $('#customer-status-table').on('init.dt', function () {
         customerStatusDataTable = $(this).DataTable();
         initializeCheckboxHandlers();
@@ -169,38 +173,6 @@ $(function () {
         $(this).addClass('was-validated');
     });
 });
-
-/**
- * Toggles the status of a customer status item.
- * @param {string} statusId - The ID of the customer status to toggle.
- */
-function toggleStatus(statusId) {
-    const url = window.routes.toggleStatus.replace(':id', statusId);
-    const statusBadge = $(`.badge[onclick="toggleStatus(${statusId})"]`);
-
-    $.ajax({
-        url: url,
-        type: 'PATCH',
-        data: { _token: window.csrfToken },
-        success: function (response) {
-            if (response.success) {
-                if (statusBadge.length) {
-                    if (response.status === 'active') {
-                        statusBadge.removeClass('bg-label-danger').addClass('bg-label-success').text('نشط');
-                    } else {
-                        statusBadge.removeClass('bg-label-success').addClass('bg-label-danger').text('غير نشط');
-                    }
-                }
-                if (typeof toastr !== 'undefined') toastr.success('تم تغيير الحالة بنجاح');
-            } else {
-                if (typeof toastr !== 'undefined') toastr.error(response.message || 'فشل في تغيير الحالة');
-            }
-        },
-        error: function () {
-            if (typeof toastr !== 'undefined') toastr.error('حدث خطأ أثناء تغيير الحالة');
-        }
-    });
-}
 
 /**
  * Handles mass deletion of selected customer status items.

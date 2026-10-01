@@ -281,7 +281,7 @@ class ArchivedCustomersDataTable extends AbstractDataTable
             ['extend' => 'excel', 'text' => 'إكسل'],
         ];
 
-        if (auth()->user()?->can('إسترجاع السجلات')) {
+        if (auth()->user()?->can('customers_archive.restore')) {
             $buttons[] = [
                 'text'      => 'استرجاع المحدد',
                 'className' => 'btn btn-default btn-restore-selected',
@@ -289,7 +289,7 @@ class ArchivedCustomersDataTable extends AbstractDataTable
             ];
         }
 
-        if (auth()->user()?->can('حذف نهائي للسجلات')) {
+        if (auth()->user()?->can('customers_archive.force_delete')) {
             $buttons[] = [
                 'text'      => 'حذف نهائي للمحدد',
                 'className' => 'btn btn-default btn-force-delete-selected',
@@ -332,4 +332,3 @@ class ArchivedCustomersDataTable extends AbstractDataTable
           </ul>';
     }
 }
-

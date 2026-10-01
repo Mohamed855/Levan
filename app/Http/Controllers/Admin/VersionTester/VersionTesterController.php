@@ -10,6 +10,7 @@ use App\Enums\Admin\Version\VersionTesterType;
 use App\Http\Requests\Admin\VersionTesters\VersionTesterRequest;
 use App\Services\Admin\VersionTesters\VersionTestersService;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 
 class VersionTesterController extends Controller
@@ -24,7 +25,7 @@ class VersionTesterController extends Controller
         $this->middleware('auth:admin');
         $this->middleware('can:version_testers.view')->only(['index']);
         $this->middleware('can:version_testers.create')->only(['create', 'store']);
-        $this->middleware('can:version_testers.edit')->only(['edit', 'update']);
+        $this->middleware('can:version_testers.edit')->only(['edit', 'update', 'toggleStatus']);
         $this->middleware('can:version_testers.delete')->only(['destroy']);
     }
 
@@ -89,6 +90,16 @@ class VersionTesterController extends Controller
         $this->versionTestersService->update($versionTester, $request->validated());
 
         return redirect()->route($this->route . '.index')->with('success', 'تم تحديث العميل  بنجاح');
+    }
+
+    public function toggleStatus(VersionTester $versionTester): JsonResponse
+    {
+        $versionTester->update(['is_active' => ! $versionTester->is_active]);
+
+        return response()->json([
+            'success' => true,
+            'message' => $versionTester->is_active ? 'تم تفعيل المختبر بنجاح' : 'تم تعطيل المختبر بنجاح',
+        ]);
     }
 
 

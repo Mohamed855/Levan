@@ -171,7 +171,7 @@ class CollectionSessionsDataTable extends AbstractDataTable
             return $user->teamMemberIds();
         }
 
-        if ($user->can('لوحة تحكم الإدارة')) {
+        if ($user->can('dashboard.view')) {
             return null;
         }
 

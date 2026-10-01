@@ -245,7 +245,7 @@ class CustomerUpdateRequestService
     */
     public function canUpdateDirectly(User $user): bool
     {
-        return $user->can('تحديث مباشر للبيانات');
+        return $user->can('customers.update_directly');
     }
 
     /*

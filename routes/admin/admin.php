@@ -48,10 +48,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::prefix('banks')->name('banks.')->group(function () {
         Route::resource('/', SettingsBankController::class)->except('show')->parameters(['' => 'bank']);
+        Route::patch('{bank}/toggle-status', [SettingsBankController::class, 'toggleStatus'])->name('toggle-status');
         });
 
         Route::prefix('domains')->name('domains.')->group(function () {
         Route::resource('/', SettingsDomainController::class)->except('show')->parameters(['' => 'domain']);
+        Route::patch('{domain}/toggle-status', [SettingsDomainController::class, 'toggleStatus'])->name('toggle-status');
         });
 
         // اعدادات النظاام
@@ -199,11 +201,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
     // Versions Routes
     Route::prefix('versions')->name('versions.')->group(function () {
         Route::resource('/', VersionController::class)->parameters(['' => 'version']);
+        Route::patch('{version}/toggle-status', [VersionController::class, 'toggleStatus'])->name('toggle-status');
     });
 
     // Versions Tester Routes
     Route::prefix('version_testers')->name('version_testers.')->group(function () {
         Route::resource('/', VersionTesterController::class)->except('show')->parameters(['' => 'version_tester']);
+        Route::patch('{version_tester}/toggle-status', [VersionTesterController::class, 'toggleStatus'])->name('toggle-status');
     });
     Route::name('mass-delete')->post('/mass-delete', [MassDeleteController::class, 'massDelete']);
 

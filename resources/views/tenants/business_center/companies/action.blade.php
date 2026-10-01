@@ -1,17 +1,4 @@
-<div class="d-flex justify-content-center">
-    @can('تعديل شركة')
-        <a href="{{ tenant_route_name($route . '.edit', $id) }}" class="btn btn-sm text-secondary" title="تعديل الشركة">
-            <i class="ti ti-edit"></i>
-        </a>
-    @endcan
-    @can('حذف شركة')
-        <button type="button" class="btn btn-sm text-secondary js-delete-btn" data-id="{{ $id }}">
-            <i class="ti ti-trash"></i>
-        </button>
-        <form id="delete-form-{{ $id }}" action="{{ tenant_route_name($route . '.destroy', $id) }}" method="POST"
-            style="display: none;">
-            @csrf
-            @method('DELETE')
-        </form>
-    @endcan
-</div>
+<x-actions.row class="justify-content-center">
+    <x-actions.edit :url="tenant_route_name($route . '.edit', $id)" title="تعديل الشركة" permission="companies.edit" class="btn-sm text-secondary" />
+    <x-actions.delete :id="$id" :url="tenant_route_name($route . '.destroy', $id)" title="حذف الشركة" permission="companies.delete" class="btn-sm text-secondary" />
+</x-actions.row>

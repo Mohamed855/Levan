@@ -1,6 +1,9 @@
 'use strict';
 
+import { initializeTableStatusToggles } from '../../shared/table-status-toggle';
+
 $(document).ready(function () {
+    initializeTableStatusToggles();
     initializeComponents();
 
     $('#portfolio-table').on('init.dt', function () {
@@ -42,47 +45,6 @@ function bindTableEvents() {
         }
     });
 
-    // ==================== STATUS BADGE CLICK ====================
-    tableWrapper.on('click', '.status-badge', function () {
-        const $badge = $(this);
-        const portfolioId = $badge.data('id');
-        const portfolioName = $badge.data('name');
-
-        $badge.css('opacity', '0.6').css('cursor', 'not-allowed');
-        const originalBadgeClass = $badge.attr('class');
-        const originalBadgeHTML = $badge.html();
-
-        $.ajax({
-            url: `/admin/content-management/portfolio/${portfolioId}/toggle-status`,
-            method: 'PATCH',
-            dataType: 'json',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function (response) {
-                if (response.success) {
-                    $badge.removeClass('bg-success bg-danger');
-                    $badge.addClass(response.status ? 'bg-success' : 'bg-danger');
-                    $badge.html(response.status ? 'نشط' : 'غير نشط');
-
-                    toastr.success(response.message, portfolioName);
-                } else {
-                    $badge.attr('class', originalBadgeClass);
-                    $badge.html(originalBadgeHTML);
-                    toastr.error(response.message, 'خطأ');
-                }
-            },
-            error: function (xhr) {
-                $badge.attr('class', originalBadgeClass);
-                $badge.html(originalBadgeHTML);
-                const errorMsg = xhr.responseJSON?.message || 'حدث خطأ أثناء التحديث';
-                toastr.error(errorMsg, 'خطأ');
-            },
-            complete: function () {
-                $badge.css('opacity', '1').css('cursor', 'pointer');
-            }
-        });
-    });
 }
 
 function handleMassDelete() {
@@ -100,4 +62,3 @@ function handleMassDelete() {
 }
 
 window.handleMassDelete = handleMassDelete;
-

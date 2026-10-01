@@ -26,21 +26,11 @@ trait CommonSettingController
                     ->addColumn('checkbox', function ($row) {
                         return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
                     })
-                    ->addColumn('status', function ($row) {
+                    ->addColumn('status', function ($row) use ($route) {
+                        $checked = $row->status === 'active' ? 'checked' : '';
+                        $url = tenant_route_name($route . '.toggle-status', $row->id);
 
-
-                        switch ($row->status) {
-                            case 'active':
-                                return
-                                    '<span class="cursor-pointer badge bg-success status-toggle" data-id="' . $row->id . '">نشط</span>';
-
-                            case 'inactive':
-                                return
-                                    '<span class="cursor-pointer badge bg-danger status-toggle" data-id="' . $row->id . '">غير نشط</span>';
-
-                            default:
-                                return '<span class="badge bg-secondary">غير معروف</span>';
-                        }
+                        return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_' . $row->id . '" data-url="' . e($url) . '" ' . $checked . ' aria-label="تبديل الحالة"></div></div>';
                     })
                     ->addColumn('action', function ($row) use ($route) {
 

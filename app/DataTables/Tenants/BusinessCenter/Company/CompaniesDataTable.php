@@ -81,8 +81,8 @@ class CompaniesDataTable extends AbstractDataTable
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم الشركة', 'width' => '200px', 'className' => 'text-start'],
             ['data' => 'authorized_people_count', 'name' => 'authorized_people_count', 'title' => 'عدد المفوضين', 'width' => '100px'],
             ['data' => 'current_target_percentage', 'name' => 'current_target_percentage', 'title' => 'نسبة المستهدف الشهري', 'width' => '100px', 'orderable' => false, 'searchable' => false],
-            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'width' => '100px'],
             ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإضافة', 'width' => '120px'],
+            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'width' => '100px', 'className' => 'text-center'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
@@ -113,22 +113,18 @@ class CompaniesDataTable extends AbstractDataTable
                 return '<span class="badge bg-label-info">' . ($row->authorized_people_count ?? 0) . '</span>';
             })
             ->editColumn('status', function ($row) {
+                $canEdit = auth()->user()?->can('companies.edit');
+                if ($canEdit) {
+                    $checked = $row->status === 'active' ? 'checked' : '';
+                    $url = tenant_route_name('companies.toggle-status', $row->id);
+
+                    return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_' . $row->id . '" data-url="' . e($url) . '" ' . $checked . ' aria-label="تبديل حالة الشركة"></div></div>';
+                }
+
                 $statusClass = $row->status === 'active' ? 'bg-label-success' : 'bg-label-danger';
                 $statusText = $row->status === 'active' ? 'نشط' : 'غير نشط';
-                $canEdit = auth()->user()?->can('تعديل شركة');
-                if ($canEdit) {
-                    return '<span class="badge ' . $statusClass . ' cursor-pointer js-toggle-btn"
-                      data-id="' . $row->id . '"
-                      data-url="' . tenant_route_name('companies.toggle-status', $row->id) . '"
-                      title="اضغط لتبديل الحالة">
-                    ' . $statusText . '
-                </span>';
-                } else {
-                    return '<span class="badge ' . $statusClass . '"
-                      title="للقراءة فقط">
-                    ' . $statusText . '
-                </span>';
-                }
+
+                return '<span class="badge ' . $statusClass . '" title="للقراءة فقط">' . $statusText . '</span>';
             })
             ->editColumn('current_target_percentage', function ($row) {
                 return $row->current_target_percentage !== null ? $row->current_target_percentage . '%' : 'غير محدد';
@@ -228,7 +224,7 @@ class CompaniesDataTable extends AbstractDataTable
             ['extend' => 'excel', 'text' => 'إكسل'],
         ];
 
-        if (auth()->user()?->can('حذف هدف')) {
+        if (auth()->user()?->can('companies.delete')) {
             $buttons[] = [
                 'text'      => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
@@ -252,7 +248,7 @@ class CompaniesDataTable extends AbstractDataTable
     */
     private function getAddButton(): array
     {
-        if (!auth()->user()?->can('إضافة شركة')) {
+        if (!auth()->user()?->can('companies.create')) {
             return [];
         }
 

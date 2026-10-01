@@ -9,7 +9,7 @@
         @if($row->status ===
         \App\Models\Tenants\BusinessCenter\Customers\UpdateRequest\CustomerUpdateRequest::STATUS_PENDING)
 
-        @can('اعتماد طلب تحديث')
+        @can('customer_update_requests.approve')
         <li>
             <a class="dropdown-item d-flex align-items-center py-1 px-2 js-approve-request-btn" href="#"
                 data-id="{{ $row->id }}">
@@ -19,7 +19,7 @@
         </li>
         @endcan
 
-        @can('رفض طلب تحديث')
+        @can('customer_update_requests.reject')
         <li>
             <a class="dropdown-item d-flex align-items-center py-1 px-2 js-reject-request-btn" href="#"
                 data-id="{{ $row->id }}">
@@ -29,7 +29,7 @@
         </li>
         @endcan
 
-        @if(auth()->user()->can('اعتماد طلب تحديث') || auth()->user()->can('رفض طلب تحديث') || auth()->user()->can('طلبات تحديث البيانات'))
+        @if(auth()->user()->can('customer_update_requests.approve') || auth()->user()->can('customer_update_requests.reject') || auth()->user()->can('customer_update_requests.view'))
         <li>
             <hr class="dropdown-divider my-1">
         </li>
@@ -37,7 +37,7 @@
 
         @endif
 
-        @can('طلبات تحديث البيانات')
+        @can('customer_update_requests.view')
         <li>
             <a class="dropdown-item d-flex align-items-center py-1 px-2 js-view-request-btn" href="#"
                 data-id="{{ $row->id }}">

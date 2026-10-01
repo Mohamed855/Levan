@@ -39,7 +39,7 @@ class CustomerPhoneRequestService
     */
     public function canUpdateDirectly(): bool
     {
-        return Auth::user()->can('تحديث مباشر للبيانات');
+        return Auth::user()->can('customers.update_directly');
     }
 
     /*

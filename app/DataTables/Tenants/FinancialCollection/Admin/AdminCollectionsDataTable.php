@@ -417,21 +417,21 @@ class AdminCollectionsDataTable extends AbstractDataTable
         ];
         // }
 
-        if (Auth::user()->can('إعتماد الكل')) {
+        if (Auth::user()->can('admin_collections.approve_all')) {
             $buttons[0]['buttons'][] = [
                 'text' => 'اعتماد المحدد',
                 'action' => "function() { handleMassApprove(); }"
             ];
         }
 
-        if (Auth::user()->can('رفض الكل')) {
+        if (Auth::user()->can('admin_collections.reject_all')) {
             $buttons[0]['buttons'][] = [
                 'text' => 'رفض المحدد',
                 'action' => "function() { handleMassReject(); }"
             ];
         }
 
-        if (Auth::user()->can('حذف المحدد')) {
+        if (Auth::user()->can('admin_collections.delete_selected')) {
             $buttons[0]['buttons'][] = [
                 'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',

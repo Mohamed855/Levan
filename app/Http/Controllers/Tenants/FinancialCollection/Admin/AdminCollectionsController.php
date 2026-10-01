@@ -28,12 +28,12 @@ class AdminCollectionsController extends Controller
         $this->collectionService = $collectionService;
 
         $this->middleware('can:admin_collections.view')->only(['index', 'show']);
-        $this->middleware('can:إعتماد تحصيل')->only(['approve']);
-        $this->middleware('can:رفض تحصيل')->only(['reject']);
-        $this->middleware('can:إعتماد الكل')->only(['approveSelected']);
-        $this->middleware('can:رفض الكل')->only(['rejectSelected']);
-        $this->middleware('can:حذف المحدد')->only(['deleteSelected']);
-        $this->middleware('can:استيراد التحصيلات')->only(['import', 'importStore']);
+        $this->middleware('can:collections.approve')->only(['approve']);
+        $this->middleware('can:collections.reject')->only(['reject']);
+        $this->middleware('can:admin_collections.approve_all')->only(['approveSelected']);
+        $this->middleware('can:admin_collections.reject_all')->only(['rejectSelected']);
+        $this->middleware('can:admin_collections.delete_selected')->only(['deleteSelected']);
+        $this->middleware('can:admin_collections.import')->only(['import', 'importStore']);
     }
 
     /*

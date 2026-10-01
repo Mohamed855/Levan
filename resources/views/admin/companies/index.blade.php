@@ -20,18 +20,10 @@
 @endsection
 
 @section('content')
-    @if ($errors->any())
-        <div class="alert alert-danger mb-4">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    <x-ui.validation-errors class="mb-4" />
 
-    {{-- Dashboard Cards --}}
-    <div class="row g-4 mb-4">
+    <x-data-table.page table-id="companies-table">
+        <x-slot:stats>
         <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="إجمالي الشركات" :value="$totalCompanies ?? 0"
             subtitle="جميع الشركات المسجلة" icon="ti-building" color="primary" />
 
@@ -43,12 +35,10 @@
 
         <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="بانتظار التفعيل" :value="$pendingCompanies ?? 0"
             subtitle="شركات جديدة بانتظار الاعتماد" icon="ti-clock-pause" color="warning" />
-    </div>
+        </x-slot:stats>
 
-    {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
+        <x-slot:filters>
+            <x-data-table.filters>
                 <x-filter.select col="col-md-3" id="filter-status" label="حالة الشركة"
                     placeholder="اختر حالة الشركة" :options="$filterOptions['statuses'] ?? []" />
                 <x-filter.select col="col-md-3" id="filter-sub-status" label="حالة آخر اشتراك"
@@ -59,20 +49,13 @@
                     placeholder="اختر المدينة" :options="$filterOptions['cities'] ?? []" />
                 <x-filter.select col="col-md-2" id="filter-expiring" label="انتهاء الاشتراك"
                     placeholder="انتهاء الاشتراك" :options="$filterOptions['expiring'] ?? []" />
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
-        </div>
-    </div>
+            </x-data-table.filters>
+        </x-slot:filters>
 
-    <div class="card">
-        <div class="card-body">
+        <x-slot:table>
             {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'companies-table'], false) !!}
-        </div>
-    </div>
+        </x-slot:table>
+    </x-data-table.page>
 @endsection
 
 @push('scripts')

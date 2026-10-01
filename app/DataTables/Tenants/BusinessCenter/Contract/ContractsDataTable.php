@@ -109,21 +109,16 @@ class ContractsDataTable extends AbstractDataTable
                 return '<span class="text-muted">' . $row->formatted_end_date . '</span>';
             })
             ->editColumn('status', function ($row) {
-                $canEdit = auth()->user()?->can('تعديل عقد');
+                $canEdit = auth()->user()?->can('contracts.edit');
 
                 if ($canEdit) {
-                    return '<span class="badge ' . $row->status_class . ' cursor-pointer js-toggle-btn"
-                      data-id="' . $row->id . '"
-                      data-url="' . tenant_route_name('contracts.toggle-status', $row->id) . '"
-                      title="اضغط لتبديل الحالة">
-                    ' . $row->status_label . '
-                   </span>';
-                } else {
-                    return '<span class="badge ' . $row->status_class . '" 
-                      title="للقراءة فقط">
-                    ' . $row->status_label . '
-                </span>';
+                    $checked = $row->status === 'active' ? 'checked' : '';
+                    $url = tenant_route_name('contracts.toggle-status', $row->id);
+
+                    return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_' . $row->id . '" data-url="' . e($url) . '" ' . $checked . ' aria-label="تبديل حالة العقد"></div></div>';
                 }
+
+                return '<span class="badge ' . $row->status_class . '" title="للقراءة فقط">' . $row->status_label . '</span>';
             })
             ->addColumn('actions', function ($row) {
                 return view('tenants.business_center.contracts.action', ['id' => $row->id, 'route' => $this->route])->render();
@@ -203,7 +198,7 @@ class ContractsDataTable extends AbstractDataTable
             ],
         ];
 
-        if (auth()->user()?->can('حذف عقد')) {
+        if (auth()->user()?->can('contracts.delete')) {
             $buttons[] = [
                 'text'      => 'حذف المحدد',
                 'className' => 'dropdown-item',
@@ -226,7 +221,7 @@ class ContractsDataTable extends AbstractDataTable
     */
     private function getAddButton(): array
     {
-        if (!auth()->user()?->can('إضافة عقد')) {
+        if (!auth()->user()?->can('contracts.create')) {
             return [];
         }
 

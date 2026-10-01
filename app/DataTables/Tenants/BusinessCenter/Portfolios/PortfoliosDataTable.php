@@ -71,8 +71,8 @@ class PortfoliosDataTable extends AbstractDataTable
             ['data' => 'company_name', 'name' => 'company.name', 'title' => 'اسم الشركة', 'orderable' => false, 'searchable' => false],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم المحفظة'],
             ['data' => 'assignment_date', 'name' => 'assignment_date', 'title' => 'تاريخ الإسناد'],
-            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة'],
             ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإضافة'],
+            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'action', 'name' => 'action', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false],
         ];
     }
@@ -97,21 +97,16 @@ class PortfoliosDataTable extends AbstractDataTable
             })
             ->editColumn('assignment_date', fn($row) => $row->assignment_date ? Carbon::parse($row->assignment_date)->format('Y-m-d') : '<span class="text-muted">لم يتم الإسناد	</span>')
             ->editColumn('status', function (Portfolio $portfolio) {
-                $canEdit = auth()->user()?->can('تعديل محفظة');
+                $canEdit = auth()->user()?->can('portfolios.edit');
 
                 if ($canEdit) {
-                    return '<span class="badge ' . $portfolio->status_class . ' cursor-pointer js-toggle-btn"
-                      data-id="' . $portfolio->id . '"
-                      data-url="' . tenant_route_name('portfolios.toggle-status', $portfolio->id) . '"
-                      title="اضغط لتبديل الحالة">
-                    ' . $portfolio->status_label . '
-                </span>';
-                } else {
-                    return '<span class="badge ' . $portfolio->status_class . '" 
-                      title="للقراءة فقط">
-                    ' . $portfolio->status_label . '
-                </span>';
+                    $checked = $portfolio->status === 'active' ? 'checked' : '';
+                    $url = tenant_route_name('portfolios.toggle-status', $portfolio->id);
+
+                    return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_' . $portfolio->id . '" data-url="' . e($url) . '" ' . $checked . ' aria-label="تبديل حالة المحفظة"></div></div>';
                 }
+
+                return '<span class="badge ' . $portfolio->status_class . '" title="للقراءة فقط">' . $portfolio->status_label . '</span>';
             })
             ->editColumn('created_at', fn($row) => Carbon::parse($row->created_at)->format('Y-m-d'))
             ->addColumn('action', fn($row) => view('tenants.business_center.portfolios.action', ['id' => $row->id, 'route' => $this->route])->render());
@@ -166,7 +161,7 @@ class PortfoliosDataTable extends AbstractDataTable
             ['extend' => 'excel', 'text' => 'إكسل'],
         ];
 
-        if (auth()->user()?->can('حذف محفظة')) {
+        if (auth()->user()?->can('portfolios.delete')) {
             $buttons[] = [
                 'text' => 'حذف المحدد',
                 'action' => "function() { handleMassDelete(); }"
@@ -184,7 +179,7 @@ class PortfoliosDataTable extends AbstractDataTable
 
     private function getAddButton(): array
     {
-        if (!auth()->user()?->can('إضافة محفظة')) {
+        if (!auth()->user()?->can('portfolios.create')) {
             return [];
         }
 

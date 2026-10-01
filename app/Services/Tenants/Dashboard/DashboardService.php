@@ -191,7 +191,7 @@ class DashboardService
     {
         $user = Auth::user();
 
-        if ($user->can('لوحة تحكم الإدارة') && !$user->canManageTeam()) {
+        if ($user->can('dashboard.view') && !$user->canManageTeam()) {
             return null;
         }
 

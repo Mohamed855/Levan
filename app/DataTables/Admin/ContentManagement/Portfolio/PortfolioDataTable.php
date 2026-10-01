@@ -40,8 +40,8 @@ class PortfolioDataTable extends AbstractDataTable
 
             ['data' => 'name',       'name' => 'name',       'title' => 'اسم المحفظة',     'className' => 'text-start'],
             ['data' => 'logo',       'name' => 'logo',       'title' => 'الشعار',          'className' => 'text-start'],
-            ['data' => 'status',     'name' => 'status',     'title' => 'الحالة'],
             ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء',  'className' => 'text-start'],
+            ['data' => 'status',     'name' => 'status',     'title' => 'الحالة', 'className' => 'text-center'],
 
             [
                 'data'       => 'actions',
@@ -69,16 +69,10 @@ class PortfolioDataTable extends AbstractDataTable
             })
 
             ->editColumn('status', function ($row) {
-                $badgeClass = $row->status ? 'bg-success' : 'bg-danger';
-                $badgeText  = $row->status ? 'نشط' : 'غير نشط';
+                $checked = $row->status ? 'checked' : '';
+                $url = route('admin.content_management.portfolio.toggle-status', $row->id);
 
-                return sprintf(
-                    '<span class="status-badge badge %s" data-id="%d" data-name="%s" style="cursor:pointer; padding:6px 12px; font-weight:600;" title="اضغط لتغيير الحالة">%s</span>',
-                    $badgeClass,
-                    $row->id,
-                    htmlspecialchars($row->name),
-                    $badgeText
-                );
+                return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_' . $row->id . '" data-url="' . e($url) . '" ' . $checked . ' aria-label="تبديل حالة المحفظة"></div></div>';
             })
 
             ->editColumn('created_at', function ($row) {

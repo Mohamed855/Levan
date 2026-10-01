@@ -1,12 +1,12 @@
 <div class="d-flex justify-content-center">
-    @can('إسترجاع السجلات')
+    @can('companies_archive.restore')
     <button title="استرجاع الشركة" type="button" onclick="confirmRestore({{ $id }})"
         class="btn btn-sm btn-icon btn-text-success me-1">
         <i class="ti ti-refresh"></i>
     </button>
     @endcan
 
-    @can('حذف نهائي للسجلات')
+    @can('companies_archive.force_delete')
     <button title="حذف نهائي" type="button" onclick="confirmForceDelete({{ $id }})"
         class="btn btn-sm btn-icon btn-text-danger">
         <i class="ti ti-trash-x"></i>

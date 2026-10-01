@@ -75,8 +75,8 @@ class CustomerFollowController extends Controller
                 $canEdit = !in_array($follow->collection->status, ['approved', 'rejected']);
             }
 
-            $hasEditButton = $canEdit && auth()->user()->can('تعديل متابعة');
-            $hasDeleteButton = auth()->user()->can('حذف متابعة');
+            $hasEditButton = $canEdit && auth()->user()->can('customer_follows.edit');
+            $hasDeleteButton = auth()->user()->can('customer_follows.delete');
 
             if ($hasEditButton || $hasDeleteButton) {
                 return true;
@@ -362,13 +362,13 @@ class CustomerFollowController extends Controller
                 ->addColumn('actions', function ($follow) use ($customer) {
                     $actions = '';
 
-                    if (auth()->user()->can('تعديل متابعة')) {
+                    if (auth()->user()->can('customer_follows.edit')) {
                         $actions .= '<button type="button" class="btn btn-sm btn-icon btn-outline-primary me-1" onclick="editCustomerFollow(' . $follow->id . ')" title="تعديل">
                            <i class="ti ti-edit"></i>
                        </button>';
                     }
 
-                    if (auth()->user()->can('حذف متابعة')) {
+                    if (auth()->user()->can('customer_follows.delete')) {
                         $actions .= '<button type="button" class="btn btn-sm btn-icon btn-outline-danger" onclick="deleteCustomerFollow(' . $follow->id . ')" title="حذف">
                            <i class="ti ti-trash"></i>
                        </button>';

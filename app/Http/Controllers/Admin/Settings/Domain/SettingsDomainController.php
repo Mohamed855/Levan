@@ -6,6 +6,7 @@ use App\DataTables\Admin\Setting\SettingDomainDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\ControlDomain\ControlDomain;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 
 class SettingsDomainController extends Controller
@@ -72,6 +73,16 @@ class SettingsDomainController extends Controller
         $domain->update($request->only('domain_extension', 'price'));
 
         return redirect()->route('admin.settings.domains.index')->with('success', 'تم التعديل بنجاح');
+    }
+
+    public function toggleStatus(ControlDomain $domain): JsonResponse
+    {
+        $domain->update(['is_active' => ! $domain->is_active]);
+
+        return response()->json([
+            'success' => true,
+            'message' => $domain->is_active ? 'تم تفعيل امتداد الدومين بنجاح' : 'تم تعطيل امتداد الدومين بنجاح',
+        ]);
     }
 
     // Delete

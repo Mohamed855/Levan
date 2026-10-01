@@ -7,6 +7,8 @@
 
 'use strict';
 
+import { initializeTableStatusToggles } from '../../../shared/table-status-toggle';
+
 /*
 |--------------------------------------------------------------------------
 | Document Ready Handler
@@ -14,24 +16,10 @@
 | يتم تنفيذ هذا الكود عند اكتمال تحميل محتوى الصفحة
 */
 $(function () {
+    initializeTableStatusToggles();
     initializeComponents();
     setupDataTableEvents();
     setupFilterEvents();
-});
-
-document.addEventListener('click', function (e) {
-    const btn = e.target.closest('.js-toggle-btn');
-    if (!btn) return;
-
-    const contractId = btn.dataset.id;
-    const url = btn.dataset.url;
-
-    if (!contractId || !url) {
-        toastr.error('بيانات العقد غير مكتملة');
-        return;
-    }
-
-    toggleStatus(contractId, url);
 });
 
 /*
@@ -175,32 +163,6 @@ function applyFilters() {
 
     // تحديث رابط الـ AJAX وإعادة تحميل البيانات
     table.ajax.url(newUrl).load(null, false); // false لعدم إعادة تعيين الصفحة
-}
-
-/*
-|--------------------------------------------------------------------------
-| Toggle Contract Status
-|--------------------------------------------------------------------------
-| تبديل حالة العقد بين نشط وغير نشط
-*/
-function toggleStatus(contractId, url) {
-    const targetUrl = url || window.routes.toggleStatus.replace(':id', contractId);
-    $.ajax({
-        url: targetUrl,
-        type: 'PATCH',
-        data: { _token: window.csrfToken },
-        success: function (response) {
-            if (response.success) {
-                $('#contracts-table').DataTable().draw(false);
-                if (typeof toastr !== 'undefined') toastr.success(response.message);
-            } else {
-                if (typeof toastr !== 'undefined') toastr.error(response.message);
-            }
-        },
-        error: function () {
-            if (typeof toastr !== 'undefined') toastr.error('حدث خطأ أثناء تبديل الحالة');
-        }
-    });
 }
 
 
@@ -365,5 +327,4 @@ function handleAjaxError(xhr, defaultMessage) {
 |--------------------------------------------------------------------------
 | جعل الدوال متاحة بشكل عام للاستدعاء من Blade
 */
-window.toggleStatus = toggleStatus;
 window.handleMassDelete = handleMassDelete;

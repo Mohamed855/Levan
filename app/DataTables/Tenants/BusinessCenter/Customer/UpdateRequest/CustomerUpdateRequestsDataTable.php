@@ -201,14 +201,14 @@ class CustomerUpdateRequestsDataTable extends AbstractDataTable
                 'action'    => "function() { exportUpdateRequests(); }",
             ]
         ];
-        if (auth()->user()?->can('اعتماد طلب تحديث')) {
+        if (auth()->user()?->can('customer_update_requests.approve')) {
             $buttons[] = [
                 'text'      => 'موافقة جماعية',
                 'className' => 'dropdown-item',
                 'action'    => "function() { approveSelectedRequests(); }",
             ];
         }
-        if (auth()->user()?->can('رفض طلب تحديث')) {
+        if (auth()->user()?->can('customer_update_requests.reject')) {
             $buttons[] = [
                 'text'      => 'رفض جماعي',
                 'className' => 'dropdown-item',

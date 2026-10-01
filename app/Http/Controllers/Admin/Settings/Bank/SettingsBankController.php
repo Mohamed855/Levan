@@ -6,6 +6,7 @@ use App\DataTables\Admin\Setting\Bank\BankDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Bank\Bank;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -118,6 +119,16 @@ class SettingsBankController extends Controller
 
         return redirect()->route($this->route . '.index')
             ->with('success', 'تم تحديث البنك بنجاح');
+    }
+
+    public function toggleStatus(Bank $bank): JsonResponse
+    {
+        $bank->update(['is_active' => ! $bank->is_active]);
+
+        return response()->json([
+            'success' => true,
+            'message' => $bank->is_active ? 'تم تفعيل البنك بنجاح' : 'تم تعطيل البنك بنجاح',
+        ]);
     }
 
     /**

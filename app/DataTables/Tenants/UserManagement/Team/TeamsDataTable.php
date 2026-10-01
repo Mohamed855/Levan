@@ -64,8 +64,8 @@ class TeamsDataTable extends AbstractDataTable
             ['data' => 'branch', 'name' => 'branch.name', 'title' => 'الفرع', 'orderable' => false, 'searchable' => true],
             ['data' => 'members_count', 'name' => 'members_count', 'title' => 'عدد الأعضاء', 'orderable' => false, 'searchable' => false],
             ['data' => 'leaders_count', 'name' => 'leaders_count', 'title' => 'عدد القادة', 'orderable' => false, 'searchable' => false],
-            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء'],
+            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'action', 'name' => 'action', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false],
         ];
     }

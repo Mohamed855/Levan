@@ -15,7 +15,7 @@
                 <hr class="dropdown-divider">
             </li>
 
-            @can('إعتماد تحصيل')
+            @can('collections.approve')
                 <li>
                     <a class="dropdown-item text-dark" href="#"
                         onclick="confirmApproveCollection({{ $id }})">
@@ -24,7 +24,7 @@
                 </li>
             @endcan
 
-            @can('رفض تحصيل')
+            @can('collections.reject')
                 <li>
                     <a class="dropdown-item text-dark" href="#"
                         onclick="confirmRejectCollection({{ $id }})">
@@ -36,7 +36,7 @@
                 <hr class="dropdown-divider">
             </li>
 
-            @can('تعديل تحصيل')
+            @can('collections.edit')
                 <li>
                     <a class="dropdown-item text-dark" href="{{ tenant_route_name($route . '.edit', $id) }}">
                         <i class="ti ti-edit me-2"></i>تعديل
@@ -45,7 +45,7 @@
             @endcan
         @endif
 
-        @can('حذف تحصيل')
+        @can('collections.delete')
             <li>
                 <a class="dropdown-item text-dark" href="#" onclick="confirmDelete({{ $id }})">
                     <i class="ti ti-trash me-2"></i>حذف

@@ -442,8 +442,8 @@ class FinancialReportService
     {
         $query = Customer::select('id', 'name', 'account_number', 'phone');
 
-        if (auth()->user()->can('العملاء')) {
-        } elseif (auth()->user()->can('عملائي')) {
+        if (auth()->user()->can('customers.view')) {
+        } elseif (auth()->user()->can('customers.my_view')) {
             $query->where('relationship_manager_id', auth()->id());
         } else {
             return [];
@@ -483,8 +483,8 @@ class FinancialReportService
         }
 
         if (
-            !auth()->user()->can('العملاء') &&
-            auth()->user()->can('عملائي') &&
+            !auth()->user()->can('customers.view') &&
+            auth()->user()->can('customers.my_view') &&
             $customer->relationship_manager_id !== auth()->id()
         ) {
             return null;
@@ -505,9 +505,9 @@ class FinancialReportService
     {
         $query = Customer::select('id', 'name', 'account_number', 'phone');
 
-        if (!auth()->user()->can('العملاء') && auth()->user()->can('عملائي')) {
+        if (!auth()->user()->can('customers.view') && auth()->user()->can('customers.my_view')) {
             $query->where('relationship_manager_id', auth()->id());
-        } elseif (!auth()->user()->can('العملاء')) {
+        } elseif (!auth()->user()->can('customers.view')) {
             return [];
         }
 

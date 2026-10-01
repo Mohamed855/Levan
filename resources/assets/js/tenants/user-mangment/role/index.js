@@ -6,10 +6,13 @@
 
 'use strict';
 
+import { initializeTableStatusToggles } from '../../../shared/table-status-toggle';
+
 // متغيرات عامة
 let usersTable;
 
 $(document).ready(function () {
+    initializeTableStatusToggles();
     initializeComponents();
     initializeDataTable();
     bindEvents();
@@ -283,10 +286,6 @@ function bindModalEvents() {
         updateUserRole();
     });
 
-    // التعامل مع تغيير الحالة من الـ toggle switch أو القائمة
-    $('#users-table').on('change', '.status-toggle', function () {
-        toggleUserStatus(this, $(this).data('user-id'));
-    });
     $('#users-table').on('change', '.status-dropdown', function () {
         const userId = $(this).data('user-id');
         const newStatus = $(this).val();

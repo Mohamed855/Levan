@@ -11,7 +11,7 @@
                     التالي
                     <i class="ti ti-arrow-left me-1"></i>
                 </a>
-                @can('إضافة متابعة')
+                @can('customers.edit')
                 <button type="button" class="btn btn-primary btn-sm js-create-follow-btn">
                     <i class="ti ti-plus me-1"></i>
                     إضافة متابعة

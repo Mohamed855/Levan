@@ -25,37 +25,21 @@
 
 @section('content')
 
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    <x-ui.validation-errors />
 
-    {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
+    <x-data-table.page table-id="versions-table">
+        <x-slot:filters>
+            <x-data-table.filters>
                 <x-filter.select id="filter-stage" label="المرحلة"
                     placeholder="اختر المرحلة" :options="$filterOptions['stages'] ?? []" />
                 <x-filter.select id="filter-status" label="الحالة"
                     placeholder="اختر الحالة" :options="$filterOptions['statuses'] ?? []" />
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
-        </div>
-    </div>
+            </x-data-table.filters>
+        </x-slot:filters>
 
-    <div class="card">
-        <div class="card-body">
+        <x-slot:table>
             {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'versions-table'], false) !!}
-        </div>
-    </div>
+        </x-slot:table>
+    </x-data-table.page>
 
 @endsection

@@ -31,13 +31,17 @@ function handleStatusToggle(event) {
     toggle.dataset.loading = 'true';
     toggle.disabled = true;
 
+    const status = toggle.checked
+        ? (toggle.dataset.activeValue ?? 1)
+        : (toggle.dataset.inactiveValue ?? 0);
+
     $.ajax({
         url,
         type: 'PATCH',
         headers: { 'X-CSRF-TOKEN': token },
         data: {
             _token: token,
-            status: toggle.checked ? 1 : 0,
+            status,
             is_active: toggle.checked ? 1 : 0,
         },
         success(response) {

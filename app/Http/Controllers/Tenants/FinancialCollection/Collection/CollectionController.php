@@ -37,8 +37,8 @@ class CollectionController extends Controller
         $this->middleware('can:collections.create')->only(['create', 'store']);
         $this->middleware('can:collections.edit')->only(['edit', 'update']);
         $this->middleware('can:collections.delete')->only(['destroy', 'deleteSelected']);
-        $this->middleware('can:إعتماد تحصيل')->only(['approve']);
-        $this->middleware('can:رفض تحصيل')->only(['reject']);
+        $this->middleware('can:collections.approve')->only(['approve']);
+        $this->middleware('can:collections.reject')->only(['reject']);
     }
 
     /*

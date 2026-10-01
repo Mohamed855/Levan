@@ -269,7 +269,7 @@ class CustomerDistributionDataTable extends AbstractDataTable
             ],
         ];
 
-        if (Auth::user()->can('حذف توزيع')) {
+        if (Auth::user()->can('customer_distributions.delete')) {
             $buttons[] = [
                 'text'      => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
@@ -292,7 +292,7 @@ class CustomerDistributionDataTable extends AbstractDataTable
     */
     private function getAddButton(): array
     {
-        if (!auth()->user()?->can('إضافة توزيع')) {
+        if (!auth()->user()?->can('customer_distributions.create')) {
             return [];
         }
 

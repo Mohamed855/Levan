@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Versions\VersionRequest;
 use App\Models\Admin\Version\Version;
 use App\Services\Admin\Versions\VersionService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 
 class VersionController extends Controller
@@ -22,7 +23,7 @@ class VersionController extends Controller
         $this->middleware('auth:admin');
         $this->middleware('can:versions.view')->only(['index']);
         $this->middleware('can:versions.create')->only(['create', 'store']);
-        $this->middleware('can:versions.edit')->only(['edit', 'update']);
+        $this->middleware('can:versions.edit')->only(['edit', 'update', 'toggleStatus']);
         $this->middleware('can:versions.delete')->only(['destroy']);
     }
 
@@ -100,6 +101,16 @@ class VersionController extends Controller
         $this->versionService->update($version, $request->validated());
 
         return redirect()->route($this->route . '.index')->with('success', 'تم تحديث الإصدارة بنجاح');
+    }
+
+    public function toggleStatus(Version $version): JsonResponse
+    {
+        $version->update(['is_active' => ! $version->is_active]);
+
+        return response()->json([
+            'success' => true,
+            'message' => $version->is_active ? 'تم تفعيل الإصدار بنجاح' : 'تم تعطيل الإصدار بنجاح',
+        ]);
     }
 
 

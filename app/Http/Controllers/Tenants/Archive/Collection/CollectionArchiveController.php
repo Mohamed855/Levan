@@ -26,7 +26,7 @@ class CollectionArchiveController extends Controller
     {
         $this->collectionArchiveService = $collectionArchiveService;
 
-        $this->middleware('can:أرشيف التحصيلات')->only(['index']);
+        $this->middleware('can:collections_archive.view')->only(['index']);
     }
 
     /*

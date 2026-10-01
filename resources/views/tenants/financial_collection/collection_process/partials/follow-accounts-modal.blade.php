@@ -1,12 +1,5 @@
 <!-- Modal for selecting related accounts -->
-<div class="modal fade" id="followAccountsModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold">تطبيق المتابعة على الحسابات المرتبطة</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
+<x-bootstrap.modal id="followAccountsModal" title="تطبيق المتابعة على الحسابات المرتبطة" centered static-backdrop>
                 <!-- Loading State -->
                 <div id="accountsLoadingState" class="text-center py-4">
                     <div class="spinner-border text-primary" role="status">
@@ -40,16 +33,11 @@
                         <div id="relatedAccountsList"></div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
-                    إلغاء
-                </button>
-                <button type="button" id="confirmAccountsSelection" class="btn btn-primary btn-sm">
-                    تأكيد
-                    <span class="spinner-border spinner-border-sm ms-2" style="display: none;"></span>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+    <x-slot:footer>
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">إلغاء</button>
+        <button type="button" id="confirmAccountsSelection" class="btn btn-primary btn-sm">
+            تأكيد
+            <span class="spinner-border spinner-border-sm ms-2" style="display: none;"></span>
+        </button>
+    </x-slot:footer>
+</x-bootstrap.modal>

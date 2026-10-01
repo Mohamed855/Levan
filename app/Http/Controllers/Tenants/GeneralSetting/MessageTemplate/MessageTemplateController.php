@@ -86,9 +86,10 @@ class MessageTemplateController extends Controller
                     return '<span class="badge bg-label-info">' . e($label) . '</span>';
                 })
                 ->addColumn('status', function ($template) {
-                    return '<span class="badge ' . e($template->status_class) . ' cursor-pointer"
-                          onclick="toggleTemplateStatus(' . (int)$template->id . ')"
-                          title="اضغط لتبديل الحالة">' . e($template->status_label) . '</span>';
+                    $checked = $template->is_active ? 'checked' : '';
+                    $url = tenant_route_name('general-settings.message-templates.toggle-status', $template->id);
+
+                    return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_' . $template->id . '" data-url="' . e($url) . '" ' . $checked . ' aria-label="تبديل حالة قالب الرسالة"></div></div>';
                 })
                 ->addColumn('creator_name', function ($template) {
                     return e($template->creator->name ?? 'غير محدد');

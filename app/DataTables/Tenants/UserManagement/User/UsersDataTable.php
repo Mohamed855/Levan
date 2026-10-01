@@ -73,9 +73,9 @@ class UsersDataTable extends AbstractDataTable
             ['data' => 'branch', 'name' => 'branch.name', 'title' => 'الفرع', 'orderable' => false, 'searchable' => true], // ✅ تغيير
             ['data' => 'phone', 'name' => 'phone', 'title' => 'رقم الهاتف'],
             ['data' => 'roles', 'name' => 'roles.name', 'title' => 'الأدوار', 'orderable' => false, 'searchable' => true],
-            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'license_status', 'name' => 'license_status', 'title' => 'الترخيص', 'orderable' => false, 'searchable' => false],
             ['data' => 'last_login_at', 'name' => 'last_login_at', 'title' => 'آخر دخول'],
+            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'action', 'name' => 'action', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false],
         ];
     }

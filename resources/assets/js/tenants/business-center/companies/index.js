@@ -8,7 +8,11 @@
 
 'use strict';
 
+import { initializeTableStatusToggles } from '../../../shared/table-status-toggle';
+
 $(function () {
+    initializeTableStatusToggles();
+
     $('.select2').select2({
         allowClear: true,
         placeholder: 'الكل',
@@ -59,43 +63,6 @@ $(function () {
     
 });
 
-
-document.addEventListener('click', function (e) {
-    const btn = e.target.closest('.js-toggle-btn');
-    if (!btn) return;
-
-    const userId = btn.dataset.id;
-    const url = btn.dataset.url;
-
-    if (!userId || !url) {
-        toastr.error('بيانات المستخدم غير مكتملة');
-        return;
-    }
-
-    toggleStatus(userId, url);
-});
-
-function toggleStatus(companyId, url) {
-    const targetUrl = url || window.routes.toggleStatus.replace(':id', companyId);
-
-    $.ajax({
-        url: targetUrl,
-        type: 'PATCH',
-        data: { _token: window.csrfToken },
-        success: function (response) {
-            if (response.success) {
-                $('#companies-table').DataTable().draw(false);
-                if (typeof toastr !== 'undefined') toastr.success(response.message);
-            } else {
-                if (typeof toastr !== 'undefined') toastr.error(response.message);
-            }
-        },
-        error: function () {
-            if (typeof toastr !== 'undefined') toastr.error('حدث خطأ أثناء تبديل الحالة');
-        }
-    });
-}
-
 function handleMassDelete() {
     const selectedIds = [];
     $('.row-checkbox:checked').each(function () {
@@ -110,5 +77,4 @@ function handleMassDelete() {
     confirmDeleteSelectedmss(selectedIds, window.routes.massDelete, 'Company');
 }
 
-window.toggleStatus = toggleStatus;
 window.handleMassDelete = handleMassDelete;

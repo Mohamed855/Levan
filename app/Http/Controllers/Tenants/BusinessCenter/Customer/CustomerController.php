@@ -211,7 +211,7 @@ class CustomerController extends Controller
     {
         if (
             !auth()->user()->can('customers.edit_all') &&
-            !(auth()->user()->can('تعديل عميل') && $customer->relationship_manager_id === auth()->id())
+            !(auth()->user()->can('customers.edit') && $customer->relationship_manager_id === auth()->id())
         ) {
             abort(403, 'ليس لديك صلاحية لتعديل هذا العميل');
         }
@@ -237,7 +237,7 @@ class CustomerController extends Controller
     {
         if (
             !auth()->user()->can('customers.edit_all') &&
-            !(auth()->user()->can('تعديل عميل') && $customer->relationship_manager_id === auth()->id())
+            !(auth()->user()->can('customers.edit') && $customer->relationship_manager_id === auth()->id())
         ) {
             abort(403, 'ليس لديك صلاحية لتعديل هذا العميل');
         }
@@ -292,7 +292,7 @@ class CustomerController extends Controller
 
         if (
             !auth()->user()->can('customers.delete_all') &&
-            !(auth()->user()->can('حذف عميل') && $customer->relationship_manager_id === auth()->id())
+            !(auth()->user()->can('customers.delete') && $customer->relationship_manager_id === auth()->id())
         ) {
             abort(403, 'ليس لديك صلاحية لحذف هذا العميل');
         }

@@ -1,4 +1,6 @@
 'use strict';
+
+import { initializeTableStatusToggles } from '../../../shared/table-status-toggle';
 let collectionTargetsTable;
 
 /*
@@ -8,6 +10,7 @@ let collectionTargetsTable;
 | Initialize all components when document is ready.
 */
 $(document).ready(function () {
+    initializeTableStatusToggles();
     initializeComponents();
     bindEvents();
 });
@@ -138,31 +141,6 @@ function handleMassDelete() {
 
 /*
 |--------------------------------------------------------------------------
-| Toggle Status
-|--------------------------------------------------------------------------
-| Toggle collection target status between active and inactive.
-*/
-function toggleStatus(targetId) {
-    $.ajax({
-        url: window.routes.toggleStatus.replace(':id', targetId),
-        type: 'PATCH',
-        data: { _token: window.csrfToken },
-        success: function (response) {
-            if (response.success) {
-                collectionTargetsTable.draw(false);
-                toastr.success(response.message);
-            } else {
-                toastr.error(response.message);
-            }
-        },
-        error: function () {
-            toastr.error('حدث خطأ أثناء تبديل الحالة');
-        }
-    });
-}
-
-/*
-|--------------------------------------------------------------------------
 | Get Selected IDs
 |--------------------------------------------------------------------------
 | Retrieve array of selected checkbox values.
@@ -224,5 +202,4 @@ function loadUsersByBranch(branchId, targetSelect, callback) {
 | Export Functions
 |--------------------------------------------------------------------------
 */
-window.toggleStatus = toggleStatus;
 window.handleMassDelete = handleMassDelete;

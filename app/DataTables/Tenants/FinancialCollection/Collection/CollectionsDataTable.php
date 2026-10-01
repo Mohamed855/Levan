@@ -195,7 +195,7 @@ class CollectionsDataTable extends AbstractDataTable
                 }
 
                 $canOpenCustomer =
-                    auth()->user()?->can('العملاء') ||
+                    auth()->user()?->can('customers.view') ||
                     ($customer->relationship_manager_id === auth()->id());
 
                 if ($canOpenCustomer) {
@@ -350,7 +350,7 @@ class CollectionsDataTable extends AbstractDataTable
             'title' => 'التحصيلات المالية'
         ];
 
-        if (auth()->user()?->can('حذف تحصيل')) {
+        if (auth()->user()?->can('collections.delete')) {
             $actions[] = [
                 'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
@@ -373,7 +373,7 @@ class CollectionsDataTable extends AbstractDataTable
     */
     private function getAddButton(): array
     {
-        if (!auth()->user()?->can('إضافة تحصيل')) {
+        if (!auth()->user()?->can('collections.create')) {
             return [];
         }
 

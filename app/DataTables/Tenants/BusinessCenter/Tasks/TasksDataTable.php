@@ -245,7 +245,7 @@ class TasksDataTable extends AbstractDataTable
             ],
         ];
 
-        if (auth()->user()?->can('حذف مهمة')) {
+        if (auth()->user()?->can('tasks.delete')) {
             $buttons[] = [
                 'text' => 'حذف المحدد',
                 'action' => "function() { handleMassDelete(); }"

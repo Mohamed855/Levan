@@ -104,18 +104,22 @@ class RoleController extends Controller
                         }
                     })
                     ->addColumn('status', function (User $user) {
-                        if (auth()->user()->can('roles.edit')) {
+                        if (auth()->user()->can('roles.assign')) {
                             $checked = $user->status === 'active' ? 'checked' : '';
+                            $url = tenant_route_name('roles.user.status', ['userId' => $user->id]);
+
                             return '
                                 <div class="d-flex justify-content-center">
                                     <div class="form-check form-switch mb-0">
                                         <input
                                             type="checkbox"
-                                            class="form-check-input status-toggle"
+                                            class="form-check-input js-table-status-toggle"
                                             id="status_' . $user->id . '"
-                                            data-user-id="' . $user->id . '"
+                                            data-url="' . e($url) . '"
+                                            data-active-value="active"
+                                            data-inactive-value="inactive"
                                             ' . $checked . '
-                                            onchange="toggleUserStatus(this, ' . $user->id . ')"
+                                            aria-label="تبديل حالة المستخدم"
                                         >
                                     </div>
                                 </div>

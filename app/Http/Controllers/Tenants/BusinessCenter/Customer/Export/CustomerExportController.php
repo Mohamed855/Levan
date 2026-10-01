@@ -15,7 +15,7 @@ class CustomerExportController extends Controller
 {
     public function __construct(private CustomerExportService $service)
     {
-        $this->middleware('can:تصدير أكسل');
+        $this->middleware('can:customers.export');
     }
 
     public function exportCustomers(Request $request): JsonResponse

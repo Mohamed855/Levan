@@ -217,7 +217,7 @@
                             </div>
                         </div>
 
-                        @can('العملاء')
+                        @can('customers.view')
                             <div class="col-md-4 col-sm-12">
                                 <div class="card border h-100" style="box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
                                     <div class="card-body p-3 text-center">
@@ -357,7 +357,7 @@
                     <i class="ti ti-phone me-2" style="font-size: 16px; color: #4cc1bb;"></i>
                     أرقام الهاتف
                 </h6>
-                @can('إضافة رقم هاتف')
+                @can('customers.add_phone')
                     <button type="button" class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1"
                         onclick="showAddPhoneModal({{ $customer->id }})" title="إضافة رقم هاتف"
                         aria-label="إضافة رقم هاتف">
@@ -376,7 +376,7 @@
                             <tr>
                                 <th class="border-0 py-1" style="font-size: 0.75rem;">رقم الهاتف</th>
                                 <th class="border-0 py-1" style="font-size: 0.75rem;">النوع</th>
-                                @can('إضافة رقم هاتف')
+                                @can('customers.add_phone')
                                     <th class="border-0 py-1 text-center" style="font-size: 0.75rem;">الإجراءات</th>
                                 @endcan
                             </tr>
@@ -395,7 +395,7 @@
                                             أساسي
                                         </span>
                                     </td>
-                                    @can('إضافة رقم هاتف')
+                                    @can('customers.add_phone')
                                         <td class="py-1 text-center">
                                             <span class="text-muted" style="font-size: 0.7rem;">الأساسي</span>
                                         </td>
@@ -422,7 +422,7 @@
                                         @endif
                                     </td>
 
-                                    @can('إضافة رقم هاتف')
+                                    @can('customers.add_phone')
                                         <td class="py-1 text-center">
                                             @if (!$phone->is_primary)
                                                 <button type="button" class="btn btn-xs set-primary-phone-btn"

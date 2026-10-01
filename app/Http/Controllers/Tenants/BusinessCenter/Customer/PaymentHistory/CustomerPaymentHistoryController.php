@@ -28,7 +28,7 @@ class CustomerPaymentHistoryController extends Controller
         try {
             // التحقق من الصلاحيات
             if (
-                !auth()->user()->can('العملاء') &&
+                !auth()->user()->can('customers.view') &&
                 $customer->relationship_manager_id !== auth()->id()
             ) {
                 return response()->json([
