@@ -84,12 +84,12 @@ class BankDataTable extends AbstractDataTable
                 );
             })
 
-            ->editColumn(
-                'is_active',
-                fn($row) => $row->is_active
-                    ? '<span class="badge bg-success">مفعلة</span>'
-                    : '<span class="badge bg-danger">غير مفعلة</span>'
-            )
+            ->editColumn('is_active', function ($row) {
+                $checked = $row->is_active ? 'checked' : '';
+                $url = route('admin.settings.banks.toggle-status', $row->id);
+
+                return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_' . $row->id . '" data-url="' . e($url) . '" ' . $checked . ' aria-label="تبديل حالة البنك"></div></div>';
+            })
 
             ->addColumn('actions', function ($row) {
                 return view($this->page . '.action', ['row' => $row, 'route' => $this->route])->render();

@@ -20,7 +20,7 @@
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/admin/settings/domains/filter.js'])
+    @vite(['resources/assets/js/admin/settings/domains/filter.js', 'resources/assets/js/admin/shared-status-toggle.js'])
 @endsection
 
 @section('content')

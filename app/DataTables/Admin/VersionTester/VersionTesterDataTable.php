@@ -38,8 +38,8 @@ class VersionTesterDataTable extends AbstractDataTable
             ],
             ['data' => 'tenant_name',   'name' => 'tenant.name',    'title' => 'اسم العميل',    'className' => 'text-start'],
             ['data' => 'type',          'name' => 'type',           'title' => 'نوع المختبر',   'className' => 'text-center'],
-            ['data' => 'is_active',     'name' => 'is_active',      'title' => 'الحالة',        'className' => 'text-center'],
             ['data' => 'created_at',    'name' => 'created_at',     'title' => 'تاريخ الإضافة'],
+            ['data' => 'is_active',     'name' => 'is_active',      'title' => 'الحالة',        'className' => 'text-center'],
             ['data' => 'actions',       'name' => 'actions',        'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
@@ -53,12 +53,12 @@ class VersionTesterDataTable extends AbstractDataTable
 
             ->editColumn('type', fn($row) => $this->typeBadge($row->type))
 
-            ->editColumn(
-                'is_active',
-                fn($row) => $row->is_active
-                    ? '<span class="badge bg-success">مفعل</span>'
-                    : '<span class="badge bg-danger">غير مفعل</span>'
-            )
+            ->editColumn('is_active', function ($row) {
+                $checked = $row->is_active ? 'checked' : '';
+                $url = route('admin.version_testers.toggle-status', $row->id);
+
+                return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_' . $row->id . '" data-url="' . e($url) . '" ' . $checked . ' aria-label="تبديل حالة المختبر"></div></div>';
+            })
 
             ->editColumn('created_at', fn($row) => $row->created_at->format('Y-m-d H:i'))
 

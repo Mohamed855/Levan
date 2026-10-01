@@ -45,7 +45,7 @@ class VersionDataTable extends AbstractDataTable
             ['data' => 'stage',         'name' => 'stage',       'title' => 'المرحلة'],
             ['data' => 'file_path',     'name' => 'file_path',   'title' => 'مسار الإصدارة'],
             ['data' => 'released_at',   'name' => 'released_at', 'title' => 'تاريخ الإصدار'],
-            ['data' => 'is_active',     'name' => 'is_active',   'title' => 'الحالة'],
+            ['data' => 'is_active',     'name' => 'is_active',   'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'actions',       'name' => 'actions',            'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
@@ -68,12 +68,12 @@ class VersionDataTable extends AbstractDataTable
 
             ->editColumn('released_at', fn($row) => $row->released_at ? $row->released_at->format('Y-m-d') : '-')
 
-            ->editColumn(
-                'is_active',
-                fn($row) => $row->is_active
-                    ? '<span class="badge bg-success">مفعلة</span>'
-                    : '<span class="badge bg-danger">غير مفعلة</span>'
-            )
+            ->editColumn('is_active', function ($row) {
+                $checked = $row->is_active ? 'checked' : '';
+                $url = route('admin.versions.toggle-status', $row->id);
+
+                return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_' . $row->id . '" data-url="' . e($url) . '" ' . $checked . ' aria-label="تبديل حالة الإصدار"></div></div>';
+            })
 
             ->addColumn('actions', function ($row) {
                 return view($this->page . '.action', ['row' => $row, 'route' => $this->route])->render();

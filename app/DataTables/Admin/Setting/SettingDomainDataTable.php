@@ -40,8 +40,8 @@ class SettingDomainDataTable extends AbstractDataTable
             ],
             ['data' => 'domain_extension',  'name' => 'domain_extension',   'title' => 'امتداد الدومين',   'className' => 'text-start'],
             ['data' => 'price',             'name' => 'price',              'title' => 'السعر',             'className' => 'text-start'],
-            ['data' => 'is_active',         'name' => 'is_active',          'title' => 'الحالة',],
             ['data' => 'created_at',         'name' => 'created_at',          'title' => 'تاريخ الاضافة',],
+            ['data' => 'is_active',         'name' => 'is_active',          'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'actions',           'name' => 'actions',            'title' => 'الإجراءات',         'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
@@ -57,9 +57,10 @@ class SettingDomainDataTable extends AbstractDataTable
             })
 
             ->editColumn('is_active', function ($row) {
-                return $row->is_active
-                    ? '<span class="badge bg-success">مفعل</span>'
-                    : '<span class="badge bg-danger">غير مفعل</span>';
+                $checked = $row->is_active ? 'checked' : '';
+                $url = route('admin.settings.domains.toggle-status', $row->id);
+
+                return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_' . $row->id . '" data-url="' . e($url) . '" ' . $checked . ' aria-label="تبديل حالة امتداد الدومين"></div></div>';
             })
 
             ->editColumn('created_at', function ($row) {
