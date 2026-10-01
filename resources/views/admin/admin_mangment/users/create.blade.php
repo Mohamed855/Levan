@@ -345,7 +345,7 @@
                     @endif
 
                     <form id="wizard-validation-form" action="{{ route('admin.users.store') }}" method="POST"
-                        onSubmit="return false" enctype="multipart/form-data">
+                        onSubmit="return false" enctype="multipart/form-data" autocomplete="off">
                         @csrf
 
                         <!-- المعلومات الأساسية -->
@@ -362,7 +362,7 @@
                                     <label class="form-label" for="email">البريد الإلكتروني <span
                                             class="text-danger">*</span></label>
                                     <input type="email" name="email" id="email" class="form-control"
-                                        placeholder="ادخل البريد الإلكتروني" value="{{ old('email') }}" />
+                                        placeholder="ادخل البريد الإلكتروني" value="{{ old('email') }}" autocomplete="off" />
                                 </div>
 
                                 <div class="col-sm-6">
@@ -403,7 +403,7 @@
                                             class="text-danger">*</span></label>
                                     <div class="input-group input-group-merge">
                                         <input type="password" name="password" id="password" class="form-control"
-                                            placeholder="ادخل كلمة المرور" />
+                                            placeholder="ادخل كلمة المرور" autocomplete="new-password" />
                                         <span class="input-group-text cursor-pointer">
                                             <i class="ti ti-eye-off"></i>
                                         </span>
@@ -415,7 +415,7 @@
                                             class="text-danger">*</span></label>
                                     <div class="input-group input-group-merge">
                                         <input type="password" name="password_confirmation" id="password_confirmation"
-                                            class="form-control" placeholder="أعد إدخال كلمة المرور" />
+                                            class="form-control" placeholder="أعد إدخال كلمة المرور" autocomplete="new-password" />
                                         <span class="input-group-text cursor-pointer">
                                             <i class="ti ti-eye-off"></i>
                                         </span>

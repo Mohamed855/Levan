@@ -46,7 +46,7 @@
                     @endif
 
                     <form id="wizard-validation-form" action="{{ route('admin.tenantManage.store') }}" method="POST"
-                        enctype="multipart/form-data" onSubmit="return false">
+                        enctype="multipart/form-data" onSubmit="return false" autocomplete="off">
                         @csrf
 
                         <div id="info-validation" class="content">
@@ -92,7 +92,7 @@
                                         <span class="text-danger">*</span>
                                     </label>
                                     <input type="email" class="form-control" id="email" name="email"
-                                        value="{{ old('email') }}" placeholder="example@domain.com" required>
+                                        value="{{ old('email') }}" placeholder="example@domain.com" autocomplete="off" required>
                                 </div>
 
                                 <div class="col-md-4">
@@ -101,7 +101,7 @@
                                         <span class="text-danger">*</span>
                                     </label>
                                     <input type="password" id="password" name="password" class="form-control"
-                                        placeholder="••••••••" required />
+                                        placeholder="••••••••" autocomplete="new-password" required />
                                 </div>
 
                                 <!-- تأكيد كلمة المرور -->
@@ -111,7 +111,7 @@
                                         <span class="text-danger">*</span>
                                     </label>
                                     <input type="password" id="password_confirmation" name="password_confirmation"
-                                        class="form-control" placeholder="••••••••" required />
+                                        class="form-control" placeholder="••••••••" autocomplete="new-password" required />
                                 </div>
 
                             </div>

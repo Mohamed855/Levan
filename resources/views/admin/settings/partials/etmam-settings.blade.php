@@ -44,6 +44,7 @@
                         <div class="input-group">
                             <input type="password" class="form-control" id="etmam_hmac_secret" name="etmam_hmac_secret"
                                 value="{{ old('etmam_hmac_secret', $settings->etmam_hmac_secret) }}"
+                                autocomplete="new-password"
                                 placeholder="ادخل المفتاح السري  المقدم من اتمام">
                             <button class="btn btn-outline-secondary" type="button"
                                 onclick="toggleVisibility('etmam_hmac_secret', this)">

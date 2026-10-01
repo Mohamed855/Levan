@@ -125,7 +125,7 @@
                                                     البريد الإلكتروني <span class="text-red-500">*</span>
                                                 </label>
                                                 <input type="email" id="billing_email" name="billing_email"
-                                                    value="{{ old('billing_email') }}"
+                                                    value="{{ old('billing_email') }}" autocomplete="off"
                                                     class="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                                     placeholder="example@domain.com" required />
                                             </div>
@@ -147,6 +147,7 @@
                                                     كلمة المرور <span class="text-red-500">*</span>
                                                 </label>
                                                 <input type="password" id="billing_password" name="billing_password"
+                                                    autocomplete="new-password"
                                                     class="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                                     placeholder="••••••••" required />
                                             </div>
@@ -157,7 +158,7 @@
                                                     تأكيد كلمة المرور <span class="text-red-500">*</span>
                                                 </label>
                                                 <input type="password" id="billing_password_confirmation"
-                                                    name="billing_password_confirmation"
+                                                    name="billing_password_confirmation" autocomplete="new-password"
                                                     class="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                                     placeholder="••••••••" required />
                                             </div>

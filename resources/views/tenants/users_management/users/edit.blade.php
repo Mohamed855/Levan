@@ -58,7 +58,7 @@
                     @endif
 
                     <form id="wizard-validation-form" action="{{ tenant_route_name('users.update', $user) }}" method="POST"
-                        onSubmit="return false" enctype="multipart/form-data">
+                        onSubmit="return false" enctype="multipart/form-data" autocomplete="off">
                         @csrf
                         @method('PUT')
 
@@ -86,7 +86,7 @@
                                     <label class="form-label" for="email">البريد الإلكتروني <span
                                             class="text-danger">*</span></label>
                                     <input type="email" name="email" id="email" class="form-control"
-                                        placeholder="ادخل البريد الإلكتروني" value="{{ old('email', $user->email) }}" />
+                                        placeholder="ادخل البريد الإلكتروني" value="{{ old('email', $user->email) }}" autocomplete="off" />
                                 </div>
 
                                 <div class="col-sm-6">
@@ -148,7 +148,7 @@
                                     <label class="form-label" for="password">كلمة المرور</label>
                                     <div class="input-group input-group-merge">
                                         <input type="password" name="password" id="password" class="form-control"
-                                            placeholder="اتركه فارغاً لعدم التغيير" />
+                                            placeholder="اتركه فارغاً لعدم التغيير" autocomplete="new-password" />
                                         <span class="input-group-text cursor-pointer">
                                             <i class="ti ti-eye-off"></i>
                                         </span>
@@ -159,7 +159,7 @@
                                     <label class="form-label" for="password_confirmation">تأكيد كلمة المرور</label>
                                     <div class="input-group input-group-merge">
                                         <input type="password" name="password_confirmation" id="password_confirmation"
-                                            class="form-control" placeholder="أعد إدخال كلمة المرور" />
+                                            class="form-control" placeholder="أعد إدخال كلمة المرور" autocomplete="new-password" />
                                         <span class="input-group-text cursor-pointer">
                                             <i class="ti ti-eye-off"></i>
                                         </span>

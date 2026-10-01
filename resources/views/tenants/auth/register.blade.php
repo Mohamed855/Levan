@@ -44,7 +44,7 @@
                         <h4 class="mb-1">إنشاء حساب جديد</h4>
                         <p class="mb-6">ابدأ رحلتك معنا بالتسجيل الآن</p>
 
-                        <form method="POST" action="{{ tenant_route_name('register') }}">
+                        <form method="POST" action="{{ tenant_route_name('register') }}" autocomplete="off">
                             @csrf
 
                             <!-- Name -->
@@ -59,7 +59,7 @@
                             <div class="mb-4">
                                 <label for="email" class="form-label">البريد الإلكتروني</label>
                                 <input id="email" class="form-control" type="email" name="email"
-                                    :value="old('email')" required autocomplete="username" />
+                                    :value="old('email')" required autocomplete="off" />
                                 <x-input-error :messages="$errors->get('email')" class="mt-2" />
                             </div>
 

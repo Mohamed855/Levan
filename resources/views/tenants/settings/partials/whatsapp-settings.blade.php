@@ -21,7 +21,8 @@
                     <div class="col-12 col-md-6 mb-4">
                         <label for="twilio_auth_token" class="form-label">Auth Token</label>
                         <input type="password" class="form-control" id="twilio_auth_token" name="twilio_auth_token"
-                            value="{{ old('twilio_auth_token', $settings->twilio_auth_token ?? '') }}" required>
+                            value="{{ old('twilio_auth_token', $settings->twilio_auth_token ?? '') }}"
+                            autocomplete="new-password" required>
                         @error('twilio_auth_token')
                             <div class="text-danger small">{{ $message }}</div>
                         @enderror

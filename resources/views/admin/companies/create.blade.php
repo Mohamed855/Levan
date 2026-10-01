@@ -84,7 +84,7 @@
                     @endif
 
                     <form id="subscription-form" action="{{ route('admin.companies.store') }}" method="POST"
-                        enctype="multipart/form-data">
+                        enctype="multipart/form-data" autocomplete="off">
                         @csrf
 
                         {{-- ═══════════════════════════════════════
@@ -112,15 +112,17 @@
                                         oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
                                 </div>
 
-                                <!-- الرقم الضريبي -->
-                                <div class="col-md-6">
-                                    <label for="tax_number" class="form-label">
-                                        الرقم الضريبي <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" class="form-control" id="tax_number" name="tax_number"
-                                        value="{{ old('tax_number') }}" autocomplete="off" inputmode="numeric"
-                                        placeholder="مثال: 300000000000003" required>
-                                </div>
+                                    <!-- الرقم الضريبي -->
+                                    <div class="col-md-6">
+                                        <label for="tax_number" class="form-label">
+                                            الرقم الضريبي <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="tax_number" name="tax_number"
+                                            value="{{ old('tax_number') }}" autocomplete="one-time-code" inputmode="numeric"
+                                            pattern="[0-9]{15}" maxlength="15"
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 15)"
+                                            placeholder="مثال: 300000000000003" required>
+                                    </div>
 
                                 <!-- المدينة -->
                                 <div class="col-md-6">
@@ -196,7 +198,7 @@
                                         البريد الإلكتروني <span class="text-danger">*</span>
                                     </label>
                                     <input type="email" class="form-control" id="email" name="email"
-                                        value="{{ old('email') }}" placeholder="example@domain.com" required>
+                                        value="{{ old('email') }}" placeholder="example@domain.com" autocomplete="off" required>
                                 </div>
 
                                 <div class="col-md-6">
@@ -204,7 +206,7 @@
                                         كلمة المرور <span class="text-danger">*</span>
                                     </label>
                                     <input type="password" id="password" name="password" class="form-control"
-                                        placeholder="••••••••" required />
+                                        placeholder="••••••••" autocomplete="new-password" required />
                                 </div>
 
                                 <div class="col-md-6">
@@ -212,7 +214,7 @@
                                         تأكيد كلمة المرور <span class="text-danger">*</span>
                                     </label>
                                     <input type="password" id="password_confirmation" name="password_confirmation"
-                                        class="form-control" placeholder="••••••••" required />
+                                        class="form-control" placeholder="••••••••" autocomplete="new-password" required />
                                 </div>
                             </div>
 

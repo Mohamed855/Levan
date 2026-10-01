@@ -46,7 +46,7 @@
                     @endif
 
                     <form id="wizard-validation-form" action="{{ route('admin.tenantManage.update', $tenant->id) }}"
-                        method="POST" enctype="multipart/form-data" onSubmit="return false">
+                        method="POST" enctype="multipart/form-data" onSubmit="return false" autocomplete="off">
                         @csrf
                         @method('PUT')
 
@@ -100,7 +100,7 @@
                                     </label>
                                     <input type="email" class="form-control" id="email" name="email"
                                         value="{{ old('email', $tenant->first_user->email ?? '') }}"
-                                        placeholder="example@domain.com" required>
+                                        placeholder="example@domain.com" autocomplete="off" required>
                                 </div>
 
                                 <!-- كلمة المرور -->
@@ -116,7 +116,7 @@
                                         كلمة المرور الجديدة
                                     </label>
                                     <input type="password" id="password" name="password" class="form-control"
-                                        placeholder="••••••••" />
+                                        placeholder="••••••••" autocomplete="new-password" />
                                 </div>
 
                                 <!-- تأكيد كلمة المرور -->
@@ -125,7 +125,7 @@
                                         تأكيد كلمة المرور الجديدة
                                     </label>
                                     <input type="password" id="password_confirmation" name="password_confirmation"
-                                        class="form-control" placeholder="••••••••" />
+                                        class="form-control" placeholder="••••••••" autocomplete="new-password" />
                                 </div>
 
                             </div>
