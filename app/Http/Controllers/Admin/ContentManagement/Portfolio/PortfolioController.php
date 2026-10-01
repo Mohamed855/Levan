@@ -19,7 +19,13 @@ class PortfolioController extends Controller
             'active' => (clone $portfolio)->where('status', 1)->count(),
             'inactive' => (clone $portfolio)->where('status', 0)->count(),
         ];
-        return $datatable->render('admin.content_management.portfolio.index', compact('stats'));
+        $filterOptions = [
+            'statuses' => [
+                ['value' => 'active', 'label' => 'نشط'],
+                ['value' => 'inactive', 'label' => 'غير نشط'],
+            ],
+        ];
+        return $datatable->render('admin.content_management.portfolio.index', compact('stats', 'filterOptions'));
     }
 
     public function create()

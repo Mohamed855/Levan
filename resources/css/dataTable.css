@@ -143,14 +143,16 @@ div.dataTables_processing>div:last-child>div {
     content: "\eb41";
 }
 
-.dataTable .d-flex.justify-content-center > .switch {
-    margin-inline: 0;
+.dataTable .d-flex.justify-content-center > .form-switch {
+    display: flex;
+    align-items: center;
+    padding-inline-start: 0;
 }
 
-.dataTable .d-flex.justify-content-center > .switch .switch-toggle-slider {
-    left: 50%;
-    right: auto;
-    transform: translate(-50%, -50%);
+.dataTable .d-flex.justify-content-center > .form-switch .form-check-input {
+    float: none;
+    margin-block: 0;
+    margin-inline: 0;
 }
 
 .custom-checkbox {

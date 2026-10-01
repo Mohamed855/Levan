@@ -47,22 +47,10 @@
     <div class="card mb-4">
         <div class="card-body">
             <div class="row g-4">
-                <div class="col-md-6">
-                    <label class="form-label" for="filter-status">حالة الباقة</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر حالة الباقة">
-                        <option value=""></option>
-                        <option value="active">نشط</option>
-                        <option value="inactive">غير نشط</option>
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label" for="filter-domain">إدارة الدومينات</label>
-                    <select id="filter-domain" class="form-control select2" data-placeholder="اختر حالة إدارة الدومين">
-                        <option value=""></option>
-                        <option value="active">نشط</option>
-                        <option value="inactive">غير نشط</option>
-                    </select>
-                </div>
+                <x-filter.select id="filter-status" label="حالة الباقة"
+                    placeholder="اختر حالة الباقة" :options="$filterOptions['statuses'] ?? []" />
+                <x-filter.select id="filter-domain" label="إدارة الدومينات"
+                    placeholder="اختر حالة إدارة الدومين" :options="$filterOptions['domains'] ?? []" />
             </div>
             <div class="d-flex justify-content-end mt-3 gap-2">
                 <button type="button" id="btn-reset-filters" class="btn btn-secondary">

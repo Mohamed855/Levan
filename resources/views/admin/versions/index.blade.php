@@ -39,24 +39,10 @@
     <div class="card mb-4">
         <div class="card-body">
             <div class="row g-4">
-                <div class="col-md-6">
-                    <label class="form-label" for="filter-stage">المرحلة</label>
-                    <select id="filter-stage" class="form-control select2" data-placeholder="اختر المرحلة">
-                        <option value=""></option>
-                        <option value="alpha">تحت التطوير (Alpha)</option>
-                        <option value="testing">قيد الاختبار (Testing)</option>
-                        <option value="beta">تجريبية (Beta)</option>
-                        <option value="stable">مستقرة (Stable)</option>
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label" for="filter-status">الحالة</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر الحالة">
-                        <option value=""></option>
-                        <option value="active">نشط</option>
-                        <option value="inactive">غير نشط</option>
-                    </select>
-                </div>
+                <x-filter.select id="filter-stage" label="المرحلة"
+                    placeholder="اختر المرحلة" :options="$filterOptions['stages'] ?? []" />
+                <x-filter.select id="filter-status" label="الحالة"
+                    placeholder="اختر الحالة" :options="$filterOptions['statuses'] ?? []" />
             </div>
             <div class="d-flex justify-content-end mt-3 gap-2">
                 <button type="button" id="btn-reset-filters" class="btn btn-secondary">

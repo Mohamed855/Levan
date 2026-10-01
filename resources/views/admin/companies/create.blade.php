@@ -405,7 +405,7 @@
 
                                 <!-- التفعيل الفوري -->
                                 <div class="col-12 mt-3">
-                                    <div class="card border p-3 bg-light">
+                                    <div class="card border p-3 bg-label-primary">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
                                                 <h6 class="mb-0 fw-bold text-dark">تفعيل الشركة والاشتراك فوراً</h6>

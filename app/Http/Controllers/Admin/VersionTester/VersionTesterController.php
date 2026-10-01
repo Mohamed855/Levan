@@ -34,8 +34,20 @@ class VersionTesterController extends Controller
         try {
             $statistics = $this->versionTestersService->getVersionTesterStatistics();
 
+            $filterOptions = [
+                'types' => [
+                    ['value' => 'developer', 'label' => 'مطور'],
+                    ['value' => 'tester', 'label' => 'مختبر'],
+                ],
+                'statuses' => [
+                    ['value' => 'active', 'label' => 'نشط'],
+                    ['value' => 'inactive', 'label' => 'غير نشط'],
+                ],
+            ];
+
             return $dataTable->render($this->page . '.index', [
-                'total'       => $statistics['total'],
+                'total'         => $statistics['total'],
+                'filterOptions' => $filterOptions,
                 // 'activePlans'      => $statistics['active'],
                 // 'inactivePlans'    => $statistics['inactive'],
             ]);

@@ -21,7 +21,14 @@ class SettingsDomainController extends Controller
     public function index(SettingDomainDataTable $dataTable)
     {
         try {
-            return $dataTable->render($this->page . '.index');
+            $filterOptions = [
+                'statuses' => [
+                    ['value' => 'active', 'label' => 'نشط'],
+                    ['value' => 'inactive', 'label' => 'غير نشط'],
+                ],
+            ];
+
+            return $dataTable->render($this->page . '.index', compact('filterOptions'));
         } catch (\Exception $e) {
             report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');

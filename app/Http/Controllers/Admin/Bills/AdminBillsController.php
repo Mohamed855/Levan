@@ -26,11 +26,36 @@ class AdminBillsController extends Controller
         try {
             $stats = Bill::toBase()->selectRaw('status, COUNT(*) as count')->groupBy('status')->pluck('count', 'status');
 
+            $filterOptions = [
+                'operationTypes' => [
+                    ['value' => 'new_subscription', 'label' => 'دفع الكتروني'],
+                    ['value' => 'renewal', 'label' => 'تجديد اشتراك'],
+                    ['value' => 'license_purchase', 'label' => 'شراء ترخيص'],
+                    ['value' => 'billing_cycle_change', 'label' => 'تغيير دورة الفاتورة'],
+                ],
+                'statuses' => [
+                    ['value' => 'paid', 'label' => 'مدفوع'],
+                    ['value' => 'unpaid', 'label' => 'غير مدفوع'],
+                    ['value' => 'partially_paid', 'label' => 'مدفوع جزئياً'],
+                    ['value' => 'overdue', 'label' => 'متأخر'],
+                    ['value' => 'refunded', 'label' => 'مسترجع'],
+                    ['value' => 'pending', 'label' => 'قيد الانتظار'],
+                    ['value' => 'pending_verification', 'label' => 'بانتظار التحقق'],
+                    ['value' => 'rejected', 'label' => 'مرفوض'],
+                ],
+                'paymentTypes' => [
+                    ['value' => 'online', 'label' => 'دفع الكتروني'],
+                    ['value' => 'cash', 'label' => 'يدوي'],
+                    ['value' => 'bank_transfer', 'label' => 'تحويل بنكي'],
+                ],
+            ];
+
             return $dataTable->render(self::VIEW_PATH . '.index', [
-                'billcounts'   => $stats->sum(),
-                'paidbills'    => $stats->get(BillStatus::PAID->value, 0),
-                'unpaidbills'  => $stats->get(BillStatus::UNPAID->value, 0),
-                'pendingbills' => $stats->get(BillStatus::PENDING->value, 0),
+                'billcounts'    => $stats->sum(),
+                'paidbills'     => $stats->get(BillStatus::PAID->value, 0),
+                'unpaidbills'   => $stats->get(BillStatus::UNPAID->value, 0),
+                'pendingbills'  => $stats->get(BillStatus::PENDING->value, 0),
+                'filterOptions' => $filterOptions,
             ]);
         } catch (\Exception $e) {
             report($e);

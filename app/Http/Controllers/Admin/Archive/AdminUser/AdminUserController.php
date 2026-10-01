@@ -13,7 +13,20 @@ class AdminUserController extends Controller
     public function index(AdminUserDataTable $dataTable)
     {
         $roles = \Spatie\Permission\Models\Role::select('id', 'name')->orderBy('name', 'asc')->get();
-        return $dataTable->render('admin.archive.admin_user.index', compact('roles'));
+
+        $filterOptions = [
+            'statuses' => [
+                ['value' => 'active', 'label' => 'نشط'],
+                ['value' => 'inactive', 'label' => 'غير نشط'],
+                ['value' => 'suspended', 'label' => 'معلق'],
+            ],
+            'roles' => $roles->map(fn ($role): array => [
+                'value' => $role->id,
+                'label' => $role->name,
+            ]),
+        ];
+
+        return $dataTable->render('admin.archive.admin_user.index', compact('roles', 'filterOptions'));
     }
 
     public function restore(int $id)

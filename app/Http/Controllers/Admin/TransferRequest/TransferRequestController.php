@@ -31,12 +31,25 @@ class TransferRequestController extends Controller
         $pending_transfer_requests = Subscription::where('status', 'suspended')->whereNotNull('transfer_bank_attachment')->count();
         $plans = \App\Models\Admin\Plan\Plan::all(['id', 'name']);
 
+        $filterOptions = [
+            'statuses' => [
+                ['value' => 'suspended', 'label' => 'قيد الانتظار (معلق)'],
+                ['value' => 'active', 'label' => 'مقبول'],
+                ['value' => 'cancelled', 'label' => 'مرفوض'],
+            ],
+            'plans' => $plans->map(fn ($plan): array => [
+                'value' => $plan->id,
+                'label' => $plan->name,
+            ]),
+        ];
+
         return $datatable->render('admin.transferrequests.index', compact(
             'all_transfer_requests',
             'approved_transfer_requests',
             'rejected_transfer_requests',
             'pending_transfer_requests',
-            'plans'
+            'plans',
+            'filterOptions'
         ));
     }
 

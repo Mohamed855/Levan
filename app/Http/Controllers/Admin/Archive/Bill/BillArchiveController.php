@@ -9,7 +9,27 @@ class BillArchiveController extends Controller
 {
     public function index(BillDataTable $dataTable)
     {
-        return $dataTable->render('admin.archive.bill.index');
+        $filterOptions = [
+            'types' => [
+                ['value' => 'subscription', 'label' => 'اشتراك'],
+                ['value' => 'renewal', 'label' => 'تجديد'],
+                ['value' => 'extra_users', 'label' => 'مستخدمين إضافيين'],
+                ['value' => 'domain', 'label' => 'دومين'],
+            ],
+            'statuses' => [
+                ['value' => 'paid', 'label' => 'مدفوعة'],
+                ['value' => 'unpaid', 'label' => 'غير مدفوعة'],
+                ['value' => 'partially_paid', 'label' => 'مدفوعة جزئياً'],
+                ['value' => 'cancelled', 'label' => 'ملغاة'],
+            ],
+            'paymentMethods' => [
+                ['value' => 'bank_transfer', 'label' => 'تحويل بنكي'],
+                ['value' => 'credit_card', 'label' => 'بطاقة ائتمانية'],
+                ['value' => 'cash', 'label' => 'نقدي'],
+            ],
+        ];
+
+        return $dataTable->render('admin.archive.bill.index', compact('filterOptions'));
     }
     public function restore($id)
     {

@@ -129,24 +129,10 @@
     <div class="card mb-4">
         <div class="card-body">
             <div class="row g-4">
-                <div class="col-md-6">
-                    <label class="form-label" for="filter-status">حالة الطلب</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر حالة الطلب">
-                        <option value=""></option>
-                        <option value="suspended">قيد الانتظار (معلق)</option>
-                        <option value="active">مقبول</option>
-                        <option value="cancelled">مرفوض</option>
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label" for="filter-plan">الباقة</label>
-                    <select id="filter-plan" class="form-control select2" data-placeholder="اختر الباقة">
-                        <option value=""></option>
-                        @foreach ($plans as $plan)
-                            <option value="{{ $plan->id }}">{{ $plan->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                <x-filter.select id="filter-status" label="حالة الطلب"
+                    placeholder="اختر حالة الطلب" :options="$filterOptions['statuses'] ?? []" />
+                <x-filter.select id="filter-plan" label="الباقة"
+                    placeholder="اختر الباقة" :options="$filterOptions['plans'] ?? []" />
             </div>
             <div class="d-flex justify-content-end mt-3 gap-2">
                 <button type="button" id="btn-reset-filters" class="btn btn-secondary">

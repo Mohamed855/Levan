@@ -49,15 +49,8 @@
     <div class="card mb-4">
         <div class="card-body">
             <div class="row g-4">
-                <div class="col-md-4">
-                    <label class="form-label" for="filter-user">المستخدم</label>
-                    <select id="filter-user" class="form-control select2" data-placeholder="اختر المستخدم">
-                        <option value=""></option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                <x-filter.select col="col-md-4" id="filter-user" label="المستخدم"
+                    placeholder="اختر المستخدم" :options="$filterOptions['users'] ?? []" />
 
                 <div class="col-md-4">
                     <label class="form-label" for="filter-date-from">من تاريخ</label>

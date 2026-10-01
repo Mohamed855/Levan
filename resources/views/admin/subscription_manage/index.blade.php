@@ -66,17 +66,14 @@
         <div class="card mb-4">
             <div class="card-body">
                 <div class="row g-4">
-                    <div class="col-md-6">
-                        <label class="form-label" for="filter-status">حالة الشركات</label>
-                        <select id="filter-status" class="form-control select2" data-placeholder="اختر حالة الشركة">
-                            <option value=""></option>
-                            <option value="pending">قيد المراجعة</option>
-                            <option value="active">نشط</option>
-                            <option value="suspended">معلق</option>
-                            <option value="cancelled">ملغي</option>
-                            <option value="expired">منتهي</option>
-                        </select>
-                    </div>
+                    <x-filter.select id="filter-status" label="حالة الشركات"
+                        placeholder="اختر حالة الشركة" :options="$filterOptions['statuses'] ?? [
+                            ['value' => 'pending', 'label' => 'قيد المراجعة'],
+                            ['value' => 'active', 'label' => 'نشط'],
+                            ['value' => 'suspended', 'label' => 'معلق'],
+                            ['value' => 'cancelled', 'label' => 'ملغي'],
+                            ['value' => 'expired', 'label' => 'منتهي'],
+                        ]" />
                 </div>
                 <div class="d-flex justify-content-end mt-3 gap-2">
                     <button type="button" id="btn-reset-filters" class="btn btn-secondary">

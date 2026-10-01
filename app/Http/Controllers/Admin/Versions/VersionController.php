@@ -32,8 +32,22 @@ class VersionController extends Controller
         try {
             $statistics = $this->versionService->getVersionStatistics();
 
+            $filterOptions = [
+                'stages' => [
+                    ['value' => 'alpha', 'label' => 'تحت التطوير (Alpha)'],
+                    ['value' => 'testing', 'label' => 'قيد الاختبار (Testing)'],
+                    ['value' => 'beta', 'label' => 'تجريبية (Beta)'],
+                    ['value' => 'stable', 'label' => 'مستقرة (Stable)'],
+                ],
+                'statuses' => [
+                    ['value' => 'active', 'label' => 'نشط'],
+                    ['value' => 'inactive', 'label' => 'غير نشط'],
+                ],
+            ];
+
             return $dataTable->render($this->page . '.index', [
-                'total'       => $statistics['total'],
+                'total'         => $statistics['total'],
+                'filterOptions' => $filterOptions,
                 // 'activePlans'      => $statistics['active'],
                 // 'inactivePlans'    => $statistics['inactive'],
             ]);

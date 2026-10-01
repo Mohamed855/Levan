@@ -56,41 +56,12 @@
     <div class="card mb-4">
         <div class="card-body">
             <div class="row g-4">
-                <div class="col-md-4">
-                    <label class="form-label" for="filter-status">نوع العملية</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر نوع العملية">
-                        <option value=""></option>
-                        <option value="new_subscription">دفع الكتروني</option>
-                        <option value="renewal">تجديد اشتراك</option>
-                        <option value="license_purchase">شراء ترخيص</option>
-                        <option value="billing_cycle_change">تغيير دورة الفاتورة</option>
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label" for="filter-paid">حالة العملية</label>
-                    <select id="filter-paid" class="form-control select2" data-placeholder="اختر حالة العملية">
-                        <option value=""></option>
-                        <option value="paid">مدفوع</option>
-                        <option value="unpaid">غير مدفوع</option>
-                        <option value="partially_paid">مدفوع جزئياً</option>
-                        <option value="overdue">متأخر</option>
-                        <option value="refunded">مسترجع</option>
-                        <option value="pending">قيد الانتظار</option>
-                        <option value="pending_verification">بانتظار التحقق</option>
-                        <option value="rejected">مرفوض</option>
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label" for="filter-type">نوع الدفع</label>
-                    <select id="filter-type" class="form-control select2" data-placeholder="اختر نوع الدفع">
-                        <option value=""></option>
-                        <option value="online">دفع الكتروني</option>
-                        <option value="cash">يدوي</option>
-                        <option value="bank_transfer">تحويل بنكي</option>
-                    </select>
-                </div>
+                <x-filter.select col="col-md-4" id="filter-status" label="نوع العملية"
+                    placeholder="اختر نوع العملية" :options="$filterOptions['operationTypes'] ?? []" />
+                <x-filter.select col="col-md-4" id="filter-paid" label="حالة العملية"
+                    placeholder="اختر حالة العملية" :options="$filterOptions['statuses'] ?? []" />
+                <x-filter.select col="col-md-4" id="filter-type" label="نوع الدفع"
+                    placeholder="اختر نوع الدفع" :options="$filterOptions['paymentTypes'] ?? []" />
             </div>
             <div class="d-flex justify-content-end mt-3 gap-2">
                 <button type="button" id="btn-reset-filters" class="btn btn-secondary">

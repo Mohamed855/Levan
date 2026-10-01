@@ -71,9 +71,17 @@ class AdminActivityLogController extends Controller
         $statistics = $this->getStatistics();
         $users = AdminUser::select('id', 'name')->orderBy('name')->get();
 
+        $filterOptions = [
+            'users' => $users->map(fn ($user): array => [
+                'value' => $user->id,
+                'label' => $user->name,
+            ]),
+        ];
+
         return view('admin.activity_logs.index', [
             'users' => $users,
             'statistics' => $statistics,
+            'filterOptions' => $filterOptions,
         ]);
     }
 

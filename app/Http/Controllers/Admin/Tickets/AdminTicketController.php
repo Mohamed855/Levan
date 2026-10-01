@@ -34,7 +34,26 @@ class AdminTicketController extends Controller
             $tenants  = Tenant::select('id', 'company_name')->get();
             $ticketsEnabled = Settings::first()?->tickets_enabled ?? true;
 
-            return $dataTable->render($this->page . '.index', compact('stats', 'sections', 'tenants', 'ticketsEnabled'));
+            $filterOptions = [
+                'statuses' => [
+                    ['value' => 'open', 'label' => 'جديدة'],
+                    ['value' => 'in_progress', 'label' => 'قيد المعالجة'],
+                    ['value' => 'resolved', 'label' => 'تم الحل'],
+                    ['value' => 'resolved_pending_survey', 'label' => 'بانتظار التقييم'],
+                    ['value' => 'reopened', 'label' => 'معادة'],
+                    ['value' => 'closed', 'label' => 'مغلقة'],
+                ],
+                'sections' => $sections->map(fn ($section): array => [
+                    'value' => $section->id,
+                    'label' => $section->name,
+                ]),
+                'tenants' => $tenants->map(fn ($tenant): array => [
+                    'value' => $tenant->id,
+                    'label' => $tenant->company_name ?? (string) $tenant->id,
+                ]),
+            ];
+
+            return $dataTable->render($this->page . '.index', compact('stats', 'sections', 'tenants', 'ticketsEnabled', 'filterOptions'));
         } catch (\Exception $e) {
             report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب قائمة التذاكر: ' . $e->getMessage());

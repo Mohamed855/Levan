@@ -21,7 +21,18 @@ class TenantArchiveController extends Controller
 
     public function index(TenantDataTable $dataTable)
     {
-        return $dataTable->render('admin.archive.tenant.index');
+        $filterOptions = [
+            'statuses' => [
+                ['value' => 'active', 'label' => 'نشط'],
+                ['value' => 'queued', 'label' => 'في الانتظار'],
+                ['value' => 'expired', 'label' => 'منتهي'],
+                ['value' => 'cancelled', 'label' => 'ملغي'],
+                ['value' => 'pending_payment', 'label' => 'في انتظار الدفع'],
+                ['value' => 'suspended', 'label' => 'معلق'],
+            ],
+        ];
+
+        return $dataTable->render('admin.archive.tenant.index', compact('filterOptions'));
     }
 
     public function restore($id)

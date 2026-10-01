@@ -47,18 +47,8 @@
     <div class="card mb-4">
         <div class="card-body">
             <div class="row g-4">
-                <div class="col-md-6">
-                    <label class="form-label" for="filter-status">حالة الاشتراك</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر حالة الاشتراك">
-                        <option value=""></option>
-                        <option value="active">نشط</option>
-                        <option value="queued">في الانتظار</option>
-                        <option value="expired">منتهي</option>
-                        <option value="cancelled">ملغي</option>
-                        <option value="pending_payment">في انتظار الدفع</option>
-                        <option value="suspended">معلق</option>
-                    </select>
-                </div>
+                <x-filter.select id="filter-status" label="حالة الاشتراك"
+                    placeholder="اختر حالة الاشتراك" :options="$filterOptions['statuses'] ?? []" />
             </div>
             <div class="d-flex justify-content-end mt-3 gap-2">
                 <button type="button" id="btn-reset-filters" class="btn btn-secondary">

@@ -62,38 +62,12 @@
     <div class="card mb-4">
         <div class="card-body">
             <div class="row g-4">
-                <div class="col-md-4">
-                    <label class="form-label" for="filter-status">حالة التذكرة</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر حالة التذكرة">
-                        <option value=""></option>
-                        <option value="open">جديدة</option>
-                        <option value="in_progress">قيد المعالجة</option>
-                        <option value="resolved">تم الحل</option>
-                        <option value="resolved_pending_survey">بانتظار التقييم</option>
-                        <option value="reopened">معادة</option>
-                        <option value="closed">مغلقة</option>
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label" for="filter-section">القسم</label>
-                    <select id="filter-section" class="form-control select2" data-placeholder="اختر القسم">
-                        <option value=""></option>
-                        @foreach ($sections as $section)
-                            <option value="{{ $section->id }}">{{ $section->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label" for="filter-tenant">الشركة / المستأجر</label>
-                    <select id="filter-tenant" class="form-control select2" data-placeholder="اختر الشركة">
-                        <option value=""></option>
-                        @foreach ($tenants as $tenant)
-                            <option value="{{ $tenant->id }}">{{ $tenant->company_name ?? $tenant->id }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                <x-filter.select col="col-md-4" id="filter-status" label="حالة التذكرة"
+                    placeholder="اختر حالة التذكرة" :options="$filterOptions['statuses'] ?? []" />
+                <x-filter.select col="col-md-4" id="filter-section" label="القسم"
+                    placeholder="اختر القسم" :options="$filterOptions['sections'] ?? []" />
+                <x-filter.select col="col-md-4" id="filter-tenant" label="الشركة / المستأجر"
+                    placeholder="اختر الشركة" :options="$filterOptions['tenants'] ?? []" />
             </div>
             <div class="d-flex justify-content-end mt-3 gap-2">
                 <button type="button" id="btn-reset-filters" class="btn btn-secondary">

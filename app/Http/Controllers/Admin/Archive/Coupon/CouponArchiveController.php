@@ -11,7 +11,18 @@ class CouponArchiveController extends Controller
 {
     public function index(CouponDataTable $dataTable)
     {
-        return $dataTable->render('admin.archive.coupon.index');
+        $filterOptions = [
+            'statuses' => [
+                ['value' => 'active', 'label' => 'نشط'],
+                ['value' => 'inactive', 'label' => 'غير نشط'],
+            ],
+            'types' => [
+                ['value' => 'fixed', 'label' => 'مبلغ ثابت'],
+                ['value' => 'percentage', 'label' => 'نسبة مئوية'],
+            ],
+        ];
+
+        return $dataTable->render('admin.archive.coupon.index', compact('filterOptions'));
     }
     public function restore(int $id)
     {

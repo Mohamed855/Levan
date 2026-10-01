@@ -149,30 +149,20 @@
                 @endforeach
             </select>
         </div> --}}
-                <div class="col-md-6">
-                    <label for="filter-status">حالة الاشتراك</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر  حالة الاشتراك">
-                        <option value=""></option>
-                        {{-- @foreach ($advanceStatus as $status) --}}
-                        <option value="active">نشط</option>
-                        <option value="queued">في الانتظار</option>
-                        <option value="expired">منتهي</option>
-                        <option value="cancelled">ملغي</option>
-                        <option value="pending_payment">في انتظار الدفع</option>
-                        {{-- @endforeach --}}
-                    </select>
-                </div>
+                <x-filter.select id="filter-status" label="حالة الاشتراك"
+                    placeholder="اختر حالة الاشتراك" :options="[
+                        ['value' => 'active', 'label' => 'نشط'],
+                        ['value' => 'queued', 'label' => 'في الانتظار'],
+                        ['value' => 'expired', 'label' => 'منتهي'],
+                        ['value' => 'cancelled', 'label' => 'ملغي'],
+                        ['value' => 'pending_payment', 'label' => 'في انتظار الدفع'],
+                    ]" />
 
-                <div class="col-md-6">
-                    <label for="filter-client">حالة العميل</label>
-                    <select id="filter-client" class="form-control select2" data-placeholder="اختر  حالة العميل">
-                        <option value=""></option>
-                        {{-- @foreach ($advanceStatus as $status) --}}
-                        <option value="1">نشط</option>
-                        <option value="0">محذوف</option>
-                        {{-- @endforeach --}}
-                    </select>
-                </div>
+                <x-filter.select id="filter-client" label="حالة العميل"
+                    placeholder="اختر حالة العميل" :options="[
+                        ['value' => '1', 'label' => 'نشط'],
+                        ['value' => '0', 'label' => 'محذوف'],
+                    ]" />
             </div>
             <hr class="mt-10">
             {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100'], false) !!}

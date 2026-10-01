@@ -219,8 +219,9 @@ table.dataTable {
     }
   }
 
-  // Checkbox height & width for datatables checkboxes
-  .form-check-input {
+  // Keep DataTables selection checkboxes consistently sized without overriding Bootstrap switches.
+  .form-check:not(.form-switch) .form-check-input,
+  .dt-checkboxes-cell .form-check-input {
     width: light.$form-datatables-check-input-size;
     height: light.$form-datatables-check-input-size;
   }

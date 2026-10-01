@@ -10,7 +10,18 @@ class PlanArchiveController extends Controller
 {
     public function index(PlanDataTable $dataTable)
     {
-        return $dataTable->render('admin.archive.plan.index');
+        $filterOptions = [
+            'statuses' => [
+                ['value' => 'active', 'label' => 'نشط'],
+                ['value' => 'inactive', 'label' => 'غير نشط'],
+            ],
+            'domains' => [
+                ['value' => 'active', 'label' => 'نشط'],
+                ['value' => 'inactive', 'label' => 'غير نشط'],
+            ],
+        ];
+
+        return $dataTable->render('admin.archive.plan.index', compact('filterOptions'));
     }
     public function restore(int $id)
     {

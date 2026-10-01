@@ -67,12 +67,23 @@ class AdminCouponController extends Controller
 
             // $coupon_details = Coupon::where('id', $coupon->id)->first();
             // $tenant = Tenant::where('id', $tenant_id)->first();
-            //    return $tenantUsedCoupons = Bill::->get();   
+            $filterOptions = [
+                'statuses' => [
+                    ['value' => 'active', 'label' => 'نشط'],
+                    ['value' => 'inactive', 'label' => 'غير نشط'],
+                ],
+                'types' => [
+                    ['value' => 'percentage', 'label' => 'نسبة مئوية'],
+                    ['value' => 'fixed', 'label' => 'نسبة رقمية'],
+                ],
+            ];
+
             return $dataTable->render($this->page . '.index', [
                 'totalPlans'       => $statistics['total'],
                 'activecoupons'      => $statistics['active'],
                 'inactivecoupons'    => $statistics['inactive'],
                 'couponCount' => $coupon,
+                'filterOptions' => $filterOptions,
                 // 'tenantUsedCouponCount' => $tenant->count()
 
             ]);
