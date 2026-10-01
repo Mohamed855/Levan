@@ -39,8 +39,8 @@ class RouteServiceProvider extends ServiceProvider
         $this->routes(function () {
             $this->mapSiteRoutes();
             $this->mapAdminRoutes();
-            $this->mapTenantRoutes();
             $this->mapApiRoutes();
+            $this->mapTenantRoutes();
         });
     }
 
@@ -79,7 +79,7 @@ class RouteServiceProvider extends ServiceProvider
                 ->domain($cleanDomain)
                 ->prefix('{tenant}')
                 ->name('path.')
-                ->where(['tenant' => '^(?!(?i)admin$)[^/]+$'])
+                ->where(['tenant' => '^(?!(?i)(admin|api)(?:\/|$))[^/]+$'])
                 ->group(base_path('routes/tenant/tenant.php'));
         }
 
