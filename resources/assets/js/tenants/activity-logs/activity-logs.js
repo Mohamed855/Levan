@@ -266,17 +266,8 @@ function handleTableRowCreation(row, data, dataIndex) {
  * ربط الأحداث
  */
 function bindEvents() {
-    // تحديث الجدول عند تغيير الفلاتر، وإلغاء أي تحديد سابق لأنه لم يعد يطابق الفلاتر الجديدة
-    $('#filter-user, #filter-log-name, #filter-date-from, #filter-date-to').on('change', function () {
+    $('#activity-logs-table').on('preXhr.dt', function () {
         ActivityLogSelection.clearAll();
-        activityLogsTable.draw();
-    });
-
-    $('#btn-reset-filters').on('click', function () {
-        $('#filter-user, #filter-log-name').val('').trigger('change');
-        $('#filter-date-from, #filter-date-to').val('');
-        ActivityLogSelection.clearAll();
-        activityLogsTable.draw();
     });
 
     // كود تحريك النص

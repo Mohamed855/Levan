@@ -129,90 +129,105 @@
     </div>
 
     {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <div class="col-md-2">
-                    <label for="filter-company" class="form-label">الشركة</label>
-                    <select id="filter-company" class="form-control select2" data-placeholder="اختر الشركة">
-                        <option value=""></option>
-                        @foreach ($companies as $company)
-                            <option value="{{ $company->id }}">{{ $company->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
+    <x-data-table.filters table="#tasks-table">
+        <div class="col-md-2">
+            <x-filter.select
+                id="filter-company"
+                filterKey="company_id"
+                table="#tasks-table"
+                name="company_id"
+                label="الشركة"
+                placeholder="اختر الشركة"
+                :options="$companies->pluck('name', 'id')"
+            />
+        </div>
 
-                <div class="col-md-2">
-                    <label for="filter-portfolio" class="form-label">المحفظة</label>
-                    <select id="filter-portfolio" class="form-control select2" data-placeholder="اختر المحفظة">
-                        <option value=""></option>
-                        @foreach ($portfolios as $portfolio)
-                            <option value="{{ $portfolio->id }}">{{ $portfolio->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
+        <div class="col-md-2">
+            <x-filter.select
+                id="filter-portfolio"
+                filterKey="portfolio_id"
+                table="#tasks-table"
+                name="portfolio_id"
+                label="المحفظة"
+                placeholder="اختر المحفظة"
+                :options="$portfolios->pluck('name', 'id')"
+            />
+        </div>
 
-                <div class="col-md-2">
-                    <label for="filter-manager" class="form-label">مسؤول العلاقات</label>
-                    <select id="filter-manager" class="form-control select2" data-placeholder="اختر مسؤول العلاقات">
-                        <option value=""></option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
+        <div class="col-md-2">
+            <x-filter.select
+                id="filter-manager"
+                filterKey="relationship_manager_id"
+                table="#tasks-table"
+                name="relationship_manager_id"
+                label="مسؤول العلاقات"
+                placeholder="اختر مسؤول العلاقات"
+                :options="$users->pluck('name', 'id')"
+            />
+        </div>
 
-                <div class="col-md-2">
-                    <label for="filter-task-type" class="form-label">نوع المهمة</label>
-                    <select id="filter-task-type" class="form-control select2" data-placeholder="اختر نوع المهمة">
-                        <option value=""></option>
-                        <option value="promise">وعد بالسداد</option>
-                        <option value="callback">معاودة اتصال</option>
-                        <option value="document_request">طلب مستندات</option>
-                    </select>
-                </div>
+        <div class="col-md-2">
+            <x-filter.select
+                id="filter-task-type"
+                filterKey="task_type"
+                table="#tasks-table"
+                name="task_type"
+                label="نوع المهمة"
+                placeholder="اختر نوع المهمة"
+                :options="[
+                    'promise' => 'وعد بالسداد',
+                    'callback' => 'معاودة اتصال',
+                    'document_request' => 'طلب مستندات'
+                ]"
+            />
+        </div>
 
-                <div class="col-md-2">
-                    <label for="filter-status" class="form-label">الحالة</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر الحالة">
-                        <option value=""></option>
-                        <option value="pending">معلقة</option>
-                        <option value="completed">مكتملة</option>
-                        <option value="overdue">متأخرة</option>
-                    </select>
-                </div>
+        <div class="col-md-2">
+            <x-filter.select
+                id="filter-status"
+                filterKey="status"
+                table="#tasks-table"
+                name="status"
+                label="الحالة"
+                placeholder="اختر الحالة"
+                :options="[
+                    'pending' => 'معلقة',
+                    'completed' => 'مكتملة',
+                    'overdue' => 'متأخرة'
+                ]"
+            />
+        </div>
 
-                <div class="col-md-2">
-                    <label for="filter-overdue-days" class="form-label">أيام التأخير</label>
-                    <select id="filter-overdue-days" class="form-control select2" data-placeholder="اختر الفترة">
-                        <option value=""></option>
-                        <option value="1">أمس فقط</option>
-                        <option value="3">آخر 3 أيام</option>
-                        <option value="7">آخر أسبوع</option>
-                        <option value="30">آخر شهر</option>
-                        <option value="custom">نطاق مخصص</option>
-                    </select>
-                </div>
+        <div class="col-md-2">
+            <x-filter.select
+                id="filter-overdue-days"
+                filterKey="overdue_days"
+                table="#tasks-table"
+                name="overdue_days"
+                label="أيام التأخير"
+                placeholder="اختر الفترة"
+                :options="[
+                    '1' => 'أمس فقط',
+                    '3' => 'آخر 3 أيام',
+                    '7' => 'آخر أسبوع',
+                    '30' => 'آخر شهر',
+                    'custom' => 'نطاق مخصص'
+                ]"
+            />
+        </div>
 
-                <div id="custom-date-range" class="col-md-6 d-none">
-                    <label class="form-label">نطاق تاريخي مخصص</label>
-                    <div class="row g-2">
-                        <div class="col-md-6">
-                            <input type="date" id="filter-date-from" class="form-control" placeholder="من تاريخ">
-                        </div>
-                        <div class="col-md-6">
-                            <input type="date" id="filter-date-to" class="form-control" placeholder="إلى تاريخ">
-                        </div>
-                    </div>
+        <div id="custom-date-range" class="col-md-6 d-none">
+            <label class="form-label">نطاق تاريخي مخصص</label>
+            <div class="row g-2">
+                <div class="col-md-6">
+                    <input type="date" id="filter-date-from" class="form-control" placeholder="من تاريخ" data-filter-key="date_from" data-datatable-filter="true" data-datatable-target="#tasks-table">
                 </div>
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
+                <div class="col-md-6">
+                    <input type="date" id="filter-date-to" class="form-control" placeholder="إلى تاريخ" data-filter-key="date_to" data-datatable-filter="true" data-datatable-target="#tasks-table">
+                </div>
             </div>
         </div>
-    </div>
+    </x-data-table.filters>
 
     <div class="card" id="card-tasks">
         <div class="card-body">

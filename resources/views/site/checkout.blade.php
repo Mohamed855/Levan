@@ -113,8 +113,7 @@
                                                     for="billing_tax_number">
                                                     الرقم الضريبي
                                                 </label>
-                                                <input type="text" id="billing_tax_number"
-                                                    name="billing_tax_number"
+                                                <input type="text" id="billing_tax_number" name="billing_tax_number"
                                                     class="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                                     value="{{ old('billing_tax_number') }}"
                                                     placeholder="الرقم الضريبي (اختياري)" />
@@ -128,9 +127,10 @@
                                                 <select id="billing_city_id" name="billing_city_id"
                                                     class="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                                                     <option value="">اختر المدينة (اختياري)</option>
-                                                    @if(isset($cities))
-                                                        @foreach($cities as $city)
-                                                            <option value="{{ $city->id }}" @selected(old('billing_city_id') == $city->id)>{{ $city->name }}</option>
+                                                    @if (isset($cities))
+                                                        @foreach ($cities as $city)
+                                                            <option value="{{ $city->id }}"
+                                                                @selected(old('billing_city_id') == $city->id)>{{ $city->name }}</option>
                                                         @endforeach
                                                     @endif
                                                 </select>
@@ -141,8 +141,7 @@
                                                     for="billing_address">
                                                     العنوان
                                                 </label>
-                                                <input type="text" id="billing_address"
-                                                    name="billing_address"
+                                                <input type="text" id="billing_address" name="billing_address"
                                                     class="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                                     value="{{ old('billing_address') }}"
                                                     placeholder="العنوان أو الحي (اختياري)" />

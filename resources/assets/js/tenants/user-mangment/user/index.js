@@ -9,17 +9,13 @@ $(document).ready(function () {
     initializeTableStatusToggles();
     initializeComponents();
     
-    $('#users-table').on('preInit.dt', function () {
-        setupFilters();
-    });
-    
     $('#users-table').on('init.dt', function () {
         bindTableEvents();
     });
 });
 
 function initializeComponents() {
-    $('.filters .select2').each(function () {
+    $('.select2').each(function () {
         $(this).select2({
             placeholder: $(this).data('placeholder') || 'اختر',
             allowClear: true,
@@ -31,24 +27,8 @@ function initializeComponents() {
     });
 }
 
-function setupFilters() {
-    $('#users-table').on('preXhr.dt', function (e, settings, data) {
-        data.status = $('#filter-status').val();
-        data.role = $('#filter-role').val();
-        data.branch_ids = $('#filter-branch').val();
-    });
-}
-
 function bindTableEvents() {
     const table = $('#users-table').DataTable();
-    
-    $('#filter-status, #filter-role, #filter-branch').on('change', function () {
-        table.ajax.reload(null, false); 
-    });
-
-    $('#btn-reset-filters').on('click', function () {
-        $('#filter-status, #filter-role, #filter-branch').val('').trigger('change');
-    });
 
     const tableWrapper = $('#users-table_wrapper');
     

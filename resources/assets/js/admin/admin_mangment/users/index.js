@@ -37,12 +37,6 @@ function initializeComponents() {
 
 function bindTableEvents() {
     const table = $('#users-table').DataTable();
-
-    // الفلاتر
-    $('#filter-status, #filter-role, #filter-branch').on('change', function () {
-        table.draw();
-    });
-
     const tableWrapper = $('#users-table_wrapper');
 
     // تحديد الكل

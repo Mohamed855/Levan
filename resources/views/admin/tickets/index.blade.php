@@ -25,7 +25,7 @@
             massDelete: "{{ route('admin.mass-delete') }}"
         };
     </script>
-    @vite(['resources/assets/js/admin/tickets/filter.js', 'resources/assets/js/admin/tickets/index.js'])
+    @vite(['resources/assets/js/admin/tickets/index.js'])
 @endsection
 
 @section('content')
@@ -59,23 +59,14 @@
         </div>
     @endif
 
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <x-filter.select col="col-md-4" id="filter-status" label="حالة التذكرة"
-                    placeholder="اختر حالة التذكرة" :options="$filterOptions['statuses'] ?? []" />
-                <x-filter.select col="col-md-4" id="filter-section" label="القسم"
-                    placeholder="اختر القسم" :options="$filterOptions['sections'] ?? []" />
-                <x-filter.select col="col-md-4" id="filter-tenant" label="الشركة / المستأجر"
-                    placeholder="اختر الشركة" :options="$filterOptions['tenants'] ?? []" />
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
-        </div>
-    </div>
+    <x-data-table.filters table="#admin-tickets-table">
+        <x-filter.select col="col-md-4" id="filter-status" filterKey="status" label="حالة التذكرة"
+            placeholder="اختر حالة التذكرة" :options="$filterOptions['statuses'] ?? []" />
+        <x-filter.select col="col-md-4" id="filter-section" filterKey="section" label="القسم"
+            placeholder="اختر القسم" :options="$filterOptions['sections'] ?? []" />
+        <x-filter.select col="col-md-4" id="filter-tenant" filterKey="tenant_id" label="الشركة / المستأجر"
+            placeholder="اختر الشركة" :options="$filterOptions['tenants'] ?? []" />
+    </x-data-table.filters>
 
     <div class="card">
         <div class="card-body">

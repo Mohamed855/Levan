@@ -82,45 +82,31 @@ function bindTableEvents() {
 | Bind events for filters to trigger table refresh.
 */
 function bindFilterEvents() {
-    const filterSelectors = ['#filter-status', '#filter-user'];
-
-    $(filterSelectors.join(', ')).on('change', function () {
-        if (collectionTargetsTable) {
-            collectionTargetsTable.draw();
-        }
-    });
-
-    // معالجة تغيير الفرع في الفلاتر
+    // معالجة تغيير الفرع في الفلاتر لتحديث خيارات المستخدمين
     $('#filter-branch').on('change', function () {
         const branchId = $(this).val();
         const userSelect = $('#filter-user');
 
-        // تفريغ القائمة
         userSelect.empty().append('<option value="">اختر المستخدم</option>');
 
         if (branchId) {
-            // تفعيل الحقل وتحديث الرسالة
             userSelect.prop('disabled', false);
             userSelect.next('small').text('جاري التحميل...');
 
-            // جلب المستخدمين
             loadUsersByBranch(branchId, userSelect, function () {
                 userSelect.next('small').text('');
             });
         } else {
-            // تعطيل الحقل وإظهار رسالة
             userSelect.prop('disabled', true);
             userSelect.next('small').text('اختر الفرع أولاً');
         }
-
-        // تحديث الجدول
-        if (collectionTargetsTable) {
-            collectionTargetsTable.draw();
-        }
     });
 
-    $('#btn-reset-filters').on('click', function () {
-        $('#filter-status, #filter-branch, #filter-user').val('').trigger('change');
+    $(document).on('datatable-filter:reset', function (e, data) {
+        if (data && data.tableSelector === '#collection-targets-table') {
+            const userSelect = $('#filter-user');
+            userSelect.empty().append('<option value="">اختر المستخدم</option>').prop('disabled', true);
+        }
     });
 }
 

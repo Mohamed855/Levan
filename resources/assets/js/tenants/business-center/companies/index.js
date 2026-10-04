@@ -22,26 +22,6 @@ $(function () {
     $('#companies-table').on('init.dt', function () {
         const table = $(this).DataTable();
 
-        function applyFilters() {
-            const status = $('#filter-status').val() || '';
-            const authorizedCount = $('#filter-authorized-count').val() || '';
-            const baseUrl = window.location.pathname;
-            const params = new URLSearchParams();
-
-            if (status) params.append('status', status);
-            if (authorizedCount) params.append('authorized_count', authorizedCount);
-
-            const query = params.toString();
-            const newUrl = query ? baseUrl + '?' + query : baseUrl;
-
-            table.ajax.url(newUrl).load();
-        }
-
-        $('#filter-status, #filter-authorized-count').on('change', applyFilters);
-
-        $('#btn-reset-filters').on('click', function () {
-            $('#filter-status, #filter-authorized-count').val('').trigger('change');
-        });
 
         const tableWrapper = $('#companies-table_wrapper');
 

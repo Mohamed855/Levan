@@ -25,7 +25,7 @@
             massDelete: "{{ route('admin.mass-delete') }}",
         };
     </script>
-    @vite(['resources/assets/js/admin/bills/filter.js', 'resources/assets/js/admin/bills/index.js'])
+    @vite(['resources/assets/js/admin/bills/index.js'])
 @endsection
 
 @section('content')
@@ -53,23 +53,14 @@
         </div>
     @endif
 
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <x-filter.select col="col-md-4" id="filter-status" label="نوع العملية"
-                    placeholder="اختر نوع العملية" :options="$filterOptions['operationTypes'] ?? []" />
-                <x-filter.select col="col-md-4" id="filter-paid" label="حالة العملية"
-                    placeholder="اختر حالة العملية" :options="$filterOptions['statuses'] ?? []" />
-                <x-filter.select col="col-md-4" id="filter-type" label="نوع الدفع"
-                    placeholder="اختر نوع الدفع" :options="$filterOptions['paymentTypes'] ?? []" />
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
-        </div>
-    </div>
+    <x-data-table.filters table="#bill-table">
+        <x-filter.select col="col-md-4" id="filter-status" filterKey="type" label="نوع العملية"
+            placeholder="اختر نوع العملية" :options="$filterOptions['operationTypes'] ?? []" />
+        <x-filter.select col="col-md-4" id="filter-paid" filterKey="status" label="حالة العملية"
+            placeholder="اختر حالة العملية" :options="$filterOptions['statuses'] ?? []" />
+        <x-filter.select col="col-md-4" id="filter-type" filterKey="payment_method" label="نوع الدفع"
+            placeholder="اختر نوع الدفع" :options="$filterOptions['paymentTypes'] ?? []" />
+    </x-data-table.filters>
 
     <div class="card">
         <div class="card-body">

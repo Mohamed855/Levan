@@ -145,121 +145,92 @@
         </div>
     </div>
 
+    <x-data-table.filters table="#customer-reports-table" reset-id="reset-filters">
+        <div class="col-md-3">
+            <label for="filter-date-from" class="form-label">من تاريخ</label>
+            <input type="date" id="filter-date-from" class="form-control" data-datatable-filter="true" data-filter-key="date_from" placeholder="اختر التاريخ">
+        </div>
+        <div class="col-md-3">
+            <label for="filter-date-to" class="form-label">إلى تاريخ</label>
+            <input type="date" id="filter-date-to" class="form-control" data-datatable-filter="true" data-filter-key="date_to" placeholder="اختر التاريخ">
+        </div>
+        <div class="col-md-3">
+            <label for="filter-customer-status" class="form-label">حالة العميل</label>
+            <select id="filter-customer-status" class="form-control select2" data-datatable-filter="true" data-filter-key="customer_status_id" data-placeholder="جميع الحالات">
+                <option value=""></option>
+                @foreach ($customer_statuses as $status)
+                    <option value="{{ $status->id }}">{{ $status->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="filter-customer-type" class="form-label">نوع العميل</label>
+            <select id="filter-customer-type" class="form-control select2" data-datatable-filter="true" data-filter-key="customer_type" data-placeholder="جميع الأنواع">
+                <option value=""></option>
+                <option value="individual">فردي</option>
+                <option value="company">شركة</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label for="filter-company" class="form-label">الشركة</label>
+            <select id="filter-company" class="form-control select2" data-datatable-filter="true" data-filter-key="company_id" data-placeholder="جميع الشركات">
+                <option value=""></option>
+                @foreach ($companies as $company)
+                    <option value="{{ $company->id }}">{{ $company->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label for="filter-portfolio" class="form-label">المحفظة</label>
+            <select id="filter-portfolio" class="form-control select2" data-datatable-filter="true" data-filter-key="portfolio_id" data-placeholder="جميع المحافظ">
+                <option value=""></option>
+                @foreach ($portfolios as $portfolio)
+                    <option value="{{ $portfolio->id }}" data-company="{{ $portfolio->company_id }}">
+                        {{ $portfolio->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label for="filter-nationality" class="form-label">الجنسية</label>
+            <select id="filter-nationality" class="form-control select2" data-datatable-filter="true" data-filter-key="nationality" data-placeholder="جميع الجنسيات">
+                <option value=""></option>
+                @foreach ($countries as $country)
+                    <option value="{{ $country->id }}">{{ $country->name }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <label for="filter-manager" class="form-label">مسؤول العلاقة</label>
+            <select id="filter-manager" class="form-control select2-multiple" multiple data-datatable-filter="true" data-filter-key="relationship_manager_id"
+                data-placeholder="اختر المسؤولين">
+                @foreach ($users as $user)
+                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label for="filter-contact-result" class="form-label">نتيجة الاتصال</label>
+            <select id="filter-contact-result" class="form-control select2-multiple" multiple data-datatable-filter="true" data-filter-key="contact_result_id"
+                data-placeholder="اختر نتائج الاتصال">
+                @foreach ($contact_results as $result)
+                    <option value="{{ $result->id }}">{{ $result->name }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <label for="filter-debt-from" class="form-label">مديونية من</label>
+            <input type="number" id="filter-debt-from" class="form-control" data-datatable-filter="true" data-filter-key="debt_from" placeholder="0" step="0.01">
+        </div>
+        <div class="col-md-6">
+            <label for="filter-debt-to" class="form-label">مديونية إلى</label>
+            <input type="number" id="filter-debt-to" class="form-control" data-datatable-filter="true" data-filter-key="debt_to" placeholder="0" step="0.01">
+        </div>
+    </x-data-table.filters>
+
     <div class="card">
-        <div class="card-header">
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">تقرير العملاء </h5>
-                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="collapse"
-                    data-bs-target="#filtersSection" aria-expanded="false">
-                    <i class="ti ti-filter me-1"></i>
-                    فلاتر البحث
-                    <i class="ti ti-chevron-down ms-1"></i>
-                </button>
-            </div>
-        </div>
-
-        <div class="collapse" id="filtersSection">
-            <div class="card-body border-bottom">
-                <div class="row g-4 mb-4">
-                    <div class="col-md-3">
-                        <label for="filter-date-from" class="form-label">من تاريخ</label>
-                        <input type="date" id="filter-date-from" class="form-control" placeholder="اختر التاريخ">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="filter-date-to" class="form-label">إلى تاريخ</label>
-                        <input type="date" id="filter-date-to" class="form-control" placeholder="اختر التاريخ">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="filter-customer-status" class="form-label">حالة العميل</label>
-                        <select id="filter-customer-status" class="form-control select2" data-placeholder="جميع الحالات">
-                            <option value=""></option>
-                            @foreach ($customer_statuses as $status)
-                                <option value="{{ $status->id }}">{{ $status->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="filter-customer-type" class="form-label">نوع العميل</label>
-                        <select id="filter-customer-type" class="form-control select2" data-placeholder="جميع الأنواع">
-                            <option value=""></option>
-                            <option value="individual">فردي</option>
-                            <option value="company">شركة</option>
-                        </select>
-                    </div>
-                </div>
-
-                {{-- مجموعة فلاتر الشركة والمحفظة --}}
-                <div class="row g-4 mb-4">
-                    <div class="col-md-4">
-                        <label for="filter-company" class="form-label">الشركة</label>
-                        <select id="filter-company" class="form-control select2" data-placeholder="جميع الشركات">
-                            <option value=""></option>
-                            @foreach ($companies as $company)
-                                <option value="{{ $company->id }}">{{ $company->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="filter-portfolio" class="form-label">المحفظة</label>
-                        <select id="filter-portfolio" class="form-control select2" data-placeholder="جميع المحافظ">
-                            <option value=""></option>
-                            @foreach ($portfolios as $portfolio)
-                                <option value="{{ $portfolio->id }}" data-company="{{ $portfolio->company_id }}">
-                                    {{ $portfolio->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="filter-nationality" class="form-label">الجنسية</label>
-                        <select id="filter-nationality" class="form-control select2" data-placeholder="جميع الجنسيات">
-                            <option value=""></option>
-                            @foreach ($countries as $country)
-                                <option value="{{ $country->id }}">{{ $country->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-
-                <div class="row g-4 mb-4">
-                    <div class="col-md-6">
-                        <label for="filter-manager" class="form-label">مسؤول العلاقة</label>
-                        <select id="filter-manager" class="form-control select2-multiple" multiple
-                            data-placeholder="اختر المسؤولين">
-                            @foreach ($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="filter-contact-result" class="form-label">نتيجة الاتصال</label>
-                        <select id="filter-contact-result" class="form-control select2-multiple" multiple
-                            data-placeholder="اختر نتائج الاتصال">
-                            @foreach ($contact_results as $result)
-                                <option value="{{ $result->id }}">{{ $result->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-
-                <div class="row g-4 mb-4">
-                    <div class="col-md-4">
-                        <label for="filter-debt-from" class="form-label">مديونية من</label>
-                        <input type="number" id="filter-debt-from" class="form-control" placeholder="0"
-                            step="0.01">
-                    </div>
-                    <div class="col-md-4">
-                        <label for="filter-debt-to" class="form-label">مديونية إلى</label>
-                        <input type="number" id="filter-debt-to" class="form-control" placeholder="0" step="0.01">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">&nbsp;</label>
-                        <button type="button" id="reset-filters" class="btn btn-outline-secondary w-100 d-block">
-                            <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <div class="card-body">
             {!! $dataTable->table(

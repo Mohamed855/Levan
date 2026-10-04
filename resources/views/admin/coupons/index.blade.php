@@ -25,7 +25,7 @@
             massDelete: "{{ route('admin.mass-delete') }}"
         };
     </script>
-    @vite(['resources/assets/js/admin/coupons/filter.js', 'resources/assets/js/admin/coupons/index.js'])
+    @vite(['resources/assets/js/admin/coupons/index.js'])
     <script>
         function copyTextToClipboard(text, onSuccess, onError) {
             if (!text) return;
@@ -130,21 +130,12 @@
     @endif
 
     {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <x-filter.select id="filter-status" label="حالة الكوبونات"
-                    placeholder="اختر حالة الكوبون" :options="$filterOptions['statuses'] ?? []" />
-                <x-filter.select id="filter-type" label="نوع الخصم"
-                    placeholder="اختر نوع الخصم" :options="$filterOptions['types'] ?? []" />
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
-        </div>
-    </div>
+    <x-data-table.filters table="#coupon-table">
+        <x-filter.select id="filter-status" filterKey="is_active" label="حالة الكوبونات"
+            placeholder="اختر حالة الكوبون" :options="$filterOptions['statuses'] ?? []" />
+        <x-filter.select id="filter-type" filterKey="discount_type" label="نوع الخصم"
+            placeholder="اختر نوع الخصم" :options="$filterOptions['types'] ?? []" />
+    </x-data-table.filters>
 
     <div class="card">
         <div class="card-body">

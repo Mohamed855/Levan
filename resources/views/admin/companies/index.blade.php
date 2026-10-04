@@ -38,16 +38,16 @@
         </x-slot:stats>
 
         <x-slot:filters>
-            <x-data-table.filters>
-                <x-filter.select col="col-md-3" id="filter-status" label="حالة الشركة"
+            <x-data-table.filters table="#companies-table">
+                <x-filter.select col="col-md-3" id="filter-status" filterKey="status" label="حالة الشركة"
                     placeholder="اختر حالة الشركة" :options="$filterOptions['statuses'] ?? []" />
-                <x-filter.select col="col-md-3" id="filter-sub-status" label="حالة آخر اشتراك"
+                <x-filter.select col="col-md-3" id="filter-sub-status" filterKey="subscription_status" label="حالة آخر اشتراك"
                     placeholder="اختر حالة الاشتراك" :options="$filterOptions['subscriptionStatuses'] ?? []" />
-                <x-filter.select col="col-md-2" id="filter-plan" label="الباقة"
+                <x-filter.select col="col-md-2" id="filter-plan" filterKey="plan_id" label="الباقة"
                     placeholder="اختر الباقة" :options="$filterOptions['plans'] ?? []" />
-                <x-filter.select col="col-md-2" id="filter-city" label="المدينة"
+                <x-filter.select col="col-md-2" id="filter-city" filterKey="city_id" label="المدينة"
                     placeholder="اختر المدينة" :options="$filterOptions['cities'] ?? []" />
-                <x-filter.select col="col-md-2" id="filter-expiring" label="انتهاء الاشتراك"
+                <x-filter.select col="col-md-2" id="filter-expiring" filterKey="expiring_in" label="انتهاء الاشتراك"
                     placeholder="انتهاء الاشتراك" :options="$filterOptions['expiring'] ?? []" />
             </x-data-table.filters>
         </x-slot:filters>
@@ -61,49 +61,6 @@
 @push('scripts')
     <script>
         $(function() {
-            $('.select2').select2({
-                allowClear: true,
-                dir: 'rtl'
-            });
-
-            const tableId = 'companies-table';
-
-            function getTable() {
-                return window.LaravelDataTables ? window.LaravelDataTables[tableId] : null;
-            }
-
-            function applyFilters() {
-                const table = getTable();
-                if (!table) return;
-
-                const url = new URL(table.ajax.url(), window.location.origin);
-                const status = $('#filter-status').val();
-                const subStatus = $('#filter-sub-status').val();
-                const plan = $('#filter-plan').val();
-                const city = $('#filter-city').val();
-                const expiring = $('#filter-expiring').val();
-
-                if (status) url.searchParams.set('status', status);
-                else url.searchParams.delete('status');
-                if (subStatus) url.searchParams.set('subscription_status', subStatus);
-                else url.searchParams.delete('subscription_status');
-                if (plan) url.searchParams.set('plan_id', plan);
-                else url.searchParams.delete('plan_id');
-                if (city) url.searchParams.set('city_id', city);
-                else url.searchParams.delete('city_id');
-                if (expiring) url.searchParams.set('expiring_in', expiring);
-                else url.searchParams.delete('expiring_in');
-
-                table.ajax.url(url.toString()).load();
-            }
-
-            $('#filter-status, #filter-sub-status, #filter-plan, #filter-city, #filter-expiring').on('change',
-                applyFilters);
-
-            $('#btn-reset-filters').on('click', function() {
-                $('#filter-status, #filter-sub-status, #filter-plan, #filter-city, #filter-expiring').val(
-                    '').trigger('change');
-            });
 
             // Delete company confirmation
             $(document).on('click', '.js-delete-btn', function(e) {

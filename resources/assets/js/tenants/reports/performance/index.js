@@ -247,17 +247,6 @@ function initializeContactStatsChart() {
 |--------------------------------------------------------------------------
 */
 function bindEvents() {
-    const filterElements = [
-        '#filter-year', '#filter-month', '#filter-company', '#filter-portfolio',
-        '#filter-branch', '#filter-team', '#filter-user'
-    ];
-
-    // ✅ عند تغيير أي فلتر - نحدث الجدول فقط بدون إعادة تحميل الصفحة
-    $(filterElements.join(', ')).on('change', debounce(function () {
-        console.log('🔄 Filter changed');
-        reloadTable();
-    }, 800));
-
     // ✅ الفلاتر المتتابعة
     $('#filter-company').on('change', function () {
         filterPortfoliosByCompany($(this).val());
@@ -269,11 +258,6 @@ function bindEvents() {
 
     $('#filter-team').on('change', function () {
         filterUsersByTeam($(this).val());
-    });
-
-    // ✅ إعادة تعيين الفلاتر
-    $('#reset-filters').on('click', function () {
-        resetFilters();
     });
 
     // ✅ زر التصدير PDF - منع التكرار النهائي

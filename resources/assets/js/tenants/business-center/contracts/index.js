@@ -19,7 +19,6 @@ $(function () {
     initializeTableStatusToggles();
     initializeComponents();
     setupDataTableEvents();
-    setupFilterEvents();
 });
 
 /*
@@ -108,62 +107,6 @@ function setupTableDrawEvents(table) {
     });
 }
 
-/*
-|--------------------------------------------------------------------------
-| Filter Events Setup
-|--------------------------------------------------------------------------
-| إعداد أحداث الفلترة والبحث
-*/
-function setupFilterEvents() {
-    // الفلاتر الفورية
-    $('#filter-status, #filter-company').on('change', function () {
-        applyFilters();
-    });
-
-    $('#btn-reset-filters').on('click', function () {
-        $('#filter-status, #filter-company').val('').trigger('change');
-    });
-
-    // البحث مع تأخير لتحسين الأداء
-    let searchTimeout;
-    $('.dataTables_filter input').on('keyup', function () {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(applyFilters, 500);
-    });
-}
-
-/*
-|--------------------------------------------------------------------------
-| Apply Filters Function
-|--------------------------------------------------------------------------
-| تطبيق الفلاتر على الجدول
-*/
-function applyFilters() {
-    const table = $('#contracts-table').DataTable();
-
-    // جمع قيم الفلاتر
-    const filters = {
-        status: $('#filter-status').val() || '',
-        company_id: $('#filter-company').val() || '',
-        search_query: $('.dataTables_filter input').val() || ''
-    };
-
-    // بناء رابط URL جديد مع بارامترات الفلترة
-    const baseUrl = window.location.pathname;
-    const params = new URLSearchParams();
-
-    // إضافة المعاملات غير الفارغة فقط
-    Object.keys(filters).forEach(key => {
-        if (filters[key]) {
-            params.append(key, filters[key]);
-        }
-    });
-
-    const newUrl = baseUrl + (params.toString() ? '?' + params.toString() : '');
-
-    // تحديث رابط الـ AJAX وإعادة تحميل البيانات
-    table.ajax.url(newUrl).load(null, false); // false لعدم إعادة تعيين الصفحة
-}
 
 
 /*

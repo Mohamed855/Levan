@@ -132,28 +132,32 @@
         </div>
     </div>
 </div>
+<x-data-table.filters table="#customer-update-requests-table">
+    <div class="col-md-6">
+        <x-filter.select
+            id="filter-status"
+            filterKey="status"
+            table="#customer-update-requests-table"
+            name="status"
+            label="الحالة"
+            placeholder="اختر الحالة"
+            :options="[
+                'pending' => 'معلق',
+                'approved' => 'موافق عليه',
+                'rejected' => 'مرفوض',
+            ]"
+        />
+    </div>
+    <div class="col-md-6">
+        <label for="filter-requested-by" class="form-label">مقدم الطلب</label>
+        <select id="filter-requested-by" class="form-control select2" data-placeholder="اختر مقدم الطلب" data-filter-key="requested_by" data-datatable-filter="true" data-datatable-target="#customer-update-requests-table">
+            <option value=""></option>
+        </select>
+    </div>
+</x-data-table.filters>
+
 <div class="card">
     <div class="card-body">
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <label for="filter-status">الحالة</label>
-                <select id="filter-status" class="form-control select2" data-placeholder="اختر الحالة">
-                    <option value=""></option>
-                    <option value="pending">معلق</option>
-                    <option value="approved">موافق عليه</option>
-                    <option value="rejected">مرفوض</option>
-                </select>
-            </div>
-            <div class="col-md-6">
-                <label for="filter-requested-by">مقدم الطلب</label>
-                <select id="filter-requested-by" class="form-control select2" data-placeholder="اختر مقدم الطلب">
-                    <option value=""></option>
-                </select>
-            </div>
-        </div>
-
-        <hr class="mt-10">
-
         <div class="table-responsive">
             {!! $dataTable->table([
             'class' => 'table table-striped table-bordered w-100',

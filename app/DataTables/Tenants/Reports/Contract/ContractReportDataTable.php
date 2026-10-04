@@ -17,6 +17,18 @@ class ContractReportDataTable extends AbstractDataTable
         return Contract::query();
     }
 
+    protected function applyCustomFilters($query)
+    {
+        $request = request();
+        if ($request->filled('date_from')) {
+            $query->whereDate('start_date', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('end_date', '<=', $request->date_to);
+        }
+        return $query;
+    }
+
     protected function getColumns(): array
     {
         return [

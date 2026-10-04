@@ -33,6 +33,17 @@ class CollectionTargetsDataTable extends AbstractDataTable
     */
     public function dataTable($query)
     {
+        $request = request();
+        if ($request->filled('status')) {
+            $query = $query->where('status', $request->status);
+        }
+        if ($request->filled('branch_id')) {
+            $query = $query->where('branch_id', (int) $request->branch_id);
+        }
+        if ($request->filled('user_id')) {
+            $query = $query->where('user_id', (int) $request->user_id);
+        }
+
         $datatable = datatables()->collection($query)->addIndexColumn();
         $this->addCustomColumns($datatable);
         return $datatable->rawColumns($this->rawColumns());

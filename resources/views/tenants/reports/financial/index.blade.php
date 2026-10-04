@@ -170,111 +170,79 @@
         </div>
     </div>
 
+    <x-data-table.filters table="#financial-reports-table" reset-id="reset-filters">
+        <div class="col-md-6">
+            <label for="filter-company" class="form-label">الشركة</label>
+            <select id="filter-company" class="form-control select2" data-datatable-filter="true" data-filter-key="company_id" data-placeholder="جميع الشركات">
+                <option value=""></option>
+                @foreach ($companies as $company)
+                    <option value="{{ $company->id }}">{{ $company->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label for="filter-portfolio" class="form-label">المحفظة</label>
+            <select id="filter-portfolio" class="form-control select2" data-datatable-filter="true" data-filter-key="portfolio_id" data-placeholder="اختر المحفظة" disabled>
+                <option value=""></option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label for="filter-date-from" class="form-label">من تاريخ التحصيل</label>
+            <input type="date" id="filter-date-from" class="form-control" data-datatable-filter="true" data-filter-key="date_from" placeholder="اختر التاريخ">
+        </div>
+        <div class="col-md-3">
+            <label for="filter-date-to" class="form-label">إلى تاريخ التحصيل</label>
+            <input type="date" id="filter-date-to" class="form-control" data-datatable-filter="true" data-filter-key="date_to" placeholder="اختر التاريخ">
+        </div>
+        <div class="col-md-3">
+            <label for="filter-created-from" class="form-label">من تاريخ الإنشاء</label>
+            <input type="date" id="filter-created-from" class="form-control" data-datatable-filter="true" data-filter-key="created_from" placeholder="اختر التاريخ">
+        </div>
+        <div class="col-md-3">
+            <label for="filter-created-to" class="form-label">إلى تاريخ الإنشاء</label>
+            <input type="date" id="filter-created-to" class="form-control" data-datatable-filter="true" data-filter-key="created_to" placeholder="اختر التاريخ">
+        </div>
+
+        <div class="col-md-4">
+            <label for="filter-customer" class="form-label">العميل</label>
+            <select id="filter-customer" class="form-control select2-ajax" data-datatable-filter="true" data-filter-key="customer_id" data-placeholder="ابحث عن العميل برقم الحساب">
+                <option value=""></option>
+                @foreach (array_slice($customers, 0, 10) as $customer)
+                    <option value="{{ $customer['id'] }}">{{ $customer['text'] }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label for="filter-status" class="form-label">حالة التحصيل</label>
+            <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="جميع الحالات">
+                <option value=""></option>
+                <option value="pending">معلق</option>
+                <option value="approved">معتمد</option>
+                <option value="rejected">مرفوض</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label for="filter-created-by" class="form-label">أنشأ بواسطة</label>
+            <select id="filter-created-by" class="form-control select2" data-datatable-filter="true" data-filter-key="created_by" data-placeholder="جميع المستخدمين">
+                <option value=""></option>
+                @foreach ($users as $user)
+                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <label for="filter-amount-from" class="form-label">المبلغ من</label>
+            <input type="number" id="filter-amount-from" class="form-control" data-datatable-filter="true" data-filter-key="amount_from" placeholder="0" step="0.01">
+        </div>
+        <div class="col-md-6">
+            <label for="filter-amount-to" class="form-label">المبلغ إلى</label>
+            <input type="number" id="filter-amount-to" class="form-control" data-datatable-filter="true" data-filter-key="amount_to" placeholder="0" step="0.01">
+        </div>
+    </x-data-table.filters>
+
     <div class="card">
-        <div class="card-header">
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">تقرير التحصيل المالي</h5>
-                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="collapse"
-                    data-bs-target="#filtersSection" aria-expanded="false">
-                    <i class="ti ti-filter me-1"></i>
-                    فلاتر البحث
-                    <i class="ti ti-chevron-down ms-1"></i>
-                </button>
-            </div>
-        </div>
-
-        <div class="collapse" id="filtersSection">
-            <div class="card-body border-bottom">
-                <div class="row g-4 mb-4">
-                    <div class="col-md-6">
-                        <label for="filter-company" class="form-label">الشركة</label>
-                        <select id="filter-company" class="form-control select2" data-placeholder="جميع الشركات">
-                            <option value=""></option>
-                            @foreach ($companies as $company)
-                                <option value="{{ $company->id }}">{{ $company->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="filter-portfolio" class="form-label">المحفظة</label>
-                        <select id="filter-portfolio" class="form-control select2" data-placeholder="اختر المحفظة"
-                            disabled>
-                            <option value=""></option>
-                        </select>
-                    </div>
-                </div>
-                <div class="row g-4 mb-4">
-                    <div class="col-md-3">
-                        <label for="filter-date-from" class="form-label">من تاريخ التحصيل</label>
-                        <input type="date" id="filter-date-from" class="form-control" placeholder="اختر التاريخ">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="filter-date-to" class="form-label">إلى تاريخ التحصيل</label>
-                        <input type="date" id="filter-date-to" class="form-control" placeholder="اختر التاريخ">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="filter-created-from" class="form-label">من تاريخ الإنشاء</label>
-                        <input type="date" id="filter-created-from" class="form-control" placeholder="اختر التاريخ">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="filter-created-to" class="form-label">إلى تاريخ الإنشاء</label>
-                        <input type="date" id="filter-created-to" class="form-control" placeholder="اختر التاريخ">
-                    </div>
-                </div>
-
-                <div class="row g-4 mb-4">
-                    <div class="col-md-4">
-                        <label for="filter-customer" class="form-label">العميل</label>
-                        <select id="filter-customer" class="form-control select2-ajax"
-                            data-placeholder="ابحث عن العميل برقم الحساب">
-                            <option value=""></option>
-                            @foreach (array_slice($customers, 0, 10) as $customer)
-                                <option value="{{ $customer['id'] }}">{{ $customer['text'] }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="filter-status" class="form-label">حالة التحصيل</label>
-                        <select id="filter-status" class="form-control select2" data-placeholder="جميع الحالات">
-                            <option value=""></option>
-                            <option value="pending">معلق</option>
-                            <option value="approved">معتمد</option>
-                            <option value="rejected">مرفوض</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="filter-created-by" class="form-label">أنشأ بواسطة</label>
-                        <select id="filter-created-by" class="form-control select2" data-placeholder="جميع المستخدمين">
-                            <option value=""></option>
-                            @foreach ($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                </div>
-
-                <div class="row g-4 mb-4">
-                    <div class="col-md-5">
-                        <label for="filter-amount-from" class="form-label">المبلغ من</label>
-                        <input type="number" id="filter-amount-from" class="form-control" placeholder="0"
-                            step="0.01">
-                    </div>
-                    <div class="col-md-5">
-                        <label for="filter-amount-to" class="form-label">المبلغ إلى</label>
-                        <input type="number" id="filter-amount-to" class="form-control" placeholder="0"
-                            step="0.01">
-                    </div>
-
-                    <div class="col-md-2">
-                        <label class="form-label">&nbsp;</label>
-                        <button type="button" id="reset-filters" class="btn btn-outline-secondary w-100 d-block">
-                            <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <div class="card-body">
             {!! $dataTable->table(

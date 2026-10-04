@@ -83,45 +83,36 @@
 
 
     {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <label class="form-label" for="filter-status">حالة المستخدم</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر حالة المستخدم">
-                        <option value=""></option>
-                        <option value="active">نشط</option>
-                        <option value="inactive">غير نشط</option>
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label" for="filter-role">دور المستخدم</label>
-                    <select id="filter-role" class="form-control select2" data-placeholder="اختر الدور">
-                        <option value=""></option>
-                        @foreach ($roles as $role)
-                            <option value="{{ $role->id }}">{{ $role->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label" for="filter-branch">الفرع</label>
-                    <select id="filter-branch" class="form-control select2" data-placeholder="اختر الفرع">
-                        <option value=""></option>
-                        @foreach ($branches as $branch)
-                            <option value="{{ $branch->id }}">{{ $branch->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
+    <x-data-table.filters table="#users-table" reset-id="btn-reset-filters">
+        <div class="col-md-4">
+            <label class="form-label" for="filter-status">حالة المستخدم</label>
+            <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر حالة المستخدم">
+                <option value=""></option>
+                <option value="active">نشط</option>
+                <option value="inactive">غير نشط</option>
+            </select>
         </div>
-    </div>
+
+        <div class="col-md-4">
+            <label class="form-label" for="filter-role">دور المستخدم</label>
+            <select id="filter-role" class="form-control select2" data-datatable-filter="true" data-filter-key="role" data-placeholder="اختر الدور">
+                <option value=""></option>
+                @foreach ($roles as $role)
+                    <option value="{{ $role->id }}">{{ $role->name }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label" for="filter-branch">الفرع</label>
+            <select id="filter-branch" class="form-control select2" data-datatable-filter="true" data-filter-key="branch_id" data-placeholder="اختر الفرع">
+                <option value=""></option>
+                @foreach ($branches as $branch)
+                    <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                @endforeach
+            </select>
+        </div>
+    </x-data-table.filters>
 
     <div class="card" id="card-users">
         <div class="card-body">

@@ -20,7 +20,7 @@
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/admin/versions/filter.js', 'resources/assets/js/admin/shared-status-toggle.js'])
+    @vite(['resources/assets/js/admin/shared-status-toggle.js'])
 @endsection
 
 @section('content')
@@ -29,10 +29,10 @@
 
     <x-data-table.page table-id="versions-table">
         <x-slot:filters>
-            <x-data-table.filters>
-                <x-filter.select id="filter-stage" label="المرحلة"
+            <x-data-table.filters table="#versions-table">
+                <x-filter.select id="filter-stage" filterKey="stage" label="المرحلة"
                     placeholder="اختر المرحلة" :options="$filterOptions['stages'] ?? []" />
-                <x-filter.select id="filter-status" label="الحالة"
+                <x-filter.select id="filter-status" filterKey="is_active" label="الحالة"
                     placeholder="اختر الحالة" :options="$filterOptions['statuses'] ?? []" />
             </x-data-table.filters>
         </x-slot:filters>

@@ -42,15 +42,27 @@ class CompanyPerformanceDataTable extends AbstractDataTable
     */
     protected function resource()
     {
-        $filters = request()->only([
-            'date_from',
-            'date_to',
-            'company_id',
-            'portfolio_id',
-            'team_id',
-            'branch_id',
-            'user_id'
-        ]);
+        $year = request('year');
+        $month = request('month');
+        $dateFrom = request('date_from');
+        $dateTo = request('date_to');
+
+        if (!$dateFrom && $year && $month) {
+            $paddedMonth = str_pad($month, 2, '0', STR_PAD_LEFT);
+            $lastDay = date('t', strtotime("$year-$paddedMonth-01"));
+            $dateFrom = "$year-$paddedMonth-01";
+            $dateTo = "$year-$paddedMonth-$lastDay";
+        }
+
+        $filters = [
+            'date_from' => $dateFrom,
+            'date_to' => $dateTo,
+            'company_id' => request('company_id'),
+            'portfolio_id' => request('portfolio_id'),
+            'team_id' => request('team_id'),
+            'branch_id' => request('branch_id'),
+            'user_id' => request('user_id'),
+        ];
 
         $companiesPerformance = $this->companyPerformanceService->getCompaniesPerformance($filters);
 

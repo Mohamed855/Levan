@@ -546,28 +546,11 @@ function initializeMonthlyChart() {
 |--------------------------------------------------------------------------
 */
 function bindEvents() {
-    const filterElements = [
-        '#filter-date-from', '#filter-date-to',
-        '#filter-created-from', '#filter-created-to',
-        '#filter-customer', '#filter-company', '#filter-portfolio',
-        '#filter-status', '#filter-created-by', '#filter-amount-from',
-        '#filter-amount-to', '#filter-search-query'
-    ];
-
-    $(filterElements.join(', ')).on('change input', debounce(function () {
-        if (financialReportsTable) {
-            const baseUrl = window.routes.financialReportsIndex;
-            const params = getCurrentFiltersAsParams();
-            const newUrl = params ? baseUrl + '?' + params : baseUrl;
-            financialReportsTable.ajax.url(newUrl).load();
-        }
-    }, 800));
-
     $('#filter-company').on('change', function () {
         const companyId = $(this).val();
         const portfolioSelect = $('#filter-portfolio');
 
-        portfolioSelect.val('').trigger('change');
+        portfolioSelect.val('').trigger('change.select2');
 
         if (companyId) {
             portfolioSelect.html('<option value="">جاري التحميل...</option>');
@@ -605,17 +588,16 @@ function bindEvents() {
         }
     });
 
-    $('#reset-filters').on('click', function () {
-        resetFilters();
+    $(document).on('datatable-filter:reset', function (e, data) {
+        if (data && data.tableSelector === '#financial-reports-table') {
+            const portfolioSelect = $('#filter-portfolio');
+            portfolioSelect.empty().append('<option value="" disabled>اختر الشركة أولاً</option>').prop('disabled', true);
+        }
     });
 
     $(document).on('click', '.btn-export-pdf', function () {
         exportCustomReportToPDF();
     });
-
-    // $(document).on('click', '.btn-export-excel', function () {
-    //     exportFilteredToExcel();
-    // });
 
     $('#filtersSection').on('show.bs.collapse', function () {
         $('[data-bs-target="#filtersSection"] i.ti-chevron-down').removeClass('ti-chevron-down').addClass('ti-chevron-up');
@@ -624,27 +606,6 @@ function bindEvents() {
     $('#filtersSection').on('hide.bs.collapse', function () {
         $('[data-bs-target="#filtersSection"] i.ti-chevron-up').removeClass('ti-chevron-up').addClass('ti-chevron-down');
     });
-}
-
-/*
-|--------------------------------------------------------------------------
-| Reset Filters
-|--------------------------------------------------------------------------
-*/
-function resetFilters() {
-    $('#filter-date-from, #filter-date-to, #filter-created-from, #filter-created-to, #filter-amount-from, #filter-amount-to, #filter-search-query').val('');
-    $('.select2').val('').trigger('change');
-
-    const portfolioSelect = $('#filter-portfolio');
-    portfolioSelect.empty();
-    portfolioSelect.append('<option value="" disabled>اختر الشركة أولاً</option>');
-    portfolioSelect.prop('disabled', true);
-
-    if (financialReportsTable) {
-        financialReportsTable.ajax.url(window.routes.financialReportsIndex).load();
-    }
-
-    toastr.info('تم إعادة تعيين جميع الفلاتر');
 }
 
 /*

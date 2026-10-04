@@ -25,7 +25,6 @@
             massDelete: "{{ route('admin.mass-delete') }}"
         };
     </script>
-    @vite(['resources/assets/js/admin/transfer_requests/filter.js'])
 @endsection
 
 @section('content')
@@ -126,21 +125,12 @@
     @endif
 
     {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <x-filter.select id="filter-status" label="حالة الطلب"
-                    placeholder="اختر حالة الطلب" :options="$filterOptions['statuses'] ?? []" />
-                <x-filter.select id="filter-plan" label="الباقة"
-                    placeholder="اختر الباقة" :options="$filterOptions['plans'] ?? []" />
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
-        </div>
-    </div>
+    <x-data-table.filters table="#transfer-table">
+        <x-filter.select id="filter-status" filterKey="status" label="حالة الطلب"
+            placeholder="اختر حالة الطلب" :options="$filterOptions['statuses'] ?? []" />
+        <x-filter.select id="filter-plan" filterKey="plan_id" label="الباقة"
+            placeholder="اختر الباقة" :options="$filterOptions['plans'] ?? []" />
+    </x-data-table.filters>
 
     <div class="card">
         <div class="card-body">

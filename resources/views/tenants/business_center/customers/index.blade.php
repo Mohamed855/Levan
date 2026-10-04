@@ -159,122 +159,128 @@
 
     {{-- فلاتر البحث --}}
     {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                {{-- الصف الأول --}}
-                <div class="col-md-2">
-                    <label class="form-label" for="filter-status">حالة العميل</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر الحالة">
-                        <option value=""></option>
-                        @foreach ($customerStatuses as $status)
-                            <option value="{{ $status->id }}">{{ $status->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-2">
-                    <label class="form-label" for="filter-contact-result">نتيجة الاتصال</label>
-                    <select id="filter-contact-result" class="form-control select2" data-placeholder="اختر نتيجة الاتصال">
-                        <option value=""></option>
-                        @foreach ($contactResults as $result)
-                            <option value="{{ $result->id }}">{{ $result->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-2">
-                    <label class="form-label" for="filter-customer-type">نوع العميل</label>
-                    <select id="filter-customer-type" class="form-control select2" data-placeholder="اختر النوع">
-                        <option value=""></option>
-                        <option value="individual">فردي</option>
-                        <option value="company">شركة</option>
-                    </select>
-                </div>
-
-                @if ($viewType !== 'my')
-                    <div class="col-md-2">
-                        <label class="form-label" for="filter-company">الشركة</label>
-                        <select id="filter-company" class="form-control select2" data-placeholder="اختر الشركة">
-                            <option value=""></option>
-                            @foreach ($companies as $company)
-                                <option value="{{ $company->id }}">{{ $company->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="col-md-2">
-                        <label class="form-label" for="filter-portfolio">المحفظة</label>
-                        <select id="filter-portfolio" class="form-control select2" data-placeholder="اختر المحفظة">
-                            <option value=""></option>
-                            @foreach ($portfolios as $portfolio)
-                                <option value="{{ $portfolio->id }}" data-company="{{ $portfolio->company_id }}">
-                                    {{ $portfolio->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="col-md-2">
-                        <label class="form-label" for="filter-manager">مسؤول العلاقة</label>
-                        <select id="filter-manager" class="form-control select2" data-placeholder="اختر المسؤول" multiple>
-                            @foreach ($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                @else
-                    {{-- في شاشة "عملائي" نكمل الصف الأول بحالة الإرسال --}}
-                    <div class="col-md-6">
-                        <label class="form-label" for="filter-sms-status">حالة الإرسال</label>
-                        <select id="filter-sms-status" class="form-control select2" data-placeholder="اختر الحالة">
-                            <option value=""></option>
-                            <option value="sent">تم الإرسال</option>
-                            <option value="not_sent">لم يتم الإرسال</option>
-                        </select>
-                    </div>
-                @endif
-
-                {{-- الصف الثاني --}}
-                @if ($viewType !== 'my')
-                    <div class="col-md-4">
-                        <label class="form-label" for="filter-sms-status">حالة الإرسال</label>
-                        <select id="filter-sms-status" class="form-control select2" data-placeholder="اختر الحالة">
-                            <option value=""></option>
-                            <option value="sent">تم الإرسال</option>
-                            <option value="not_sent">لم يتم الإرسال</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label" for="filter-sms-date-from">تاريخ الإرسال من</label>
-                        <input type="date" id="filter-sms-date-from" class="form-control" placeholder="من التاريخ">
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label" for="filter-sms-date-to">تاريخ الإرسال إلى</label>
-                        <input type="date" id="filter-sms-date-to" class="form-control" placeholder="إلى التاريخ">
-                    </div>
-                @else
-                    {{-- في شاشة "عملائي" الصف الثاني يحتوي فقط على تواريخ الإرسال --}}
-                    <div class="col-md-6">
-                        <label class="form-label" for="filter-sms-date-from">تاريخ الإرسال من</label>
-                        <input type="date" id="filter-sms-date-from" class="form-control" placeholder="من التاريخ">
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label" for="filter-sms-date-to">تاريخ الإرسال إلى</label>
-                        <input type="date" id="filter-sms-date-to" class="form-control" placeholder="إلى التاريخ">
-                    </div>
-                @endif
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
+    <x-data-table.filters table="#customers-table">
+        <div class="col-md-2">
+            <x-filter.select
+                id="filter-status"
+                filterKey="customer_status_id"
+                table="#customers-table"
+                name="customer_status_id"
+                label="حالة العميل"
+                placeholder="اختر الحالة"
+                :options="$customerStatuses->pluck('name', 'id')"
+            />
         </div>
-    </div>
+
+        <div class="col-md-2">
+            <x-filter.select
+                id="filter-contact-result"
+                filterKey="last_contact_result_id"
+                table="#customers-table"
+                name="last_contact_result_id"
+                label="نتيجة الاتصال"
+                placeholder="اختر نتيجة الاتصال"
+                :options="$contactResults->pluck('name', 'id')"
+            />
+        </div>
+
+        <div class="col-md-2">
+            <x-filter.select
+                id="filter-customer-type"
+                filterKey="customer_type"
+                table="#customers-table"
+                name="customer_type"
+                label="نوع العميل"
+                placeholder="اختر النوع"
+                :options="['individual' => 'فردي', 'company' => 'شركة']"
+            />
+        </div>
+
+        @if ($viewType !== 'my')
+            <div class="col-md-2">
+                <x-filter.select
+                    id="filter-company"
+                    filterKey="company_id"
+                    table="#customers-table"
+                    name="company_id"
+                    label="الشركة"
+                    placeholder="اختر الشركة"
+                    :options="$companies->pluck('name', 'id')"
+                />
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label" for="filter-portfolio">المحفظة</label>
+                <select id="filter-portfolio" class="form-control select2" data-placeholder="اختر المحفظة" data-filter-key="portfolio_id" data-datatable-filter="true" data-datatable-target="#customers-table">
+                    <option value=""></option>
+                    @foreach ($portfolios as $portfolio)
+                        <option value="{{ $portfolio->id }}" data-company="{{ $portfolio->company_id }}">
+                            {{ $portfolio->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <x-filter.select
+                    id="filter-manager"
+                    filterKey="relationship_manager_id"
+                    table="#customers-table"
+                    name="relationship_manager_id[]"
+                    label="مسؤول العلاقة"
+                    placeholder="اختر المسؤول"
+                    multiple
+                    :options="$users->pluck('name', 'id')"
+                />
+            </div>
+        @else
+            <div class="col-md-6">
+                <x-filter.select
+                    id="filter-sms-status"
+                    filterKey="sms_status"
+                    table="#customers-table"
+                    name="sms_status"
+                    label="حالة الإرسال"
+                    placeholder="اختر الحالة"
+                    :options="['sent' => 'تم الإرسال', 'not_sent' => 'لم يتم الإرسال']"
+                />
+            </div>
+        @endif
+
+        @if ($viewType !== 'my')
+            <div class="col-md-4">
+                <x-filter.select
+                    id="filter-sms-status"
+                    filterKey="sms_status"
+                    table="#customers-table"
+                    name="sms_status"
+                    label="حالة الإرسال"
+                    placeholder="اختر الحالة"
+                    :options="['sent' => 'تم الإرسال', 'not_sent' => 'لم يتم الإرسال']"
+                />
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label" for="filter-sms-date-from">تاريخ الإرسال من</label>
+                <input type="date" id="filter-sms-date-from" class="form-control" placeholder="من التاريخ" data-filter-key="sms_date_from" data-datatable-filter="true" data-datatable-target="#customers-table">
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label" for="filter-sms-date-to">تاريخ الإرسال إلى</label>
+                <input type="date" id="filter-sms-date-to" class="form-control" placeholder="إلى التاريخ" data-filter-key="sms_date_to" data-datatable-filter="true" data-datatable-target="#customers-table">
+            </div>
+        @else
+            <div class="col-md-6">
+                <label class="form-label" for="filter-sms-date-from">تاريخ الإرسال من</label>
+                <input type="date" id="filter-sms-date-from" class="form-control" placeholder="من التاريخ" data-filter-key="sms_date_from" data-datatable-filter="true" data-datatable-target="#customers-table">
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label" for="filter-sms-date-to">تاريخ الإرسال إلى</label>
+                <input type="date" id="filter-sms-date-to" class="form-control" placeholder="إلى التاريخ" data-filter-key="sms_date_to" data-datatable-filter="true" data-datatable-target="#customers-table">
+            </div>
+        @endif
+    </x-data-table.filters>
 
     <div class="card" id="card-customers">
         <div class="card-body">

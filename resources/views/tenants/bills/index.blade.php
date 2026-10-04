@@ -20,7 +20,6 @@
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/tenants/bills/filter.js'])
 @endsection
 
 @section('content')
@@ -36,46 +35,37 @@
     @endif
 
     {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <label class="form-label" for="filter-type">نوع العملية</label>
-                    <select id="filter-type" class="form-control select2" data-placeholder="اختر نوع العملية">
-                        <option value=""></option>
-                        <option value="subscription">اشتراك</option>
-                        <option value="renewal">تجديد</option>
-                        <option value="extra_users">مستخدمين إضافيين</option>
-                        <option value="domain">دومين</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label" for="filter-status">حالة العملية</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر حالة العملية">
-                        <option value=""></option>
-                        <option value="paid">مدفوعة</option>
-                        <option value="unpaid">غير مدفوعة</option>
-                        <option value="partially_paid">مدفوعة جزئياً</option>
-                        <option value="cancelled">ملغاة</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label" for="filter-payment-method">طريقة الدفع</label>
-                    <select id="filter-payment-method" class="form-control select2" data-placeholder="اختر طريقة الدفع">
-                        <option value=""></option>
-                        <option value="bank_transfer">تحويل بنكي</option>
-                        <option value="credit_card">بطاقة ائتمانية</option>
-                        <option value="cash">نقدي</option>
-                    </select>
-                </div>
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
+    <x-data-table.filters table="#bill-table" reset-id="btn-reset-filters">
+        <div class="col-md-4">
+            <label class="form-label" for="filter-type">نوع العملية</label>
+            <select id="filter-type" class="form-control select2" data-datatable-filter="true" data-filter-key="type" data-placeholder="اختر نوع العملية">
+                <option value=""></option>
+                <option value="subscription">اشتراك</option>
+                <option value="renewal">تجديد</option>
+                <option value="extra_users">مستخدمين إضافيين</option>
+                <option value="domain">دومين</option>
+            </select>
         </div>
-    </div>
+        <div class="col-md-4">
+            <label class="form-label" for="filter-status">حالة العملية</label>
+            <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر حالة العملية">
+                <option value=""></option>
+                <option value="paid">مدفوعة</option>
+                <option value="unpaid">غير مدفوعة</option>
+                <option value="partially_paid">مدفوعة جزئياً</option>
+                <option value="cancelled">ملغاة</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" for="filter-payment-method">طريقة الدفع</label>
+            <select id="filter-payment-method" class="form-control select2" data-datatable-filter="true" data-filter-key="payment_method" data-placeholder="اختر طريقة الدفع">
+                <option value=""></option>
+                <option value="bank_transfer">تحويل بنكي</option>
+                <option value="credit_card">بطاقة ائتمانية</option>
+                <option value="cash">نقدي</option>
+            </select>
+        </div>
+    </x-data-table.filters>
 
     <div class="card">
         <div class="card-body">

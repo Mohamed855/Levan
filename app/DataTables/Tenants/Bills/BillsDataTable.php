@@ -121,6 +121,25 @@ class BillsDataTable extends AbstractDataTable
         return ['type', 'created_at'];
     }
 
+    protected function applyCustomFilters($query)
+    {
+        $request = request();
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $request->payment_method);
+        }
+
+        return $query;
+    }
+
     protected function getCustomOrder(): array
     {
         return [1, 'desc'];

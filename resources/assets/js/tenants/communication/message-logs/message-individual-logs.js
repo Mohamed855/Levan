@@ -10,34 +10,6 @@ $(function () {
     $('#message-individual-logs-table').on('init.dt', function () {
         const table = $(this).DataTable();
 
-        function applyFilters() {
-            const filters = {
-                status: $('#filter-status').val() || '',
-                company_id: $('#filter-company').val() || '',
-                portfolio_id: $('#filter-portfolio').val() || '',
-                customer_id: $('#filter-customer').val() || '',
-                date_from: $('#filter-date-from').val() || '',
-                date_to: $('#filter-date-to').val() || '',
-                search_query: $('#filter-search').val() || ''
-            };
-            const baseUrl = window.location.pathname;
-            const params = new URLSearchParams();
-
-            if (filters.status) params.append('status', filters.status);
-            if (filters.company_id) params.append('company_id', filters.company_id);
-            if (filters.portfolio_id) params.append('portfolio_id', filters.portfolio_id);
-            if (filters.customer_id) params.append('customer_id', filters.customer_id);
-            if (filters.date_from) params.append('date_from', filters.date_from);
-            if (filters.date_to) params.append('date_to', filters.date_to);
-            if (filters.search_query) params.append('search_query', filters.search_query);
-
-            const newUrl = baseUrl + '?' + params.toString();
-            table.ajax.url(newUrl).load();
-        }
-
-        // Apply filters للحالة والتواريخ والبحث فقط
-        $('#filter-status, #filter-date-from, #filter-date-to').on('change', applyFilters);
-
         // عند تغيير الشركة
         $('#filter-company').on('change', function () {
             const companyId = $(this).val();
@@ -48,8 +20,6 @@ $(function () {
             if (companyId) {
                 loadPortfoliosByCompany(companyId);
             }
-
-            applyFilters();
         });
 
         // عند تغيير المحفظة
@@ -61,26 +31,12 @@ $(function () {
             if (portfolioId) {
                 loadCustomersByPortfolio(portfolioId);
             }
-
-            applyFilters();
         });
 
-        // عند تغيير العميل
-        $('#filter-customer').on('change', applyFilters);
-
-        // البحث
-        let searchTimeout;
-        $('#filter-search').on('keyup', function () {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(applyFilters, 500);
-        });
-
-        // زر إعادة تعيين الفلاتر
+        // عند إعادة تعيين الفلاتر
         $('#btn-reset-filters').on('click', function () {
-            $('#filter-status, #filter-company, #filter-portfolio, #filter-customer, #filter-date-from, #filter-date-to, #filter-search').val('').trigger('change.select2');
             resetPortfolioFilter();
             resetCustomerFilter();
-            applyFilters();
         });
 
         // تحميل المحافظ بحسب الشركة

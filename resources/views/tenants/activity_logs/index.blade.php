@@ -51,54 +51,45 @@
     </div>
 
     {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <div class="col-md-3">
-                    <label class="form-label" for="filter-user">المستخدم</label>
-                    <select id="filter-user" class="form-control select2" data-placeholder="اختر المستخدم">
-                        <option value=""></option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-3">
-                    <label class="form-label" for="filter-log-name">نوع النشاط</label>
-                    <select id="filter-log-name" class="form-control select2" data-placeholder="اختر النوع">
-                        <option value=""></option>
-                        <option value="companies">الشركات</option>
-                        <option value="contracts">العقود</option>
-                        <option value="customers">العملاء</option>
-                        <option value="customer_follow">المتابعات</option>
-                        <option value="customer_payment_plan">خطط السداد</option>
-                        <option value="customer_phone">أرقام الاتصال</option>
-                        <option value="customer_settlement">طلبات التسوية</option>
-                        <option value="users">المستخدمين</option>
-                        <option value="portfolios">المحافظ</option>
-                        <option value="collections">التحصيلات</option>
-                        <option value="auth">تسجيل الدخول</option>
-                    </select>
-                </div>
-
-                <div class="col-md-3">
-                    <label class="form-label" for="filter-date-from">من تاريخ</label>
-                    <input type="date" id="filter-date-from" class="form-control">
-                </div>
-
-                <div class="col-md-3">
-                    <label class="form-label" for="filter-date-to">إلى تاريخ</label>
-                    <input type="date" id="filter-date-to" class="form-control">
-                </div>
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
+    <x-data-table.filters table="#activity-logs-table" reset-id="btn-reset-filters">
+        <div class="col-md-3">
+            <label class="form-label" for="filter-user">المستخدم</label>
+            <select id="filter-user" class="form-control select2" data-datatable-filter="true" data-filter-key="user_id" data-placeholder="اختر المستخدم">
+                <option value=""></option>
+                @foreach ($users as $user)
+                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                @endforeach
+            </select>
         </div>
-    </div>
+
+        <div class="col-md-3">
+            <label class="form-label" for="filter-log-name">نوع النشاط</label>
+            <select id="filter-log-name" class="form-control select2" data-datatable-filter="true" data-filter-key="log_name" data-placeholder="اختر النوع">
+                <option value=""></option>
+                <option value="companies">الشركات</option>
+                <option value="contracts">العقود</option>
+                <option value="customers">العملاء</option>
+                <option value="customer_follow">المتابعات</option>
+                <option value="customer_payment_plan">خطط السداد</option>
+                <option value="customer_phone">أرقام الاتصال</option>
+                <option value="customer_settlement">طلبات التسوية</option>
+                <option value="users">المستخدمين</option>
+                <option value="portfolios">المحافظ</option>
+                <option value="collections">التحصيلات</option>
+                <option value="auth">تسجيل الدخول</option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label" for="filter-date-from">من تاريخ</label>
+            <input type="date" id="filter-date-from" class="form-control" data-datatable-filter="true" data-filter-key="date_from">
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label" for="filter-date-to">إلى تاريخ</label>
+            <input type="date" id="filter-date-to" class="form-control" data-datatable-filter="true" data-filter-key="date_to">
+        </div>
+    </x-data-table.filters>
 
     <div class="card" id="card-activity-logs">
         <div class="card-body">

@@ -20,36 +20,9 @@ function initializeDataTableEvents() {
         const table = $(this).DataTable();
         const tableWrapper = $('#admin-user-archive-table_wrapper');
 
-        bindFilters(table);
         bindSelectionEvents(table, tableWrapper);
         bindTableEvents(table);
     });
-}
-
-function bindFilters(table) {
-    $('#filter-status, #filter-role').on('change', function () {
-        applyFilters(table);
-    });
-
-    $('#btn-reset-filters').on('click', function () {
-        $('#filter-status, #filter-role').val('').trigger('change');
-    });
-}
-
-function applyFilters(table) {
-    const status = $('#filter-status').val() || '';
-    const role = $('#filter-role').val() || '';
-
-    const baseUrl = window.location.pathname;
-    const params = new URLSearchParams();
-
-    if (status) params.append('status', status);
-    if (role) params.append('role', role);
-
-    const query = params.toString();
-    const newUrl = query ? baseUrl + '?' + query : baseUrl;
-
-    table.ajax.url(newUrl).load();
 }
 
 function bindSelectionEvents(table, tableWrapper) {

@@ -25,7 +25,7 @@
             massDelete: "{{ route('admin.mass-delete') }}"
         };
     </script>
-    @vite(['resources/assets/js/admin/portfolios/filter.js', 'resources/assets/js/admin/portfolios/index.js'])
+    @vite(['resources/assets/js/admin/portfolios/index.js'])
     <script>
         $(document).ready(function() {
             $(document).on('click', '.js-delete-btn', function(e) {
@@ -116,19 +116,10 @@
     @endif
 
     {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <x-filter.select id="filter-status" label="حالة المحفظة"
-                    placeholder="اختر حالة المحفظة" :options="$filterOptions['statuses'] ?? []" />
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
-        </div>
-    </div>
+    <x-data-table.filters table="#portfolio-table">
+        <x-filter.select id="filter-status" filterKey="status" label="حالة المحفظة"
+            placeholder="اختر حالة المحفظة" :options="$filterOptions['statuses'] ?? []" />
+    </x-data-table.filters>
 
     <div class="card">
         <div class="card-body">

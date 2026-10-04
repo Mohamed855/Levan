@@ -85,7 +85,6 @@ function bindFilters() {
 
     $(selectors).on('change', debounce(function () {
         fetchStats();
-        reloadDataTable();
     }, 600));
 }
 

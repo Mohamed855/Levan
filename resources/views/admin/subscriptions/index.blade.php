@@ -50,25 +50,16 @@
     </div>
 
     {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <x-filter.select col="col-md-3" id="filter-sub-status" label="حالة الاشتراك"
-                    placeholder="اختر حالة الاشتراك" :options="$filterOptions['statuses'] ?? []" />
-                <x-filter.select col="col-md-3" id="filter-plan" label="الباقة"
-                    placeholder="اختر الباقة" :options="$filterOptions['plans'] ?? []" />
-                <x-filter.select col="col-md-3" id="filter-city" label="مدينة الشركة"
-                    placeholder="اختر المدينة" :options="$filterOptions['cities'] ?? []" />
-                <x-filter.select col="col-md-3" id="filter-expiring" label="قرب الانتهاء"
-                    placeholder="قرب الانتهاء" :options="$filterOptions['expiring'] ?? []" />
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
-        </div>
-    </div>
+    <x-data-table.filters table="#subscriptions-table">
+        <x-filter.select col="col-md-3" id="filter-sub-status" filterKey="status" label="حالة الاشتراك"
+            placeholder="اختر حالة الاشتراك" :options="$filterOptions['statuses'] ?? []" />
+        <x-filter.select col="col-md-3" id="filter-plan" filterKey="plan_id" label="الباقة"
+            placeholder="اختر الباقة" :options="$filterOptions['plans'] ?? []" />
+        <x-filter.select col="col-md-3" id="filter-city" filterKey="city_id" label="مدينة الشركة"
+            placeholder="اختر المدينة" :options="$filterOptions['cities'] ?? []" />
+        <x-filter.select col="col-md-3" id="filter-expiring" filterKey="expiring_in" label="قرب الانتهاء"
+            placeholder="قرب الانتهاء" :options="$filterOptions['expiring'] ?? []" />
+    </x-data-table.filters>
 
     <div class="card">
         <div class="card-body">
@@ -83,46 +74,6 @@
 @push('scripts')
     <script>
         $(function() {
-            $('.select2').select2({
-                allowClear: true,
-                dir: 'rtl'
-            });
-
-            const tableId = 'subscriptions-table';
-
-            function getTable() {
-                return window.LaravelDataTables ? window.LaravelDataTables[tableId] : null;
-            }
-
-            function applyFilters() {
-                const table = getTable();
-                if (!table) return;
-
-                const url = new URL(table.ajax.url(), window.location.origin);
-                const subStatus = $('#filter-sub-status').val();
-                const plan = $('#filter-plan').val();
-                const city = $('#filter-city').val();
-                const expiring = $('#filter-expiring').val();
-
-                if (subStatus) url.searchParams.set('status', subStatus);
-                else url.searchParams.delete('status');
-                if (plan) url.searchParams.set('plan_id', plan);
-                else url.searchParams.delete('plan_id');
-                if (city) url.searchParams.set('city_id', city);
-                else url.searchParams.delete('city_id');
-                if (expiring) url.searchParams.set('expiring_in', expiring);
-                else url.searchParams.delete('expiring_in');
-
-                table.ajax.url(url.toString()).load();
-            }
-
-            $('#filter-sub-status, #filter-plan, #filter-city, #filter-expiring').on('change', applyFilters);
-
-            $('#btn-reset-filters').on('click', function() {
-                $('#filter-sub-status, #filter-plan, #filter-city, #filter-expiring').val('').trigger(
-                    'change');
-            });
-
             // Delete subscription confirmation
             $(document).on('click', '.js-delete-subscription-btn', function(e) {
                 e.preventDefault();

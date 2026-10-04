@@ -101,61 +101,51 @@
     </div>
 
     {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <div class="col-md-2">
-                    <label for="filter-status" class="form-label">الحالة</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="الكل">
-                        <option value=""></option>
-                        @foreach ($formData['statuses'] as $value => $label)
-                            <option value="{{ $value }}">{{ $label }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-2">
-                    <label for="filter-company" class="form-label">الشركة</label>
-                    <select id="filter-company" class="form-control select2" data-placeholder="الكل">
-                        <option value=""></option>
-                        @foreach ($formData['companies'] as $company)
-                            <option value="{{ $company->id }}">{{ $company->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-2">
-                    <label for="filter-portfolio" class="form-label">المحفظة</label>
-                    <select id="filter-portfolio" class="form-control select2" name="portfolio_id" data-placeholder="الكل">
-                        <option value=""></option>
-                    </select>
-                </div>
-
-                <div class="col-md-2">
-                    <label for="filter-customer" class="form-label">العميل</label>
-                    <select id="filter-customer" class="form-control select2" name="customer_id" data-placeholder="الكل">
-                        <option value=""></option>
-                    </select>
-                </div>
-
-                <div class="col-md-2">
-                    <label for="filter-date-from" class="form-label">من تاريخ</label>
-                    <input type="date" id="filter-date-from" class="form-control">
-                </div>
-
-                <div class="col-md-2">
-                    <label for="filter-date-to" class="form-label">إلى تاريخ</label>
-                    <input type="date" id="filter-date-to" class="form-control">
-                </div>
-            </div>
-
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
+    <x-data-table.filters table="#message-individual-logs-table" reset-id="btn-reset-filters">
+        <div class="col-md-2">
+            <label for="filter-status" class="form-label">الحالة</label>
+            <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="الكل">
+                <option value=""></option>
+                @foreach ($formData['statuses'] as $value => $label)
+                    <option value="{{ $value }}">{{ $label }}</option>
+                @endforeach
+            </select>
         </div>
-    </div>
+
+        <div class="col-md-2">
+            <label for="filter-company" class="form-label">الشركة</label>
+            <select id="filter-company" class="form-control select2" data-datatable-filter="true" data-filter-key="company_id" data-placeholder="الكل">
+                <option value=""></option>
+                @foreach ($formData['companies'] as $company)
+                    <option value="{{ $company->id }}">{{ $company->name }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label for="filter-portfolio" class="form-label">المحفظة</label>
+            <select id="filter-portfolio" class="form-control select2" data-datatable-filter="true" data-filter-key="portfolio_id" name="portfolio_id" data-placeholder="الكل">
+                <option value=""></option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label for="filter-customer" class="form-label">العميل</label>
+            <select id="filter-customer" class="form-control select2" data-datatable-filter="true" data-filter-key="customer_id" name="customer_id" data-placeholder="الكل">
+                <option value=""></option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label for="filter-date-from" class="form-label">من تاريخ</label>
+            <input type="date" id="filter-date-from" class="form-control" data-datatable-filter="true" data-filter-key="date_from">
+        </div>
+
+        <div class="col-md-2">
+            <label for="filter-date-to" class="form-label">إلى تاريخ</label>
+            <input type="date" id="filter-date-to" class="form-control" data-datatable-filter="true" data-filter-key="date_to">
+        </div>
+    </x-data-table.filters>
 
     {{-- DataTable Card --}}
     <div class="card">

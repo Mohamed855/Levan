@@ -134,51 +134,57 @@
         </div>
     </div>
 
+    <x-data-table.filters table="#company-letters-table">
+        <div class="col-md-3">
+            <x-filter.select
+                id="filter-status"
+                filterKey="status"
+                table="#company-letters-table"
+                name="status"
+                label="الحالة"
+                placeholder="اختر الحالة"
+                :options="[
+                    'ready_to_send' => 'جاهز للإرسال',
+                    'approved_ready_to_send' => 'معتمد - جاهز للإرسال',
+                    'sent' => 'تم الإرسال',
+                    'failed' => 'فشل الإرسال'
+                ]"
+            />
+        </div>
+
+        <div class="col-md-3">
+            <x-filter.select
+                id="filter-company"
+                filterKey="company_id"
+                table="#company-letters-table"
+                name="company_id"
+                label="الشركة"
+                placeholder="اختر الشركة"
+                :options="$companies->pluck('name', 'id')"
+            />
+        </div>
+
+        <div class="col-md-3">
+            <label for="filter-portfolio" class="form-label">المحفظة</label>
+            <select id="filter-portfolio" class="form-control select2" data-placeholder="اختر المحفظة" data-filter-key="portfolio_id" data-datatable-filter="true" data-datatable-target="#company-letters-table">
+                <option value=""></option>
+                @foreach ($portfolios as $portfolio)
+                    <option value="{{ $portfolio->id }}" data-company="{{ $portfolio->company_id }}">
+                        {{ $portfolio->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label for="filter-date-from" class="form-label">من تاريخ</label>
+            <input type="date" id="filter-date-from" class="form-control" data-filter-key="date_from" data-datatable-filter="true" data-datatable-target="#company-letters-table">
+        </div>
+    </x-data-table.filters>
+
     {{-- ═══ جدول الخطابات ═══ --}}
     <div class="card">
         <div class="card-body">
-            {{-- ═══ فلاتر البحث ═══ --}}
-            <div class="filters row mb-4">
-                <div class="col-md-3">
-                    <label for="filter-status">الحالة</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر الحالة">
-                        <option value=""></option>
-                        <option value="ready_to_send">جاهز للإرسال</option>
-                        <option value="approved_ready_to_send">معتمد - جاهز للإرسال</option>
-                        <option value="sent">تم الإرسال</option>
-                        <option value="failed">فشل الإرسال</option>
-                    </select>
-                </div>
-
-                <div class="col-md-3">
-                    <label for="filter-company">الشركة</label>
-                    <select id="filter-company" class="form-control select2" data-placeholder="اختر الشركة">
-                        <option value=""></option>
-                        @foreach ($companies as $company)
-                            <option value="{{ $company->id }}">{{ $company->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-3">
-                    <label for="filter-portfolio">المحفظة</label>
-                    <select id="filter-portfolio" class="form-control select2" data-placeholder="اختر المحفظة">
-                        <option value=""></option>
-                        @foreach ($portfolios as $portfolio)
-                            <option value="{{ $portfolio->id }}" data-company="{{ $portfolio->company_id }}">
-                                {{ $portfolio->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-3">
-                    <label for="filter-date">الفترة الزمنية</label>
-                    <input type="date" id="filter-date" class="form-control" placeholder="اختر الفترة">
-                </div>
-            </div>
-
-            <hr>
 
             {{-- ═══ الجدول ═══ --}}
             <div class="table-responsive">

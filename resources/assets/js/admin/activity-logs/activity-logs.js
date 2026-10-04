@@ -242,17 +242,6 @@ function handleTableRowCreation(row, data, dataIndex) {
  * ربط الأحداث
  */
 function bindEvents() {
-    // تحديث الجدول عند تغيير الفلاتر
-    $('#filter-user, #filter-log-name, #filter-date-from, #filter-date-to').on('change', function () {
-        activityLogsTable.draw();
-    });
-
-    $('#btn-reset-filters').on('click', function () {
-        $('#filter-user').val('').trigger('change');
-        $('#filter-date-from, #filter-date-to').val('');
-        activityLogsTable.draw();
-    });
-
     // تحديد الكل
     $('#select-all').on('click', function () {
         const rows = activityLogsTable.rows({ 'search': 'applied' }).nodes();

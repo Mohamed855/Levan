@@ -44,21 +44,12 @@
     @endif
 
     {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <x-filter.select id="filter-status" label="حالة الباقة"
-                    placeholder="اختر حالة الباقة" :options="$filterOptions['statuses'] ?? []" />
-                <x-filter.select id="filter-domain" label="إدارة الدومينات"
-                    placeholder="اختر حالة إدارة الدومين" :options="$filterOptions['domains'] ?? []" />
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
-        </div>
-    </div>
+    <x-data-table.filters table="#paln-archive-table">
+        <x-filter.select id="filter-status" filterKey="is_active" label="حالة الباقة"
+            placeholder="اختر حالة الباقة" :options="$filterOptions['statuses'] ?? []" />
+        <x-filter.select id="filter-domain" filterKey="domain_management_enabled" label="إدارة الدومينات"
+            placeholder="اختر حالة إدارة الدومين" :options="$filterOptions['domains'] ?? []" />
+    </x-data-table.filters>
 
     <div class="card">
         <div class="card-body">

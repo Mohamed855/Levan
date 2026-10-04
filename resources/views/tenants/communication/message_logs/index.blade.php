@@ -58,49 +58,39 @@
 
 
     {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <label class="form-label" for="filter-status">الحالة</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر الحالة">
-                        <option value=""></option>
-                        <option value="pending">في الانتظار</option>
-                        <option value="processing">جاري المعالجة</option>
-                        <option value="sent">تم الإرسال</option>
-                        <option value="failed">فشل الإرسال</option>
-                        <option value="cancelled">ملغي</option>
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label" for="filter-message-type">نوع الرسالة</label>
-                    <select id="filter-message-type" class="form-control select2" data-placeholder="اختر النوع">
-                        <option value=""></option>
-                        <option value="sms">رسالة نصية</option>
-                        <option value="email">بريد إلكتروني</option>
-                        <option value="whatsapp">واتساب</option>
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label" for="filter-sender">المرسل</label>
-                    <select id="filter-sender" class="form-control select2" data-placeholder="اختر المرسل">
-                        <option value=""></option>
-                        @foreach ($filterData['senders'] as $sender)
-                            <option value="{{ $sender->id }}">{{ $sender->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
+    <x-data-table.filters table="#message-logs-table" reset-id="btn-reset-filters">
+        <div class="col-md-4">
+            <label class="form-label" for="filter-status">الحالة</label>
+            <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر الحالة">
+                <option value=""></option>
+                <option value="pending">في الانتظار</option>
+                <option value="processing">جاري المعالجة</option>
+                <option value="sent">تم الإرسال</option>
+                <option value="failed">فشل الإرسال</option>
+                <option value="cancelled">ملغي</option>
+            </select>
         </div>
-    </div>
+
+        <div class="col-md-4">
+            <label class="form-label" for="filter-message-type">نوع الرسالة</label>
+            <select id="filter-message-type" class="form-control select2" data-datatable-filter="true" data-filter-key="message_type" data-placeholder="اختر النوع">
+                <option value=""></option>
+                <option value="sms">رسالة نصية</option>
+                <option value="email">بريد إلكتروني</option>
+                <option value="whatsapp">واتساب</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label" for="filter-sender">المرسل</label>
+            <select id="filter-sender" class="form-control select2" data-datatable-filter="true" data-filter-key="sender_id" data-placeholder="اختر المرسل">
+                <option value=""></option>
+                @foreach ($filterData['senders'] as $sender)
+                    <option value="{{ $sender->id }}">{{ $sender->name }}</option>
+                @endforeach
+            </select>
+        </div>
+    </x-data-table.filters>
 
     {{-- جدول سجل الرسائل --}}
     <div class="card">

@@ -16,27 +16,7 @@ $(function () {
     $('#distributions-table').on('init.dt', function () {
         const table = $(this).DataTable();
 
-        function applyFilters() {
-            const filters = {
-                distribution_method: $('#filter-distribution-method').val() || '',
-                created_by: $('#filter-created-by').val() || '',
-                date_from: $('#filter-date-from').val() || '',
-                date_to: $('#filter-date-to').val() || ''
-            };
-            const baseUrl = window.location.pathname;
-            const params = new URLSearchParams();
 
-            if (filters.distribution_method) params.append('distribution_method', filters.distribution_method);
-            if (filters.created_by) params.append('created_by', filters.created_by);
-            if (filters.date_from) params.append('date_from', filters.date_from);
-            if (filters.date_to) params.append('date_to', filters.date_to);
-
-            const newUrl = baseUrl + '?' + params.toString();
-
-            table.ajax.url(newUrl).load();
-        }
-
-        $('#filter-distribution-method, #filter-created-by, #filter-date-from, #filter-date-to').on('change', applyFilters);
 
         const tableWrapper = $('#distributions-table_wrapper');
 

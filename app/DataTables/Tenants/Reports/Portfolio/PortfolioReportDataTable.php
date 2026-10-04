@@ -23,6 +23,18 @@ class PortfolioReportDataTable extends AbstractDataTable
         return Portfolio::query();
     }
 
+    protected function applyCustomFilters($query)
+    {
+        $request = request();
+        if ($request->filled('date_from')) {
+            $query->whereDate('assignment_date', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('assignment_date', '<=', $request->date_to);
+        }
+        return $query;
+    }
+
     protected function getColumns(): array
     {
         return [

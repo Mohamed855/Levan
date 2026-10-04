@@ -152,49 +152,39 @@
     </div>
 
     {{-- جدول التقرير --}}
+    <x-data-table.filters table="#users-report-table" reset-id="reset-filters">
+        <div class="col-md-3">
+            <label for="branch_id">الفرع</label>
+            <select id="branch_id" name="branch_id" class="form-control select2" data-datatable-filter="true" data-filter-key="branch_id" data-placeholder="جميع الفروع">
+                <option value=""></option>
+                @foreach ($branches as $branch)
+                    <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label for="status">حالة المستخدم</label>
+            <select id="status" name="status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="جميع الحالات">
+                <option value=""></option>
+                <option value="active">نشط</option>
+                <option value="inactive">غير نشط</option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label for="date_from">من تاريخ</label>
+            <input type="text" id="date_from" name="date_from" class="form-control flatpickr-date" data-datatable-filter="true" data-filter-key="date_from" placeholder="اختر التاريخ">
+        </div>
+
+        <div class="col-md-3">
+            <label for="date_to">إلى تاريخ</label>
+            <input type="text" id="date_to" name="date_to" class="form-control flatpickr-date" data-datatable-filter="true" data-filter-key="date_to" placeholder="اختر التاريخ">
+        </div>
+    </x-data-table.filters>
+
     <div class="card" id="card-users-report">
         <div class="card-body">
-            {{-- فلاتر البحث --}}
-            <div class="filters row">
-                <div class="col-md-3">
-                    <label for="branch_id">الفرع</label>
-                    <select id="branch_id" name="branch_id" class="form-control select2" data-placeholder="جميع الفروع">
-                        <option value=""></option>
-                        @foreach ($branches as $branch)
-                            <option value="{{ $branch->id }}">{{ $branch->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-3">
-                    <label for="status">حالة المستخدم</label>
-                    <select id="status" name="status" class="form-control select2" data-placeholder="جميع الحالات">
-                        <option value=""></option>
-                        <option value="active">نشط</option>
-                        <option value="inactive">غير نشط</option>
-                    </select>
-                </div>
-
-                <div class="col-md-2">
-                    <label for="date_from">من تاريخ</label>
-                    <input type="text" id="date_from" name="date_from" class="form-control flatpickr-date"
-                        placeholder="اختر التاريخ">
-                </div>
-
-                <div class="col-md-2">
-                    <label for="date_to">إلى تاريخ</label>
-                    <input type="text" id="date_to" name="date_to" class="form-control flatpickr-date"
-                        placeholder="اختر التاريخ">
-                </div>
-
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="button" id="reset-filters" class="btn btn-primary w-100">
-                        <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                    </button>
-                </div>
-            </div>
-
-            <hr class="mt-10">
 
             {{-- جدول البيانات --}}
             <table id="users-report-table" class="table table-striped table-bordered text-center">

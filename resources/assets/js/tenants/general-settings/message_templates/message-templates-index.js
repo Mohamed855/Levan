@@ -154,24 +154,12 @@ function getButtons() {
  * ربط الأحداث
  */
 function bindEvents() {
-  // تحديث الجدول عند تغيير الفلاتر
-  $('#filter-category, #filter-channel, #filter-status').on('change', function () {
-    messageTemplatesTable.draw();
-  });
-
   // تحديث الجدول عند البحث
   $('#filter-search').on('keyup', function () {
     clearTimeout(window.searchTimeout);
     window.searchTimeout = setTimeout(function () {
       messageTemplatesTable.draw();
     }, 500);
-  });
-
-  // إعادة تعيين الفلاتر
-  $('#btn-reset-filters').on('click', function () {
-    $('#filter-category, #filter-channel, #filter-status').val('').trigger('change');
-    $('#filter-search').val('');
-    messageTemplatesTable.draw();
   });
 }
 

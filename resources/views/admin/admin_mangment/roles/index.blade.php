@@ -115,21 +115,12 @@
     </div>
 
     {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <x-filter.select id="filter-status" label="حالة المستخدم"
-                    placeholder="اختر حالة المستخدم" :options="$filterOptions['statuses'] ?? []" />
-                <x-filter.select id="filter-role" label="الدور" placeholder="اختر الدور"
-                    :options="$filterOptions['roles'] ?? []" />
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
-        </div>
-    </div>
+    <x-data-table.filters table="#users-table">
+        <x-filter.select id="filter-status" filterKey="status" label="حالة المستخدم"
+            placeholder="اختر حالة المستخدم" :options="$filterOptions['statuses'] ?? []" />
+        <x-filter.select id="filter-role" filterKey="role" label="الدور" placeholder="اختر الدور"
+            :options="$filterOptions['roles'] ?? []" />
+    </x-data-table.filters>
 
     {{-- DataTable Card --}}
     <div class="card" id="card-users">

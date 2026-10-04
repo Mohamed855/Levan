@@ -344,26 +344,6 @@ function initializePortfolioAmountChart() {
 |--------------------------------------------------------------------------
 */
 function bindEvents() {
-    const filterElements = [
-        '#filter-date-from', '#filter-date-to', '#filter-customer-status',
-        '#filter-customer-type', '#filter-company', '#filter-portfolio',
-        '#filter-nationality', '#filter-manager', '#filter-contact-result',
-        '#filter-debt-from', '#filter-debt-to'
-    ];
-
-    $(filterElements.join(', ')).on('change input', debounce(function () {
-        if (customerReportsTable) {
-            const baseUrl = window.routes.customerReportsIndex;
-            const params = getCurrentFiltersAsParams();
-            const newUrl = params ? baseUrl + '?' + params : baseUrl;
-            customerReportsTable.ajax.url(newUrl).load();
-        }
-    }, 800));
-
-    $('#reset-filters').on('click', function () {
-        resetFilters();
-    });
-
     $('#filter-company').on('change', function () {
         filterPortfoliosByCompany();
     });
@@ -394,7 +374,7 @@ function filterPortfoliosByCompany() {
     const selectedCompany = $('#filter-company').val();
     const portfolioSelect = $('#filter-portfolio');
 
-    portfolioSelect.val('').trigger('change');
+    portfolioSelect.val('').trigger('change.select2');
 
     portfolioSelect.find('option').each(function () {
         const option = $(this);
@@ -408,23 +388,6 @@ function filterPortfoliosByCompany() {
     });
 
     portfolioSelect.select2();
-}
-
-/*
-|--------------------------------------------------------------------------
-| Reset Filters
-|--------------------------------------------------------------------------
-*/
-function resetFilters() {
-    $('#filter-date-from, #filter-date-to, #filter-debt-from, #filter-debt-to').val('');
-    $('.select2').val('').trigger('change');
-    $('.select2-multiple').val(null).trigger('change');
-
-    if (customerReportsTable) {
-        customerReportsTable.ajax.url(window.routes.customerReportsIndex).load();
-    }
-
-    toastr.info('تم إعادة تعيين جميع الفلاتر');
 }
 
 /*

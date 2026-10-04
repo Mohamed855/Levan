@@ -345,114 +345,101 @@
             </div>
         </div>
 
-        <div class="collapse" id="filtersSection">
-            <div class="card-body border-bottom">
-                <div class="row g-4 mb-4">
-                    <div class="col-md-3">
-                        <label for="filter-year" class="form-label">السنة</label>
-                        <select id="filter-year" class="form-control select2" data-placeholder="اختر السنة">
-                            <option value=""></option>
-                            @for ($year = date('Y'); $year >= date('Y') - 5; $year--)
-                                <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>
-                                    {{ $year }}</option>
-                            @endfor
-                        </select>
-                    </div>
-
-                    <div class="col-md-3">
-                        <label for="filter-month" class="form-label">الشهر</label>
-                        <select id="filter-month" class="form-control select2" data-placeholder="اختر الشهر">
-                            <option value=""></option>
-                            @php
-                                $months = [
-                                    1 => 'يناير',
-                                    2 => 'فبراير',
-                                    3 => 'مارس',
-                                    4 => 'أبريل',
-                                    5 => 'مايو',
-                                    6 => 'يونيو',
-                                    7 => 'يوليو',
-                                    8 => 'أغسطس',
-                                    9 => 'سبتمبر',
-                                    10 => 'أكتوبر',
-                                    11 => 'نوفمبر',
-                                    12 => 'ديسمبر',
-                                ];
-                            @endphp
-                            @foreach ($months as $num => $name)
-                                <option value="{{ $num }}" {{ $num == date('n') ? 'selected' : '' }}>
-                                    {{ $name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="col-md-3">
-                        <label for="filter-company" class="form-label">الشركة</label>
-                        <select id="filter-company" class="form-control select2" data-placeholder="جميع الشركات">
-                            <option value=""></option>
-                            @foreach ($companies as $company)
-                                <option value="{{ $company->id }}">{{ $company->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="col-md-3">
-                        <label for="filter-portfolio" class="form-label">المحفظة</label>
-                        <select id="filter-portfolio" class="form-control select2" data-placeholder="اختر المحفظة">
-                            <option value=""></option>
-                            @foreach ($portfolios as $portfolio)
-                                <option value="{{ $portfolio->id }}" data-company="{{ $portfolio->company_id }}">
-                                    {{ $portfolio->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-
-                <div class="row g-4 mb-4">
-                    <div class="col-md-3">
-                        <label for="filter-branch" class="form-label">الفرع</label>
-                        <select id="filter-branch" class="form-control select2" data-placeholder="جميع الفروع">
-                            <option value=""></option>
-                            @foreach ($branches as $branch)
-                                <option value="{{ $branch->id }}">{{ $branch->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="col-md-3">
-                        <label for="filter-team" class="form-label">الفريق</label>
-                        <select id="filter-team" class="form-control select2" data-placeholder="جميع الفرق">
-                            <option value=""></option>
-                            @foreach ($teams as $team)
-                                <option value="{{ $team->id }}" data-branch="{{ $team->branch_id }}">
-                                    {{ $team->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="col-md-3">
-                        <label for="filter-user" class="form-label">الموظف</label>
-                        <select id="filter-user" class="form-control select2" data-placeholder="جميع الموظفين">
-                            <option value=""></option>
-                            @foreach ($users as $user)
-                                <option value="{{ $user->id }}" data-team="{{ $user->team_id }}">
-                                    {{ $user->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="col-md-3">
-                        <label class="form-label">&nbsp;</label>
-                        <button type="button" id="reset-filters" class="btn btn-outline-secondary w-100 d-block">
-                            <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                        </button>
-                    </div>
-                </div>
+        <x-data-table.filters id="filtersSection" class="collapse" card-class="border-bottom shadow-none mb-0" table="#company-performance-table" reset-id="reset-filters">
+            <div class="col-md-3">
+                <label for="filter-year" class="form-label">السنة</label>
+                <select id="filter-year" class="form-control select2" data-datatable-filter="true" data-filter-key="year" data-placeholder="اختر السنة">
+                    <option value=""></option>
+                    @for ($year = date('Y'); $year >= date('Y') - 5; $year--)
+                        <option value="{{ $year }}" {{ $year == date('Y') ? 'selected' : '' }}>
+                            {{ $year }}</option>
+                    @endfor
+                </select>
             </div>
-        </div>
+
+            <div class="col-md-3">
+                <label for="filter-month" class="form-label">الشهر</label>
+                <select id="filter-month" class="form-control select2" data-datatable-filter="true" data-filter-key="month" data-placeholder="اختر الشهر">
+                    <option value=""></option>
+                    @php
+                        $months = [
+                            1 => 'يناير',
+                            2 => 'فبراير',
+                            3 => 'مارس',
+                            4 => 'أبريل',
+                            5 => 'مايو',
+                            6 => 'يونيو',
+                            7 => 'يوليو',
+                            8 => 'أغسطس',
+                            9 => 'سبتمبر',
+                            10 => 'أكتوبر',
+                            11 => 'نوفمبر',
+                            12 => 'ديسمبر',
+                        ];
+                    @endphp
+                    @foreach ($months as $num => $name)
+                        <option value="{{ $num }}" {{ $num == date('n') ? 'selected' : '' }}>
+                            {{ $name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label for="filter-company" class="form-label">الشركة</label>
+                <select id="filter-company" class="form-control select2" data-datatable-filter="true" data-filter-key="company_id" data-placeholder="جميع الشركات">
+                    <option value=""></option>
+                    @foreach ($companies as $company)
+                        <option value="{{ $company->id }}">{{ $company->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label for="filter-portfolio" class="form-label">المحفظة</label>
+                <select id="filter-portfolio" class="form-control select2" data-datatable-filter="true" data-filter-key="portfolio_id" data-placeholder="اختر المحفظة">
+                    <option value=""></option>
+                    @foreach ($portfolios as $portfolio)
+                        <option value="{{ $portfolio->id }}" data-company="{{ $portfolio->company_id }}">
+                            {{ $portfolio->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label for="filter-branch" class="form-label">الفرع</label>
+                <select id="filter-branch" class="form-control select2" data-datatable-filter="true" data-filter-key="branch_id" data-placeholder="جميع الفروع">
+                    <option value=""></option>
+                    @foreach ($branches as $branch)
+                        <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label for="filter-team" class="form-label">الفريق</label>
+                <select id="filter-team" class="form-control select2" data-datatable-filter="true" data-filter-key="team_id" data-placeholder="جميع الفرق">
+                    <option value=""></option>
+                    @foreach ($teams as $team)
+                        <option value="{{ $team->id }}" data-branch="{{ $team->branch_id }}">
+                            {{ $team->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label for="filter-user" class="form-label">الموظف</label>
+                <select id="filter-user" class="form-control select2" data-datatable-filter="true" data-filter-key="user_id" data-placeholder="جميع الموظفين">
+                    <option value=""></option>
+                    @foreach ($users as $user)
+                        <option value="{{ $user->id }}" data-team="{{ $user->team_id }}">
+                            {{ $user->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+        </x-data-table.filters>
 
         <div class="card-body">
             {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100'], false) !!}

@@ -67,75 +67,65 @@
 @section('content')
 
     {{-- قسم الفلاتر --}}
-    <div class="card mb-4" id="filters-card">
-        <div class="card-body border-bottom">
-            <div class="row g-4 mb-3">
-                <div class="col-md-4">
-                    <label class="form-label">السنة</label>
-                    <select id="filter-year" class="form-control select2" data-placeholder="اختر السنة">
-                        <option value=""></option>
-                        @for ($year = date('Y'); $year >= date('Y') - 5; $year--)
-                            <option value="{{ $year }}" @selected($year == $selectedYear)>{{ $year }}</option>
-                        @endfor
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label">الشهر</label>
-                    <select id="filter-month" class="form-control select2" data-placeholder="اختر الشهر">
-                        <option value=""></option>
-                        @foreach ($months as $num => $name)
-                            <option value="{{ $num }}" @selected($num == $selectedMonth)>{{ $name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label">الفرع</label>
-                    <select id="filter-branch" class="form-control select2" data-placeholder="جميع الفروع">
-                        <option value=""></option>
-                        @foreach ($branches as $branch)
-                            <option value="{{ $branch->id }}" @selected((string) request('branch_id') === (string) $branch->id)>
-                                {{ $branch->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label">الفريق</label>
-                    <select id="filter-team" class="form-control select2" data-placeholder="جميع الفرق">
-                        <option value=""></option>
-                        @foreach ($teams as $team)
-                            <option value="{{ $team->id }}" data-branch="{{ $team->branch_id }}"
-                                @selected((string) request('team_id') === (string) $team->id)>
-                                {{ $team->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label">الموظف</label>
-                    <select id="filter-user" class="form-control select2" data-placeholder="جميع الموظفين">
-                        <option value=""></option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}" data-team="{{ $user->team_id }}"
-                                @selected((string) request('user_id') === (string) $user->id)>
-                                {{ $user->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-4 d-flex align-items-end">
-                    <button type="button" id="reset-filters" class="btn btn-outline-secondary w-100">
-                        <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                    </button>
-                </div>
-            </div>
+    <x-data-table.filters id="filters-card" table="#employee-performance-table" reset-id="reset-filters">
+        <div class="col-md-4">
+            <label class="form-label">السنة</label>
+            <select id="filter-year" class="form-control select2" data-datatable-filter="true" data-filter-key="year" data-placeholder="اختر السنة">
+                <option value=""></option>
+                @for ($year = date('Y'); $year >= date('Y') - 5; $year--)
+                    <option value="{{ $year }}" @selected($year == $selectedYear)>{{ $year }}</option>
+                @endfor
+            </select>
         </div>
-    </div>
+
+        <div class="col-md-4">
+            <label class="form-label">الشهر</label>
+            <select id="filter-month" class="form-control select2" data-datatable-filter="true" data-filter-key="month" data-placeholder="اختر الشهر">
+                <option value=""></option>
+                @foreach ($months as $num => $name)
+                    <option value="{{ $num }}" @selected($num == $selectedMonth)>{{ $name }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">الفرع</label>
+            <select id="filter-branch" class="form-control select2" data-datatable-filter="true" data-filter-key="branch_id" data-placeholder="جميع الفروع">
+                <option value=""></option>
+                @foreach ($branches as $branch)
+                    <option value="{{ $branch->id }}" @selected((string) request('branch_id') === (string) $branch->id)>
+                        {{ $branch->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">الفريق</label>
+            <select id="filter-team" class="form-control select2" data-datatable-filter="true" data-filter-key="team_id" data-placeholder="جميع الفرق">
+                <option value=""></option>
+                @foreach ($teams as $team)
+                    <option value="{{ $team->id }}" data-branch="{{ $team->branch_id }}"
+                        @selected((string) request('team_id') === (string) $team->id)>
+                        {{ $team->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">الموظف</label>
+            <select id="filter-user" class="form-control select2" data-datatable-filter="true" data-filter-key="user_id" data-placeholder="جميع الموظفين">
+                <option value=""></option>
+                @foreach ($users as $user)
+                    <option value="{{ $user->id }}" data-team="{{ $user->team_id }}"
+                        @selected((string) request('user_id') === (string) $user->id)>
+                        {{ $user->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+    </x-data-table.filters>
 
     {{-- بطاقات الإحصائيات — الصف الأول --}}
     <div class="row g-4 mb-4" id="stats-row-1">

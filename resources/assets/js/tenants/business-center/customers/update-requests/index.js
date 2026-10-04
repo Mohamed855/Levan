@@ -67,14 +67,7 @@ function bindEvents() {
         $('.row-checkbox').prop('checked', $(this).prop('checked'));
     });
 
-    // أحداث الفلاتر
-    $('#filter-status, #filter-requested-by').on('change', function () {
-        applyFilters();
-    });
 
-    $('#filter-search').on('keyup', function () {
-        applyFilters();
-    });
 }
 
 /*
@@ -564,12 +557,6 @@ function updatePendingCount() {
         });
 }
 
-function applyFilters() {
-    const table = $('#customer-update-requests-table').DataTable();
-
-    // إعادة تحميل الجدول مع تطبيق الفلاتر
-    table.ajax.reload();
-}
 
 /*
 |--------------------------------------------------------------------------

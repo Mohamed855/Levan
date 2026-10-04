@@ -124,6 +124,7 @@
                 <div class="col-md-5 report-filter-field">
                     <label for="company-selector" class="form-label form-label-sm">الشركة</label>
                     <select id="company-selector" class="form-select form-select-sm select2"
+                        data-datatable-filter="true" data-filter-key="company_id" data-table="#companies-table"
                         data-placeholder="جميع الشركات">
                         <option value="">جميع الشركات</option>
                         @foreach ($companiesList as $company)
@@ -134,7 +135,9 @@
 
                 <div id="portfolio-wrap" class="col-md-5 report-filter-field is-disabled">
                     <label for="portfolio-selector" class="form-label form-label-sm">المحفظة</label>
-                    <select id="portfolio-selector" class="form-select form-select-sm" data-placeholder="جميع محافظ الشركة">
+                    <select id="portfolio-selector" class="form-select form-select-sm"
+                        data-datatable-filter="true" data-filter-key="portfolio_id" data-table="#companies-table"
+                        data-placeholder="جميع محافظ الشركة">
                         <option value="">جميع المحافظ</option>
                     </select>
                 </div>
@@ -395,36 +398,24 @@
             </div>
 
 
-            <div class="table-filters d-none" id="filtersSection">
-                <div class="card-body border-bottom">
-                    <div class="row g-4">
-                        <div class="col-md-4">
-                            <label for="filter-status" class="form-label form-label-sm">الحالة</label>
-                            <select id="filter-status" class="form-select form-select-sm">
-                                <option value="">الكل</option>
-                                <option value="active">نشط</option>
-                                <option value="inactive">غير نشط</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="filter-date-from" class="form-label form-label-sm">من تاريخ الإنشاء</label>
-                            <input type="date" id="filter-date-from" class="form-control form-control-sm">
-                        </div>
-                        <div class="col-md-4">
-                            <label for="filter-date-to" class="form-label form-label-sm">إلى تاريخ الإنشاء</label>
-                            <input type="date" id="filter-date-to" class="form-control form-control-sm">
-                        </div>
-
-                        <div class="col-md-12">
-                            <div class="filter-actions">
-                                <button type="button" id="reset-filters" class="btn btn-sm btn-outline-secondary">
-                                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+            <x-data-table.filters id="filtersSection" class="table-filters d-none" card-class="border-0 shadow-none mb-0" table="#companies-table" reset-id="reset-filters">
+                <div class="col-md-4">
+                    <label for="filter-status" class="form-label form-label-sm">الحالة</label>
+                    <select id="filter-status" class="form-select form-select-sm" data-datatable-filter="true" data-filter-key="status">
+                        <option value="">الكل</option>
+                        <option value="active">نشط</option>
+                        <option value="inactive">غير نشط</option>
+                    </select>
                 </div>
-            </div>
+                <div class="col-md-4">
+                    <label for="filter-date-from" class="form-label form-label-sm">من تاريخ الإنشاء</label>
+                    <input type="date" id="filter-date-from" class="form-control form-control-sm" data-datatable-filter="true" data-filter-key="date_from">
+                </div>
+                <div class="col-md-4">
+                    <label for="filter-date-to" class="form-label form-label-sm">إلى تاريخ الإنشاء</label>
+                    <input type="date" id="filter-date-to" class="form-control form-control-sm" data-datatable-filter="true" data-filter-key="date_to">
+                </div>
+            </x-data-table.filters>
             <div class="card-body">
                 {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'companies-table'], false) !!}
             </div>

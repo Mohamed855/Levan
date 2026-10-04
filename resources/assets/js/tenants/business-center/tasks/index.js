@@ -12,44 +12,6 @@ $(function () {
     $('#tasks-table').on('init.dt', function () {
         const table = $(this).DataTable();
 
-        // Apply Filters Function
-        function applyFilters() {
-            const filters = {
-                company_id: $('#filter-company').val() || '',
-                portfolio_id: $('#filter-portfolio').val() || '',
-                relationship_manager_id: $('#filter-manager').val() || '',
-                task_type: $('#filter-task-type').val() || '',
-                status: $('#filter-status').val() || '',
-                overdue_days: $('#filter-overdue-days').val() || '',
-                date_from: $('#filter-date-from').val() || '',
-                date_to: $('#filter-date-to').val() || '',
-            };
-
-            const baseUrl = window.location.pathname;
-            const params = new URLSearchParams();
-
-            for (const key in filters) {
-                if (filters[key]) {
-                    params.append(key, filters[key]);
-                }
-            }
-
-            const newUrl = baseUrl + '?' + params.toString();
-            table.ajax.url(newUrl).load();
-        }
-
-        // Filter Change Events
-        $('#filter-company, #filter-portfolio, #filter-manager, #filter-task-type, #filter-status, #filter-overdue-days').on('change', applyFilters);
-        $('#filter-date-from, #filter-date-to').on('change', applyFilters);
-
-        // Reset Filters Event
-        $('#btn-reset-filters').on('click', function () {
-            $('#filter-company, #filter-portfolio, #filter-manager, #filter-task-type, #filter-status, #filter-overdue-days').val('').trigger('change');
-            $('#filter-date-from, #filter-date-to').val('');
-            $('#custom-date-range').addClass('d-none');
-            applyFilters();
-        });
-
         // Custom Date Range Toggle
         $('#filter-overdue-days').on('change', function() {
             if ($(this).val() === 'custom') {
@@ -57,6 +19,12 @@ $(function () {
             } else {
                 $('#custom-date-range').addClass('d-none');
                 $('#filter-date-from, #filter-date-to').val('');
+            }
+        });
+
+        $(document).on('datatable-filter:reset', function (e, data) {
+            if (data && data.targetTable === '#tasks-table') {
+                $('#custom-date-range').addClass('d-none');
             }
         });
 

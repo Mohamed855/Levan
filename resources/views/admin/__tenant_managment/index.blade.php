@@ -25,7 +25,7 @@
             massDelete: "{{ route('admin.mass-delete') }}"
         };
     </script>
-    @vite(['resources/assets/js/admin/tenant_managment/filter.js', 'resources/assets/js/admin/tenant_managment/index.js'])
+    @vite(['resources/assets/js/admin/tenant_managment/index.js'])
 @endsection
 @section('content')
     <div class="row g-4 mb-4">
@@ -128,44 +128,26 @@
         </div>
     @endif
 
+    <x-data-table.filters table="#tenant-table">
+        <x-filter.select id="filter-status" filterKey="status" label="حالة الاشتراك"
+            placeholder="اختر حالة الاشتراك" :options="[
+                ['value' => 'active', 'label' => 'نشط'],
+                ['value' => 'queued', 'label' => 'في الانتظار'],
+                ['value' => 'expired', 'label' => 'منتهي'],
+                ['value' => 'cancelled', 'label' => 'ملغي'],
+                ['value' => 'pending_payment', 'label' => 'في انتظار الدفع'],
+            ]" />
+
+        <x-filter.select id="filter-client" filterKey="statusClient" label="حالة العميل"
+            placeholder="اختر حالة العميل" :options="[
+                ['value' => '1', 'label' => 'نشط'],
+                ['value' => '0', 'label' => 'محذوف'],
+            ]" />
+    </x-data-table.filters>
+
     <div class="card">
         <div class="card-body">
-            <div class="filters row g-4">
-                {{-- <div class="col-md-4">
-                    <label for="filter-employee">الموظف</label>
-                    <select id="filter-employee" class="form-control select2" data-placeholder="اختر الموظف">
-                        <option value=""></option>
-                        @foreach ($employees as $employee)
-                            <option value="{{ $employee->id }}">{{ $employee->name }}</option>
-            @endforeach
-            </select>
-        </div>
-        <div class="col-md-4">
-            <label for="filter-type">نوع السلفة</label>
-            <select id="filter-type" class="form-control select2" data-placeholder="اختر نوع السلفة">
-                <option value=""></option>
-                @foreach ($advanceTypes as $type)
-                <option value="{{ $type['id'] }}">{{ $type['name'] }}</option>
-                @endforeach
-            </select>
-        </div> --}}
-                <x-filter.select id="filter-status" label="حالة الاشتراك"
-                    placeholder="اختر حالة الاشتراك" :options="[
-                        ['value' => 'active', 'label' => 'نشط'],
-                        ['value' => 'queued', 'label' => 'في الانتظار'],
-                        ['value' => 'expired', 'label' => 'منتهي'],
-                        ['value' => 'cancelled', 'label' => 'ملغي'],
-                        ['value' => 'pending_payment', 'label' => 'في انتظار الدفع'],
-                    ]" />
-
-                <x-filter.select id="filter-client" label="حالة العميل"
-                    placeholder="اختر حالة العميل" :options="[
-                        ['value' => '1', 'label' => 'نشط'],
-                        ['value' => '0', 'label' => 'محذوف'],
-                    ]" />
-            </div>
-            <hr class="mt-10">
-            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100'], false) !!}
+            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'tenant-table'], false) !!}
         </div>
     </div>
 @endsection

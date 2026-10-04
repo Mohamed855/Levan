@@ -46,29 +46,20 @@
     </div>
 
     {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <x-filter.select col="col-md-4" id="filter-user" label="المستخدم"
-                    placeholder="اختر المستخدم" :options="$filterOptions['users'] ?? []" />
+    <x-data-table.filters table="#activity-logs-table">
+        <x-filter.select col="col-md-4" id="filter-user" filterKey="user_id" label="المستخدم"
+            placeholder="اختر المستخدم" :options="$filterOptions['users'] ?? []" />
 
-                <div class="col-md-4">
-                    <label class="form-label" for="filter-date-from">من تاريخ</label>
-                    <input type="date" id="filter-date-from" class="form-control">
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label" for="filter-date-to">إلى تاريخ</label>
-                    <input type="date" id="filter-date-to" class="form-control">
-                </div>
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
+        <div class="col-md-4">
+            <label class="form-label" for="filter-date-from">من تاريخ</label>
+            <input type="date" id="filter-date-from" data-filter-key="date_from" data-datatable-filter="true" class="form-control">
         </div>
-    </div>
+
+        <div class="col-md-4">
+            <label class="form-label" for="filter-date-to">إلى تاريخ</label>
+            <input type="date" id="filter-date-to" data-filter-key="date_to" data-datatable-filter="true" class="form-control">
+        </div>
+    </x-data-table.filters>
 
     <div class="card" id="card-activity-logs">
         <div class="card-body">

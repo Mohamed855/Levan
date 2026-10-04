@@ -101,7 +101,6 @@ function bindEvents() {
         bindTableEvents();
     });
 
-    bindFilterEvents();
     bindModalEvents();
 }
 /*
@@ -122,6 +121,12 @@ function bindTableEvents() {
     adminCollectionsTable.on('search', function () {
         AdminCollectionsSelection.clearAll();
     });
+
+    $(document).on('datatable-filter:changed datatable-filter:reset', function (e, data) {
+        if (data && data.tableSelector === '#admin-collections-table') {
+            AdminCollectionsSelection.clearAll();
+        }
+    });
 }
 
 
@@ -131,42 +136,7 @@ function bindTableEvents() {
 |--------------------------------------------------------------------------
 | Bind events for filters to trigger table refresh.
 */
-function bindFilterEvents() {
-    const filterSelectors = [
-        '#filter-status',
-        '#filter-added-by',
-        '#filter-customer',
-        '#filter-payment-method',
-        '#filter-collection-type',
-        '#filter-payment-type',
-        '#filter-date-from',
-        '#filter-date-to'
-    ];
 
-    $(filterSelectors.join(', ')).on('change', function () {
-        if (adminCollectionsTable) {
-            const baseUrl = window.location.pathname;
-            const params = new URLSearchParams();
-
-            filterSelectors.forEach(selector => {
-                const value = $(selector).val();
-                if (value) {
-                    const key = selector.replace('#filter-', '').replace('-', '_');
-                    params.append(key, value);
-                }
-            });
-
-            const query = params.toString();
-            const newUrl = query ? baseUrl + '?' + query : baseUrl;
-
-            adminCollectionsTable.ajax.url(newUrl).load();
-        }
-    });
-
-    $('#btn-reset-filters').on('click', function () {
-        $(filterSelectors.join(', ')).val('').trigger('change');
-    });
-}
 
 /*
 |--------------------------------------------------------------------------

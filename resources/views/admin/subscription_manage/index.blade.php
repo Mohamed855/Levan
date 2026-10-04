@@ -28,9 +28,6 @@
             massReject: "{{ route('admin.subscriptionManage.mass-reject') }}"
         };
     </script>
-    @if (!($isPendingPage ?? false) && !($isExpiringPage ?? false) && !($isExpiredPage ?? false))
-        @vite(['resources/assets/js/admin/subscriptions/filter.js'])
-    @endif
     @vite(['resources/assets/js/admin/subscriptions/index.js'])
 @endsection
 
@@ -63,25 +60,16 @@
 
     @if (!($isPendingPage ?? false) && !($isExpiringPage ?? false) && !($isExpiredPage ?? false))
         {{-- Filters Card --}}
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="row g-4">
-                    <x-filter.select id="filter-status" label="حالة الشركات"
-                        placeholder="اختر حالة الشركة" :options="$filterOptions['statuses'] ?? [
-                            ['value' => 'pending', 'label' => 'قيد المراجعة'],
-                            ['value' => 'active', 'label' => 'نشط'],
-                            ['value' => 'suspended', 'label' => 'معلق'],
-                            ['value' => 'cancelled', 'label' => 'ملغي'],
-                            ['value' => 'expired', 'label' => 'منتهي'],
-                        ]" />
-                </div>
-                <div class="d-flex justify-content-end mt-3 gap-2">
-                    <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                        <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                    </button>
-                </div>
-            </div>
-        </div>
+        <x-data-table.filters table="#subscriptions-table">
+            <x-filter.select id="filter-status" filterKey="status" label="حالة الشركات"
+                placeholder="اختر حالة الشركة" :options="$filterOptions['statuses'] ?? [
+                    ['value' => 'pending', 'label' => 'قيد المراجعة'],
+                    ['value' => 'active', 'label' => 'نشط'],
+                    ['value' => 'suspended', 'label' => 'معلق'],
+                    ['value' => 'cancelled', 'label' => 'ملغي'],
+                    ['value' => 'expired', 'label' => 'منتهي'],
+                ]" />
+        </x-data-table.filters>
     @endif
 
     <div class="card">

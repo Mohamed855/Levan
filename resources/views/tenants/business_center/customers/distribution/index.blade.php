@@ -131,32 +131,37 @@
         </div>
     </div>
 
+    <x-data-table.filters table="#distributions-table">
+        <div class="col-md-4">
+            <x-filter.select
+                id="filter-distribution-method"
+                filterKey="distribution_method"
+                table="#distributions-table"
+                name="distribution_method"
+                label="نوع التوزيع"
+                placeholder="جميع الأنواع"
+                :options="[
+                    'balanced_amount' => 'توزيع متوازن (مبلغ)',
+                    'balanced_count' => 'توزيع متوازن (عدد)',
+                    'hybrid_balanced' => 'توزيع مختلط'
+                ]"
+            />
+        </div>
+
+        <div class="col-md-4">
+            <label for="filter-date-from" class="form-label">من تاريخ</label>
+            <input type="date" id="filter-date-from" class="form-control" data-filter-key="date_from" data-datatable-filter="true" data-datatable-target="#distributions-table">
+        </div>
+
+        <div class="col-md-4">
+            <label for="filter-date-to" class="form-label">إلى تاريخ</label>
+            <input type="date" id="filter-date-to" class="form-control" data-filter-key="date_to" data-datatable-filter="true" data-datatable-target="#distributions-table">
+        </div>
+    </x-data-table.filters>
+
     <!-- جدول عمليات التوزيع -->
     <div class="card">
         <div class="card-body">
-            <div class="row g-4 mb-3">
-                <div class="col-md-4">
-                    <label for="filter-distribution-method" class="form-label">نوع التوزيع</label>
-                    <select id="filter-distribution-method" class="form-control select2" data-placeholder="جميع الأنواع">
-                        <option value=""></option>
-                        <option value="balanced_amount">توزيع متوازن (مبلغ)</option>
-                        <option value="balanced_count">توزيع متوازن (عدد)</option>
-                        <option value="hybrid_balanced">توزيع مختلط</option>
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label for="filter-date-from" class="form-label">من تاريخ</label>
-                    <input type="date" id="filter-date-from" class="form-control">
-                </div>
-
-                <div class="col-md-4">
-                    <label for="filter-date-to" class="form-label">إلى تاريخ</label>
-                    <input type="date" id="filter-date-to" class="form-control">
-                </div>
-            </div>
-
-            <hr class="mt-8">
             {!! $dataTable->table(
                 ['class' => 'table table-striped table-bordered w-100', 'id' => 'distributions-table'],
                 false,

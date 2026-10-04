@@ -83,14 +83,6 @@ function initializeComponents() {
         });
     });
 
-    // ✅ معالج فلتر نتيجة الاتصال
-    $('#filter-contact-result').on('change', function () {
-        const table = $('#customers-table').DataTable();
-        table.page(0);
-        table.ajax.reload(null, false);
-        CustomerSelection.clearAll();
-    });
-
     // ✅ تفعيل التحكم في حقول تاريخ الإرسال
     setupSMSDateFieldsControl();
 }
@@ -140,46 +132,20 @@ function setupSMSDateFieldsControl() {
 
 /*
 |--------------------------------------------------------------------------
-| Optimized Filters Setup - No Interference with Search
+| Optimized Filters Setup - Preserves cascading and selection clearing
 |--------------------------------------------------------------------------
-| إعداد الفلاتر المحسنة - بدون تداخل مع البحث
+| إعداد الفلاتر - الحفاظ على التبعيات ومسح التحديد
 */
 function setupOptimizedFilters() {
     const table = $('#customers-table').DataTable();
-    let filterTimeout;
 
-    // معالج الفلاتر المخصصة
-    $('#filter-status, #filter-customer-type, #filter-company, #filter-portfolio, #filter-nationality, #filter-manager, #filter-contact-result, #filter-debt-min, #filter-debt-max, #filter-sms-status, #filter-sms-date-from, #filter-sms-date-to')
-        .on('change keyup', function () {
-            // ✅ منع التحديث إذا كان الحقل معطل
-            if ($(this).prop('disabled')) {
-                return;
-            }
-
-            // مسح أي تأخير سابق
-            clearTimeout(filterTimeout);
-
-            // تطبيق الفلاتر مع تأخير بسيط
-            filterTimeout = setTimeout(() => {
-                // مسح البحث العام عند استخدام الفلاتر
-                table.search('');
-
-                // إعادة تحميل الجدول
-                table.page(0);
-                table.ajax.reload(null, false);
-
-                // مسح التحديد فوراً
+    // مسح التحديد عند تغيير أو إعادة ضبط الفلاتر
+    $(document).on('datatable-filter:changed datatable-filter:reset', function (e, data) {
+        if (data && data.targetTable === '#customers-table') {
+            if (typeof CustomerSelection !== 'undefined' && CustomerSelection.clearAll) {
                 CustomerSelection.clearAll();
-            }, 200);
-        });
-
-    $('#btn-reset-filters').on('click', function () {
-        $('#filter-status, #filter-customer-type, #filter-company, #filter-portfolio, #filter-nationality, #filter-manager, #filter-contact-result, #filter-sms-status').val('').trigger('change');
-        $('#filter-debt-min, #filter-debt-max, #filter-sms-date-from, #filter-sms-date-to').val('');
-        table.search('');
-        table.page(0);
-        table.ajax.reload(null, false);
-        CustomerSelection.clearAll();
+            }
+        }
     });
 
     // معالج تغيير الشركة والمحفظة
@@ -204,31 +170,8 @@ function setupOptimizedFilters() {
         portfolioSelect.select2();
     });
 
-    // معالج إرسال البيانات للخادم
+    // إرسال بارامتر view_type الإضافي مع كل طلب
     table.on('preXhr.dt', function (e, settings, data) {
-        data.customer_status_id = $('#filter-status').val();
-        data.customer_type = $('#filter-customer-type').val();
-        data.company_id = $('#filter-company').val();
-        data.portfolio_id = $('#filter-portfolio').val();
-        data.nationality = $('#filter-nationality').val();
-        data.relationship_manager_id = $('#filter-manager').val();
-        data.last_contact_result_id = $('#filter-contact-result').val();
-        data.debt_min = $('#filter-debt-min').val();
-        data.debt_max = $('#filter-debt-max').val();
-        data.sms_status = $('#filter-sms-status').val();
-
-        // ✅ إرسال تواريخ الإرسال فقط إذا كانت الحقول مفعّلة
-        const smsDateFrom = $('#filter-sms-date-from');
-        const smsDateTo = $('#filter-sms-date-to');
-
-        if (!smsDateFrom.prop('disabled')) {
-            data.sms_date_from = smsDateFrom.val();
-        }
-
-        if (!smsDateTo.prop('disabled')) {
-            data.sms_date_to = smsDateTo.val();
-        }
-
         data.view_type = window.viewType || 'all';
     });
 }

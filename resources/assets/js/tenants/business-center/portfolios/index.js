@@ -14,29 +14,7 @@ $(function () {
     $('#portfolios-table').on('init.dt', function () {
         const table = $(this).DataTable();
 
-        function applyFilters() {
-            const filters = {
-                status: $('#filter-status').val() || '',
-                company_id: $('#filter-company').val() || '',
-            };
-            const baseUrl = window.location.pathname;
-            const params = new URLSearchParams();
 
-            for (const key in filters) {
-                if (filters[key]) {
-                    params.append(key, filters[key]);
-                }
-            }
-
-            const newUrl = baseUrl + '?' + params.toString();
-            table.ajax.url(newUrl).load();
-        }
-
-        $('#filter-status, #filter-company').on('change', applyFilters);
-
-        $('#btn-reset-filters').on('click', function () {
-            $('#filter-status, #filter-company').val('').trigger('change');
-        });
 
     
         const tableWrapper = $('#portfolios-table_wrapper');

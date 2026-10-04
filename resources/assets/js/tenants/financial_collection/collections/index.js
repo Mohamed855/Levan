@@ -113,7 +113,6 @@ function bindEvents() {
         bindTableEvents();
     });
 
-    bindFilterEvents();
     bindModalEvents();
 }
 
@@ -140,76 +139,13 @@ function bindTableEvents() {
     collectionsTable.on('draw', function () {
         $('#select-all').prop('checked', false);
     });
-}
 
-/*
-|--------------------------------------------------------------------------
-| Bind Filter Events
-|--------------------------------------------------------------------------
-| Bind events for filters to trigger table refresh.
-*/
-function bindFilterEvents() {
-    const filterSelectors = [
-        '#filter-status',
-        '#filter-payment-method',
-        '#filter-collection-type',
-        '#filter-payment-type',
-        '#filter-date-from',
-        '#filter-date-to'
-    ];
-
-    // الفلاتر العادية
-    $(filterSelectors.join(', ')).on('change', function () {
-        refreshDataTable();
-    });
-
-    // فلتر العميل الخاص (Select2 Ajax)
-    $('#filter-customer').on('select2:select select2:clear', function () {
-        refreshDataTable();
-    });
-
-    // زر إعادة تعيين الفلاتر
-    $('#btn-reset-filters').on('click', function () {
-        $(filterSelectors.join(', ')).val('').trigger('change');
-        $('#filter-customer').val(null).trigger('change');
-        refreshDataTable();
-    });
-}
-
-function refreshDataTable() {
-    if (collectionsTable) {
-        const baseUrl = window.location.pathname;
-        const params = new URLSearchParams();
-
-        // الفلاتر العادية
-        const filterSelectors = [
-            '#filter-status',
-            '#filter-payment-method',
-            '#filter-collection-type',
-            '#filter-payment-type',
-            '#filter-date-from',
-            '#filter-date-to'
-        ];
-
-        filterSelectors.forEach(selector => {
-            const value = $(selector).val();
-            if (value) {
-                const key = selector.replace('#filter-', '').replace('-', '_');
-                params.append(key, value);
-            }
-        });
-
-        // فلتر العميل
-        const customerValue = $('#filter-customer').val();
-        if (customerValue) {
-            params.append('customer_id', customerValue);
+    $(document).on('datatable-filter:changed datatable-filter:reset', function (e, data) {
+        if (data && data.tableSelector === '#collections-table') {
+            $('#select-all').prop('checked', false);
+            $('.row-checkbox').prop('checked', false);
         }
-
-        const query = params.toString();
-        const newUrl = query ? baseUrl + '?' + query : baseUrl;
-
-        collectionsTable.ajax.url(newUrl).load();
-    }
+    });
 }
 
 /*

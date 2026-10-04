@@ -20,36 +20,9 @@ function initializeDataTableEvents() {
         const table = $(this).DataTable();
         const tableWrapper = $('#paln-archive-table_wrapper');
 
-        bindFilters(table);
         bindSelectionEvents(table, tableWrapper);
         bindTableEvents(table);
     });
-}
-
-function bindFilters(table) {
-    $('#filter-status, #filter-domain').on('change', function () {
-        applyFilters(table);
-    });
-
-    $('#btn-reset-filters').on('click', function () {
-        $('#filter-status, #filter-domain').val('').trigger('change');
-    });
-}
-
-function applyFilters(table) {
-    const isActive = $('#filter-status').val() || '';
-    const domainManagement = $('#filter-domain').val() || '';
-
-    const baseUrl = window.location.pathname;
-    const params = new URLSearchParams();
-
-    if (isActive !== '') params.append('is_active', isActive);
-    if (domainManagement !== '') params.append('domain_management_enabled', domainManagement);
-
-    const query = params.toString();
-    const newUrl = query ? baseUrl + '?' + query : baseUrl;
-
-    table.ajax.url(newUrl).load();
 }
 
 function bindSelectionEvents(table, tableWrapper) {

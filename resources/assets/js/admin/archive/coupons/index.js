@@ -20,36 +20,9 @@ function initializeDataTableEvents() {
         const table = $(this).DataTable();
         const tableWrapper = $('#coupon-archive-table_wrapper');
 
-        bindFilters(table);
         bindSelectionEvents(table, tableWrapper);
         bindTableEvents(table);
     });
-}
-
-function bindFilters(table) {
-    $('#filter-status, #filter-type').on('change', function () {
-        applyFilters(table);
-    });
-
-    $('#btn-reset-filters').on('click', function () {
-        $('#filter-status, #filter-type').val('').trigger('change');
-    });
-}
-
-function applyFilters(table) {
-    const isActive = $('#filter-status').val() || '';
-    const discountType = $('#filter-type').val() || '';
-
-    const baseUrl = window.location.pathname;
-    const params = new URLSearchParams();
-
-    if (isActive !== '') params.append('is_active', isActive);
-    if (discountType) params.append('discount_type', discountType);
-
-    const query = params.toString();
-    const newUrl = query ? baseUrl + '?' + query : baseUrl;
-
-    table.ajax.url(newUrl).load();
 }
 
 function bindSelectionEvents(table, tableWrapper) {

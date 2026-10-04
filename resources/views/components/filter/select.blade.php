@@ -5,6 +5,9 @@
     'placeholder' => 'الكل',
     'value' => null,
     'name' => null,
+    'filterKey' => null,
+    'table' => null,
+    'target' => null,
     'col' => 'col-md-6',
     'wrapperClass' => '',
     'selectClass' => '',
@@ -24,6 +27,25 @@
     if ($selectName && $multiple && !str_ends_with($selectName, '[]')) {
         $selectName .= '[]';
     }
+
+    $targetTable = $table ?? $target;
+    if ($targetTable && !str_starts_with($targetTable, '#') && !str_starts_with($targetTable, '.')) {
+        $targetTable = '#' . $targetTable;
+    }
+
+    $filterDataAttributes = [
+        'class' => trim('form-control select2 ' . $selectClass),
+        'data-placeholder' => $placeholder,
+        'data-allow-clear' => $allowClear ? 'true' : 'false',
+        'data-datatable-filter' => 'true',
+    ];
+
+    if ($filterKey) {
+        $filterDataAttributes['data-filter-key'] = $filterKey;
+    }
+    if ($targetTable) {
+        $filterDataAttributes['data-datatable-target'] = $targetTable;
+    }
 @endphp
 
 <div class="{{ $columnClass }}">
@@ -33,11 +55,7 @@
         @if ($multiple) multiple @endif
         @if ($disabled) disabled @endif
         @if ($required) required @endif
-        {{ $remainingAttributes->merge([
-            'class' => trim('form-control select2 ' . $selectClass),
-            'data-placeholder' => $placeholder,
-            'data-allow-clear' => $allowClear ? 'true' : 'false',
-        ]) }}>
+        {{ $remainingAttributes->merge($filterDataAttributes) }}>
         @if (!$multiple)
             <option value=""></option>
         @endif

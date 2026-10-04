@@ -134,86 +134,107 @@
     </div>
 
     {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <div class="col-md-3">
-                    <label for="filter-status" class="form-label">الحالة</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر الحالة">
-                        <option value=""></option>
-                        <option value="pending">غير معتمد</option>
-                        <option value="approved">معتمد</option>
-                        <option value="rejected">مرفوض</option>
-                    </select>
-                </div>
-
-                <div class="col-md-3">
-                    <label for="filter-collection-type" class="form-label">نوع التحصيل</label>
-                    <select id="filter-collection-type" class="form-control select2" data-placeholder="اختر نوع التحصيل">
-                        <option value=""></option>
-                        <option value="cash">نقدي</option>
-                        <option value="scheduled">مجدول</option>
-                    </select>
-                </div>
-
-                <div class="col-md-3">
-                    <label for="filter-payment-type" class="form-label">نوع السداد</label>
-                    <select id="filter-payment-type" class="form-control select2" data-placeholder="اختر نوع السداد">
-                        <option value=""></option>
-                        <option value="settlement">سداد بتسوية</option>
-                        <option value="without_settlement">سداد بدون تسوية</option>
-                    </select>
-                </div>
-
-                <div class="col-md-3">
-                    <label for="filter-customer" class="form-label">العميل</label>
-                    <select id="filter-customer" class="form-control select2" data-placeholder="اختر العميل">
-                        <option value=""></option>
-                        @foreach ($customers as $customer)
-                            <option value="{{ $customer->id }}">{{ $customer->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-3">
-                    <label for="filter-payment-method" class="form-label">طريقة التحصيل</label>
-                    <select id="filter-payment-method" class="form-control select2" data-placeholder="اختر طريقة التحصيل">
-                        <option value=""></option>
-                        @foreach ($paymentMethods as $method)
-                            <option value="{{ $method->id }}">{{ $method->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-3">
-                    <label for="filter-added-by" class="form-label">أُضيف بواسطة</label>
-                    <select id="filter-added-by" class="form-control select2" data-placeholder="اختر المستخدم">
-                        <option value=""></option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-3">
-                    <label for="filter-date-from" class="form-label">من تاريخ</label>
-                    <input type="text" id="filter-date-from" class="form-control flatpickr-date"
-                        placeholder="اختر التاريخ">
-                </div>
-
-                <div class="col-md-3">
-                    <label for="filter-date-to" class="form-label">إلى تاريخ</label>
-                    <input type="text" id="filter-date-to" class="form-control flatpickr-date"
-                        placeholder="اختر التاريخ">
-                </div>
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
+    <x-data-table.filters table="#archived-collections-table">
+        <div class="col-md-3">
+            <x-filter.select
+                id="filter-status"
+                filterKey="status"
+                table="#archived-collections-table"
+                name="status"
+                label="الحالة"
+                placeholder="اختر الحالة"
+                :options="[
+                    'pending' => 'غير معتمد',
+                    'approved' => 'معتمد',
+                    'rejected' => 'مرفوض'
+                ]"
+            />
         </div>
-    </div>
+
+        <div class="col-md-3">
+            <x-filter.select
+                id="filter-collection-type"
+                filterKey="collection_type"
+                table="#archived-collections-table"
+                name="collection_type"
+                label="نوع التحصيل"
+                placeholder="اختر نوع التحصيل"
+                :options="[
+                    'cash' => 'نقدي',
+                    'scheduled' => 'مجدول'
+                ]"
+            />
+        </div>
+
+        <div class="col-md-3">
+            <x-filter.select
+                id="filter-payment-type"
+                filterKey="payment_type"
+                table="#archived-collections-table"
+                name="payment_type"
+                label="نوع السداد"
+                placeholder="اختر نوع السداد"
+                :options="[
+                    'settlement' => 'سداد بتسوية',
+                    'without_settlement' => 'سداد بدون تسوية'
+                ]"
+            />
+        </div>
+
+        <div class="col-md-3">
+            <x-filter.select
+                id="filter-customer"
+                filterKey="customer_id"
+                table="#archived-collections-table"
+                name="customer_id"
+                label="العميل"
+                placeholder="اختر العميل"
+                :options="$customers->pluck('name', 'id')"
+            />
+        </div>
+
+        <div class="col-md-3">
+            <x-filter.select
+                id="filter-payment-method"
+                filterKey="payment_method_id"
+                table="#archived-collections-table"
+                name="payment_method_id"
+                label="طريقة التحصيل"
+                placeholder="اختر طريقة التحصيل"
+                :options="$paymentMethods->pluck('name', 'id')"
+            />
+        </div>
+
+        <div class="col-md-3">
+            <x-filter.select
+                id="filter-added-by"
+                filterKey="added_by"
+                table="#archived-collections-table"
+                name="added_by"
+                label="أُضيف بواسطة"
+                placeholder="اختر المستخدم"
+                :options="$users->pluck('name', 'id')"
+            />
+        </div>
+
+        <div class="col-md-3">
+            <label for="filter-date-from" class="form-label">من تاريخ</label>
+            <input type="text" id="filter-date-from" class="form-control flatpickr-date"
+                placeholder="اختر التاريخ"
+                data-filter-key="date_from"
+                data-datatable-filter="true"
+                data-datatable-target="#archived-collections-table">
+        </div>
+
+        <div class="col-md-3">
+            <label for="filter-date-to" class="form-label">إلى تاريخ</label>
+            <input type="text" id="filter-date-to" class="form-control flatpickr-date"
+                placeholder="اختر التاريخ"
+                data-filter-key="date_to"
+                data-datatable-filter="true"
+                data-datatable-target="#archived-collections-table">
+        </div>
+    </x-data-table.filters>
 
     <div class="card" id="card-archived-collections">
         <div class="card-body">

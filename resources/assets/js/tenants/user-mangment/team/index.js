@@ -9,10 +9,6 @@ $(document).ready(function () {
     initializeTableStatusToggles();
     initializeComponents();
     
-    $('#teams-table').on('preInit.dt', function () {
-        setupFilters();
-    });
-    
     $('#teams-table').on('init.dt', function () {
         bindTableEvents();
     });
@@ -24,7 +20,7 @@ $(document).ready(function () {
 |--------------------------------------------------------------------------
 */
 function initializeComponents() {
-    $('.filters .select2').each(function () {
+    $('.select2').each(function () {
         $(this).select2({
             placeholder: $(this).data('placeholder') || 'اختر',
             allowClear: true,
@@ -38,36 +34,11 @@ function initializeComponents() {
 
 /*
 |--------------------------------------------------------------------------
-| Setup Filters
-|--------------------------------------------------------------------------
-*/
-function setupFilters() {
-    if ($.fn.DataTable.isDataTable('#teams-table')) {
-        const table = $('#teams-table').DataTable();
-        
-        table.on('preXhr.dt', function (e, settings, data) {
-            data.status = $('#filter-status').val();
-            data.branch_id = $('#filter-branch').val();
-        });
-    }
-}
-
-/*
-|--------------------------------------------------------------------------
 | Bind Table Events
 |--------------------------------------------------------------------------
 */
 function bindTableEvents() {
     const table = $('#teams-table').DataTable();
-    
-    $('#filter-status, #filter-branch').on('change', function () {
-        table.ajax.reload(null, false);
-    });
-
-    $('#btn-reset-filters').on('click', function () {
-        $('#filter-status, #filter-branch').val('').trigger('change');
-    });
-
     const tableWrapper = $('#teams-table_wrapper');
     
     tableWrapper.on('click', '#select-all', function () {

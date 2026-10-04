@@ -122,42 +122,45 @@
     </div>
 
     {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <label for="filter-status" class="form-label">حالة الشركة</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر حالة الشركة">
-                        <option value=""></option>
-                        <option value="active">نشط</option>
-                        <option value="inactive">غير نشط</option>
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label for="filter-authorized-count" class="form-label">عدد المفوضين</label>
-                    <select id="filter-authorized-count" class="form-control select2" data-placeholder="اختر عدد المفوضين">
-                        <option value=""></option>
-                        <option value="0">بدون مفوضين</option>
-                        <option value="1">مفوض واحد</option>
-                        <option value="2-5">من 2 إلى 5 مفوضين</option>
-                        <option value="6+">أكثر من 5 مفوضين</option>
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label for="filter-search" class="form-label">البحث</label>
-                    <input type="text" id="filter-search" class="form-control"
-                        placeholder="البحث في اسم الشركة أو المفوضين">
-                </div>
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
+    <x-data-table.filters table="#archived-companies-table">
+        <div class="col-md-4">
+            <x-filter.select
+                id="filter-status"
+                filterKey="status"
+                table="#archived-companies-table"
+                name="status"
+                label="حالة الشركة"
+                placeholder="اختر حالة الشركة"
+                :options="['active' => 'نشط', 'inactive' => 'غير نشط']"
+            />
         </div>
-    </div>
+
+        <div class="col-md-4">
+            <x-filter.select
+                id="filter-authorized-count"
+                filterKey="authorized_count"
+                table="#archived-companies-table"
+                name="authorized_count"
+                label="عدد المفوضين"
+                placeholder="اختر عدد المفوضين"
+                :options="[
+                    '0' => 'بدون مفوضين',
+                    '1' => 'مفوض واحد',
+                    '2-5' => 'من 2 إلى 5 مفوضين',
+                    '6+' => 'أكثر من 5 مفوضين',
+                ]"
+            />
+        </div>
+
+        <div class="col-md-4">
+            <label for="filter-search" class="form-label">البحث</label>
+            <input type="text" id="filter-search" class="form-control"
+                placeholder="البحث في اسم الشركة أو المفوضين"
+                data-filter-key="search_query"
+                data-datatable-filter="true"
+                data-datatable-target="#archived-companies-table">
+        </div>
+    </x-data-table.filters>
 
     <div class="card">
         <div class="card-body">

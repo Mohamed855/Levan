@@ -188,8 +188,8 @@ class UsersDataTable extends AbstractDataTable
             });
         }
 
-        if ($request->filled('branch_ids')) {
-            $query->where('branch_id', $request->branch_ids);
+        if ($request->filled('branch_ids') || $request->filled('branch_id')) {
+            $query->where('branch_id', $request->branch_ids ?? $request->branch_id);
         }
 
         if ($request->filled('employee_number')) {

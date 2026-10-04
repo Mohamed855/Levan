@@ -45,14 +45,6 @@ function initializeDataTableEvents() {
 |--------------------------------------------------------------------------
 */
 function bindFilters(table) {
-    $('#filter-customer-type, #filter-company, #filter-portfolio, #filter-manager, #filter-contact-result').on('change', function () {
-        applyFilters(table);
-    });
-
-    $('#filter-search').on('keyup', debounce(function () {
-        applyFilters(table);
-    }, 500));
-
     $('#filter-company').on('change', function () {
         const selectedCompany = $(this).val();
         const portfolioSelect = $('#filter-portfolio');
@@ -65,42 +57,13 @@ function bindFilters(table) {
         portfolioSelect.select2();
     });
 
-    $('#btn-reset-filters').on('click', function () {
-        $('#filter-customer-type, #filter-company, #filter-portfolio, #filter-manager, #filter-contact-result').val('').trigger('change');
-        $('#filter-search').val('');
-        applyFilters(table);
+    $(document).on('datatable-filter:changed datatable-filter:reset', function (e, data) {
+        if (data && data.targetTable === '#archived-customers-table') {
+            if (typeof CustomerArchiveSelection !== 'undefined' && CustomerArchiveSelection.clearAll) {
+                CustomerArchiveSelection.clearAll();
+            }
+        }
     });
-}
-
-/*
-|--------------------------------------------------------------------------
-| تطبيق الفلاتر على الجدول
-|--------------------------------------------------------------------------
-*/
-function applyFilters(table) {
-    const filters = {
-        customerType: $('#filter-customer-type').val() || '',
-        companyId: $('#filter-company').val() || '',
-        portfolioId: $('#filter-portfolio').val() || '',
-        managerId: $('#filter-manager').val() || '',
-        contactResultId: $('#filter-contact-result').val() || '',
-        search: $('#filter-search').val() || ''
-    };
-
-    const baseUrl = window.location.pathname;
-    const params = new URLSearchParams();
-
-    if (filters.customerType) params.append('customer_type', filters.customerType);
-    if (filters.companyId) params.append('company_id', filters.companyId);
-    if (filters.portfolioId) params.append('portfolio_id', filters.portfolioId);
-    if (filters.managerId) params.append('relationship_manager_id', filters.managerId);
-    if (filters.contactResultId) params.append('last_contact_result_id', filters.contactResultId);
-    if (filters.search) params.append('search', filters.search);
-
-    const query = params.toString();
-    const newUrl = query ? baseUrl + '?' + query : baseUrl;
-
-    table.ajax.url(newUrl).load();
 }
 
 /*

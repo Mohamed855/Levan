@@ -30,60 +30,9 @@ function initializeDataTableEvents() {
         const table = $(this).DataTable();
         const tableWrapper = $('#archived-contracts-table_wrapper');
 
-        bindFilters(table);
         bindSelectionEvents(table, tableWrapper);
         bindTableEvents(table);
     });
-}
-
-/*
-|--------------------------------------------------------------------------
-| ربط أحداث الفلاتر
-|--------------------------------------------------------------------------
-*/
-function bindFilters(table) {
-    $('#filter-status, #filter-company, #filter-commission-type, #filter-auto-renewal').on('change', function () {
-        applyFilters(table);
-    });
-
-    $('#filter-search').on('keyup', debounce(function () {
-        applyFilters(table);
-    }, 500));
-
-    $('#btn-reset-filters').on('click', function () {
-        $('#filter-status, #filter-company, #filter-commission-type, #filter-auto-renewal').val('').trigger('change');
-        $('#filter-search').val('');
-        applyFilters(table);
-    });
-}
-
-/*
-|--------------------------------------------------------------------------
-| تطبيق الفلاتر على الجدول
-|--------------------------------------------------------------------------
-*/
-function applyFilters(table) {
-    const filters = {
-        status: $('#filter-status').val() || '',
-        companyId: $('#filter-company').val() || '',
-        commissionType: $('#filter-commission-type').val() || '',
-        autoRenewal: $('#filter-auto-renewal').val() || '',
-        search: $('#filter-search').val() || ''
-    };
-
-    const baseUrl = window.location.pathname;
-    const params = new URLSearchParams();
-
-    if (filters.status) params.append('status', filters.status);
-    if (filters.companyId) params.append('company_id', filters.companyId);
-    if (filters.commissionType) params.append('commission_type', filters.commissionType);
-    if (filters.autoRenewal) params.append('auto_renewal', filters.autoRenewal);
-    if (filters.search) params.append('search', filters.search);
-
-    const query = params.toString();
-    const newUrl = query ? baseUrl + '?' + query : baseUrl;
-
-    table.ajax.url(newUrl).load();
 }
 
 /*

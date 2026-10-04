@@ -26,7 +26,7 @@
             updateSortOrder: "{{ route('admin.plans.update-sort-order') }}"
         };
     </script>
-    @vite(['resources/assets/js/admin/plans/filter.js', 'resources/assets/js/admin/plans/index.js'])
+    @vite(['resources/assets/js/admin/plans/index.js'])
 @endsection
 
 @section('content')
@@ -52,33 +52,24 @@
     @endif
 
     {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-3">
-                <x-filter.select col="col-md-3" id="filter-status" label="حالة الباقة"
-                    placeholder="اختر حالة الباقة" :options="$filterOptions['statuses'] ?? []" />
-                <x-filter.select col="col-md-3" id="filter-plan-type" label="نوع الباقة"
-                    placeholder="اختر نوع الباقة" :options="$filterOptions['plan_types'] ?? []" />
-                <x-filter.select col="col-md-3" id="filter-billing-cycle" label="دورة الفوترة"
-                    placeholder="اختر دورة الفوترة" :options="$filterOptions['billing_cycles'] ?? []" />
-                <x-filter.select col="col-md-3" id="filter-limits-mode" label="وضع الحدود"
-                    placeholder="اختر وضع الحدود" :options="$filterOptions['limits_modes'] ?? []" />
-                <x-filter.select col="col-md-3" id="filter-availability" label="حالة الإتاحة"
-                    placeholder="اختر حالة الإتاحة" :options="$filterOptions['availability'] ?? []" />
-                <x-filter.select col="col-md-3" id="filter-discounts" label="حالة الخصم"
-                    placeholder="اختر حالة الخصم" :options="$filterOptions['discounts'] ?? []" />
-                <x-filter.select col="col-md-3" id="filter-domain" label="إدارة الدومينات"
-                    placeholder="اختر حالة الدومين" :options="$filterOptions['domains'] ?? []" />
-                <x-filter.select col="col-md-3" id="filter-most-requested" label="الأكثر طلباً"
-                    placeholder="اختر الأكثر طلباً" :options="$filterOptions['most_requested'] ?? []" />
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
-        </div>
-    </div>
+    <x-data-table.filters table="#paln-table">
+        <x-filter.select col="col-md-3" id="filter-status" filterKey="is_active" label="حالة الباقة"
+            placeholder="اختر حالة الباقة" :options="$filterOptions['statuses'] ?? []" />
+        <x-filter.select col="col-md-3" id="filter-plan-type" filterKey="plan_type" label="نوع الباقة"
+            placeholder="اختر نوع الباقة" :options="$filterOptions['plan_types'] ?? []" />
+        <x-filter.select col="col-md-3" id="filter-billing-cycle" filterKey="subscription_billing_cycle" label="دورة الفوترة"
+            placeholder="اختر دورة الفوترة" :options="$filterOptions['billing_cycles'] ?? []" />
+        <x-filter.select col="col-md-3" id="filter-limits-mode" filterKey="limits_mode" label="وضع الحدود"
+            placeholder="اختر وضع الحدود" :options="$filterOptions['limits_modes'] ?? []" />
+        <x-filter.select col="col-md-3" id="filter-availability" filterKey="availability" label="حالة الإتاحة"
+            placeholder="اختر حالة الإتاحة" :options="$filterOptions['availability'] ?? []" />
+        <x-filter.select col="col-md-3" id="filter-discounts" filterKey="discounts" label="حالة الخصم"
+            placeholder="اختر حالة الخصم" :options="$filterOptions['discounts'] ?? []" />
+        <x-filter.select col="col-md-3" id="filter-domain" filterKey="domain_management_enabled" label="إدارة الدومينات"
+            placeholder="اختر حالة الدومين" :options="$filterOptions['domains'] ?? []" />
+        <x-filter.select col="col-md-3" id="filter-most-requested" filterKey="most_requested" label="الأكثر طلباً"
+            placeholder="اختر الأكثر طلباً" :options="$filterOptions['most_requested'] ?? []" />
+    </x-data-table.filters>
 
     <div class="card">
         <div class="card-body">

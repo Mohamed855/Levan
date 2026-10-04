@@ -122,35 +122,31 @@
     </div>
 
     {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <label for="filter-status" class="form-label">حالة المحفظة</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر حالة المحفظة">
-                        <option value=""></option>
-                        <option value="active">نشط</option>
-                        <option value="inactive">غير نشط</option>
-                    </select>
-                </div>
-
-                <div class="col-md-6">
-                    <label for="filter-company" class="form-label">الشركة</label>
-                    <select id="filter-company" class="form-control select2" data-placeholder="اختر الشركة">
-                        <option value=""></option>
-                        @foreach ($companies as $company)
-                            <option value="{{ $company->id }}">{{ $company->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
+    <x-data-table.filters table="#archived-portfolios-table">
+        <div class="col-md-6">
+            <x-filter.select
+                id="filter-status"
+                filterKey="status"
+                table="#archived-portfolios-table"
+                name="status"
+                label="حالة المحفظة"
+                placeholder="اختر حالة المحفظة"
+                :options="['active' => 'نشط', 'inactive' => 'غير نشط']"
+            />
         </div>
-    </div>
+
+        <div class="col-md-6">
+            <x-filter.select
+                id="filter-company"
+                filterKey="company_id"
+                table="#archived-portfolios-table"
+                name="company_id"
+                label="الشركة"
+                placeholder="اختر الشركة"
+                :options="$companies->pluck('name', 'id')"
+            />
+        </div>
+    </x-data-table.filters>
 
     <div class="card">
         <div class="card-body">

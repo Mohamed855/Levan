@@ -132,51 +132,41 @@
     </div>
 
     {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <div class="col-md-3">
-                    <label class="form-label" for="filter-category">الفئة</label>
-                    <select id="filter-category" class="form-control select2" data-placeholder="اختر الفئة">
-                        <option value=""></option>
-                        @foreach ($categories as $key => $value)
-                            <option value="{{ $key }}">{{ $value }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-3">
-                    <label class="form-label" for="filter-channel">القناة</label>
-                    <select id="filter-channel" class="form-control select2" data-placeholder="اختر القناة">
-                        <option value=""></option>
-                        @foreach ($channels as $key => $value)
-                            <option value="{{ $key }}">{{ $value }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-3">
-                    <label class="form-label" for="filter-status">الحالة</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر الحالة">
-                        <option value=""></option>
-                        <option value="active">نشط</option>
-                        <option value="inactive">غير نشط</option>
-                    </select>
-                </div>
-
-                <div class="col-md-3">
-                    <label class="form-label" for="filter-search">البحث</label>
-                    <input type="text" id="filter-search" class="form-control" placeholder="البحث في الاسم أو المحتوى">
-                </div>
-            </div>
-
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
+    <x-data-table.filters table="#message-templates-table" reset-id="btn-reset-filters">
+        <div class="col-md-3">
+            <label class="form-label" for="filter-category">الفئة</label>
+            <select id="filter-category" class="form-control select2" data-datatable-filter="true" data-filter-key="category" data-placeholder="اختر الفئة">
+                <option value=""></option>
+                @foreach ($categories as $key => $value)
+                    <option value="{{ $key }}">{{ $value }}</option>
+                @endforeach
+            </select>
         </div>
-    </div>
+
+        <div class="col-md-3">
+            <label class="form-label" for="filter-channel">القناة</label>
+            <select id="filter-channel" class="form-control select2" data-datatable-filter="true" data-filter-key="channel" data-placeholder="اختر القناة">
+                <option value=""></option>
+                @foreach ($channels as $key => $value)
+                    <option value="{{ $key }}">{{ $value }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label" for="filter-status">الحالة</label>
+            <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر الحالة">
+                <option value=""></option>
+                <option value="active">نشط</option>
+                <option value="inactive">غير نشط</option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label" for="filter-search">البحث</label>
+            <input type="text" id="filter-search" class="form-control" data-datatable-filter="true" data-filter-key="search" placeholder="البحث في الاسم أو المحتوى">
+        </div>
+    </x-data-table.filters>
 
     {{-- جدول القوالب --}}
     <div class="card">

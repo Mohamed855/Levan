@@ -121,43 +121,33 @@
         </div>
     </div>
 
-    {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <label for="filter-status" class="form-label">حالة الهدف</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر حالة الهدف">
-                        <option value=""></option>
-                        <option value="active">نشط</option>
-                        <option value="inactive">غير نشط</option>
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label for="filter-branch" class="form-label">الفرع</label>
-                    <select id="filter-branch" class="form-control select2" data-placeholder="اختر الفرع">
-                        <option value=""></option>
-                        @foreach ($branches as $branch)
-                            <option value="{{ $branch->id }}">{{ $branch->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label for="filter-user" class="form-label">المستخدم</label>
-                    <select id="filter-user" class="form-control select2" data-placeholder="اختر المستخدم">
-                        <option value=""></option>
-                    </select>
-                </div>
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
+    <x-data-table.filters table="#collection-targets-table" reset-id="btn-reset-filters">
+        <div class="col-md-4">
+            <label for="filter-status" class="form-label">حالة الهدف</label>
+            <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر حالة الهدف">
+                <option value=""></option>
+                <option value="active">نشط</option>
+                <option value="inactive">غير نشط</option>
+            </select>
         </div>
-    </div>
+
+        <div class="col-md-4">
+            <label for="filter-branch" class="form-label">الفرع</label>
+            <select id="filter-branch" class="form-control select2" data-datatable-filter="true" data-filter-key="branch_id" data-placeholder="اختر الفرع">
+                <option value=""></option>
+                @foreach ($branches as $branch)
+                    <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label for="filter-user" class="form-label">المستخدم</label>
+            <select id="filter-user" class="form-control select2" data-datatable-filter="true" data-filter-key="user_id" data-placeholder="اختر المستخدم">
+                <option value=""></option>
+            </select>
+        </div>
+    </x-data-table.filters>
 
     <div class="card">
         <div class="card-body">

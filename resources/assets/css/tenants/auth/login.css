@@ -1,7 +1,7 @@
 :root {
-    --primary-color: #4cc1bb;
-    --primary-hover: #3db3a8;
-    --primary-dark: #2d8d88;
+    --primary-color: #f3edea;
+    --primary-hover: #ddd5cf;
+    --primary-dark: #a39d99;
     --secondary-color: #372632;
     --secondary-light: #2a3555;
     --secondary-lighter: #354263;
@@ -230,11 +230,7 @@ body {
 /* --- Right Side - Login Form --- */
 .login-form-section {
     width: 50%;
-    background: linear-gradient(
-        135deg,
-        var(--secondary-color) 0%,
-        var(--secondary-light) 100%
-    );
+    background: var(--bg-dark);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -242,7 +238,6 @@ body {
     position: relative;
     z-index: 10;
     order: 2;
-    border-radius: 25px 0 0 25px !important;
 }
 
 .login-card {

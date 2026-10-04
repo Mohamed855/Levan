@@ -17,7 +17,6 @@ $(function () {
     resetPortfolioSelector();
     bindToolbar();
     bindTableFiltersToggle();
-    bindDataTableFilters();
     applyStats(G, 'global');
     renderCharts();
 });
@@ -89,48 +88,7 @@ function bindTableFiltersToggle() {
     });
 }
 
-function bindDataTableFilters() {
-    if ($.fn.DataTable.isDataTable('#companies-table')) {
-        setupCompanyTableFilters($('#companies-table').DataTable());
-        return;
-    }
 
-    $('#companies-table').one('init.dt', function () {
-        setupCompanyTableFilters($(this).DataTable());
-    });
-}
-
-function setupCompanyTableFilters(table) {
-    const settings = table.settings()[0];
-    if (settings._companyReportFiltersBound) return;
-    settings._companyReportFiltersBound = true;
-
-    table.on('preXhr.dt', function (...args) {
-        const data = args[2];
-        data.status = $('#filter-status').val() || '';
-        data.date_from = $('#filter-date-from').val() || '';
-        data.date_to = $('#filter-date-to').val() || '';
-        data.search_query = $('#filter-search').val() || '';
-        data.company_id = $('#company-selector').val() || '';   // ← الإضافة
-        data.portfolio_id = $('#portfolio-selector').val() || ''; // ← الإضافة
-    });
-
-    $('#filter-status, #filter-date-from, #filter-date-to').on('change', function () {
-        table.draw();
-    });
-
-    $('#filter-search').on('input', debounce(function () {
-        table.draw();
-    }, 250));
-
-    $('#reset-filters').on('click', function () {
-        $('#filter-status').val('').trigger('change.select2');
-        $('#filter-date-from').val('');
-        $('#filter-date-to').val('');
-        $('#filter-search').val('');
-        table.draw();
-    });
-}
 
 function loadCompanyStats(companyId) {
     spinner(true);

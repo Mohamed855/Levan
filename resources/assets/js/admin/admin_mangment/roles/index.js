@@ -27,29 +27,6 @@ $(function () {
         const usersTable = $(this).DataTable(); // ✅ الجدول نفسه من Yajra
 
         // ==============================
-        // 🔹 تطبيق الفلاتر (status, type, )
-        // ==============================
-        function applyFilters() {
-            const filters = {
-                status: $('#filter-status').val() || '',
-                role: $('#filter-role').val() || '',
-            };
-
-            const baseUrl = window.location.pathname;
-            const params = new URLSearchParams();
-
-            if (filters.status) params.append('status', filters.status);
-            if (filters.role) params.append('role', filters.role);
-
-            const newUrl = baseUrl + (params.toString() ? '?' + params.toString() : '');
-            usersTable.ajax.url(newUrl).load();
-        }
-
-        $('#filter-status, #filter-role').on('change', applyFilters);
-
-        $('#btn-reset-filters').on('click', function () {
-            $('#filter-status, #filter-role').val('').trigger('change');
-        });
 
         // ==============================
         // 🔹 تحديد الكل

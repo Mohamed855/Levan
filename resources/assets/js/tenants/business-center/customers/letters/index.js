@@ -62,9 +62,6 @@ function initializeComponents() {
  * ربط الأحداث بالعناصر المختلفة في الصفحة
  */
 function bindEvents() {
-    // أحداث الفلاتر: إعادة تحميل الجدول عند تغيير أي فلتر
-    $('#filter-status, #filter-company, #filter-portfolio').on('change', applyFilters);
-
     // فلتر الشركة: تحديث خيارات المحفظة عند تغيير الشركة
     $('#filter-company').on('change', function() {
         const selectedCompanyId = $(this).val();
@@ -95,20 +92,6 @@ function bindEvents() {
         const letterId = $(this).data('id');
         showLetterDetails(letterId);
     });
-}
-
-// =================================================================
-// وظائف الفلترة (Filtering Functions)
-// =================================================================
-
-/**
- * تطبيق جميع الفلاتر المفعلة وإعادة تحميل بيانات الجدول
- */
-function applyFilters() {
-    if (companyLettersTable) {
-        // إعادة تعيين الصفحة إلى الأولى وتحميل البيانات الجديدة
-        companyLettersTable.page(0).ajax.reload(null, false); // false تعني عدم إعادة تعيين ترتيب التصفح
-    }
 }
 
 /**

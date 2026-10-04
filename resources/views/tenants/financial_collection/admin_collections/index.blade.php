@@ -143,85 +143,75 @@
         </div>
     </div>
 
-    {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <div class="col-md-2">
-                    <label for="filter-status" class="form-label">الحالة</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر الحالة">
-                        <option value=""></option>
-                        <option value="pending">غير معتمد</option>
-                        <option value="approved">معتمد</option>
-                        <option value="rejected">مرفوض</option>
-                    </select>
-                </div>
-
-                <div class="col-md-2">
-                    <label for="filter-added-by" class="form-label">المستخدم</label>
-                    <select id="filter-added-by" class="form-control select2" data-placeholder="اختر المستخدم">
-                        <option value=""></option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-2">
-                    <label for="filter-collection-type" class="form-label">نوع التحصيل</label>
-                    <select id="filter-collection-type" class="form-control select2" data-placeholder="اختر النوع">
-                        <option value=""></option>
-                        <option value="cash">نقدي</option>
-                        <option value="scheduled">مجدول</option>
-                    </select>
-                </div>
-
-                <div class="col-md-2">
-                    <label for="filter-payment-type" class="form-label">نوع السداد</label>
-                    <select id="filter-payment-type" class="form-control select2" data-placeholder="اختر نوع السداد">
-                        <option value=""></option>
-                        <option value="settlement">سداد بتسوية</option>
-                        <option value="without_settlement">سداد بدون تسوية</option>
-                    </select>
-                </div>
-
-                <div class="col-md-2">
-                    <label for="filter-customer" class="form-label">العميل</label>
-                    <select id="filter-customer" class="form-control select2-ajax-filter" data-placeholder="اختر العميل">
-                        <option value=""></option>
-                        @foreach ($customers as $customer)
-                            <option value="{{ $customer['id'] }}">{{ $customer['name'] }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label for="filter-payment-method" class="form-label">طريقة التحصيل</label>
-                    <select id="filter-payment-method" class="form-control select2"
-                        data-placeholder="اختر طريقة التحصيل">
-                        <option value=""></option>
-                        @foreach ($paymentMethods as $method)
-                            <option value="{{ $method->id }}">{{ $method->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-6">
-                    <label for="filter-date-from" class="form-label">من تاريخ</label>
-                    <input type="date" id="filter-date-from" class="form-control" placeholder="اختر التاريخ">
-                </div>
-
-                <div class="col-md-6">
-                    <label for="filter-date-to" class="form-label">إلى تاريخ</label>
-                    <input type="date" id="filter-date-to" class="form-control" placeholder="اختر التاريخ">
-                </div>
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
+    <x-data-table.filters table="#admin-collections-table" reset-id="btn-reset-filters">
+        <div class="col-md-2">
+            <label for="filter-status" class="form-label">الحالة</label>
+            <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر الحالة">
+                <option value=""></option>
+                <option value="pending">غير معتمد</option>
+                <option value="approved">معتمد</option>
+                <option value="rejected">مرفوض</option>
+            </select>
         </div>
-    </div>
+
+        <div class="col-md-2">
+            <label for="filter-added-by" class="form-label">المستخدم</label>
+            <select id="filter-added-by" class="form-control select2" data-datatable-filter="true" data-filter-key="added_by" data-placeholder="اختر المستخدم">
+                <option value=""></option>
+                @foreach ($users as $user)
+                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label for="filter-collection-type" class="form-label">نوع التحصيل</label>
+            <select id="filter-collection-type" class="form-control select2" data-datatable-filter="true" data-filter-key="collection_type" data-placeholder="اختر النوع">
+                <option value=""></option>
+                <option value="cash">نقدي</option>
+                <option value="scheduled">مجدول</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label for="filter-payment-type" class="form-label">نوع السداد</label>
+            <select id="filter-payment-type" class="form-control select2" data-datatable-filter="true" data-filter-key="payment_type" data-placeholder="اختر نوع السداد">
+                <option value=""></option>
+                <option value="settlement">سداد بتسوية</option>
+                <option value="without_settlement">سداد بدون تسوية</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label for="filter-customer" class="form-label">العميل</label>
+            <select id="filter-customer" class="form-control select2-ajax-filter" data-datatable-filter="true" data-filter-key="customer_id" data-placeholder="اختر العميل">
+                <option value=""></option>
+                @foreach ($customers as $customer)
+                    <option value="{{ $customer['id'] }}">{{ $customer['name'] }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label for="filter-payment-method" class="form-label">طريقة التحصيل</label>
+            <select id="filter-payment-method" class="form-control select2" data-datatable-filter="true" data-filter-key="payment_method_id" data-placeholder="اختر طريقة التحصيل">
+                <option value=""></option>
+                @foreach ($paymentMethods as $method)
+                    <option value="{{ $method->id }}">{{ $method->name }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <label for="filter-date-from" class="form-label">من تاريخ</label>
+            <input type="date" id="filter-date-from" class="form-control" data-datatable-filter="true" data-filter-key="date_from" placeholder="اختر التاريخ">
+        </div>
+
+        <div class="col-md-6">
+            <label for="filter-date-to" class="form-label">إلى تاريخ</label>
+            <input type="date" id="filter-date-to" class="form-control" data-datatable-filter="true" data-filter-key="date_to" placeholder="اختر التاريخ">
+        </div>
+    </x-data-table.filters>
 
     <div class="card">
         <div class="card-body">

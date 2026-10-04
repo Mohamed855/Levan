@@ -27,7 +27,7 @@
             massDelete: "{{ route('admin.mass-delete') }}"
         };
     </script>
-    @vite(['resources/assets/js/admin/clients/filter.js', 'resources/assets/js/admin/clients/index.js'])
+    @vite(['resources/assets/js/admin/clients/index.js'])
     <script>
         $(document).ready(function() {
             // event delegation on body or table directly
@@ -146,19 +146,10 @@
     @endif
 
     {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <x-filter.select id="filter-status" label="حالة العميل"
-                    placeholder="اختر حالة العميل" :options="$filterOptions['statuses'] ?? []" />
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
-        </div>
-    </div>
+    <x-data-table.filters table="#client-table">
+        <x-filter.select id="filter-status" filterKey="status" label="حالة العميل"
+            placeholder="اختر حالة العميل" :options="$filterOptions['statuses'] ?? []" />
+    </x-data-table.filters>
 
     <div class="card">
         <div class="card-body">

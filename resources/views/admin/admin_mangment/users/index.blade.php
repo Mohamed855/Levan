@@ -19,7 +19,7 @@
             massDelete: "{{ route('admin.mass-delete') }}"
         };
     </script>
-    @vite(['resources/assets/js/admin/admin_mangment/users/index.js', 'resources/assets/js/admin/admin_mangment/users/filter.js'])
+    @vite(['resources/assets/js/admin/admin_mangment/users/index.js'])
 @endsection
 
 @section('toastr')
@@ -52,21 +52,12 @@
     @endif
 
     {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <x-filter.select id="filter-status" label="حالة المستخدمين"
-                    placeholder="اختر حالة المستخدم" :options="$filterOptions['statuses']" />
-                <x-filter.select id="filter-role" label="دور المستخدم" placeholder="اختر الدور"
-                    :options="$filterOptions['roles']" />
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
-        </div>
-    </div>
+    <x-data-table.filters table="#users-table">
+        <x-filter.select id="filter-status" filterKey="status" label="حالة المستخدمين"
+            placeholder="اختر حالة المستخدم" :options="$filterOptions['statuses']" />
+        <x-filter.select id="filter-role" filterKey="role" label="دور المستخدم" placeholder="اختر الدور"
+            :options="$filterOptions['roles']" />
+    </x-data-table.filters>
 
     <div class="card">
         <div class="card-body">

@@ -104,67 +104,67 @@
     </div>
 
     {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <div class="col-md-3">
-                    <label for="filter-customer-type" class="form-label">نوع العميل</label>
-                    <select id="filter-customer-type" class="form-control select2" data-placeholder="اختر نوع العميل">
-                        <option value=""></option>
-                        <option value="individual">فردي</option>
-                        <option value="company">شركة</option>
-                    </select>
-                </div>
-
-                <div class="col-md-2">
-                    <label for="filter-company" class="form-label">الشركة</label>
-                    <select id="filter-company" class="form-control select2" data-placeholder="اختر الشركة">
-                        <option value=""></option>
-                        @foreach ($companies as $company)
-                            <option value="{{ $company->id }}">{{ $company->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-2">
-                    <label for="filter-portfolio" class="form-label">المحفظة</label>
-                    <select id="filter-portfolio" class="form-control select2" data-placeholder="اختر المحفظة">
-                        <option value=""></option>
-                        @foreach ($portfolios as $portfolio)
-                            <option value="{{ $portfolio->id }}" data-company="{{ $portfolio->company_id }}">
-                                {{ $portfolio->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-2">
-                    <label for="filter-contact-result" class="form-label">نتيجة الاتصال</label>
-                    <select id="filter-contact-result" class="form-control select2" data-placeholder="اختر نتيجة الاتصال">
-                        <option value=""></option>
-                        @foreach ($contactResults as $result)
-                            <option value="{{ $result->id }}">{{ $result->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-3">
-                    <label for="filter-manager" class="form-label">مسؤول العلاقة</label>
-                    <select id="filter-manager" class="form-control select2" data-placeholder="اختر مسؤول العلاقة">
-                        <option value=""></option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
+    <x-data-table.filters table="#archived-customers-table">
+        <div class="col-md-2">
+            <x-filter.select
+                id="filter-customer-type"
+                filterKey="customer_type"
+                table="#archived-customers-table"
+                name="customer_type"
+                label="نوع العميل"
+                placeholder="اختر نوع العميل"
+                :options="['individual' => 'فردي', 'company' => 'شركة']"
+            />
         </div>
-    </div>
+
+        <div class="col-md-2">
+            <x-filter.select
+                id="filter-company"
+                filterKey="company_id"
+                table="#archived-customers-table"
+                name="company_id"
+                label="الشركة"
+                placeholder="اختر الشركة"
+                :options="$companies->pluck('name', 'id')"
+            />
+        </div>
+
+        <div class="col-md-2">
+            <label for="filter-portfolio" class="form-label">المحفظة</label>
+            <select id="filter-portfolio" class="form-control select2" data-placeholder="اختر المحفظة" data-filter-key="portfolio_id" data-datatable-filter="true" data-datatable-target="#archived-customers-table">
+                <option value=""></option>
+                @foreach ($portfolios as $portfolio)
+                    <option value="{{ $portfolio->id }}" data-company="{{ $portfolio->company_id }}">
+                        {{ $portfolio->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <x-filter.select
+                id="filter-contact-result"
+                filterKey="last_contact_result_id"
+                table="#archived-customers-table"
+                name="last_contact_result_id"
+                label="نتيجة الاتصال"
+                placeholder="اختر نتيجة الاتصال"
+                :options="$contactResults->pluck('name', 'id')"
+            />
+        </div>
+
+        <div class="col-md-3">
+            <x-filter.select
+                id="filter-manager"
+                filterKey="relationship_manager_id"
+                table="#archived-customers-table"
+                name="relationship_manager_id"
+                label="مسؤول العلاقة"
+                placeholder="اختر مسؤول العلاقة"
+                :options="$users->pluck('name', 'id')"
+            />
+        </div>
+    </x-data-table.filters>
 
     <div class="card">
         <div class="card-body">

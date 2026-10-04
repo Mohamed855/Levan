@@ -124,47 +124,52 @@
     </div>
 
     {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <label for="filter-status" class="form-label">حالة العقد</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر حالة العقد">
-                        <option value=""></option>
-                        <option value="active">نشط</option>
-                        <option value="inactive">غير نشط</option>
-                        <option value="expired">منتهي</option>
-                        <option value="suspended">معلق</option>
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label for="filter-company" class="form-label">الشركة</label>
-                    <select id="filter-company" class="form-control select2" data-placeholder="اختر الشركة">
-                        <option value=""></option>
-                        @foreach ($companies as $company)
-                            <option value="{{ $company->id }}">{{ $company->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label for="filter-commission-type" class="form-label">نوع العمولة</label>
-                    <select id="filter-commission-type" class="form-control select2" data-placeholder="اختر نوع العمولة">
-                        <option value=""></option>
-                        <option value="procedure">حسب الإجراء</option>
-                        <option value="duration">حسب المدة</option>
-                        <option value="delinquency">حسب مدة التعثر</option>
-                    </select>
-                </div>
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
+    <x-data-table.filters table="#archived-contracts-table">
+        <div class="col-md-4">
+            <x-filter.select
+                id="filter-status"
+                filterKey="status"
+                table="#archived-contracts-table"
+                name="status"
+                label="حالة العقد"
+                placeholder="اختر حالة العقد"
+                :options="[
+                    'active' => 'نشط',
+                    'inactive' => 'غير نشط',
+                    'expired' => 'منتهي',
+                    'suspended' => 'معلق'
+                ]"
+            />
         </div>
-    </div>
+
+        <div class="col-md-4">
+            <x-filter.select
+                id="filter-company"
+                filterKey="company_id"
+                table="#archived-contracts-table"
+                name="company_id"
+                label="الشركة"
+                placeholder="اختر الشركة"
+                :options="$companies->pluck('name', 'id')"
+            />
+        </div>
+
+        <div class="col-md-4">
+            <x-filter.select
+                id="filter-commission-type"
+                filterKey="commission_type"
+                table="#archived-contracts-table"
+                name="commission_type"
+                label="نوع العمولة"
+                placeholder="اختر نوع العمولة"
+                :options="[
+                    'procedure' => 'حسب الإجراء',
+                    'duration' => 'حسب المدة',
+                    'delinquency' => 'حسب مدة التعثر'
+                ]"
+            />
+        </div>
+    </x-data-table.filters>
 
     <div class="card">
         <div class="card-body">

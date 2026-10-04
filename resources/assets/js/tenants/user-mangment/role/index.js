@@ -241,15 +241,6 @@ function handleTableRowCreation(row, data, dataIndex) {
  * ربط الأحداث
  */
 function bindEvents() {
-    // تحديث الجدول عند تغيير الفلاتر
-    $('#filter-status, #filter-role').on('change', function () {
-        usersTable.draw();
-    });
-
-    $('#btn-reset-filters').on('click', function () {
-        $('#filter-status, #filter-role').val('').trigger('change');
-    });
-
     // تحديد الكل
     $('#select-all').on('click', function () {
         const rows = usersTable.rows({ 'search': 'applied' }).nodes();

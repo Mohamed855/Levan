@@ -30,31 +30,6 @@ $(function () {
     */
     $('#branches-table').on('init.dt', function () {
         const table = $(this).DataTable();
-
-        function applyFilters() {
-            const status = $('#filter-status').val() || '';
-            const city = $('#filter-city').val() || '';
-            const baseUrl = window.location.pathname;
-            const params = new URLSearchParams();
-
-            if (status) params.append('status', status);
-            if (city) params.append('city', city);
-
-            const query = params.toString();
-            const newUrl = query ? baseUrl + '?' + query : baseUrl;
-
-            table.ajax.url(newUrl).load();
-        }
-
-        $('#filter-status').on('change', applyFilters);
-        $('#filter-city').on('keyup', applyFilters);
-
-        $('#btn-reset-filters').on('click', function () {
-            $('#filter-status').val('').trigger('change');
-            $('#filter-city').val('');
-            applyFilters();
-        });
-
         const tableWrapper = $('#branches-table_wrapper');
 
         /*

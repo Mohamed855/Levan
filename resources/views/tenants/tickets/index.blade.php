@@ -20,7 +20,6 @@
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/tenants/tickets/filter.js'])
 @endsection
 
 @section('content')
@@ -36,27 +35,18 @@
     @endif
 
     {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <label class="form-label" for="filter-status">حالة التذكرة</label>
-                    <select id="filter-status" class="form-control select2" data-placeholder="اختر حالة التذكرة">
-                        <option value=""></option>
-                        <option value="open">مفتوحة</option>
-                        <option value="in_progress">قيد المعالجة</option>
-                        <option value="resolved">تم الحل</option>
-                        <option value="closed">مغلقة</option>
-                    </select>
-                </div>
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
+    <x-data-table.filters table="#tickets-table" reset-id="btn-reset-filters">
+        <div class="col-md-6">
+            <label class="form-label" for="filter-status">حالة التذكرة</label>
+            <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر حالة التذكرة">
+                <option value=""></option>
+                <option value="open">مفتوحة</option>
+                <option value="in_progress">قيد المعالجة</option>
+                <option value="resolved">تم الحل</option>
+                <option value="closed">مغلقة</option>
+            </select>
         </div>
-    </div>
+    </x-data-table.filters>
 
     <div class="card">
         <div class="card-body">

@@ -20,38 +20,9 @@ function initializeDataTableEvents() {
         const table = $(this).DataTable();
         const tableWrapper = $('#bill-archive-table_wrapper');
 
-        bindFilters(table);
         bindSelectionEvents(table, tableWrapper);
         bindTableEvents(table);
     });
-}
-
-function bindFilters(table) {
-    $('#filter-type, #filter-status, #filter-payment-method').on('change', function () {
-        applyFilters(table);
-    });
-
-    $('#btn-reset-filters').on('click', function () {
-        $('#filter-type, #filter-status, #filter-payment-method').val('').trigger('change');
-    });
-}
-
-function applyFilters(table) {
-    const type = $('#filter-type').val() || '';
-    const status = $('#filter-status').val() || '';
-    const paymentMethod = $('#filter-payment-method').val() || '';
-
-    const baseUrl = window.location.pathname;
-    const params = new URLSearchParams();
-
-    if (type) params.append('type', type);
-    if (status) params.append('status', status);
-    if (paymentMethod) params.append('payment_method', paymentMethod);
-
-    const query = params.toString();
-    const newUrl = query ? baseUrl + '?' + query : baseUrl;
-
-    table.ajax.url(newUrl).load();
 }
 
 function bindSelectionEvents(table, tableWrapper) {

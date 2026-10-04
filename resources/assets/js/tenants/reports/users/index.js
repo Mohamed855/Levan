@@ -391,16 +391,6 @@ function initializeUsersPerformanceChart() {
 |--------------------------------------------------------------------------
 */
 function bindEvents() {
-    // تحديث الجدول تلقائياً عند تغيير الفلاتر
-    $('#branch_id, #status, #date_from, #date_to').on('change input', debounce(function () {
-        usersReportTable.ajax.reload(null, false);
-    }, 800));
-
-    // إعادة تعيين الفلاتر
-    $('#reset-filters').on('click', function () {
-        resetFilters();
-    });
-
     // تحسين UX للفلاتر
     $('.select2, .flatpickr-date').on('focus', function () {
         $(this).closest('.card').addClass('filter-active');

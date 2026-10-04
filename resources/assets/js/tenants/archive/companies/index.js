@@ -20,49 +20,9 @@ function initializeDataTableEvents() {
         const table = $(this).DataTable();
         const tableWrapper = $('#archived-companies-table_wrapper');
 
-        bindFilters(table);
         bindSelectionEvents(table, tableWrapper);
         bindTableEvents(table);
     });
-}
-
-function bindFilters(table) {
-    $('#filter-status, #filter-authorized-count').on('change', function () {
-        applyFilters(table);
-    });
-
-    $('#filter-search').on('keyup', function () {
-        clearTimeout(window.searchTimeout);
-        window.searchTimeout = setTimeout(function () {
-            applyFilters(table);
-        }, 500);
-    });
-
-    $('#btn-reset-filters').on('click', function () {
-        $('#filter-status, #filter-authorized-count').val('').trigger('change');
-        $('#filter-search').val('');
-        applyFilters(table);
-    });
-}
-
-function applyFilters(table) {
-    const filters = {
-        status: $('#filter-status').val() || '',
-        authorizedCount: $('#filter-authorized-count').val() || '',
-        searchQuery: $('#filter-search').val() || ''
-    };
-
-    const baseUrl = window.location.pathname;
-    const params = new URLSearchParams();
-
-    if (filters.status) params.append('status', filters.status);
-    if (filters.authorizedCount) params.append('authorized_count', filters.authorizedCount);
-    if (filters.searchQuery) params.append('search_query', filters.searchQuery);
-
-    const query = params.toString();
-    const newUrl = query ? baseUrl + '?' + query : baseUrl;
-
-    table.ajax.url(newUrl).load();
 }
 
 function bindSelectionEvents(table, tableWrapper) {

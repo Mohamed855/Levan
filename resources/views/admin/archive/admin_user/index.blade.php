@@ -44,21 +44,12 @@
     @endif
 
     {{-- Filters Card --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row g-4">
-                <x-filter.select id="filter-status" label="الحالة"
-                    placeholder="اختر الحالة" :options="$filterOptions['statuses'] ?? []" />
-                <x-filter.select id="filter-role" label="الدور"
-                    placeholder="اختر الدور" :options="$filterOptions['roles'] ?? []" />
-            </div>
-            <div class="d-flex justify-content-end mt-3 gap-2">
-                <button type="button" id="btn-reset-filters" class="btn btn-secondary">
-                    <i class="ti ti-refresh me-1"></i>إعادة تعيين
-                </button>
-            </div>
-        </div>
-    </div>
+    <x-data-table.filters table="#admin-user-archive-table">
+        <x-filter.select id="filter-status" filterKey="status" label="الحالة"
+            placeholder="اختر الحالة" :options="$filterOptions['statuses'] ?? []" />
+        <x-filter.select id="filter-role" filterKey="role" label="الدور"
+            placeholder="اختر الدور" :options="$filterOptions['roles'] ?? []" />
+    </x-data-table.filters>
 
     <div class="card">
         <div class="card-body">
