@@ -17,13 +17,7 @@
     function initializePhoneRestrictions() {
         $('.phone-input')
             .off('input.phoneRestrict')
-            .on('input.phoneRestrict', function () {
-                this.value = this.value.replace(/[^0-9]/g, '');
-                if (this.value.length > 10) this.value = this.value.substring(0, 10);
-
-                $(this).removeClass('is-invalid');
-                $(this).siblings('.invalid-feedback').remove();
-            });
+            .attr('inputmode', 'numeric');
     }
 
     function addPhoneField() {

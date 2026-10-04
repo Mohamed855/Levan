@@ -258,7 +258,7 @@
                                     <label class="form-label" for="phone">رقم الهاتف الأساسي <span
                                             class="text-danger">*</span></label>
                                     <input type="text" name="phone" id="phone" class="form-control phone-input"
-                                        placeholder="ادخل رقم الهاتف" maxlength="12" value="{{ old('phone') }}" />
+                                        placeholder="05xxxxxxxx" maxlength="10" value="{{ old('phone') }}" />
                                 </div>
 
                                 <!-- أرقام هواتف إضافية -->
@@ -269,7 +269,7 @@
                                             <div class="input-group">
                                                 <input type="text" name="phones[0][phone]"
                                                     class="form-control phone-input additional-phone"
-                                                    placeholder="رقم الهاتف" maxlength="12">
+                                                    placeholder="05xxxxxxxx" maxlength="10">
                                                 <select name="phones[0][type]" class="form-select"
                                                     style="max-width: 100px;">
                                                     <option value="mobile">جوال</option>

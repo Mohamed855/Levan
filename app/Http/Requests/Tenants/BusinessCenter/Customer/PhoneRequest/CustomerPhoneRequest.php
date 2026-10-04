@@ -26,7 +26,7 @@ class CustomerPhoneRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'phone' => 'required|string|min:10|max:15|regex:/^[0-9+]+$/'
+            'phone' => 'required|string|size:10|regex:/^05[0-9]{8}$/'
         ];
     }
 
@@ -41,9 +41,8 @@ class CustomerPhoneRequest extends FormRequest
         return [
             'phone.required' => 'حقل رقم الهاتف مطلوب',
             'phone.string' => 'يجب أن يكون رقم الهاتف نصاً',
-            'phone.min' => 'يجب أن يحتوي رقم الهاتف على 10 أرقام على الأقل',
-            'phone.max' => 'يجب ألا يزيد رقم الهاتف عن 15 رقم',
-            'phone.regex' => 'يجب أن يحتوي رقم الهاتف على أرقام فقط'
+            'phone.size' => 'يجب أن يحتوي رقم الهاتف على 10 أرقام',
+            'phone.regex' => 'يجب أن يبدأ رقم الهاتف بـ 05'
         ];
     }
 

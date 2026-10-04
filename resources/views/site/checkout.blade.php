@@ -174,7 +174,7 @@
                                                     for="billing_phone">
                                                     رقم الجوال <span class="text-red-500">*</span>
                                                 </label>
-                                                <input type="tel" id="billing_phone" name="billing_phone"
+                                                <input type="tel" id="billing_phone" name="billing_phone" data-phone-format="international"
                                                     value="{{ old('billing_phone') }}" dir="rtl"
                                                     class="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                                     placeholder="05xxxxxxxx" required />

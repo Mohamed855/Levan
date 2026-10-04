@@ -3,6 +3,12 @@
 ## Frontend Build Verification (Mandatory)
 - After every update to any `.scss`, `.css`, or `.js` file, run `npm run build` before completing the task.
 
+## Form Components & Validation (Mandatory)
+- `FormRequest::rules()`, `messages()`, and `attributes()` are the only source of truth for form validation. Do not duplicate Laravel validation rules in page-specific JavaScript.
+- Every reusable form control must expose the shared validation DOM contract (`data-form-field`, `data-field-name`, `data-form-control`, accessible error output) so it receives immediate validation on input/change/blur.
+- The shared frontend validation endpoint must validate against the actual target FormRequest. Browser-only validation is supplementary UI behavior and never replaces final Laravel validation.
+- Keep `x-filter.select` separate from form select components; it is a DataTable filter, not a submitted form field.
+
 ## DataTable Activity Statuses (Mandatory)
 - Any index table that permits changing an activity state must render it with the reusable `js-table-status-toggle` switch, not an active/inactive text badge.
 - The `الحالة` column must be immediately before the `الإجراءات` column.

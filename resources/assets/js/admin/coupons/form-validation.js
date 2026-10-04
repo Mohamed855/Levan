@@ -176,7 +176,18 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         if (prevButtons.length) {
-            prevButtons.forEach(btn => btn.addEventListener('click', () => validationStepper.previous()));
+            prevButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (btn.tagName.toLowerCase() === 'a' || btn.getAttribute('href')) {
+                        return;
+                    }
+                    if (validationStepper && validationStepper._currentIndex === 0) {
+                        window.history.back();
+                    } else if (validationStepper) {
+                        validationStepper.previous();
+                    }
+                });
+            });
         }
     }
 

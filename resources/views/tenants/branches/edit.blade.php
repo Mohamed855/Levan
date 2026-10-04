@@ -81,7 +81,7 @@
 
                                 <div class="col-md-6">
                                     <label for="phone" class="form-label">رقم الهاتف</label>
-                                    <input type="text" class="form-control" id="phone" name="phone"
+                                    <input type="text" class="form-control" id="phone" name="phone" data-phone-format="landline"
                                         value="{{ old('phone', $branch->phone) }}" placeholder="ادخل رقم الهاتف">
                                 </div>
 

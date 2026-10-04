@@ -19,9 +19,8 @@
                                name="phone" 
                                required
                                maxlength="10"
-                               pattern="[0-9]{10}"
-                               title="يجب أن يتكون رقم الهاتف من 10 أرقام فقط"
-                               oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                               pattern="05[0-9]{8}"
+                               title="يجب أن يبدأ رقم الهاتف بـ 05 ويتكون من 10 أرقام">
                         <div class="invalid-feedback"></div>
                     </div>
                 </form>

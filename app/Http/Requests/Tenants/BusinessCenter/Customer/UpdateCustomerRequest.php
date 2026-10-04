@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Tenants\BusinessCenter\Customer;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Validation\Rule;
 
 class UpdateCustomerRequest extends FormRequest
@@ -46,14 +47,14 @@ class UpdateCustomerRequest extends FormRequest
             'nationality' => ['nullable', 'exists:settings_countries,id'],
             'relationship_manager_id' => ['nullable', 'exists:users,id'],
 
-            'phone' => ['nullable', 'string', 'max:20'],
+            'phone' => ['nullable', 'string', 'size:10', 'regex:/^05[0-9]{8}$/'],
             'account_number' => ['nullable', 'string', 'max:100', Rule::unique('customers', 'account_number')->ignore($customerId)->whereNull('deleted_at')],
             'contract_date' => ['nullable', 'date', 'before_or_equal:today'],
             'commission_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
 
             // بيانات الهواتف - جميعها اختيارية
             'phones' => ['nullable', 'array'],
-            'phones.*.phone' => ['nullable', 'string', 'max:20'],
+            'phones.*.phone' => ['nullable', 'string'],
             'phones.*.type' => ['nullable', 'in:mobile,home,work,other'],
             'phones.*.notes' => ['nullable', 'string', 'max:255'],
 
@@ -92,7 +93,8 @@ class UpdateCustomerRequest extends FormRequest
 
             'relationship_manager_id.exists' => 'مسؤول العلاقة المحدد غير موجود',
 
-            'phone.max' => 'رقم الهاتف يجب ألا يتجاوز 20 حرف',
+            'phone.size' => 'رقم الهاتف يجب أن يتكون من 10 أرقام',
+            'phone.regex' => 'رقم الهاتف يجب أن يبدأ بـ 05',
             'account_number.unique' => 'رقم الحساب موجود مسبقاً',
             'account_number.max' => 'رقم الحساب يجب ألا يتجاوز 100 حرف',
             'contract_date.date' => 'تاريخ التعاقد يجب أن يكون تاريخ صحيح',
@@ -106,7 +108,6 @@ class UpdateCustomerRequest extends FormRequest
             // 'customer_status_id.exists' => 'حالة العميل المحددة غير صحيحة',
 
             'phones.array' => 'بيانات الهواتف يجب أن تكون مصفوفة',
-            'phones.*.phone.max' => 'رقم الهاتف يجب ألا يتجاوز 20 حرف',
             'phones.*.type.in' => 'نوع الهاتف يجب أن يكون جوال، منزل، عمل، أو أخرى',
             'phones.*.notes.max' => 'ملاحظات الهاتف يجب ألا تتجاوز 255 حرف',
         ];
@@ -137,6 +138,33 @@ class UpdateCustomerRequest extends FormRequest
             'default_date' => 'تاريخ التعثر',
             'status' => 'الحالة',
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            foreach ($this->input('phones', []) as $index => $phoneData) {
+                $phone = $phoneData['phone'] ?? null;
+
+                if ($phone === null || $phone === '') {
+                    continue;
+                }
+
+                $isLandline = ($phoneData['type'] ?? null) === 'home';
+                $isValid = $isLandline
+                    ? preg_match('/^[0-9]{7,15}$/', $phone) === 1
+                    : preg_match('/^05[0-9]{8}$/', $phone) === 1;
+
+                if (! $isValid) {
+                    $validator->errors()->add(
+                        "phones.$index.phone",
+                        $isLandline
+                            ? 'رقم الهاتف الأرضي يجب أن يتكون من 7 إلى 15 رقماً.'
+                            : 'رقم الجوال يجب أن يبدأ بـ 05 ويتكون من 10 أرقام.'
+                    );
+                }
+            }
+        });
     }
 
     /**

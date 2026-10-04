@@ -112,7 +112,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
         prevButtons.forEach(function (btn) {
             btn.addEventListener('click', function () {
-                return;
+                if (btn.tagName.toLowerCase() === 'a' || btn.getAttribute('href')) {
+                    return;
+                }
+                if (validationStepper && validationStepper._currentIndex === 0) {
+                    window.history.back();
+                } else if (validationStepper) {
+                    validationStepper.previous();
+                }
             });
         });
 

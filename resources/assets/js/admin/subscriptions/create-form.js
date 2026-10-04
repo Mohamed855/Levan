@@ -705,7 +705,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnPrevCompany = document.getElementById('btn-prev-company');
     if (btnPrevCompany) {
         btnPrevCompany.addEventListener('click', function () {
-            window.location.assign(form.action);
+            window.history.back();
         });
     }
 

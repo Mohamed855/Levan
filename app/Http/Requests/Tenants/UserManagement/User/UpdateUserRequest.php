@@ -59,8 +59,8 @@ class UpdateUserRequest extends FormRequest
             'phone'    => [
                 'required',
                 'string',
-                'max:20',
-                'regex:/^\+?[0-9]{7,15}$/'
+                'size:10',
+                'regex:/^05[0-9]{8}$/'
             ],
             'branch_id' => [
                 'required',
@@ -111,8 +111,8 @@ class UpdateUserRequest extends FormRequest
 
             'phone.required'      => 'رقم الهاتف مطلوب',
             'phone.string'        => 'رقم الهاتف يجب أن يكون نص',
-            'phone.max'          => 'رقم الهاتف يجب ألا يزيد عن 20 رقم',
-            'phone.regex'        => 'رقم الهاتف غير صحيح',
+            'phone.size'         => 'رقم الهاتف يجب أن يتكون من 10 أرقام',
+            'phone.regex'        => 'رقم الهاتف يجب أن يبدأ بـ 05',
 
             'branch_id.required' => 'يجب اختيار الفرع',
             'branch_id.integer' => 'معرف الفرع يجب أن يكون رقماً',
@@ -163,7 +163,7 @@ class UpdateUserRequest extends FormRequest
             'name' => trim($this->name),
             'employee_number' => strtoupper(trim($this->employee_number)),
             'email' => strtolower(trim($this->email)),
-            'phone' => preg_replace('/[^0-9+]/', '', $this->phone),
+            'phone' => trim((string) $this->phone),
         ]);
     }
 

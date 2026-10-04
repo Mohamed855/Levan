@@ -79,7 +79,7 @@
 
                     <div class="mb-4 col-md-6">
                         <label for="phone_number" class="form-label">رقم الهاتف</label>
-                        <input class="form-control" type="text" id="phone_number" name="phone_number"
+                        <input class="form-control" type="text" id="phone_number" name="phone_number" data-phone-format="international"
                             value="{{ old('phone_number', $settings->phone_number ?? '') }}"
                             placeholder="أدخل رقم الهاتف" />
                         @error('phone_number')

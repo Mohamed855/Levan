@@ -265,7 +265,7 @@ class AdminUserController extends Controller
     public function checkPhoneUnique(Request $request)
     {
         $request->validate([
-            'phone'   => ['required', 'string', 'max:20'],
+            'phone'   => ['required', 'string', 'size:10', 'regex:/^05[0-9]{8}$/'],
             'user_id' => ['nullable', 'integer'],
         ]);
 

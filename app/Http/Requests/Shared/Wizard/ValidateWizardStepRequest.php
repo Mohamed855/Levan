@@ -17,6 +17,7 @@ class ValidateWizardStepRequest extends FormRequest
     {
         return [
             'target_path' => ['required', 'string', 'max:2048'],
+            'target_method' => ['nullable', 'string', 'in:POST,PUT,PATCH'],
             'fields' => ['required', 'array', 'min:1'],
             'fields.*' => ['required', 'string', 'max:255'],
         ];

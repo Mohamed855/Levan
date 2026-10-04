@@ -500,7 +500,16 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         prevButtons.forEach(btn => {
-            btn.addEventListener('click', () => validationStepper.previous());
+            btn.addEventListener('click', () => {
+                if (btn.tagName.toLowerCase() === 'a' || btn.getAttribute('href')) {
+                    return;
+                }
+                if (validationStepper && validationStepper._currentIndex === 0) {
+                    window.history.back();
+                } else if (validationStepper) {
+                    validationStepper.previous();
+                }
+            });
         });
 
         // ==================== WIZARD DRAFT INTEGRATION ====================

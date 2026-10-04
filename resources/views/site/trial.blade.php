@@ -102,7 +102,7 @@
                                 </div>
 
                                 <div class="col-12 md:col-6">
-                                    <input type="tel" name="customer_phone" dir="rtl"
+                                    <input type="tel" name="customer_phone" dir="rtl" data-phone-format="international"
                                         class="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                         placeholder="رقم الهاتف" required />
                                     <p class="invalid-feedback hidden text-red-500 text-xs mt-1">

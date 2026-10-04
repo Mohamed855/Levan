@@ -61,8 +61,17 @@ class WizardDraftController extends Controller
 
     public function validateStep(ValidateWizardStepRequest $request): JsonResponse
     {
-        $targetRoute = $this->resolveStoreRoute($request->validated('target_path'));
+        $targetRoute = $this->resolveFormRoute(
+            $request->validated('target_path'),
+            $request->validated('target_method', 'POST'),
+            $request,
+        );
         $formRequest = $this->makeResourceRequest($request, $targetRoute);
+
+        $authorized = (function (): bool {
+            return $this->passesAuthorization();
+        })->call($formRequest);
+        abort_unless($authorized, 403);
         $this->prepareForValidation($formRequest);
 
         $rules = $this->rulesForFields($formRequest->rules(), $request->validated('fields'));
@@ -83,7 +92,7 @@ class WizardDraftController extends Controller
         return response()->json(['success' => true]);
     }
 
-    private function resolveStoreRoute(string $targetPath): Route
+    private function resolveFormRoute(string $targetPath, string $targetMethod, Request $sourceRequest): Route
     {
         $path = parse_url($targetPath, PHP_URL_PATH);
 
@@ -92,13 +101,23 @@ class WizardDraftController extends Controller
         }
 
         try {
-            $route = app('router')->getRoutes()->match(Request::create($path, 'POST'));
+            if ($targetMethod === 'POST') {
+                $route = app('router')->getRoutes()->match(Request::create($path, 'POST'));
+            } else {
+                $routeRequest = Request::create($path, $targetMethod, [], [], [], [
+                    'HTTP_HOST' => $sourceRequest->getHost(),
+                    'HTTPS' => $sourceRequest->isSecure() ? 'on' : 'off',
+                ]);
+                $route = app('router')->getRoutes()->match($routeRequest);
+                $route->bind($routeRequest);
+                app('router')->substituteBindings($route);
+            }
         } catch (\Throwable) {
             throw new NotFoundHttpException();
         }
 
         $action = $route->getActionMethod();
-        abort_unless($action === 'store', 404);
+        abort_unless(in_array($action, ['store', 'update'], true), 404);
 
         return $route;
     }

@@ -568,12 +568,13 @@ class CollectionProcessController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'phone' => 'required|string|max:20',
+            'phone' => 'required|string|size:10|regex:/^05[0-9]{8}$/',
             'type' => 'nullable|string|max:50',
             'notes' => 'nullable|string|max:255',
         ], [
             'phone.required' => 'رقم الهاتف مطلوب',
-            'phone.max' => 'رقم الهاتف طويل جداً',
+            'phone.size' => 'رقم الهاتف يجب أن يتكون من 10 أرقام',
+            'phone.regex' => 'رقم الهاتف يجب أن يبدأ بـ 05',
         ]);
 
         if ($validator->fails()) {

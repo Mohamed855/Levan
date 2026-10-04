@@ -26,7 +26,7 @@ class StoreBranchRequest extends WizardFormRequest
         return [
             'name'    => ['required', 'string', 'max:255'],
             'code'    => ['required', 'string', 'max:50', 'unique:branches,code', 'regex:/^[A-Z0-9]+$/'],
-            'phone'   => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\s-]+$/'],
+            'phone'   => ['nullable', 'string', 'between:7,15', 'regex:/^[0-9]+$/'],
             'address' => ['nullable', 'string', 'max:500'],
             'city'    => ['nullable', 'string', 'max:100'],
         ];
@@ -51,7 +51,7 @@ class StoreBranchRequest extends WizardFormRequest
             'code.regex'       => 'كود الفرع يجب أن يحتوي على أحرف كبيرة وأرقام فقط',
             
             'phone.string'     => 'رقم الهاتف يجب أن يكون نصاً',
-            'phone.max'        => 'رقم الهاتف يجب ألا يتجاوز 20 رقم',
+            'phone.between'    => 'رقم الهاتف الأرضي يجب أن يتكون من 7 إلى 15 رقماً',
             'phone.regex'      => 'رقم الهاتف يجب أن يحتوي على أرقام فقط',
             
             'address.string'   => 'العنوان يجب أن يكون نصاً',

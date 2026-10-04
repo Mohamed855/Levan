@@ -29,7 +29,7 @@ class AdminUserUpdateRequest extends FormRequest
             ],
 
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-            'phone'    => ['required', 'string', 'max:20', 'regex:/^\+?[0-9]{7,15}$/'],
+            'phone'    => ['required', 'string', 'size:10', 'regex:/^05[0-9]{8}$/'],
             'image'    => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048', 'dimensions:min_width=100,min_height=100,max_width=2000,max_height=2000']
         ];
     }
@@ -59,8 +59,8 @@ class AdminUserUpdateRequest extends FormRequest
             // phone
             'phone.required'     => 'رقم الهاتف مطلوب',
             'phone.string'       => 'رقم الهاتف يجب أن يكون نص',
-            'phone.max'          => 'رقم الهاتف يجب ألا يزيد عن 20 رقم',
-            'phone.regex'        => 'رقم الهاتف غير صحيح',
+            'phone.size'         => 'رقم الهاتف يجب أن يتكون من 10 أرقام',
+            'phone.regex'        => 'رقم الهاتف يجب أن يبدأ بـ 05',
 
             // image
             'image.image'        => 'الملف يجب أن يكون صورة',

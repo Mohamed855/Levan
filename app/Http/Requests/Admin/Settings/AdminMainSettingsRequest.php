@@ -29,7 +29,7 @@ class AdminMainSettingsRequest extends FormRequest
             'office_address'        => ['nullable', 'string', 'max:255'],
             'commercial_register'   => ['nullable', 'string', 'max:100'],
             'tax_number'            => ['nullable', 'string', 'max:100'],
-            'phone_number'          => ['nullable', 'string', 'max:30'],
+            'phone_number'          => ['nullable', 'string', 'between:7,15', 'regex:/^[0-9]+$/'],
             'email'                 => ['nullable', 'email', 'max:255'],
 
             'etmam_base_url'        => ['nullable', 'string', 'max:255'],
@@ -67,7 +67,8 @@ class AdminMainSettingsRequest extends FormRequest
             'office_address.max'        => 'عنوان المكتب يجب ألا يزيد عن 255 حرفًا.',
             'commercial_register.max'   => 'السجل التجاري يجب ألا يزيد عن 100 حرف.',
             'tax_number.max'            => 'الرقم الضريبي يجب ألا يزيد عن 100 حرف.',
-            'phone_number.max'          => 'رقم الهاتف يجب ألا يزيد عن 30 حرفًا.',
+            'phone_number.between'      => 'رقم الهاتف يجب أن يتكون من 7 إلى 15 رقماً.',
+            'phone_number.regex'        => 'رقم الهاتف يجب أن يحتوي على أرقام فقط.',
             'email.email'               => 'يجب إدخال بريد إلكتروني صالح.',
             'email.max'                 => 'البريد الإلكتروني يجب ألا يزيد عن 255 حرفًا.',
 

@@ -267,7 +267,7 @@
                                 <div class="col-sm-6">
                                     <label class="form-label" for="phone">رقم الهاتف الأساسي <span
                                             class="text-danger">*</span></label>
-                                    <input type="text" id="phone" name="phone" maxlength="12"
+                                    <input type="text" id="phone" name="phone" maxlength="10"
                                         class="form-control phone-input" value="{{ old('phone', $customer->phone) }}"
                                         placeholder="ادخل رقم الهاتف">
                                 </div>
@@ -280,7 +280,7 @@
                                             <div class="phone-entry mb-2">
                                                 <div class="input-group">
                                                     <input type="text" name="phones[{{ $i }}][phone]"
-                                                        maxlength="12" class="form-control phone-input additional-phone"
+                                                        maxlength="10" class="form-control phone-input additional-phone"
                                                         value="{{ $phone->phone }}">
                                                     <select name="phones[{{ $i }}][type]" class="form-select"
                                                         style="max-width:100px;">
@@ -313,7 +313,7 @@
                                         @empty
                                             <div class="phone-entry mb-2">
                                                 <div class="input-group">
-                                                    <input type="text" name="phones[0][phone]" maxlength="12"
+                                                    <input type="text" name="phones[0][phone]" maxlength="10"
                                                         class="form-control phone-input additional-phone">
                                                     <select name="phones[0][type]" class="form-select"
                                                         style="max-width:100px;">

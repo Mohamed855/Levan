@@ -20,7 +20,7 @@
 
     <link rel="stylesheet" href="{{ asset('assets/website/css/main.css') }}" />
 
-    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/assets/vendor/fonts/tabler-icons.scss'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/shared/input-guards.js', 'resources/assets/vendor/fonts/tabler-icons.scss'])
 
     @yield('page-style')
 
