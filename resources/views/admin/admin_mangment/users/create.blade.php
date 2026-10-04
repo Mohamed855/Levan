@@ -90,7 +90,7 @@
                                     <label class="form-label" for="phone">رقم الهاتف <span
                                             class="text-danger">*</span></label>
                                     <input type="text" name="phone" id="phone" class="form-control"
-                                        placeholder="ادخل رقم الهاتف" value="{{ old('phone') }}" />
+                                        placeholder="05xxxxxxxx" value="{{ old('phone') }}" maxlength="10" />
                                 </div>
 
                                 <x-wizard.actions>

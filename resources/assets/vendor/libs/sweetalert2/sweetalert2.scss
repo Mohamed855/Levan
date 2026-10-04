@@ -6,7 +6,6 @@
 // Sweet Alert2 Modal
 .swal2-modal.swal2-popup {
     .swal2-title {
-        margin: 1.875rem 0 1rem 0;
         max-width: calc(var(--swal2-width) * 0.5);
         line-height: light.$line-height-base;
     }
@@ -156,8 +155,8 @@
         }
 
         .swal2-popup .swal2-icon.swal2-question {
-            border-color: rgba(light.$secondary, 0.4);
-            color: light.$secondary;
+            border-color: rgba(light.$primary, 0.4);
+            color: light.$primary;
         }
 
         .swal2-popup .swal2-icon.swal2-info {
@@ -261,8 +260,8 @@
         }
 
         .swal2-popup .swal2-icon.swal2-question {
-            border-color: rgba(dark.$secondary, 0.4);
-            color: dark.$secondary;
+            border-color: rgba(light.$primary, 0.4);
+            color: light.$primary;
         }
 
         .swal2-popup .swal2-icon.swal2-info {

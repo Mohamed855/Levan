@@ -63,12 +63,13 @@ document.addEventListener('DOMContentLoaded', function () {
                         message: 'رقم الهاتف مطلوب',
                     },
                     regexp: {
-                        regexp: /^\+?[0-9]{7,15}$/,
-                        message: 'رقم الهاتف غير صحيح (يجب أن يكون من 7 إلى 15 رقم)',
+                        regexp: /^05[0-9]{8}$/,
+                        message: 'رقم الهاتف يجب أن يبدأ بـ 05 ويتكون من 10 أرقام',
                     },
                     stringLength: {
-                        max: 20,
-                        message: 'رقم الهاتف يجب ألا يزيد عن 20 رقم',
+                        min: 10,
+                        max: 10,
+                        message: 'رقم الهاتف يجب أن يتكون من 10 أرقام',
                     },
                 },
             },
@@ -194,6 +195,16 @@ document.addEventListener('DOMContentLoaded', function () {
         $(`#${fieldName}-feedback`).remove();
 
         if (trimmed === '') {
+            uniquenessState[fieldName] = false;
+            return;
+        }
+
+        if (fieldName === 'phone' && !/^05[0-9]{8}$/.test(trimmed)) {
+            uniquenessState[fieldName] = false;
+            return;
+        }
+
+        if (fieldName === 'email' && !inputEl.validity.valid) {
             uniquenessState[fieldName] = false;
             return;
         }
