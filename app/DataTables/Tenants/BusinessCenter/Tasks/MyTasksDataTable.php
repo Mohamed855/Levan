@@ -127,7 +127,7 @@ class MyTasksDataTable extends AbstractDataTable
                     'callback' => ['label' => 'معاودة اتصال', 'class' => 'bg-label-primary'],
                     'document_request' => ['label' => 'طلب مستندات', 'class' => 'bg-label-warning'],
                 ];
-                $badge = $badgeClasses[$row->task_type] ?? ['label' => 'غير محدد', 'class' => 'bg-label-secondary'];
+                $badge = $badgeClasses[$row->task_type] ?? ['label' => 'غير محدد', 'class' => 'bg-secondary'];
                 return '<span class="badge ' . $badge['class'] . '">' . $badge['label'] . '</span>';
             })
 

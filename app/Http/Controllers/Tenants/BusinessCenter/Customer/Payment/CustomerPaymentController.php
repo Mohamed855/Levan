@@ -74,7 +74,7 @@ class CustomerPaymentController extends Controller
                 return '<span>' . e($payment->paymentMethod->name ?? 'غير محدد') . '</span>';
             })
             ->addColumn('payment_type', function (Collection $payment) {
-                $class = $payment->payment_type === 'settlement' ? 'bg-label-primary' : 'bg-label-secondary';
+                $class = $payment->payment_type === 'settlement' ? 'bg-label-primary' : 'bg-secondary';
                 return '<span class="badge ' . $class . '">' . e($payment->payment_type_label) . '</span>';
             })
             ->addColumn('collection_date', function (Collection $payment) {

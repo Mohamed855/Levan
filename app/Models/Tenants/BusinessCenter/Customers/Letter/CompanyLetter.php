@@ -150,7 +150,7 @@ class CompanyLetter extends Model
             'ready_to_send' => 'bg-label-primary',
             'sent' => 'bg-label-success',
             'failed' => 'bg-label-danger',
-            default => 'bg-label-secondary'
+            default => 'bg-secondary'
         };
     }
 

@@ -92,7 +92,7 @@
                             <small class="mb-0">عملاء الشركات المحذوفين</small>
                         </div>
                         <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-secondary">
+                            <span class="avatar-initial rounded bg-secondary">
                                 <i class="ti ti-building ti-26px"></i>
                             </span>
                         </div>
@@ -106,32 +106,20 @@
     {{-- Filters Card --}}
     <x-data-table.filters table="#archived-customers-table">
         <div class="col-md-2">
-            <x-filter.select
-                id="filter-customer-type"
-                filterKey="customer_type"
-                table="#archived-customers-table"
-                name="customer_type"
-                label="نوع العميل"
-                placeholder="اختر نوع العميل"
-                :options="['individual' => 'فردي', 'company' => 'شركة']"
-            />
+            <x-filter.select id="filter-customer-type" filterKey="customer_type" table="#archived-customers-table"
+                name="customer_type" label="نوع العميل" placeholder="اختر نوع العميل" :options="['individual' => 'فردي', 'company' => 'شركة']" />
         </div>
 
         <div class="col-md-2">
-            <x-filter.select
-                id="filter-company"
-                filterKey="company_id"
-                table="#archived-customers-table"
-                name="company_id"
-                label="الشركة"
-                placeholder="اختر الشركة"
-                :options="$companies->pluck('name', 'id')"
-            />
+            <x-filter.select id="filter-company" filterKey="company_id" table="#archived-customers-table" name="company_id"
+                label="الشركة" placeholder="اختر الشركة" :options="$companies->pluck('name', 'id')" />
         </div>
 
         <div class="col-md-2">
             <label for="filter-portfolio" class="form-label">المحفظة</label>
-            <select id="filter-portfolio" class="form-control select2" data-placeholder="اختر المحفظة" data-filter-key="portfolio_id" data-datatable-filter="true" data-datatable-target="#archived-customers-table">
+            <select id="filter-portfolio" class="form-control select2" data-placeholder="اختر المحفظة"
+                data-filter-key="portfolio_id" data-datatable-filter="true"
+                data-datatable-target="#archived-customers-table">
                 <option value=""></option>
                 @foreach ($portfolios as $portfolio)
                     <option value="{{ $portfolio->id }}" data-company="{{ $portfolio->company_id }}">
@@ -142,27 +130,13 @@
         </div>
 
         <div class="col-md-3">
-            <x-filter.select
-                id="filter-contact-result"
-                filterKey="last_contact_result_id"
-                table="#archived-customers-table"
-                name="last_contact_result_id"
-                label="نتيجة الاتصال"
-                placeholder="اختر نتيجة الاتصال"
-                :options="$contactResults->pluck('name', 'id')"
-            />
+            <x-filter.select id="filter-contact-result" filterKey="last_contact_result_id" table="#archived-customers-table"
+                name="last_contact_result_id" label="نتيجة الاتصال" placeholder="اختر نتيجة الاتصال" :options="$contactResults->pluck('name', 'id')" />
         </div>
 
         <div class="col-md-3">
-            <x-filter.select
-                id="filter-manager"
-                filterKey="relationship_manager_id"
-                table="#archived-customers-table"
-                name="relationship_manager_id"
-                label="مسؤول العلاقة"
-                placeholder="اختر مسؤول العلاقة"
-                :options="$users->pluck('name', 'id')"
-            />
+            <x-filter.select id="filter-manager" filterKey="relationship_manager_id" table="#archived-customers-table"
+                name="relationship_manager_id" label="مسؤول العلاقة" placeholder="اختر مسؤول العلاقة" :options="$users->pluck('name', 'id')" />
         </div>
     </x-data-table.filters>
 

@@ -99,7 +99,7 @@ class CustomerUpdateRequest extends Model
             self::STATUS_REJECTED => '<span class="badge bg-label-danger">مرفوض</span>',
         ];
 
-        return $statuses[$this->status] ?? '<span class="badge bg-label-secondary">' . $this->status . '</span>';
+        return $statuses[$this->status] ?? '<span class="badge bg-secondary">' . $this->status . '</span>';
     }
 
     public function getStatusClassAttribute(): string
@@ -110,7 +110,7 @@ class CustomerUpdateRequest extends Model
             self::STATUS_REJECTED => 'bg-label-danger',
         ];
 
-        return $classes[$this->status] ?? 'bg-label-secondary';
+        return $classes[$this->status] ?? 'bg-secondary';
     }
 
     /*

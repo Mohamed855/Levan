@@ -63,7 +63,7 @@ class BankDataTable extends AbstractDataTable
 
             ->editColumn('icon', function ($row) {
                 if (!$row->icon) {
-                    return '<span class="badge bg-label-secondary">
+                    return '<span class="badge bg-secondary">
                                 <i class="ti ti-photo-off"></i>
                                 لا يوجد
                             </span>';

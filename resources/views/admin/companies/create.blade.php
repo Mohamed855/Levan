@@ -3,597 +3,271 @@
 @section('title', 'إنشاء شركة جديدة')
 
 @section('vendor-style')
-    @vite(['resources/assets/css/components/icons.css', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
+    @vite(['resources/assets/css/components/icons.css', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
+    @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
 @endsection
 
 @section('toastr')
     @vite(['resources/css/toastr.css', 'resources/js/toastr.js'])
 @endsection
 
+@php
+    $companyPlans = $plans
+        ->map(function ($plan) {
+            return [
+                'id' => $plan->id,
+                'name' => $plan->name,
+                'subscription_duration_type' => $plan->subscription_duration_type,
+                'subscription_billing_cycle' => $plan->subscription_billing_cycle,
+            ];
+        })
+        ->values();
+@endphp
+
 @section('page-script')
     <script>
-        window.plansData = @json($plans);
-        window.wizardResourceKey = 'admin.company-create';
+        window.companyPlans = @json($companyPlans);
     </script>
-    @vite(['resources/assets/js/admin/companies/create-wizard.js'])
+    @vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/admin/companies/form-ui.js'])
 @endsection
 
 @section('content')
+    @php
+        $steps = [
+            ['id' => 'company-details-step', 'title' => 'بيانات الشركة', 'subtitle' => 'البيانات الأساسية والإعدادات'],
+            ['id' => 'admin-user-step', 'title' => 'المستخدم الإداري الأول', 'subtitle' => 'حساب المسؤول الرئيسي'],
+            ['id' => 'subscription-step', 'title' => 'الاشتراك والدفع', 'subtitle' => 'الباقة وتفاصيل الدفع'],
+            ['id' => 'review-step', 'title' => 'مراجعة واعتماد', 'subtitle' => 'تأكيد البيانات والحفظ'],
+        ];
+    @endphp
+
     <div class="row">
         <div class="col-12">
-            <div id="company-wizard" class="bs-stepper">
-                <!-- Stepper Header (4 Steps) -->
-                <div class="bs-stepper-header">
-                    <div class="step" data-target="#step-company">
-                        <button type="button" class="step-trigger">
-                            <span class="bs-stepper-circle">1</span>
-                            <span class="bs-stepper-label">
-                                <span class="bs-stepper-title">بيانات الشركة</span>
-                                <span class="bs-stepper-subtitle">البيانات الأساسية والإعدادات</span>
-                            </span>
-                        </button>
-                    </div>
-                    <div class="line"><i class="ti ti-chevron-right"></i></div>
+            <x-form.wizard.stepper id="company-wizard" :steps="$steps">
+                <x-ui.validation-errors class="mb-4" />
 
-                    <div class="step" data-target="#step-admin">
-                        <button type="button" class="step-trigger">
-                            <span class="bs-stepper-circle">2</span>
-                            <span class="bs-stepper-label">
-                                <span class="bs-stepper-title">المستخدم الإداري الأول</span>
-                                <span class="bs-stepper-subtitle">حساب المسؤول الرئيسي</span>
-                            </span>
-                        </button>
-                    </div>
-                    <div class="line"><i class="ti ti-chevron-right"></i></div>
+                <form id="company-wizard-form" action="{{ route('admin.companies.store') }}" method="POST"
+                    enctype="multipart/form-data" autocomplete="off" data-form-validate
+                    data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}"
+                    data-draft-url="{{ route('admin.wizard-drafts.store') }}"
+                    data-draft-resource-key="admin.company-create">
+                    @csrf
 
-                    <div class="step" data-target="#step-payment">
-                        <button type="button" class="step-trigger">
-                            <span class="bs-stepper-circle">3</span>
-                            <span class="bs-stepper-label">
-                                <span class="bs-stepper-title">الاشتراك والدفع</span>
-                                <span class="bs-stepper-subtitle">الباقة وحدودها وتفاصيل الدفع</span>
-                            </span>
-                        </button>
-                    </div>
-                    <div class="line"><i class="ti ti-chevron-right"></i></div>
+                    <!-- 1. بيانات الشركة -->
+                    <x-form.wizard.step id="company-details-step" :fields="[
+                        'company_name',
+                        'commercial_number',
+                        'tax_number',
+                        'city_id',
+                        'address',
+                        'email_notifications_enabled',
+                        'two_factor_enabled',
+                        'external_integrations_enabled',
+                    ]">
+                        <div class="row g-4">
+                            <x-form.controls.input name="company_name" label="اسم الشركة"
+                                placeholder="مثال: شركة التطوير العقاري" maxlength="255" required col="col-md-6" />
+                            <x-form.controls.input name="commercial_number" label="رقم السجل التجاري" placeholder="10 أرقام"
+                                maxlength="10" inputmode="numeric" pattern="[0-9]*" data-digits-only required
+                                col="col-md-6" />
+                            <x-form.controls.input name="tax_number" label="الرقم الضريبي" placeholder="15 رقم"
+                                maxlength="15" inputmode="numeric" pattern="[0-9]*" data-digits-only required
+                                col="col-md-6" />
+                            <x-form.controls.select name="city_id" label="المدينة" :options="$cities"
+                                placeholder="اختر المدينة" required col="col-md-6" />
+                            <x-form.controls.textarea name="address" label="العنوان"
+                                placeholder="مثال: الرياض - طريق الملك فهد" rows="2" maxlength="1000" required
+                                col="col-12" />
 
-                    <div class="step" data-target="#step-review">
-                        <button type="button" class="step-trigger">
-                            <span class="bs-stepper-circle">4</span>
-                            <span class="bs-stepper-label">
-                                <span class="bs-stepper-title">مراجعة واعتماد</span>
-                                <span class="bs-stepper-subtitle">تأكيد البيانات والحفظ</span>
-                            </span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="p-4 bs-stepper-content">
-                    @if ($errors->any())
-                        <div class="alert alert-danger mb-4">
-                            <ul class="mb-0">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
+                            <div class="col-12">
+                                <h6 class="fw-bold text-primary mb-0"><i class="ti ti-settings me-1"
+                                        aria-hidden="true"></i>إعدادات الشركة الخاصة</h6>
+                            </div>
+                            <x-form.controls.checkbox name="email_notifications_enabled" label="تنبيهات البريد"
+                                :checked="true" col="col-md-4">إرسال إشعارات البريد.</x-form.controls.checkbox>
+                            <x-form.controls.checkbox name="two_factor_enabled" label="التحقق الثنائي (2FA)"
+                                col="col-md-4">فرض 2FA على مستخدمي الشركة.</x-form.controls.checkbox>
+                            <x-form.controls.checkbox name="external_integrations_enabled" label="التكاملات الخارجية"
+                                col="col-md-4">السماح بربط API والأنظمة.</x-form.controls.checkbox>
                         </div>
-                    @endif
 
-                    <form id="company-wizard-form" action="{{ route('admin.companies.store') }}" method="POST"
-                        enctype="multipart/form-data" autocomplete="off">
-                        @csrf
-                        <input type="hidden" name="_wizard_draft_id" id="_wizard_draft_id" value="">
-                        <input type="hidden" name="_wizard_resource_key" value="admin.company-create">
+                        <x-form.wizard.actions>
+                            <x-form.wizard.previous-button :href="route('admin.companies.index')" />
+                            <div class="d-flex gap-2">
+                                <x-form.wizard.draft-button />
+                                <x-form.wizard.next-button :disabled="true" />
+                            </div>
+                        </x-form.wizard.actions>
+                    </x-form.wizard.step>
 
-                        {{-- ═══════════════════════════════════════
-                             الخطوة 1: بيانات الشركة
-                        ═══════════════════════════════════════ --}}
-                        <div id="step-company" class="content">
-                            <div class="row g-4">
-                                <!-- اسم الشركة -->
-                                <div class="col-md-6">
-                                    <label for="company_name" class="form-label">
-                                        اسم الشركة <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" class="form-control" id="company_name" name="company_name"
-                                        value="{{ old('company_name') }}" placeholder="مثال: شركة التطوير العقاري" required>
-                                </div>
+                    <!-- 2. المستخدم الإداري الأول -->
+                    <x-form.wizard.step id="admin-user-step" :fields="['name', 'phone', 'email', 'password', 'password_confirmation']">
+                        <div class="row g-4">
+                            <x-form.controls.input name="name" label="اسم المستخدم المسؤول" placeholder="اسم المسؤول"
+                                maxlength="255" required col="col-md-6" />
+                            <x-form.controls.input name="phone" label="رقم الجوال" placeholder="05xxxxxxxx" maxlength="10"
+                                inputmode="numeric" pattern="[0-9]*" required col="col-md-6" />
+                            <x-form.controls.input name="email" type="email" label="البريد الإلكتروني"
+                                placeholder="admin@domain.com" maxlength="255" autocomplete="off" required col="col-md-6" />
+                            <x-form.controls.password name="password" label="كلمة المرور" placeholder="••••••••"
+                                data-validation-dependents="password_confirmation" required col="col-md-6" />
+                            <x-form.controls.password name="password_confirmation" label="تأكيد كلمة المرور"
+                                placeholder="••••••••" required col="col-md-6" />
+                        </div>
 
-                                <!-- السجل التجاري -->
-                                <div class="col-md-6">
-                                    <label for="commercial_number" class="form-label">
-                                        رقم السجل التجاري <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" class="form-control" id="commercial_number"
-                                        name="commercial_number" value="{{ old('commercial_number') }}"
-                                        placeholder="10 أرقام" maxlength="10" required>
-                                </div>
+                        <x-form.wizard.actions>
+                            <x-form.wizard.previous-button />
+                            <div class="d-flex gap-2">
+                                <x-form.wizard.draft-button />
+                                <x-form.wizard.next-button :disabled="true" />
+                            </div>
+                        </x-form.wizard.actions>
+                    </x-form.wizard.step>
 
-                                <!-- الرقم الضريبي -->
-                                <div class="col-md-6">
-                                    <label for="tax_number" class="form-label">
-                                        الرقم الضريبي <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" class="form-control" id="tax_number" name="tax_number"
-                                        value="{{ old('tax_number') }}" placeholder="الرقم الضريبي للشركة" required>
-                                </div>
+                    <!-- 3. الاشتراك والدفع -->
+                    <x-form.wizard.step id="subscription-step" :fields="[
+                        'plan_id',
+                        'start_date',
+                        'end_date',
+                        'total_users',
+                        'payment_type',
+                        'payment_method',
+                        'receipt_upload',
+                        'trial_end_date',
+                        'has_discount',
+                        'discount_value',
+                        'activate_immediately',
+                    ]">
+                        <div class="row g-4">
+                            <x-form.controls.select name="plan_id" label="الباقة" :options="$plans"
+                                placeholder="اختر الباقة" required col="col-md-6" />
+                            <x-form.controls.input name="start_date" type="date" label="تاريخ البداية" :value="now()->toDateString()"
+                                required col="col-md-6" />
+                            <x-form.controls.input name="end_date" type="date" label="تاريخ النهاية"
+                                help="يُحسب تلقائياً حسب نوع الباقة، ويمكن تعديله عند الحاجة." col="col-md-6" />
+                            <x-form.controls.input name="total_users" type="number" label="إجمالي المستخدمين"
+                                min="1" step="1" inputmode="numeric" col="col-md-6" />
+                            <x-form.controls.select name="payment_type" label="حالة الدفع" :options="['paid' => 'تم الدفع', 'unpaid' => 'لم يتم الدفع', 'trial' => 'فترة تجربة']"
+                                placeholder="اختر حالة الدفع"
+                                data-validation-dependents="payment_method receipt_upload trial_end_date" required
+                                col="col-md-6" />
+                            <x-form.controls.select name="payment_method" label="وسيلة الدفع" :options="['online' => 'دفع إلكتروني', 'bank_transfer' => 'تحويل بنكي', 'cash' => 'نقدي']"
+                                placeholder="اختر وسيلة الدفع" data-validation-dependents="receipt_upload"
+                                col="col-md-6" />
+                            <x-form.controls.file name="receipt_upload" label="إيصال التحويل البنكي"
+                                accept="image/jpeg,image/png,image/jpg,application/pdf"
+                                help="يُقبل PDF أو صور بحد أقصى 5MB." col="col-md-6" />
+                            <x-form.controls.input name="trial_end_date" type="date" label="تاريخ نهاية التجربة"
+                                col="col-md-6" />
+                            <x-form.controls.select name="has_discount" label="هل يوجد خصم أو تسوية؟" :options="['no' => 'لا', 'yes' => 'نعم']"
+                                :value="'no'" data-validation-dependents="discount_value" col="col-md-6" />
+                            <x-form.controls.input name="discount_value" type="number"
+                                label="مبلغ الخصم / التسوية (ر.س)" min="0" step="0.01" inputmode="decimal"
+                                col="col-md-6" />
+                            <x-form.controls.checkbox name="activate_immediately" label="تفعيل الشركة والاشتراك فوراً"
+                                :checked="true" col="col-12">تصبح الشركة والاشتراك متاحين مباشرة حتى لو لم يتم الدفع
+                                بعد.</x-form.controls.checkbox>
+                        </div>
 
-                                <!-- المدينة -->
-                                <div class="col-md-6">
-                                    <label for="city_id" class="form-label">
-                                        المدينة <span class="text-danger">*</span>
-                                    </label>
-                                    <select class="form-select select2" id="city_id" name="city_id" required
-                                        data-placeholder="اختر المدينة">
-                                        <option value=""></option>
-                                        @foreach ($cities as $city)
-                                            <option value="{{ $city->id }}" @selected(old('city_id') == $city->id)>
-                                                {{ $city->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                        <x-form.wizard.actions>
+                            <x-form.wizard.previous-button />
+                            <div class="d-flex gap-2">
+                                <x-form.wizard.draft-button />
+                                <x-form.wizard.next-button :disabled="true" />
+                            </div>
+                        </x-form.wizard.actions>
+                    </x-form.wizard.step>
 
-                                <!-- العنوان -->
-                                <div class="col-12">
-                                    <label for="address" class="form-label">
-                                        العنوان <span class="text-danger">*</span>
-                                    </label>
-                                    <textarea class="form-control" id="address" name="address" rows="2"
-                                        placeholder="مثال: الرياض - طريق الملك فهد" required>{{ old('address') }}</textarea>
-                                </div>
-
-                                <!-- إعدادات الشركة الإضافية -->
-                                <div class="col-12 mt-4">
-                                    <h6 class="fw-bold text-primary mb-3">
-                                        <i class="ti ti-settings me-1"></i>إعدادات الشركة الخاصة
-                                    </h6>
-                                    <div class="row g-4">
-                                        <div class="col-md-4">
-                                            <div class="card border p-3">
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <div>
-                                                        <h6 class="mb-0 fw-semibold">تنبيهات البريد</h6>
-                                                        <small class="text-muted">إرسال إشعارات البريد</small>
-                                                    </div>
-                                                    <div class="form-check form-switch mb-0">
-                                                        <input type="checkbox" class="form-check-input"
-                                                            name="email_notifications_enabled" value="1" checked>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-4">
-                                            <div class="card border p-3">
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <div>
-                                                        <h6 class="mb-0 fw-semibold">التحقق الثنائي (2FA)</h6>
-                                                        <small class="text-muted">فرض 2FA على مستخدمي الشركة</small>
-                                                    </div>
-                                                    <div class="form-check form-switch mb-0">
-                                                        <input type="checkbox" class="form-check-input"
-                                                            name="two_factor_enabled" value="1">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-4">
-                                            <div class="card border p-3">
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <div>
-                                                        <h6 class="mb-0 fw-semibold">التكاملات الخارجية</h6>
-                                                        <small class="text-muted">السماح بربط API والأنظمة</small>
-                                                    </div>
-                                                    <div class="form-check form-switch mb-0">
-                                                        <input type="checkbox" class="form-check-input"
-                                                            name="external_integrations_enabled" value="1">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                    <!-- 4. مراجعة واعتماد -->
+                    <x-form.wizard.step id="review-step">
+                        <div class="row g-4">
+                            <div class="col-12 col-lg-6">
+                                <div class="card border shadow-none h-100">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0"><i class="ti ti-building text-primary me-1"
+                                                aria-hidden="true"></i>بيانات الشركة</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <dl class="row mb-0 small">
+                                            <dt class="col-5 text-muted">اسم الشركة</dt>
+                                            <dd class="col-7 fw-semibold" id="review-company-name">-</dd>
+                                            <dt class="col-5 text-muted">السجل التجاري</dt>
+                                            <dd class="col-7 fw-semibold" id="review-commercial-number">-</dd>
+                                            <dt class="col-5 text-muted">الرقم الضريبي</dt>
+                                            <dd class="col-7 fw-semibold" id="review-tax-number">-</dd>
+                                            <dt class="col-5 text-muted">المدينة</dt>
+                                            <dd class="col-7 fw-semibold" id="review-city">-</dd>
+                                            <dt class="col-5 text-muted">العنوان</dt>
+                                            <dd class="col-7 fw-semibold" id="review-address">-</dd>
+                                        </dl>
                                     </div>
                                 </div>
                             </div>
-
-                            <x-wizard.actions>
-                                <x-wizard.btn-prev :href="route('admin.companies.index')" />
-                                <div class="d-flex gap-2">
-                                    <x-wizard.btn-draft step="1" />
-                                    <x-wizard.btn-next id="btn-next-company" />
-                                </div>
-                            </x-wizard.actions>
-                        </div>
-
-                        {{-- ═══════════════════════════════════════
-                             الخطوة 2: المستخدم الإداري الأول
-                        ═══════════════════════════════════════ --}}
-                        <div id="step-admin" class="content">
-                            <div class="row g-4">
-                                <div class="col-md-6">
-                                    <label for="name" class="form-label">
-                                        اسم المستخدم المسؤول <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" class="form-control" id="name" name="name"
-                                        value="{{ old('name') }}" placeholder="اسم المسؤول" required>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="phone" class="form-label">
-                                        رقم الجوال <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="tel" class="form-control" id="phone" name="phone"
-                                        placeholder="05xxxxxxxx" value="{{ old('phone') }}" maxlength="10" required>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="email" class="form-label">
-                                        البريد الإلكتروني <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="email" class="form-control" id="email" name="email"
-                                        value="{{ old('email') }}" placeholder="admin@domain.com" autocomplete="off"
-                                        required>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label" for="password">
-                                        كلمة المرور <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="password" id="password" name="password" class="form-control"
-                                        placeholder="••••••••" autocomplete="new-password" required />
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label" for="password_confirmation">
-                                        تأكيد كلمة المرور <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="password" id="password_confirmation" name="password_confirmation"
-                                        class="form-control" placeholder="••••••••" autocomplete="new-password"
-                                        required />
-                                </div>
-                            </div>
-
-                            <x-wizard.actions>
-                                <x-wizard.btn-prev id="btn-prev-admin" />
-                                <div class="d-flex gap-2">
-                                    <x-wizard.btn-draft step="2" />
-                                    <x-wizard.btn-next id="btn-next-admin" />
-                                </div>
-                            </x-wizard.actions>
-                        </div>
-
-                        {{-- ═══════════════════════════════════════
-                             الخطوة 3: بيانات الاشتراك والدفع
-                        ═══════════════════════════════════════ --}}
-                        <div id="step-payment" class="content">
-                            <div class="row g-4">
-                                <div class="col-md-6">
-                                    <label for="plan_id" class="form-label">
-                                        الباقة <span class="text-danger">*</span>
-                                    </label>
-                                    <select id="plan_id" name="plan_id" class="form-select select2" required
-                                        data-placeholder="اختر الباقة">
-                                        <option value=""></option>
-                                        @foreach ($plans as $plan)
-                                            <option value="{{ $plan['id'] }}" @selected(old('plan_id') == $plan['id'])>
-                                                {{ $plan['name'] }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label" for="start_date">
-                                        تاريخ البداية <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="date" class="form-control" id="start_date" name="start_date"
-                                        value="{{ old('start_date', now()->toDateString()) }}" required>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label" for="end_date">
-                                        تاريخ النهاية
-                                    </label>
-                                    <input type="date" class="form-control" id="end_date" name="end_date"
-                                        value="{{ old('end_date') }}">
-                                    <small class="text-muted" id="end-date-hint">يُحسب تلقائياً حسب نوع الباقة</small>
-                                </div>
-
-                                {{-- <div class="col-12 mt-2">
-                                    <div class="p-3 bg-light rounded border">
-                                        <h6 class="mb-2 fw-semibold text-dark"><i
-                                                class="ti ti-shield-check me-1 text-primary"></i>حدود الباقة المحددة
-                                            (للقراءة فقط)</h6>
-                                        <div class="row g-2">
-                                            <div class="col-md-3">
-                                                <label class="form-label small">عدد المستخدمين المشمولين</label>
-                                                <input type="text" class="form-control form-control-sm bg-white"
-                                                    id="plan_users_display" readonly disabled value="-">
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label class="form-label small">حد العقارات</label>
-                                                <input type="text" class="form-control form-control-sm bg-white"
-                                                    id="plan_properties_display" readonly disabled value="-">
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label class="form-label small">مساحة التخزين (GB)</label>
-                                                <input type="text" class="form-control form-control-sm bg-white"
-                                                    id="plan_storage_display" readonly disabled value="-">
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label class="form-label small">عدد المزادات النشطة</label>
-                                                <input type="text" class="form-control form-control-sm bg-white"
-                                                    id="plan_auctions_display" readonly disabled value="-">
-                                            </div>
-                                        </div>
+                            <div class="col-12 col-lg-6">
+                                <div class="card border shadow-none h-100">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0"><i class="ti ti-user text-primary me-1"
+                                                aria-hidden="true"></i>المستخدم المسؤول</h6>
                                     </div>
-                                </div> --}}
-
-                                <div class="col-md-6">
-                                    <label class="form-label" for="payment-status">
-                                        حالة الدفع <span class="text-danger">*</span>
-                                    </label>
-                                    <select class="form-select select2" data-placeholder="اختر حالة الدفع"
-                                        name="payment_type" id="payment-status" required>
-                                        <option value=""></option>
-                                        <option value="paid" @selected(old('payment_type') == 'paid')>تم الدفع</option>
-                                        <option value="unpaid" @selected(old('payment_type', 'unpaid') == 'unpaid')>لم يتم الدفع</option>
-                                        <option value="trial" @selected(old('payment_type') == 'trial')>فترة تجربة</option>
-                                    </select>
-                                </div>
-
-                                <div class="col-md-6" id="payment-method-wrapper" style="display: none;">
-                                    <label class="form-label" for="payment-method-select">
-                                        وسيلة الدفع <span class="text-danger">*</span>
-                                    </label>
-                                    <select class="form-select select2" name="payment_method"
-                                        data-placeholder="اختر وسيلة الدفع" id="payment-method-select">
-                                        <option value=""></option>
-                                        <option value="online" @selected(old('payment_method') == 'online')>دفع إلكتروني</option>
-                                        <option value="bank_transfer" @selected(old('payment_method') == 'bank_transfer')>تحويل بنكي</option>
-                                    </select>
-                                </div>
-
-                                <div class="col-md-6" id="receipt-upload-wrapper" style="display: none;">
-                                    <label class="form-label" for="receipt-upload">
-                                        إيصال التحويل البنكي <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="file" class="form-control" name="receipt_upload" id="receipt-upload"
-                                        accept="image/*,.pdf">
-                                    <small class="text-muted">ملف صورة أو PDF بحجم أقصى 5MB</small>
-                                </div>
-
-                                <div class="col-md-6" id="trial-date-wrapper" style="display: none;">
-                                    <label class="form-label" for="trial-end-date">
-                                        تاريخ نهاية التجربة <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="date" class="form-control" name="trial_end_date" id="trial-end-date"
-                                        value="{{ old('trial_end_date') }}">
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label" for="discount-type">هل يوجد خصم أو تسوية؟</label>
-                                    <select class="form-select" id="discount-type" name="has_discount">
-                                        <option value="no" @selected(old('has_discount') == 'no')>لا</option>
-                                        <option value="yes" @selected(old('has_discount') == 'yes')>نعم</option>
-                                    </select>
-                                </div>
-
-                                <div class="col-md-6" id="discount-wrapper" style="display: none;">
-                                    <label class="form-label" for="discount_value">مبلغ الخصم / التسوية (ر.س)</label>
-                                    <input type="number" step="0.01" min="0" class="form-control"
-                                        id="discount_value" name="discount_value"
-                                        value="{{ old('discount_value', 0) }}">
-                                </div>
-
-                                <!-- التفعيل الفوري -->
-                                <div class="col-12 mt-3">
-                                    <div class="card border p-3 bg-label-primary">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h6 class="mb-0 fw-bold text-dark">تفعيل الشركة والاشتراك فوراً</h6>
-                                                <small class="text-muted">عند التفعيل، تصبح الشركة والاشتراك بحالة نشطة
-                                                    مباشرة حتى لو لم يتم الدفع</small>
-                                            </div>
-                                            <div class="form-check form-switch mb-0">
-                                                <input type="checkbox" class="form-check-input"
-                                                    name="activate_immediately" id="activate_immediately" value="1"
-                                                    @checked(old('activate_immediately', true))>
-                                            </div>
-                                        </div>
+                                    <div class="card-body">
+                                        <dl class="row mb-0 small">
+                                            <dt class="col-5 text-muted">الاسم</dt>
+                                            <dd class="col-7 fw-semibold" id="review-admin-name">-</dd>
+                                            <dt class="col-5 text-muted">رقم الجوال</dt>
+                                            <dd class="col-7 fw-semibold" id="review-admin-phone">-</dd>
+                                            <dt class="col-5 text-muted">البريد الإلكتروني</dt>
+                                            <dd class="col-7 fw-semibold" id="review-admin-email">-</dd>
+                                        </dl>
                                     </div>
                                 </div>
                             </div>
-
-                            <x-wizard.actions>
-                                <x-wizard.btn-prev id="btn-prev-payment" />
-                                <div class="d-flex gap-2">
-                                    <x-wizard.btn-draft step="3" />
-                                    <x-wizard.btn-next id="btn-next-payment" />
-                                </div>
-                            </x-wizard.actions>
-                        </div>
-
-                        {{-- ═══════════════════════════════════════
-                             الخطوة 4: مراجعة واعتماد
-                        ═══════════════════════════════════════ --}}
-                        <div id="step-review" class="content">
-                            <div class="row g-4">
-                                <!-- Card 1: ملخص بيانات الشركة -->
-                                <div class="col-12 col-lg-6">
-                                    <div class="card border shadow-none h-100">
-                                        <div class="card-header py-2 bg-light">
-                                            <h6 class="card-title mb-0 small fw-bold">
-                                                <i class="ti ti-building me-1 text-primary"></i> ملخص بيانات الشركة
-                                            </h6>
-                                        </div>
-                                        <div class="card-body pt-3">
-                                            <ul class="list-unstyled mb-0 d-flex flex-column gap-2 small">
-                                                <li class="d-flex justify-content-between">
-                                                    <span class="text-muted">اسم الشركة:</span>
-                                                    <span class="fw-bold" id="review-company-name">-</span>
-                                                </li>
-                                                <li class="d-flex justify-content-between">
-                                                    <span class="text-muted">السجل التجاري:</span>
-                                                    <span class="fw-semibold" id="review-commercial-number">-</span>
-                                                </li>
-                                                <li class="d-flex justify-content-between">
-                                                    <span class="text-muted">الرقم الضريبي:</span>
-                                                    <span class="fw-semibold" id="review-tax-number">-</span>
-                                                </li>
-                                                <li class="d-flex justify-content-between">
-                                                    <span class="text-muted">المدينة:</span>
-                                                    <span class="fw-semibold" id="review-city">-</span>
-                                                </li>
-                                                <li class="d-flex justify-content-between">
-                                                    <span class="text-muted">العنوان:</span>
-                                                    <span class="fw-semibold" id="review-address">-</span>
-                                                </li>
-                                                <li class="d-flex justify-content-between border-top pt-2">
-                                                    <span class="text-muted">الإعدادات الإضافية:</span>
-                                                    <span class="fw-semibold" id="review-settings-summary">-</span>
-                                                </li>
-                                            </ul>
-                                        </div>
+                            <div class="col-12 col-lg-6">
+                                <div class="card border shadow-none h-100">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0"><i class="ti ti-packages text-primary me-1"
+                                                aria-hidden="true"></i>الاشتراك والدفع</h6>
                                     </div>
-                                </div>
-
-                                <!-- Card 2: ملخص المستخدم المسؤول -->
-                                <div class="col-12 col-lg-6">
-                                    <div class="card border shadow-none h-100">
-                                        <div class="card-header py-2 bg-light">
-                                            <h6 class="card-title mb-0 small fw-bold">
-                                                <i class="ti ti-user me-1 text-primary"></i> بيانات المستخدم المسؤول
-                                            </h6>
-                                        </div>
-                                        <div class="card-body pt-3">
-                                            <ul class="list-unstyled mb-0 d-flex flex-column gap-2 small">
-                                                <li class="d-flex justify-content-between">
-                                                    <span class="text-muted">اسم المسؤول:</span>
-                                                    <span class="fw-bold" id="review-admin-name">-</span>
-                                                </li>
-                                                <li class="d-flex justify-content-between">
-                                                    <span class="text-muted">رقم الجوال:</span>
-                                                    <span class="fw-semibold" id="review-admin-phone">-</span>
-                                                </li>
-                                                <li class="d-flex justify-content-between">
-                                                    <span class="text-muted">البريد الإلكتروني:</span>
-                                                    <span class="fw-semibold" id="review-admin-email">-</span>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Card 3: ملخص الباقة وحدودها والمميزات -->
-                                <div class="col-12 col-lg-6">
-                                    <div class="card border shadow-none h-100">
-                                        <div class="card-header py-2 bg-light">
-                                            <h6 class="card-title mb-0 small fw-bold">
-                                                <i class="ti ti-packages me-1 text-primary"></i> ملخص الباقة والحدود
-                                            </h6>
-                                        </div>
-                                        <div class="card-body pt-3">
-                                            <ul class="list-unstyled mb-0 d-flex flex-column gap-2 small">
-                                                <li class="d-flex justify-content-between">
-                                                    <span class="text-muted">اسم الباقة:</span>
-                                                    <span class="fw-bold text-primary" id="review-plan-name">-</span>
-                                                </li>
-                                                <li class="d-flex justify-content-between">
-                                                    <span class="text-muted">المستخدمون المشمولون:</span>
-                                                    <span class="fw-semibold" id="review-plan-users">-</span>
-                                                </li>
-                                                <li class="d-flex justify-content-between">
-                                                    <span class="text-muted">حد العقارات:</span>
-                                                    <span class="fw-semibold" id="review-plan-props">-</span>
-                                                </li>
-                                                <li class="d-flex justify-content-between">
-                                                    <span class="text-muted">مساحة التخزين:</span>
-                                                    <span class="fw-semibold" id="review-plan-storage">-</span>
-                                                </li>
-                                                <li class="d-flex justify-content-between">
-                                                    <span class="text-muted">المزادات النشطة:</span>
-                                                    <span class="fw-semibold" id="review-plan-auctions">-</span>
-                                                </li>
-                                                <li class="border-top pt-2">
-                                                    <span class="text-muted d-block mb-1">مميزات الباقة:</span>
-                                                    <div id="review-plan-features" class="d-flex flex-wrap gap-1">-</div>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Card 4: ملخص الاشتراك والدفع -->
-                                <div class="col-12 col-lg-6">
-                                    <div class="card border shadow-none h-100">
-                                        <div class="card-header py-2 bg-light">
-                                            <h6 class="card-title mb-0 small fw-bold">
-                                                <i class="ti ti-credit-card me-1 text-primary"></i> تفاصيل الاشتراك والدفع
-                                            </h6>
-                                        </div>
-                                        <div class="card-body pt-3">
-                                            <ul class="list-unstyled mb-0 d-flex flex-column gap-2 small">
-                                                <li class="d-flex justify-content-between">
-                                                    <span class="text-muted">تاريخ البدء:</span>
-                                                    <span class="fw-semibold" id="review-start-date">-</span>
-                                                </li>
-                                                <li class="d-flex justify-content-between">
-                                                    <span class="text-muted">تاريخ النهاية:</span>
-                                                    <span class="fw-semibold" id="review-end-date">-</span>
-                                                </li>
-                                                <li class="d-flex justify-content-between">
-                                                    <span class="text-muted">حالة التفعيل:</span>
-                                                    <span class="badge" id="review-activation-status">-</span>
-                                                </li>
-                                                <li class="d-flex justify-content-between">
-                                                    <span class="text-muted">حالة الدفع:</span>
-                                                    <span class="badge" id="review-payment-status">-</span>
-                                                </li>
-                                                <li class="d-flex justify-content-between">
-                                                    <span class="text-muted">وسيلة الدفع:</span>
-                                                    <span class="fw-semibold" id="review-payment-method">-</span>
-                                                </li>
-                                                <li class="d-flex justify-content-between border-top pt-2 mt-1">
-                                                    <span class="fw-bold">المبلغ الإجمالي:</span>
-                                                    <span class="fw-bold text-success fs-6" id="review-final-total">0.00
-                                                        ر.س</span>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- رسالة التنبيه الإلزامية -->
-                                <div class="col-12">
-                                    <div class="alert alert-warning d-flex align-items-center" role="alert">
-                                        <i class="ti ti-alert-triangle ti-md me-2"></i>
-                                        <div>
-                                            <strong>تنبيه هام:</strong> تفعيل الشركة والاشتراك فوراً سيجعل الشركة والاشتراك
-                                            بحالة <strong>نشطة (Active)</strong> ومتاحة للاستخدام المباشر فور الاعتماد، حتى
-                                            لو لم يتم الدفع بعد.
-                                        </div>
+                                    <div class="card-body">
+                                        <dl class="row mb-0 small">
+                                            <dt class="col-5 text-muted">الباقة</dt>
+                                            <dd class="col-7 fw-semibold" id="review-plan-name">-</dd>
+                                            <dt class="col-5 text-muted">تاريخ البداية</dt>
+                                            <dd class="col-7 fw-semibold" id="review-start-date">-</dd>
+                                            <dt class="col-5 text-muted">تاريخ النهاية</dt>
+                                            <dd class="col-7 fw-semibold" id="review-end-date">-</dd>
+                                            <dt class="col-5 text-muted">حالة الدفع</dt>
+                                            <dd class="col-7 fw-semibold" id="review-payment-status">-</dd>
+                                            <dt class="col-5 text-muted">وسيلة الدفع</dt>
+                                            <dd class="col-7 fw-semibold" id="review-payment-method">-</dd>
+                                            <dt class="col-5 text-muted">حالة التفعيل</dt>
+                                            <dd class="col-7" id="review-activation-status">-</dd>
+                                        </dl>
                                     </div>
                                 </div>
                             </div>
-
-                            <x-wizard.actions>
-                                <x-wizard.btn-prev id="btn-prev-review" />
-                                <div class="d-flex gap-2">
-                                    <x-wizard.btn-draft step="4" />
-                                    <x-wizard.btn-save type="submit" text="إنشاء واعتماد الشركة" />
+                            <div class="col-12 col-lg-6">
+                                <div class="alert alert-warning mb-0 d-flex align-items-center gap-2 h-100"
+                                    role="alert">
+                                    <i class="ti ti-alert-triangle fs-3" aria-hidden="true"></i>
+                                    <span>برجاء مراجعة البيانات قبل الاعتماد. سيتم إنشاء الشركة واشتراكها وحساب المدير الخاص
+                                        بالشركة.</span>
                                 </div>
-                            </x-wizard.actions>
+                            </div>
                         </div>
 
-                    </form>
-                </div>
-            </div>
+                        <x-form.wizard.actions>
+                            <x-form.wizard.previous-button />
+                            <div class="d-flex gap-2">
+                                <x-form.wizard.draft-button />
+                                <x-form.wizard.save-button text="إنشاء واعتماد الشركة" />
+                            </div>
+                        </x-form.wizard.actions>
+                    </x-form.wizard.step>
+                </form>
+            </x-form.wizard.stepper>
         </div>
     </div>
 @endsection

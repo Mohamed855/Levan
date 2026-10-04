@@ -71,7 +71,7 @@ class CustomerSms extends Model
             'sent' => 'bg-label-primary',
             'failed' => 'bg-label-danger',
             'delivered' => 'bg-label-success',
-            default => 'bg-label-secondary'
+            default => 'bg-secondary'
         };
     }
 

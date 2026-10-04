@@ -21,7 +21,7 @@
 @if ($customerNotes->count() == 0)
     <div class="text-center py-5" id="no-notes-message">
         <div class="avatar avatar-xl mx-auto mb-3">
-            <span class="avatar-initial rounded-circle bg-label-secondary">
+            <span class="avatar-initial rounded-circle bg-secondary">
                 <i class="ti ti-notes" style="font-size: 2rem;"></i>
             </span>
         </div>

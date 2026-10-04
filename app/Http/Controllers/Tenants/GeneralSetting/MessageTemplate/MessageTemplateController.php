@@ -79,7 +79,7 @@ class MessageTemplateController extends Controller
                         . e(\Str::limit(strip_tags($template->content), 60)) . '</div>';
                 })
                 ->addColumn('category_label', function ($template) {
-                    return '<span class="badge bg-label-secondary">' . e($template->category_name) . '</span>';
+                    return '<span class="badge bg-secondary">' . e($template->category_name) . '</span>';
                 })
                 ->addColumn('channel_label', function ($template) {
                     $label = $template->channel_name ?? strtoupper((string)$template->channel);

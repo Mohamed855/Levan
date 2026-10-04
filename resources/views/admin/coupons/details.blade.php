@@ -99,7 +99,7 @@
                                                     </span>
                                                 @endif
                                             @else
-                                                <span class="badge bg-label-secondary fs-6">
+                                                <span class="badge bg-secondary fs-6">
                                                     <i class="ti ti-circle-x me-1"></i>غير نشط
                                                 </span>
                                             @endif
@@ -364,7 +364,7 @@
                                     <div class="card border mb-0 bg-light">
                                         <div class="card-body d-flex align-items-center py-3">
                                             <div
-                                                class="avatar avatar-md me-3 bg-label-secondary rounded-circle d-flex align-items-center justify-content-center">
+                                                class="avatar avatar-md me-3 bg-secondary rounded-circle d-flex align-items-center justify-content-center">
                                                 <i class="ti ti-user-off fs-4"></i>
                                             </div>
                                             <div>

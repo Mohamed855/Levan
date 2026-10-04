@@ -297,7 +297,7 @@
                                     <i class="ti ti-building-bank me-1"></i>
                                     البنك
                                 </span>
-                                <span class="badge bg-label-secondary">{{ $bill->bank->bank_name }}</span>
+                                <span class="badge bg-secondary">{{ $bill->bank->bank_name }}</span>
                             </div>
 
                             <!-- ملاحظات التحويل -->

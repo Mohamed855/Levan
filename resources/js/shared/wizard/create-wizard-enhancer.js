@@ -419,6 +419,7 @@ function installDraftButtons(form) {
 function initializeForm(form) {
   if (
     form.dataset.wizardEnhanced ||
+    form.dataset.formValidate !== undefined ||
     !wizardFor(form) ||
     form.querySelector('input[name="_method"][value="PUT"], input[name="_method"][value="PATCH"]')
   ) return;

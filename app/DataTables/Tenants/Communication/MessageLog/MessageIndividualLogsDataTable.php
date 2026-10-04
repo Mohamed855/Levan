@@ -206,10 +206,10 @@ class MessageIndividualLogsDataTable extends AbstractDataTable
                     'processing' => ['class' => 'bg-label-info', 'text' => 'قيد المعالجة'],
                     'sent' => ['class' => 'bg-label-success', 'text' => 'تم الإرسال'],
                     'failed' => ['class' => 'bg-label-danger', 'text' => 'فشل'],
-                    'cancelled' => ['class' => 'bg-label-secondary', 'text' => 'ملغي']
+                    'cancelled' => ['class' => 'bg-secondary', 'text' => 'ملغي']
                 ];
 
-                $config = $statusConfig[$log->status] ?? ['class' => 'bg-label-secondary', 'text' => $log->status];
+                $config = $statusConfig[$log->status] ?? ['class' => 'bg-secondary', 'text' => $log->status];
 
                 return '<span class="badge ' . $config['class'] . '">' . $config['text'] . '</span>';
             })

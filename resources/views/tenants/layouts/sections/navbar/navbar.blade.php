@@ -76,22 +76,9 @@
 
 
         {{-- Settings - يظهر فقط إذا توفرت إحدى الصلاحيات --}}
-        @canany([
-            'system.settings',
-            'users.view',
-            'roles.view',
-            'activity_log.view',
-            'message_logs.view',
-            'branches_settings.view',
-            'countries.view',
-            'payment_methods.view',
-            'client_statuses.view',
-            'contact_channels.view',
-            'message_templates.view',
-            'subscriptions.view',
-            'bills.view',
-            'system.groups',
-            ])
+        @canany(['system.settings', 'users.view', 'roles.view', 'activity_log.view', 'message_logs.view',
+            'branches_settings.view', 'countries.view', 'payment_methods.view', 'client_statuses.view',
+            'contact_channels.view', 'message_templates.view', 'subscriptions.view', 'bills.view', 'system.groups'])
             <li class="nav-item dropdown me-2 me-xl-2">
                 <a class="nav-link btn btn-text-secondary btn-icon rounded-pill dropdown-toggle hide-arrow"
                     href="javascript:void(0);" data-bs-toggle="dropdown">
@@ -195,7 +182,7 @@
                                 <a href="{{ tenant_route_name('subscriptions.index') }}"
                                     class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
                                     <div class="avatar avatar-md mx-auto mb-2">
-                                        <span class="avatar-initial rounded bg-label-secondary">
+                                        <span class="avatar-initial rounded bg-secondary">
                                             <i class="ti ti-settings-cog ti-lg"></i>
                                         </span>
                                     </div>
@@ -222,14 +209,8 @@
                     </div>
 
                     {{-- رابط المركز التفصيلي --}}
-                    @canany([
-                        'branches_settings.view',
-                        'countries.view',
-                        'payment_methods.view',
-                        'client_statuses.view',
-                        'contact_channels.view',
-                        'message_templates.view',
-                        ])
+                    @canany(['branches_settings.view', 'countries.view', 'payment_methods.view', 'client_statuses.view',
+                        'contact_channels.view', 'message_templates.view'])
                         <div class="dropdown-divider my-3"></div>
                         <div class="d-grid">
                             <a href="{{ tenant_route_name('settings.center') }}" class="btn btn-primary btn-sm">
@@ -282,7 +263,7 @@
                                     'info' => 'bg-label-info',
                                     'danger' => 'bg-label-danger',
                                     'primary' => 'bg-label-primary',
-                                    'secondary' => 'bg-label-secondary',
+                                    'secondary' => 'bg-secondary',
                                 ];
                                 $colorClass = $iconColors[$data['type'] ?? 'info'] ?? 'bg-label-info';
                             @endphp
@@ -297,7 +278,8 @@
                                             </span>
                                         </div>
                                     </div>
-                                    <div class="flex-grow-1" @if(!empty($data['url'])) onclick="window.location.href='{{ $data['url'] }}'" style="cursor: pointer;" @endif>
+                                    <div class="flex-grow-1"
+                                        @if (!empty($data['url'])) onclick="window.location.href='{{ $data['url'] }}'" style="cursor: pointer;" @endif>
                                         <h6 class="small mb-1 fw-semibold">{{ $data['title'] ?? 'إشعار' }}</h6>
                                         <p class="mb-1 small text-muted">{{ $data['message'] ?? '' }}</p>
                                         <small

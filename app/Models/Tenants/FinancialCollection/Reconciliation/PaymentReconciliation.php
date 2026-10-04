@@ -306,7 +306,7 @@ class PaymentReconciliation extends Model
             'processing' => 'bg-label-info',
             'completed' => 'bg-label-success',
             'failed' => 'bg-label-danger',
-            default => 'bg-label-secondary'
+            default => 'bg-secondary'
         };
     }
 

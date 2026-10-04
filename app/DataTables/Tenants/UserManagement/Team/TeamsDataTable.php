@@ -88,16 +88,16 @@ class TeamsDataTable extends AbstractDataTable
                 if (!$team->branch) {
                     return '<span class="text-muted">-</span>';
                 }
-                return '<span class="badge bg-label-secondary">' . e($team->branch->name) . '</span>';
+                return '<span class="badge bg-secondary">' . e($team->branch->name) . '</span>';
             })
             ->addColumn('members_count', function (Team $team) {
                 $count = $team->members()->count();
-                $badgeClass = $count > 0 ? 'bg-label-info' : 'bg-label-secondary';
+                $badgeClass = $count > 0 ? 'bg-label-info' : 'bg-secondary';
                 return '<span class="badge ' . $badgeClass . '">' . $count . ' عضو</span>';
             })
             ->addColumn('leaders_count', function (Team $team) {
                 $count = $team->leaders()->count();
-                $badgeClass = $count > 0 ? 'bg-label-primary' : 'bg-label-secondary';
+                $badgeClass = $count > 0 ? 'bg-label-primary' : 'bg-secondary';
                 return '<span class="badge ' . $badgeClass . '">' . $count . ' قائد</span>';
             })
             ->editColumn('status', function (Team $team) {

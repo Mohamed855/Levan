@@ -120,7 +120,7 @@
                             <a href="{{ route('admin.settings.domains.index') }}"
                                 class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
                                 <div class="avatar avatar-md mx-auto mb-2">
-                                    <span class="avatar-initial rounded bg-label-secondary">
+                                    <span class="avatar-initial rounded bg-secondary">
                                         <i class="ti ti-world ti-lg"></i>
                                     </span>
                                 </div>
@@ -135,7 +135,7 @@
                             <a href="{{ route('admin.settings.banks.index') }}"
                                 class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
                                 <div class="avatar avatar-md mx-auto mb-2">
-                                    <span class="avatar-initial rounded bg-label-secondary">
+                                    <span class="avatar-initial rounded bg-secondary">
                                         <i class="ti ti-building-bank ti-lg"></i>
                                     </span>
                                 </div>

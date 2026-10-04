@@ -322,7 +322,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 unpaid: ['لم يتم الدفع', 'bg-label-danger'],
                 trial: ['فترة تجربة', 'bg-label-info']
             };
-            const item = payMap[payType] || ['-', 'bg-label-secondary'];
+            const item = payMap[payType] || ['-', 'bg-secondary'];
             rPay.className = 'badge ' + item[1];
             rPay.textContent = item[0];
         }

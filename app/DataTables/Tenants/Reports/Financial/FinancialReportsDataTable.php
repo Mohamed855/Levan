@@ -122,7 +122,7 @@ class FinancialReportsDataTable extends AbstractDataTable
                     'approved' => 'bg-label-success',
                     'pending' => 'bg-label-warning',
                     'rejected' => 'bg-label-danger',
-                    default => 'bg-label-secondary'
+                    default => 'bg-secondary'
                 };
                 $statusLabel = match ($row->status) {
                     'approved' => 'معتمد',

@@ -87,7 +87,7 @@
                             <small class="mb-0">فروع غير نشطة</small>
                         </div>
                         <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-secondary">
+                            <span class="avatar-initial rounded bg-secondary">
                                 <i class="ti ti-x ti-26px"></i>
                             </span>
                         </div>
@@ -101,7 +101,8 @@
     <x-data-table.filters table="#branches-table" reset-id="btn-reset-filters">
         <div class="col-md-6">
             <label for="filter-status" class="form-label">الحالة</label>
-            <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر الحالة">
+            <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status"
+                data-placeholder="اختر الحالة">
                 <option value=""></option>
                 <option value="active">نشط</option>
                 <option value="inactive">غير نشط</option>
@@ -110,7 +111,8 @@
 
         <div class="col-md-6">
             <label for="filter-city" class="form-label">المدينة</label>
-            <input type="text" id="filter-city" class="form-control" data-datatable-filter="true" data-filter-key="city" placeholder="ابحث بالمدينة">
+            <input type="text" id="filter-city" class="form-control" data-datatable-filter="true" data-filter-key="city"
+                placeholder="ابحث بالمدينة">
         </div>
     </x-data-table.filters>
 

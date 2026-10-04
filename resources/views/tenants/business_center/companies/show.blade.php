@@ -229,7 +229,7 @@
                                                 class="badge bg-label-info">{{ $contract->duration_months ?? '—' }}</span>
                                         </td>
                                         <td>
-                                            <span class="badge bg-label-secondary">
+                                            <span class="badge bg-secondary">
                                                 @if ($contract->commission_type === 'procedure')
                                                     حسب الإجراء
                                                 @elseif($contract->commission_type === 'duration')
@@ -243,7 +243,7 @@
                                         </td>
                                         <td>
                                             <span
-                                                class="badge @if ($contract->status === 'active') bg-label-success @elseif($contract->status === 'expired') bg-label-danger @elseif($contract->status === 'suspended') bg-label-warning @else bg-label-secondary @endif">
+                                                class="badge @if ($contract->status === 'active') bg-label-success @elseif($contract->status === 'expired') bg-label-danger @elseif($contract->status === 'suspended') bg-label-warning @else bg-secondary @endif">
                                                 @if ($contract->status === 'active')
                                                     نشط
                                                 @elseif($contract->status === 'expired')

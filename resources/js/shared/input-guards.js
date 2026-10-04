@@ -9,6 +9,10 @@ function isPhoneInput(input) {
         && (input.dataset.phoneFormat || input.type === 'tel' || phoneNamePattern.test(input.name));
 }
 
+function isDigitsOnlyInput(input) {
+    return input instanceof HTMLInputElement && input.dataset.digitsOnly !== undefined;
+}
+
 function getPhoneFormat(input) {
     if (input.dataset.phoneFormat) {
         return input.dataset.phoneFormat;
@@ -75,6 +79,16 @@ function sanitizeInput(input) {
         return;
     }
 
+    if (isDigitsOnlyInput(input)) {
+        const sanitized = input.value.replace(/[^0-9]/g, '');
+
+        if (input.value !== sanitized) {
+            input.value = sanitized;
+        }
+
+        return;
+    }
+
     if (input.type === 'number') {
         const sanitized = sanitizeNumber(input.value, allowsDecimal(input));
 
@@ -89,6 +103,8 @@ function configureExistingInputs() {
         if (isPhoneInput(input)) {
             configurePhoneInput(input);
             sanitizeInput(input);
+        } else if (isDigitsOnlyInput(input)) {
+            sanitizeInput(input);
         }
     });
 }
@@ -100,7 +116,7 @@ document.addEventListener('keydown', (event) => {
         return;
     }
 
-    if (!isPhoneInput(input) && input.type !== 'number') {
+    if (!isPhoneInput(input) && !isDigitsOnlyInput(input) && input.type !== 'number') {
         return;
     }
 
@@ -108,7 +124,7 @@ document.addEventListener('keydown', (event) => {
         return;
     }
 
-    const canUseDecimal = !isPhoneInput(input) && allowsDecimal(input);
+    const canUseDecimal = !isPhoneInput(input) && !isDigitsOnlyInput(input) && allowsDecimal(input);
     const canTypeDecimal = event.key === '.' && canUseDecimal && !input.value.includes('.');
 
     if (!/^[0-9]$/.test(event.key) && !canTypeDecimal) {

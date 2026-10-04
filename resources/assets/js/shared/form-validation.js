@@ -9,6 +9,7 @@ function getFormState(form) {
       fieldVersions: new Map(),
       timers: new Map(),
       isSubmitting: false,
+      isNavigating: false,
       stepper: null
     });
   }
@@ -34,11 +35,15 @@ function findFieldWrappers(form, fieldName) {
 }
 
 function findControls(form, fieldName) {
-  return Array.from(form.querySelectorAll('[data-form-control][name]')).filter((control) =>
+  return Array.from(form.querySelectorAll('[data-form-control][name], input[name], select[name], textarea[name]')).filter((control) =>
     fieldMatches(control.name, fieldName)
   );
 }
 
+/**
+ * Single-spot error clearing:
+ * Resets the single dedicated error element ([data-form-error] or .invalid-feedback)
+ */
 function clearFieldError(form, fieldName) {
   findFieldWrappers(form, fieldName).forEach((wrapper) => {
     wrapper.classList.remove('is-invalid');
@@ -46,6 +51,7 @@ function clearFieldError(form, fieldName) {
     if (error) {
       error.textContent = '';
       error.hidden = true;
+      error.style.display = 'none';
     }
   });
 
@@ -53,9 +59,26 @@ function clearFieldError(form, fieldName) {
     control.classList.remove('is-invalid');
     control.setAttribute('aria-invalid', 'false');
     control.nextElementSibling?.classList?.remove('is-invalid');
+
+    // Fallback for fields not wrapped with [data-form-field]
+    const wrapper = control.closest('[data-form-field]');
+    if (!wrapper) {
+      const feedback = control.parentElement?.querySelector('.invalid-feedback') ||
+                       control.closest('.col-sm-6, .col-md-6, .col-md-4, .col-12')?.querySelector('.invalid-feedback');
+      if (feedback) {
+        feedback.textContent = '';
+        feedback.hidden = true;
+        feedback.style.display = 'none';
+      }
+    }
   });
 }
 
+/**
+ * Single-spot error display:
+ * Overwrites the exact same container whether error comes from client-side or backend.
+ * They will never display together or duplicate.
+ */
 function setFieldError(form, fieldName, message) {
   const wrappers = findFieldWrappers(form, fieldName);
 
@@ -65,6 +88,7 @@ function setFieldError(form, fieldName, message) {
     if (error) {
       error.textContent = message;
       error.hidden = false;
+      error.style.display = 'block';
     }
   });
 
@@ -72,6 +96,19 @@ function setFieldError(form, fieldName, message) {
     control.classList.add('is-invalid');
     control.setAttribute('aria-invalid', 'true');
     control.nextElementSibling?.classList?.add('is-invalid');
+
+    // Fallback for fields not wrapped with [data-form-field]
+    if (wrappers.length === 0) {
+      let feedback = control.parentElement?.querySelector('.invalid-feedback');
+      if (!feedback) {
+        feedback = control.closest('.col-sm-6, .col-md-6, .col-md-4, .col-12')?.querySelector('.invalid-feedback');
+      }
+      if (feedback) {
+        feedback.textContent = message;
+        feedback.hidden = false;
+        feedback.style.display = 'block';
+      }
+    }
   });
 }
 
@@ -95,13 +132,415 @@ function getTargetPath(form) {
   return new URL(form.action, window.location.origin).pathname;
 }
 
+function draftResourceKey(form) {
+  return form.dataset.draftResourceKey || getTargetPath(form);
+}
+
+function addHiddenField(form, name, value) {
+  let input = form.querySelector('input[name="' + name + '"]');
+  if (!input) {
+    input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = name;
+    form.append(input);
+  }
+  input.value = value;
+}
+
+function currentStepNumber(form) {
+  const state = getFormState(form);
+  const currentIndex = Number.isInteger(state.stepper?._currentIndex) ? state.stepper._currentIndex : 0;
+
+  return currentIndex + 1;
+}
+
+function restoreDraftValues(form, values, prefix = '') {
+  Object.entries(values || {}).forEach(([key, value]) => {
+    const name = prefix ? prefix + '[' + key + ']' : key;
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      restoreDraftValues(form, value, name);
+      return;
+    }
+
+    const field = form.elements.namedItem(name);
+    if (!field) {
+      return;
+    }
+
+    const controls = field instanceof RadioNodeList ? Array.from(field) : [field];
+    controls.forEach((control) => {
+      if (control.type === 'password' || control.type === 'file') {
+        return;
+      }
+
+      if (control.type === 'checkbox' || control.type === 'radio') {
+        control.checked = String(control.value) === String(value) || value === true || value === 1 || value === '1';
+      } else {
+        control.value = Array.isArray(value) ? value : String(value ?? '');
+      }
+
+      if (window.jQuery && control.tagName === 'SELECT') {
+        window.jQuery(control).trigger('change.select2');
+      }
+      control.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+  });
+}
+
+async function discardDraft(form) {
+  const draftUrl = form.dataset.draftUrl;
+  if (!draftUrl) {
+    return;
+  }
+
+  await fetch(draftUrl + '?resource_key=' + encodeURIComponent(draftResourceKey(form)), {
+    method: 'DELETE',
+    credentials: 'same-origin',
+    headers: {
+      Accept: 'application/json',
+      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+    },
+  });
+}
+
+async function restoreDraft(form) {
+  const draftUrl = form.dataset.draftUrl;
+  if (!draftUrl || form.querySelector('.is-invalid, [data-form-error]:not([hidden])')) {
+    return;
+  }
+
+  try {
+    const response = await fetch(draftUrl + '?resource_key=' + encodeURIComponent(draftResourceKey(form)), {
+      credentials: 'same-origin',
+      headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) {
+      return;
+    }
+
+    const draft = await response.json();
+    if (!draft.draft_id) {
+      return;
+    }
+
+    let shouldRestore = true;
+    if (window.Swal) {
+      const result = await window.Swal.fire({
+        title: 'مسودة محفوظة',
+        text: 'توجد مسودة محفوظة مسبقاً. هل ترغب في استعادتها؟',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'نعم، استعادة المسودة',
+        cancelButtonText: 'تجاهل والبدء من جديد',
+        customClass: {
+          confirmButton: 'btn btn-primary me-2',
+          cancelButton: 'btn btn-secondary',
+        },
+        buttonsStyling: false,
+      });
+      shouldRestore = result.isConfirmed;
+    }
+
+    if (!shouldRestore) {
+      await discardDraft(form);
+      return;
+    }
+
+    addHiddenField(form, '_wizard_draft_id', draft.draft_id);
+    addHiddenField(form, '_wizard_resource_key', draftResourceKey(form));
+    restoreDraftValues(form, draft.data || {});
+    getFormState(form).stepper?.to(Math.max(1, Number(draft.step || 1)));
+  } catch (_) {
+    window.toastr?.error?.('تعذر استعادة المسودة. يرجى المحاولة مرة أخرى.');
+  }
+}
+
+function initDrafts(form) {
+  const draftUrl = form.dataset.draftUrl;
+  if (!draftUrl) {
+    return;
+  }
+
+  form.addEventListener('click', async (event) => {
+    const button = event.target.closest('[data-wizard-draft]');
+    if (!button) {
+      return;
+    }
+
+    event.preventDefault();
+    button.disabled = true;
+    try {
+      const data = new FormData(form);
+      data.set('resource_key', draftResourceKey(form));
+      data.set('step', String(currentStepNumber(form)));
+
+      const response = await fetch(draftUrl, {
+        method: 'POST',
+        body: data,
+        credentials: 'same-origin',
+        headers: {
+          Accept: 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+        },
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || !payload.draft_id) {
+        throw new Error('Unable to save draft.');
+      }
+
+      addHiddenField(form, '_wizard_draft_id', payload.draft_id);
+      addHiddenField(form, '_wizard_resource_key', draftResourceKey(form));
+      window.toastr?.success?.(payload.message || 'تم حفظ المسودة بنجاح.');
+    } catch (_) {
+      window.toastr?.error?.('تعذر حفظ المسودة. يرجى المحاولة مرة أخرى.');
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  restoreDraft(form);
+}
+
 function validationFieldsFromStep(step) {
   try {
     const fields = JSON.parse(step?.dataset.validationFields || '[]');
-    return Array.isArray(fields) ? fields.filter(Boolean) : [];
-  } catch (_) {
-    return [];
+    if (Array.isArray(fields) && fields.length > 0) {
+      return fields.filter(Boolean);
+    }
+  } catch (_) {}
+
+  // Fallback: collect control names in step
+  if (!step) return [];
+  const controls = Array.from(step.querySelectorAll('[name]'));
+  return [...new Set(controls.map((c) => c.name).filter(Boolean))];
+}
+
+/**
+ * Validates a single control on the client side (instant browser check).
+ * Returns true if valid, false if invalid.
+ */
+function validateControlClientSide(form, control) {
+  if (!control || control.disabled || control.closest('.d-none') || control.closest('[hidden]') || (control.type !== 'hidden' && control.offsetParent === null)) {
+    return true;
   }
+
+  const name = control.name;
+  if (!name) return true;
+
+  const value = control.value;
+  const isRequired = control.required || control.hasAttribute('required') || control.getAttribute('aria-required') === 'true';
+
+  // 1. Required check
+  if (isRequired) {
+    if (control.type === 'checkbox' && !control.checked) {
+      setFieldError(form, name, 'يرجى تحديد هذا الخيار');
+      return false;
+    }
+    if (control.type === 'file' && (!control.files || control.files.length === 0)) {
+      setFieldError(form, name, 'يرجى اختيار ملف');
+      return false;
+    }
+    if (!value || value.trim() === '') {
+      setFieldError(form, name, 'هذا الحقل مطلوب');
+      return false;
+    }
+  }
+
+  // 2. Format checks (if value is provided)
+  if (value && value.trim() !== '') {
+    const trimmed = value.trim();
+
+    // Number min/max checks
+    if (control.type === 'number') {
+      const numVal = parseFloat(trimmed);
+      if (isNaN(numVal)) {
+        setFieldError(form, name, 'يجب إدخال رقم صحيح');
+        return false;
+      }
+      if (control.min !== '' && !isNaN(parseFloat(control.min)) && numVal < parseFloat(control.min)) {
+        setFieldError(form, name, `القيمة يجب ألا تقل عن ${control.min}`);
+        return false;
+      }
+      if (control.max !== '' && !isNaN(parseFloat(control.max)) && numVal > parseFloat(control.max)) {
+        setFieldError(form, name, `القيمة يجب ألا تزيد عن ${control.max}`);
+        return false;
+      }
+    }
+
+    // Date min check
+    if (control.type === 'date' && control.min && trimmed < control.min) {
+      setFieldError(form, name, `التاريخ يجب أن يكون ${control.min} أو بعده`);
+      return false;
+    }
+
+    // Email
+    if (control.type === 'email' || name.toLowerCase().includes('email')) {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+        setFieldError(form, name, 'البريد الإلكتروني غير صحيح');
+        return false;
+      }
+    }
+
+    // Phone (Saudi format 05xxxxxxxx)
+    if (control.type === 'tel' || name.toLowerCase().includes('phone')) {
+      if (!/^05[0-9]{8}$/.test(trimmed)) {
+        setFieldError(form, name, 'رقم الهاتف يجب أن يبدأ بـ 05 ويتكون من 10 أرقام');
+        return false;
+      }
+    }
+
+    // Commercial number (10 digits)
+    if (name === 'commercial_number') {
+      if (!/^[0-9]{10}$/.test(trimmed)) {
+        setFieldError(form, name, 'رقم السجل التجاري يجب أن يتكون من 10 أرقام');
+        return false;
+      }
+    }
+
+    // HTML5 pattern attribute
+    if (control.pattern) {
+      try {
+        const regex = new RegExp('^' + control.pattern + '$');
+        if (!regex.test(trimmed)) {
+          setFieldError(form, name, control.title || 'صيغة الحقل غير صحيحة');
+          return false;
+        }
+      } catch (_) {}
+    }
+
+    // Minlength
+    if (control.minLength && control.minLength > 0 && trimmed.length < control.minLength) {
+      setFieldError(form, name, `يجب ألا يقل عن ${control.minLength} أحرف`);
+      return false;
+    }
+
+    // Password confirmation match
+    if (name === 'password_confirmation') {
+      const pwd = form.querySelector('[name="password"]')?.value;
+      if (pwd && value !== pwd) {
+        setFieldError(form, name, 'تأكيد كلمة المرور غير مطابق');
+        return false;
+      }
+    }
+  }
+
+  clearFieldError(form, name);
+  return true;
+}
+
+/**
+ * Checks whether all fields in a given step are currently valid.
+ */
+function isStepValid(form, step) {
+  if (!step) return true;
+
+  // If step requires features, check at least 1 feature exists and has non-empty values
+  try {
+    const stepFields = JSON.parse(step?.dataset.validationFields || '[]');
+    if (stepFields.includes('features')) {
+      const featureInputs = step.querySelectorAll('input[name^="features"]');
+      if (featureInputs.length === 0) return false;
+      for (const fi of featureInputs) {
+        if (!fi.value || fi.value.trim() === '') return false;
+      }
+    }
+  } catch (_) {}
+
+  const controls = Array.from(step.querySelectorAll('[name]')).filter((control) => {
+    if (['submit', 'button', 'reset', 'hidden'].includes(control.type)) {
+      return false;
+    }
+    if (control.disabled || control.closest('.d-none') || control.closest('[hidden]') || (control.type !== 'hidden' && control.offsetParent === null)) {
+      return false;
+    }
+    return true;
+  });
+
+  for (const control of controls) {
+    // 1. Is it currently marked as invalid?
+    if (control.classList.contains('is-invalid') || control.getAttribute('aria-invalid') === 'true') {
+      return false;
+    }
+    const wrapper = control.closest('[data-form-field]');
+    if (wrapper && wrapper.classList.contains('is-invalid')) {
+      return false;
+    }
+
+    // 2. Is it required and empty?
+    const isRequired = control.required || control.hasAttribute('required') || control.getAttribute('aria-required') === 'true';
+    if (isRequired) {
+      if (control.type === 'checkbox' && !control.checked) {
+        return false;
+      }
+      if (control.type === 'file' && (!control.files || control.files.length === 0)) {
+        return false;
+      }
+      if (!control.value || control.value.trim() === '') {
+        return false;
+      }
+    }
+
+    // 3. Client format rules if filled
+    if (control.value && control.value.trim() !== '') {
+      const val = control.value.trim();
+
+      if (control.type === 'number') {
+        const numVal = parseFloat(val);
+        if (isNaN(numVal)) return false;
+        if (control.min !== '' && !isNaN(parseFloat(control.min)) && numVal < parseFloat(control.min)) return false;
+        if (control.max !== '' && !isNaN(parseFloat(control.max)) && numVal > parseFloat(control.max)) return false;
+      }
+      if (control.type === 'date' && control.min && val < control.min) {
+        return false;
+      }
+      if ((control.type === 'email' || control.name.toLowerCase().includes('email')) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+        return false;
+      }
+      if ((control.type === 'tel' || control.name.toLowerCase().includes('phone')) && !/^05[0-9]{8}$/.test(val)) {
+        return false;
+      }
+      if (control.name === 'commercial_number' && !/^[0-9]{10}$/.test(val)) {
+        return false;
+      }
+      if (control.name === 'password_confirmation') {
+        const pwd = form.querySelector('[name="password"]')?.value;
+        if (pwd && val !== pwd) {
+          return false;
+        }
+      }
+      if (control.pattern) {
+        try {
+          if (!new RegExp('^' + control.pattern + '$').test(val)) return false;
+        } catch (_) {}
+      }
+      if (control.minLength && control.minLength > 0 && val.length < control.minLength) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Updates the disabled state of the Next button in a given step.
+ * "زر الnext يبقى disabled لحد م الcurrent step تبقى valid بالكامل"
+ */
+function updateStepNextButton(form, step) {
+  if (!step) return;
+  const nextButtons = step.querySelectorAll('[data-wizard-next], .btn-next:not(.btn-submit)');
+  const valid = isStepValid(form, step);
+
+  nextButtons.forEach((btn) => {
+    btn.disabled = !valid;
+    if (valid) {
+      btn.removeAttribute('disabled');
+      btn.classList.remove('disabled');
+    } else {
+      btn.setAttribute('disabled', 'disabled');
+      btn.classList.add('disabled');
+    }
+  });
 }
 
 async function validateFields(form, fieldNames) {
@@ -140,7 +579,8 @@ async function validateFields(form, fieldNames) {
       credentials: 'same-origin',
       headers: {
         Accept: 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
       },
       signal: controller.signal
     });
@@ -168,6 +608,10 @@ async function validateFields(form, fieldNames) {
       }
     });
 
+    if (Object.keys(errors).length === 0 && !response.ok) {
+      setFieldError(form, fields[0], payload.message || 'تعذر التحقق من الحقل الآن. يرجى المحاولة مرة أخرى.');
+    }
+
     return false;
   } catch (error) {
     if (error.name === 'AbortError') {
@@ -190,9 +634,16 @@ function scheduleValidation(form, fields) {
   state.timers.set(
     key,
     window.setTimeout(() => {
-      validateFields(form, fields);
+      validateFields(form, fields).then(() => {
+        const stepperElement = form.closest('[data-form-stepper]');
+        if (stepperElement) {
+          const steps = Array.from(stepperElement.querySelectorAll('[data-form-step], .content'));
+          const currentStep = steps.find((s) => s.classList.contains('active')) || steps[0];
+          updateStepNextButton(form, currentStep);
+        }
+      });
       state.timers.delete(key);
-    }, 350)
+    }, 400)
   );
 }
 
@@ -203,73 +654,107 @@ function initStepper(form) {
   }
 
   const state = getFormState(form);
-  state.stepper = new window.Stepper(stepperElement, { linear: false });
+  state.stepper = new window.Stepper(stepperElement, { linear: true });
+
+  const getSteps = () => Array.from(stepperElement.querySelectorAll('[data-form-step], .content'));
 
   const getCurrentIndex = () => {
-    const steps = Array.from(stepperElement.querySelectorAll('[data-form-step]'));
+    const steps = getSteps();
     const activeIndex = steps.findIndex((step) => step.classList.contains('active'));
     return activeIndex >= 0 ? activeIndex : 0;
   };
 
+  const updateCurrentStepButton = () => {
+    const steps = getSteps();
+    const currentIndex = getCurrentIndex();
+    const currentStep = steps[currentIndex];
+    if (currentStep) {
+      updateStepNextButton(form, currentStep);
+    }
+  };
+
   const moveTo = async (targetIndex) => {
+    if (state.isNavigating) {
+      return;
+    }
+
     const currentIndex = getCurrentIndex();
     if (targetIndex === currentIndex) {
       return;
     }
 
-    if (targetIndex > currentIndex) {
-      const currentStep = stepperElement.querySelectorAll('[data-form-step]')[currentIndex];
-      const valid = await validateFields(form, validationFieldsFromStep(currentStep));
-      if (!valid) {
-        return;
-      }
+    state.isNavigating = true;
+    const steps = getSteps();
+    const currentStep = steps[currentIndex];
+    const nextBtn = currentStep?.querySelector('[data-wizard-next], .btn-next');
+    if (nextBtn) {
+      nextBtn.disabled = true;
     }
 
-    state.stepper.to(targetIndex + 1);
+    try {
+      if (targetIndex > currentIndex) {
+        const valid = await validateFields(form, validationFieldsFromStep(currentStep));
+        if (!valid) {
+          updateCurrentStepButton();
+          return;
+        }
+      }
+
+      state.stepper.to(targetIndex + 1);
+      form.dispatchEvent(new CustomEvent('stepChanged', { detail: { stepIndex: targetIndex, step: steps[targetIndex] } }));
+      setTimeout(updateCurrentStepButton, 100);
+    } finally {
+      state.isNavigating = false;
+      updateCurrentStepButton();
+    }
   };
 
   stepperElement.addEventListener(
     'click',
     (event) => {
       const trigger = event.target.closest('.step-trigger');
-      if (!trigger) {
+      const nextButton = event.target.closest('[data-wizard-next], .btn-next:not(.btn-submit)');
+      const previousButton = event.target.closest('[data-wizard-prev], .btn-prev');
+
+      if (!trigger && !nextButton && !previousButton) {
         return;
       }
 
       event.preventDefault();
-      event.stopPropagation();
-      const targetId = trigger.closest('.step')?.dataset.target?.replace(/^#/, '');
-      const targetIndex = Array.from(stepperElement.querySelectorAll('[data-form-step]')).findIndex(
-        (step) => step.id === targetId
-      );
-      if (targetIndex >= 0) {
-        moveTo(targetIndex);
+      event.stopImmediatePropagation();
+
+      // Header clicks are informational only and cannot jump steps ahead
+      if (trigger) {
+        return;
+      }
+
+      if (nextButton) {
+        if (nextButton.disabled || nextButton.classList.contains('disabled')) {
+          return;
+        }
+        moveTo(getCurrentIndex() + 1);
+        return;
+      }
+
+      const currentIndex = getCurrentIndex();
+      if (currentIndex > 0) {
+        state.stepper.previous();
+        const steps = getSteps();
+        form.dispatchEvent(new CustomEvent('stepChanged', { detail: { stepIndex: currentIndex - 1, step: steps[currentIndex - 1] } }));
+        setTimeout(updateCurrentStepButton, 100);
+      } else if (previousButton && (previousButton.dataset.wizardBack === 'true' || previousButton.getAttribute('href'))) {
+        if (previousButton.getAttribute('href')) {
+          window.location.href = previousButton.getAttribute('href');
+        } else {
+          window.history.back();
+        }
       }
     },
     true
   );
 
-  stepperElement.addEventListener('click', (event) => {
-    const nextButton = event.target.closest('[data-wizard-next]');
-    if (nextButton) {
-      event.preventDefault();
-      moveTo(getCurrentIndex() + 1);
-      return;
-    }
-
-    const previousButton = event.target.closest('[data-wizard-prev]');
-    if (!previousButton) {
-      return;
-    }
-
-    event.preventDefault();
-    const currentIndex = getCurrentIndex();
-    if (currentIndex > 0) {
-      state.stepper.previous();
-    } else if (previousButton.dataset.wizardBack === 'true') {
-      window.history.back();
-    }
-  });
+  // Initial check on load
+  setTimeout(updateCurrentStepButton, 150);
 }
 
 function initForm(form) {
@@ -278,20 +763,73 @@ function initForm(form) {
   }
 
   form.dataset.formValidationInitialized = 'true';
+  form.noValidate = true;
   initStepper(form);
+  initDrafts(form);
 
-  form.querySelectorAll('[data-form-control][name]').forEach((control) => {
+  const getStepForControl = (control) => control.closest('[data-form-step], .content');
+
+  form.querySelectorAll('[data-form-control][name], input[name], select[name], textarea[name]').forEach((control) => {
+    if (['submit', 'button', 'reset', 'hidden'].includes(control.type)) {
+      return;
+    }
+
     const fields = () => [control.name, ...parseDependencies(control)];
     const immediateEvents = ['select', 'file', 'checkbox', 'radio'];
     const shouldValidateOnChange = immediateEvents.includes(control.type) || control.tagName === 'SELECT';
 
-    if (!shouldValidateOnChange) {
-      control.addEventListener('input', () => scheduleValidation(form, fields()));
-    }
+    control.addEventListener('input', () => {
+      // 1. Instant client-side feedback
+      validateControlClientSide(form, control);
 
-    control.addEventListener('change', () => validateFields(form, fields()));
-    control.addEventListener('blur', () => validateFields(form, fields()));
+      // 2. Reactively update the Next button disabled state
+      const step = getStepForControl(control);
+      if (step) {
+        updateStepNextButton(form, step);
+      }
+
+      // 3. Debounced backend check if appropriate
+      if (!shouldValidateOnChange) {
+        scheduleValidation(form, fields());
+      }
+    });
+
+    control.addEventListener('change', () => {
+      validateControlClientSide(form, control);
+      const step = getStepForControl(control);
+      if (step) {
+        updateStepNextButton(form, step);
+      }
+      validateFields(form, fields()).then(() => {
+        if (step) updateStepNextButton(form, step);
+      });
+    });
+
+    control.addEventListener('blur', () => {
+      validateControlClientSide(form, control);
+      const step = getStepForControl(control);
+      if (step) {
+        updateStepNextButton(form, step);
+      }
+      validateFields(form, fields()).then(() => {
+        if (step) updateStepNextButton(form, step);
+      });
+    });
   });
+
+  // Select2 change integration
+  if (window.jQuery) {
+    window.jQuery(form).on('change.select2', 'select', function () {
+      validateControlClientSide(form, this);
+      const step = getStepForControl(this);
+      if (step) {
+        updateStepNextButton(form, step);
+      }
+      validateFields(form, [this.name, ...parseDependencies(this)]).then(() => {
+        if (step) updateStepNextButton(form, step);
+      });
+    });
+  }
 
   form.addEventListener('submit', async (event) => {
     const state = getFormState(form);
@@ -300,9 +838,15 @@ function initForm(form) {
     }
 
     event.preventDefault();
-    const fields = Array.from(form.querySelectorAll('[data-form-control][name]')).map((control) => control.name);
+    const fields = Array.from(form.querySelectorAll('[name]')).map((control) => control.name);
     const valid = await validateFields(form, fields);
     if (!valid) {
+      const stepperElement = form.closest('[data-form-stepper]');
+      if (stepperElement) {
+        const steps = Array.from(stepperElement.querySelectorAll('[data-form-step], .content'));
+        const currentStep = steps.find((s) => s.classList.contains('active')) || steps[0];
+        updateStepNextButton(form, currentStep);
+      }
       return;
     }
 
@@ -363,4 +907,10 @@ if (document.readyState === 'loading') {
   boot();
 }
 
-window.SharedFormValidation = { validateFields };
+window.SharedFormValidation = {
+  validateFields,
+  setFieldError,
+  clearFieldError,
+  updateStepNextButton,
+  isStepValid,
+};

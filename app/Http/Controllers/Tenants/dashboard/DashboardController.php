@@ -161,7 +161,7 @@ class DashboardController extends Controller
                     'callback' => 'bg-label-primary',
                     'document_request' => 'bg-label-warning',
                 ];
-                $class = $badgeClasses[$row->task_type] ?? 'bg-label-secondary';
+                $class = $badgeClasses[$row->task_type] ?? 'bg-secondary';
                 $taskTypeName = Task::TASK_TYPES[$row->task_type] ?? 'غير محدد';
                 return '<span class="badge ' . $class . '">' . e($taskTypeName) . '</span>';
             })
@@ -253,7 +253,7 @@ class DashboardController extends Controller
                     'callback' => 'bg-label-primary',
                     'document_request' => 'bg-label-warning',
                 ];
-                $class = $badgeClasses[$row->task_type] ?? 'bg-label-secondary';
+                $class = $badgeClasses[$row->task_type] ?? 'bg-secondary';
                 $taskTypeName = Task::TASK_TYPES[$row->task_type] ?? 'غير محدد';
                 return '<span class="badge ' . $class . '">' . e($taskTypeName) . '</span>';
             })
@@ -528,7 +528,7 @@ class DashboardController extends Controller
                     'callback' => ['label' => 'معاودة اتصال', 'class' => 'bg-label-primary'],
                     'document_request' => ['label' => 'طلب مستندات', 'class' => 'bg-label-warning'],
                 ];
-                $badge = $badgeClasses[$row->task_type] ?? ['label' => 'غير محدد', 'class' => 'bg-label-secondary'];
+                $badge = $badgeClasses[$row->task_type] ?? ['label' => 'غير محدد', 'class' => 'bg-secondary'];
                 return '<span class="badge ' . $badge['class'] . '">' . $badge['label'] . '</span>';
             })
             ->addColumn('scheduled_date', fn($row) => $row->due_date->format('Y-m-d'))
@@ -663,7 +663,7 @@ class DashboardController extends Controller
                     'callback'          => ['label' => 'معاودة اتصال',   'class' => 'bg-label-primary'],
                     'document_request'  => ['label' => 'طلب مستندات',    'class' => 'bg-label-warning'],
                 ];
-                $badge = $badgeClasses[$row->task_type] ?? ['label' => 'غير محدد', 'class' => 'bg-label-secondary'];
+                $badge = $badgeClasses[$row->task_type] ?? ['label' => 'غير محدد', 'class' => 'bg-secondary'];
                 return '<span class="badge ' . $badge['class'] . '">' . $badge['label'] . '</span>';
             })
 

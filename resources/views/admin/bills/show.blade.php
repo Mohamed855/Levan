@@ -244,7 +244,7 @@
                         @if ($bill->bank && $bill->status->value === 'pending_verification')
                             <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
                                 <span class="text-muted small"><i class="ti ti-building-bank me-1"></i>البنك</span>
-                                <span class="badge bg-label-secondary">{{ $bill->bank->bank_name }}</span>
+                                <span class="badge bg-secondary">{{ $bill->bank->bank_name }}</span>
                             </div>
                         @endif
 

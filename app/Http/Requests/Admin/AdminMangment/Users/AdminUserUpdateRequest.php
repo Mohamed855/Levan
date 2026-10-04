@@ -16,7 +16,8 @@ class AdminUserUpdateRequest extends FormRequest
 
     public function rules(): array
     {
-        $userId = $this->route('user')->id;
+        $user = $this->route('user');
+        $userId = is_object($user) ? $user->id : ($user ?? $this->input('user_id'));
 
         return [
             'name'     => ['required', 'string', 'max:255', 'min:2', 'regex:/^[\pL\s\-\.]+$/u'],

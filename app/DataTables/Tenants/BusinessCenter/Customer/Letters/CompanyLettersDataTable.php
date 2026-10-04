@@ -87,7 +87,7 @@ class CompanyLettersDataTable extends AbstractDataTable
                 return '<span class="fw-bold text-dark">' . e($row->customer->name ?? 'غير محدد') . '</span>';
             })
             ->editColumn('account_number', function ($row) {
-                return '<span class="badge bg-label-secondary">' . e($row->customer->account_number ?? '-') . '</span>';
+                return '<span class="badge bg-secondary">' . e($row->customer->account_number ?? '-') . '</span>';
             })
             ->editColumn('company_name', function ($row) {
                 return '<span class="text-muted">' . e($row->customer->company->name ?? 'غير محدد') . '</span>';

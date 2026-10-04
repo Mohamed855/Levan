@@ -26,7 +26,8 @@
                         <i class="ti ti-info-circle ti-md me-2 mt-1"></i>
                         <div>
                             يُستخدم هذا المفتاح للسماح لأنظمة خارجية بالاطلاع على بيانات العملاء والتحصيلات عبر الـ API،
-                            من خلال إرساله في هيدر <code>Authorization: Bearer</code>. لا تشارك هذا المفتاح مع جهات غير موثوقة.
+                            من خلال إرساله في هيدر <code>Authorization: Bearer</code>. لا تشارك هذا المفتاح مع جهات غير
+                            موثوقة.
                         </div>
                     </div>
 
@@ -52,7 +53,8 @@
                                 value="{{ tenant()->api_token ? '•••••••••••••••••••••••••••••• (مخفي لأسباب أمنية)' : 'لا يوجد توكن بعد' }}"
                                 readonly>
                             @if (tenant()->api_token_regenerated_at)
-                                <small class="text-muted">آخر توليد: {{ tenant()->api_token_regenerated_at->format('Y-m-d H:i') }}</small>
+                                <small class="text-muted">آخر توليد:
+                                    {{ tenant()->api_token_regenerated_at->format('Y-m-d H:i') }}</small>
                             @endif
                         </div>
                     @endif
@@ -89,10 +91,11 @@
                                 @forelse ($logs as $log)
                                     <tr>
                                         <td>{{ $log->created_at->format('Y-m-d H:i:s') }}</td>
-                                        <td><span class="badge bg-label-secondary">{{ $log->method }}</span></td>
+                                        <td><span class="badge bg-secondary">{{ $log->method }}</span></td>
                                         <td class="font-monospace">{{ $log->path }}</td>
                                         <td>
-                                            <span class="badge {{ $log->status_code < 300 ? 'bg-label-success' : 'bg-label-danger' }}">
+                                            <span
+                                                class="badge {{ $log->status_code < 300 ? 'bg-label-success' : 'bg-label-danger' }}">
                                                 {{ $log->status_code }}
                                             </span>
                                         </td>
@@ -101,7 +104,8 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="text-center text-muted py-4">لا توجد استعلامات مسجّلة بعد</td>
+                                        <td colspan="6" class="text-center text-muted py-4">لا توجد استعلامات مسجّلة بعد
+                                        </td>
                                     </tr>
                                 @endforelse
                             </tbody>

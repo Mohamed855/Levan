@@ -62,7 +62,7 @@ class AdminTicketsDataTable extends AbstractDataTable
             ->addColumn('tenant_name', function ($row) {
                 $tenant = $row->tenant;
                 if (!$tenant) {
-                    return '<span class="badge bg-label-secondary">' . e($row->tenant_id ?? 'عام') . '</span>';
+                    return '<span class="badge bg-secondary">' . e($row->tenant_id ?? 'عام') . '</span>';
                 }
                 return '<span class="badge bg-label-info">' . e($tenant->company_name ?? $tenant->id) . '</span>';
             })

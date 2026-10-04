@@ -262,7 +262,7 @@
                                             <div class="fw-semibold" style="font-size: 0.875rem;">
                                                 {{ $user->phone ??
                                                     'غير
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            محدد' }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            محدد' }}
                                             </div>
                                         </div>
                                     </div>
@@ -290,7 +290,7 @@
                                     <div class="d-flex align-items-start">
                                         <div class="flex-shrink-0">
                                             <div class="avatar avatar-sm">
-                                                <span class="avatar-initial rounded bg-label-secondary">
+                                                <span class="avatar-initial rounded bg-secondary">
                                                     <i class="ti ti-building"></i>
                                                 </span>
                                             </div>
@@ -299,8 +299,7 @@
                                             <div class="text-muted mb-1" style="font-size: 0.75rem;">الفرع</div>
                                             <div class="fw-semibold" style="font-size: 0.875rem;">
                                                 @if ($user->branch)
-                                                    <span
-                                                        class="badge bg-label-secondary">{{ $user->branch->name }}</span>
+                                                    <span class="badge bg-secondary">{{ $user->branch->name }}</span>
                                                 @else
                                                     <span class="text-muted">غير محدد</span>
                                                 @endif

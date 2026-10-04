@@ -191,7 +191,7 @@ class PlanDataTable extends AbstractDataTable
                     return '<span class="badge bg-label-success">مفعّلة</span>';
                 }
 
-                return '<span class="badge bg-label-secondary">غير مفعّلة</span>';
+                return '<span class="badge bg-secondary">غير مفعّلة</span>';
             })
 
             ->editColumn('is_active', function ($row) {

@@ -78,7 +78,7 @@ class TenantManagementDataTable extends AbstractDataTable
             //     Log::info('Tenant ID: ' . $row->id . ' - Subscriptions count: ' . $subscriptions->count());
 
             //     if ($subscriptions->isEmpty()) {
-            //         return '<span class="badge bg-label-secondary">
+            //         return '<span class="badge bg-secondary">
             //                     <i class="ti ti-ban me-1"></i>
             //                     لا يوجد اشتراك
             //                 </span>';

@@ -116,7 +116,7 @@ class subscriptionMangmentDataTable extends AbstractDataTable
                 $days = $service->calculateDaysRemaining($period);
 
                 if ($days === null) {
-                    return '<span class="badge bg-label-secondary">-</span>';
+                    return '<span class="badge bg-secondary">-</span>';
                 }
 
                 if ($days <= 0) {

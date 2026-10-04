@@ -219,7 +219,7 @@
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar avatar-xs me-2">
-                                                    <span class="avatar-initial rounded-circle bg-label-secondary">
+                                                    <span class="avatar-initial rounded-circle bg-secondary">
                                                         <i class="ti ti-user ti-xs"></i>
                                                     </span>
                                                 </div>

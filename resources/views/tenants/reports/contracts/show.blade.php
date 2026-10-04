@@ -221,7 +221,7 @@
                                             @if ($collection->payment_type == 'settlement')
                                                 <span class="badge bg-label-primary">تسوية</span>
                                             @else
-                                                <span class="badge bg-label-secondary">بدون تسوية</span>
+                                                <span class="badge bg-secondary">بدون تسوية</span>
                                             @endif
                                         </td>
                                         <td>

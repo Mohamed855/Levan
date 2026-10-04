@@ -118,7 +118,7 @@ class UserReportService
                         $lastCollection->created_at->locale('ar')->diffForHumans() . '</span>';
                 }
 
-                return '<span class="badge bg-label-secondary">لا يوجد نشاط</span>';
+                return '<span class="badge bg-secondary">لا يوجد نشاط</span>';
             })
             ->addColumn('status_info', function ($user) {
                 $statusClass = $user->status === 'active' ? 'bg-label-success' : 'bg-label-danger';

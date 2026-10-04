@@ -7,6 +7,7 @@ namespace Tests\Feature;
 use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
+use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\City;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\LicenseSeat;
@@ -18,6 +19,8 @@ use App\Services\Admin\Companies\CompanyService;
 use App\Services\Admin\Subscriptions\AdminSubscriptionService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\UploadedFile;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -68,6 +71,7 @@ class CompanyAndSubscriptionRefactorTest extends TestCase
     {
         $companyService = app(CompanyService::class);
         $commercialNumber = (string) rand(1000000000, 9999999999);
+        Storage::fake('public');
 
         $data = [
             'company_name'                  => 'شركة اختبار البناء الكامل ' . rand(1000, 9999),
@@ -84,6 +88,7 @@ class CompanyAndSubscriptionRefactorTest extends TestCase
             'start_date'                    => now()->toDateString(),
             'payment_type'                  => 'paid',
             'payment_method'                => 'bank_transfer',
+            'receipt_upload'                => UploadedFile::fake()->create('bank-transfer.pdf', 120, 'application/pdf'),
             'activate_immediately'          => 1,
             'email_notifications_enabled'   => 1,
             'two_factor_enabled'            => 1,
@@ -114,6 +119,10 @@ class CompanyAndSubscriptionRefactorTest extends TestCase
                 'two_factor_enabled'          => 1,
                 'external_integrations_enabled' => 0,
             ]);
+
+            $bill = Bill::where('tenant_id', $tenant->id)->latest('id')->firstOrFail();
+            $this->assertNotNull($bill->invoice_url);
+            Storage::disk('public')->assertExists($bill->invoice_url);
 
             // 3. Verify Subscription & latestOfMany relationship
             $subscription = $tenant->lastSubscription;
@@ -211,9 +220,9 @@ class CompanyAndSubscriptionRefactorTest extends TestCase
     }
 
     /**
-     * 3. Company soft delete hard-deletes subscriptions; restore restores tenant only
+     * 3. Company soft delete preserves subscriptions; force delete removes them permanently
      */
-    public function test_company_soft_delete_and_restore_hard_deletes_subscriptions(): void
+    public function test_company_soft_delete_restore_and_force_delete_subscription_lifecycle(): void
     {
         $companyService = app(CompanyService::class);
         $commercialNumber = (string) rand(1000000000, 9999999999);
@@ -246,13 +255,19 @@ class CompanyAndSubscriptionRefactorTest extends TestCase
             $companyService->deleteCompany($tenant);
 
             $this->assertSoftDeleted('tenants', ['id' => $tenant->id]);
-            // Subscriptions MUST be hard-deleted
-            $this->assertDatabaseMissing('subscriptions', ['id' => $subId]);
+            $this->assertDatabaseHas('subscriptions', ['id' => $subId]);
 
             // Restore company
             $restoredTenant = $companyService->restoreCompany($tenant->id);
             $this->assertFalse($restoredTenant->trashed());
+            $this->assertDatabaseHas('subscriptions', ['id' => $subId]);
+
+            $companyService->deleteCompany($restoredTenant);
+            $companyService->forceDeleteCompany($tenant->id);
+
+            $this->assertDatabaseMissing('tenants', ['id' => $tenant->id]);
             $this->assertDatabaseMissing('subscriptions', ['id' => $subId]);
+            $tenant = null;
         } finally {
             if ($tenant) {
                 Tenant::withTrashed()->whereKey($tenant->id)->forceDelete();

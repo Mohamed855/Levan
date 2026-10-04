@@ -100,7 +100,7 @@ class UserTargetsDataTable extends AbstractDataTable
                     'monthly' => 'bg-label-info',
                     'yearly' => 'bg-label-primary',
                     'custom' => 'bg-label-warning',
-                    default => 'bg-label-secondary'
+                    default => 'bg-secondary'
                 };
                 return '<span class="badge ' . $typeClass . ' px-3 py-2">' . e($row->target_type_label) . '</span>';
             })

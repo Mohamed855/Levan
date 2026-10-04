@@ -113,7 +113,7 @@
                             <small class="mb-0">العقود غير النشطة المحذوفة</small>
                         </div>
                         <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-secondary">
+                            <span class="avatar-initial rounded bg-secondary">
                                 <i class="ti ti-circle-off ti-26px"></i>
                             </span>
                         </div>
@@ -126,48 +126,27 @@
     {{-- Filters Card --}}
     <x-data-table.filters table="#archived-contracts-table">
         <div class="col-md-4">
-            <x-filter.select
-                id="filter-status"
-                filterKey="status"
-                table="#archived-contracts-table"
-                name="status"
-                label="حالة العقد"
-                placeholder="اختر حالة العقد"
-                :options="[
+            <x-filter.select id="filter-status" filterKey="status" table="#archived-contracts-table" name="status"
+                label="حالة العقد" placeholder="اختر حالة العقد" :options="[
                     'active' => 'نشط',
                     'inactive' => 'غير نشط',
                     'expired' => 'منتهي',
-                    'suspended' => 'معلق'
-                ]"
-            />
+                    'suspended' => 'معلق',
+                ]" />
         </div>
 
         <div class="col-md-4">
-            <x-filter.select
-                id="filter-company"
-                filterKey="company_id"
-                table="#archived-contracts-table"
-                name="company_id"
-                label="الشركة"
-                placeholder="اختر الشركة"
-                :options="$companies->pluck('name', 'id')"
-            />
+            <x-filter.select id="filter-company" filterKey="company_id" table="#archived-contracts-table" name="company_id"
+                label="الشركة" placeholder="اختر الشركة" :options="$companies->pluck('name', 'id')" />
         </div>
 
         <div class="col-md-4">
-            <x-filter.select
-                id="filter-commission-type"
-                filterKey="commission_type"
-                table="#archived-contracts-table"
-                name="commission_type"
-                label="نوع العمولة"
-                placeholder="اختر نوع العمولة"
-                :options="[
+            <x-filter.select id="filter-commission-type" filterKey="commission_type" table="#archived-contracts-table"
+                name="commission_type" label="نوع العمولة" placeholder="اختر نوع العمولة" :options="[
                     'procedure' => 'حسب الإجراء',
                     'duration' => 'حسب المدة',
-                    'delinquency' => 'حسب مدة التعثر'
-                ]"
-            />
+                    'delinquency' => 'حسب مدة التعثر',
+                ]" />
         </div>
     </x-data-table.filters>
 

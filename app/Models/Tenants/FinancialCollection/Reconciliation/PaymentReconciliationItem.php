@@ -182,7 +182,7 @@ class PaymentReconciliationItem extends Model
             'unmatched' => 'bg-label-warning',
             'discrepancy' => 'bg-label-info',
             'error' => 'bg-label-danger',
-            default => 'bg-label-secondary'
+            default => 'bg-secondary'
         };
     }
 

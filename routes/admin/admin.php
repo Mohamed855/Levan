@@ -80,6 +80,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
 
     // ادارة الشركات
     Route::prefix('companies')->name('companies.')->group(function () {
+        Route::post('check-commercial-number-unique', [CompanyController::class, 'checkCommercialNumberUnique'])->name('check-commercial-number-unique');
+        Route::post('check-company-name-unique', [CompanyController::class, 'checkCompanyNameUnique'])->name('check-company-name-unique');
+        Route::post('check-tax-number-unique', [CompanyController::class, 'checkTaxNumberUnique'])->name('check-tax-number-unique');
+        Route::post('check-admin-email-unique', [CompanyController::class, 'checkAdminEmailUnique'])->name('check-admin-email-unique');
+        Route::post('check-admin-phone-unique', [CompanyController::class, 'checkAdminPhoneUnique'])->name('check-admin-phone-unique');
         Route::get('plans/{plan}/duration', [CompanyController::class, 'planDuration'])->name('plan-duration');
         Route::resource('/', CompanyController::class)->parameters(['' => 'company']);
     });

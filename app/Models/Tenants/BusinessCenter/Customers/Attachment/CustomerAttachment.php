@@ -86,7 +86,7 @@ class CustomerAttachment extends Model
             'jpg', 'jpeg', 'png', 'gif' => 'bg-label-info',
             'zip', 'rar' => 'bg-label-warning',
             'txt' => 'bg-label-dark', // إضافة ملفات نصية
-            default => 'bg-label-secondary'
+            default => 'bg-secondary'
         };
     }
 

@@ -196,13 +196,13 @@ class ArchivedContractsDataTable extends AbstractDataTable
                 
                 $classes = [
                     'active' => 'bg-label-success',
-                    'inactive' => 'bg-label-secondary',
+                    'inactive' => 'bg-secondary',
                     'expired' => 'bg-label-danger',
                     'suspended' => 'bg-label-warning',
                 ];
 
                 $statusLabel = $labels[$row->status] ?? 'غير محدد';
-                $statusClass = $classes[$row->status] ?? 'bg-label-secondary';
+                $statusClass = $classes[$row->status] ?? 'bg-secondary';
                 
                 return '<span class="badge ' . $statusClass . '">' . $statusLabel . '</span>';
             })
@@ -219,7 +219,7 @@ class ArchivedContractsDataTable extends AbstractDataTable
             ->editColumn('auto_renewal', function ($row) {
                 return $row->auto_renewal 
                     ? '<span class="badge bg-label-success">نعم</span>'
-                    : '<span class="badge bg-label-secondary">لا</span>';
+                    : '<span class="badge bg-secondary">لا</span>';
             })
             ->editColumn('deleted_at', function ($row) {
                 return Carbon::parse($row->deleted_at)->format('Y-m-d');

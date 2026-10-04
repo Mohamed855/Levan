@@ -215,7 +215,7 @@ class ArchivedCustomersDataTable extends AbstractDataTable
             ->editColumn('last_contact_result', function ($row) {
                 // ✅ استخدام العلاقة المحملة مسبقاً
                 $resultName = $row->lastContactResult ? $row->lastContactResult->name : 'غير محدد';
-                return '<span class="badge bg-label-secondary">' . e($resultName) . '</span>';
+                return '<span class="badge bg-secondary">' . e($resultName) . '</span>';
             })
             ->editColumn('deleted_at', function ($row) {
                 return '<div>' . Carbon::parse($row->deleted_at)->format('Y-m-d') . '</div>';

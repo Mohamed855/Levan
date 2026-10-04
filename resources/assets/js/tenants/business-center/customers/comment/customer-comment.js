@@ -251,7 +251,7 @@ function checkAndShowNoCommentsMessage() {
         const noCommentsHtml = `
             <div class="text-center py-5" id="no-comments-message">
                 <div class="avatar avatar-xl mx-auto mb-3">
-                    <span class="avatar-initial rounded-circle bg-label-secondary">
+                    <span class="avatar-initial rounded-circle bg-secondary">
                         <i class="ti ti-message-circle-2" style="font-size: 2rem;"></i>
                     </span>
                 </div>

@@ -570,7 +570,7 @@
                         <h5 class="mb-1">⚙️ إعدادات المخططات</h5>
                         <small class="text-muted">التحكم في ظهور المخططات والتقارير في لوحة التحكم</small>
                     </div>
-                    <span class="badge bg-label-secondary">تطبيق فوري</span>
+                    <span class="badge bg-secondary">تطبيق فوري</span>
                 </div>
                 <div class="card-body">
                     <div class="row g-4">

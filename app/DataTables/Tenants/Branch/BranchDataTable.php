@@ -73,7 +73,7 @@ class BranchDataTable extends AbstractDataTable
             })
 
             ->editColumn('code', function ($row) {
-                return '<code class="badge bg-label-secondary">' . e($row->code) . '</code>';
+                return '<code class="badge bg-secondary">' . e($row->code) . '</code>';
             })
 
             ->editColumn('city', function ($row) {

@@ -3,11 +3,11 @@
 @section('title', 'إضافة مستخدم جديد')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss'])
+    @vite(['resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js'])
+    @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
 @endsection
 
 @section('toastr')
@@ -15,151 +15,74 @@
 @endsection
 
 @section('page-script')
-    <script>
-        window.routes = Object.assign(window.routes || {}, {
-            checkNameUnique: "{{ route('admin.users.check-name-unique') }}",
-            checkEmailUnique: "{{ route('admin.users.check-email-unique') }}",
-            checkPhoneUnique: "{{ route('admin.users.check-phone-unique') }}"
-        });
-    </script>
-    @vite(['resources/assets/js/admin/admin_mangment/users/form-validation.js'])
+    @vite(['resources/assets/js/shared/form-validation.js'])
 @endsection
 
 @section('content')
+    @php
+        $steps = [
+            [
+                'id' => 'basic-info-validation',
+                'title' => 'المعلومات الأساسية',
+                'subtitle' => 'البيانات الشخصية والاتصال',
+            ],
+            [
+                'id' => 'security-info-validation',
+                'title' => 'كلمة المرور والصورة',
+                'subtitle' => 'الأمان والصورة الشخصية',
+            ],
+        ];
+    @endphp
+
     <div class="row">
         <div class="col-12 mb-6">
-            <div id="wizard-validation" class="bs-stepper mt-2">
-                <div class="bs-stepper-header">
-                    <div class="step" data-target="#basic-info-validation">
-                        <button type="button" class="step-trigger">
-                            <span class="bs-stepper-circle">1</span>
-                            <span class="bs-stepper-label mt-1">
-                                <span class="bs-stepper-title">المعلومات الأساسية</span>
-                                <span class="bs-stepper-subtitle">البيانات الشخصية والاتصال</span>
-                            </span>
-                        </button>
-                    </div>
-                    <div class="line">
-                        <i class="ti ti-chevron-right"></i>
-                    </div>
-                    <div class="step" data-target="#security-info-validation">
-                        <button type="button" class="step-trigger">
-                            <span class="bs-stepper-circle">2</span>
-                            <span class="bs-stepper-label">
-                                <span class="bs-stepper-title">كلمة المرور والصورة</span>
-                                <span class="bs-stepper-subtitle">الأمان والصورة الشخصية</span>
-                            </span>
-                        </button>
-                    </div>
-                </div>
+            <x-form.wizard.stepper id="user-wizard" :steps="$steps">
+                <x-ui.validation-errors class="mb-4" />
 
-                <div class="bs-stepper-content">
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul class="mb-0">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
+                <form id="user-wizard-form" action="{{ route('admin.users.store') }}" method="POST"
+                    enctype="multipart/form-data" autocomplete="off" data-form-validate
+                    data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}"
+                    data-draft-url="{{ route('admin.wizard-drafts.store') }}">
+                    @csrf
+
+                    <x-form.wizard.step id="basic-info-validation" :fields="['name', 'email', 'phone']">
+                        <div class="row g-4">
+                            <x-form.controls.input name="name" label="الاسم الكامل" placeholder="ادخل الاسم الكامل"
+                                required col="col-sm-6" />
+                            <x-form.controls.input name="email" type="email" label="البريد الإلكتروني"
+                                placeholder="ادخل البريد الإلكتروني" autocomplete="off" required col="col-sm-6" />
+                            <x-form.controls.input name="phone" label="رقم الهاتف" placeholder="05xxxxxxxx" maxlength="10"
+                                inputmode="numeric" required col="col-sm-6" />
                         </div>
-                    @endif
 
-                    <form id="wizard-validation-form" action="{{ route('admin.users.store') }}" method="POST"
-                        enctype="multipart/form-data" autocomplete="off">
-                        @csrf
-
-                        <!-- المعلومات الأساسية -->
-                        <div id="basic-info-validation" class="content">
-                            <div class="row g-4">
-                                <div class="col-sm-6">
-                                    <label class="form-label" for="name">الاسم الكامل <span
-                                            class="text-danger">*</span></label>
-                                    <input type="text" name="name" id="name" class="form-control"
-                                        placeholder="ادخل الاسم الكامل" value="{{ old('name') }}" />
-                                </div>
-
-                                <div class="col-sm-6">
-                                    <label class="form-label" for="email">البريد الإلكتروني <span
-                                            class="text-danger">*</span></label>
-                                    <input type="email" name="email" id="email" class="form-control"
-                                        placeholder="ادخل البريد الإلكتروني" value="{{ old('email') }}"
-                                        autocomplete="off" />
-                                </div>
-
-                                <div class="col-sm-6">
-                                    <label class="form-label" for="phone">رقم الهاتف <span
-                                            class="text-danger">*</span></label>
-                                    <input type="text" name="phone" id="phone" class="form-control"
-                                        placeholder="05xxxxxxxx" value="{{ old('phone') }}" maxlength="10" />
-                                </div>
-
-                                <x-wizard.actions>
-                                    <x-wizard.btn-prev />
-                                    <x-wizard.btn-next />
-                                </x-wizard.actions>
+                        <x-form.wizard.actions>
+                            <x-form.wizard.previous-button :href="route('admin.users.index')" />
+                            <div class="d-flex gap-2">
+                                <x-form.wizard.draft-button step="1" />
+                                <x-form.wizard.next-button :disabled="true" />
                             </div>
+                        </x-form.wizard.actions>
+                    </x-form.wizard.step>
+
+                    <x-form.wizard.step id="security-info-validation" :fields="['password', 'password_confirmation', 'image']">
+                        <div class="row g-4">
+                            <x-form.controls.password name="password" label="كلمة المرور" placeholder="ادخل كلمة المرور"
+                                data-validation-dependents="password_confirmation" required col="col-sm-6" />
+                            <x-form.controls.password name="password_confirmation" label="تأكيد كلمة المرور"
+                                placeholder="أعد إدخال كلمة المرور" required col="col-sm-6" />
+                            <x-form.controls.image-upload name="image" label="الصورة الشخصية" col="col-12" />
                         </div>
 
-                        <!-- كلمة المرور والصورة -->
-                        <div id="security-info-validation" class="content">
-                            <div class="row g-4">
-
-                                <div class="col-sm-6">
-                                    <label class="form-label" for="password">كلمة المرور <span
-                                            class="text-danger">*</span></label>
-                                    <div class="input-group input-group-merge">
-                                        <input type="password" name="password" id="password" class="form-control"
-                                            placeholder="ادخل كلمة المرور" autocomplete="new-password" />
-                                        <span class="input-group-text cursor-pointer">
-                                            <i class="ti ti-eye-off"></i>
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div class="col-sm-6">
-                                    <label class="form-label" for="password_confirmation">تأكيد كلمة المرور <span
-                                            class="text-danger">*</span></label>
-                                    <div class="input-group input-group-merge">
-                                        <input type="password" name="password_confirmation" id="password_confirmation"
-                                            class="form-control" placeholder="أعد إدخال كلمة المرور"
-                                            autocomplete="new-password" />
-                                        <span class="input-group-text cursor-pointer">
-                                            <i class="ti ti-eye-off"></i>
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div class="col-12">
-                                    <div class="form-group">
-                                        <label class="form-label">الصورة الشخصية</label>
-                                        <div
-                                            class="d-flex align-items-start align-items-sm-center gap-6 pb-4 border-bottom">
-                                            <img src="{{ asset('img/logo.svg') }}" alt="user-avatar"
-                                                class="d-block w-px-100 h-px-100 rounded" id="uploadedAvatar" />
-                                            <div class="button-wrapper">
-                                                <label for="upload" class="btn btn-primary me-3 mb-4" tabindex="0">
-                                                    <span class="d-none d-sm-block">تحديد صورة</span>
-                                                    <i class="ti ti-upload d-block d-sm-none"></i>
-                                                    <input type="file" id="upload" name="image"
-                                                        class="account-file-input" hidden
-                                                        accept="image/png, image/jpeg, image/jpg, image/gif" />
-                                                </label>
-                                                <div class="text-muted small">JPG، PNG أو GIF. الحد الأقصى 2MB (أبعاد:
-                                                    2000×2000 بكسل)</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <x-wizard.actions>
-                                    <x-wizard.btn-prev />
-                                    <x-wizard.btn-save />
-                                </x-wizard.actions>
+                        <x-form.wizard.actions>
+                            <x-form.wizard.previous-button />
+                            <div class="d-flex gap-2">
+                                <x-form.wizard.draft-button step="2" />
+                                <x-form.wizard.save-button text="حفظ المستخدم" />
                             </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
+                        </x-form.wizard.actions>
+                    </x-form.wizard.step>
+                </form>
+            </x-form.wizard.stepper>
         </div>
     </div>
 @endsection

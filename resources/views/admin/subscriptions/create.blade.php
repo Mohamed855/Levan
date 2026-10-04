@@ -436,7 +436,7 @@
                                                 <div class="col-md-3">
                                                     <small class="text-muted d-block">حالة الدفع</small>
                                                     <span id="sub_review-payment-status"
-                                                        class="badge bg-label-secondary">-</span>
+                                                        class="badge bg-secondary">-</span>
                                                 </div>
                                                 <div class="col-md-3">
                                                     <small class="text-muted d-block">طريقة الدفع</small>
@@ -460,7 +460,8 @@
 
                             <x-wizard.actions>
                                 <x-wizard.btn-prev data-step="3" />
-                                <x-wizard.btn-save type="submit" id="btn-submit-subscription" class="btn-success btn-lg" text="اعتماد وإنشاء الاشتراك" />
+                                <x-wizard.btn-save type="submit" id="btn-submit-subscription" class="btn-success btn-lg"
+                                    text="اعتماد وإنشاء الاشتراك" />
                             </x-wizard.actions>
                         </div>
                     </form>

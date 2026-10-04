@@ -3,201 +3,103 @@
 @section('title', 'تعديل بيانات الشركة — ' . $company->company_name)
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
+    @vite([
+        'resources/assets/vendor/libs/select2/select2.scss',
+        'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss'
+    ])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
+    @vite([
+        'resources/assets/vendor/libs/select2/select2.js',
+        'resources/assets/vendor/libs/bs-stepper/bs-stepper.js'
+    ])
+@endsection
+
+@section('toastr')
+    @vite(['resources/css/toastr.css', 'resources/js/toastr.js'])
+@endsection
+
+@section('page-script')
+    @vite(['resources/assets/js/shared/form-validation.js'])
 @endsection
 
 @section('content')
-    <div class="row justify-content-center">
-        <div class="col-12 col-lg-10">
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center py-3">
-                    <h5 class="card-title mb-0 d-flex align-items-center">
-                        <i class="ti ti-edit text-primary me-2"></i>تعديل بيانات الشركة
-                    </h5>
-                    <div class="d-flex gap-2">
-                        <a href="{{ route('admin.companies.show', $company->id) }}" class="btn btn-sm btn-label-info">
-                            <i class="ti ti-eye me-1"></i>عرض التفاصيل
-                        </a>
-                        <a href="{{ route('admin.companies.index') }}" class="btn btn-secondary">
-                            <i class="ti ti-arrow-right me-1"></i>رجوع
-                        </a>
-                    </div>
-                </div>
+    @php
+        $steps = [
+            ['id' => 'company-details-step', 'title' => 'البيانات التجارية الأساسية', 'subtitle' => 'اسم الشركة والسجل والعنوان'],
+            ['id' => 'contact-settings-step', 'title' => 'بيانات المسؤول والإعدادات', 'subtitle' => 'بيانات التواصل وإعدادات النظام'],
+        ];
+    @endphp
 
-                <div class="card-body">
-                    @if ($errors->any())
-                        <div class="alert alert-danger mb-4">
-                            <ul class="mb-0">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
-                    <form action="{{ route('admin.companies.update', $company->id) }}" method="POST" autocomplete="off">
-                        @csrf
-                        @method('PUT')
-
-                        {{-- قسم 1: البيانات التجارية والأساسية --}}
-                        <div class="mb-4">
-                            <h6 class="fw-bold text-primary mb-3">
-                                <i class="ti ti-building me-1"></i>البيانات التجارية الأساسية
-                            </h6>
-                            <div class="row g-4">
-                                <div class="col-md-6">
-                                    <label for="company_name" class="form-label">
-                                        اسم الشركة <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" class="form-control" id="company_name" name="company_name"
-                                        value="{{ old('company_name', $company->company_name) }}" required>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="commercial_number" class="form-label">
-                                        رقم السجل التجاري <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" class="form-control" id="commercial_number"
-                                        name="commercial_number"
-                                        value="{{ old('commercial_number', $company->commercial_number) }}" maxlength="10"
-                                        required>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="tax_number" class="form-label">
-                                        الرقم الضريبي
-                                    </label>
-                                    <input type="text" class="form-control" id="tax_number" name="tax_number"
-                                        value="{{ old('tax_number', $company->tax_number) }}">
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="city_id" class="form-label">
-                                        المدينة <span class="text-danger">*</span>
-                                    </label>
-                                    <select class="form-select select2" id="city_id" name="city_id" required>
-                                        <option value="">اختر المدينة</option>
-                                        @foreach ($cities as $city)
-                                            <option value="{{ $city->id }}" @selected(old('city_id', $company->city_id) == $city->id)>
-                                                {{ $city->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div class="col-12">
-                                    <label for="address" class="form-label">
-                                        العنوان <span class="text-danger">*</span>
-                                    </label>
-                                    <textarea class="form-control" id="address" name="address" rows="2" required>{{ old('address', $company->address) }}</textarea>
-                                </div>
-                            </div>
-                        </div>
-
-                        <hr class="my-4">
-
-                        {{-- قسم 2: بيانات المسؤول المرجعية --}}
-                        <div class="mb-4">
-                            <h6 class="fw-bold text-primary mb-3">
-                                <i class="ti ti-user me-1"></i>بيانات المسؤول المرجعية (Central DB)
-                            </h6>
-                            <div class="row g-4">
-                                <div class="col-md-4">
-                                    <label for="primary_contact_name" class="form-label">اسم المسؤول</label>
-                                    <input type="text" class="form-control" id="primary_contact_name"
-                                        name="primary_contact_name"
-                                        value="{{ old('primary_contact_name', $company->primary_contact_name) }}">
-                                </div>
-
-                                <div class="col-md-4">
-                                    <label for="primary_contact_email" class="form-label">البريد الإلكتروني</label>
-                                    <input type="email" class="form-control" id="primary_contact_email"
-                                        name="primary_contact_email"
-                                        value="{{ old('primary_contact_email', $company->primary_contact_email) }}">
-                                </div>
-
-                                <div class="col-md-4">
-                                    <label for="primary_contact_phone" class="form-label">رقم الجوال</label>
-                                    <input type="text" class="form-control" id="primary_contact_phone"
-                                        name="primary_contact_phone"
-                                        value="{{ old('primary_contact_phone', $company->primary_contact_phone) }}"
-                                        placeholder="05xxxxxxxx">
-                                </div>
-                            </div>
-                        </div>
-
-                        <hr class="my-4">
-
-                        {{-- قسم 3: إعدادات الشركة الإضافية --}}
-                        <div class="mb-4">
-                            <h6 class="fw-bold text-primary mb-3">
-                                <i class="ti ti-settings me-1"></i>إعدادات الشركة الخاصة
-                            </h6>
-                            <div class="row g-4">
-                                <div class="col-md-4">
-                                    <div class="card border p-3">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h6 class="mb-0 fw-semibold">تنبيهات البريد</h6>
-                                                <small class="text-muted">إرسال إشعارات البريد</small>
-                                            </div>
-                                            <div class="form-check form-switch mb-0">
-                                                <input type="checkbox" class="form-check-input"
-                                                    name="email_notifications_enabled" value="1"
-                                                    @checked(old('email_notifications_enabled', $settings->email_notifications_enabled ?? true))>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-4">
-                                    <div class="card border p-3">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h6 class="mb-0 fw-semibold">التحقق الثنائي</h6>
-                                                <small class="text-muted">فرض 2FA على مستخدمي الشركة</small>
-                                            </div>
-                                            <div class="form-check form-switch mb-0">
-                                                <input type="checkbox" class="form-check-input" name="two_factor_enabled"
-                                                    value="1" @checked(old('two_factor_enabled', $settings->two_factor_enabled ?? false))>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-4">
-                                    <div class="card border p-3">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h6 class="mb-0 fw-semibold">التكاملات الخارجية</h6>
-                                                <small class="text-muted">السماح بربط API والأنظمة</small>
-                                            </div>
-                                            <div class="form-check form-switch mb-0">
-                                                <input type="checkbox" class="form-check-input"
-                                                    name="external_integrations_enabled" value="1"
-                                                    @checked(old('external_integrations_enabled', $settings->external_integrations_enabled ?? false))>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-end gap-2 mt-4">
-                            <a href="{{ route('admin.companies.index') }}" class="btn btn-secondary">
-                                إلغاء
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="ti ti-check me-1"></i>حفظ التعديلات
-                            </button>
-                        </div>
-                    </form>
+    <div class="row">
+        <div class="col-12 mb-6">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0 d-flex align-items-center">
+                    <i class="ti ti-edit text-primary me-2" aria-hidden="true"></i>تعديل بيانات الشركة — {{ $company->company_name }}
+                </h5>
+                <div class="d-flex gap-2">
+                    <a href="{{ route('admin.companies.show', $company->id) }}" class="btn btn-sm btn-label-info">
+                        <i class="ti ti-eye me-1" aria-hidden="true"></i>عرض التفاصيل
+                    </a>
+                    <a href="{{ route('admin.companies.index') }}" class="btn btn-sm btn-secondary">
+                        <i class="ti ti-arrow-right me-1" aria-hidden="true"></i>رجوع
+                    </a>
                 </div>
             </div>
+
+            <x-form.wizard.stepper id="company-edit-stepper" :steps="$steps">
+                <x-ui.validation-errors class="mb-4" />
+
+                <form
+                    id="company-edit-form"
+                    action="{{ route('admin.companies.update', $company) }}"
+                    method="POST"
+                    autocomplete="off"
+                    data-form-validate
+                    data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}"
+                >
+                    @csrf
+                    @method('PUT')
+
+                    <!-- 1. البيانات التجارية الأساسية -->
+                    <x-form.wizard.step id="company-details-step" :fields="['company_name', 'commercial_number', 'tax_number', 'city_id', 'address']">
+                        <div class="row g-4">
+                            <x-form.controls.input name="company_name" label="اسم الشركة" :value="$company->company_name" maxlength="255" required col="col-md-6" />
+                            <x-form.controls.input name="commercial_number" label="رقم السجل التجاري" :value="$company->commercial_number" maxlength="10" inputmode="numeric" pattern="[0-9]*" data-digits-only required col="col-md-6" />
+                            <x-form.controls.input name="tax_number" label="الرقم الضريبي" :value="$company->tax_number" maxlength="50" col="col-md-6" />
+                            <x-form.controls.select name="city_id" label="المدينة" :options="$cities" :value="$company->city_id" placeholder="اختر المدينة" required col="col-md-6" />
+                            <x-form.controls.textarea name="address" label="العنوان" :value="$company->address" rows="2" maxlength="1000" required col="col-12" />
+                        </div>
+
+                        <x-form.wizard.actions>
+                            <x-form.wizard.previous-button :href="route('admin.companies.index')" />
+                            <x-form.wizard.next-button />
+                        </x-form.wizard.actions>
+                    </x-form.wizard.step>
+
+                    <!-- 2. بيانات المسؤول والإعدادات -->
+                    <x-form.wizard.step id="contact-settings-step" :fields="['primary_contact_name', 'primary_contact_email', 'primary_contact_phone', 'email_notifications_enabled', 'two_factor_enabled', 'external_integrations_enabled']">
+                        <div class="row g-4">
+                            <x-form.controls.input name="primary_contact_name" label="اسم المسؤول" :value="$company->primary_contact_name" maxlength="255" col="col-md-4" />
+                            <x-form.controls.input name="primary_contact_email" type="email" label="البريد الإلكتروني" :value="$company->primary_contact_email" maxlength="255" col="col-md-4" />
+                            <x-form.controls.input name="primary_contact_phone" label="رقم الجوال" :value="$company->primary_contact_phone" placeholder="05xxxxxxxx" maxlength="10" inputmode="numeric" pattern="[0-9]*" col="col-md-4" />
+
+                            <div class="col-12 mt-4">
+                                <h6 class="fw-bold text-primary mb-0"><i class="ti ti-settings me-1" aria-hidden="true"></i>إعدادات الشركة الخاصة</h6>
+                            </div>
+                            <x-form.controls.checkbox name="email_notifications_enabled" label="تنبيهات البريد" :checked="$settings->email_notifications_enabled ?? true" col="col-md-4">إرسال إشعارات البريد.</x-form.controls.checkbox>
+                            <x-form.controls.checkbox name="two_factor_enabled" label="التحقق الثنائي (2FA)" :checked="$settings->two_factor_enabled ?? false" col="col-md-4">فرض 2FA على مستخدمي الشركة.</x-form.controls.checkbox>
+                            <x-form.controls.checkbox name="external_integrations_enabled" label="التكاملات الخارجية" :checked="$settings->external_integrations_enabled ?? false" col="col-md-4">السماح بربط API والأنظمة.</x-form.controls.checkbox>
+                        </div>
+
+                        <x-form.wizard.actions>
+                            <x-form.wizard.previous-button />
+                            <x-form.wizard.save-button text="حفظ التعديلات" />
+                        </x-form.wizard.actions>
+                    </x-form.wizard.step>
+                </form>
+            </x-form.wizard.stepper>
         </div>
     </div>
 @endsection

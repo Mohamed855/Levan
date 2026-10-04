@@ -45,7 +45,7 @@ enum PlanColor: string
             self::GREEN  => 'bg-label-success',
             self::ORANGE => 'bg-label-warning',
             self::RED    => 'bg-label-danger',
-            self::GRAY   => 'bg-label-secondary',
+            self::GRAY   => 'bg-secondary',
         };
     }
 

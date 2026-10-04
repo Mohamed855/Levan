@@ -273,12 +273,12 @@ class Contract extends Model
     {
         $classes = [
             'active' => 'bg-label-success',
-            'inactive' => 'bg-label-secondary',
+            'inactive' => 'bg-secondary',
             'expired' => 'bg-label-danger',
             'suspended' => 'bg-label-warning',
         ];
 
-        return $classes[$this->status] ?? 'bg-label-secondary';
+        return $classes[$this->status] ?? 'bg-secondary';
     }
 
     public function getCommissionTypeLabelAttribute(): string

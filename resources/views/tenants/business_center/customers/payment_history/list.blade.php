@@ -1,4 +1,4 @@
-@if($payments->count() > 0)
+@if ($payments->count() > 0)
     <div class="table-responsive">
         <table class="table table-hover">
             <thead class="table-light">
@@ -15,7 +15,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($payments as $index => $payment)
+                @foreach ($payments as $index => $payment)
                     <tr>
                         <td class="text-center">{{ $index + 1 }}</td>
                         <td>
@@ -28,11 +28,11 @@
                         </td>
                         <td>
                             <span class="fw-semibold ">
-                                {{ number_format($payment->collected_amount, 2) }} 
+                                {{ number_format($payment->collected_amount, 2) }}
                             </span>
                         </td>
                         <td>
-                            @if($payment->collection_type === 'cash')
+                            @if ($payment->collection_type === 'cash')
                                 <span class="badge bg-label-success">نقدي</span>
                             @else
                                 <span class="badge bg-label-warning">مجدول</span>
@@ -42,10 +42,10 @@
                             <small>{{ $payment->paymentMethod->name ?? 'غير محدد' }}</small>
                         </td>
                         <td>
-                            @if($payment->payment_type === 'settlement')
+                            @if ($payment->payment_type === 'settlement')
                                 <span class="badge bg-label-primary">بتسوية</span>
                             @else
-                                <span class="badge bg-label-secondary">بدون تسوية</span>
+                                <span class="badge bg-secondary">بدون تسوية</span>
                             @endif
                         </td>
                         <td>
@@ -67,10 +67,10 @@
             </tbody>
             <tfoot class="table-light">
                 <tr>
-                    <th colspan="3" class="text-end">الإجمالي :  </th>
+                    <th colspan="3" class="text-end">الإجمالي : </th>
                     <th class="text-start">
                         <span class="fw-bold ">
-                            {{ number_format($payments->sum('collected_amount'), 2) }} 
+                            {{ number_format($payments->sum('collected_amount'), 2) }}
                         </span>
                     </th>
                     <th colspan="5"></th>

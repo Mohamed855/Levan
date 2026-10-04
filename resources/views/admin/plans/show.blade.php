@@ -26,7 +26,8 @@
                         <a class="py-3 nav-link fw-bold m-0" data-bs-toggle="tab" href="#planFeatures">
                             <i class="ti ti-list-check ti-sm me-1"></i><span>ميزات الباقة</span>
                             @if (!empty($plan->features) && count($plan->features) > 0)
-                                <span class="badge bg-label-primary rounded-pill ms-auto">{{ count($plan->features) }}</span>
+                                <span
+                                    class="badge bg-label-primary rounded-pill ms-auto">{{ count($plan->features) }}</span>
                             @endif
                         </a>
                     </li>
@@ -35,7 +36,8 @@
                         <a class="py-3 nav-link fw-bold m-0" data-bs-toggle="tab" href="#planSubscriptions">
                             <i class="ti ti-building-store ti-sm me-1"></i><span>الاشتراكات والشركات</span>
                             @if ($subscriptions->count() > 0)
-                                <span class="badge bg-label-primary rounded-pill ms-auto">{{ $subscriptions->count() }}</span>
+                                <span
+                                    class="badge bg-label-primary rounded-pill ms-auto">{{ $subscriptions->count() }}</span>
                             @endif
                         </a>
                     </li>
@@ -86,9 +88,11 @@
                                     <div class="flex-grow-1">
                                         <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
                                             <h4 class="fw-bold mb-0 text-heading">{{ $plan->name }}</h4>
-                                            <span class="badge bg-label-dark font-monospace fw-bold fs-6">{{ $plan->code }}</span>
-                                            
-                                            <span class="badge bg-label-{{ $plan->plan_type?->color() ?? 'primary' }} fs-6">
+                                            <span
+                                                class="badge bg-label-dark font-monospace fw-bold fs-6">{{ $plan->code }}</span>
+
+                                            <span
+                                                class="badge bg-label-{{ $plan->plan_type?->color() ?? 'primary' }} fs-6">
                                                 {{ $plan->plan_type?->label() ?? 'أساسي' }}
                                             </span>
 
@@ -97,12 +101,13 @@
                                                     <i class="ti ti-circle-check me-1"></i>نشط
                                                 </span>
                                             @else
-                                                <span class="badge bg-label-secondary fs-6">
+                                                <span class="badge bg-secondary fs-6">
                                                     <i class="ti ti-circle-x me-1"></i>غير نشط
                                                 </span>
                                             @endif
 
-                                            <span class="badge bg-label-{{ $plan->isUnlimited() ? 'primary' : 'info' }} fs-6">
+                                            <span
+                                                class="badge bg-label-{{ $plan->isUnlimited() ? 'primary' : 'info' }} fs-6">
                                                 {{ $plan->isUnlimited() ? 'حدود غير محدودة (∞)' : 'حدود محددة' }}
                                             </span>
 
@@ -122,11 +127,15 @@
                                     </div>
                                     <div class="flex-shrink-0 text-end">
                                         <div class="mb-1">
-                                            <span class="fs-4 fw-bold text-success">{{ number_format($plan->price_after_discount, 2) }} ر.س</span>
+                                            <span
+                                                class="fs-4 fw-bold text-success">{{ number_format($plan->price_after_discount, 2) }}
+                                                ر.س</span>
                                             @if ($plan->discount_percentage > 0)
                                                 <div class="text-muted small">
                                                     <del>{{ number_format((float) $plan->price, 2) }} ر.س</del>
-                                                    <span class="badge bg-label-danger ms-1">{{ $plan->discount_percentage }}% خصم</span>
+                                                    <span
+                                                        class="badge bg-label-danger ms-1">{{ $plan->discount_percentage }}%
+                                                        خصم</span>
                                                 </div>
                                             @endif
                                         </div>
@@ -143,12 +152,14 @@
                                     <div class="card border h-100 shadow-none">
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
-                                                <div class="avatar bg-label-primary rounded p-2 me-3 d-flex align-items-center justify-content-center">
+                                                <div
+                                                    class="avatar bg-label-primary rounded p-2 me-3 d-flex align-items-center justify-content-center">
                                                     <i class="ti ti-currency-riyal fs-4 text-primary"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">السعر الأساسي للدورة</small>
-                                                    <span class="fw-bold fs-6">{{ number_format((float) $plan->price, 2) }} ر.س</span>
+                                                    <span class="fw-bold fs-6">{{ number_format((float) $plan->price, 2) }}
+                                                        ر.س</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -159,12 +170,14 @@
                                     <div class="card border h-100 shadow-none">
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
-                                                <div class="avatar bg-label-warning rounded p-2 me-3 d-flex align-items-center justify-content-center">
+                                                <div
+                                                    class="avatar bg-label-warning rounded p-2 me-3 d-flex align-items-center justify-content-center">
                                                     <i class="ti ti-percentage fs-4 text-warning"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">نسبة الخصم</small>
-                                                    <span class="fw-bold fs-6">{{ $plan->discount_percentage ?? 0 }}%</span>
+                                                    <span
+                                                        class="fw-bold fs-6">{{ $plan->discount_percentage ?? 0 }}%</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -175,12 +188,15 @@
                                     <div class="card border h-100 shadow-none">
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
-                                                <div class="avatar bg-label-success rounded p-2 me-3 d-flex align-items-center justify-content-center">
+                                                <div
+                                                    class="avatar bg-label-success rounded p-2 me-3 d-flex align-items-center justify-content-center">
                                                     <i class="ti ti-tag fs-4 text-success"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">السعر النهائي</small>
-                                                    <span class="fw-bold fs-6 text-success">{{ number_format($plan->price_after_discount, 2) }} ر.س</span>
+                                                    <span
+                                                        class="fw-bold fs-6 text-success">{{ number_format($plan->price_after_discount, 2) }}
+                                                        ر.س</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -191,12 +207,14 @@
                                     <div class="card border h-100 shadow-none">
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
-                                                <div class="avatar bg-label-info rounded p-2 me-3 d-flex align-items-center justify-content-center">
+                                                <div
+                                                    class="avatar bg-label-info rounded p-2 me-3 d-flex align-items-center justify-content-center">
                                                     <i class="ti ti-calendar-event fs-4 text-info"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">سعر العرض السنوي</small>
-                                                    <span class="fw-bold fs-6">{{ $plan->yearly_renewal_price ? number_format((float) $plan->yearly_renewal_price, 2) . ' ر.س' : 'غير متوفر' }}</span>
+                                                    <span
+                                                        class="fw-bold fs-6">{{ $plan->yearly_renewal_price ? number_format((float) $plan->yearly_renewal_price, 2) . ' ر.س' : 'غير متوفر' }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -207,12 +225,14 @@
                                     <div class="card border h-100 shadow-none">
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
-                                                <div class="avatar bg-label-primary rounded p-2 me-3 d-flex align-items-center justify-content-center">
+                                                <div
+                                                    class="avatar bg-label-primary rounded p-2 me-3 d-flex align-items-center justify-content-center">
                                                     <i class="ti ti-users fs-4 text-primary"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">المستخدمين المشمولين</small>
-                                                    <span class="fw-bold fs-6">{{ $plan->isUnlimited() ? 'غير محدود (∞)' : ($plan->included_users . ' مستخدم') }}</span>
+                                                    <span
+                                                        class="fw-bold fs-6">{{ $plan->isUnlimited() ? 'غير محدود (∞)' : $plan->included_users . ' مستخدم' }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -223,12 +243,14 @@
                                     <div class="card border h-100 shadow-none">
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
-                                                <div class="avatar bg-label-secondary rounded p-2 me-3 d-flex align-items-center justify-content-center">
+                                                <div
+                                                    class="avatar bg-secondary rounded p-2 me-3 d-flex align-items-center justify-content-center">
                                                     <i class="ti ti-user-plus fs-4 text-secondary"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">ترخيص المستخدم الإضافي</small>
-                                                    <span class="fw-bold fs-6">{{ $plan->isUnlimited() ? 'غير مطلوب' : ($plan->extra_user_license_price ? number_format((float) $plan->extra_user_license_price, 2) . ' ر.س' : '0.00 ر.س') }}</span>
+                                                    <span
+                                                        class="fw-bold fs-6">{{ $plan->isUnlimited() ? 'غير مطلوب' : ($plan->extra_user_license_price ? number_format((float) $plan->extra_user_license_price, 2) . ' ر.س' : '0.00 ر.س') }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -239,12 +261,14 @@
                                     <div class="card border h-100 shadow-none">
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
-                                                <div class="avatar bg-label-info rounded p-2 me-3 d-flex align-items-center justify-content-center">
+                                                <div
+                                                    class="avatar bg-label-info rounded p-2 me-3 d-flex align-items-center justify-content-center">
                                                     <i class="ti ti-building fs-4 text-info"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">حد العقارات</small>
-                                                    <span class="fw-bold fs-6">{{ $plan->isUnlimited() ? 'غير محدود (∞)' : ($plan->properties_limit ?? '-') }}</span>
+                                                    <span
+                                                        class="fw-bold fs-6">{{ $plan->isUnlimited() ? 'غير محدود (∞)' : $plan->properties_limit ?? '-' }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -255,12 +279,14 @@
                                     <div class="card border h-100 shadow-none">
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
-                                                <div class="avatar bg-label-warning rounded p-2 me-3 d-flex align-items-center justify-content-center">
+                                                <div
+                                                    class="avatar bg-label-warning rounded p-2 me-3 d-flex align-items-center justify-content-center">
                                                     <i class="ti ti-server fs-4 text-warning"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">حصة التخزين</small>
-                                                    <span class="fw-bold fs-6">{{ $plan->isUnlimited() ? 'غير محدود (∞)' : ($plan->storage_quota_gb ? $plan->storage_quota_gb . ' GB' : '-') }}</span>
+                                                    <span
+                                                        class="fw-bold fs-6">{{ $plan->isUnlimited() ? 'غير محدود (∞)' : ($plan->storage_quota_gb ? $plan->storage_quota_gb . ' GB' : '-') }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -271,12 +297,14 @@
                                     <div class="card border h-100 shadow-none">
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
-                                                <div class="avatar bg-label-danger rounded p-2 me-3 d-flex align-items-center justify-content-center">
+                                                <div
+                                                    class="avatar bg-label-danger rounded p-2 me-3 d-flex align-items-center justify-content-center">
                                                     <i class="ti ti-gavel fs-4 text-danger"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">حد المزادات النشطة</small>
-                                                    <span class="fw-bold fs-6">{{ $plan->isUnlimited() ? 'غير محدود (∞)' : ($plan->active_auctions_limit ?? '-') }}</span>
+                                                    <span
+                                                        class="fw-bold fs-6">{{ $plan->isUnlimited() ? 'غير محدود (∞)' : $plan->active_auctions_limit ?? '-' }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -287,12 +315,14 @@
                                     <div class="card border h-100 shadow-none">
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
-                                                <div class="avatar bg-label-success rounded p-2 me-3 d-flex align-items-center justify-content-center">
+                                                <div
+                                                    class="avatar bg-label-success rounded p-2 me-3 d-flex align-items-center justify-content-center">
                                                     <i class="ti ti-git-branch fs-4 text-success"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">حد الفروع</small>
-                                                    <span class="fw-bold fs-6">{{ ($plan->isUnlimited() || $plan->unlimited_branches) ? 'غير محدود (∞)' : ($plan->branches_limit ?? '-') }}</span>
+                                                    <span
+                                                        class="fw-bold fs-6">{{ $plan->isUnlimited() || $plan->unlimited_branches ? 'غير محدود (∞)' : $plan->branches_limit ?? '-' }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -303,12 +333,14 @@
                                     <div class="card border h-100 shadow-none">
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
-                                                <div class="avatar bg-label-primary rounded p-2 me-3 d-flex align-items-center justify-content-center">
+                                                <div
+                                                    class="avatar bg-label-primary rounded p-2 me-3 d-flex align-items-center justify-content-center">
                                                     <i class="ti ti-world fs-4 text-primary"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">إدارة الدومينات</small>
-                                                    <span class="fw-bold fs-6">{{ $plan->domain_management_enabled ? 'مفعّلة' : 'غير مفعّلة' }}</span>
+                                                    <span
+                                                        class="fw-bold fs-6">{{ $plan->domain_management_enabled ? 'مفعّلة' : 'غير مفعّلة' }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -319,12 +351,14 @@
                                     <div class="card border h-100 shadow-none">
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
-                                                <div class="avatar bg-label-secondary rounded p-2 me-3 d-flex align-items-center justify-content-center">
+                                                <div
+                                                    class="avatar bg-secondary rounded p-2 me-3 d-flex align-items-center justify-content-center">
                                                     <i class="ti ti-calendar fs-4 text-secondary"></i>
                                                 </div>
                                                 <div>
                                                     <small class="text-muted d-block">تاريخ بدء الإتاحة</small>
-                                                    <span class="fw-bold fs-6">{{ $plan->available_from ? $plan->available_from->format('Y-m-d') : 'متاحة فوراً' }}</span>
+                                                    <span
+                                                        class="fw-bold fs-6">{{ $plan->available_from ? $plan->available_from->format('Y-m-d') : 'متاحة فوراً' }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -333,9 +367,10 @@
                             </div>
 
                             @if (!empty($plan->admin_notes))
-                                <div class="card bg-label-secondary border-0 mb-4">
+                                <div class="card bg-secondary border-0 mb-4">
                                     <div class="card-body">
-                                        <h6 class="fw-bold mb-1"><i class="ti ti-notes me-1"></i>ملاحظات إدارية داخلية:</h6>
+                                        <h6 class="fw-bold mb-1"><i class="ti ti-notes me-1"></i>ملاحظات إدارية داخلية:
+                                        </h6>
                                         <p class="mb-0 text-muted">{{ $plan->admin_notes }}</p>
                                     </div>
                                 </div>
@@ -394,7 +429,8 @@
                                             </div>
                                             <div>
                                                 <small class="text-muted d-block">إجمالي الاشتراكات</small>
-                                                <span class="fw-bold fs-5">{{ $statistics['total_subscriptions'] ?? 0 }}</span>
+                                                <span
+                                                    class="fw-bold fs-5">{{ $statistics['total_subscriptions'] ?? 0 }}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -407,7 +443,8 @@
                                             </div>
                                             <div>
                                                 <small class="text-muted d-block">الشركات الفريدة</small>
-                                                <span class="fw-bold fs-5 text-info">{{ $statistics['unique_companies'] ?? 0 }}</span>
+                                                <span
+                                                    class="fw-bold fs-5 text-info">{{ $statistics['unique_companies'] ?? 0 }}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -420,7 +457,8 @@
                                             </div>
                                             <div>
                                                 <small class="text-muted d-block">الاشتراكات النشطة</small>
-                                                <span class="fw-bold fs-5 text-success">{{ $statistics['active_subscriptions'] ?? 0 }}</span>
+                                                <span
+                                                    class="fw-bold fs-5 text-success">{{ $statistics['active_subscriptions'] ?? 0 }}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -433,7 +471,9 @@
                                             </div>
                                             <div>
                                                 <small class="text-muted d-block">إجمالي الإيرادات التعاقدية</small>
-                                                <span class="fw-bold fs-5 text-warning">{{ number_format($statistics['total_revenue'] ?? 0, 2) }} ر.س</span>
+                                                <span
+                                                    class="fw-bold fs-5 text-warning">{{ number_format($statistics['total_revenue'] ?? 0, 2) }}
+                                                    ر.س</span>
                                             </div>
                                         </div>
                                     </div>
@@ -462,23 +502,29 @@
                                                 <tr>
                                                     <td>{{ $index + 1 }}</td>
                                                     <td>
-                                                        <span class="font-monospace fw-bold">{{ $subscription->subscription_number ?? ('SUB-' . $subscription->id) }}</span>
+                                                        <span
+                                                            class="font-monospace fw-bold">{{ $subscription->subscription_number ?? 'SUB-' . $subscription->id }}</span>
                                                     </td>
                                                     <td>
                                                         <strong>{{ $subscription->tenant?->company_name ?? '-' }}</strong>
                                                     </td>
                                                     <td>
-                                                        <span class="badge bg-label-secondary font-monospace">{{ $subscription->tenant_id }}</span>
+                                                        <span
+                                                            class="badge bg-secondary font-monospace">{{ $subscription->tenant_id }}</span>
                                                     </td>
                                                     <td>
                                                         <span class="badge bg-label-info">
                                                             {{ $subscription->billing_cycle?->label() ?? ($subscription->currentPeriod?->billing_cycle_snapshot ?? 'شهري') }}
                                                         </span>
                                                     </td>
-                                                    <td dir="ltr">{{ $subscription->starts_at?->format('Y-m-d') ?? '-' }}</td>
-                                                    <td dir="ltr">{{ $subscription->ends_at?->format('Y-m-d') ?? '-' }}</td>
+                                                    <td dir="ltr">
+                                                        {{ $subscription->starts_at?->format('Y-m-d') ?? '-' }}</td>
+                                                    <td dir="ltr">
+                                                        {{ $subscription->ends_at?->format('Y-m-d') ?? '-' }}</td>
                                                     <td>
-                                                        <span class="fw-bold">{{ number_format((float) $subscription->price, 2) }} ر.س</span>
+                                                        <span
+                                                            class="fw-bold">{{ number_format((float) $subscription->price, 2) }}
+                                                            ر.س</span>
                                                     </td>
                                                     <td>
                                                         @if ($subscription->status)
@@ -486,24 +532,34 @@
                                                                 {{ $subscription->status->label() }}
                                                             </span>
                                                         @else
-                                                            <span class="badge bg-label-secondary">-</span>
+                                                            <span class="badge bg-secondary">-</span>
                                                         @endif
                                                     </td>
                                                     <td>
                                                         <div class="d-flex align-items-center gap-1">
                                                             {{-- رابط ملف الشركة --}}
                                                             <a href="{{ route('admin.companies.show', $subscription->tenant_id) }}"
-                                                                class="btn btn-icon btn-label-primary btn-sm" title="عرض ملف الشركة">
+                                                                class="btn btn-icon btn-label-primary btn-sm"
+                                                                title="عرض ملف الشركة">
                                                                 <i class="ti ti-building"></i>
                                                             </a>
 
                                                             {{-- رابط لوحة تحكم الشركة الخارجي --}}
                                                             @php
-                                                                $domain = $subscription->tenant?->domain ?? ($subscription->tenant?->domains?->first()?->domain ?? null);
-                                                                $tenantUrl = $domain ? (str_starts_with($domain, 'http') ? $domain : 'https://' . $domain) : null;
+                                                                $domain =
+                                                                    $subscription->tenant?->domain ??
+                                                                    ($subscription->tenant?->domains?->first()
+                                                                        ?->domain ??
+                                                                        null);
+                                                                $tenantUrl = $domain
+                                                                    ? (str_starts_with($domain, 'http')
+                                                                        ? $domain
+                                                                        : 'https://' . $domain)
+                                                                    : null;
                                                             @endphp
                                                             @if ($tenantUrl)
-                                                                <a href="{{ $tenantUrl }}" class="btn btn-icon btn-label-secondary btn-sm"
+                                                                <a href="{{ $tenantUrl }}"
+                                                                    class="btn btn-icon btn-secondary btn-sm"
                                                                     title="لوحة تحكم الشركة (رابط مباشر)" target="_blank">
                                                                     <i class="ti ti-external-link"></i>
                                                                 </a>
@@ -517,7 +573,8 @@
                                 </div>
                             @else
                                 <div class="text-center py-5">
-                                    <div class="avatar avatar-xl bg-label-secondary rounded p-3 mx-auto mb-3 d-flex align-items-center justify-content-center">
+                                    <div
+                                        class="avatar avatar-xl bg-secondary rounded p-3 mx-auto mb-3 d-flex align-items-center justify-content-center">
                                         <i class="ti ti-building-off fs-1 text-secondary"></i>
                                     </div>
                                     <h6 class="fw-bold mb-1">لا توجد شركات مشتركة</h6>

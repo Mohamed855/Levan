@@ -108,9 +108,9 @@ class SubscriptionDataTable extends AbstractDataTable
 
                 return '<div class="d-flex flex-wrap gap-1">'
                     .'<span class="badge bg-label-info" title="المستخدمون"><i class="ti ti-users ti-xs me-1"></i>'.$users.'</span>'
-                    .'<span class="badge bg-label-secondary" title="العقارات"><i class="ti ti-building ti-xs me-1"></i>'.$props.'</span>'
-                    .'<span class="badge bg-label-secondary" title="المساحة"><i class="ti ti-database ti-xs me-1"></i>'.$storage.'</span>'
-                    .'<span class="badge bg-label-secondary" title="المزادات"><i class="ti ti-gavel ti-xs me-1"></i>'.$auctions.'</span>'
+                    .'<span class="badge bg-secondary" title="العقارات"><i class="ti ti-building ti-xs me-1"></i>'.$props.'</span>'
+                    .'<span class="badge bg-secondary" title="المساحة"><i class="ti ti-database ti-xs me-1"></i>'.$storage.'</span>'
+                    .'<span class="badge bg-secondary" title="المزادات"><i class="ti ti-gavel ti-xs me-1"></i>'.$auctions.'</span>'
                     .'</div>';
             })
             ->editColumn('starts_at', fn (Subscription $row) => $row->starts_at?->format('Y-m-d') ?: '-')
@@ -124,7 +124,7 @@ class SubscriptionDataTable extends AbstractDataTable
                 $days = app(SubscriptionManager::class)->calculateDaysRemaining($period);
 
                 if ($days === null) {
-                    return '<span class="badge bg-label-secondary">-</span>';
+                    return '<span class="badge bg-secondary">-</span>';
                 }
                 if ($days <= 0) {
                     return '<span class="badge bg-label-danger">منتهي (0 يوم)</span>';

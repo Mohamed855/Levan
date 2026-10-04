@@ -19,8 +19,10 @@ use App\Services\shared\Subscription\SubscriptionService;
 use App\Services\Admin\Subscriptions\AdminSubscriptionService;
 use App\Services\shared\Tenant\TenantCreator;
 use App\Services\shared\Tenant\TenantInitializer;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\Models\Activity;
 
 class CompanyService
@@ -45,66 +47,80 @@ class CompanyService
 
     public function createCompany(array $data): Tenant
     {
-        $metadata = [
-            'plan_id'                       => $data['plan_id'],
-            'billing_name'                  => $data['name'],
-            'billing_email'                 => $data['email'],
-            'billing_phone'                 => $data['phone'],
-            'billing_password'              => $data['password'],
-            'billing_company_name'          => $data['company_name'],
-            'billing_tax_number'            => $data['tax_number'] ?? null,
-            'billing_city_id'               => $data['city_id'] ?? null,
-            'billing_address'               => $data['address'] ?? null,
-            'billing_commercial_number'     => $data['commercial_number'],
-            'start_date'                    => $data['start_date'] ?? null,
-            'end_date'                      => $data['end_date'] ?? null,
-            'total_users'                   => $data['total_users'] ?? null,
-            'activate_immediately'          => ! empty($data['activate_immediately']),
-            'email_notifications_enabled'   => isset($data['email_notifications_enabled']) ? (bool) $data['email_notifications_enabled'] : true,
-            'two_factor_enabled'            => ! empty($data['two_factor_enabled']),
-            'external_integrations_enabled' => ! empty($data['external_integrations_enabled']),
-        ];
+        $receiptPath = null;
 
-        $plan = Plan::findOrFail($data['plan_id']);
-        $discount = (($data['has_discount'] ?? 'no') === 'yes') ? (float) ($data['discount_value'] ?? 0) : 0;
-        $amount = ($data['payment_type'] ?? '') === 'trial' ? 0.00 : max(0.00, (float) $plan->price_after_discount - $discount);
+        try {
+            if (($data['receipt_upload'] ?? null) instanceof UploadedFile) {
+                $receiptPath = $data['receipt_upload']->store('company_receipts', 'public');
+                $data['receipt_path'] = $receiptPath;
+            }
 
-        $paymentMethod = null;
-        if (($data['payment_type'] ?? '') === 'paid' && ! empty($data['payment_method'])) {
-            $paymentMethod = PaymentMethod::tryFrom($data['payment_method']);
+            $metadata = [
+                'plan_id'                       => $data['plan_id'],
+                'billing_name'                  => $data['name'],
+                'billing_email'                 => $data['email'],
+                'billing_phone'                 => $data['phone'],
+                'billing_password'              => $data['password'],
+                'billing_company_name'          => $data['company_name'],
+                'billing_tax_number'            => $data['tax_number'] ?? null,
+                'billing_city_id'               => $data['city_id'] ?? null,
+                'billing_address'               => $data['address'] ?? null,
+                'billing_commercial_number'     => $data['commercial_number'],
+                'start_date'                    => $data['start_date'] ?? null,
+                'end_date'                      => $data['end_date'] ?? null,
+                'total_users'                   => $data['total_users'] ?? null,
+                'activate_immediately'          => ! empty($data['activate_immediately']),
+                'email_notifications_enabled'   => isset($data['email_notifications_enabled']) ? (bool) $data['email_notifications_enabled'] : true,
+                'two_factor_enabled'            => ! empty($data['two_factor_enabled']),
+                'external_integrations_enabled' => ! empty($data['external_integrations_enabled']),
+            ];
+
+            $plan = Plan::findOrFail($data['plan_id']);
+            $discount = (($data['has_discount'] ?? 'no') === 'yes') ? (float) ($data['discount_value'] ?? 0) : 0;
+            $amount = ($data['payment_type'] ?? '') === 'trial' ? 0.00 : max(0.00, (float) $plan->price_after_discount - $discount);
+
+            $paymentMethod = null;
+            if (($data['payment_type'] ?? '') === 'paid' && ! empty($data['payment_method'])) {
+                $paymentMethod = PaymentMethod::tryFrom($data['payment_method']);
+            }
+
+            $bill = $this->billService->createPendingBill(
+                amount: $amount,
+                paymentMethod: $paymentMethod,
+                originalAmount: (float) $plan->price_after_discount,
+                type: BillType::NEW_SUBSCRIPTION,
+                couponData: [
+                    'discount_amount' => $discount,
+                    'coupon_id'       => null,
+                    'coupon_code'     => null,
+                    'coupon_value'    => null,
+                    'coupon_type'     => null,
+                ],
+                metadata: $metadata
+            );
+
+            $result = $this->subscriptionService->completeAdminSubscription($bill, $data);
+            $tenant = Tenant::findOrFail($result['tenant_id']);
+
+            CompanySetting::updateOrCreate(
+                ['tenant_id' => $tenant->id],
+                [
+                    'email_notifications_enabled'   => (bool) ($metadata['email_notifications_enabled'] ?? true),
+                    'two_factor_enabled'            => (bool) ($metadata['two_factor_enabled'] ?? false),
+                    'external_integrations_enabled' => (bool) ($metadata['external_integrations_enabled'] ?? false),
+                ]
+            );
+
+            $this->clearCompanyCache($tenant->id);
+
+            return $tenant;
+        } catch (\Throwable $exception) {
+            if ($receiptPath !== null) {
+                Storage::disk('public')->delete($receiptPath);
+            }
+
+            throw $exception;
         }
-
-        $bill = $this->billService->createPendingBill(
-            amount: $amount,
-            paymentMethod: $paymentMethod,
-            originalAmount: (float) $plan->price_after_discount,
-            type: BillType::NEW_SUBSCRIPTION,
-            couponData: [
-                'discount_amount' => $discount,
-                'coupon_id'       => null,
-                'coupon_code'     => null,
-                'coupon_value'    => null,
-                'coupon_type'     => null,
-            ],
-            metadata: $metadata
-        );
-
-        $result = $this->subscriptionService->completeAdminSubscription($bill, $data);
-        $tenant = Tenant::findOrFail($result['tenant_id']);
-
-        // Ensure company settings record exists with explicit submitted values
-        CompanySetting::updateOrCreate(
-            ['tenant_id' => $tenant->id],
-            [
-                'email_notifications_enabled'   => (bool) ($metadata['email_notifications_enabled'] ?? true),
-                'two_factor_enabled'            => (bool) ($metadata['two_factor_enabled'] ?? false),
-                'external_integrations_enabled' => (bool) ($metadata['external_integrations_enabled'] ?? false),
-            ]
-        );
-
-        $this->clearCompanyCache($tenant->id);
-
-        return $tenant;
     }
 
     public function updateCompany(Tenant $company, array $data): Tenant
@@ -149,14 +165,8 @@ class CompanyService
     public function deleteCompany(Tenant $company): bool
     {
         return DB::connection('mysql')->transaction(function () use ($company) {
-            // Delete all subscriptions permanently (no soft deletes)
-            $company->subscriptions()->get()->each(function (Subscription $subscription) {
-                $this->adminSubscriptionService->deleteSubscription($subscription);
-            });
-
             $this->clearCompanyCache($company->id);
 
-            // Soft-delete the tenant
             return (bool) $company->delete();
         });
     }

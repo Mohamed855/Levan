@@ -36,8 +36,7 @@
                         <a class="py-3 nav-link fw-bold m-0" data-bs-toggle="tab" href="#companyActivities">
                             <i class="ti ti-activity ti-sm me-1"></i><span>أحدث الأنشطة</span>
                             @if ($activities->count() > 0)
-                                <span
-                                    class="badge bg-label-secondary rounded-pill ms-auto">{{ $activities->count() }}</span>
+                                <span class="badge bg-secondary rounded-pill ms-auto">{{ $activities->count() }}</span>
                             @endif
                         </a>
                     </li>
@@ -58,12 +57,11 @@
                             </h6>
                             <div class="d-flex align-items-center gap-2">
                                 <a href="{{ url('/' . $company->id . '/dashboard') }}" target="_blank"
-                                    class="btn btn-sm btn-label-success">
+                                    class="btn btn-label-success">
                                     <i class="ti ti-dashboard me-1"></i>لوحة التحكم
                                 </a>
                                 @can('companies.edit')
-                                    <a href="{{ route('admin.companies.edit', $company->id) }}"
-                                        class="btn btn-sm btn-label-primary">
+                                    <a href="{{ route('admin.companies.edit', $company->id) }}" class="btn btn-label-primary">
                                         <i class="ti ti-edit me-1"></i>تعديل
                                     </a>
                                 @endcan
@@ -98,7 +96,7 @@
                                                 ];
                                                 $badge = $statusBadges[$company->status] ?? [
                                                     'label' => $company->status,
-                                                    'class' => 'bg-label-secondary',
+                                                    'class' => 'bg-secondary',
                                                 ];
                                             @endphp
                                             <span class="badge {{ $badge['class'] }}">{{ $badge['label'] }}</span>
@@ -177,21 +175,21 @@
                                         <li class="list-group-item d-flex justify-content-between align-items-center py-3">
                                             <span class="text-muted">تنبيهات البريد الإلكتروني</span>
                                             <span
-                                                class="badge {{ $settings->email_notifications_enabled ? 'bg-label-success' : 'bg-label-secondary' }}">
+                                                class="badge {{ $settings->email_notifications_enabled ? 'bg-label-success' : 'bg-secondary' }}">
                                                 {{ $settings->email_notifications_enabled ? 'مفعلة' : 'معطلة' }}
                                             </span>
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between align-items-center py-3">
                                             <span class="text-muted">التحقق الثنائي (2FA)</span>
                                             <span
-                                                class="badge {{ $settings->two_factor_enabled ? 'bg-label-success' : 'bg-label-secondary' }}">
+                                                class="badge {{ $settings->two_factor_enabled ? 'bg-label-success' : 'bg-secondary' }}">
                                                 {{ $settings->two_factor_enabled ? 'مفعل' : 'معطل' }}
                                             </span>
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between align-items-center py-3">
                                             <span class="text-muted">التكاملات الخارجية</span>
                                             <span
-                                                class="badge {{ $settings->external_integrations_enabled ? 'bg-label-success' : 'bg-label-secondary' }}">
+                                                class="badge {{ $settings->external_integrations_enabled ? 'bg-label-success' : 'bg-secondary' }}">
                                                 {{ $settings->external_integrations_enabled ? 'مفعلة' : 'معطلة' }}
                                             </span>
                                         </li>
@@ -213,7 +211,7 @@
                             @can('subscriptions.create')
                                 @if (!$company->lastSubscription || $company->lastSubscription->status->value === 'expired')
                                     <a href="{{ route('admin.subscriptions.create') }}?company_id={{ $company->id }}"
-                                        class="btn btn-sm btn-primary">
+                                        class="btn btn-primary">
                                         <i class="ti ti-plus me-1"></i>إضافة اشتراك جديد
                                     </a>
                                 @endif
@@ -258,9 +256,9 @@
                                                     <div class="d-flex flex-wrap gap-1">
                                                         <span class="badge bg-label-info"><i
                                                                 class="ti ti-users ti-xs me-1"></i>{{ $sub->total_users }}</span>
-                                                        <span class="badge bg-label-secondary"><i
+                                                        <span class="badge bg-secondary"><i
                                                                 class="ti ti-building ti-xs me-1"></i>{{ $sub->plan?->properties_limit ?? '∞' }}</span>
-                                                        <span class="badge bg-label-secondary"><i
+                                                        <span class="badge bg-secondary"><i
                                                                 class="ti ti-database ti-xs me-1"></i>{{ $sub->plan?->storage_quota_gb ? $sub->plan->storage_quota_gb . 'GB' : '∞' }}</span>
                                                     </div>
                                                 </td>
@@ -269,7 +267,7 @@
                                                 </td>
                                                 <td>
                                                     @if ($days === null)
-                                                        <span class="badge bg-label-secondary">-</span>
+                                                        <span class="badge bg-secondary">-</span>
                                                     @elseif ($days <= 0)
                                                         <span class="badge bg-label-danger">منتهي</span>
                                                     @elseif ($days <= 7)

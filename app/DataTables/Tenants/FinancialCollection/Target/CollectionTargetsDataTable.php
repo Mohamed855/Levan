@@ -189,7 +189,7 @@ class CollectionTargetsDataTable extends AbstractDataTable
                     'monthly' => 'bg-label-info',
                     'yearly' => 'bg-label-primary',
                     'custom' => 'bg-label-warning',
-                    default => 'bg-label-secondary'
+                    default => 'bg-secondary'
                 };
 
                 return '<div class="clickable-cell" >

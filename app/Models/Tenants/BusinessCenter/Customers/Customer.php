@@ -298,7 +298,7 @@ class Customer extends Model
     public function getStatusClassAttribute(): string
     {
         if (!$this->customerStatus) {
-            return 'bg-label-secondary';
+            return 'bg-secondary';
         }
 
         // إرجاع لون افتراضي دون تحديد حالات معينة

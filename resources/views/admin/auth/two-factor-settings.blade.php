@@ -30,7 +30,7 @@
                             <small class="text-muted">حماية إضافية لحسابك عبر تطبيق مصادقة</small>
                         </div>
                     </div>
-                    <span id="statusBadge" class="badge {{ $enabled ? 'bg-label-success' : 'bg-label-secondary' }}">
+                    <span id="statusBadge" class="badge {{ $enabled ? 'bg-label-success' : 'bg-secondary' }}">
                         {{ $enabled ? 'مفعّلة' : 'غير مفعّلة' }}
                     </span>
                 </div>
@@ -176,14 +176,14 @@
             const recoveryCodesList = $('#recoveryCodesList');
 
             function markEnabled() {
-                statusBadge.removeClass('bg-label-secondary').addClass('bg-label-success').text('مفعّلة');
+                statusBadge.removeClass('bg-secondary').addClass('bg-label-success').text('مفعّلة');
                 enabledActions.removeClass('d-none');
                 disabledActions.addClass('d-none');
                 setupPanel.addClass('d-none');
             }
 
             function markDisabled() {
-                statusBadge.removeClass('bg-label-success').addClass('bg-label-secondary').text('غير مفعّلة');
+                statusBadge.removeClass('bg-label-success').addClass('bg-secondary').text('غير مفعّلة');
                 enabledActions.addClass('d-none');
                 disabledActions.removeClass('d-none');
                 setupPanel.addClass('d-none');

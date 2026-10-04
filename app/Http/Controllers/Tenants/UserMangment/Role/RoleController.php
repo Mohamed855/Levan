@@ -93,7 +93,7 @@ class RoleController extends Controller
                     ->addColumn('role', function ($row) {
                         if (auth()->user()->can('roles.edit')) {
                             $roleName = $row->roles->count() > 0 ? $row->roles->first()->name : 'غير محدد';
-                            $colorClasses = ['bg-label-primary', 'bg-label-success', 'bg-label-warning', 'bg-label-info', 'bg-label-secondary'];
+                            $colorClasses = ['bg-label-primary', 'bg-label-success', 'bg-label-warning', 'bg-label-info', 'bg-secondary'];
                             $randomColor = $colorClasses[array_rand($colorClasses)];
 
                             return '<a href="javascript:void(0);" class="edit-role-link" data-user-id="' . htmlspecialchars($row->id, ENT_QUOTES, 'UTF-8') . '">

@@ -127,7 +127,7 @@ class NotificationsDataTable extends AbstractDataTable
                     'info' => 'bg-label-info',
                     'danger' => 'bg-label-danger',
                     'primary' => 'bg-label-primary',
-                    'secondary' => 'bg-label-secondary',
+                    'secondary' => 'bg-secondary',
                 ];
                 $colorClass = $typeColors[$type] ?? 'bg-label-info';
                 

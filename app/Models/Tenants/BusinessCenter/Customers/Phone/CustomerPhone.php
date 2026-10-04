@@ -148,10 +148,10 @@ class CustomerPhone extends Model
             'mobile' => 'bg-label-primary',
             'home' => 'bg-label-info',
             'work' => 'bg-label-warning',
-            'other' => 'bg-label-secondary'
+            'other' => 'bg-secondary'
         ];
 
-        return $classes[$this->type] ?? 'bg-label-secondary';
+        return $classes[$this->type] ?? 'bg-secondary';
     }
 
     /*

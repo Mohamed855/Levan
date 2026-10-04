@@ -131,7 +131,7 @@ function addNotificationToList(notification) {
         'info': 'bg-label-info',
         'danger': 'bg-label-danger',
         'primary': 'bg-label-primary',
-        'secondary': 'bg-label-secondary'
+        'secondary': 'bg-secondary'
     };
 
     const colorClass = iconColors[notification.type] || 'bg-label-info';

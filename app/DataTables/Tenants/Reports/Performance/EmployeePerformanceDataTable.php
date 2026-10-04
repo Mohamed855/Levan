@@ -131,7 +131,7 @@ class EmployeePerformanceDataTable extends AbstractDataTable
             })
 
             ->editColumn('avg_calls', function ($row) {
-                return '<span class="badge bg-label-secondary">' . number_format($this->formatNumber($row['avg_calls'])) . '</span>';
+                return '<span class="badge bg-secondary">' . number_format($this->formatNumber($row['avg_calls'])) . '</span>';
             })
 
             ->editColumn('not_contacted', function ($row) {

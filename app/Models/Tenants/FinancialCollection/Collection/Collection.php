@@ -324,7 +324,7 @@ class Collection extends Model
             'pending' => 'bg-label-warning',
             'approved' => 'bg-label-success',
             'rejected' => 'bg-label-danger',
-            default => 'bg-label-secondary'
+            default => 'bg-secondary'
         };
     }
 

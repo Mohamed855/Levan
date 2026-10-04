@@ -69,7 +69,7 @@ class CollectionSessionsDataTable extends AbstractDataTable
                 if ($session->is_active) {
                     return '<span class="badge bg-label-success">متواجد الآن</span>';
                 }
-                return '<span class="badge bg-label-secondary">غير متواجد</span>';
+                return '<span class="badge bg-secondary">غير متواجد</span>';
             })
 
             // أول دخول HH:mm أو "-"

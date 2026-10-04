@@ -220,7 +220,7 @@ class CollectionsDataTable extends AbstractDataTable
             })
             ->addColumn('collection_details', function (Collection $collection) {
                 $typeClass = $collection->collection_type === 'cash' ? 'bg-label-primary' : 'bg-label-info';
-                $paymentTypeClass = $collection->payment_type === 'settlement' ? 'bg-label-primary' : 'bg-label-secondary';
+                $paymentTypeClass = $collection->payment_type === 'settlement' ? 'bg-label-primary' : 'bg-secondary';
                 return '<div>' .
                     '<span class="badge ' . $typeClass . '">' . $collection->collection_type_label . '</span> ' .
                     '<span class="badge ' . $paymentTypeClass . '">' . $collection->payment_type_label . '</span> ' .

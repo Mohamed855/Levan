@@ -16,7 +16,7 @@
     {{-- @endcan --}}
 
     @if ($isEnded)
-        <span class="badge bg-label-secondary" title="الهدف منتهي">
+        <span class="badge bg-secondary" title="الهدف منتهي">
             <i class="ti ti-lock"></i>
         </span>
     @endif

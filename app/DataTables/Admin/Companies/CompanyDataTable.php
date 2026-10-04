@@ -132,13 +132,13 @@ class CompanyDataTable extends AbstractDataTable
             ->addColumn('days_remaining', function (Tenant $row) {
                 $sub = $row->lastSubscription;
                 if (! $sub) {
-                    return '<span class="badge bg-label-secondary">-</span>';
+                    return '<span class="badge bg-secondary">-</span>';
                 }
                 $period = $sub->currentPeriod ?? $sub->periods->sortByDesc('period_end')->first();
                 $days = app(SubscriptionManager::class)->calculateDaysRemaining($period);
 
                 if ($days === null) {
-                    return '<span class="badge bg-label-secondary">-</span>';
+                    return '<span class="badge bg-secondary">-</span>';
                 }
                 if ($days <= 0) {
                     return '<span class="badge bg-label-danger">منتهي (0 يوم)</span>';
@@ -155,7 +155,7 @@ class CompanyDataTable extends AbstractDataTable
             ->addColumn('subscription_status', function (Tenant $row) {
                 $sub = $row->lastSubscription;
                 if (! $sub || ! $sub->status) {
-                    return '<span class="badge bg-label-secondary">لا يوجد</span>';
+                    return '<span class="badge bg-secondary">لا يوجد</span>';
                 }
 
                 return '<span class="badge bg-'.$sub->status->color().'">'.$sub->status->label().'</span>';
@@ -200,11 +200,11 @@ class CompanyDataTable extends AbstractDataTable
                     ['extend' => 'excel', 'text' => 'إكسل'],
                 ],
             ],
-            [
+            ...(auth()->user()?->can('companies.create') ? [[
                 'text' => '<i class="fas fa-plus-circle me-1"></i> إضافة شركة',
                 'className' => 'btn btn-primary btn-add',
                 'action' => "function(){ window.location.href='".route('admin.companies.create')."'; }",
-            ],
+            ]] : []),
         ];
     }
 }

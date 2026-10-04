@@ -133,7 +133,10 @@ class WizardDraftController extends Controller
 
             if ($class && is_a($class, FormRequest::class, true)) {
                 /** @var FormRequest $formRequest */
-                $formRequest = $class::createFromBase($request);
+                // Preserve the authenticated user, session, files and input from the
+                // validation request. createFromBase() drops Laravel's user resolver,
+                // causing resource FormRequest::authorize() to fail for valid users.
+                $formRequest = $class::createFrom($request);
                 $formRequest->setContainer(app());
                 $formRequest->setRedirector(app('redirect'));
                 $formRequest->setRouteResolver(fn (): Route => $route);

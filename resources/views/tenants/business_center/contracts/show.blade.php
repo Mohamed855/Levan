@@ -279,7 +279,7 @@
                                                             <small>{{ $collection->collection_date->locale('ar')->isoFormat('D MMM YYYY') }}</small>
                                                         </div>
                                                     @else
-                                                        <span class="badge bg-label-secondary">
+                                                        <span class="badge bg-secondary">
                                                             <i class="ti ti-clock me-1"></i>
                                                             غير محدد
                                                         </span>
@@ -290,7 +290,7 @@
                                                         <span
                                                             class="badge bg-label-warning">{{ number_format($collection->commission_rate, 2) }}%</span>
                                                     @else
-                                                        <span class="badge bg-label-secondary">0%</span>
+                                                        <span class="badge bg-secondary">0%</span>
                                                     @endif
                                                 </td>
                                                 <td>
@@ -381,7 +381,7 @@
                                                     </span>
                                                 @else
                                                     <span
-                                                        class="badge bg-label-secondary">{{ $commission->commission_type }}</span>
+                                                        class="badge bg-secondary">{{ $commission->commission_type }}</span>
                                                 @endif
                                             </td>
                                             <td>
@@ -445,7 +445,7 @@
                                                         <small>{{ $commission->created_at->locale('ar')->isoFormat('D MMM YYYY') }}</small>
                                                     </div>
                                                 @else
-                                                    <span class="badge bg-label-secondary">
+                                                    <span class="badge bg-secondary">
                                                         <i class="ti ti-minus"></i>
                                                     </span>
                                                 @endif

@@ -27,6 +27,18 @@ class CompanyController extends Controller
         $this->middleware('can:companies.show')->only(['show']);
         $this->middleware('can:companies.edit')->only(['edit', 'update']);
         $this->middleware('can:companies.delete')->only(['destroy']);
+        $this->middleware(function ($request, $next) {
+            if (!auth()->user()?->can('companies.create') && !auth()->user()?->can('companies.edit')) {
+                abort(403);
+            }
+            return $next($request);
+        })->only([
+            'checkCommercialNumberUnique',
+            'checkCompanyNameUnique',
+            'checkTaxNumberUnique',
+            'checkAdminEmailUnique',
+            'checkAdminPhoneUnique',
+        ]);
     }
 
     public function index(CompanyDataTable $dataTable)
@@ -95,7 +107,7 @@ class CompanyController extends Controller
             report($e);
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'حدث خطأ أثناء إنشاء الشركة: ' . $e->getMessage());
+                ->with('error', 'حدث خطأ أثناء إنشاء الشركة. يرجى المحاولة مرة أخرى.');
         }
     }
 
@@ -175,6 +187,115 @@ class CompanyController extends Controller
                 'auctions'   => $plan->active_auctions_limit,
             ],
             'features'      => $plan->features ?? [],
+        ]);
+    }
+
+    /**
+     * التحقق من تفرد رقم السجل التجاري
+     */
+    public function checkCommercialNumberUnique(Request $request): JsonResponse
+    {
+        $request->validate([
+            'commercial_number' => ['required', 'string', 'digits:10'],
+            'company_id'        => ['nullable', 'string'],
+        ]);
+
+        $query = Tenant::where('commercial_number', $request->input('commercial_number'));
+        if ($request->filled('company_id')) {
+            $query->where('id', '!=', $request->input('company_id'));
+        }
+
+        $exists = $query->exists();
+
+        return response()->json([
+            'available' => ! $exists,
+            'message'   => $exists ? 'رقم السجل التجاري مسجل بالفعل' : 'رقم السجل التجاري متاح',
+        ]);
+    }
+
+    /**
+     * التحقق من تفرد اسم الشركة
+     */
+    public function checkCompanyNameUnique(Request $request): JsonResponse
+    {
+        $request->validate([
+            'company_name' => ['required', 'string', 'max:255'],
+            'company_id'   => ['nullable', 'string'],
+        ]);
+
+        $query = Tenant::where('company_name', $request->input('company_name'));
+        if ($request->filled('company_id')) {
+            $query->where('id', '!=', $request->input('company_id'));
+        }
+
+        $exists = $query->exists();
+
+        return response()->json([
+            'available' => ! $exists,
+            'message'   => $exists ? 'اسم الشركة مسجل بالفعل' : 'اسم الشركة متاح',
+        ]);
+    }
+
+    /**
+     * التحقق من تفرد الرقم الضريبي
+     */
+    public function checkTaxNumberUnique(Request $request): JsonResponse
+    {
+        $request->validate([
+            'tax_number' => ['required', 'string', 'max:50'],
+            'company_id' => ['nullable', 'string'],
+        ]);
+
+        $query = Tenant::where('tax_number', $request->input('tax_number'));
+        if ($request->filled('company_id')) {
+            $query->where('id', '!=', $request->input('company_id'));
+        }
+
+        $exists = $query->exists();
+
+        return response()->json([
+            'available' => ! $exists,
+            'message'   => $exists ? 'الرقم الضريبي مسجل بالفعل' : 'الرقم الضريبي متاح',
+        ]);
+    }
+
+    /**
+     * التحقق من تفرد البريد الإلكتروني للمسؤول
+     */
+    public function checkAdminEmailUnique(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        $existsInTenants = Tenant::where('primary_contact_email', $request->input('email'))->exists();
+        $existsInUsers = \App\Models\Tenants\UserMangment\User\User::where('email', $request->input('email'))->exists();
+
+        $exists = $existsInTenants || $existsInUsers;
+
+        return response()->json([
+            'available' => ! $exists,
+            'message'   => $exists ? 'البريد الإلكتروني مستخدم من قبل' : 'البريد الإلكتروني متاح',
+        ]);
+    }
+
+    /**
+     * التحقق من تفرد رقم هاتف المسؤول
+     */
+    public function checkAdminPhoneUnique(Request $request): JsonResponse
+    {
+        $request->validate([
+            'phone' => ['required', 'string', 'size:10', 'regex:/^05[0-9]{8}$/'],
+        ]);
+
+        $existsInTenants = Tenant::where('primary_contact_phone', $request->input('phone'))->exists();
+        $existsInUsers = \App\Models\Tenants\UserMangment\User\User::where('phone', $request->input('phone'))->exists();
+
+        $exists = $existsInTenants || $existsInUsers;
+
+        return response()->json([
+            'available' => ! $exists,
+            'message'   => $exists ? 'رقم الهاتف مستخدم من قبل' : 'رقم الهاتف متاح',
         ]);
     }
 }
