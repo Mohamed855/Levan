@@ -176,6 +176,256 @@ class AdminDashboardCrudFeatureTest extends TestCase
     }
 
     /**
+     * Test 2b: Admin Users Super Admin protection on all destructive and status operations
+     */
+    public function test_admin_users_super_admin_protection_on_all_operations(): void
+    {
+        // 1. Cannot toggle status of Super Admin
+        $this->patchJson($this->adminUrl("users/{$this->superAdmin->id}/toggle-status"))
+            ->assertStatus(403)
+            ->assertJson([
+                'success' => false,
+                'message' => 'لا يمكن تغيير حالة السوبر أدمن',
+            ]);
+
+        // 2. Cannot soft-delete Super Admin
+        $destroyResponse = $this->delete($this->adminUrl("users/{$this->superAdmin->id}"));
+        $destroyResponse->assertStatus(302);
+        $this->assertNull($this->superAdmin->fresh()->deleted_at);
+
+        // 3. Cannot bulk-delete Super Admin
+        $this->postJson($this->adminUrl('users/bulk-delete'), ['ids' => [$this->superAdmin->id]])
+            ->assertStatus(403)
+            ->assertJson([
+                'success' => false,
+                'message' => 'لا يمكن حذف السوبر أدمن',
+            ]);
+
+        // 4. Cannot restore or force-delete Super Admin via archive
+        $tempSuperAdmin = AdminUser::create([
+            'name'     => 'مشرف عام تجريبي',
+            'email'    => 'super_temp_' . uniqid() . '@gmail.com',
+            'password' => bcrypt('password123'),
+            'phone'    => '05' . rand(10000000, 99999999),
+            'status'         => 'active',
+            'is_super_admin' => 1,
+        ]);
+        $superAdminRole = Role::where('name', 'SuperAdmin')->where('guard_name', 'admin')->first();
+        if ($superAdminRole) {
+            $tempSuperAdmin->assignRole($superAdminRole);
+        }
+        $tempSuperAdmin->delete();
+
+        // Attempt restore on SuperAdmin
+        $this->patch($this->adminUrl("archives/restore/{$tempSuperAdmin->id}"))
+            ->assertStatus(302);
+        $this->assertNotNull($tempSuperAdmin->fresh()->deleted_at);
+
+        // Attempt force-delete on SuperAdmin
+        $this->delete($this->adminUrl("archives/force-delete/{$tempSuperAdmin->id}"))
+            ->assertStatus(302);
+        $this->assertDatabaseHas('admin_users', ['id' => $tempSuperAdmin->id]);
+
+        // Clean up
+        $tempSuperAdmin->removeRole('SuperAdmin');
+        $tempSuperAdmin->forceDelete();
+    }
+
+    /**
+     * Test 2c: Admin Users bulk delete and stored-image cleanup
+     */
+    public function test_admin_users_bulk_delete_and_stored_image_cleanup(): void
+    {
+        Storage::fake('public');
+
+        $imagePath1 = 'admin_users/avatar_test1.png';
+        $imagePath2 = 'admin_users/avatar_test2.png';
+        Storage::disk('public')->put($imagePath1, 'fake content 1');
+        Storage::disk('public')->put($imagePath2, 'fake content 2');
+
+        $user1 = AdminUser::create([
+            'name'     => 'مستخدم صورة 1',
+            'email'    => 'img1_' . uniqid() . '@gmail.com',
+            'password' => bcrypt('password123'),
+            'phone'    => '05' . rand(10000000, 99999999),
+            'status'   => 'active',
+            'image'    => $imagePath1,
+        ]);
+
+        $user2 = AdminUser::create([
+            'name'     => 'مستخدم صورة 2',
+            'email'    => 'img2_' . uniqid() . '@gmail.com',
+            'password' => bcrypt('password123'),
+            'phone'    => '05' . rand(10000000, 99999999),
+            'status'   => 'active',
+            'image'    => $imagePath2,
+        ]);
+
+        // Bulk delete both users
+        $response = $this->postJson($this->adminUrl('users/bulk-delete'), [
+            'ids' => [$user1->id, $user2->id],
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+            ]);
+
+        $this->assertNotNull($user1->fresh()->deleted_at);
+        $this->assertNotNull($user2->fresh()->deleted_at);
+        Storage::disk('public')->assertMissing($imagePath1);
+        Storage::disk('public')->assertMissing($imagePath2);
+
+        // Force delete image cleanup
+        $imagePath3 = 'admin_users/avatar_test3.png';
+        Storage::disk('public')->put($imagePath3, 'fake content 3');
+
+        $user3 = AdminUser::create([
+            'name'     => 'مستخدم صورة 3',
+            'email'    => 'img3_' . uniqid() . '@gmail.com',
+            'password' => bcrypt('password123'),
+            'phone'    => '05' . rand(10000000, 99999999),
+            'status'   => 'active',
+            'image'    => $imagePath3,
+        ]);
+        $user3->delete();
+
+        $this->delete($this->adminUrl("archives/force-delete/{$user3->id}"))
+            ->assertStatus(302);
+
+        $this->assertDatabaseMissing('admin_users', ['id' => $user3->id]);
+        Storage::disk('public')->assertMissing($imagePath3);
+    }
+
+    /**
+     * Test 2d: Admin Users uniqueness endpoints and current user ignore
+     */
+    public function test_admin_users_uniqueness_endpoints_and_self_ignore(): void
+    {
+        $uniqueEmail = 'target_' . uniqid() . '@gmail.com';
+        $uniquePhone = '05' . rand(10000000, 99999999);
+        $uniqueName = 'مشرف فريد ' . rand(1000, 9999);
+
+        $targetUser = AdminUser::create([
+            'name'     => $uniqueName,
+            'email'    => $uniqueEmail,
+            'password' => bcrypt('password123'),
+            'phone'    => $uniquePhone,
+            'status'   => 'active',
+        ]);
+
+        // Email uniqueness
+        $this->postJson($this->adminUrl('users/check-email-unique'), [
+            'email' => $uniqueEmail,
+        ])->assertStatus(200)->assertJson(['available' => false]);
+
+        $this->postJson($this->adminUrl('users/check-email-unique'), [
+            'email'   => $uniqueEmail,
+            'user_id' => $targetUser->id,
+        ])->assertStatus(200)->assertJson(['available' => true]);
+
+        $this->postJson($this->adminUrl('users/check-email-unique'), [
+            'email'   => $uniqueEmail,
+            'user_id' => 999999,
+        ])->assertStatus(200)->assertJson(['available' => false]);
+
+        // Phone uniqueness
+        $this->postJson($this->adminUrl('users/check-phone-unique'), [
+            'phone' => $uniquePhone,
+        ])->assertStatus(200)->assertJson(['available' => false]);
+
+        $this->postJson($this->adminUrl('users/check-phone-unique'), [
+            'phone'   => $uniquePhone,
+            'user_id' => $targetUser->id,
+        ])->assertStatus(200)->assertJson(['available' => true]);
+
+        // Name uniqueness
+        $this->postJson($this->adminUrl('users/check-name-unique'), [
+            'name' => $uniqueName,
+        ])->assertStatus(200)->assertJson(['available' => false]);
+
+        $this->postJson($this->adminUrl('users/check-name-unique'), [
+            'name'   => $uniqueName,
+            'user_id' => $targetUser->id,
+        ])->assertStatus(200)->assertJson(['available' => true]);
+
+        // Validation rejection
+        $this->postJson($this->adminUrl('users/check-email-unique'), [
+            'email' => 'not-an-email',
+        ])->assertStatus(422);
+
+        $this->postJson($this->adminUrl('users/check-phone-unique'), [
+            'phone' => 'invalid-phone-string-with-letters',
+        ])->assertStatus(422);
+
+        $targetUser->forceDelete();
+    }
+
+    /**
+     * Test 2e: Admin Users authorization for bulk delete, archive operations, and uniqueness endpoints
+     */
+    public function test_admin_users_authorization_for_bulk_delete_archives_and_uniqueness(): void
+    {
+        $restrictedUser = AdminUser::create([
+            'name'     => 'مشرف مقيد',
+            'email'    => 'restricted_' . uniqid() . '@gmail.com',
+            'password' => bcrypt('password123'),
+            'phone'    => '05' . rand(10000000, 99999999),
+            'status'   => 'active',
+        ]);
+
+        $this->actingAs($restrictedUser, 'admin');
+
+        // 1. Bulk delete forbidden
+        $this->postJson($this->adminUrl('users/bulk-delete'), ['ids' => [1]])
+            ->assertStatus(403);
+
+        // 2. Uniqueness endpoints forbidden
+        $this->postJson($this->adminUrl('users/check-email-unique'), ['email' => 'test@test.com'])
+            ->assertStatus(403);
+        $this->postJson($this->adminUrl('users/check-name-unique'), ['name' => 'مشرف'])
+            ->assertStatus(403);
+        $this->postJson($this->adminUrl('users/check-phone-unique'), ['phone' => '0500000000'])
+            ->assertStatus(403);
+
+        // 3. Archive restore and force-delete forbidden
+        $this->patch($this->adminUrl('archives/restore/1'))
+            ->assertStatus(403);
+        $this->delete($this->adminUrl('archives/force-delete/1'))
+            ->assertStatus(403);
+
+        // Restore SuperAdmin session
+        $this->actingAs($this->superAdmin, 'admin');
+        $restrictedUser->forceDelete();
+    }
+
+    /**
+     * Test 2f: Admin Users active and archive DataTables filter by status and role
+     */
+    public function test_admin_users_datatables_filter_by_status_and_role(): void
+    {
+        // 1. Users DataTable with status and role filters
+        $usersResponse = $this->getJson($this->adminUrl('users?status=active&role=SuperAdmin'), [
+            'X-Requested-With' => 'XMLHttpRequest',
+        ]);
+        $usersResponse->assertStatus(200);
+        $usersResponse->assertJsonStructure(['data', 'draw', 'recordsTotal', 'recordsFiltered']);
+
+        // 2. Users DataTable with inactive filter
+        $inactiveResponse = $this->getJson($this->adminUrl('users?status=inactive'), [
+            'X-Requested-With' => 'XMLHttpRequest',
+        ]);
+        $inactiveResponse->assertStatus(200);
+
+        // 3. Archives DataTable with status and role filters
+        $archiveResponse = $this->getJson($this->adminUrl('archives?status=active&role=SuperAdmin'), [
+            'X-Requested-With' => 'XMLHttpRequest',
+        ]);
+        $archiveResponse->assertStatus(200);
+        $archiveResponse->assertJsonStructure(['data', 'draw', 'recordsTotal', 'recordsFiltered']);
+    }
+
+    /**
      * Test 3: Admin Roles CRUD Lifecycle & User Role Assignments
      */
     public function test_admin_roles_crud_lifecycle(): void

@@ -36,6 +36,8 @@ return [
     'users.edit' => 'Edit User',
     'users.delete' => 'Delete User',
     'users.change_status' => 'Change User Status',
+    'users.restore' => 'Restore User',
+    'users.force_delete' => 'Force Delete User',
 
     // Plans
     'plans.view' => 'Plans',

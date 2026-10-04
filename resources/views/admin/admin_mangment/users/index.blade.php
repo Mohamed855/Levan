@@ -16,7 +16,7 @@
 @section('page-script')
     <script>
         window.routes = {
-            massDelete: "{{ route('admin.mass-delete') }}"
+            massDelete: "{{ route('admin.users.bulk-delete') }}"
         };
     </script>
     @vite(['resources/assets/js/admin/admin_mangment/users/index.js'])

@@ -16,6 +16,7 @@ trait ActivityLogPresenterTrait
             'customer_settlement' => 'طلبات التسوية',
             'customer_update_requests' => 'طلبات تحديث بيانات العميل',
             'users' => 'المستخدمين',
+            'admin_users' => 'إدارة المستخدمين',
             'portfolios' => 'المحافظ',
             'collections' => 'التحصيلات',
             'auth' => 'تسجيل الدخول',

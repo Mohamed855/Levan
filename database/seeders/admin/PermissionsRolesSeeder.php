@@ -21,6 +21,8 @@ class PermissionsRolesSeeder extends Seeder
                 'users.edit',
                 'users.delete',
                 'users.change_status',
+                'users.restore',
+                'users.force_delete',
             ],
 
             'plans_management' => [

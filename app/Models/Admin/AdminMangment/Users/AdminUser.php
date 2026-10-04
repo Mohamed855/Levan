@@ -75,7 +75,7 @@ class AdminUser extends Authenticatable
     */
     public static function getLogName(): string
     {
-        return 'إدارة المستخدمين';
+        return 'admin_users';
     }
 
     public static function getModelNameArabic(): string
@@ -121,7 +121,7 @@ class AdminUser extends Authenticatable
     */
     public function isSuperAdmin(): bool
     {
-        return $this->is_super_admin === true;
+        return (bool) $this->is_super_admin || $this->hasRole('SuperAdmin');
     }
 
     public function coupons()

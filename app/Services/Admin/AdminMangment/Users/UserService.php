@@ -69,24 +69,44 @@ class UserService
             }
 
             // Delete user
-            return $user->delete();
+            return (bool) $user->delete();
         });
     }
 
+    public function bulkDelete(array $ids): int
+    {
+        return DB::transaction(function () use ($ids) {
+            $users = AdminUser::whereIn('id', $ids)->get();
+            $deletedCount = 0;
+            foreach ($users as $user) {
+                if ($this->deleteUser($user)) {
+                    $deletedCount++;
+                }
+            }
+            return $deletedCount;
+        });
+    }
+
+    public function forceDeleteUser(AdminUser $user): bool
+    {
+        return DB::transaction(function () use ($user) {
+            if ($user->image) {
+                $this->deleteImage($user->image);
+            }
+
+            return (bool) $user->forceDelete();
+        });
+    }
 
     public function getUserStatistics(): array
     {
-        $baseQuery = $this->getUsersQuery();
-
         return [
-            'total'     => (clone $baseQuery)->count(),
-            'active'    => (clone $baseQuery)->where('status', 'active')->count(),
-            'inactive'  => (clone $baseQuery)->where('status', 'inactive')->count(),
-            'archived'  => AdminUser::onlyTrashed()->count(),
+            'total'    => AdminUser::count(),
+            'active'   => AdminUser::where('status', \App\Enums\Admin\Users\AdminUserStatus::ACTIVE)->count(),
+            'inactive' => AdminUser::where('status', \App\Enums\Admin\Users\AdminUserStatus::INACTIVE)->count(),
+            'archived' => AdminUser::onlyTrashed()->count(),
         ];
     }
-
-
 
     /*
     |============================================================================
@@ -104,10 +124,17 @@ class UserService
         return $image->storeAs('admin_users', $filename, 'public');
     }
 
-
-    private function deleteImage(string $imagePath): bool
+    public function deleteImage(?string $imagePath): bool
     {
-        return Storage::disk('public')->delete($imagePath);
+        if (!$imagePath) {
+            return false;
+        }
+
+        if (Storage::disk('public')->exists($imagePath)) {
+            return Storage::disk('public')->delete($imagePath);
+        }
+
+        return false;
     }
 
     private function getUsersQuery()

@@ -1,24 +1,32 @@
 <?php
+
 namespace App\Http\Controllers\Admin\Archive\AdminUser;
 
 use App\DataTables\Admin\Archive\AdminUser\AdminUserDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
-use Illuminate\Http\Request;
+use App\Services\Admin\AdminMangment\Users\UserService;
 use Illuminate\Support\Facades\Log;
-use Microsoft\Graph\Model\Admin;
+use Spatie\Permission\Models\Role;
 
 class AdminUserController extends Controller
 {
+    public function __construct(private UserService $userService)
+    {
+        $this->middleware('auth:admin');
+        $this->middleware('can:users.view')->only(['index']);
+        $this->middleware('can:users.restore')->only(['restore']);
+        $this->middleware('can:users.force_delete')->only(['forceDelete']);
+    }
+
     public function index(AdminUserDataTable $dataTable)
     {
-        $roles = \Spatie\Permission\Models\Role::select('id', 'name')->orderBy('name', 'asc')->get();
+        $roles = Role::select('id', 'name')->orderBy('name', 'asc')->get();
 
         $filterOptions = [
             'statuses' => [
                 ['value' => 'active', 'label' => 'نشط'],
                 ['value' => 'inactive', 'label' => 'غير نشط'],
-                ['value' => 'suspended', 'label' => 'معلق'],
             ],
             'roles' => $roles->map(fn ($role): array => [
                 'value' => $role->id,
@@ -32,7 +40,13 @@ class AdminUserController extends Controller
     public function restore(int $id)
     {
         try {
-             $adminUser = AdminUser::withTrashed()->findOrFail($id);
+            $adminUser = AdminUser::withTrashed()->findOrFail($id);
+
+            if ($adminUser->isSuperAdmin()) {
+                return redirect()->route('admin.archives.index')
+                    ->with('error', 'لا يمكن استرجاع السوبر أدمن');
+            }
+
             $adminUser->restore();
 
             return redirect()->route('admin.archives.index')
@@ -41,7 +55,7 @@ class AdminUserController extends Controller
             Log::error('Error restoring admin user: ' . $e->getMessage());
 
             return redirect()->route('admin.archives.index')
-                ->with('error', 'حدث خطأ أثناء استرجاع المستخدم .');
+                ->with('error', 'حدث خطأ أثناء استرجاع المستخدم.');
         }
     }
 
@@ -49,15 +63,21 @@ class AdminUserController extends Controller
     {
         try {
             $adminUser = AdminUser::withTrashed()->findOrFail($id);
-            $adminUser->forceDelete();
+
+            if ($adminUser->isSuperAdmin()) {
+                return redirect()->route('admin.archives.index')
+                    ->with('error', 'لا يمكن حذف السوبر أدمن');
+            }
+
+            $this->userService->forceDeleteUser($adminUser);
 
             return redirect()->route('admin.archives.index')
-                ->with('success', 'تم حذف المستخدم  نهائيًا بنجاح.');
+                ->with('success', 'تم حذف المستخدم نهائيًا بنجاح.');
         } catch (\Exception $e) {
             Log::error('Error force deleting admin user: ' . $e->getMessage());
 
             return redirect()->route('admin.archives.index')
-                ->with('error', 'حدث خطأ أثناء الحذف النهائي للمستخدم .');
+                ->with('error', 'حدث خطأ أثناء الحذف النهائي للمستخدم.');
         }
     }
 }

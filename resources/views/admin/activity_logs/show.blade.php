@@ -64,7 +64,7 @@
                                         <small>{{ $activity->created_at->locale('ar')->translatedFormat('d F Y - h:i A') }}</small>
                                     </div>
                                     <div class="flex-shrink-0">
-                                        <span class="badge bg-primary fs-6">{{ $activity->log_name }}</span>
+                                        <span class="badge bg-primary fs-6">{{ $activityData['log_name_arabic'] ?? $activity->log_name }}</span>
                                     </div>
                                 </div>
                             </div>

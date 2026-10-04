@@ -26,8 +26,14 @@ class AdminUserController extends Controller
         $this->middleware('can:users.view')->only(['index', 'showProfile']);
         $this->middleware('can:users.create')->only(['create', 'store']);
         $this->middleware('can:users.edit')->only(['edit', 'update']);
-        $this->middleware('can:users.delete')->only(['destroy']);
+        $this->middleware('can:users.delete')->only(['destroy', 'bulkDelete']);
         $this->middleware('can:users.change_status')->only(['toggleStatus']);
+        $this->middleware(function ($request, $next) {
+            if (!auth()->user()?->can('users.create') && !auth()->user()?->can('users.edit')) {
+                abort(403);
+            }
+            return $next($request);
+        })->only(['checkEmailUnique', 'checkNameUnique', 'checkPhoneUnique']);
     }
 
     public function index(AdminUserDataTable $dataTable)
@@ -35,9 +41,6 @@ class AdminUserController extends Controller
         try {
             $statistics = $this->userService->getUserStatistics();
             $roles = Role::select('id', 'name')->orderBy('name', 'asc')->get();
-            $totalUsers = AdminUser::count();
-            $activeUsers = AdminUser::where('status', AdminUserStatus::ACTIVE)->count();
-            $inactiveUsers = AdminUser::where('status', AdminUserStatus::INACTIVE)->count();
             $filterOptions = [
                 'statuses' => [
                     ['value' => 'active', 'label' => 'نشط'],
@@ -49,12 +52,10 @@ class AdminUserController extends Controller
                 ]),
             ];
 
-            // $archivedUsers = AdminUser::onlyTrashed()->count();
             return $dataTable->render($this->page.'.index', [
-                'totalUsers' => $totalUsers,
-                'activeUsers' => $activeUsers,
-                'inactiveUsers' => $inactiveUsers,
-                // 'archivedUsers'   => $archivedUsers,
+                'totalUsers' => $statistics['total'],
+                'activeUsers' => $statistics['active'],
+                'inactiveUsers' => $statistics['inactive'],
                 'roles' => $roles,
                 'filterOptions' => $filterOptions,
             ]);
@@ -103,9 +104,48 @@ class AdminUserController extends Controller
             return redirect()->route($this->route.'.index')->with('error', 'لا يمكن حذف السوبر أدمن');
         }
 
-        $user->delete();
+        $this->userService->deleteUser($user);
 
         return redirect()->route('admin.users.index')->with('success', 'تم حذف المستخدم بنجاح');
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $rawIds = $request->input('ids');
+        $ids = is_array($rawIds)
+            ? array_filter($rawIds)
+            : array_filter(array_map('trim', explode(',', (string) $rawIds)));
+
+        if (empty($ids)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'يرجى تحديد مستخدم واحد على الأقل',
+            ], 422);
+        }
+
+        $users = AdminUser::whereIn('id', $ids)->get();
+
+        if ($users->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'المستخدمون المحددون غير موجودين',
+            ], 404);
+        }
+
+        $hasSuperAdmin = $users->contains(fn (AdminUser $user) => $user->isSuperAdmin());
+        if ($hasSuperAdmin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'لا يمكن حذف السوبر أدمن',
+            ], 403);
+        }
+
+        $this->userService->bulkDelete($users->pluck('id')->all());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم حذف المستخدمين المحددين بنجاح',
+        ]);
     }
 
     // تغيير حالة المستخدم
@@ -146,7 +186,7 @@ class AdminUserController extends Controller
 
     public function showProfile($id)
     {
-        $user = AdminUser::where('id', $id)->first();
+        $user = AdminUser::with('roles')->findOrFail($id);
         $role = $user->roles->first() ?? null;
 
         $recentActivities = Activity::where('causer_id', $user->id)
@@ -164,20 +204,28 @@ class AdminUserController extends Controller
 
     public function checkEmailUnique(Request $request)
     {
-        $email = $request->input('email');
+        $request->validate([
+            'email'   => ['required', 'email'],
+            'user_id' => ['nullable', 'integer'],
+        ]);
 
-        $exists = AdminUser::where('email', $email)->exists();
+        $query = AdminUser::where('email', $request->input('email'));
+        if ($request->filled('user_id')) {
+            $query->where('id', '!=', $request->input('user_id'));
+        }
+
+        $exists = $query->exists();
 
         if ($exists) {
             return response()->json([
                 'available' => false,
-                'message' => 'البريد الإلكتروني مستخدم من قبل',
+                'message'   => 'البريد الإلكتروني مستخدم من قبل',
             ]);
         }
 
         return response()->json([
             'available' => true,
-            'message' => 'البريد الإلكتروني متاح',
+            'message'   => 'البريد الإلكتروني متاح',
         ]);
     }
 
@@ -186,20 +234,28 @@ class AdminUserController extends Controller
      */
     public function checkNameUnique(Request $request)
     {
-        $name = $request->input('name');
+        $request->validate([
+            'name'    => ['required', 'string', 'max:255'],
+            'user_id' => ['nullable', 'integer'],
+        ]);
 
-        $exists = AdminUser::where('name', $name)->exists();
+        $query = AdminUser::where('name', $request->input('name'));
+        if ($request->filled('user_id')) {
+            $query->where('id', '!=', $request->input('user_id'));
+        }
+
+        $exists = $query->exists();
 
         if ($exists) {
             return response()->json([
                 'available' => false,
-                'message' => 'الاسم مستخدم من قبل',
+                'message'   => 'الاسم مستخدم من قبل',
             ]);
         }
 
         return response()->json([
             'available' => true,
-            'message' => 'الاسم متاح',
+            'message'   => 'الاسم متاح',
         ]);
     }
 
@@ -208,20 +264,28 @@ class AdminUserController extends Controller
      */
     public function checkPhoneUnique(Request $request)
     {
-        $phone = $request->input('phone');
+        $request->validate([
+            'phone'   => ['required', 'string', 'max:20'],
+            'user_id' => ['nullable', 'integer'],
+        ]);
 
-        $exists = AdminUser::where('phone', $phone)->exists();
+        $query = AdminUser::where('phone', $request->input('phone'));
+        if ($request->filled('user_id')) {
+            $query->where('id', '!=', $request->input('user_id'));
+        }
+
+        $exists = $query->exists();
 
         if ($exists) {
             return response()->json([
                 'available' => false,
-                'message' => 'رقم الهاتف مستخدم من قبل',
+                'message'   => 'رقم الهاتف مستخدم من قبل',
             ]);
         }
 
         return response()->json([
             'available' => true,
-            'message' => 'رقم الهاتف متاح',
+            'message'   => 'رقم الهاتف متاح',
         ]);
     }
 }

@@ -15,149 +15,14 @@
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/admin/admin_mangment/users/form-validation.js'])
-
     <script>
-        $(document).ready(function() {
-            let emailCheckTimeout;
-            let ajaxRequest = null;
-            const originalEmail = "{{ $user->email }}";
-            const $nextButton = $('#basic-info-validation .btn-next');
-
-            // دالة لتحديث حالة الزر
-            function updateButtonState() {
-                const $email = $('#email');
-                const email = $email.val().trim();
-
-                // لو الإيميل فاضي أو invalid، disable الزر
-                if (email === '' || $email.hasClass('is-invalid')) {
-                    $nextButton.prop('disabled', true).addClass('disabled');
-                } else if ($email.hasClass('is-valid') || email === originalEmail) {
-                    $nextButton.prop('disabled', false).removeClass('disabled');
-                }
-            }
-
-            $('#email').on('keyup change paste', function() {
-                clearTimeout(emailCheckTimeout);
-
-                if (ajaxRequest && ajaxRequest.abort) {
-                    ajaxRequest.abort();
-                }
-
-                const email = $(this).val().trim();
-                const $emailFeedback = $('#email-feedback');
-
-                $emailFeedback.remove();
-                $(this).removeClass('is-valid is-invalid');
-
-                // تحديث حالة الزر
-                updateButtonState();
-
-                if (email === '') {
-                    return;
-                }
-
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(email)) {
-                    $(this).after(
-                        '<div id="email-feedback" class="invalid-feedback d-block"><i class="ti ti-x me-1"></i>صيغة البريد الإلكتروني غير صحيحة</div>'
-                    );
-                    $(this).addClass('is-invalid');
-                    updateButtonState();
-                    return;
-                }
-
-                if (email === originalEmail) {
-                    $(this).after(
-                        '<div id="email-feedback" class="valid-feedback d-block"><i class="ti ti-check me-1"></i>البريد الإلكتروني الحالي</div>'
-                    );
-                    $(this).addClass('is-valid');
-                    updateButtonState();
-                    return;
-                }
-
-                emailCheckTimeout = setTimeout(function() {
-                    $('#email').after(
-                        '<div id="email-feedback" class="form-text text-muted"><i class="ti ti-loader ti-spin me-1"></i>جاري التحقق...</div>'
-                    );
-
-                    // disable الزر أثناء التحقق
-                    $nextButton.prop('disabled', true).addClass('disabled');
-
-                    ajaxRequest = $.ajax({
-                        url: "{{ route('admin.users.check-email-unique') }}",
-                        method: 'POST',
-                        data: {
-                            email: email,
-                            user_id: "{{ $user->id }}",
-                            _token: "{{ csrf_token() }}"
-                        },
-                        success: function(response) {
-                            $('#email-feedback').remove();
-
-                            if (response.available) {
-                                $('#email').addClass('is-valid').removeClass(
-                                    'is-invalid');
-                                $('#email').after(
-                                    '<div id="email-feedback" class="valid-feedback d-block"><i class="ti ti-check me-1"></i>' +
-                                    response.message + '</div>');
-                            } else {
-                                $('#email').addClass('is-invalid').removeClass(
-                                    'is-valid');
-                                $('#email').after(
-                                    '<div id="email-feedback" class="invalid-feedback d-block"><i class="ti ti-x me-1"></i>' +
-                                    response.message + '</div>');
-                            }
-
-                            // تحديث حالة الزر بعد النتيجة
-                            updateButtonState();
-                        },
-                        error: function(xhr) {
-                            if (xhr.statusText === 'abort') {
-                                return;
-                            }
-
-                            $('#email-feedback').remove();
-                            $('#email').addClass('is-invalid').removeClass('is-valid');
-                            $('#email').after(
-                                '<div id="email-feedback" class="invalid-feedback d-block"><i class="ti ti-x me-1"></i>حدث خطأ أثناء التحقق</div>'
-                            );
-
-                            updateButtonState();
-                        },
-                        complete: function() {
-                            ajaxRequest = null;
-                        }
-                    });
-                }, 1000);
-            });
-
-            // منع الانتقال للخطوة التالية لو الإيميل invalid
-            $nextButton.on('click', function(e) {
-                const $email = $('#email');
-
-                if ($email.hasClass('is-invalid')) {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-                    toastr.error('يرجى إدخال بريد إلكتروني صحيح ومتاح');
-                    return false;
-                }
-            });
-
-            // منع الإرسال لو الإيميل مش متاح
-            $('#wizard-validation-form').on('submit', function(e) {
-                if ($('#email').hasClass('is-invalid')) {
-                    e.preventDefault();
-                    toastr.error('يرجى إدخال بريد إلكتروني صحيح ومتاح');
-                    return false;
-                }
-            });
-
-            // التحقق الأولي عند تحميل الصفحة
-            updateButtonState();
+        window.routes = Object.assign(window.routes || {}, {
+            checkNameUnique: "{{ route('admin.users.check-name-unique') }}",
+            checkEmailUnique: "{{ route('admin.users.check-email-unique') }}",
+            checkPhoneUnique: "{{ route('admin.users.check-phone-unique') }}"
         });
     </script>
-
+    @vite(['resources/assets/js/admin/admin_mangment/users/form-validation.js'])
 @endsection
 
 @section('content')
@@ -200,7 +65,7 @@
                     @endif
 
                     <form id="wizard-validation-form" action="{{ route('admin.users.update', $user) }}" method="POST"
-                        onSubmit="return false" enctype="multipart/form-data" autocomplete="off">
+                        data-user-id="{{ $user->id }}" enctype="multipart/form-data" autocomplete="off">
                         @csrf
                         @method('PUT')
 
@@ -211,22 +76,24 @@
                                     <label class="form-label" for="name">الاسم الكامل <span
                                             class="text-danger">*</span></label>
                                     <input type="text" name="name" id="name" class="form-control"
-                                        placeholder="ادخل الاسم الكامل" value="{{ old('name', $user->name) }}" />
+                                        placeholder="ادخل الاسم الكامل" value="{{ old('name', $user->name) }}"
+                                        data-initial-value="{{ $user->name }}" />
                                 </div>
 
                                 <div class="col-sm-6">
                                     <label class="form-label" for="email">البريد الإلكتروني <span
                                             class="text-danger">*</span></label>
                                     <input type="email" name="email" id="email" class="form-control"
-                                        placeholder="ادخل البريد الإلكتروني" value="{{ old('email', $user->email) }}" autocomplete="off" />
-                                    {{-- رسالة التحقق ستظهر هنا --}}
+                                        placeholder="ادخل البريد الإلكتروني" value="{{ old('email', $user->email) }}"
+                                        data-initial-value="{{ $user->email }}" autocomplete="off" />
                                 </div>
 
                                 <div class="col-sm-6">
                                     <label class="form-label" for="phone">رقم الهاتف <span
                                             class="text-danger">*</span></label>
                                     <input type="text" name="phone" id="phone" class="form-control"
-                                        placeholder="ادخل رقم الهاتف" value="{{ old('phone', $user->phone) }}" />
+                                        placeholder="ادخل رقم الهاتف" value="{{ old('phone', $user->phone) }}"
+                                        data-initial-value="{{ $user->phone }}" />
                                 </div>
 
                                 <div class="col-12 d-flex justify-content-between">

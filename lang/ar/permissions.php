@@ -37,6 +37,8 @@ return [
     'users.edit' => 'تعديل مستخدم',
     'users.delete' => 'حذف مستخدم',
     'users.change_status' => 'تغيير حالة المستخدم',
+    'users.restore' => 'استعادة مستخدم من الأرشيف',
+    'users.force_delete' => 'الحذف النهائي للمستخدم',
 
     // Plans
     'plans.view' => 'الباقات',

@@ -20,7 +20,7 @@ class AdminUserDataTable extends AbstractDataTable
 
     protected function resource()
     {
-        return AdminUser::query();
+        return AdminUser::with('roles');
     }
 
     protected function getColumns(): array

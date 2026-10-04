@@ -32,33 +32,16 @@
 
                 <div class="background-image-container"
                     style="position: relative; width: 100%; height: 100%; overflow: hidden;">
-                    <img src="{{ $user->background_image ? asset('storage/' . $user->background_image) : asset('profile.jpg') }}"
+                    <img src="{{ asset('assets/img/pages/profile-banner.png') }}"
                         alt="صورة الغلاف" class="rounded-top"
                         style="width: 100%; height: 143px !important; object-fit: cover;">
-                    @if (auth()->guard('admin')->check() && auth()->guard('admin')->id() === $user->id)
-                        <button type="button" class="btn btn-primary btn-sm edit-button" data-bs-toggle="modal"
-                            data-bs-target="#editBackgroundImageModal"
-                            style="position: absolute; top: 10px; right: 10px; opacity: 0; transition: opacity 0.3s;">
-                            <i class="ti ti-pencil"></i>تغيير
-                        </button>
-                    @endif
                 </div>
                 <div class="user-profile-header d-flex flex-column flex-lg-row text-sm-start text-center mb-5">
                     <div class="profile-image-container mt-n5 mx-sm-0 mx-auto"
                         style="position: relative; display: inline-block;">
-                        <img src="{{ $user->profile_picture && Storage::disk('public')->exists($user->profile_picture) ? asset('storage/' . $user->profile_picture) : asset('img/logo.svg') }}"
-                            alt="صورة الموظف" class="d-block h-auto ms-0 ms-sm-6"
+                        <img src="{{ $user->image && Storage::disk('public')->exists($user->image) ? asset('storage/' . $user->image) : asset('img/logo.svg') }}"
+                            alt="صورة المستخدم" class="d-block h-auto ms-0 ms-sm-6"
                             style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%;">
-
-                        <!-- زر تحديث الصورة الشخصية -->
-                        @if (auth()->guard('admin')->check() && auth()->guard('admin')->id() === $user->id)
-                            <button type="button" class="btn btn-primary btn-sm edit-button" data-bs-toggle="modal"
-                                data-bs-target="#editProfilePictureModal"
-                                style="margin-right: 30px; position: absolute; bottom: 0; right: 0; opacity: 0; transition: opacity 0.3s;">
-                                <i class="ti ti-pencil"></i>
-                            </button>
-                        @endif
-
                     </div>
                     <div class="flex-grow-1 mt-3 mt-lg-5">
                         <div
@@ -96,82 +79,7 @@
             </div>
 
 
-            <!-- edit profile imag -->
-            <div class="modal fade" id="editProfilePictureModal" tabindex="-1"
-                aria-labelledby="editProfilePictureModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog">
-                    {{-- <form action="{{ route('account.employee.profile.picture.update', $user->id) }}" method="POST" --}}
-                    <form action="" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        @method('PUT')
-                        <div class="modal-content">
-                            <div class="modal-header pb-5">
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="إغلاق"></button>
-                                <h5 class="modal-title" id="editProfilePictureModalLabel">تحديث الصورة الشخصية</h5>
-                            </div>
-                            <div class="border-1 border-light border-dashed mb-2"></div>
 
-                            <div class="modal-body">
-                                <div class="mb-3">
-                                    <label for="profile_picture" class="form-label">اختر صورة جديدة</label>
-                                    <input class="form-control" type="file" id="profile_picture" name="profile_picture"
-                                        accept="image/*" required>
-                                </div>
-                                <div class="d-flex justify-content-center">
-                                    <img id="previewImage"
-                                        src="{{ $user->profile_picture ? asset('storage/' . $user->profile_picture) : asset('img/logo.svg') }}"
-                                        alt="صورة المعاينة" class="img-thumbnail" style="max-width: 200px;">
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="submit" class="btn btn-primary">تحديث</button>
-                                <button type="button" class="btn btn-secondary mx-0" data-bs-dismiss="modal">إغلاق</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- edit background imag -->
-            <div class="modal fade" id="editBackgroundImageModal" tabindex="-1"
-                aria-labelledby="editBackgroundImageModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog">
-                    {{-- <form action="{{ route('account.employee.profile.background.update', $user->id) }}" method="POST" --}}
-                    <form action="" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        @method('PUT')
-                        <div class="modal-content">
-                            <div class="modal-header pb-5">
-                                <h5 class="modal-title" id="editBackgroundImageModalLabel">تحديث صورة الخلفية</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="إغلاق"></button>
-                            </div>
-                            <div class="border-1 border-light border-dashed mb-2"></div>
-
-                            <div class="modal-body">
-                                <div class="mb-3">
-                                    <label for="background_image" class="form-label">اختر صورة خلفية جديدة</label>
-                                    <small class="text-danger">يجب أن تكون أبعاد صورة الخلفية 1693 × 376 بكسل</small>
-                                    <input class="form-control" type="file" id="background_image"
-                                        name="background_image" accept="image/*" required>
-                                </div>
-                                <div class="mb-3">
-                                    <img id="previewBackgroundImage"
-                                        src="{{ $user->background_image ? asset('storage/' . $user->background_image) : asset('assets/img/pages/profile-banner.png') }}"
-                                        alt="صورة الخلفية المعاينة" class="img-thumbnail" style="max-width: 200px;">
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="submit" class="btn btn-primary">تحديث</button>
-
-                                <button type="button" class="btn btn-secondary mx-0"
-                                    data-bs-dismiss="modal">إغلاق</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
 
             <div class="tab-pane fade show active" id="general_info_tab">
                 <div class="row g-4 d-flex align-items-stretch">
@@ -461,53 +369,6 @@
 
         </div>
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // إضافة تأثير إظهار الأزرار عند المرور بالماوس
-                const backgroundContainer = document.querySelector('.background-image-container');
-                const backgroundEditButton = backgroundContainer.querySelector('.edit-button');
 
-                backgroundContainer.addEventListener('mouseover', () => {
-                    backgroundEditButton.style.opacity = '1';
-                });
-
-                backgroundContainer.addEventListener('mouseout', () => {
-                    backgroundEditButton.style.opacity = '0';
-                });
-
-                const profileContainer = document.querySelector('.profile-image-container');
-                const profileEditButton = profileContainer.querySelector('.edit-button');
-
-                profileContainer.addEventListener('mouseover', () => {
-                    profileEditButton.style.opacity = '1';
-                });
-
-                profileContainer.addEventListener('mouseout', () => {
-                    profileEditButton.style.opacity = '0';
-                });
-            });
-
-            document.getElementById('background_image').addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (!file) return;
-
-                const img = new Image();
-                img.src = URL.createObjectURL(file);
-
-                img.onload = function() {
-                    if (this.width !== 1693 || this.height !== 376) {
-                        Swal.fire({
-                            icon: 'error',
-                            text: 'يجب أن تكون أبعاد صورة الخلفية 1693x376 بكسل.',
-                            customClass: {
-                                confirmButton: 'btn btn-success waves-effect waves-light'
-                            },
-                            confirmButtonText: 'حسناً'
-                        });
-                        e.target.value = ''; // إعادة تعيين حقل الإدخال
-                    }
-                };
-            });
-        </script>
     </div>
 @endsection

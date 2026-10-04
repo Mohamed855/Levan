@@ -113,6 +113,7 @@ class AdminActivityLogController extends Controller
 
         return [
             'event_arabic' => $arabicEvent,
+            'log_name_arabic' => $this->activityLogNameLabel($activity->log_name),
             'subject_display' => $this->activitySubjectDisplay($activity),
             'connection_info' => $this->getActivityConnectionInfo($activity),
         ];
