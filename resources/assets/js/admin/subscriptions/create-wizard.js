@@ -375,7 +375,11 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.btn-prev').forEach(btn => {
         btn.addEventListener('click', function () {
             if (validationStepper) {
-                validationStepper.previous();
+                if (validationStepper._currentIndex === 0) {
+                    window.history.back();
+                } else {
+                    validationStepper.previous();
+                }
             }
         });
     });

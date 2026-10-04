@@ -111,16 +111,10 @@
                                     </select>
                                 </div>
 
-                                <div class="col-12 d-flex justify-content-between">
-                                    <button type="button" class="btn btn-secondary btn-prev" disabled>
-                                        <i class="ti ti-arrow-right ti-xs me-sm-2 me-0"></i>
-                                        <span class="align-middle d-sm-inline-block d-none">السابق</span>
-                                    </button>
-                                    <button type="button" class="btn btn-primary btn-next">
-                                        <span class="align-middle d-sm-inline-block d-none me-sm-2">التالي</span>
-                                        <i class="ti ti-arrow-right ti-xs"></i>
-                                    </button>
-                                </div>
+                                <x-wizard.actions>
+                                    <x-wizard.btn-prev />
+                                    <x-wizard.btn-next />
+                                </x-wizard.actions>
                             </div>
                         </div>
 
@@ -234,15 +228,10 @@
                                     </div>
                                 </div>
 
-                                <div class="col-12 d-flex justify-content-between">
-                                    <button type="button" class="btn btn-secondary btn-prev">
-                                        <i class="ti ti-arrow-right ti-xs me-sm-2 me-0"></i>
-                                        <span class="align-middle d-sm-inline-block d-none">السابق</span>
-                                    </button>
-                                    <button type="submit" class="btn btn-primary btn-next btn-submit">
-                                        <span class="align-middle d-sm-inline-block d-none me-sm-2">تحديث</span>
-                                    </button>
-                                </div>
+                                <x-wizard.actions>
+                                    <x-wizard.btn-prev />
+                                    <x-wizard.btn-save type="submit" text="تحديث" />
+                                </x-wizard.actions>
                             </div>
                         </div>
                     </form>

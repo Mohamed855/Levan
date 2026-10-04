@@ -93,15 +93,10 @@
                                         placeholder="ادخل رقم الهاتف" value="{{ old('phone') }}" />
                                 </div>
 
-                                <div class="mt-4 d-flex justify-content-between">
-                                    <button type="button" class="btn btn-secondary btn-prev waves-effect waves-light"
-                                        disabled>
-                                        <i class="ti ti-arrow-left me-1"></i> السابق
-                                    </button>
-                                    <button type="button" class="btn btn-primary btn-next waves-effect waves-light">
-                                        التالي <i class="ti ti-arrow-right ms-2"></i>
-                                    </button>
-                                </div>
+                                <x-wizard.actions>
+                                    <x-wizard.btn-prev />
+                                    <x-wizard.btn-next />
+                                </x-wizard.actions>
                             </div>
                         </div>
 
@@ -156,15 +151,10 @@
                                     </div>
                                 </div>
 
-                                <div class="mt-4 d-flex justify-content-between">
-                                    <button type="button" class="btn btn-secondary btn-prev waves-effect waves-light">
-                                        <i class="ti ti-arrow-left me-1"></i> السابق
-                                    </button>
-                                    <button type="button"
-                                        class="btn btn-primary btn-next btn-submit waves-effect waves-light">
-                                        <i class="ti ti-check me-1"></i> حفظ
-                                    </button>
-                                </div>
+                                <x-wizard.actions>
+                                    <x-wizard.btn-prev />
+                                    <x-wizard.btn-save />
+                                </x-wizard.actions>
                             </div>
                         </div>
                     </form>

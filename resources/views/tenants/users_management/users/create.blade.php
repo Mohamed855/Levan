@@ -84,7 +84,8 @@
                                     <label class="form-label" for="email">البريد الإلكتروني <span
                                             class="text-danger">*</span></label>
                                     <input type="email" name="email" id="email" class="form-control"
-                                        placeholder="ادخل البريد الإلكتروني" value="{{ old('email') }}" autocomplete="off" />
+                                        placeholder="ادخل البريد الإلكتروني" value="{{ old('email') }}"
+                                        autocomplete="off" />
                                 </div>
 
                                 <div class="col-sm-6">
@@ -124,18 +125,10 @@
                                     </select>
                                 </div>
 
-                                <div class="mt-4 d-flex justify-content-between">
-                                    <button type="button" class="btn btn-secondary btn-prev" disabled>
-                                        <i class="ti ti-arrow-right ti-xs me-sm-2 me-0"></i>
-                                        <span class="align-middle d-sm-inline-block d-none">السابق</span>
-                                    </button>
-                                    <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-primary btn-next">
-                                        <span class="align-middle d-sm-inline-block d-none me-sm-2">التالي</span>
-                                        <i class="ti ti-arrow-right ti-xs"></i>
-                                    </button>
-                                    </div>
-                                </div>
+                                <x-wizard.actions>
+                                    <x-wizard.btn-prev />
+                                    <x-wizard.btn-next />
+                                </x-wizard.actions>
                             </div>
                         </div>
 
@@ -161,7 +154,8 @@
                                             class="text-danger">*</span></label>
                                     <div class="input-group input-group-merge">
                                         <input type="password" name="password_confirmation" id="password_confirmation"
-                                            class="form-control" placeholder="أعد إدخال كلمة المرور" autocomplete="new-password" />
+                                            class="form-control" placeholder="أعد إدخال كلمة المرور"
+                                            autocomplete="new-password" />
                                         <span class="input-group-text cursor-pointer">
                                             <i class="ti ti-eye-off"></i>
                                         </span>
@@ -189,17 +183,10 @@
                                     </div>
                                 </div>
 
-                                <div class="mt-4 d-flex justify-content-between">
-                                    <button type="button" class="btn btn-secondary btn-prev">
-                                        <i class="ti ti-arrow-right ti-xs me-sm-2 me-0"></i>
-                                        <span class="align-middle d-sm-inline-block d-none">السابق</span>
-                                    </button>
-                                    <div class="d-flex gap-2">
-                                        <button type="submit" class="btn btn-primary btn-next btn-submit">
-                                        <span class="align-middle d-sm-inline-block d-none me-sm-2">حفظ</span>
-                                    </button>
-                                    </div>
-                                </div>
+                                <x-wizard.actions>
+                                    <x-wizard.btn-prev />
+                                    <x-wizard.btn-save type="submit" />
+                                </x-wizard.actions>
                             </div>
                         </div>
                     </form>

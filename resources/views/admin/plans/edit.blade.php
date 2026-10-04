@@ -331,14 +331,10 @@
                                     <textarea name="admin_notes" id="admin_notes" class="form-control" rows="2">{{ old('admin_notes', $plan->admin_notes) }}</textarea>
                                 </div>
 
-                                <div class="col-12 mt-4 d-flex justify-content-between">
-                                    <a href="{{ route('admin.plans.index') }}" class="btn btn-secondary waves-effect">
-                                        <i class="ti ti-arrow-left me-1"></i>رجوع
-                                    </a>
-                                    <button type="button" class="btn btn-primary btn-next waves-effect waves-light">
-                                        التالي <i class="ti ti-arrow-right ms-1"></i>
-                                    </button>
-                                </div>
+                                <x-wizard.actions class="col-12">
+                                    <x-wizard.btn-prev :href="route('admin.plans.index')" text="رجوع" />
+                                    <x-wizard.btn-next />
+                                </x-wizard.actions>
                             </div>
                         </div>
 
@@ -373,14 +369,10 @@
                                     </div>
                                 </div>
 
-                                <div class="col-12 mt-4 d-flex justify-content-between">
-                                    <button type="button" class="btn btn-secondary btn-prev waves-effect">
-                                        <i class="ti ti-arrow-left me-1"></i>السابق
-                                    </button>
-                                    <button type="button" class="btn btn-primary btn-next waves-effect waves-light">
-                                        التالي (المراجعة والنشر) <i class="ti ti-arrow-right ms-1"></i>
-                                    </button>
-                                </div>
+                                <x-wizard.actions class="col-12">
+                                    <x-wizard.btn-prev />
+                                    <x-wizard.btn-next text="التالي (المراجعة والنشر)" />
+                                </x-wizard.actions>
                             </div>
                         </div>
 
@@ -457,14 +449,10 @@
                                     </div>
                                 </div>
 
-                                <div class="col-12 mt-4 d-flex justify-content-between">
-                                    <button type="button" class="btn btn-secondary btn-prev waves-effect">
-                                        <i class="ti ti-arrow-left me-1"></i>السابق
-                                    </button>
-                                    <button type="button" class="btn btn-success waves-effect waves-light btn-submit">
-                                        <i class="ti ti-device-floppy me-1"></i>تحديث وحفظ الباقة
-                                    </button>
-                                </div>
+                                <x-wizard.actions class="col-12">
+                                    <x-wizard.btn-prev />
+                                    <x-wizard.btn-save text="تحديث وحفظ الباقة" class="btn-success" icon="ti ti-device-floppy me-1" />
+                                </x-wizard.actions>
                             </div>
                         </div>
 

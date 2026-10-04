@@ -201,19 +201,13 @@
                                 </div>
                             </div>
 
-                            <div class="mt-4 d-flex justify-content-between">
-                                <a href="{{ route('admin.companies.index') }}" class="btn btn-secondary btn-prev waves-effect waves-light">
-                                    <i class="ti ti-arrow-left me-1"></i> السابق
-                                </a>
+                            <x-wizard.actions>
+                                <x-wizard.btn-prev :href="route('admin.companies.index')" />
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-secondary btn-save-draft" data-step="1">
-                                        <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
-                                    </button>
-                                    <button type="button" class="btn btn-primary btn-next" id="btn-next-company">
-                                        التالي <i class="ti ti-arrow-right ms-1"></i>
-                                    </button>
+                                    <x-wizard.btn-draft step="1" />
+                                    <x-wizard.btn-next id="btn-next-company" />
                                 </div>
-                            </div>
+                            </x-wizard.actions>
                         </div>
 
                         {{-- ═══════════════════════════════════════
@@ -264,19 +258,13 @@
                                 </div>
                             </div>
 
-                            <div class="mt-4 d-flex justify-content-between">
-                                <button type="button" class="btn btn-secondary btn-prev" id="btn-prev-admin">
-                                    <i class="ti ti-arrow-left me-1"></i> السابق
-                                </button>
+                            <x-wizard.actions>
+                                <x-wizard.btn-prev id="btn-prev-admin" />
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-secondary btn-save-draft" data-step="2">
-                                        <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
-                                    </button>
-                                    <button type="button" class="btn btn-primary btn-next" id="btn-next-admin">
-                                        التالي <i class="ti ti-arrow-right ms-1"></i>
-                                    </button>
+                                    <x-wizard.btn-draft step="2" />
+                                    <x-wizard.btn-next id="btn-next-admin" />
                                 </div>
-                            </div>
+                            </x-wizard.actions>
                         </div>
 
                         {{-- ═══════════════════════════════════════
@@ -422,19 +410,13 @@
                                 </div>
                             </div>
 
-                            <div class="mt-4 d-flex justify-content-between">
-                                <button type="button" class="btn btn-secondary btn-prev" id="btn-prev-payment">
-                                    <i class="ti ti-arrow-left me-1"></i> السابق
-                                </button>
+                            <x-wizard.actions>
+                                <x-wizard.btn-prev id="btn-prev-payment" />
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-secondary btn-save-draft" data-step="3">
-                                        <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
-                                    </button>
-                                    <button type="button" class="btn btn-primary btn-next" id="btn-next-payment">
-                                        التالي <i class="ti ti-arrow-right ms-1"></i>
-                                    </button>
+                                    <x-wizard.btn-draft step="3" />
+                                    <x-wizard.btn-next id="btn-next-payment" />
                                 </div>
-                            </div>
+                            </x-wizard.actions>
                         </div>
 
                         {{-- ═══════════════════════════════════════
@@ -600,19 +582,13 @@
                                 </div>
                             </div>
 
-                            <div class="mt-4 d-flex justify-content-between">
-                                <button type="button" class="btn btn-secondary btn-prev" id="btn-prev-review">
-                                    <i class="ti ti-arrow-left me-1"></i> السابق
-                                </button>
+                            <x-wizard.actions>
+                                <x-wizard.btn-prev id="btn-prev-review" />
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-secondary btn-save-draft" data-step="4">
-                                        <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
-                                    </button>
-                                    <button type="submit" class="btn btn-primary btn-submit">
-                                        <i class="ti ti-check me-1"></i> إنشاء واعتماد الشركة
-                                    </button>
+                                    <x-wizard.btn-draft step="4" />
+                                    <x-wizard.btn-save type="submit" text="إنشاء واعتماد الشركة" />
                                 </div>
-                            </div>
+                            </x-wizard.actions>
                         </div>
 
                     </form>

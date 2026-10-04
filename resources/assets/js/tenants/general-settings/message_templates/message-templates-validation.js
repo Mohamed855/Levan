@@ -98,6 +98,8 @@ function initializeFormWizard() {
         button.addEventListener('click', function () {
             if (validationStepper._currentIndex === 1) {
                 validationStepper.previous();
+            } else {
+                window.history.back();
             }
         });
     });

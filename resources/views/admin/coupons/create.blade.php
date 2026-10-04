@@ -140,21 +140,13 @@
                             </div>
                         </div>
 
-                        <div class="mt-4 d-flex justify-content-between">
-                            <a href="{{ route('admin.coupons.index') }}" class="btn btn-secondary btn-prev waves-effect waves-light">
-                                <i class="ti ti-arrow-left me-1"></i> السابق
-                            </a>
+                        <x-wizard.actions>
+                            <x-wizard.btn-prev :href="route('admin.coupons.index')" />
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-secondary btn-save-draft waves-effect waves-light" data-step="1">
-                                    <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
-                                </button>
-                                    <div class="d-flex gap-2">
-                                        <button type="submit" class="btn btn-primary waves-effect waves-light btn-next btn-submit">
-                                    <i class="ti ti-check me-1"></i> حفظ
-                                </button>
-                                    </div>
+                                <x-wizard.btn-draft step="1" />
+                                <x-wizard.btn-save type="submit" />
                             </div>
-                        </div>
+                        </x-wizard.actions>
                     </div>
 
                 </form>

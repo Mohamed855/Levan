@@ -292,7 +292,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     wizardValidationBtnPrevList.forEach(function (btn) {
         btn.addEventListener('click', function () {
-            validationStepper.previous();
+            if (validationStepper._currentIndex === 0) {
+                window.history.back();
+            } else {
+                validationStepper.previous();
+            }
         });
     });
 

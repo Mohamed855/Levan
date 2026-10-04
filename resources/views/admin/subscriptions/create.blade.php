@@ -208,14 +208,10 @@
                                 </div>
                             </div>
 
-                            <div class="d-flex justify-content-between mt-4">
-                                <button type="button" class="btn btn-outline-secondary btn-save-draft" data-step="1">
-                                    <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
-                                </button>
-                                <button type="button" class="btn btn-primary btn-next" data-step="1">
-                                    التالي <i class="ti ti-chevron-left ms-1"></i>
-                                </button>
-                            </div>
+                            <x-wizard.actions>
+                                <x-wizard.btn-draft step="1" />
+                                <x-wizard.btn-next data-step="1" />
+                            </x-wizard.actions>
                         </div>
 
                         {{-- ═══════════════════════════════════════
@@ -326,20 +322,13 @@
                                 </div>
                             </div>
 
-                            <div class="d-flex justify-content-between mt-4">
-                                <button type="button" class="btn btn-secondary btn-prev" data-step="2">
-                                    <i class="ti ti-chevron-right me-1"></i> السابق
-                                </button>
+                            <x-wizard.actions>
+                                <x-wizard.btn-prev data-step="2" />
                                 <div>
-                                    <button type="button" class="btn btn-outline-secondary btn-save-draft me-2"
-                                        data-step="2">
-                                        <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
-                                    </button>
-                                    <button type="button" class="btn btn-primary btn-next" data-step="2">
-                                        التالي <i class="ti ti-chevron-left ms-1"></i>
-                                    </button>
+                                    <x-wizard.btn-draft step="2" class="me-2" />
+                                    <x-wizard.btn-next data-step="2" />
                                 </div>
-                            </div>
+                            </x-wizard.actions>
                         </div>
 
                         {{-- ═══════════════════════════════════════
@@ -469,14 +458,10 @@
                                 </div>
                             </div>
 
-                            <div class="d-flex justify-content-between mt-4">
-                                <button type="button" class="btn btn-secondary btn-prev" data-step="3">
-                                    <i class="ti ti-chevron-right me-1"></i> السابق
-                                </button>
-                                <button type="submit" class="btn btn-success btn-lg" id="btn-submit-subscription">
-                                    <i class="ti ti-check me-1"></i> اعتماد وإنشاء الاشتراك
-                                </button>
-                            </div>
+                            <x-wizard.actions>
+                                <x-wizard.btn-prev data-step="3" />
+                                <x-wizard.btn-save type="submit" id="btn-submit-subscription" class="btn-success btn-lg" text="اعتماد وإنشاء الاشتراك" />
+                            </x-wizard.actions>
                         </div>
                     </form>
                 </div>

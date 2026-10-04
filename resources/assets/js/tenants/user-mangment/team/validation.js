@@ -97,14 +97,13 @@ document.addEventListener('DOMContentLoaded', function (e) {
 
             wizardValidationBtnPrevList.forEach(function (wizardValidationBtnPrev) {
                 wizardValidationBtnPrev.addEventListener('click', function (e) {
-                    e.preventDefault();
-
                     switch (validationStepper._currentIndex) {
                         case 1:
                             validationStepper.previous();
                             break;
                         case 0:
                         default:
+                            window.history.back();
                             break;
                     }
                 });

@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                             break;
                         case 0:
                         default:
-                            console.log('first step');
+                            window.history.back();
                             break;
                     }
                 });
