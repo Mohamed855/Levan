@@ -3,7 +3,7 @@
 @section('title', 'ليفـــان LEVAN')
 
 @section('page-style')
-@vite(['resources/assets/css/site/landing.css', 'resources/assets/css/components/icons.css'])
+@vite(['resources/assets/css/site/landing.css', 'resources/assets/css/components/icons.css', 'resources/scss/shared/package-card.scss'])
 @endsection
 
 @section('page-script')
@@ -260,105 +260,7 @@
 
                 @foreach ($plans as $plan)
                 <div class="scroll-revealed col-12 sm:col-6 lg:col-4 flex">
-                    <div
-                        class="flex flex-col w-full rounded-2xl p-8 bg-body-light-1 dark:bg-body-dark-12/10 text-center shadow-card-1 hover:shadow-lg transition-shadow duration-200">
-
-                        {{-- اسم الباقة --}}
-                        <div class="mb-5">
-                            <span
-                                class="inline-block font-semibold text-sm text-primary bg-primary/10 rounded-lg py-1.5 px-6 pricing-title">
-                                {{ $plan->name }}
-                            </span>
-                        </div>
-
-                        {{-- الوصف --}}
-                        <p class="font-medium text-sm  mb-3">
-                            {{ $plan->description }}
-                        </p>
-
-                        {{-- قسم السعر --}}
-                        <div class="flex flex-col items-center min-h-[120px] justify-center mb-2">
-                            @if ($plan->discount_percentage > 0)
-                            <p class="text-base font-bold text-gray-400 line-through mb-1">
-                                {{ number_format($plan->price) }}
-                                <span class="icon-saudi_riyal text-xs"></span>
-                            </p>
-                            <span
-                                class="inline-block text-xs font-medium bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 px-3 py-1 rounded-md mb-3">
-                                وفّر {{ $plan->discount_percentage }}%
-                            </span>
-                            <div class="flex items-baseline justify-center gap-1">
-                                <span
-                                    class="text-5xl text-primary font-semibold text-body-light-12 dark:text-body-dark-12 leading-none">
-                                    {{ number_format($plan->price_after_discount) }}
-                                </span>
-                                <span class="text-base font-normal text-body-light-11 dark:text-body-dark-11">
-                                    <span class="icon-saudi_riyal"></span>
-                                </span>
-                            </div>
-                            @else
-                            <div class="flex items-baseline justify-center gap-1">
-                                <span
-                                    class="text-5xl text-primary font-semibold text-body-light-12 dark:text-body-dark-12 leading-none">
-                                    {{ number_format($plan->price) }}
-                                </span>
-                                <span class="text-base font-normal text-body-light-11 dark:text-body-dark-11">
-                                    <span class="icon-saudi_riyal"></span>
-                                </span>
-                            </div>
-                            @endif
-                        </div>
-
-                        {{-- ملاحظة السعر --}}
-                        <p class="text-xs font-semibold text-gray-400 mb-6">المبلغ يُدفع مرة واحدة فقط</p>
-
-                        {{-- التجديد والترخيص --}}
-                        <div class="rounded-xl bg-body-light-2 dark:bg-body-dark-12/20 px-5 py-4 mb-6 space-y-3">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs font-semibold text-body-light-11 dark:text-body-dark-11">التجديد
-                                    السنوي</span>
-                                <span class="text-sm font-medium text-body-light-12 dark:text-body-dark-12">
-                                    {{ number_format($plan->yearly_renewal_price) }}
-                                    <span class="icon-saudi_riyal text-xs"></span>
-                                </span>
-                            </div>
-                            <div class="border-t border-body-light-4 dark:border-body-dark-4"></div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs font-semibold text-body-light-11 dark:text-body-dark-11">ترخيص
-                                    مستخدم
-                                    إضافي</span>
-                                <span class="text-sm font-medium text-body-light-12 dark:text-body-dark-12">
-                                    {{ number_format($plan->extra_user_license_price) }}
-                                    <span class="icon-saudi_riyal text-xs"></span>
-                                </span>
-                            </div>
-                        </div>
-
-                        {{-- زر الطلب --}}
-                        <div class="mb-8">
-                            <a href="{{ route('site.plans.checkout', $plan->id) }}"
-                                class="block font-medium text-sm py-3 rounded-full bg-primary text-primary-color hover:bg-primary-light-10 dark:hover:bg-primary-dark-10 hover:text-[#e3d8d1] focus:bg-primary-light-10 dark:focus:bg-primary-dark-10 focus:text-[#e3d8d1] transition-colors duration-200">
-                                اطلب الآن
-                            </a>
-                        </div>
-
-                        {{-- المميزات --}}
-                        <div class="flex-1 text-right">
-                            <ul class="space-y-3">
-                                @foreach ($plan->features ?? [] as $feature)
-                                <li class="flex items-start gap-2.5 w-full">
-                                    <i
-                                        class="ti ti-circle-check text-primary text-base leading-5 flex-shrink-0 mt-0.5"></i>
-                                    <span
-                                        class="text-sm font-semibold text-body-light-12 dark:text-body-dark-12 leading-relaxed">
-                                        {{ $feature }}
-                                    </span>
-                                </li>
-                                @endforeach
-                            </ul>
-                        </div>
-
-                    </div>
+                    <x-ui.package-card :plan="$plan" :action-url="route('site.plans.checkout', $plan->id)" />
                 </div>
                 @endforeach
 

@@ -2,30 +2,23 @@
 
 namespace App\Http\Controllers\Tenants\Dashboard;
 
-use App\DataTables\Tenants\FinancialCollection\CollectionProcess\CollectionSessionsDataTable;
 use App\Exports\Tenants\Dashboard\Admin\CollectionSessionsExport;
 use App\Exports\Tenants\Dashboard\OverdueTasksExport;
 use App\Http\Controllers\Controller;
-use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Customers\Task\Task;
-use App\Models\Tenants\FinancialCollection\Collection\CustomerTransaction;
 use App\Services\Tenants\Dashboard\DashboardService;
-use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
 class DashboardController extends Controller
 {
-
     public function __construct(private DashboardService $dashboardService)
     {
-        $this->middleware('can:dashboard.view')->only('collectionSessionsPage');
+        $this->middleware('can:dashboard.view');
     }
 
     /*
@@ -33,16 +26,16 @@ class DashboardController extends Controller
     | Index
     |--------------------------------------------------------------------------
     */
-    public function index(Request $request = null)
+    public function index(?Request $request = null)
     {
-        if (!$request) {
+        if (! $request) {
             $request = request();
         }
 
         if ($request->ajax() && $request->has('period')) {
             return response()->json([
                 'userPerformance' => $this->dashboardService->getPerformanceByPeriod($request->input('period')),
-                'success' => true
+                'success' => true,
             ]);
         }
 
@@ -143,18 +136,19 @@ class DashboardController extends Controller
             ->addColumn('customer_name', function ($row) {
                 $showUrl = tenant_route_name('customers.show', $row->customer_id);
                 $phone = $row->customer_phone ?: 'غير محدد';
+
                 return '<div class="d-flex align-items-center gap-2">'
-                    .   '<div class="flex-grow-1 min-w-0">'
-                    .     '<a href="' . $showUrl . '" class="text-decoration-none text-dark">' . e($row->customer_name) . '</a>'
-                    .     '<div class="small text-muted">' . e($phone) . '</div>'
-                    .   '</div>'
-                    . '</div>';
+                    .'<div class="flex-grow-1 min-w-0">'
+                    .'<a href="'.$showUrl.'" class="text-decoration-none text-dark">'.e($row->customer_name).'</a>'
+                    .'<div class="small text-muted">'.e($phone).'</div>'
+                    .'</div>'
+                    .'</div>';
             })
-            ->editColumn('account_number', fn($row) => e($row->account_number ?: 'غير محدد'))
-            ->editColumn('identity_number', fn($row) => e($row->identity_number ?: 'غير محدد'))
-            ->addColumn('company_name', fn($row) => e($row->company_name ?: 'غير محدد'))
-            ->addColumn('portfolio_name', fn($row) => e($row->portfolio_name ?: 'غير محدد'))
-            ->addColumn('remaining_debt', fn($row) => number_format((float)$row->remaining_debt, 2) . ' ريال')
+            ->editColumn('account_number', fn ($row) => e($row->account_number ?: 'غير محدد'))
+            ->editColumn('identity_number', fn ($row) => e($row->identity_number ?: 'غير محدد'))
+            ->addColumn('company_name', fn ($row) => e($row->company_name ?: 'غير محدد'))
+            ->addColumn('portfolio_name', fn ($row) => e($row->portfolio_name ?: 'غير محدد'))
+            ->addColumn('remaining_debt', fn ($row) => number_format((float) $row->remaining_debt, 2).' ريال')
             ->addColumn('follow_result', function ($row) {
                 $badgeClasses = [
                     'promise' => 'bg-label-success',
@@ -163,15 +157,17 @@ class DashboardController extends Controller
                 ];
                 $class = $badgeClasses[$row->task_type] ?? 'bg-secondary';
                 $taskTypeName = Task::TASK_TYPES[$row->task_type] ?? 'غير محدد';
-                return '<span class="badge ' . $class . '">' . e($taskTypeName) . '</span>';
+
+                return '<span class="badge '.$class.'">'.e($taskTypeName).'</span>';
             })
             ->addColumn('relationship_manager', function ($row) {
                 $name = $row->relationship_manager_name ?: 'غير محدد';
                 $emp = $row->relationship_manager_emp ?: 'غير محدد';
+
                 return '<div class="text-center">'
-                    .   '<div class="fw-semibold">' . e($name) . '</div>'
-                    .   '<div class="small text-muted">' . e($emp) . '</div>'
-                    . '</div>';
+                    .'<div class="fw-semibold">'.e($name).'</div>'
+                    .'<div class="small text-muted">'.e($emp).'</div>'
+                    .'</div>';
             })
             ->orderColumn('customer_name', 'c.name $1')
             ->orderColumn('account_number', 'c.account_number $1')
@@ -181,12 +177,12 @@ class DashboardController extends Controller
             ->orderColumn('remaining_debt', 'remaining_debt $1')
             ->orderColumn('follow_result', 'tasks.task_type $1')
             ->orderColumn('relationship_manager', 'rm.name $1')
-            ->filterColumn('customer_name', fn($q, $k) => $q->where('c.name', 'like', "%{$k}%"))
-            ->filterColumn('account_number', fn($q, $k) => $q->where('c.account_number', 'like', "%{$k}%"))
-            ->filterColumn('identity_number', fn($q, $k) => $q->where('c.identity_number', 'like', "%{$k}%"))
-            ->filterColumn('company_name', fn($q, $k) => $q->where('cmp.name', 'like', "%{$k}%"))
-            ->filterColumn('portfolio_name', fn($q, $k) => $q->where('prt.name', 'like', "%{$k}%"))
-            ->filterColumn('relationship_manager', fn($q, $k) => $q->where('rm.name', 'like', "%{$k}%"))
+            ->filterColumn('customer_name', fn ($q, $k) => $q->where('c.name', 'like', "%{$k}%"))
+            ->filterColumn('account_number', fn ($q, $k) => $q->where('c.account_number', 'like', "%{$k}%"))
+            ->filterColumn('identity_number', fn ($q, $k) => $q->where('c.identity_number', 'like', "%{$k}%"))
+            ->filterColumn('company_name', fn ($q, $k) => $q->where('cmp.name', 'like', "%{$k}%"))
+            ->filterColumn('portfolio_name', fn ($q, $k) => $q->where('prt.name', 'like', "%{$k}%"))
+            ->filterColumn('relationship_manager', fn ($q, $k) => $q->where('rm.name', 'like', "%{$k}%"))
             ->rawColumns(['customer_name', 'follow_result', 'relationship_manager'])
             ->make(true);
     }
@@ -235,18 +231,19 @@ class DashboardController extends Controller
             ->addColumn('customer_name', function ($row) {
                 $showUrl = tenant_route_name('customers.show', $row->customer_id);
                 $phone = $row->customer_phone ?: 'غير محدد';
+
                 return '<div class="d-flex align-items-center gap-2">'
-                    .   '<div class="flex-grow-1 min-w-0">'
-                    .     '<a href="' . $showUrl . '" class="text-decoration-none text-dark">' . e($row->customer_name) . '</a>'
-                    .     '<div class="small text-muted">' . e($phone) . '</div>'
-                    .   '</div>'
-                    . '</div>';
+                    .'<div class="flex-grow-1 min-w-0">'
+                    .'<a href="'.$showUrl.'" class="text-decoration-none text-dark">'.e($row->customer_name).'</a>'
+                    .'<div class="small text-muted">'.e($phone).'</div>'
+                    .'</div>'
+                    .'</div>';
             })
-            ->editColumn('account_number', fn($row) => e($row->account_number ?: 'غير محدد'))
-            ->editColumn('identity_number', fn($row) => e($row->identity_number ?: 'غير محدد'))
-            ->addColumn('company_name', fn($row) => e($row->company_name ?: 'غير محدد'))
-            ->addColumn('portfolio_name', fn($row) => e($row->portfolio_name ?: 'غير محدد'))
-            ->addColumn('remaining_debt', fn($row) => number_format((float)$row->remaining_debt, 2) . ' ريال')
+            ->editColumn('account_number', fn ($row) => e($row->account_number ?: 'غير محدد'))
+            ->editColumn('identity_number', fn ($row) => e($row->identity_number ?: 'غير محدد'))
+            ->addColumn('company_name', fn ($row) => e($row->company_name ?: 'غير محدد'))
+            ->addColumn('portfolio_name', fn ($row) => e($row->portfolio_name ?: 'غير محدد'))
+            ->addColumn('remaining_debt', fn ($row) => number_format((float) $row->remaining_debt, 2).' ريال')
             ->addColumn('follow_result', function ($row) {
                 $badgeClasses = [
                     'promise' => 'bg-label-success',
@@ -255,7 +252,8 @@ class DashboardController extends Controller
                 ];
                 $class = $badgeClasses[$row->task_type] ?? 'bg-secondary';
                 $taskTypeName = Task::TASK_TYPES[$row->task_type] ?? 'غير محدد';
-                return '<span class="badge ' . $class . '">' . e($taskTypeName) . '</span>';
+
+                return '<span class="badge '.$class.'">'.e($taskTypeName).'</span>';
             })
             ->orderColumn('customer_name', 'c.name $1')
             ->orderColumn('account_number', 'c.account_number $1')
@@ -264,25 +262,13 @@ class DashboardController extends Controller
             ->orderColumn('portfolio_name', 'prt.name $1')
             ->orderColumn('remaining_debt', 'remaining_debt $1')
             ->orderColumn('follow_result', 'tasks.task_type $1')
-            ->filterColumn('customer_name', fn($q, $k) => $q->where('c.name', 'like', "%{$k}%"))
-            ->filterColumn('account_number', fn($q, $k) => $q->where('c.account_number', 'like', "%{$k}%"))
-            ->filterColumn('identity_number', fn($q, $k) => $q->where('c.identity_number', 'like', "%{$k}%"))
-            ->filterColumn('company_name', fn($q, $k) => $q->where('cmp.name', 'like', "%{$k}%"))
-            ->filterColumn('portfolio_name', fn($q, $k) => $q->where('prt.name', 'like', "%{$k}%"))
+            ->filterColumn('customer_name', fn ($q, $k) => $q->where('c.name', 'like', "%{$k}%"))
+            ->filterColumn('account_number', fn ($q, $k) => $q->where('c.account_number', 'like', "%{$k}%"))
+            ->filterColumn('identity_number', fn ($q, $k) => $q->where('c.identity_number', 'like', "%{$k}%"))
+            ->filterColumn('company_name', fn ($q, $k) => $q->where('cmp.name', 'like', "%{$k}%"))
+            ->filterColumn('portfolio_name', fn ($q, $k) => $q->where('prt.name', 'like', "%{$k}%"))
             ->rawColumns(['customer_name', 'follow_result'])
             ->make(true);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Collection Sessions - Full Page
-    |--------------------------------------------------------------------------
-    | صفحة منفصلة لعرض جلسات التحصيل اليومية بكامل الفلاتر
-    | الجدول (بيانات + عرض) يُدار بالكامل عبر CollectionSessionsDataTable
-    */
-    public function collectionSessionsPage(CollectionSessionsDataTable $dataTable)
-    {
-        return $dataTable->render('tenants.dashboard.admin.collection-sessions');
     }
 
     /*
@@ -301,7 +287,7 @@ class DashboardController extends Controller
                 return response()->json([
                     'success' => true,
                     'data' => $data,
-                    'period' => $period
+                    'period' => $period,
                 ]);
             } catch (\Exception $e) {
                 return response()->json([
@@ -311,11 +297,12 @@ class DashboardController extends Controller
                     'data' => [
                         'topPerformers' => [],
                         'performanceDistribution' => [],
-                        'performanceTrend' => []
-                    ]
+                        'performanceTrend' => [],
+                    ],
                 ], 500);
             }
         }
+
         return $this->adminDashboard();
     }
 
@@ -330,7 +317,7 @@ class DashboardController extends Controller
         $date = $request->input('date', today()->toDateString());
         $status = $request->input('status');
 
-        $fileName = 'جلسات_التحصيل_' . $date . '.xlsx';
+        $fileName = 'جلسات_التحصيل_'.$date.'.xlsx';
 
         return Excel::download(
             new CollectionSessionsExport($date, $status),
@@ -345,7 +332,7 @@ class DashboardController extends Controller
     */
     public function getMyPerformanceComparison(Request $request)
     {
-        if (!$request->ajax() && !$request->wantsJson()) {
+        if (! $request->ajax() && ! $request->wantsJson()) {
             abort(404);
         }
 
@@ -360,17 +347,16 @@ class DashboardController extends Controller
                 'success' => true,
                 'data' => $data,
                 'period' => $period,
-                'dataType' => $dataType
+                'dataType' => $dataType,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'حدث خطأ في جلب البيانات',
-                'error' => config('app.debug') ? $e->getMessage() : null
+                'error' => config('app.debug') ? $e->getMessage() : null,
             ], 500);
         }
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -387,13 +373,13 @@ class DashboardController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $data,
-                'period' => $period
+                'period' => $period,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'حدث خطأ في جلب بيانات الإحصائيات',
-                'error' => config('app.debug') ? $e->getMessage() : null
+                'error' => config('app.debug') ? $e->getMessage() : null,
             ], 500);
         }
     }
@@ -413,17 +399,16 @@ class DashboardController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $data,
-                'period' => $period
+                'period' => $period,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'حدث خطأ في جلب بيانات الاعتمادات',
-                'error' => config('app.debug') ? $e->getMessage() : null
+                'error' => config('app.debug') ? $e->getMessage() : null,
             ], 500);
         }
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -478,27 +463,27 @@ class DashboardController extends Controller
         }
 
         // ✅ تطبيق الفلاتر الاختيارية من الـ Request
-        if (!empty($filters['company_id'])) {
+        if (! empty($filters['company_id'])) {
             $query->where('c.company_id', $filters['company_id']);
         }
 
-        if (!empty($filters['portfolio_id'])) {
+        if (! empty($filters['portfolio_id'])) {
             $query->where('c.portfolio_id', $filters['portfolio_id']);
         }
 
-        if (!empty($filters['relationship_manager_id'])) {
+        if (! empty($filters['relationship_manager_id'])) {
             $query->where('c.relationship_manager_id', $filters['relationship_manager_id']);
         }
 
-        if (!empty($filters['result_type'])) {
+        if (! empty($filters['result_type'])) {
             $query->where('tasks.task_type', $filters['result_type']);
         }
 
-        if (!empty($filters['overdue_days'])) {
+        if (! empty($filters['overdue_days'])) {
             $query->whereRaw('DATEDIFF(CURDATE(), tasks.due_date) <= ?', [$filters['overdue_days']]);
         }
 
-        if (!empty($filters['date_from']) && !empty($filters['date_to'])) {
+        if (! empty($filters['date_from']) && ! empty($filters['date_to'])) {
             $query->whereBetween('tasks.due_date', [$filters['date_from'], $filters['date_to']]);
         }
 
@@ -512,16 +497,17 @@ class DashboardController extends Controller
             ->addColumn('customer_name', function ($row) {
                 $showUrl = tenant_route_name('customers.show', $row->customer_id);
                 $phone = $row->customer_phone ?: 'غير محدد';
+
                 return '<div class="d-flex align-items-center gap-2">'
-                    . '<div class="flex-grow-1 min-w-0">'
-                    . '<a href="' . $showUrl . '" class="text-decoration-none text-dark fw-semibold">'
-                    . e($row->customer_name) . '</a>'
-                    . '<div class="small text-muted">' . e($phone) . '</div>'
-                    . '</div></div>';
+                    .'<div class="flex-grow-1 min-w-0">'
+                    .'<a href="'.$showUrl.'" class="text-decoration-none text-dark fw-semibold">'
+                    .e($row->customer_name).'</a>'
+                    .'<div class="small text-muted">'.e($phone).'</div>'
+                    .'</div></div>';
             })
-            ->editColumn('account_number', fn($row) => e($row->account_number ?: 'غير محدد'))
-            ->addColumn('company_name', fn($row) => e($row->company_name ?: 'غير محدد'))
-            ->addColumn('portfolio_name', fn($row) => e($row->portfolio_name ?: 'غير محدد'))
+            ->editColumn('account_number', fn ($row) => e($row->account_number ?: 'غير محدد'))
+            ->addColumn('company_name', fn ($row) => e($row->company_name ?: 'غير محدد'))
+            ->addColumn('portfolio_name', fn ($row) => e($row->portfolio_name ?: 'غير محدد'))
             ->addColumn('task_type', function ($row) {
                 $badgeClasses = [
                     'promise' => ['label' => 'وعد بالسداد', 'class' => 'bg-label-success'],
@@ -529,32 +515,35 @@ class DashboardController extends Controller
                     'document_request' => ['label' => 'طلب مستندات', 'class' => 'bg-label-warning'],
                 ];
                 $badge = $badgeClasses[$row->task_type] ?? ['label' => 'غير محدد', 'class' => 'bg-secondary'];
-                return '<span class="badge ' . $badge['class'] . '">' . $badge['label'] . '</span>';
+
+                return '<span class="badge '.$badge['class'].'">'.$badge['label'].'</span>';
             })
-            ->addColumn('scheduled_date', fn($row) => $row->due_date->format('Y-m-d'))
+            ->addColumn('scheduled_date', fn ($row) => $row->due_date->format('Y-m-d'))
             ->addColumn('overdue_days', function ($row) {
-                $days = (int)$row->overdue_days;
+                $days = (int) $row->overdue_days;
                 if ($days <= 3) {
                     $class = 'bg-label-warning';
-                    $text = $days . ' يوم';
+                    $text = $days.' يوم';
                 } elseif ($days <= 7) {
                     $class = 'bg-label-danger';
-                    $text = $days . ' أيام';
+                    $text = $days.' أيام';
                 } else {
                     $class = 'bg-danger text-white';
-                    $text = $days . ' يوم';
+                    $text = $days.' يوم';
                 }
-                return '<span class="badge ' . $class . ' fw-bold">' . $text . '</span>';
+
+                return '<span class="badge '.$class.' fw-bold">'.$text.'</span>';
             })
-            ->addColumn('remaining_debt', fn($row) => number_format((float)$row->remaining_debt, 2) . ' ريال')
+            ->addColumn('remaining_debt', fn ($row) => number_format((float) $row->remaining_debt, 2).' ريال')
 
             ->addColumn('relationship_manager', function ($row) {
                 $name = $row->relationship_manager_name ?: 'غير محدد';
                 $emp = $row->relationship_manager_emp ?: 'غير محدد';
+
                 return '<div class="text-center">'
-                    . '<div class="fw-semibold">' . e($name) . '</div>'
-                    . '<div class="small text-muted">' . e($emp) . '</div>'
-                    . '</div>';
+                    .'<div class="fw-semibold">'.e($name).'</div>'
+                    .'<div class="small text-muted">'.e($emp).'</div>'
+                    .'</div>';
             })
             ->orderColumn('customer_name', 'c.name $1')
             ->orderColumn('account_number', 'c.account_number $1')
@@ -565,11 +554,11 @@ class DashboardController extends Controller
             ->orderColumn('overdue_days', 'overdue_days $1')
             ->orderColumn('remaining_debt', 'remaining_debt $1')
             ->orderColumn('relationship_manager', 'rm.name $1')
-            ->filterColumn('customer_name', fn($q, $k) => $q->where('c.name', 'like', "%{$k}%"))
-            ->filterColumn('account_number', fn($q, $k) => $q->where('c.account_number', 'like', "%{$k}%"))
-            ->filterColumn('company_name', fn($q, $k) => $q->where('cmp.name', 'like', "%{$k}%"))
-            ->filterColumn('portfolio_name', fn($q, $k) => $q->where('prt.name', 'like', "%{$k}%"))
-            ->filterColumn('relationship_manager', fn($q, $k) => $q->where('rm.name', 'like', "%{$k}%"))
+            ->filterColumn('customer_name', fn ($q, $k) => $q->where('c.name', 'like', "%{$k}%"))
+            ->filterColumn('account_number', fn ($q, $k) => $q->where('c.account_number', 'like', "%{$k}%"))
+            ->filterColumn('company_name', fn ($q, $k) => $q->where('cmp.name', 'like', "%{$k}%"))
+            ->filterColumn('portfolio_name', fn ($q, $k) => $q->where('prt.name', 'like', "%{$k}%"))
+            ->filterColumn('relationship_manager', fn ($q, $k) => $q->where('rm.name', 'like', "%{$k}%"))
             ->rawColumns(['customer_name', 'task_type', 'overdue_days', 'relationship_manager'])
             ->make(true);
     }
@@ -584,10 +573,10 @@ class DashboardController extends Controller
         $userId = Auth::id();
 
         $filters = [
-            'result_type'  => $request->input('result_type'),
+            'result_type' => $request->input('result_type'),
             'overdue_days' => $request->input('overdue_days'),
-            'date_from'    => $request->input('date_from'),
-            'date_to'      => $request->input('date_to'),
+            'date_from' => $request->input('date_from'),
+            'date_to' => $request->input('date_to'),
         ];
 
         // ✅ Expressions ثابتة (لا تعتمد على alias)
@@ -620,16 +609,16 @@ class DashboardController extends Controller
             ->whereRaw("$remainingDebtExpr > 0");
 
         // ✅ تطبيق الفلاتر
-        if (!empty($filters['result_type'])) {
+        if (! empty($filters['result_type'])) {
             $query->where('tasks.task_type', $filters['result_type']);
         }
 
-        if (!empty($filters['overdue_days'])) {
+        if (! empty($filters['overdue_days'])) {
             // حسب كودك الحالي: "أقل أو يساوي"
-            $query->whereRaw("$overdueDaysExpr <= ?", [(int)$filters['overdue_days']]);
+            $query->whereRaw("$overdueDaysExpr <= ?", [(int) $filters['overdue_days']]);
         }
 
-        if (!empty($filters['date_from']) && !empty($filters['date_to'])) {
+        if (! empty($filters['date_from']) && ! empty($filters['date_to'])) {
             $query->whereBetween('tasks.due_date', [$filters['date_from'], $filters['date_to']]);
         }
 
@@ -645,48 +634,50 @@ class DashboardController extends Controller
             ->addColumn('customer_name', function ($row) {
                 $showUrl = tenant_route_name('customers.show', $row->customer_id);
                 $phone = $row->customer_phone ?: 'غير محدد';
+
                 return '<div class="d-flex align-items-center gap-2">'
-                    . '<div class="flex-grow-1 min-w-0">'
-                    . '<a href="' . $showUrl . '" class="text-decoration-none text-dark fw-semibold">'
-                    . e($row->customer_name) . '</a>'
-                    . '<div class="small text-muted">' . e($phone) . '</div>'
-                    . '</div></div>';
+                    .'<div class="flex-grow-1 min-w-0">'
+                    .'<a href="'.$showUrl.'" class="text-decoration-none text-dark fw-semibold">'
+                    .e($row->customer_name).'</a>'
+                    .'<div class="small text-muted">'.e($phone).'</div>'
+                    .'</div></div>';
             })
 
-            ->editColumn('account_number', fn($row) => e($row->account_number ?: 'غير محدد'))
-            ->addColumn('company_name', fn($row) => e($row->company_name ?: 'غير محدد'))
-            ->addColumn('portfolio_name', fn($row) => e($row->portfolio_name ?: 'غير محدد'))
+            ->editColumn('account_number', fn ($row) => e($row->account_number ?: 'غير محدد'))
+            ->addColumn('company_name', fn ($row) => e($row->company_name ?: 'غير محدد'))
+            ->addColumn('portfolio_name', fn ($row) => e($row->portfolio_name ?: 'غير محدد'))
 
             ->addColumn('task_type', function ($row) {
                 $badgeClasses = [
-                    'promise'           => ['label' => 'وعد بالسداد',    'class' => 'bg-label-success'],
-                    'callback'          => ['label' => 'معاودة اتصال',   'class' => 'bg-label-primary'],
-                    'document_request'  => ['label' => 'طلب مستندات',    'class' => 'bg-label-warning'],
+                    'promise' => ['label' => 'وعد بالسداد',    'class' => 'bg-label-success'],
+                    'callback' => ['label' => 'معاودة اتصال',   'class' => 'bg-label-primary'],
+                    'document_request' => ['label' => 'طلب مستندات',    'class' => 'bg-label-warning'],
                 ];
                 $badge = $badgeClasses[$row->task_type] ?? ['label' => 'غير محدد', 'class' => 'bg-secondary'];
-                return '<span class="badge ' . $badge['class'] . '">' . $badge['label'] . '</span>';
+
+                return '<span class="badge '.$badge['class'].'">'.$badge['label'].'</span>';
             })
 
-            ->addColumn('scheduled_date', fn($row) => optional($row->due_date)->format('Y-m-d'))
+            ->addColumn('scheduled_date', fn ($row) => optional($row->due_date)->format('Y-m-d'))
 
             ->addColumn('overdue_days', function ($row) {
                 $days = (int) $row->overdue_days;
 
                 if ($days <= 3) {
                     $class = 'bg-label-warning';
-                    $text  = $days . ' يوم';
+                    $text = $days.' يوم';
                 } elseif ($days <= 7) {
                     $class = 'bg-label-danger';
-                    $text  = $days . ' أيام';
+                    $text = $days.' أيام';
                 } else {
                     $class = 'bg-danger text-white';
-                    $text  = $days . ' يوم';
+                    $text = $days.' يوم';
                 }
 
-                return '<span class="badge ' . $class . ' fw-bold">' . $text . '</span>';
+                return '<span class="badge '.$class.' fw-bold">'.$text.'</span>';
             })
 
-            ->addColumn('remaining_debt', fn($row) => number_format((float)$row->remaining_debt, 2) . ' ريال')
+            ->addColumn('remaining_debt', fn ($row) => number_format((float) $row->remaining_debt, 2).' ريال')
 
             // ✅ ترتيب الأعمدة (الأهم: overdue_days و remaining_debt)
             ->orderColumn('customer_name', 'c.name $1')
@@ -713,15 +704,14 @@ class DashboardController extends Controller
             })
 
             // ✅ الفلاتر للبحث
-            ->filterColumn('customer_name', fn($q, $k) => $q->where('c.name', 'like', "%{$k}%"))
-            ->filterColumn('account_number', fn($q, $k) => $q->where('c.account_number', 'like', "%{$k}%"))
-            ->filterColumn('company_name', fn($q, $k) => $q->where('cmp.name', 'like', "%{$k}%"))
-            ->filterColumn('portfolio_name', fn($q, $k) => $q->where('prt.name', 'like', "%{$k}%"))
+            ->filterColumn('customer_name', fn ($q, $k) => $q->where('c.name', 'like', "%{$k}%"))
+            ->filterColumn('account_number', fn ($q, $k) => $q->where('c.account_number', 'like', "%{$k}%"))
+            ->filterColumn('company_name', fn ($q, $k) => $q->where('cmp.name', 'like', "%{$k}%"))
+            ->filterColumn('portfolio_name', fn ($q, $k) => $q->where('prt.name', 'like', "%{$k}%"))
 
             ->rawColumns(['customer_name', 'task_type', 'overdue_days'])
             ->make(true);
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -740,7 +730,7 @@ class DashboardController extends Controller
             'date_to' => $request->input('date_to'),
         ];
 
-        $fileName = 'المهام_المتأخرة_' . now()->format('Y-m-d_H-i') . '.xlsx';
+        $fileName = 'المهام_المتأخرة_'.now()->format('Y-m-d_H-i').'.xlsx';
 
         return Excel::download(
             new OverdueTasksExport(null, $filters),
@@ -766,7 +756,7 @@ class DashboardController extends Controller
             'date_to' => $request->input('date_to'),
         ];
 
-        $fileName = 'مهامي_المتأخرة_' . now()->format('Y-m-d_H-i') . '.xlsx';
+        $fileName = 'مهامي_المتأخرة_'.now()->format('Y-m-d_H-i').'.xlsx';
 
         return Excel::download(
             new OverdueTasksExport($userId, $filters),
@@ -840,12 +830,14 @@ class DashboardController extends Controller
         $user = Auth::user();
         if ($user->canManageTeam()) {
             $ids = $user->teamMemberIds();
+
             return $ids;
         }
 
         if ($user->can('dashboard.view')) {
             return null;
         }
+
         return [$user->id];
     }
 }
