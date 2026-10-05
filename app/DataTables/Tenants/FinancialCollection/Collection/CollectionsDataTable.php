@@ -250,7 +250,7 @@ class CollectionsDataTable extends AbstractDataTable
             ->addColumn('attachment', function (Collection $collection) {
                 if ($collection->attachment) {
                     $url = tasset($collection->attachment);
-                    return '<a href="' . $url . '" target="_blank" class="btn btn-sm btn-icon btn-text-primary" title="عرض المرفق">
+                    return '<a href="' . $url . '" target="_blank" class="btn btn-icon btn-text-primary" title="عرض المرفق">
                                 <i class="ti ti-paperclip"></i>
                             </a>';
                 }

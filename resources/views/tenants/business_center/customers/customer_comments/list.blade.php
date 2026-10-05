@@ -21,8 +21,7 @@
                         </small>
                     </div>
                 </div>
-                <button type="button" class="btn btn-sm btn-icon btn-outline-danger delete-comment-btn"
-                    title="حذف التعليق">
+                <button type="button" class="btn btn-icon btn-outline-danger delete-comment-btn" title="حذف التعليق">
                     <i class="ti ti-trash"></i>
                 </button>
             </div>

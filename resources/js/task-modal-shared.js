@@ -180,7 +180,7 @@ function updateAttachments(attachments, taskId) {
                 <div class="attachment-item d-flex align-items-center mb-2" data-task-id="${taskId}">
                     <i class="ti ti-paperclip me-2"></i>
                     <a href="${attachmentUrl}" target="_blank" class="attachment-link">${attachment.name}</a>
-                    <button type="button" class="btn btn-sm btn-icon text-danger ms-auto delete-attachment" 
+                    <button type="button" class="btn btn-icon text-danger ms-auto delete-attachment" 
                             data-attachment-id="${attachment.id}">
                         <i class="ti ti-trash"></i>
                     </button>
@@ -362,10 +362,10 @@ function loadTaskComments(taskId) {
                                 <div class="border rounded p-3 bg-white comment-container">
                                     <div class="comment-actions">
                                         <div class="comment-buttons">
-                                            <button type="button" class="btn btn-sm btn-icon edit-comment-btn" title="تعديل">
+                                            <button type="button" class="btn btn-icon edit-comment-btn" title="تعديل">
                                                 <i class="ti ti-edit text-primary"></i>
                                             </button>
-                                            <button type="button" class="btn btn-sm btn-icon delete-comment-btn" title="حذف">
+                                            <button type="button" class="btn btn-icon delete-comment-btn" title="حذف">
                                                 <i class="ti ti-trash text-danger"></i>
                                             </button>
                                         </div>

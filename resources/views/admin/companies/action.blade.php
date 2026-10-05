@@ -11,7 +11,7 @@
     @endcan
 
     @can('companies.edit')
-        <a href="{{ route($route . '.edit', $row->id) }}" class="btn btn-sm btn-icon btn-label-primary" title="تعديل">
+        <a href="{{ route($route . '.edit', $row->id) }}" class="btn btn-icon btn-label-primary" title="تعديل">
             <i class="ti ti-edit"></i>
         </a>
     @endcan

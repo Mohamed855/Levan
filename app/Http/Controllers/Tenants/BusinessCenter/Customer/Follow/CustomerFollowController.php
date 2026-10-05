@@ -363,13 +363,13 @@ class CustomerFollowController extends Controller
                     $actions = '';
 
                     if (auth()->user()->can('customer_follows.edit')) {
-                        $actions .= '<button type="button" class="btn btn-sm btn-icon btn-outline-primary me-1" onclick="editCustomerFollow(' . $follow->id . ')" title="تعديل">
+                        $actions .= '<button type="button" class="btn btn-icon btn-outline-primary me-1" onclick="editCustomerFollow(' . $follow->id . ')" title="تعديل">
                            <i class="ti ti-edit"></i>
                        </button>';
                     }
 
                     if (auth()->user()->can('customer_follows.delete')) {
-                        $actions .= '<button type="button" class="btn btn-sm btn-icon btn-outline-danger" onclick="deleteCustomerFollow(' . $follow->id . ')" title="حذف">
+                        $actions .= '<button type="button" class="btn btn-icon btn-outline-danger" onclick="deleteCustomerFollow(' . $follow->id . ')" title="حذف">
                            <i class="ti ti-trash"></i>
                        </button>';
                     }

@@ -90,16 +90,16 @@ class CustomerPaymentController extends Controller
                 $actions = '<div class="d-flex justify-content-center">';
                 
                 if ($row->status === 'pending') {
-                    $actions .= '<button type="button" title="تعديل التحصيل" onclick="editCustomerPayment(' . $row->id . ')" class="btn btn-sm btn-icon btn-text-secondary me-1">
+                    $actions .= '<button type="button" title="تعديل التحصيل" onclick="editCustomerPayment(' . $row->id . ')" class="btn btn-icon btn-text-secondary me-1">
                             <i class="ti ti-edit"></i>
                         </button>
-                        <button type="button" title="حذف التحصيل" onclick="deleteCustomerPayment(' . $row->id . ')" class="btn btn-sm btn-icon btn-text-secondary me-1">
+                        <button type="button" title="حذف التحصيل" onclick="deleteCustomerPayment(' . $row->id . ')" class="btn btn-icon btn-text-secondary me-1">
                             <i class="ti ti-trash"></i>
                         </button>';
                 }
                 
                 if ($row->attachment) {
-                    $actions .= '<a href="' . asset('storage/' . $row->attachment) . '" target="_blank" title="عرض المرفق" class="btn btn-sm btn-icon btn-text-secondary">
+                    $actions .= '<a href="' . asset('storage/' . $row->attachment) . '" target="_blank" title="عرض المرفق" class="btn btn-icon btn-text-secondary">
                             <i class="ti ti-paperclip"></i>
                         </a>';
                 }

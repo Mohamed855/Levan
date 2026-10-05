@@ -129,7 +129,7 @@ class CollectionArchiveController extends Controller
                 ->addColumn('attachment', function (Collection $collection) {
                     if ($collection->attachment) {
                         $url = asset('storage/' . $collection->attachment);
-                        return '<a href="' . $url . '" target="_blank" class="btn btn-sm btn-icon btn-text-primary" title="عرض المرفق">
+                        return '<a href="' . $url . '" target="_blank" class="btn btn-icon btn-text-primary" title="عرض المرفق">
                                     <i class="ti ti-paperclip"></i>
                                 </a>';
                     }
@@ -142,10 +142,10 @@ class CollectionArchiveController extends Controller
                     $deleteFormId = 'force-delete-form-' . $row->id;
 
                     return '<div class="d-flex justify-content-center">
-                                <button title="استرجاع التحصيل" type="button" onclick="confirmRestore(' . $row->id . ')" class="btn btn-sm btn-icon btn-text-success me-1">
+                                <button title="استرجاع التحصيل" type="button" onclick="confirmRestore(' . $row->id . ')" class="btn btn-icon btn-text-success me-1">
                                     <i class="ti ti-refresh"></i>
                                 </button>
-                                <button title="حذف نهائي" type="button" onclick="confirmForceDelete(' . $row->id . ')" class="btn btn-sm btn-icon btn-text-danger">
+                                <button title="حذف نهائي" type="button" onclick="confirmForceDelete(' . $row->id . ')" class="btn btn-icon btn-text-danger">
                                     <i class="ti ti-trash-x"></i>
                                 </button>
                                 <form id="' . $restoreFormId . '" action="' . $restoreUrl . '" method="POST" style="display: none;">

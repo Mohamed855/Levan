@@ -1,15 +1,15 @@
 <div class="d-flex justify-content-center">
     @can('companies_archive.restore')
-    <button title="استرجاع الشركة" type="button" onclick="confirmRestore({{ $id }})"
-        class="btn btn-sm btn-icon btn-text-success me-1">
-        <i class="ti ti-refresh"></i>
-    </button>
+        <button title="استرجاع الشركة" type="button" onclick="confirmRestore({{ $id }})"
+            class="btn btn-icon btn-text-success me-1">
+            <i class="ti ti-refresh"></i>
+        </button>
     @endcan
 
     @can('companies_archive.force_delete')
-    <button title="حذف نهائي" type="button" onclick="confirmForceDelete({{ $id }})"
-        class="btn btn-sm btn-icon btn-text-danger">
-        <i class="ti ti-trash-x"></i>
-    </button>
+        <button title="حذف نهائي" type="button" onclick="confirmForceDelete({{ $id }})"
+            class="btn btn-icon btn-text-danger">
+            <i class="ti ti-trash-x"></i>
+        </button>
     @endcan
 </div>

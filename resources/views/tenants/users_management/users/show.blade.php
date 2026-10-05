@@ -55,7 +55,7 @@
                         <!-- زر تعديل الصورة -->
                         @if (auth()->id() === $user->id || auth()->user()->can('users.edit'))
                             <button type="button"
-                                class="btn btn-sm btn-icon btn-primary rounded-circle position-absolute bottom-0 end-0 me-4 mb-1"
+                                class="btn btn-icon btn-primary rounded-circle position-absolute bottom-0 end-0 me-4 mb-1"
                                 data-bs-toggle="modal" data-bs-target="#changeProfileImageModal"
                                 style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;">
                                 <i class="ti ti-pencil ti-14px"></i>
@@ -262,7 +262,7 @@
                                             <div class="fw-semibold" style="font-size: 0.875rem;">
                                                 {{ $user->phone ??
                                                     'غير
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            محدد' }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            محدد' }}
                                             </div>
                                         </div>
                                     </div>
