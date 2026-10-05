@@ -55,7 +55,7 @@ class ExecutiveTableSheet implements FromArray, WithTitle, WithStyles, WithColum
         return $widths;
     }
 
-    public function styles(Worksheet $sheet): array: array
+    public function styles(Worksheet $sheet): array
     {
         return [
             1 => [

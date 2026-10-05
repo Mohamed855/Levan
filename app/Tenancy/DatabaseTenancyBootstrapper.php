@@ -34,7 +34,7 @@ class DatabaseTenancyBootstrapper implements TenancyBootstrapper
                 'prefix_indexes' => true,
                 'strict'         => true,
                 'engine'         => null,
-                'unix_socket'    => '',
+                'unix_socket'    => env('DB_SOCKET') ?: config('database.connections.mysql.unix_socket', ''),
                 'options'        => [
                     \PDO::ATTR_EMULATE_PREPARES  => false,
                     \PDO::ATTR_STRINGIFY_FETCHES => false,

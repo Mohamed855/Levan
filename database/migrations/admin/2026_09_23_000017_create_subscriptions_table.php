@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('tenant_id');
             $table->foreign('tenant_id')->references('id')->on('tenants')->cascadeOnDelete();
             $table->foreignId('plan_id')->nullable()->constrained('plans')->nullOnDelete();
+            $table->string('billing_cycle', 20)->default('monthly');
             $table->enum('status', array_column(SubscriptionStatus::cases(), 'value'))->default(SubscriptionStatus::PENDING->value);
             $table->decimal('price', 10, 2);
             $table->unsignedInteger('total_users')->default(0);
@@ -29,7 +30,6 @@ return new class extends Migration
             $table->json('transfer_bank_attachment')->nullable();
             $table->date('trial_end_date')->nullable();
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

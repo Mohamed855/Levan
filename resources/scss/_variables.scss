@@ -14,6 +14,15 @@ $secondary-darker:  darken($secondary-color, 5.5%);
     --menu-active-bg:       #{$secondary-darker};
     --menu-active-text:     #{$primary-color};
 
+    // Bootstrap-compatible tokens. Primary is deliberately dark and secondary
+    // deliberately light; foreground colours are defined in the base layer.
+    --bs-primary: #{$primary-color};
+    --bs-primary-rgb: 55, 38, 50;
+    --bs-secondary: #{$secondary-color};
+    --bs-secondary-rgb: 243, 237, 234;
+    --bs-body-bg: #{$secondary-color};
+    --bs-body-color: #{$primary-color};
+
     --font-family-base: "Zain", sans-serif;
     --font-weight-base: 400;
 }

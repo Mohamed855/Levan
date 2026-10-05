@@ -49,63 +49,39 @@
         </div>
     @endif
 
-    <!-- مودال إضافة حالة جديدة -->
-    <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">إضافة حالة عميل جديدة</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="addForm" class="needs-validation" novalidate>
-                        @csrf
+    <x-bootstrap.modal id="addModal" title="إضافة حالة عميل جديدة" centered>
+        <form id="addForm" class="needs-validation" novalidate>
+            @csrf
 
-                        <div class="mb-3">
-                            <label class="form-label" for="add_name">اسم الحالة <span class="text-danger">*</span></label>
-                            <input type="text" id="add_name" name="name" class="form-control"
-                                placeholder="اسم حالة العميل" required>
-                            <div class="invalid-feedback">اسم الحالة مطلوب</div>
-                        </div>
-                        <div class="d-flex justify-content-end gap-2">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">إلغاء</button>
-                            <button type="submit" class="btn btn-primary">إضافة</button>
-                        </div>
-                    </form>
-                </div>
+            <div class="mb-3">
+                <label class="form-label" for="add_name">اسم الحالة <span class="text-danger">*</span></label>
+                <input type="text" id="add_name" name="name" class="form-control" placeholder="اسم حالة العميل" required>
+                <div class="invalid-feedback">اسم الحالة مطلوب</div>
             </div>
-        </div>
-    </div>
-
-    <!-- مودال تعديل الحالة -->
-    <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">تعديل حالة العميل</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="editForm" class="needs-validation" novalidate>
-                        @csrf
-                        @method('PUT')
-                        <input type="hidden" id="edit_id" name="id">
-
-                        <div class="mb-3">
-                            <label class="form-label" for="edit_name">اسم الحالة <span class="text-danger">*</span></label>
-                            <input type="text" id="edit_name" name="name" class="form-control"
-                                placeholder="اسم حالة العميل" required>
-                            <div class="invalid-feedback">اسم الحالة مطلوب</div>
-                        </div>
-                        <div class="d-flex justify-content-end gap-2">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">إلغاء</button>
-                            <button type="submit" class="btn btn-primary">تحديث</button>
-                        </div>
-                    </form>
-                </div>
+            <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="submit" class="btn btn-primary">إضافة</button>
             </div>
-        </div>
-    </div>
+        </form>
+    </x-bootstrap.modal>
+
+    <x-bootstrap.modal id="editModal" title="تعديل حالة العميل" centered>
+        <form id="editForm" class="needs-validation" novalidate>
+            @csrf
+            @method('PUT')
+            <input type="hidden" id="edit_id" name="id">
+
+            <div class="mb-3">
+                <label class="form-label" for="edit_name">اسم الحالة <span class="text-danger">*</span></label>
+                <input type="text" id="edit_name" name="name" class="form-control" placeholder="اسم حالة العميل" required>
+                <div class="invalid-feedback">اسم الحالة مطلوب</div>
+            </div>
+            <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="submit" class="btn btn-primary">تحديث</button>
+            </div>
+        </form>
+    </x-bootstrap.modal>
 
     <div class="card">
         <div class="card-body">

@@ -11,6 +11,12 @@ return new class extends Migration
         Schema::create('plans', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('code', 50)->nullable()->unique();
+            $table->string('plan_type', 50)->default('basic');
+            $table->string('color', 30)->default('purple');
+            $table->timestamp('available_from')->nullable();
+            $table->text('admin_notes')->nullable();
+            $table->string('limits_mode', 20)->default('limited');
             $table->text('description')->nullable();
             $table->decimal('price', 10, 2);
             $table->decimal('yearly_renewal_price', 10, 2)->default(0);
@@ -22,9 +28,12 @@ return new class extends Migration
             $table->json('features')->nullable();
             $table->boolean('is_active')->default(true);
             $table->integer('sort_order')->default(0);
-            $table->unsignedInteger('included_users')->default(1);
+            $table->unsignedInteger('included_users')->nullable();
+            $table->unsignedInteger('properties_limit')->nullable();
+            $table->unsignedInteger('storage_quota_gb')->nullable();
+            $table->unsignedInteger('active_auctions_limit')->nullable();
             $table->enum('subscription_duration_type', ['limited', 'unlimited'])->default('limited');
-            $table->enum('subscription_billing_cycle', ['monthly', 'yearly'])->nullable();
+            $table->enum('subscription_billing_cycle', ['monthly', 'quarterly', 'yearly'])->nullable();
             $table->foreignId('created_by')->constrained('admin_users')->onDelete('cascade');
             $table->foreignId('updated_by')->nullable()->constrained('admin_users')->onDelete('cascade');
             $table->timestamps();

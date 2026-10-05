@@ -14,194 +14,57 @@ use Illuminate\Support\Str;
 
 class Helpers
 {
-    public static function appClasses()
+    public static function appClasses(): array
     {
-        $data = config('custom.custom');
-
         session()->put('locale', 'ar');
         app()->setLocale('ar');
 
-        // default data array
-        $DefaultData = [
+        $data = array_merge([
             'myLayout' => 'vertical',
-            'myTheme' => 'theme-semi-dark',
-            'myStyle' => 'light',
-            'myRTLSupport' => true,
-            'myRTLMode' => true,
-            'hasCustomizer' => true,
-            'showDropdownOnHover' => true,
-            'displayCustomizer' => true,
             'contentLayout' => 'compact',
             'headerType' => 'fixed',
             'navbarType' => 'fixed',
             'menuFixed' => true,
             'menuCollapsed' => false,
             'footerFixed' => false,
-            'customizerControls' => [
-                'rtl',
-                'style',
-                'headerType',
-                'contentLayout',
-                'layoutCollapsed',
-                'showDropdownOnHover',
-                'layoutNavbarOptions',
-                'themes',
-            ],
-        ];
+            'showDropdownOnHover' => true,
+        ], config('custom.custom', []));
 
-        $data = array_merge($DefaultData, $data);
+        $layout = in_array($data['myLayout'], ['vertical', 'horizontal', 'blank', 'front'], true)
+            ? $data['myLayout']
+            : 'vertical';
+        $contentLayout = in_array($data['contentLayout'], ['compact', 'wide'], true)
+            ? $data['contentLayout']
+            : 'compact';
+        $navbarType = in_array($data['navbarType'], ['fixed', 'static', 'hidden'], true)
+            ? $data['navbarType']
+            : 'fixed';
 
-        $data['myTheme'] = 'theme-semi-dark';
-        $data['myStyle'] = 'light';
-        $data['myRTLSupport'] = true;
-        $data['myRTLMode'] = true;
-        $data['hasCustomizer'] = false;
-        $data['displayCustomizer'] = false;
-        $data['customizerControls'] = [];
-
-        $allOptions = [
-            'myLayout' => ['vertical', 'horizontal', 'blank', 'front'],
-            'menuCollapsed' => [true, false],
-            'hasCustomizer' => [true, false],
-            'showDropdownOnHover' => [true, false],
-            'displayCustomizer' => [true, false],
-            'contentLayout' => ['compact', 'wide'],
-            'headerType' => ['fixed', 'static'],
-            'navbarType' => ['fixed', 'static', 'hidden'],
-            'myStyle' => ['light', 'dark', 'system'],
-            'myTheme' => ['theme-default', 'theme-bordered', 'theme-semi-dark'],
-            'myRTLSupport' => [true, false],
-            'myRTLMode' => [true, false],
-            'menuFixed' => [true, false],
-            'footerFixed' => [true, false],
+        return [
+            'layout' => $layout,
+            'theme' => 'theme-semi-dark',
+            'themeOpt' => 'theme-semi-dark',
+            'style' => 'light',
+            'styleOpt' => 'light',
+            'styleOptVal' => 'light',
+            'rtlSupport' => '/rtl',
+            'rtlMode' => 'rtl',
+            'textDirection' => 'rtl',
+            'menuCollapsed' => $data['menuCollapsed'] ? 'layout-menu-collapsed' : '',
+            'hasCustomizer' => false,
+            'showDropdownOnHover' => (bool) $data['showDropdownOnHover'],
+            'displayCustomizer' => false,
+            'contentLayout' => $contentLayout,
+            'headerType' => $data['headerType'] === 'fixed' ? 'layout-menu-fixed' : '',
+            'navbarType' => match ($navbarType) {
+                'fixed' => 'layout-navbar-fixed',
+                'hidden' => 'layout-navbar-hidden',
+                default => '',
+            },
+            'menuFixed' => $data['menuFixed'] ? 'layout-menu-fixed' : '',
+            'footerFixed' => $data['footerFixed'] ? 'layout-footer-fixed' : '',
             'customizerControls' => [],
         ];
-
-        foreach ($allOptions as $key => $value) {
-            if (array_key_exists($key, $DefaultData)) {
-                if (gettype($DefaultData[$key]) === gettype($data[$key])) {
-                    if (is_string($data[$key])) {
-                        if (isset($data[$key]) && $data[$key] !== null) {
-                            if (!array_key_exists($data[$key], $value)) {
-                                $result = array_search($data[$key], $value, 'strict');
-                                if (empty($result) && $result !== 0) {
-                                    $data[$key] = $DefaultData[$key];
-                                }
-                            }
-                        } else {
-                            $data[$key] = $DefaultData[$key];
-                        }
-                    }
-                } else {
-                    $data[$key] = $DefaultData[$key];
-                }
-            }
-        }
-
-        $styleVal = $data['myStyle'] == "dark" ? "dark" : "light";
-        $styleUpdatedVal = $data['myStyle'] == "dark" ? "dark" : $data['myStyle'];
-        $layoutName = $data['myLayout'];
-        $isAdmin = Str::contains($layoutName, 'front') ? false : true;
-
-        $modeCookieName = $isAdmin ? 'admin-mode' : 'front-mode';
-        $colorPrefCookieName = $isAdmin ? 'admin-colorPref' : 'front-colorPref';
-
-        // Disabled theme switching to dark mode via cookie
-        /*
-        if ($layoutName !== 'blank') {
-            if (isset($_COOKIE[$modeCookieName])) {
-                $styleVal = $_COOKIE[$modeCookieName];
-                if ($styleVal === 'system') {
-                    $styleVal = isset($_COOKIE[$colorPrefCookieName]) ? $_COOKIE[$colorPrefCookieName] : 'light';
-                }
-                $styleUpdatedVal = $_COOKIE[$modeCookieName];
-            }
-        }
-        */
-
-        $themeVal = $data['myTheme'];
-
-        $directionVal = 'rtl';
-
-        if (session()->get('locale') == 'ar') {
-            $layoutClasses['rtlMode'] = 'rtl';
-            $layoutClasses['textDirection'] = 'rtl';
-        } else {
-            $layoutClasses['rtlMode'] = 'rtl';
-            $layoutClasses['textDirection'] = 'rtl';
-        }
-
-        $layoutClasses = [
-            'layout' => $data['myLayout'],
-            'theme' => $themeVal,
-            'themeOpt' => $data['myTheme'],
-            'style' => $styleVal,
-            'styleOpt' => $data['myStyle'],
-            'styleOptVal' => $styleUpdatedVal,
-            'rtlSupport' => $data['myRTLSupport'],
-            'rtlMode' => $data['myRTLMode'],
-            'textDirection' => $directionVal,
-            'menuCollapsed' => $data['menuCollapsed'],
-            'hasCustomizer' => $data['hasCustomizer'],
-            'showDropdownOnHover' => $data['showDropdownOnHover'],
-            'displayCustomizer' => $data['displayCustomizer'],
-            'contentLayout' => $data['contentLayout'],
-            'headerType' => $data['headerType'],
-            'navbarType' => $data['navbarType'],
-            'menuFixed' => $data['menuFixed'],
-            'footerFixed' => $data['footerFixed'],
-            'customizerControls' => $data['customizerControls'],
-        ];
-
-        if ($layoutClasses['menuCollapsed'] == true) {
-            $layoutClasses['menuCollapsed'] = 'layout-menu-collapsed';
-        }
-
-        if ($layoutClasses['headerType'] == 'fixed') {
-            $layoutClasses['headerType'] = 'layout-menu-fixed';
-        }
-
-        if ($layoutClasses['navbarType'] == 'fixed') {
-            $layoutClasses['navbarType'] = 'layout-navbar-fixed';
-        } elseif ($layoutClasses['navbarType'] == 'static') {
-            $layoutClasses['navbarType'] = '';
-        } else {
-            $layoutClasses['navbarType'] = 'layout-navbar-hidden';
-        }
-
-        if ($layoutClasses['menuFixed'] == true) {
-            $layoutClasses['menuFixed'] = 'layout-menu-fixed';
-        }
-
-        if ($layoutClasses['footerFixed'] == true) {
-            $layoutClasses['footerFixed'] = 'layout-footer-fixed';
-        }
-
-        if ($layoutClasses['rtlSupport'] == true) {
-            $layoutClasses['rtlSupport'] = '/rtl';
-        }
-
-        if ($layoutClasses['rtlMode'] == true) {
-            $layoutClasses['rtlMode'] = 'rtl';
-            $layoutClasses['textDirection'] = 'rtl';
-        } else {
-            $layoutClasses['rtlMode'] = 'rtl';
-            $layoutClasses['textDirection'] = 'rtl';
-        }
-
-        if ($layoutClasses['showDropdownOnHover'] == true) {
-            $layoutClasses['showDropdownOnHover'] = true;
-        } else {
-            $layoutClasses['showDropdownOnHover'] = false;
-        }
-
-        if ($layoutClasses['displayCustomizer'] == true) {
-            $layoutClasses['displayCustomizer'] = true;
-        } else {
-            $layoutClasses['displayCustomizer'] = false;
-        }
-
-        return $layoutClasses;
     }
 
     public static function updatePageConfig($pageConfigs)

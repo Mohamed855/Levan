@@ -20,7 +20,6 @@ use App\Http\Controllers\Admin\Settings\Bank\SettingsBankController;
 use App\Http\Controllers\Admin\Settings\Domain\SettingsDomainController;
 use App\Http\Controllers\Admin\Settings\SettingsController;
 use App\Http\Controllers\Admin\SubscriptionManagement\SubscriptionManagementController;
-use App\Http\Controllers\Admin\TenantMangment\TenantMangmentController;
 use App\Http\Controllers\Admin\TransferRequest\TransferRequestController;
 use App\Http\Controllers\Admin\Versions\VersionController;
 use App\Http\Controllers\Admin\VersionTester\VersionTesterController;
@@ -61,11 +60,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
         Route::put('/', [SettingsController::class, 'update'])->name('update');
     });
 
-    // ادارة العملاء
-    // Route::prefix('tenant-manage')->name('tenantManage.')->group(function () {
-    //     Route::get('resendEmail/{row}', [TenantMangmentController::class, 'resendEmail'])->name('resendEmail');
-    //     Route::resource('/', TenantMangmentController::class)->parameters(['' => 'tenant']);
-    // });
 
     // تنبيهات الاشتراكات
     Route::prefix('subscription-manage')->name('subscriptionManage.')->group(function () {

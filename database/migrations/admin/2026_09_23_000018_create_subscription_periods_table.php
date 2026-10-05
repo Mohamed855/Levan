@@ -27,6 +27,13 @@ return new class extends Migration
 
             // تخزين بعض القيمة للرجوع اليها
             $table->foreignId('plan_id_snapshot')->nullable()->constrained('plans')->nullOnDelete();
+            $table->string('plan_code_snapshot', 50)->nullable();
+            $table->string('plan_name_snapshot')->nullable();
+            $table->string('plan_type_snapshot', 50)->nullable();
+            $table->string('billing_cycle_snapshot', 20)->nullable();
+            $table->string('limits_mode_snapshot', 20)->default('limited');
+            $table->json('limits_snapshot')->nullable();
+            $table->json('features_snapshot')->nullable();
             $table->decimal('price_snapshot', 10, 2)->nullable();
             $table->unsignedInteger('total_users_snapshot')->default(0);
             $table->unsignedInteger('used_users_snapshot')->default(0);

@@ -2,7 +2,7 @@
 @vite(['resources/assets/vendor/fonts/tabler-icons.scss'])
 
 <!-- Core CSS -->
-@vite(['resources/assets/vendor/scss' . $configData['rtlSupport'] . '/core' . ($configData['style'] !== 'light' ? '-' . $configData['style'] : '') . '.scss', 'resources/assets/vendor/scss' . $configData['rtlSupport'] . '/' . $configData['theme'] . ($configData['style'] !== 'light' ? '-' . $configData['style'] : '') . '.scss', 'resources/assets/vendor/libs/node-waves/node-waves.scss', 'resources/assets/vendor/scss/pages/front-page.scss'])
+@vite(['resources/assets/vendor/scss/rtl/core.scss', 'resources/assets/vendor/scss/rtl/theme-semi-dark.scss', 'resources/assets/vendor/libs/node-waves/node-waves.scss', 'resources/assets/vendor/scss/pages/front-page.scss'])
 
 <!-- Vendor Styles -->
 @yield('vendor-style')

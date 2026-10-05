@@ -15,8 +15,8 @@ return [
     */
 
     'moyasar' => [
-        'secret' => env('MOYASER_SECRET_KEY', ''),
-        'publishable' => env('MOYASER_PUBLISHABLE_KEY', ''),
+        'secret' => env('MOYASER_SECRET_KEY', env('MOYASAR_SECRET_KEY', '')),
+        'publishable' => env('MOYASER_PUBLISHABLE_KEY', env('MOYASAR_PUBLISHABLE_KEY', '')),
     ],
 
     'mailgun' => [
