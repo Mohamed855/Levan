@@ -325,7 +325,6 @@
     }
     .copy-btn-small:hover {
         background: var(--primary-light);
-        transform: translateY(-1px);
         box-shadow: 0 2px 8px rgba(55, 60, 82, 0.2);
     }
 
@@ -396,7 +395,6 @@
     }
 
     .btn-primary-custom:hover:not(:disabled) {
-        transform: translateY(-2px);
         box-shadow: 0 5px 16px rgba(55, 60, 82, 0.25);
     }
 

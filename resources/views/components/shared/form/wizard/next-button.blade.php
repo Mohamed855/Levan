@@ -2,7 +2,7 @@
     'text' => 'التالي',
     'icon' => 'ti ti-arrow-right ms-2',
     'iconPosition' => 'end',
-    'disabled' => false,
+    'disabled' => true,
     'type' => 'button',
 ])
 

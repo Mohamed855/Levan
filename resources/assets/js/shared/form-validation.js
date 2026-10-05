@@ -40,6 +40,49 @@ function findControls(form, fieldName) {
   );
 }
 
+function stateTargets(control) {
+  const targets = [control];
+  const inputGroup = control.closest('.input-group');
+
+  if (inputGroup) {
+    targets.push(inputGroup);
+  }
+
+  if (control.tagName === 'SELECT') {
+    const select2Container = control.nextElementSibling?.matches('.select2')
+      ? control.nextElementSibling
+      : null;
+
+    if (select2Container) {
+      targets.push(select2Container);
+    }
+  }
+
+  return [...new Set(targets)];
+}
+
+function shouldShowValidState(control) {
+  if (control.type === 'checkbox' || control.type === 'radio') {
+    return control.checked;
+  }
+
+  if (control.type === 'file') {
+    return Boolean(control.files?.length);
+  }
+
+  return String(control.value || '').trim() !== '';
+}
+
+function clearFieldValidState(form, fieldName) {
+  findFieldWrappers(form, fieldName).forEach((wrapper) => {
+    wrapper.classList.remove('is-valid');
+  });
+
+  findControls(form, fieldName).forEach((control) => {
+    stateTargets(control).forEach((target) => target.classList.remove('is-valid'));
+  });
+}
+
 /**
  * Single-spot error clearing:
  * Resets the single dedicated error element ([data-form-error] or .invalid-feedback)
@@ -56,9 +99,8 @@ function clearFieldError(form, fieldName) {
   });
 
   findControls(form, fieldName).forEach((control) => {
-    control.classList.remove('is-invalid');
+    stateTargets(control).forEach((target) => target.classList.remove('is-invalid'));
     control.setAttribute('aria-invalid', 'false');
-    control.nextElementSibling?.classList?.remove('is-invalid');
 
     // Fallback for fields not wrapped with [data-form-field]
     const wrapper = control.closest('[data-form-field]');
@@ -83,6 +125,7 @@ function setFieldError(form, fieldName, message) {
   const wrappers = findFieldWrappers(form, fieldName);
 
   wrappers.forEach((wrapper) => {
+    wrapper.classList.remove('is-valid');
     wrapper.classList.add('is-invalid');
     const error = wrapper.querySelector('[data-form-error]');
     if (error) {
@@ -93,9 +136,11 @@ function setFieldError(form, fieldName, message) {
   });
 
   findControls(form, fieldName).forEach((control) => {
-    control.classList.add('is-invalid');
+    stateTargets(control).forEach((target) => {
+      target.classList.remove('is-valid');
+      target.classList.add('is-invalid');
+    });
     control.setAttribute('aria-invalid', 'true');
-    control.nextElementSibling?.classList?.add('is-invalid');
 
     // Fallback for fields not wrapped with [data-form-field]
     if (wrappers.length === 0) {
@@ -109,6 +154,25 @@ function setFieldError(form, fieldName, message) {
         feedback.style.display = 'block';
       }
     }
+  });
+}
+
+function setFieldValid(form, fieldName) {
+  clearFieldError(form, fieldName);
+
+  const controls = findControls(form, fieldName);
+  if (!controls.some(shouldShowValidState)) {
+    clearFieldValidState(form, fieldName);
+    return;
+  }
+
+  findFieldWrappers(form, fieldName).forEach((wrapper) => {
+    wrapper.classList.add('is-valid');
+  });
+
+  controls.forEach((control) => {
+    stateTargets(control).forEach((target) => target.classList.add('is-valid'));
+    control.setAttribute('aria-invalid', 'false');
   });
 }
 
@@ -424,7 +488,7 @@ function validateControlClientSide(form, control) {
     }
   }
 
-  clearFieldError(form, name);
+  setFieldValid(form, name);
   return true;
 }
 
@@ -594,13 +658,18 @@ async function validateFields(form, fieldNames) {
       return false;
     }
 
-    fields.forEach((field) => clearFieldError(form, field));
-
     if (response.ok && payload.success) {
+      fields.forEach((field) => setFieldValid(form, field));
       return true;
     }
 
     const errors = payload.errors || {};
+    fields.forEach((field) => {
+      const hasError = Object.keys(errors).some((errorField) => fieldMatches(errorField, field));
+      if (!hasError) {
+        setFieldValid(form, field);
+      }
+    });
     Object.entries(errors).forEach(([field, messages]) => {
       const message = Array.isArray(messages) ? messages[0] : messages;
       if (message) {
@@ -910,6 +979,7 @@ if (document.readyState === 'loading') {
 window.SharedFormValidation = {
   validateFields,
   setFieldError,
+  setFieldValid,
   clearFieldError,
   updateStepNextButton,
   isStepValid,

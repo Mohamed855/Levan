@@ -13,6 +13,13 @@
     }
 }
 
+// Keep hint text stationary when a control receives focus. The vendor theme
+// applies a directional translate to placeholders, which makes form content
+// appear to shift while the user starts typing.
+.form-control:not([readonly]):focus::placeholder {
+    transform: none;
+}
+
 // Password criteria list (reset / change password pages)
 #password-criteria {
     list-style: none;

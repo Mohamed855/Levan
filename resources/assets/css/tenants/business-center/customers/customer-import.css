@@ -44,7 +44,6 @@
     #file-upload-area:hover {
       border-color: #696cff !important;
       background: linear-gradient(135deg, #f0f0ff, #fafaff) !important;
-      transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(105, 108, 255, 0.1);
     }
 
@@ -127,11 +126,6 @@
       font-weight: 500;
       transition: all 0.2s ease;
     }
-
-    .btn:hover {
-      transform: translateY(-1px);
-    }
-
 
     /* إضافة هذا CSS في ملف customer-import.css أو في <style> في index.blade.php */
 

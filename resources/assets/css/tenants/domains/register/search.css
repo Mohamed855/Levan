@@ -697,7 +697,6 @@
 .ds-suggestion-item:hover:not(.ds-suggestion-item--checking):not(.ds-suggestion-item--taken) {
     border-color: var(--primary-border);
     background: var(--primary-faint);
-    transform: translateY(-2px);
 }
 
 .ds-suggestion-item--checking { opacity: 0.7; cursor: default; }
@@ -710,7 +709,6 @@
 
 .ds-suggestion-item--available:hover {
     border-color: var(--primary);
-    transform: translateY(-2px);
     box-shadow: 0 4px 16px rgba(0,0,0,0.2);
 }
 

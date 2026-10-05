@@ -233,22 +233,12 @@
 
 .btn-tenant-login:hover {
     background-color: #261922;
-    transform: translateY(-1px);
     box-shadow: 0 6px 18px rgba(55, 38, 50, 0.28);
     color: #ffffff !important;
 }
 
-.btn-tenant-login:active {
-    transform: translateY(0);
-}
-
 .btn-tenant-login i {
     font-size: 18px;
-    transition: transform 0.2s ease;
-}
-
-.btn-tenant-login:hover i {
-    transform: translateX(-3px);
 }
 
 .tenant-login-footer {
@@ -398,7 +388,6 @@
 
 .tenant-feature-card:hover {
     background: rgba(255, 255, 255, 0.12);
-    transform: translateY(-2px);
 }
 
 .tenant-feature-icon {

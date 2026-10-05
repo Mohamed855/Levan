@@ -49,7 +49,6 @@
 
     .back-btn:hover {
         background: rgba(255, 255, 255, 0.3);
-        transform: translateY(-2px);
     }
 
     .request-card {
@@ -124,7 +123,6 @@
 
     .info-item:hover {
         background: #e9ecef;
-        transform: translateY(-2px);
     }
 
     .info-item .icon {
@@ -215,7 +213,6 @@
 
     .plan-feature:hover {
         background: rgba(76, 193, 187, 0.1);
-        transform: translateX(-5px);
     }
 
     .plan-feature i {
@@ -310,7 +307,6 @@
 
     .btn-approve:hover {
         opacity: 0.9;
-        transform: translateY(-3px);
         box-shadow: 0 6px 20px rgba(76, 193, 187, 0.4);
     }
 
@@ -332,7 +328,6 @@
 
     .btn-reject:hover {
         background: #1a1d2e !important;
-        transform: translateY(-3px);
         box-shadow: 0 6px 20px rgba(47, 51, 73, 0.4);
     }
 
@@ -385,4 +380,3 @@
             text-align: center;
         }
     }
-

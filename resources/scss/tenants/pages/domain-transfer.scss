@@ -358,7 +358,6 @@
 
     .btn-primary:hover {
         background: linear-gradient(135deg, #3d4152 0%, #4a4d5f 100%);
-        transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(47, 51, 73, 0.4);
     }
 
@@ -370,7 +369,6 @@
 
     .btn-success:hover {
         background: linear-gradient(135deg, #059669 0%, #047857 100%);
-        transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
     }
 

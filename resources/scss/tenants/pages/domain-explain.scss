@@ -90,7 +90,6 @@
 
     .info-box:hover {
         box-shadow: var(--shadow-md);
-        transform: translateY(-2px);
     }
 
     .info-box i {
@@ -152,7 +151,6 @@
 
     .step-card:hover {
         box-shadow: var(--shadow-md);
-        transform: translateX(-3px);
         border-color: var(--accent-light);
     }
 
@@ -387,7 +385,6 @@
 
     .copy-btn:hover {
         background: rgba(255, 255, 255, 0.2);
-        transform: translateY(-2px);
     }
 
     .copy-btn i {
@@ -412,7 +409,6 @@
     }
 
     .btn:hover {
-        transform: translateY(-2px);
         box-shadow: var(--shadow-md);
         color: var(--primary-color);
     }
@@ -557,7 +553,6 @@
 
     .info-card:hover {
         box-shadow: var(--shadow-md);
-        transform: translateY(-3px);
     }
 
     .info-card-header {

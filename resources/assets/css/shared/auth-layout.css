@@ -279,7 +279,6 @@
 .btn-auth-primary:hover,
 .btn-tenant-login:hover {
     background-color: #261922;
-    transform: translateY(-1px);
     box-shadow: 0 6px 18px rgba(55, 38, 50, 0.28);
     color: #ffffff !important;
 }
@@ -294,12 +293,6 @@
 .btn-auth-primary i,
 .btn-tenant-login i {
     font-size: 18px;
-    transition: transform 0.2s ease;
-}
-
-.btn-auth-primary:hover i,
-.btn-tenant-login:hover i {
-    transform: translateX(-3px);
 }
 
 /* Footer */
@@ -528,7 +521,6 @@
 .auth-feature-card:hover,
 .tenant-feature-card:hover {
     background: rgba(255, 255, 255, 0.12);
-    transform: translateY(-2px);
 }
 
 .auth-feature-icon,
