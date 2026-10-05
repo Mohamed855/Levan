@@ -44,7 +44,7 @@
         };
 
         window.assets = {
-            arabicDataTable: "{{ asset('assets/json/ar.json') }}"
+            arabicDataTable: "{{ asset('static/i18n/ar.json') }}"
         };
 
         window.userPermissions = {

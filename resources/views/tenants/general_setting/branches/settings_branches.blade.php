@@ -122,7 +122,7 @@
 
                 ],
                 language: {
-                    url: "{{ asset('assets/json/ar.json') }}"
+                    url: "{{ asset('static/i18n/ar.json') }}"
                 },
                 responsive: true,
             });

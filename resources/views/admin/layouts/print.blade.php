@@ -7,7 +7,7 @@
 
     <title>@yield('title') | ليفـــان LEVAN</title>
 
-    <link rel="icon" type="image/x-icon" href="{{ asset('img/logo-light.svg') }}" />
+    <link rel="icon" type="image/x-icon" href="{{ asset('static/brand/logos/logo-light.svg') }}" />
 
     @vite(['resources/assets/vendor/fonts/tabler-icons.scss', 'resources/scss/admin/print.scss'])
 

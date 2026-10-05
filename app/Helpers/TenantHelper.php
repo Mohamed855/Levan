@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Route;
 
 
 if (! function_exists('tasset')) {
-    function tasset(?string $path, ?string $fallback = '/img/logo.svg'): ?string
+    function tasset(?string $path, ?string $fallback = '/static/brand/logos/logo.svg'): ?string
     {
         if (!$path) {
             return asset($fallback);

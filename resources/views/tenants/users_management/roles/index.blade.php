@@ -29,7 +29,7 @@
             updateStatus: "{{ tenant_route_name('roles.user.status', ['userId' => '___ID___']) }}"
         };
         window.assets = {
-            arabicDataTable: "{{ asset('assets/json/ar.json') }}"
+            arabicDataTable: "{{ asset('static/i18n/ar.json') }}"
         };
         window.csrfToken = "{{ csrf_token() }}";
         window.permissions = {
@@ -72,7 +72,7 @@
                                                         data-bs-title="{{ $user->name }}"
                                                         class="avatar avatar-xs pull-up">
                                                         <img class="rounded-circle"
-                                                            src="{{ $user->image ? tasset($user->image) : asset('img/logo.svg') }}"
+                                                            src="{{ $user->image ? tasset($user->image) : asset('static/brand/logos/logo.svg') }}"
                                                             alt="Avatar" width="26" height="26">
                                                     </li>
                                                 @endforeach

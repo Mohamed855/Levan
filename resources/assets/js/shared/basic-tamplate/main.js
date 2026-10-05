@@ -116,7 +116,7 @@ if (document.getElementById('layout-menu')) {
     const switchImagesList = [].slice.call(document.querySelectorAll('[data-app-' + style + '-img]'));
     switchImagesList.map(function (imageEl) {
       const setImage = imageEl.getAttribute('data-app-' + style + '-img');
-      imageEl.src = assetsPath + 'img/' + setImage; // Using window.assetsPath to get the exact relative path
+      imageEl.src = assetsPath + 'dashboard/' + setImage;
     });
   }
 
@@ -464,7 +464,7 @@ if (typeof $ !== 'undefined') {
       }
       // Search API AJAX call
       var searchData = $.ajax({
-        url: assetsPath + 'json/' + searchJson, //? Use your own search api instead
+        url: assetsPath + 'i18n/' + searchJson, //? Use your own search api instead
         dataType: 'json',
         async: false
       }).responseJSON;

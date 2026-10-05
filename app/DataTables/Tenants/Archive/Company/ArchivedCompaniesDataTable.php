@@ -101,7 +101,7 @@ class ArchivedCompaniesDataTable extends AbstractDataTable
             ->editColumn('name', function ($row) {
                 $img = $row->logo_path
                     ? tasset($row->logo_path)
-                    : asset('img/logo.svg');
+                    : asset('static/brand/logos/logo.svg');
 
                 return '<div class="d-flex align-items-center">
                     <img src="' . $img . '" alt="logo" class="rounded me-2"

@@ -177,7 +177,7 @@ window.isDarkStyle = window.Helpers.isDarkStyle();
     const switchImagesList = [].slice.call(document.querySelectorAll('[data-app-' + style + '-img]'));
     switchImagesList.map(function (imageEl) {
       const setImage = imageEl.getAttribute('data-app-' + style + '-img');
-      imageEl.src = assetsPath + 'img/' + setImage; // Using window.assetsPath to get the exact relative path
+      imageEl.src = assetsPath + 'dashboard/' + setImage;
     });
   }
 })();

@@ -29,7 +29,7 @@
             massDelete: "{{ tenant_route_name('mass-delete') }}"
         };
         window.csrfToken = "{{ csrf_token() }}";
-        window.assetsPath = "{{ asset('assets') }}";
+        window.assetsPath = "{{ asset('static') }}";
     </script>
     @vite(['resources/assets/js/tenants/general-settings/debt-types/debt-types.js'])
 @endsection

@@ -112,7 +112,7 @@
         {{-- رأس البريد --}}
         <div class="email-header">
             {{-- <div class="logo">
-                <img src="{{ asset('img/logo.svg') }}" alt="{{ config('app.name') }}">
+                <img src="{{ asset('static/brand/logos/logo.svg') }}" alt="{{ config('app.name') }}">
             </div> --}}
             <h1>{{ config('app.name') }}</h1>
         </div>

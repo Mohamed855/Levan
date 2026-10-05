@@ -283,7 +283,7 @@ class EmployeePerformanceService extends BasePerformanceService
                 'default_font' => 'almarai',
                 'fontDir' => array_merge(
                     (new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'],
-                    [public_path('fonts/Almarai')]
+                    [public_path('static/fonts/almarai')]
                 ),
                 'fontdata' => array_merge(
                     (new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'],

@@ -697,7 +697,7 @@ $('#select-all').on('change', function () {
                     lengthChange: true,
                     pageLength: 10,
                     language: {
-                        url: "/assets/json/ar.json"
+                        url: "/static/i18n/ar.json"
                     },
                     drawCallback: function () {
                         // تفعيل tooltips وتحديث ألوان حقول الحالة
@@ -760,7 +760,7 @@ $(document).on('change', '.module-select-checkbox', function () {
                 lengthChange: true,
                 pageLength: 10,
                 language: {
-                    url: "/assets/json/ar.json"
+                    url: "/static/i18n/ar.json"
                 },
                 drawCallback: function () {
                     $(`#${tableId} [data-bs-toggle="tooltip"]`).tooltip();
@@ -836,7 +836,7 @@ $(document).on('change', '.module-select-checkbox', function () {
                     lengthChange: true,
                     pageLength: 10,
                     language: {
-                        url: "/assets/json/ar.json"
+                    url: "/static/i18n/ar.json"
                     },
                     drawCallback: function () {
                         // تفعيل tooltips

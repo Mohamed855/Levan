@@ -22,13 +22,13 @@
                 <a href="{{ tenant() ? url(tenant('id') . '/dashboard') : url('/') }}" class="btn btn-primary">العودة إلى الصفحة الرئيسية</a>
             </div>
             <div class="mt-4">
-                <img src="{{ asset('assets/img/illustrations/page-misc-you-are-not-authorized.png') }}"
+                <img src="{{ asset('static/dashboard/illustrations/page-misc-you-are-not-authorized.png') }}"
                     alt="غير مصرح لك بالدخول" width="250" class="img-fluid">
             </div>
         </div>
     </div>
     <div class="container-fluid misc-bg-wrapper">
-        <img src="{{ asset('assets/img/illustrations/bg-shape-image-' . $configData['style'] . '.png') }}" height="355"
+        <img src="{{ asset('static/dashboard/illustrations/bg-shape-image-' . $configData['style'] . '.png') }}" height="355"
             alt="غير مصرح لك بالدخول" data-app-light-img="illustrations/bg-shape-image-light.png"
             data-app-dark-img="illustrations/bg-shape-image-dark.png">
     </div>

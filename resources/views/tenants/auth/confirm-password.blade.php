@@ -17,7 +17,7 @@
 
 @section('content')
     <x-auth.split-layout form-title="تأكيد كلمة المرور" form-subtitle="يرجى تأكيد كلمة المرور الخاصة بك قبل المتابعة"
-        :bg-image="asset('img/auth-security-bg.jpg')" media-tagline="حماية الحساب | ليفان العقارية" media-title="تحقق من هويتك | لمواصلة العملية"
+        :bg-image="asset('static/auth/backgrounds/auth-security-bg.jpg')" media-tagline="حماية الحساب | ليفان العقارية" media-title="تحقق من هويتك | لمواصلة العملية"
         media-desc="لضمان أمان حسابك، نطلب منك تأكيد كلمة المرور قبل الوصول إلى هذه الصفحة الحساسة." :features="[
             ['icon' => 'ti ti-shield-lock', 'text' => 'حماية البيانات الحساسة'],
             ['icon' => 'ti ti-lock-check', 'text' => 'التحقق من الهوية'],

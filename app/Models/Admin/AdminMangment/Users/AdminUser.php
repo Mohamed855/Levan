@@ -136,7 +136,7 @@ class AdminUser extends Authenticatable
         $imagePath = $this->image ?: $this->profile_picture;
 
         if (! $imagePath) {
-            return asset('img/logo.svg');
+            return asset('static/brand/logos/logo.svg');
         }
 
         if (Str::startsWith($imagePath, ['http://', 'https://'])) {

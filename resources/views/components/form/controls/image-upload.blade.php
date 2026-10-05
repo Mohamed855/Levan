@@ -16,7 +16,7 @@
 
 <x-form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :col="$col">
     <div class="d-flex align-items-start align-items-sm-center gap-4 pb-4 border-bottom">
-        <img src="{{ $value ?: asset('img/logo.svg') }}" alt="{{ $label }}" class="d-block w-px-100 h-px-100 rounded object-fit-cover"
+        <img src="{{ $value ?: asset('static/brand/logos/logo.svg') }}" alt="{{ $label }}" class="d-block w-px-100 h-px-100 rounded object-fit-cover"
             data-image-preview="{{ $fieldId }}">
         <div class="button-wrapper">
             <label for="{{ $fieldId }}" class="btn btn-primary mb-2" tabindex="0">

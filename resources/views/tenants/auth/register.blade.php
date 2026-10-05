@@ -17,7 +17,7 @@
 
 @section('content')
     <x-auth.split-layout form-title="إنشاء حساب جديد" form-subtitle="ابدأ رحلتك معنا وسجّل حساب شركتك الآن"
-        form-max-width="480px" :bg-image="asset('img/auth-register-bg.jpg')" media-tagline="انضم إلى شركائنا | ليفان العقارية"
+        form-max-width="480px" :bg-image="asset('static/auth/backgrounds/auth-register-bg.jpg')" media-tagline="انضم إلى شركائنا | ليفان العقارية"
         media-title="ابدأ رحلتك في إدارة وتطوير | المزادات العقارية"
         media-desc="منظومة رقمية ذكية تمكّن الشركات العقارية من طرح وإدارة المزادات، إدارة فرق العمل، وإصدار التقارير بكل كفاءة واحترافية."
         :features="[

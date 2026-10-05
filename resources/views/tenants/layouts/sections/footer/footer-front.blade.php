@@ -1,10 +1,10 @@
 <!-- Footer: Start -->
 <footer class="landing-footer bg-body footer-text">
     <div class="footer-top position-relative overflow-hidden z-1">
-        <img src="{{ asset('assets/img/front-pages/backgrounds/footer-bg-' . $configData['style'] . '.png') }}"
+        <img src="{{ asset('static/dashboard/backgrounds/cta-bg-light3.png') }}"
             alt="footer bg" class="footer-bg banner-bg-img z-n1"
-            data-app-light-img="front-pages/backgrounds/footer-bg-light.png"
-            data-app-dark-img="front-pages/backgrounds/footer-bg-dark.png" />
+            data-app-light-img="backgrounds/cta-bg-light3.png"
+            data-app-dark-img="backgrounds/cta-bg-light3.png" />
         <div class="container">
             <div class="row gx-0 gy-6 g-lg-10">
                 <div class="col-lg-5">
@@ -74,8 +74,8 @@
                 <!--
         <div class="col-lg-3 col-md-4">
           <h6 class="footer-title mb-6">حمل التطبيق</h6>
-          <a href="javascript:void(0);" class="d-block mb-4"><img src="{{ asset('assets/img/front-pages/landing-page/apple-icon.png') }}" alt="تحميل من آب ستور" /></a>
-          <a href="javascript:void(0);" class="d-block"><img src="{{ asset('assets/img/front-pages/landing-page/google-play-icon.png') }}" alt="تحميل من جوجل بلاي" /></a>
+          <a href="javascript:void(0);" class="d-block mb-4">متجر التطبيقات</a>
+          <a href="javascript:void(0);" class="d-block">Google Play</a>
         </div>
         -->
                 <div class="col-lg-3 col-md-4">
@@ -115,16 +115,16 @@
             </div>
             <div>
                 <a href="{{ config('variables.githubUrl') }}" class="me-3" target="_blank">
-                    <img src="{{ asset('assets/img/front-pages/icons/github.svg') }}" alt="github icon" />
+                    <i class="bx bxl-github" aria-hidden="true"></i><span class="visually-hidden">GitHub</span>
                 </a>
                 <a href="{{ config('variables.facebookUrl') }}" class="me-3" target="_blank">
-                    <img src="{{ asset('assets/img/front-pages/icons/facebook.svg') }}" alt="facebook icon" />
+                    <i class="bx bxl-facebook" aria-hidden="true"></i><span class="visually-hidden">Facebook</span>
                 </a>
                 <a href="{{ config('variables.twitterUrl') }}" class="me-3" target="_blank">
-                    <img src="{{ asset('assets/img/front-pages/icons/twitter.svg') }}" alt="twitter icon" />
+                    <i class="bx bxl-twitter" aria-hidden="true"></i><span class="visually-hidden">X</span>
                 </a>
                 <a href="{{ config('variables.instagramUrl') }}" target="_blank">
-                    <img src="{{ asset('assets/img/front-pages/icons/instagram.svg') }}" alt="instagram icon" />
+                    <i class="bx bxl-instagram" aria-hidden="true"></i><span class="visually-hidden">Instagram</span>
                 </a>
             </div>
         </div>

@@ -331,7 +331,7 @@
                                                                 'storage/' .
                                                                     $couponDetails->admin_user->profile_picture,
                                                             )
-                                                            : asset('img/logo.svg');
+                                                            : asset('static/brand/logos/logo.svg');
                                                 @endphp
                                                 <img src="{{ $adminAvatar }}" class="rounded-circle" width="60"
                                                     height="60" style="object-fit: cover;">

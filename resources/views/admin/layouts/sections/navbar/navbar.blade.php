@@ -327,7 +327,7 @@
         <li class="nav-item navbar-dropdown dropdown-user dropdown">
             <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
                 <div class="avatar avatar-online">
-                    <img src="{{ Auth::user()->profile_photo_url ?? asset('img/logo.svg') }}"
+                    <img src="{{ Auth::user()->profile_photo_url ?? asset('static/brand/logos/logo.svg') }}"
                         alt="{{ Auth::user()->name }}" class="rounded-circle" width="40" height="40">
                 </div>
             </a>
@@ -336,7 +336,7 @@
                     <a class="dropdown-item mt-0" href="#">
                         <div class="d-flex align-items-center">
                             <div class="avatar avatar-online me-2">
-                                <img src="{{ Auth::user()->profile_photo_url ?? asset('img/logo.svg') }}"
+                                <img src="{{ Auth::user()->profile_photo_url ?? asset('static/brand/logos/logo.svg') }}"
                                     alt="{{ Auth::user()->name }}" class="rounded-circle" width="40"
                                     height="40">
                             </div>

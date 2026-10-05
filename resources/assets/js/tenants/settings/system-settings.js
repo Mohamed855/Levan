@@ -19,12 +19,12 @@ document
         updatePreview(
             "uploadedHorizontalHeader",
             "uploadHorizontalHeader",
-            "{{ $settings->horizontal_header_image ? asset('storage/' . $settings->horizontal_header_image) : asset('img/logo.svg') }}",
+            "{{ $settings->horizontal_header_image ? asset('storage/' . $settings->horizontal_header_image) : asset('static/brand/logos/logo.svg') }}",
         );
         updatePreview(
             "previewHorizontalHeader",
             "uploadHorizontalHeader",
-            "{{ $settings->horizontal_header_image ? asset('storage/' . $settings->horizontal_header_image) : asset('img/logo.svg') }}",
+            "{{ $settings->horizontal_header_image ? asset('storage/' . $settings->horizontal_header_image) : asset('static/brand/logos/logo.svg') }}",
         );
     });
 
@@ -34,12 +34,12 @@ document
         updatePreview(
             "uploadedHorizontalFooter",
             "uploadHorizontalFooter",
-            "{{ $settings->horizontal_footer_image ? asset('storage/' . $settings->horizontal_footer_image) : asset('img/logo.svg') }}",
+            "{{ $settings->horizontal_footer_image ? asset('storage/' . $settings->horizontal_footer_image) : asset('static/brand/logos/logo.svg') }}",
         );
         updatePreview(
             "previewHorizontalFooter",
             "uploadHorizontalFooter",
-            "{{ $settings->horizontal_footer_image ? asset('storage/' . $settings->horizontal_footer_image) : asset('img/logo.svg') }}",
+            "{{ $settings->horizontal_footer_image ? asset('storage/' . $settings->horizontal_footer_image) : asset('static/brand/logos/logo.svg') }}",
         );
     });
 
@@ -49,12 +49,12 @@ document
         updatePreview(
             "uploadedSignature",
             "uploadSignature",
-            "{{ $settings->signature ? asset('storage/' . $settings->signature) : asset('img/logo.svg') }}",
+            "{{ $settings->signature ? asset('storage/' . $settings->signature) : asset('static/brand/logos/logo.svg') }}",
         );
         updatePreview(
             "previewSignature",
             "uploadSignature",
-            "{{ $settings->signature ? asset('storage/' . $settings->signature) : asset('img/logo.svg') }}",
+            "{{ $settings->signature ? asset('storage/' . $settings->signature) : asset('static/brand/logos/logo.svg') }}",
         );
     });
 

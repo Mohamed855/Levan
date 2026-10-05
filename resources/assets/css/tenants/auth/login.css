@@ -290,7 +290,7 @@
     width: 50%;
     min-height: 100vh;
     position: relative;
-    background-image: url('/img/tenant-login-bg.jpg');
+    background-image: url('/static/auth/backgrounds/tenant-login-bg.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

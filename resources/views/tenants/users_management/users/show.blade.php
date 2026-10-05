@@ -34,7 +34,7 @@
 
                 <div class="background-image-container"
                     style="position: relative; width: 100%; height: 100%; overflow: hidden;">
-                    <img src="{{ $user->background_image ? tasset($user->background_image) : asset('img/cta-bg-light.png') }}"
+                    <img src="{{ $user->background_image ? tasset($user->background_image) : asset('static/dashboard/backgrounds/cta-bg-light.png') }}"
                         alt="صورة الغلاف" class="rounded-top" style="width: 100%; height: 100%; object-fit: cover;">
                     @if (auth()->id() === $user->id || auth()->user()->can('users.edit'))
                         <button type="button" class="btn btn-primary btn-sm edit-button" data-bs-toggle="modal"
@@ -152,7 +152,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <img id="previewBackgroundImage"
-                                        src="{{ $user->background_image ? asset('storage/' . $user->background_image) : asset('assets/img/pages/profile-banner.png') }}"
+                                        src="{{ $user->background_image ? asset('storage/' . $user->background_image) : asset('static/dashboard/backgrounds/cta-bg-light3.png') }}"
                                         alt="صورة الخلفية المعاينة" class="img-thumbnail" style="max-width: 200px;">
                                 </div>
                             </div>

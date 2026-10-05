@@ -21,7 +21,7 @@
                                         @php
                                             $avatar = $messageTemplate->creator
                                                 ? $messageTemplate->creator->profile_photo_url
-                                                : asset('img/logo.svg');
+                                                : asset('static/brand/logos/logo.svg');
                                         @endphp
                                         <img src="{{ $avatar }}" class="rounded-circle" width="70" height="70">
                                     </div>

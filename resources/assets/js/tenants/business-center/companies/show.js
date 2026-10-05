@@ -1,7 +1,7 @@
-// public/assets/js/company-datatables.js
+// resources/assets/js/company-datatables.js
 
 $(document).ready(function() {
-    const languageUrl = '/assets/json/ar.json';
+    const languageUrl = '/static/i18n/ar.json';
 
     // ✅ تدمير أي DataTable موجود قبل ما تعمل واحد جديد
     if ($.fn.DataTable.isDataTable('#contracts-table')) {

@@ -15,7 +15,7 @@
         $(document).ready(function() {
             $('#commissions-table').DataTable({
                 language: {
-                    url: "{{ asset('assets/json/ar.json') }}"
+                    url: "{{ asset('static/i18n/ar.json') }}"
                 },
                 responsive: true,
                 order: [],
@@ -28,7 +28,7 @@
             if ($('#collections-table').length) {
                 $('#collections-table').DataTable({
                     language: {
-                        url: "{{ asset('assets/json/ar.json') }}"
+                        url: "{{ asset('static/i18n/ar.json') }}"
                     },
                     responsive: true,
                     order: [

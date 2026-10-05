@@ -251,7 +251,7 @@ class User extends Authenticatable
     {
         return $this->image
             ? asset('storage/' . $this->image)
-            : asset('img/logo.svg');
+            : asset('static/brand/logos/logo.svg');
     }
 
     /////////////////////////////////////////////////////////////////////////

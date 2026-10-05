@@ -162,7 +162,7 @@
                 </div>
                 <div class="col-lg-4 d-none d-lg-block">
                   <div class="bg-body nav-img-col p-2">
-                    <img src="{{asset('assets/img/front-pages/misc/nav-item-col-img.png')}}" alt="منصة ليفـان"
+                    <img src="{{ asset('static/site/images/hero.png') }}" alt="منصة ليفـان"
                       class="w-100">
                   </div>
                 </div>

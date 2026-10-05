@@ -9,7 +9,6 @@
 
     <!-- Fonts -->
  
-    <link href="{{ asset('assets/hijri-date/css/bootstrap-datetimepicker.min.css') }}?<?php echo time(); ?>" rel="stylesheet" />
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])

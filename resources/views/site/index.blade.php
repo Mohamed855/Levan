@@ -66,16 +66,16 @@
                 <div class="w-full px-5 lg:order-1 lg:w-1/2">
                     <div class="scroll-revealed relative z-10 mx-auto max-w-[845px]">
                         <figure class="mt-12 lg:mt-0">
-                            <img src="{{ asset('assets/img/website/hero.png') }}" alt="Hero image"
+                            <img src="{{ asset('static/site/images/hero.png') }}" alt="Hero image"
                                 class="mx-auto max-w-full rounded-t-xl rounded-tr-xl" />
                         </figure>
 
                         <div class="absolute -left-9 bottom-0 z-[-1]">
-                            <img src="{{ asset('assets/img/website/dots.svg') }}" alt class="w-[120px] opacity-75" />
+                            <img src="{{ asset('static/site/images/dots.svg') }}" alt class="w-[120px] opacity-75" />
                         </div>
 
                         <div class="absolute -right-6 -top-6 z-[-1]">
-                            <img src="{{ asset('assets/img/website/dots.svg') }}" alt class="w-[120px] opacity-75" />
+                            <img src="{{ asset('static/site/images/dots.svg') }}" alt class="w-[120px] opacity-75" />
                         </div>
                     </div>
                 </div>
@@ -89,7 +89,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-2">
                 <div class="w-full">
                     <figure class="scroll-revealed max-w-[480px] mx-auto">
-                        <img src="{{ asset('assets/img/website/about-img.png') }}" alt="About image"
+                        <img src="{{ asset('static/site/images/about-img.png') }}" alt="About image"
                             class="rounded-xl" />
                     </figure>
                 </div>

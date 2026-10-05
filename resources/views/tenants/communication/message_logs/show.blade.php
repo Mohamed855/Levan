@@ -19,7 +19,7 @@
                 ],
                 responsive: true,
                 language: {
-                    url: "{{ asset('assets/json/ar.json') }}"
+                    url: "{{ asset('static/i18n/ar.json') }}"
                 },
                 dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
                 lengthMenu: [
@@ -77,7 +77,7 @@
                                         @php
                                             $avatar = $messageLog->sender && $messageLog->sender->profile_photo_url
                                                 ? $messageLog->sender->profile_photo_url
-                                                : asset('img/logo.svg');
+                                                : asset('static/brand/logos/logo.svg');
                                         @endphp
                                         <img src="{{ $avatar }}" class="rounded-circle" width="70" height="70">
                                     </div>

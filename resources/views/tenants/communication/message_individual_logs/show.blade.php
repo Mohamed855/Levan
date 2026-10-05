@@ -19,7 +19,7 @@
 <script>
     $(document).ready(function() {
         $('#phone-numbers-table').DataTable({
-            language: { url: "{{ asset('assets/json/ar.json') }}" },
+            language: { url: "{{ asset('static/i18n/ar.json') }}" },
             responsive: true,
             order: [],
             paging: false,

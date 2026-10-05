@@ -110,7 +110,7 @@ function initializeMyOverdueTasksTable() {
     autoWidth: false,
     scrollX: false,
     language: {
-      url: window.assets?.arabicDataTable || '/assets/json/ar.json',
+      url: window.assets?.arabicDataTable || '/static/i18n/ar.json',
       processing: 'جاري التحميل...',
       emptyTable: '<div class="text-center py-4 d-flex flex-column align-items-center justify-content-center">' +
         '<i class="ti ti-inbox text-muted mb-3" style="font-size: 3.5rem; line-height:1;"></i>' +

@@ -45,7 +45,7 @@ class AdminUserDataTable extends AbstractDataTable
             ->addColumn('checkbox', fn($row) => '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">')
 
             ->addColumn('image', function (AdminUser $user) {
-                $profilePicture = $user->image ? asset('storage/' . $user->image) : asset('img/logo.svg');
+                $profilePicture = $user->image ? asset('storage/' . $user->image) : asset('static/brand/logos/logo.svg');
                 return '<img src="' . $profilePicture . '" alt="' . $user->name . '" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">';
             })
             // ->editColumn('name', function (AdminUser $user) {

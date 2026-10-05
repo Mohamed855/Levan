@@ -12,13 +12,13 @@
     </title>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ asset('img/logo-light.svg') }}" />
+    <link rel="icon" type="image/png" href="{{ asset('static/brand/logos/logo-light.svg') }}" />
 
     <!-- CSS Plugins -->
-    <link rel="stylesheet" href="{{ asset('assets/website/css/swiper-bundle.min.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/website/css/glightbox.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('static/site/css/swiper-bundle.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('static/site/css/glightbox.min.css') }}" />
 
-    <link rel="stylesheet" href="{{ asset('assets/website/css/main.css') }}" />
+    <link rel="stylesheet" href="{{ asset('static/site/css/main.css') }}" />
 
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/shared/input-guards.js', 'resources/assets/vendor/fonts/tabler-icons.scss'])
 

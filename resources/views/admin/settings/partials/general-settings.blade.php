@@ -7,7 +7,7 @@
             <input type="hidden" name="active_tab" id="" value="#generalSettings">
             <div class="card-body">
                 <div class="d-flex align-items-start align-items-sm-center gap-6">
-                    <img src="{{ $settings->image ? asset('storage/' . $settings->image) : asset('img/logo.svg') }}"
+                    <img src="{{ $settings->image ? asset('storage/' . $settings->image) : asset('static/brand/logos/logo.svg') }}"
                         alt="user-avatar" class="d-block w-px-100 h-px-100 rounded" id="uploadedAvatar" />
                     <div class="button-wrapper">
                         <label for="upload" class="btn btn-primary me-3 mb-4" tabindex="0">

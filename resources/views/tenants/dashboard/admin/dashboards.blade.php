@@ -58,7 +58,7 @@
         };
 
         window.assets = {
-            arabicDataTable: "{{ asset('assets/json/ar.json') }}"
+            arabicDataTable: "{{ asset('static/i18n/ar.json') }}"
         };
 
         window.csrfToken = "{{ csrf_token() }}";
@@ -157,7 +157,7 @@
                                 // Original database-backed tenant logo lookup preserved:
                                 // $logoImage = SettingsHelper::get('image');
                                 // $logoPath = tasset($logoImage);
-                                $logoPath = asset('img/logo-light.svg');
+                                $logoPath = asset('static/brand/logos/logo-light.svg');
                             @endphp
                             @if (!$isTeamLeader)
                                 <!-- 1) الشركات -->

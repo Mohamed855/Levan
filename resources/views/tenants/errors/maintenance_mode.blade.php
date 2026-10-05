@@ -21,14 +21,14 @@
             </p>
 
             <div class="mt-12">
-                <img src="{{ asset('assets/img/illustrations/page-misc-under-maintenance.png') }}" alt=" تحت الصيانة"
+                <img src="{{ asset('static/dashboard/illustrations/page-misc-under-maintenance.png') }}" alt=" تحت الصيانة"
                     width="550" class="img-fluid">
             </div>
         </div>
     </div>
 
     <div class="container-fluid misc-bg-wrapper misc-under-maintenance-bg-wrapper">
-        <img src="{{ asset('assets/img/illustrations/bg-shape-image-' . $configData['style'] . '.png') }}" height="355"
+        <img src="{{ asset('static/dashboard/illustrations/bg-shape-image-' . $configData['style'] . '.png') }}" height="355"
             alt=" تحت الصيانة" data-app-light-img="illustrations/bg-shape-image-light.png"
             data-app-dark-img="illustrations/bg-shape-image-dark.png">
     </div>

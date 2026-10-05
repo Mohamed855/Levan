@@ -3,7 +3,7 @@
 
 @font-face {
     font-family: 'Zain';
-    src: url('../../shared/fonts/zain/zain-v4-arabic_latin-200.woff2') format('woff2');
+    src: url('../../fonts/zain/zain-v4-arabic_latin-200.woff2') format('woff2');
     font-weight: 200;
     font-style: normal;
     font-display: swap;
@@ -11,7 +11,7 @@
 
 @font-face {
     font-family: 'Zain';
-    src: url('../../shared/fonts/zain/zain-v4-arabic_latin-300.woff2') format('woff2');
+    src: url('../../fonts/zain/zain-v4-arabic_latin-300.woff2') format('woff2');
     font-weight: 300;
     font-style: normal;
     font-display: swap;
@@ -19,7 +19,7 @@
 
 @font-face {
     font-family: 'Zain';
-    src: url('../../shared/fonts/zain/zain-v4-arabic_latin-300italic.woff2') format('woff2');
+    src: url('../../fonts/zain/zain-v4-arabic_latin-300italic.woff2') format('woff2');
     font-weight: 300;
     font-style: italic;
     font-display: swap;
@@ -27,7 +27,7 @@
 
 @font-face {
     font-family: 'Zain';
-    src: url('../../shared/fonts/zain/zain-v4-arabic_latin-regular.woff2') format('woff2');
+    src: url('../../fonts/zain/zain-v4-arabic_latin-regular.woff2') format('woff2');
     font-weight: 400;
     font-style: normal;
     font-display: swap;
@@ -35,7 +35,7 @@
 
 @font-face {
     font-family: 'Zain';
-    src: url('../../shared/fonts/zain/zain-v4-arabic_latin-italic.woff2') format('woff2');
+    src: url('../../fonts/zain/zain-v4-arabic_latin-italic.woff2') format('woff2');
     font-weight: 400;
     font-style: italic;
     font-display: swap;
@@ -43,7 +43,7 @@
 
 @font-face {
     font-family: 'Zain';
-    src: url('../../shared/fonts/zain/zain-v4-arabic_latin-700.woff2') format('woff2');
+    src: url('../../fonts/zain/zain-v4-arabic_latin-700.woff2') format('woff2');
     font-weight: 700;
     font-style: normal;
     font-display: swap;
@@ -51,7 +51,7 @@
 
 @font-face {
     font-family: 'Zain';
-    src: url('../../shared/fonts/zain/zain-v4-arabic_latin-800.woff2') format('woff2');
+    src: url('../../fonts/zain/zain-v4-arabic_latin-800.woff2') format('woff2');
     font-weight: 800;
     font-style: normal;
     font-display: swap;
@@ -59,7 +59,7 @@
 
 @font-face {
     font-family: 'Zain';
-    src: url('../../shared/fonts/zain/zain-v4-arabic_latin-900.woff2') format('woff2');
+    src: url('../../fonts/zain/zain-v4-arabic_latin-900.woff2') format('woff2');
     font-weight: 900;
     font-style: normal;
     font-display: swap;

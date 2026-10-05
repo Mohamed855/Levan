@@ -79,7 +79,7 @@
                                 data-validation-dependents="password_confirmation" col="col-sm-6" />
                             <x-form.controls.password name="password_confirmation" label="تأكيد كلمة المرور الجديدة"
                                 placeholder="أعد إدخال كلمة المرور" col="col-sm-6" />
-                            <x-form.controls.image-upload name="image" label="الصورة الشخصية" :value="$user->image ? asset('storage/' . $user->image) : asset('img/logo.svg')"
+                            <x-form.controls.image-upload name="image" label="الصورة الشخصية" :value="$user->image ? asset('storage/' . $user->image) : asset('static/brand/logos/logo.svg')"
                                 col="col-12" />
                         </div>
 

@@ -32,14 +32,14 @@
 
                 <div class="background-image-container"
                     style="position: relative; width: 100%; height: 100%; overflow: hidden;">
-                    <img src="{{ asset('assets/img/pages/profile-banner.png') }}"
+                    <img src="{{ asset('static/dashboard/backgrounds/cta-bg-light3.png') }}"
                         alt="صورة الغلاف" class="rounded-top"
                         style="width: 100%; height: 143px !important; object-fit: cover;">
                 </div>
                 <div class="user-profile-header d-flex flex-column flex-lg-row text-sm-start text-center mb-5">
                     <div class="profile-image-container mt-n5 mx-sm-0 mx-auto"
                         style="position: relative; display: inline-block;">
-                        <img src="{{ $user->image && Storage::disk('public')->exists($user->image) ? asset('storage/' . $user->image) : asset('img/logo.svg') }}"
+                        <img src="{{ $user->image && Storage::disk('public')->exists($user->image) ? asset('storage/' . $user->image) : asset('static/brand/logos/logo.svg') }}"
                             alt="صورة المستخدم" class="d-block h-auto ms-0 ms-sm-6"
                             style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%;">
                     </div>

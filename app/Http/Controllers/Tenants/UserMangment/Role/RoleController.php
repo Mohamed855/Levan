@@ -79,7 +79,7 @@ class RoleController extends Controller
                     ->addColumn('image', function (User $user) {
                         $profilePicture = $user->image
                             ? tasset($user->image)
-                            : asset('img/logo.svg');
+                            : asset('static/brand/logos/logo.svg');
 
                         return '<img src="' . $profilePicture . '" alt="' . $user->name . '"
                              class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">';

@@ -30,7 +30,7 @@
             toggleStatus: "{{ route('admin.users.toggle-status', ':id') }}",
         };
         window.assets = {
-            arabicDataTable: "{{ asset('assets/json/ar.json') }}",
+            arabicDataTable: "{{ asset('static/i18n/ar.json') }}",
         };
         window.permissions = {
             canAddRole: {{ auth()->user()?->can('roles.create') ?? true ? 'true' : 'false' }},
@@ -71,7 +71,7 @@
                                                         data-bs-title="{{ $user->name }}"
                                                         class="avatar avatar-xs pull-up">
                                                         <img class="rounded-circle"
-                                                            src="{{ $user->image ? asset('storage/' . $user->image) : asset('img/logo.svg') }}"
+                                                            src="{{ $user->image ? asset('storage/' . $user->image) : asset('static/brand/logos/logo.svg') }}"
                                                             alt="Avatar" width="26" height="26">
                                                     </li>
                                                 @endforeach

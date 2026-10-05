@@ -6,10 +6,10 @@
             style="background-color: #e3d8d1;">
             <!-- Logo (right) -->
             <a href="{{ route('site.index') }}" class="ic-navbar-logo block text-primary-color" aria-label="ليفـــان">
-                <img src="{{ asset('img/Levan-logo.svg') }}" data-default-logo="{{ asset('img/Levan-logo.svg') }}"
-                    data-sticky-logo="{{ asset('img/Levan-logo.svg') }}"
-                    data-light-logo="{{ asset('img/Levan-logo.svg') }}"
-                    data-dark-logo="{{ asset('img/Levan-logo-light.svg') }}" class="h-10" alt="ليفـــان">
+                <img src="{{ asset('static/brand/logos/Levan-logo.svg') }}" data-default-logo="{{ asset('static/brand/logos/Levan-logo.svg') }}"
+                    data-sticky-logo="{{ asset('static/brand/logos/Levan-logo.svg') }}"
+                    data-light-logo="{{ asset('static/brand/logos/Levan-logo.svg') }}"
+                    data-dark-logo="{{ asset('static/brand/logos/Levan-logo-light.svg') }}" class="h-10" alt="ليفـــان">
             </a>
 
             <!-- Left side: Theme toggle + Contact button -->

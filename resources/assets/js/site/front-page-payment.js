@@ -22,7 +22,7 @@
       onCreditCardTypeChanged: function (type) {
         if (type != '' && type != 'unknown') {
           document.querySelector('.card-type').innerHTML =
-            '<img src="' + assetsPath + 'img/icons/payments/' + type + '-cc.png" height="28"/>';
+            '<img src="' + assetsPath + 'payments/cards/' + type + '-cc.png" height="28"/>';
         } else {
           document.querySelector('.card-type').innerHTML = '';
         }

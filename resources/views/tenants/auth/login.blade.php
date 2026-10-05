@@ -25,7 +25,7 @@
 @endsection
 
 @section('content')
-    <x-auth.split-layout form-title="مرحباً بكم" form-subtitle="سجل الدخول بحساب الشركة لاستخدام المنصة" :bg-image="asset('img/tenant-login-bg.jpg')"
+    <x-auth.split-layout form-title="مرحباً بكم" form-subtitle="سجل الدخول بحساب الشركة لاستخدام المنصة" :bg-image="asset('static/auth/backgrounds/tenant-login-bg.jpg')"
         media-tagline="شريككم في تطوير الفرص العقارية" media-title="منصة رقمية متكاملة | لإدارة المزادات العقارية"
         media-desc="نساعد شركاءنا على إدارة المزادات بكفاءة من خلال أدوات ذكية ومخرجات تسويقية احترافية." :features="[
             ['icon' => 'ti ti-chart-bar', 'text' => 'إدارة مزادات أكثر كفاءة'],

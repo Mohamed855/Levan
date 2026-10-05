@@ -114,7 +114,7 @@ class CompanyReportDataTable extends AbstractDataTable
     {
         $datatable
             ->editColumn('name', function ($row): string {
-                $logo = $row->logo_path ? tasset($row->logo_path) : asset('img/logo.svg');
+                $logo = $row->logo_path ? tasset($row->logo_path) : asset('static/brand/logos/logo.svg');
 
                 return '<div class="d-flex align-items-center gap-2">'
                     . '<img src="' . e($logo) . '" alt="" class="rounded" style="width:30px;height:30px;object-fit:cover">'

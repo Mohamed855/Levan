@@ -33,7 +33,7 @@
             customerFollowsReportsCancelExport: "{{ tenant_route_name('reports.customer_follows.cancel-export') }}"
         };
         window.assets = {
-            arabicDataTable: "{{ asset('assets/json/ar.json') }}"
+            arabicDataTable: "{{ asset('static/i18n/ar.json') }}"
         };
 
         window.csrfToken = "{{ csrf_token() }}";

@@ -92,7 +92,7 @@ $(document).ready(function () {
         }
         ],
         language: {
-            url: window.assetsPath + '/json/ar.json'
+            url: window.assetsPath + '/i18n/ar.json'
         },
         responsive: true,
     });

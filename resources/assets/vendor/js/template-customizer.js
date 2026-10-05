@@ -698,7 +698,7 @@ class TemplateCustomizer {
       <div class="form-check custom-option custom-option-icon">
         <label class="form-check-label custom-option-content p-0" for="${inputName}${nameVal}">
           <span class="custom-option-body mb-0">
-            <img src="${assetsPath}img/customizer/${image}${isDarkStyle ? "-dark" : ""
+            <img src="${assetsPath}dashboard/customizer/${image}${isDarkStyle ? "-dark" : ""
                 }.svg" alt="${title}" class="img-fluid scaleX-n1-rtl" />
           </span>
           <input

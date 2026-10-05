@@ -30,7 +30,7 @@
             companyLettersShow: "{{ tenant_route_name('company-letters.show', ':id') }}",
         };
         window.assets = {
-            arabicDataTable: "{{ asset('assets/json/ar.json') }}"
+            arabicDataTable: "{{ asset('static/i18n/ar.json') }}"
         };
         window.csrfToken = "{{ csrf_token() }}";
     </script>

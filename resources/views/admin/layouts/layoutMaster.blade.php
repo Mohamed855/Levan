@@ -6,7 +6,7 @@
 @endphp
 
 @if (!isset($excludeJquery) || !$excludeJquery)
-    <script src="{{ asset('assets/shared/js/cdn/jquery-init.js') }}"></script>
+    <script src="{{ asset('static/shared/js/cdn/jquery-init.js') }}"></script>
 @endif
 
 @isset($configData['layout'])

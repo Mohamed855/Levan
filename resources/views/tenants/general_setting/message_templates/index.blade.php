@@ -22,7 +22,7 @@
             toggleStatus: "{{ tenant_route_name('general-settings.message-templates.toggle-status', ':id') }}",
         };
         window.assets = {
-            arabicDataTable: "{{ asset('assets/json/ar.json') }}"
+            arabicDataTable: "{{ asset('static/i18n/ar.json') }}"
         };
         window.csrfToken = "{{ csrf_token() }}";
     </script>

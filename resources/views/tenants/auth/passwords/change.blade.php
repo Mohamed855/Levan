@@ -128,7 +128,7 @@
 
 @section('content')
     <x-auth.split-layout form-title="تغيير كلمة المرور" form-subtitle="يرجى تغيير كلمة المرور الخاصة بك لضمان أمان حسابك"
-        :bg-image="asset('img/auth-security-bg.jpg')" media-tagline="حماية الحساب | ليفان العقارية" media-title="اختر كلمة مرور | قوية وآمنة"
+        :bg-image="asset('static/auth/backgrounds/auth-security-bg.jpg')" media-tagline="حماية الحساب | ليفان العقارية" media-title="اختر كلمة مرور | قوية وآمنة"
         media-desc="اختر كلمة مرور قوية ومعقدة لحماية حساب شركتك وبيانات عملائك ومزاداتك العقارية وفق أعلى معايير الأمان."
         :features="[
             ['icon' => 'ti ti-key', 'text' => 'تشفير متقدم لكلمات المرور'],

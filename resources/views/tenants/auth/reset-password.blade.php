@@ -129,7 +129,7 @@
 
 @section('content')
     <x-auth.split-layout form-title="إعادة تعيين كلمة المرور"
-        form-subtitle="الرجاء إدخال بريدك الإلكتروني واختيار كلمة مرور جديدة قوية" :bg-image="asset('img/auth-security-bg.jpg')"
+        form-subtitle="الرجاء إدخال بريدك الإلكتروني واختيار كلمة مرور جديدة قوية" :bg-image="asset('static/auth/backgrounds/auth-security-bg.jpg')"
         media-tagline="حماية الحساب | ليفان العقارية" media-title="تحديث وتأمين | كلمة المرور الخاصة بك"
         media-desc="اختر كلمة مرور قوية ومعقدة لحماية حساب شركتك وبيانات عملائك ومزاداتك العقارية وفق أعلى معايير الأمان."
         :features="[

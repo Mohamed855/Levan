@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const cardTypeEl = document.querySelector('.card-type');
                     if (cardTypeEl && type && type !== 'unknown') {
                         cardTypeEl.innerHTML =
-                            '<img src="/assets/img/icons/payments/' + type + '-cc.png" height="28"/>';
+                            '<img src="/static/payments/cards/' + type + '-cc.png" height="28"/>';
                     } else if (cardTypeEl) {
                         cardTypeEl.innerHTML = '';
                     }

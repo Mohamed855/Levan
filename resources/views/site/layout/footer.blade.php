@@ -6,7 +6,7 @@
             <div class="col-12 lg:col-4 mb-10 lg:mb-0">
                 <div class="">
                     <a href="." class="inline-block mb-6">
-                        <img src="{{ asset('img/Levan-logo-light.svg') }}" class="h-14 lg:h-16" alt="ليفـــان">
+                        <img src="{{ asset('static/brand/logos/Levan-logo-light.svg') }}" class="h-14 lg:h-16" alt="ليفـــان">
                     </a>
 
                     <p class="mb-6 text-primary-color/80 leading-relaxed max-w-[320px]">

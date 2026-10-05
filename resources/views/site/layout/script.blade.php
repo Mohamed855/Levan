@@ -1,8 +1,8 @@
-<script src="{{ asset('assets/website/js/cdn/swiper-bundle.min.js') }}"></script>
-<script src="{{ asset('assets/website/js/cdn/glightbox.min.js') }}"></script>
-<script src="{{ asset('assets/website/js/cdn/scrollreveal.min.js') }}"></script>
+<script src="{{ asset('static/site/js/cdn/swiper-bundle.min.js') }}"></script>
+<script src="{{ asset('static/site/js/cdn/glightbox.min.js') }}"></script>
+<script src="{{ asset('static/site/js/cdn/scrollreveal.min.js') }}"></script>
 
-<script src="{{ asset('assets/website/js/main.js') }}?v={{ filemtime(public_path('assets/website/js/main.js')) }}"></script>
+<script src="{{ asset('static/site/js/main.js') }}?v={{ filemtime(public_path('static/site/js/main.js')) }}"></script>
 
 <script>
     // Scroll Reveal
