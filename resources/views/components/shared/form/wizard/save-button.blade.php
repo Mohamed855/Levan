@@ -4,7 +4,7 @@
     'type' => 'submit',
 ])
 
-<button type="{{ $type }}" {{ $attributes->class(['btn', 'btn-primary', 'btn-submit', 'waves-effect', 'waves-light']) }}>
+<button type="{{ $type }}" {{ $attributes->class(['btn', 'btn-primary', 'btn-next', 'btn-submit', 'waves-effect', 'waves-light']) }}>
     @if ($icon)<i class="{{ $icon }}" aria-hidden="true"></i>@endif
     {{ $slot->isNotEmpty() ? $slot : $text }}
 </button>

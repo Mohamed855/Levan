@@ -108,10 +108,10 @@
                                 </div>
 
 
-                                <x-wizard.actions>
-                                    <x-wizard.btn-prev />
-                                    <x-wizard.btn-next />
-                                </x-wizard.actions>
+                                <x-form.wizard.actions>
+                                    <x-form.wizard.previous-button />
+                                    <x-form.wizard.next-button />
+                                </x-form.wizard.actions>
                             </div>
                         </div>
 
@@ -223,10 +223,10 @@
                                     </div>
                                 </div>
 
-                                <x-wizard.actions>
-                                    <x-wizard.btn-prev />
-                                    <x-wizard.btn-save type="submit" />
-                                </x-wizard.actions>
+                                <x-form.wizard.actions>
+                                    <x-form.wizard.previous-button />
+                                    <x-form.wizard.save-button type="submit" />
+                                </x-form.wizard.actions>
                             </div>
                         </div>
                     </form>

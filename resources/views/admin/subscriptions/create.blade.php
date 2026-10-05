@@ -208,10 +208,10 @@
                                 </div>
                             </div>
 
-                            <x-wizard.actions>
-                                <x-wizard.btn-draft step="1" />
-                                <x-wizard.btn-next data-step="1" />
-                            </x-wizard.actions>
+                            <x-form.wizard.actions>
+                                <x-form.wizard.draft-button step="1" />
+                                <x-form.wizard.next-button data-step="1" />
+                            </x-form.wizard.actions>
                         </div>
 
                         {{-- ═══════════════════════════════════════
@@ -322,13 +322,13 @@
                                 </div>
                             </div>
 
-                            <x-wizard.actions>
-                                <x-wizard.btn-prev data-step="2" />
+                            <x-form.wizard.actions>
+                                <x-form.wizard.previous-button data-step="2" />
                                 <div>
-                                    <x-wizard.btn-draft step="2" class="me-2" />
-                                    <x-wizard.btn-next data-step="2" />
+                                    <x-form.wizard.draft-button step="2" class="me-2" />
+                                    <x-form.wizard.next-button data-step="2" />
                                 </div>
-                            </x-wizard.actions>
+                            </x-form.wizard.actions>
                         </div>
 
                         {{-- ═══════════════════════════════════════
@@ -458,11 +458,11 @@
                                 </div>
                             </div>
 
-                            <x-wizard.actions>
-                                <x-wizard.btn-prev data-step="3" />
-                                <x-wizard.btn-save type="submit" id="btn-submit-subscription" class="btn-success btn-lg"
+                            <x-form.wizard.actions>
+                                <x-form.wizard.previous-button data-step="3" />
+                                <x-form.wizard.save-button type="submit" id="btn-submit-subscription" class="btn-success btn-lg"
                                     text="اعتماد وإنشاء الاشتراك" />
-                            </x-wizard.actions>
+                            </x-form.wizard.actions>
                         </div>
                     </form>
                 </div>

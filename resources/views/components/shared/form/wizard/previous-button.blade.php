@@ -9,12 +9,10 @@
 
 @php
     $isDisabled = filter_var($disabled, FILTER_VALIDATE_BOOLEAN) || $disabled === '' || $disabled === 'disabled' || $disabled === true;
-    $defaultClasses = 'btn btn-secondary btn-prev waves-effect waves-light';
-
     $backBool = is_bool($back) ? $back : ($back !== null ? filter_var($back, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) : null);
 
     $defaultOnClick = null;
-    if (!$attributes->has('onclick') && !$isDisabled) {
+    if (!$attributes->has('onclick') && !$isDisabled && !$href) {
         if ($backBool === true) {
             $defaultOnClick = 'window.history.back();';
         } elseif ($backBool !== false) {
@@ -23,14 +21,17 @@
     }
 @endphp
 
-@if(!empty($href))
-    <a href="{{ $href }}" {{ $attributes->merge(['class' => $defaultClasses]) }}>
-        @if($icon)<i class="{{ $icon }}"></i>@endif
+@if ($href)
+    <a href="{{ $href }}" {{ $attributes->class(['btn', 'btn-secondary', 'btn-prev', 'waves-effect', 'waves-light']) }}>
+        @if ($icon)<i class="{{ $icon }}" aria-hidden="true"></i>@endif
         {{ $slot->isNotEmpty() ? $slot : $text }}
     </a>
 @else
-    <button type="{{ $type }}" {{ $attributes->merge(['class' => $defaultClasses, 'onclick' => $defaultOnClick]) }} @if($isDisabled) disabled @endif>
-        @if($icon)<i class="{{ $icon }}"></i>@endif
+    <button type="{{ $type }}" data-wizard-prev data-wizard-back="{{ $back === true ? 'true' : 'false' }}"
+        {{ $attributes->class(['btn', 'btn-secondary', 'btn-prev', 'waves-effect', 'waves-light']) }}
+        @if($defaultOnClick) onclick="{{ $defaultOnClick }}" @endif
+        @disabled($isDisabled)>
+        @if ($icon)<i class="{{ $icon }}" aria-hidden="true"></i>@endif
         {{ $slot->isNotEmpty() ? $slot : $text }}
     </button>
 @endif

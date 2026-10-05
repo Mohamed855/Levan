@@ -229,12 +229,7 @@
                         <!-- Logo -->
                         <div class="app-brand justify-content-center mb-6">
                             <a href="{{ url('/') }}" class="app-brand-link">
-                                <span class="app-brand-logo demo">
-                                    @include('_partials.macros', [
-                                        'height' => 20,
-                                        'withbg' => 'fill: #fff;',
-                                    ])
-                                </span>
+                                <x-partials.tenant-logo :height="20" withbg="fill: #fff;" />
                                 {{-- <div class="app-brand-text demo text-heading fw-bold">
                                 {{ config('app.name') }}
                             </div> --}}

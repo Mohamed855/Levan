@@ -94,13 +94,13 @@
                                 </div>
                             </div>
 
-                            <x-wizard.actions>
-                                <x-wizard.btn-prev :href="route('admin.version_testers.index')" />
+                            <x-form.wizard.actions>
+                                <x-form.wizard.previous-button :href="route('admin.version_testers.index')" />
                                 <div class="d-flex gap-2">
-                                    <x-wizard.btn-draft step="1" />
-                                    <x-wizard.btn-save type="submit" />
+                                    <x-form.wizard.draft-button step="1" />
+                                    <x-form.wizard.save-button type="submit" />
                                 </div>
-                            </x-wizard.actions>
+                            </x-form.wizard.actions>
                         </div>
                     </form>
                 </div>

@@ -23,7 +23,7 @@
                     <div class="d-flex justify-content-between flex-wrap gap-3">
                         <div class="d-flex gap-2 align-items-center">
                             {{-- <div class="app-brand-logo">
-                                @include('_partials.main', ['height' => 22, 'withbg' => ''])
+                                <x-partials.bill-print :height="22" withbg="" />
                             </div> --}}
                             <div>
                                 <div class="fw-bold fs-5">{{ $settings->office_name }}</div>

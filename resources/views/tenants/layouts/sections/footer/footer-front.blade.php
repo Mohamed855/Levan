@@ -9,11 +9,7 @@
             <div class="row gx-0 gy-6 g-lg-10">
                 <div class="col-lg-5">
                     <a href="{{ url('/') }}" class="app-brand-link mb-6">
-                        <span class="app-brand-logo demo">@include('_partials.macros', [
-                            'height' => 20,
-                            'withbg' => "fill:
-                                                              #fff;",
-                        ])</span>
+                        <x-partials.tenant-logo :height="20" withbg="fill: #fff;" />
                         <span class="app-brand-text demo footer-link fw-bold ms-2 ps-1">ليفـان</span>
                     </a>
                     <p class="footer-text footer-logo-description mb-6">

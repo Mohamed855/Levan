@@ -118,10 +118,10 @@
                                     <textarea name="description" id="description" class="form-control" rows="3" placeholder="ادخل وصف المجموعة">{{ old('description', $team->description) }}</textarea>
                                 </div>
 
-                                <x-wizard.actions>
-                                    <x-wizard.btn-prev />
-                                    <x-wizard.btn-next />
-                                </x-wizard.actions>
+                                <x-form.wizard.actions>
+                                    <x-form.wizard.previous-button />
+                                    <x-form.wizard.next-button />
+                                </x-form.wizard.actions>
                             </div>
                         </div>
 
@@ -168,10 +168,10 @@
                                     </div>
                                 </div>
 
-                                <x-wizard.actions>
-                                    <x-wizard.btn-prev />
-                                    <x-wizard.btn-save type="submit" text="تحديث" />
-                                </x-wizard.actions>
+                                <x-form.wizard.actions>
+                                    <x-form.wizard.previous-button />
+                                    <x-form.wizard.save-button type="submit" text="تحديث" />
+                                </x-form.wizard.actions>
                             </div>
                         </div>
                     </form>

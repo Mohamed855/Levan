@@ -18,7 +18,7 @@
                 </button>
                 <!-- Mobile menu toggle: End-->
                 <a href="{{ url('/') }}" class="app-brand-link">
-                    <span class="app-brand-logo demo">@include('_partials.macros', ['height' => 20, 'withbg' => 'fill: #fff;'])</span>
+                    <x-partials.tenant-logo :height="20" withbg="fill: #fff;" />
                     <span class="app-brand-text demo menu-text fw-bold ms-2 ps-1">ليفـان</span>
                 </a>
             </div>
