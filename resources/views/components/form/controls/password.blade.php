@@ -6,6 +6,8 @@
     'required' => false,
     'help' => null,
     'col' => 'col-sm-6',
+    'autocomplete' => 'new-password',
+    'icon' => null,
 ])
 
 @php
@@ -15,11 +17,16 @@
 
 <x-form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help" :col="$col">
     <div class="input-group input-group-merge">
+        @if ($icon)
+            <span class="input-group-text">
+                <i class="{{ $icon }}" aria-hidden="true"></i>
+            </span>
+        @endif
         <input
             id="{{ $fieldId }}"
             name="{{ $name }}"
             type="password"
-            autocomplete="new-password"
+            autocomplete="{{ $autocomplete }}"
             @if ($placeholder) placeholder="{{ $placeholder }}" @endif
             @required($required)
             data-form-control
