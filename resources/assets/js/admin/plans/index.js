@@ -118,8 +118,7 @@ function updateSortOrder() {
 function updateTableDisplay() {
     const tbody = $('#paln-table tbody');
     tbody.find('tr').each(function (index) {
-        // تحديث رقم الترتيب في العمود المخصص (عمود 3)
-        const sortOrderCell = $(this).find('td').eq(3);
+        const sortOrderCell = $(this).find('.plan-sort-order');
         sortOrderCell.find('.badge').text(index + 1);
     });
 }

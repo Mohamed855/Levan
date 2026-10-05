@@ -109,13 +109,19 @@ class PermissionsRolesSeeder extends Seeder
             ],
         ];
 
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
         foreach ($permissions as $section => $perms) {
             foreach ($perms as $perm) {
-                Permission::firstOrCreate([
-                    'name'          => $perm,
-                    'section'       => $section,
-                    'guard_name'    => 'admin',
-                ]);
+                Permission::updateOrCreate(
+                    [
+                        'name'       => $perm,
+                        'guard_name' => 'admin',
+                    ],
+                    [
+                        'section'    => $section,
+                    ]
+                );
             }
         }
 

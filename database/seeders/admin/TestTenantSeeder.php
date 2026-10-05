@@ -16,6 +16,7 @@ use App\Models\Tenants\UserMangment\User\User;
 use Database\Seeders\tenant\TenantDatabaseSeeder;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class TestTenantSeeder extends Seeder
@@ -24,23 +25,22 @@ class TestTenantSeeder extends Seeder
     {
         $version = Version::first();
 
-        // 1. Create Default Plan with all features & limits
         $plan = Plan::updateOrCreate(
             ['name' => 'الباقة الاحترافية الشاملة'],
             [
-                'description'                => 'باقة متكاملة لجميع العمليات والتحصيل بدون قيود',
-                'price'                      => 5000.00,
-                'yearly_renewal_price'       => 3000.00,
-                'extra_user_license_price'   => 150.00,
-                'discount_percentage'        => 0,
-                'is_active'                  => true,
-                'included_users'             => 10,
+                'description' => 'باقة متكاملة لجميع العمليات والتحصيل بدون قيود',
+                'price' => 5000.00,
+                'yearly_renewal_price' => 3000.00,
+                'extra_user_license_price' => 150.00,
+                'discount_percentage' => 0,
+                'is_active' => true,
+                'included_users' => 10,
                 'subscription_duration_type' => 'limited',
                 'subscription_billing_cycle' => 'yearly',
-                'branches_limit'             => 10,
-                'unlimited_branches'         => true,
-                'domain_management_enabled'  => true,
-                'created_by'                 => 1,
+                'branches_limit' => 10,
+                'unlimited_branches' => true,
+                'domain_management_enabled' => true,
+                'created_by' => 1,
             ]
         );
 
@@ -48,23 +48,23 @@ class TestTenantSeeder extends Seeder
         $tenant = Tenant::updateOrCreate(
             ['id' => 'test'],
             [
-                'db_database'          => env('TEST_TENANT_DATABASE', 'etmam_levan_test'),
-                'db_username'          => env('DB_USERNAME', 'admin'),
-                'db_password'          => env('DB_PASSWORD', 'admin'),
-                'db_host'              => env('DB_HOST', '127.0.0.1'),
-                'db_port'              => env('DB_PORT', '3306'),
-                'folderName'           => 'test',
-                'company_name'         => 'مستخدم النسخة الثانية',
-                'commercial_number'    => '2222222222',
-                'version_id'           => $version?->id ?? 1,
-                'tax_number'           => '300000000000003',
-                'city_id'              => City::firstOrCreate(['name' => 'الرياض'])->id,
-                'address'              => 'حي العليا، الرياض',
-                'status'               => 'active',
-                'access_type'          => 'path',
+                'db_database' => env('TEST_TENANT_DATABASE', 'etmam_levan_test'),
+                'db_username' => env('DB_USERNAME', 'admin'),
+                'db_password' => env('DB_PASSWORD', 'admin'),
+                'db_host' => env('DB_HOST', '127.0.0.1'),
+                'db_port' => env('DB_PORT', '3306'),
+                'folderName' => 'test',
+                'company_name' => 'مستخدم النسخة الثانية',
+                'commercial_number' => '2222222222',
+                'version_id' => $version?->id ?? 1,
+                'tax_number' => '300000000000003',
+                'city_id' => City::firstOrCreate(['name' => 'الرياض'])->id,
+                'address' => 'حي العليا، الرياض',
+                'status' => 'active',
+                'access_type' => 'path',
                 'custom_domain_active' => 0,
-                'api_token'            => hash('sha256', 'test-tenant-token'),
-                'data'                 => [],
+                'api_token' => hash('sha256', 'test-tenant-token'),
+                'data' => [],
             ]
         );
 
@@ -74,18 +74,22 @@ class TestTenantSeeder extends Seeder
             [
                 'tenant_id' => $tenant->id,
                 'is_active' => '1',
-                'type'      => 'linked',
+                'type' => 'linked',
             ]
         );
 
         // 4. Run Tenant Migrations and Seeders
         $migrationPath = database_path('migrations/tenant');
-        $hasTenantMigrations = glob($migrationPath . '/*.php') !== [];
+        $hasTenantMigrations = glob($migrationPath.'/*.php') !== [];
 
-        if (!$hasTenantMigrations) {
+        if (! $hasTenantMigrations) {
             $this->command?->warn('Test tenant record created; tenant migrations are not present.');
+
             return;
         }
+
+        $tenantDbName = $tenant->db_database ?? env('TEST_TENANT_DATABASE', 'etmam_levan_test');
+        DB::statement("CREATE DATABASE IF NOT EXISTS `{$tenantDbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
 
         Artisan::call('tenants:migrate-fresh', [
             '--tenants' => [$tenant->id],
@@ -102,14 +106,14 @@ class TestTenantSeeder extends Seeder
         $subscription = Subscription::updateOrCreate(
             ['tenant_id' => $tenant->id],
             [
-                'plan_id'             => $plan->id,
+                'plan_id' => $plan->id,
                 'subscription_number' => 'TEST-SUBSCRIPTION',
-                'starts_at'           => now()->subMonths(1),
-                'status'              => SubscriptionStatus::ACTIVE,
-                'price'               => 5000.00,
-                'total_users'         => 10,
-                'used_users'          => 4,
-                'auto_renew'          => true,
+                'starts_at' => now()->subMonths(1),
+                'status' => SubscriptionStatus::ACTIVE,
+                'price' => 5000.00,
+                'total_users' => 10,
+                'used_users' => 4,
+                'auto_renew' => true,
             ]
         );
 
@@ -117,25 +121,25 @@ class TestTenantSeeder extends Seeder
         SubscriptionPeriod::updateOrCreate(
             [
                 'subscription_id' => $subscription->id,
-                'is_current'      => true,
+                'is_current' => true,
             ],
             [
-                'period_number'        => 1,
-                'period_start'         => now()->subMonths(1),
-                'period_end'           => now()->addYears(1),
-                'plan_id_snapshot'     => $plan->id,
-                'price_snapshot'       => 5000.00,
+                'period_number' => 1,
+                'period_start' => now()->subMonths(1),
+                'period_end' => now()->addYears(1),
+                'plan_id_snapshot' => $plan->id,
+                'price_snapshot' => 5000.00,
                 'total_users_snapshot' => 10,
-                'used_users_snapshot'  => 4,
-                'status'               => SubscriptionPeriodStatus::ACTIVE,
+                'used_users_snapshot' => 4,
+                'status' => SubscriptionPeriodStatus::ACTIVE,
             ]
         );
 
         // 7. Assign License Seats to Tenant Users
         $seatMap = [
-            'demo@levan.com'   => '11111111-1111-1111-1111-000000000001',
-            'ahmed@levan.com'  => '11111111-1111-1111-1111-000000000002',
-            'sara@levan.com'   => '11111111-1111-1111-1111-000000000003',
+            'demo@levan.com' => '11111111-1111-1111-1111-000000000001',
+            'ahmed@levan.com' => '11111111-1111-1111-1111-000000000002',
+            'sara@levan.com' => '11111111-1111-1111-1111-000000000003',
             'khalid@levan.com' => '11111111-1111-1111-1111-000000000004',
         ];
 
@@ -149,12 +153,12 @@ class TestTenantSeeder extends Seeder
                         'id' => $seatId,
                     ],
                     [
-                        'tenant_id'         => $tenant->id,
-                        'subscription_id'   => $subscription->id,
+                        'tenant_id' => $tenant->id,
+                        'subscription_id' => $subscription->id,
                         'assigned_user_uid' => $user->global_uid,
-                        'status'            => 'assigned',
-                        'assigned_at'       => now(),
-                        'is_core'           => $user->email === 'demo@levan.com',
+                        'status' => 'assigned',
+                        'assigned_at' => now(),
+                        'is_core' => $user->email === 'demo@levan.com',
                     ]
                 );
                 $user->update(['license_seat_id' => $seat->id]);

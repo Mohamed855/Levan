@@ -2,6 +2,7 @@
 
 namespace Database\Seeders\tenant;
 
+use App\Models\Tenants\GeneralSetting\ContactMethod\SettingsContactMethod;
 use App\Models\Tenants\GeneralSetting\Country\SettingsCountry;
 use App\Models\Tenants\GeneralSetting\PaymentMethod\SettingsPaymentMethod;
 use Illuminate\Database\Seeder;
@@ -20,6 +21,21 @@ class GeneralSettingsSeeder extends Seeder
 
         foreach ($paymentMethods as $method) {
             SettingsPaymentMethod::updateOrCreate(
+                ['name' => $method],
+                ['status' => 'active']
+            );
+        }
+
+        $contactMethods = [
+            'اتصال هاتفي',
+            'رسالة نصية SMS',
+            'واتساب WhatsApp',
+            'زيارة ميدانية',
+            'بريد إلكتروني',
+        ];
+
+        foreach ($contactMethods as $method) {
+            SettingsContactMethod::updateOrCreate(
                 ['name' => $method],
                 ['status' => 'active']
             );

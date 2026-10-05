@@ -3,13 +3,9 @@
 // Replaces inline <style> in roles/index.blade.php (admin & tenants)
 // =============================================================================
 
-// Avatar-group tooltip positioning fix inside roles table
-// (overflow:visible needed so Bootstrap tooltip doesn't get clipped)
+// Avatar-group tooltip positioning fix inside roles table.
+// Keep Bootstrap's `.table-responsive` overflow behavior intact so wide tables scroll.
 #card-roles {
-    .table-responsive {
-        overflow: visible !important;
-    }
-
     td {
         position: relative;
     }

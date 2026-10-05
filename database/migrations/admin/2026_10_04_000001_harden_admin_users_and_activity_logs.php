@@ -15,15 +15,15 @@ return new class extends Migration
             ->update(['log_name' => 'admin_users']);
 
         // 2. Ensure users.restore and users.force_delete permissions exist for admin guard
-        $restorePermission = Permission::firstOrCreate([
-            'name'       => 'users.restore',
-            'guard_name' => 'admin',
-        ]);
+        $restorePermission = Permission::firstOrCreate(
+            ['name' => 'users.restore', 'guard_name' => 'admin'],
+            ['section' => 'users_management']
+        );
 
-        $forceDeletePermission = Permission::firstOrCreate([
-            'name'       => 'users.force_delete',
-            'guard_name' => 'admin',
-        ]);
+        $forceDeletePermission = Permission::firstOrCreate(
+            ['name' => 'users.force_delete', 'guard_name' => 'admin'],
+            ['section' => 'users_management']
+        );
 
         // Assign to SuperAdmin role if present
         $superAdminRole = Role::where('name', 'SuperAdmin')
