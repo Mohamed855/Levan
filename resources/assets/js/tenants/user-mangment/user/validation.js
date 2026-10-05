@@ -77,14 +77,6 @@ document.addEventListener('DOMContentLoaded', function (e) {
                                 message: 'يرجى اختيار الدور'
                             }
                         }
-                    },
-
-                    branch_id: {
-                        validators: {
-                            notEmpty: {
-                                message: 'يرجى اختيار الفرع'
-                            }
-                        }
                     }
                 },
                 plugins: {
@@ -106,12 +98,6 @@ document.addEventListener('DOMContentLoaded', function (e) {
                 }
             });
 
-            // ✅ إعادة التحقق عند تغيير الفرع
-            $('#branch_id').on('change', function () {
-                if (FormValidation1) {
-                    FormValidation1.revalidateField('branch_id');
-                }
-            });
 
             let passwordValidationFields = {};
 

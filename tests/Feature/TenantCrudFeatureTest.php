@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Admin\Tenants\Tenant;
-use App\Models\Tenants\Branch\Branch;
 use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Models\Tenants\BusinessCenter\Contract\Contract;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
@@ -48,67 +47,13 @@ class TenantCrudFeatureTest extends TestCase
         return 'http://test.localhost/' . ltrim($path, '/');
     }
 
-    /**
-     * Test 1: Branch CRUD Lifecycle
-     */
-    public function test_branches_crud_lifecycle(): void
-    {
-        // 1. Index
-        $indexResponse = $this->get($this->tenantUrl('branches'));
-        $indexResponse->assertStatus(200);
 
-        // 2. Create view
-        $createResponse = $this->get($this->tenantUrl('branches/create'));
-        $createResponse->assertStatus(200);
-
-        // 3. Store
-        $code = 'TESTBR' . rand(100, 999);
-        $storeResponse = $this->post($this->tenantUrl('branches'), [
-            'name'    => 'فرع الاختبار المؤقت',
-            'code'    => $code,
-            'city'    => 'الرياض',
-            'phone'   => '0512345678',
-            'address' => 'شارع الملك فهد',
-        ]);
-        $storeResponse->assertStatus(302);
-
-        $branch = Branch::where('code', $code)->first();
-        $this->assertNotNull($branch, 'Branch was not created in database.');
-
-        // 4. Edit view
-        $editResponse = $this->get($this->tenantUrl("branches/{$branch->id}/edit"));
-        $editResponse->assertStatus(200);
-
-        // 5. Update
-        $updateResponse = $this->put($this->tenantUrl("branches/{$branch->id}"), [
-            'name'    => 'فرع الاختبار المحدث',
-            'code'    => $code,
-            'city'    => 'جدة',
-            'phone'   => '0598765432',
-            'address' => 'شارع التحلية',
-        ]);
-        $updateResponse->assertStatus(302);
-        $branch->refresh();
-        $this->assertEquals('فرع الاختبار المحدث', $branch->name);
-
-        // 6. Toggle Status
-        $toggleResponse = $this->patch($this->tenantUrl("branches/{$branch->id}/toggle-status"));
-        $toggleResponse->assertStatus(200);
-        $toggleResponse->assertJson(['success' => true]);
-
-        // 7. Destroy
-        $destroyResponse = $this->delete($this->tenantUrl("branches/{$branch->id}"));
-        $destroyResponse->assertStatus(302);
-        $this->assertSoftDeleted('branches', ['id' => $branch->id]);
-    }
 
     /**
      * Test 2: Team CRUD Lifecycle
      */
     public function test_teams_crud_lifecycle(): void
     {
-        $branch = Branch::first();
-
         // 1. Index
         $indexResponse = $this->get($this->tenantUrl('teams'));
         $indexResponse->assertStatus(200);
@@ -121,7 +66,6 @@ class TenantCrudFeatureTest extends TestCase
         $teamName = 'فريق تحصيل اختباري ' . rand(100, 999);
         $storeResponse = $this->post($this->tenantUrl('teams'), [
             'name'        => $teamName,
-            'branch_id'   => $branch->id,
             'description' => 'وصف الفريق للاختبار',
             'status'      => 'active',
         ]);
@@ -142,7 +86,6 @@ class TenantCrudFeatureTest extends TestCase
         $updatedName = $teamName . ' معدل';
         $updateResponse = $this->put($this->tenantUrl("teams/{$team->id}"), [
             'name'        => $updatedName,
-            'branch_id'   => $branch->id,
             'description' => 'وصف الفريق المحدث',
             'status'      => 'active',
         ]);
@@ -217,7 +160,6 @@ class TenantCrudFeatureTest extends TestCase
      */
     public function test_users_crud_and_archive_lifecycle(): void
     {
-        $branch = Branch::first();
         $role = Role::first();
 
         // 1. Index
@@ -239,7 +181,6 @@ class TenantCrudFeatureTest extends TestCase
             'password'              => 'Password123!',
             'password_confirmation' => 'Password123!',
             'phone'                 => '05555' . rand(10000, 99999),
-            'branch_id'             => $branch->id,
             'role_id'               => $role->id,
             'status'                => 'active',
         ]);
@@ -263,7 +204,6 @@ class TenantCrudFeatureTest extends TestCase
             'employee_number' => "EMP{$uniqueId}",
             'email'           => $email,
             'phone'           => '05555' . rand(10000, 99999),
-            'branch_id'       => $branch->id,
             'role_id'         => $role->id,
             'status'          => 'active',
         ]);
@@ -663,7 +603,6 @@ class TenantCrudFeatureTest extends TestCase
     {
         $endpoints = [
             'users',
-            'branches',
             'teams',
             'roles',
             'companies',

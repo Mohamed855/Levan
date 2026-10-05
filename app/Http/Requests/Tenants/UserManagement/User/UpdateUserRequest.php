@@ -62,11 +62,6 @@ class UpdateUserRequest extends FormRequest
                 'size:10',
                 'regex:/^05[0-9]{8}$/'
             ],
-            'branch_id' => [
-                'required',
-                'integer',
-                'exists:branches,id'
-            ],
             'role_id' => ['required', 'integer', 'exists:roles,id'],
             'image'    => [
                 'nullable',
@@ -113,10 +108,6 @@ class UpdateUserRequest extends FormRequest
             'phone.string'        => 'رقم الهاتف يجب أن يكون نص',
             'phone.size'         => 'رقم الهاتف يجب أن يتكون من 10 أرقام',
             'phone.regex'        => 'رقم الهاتف يجب أن يبدأ بـ 05',
-
-            'branch_id.required' => 'يجب اختيار الفرع',
-            'branch_id.integer' => 'معرف الفرع يجب أن يكون رقماً',
-            'branch_id.exists' => 'الفرع المحدد غير موجود',
 
             'role_id.required' => 'يجب اختيار الدور',
             'role_id.integer'  => 'معرف الدور يجب أن يكون رقماً',

@@ -201,7 +201,6 @@ class MessageTemplate extends Model
             '{user_email}' => 'بريد المستخدم الإلكتروني',
             '{user_phone}' => 'هاتف المستخدم',
             '{user_status}' => 'حالة المستخدم',
-            '{user_branch}' => 'فرع المستخدم',
             '{current_user_name}' => 'اسم المستخدم الحالي',
             '{current_user_email}' => 'بريد المستخدم الحالي',
         ];

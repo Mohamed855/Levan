@@ -59,7 +59,6 @@ function initializeDataTable() {
             url: window.routes.usersReportIndex,
             data: function (d) {
                 // الفلاتر الخاصة بتقارير المستخدمين
-                d.branch_id = $('#branch_id').val();
                 d.status = $('#status').val();
                 d.date_from = $('#date_from').val();
                 d.date_to = $('#date_to').val();
@@ -102,11 +101,6 @@ function getTableColumns() {
         {
             data: 'contact_info',
             name: 'contact_info',
-            orderable: false
-        },
-        {
-            data: 'branch_info',
-            name: 'branch_info',
             orderable: false
         },
         {
@@ -225,84 +219,7 @@ function getResponsiveConfig() {
 |--------------------------------------------------------------------------
 */
 function initializeCharts() {
-    initializeBranchChart();
     initializeUsersPerformanceChart();
-}
-
-/*
-|--------------------------------------------------------------------------
-| مخطط التحصيلات حسب الفرع
-|--------------------------------------------------------------------------
-*/
-function initializeBranchChart() {
-    const branchData = window.chartData.branchData;
-
-    if (!branchData || branchData.length === 0) {
-        $('#branchChart').html('<div class="text-center text-muted p-4"><i class="ti ti-chart-pie-2 ti-24px mb-2"></i><br>لا توجد بيانات للعرض</div>');
-        return;
-    }
-
-    const labels = branchData.map(item => item.name);
-    const series = branchData.map(item => item.amount);
-
-    // ألوان من درجات #372632
-    const colors = [
-        '#372632', '#4fb8c4', '#6fc8d3', '#90d8e2', '#1e8895', '#0e6875'
-    ];
-
-    const options = {
-        series: series,
-        chart: {
-            type: 'donut',
-            height: 280,
-            fontFamily: 'Cairo, sans-serif'
-        },
-        labels: labels,
-        colors: colors,
-        legend: {
-            position: 'bottom',
-            fontSize: '12px'
-        },
-        plotOptions: {
-            pie: {
-                donut: {
-                    size: '60%',
-                    labels: {
-                        show: true,
-                        total: {
-                            show: true,
-                            label: 'المجموع',
-                            formatter: function (w) {
-                                return Number(w.globals.seriesTotals.reduce((a, b) => a + b, 0)).toLocaleString('ar-SA', {
-                                    minimumFractionDigits: 0,
-                                    maximumFractionDigits: 0
-                                }) + ' ريال';
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        dataLabels: {
-            enabled: true,
-            formatter: function (val) {
-                return Math.round(val) + '%';
-            }
-        },
-        tooltip: {
-            y: {
-                formatter: function (val) {
-                    return Number(val).toLocaleString('ar-SA', {
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0
-                    }) + ' ريال';
-                }
-            }
-        }
-    };
-
-    const branchChart = new ApexCharts(document.querySelector("#branchChart"), options);
-    branchChart.render();
 }
 
 /*
@@ -465,7 +382,6 @@ function exportUsersReportToPDF() {
 */
 function getCurrentFilters() {
     return {
-        branch_id: $('#branch_id').val(),
         status: $('#status').val(),
         date_from: $('#date_from').val(),
         date_to: $('#date_to').val()

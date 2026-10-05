@@ -251,15 +251,6 @@
                                 </h6>
                             </div>
                         </div>
-
-                        <div class="col-md-6 col-lg-4">
-                            <div class="d-flex flex-column">
-                                <small class="small mb-1">حد الفروع</small>
-                                <h6 class="mb-0">
-                                    {{ !empty($subscription_formatted['unlimited_branches']) ? 'غير محدود' : ($subscription_formatted['branches_limit'] ?? 'غير محدد') }}
-                                </h6>
-                            </div>
-                        </div>
                     </div>
 
                     <hr class="mb-4 mt-7">

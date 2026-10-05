@@ -33,11 +33,9 @@ class TeamsDataTable extends AbstractDataTable
                 'id',
                 'name',
                 'description',
-                'branch_id',
                 'status',
                 'created_at'
-            ])
-            ->with(['branch:id,name']);
+            ]);
     }
 
     /*
@@ -61,7 +59,6 @@ class TeamsDataTable extends AbstractDataTable
             ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'orderable' => false, 'searchable' => false, 'title' => ''],
             ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم المجموعة'],
-            ['data' => 'branch', 'name' => 'branch.name', 'title' => 'الفرع', 'orderable' => false, 'searchable' => true],
             ['data' => 'members_count', 'name' => 'members_count', 'title' => 'عدد الأعضاء', 'orderable' => false, 'searchable' => false],
             ['data' => 'leaders_count', 'name' => 'leaders_count', 'title' => 'عدد القادة', 'orderable' => false, 'searchable' => false],
             ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإنشاء'],
@@ -83,12 +80,6 @@ class TeamsDataTable extends AbstractDataTable
             ->editColumn('name', function (Team $team) {
                 $url = tenant_route_name('teams.show', $team->id);
                 return '<a href="' . $url . '" class="text-primary fw-bold text-decoration-none">' . e($team->name) . '</a>';
-            })
-            ->addColumn('branch', function (Team $team) {
-                if (!$team->branch) {
-                    return '<span class="text-muted">-</span>';
-                }
-                return '<span class="badge bg-secondary">' . e($team->branch->name) . '</span>';
             })
             ->addColumn('members_count', function (Team $team) {
                 $count = $team->members()->count();
@@ -128,7 +119,7 @@ class TeamsDataTable extends AbstractDataTable
     */
     protected function rawColumns(): array
     {
-        return ['checkbox', 'name', 'branch', 'members_count', 'leaders_count', 'status', 'action'];
+        return ['checkbox', 'name', 'members_count', 'leaders_count', 'status', 'action'];
     }
 
     /*
@@ -142,10 +133,6 @@ class TeamsDataTable extends AbstractDataTable
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
-        }
-
-        if ($request->filled('branch_id')) {
-            $query->where('branch_id', $request->branch_id);
         }
 
         return $query;

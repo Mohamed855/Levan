@@ -77,7 +77,7 @@
 
         {{-- Settings - يظهر فقط إذا توفرت إحدى الصلاحيات --}}
         @canany(['system.settings', 'users.view', 'roles.view', 'activity_log.view', 'message_logs.view',
-            'branches_settings.view', 'countries.view', 'payment_methods.view', 'client_statuses.view',
+            'countries.view', 'payment_methods.view', 'client_statuses.view',
             'contact_channels.view', 'message_templates.view', 'subscriptions.view', 'bills.view', 'system.groups'])
             <li class="nav-item dropdown me-2 me-xl-2">
                 <a class="nav-link btn btn-text-secondary btn-icon rounded-pill dropdown-toggle hide-arrow"
@@ -209,7 +209,7 @@
                     </div>
 
                     {{-- رابط المركز التفصيلي --}}
-                    @canany(['branches_settings.view', 'countries.view', 'payment_methods.view', 'client_statuses.view',
+                    @canany(['countries.view', 'payment_methods.view', 'client_statuses.view',
                         'contact_channels.view', 'message_templates.view'])
                         <div class="dropdown-divider my-3"></div>
                         <div class="d-grid">

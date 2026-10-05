@@ -54,7 +54,6 @@ class UserController extends Controller
     {
         $statistics = $this->userService->getUserStatistics();
         $roles = Role::select('id', 'name')->orderBy('name', 'asc')->get();
-        $branches = $this->userService->getActiveBranches();
 
         $tenant = tenant();
         $subscription = $this->subscriptionManager->getTenantSubscription($tenant->id);
@@ -66,7 +65,6 @@ class UserController extends Controller
             'inactiveUsers' => $statistics['inactive'],
             'archivedUsers' => $statistics['archived'],
             'roles' => $roles,
-            'branches' => $branches,
             'subscription_formatted' => $formatted,
 
         ]);
@@ -81,11 +79,10 @@ class UserController extends Controller
     public function create(): View
     {
         $generatedEmployeeNumber = $this->userService->generateNextEmployeeNumber();
-        $branches = $this->userService->getActiveBranches();
 
         $roles = Role::select('id', 'name')->orderBy('name', 'asc')->get();
 
-        return view('tenants.users_management.users.create', compact('branches', 'generatedEmployeeNumber', 'roles'));
+        return view('tenants.users_management.users.create', compact('generatedEmployeeNumber', 'roles'));
     }
 
     /*
@@ -118,10 +115,9 @@ class UserController extends Controller
     public function edit(User $user): View
     {
         $user->load('roles');
-        $branches = $this->userService->getActiveBranches();
         $roles = Role::select('id', 'name')->orderBy('name', 'asc')->get();
 
-        return view('tenants.users_management.users.edit', compact('user', 'branches', 'roles'));
+        return view('tenants.users_management.users.edit', compact('user', 'roles'));
     }
 
     /*
@@ -154,7 +150,7 @@ class UserController extends Controller
     */
     public function show(User $user): View
     {
-        $user->load('roles', 'branch');
+        $user->load('roles');
 
         $recentActivities = Activity::where('causer_id', $user->id)
             ->latest()

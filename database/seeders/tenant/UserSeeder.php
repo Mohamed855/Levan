@@ -2,10 +2,8 @@
 
 namespace Database\Seeders\tenant;
 
-use App\Models\Tenants\Branch\Branch;
 use App\Models\Tenants\UserMangment\Team\Team;
 use App\Models\Tenants\UserMangment\User\User;
-use App\Models\Tenants\UserMangment\User\UserBranchAccess;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -14,7 +12,6 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        $mainBranch = Branch::where('code', 'MAIN')->first();
         $team = Team::first();
 
         // 1. Admin User
@@ -28,7 +25,6 @@ class UserSeeder extends Seeder
                 'phone'             => '0500000001',
                 'status'            => 'active',
                 'image'             => '',
-                'branch_id'         => $mainBranch?->id,
                 'team_id'           => $team?->id,
                 'is_team_leader'    => true,
                 'global_uid'        => '00000000-0000-0000-0000-000000000001',
@@ -76,7 +72,6 @@ class UserSeeder extends Seeder
                     'phone'             => $agentData['phone'],
                     'status'            => 'active',
                     'image'             => '',
-                    'branch_id'         => $mainBranch?->id,
                     'team_id'           => $team?->id,
                     'is_team_leader'    => false,
                     'global_uid'        => $agentData['global_uid'],
@@ -84,13 +79,6 @@ class UserSeeder extends Seeder
                 ]
             );
             $user->syncRoles(['User']);
-
-            if ($mainBranch) {
-                UserBranchAccess::updateOrCreate([
-                    'user_id' => $user->id,
-                    'branch_id' => $mainBranch->id,
-                ]);
-            }
         }
     }
 }

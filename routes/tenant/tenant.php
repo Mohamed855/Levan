@@ -16,7 +16,6 @@ use App\Http\Controllers\Tenants\Archive\Customer\CustomerArchiveController;
 use App\Http\Controllers\Tenants\Archive\User\UserArchiveController;
 use App\Http\Controllers\Tenants\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Tenants\Bills\BillsController;
-use App\Http\Controllers\Tenants\Branch\BranchController;
 use App\Http\Controllers\Tenants\BusinessCenter\Company\CompanyController;
 use App\Http\Controllers\Tenants\BusinessCenter\Contract\ContractController;
 use App\Http\Controllers\Tenants\BusinessCenter\Customer\Attachment\CustomerAttachmentController;
@@ -320,20 +319,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
 
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Branches Management
-        |--------------------------------------------------------------------------
-        */
-        Route::prefix('branches')->name('branches.')->middleware(['auth'])->group(function () {
-            Route::name('index')->get('/', [BranchController::class, 'index']);
-            Route::name('create')->get('create', [BranchController::class, 'create']);
-            Route::name('store')->post('/', [BranchController::class, 'store']);
-            Route::name('edit')->get('{branch}/edit', [BranchController::class, 'edit']);
-            Route::name('update')->put('{branch}', [BranchController::class, 'update']);
-            Route::name('destroy')->delete('{branch}', [BranchController::class, 'destroy']);
-            Route::name('toggle-status')->patch('{branch}/toggle-status', [BranchController::class, 'toggleStatus']);
-        });
+
 
         /*
         |--------------------------------------------------------------------------
@@ -426,7 +412,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             Route::put('{team}', [TeamController::class, 'update'])->name('update');
             Route::delete('{team}', [TeamController::class, 'destroy'])->name('destroy');
             Route::patch('{team}/toggle-status', [TeamController::class, 'toggleStatus'])->name('toggle-status');
-            Route::get('users-by-branch/{branchId}', [TeamController::class, 'getUsersByBranch'])->name('users-by-branch');
         });
 
         /*
@@ -567,8 +552,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
                 Route::name('calculate-targets')->post('calculate-targets', [CustomerDistributionController::class, 'calculateTargets']);
                 Route::name('execute')->post('execute', [CustomerDistributionController::class, 'execute']);
 
-
-                Route::name('teams-by-branch')->get('/teams-by-branch', [CustomerDistributionController::class, 'getTeamsByBranch']);
                 Route::name('collectors-by-team')->get('/collectors-by-team', [CustomerDistributionController::class, 'getCollectorsByTeam']);
             });
 
@@ -892,8 +875,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
                 Route::name('update')->put('/{collection_target}', [CollectionTargetController::class, 'update']);
                 Route::name('destroy')->delete('/{collection_target}', [CollectionTargetController::class, 'destroy']);
                 Route::name('toggle-status')->patch('/{collection_target}/toggle-status', [CollectionTargetController::class, 'toggleStatus']);
-                Route::name('users-by-branch')->get('/users-by-branch', [CollectionTargetController::class, 'getUsersByBranch']);
-                Route::name('teams-by-branch')->get('/teams-by-branch', [CollectionTargetController::class, 'getTeamsByBranch']);
                 Route::name('user-details')->get('/user-details/{userId}', [CollectionTargetController::class, 'showUserDetails']);
             });
 

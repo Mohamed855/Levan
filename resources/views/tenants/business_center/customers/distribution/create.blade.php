@@ -26,7 +26,6 @@
             portfoliosByCompany: "{{ tenant_route_name('customers.portfolios-by-company') }}",
             calculateTargets: "{{ tenant_route_name('customers.distribution.calculate-targets') }}",
             portfoliosWithUnassignedCustomers: "{{ tenant_route_name('customers.distribution.portfolios-with-unassigned-customers') }}",
-            teamsByBranch: "{{ tenant_route_name('customers.distribution.teams-by-branch') }}",
             collectorsByTeam: "{{ tenant_route_name('customers.distribution.collectors-by-team') }}"
         };
         window.csrfToken = "{{ csrf_token() }}";
@@ -264,27 +263,15 @@
                                     </div>
 
 
-                                    {{-- فلتر الفرع --}}
-                                    <div class="col-md-6">
-                                        <label class="form-label" for="branch_id">الفرع <span
-                                                class="text-danger">*</span></label>
-                                        <select name="branch_id" id="branch_id" class="form-control select2"
-                                            data-placeholder="اختر الفرع">
-                                            <option value=""></option>
-                                            @foreach ($branches as $id => $name)
-                                                <option value="{{ $id }}">{{ $name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
-
                                     {{-- فلتر المجموعة - Multiple Select --}}
-                                    <div class="col-md-6">
+                                    <div class="col-12">
                                         <label class="form-label" for="team_ids">المجموعات <span
                                                 class="text-danger">*</span></label>
                                         <select name="team_ids[]" id="team_ids" class="form-control select2"
-                                            data-placeholder="اختر المجموعات" multiple disabled>
-                                            <option value=""></option>
+                                            data-placeholder="اختر المجموعات" multiple>
+                                            @foreach ($teams as $id => $name)
+                                                <option value="{{ $id }}">{{ $name }}</option>
+                                            @endforeach
                                         </select>
                                     </div>
 

@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Http\Middleware\Tenancy\CheckLimits\CheckBranchesLimits;
 use App\Http\Middleware\Tenancy\CheckLimits\CheckDomainManagement;
 use App\Models\Admin\Tenants\CompanySetting;
 use App\Models\Admin\Tenants\Tenant;
@@ -49,19 +48,6 @@ class TenantDashboardPostRefactorCasesTest extends TestCase
         $response->assertSee('حد العقارات');
         $response->assertSee('المساحة التخزينية');
         $response->assertSee('المزادات النشطة');
-        $response->assertSee('حد الفروع');
-    }
-
-    public function test_check_branches_limits_respects_latest_subscription(): void
-    {
-        $middleware = new CheckBranchesLimits();
-        $request = Request::create('http://test.localhost/branches/create', 'GET');
-
-        $response = $middleware->handle($request, function ($req) {
-            return new Response('OK: ' . ($req->subscription_limit ?? 'unlimited'));
-        });
-
-        $this->assertTrue(in_array($response->getStatusCode(), [200, 302]));
     }
 
     public function test_check_domain_management_respects_latest_subscription(): void

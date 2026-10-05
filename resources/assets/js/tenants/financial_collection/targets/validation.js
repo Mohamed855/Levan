@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', function () {
 function initValidation(wizard) {
     validation = FormValidation.formValidation(wizard, {
         fields: {
-            branch_id: { validators: { notEmpty: { message: 'يرجى اختيار الفرع' } } },
             'team_ids[]': { validators: { notEmpty: { message: 'يرجى اختيار مجموعة واحدة على الأقل' } } },
             user_id: { validators: { notEmpty: { message: 'يرجى اختيار المستخدم' } } },
             target_type: { validators: { notEmpty: { message: 'يرجى اختيار نوع الهدف' } } },
@@ -121,12 +120,7 @@ function initializeTeamsSelect2() {
 }
 
 function setupEventHandlers() {
-    // تغيير الفرع - جلب المجموعات
-    $('#branch_id').on('change', function () {
-        handleBranchChange();
-    });
-
-    // تغيير المجموعات - جلب المستخدمين
+    // تغيير المجموعات - فلترة المستخدمين
     $('#team_ids').on('change', function () {
         handleTeamsChange();
     });
@@ -155,128 +149,37 @@ function setupEventHandlers() {
 
 /*
 |--------------------------------------------------------------------------
-| معالجة تغيير الفرع - جلب المجموعات (فتح المجموعات فقط)
-|--------------------------------------------------------------------------
-*/
-function handleBranchChange() {
-    const branchId = $('#branch_id').val();
-
-    // إعادة تعيين المجموعات والمستخدمين بدون trigger للـ change
-    // حتى لا يتم تفعيل handleTeamsChange تلقائياً
-    $('#team_ids').empty().val(null);
-    $('#user_id').empty().append('<option value="">اختر المستخدم</option>').val(null).prop('disabled', true);
-
-    if (!branchId) {
-        $('#team_ids').prop('disabled', true).empty();
-        return;
-    }
-
-    // جلب المجموعات بناءً على الفرع
-    $.ajax({
-        url: window.routes.getTeamsByBranch,
-        type: 'GET',
-        data: { branch_id: branchId },
-        beforeSend: function() {
-            $('#team_ids').prop('disabled', true);
-            $('#team_ids').empty().append(new Option('جاري التحميل...', '', false, false));
-        },
-        success: function (response) {
-            console.log('Teams Response:', response);
-            
-            if (response.success && response.teams && response.teams.length > 0) {
-                $('#team_ids').empty();
-                
-                response.teams.forEach(function (team) {
-                    $('#team_ids').append(new Option(team.name, team.id, false, false));
-                });
-
-                // إعادة تهيئة Select2
-                $('#team_ids').select2('destroy');
-                initializeTeamsSelect2();
-
-                $('#team_ids').prop('disabled', false);
-                
-                // فتح المجموعات فقط (بدون فتح المحصلين)
-                setTimeout(() => {
-                    $('#team_ids').select2('open');
-                }, 150);
-                
-                // toastr.success(`تم تحميل ${response.teams.length} مجموعة`);
-            } else {
-                toastr.warning('لا توجد مجموعات لهذا الفرع');
-                $('#team_ids').prop('disabled', true).empty();
-            }
-        },
-        error: function (xhr) {
-            console.error('Teams Error:', xhr);
-            toastr.error('فشل في تحميل المجموعات');
-            $('#team_ids').prop('disabled', true).empty();
-        }
-    });
-}
-
-/*
-|--------------------------------------------------------------------------
-| معالجة تغيير المجموعات - جلب المستخدمين (فتح المحصلين فقط)
+| معالجة تغيير المجموعات - فلترة المستخدمين
 |--------------------------------------------------------------------------
 */
 function handleTeamsChange() {
-    const teamIds = $('#team_ids').val(); // array
-    const branchId = $('#branch_id').val();
-
-    // إعادة تعيين المستخدمين بدون trigger
+    const teamIds = ($('#team_ids').val() || []).map(String);
     const userSelect = $('#user_id');
-    userSelect.val(null);
+    const selectedUserId = userSelect.val();
 
-    if (!teamIds || teamIds.length === 0 || !branchId) {
-        userSelect.empty().append('<option value="">اختر المستخدم</option>').prop('disabled', true);
-        return;
-    }
-
-    // جلب المستخدمين بناءً على الفرع والمجموعات
-    $.ajax({
-        url: window.routes.getUsersByBranch,
-        type: 'GET',
-        data: { 
-            branch_id: branchId,
-            team_ids: teamIds 
-        },
-        beforeSend: function() {
-            userSelect.prop('disabled', true);
-            userSelect.empty().append(new Option('جاري التحميل...', '', false, false));
-        },
-        success: function (response) {
-            console.log('Users Response:', response);
-            
-            if (response.success && response.users && response.users.length > 0) {
-                userSelect.empty().append(new Option('اختر المستخدم', '', false, false));
-                
-                response.users.forEach(function (user) {
-                    userSelect.append(new Option(user.display_name || user.name, user.id, false, false));
-                });
-
-                userSelect.prop('disabled', false);
-                
-                // فتح المحصلين فقط
-                setTimeout(() => {
-                    userSelect.select2('open');
-                }, 150);
-                
-                // toastr.success(`تم تحميل ${response.users.length} مستخدم`);
-                
-                if (window.editMode && window.selectedUser) {
-                    userSelect.val(window.selectedUser).trigger('change');
-                }
-            } else {
-                toastr.warning('لا يوجد مستخدمين لهذه المجموعات');
-                userSelect.empty().append(new Option('اختر المستخدم', '', false, false)).prop('disabled', true);
-            }
-        },
-        error: function (xhr) {
-            console.error('Users Error:', xhr);
-            toastr.error('فشل في تحميل المستخدمين');
-            userSelect.empty().append(new Option('اختر المستخدم', '', false, false)).prop('disabled', true);
+    userSelect.find('option').each(function () {
+        const teamId = $(this).data('team-id');
+        if (!this.value) {
+            $(this).show();
+            return;
         }
+
+        if (teamIds.length === 0 || (teamId && teamIds.includes(String(teamId)))) {
+            $(this).show().prop('disabled', false);
+        } else {
+            $(this).hide().prop('disabled', true);
+            if (this.value === selectedUserId) {
+                userSelect.val('').trigger('change');
+            }
+        }
+    });
+
+    userSelect.select2({
+        placeholder: userSelect.data('placeholder') || 'اختر المستخدم',
+        allowClear: true,
+        width: '100%',
+        language: 'ar',
+        dir: 'rtl'
     });
 }
 
@@ -341,7 +244,6 @@ function populateOptions() {
 |--------------------------------------------------------------------------
 */
 function loadEditData() {
-    if (window.selectedBranch) $('#branch_id').trigger('change');
 
     if (window.selectedTargetType) {
         setTimeout(() => {

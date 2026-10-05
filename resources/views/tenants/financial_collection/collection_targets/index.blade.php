@@ -26,8 +26,7 @@
             collectionTargetsCreate: "{{ tenant_route_name('financial-collections.collection-targets.create') }}",
             toggleStatus: "{{ tenant_route_name('financial-collections.collection-targets.toggle-status', ':id') }}",
             massDelete: "{{ tenant_route_name('mass-delete') }}",
-            getUserTargetDetails: "{{ tenant_route_name('financial-collections.collection-targets.user-details', ':userId') }}",
-            getUsersByBranch: "{{ tenant_route_name('financial-collections.collection-targets.users-by-branch') }}"
+            getUserTargetDetails: "{{ tenant_route_name('financial-collections.collection-targets.user-details', ':userId') }}"
         };
         window.csrfToken = "{{ csrf_token() }}";
     </script>
@@ -122,7 +121,7 @@
     </div>
 
     <x-data-table.filters table="#collection-targets-table" reset-id="btn-reset-filters">
-        <div class="col-md-4">
+        <div class="col-md-6">
             <label for="filter-status" class="form-label">حالة الهدف</label>
             <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر حالة الهدف">
                 <option value=""></option>
@@ -131,20 +130,13 @@
             </select>
         </div>
 
-        <div class="col-md-4">
-            <label for="filter-branch" class="form-label">الفرع</label>
-            <select id="filter-branch" class="form-control select2" data-datatable-filter="true" data-filter-key="branch_id" data-placeholder="اختر الفرع">
-                <option value=""></option>
-                @foreach ($branches as $branch)
-                    <option value="{{ $branch->id }}">{{ $branch->name }}</option>
-                @endforeach
-            </select>
-        </div>
-
-        <div class="col-md-4">
+        <div class="col-md-6">
             <label for="filter-user" class="form-label">المستخدم</label>
             <select id="filter-user" class="form-control select2" data-datatable-filter="true" data-filter-key="user_id" data-placeholder="اختر المستخدم">
                 <option value=""></option>
+                @foreach ($users as $user)
+                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                @endforeach
             </select>
         </div>
     </x-data-table.filters>

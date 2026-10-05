@@ -37,9 +37,6 @@ class CollectionTargetsDataTable extends AbstractDataTable
         if ($request->filled('status')) {
             $query = $query->where('status', $request->status);
         }
-        if ($request->filled('branch_id')) {
-            $query = $query->where('branch_id', (int) $request->branch_id);
-        }
         if ($request->filled('user_id')) {
             $query = $query->where('user_id', (int) $request->user_id);
         }
@@ -98,13 +95,6 @@ class CollectionTargetsDataTable extends AbstractDataTable
                 'title' => 'المستخدم',
                 'className' => 'cursor-pointer',
                 'orderable' => true,
-            ],
-            [
-                'data' => 'branch_name',
-                'name' => 'branch_name',
-                'title' => 'الفرع',
-                'className' => 'table-ellipsis',
-                'width' => '120px'
             ],
 
             [
@@ -167,12 +157,6 @@ class CollectionTargetsDataTable extends AbstractDataTable
         $datatable
             ->addColumn('checkbox', function ($row) {
                 return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '" onclick="event.stopPropagation();">';
-            })
-
-            ->addColumn('branch_name', function ($row) {
-                return $row->branch
-                    ? '<span class="fw-medium">' . e($row->branch->name) . '</span>'
-                    : '<span class="badge bg-label-danger">محذوف</span>';
             })
 
             ->addColumn('user_info', function ($row) {
@@ -338,7 +322,6 @@ class CollectionTargetsDataTable extends AbstractDataTable
     {
         return [
             'checkbox',
-            'branch_name',
             'user_info',
             'target_type_badge',
             'target_period',

@@ -66,31 +66,14 @@
                             </span>
                         </div>
                         <div class="flex-grow-1">
-                            <h5 class="card-title mb-1 fw-semibold">المواقع والفروع</h5>
-                            <small class="text-muted">إدارة الفروع وقوائم الدول</small>
+                            <h5 class="card-title mb-1 fw-semibold">المواقع والدول</h5>
+                            <small class="text-muted">إدارة قوائم الدول المدعومة</small>
                         </div>
                     </div>
                 </div>
                 <div class="card-body pt-0">
                     <div class="row g-2">
-                        <div class="col-6">
-                            <a href="{{ tenant_route_name('branches.index') }}"
-                                class="d-flex align-items-center p-3 border rounded text-decoration-none">
-                                <div class="avatar avatar-sm me-3">
-                                    <span class="avatar-initial rounded"
-                                        style="background-color: rgba(255, 167, 108, 0.1); color: #FFA76C;">
-                                        <i class="ti ti-building"></i>
-                                    </span>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-0 text-body fw-medium">الفروع</h6>
-                                    <small class="text-muted">إدارة فروع الشركة</small>
-                                </div>
-                                <i class="ti ti-chevron-left text-muted"></i>
-                            </a>
-                        </div>
-
-                        <div class="col-6">
+                        <div class="col-12">
                             <a href="{{ tenant_route_name('general-settings.settings-country.index') }}"
                                 class="d-flex align-items-center p-3 border rounded text-decoration-none">
                                 <div class="avatar avatar-sm me-3">

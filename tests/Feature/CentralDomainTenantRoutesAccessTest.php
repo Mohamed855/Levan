@@ -20,7 +20,7 @@ class CentralDomainTenantRoutesAccessTest extends TestCase
 
         // Direct tenant dashboard/management routes without prefix
         $this->get("{$centralHost}/dashboard")->assertStatus(404);
-        $this->get("{$centralHost}/branches")->assertStatus(404);
+        $this->get("{$centralHost}/teams")->assertStatus(404);
         $this->get("{$centralHost}/customers")->assertStatus(404);
     }
 

@@ -252,10 +252,6 @@ function bindEvents() {
         filterPortfoliosByCompany($(this).val());
     });
 
-    $('#filter-branch').on('change', function () {
-        filterTeamsByBranch($(this).val());
-    });
-
     $('#filter-team').on('change', function () {
         filterUsersByTeam($(this).val());
     });
@@ -352,33 +348,7 @@ function filterPortfoliosByCompany(companyId) {
     }
 }
 
-/*
-|--------------------------------------------------------------------------
-| Filter Teams By Branch
-|--------------------------------------------------------------------------
-*/
-function filterTeamsByBranch(branchId) {
-    const teamSelect = $('#filter-team');
 
-    teamSelect.find('option').each(function () {
-        const option = $(this);
-        if (option.val() === '') {
-            option.show();
-            return;
-        }
-
-        if (!branchId || option.data('branch') == branchId) {
-            option.show();
-        } else {
-            option.hide();
-        }
-    });
-
-    const selectedTeam = teamSelect.val();
-    if (selectedTeam && teamSelect.find('option:selected').data('branch') != branchId) {
-        teamSelect.val('').trigger('change');
-    }
-}
 
 /*
 |--------------------------------------------------------------------------
@@ -414,7 +384,7 @@ function filterUsersByTeam(teamId) {
 |--------------------------------------------------------------------------
 */
 function resetFilters() {
-    $('#filter-company, #filter-portfolio, #filter-branch, #filter-team, #filter-user').val('').trigger('change');
+    $('#filter-company, #filter-portfolio, #filter-team, #filter-user').val('').trigger('change');
     setDefaultDates();
 
     // ✅ إعادة تحميل الجدول فقط
@@ -463,7 +433,6 @@ function getCurrentFilters() {
         date_to: dateTo,
         company_id: $('#filter-company').val(),
         portfolio_id: $('#filter-portfolio').val(),
-        branch_id: $('#filter-branch').val(),
         team_id: $('#filter-team').val(),
         user_id: $('#filter-user').val()
     };

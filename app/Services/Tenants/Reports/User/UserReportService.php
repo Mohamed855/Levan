@@ -4,7 +4,6 @@ namespace App\Services\Tenants\Reports\User;
 
 use App\Models\Tenants\UserMangment\User\User;
 use App\Models\Tenants\FinancialCollection\Collection\Collection;
-use App\Models\Tenants\GeneralSetting\Branch\SettingsBranch;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -37,8 +36,7 @@ class UserReportService
             'users_with_collections_today' => $this->getUsersWithCollectionsToday(),
             'inactive_users_this_month' => $this->getInactiveUsersThisMonth(),
 
-            // إحصائيات حسب الفرع
-            'collections_by_branch' => $this->getCollectionsByBranch(),
+            // إحصائيات الأداء
             'users_performance_chart' => $this->getUsersPerformanceChart(),
             'monthly_performance_trend' => $this->getMonthlyPerformanceTrend(),
         ];
@@ -52,10 +50,8 @@ class UserReportService
     public function getFormData(): array
     {
         return [
-            'branches' => SettingsBranch::where('status', 'active')
-                ->select('id', 'name')->orderBy('name')->get(),
             'users' => User::where('status', 'active')
-                ->select('id', 'name', 'branch_id')->orderBy('name')->get(),
+                ->select('id', 'name')->orderBy('name')->get(),
         ];
     }
 
@@ -66,14 +62,11 @@ class UserReportService
     */
     public function getUsersReportData(Request $request): JsonResponse
     {
-        $query = User::with([
-            'branch:id,name'
-        ])->select([
+        $query = User::query()->select([
             'id',
             'name',
             'email',
             'phone',
-            'branch_id',
             'status',
             'created_at'
         ]);
@@ -88,9 +81,6 @@ class UserReportService
             })
             ->addColumn('contact_info', function ($user) {
                 return '<span class="text-primary">' . e($user->phone ?: 'لا يوجد') . '</span>';
-            })
-            ->addColumn('branch_info', function ($user) {
-                return '<span class="fw-medium">' . e($user->branch->name ?? 'غير محدد') . '</span>';
             })
             ->addColumn('performance_info', function ($user) {
                 $performance = $this->getUserPerformance($user->id);
@@ -132,7 +122,7 @@ class UserReportService
                 $query->where('name', 'like', "%{$keyword}%")
                     ->orWhere('email', 'like', "%{$keyword}%");
             })
-            ->rawColumns(['user_info', 'contact_info', 'branch_info', 'performance_info', 'monthly_performance', 'last_activity', 'status_info'])
+            ->rawColumns(['user_info', 'contact_info', 'performance_info', 'monthly_performance', 'last_activity', 'status_info'])
             ->make(true);
     }
 
@@ -143,11 +133,6 @@ class UserReportService
     */
     private function applyFilters($query, Request $request): void
     {
-        // فلتر الفرع
-        if ($request->filled('branch_id')) {
-            $query->where('branch_id', $request->branch_id);
-        }
-
         // فلتر الحالة
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -182,8 +167,8 @@ class UserReportService
         try {
             Log::info('== بدء exportUsersReportToPDF ==');
 
-            // جلب البيانات مع العلاقات
-            $query = User::with(['branch:id,name']);
+            // جلب البيانات
+            $query = User::query();
             $this->applyFiltersForExport($query, $filters);
             $users = $query->orderBy('name')->get();
 
@@ -345,24 +330,6 @@ class UserReportService
             ->count();
     }
 
-    private function getCollectionsByBranch(): array
-    {
-        return Collection::join('users', 'collections.added_by', '=', 'users.id')
-            ->join('settings_branches', 'users.branch_id', '=', 'settings_branches.id')
-            ->select('settings_branches.name', DB::raw('SUM(collected_amount) as amount'))
-            ->where('collections.status', 'approved')
-            ->where('collections.created_at', '>=', now()->startOfMonth())
-            ->groupBy('settings_branches.name')
-            ->orderByDesc('amount')
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'name' => $item->name,
-                    'amount' => $item->amount
-                ];
-            })
-            ->toArray();
-    }
 
     private function getUsersPerformanceChart(): array
     {
@@ -435,9 +402,6 @@ class UserReportService
             if (empty($value)) continue;
 
             switch ($key) {
-                case 'branch_id':
-                    $query->where('branch_id', $value);
-                    break;
                 case 'status':
                     $query->where('status', $value);
                     break;
@@ -466,13 +430,6 @@ class UserReportService
     private function getAppliedFiltersText(array $filters): string
     {
         $appliedFilters = [];
-
-        if (!empty($filters['branch_id'])) {
-            $branch = SettingsBranch::find($filters['branch_id']);
-            if ($branch) {
-                $appliedFilters[] = "الفرع: {$branch->name}";
-            }
-        }
 
         if (!empty($filters['status'])) {
             $statusLabel = $filters['status'] === 'active' ? 'نشط' : 'غير نشط';
@@ -504,7 +461,6 @@ class UserReportService
         $html .= '<th>اسم المستخدم</th>';
         $html .= '<th>البريد الإلكتروني</th>';
         $html .= '<th>الهاتف</th>';
-        $html .= '<th>الفرع</th>';
         $html .= '<th>الحالة</th>';
         $html .= '<th>تحصيلات الشهر</th>';
         $html .= '<th>مبلغ الشهر</th>';
@@ -513,7 +469,7 @@ class UserReportService
         $html .= '</tr></thead><tbody>';
 
         if ($users->isEmpty()) {
-            $html .= '<tr><td colspan="10" class="no-records">لا توجد بيانات للعرض</td></tr>';
+            $html .= '<tr><td colspan="9" class="no-records">لا توجد بيانات للعرض</td></tr>';
         } else {
             $serialNumber = 1;
             foreach ($users as $user) {
@@ -527,7 +483,6 @@ class UserReportService
                 $html .= '<td class="text-right">' . e($user->name) . '</td>';
                 $html .= '<td class="text-right">' . e($user->email) . '</td>';
                 $html .= '<td>' . e($user->phone ?: '—') . '</td>';
-                $html .= '<td class="text-right">' . e($user->branch->name ?? '—') . '</td>';
                 $html .= '<td>' . $statusLabel . '</td>';
                 $html .= '<td class="amount-cell">' . number_format($monthlyPerformance['collections']) . '</td>';
                 $html .= '<td class="amount-cell">' . number_format($monthlyPerformance['amount'], 2) . '</td>';

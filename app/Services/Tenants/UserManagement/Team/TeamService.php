@@ -2,7 +2,6 @@
 
 namespace App\Services\Tenants\UserManagement\Team;
 
-use App\Models\Tenants\Branch\Branch;
 use App\Models\Tenants\UserMangment\Team\Team;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +18,6 @@ class TeamService
     {
         return DB::transaction(function () use ($data) {
             $team = Team::create([
-                'branch_id' => $data['branch_id'],
                 'name' => $data['name'],
                 'description' => $data['description'] ?? null,
                 'status' => 'active', // ✅ دائماً active
@@ -42,7 +40,6 @@ class TeamService
     {
         return DB::transaction(function () use ($team, $data) {
             $team->update([
-                'branch_id' => $data['branch_id'],
                 'name' => $data['name'],
                 'description' => $data['description'] ?? null,
                 'status' => $data['status'] ?? 'active',
@@ -107,13 +104,12 @@ class TeamService
 
     /*
     |--------------------------------------------------------------------------
-    | Get Users by Branch
+    | Get Available Users
     |--------------------------------------------------------------------------
     */
-    public function getUsersByBranch(int $branchId, ?int $excludeTeamId = null)
+    public function getAvailableUsers(?int $excludeTeamId = null)
     {
-        $query = User::where('branch_id', $branchId)
-            ->where('status', 'active')
+        $query = User::where('status', 'active')
             ->select('id', 'name', 'email', 'team_id', 'is_team_leader');
 
         if ($excludeTeamId) {
@@ -126,19 +122,6 @@ class TeamService
         }
 
         return $query->orderBy('name')->get();
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Get Active Branches
-    |--------------------------------------------------------------------------
-    */
-    public function getActiveBranches()
-    {
-        return Branch::where('status', 'active')
-            ->select('id', 'name', 'code')
-            ->orderBy('name')
-            ->get();
     }
 
     /*

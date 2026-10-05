@@ -44,7 +44,7 @@
                     data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                     @csrf
 
-                    <x-form.wizard.step id="basic-info-validation" :fields="['name', 'employee_number', 'email', 'phone', 'role_id', 'branch_id']">
+                    <x-form.wizard.step id="basic-info-validation" :fields="['name', 'employee_number', 'email', 'phone', 'role_id']">
                         <div class="row g-6">
                             <x-form.controls.input name="name" label="الاسم الكامل" placeholder="ادخل الاسم الكامل" required />
                             <x-form.controls.input name="employee_number" label="الرقم الوظيفي"
@@ -54,7 +54,6 @@
                             <x-form.controls.input name="phone" label="رقم الهاتف" placeholder="ادخل رقم الهاتف"
                                 inputmode="tel" required />
                             <x-form.controls.select name="role_id" label="الدور" :options="$roles" placeholder="اختر الدور" required />
-                            <x-form.controls.select name="branch_id" label="الفرع" :options="$branches" placeholder="اختر الفرع" required />
 
                             <x-form.wizard.actions>
                                 <x-form.wizard.previous-button />

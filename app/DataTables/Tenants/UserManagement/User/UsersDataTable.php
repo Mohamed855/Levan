@@ -35,14 +35,13 @@ class UsersDataTable extends AbstractDataTable
                 'email',
                 'phone',
                 'employee_number',
-                'branch_id',
                 'status',
                 'image',
                 'created_at',
                 'last_login_at',
                 'license_seat_id'
             ])
-            ->with(['roles:id,name', 'branch:id,name'])
+            ->with(['roles:id,name'])
             ->accessible();
     }
 
@@ -70,7 +69,6 @@ class UsersDataTable extends AbstractDataTable
             ['data' => 'name', 'name' => 'name', 'title' => 'الاسم'],
             ['data' => 'employee_number', 'name' => 'employee_number', 'title' => 'الرقم الوظيفي'],
             ['data' => 'email', 'name' => 'email', 'title' => 'البريد الإلكتروني'],
-            ['data' => 'branch', 'name' => 'branch.name', 'title' => 'الفرع', 'orderable' => false, 'searchable' => true], // ✅ تغيير
             ['data' => 'phone', 'name' => 'phone', 'title' => 'رقم الهاتف'],
             ['data' => 'roles', 'name' => 'roles.name', 'title' => 'الأدوار', 'orderable' => false, 'searchable' => true],
             ['data' => 'license_status', 'name' => 'license_status', 'title' => 'الترخيص', 'orderable' => false, 'searchable' => false],
@@ -100,12 +98,6 @@ class UsersDataTable extends AbstractDataTable
             })
             ->editColumn('employee_number', fn(User $user) => '<span class="badge bg-secondary">' . e($user->employee_number ?? '-') . '</span>')
             ->editColumn('email', fn(User $user) => '<a href="mailto:' . $user->email . '">' . $user->email . '</a>')
-            ->addColumn('branch', function (User $user) {
-                if (!$user->branch) {
-                    return '<span class="text-muted">-</span>';
-                }
-                return '<span class="badge bg-secondary">' . e($user->branch->name) . '</span>';
-            })
             ->addColumn('roles', function (User $user) {
                 if ($user->roles->isEmpty()) {
                     return '<span class="text-muted">-</span>';
@@ -166,7 +158,7 @@ class UsersDataTable extends AbstractDataTable
     */
     protected function rawColumns(): array
     {
-        return ['checkbox', 'image', 'name', 'employee_number', 'email', 'branch', 'roles', 'status', 'license_status', 'last_login_at', 'action']; // ✅ تغيير branches → branch
+        return ['checkbox', 'image', 'name', 'employee_number', 'email', 'roles', 'status', 'license_status', 'last_login_at', 'action'];
     }
 
     /*
@@ -186,10 +178,6 @@ class UsersDataTable extends AbstractDataTable
             $query->whereHas('roles', function ($q) use ($request) {
                 $q->where('roles.id', $request->role);
             });
-        }
-
-        if ($request->filled('branch_ids') || $request->filled('branch_id')) {
-            $query->where('branch_id', $request->branch_ids ?? $request->branch_id);
         }
 
         if ($request->filled('employee_number')) {

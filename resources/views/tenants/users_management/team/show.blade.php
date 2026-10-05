@@ -18,29 +18,8 @@
                 </div>
                 <div class="card-body">
                     <div class="row g-4">
-                        <!-- الفرع -->
-                        <div class="col-md-3 col-sm-6">
-                            <div class="d-flex align-items-start">
-                                <div class="flex-shrink-0">
-                                    <div class="avatar avatar-sm">
-                                        <span class="avatar-initial rounded bg-label-primary">
-                                            <i class="ti ti-building"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <small class="text-muted d-block mb-1">الفرع</small>
-                                    @if ($team->branch)
-                                        <span class="badge bg-secondary">{{ $team->branch->name }}</span>
-                                    @else
-                                        <span class="text-muted">غير محدد</span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- عدد الأعضاء -->
-                        <div class="col-md-3 col-sm-6">
+                        <div class="col-md-4 col-sm-6">
                             <div class="d-flex align-items-start">
                                 <div class="flex-shrink-0">
                                     <div class="avatar avatar-sm">
@@ -57,7 +36,7 @@
                         </div>
 
                         <!-- عدد القادة -->
-                        <div class="col-md-3 col-sm-6">
+                        <div class="col-md-4 col-sm-6">
                             <div class="d-flex align-items-start">
                                 <div class="flex-shrink-0">
                                     <div class="avatar avatar-sm">
@@ -74,7 +53,7 @@
                         </div>
 
                         <!-- تاريخ الإنشاء -->
-                        <div class="col-md-3 col-sm-6">
+                        <div class="col-md-4 col-sm-6">
                             <div class="d-flex align-items-start">
                                 <div class="flex-shrink-0">
                                     <div class="avatar avatar-sm">

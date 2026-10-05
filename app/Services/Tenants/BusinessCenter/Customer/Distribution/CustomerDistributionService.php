@@ -8,7 +8,6 @@ use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Models\Tenants\FinancialCollection\Collection\CustomerTransaction;
 use App\Models\Tenants\FinancialCollection\Target\CollectionTarget;
-use App\Models\Tenants\GeneralSetting\Branch\SettingsBranch;
 use App\Models\Tenants\GeneralSetting\CustomerStatus\SettingsCustomerStatus;
 use App\Models\Tenants\UserMangment\User\User;
 use Carbon\Carbon;
@@ -650,20 +649,6 @@ class CustomerDistributionService
                         continue;
                     }
 
-                    $collectorBranchId = $collector->branch_id;
-
-                    if (!$collectorBranchId) {
-                        $defaultBranch = SettingsBranch::where('status', 'active')
-                            ->orderBy('id')
-                            ->first();
-
-                        if ($defaultBranch) {
-                            $collectorBranchId = $defaultBranch->id;
-                        } else {
-                            continue;
-                        }
-                    }
-
                     $startDate = $this->findNextAvailableMonth($collectorId);
 
                     for ($i = 0; $i < $duration; $i++) {
@@ -671,7 +656,6 @@ class CustomerDistributionService
 
                         $targetData = [
                             'user_id' => $collectorId,
-                            'branch_id' => $collectorBranchId,
                             'target_type' => 'monthly',
                             'target_month' => $targetDate->month,
                             'target_year' => $targetDate->year,

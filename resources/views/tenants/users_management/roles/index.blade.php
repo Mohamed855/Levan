@@ -202,12 +202,6 @@
                                 <option value="inactive">غير نشط</option>
                             </select>
                         </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">الفروع الإضافية المسموح بها</label>
-                            <div id="branches-wrapper" class="border rounded p-2 branches-scroll-wrapper">
-                            </div>
-                        </div>
                     </div>
 
                     <div class="modal-footer">

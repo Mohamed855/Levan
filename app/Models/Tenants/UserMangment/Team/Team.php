@@ -2,7 +2,6 @@
 
 namespace App\Models\Tenants\UserMangment\Team;
 
-use App\Models\Tenants\Branch\Branch;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +12,6 @@ class Team extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'branch_id',
         'name',
         'description',
         'status',
@@ -24,16 +22,6 @@ class Team extends Model
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
     ];
-
-    /*
-    |--------------------------------------------------------------------------
-    | Get the branch that owns the team.
-    |--------------------------------------------------------------------------
-    */
-    public function branch()
-    {
-        return $this->belongsTo(Branch::class);
-    }
 
     /*
     |--------------------------------------------------------------------------
@@ -75,16 +63,6 @@ class Team extends Model
     public function scopeActive($query)
     {
         return $query->where('status', 'active');
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Scope a query to only include teams in a specific branch.
-    |--------------------------------------------------------------------------
-    */
-    public function scopeInBranch($query, $branchId)
-    {
-        return $query->where('branch_id', $branchId);
     }
 
     /*

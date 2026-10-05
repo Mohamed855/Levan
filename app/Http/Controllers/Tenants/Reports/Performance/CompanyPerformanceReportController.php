@@ -32,7 +32,6 @@ class CompanyPerformanceReportController extends Controller
             'company_id',
             'portfolio_id',
             'team_id',
-            'branch_id',
             'user_id'
         ]);
 
@@ -79,7 +78,6 @@ class CompanyPerformanceReportController extends Controller
             'company_id',
             'portfolio_id',
             'team_id',
-            'branch_id',
             'user_id'
         ]);
 
@@ -99,7 +97,6 @@ class CompanyPerformanceReportController extends Controller
             'company_id',
             'portfolio_id',
             'team_id',
-            'branch_id',
             'user_id'
         ]);
 
@@ -127,7 +124,6 @@ class CompanyPerformanceReportController extends Controller
             'company_id',
             'portfolio_id',
             'team_id',
-            'branch_id',
             'user_id'
         ]);
 
@@ -208,7 +204,6 @@ class CompanyPerformanceReportController extends Controller
                 'company_id',
                 'portfolio_id',
                 'team_id',
-                'branch_id',
                 'user_id'
             ]);
 

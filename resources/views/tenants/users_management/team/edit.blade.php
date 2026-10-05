@@ -16,10 +16,6 @@
 
 @section('page-script')
     <script>
-        window.routes = {
-            getUsersByBranch: "{{ tenant_route_name('teams.users-by-branch', ['branchId' => '___BRANCH_ID___']) }}"
-        };
-
         @php
             $membersData = $team->members
                 ->map(function ($member) {
@@ -36,7 +32,6 @@
 
         window.teamData = {
             teamId: {{ $team->id }},
-            branchId: {{ $team->branch_id }},
             members: @json($membersData),
             users: @json($users->toArray())
         };
@@ -91,26 +86,11 @@
                         <!-- المرحلة الأولى: المعلومات الأساسية -->
                         <div id="basic-info-validation" class="content">
                             <div class="row g-6">
-                                <div class="col-sm-6">
+                                <div class="col-12">
                                     <label class="form-label" for="name">اسم المجموعة <span
                                             class="text-danger">*</span></label>
                                     <input type="text" name="name" id="name" class="form-control"
                                         placeholder="ادخل اسم المجموعة" value="{{ old('name', $team->name) }}" />
-                                </div>
-
-                                <div class="col-sm-6">
-                                    <label class="form-label" for="branch_id">الفرع <span
-                                            class="text-danger">*</span></label>
-                                    <select name="branch_id" id="branch_id" class="form-control select2"
-                                        data-placeholder="اختر الفرع">
-                                        <option value=""></option>
-                                        @foreach ($branches as $branch)
-                                            <option value="{{ $branch->id }}"
-                                                {{ old('branch_id', $team->branch_id) == $branch->id ? 'selected' : '' }}>
-                                                {{ $branch->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
                                 </div>
 
                                 <div class="col-12">

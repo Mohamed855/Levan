@@ -25,7 +25,6 @@ class UpdateTeamRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'branch_id' => ['required', 'exists:branches,id'],
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
             'members' => ['nullable', 'array'],
@@ -43,8 +42,6 @@ class UpdateTeamRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'branch_id.required' => 'يرجى اختيار الفرع',
-            'branch_id.exists' => 'الفرع المحدد غير موجود',
             'name.required' => 'اسم المجموعة مطلوب',
             'name.max' => 'اسم المجموعة يجب ألا يتجاوز 255 حرف',
             'members.*.exists' => 'أحد الأعضاء المحددين غير موجود',

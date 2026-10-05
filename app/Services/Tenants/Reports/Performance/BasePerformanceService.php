@@ -10,7 +10,6 @@ use App\Models\Tenants\BusinessCenter\Company\CompanyTarget;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Models\Tenants\UserMangment\Team\Team;
-use App\Models\Tenants\Branch\Branch;
 use App\Models\Tenants\GeneralSetting\ContactResult\ContactResult;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -42,9 +41,8 @@ abstract class BasePerformanceService
             'months'        => $months,
             'companies'     => Company::select('id', 'name')->orderBy('name')->get(),
             'portfolios'    => Portfolio::select('id', 'name', 'company_id')->orderBy('name')->get(),
-            'teams'         => Team::select('id', 'name', 'branch_id')->orderBy('name')->get(),
-            'branches'      => Branch::select('id', 'name')->orderBy('name')->get(),
-            'users'         => User::select('id', 'name', 'team_id', 'branch_id')->orderBy('name')->get(),
+            'teams'         => Team::select('id', 'name')->orderBy('name')->get(),
+            'users'         => User::select('id', 'name', 'team_id')->orderBy('name')->get(),
         ];
     }
     /*
@@ -147,10 +145,6 @@ abstract class BasePerformanceService
             $query->whereHas('addedBy', fn($q) => $q->where('team_id', $filters['team_id']));
         }
 
-        if (!empty($filters['branch_id'])) {
-            $query->whereHas('addedBy', fn($q) => $q->where('branch_id', $filters['branch_id']));
-        }
-
         return $query->sum('collected_amount');
     }
 
@@ -178,10 +172,6 @@ abstract class BasePerformanceService
 
         if (!empty($filters['team_id'])) {
             $query->whereHas('addedBy', fn($q) => $q->where('team_id', $filters['team_id']));
-        }
-
-        if (!empty($filters['branch_id'])) {
-            $query->whereHas('addedBy', fn($q) => $q->where('branch_id', $filters['branch_id']));
         }
 
         return $query->distinct('customer_id')->count('customer_id');
@@ -214,10 +204,6 @@ abstract class BasePerformanceService
             $query->whereHas('addedBy', fn($q) => $q->where('team_id', $filters['team_id']));
         }
 
-        if (!empty($filters['branch_id'])) {
-            $query->whereHas('addedBy', fn($q) => $q->where('branch_id', $filters['branch_id']));
-        }
-
         return $query->sum('collected_amount');
     }
 
@@ -242,10 +228,6 @@ abstract class BasePerformanceService
 
         if (!empty($filters['team_id'])) {
             $query->whereHas('relationshipManager', fn($q) => $q->where('team_id', $filters['team_id']));
-        }
-
-        if (!empty($filters['branch_id'])) {
-            $query->whereHas('relationshipManager', fn($q) => $q->where('branch_id', $filters['branch_id']));
         }
     }
 

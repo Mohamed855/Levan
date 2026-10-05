@@ -94,7 +94,6 @@ class Kernel extends HttpKernel
         'tenant.2fa.force'      => \App\Http\Middleware\Tenancy\EnsureTenantTwoFactorIsEnforced::class, // فرض المصادقة الثنائية على مستخدمي المستأجر
         'prevent.central'       => \Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains::class, // منع الوصول من الدومينات المركزية
 
-        'branches.limit'          => \App\Http\Middleware\Tenancy\CheckLimits\CheckBranchesLimits::class, // حد الفروع المسموح به
         'check.domain.management' => \App\Http\Middleware\Tenancy\CheckLimits\CheckDomainManagement::class,
         'check.domain.balance'    => \App\Http\Middleware\CheckDomainBalance::class, // للتأكد من وجود رصيد كافي لتسجيل الدومين
 

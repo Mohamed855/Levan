@@ -29,7 +29,6 @@ class UpdateCollectionTargetRequest extends FormRequest
     {
         $currentYear = date('Y');
         $rules = [
-            'branch_id' => 'required|integer|exists:branches,id',
             'user_id' => 'required|exists:users,id',
             'target_type' => 'required|in:monthly,yearly,custom',
             'target_amount' => 'required|numeric|min:0.01|max:999999999.99',
@@ -62,8 +61,6 @@ class UpdateCollectionTargetRequest extends FormRequest
     {
         $currentYear = date('Y');
         return [
-            'branch_id.required' => 'يرجى اختيار الفرع',
-            'branch_id.exists' => 'الفرع المختار غير صحيح',
             'user_id.required' => 'يرجى اختيار المستخدم',
             'user_id.exists' => 'المستخدم المختار غير صحيح',
             'target_type.required' => 'يرجى اختيار نوع الهدف',
@@ -97,7 +94,6 @@ class UpdateCollectionTargetRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'branch_id' => 'الفرع',
             'user_id' => 'المستخدم',
             'target_type' => 'نوع الهدف',
             'target_month' => 'الشهر',

@@ -45,7 +45,6 @@ class UserReportController extends Controller
     public function exportPDF(Request $request): BinaryFileResponse
     {
         $filters = $request->only([
-            'branch_id',
             'status',
             'date_from',
             'date_to'

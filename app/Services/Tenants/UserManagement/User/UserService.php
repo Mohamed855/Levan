@@ -2,9 +2,7 @@
 
 namespace App\Services\Tenants\UserManagement\User;
 
-use App\Models\Tenants\Branch\Branch;
 use App\Models\Tenants\FinancialCollection\CollectionProcess\CollectionProcessSession;
-use App\Models\Tenants\GeneralSetting\Branch\SettingsBranch;
 use App\Models\Tenants\UserMangment\User\User;
 use Spatie\Permission\Models\Role;
 use Carbon\Carbon;
@@ -147,19 +145,6 @@ class UserService
         ];
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Get Active Branches
-    |--------------------------------------------------------------------------
-    | Get all active branches for user assignment.
-    */
-    public function getActiveBranches()
-    {
-        return Branch::where('status', 'active')
-            ->select('id', 'name', 'code')
-            ->orderBy('name')
-            ->get();
-    }
 
 
     /*

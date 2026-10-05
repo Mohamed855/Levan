@@ -316,12 +316,10 @@ function openEditRoleModal(userId) {
 function populateRoleModal(data) {
     const roleSelect = $('#editRoleModal').find('#user-role');
     const statusSelect = $('#editRoleModal').find('#user-status');
-    const branchesWrapper = $('#editRoleModal').find('#branches-wrapper');
 
     // 1) تفريغ الحقول القديمة
     roleSelect.empty();
     statusSelect.empty();
-    branchesWrapper.empty();
 
     // 2) تعبئة قائمة الأدوار
     roleSelect.append('<option value=""></option>');
@@ -335,57 +333,7 @@ function populateRoleModal(data) {
     statusSelect.append('<option value="active" ' + (data.assigned_status === 'active' ? 'selected' : '') + '>نشط</option>');
     statusSelect.append('<option value="inactive" ' + (data.assigned_status === 'inactive' ? 'selected' : '') + '>غير نشط</option>');
 
-    // 4) تعبئة الفروع الإضافية
-    if (data.branches && data.branches.length > 0) {
-        // زر تحديد كل الفروع
-        branchesWrapper.append(
-            '<div class="form-check">' +
-            '<input type="checkbox" class="form-check-input" id="branches-select-all">' +
-            '<label class="form-check-label" for="branches-select-all">تحديد كل الفروع</label>' +
-            '</div>' +
-            '<hr class="mt-0">'
-        );
-
-        const additionalIds = (data.user_additional_branches || []).map(String);
-        const primaryId = data.user_primary_branch_id ? String(data.user_primary_branch_id) : null;
-
-        $.each(data.branches, function (index, branch) {
-            const branchIdStr = String(branch.id);
-            const isPrimary = primaryId !== null && primaryId === branchIdStr;
-            const isAdditional = additionalIds.includes(branchIdStr);
-
-            const checkedAttr = (isPrimary || isAdditional) ? 'checked' : '';
-            const disabledAttr = isPrimary ? 'disabled' : '';
-            const primaryBadge = isPrimary ? '<span class="text-muted ms-2">(الفرع الأساسي)</span>' : '';
-
-            branchesWrapper.append(
-                '<div class="form-check mb-2">' +
-                '<input type="checkbox" ' +
-                'class="form-check-input branch-checkbox" ' +
-                'id="branch-' + branch.id + '" ' +
-                'value="' + branch.id + '" ' +
-                checkedAttr + ' ' + disabledAttr + '>' +
-                '<label class="form-check-label d-flex align-items-center" for="branch-' + branch.id + '">' +
-                '<span>' + branch.name + '</span>' +
-                primaryBadge +
-                '</label>' +
-                '</div>'
-            );
-
-        });
-
-        // حدث "تحديد كل الفروع"
-        $('#branches-select-all').off('change').on('change', function () {
-            const isChecked = $(this).is(':checked');
-            branchesWrapper.find('.branch-checkbox:not(:disabled)').prop('checked', isChecked);
-        });
-    } else {
-        branchesWrapper.append(
-            '<p class="text-muted mb-0 text-center">لا توجد فروع نشطة</p>'
-        );
-    }
-
-    // 5) تهيئة Select2 للمودال (الدور + الحالة)
+    // 4) تهيئة Select2 للمودال (الدور + الحالة)
     roleSelect.select2({
         dropdownParent: $('#editRoleModal'),
         placeholder: 'اختر الدور',
@@ -413,19 +361,12 @@ function updateUserRole() {
     const role = $('#user-role').val();
     const status = $('#user-status').val() || 'active';
 
-    // جمع الفروع الإضافية من المودال
-    const additionalBranches = [];
-    $('#editRoleModal').find('.branch-checkbox:checked').each(function () {
-        additionalBranches.push($(this).val());
-    });
-
     $.ajax({
         url: window.routes.updateUserRoles.replace('___ID___', userId),
         method: 'POST',
         data: {
             role: role,
             status: status,
-            additional_branches: additionalBranches, // 👈 مهم جدًا
             _token: window.csrfToken
         },
         success: function (response) {

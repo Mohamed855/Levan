@@ -35,13 +35,11 @@ class TeamController extends Controller
     public function index(TeamsDataTable $dataTable)
     {
         $statistics = $this->teamService->getTeamStatistics();
-        $branches = $this->teamService->getActiveBranches();
 
         return $dataTable->render('tenants.users_management.team.index', [
             'totalTeams' => $statistics['total'],
             'activeTeams' => $statistics['active'],
             'inactiveTeams' => $statistics['inactive'],
-            'branches' => $branches,
         ]);
     }
 
@@ -52,8 +50,8 @@ class TeamController extends Controller
     */
     public function create(): View
     {
-        $branches = $this->teamService->getActiveBranches();
-        return view('tenants.users_management.team.create', compact('branches'));
+        $users = $this->teamService->getAvailableUsers();
+        return view('tenants.users_management.team.create', compact('users'));
     }
 
     /*
@@ -83,13 +81,11 @@ class TeamController extends Controller
     */
     public function edit(Team $team): View
     {
-        $team->load(['members', 'branch']);
-        $branches = $this->teamService->getActiveBranches();
-        $users = $this->teamService->getUsersByBranch($team->branch_id);
+        $team->load(['members']);
+        $users = $this->teamService->getAvailableUsers($team->id);
 
         return view('tenants.users_management.team.edit', compact(
             'team',
-            'branches',
             'users'
         ));
     }
@@ -121,7 +117,7 @@ class TeamController extends Controller
     */
     public function show(Team $team): View
     {
-        $team->load(['members', 'leaders', 'branch']);
+        $team->load(['members', 'leaders']);
         return view('tenants.users_management.team.show', compact('team'));
     }
 
@@ -142,30 +138,6 @@ class TeamController extends Controller
             return redirect()
                 ->back()
                 ->with('error', 'حدث خطأ أثناء حذف المجموعة');
-        }
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Get Users by Branch (AJAX)
-    |--------------------------------------------------------------------------
-    */
-    public function getUsersByBranch($branchId): JsonResponse
-    {
-        try {
-            $teamId = request()->query('team_id');
-
-            $users = $this->teamService->getUsersByBranch($branchId, $teamId);
-
-            return response()->json([
-                'success' => true,
-                'users' => $users
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'حدث خطأ أثناء جلب المستخدمين'
-            ], 500);
         }
     }
 

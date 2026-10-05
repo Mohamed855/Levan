@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Tenants\Dashboard;
 
 use App\Http\Controllers\Controller;
-use App\Models\Tenants\Branch\Branch;
 use App\Models\Tenants\UserMangment\Team\Team;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Http\Request;
@@ -29,7 +28,6 @@ class DashboardController extends Controller
         $stats = [
             'total_users'         => User::count(),
             'active_users'        => User::where('status', 'active')->count(),
-            'total_branches'      => Branch::count(),
             'total_teams'         => Team::count(),
             'plan_name'           => $subscription?->plan?->name ?? 'غير محدد',
             'subscription_status' => $statusLabel,

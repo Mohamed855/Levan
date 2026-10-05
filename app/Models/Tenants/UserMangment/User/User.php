@@ -2,14 +2,11 @@
 
 namespace App\Models\Tenants\UserMangment\User;
 
-use App\Models\Tenants\Branch\Branch;
-use App\Models\Tenants\Branch\BranchUser;
 use App\Models\Tenants\BusinessCenter\Customers\Comment\CustomerComment;
 use App\Models\Tenants\BusinessCenter\Customers\Comment\CustomerCommentMention;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Customers\Distribution\CustomerDistribution;
 use App\Models\Tenants\FinancialCollection\CollectionProcess\CollectionProcessSession;
-use App\Models\Tenants\GeneralSetting\Branch\SettingsBranch;
 use App\Models\Tenants\UserMangment\Team\Team;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -56,7 +53,6 @@ class User extends Authenticatable
         'email',
         'password',
         'phone',
-        'branch_id',
         'team_id',
         'is_team_leader',
         'status',
@@ -162,7 +158,6 @@ class User extends Authenticatable
                 'name' => 'اسم المستخدم',
                 'email' => 'البريد الإلكتروني',
                 'phone' => 'رقم الهاتف',
-                'branch_id' => 'الفرع',
                 'team_id' => 'المجموعة',
                 'is_team_leader' => 'صفة القيادة',
                 'status' => 'حالة المستخدم',
@@ -210,9 +205,6 @@ class User extends Authenticatable
             }
 
             switch ($field) {
-                case 'branch_id':
-                    $branch = Branch::find($value);
-                    return $branch ? $branch->name : 'غير محدد';
                 case 'team_id':
                     $team = Team::find($value);
                     return $team ? $team->name : 'غير محدد';
@@ -365,31 +357,7 @@ class User extends Authenticatable
 
 
     /*
-    |--------------------------------------------------------------------------
-    | Scope In My Branch
-    |--------------------------------------------------------------------------
-     | فلترة المستخدمين حسب فرع المستخدم الحالي
-    */
-    // public function scopeInMyBranch($query)
-    // {
-    //     $user = auth()->user();
 
-    //     if (!$user) {
-    //         return $query;
-    //     }
-
-    //     if ($user->hasPermissionTo('dashboard.view')) {
-    //         return $query;
-    //     }
-
-    //     $allowedBranches = $user->accessible_branch_ids;
-
-    //     if (!empty($allowedBranches)) {
-    //         return $query->whereIn('users.branch_id', $allowedBranches);
-    //     }
-
-    //     return $query;
-    // }
 
     /*
     |--------------------------------------------------------------------------
@@ -397,60 +365,7 @@ class User extends Authenticatable
     |--------------------------------------------------------------------------
     | Description of this section.
     */
-    public function branch()
-    {
-        return $this->belongsTo(Branch::class);
-    }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Additional Branch Access Relationship
-    |--------------------------------------------------------------------------
-    | الفروع الإضافية المسموح للمستخدم الاطلاع عليها
-    */
-    public function additionalBranches()
-    {
-        return $this->belongsToMany(
-            Branch::class,
-            'user_branch_access',
-            'user_id',
-            'branch_id'
-        )->withTimestamps();
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Get All Accessible Branch IDs
-    |--------------------------------------------------------------------------
-    | جلب جميع IDs الفروع المتاحة للمستخدم (الأساسي + الإضافية)
-    */
-    public function getAccessibleBranchIdsAttribute(): array
-    {
-        $branchIds = [];
-
-        // الفرع الأساسي
-        if ($this->branch_id) {
-            $branchIds[] = $this->branch_id;
-        }
-
-        // الفروع الإضافية
-        $additionalBranchIds = $this->additionalBranches()
-            ->pluck('branches.id')
-            ->toArray();
-
-        return array_unique(array_merge($branchIds, $additionalBranchIds));
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Check Branch Access
-    |--------------------------------------------------------------------------
-    | التحقق من وصول المستخدم لفرع معين
-    */
-    public function hasAccessToBranch(int $branchId): bool
-    {
-        return in_array($branchId, $this->accessible_branch_ids);
-    }
 
 
     /*
@@ -538,12 +453,6 @@ class User extends Authenticatable
             return $query->where('team_id', $user->team_id);
         }
 
-        $allowedBranches = $user->accessible_branch_ids;
-
-        if (!empty($allowedBranches)) {
-            return $query->whereIn('branch_id', $allowedBranches);
-        }
-
-        return $query;
+        return $query->where('id', $user->id);
     }
 }

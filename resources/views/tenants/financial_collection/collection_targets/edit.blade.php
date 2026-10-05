@@ -16,18 +16,13 @@
 
 @section('page-script')
     <script>
-        window.routes = {
-            getUsersByBranch: "{{ tenant_route_name('financial-collections.collection-targets.users-by-branch') }}",
-            getTeamsByBranch: "{{ tenant_route_name('financial-collections.collection-targets.teams-by-branch') }}"
-        };
+        window.routes = {};
         window.csrfToken = "{{ csrf_token() }}";
         window.editMode = true;
         window.months = @json($months);
         window.years = @json($years);
 
         // البيانات الحالية للهدف
-        window.editMode = true;
-        window.selectedBranch = "{{ old('branch_id', $collectionTarget->branch_id) }}";
         window.selectedTeams = @json(old('team_ids', $collectionTarget->team_ids ?? []));
         window.selectedUser = "{{ old('user_id', $collectionTarget->user_id) }}";
         window.selectedTargetType = "{{ old('target_type', $collectionTarget->target_type) }}";
@@ -39,7 +34,6 @@
             "{{ old('custom_end_date', $collectionTarget->custom_end_date ? $collectionTarget->custom_end_date->format('Y-m-d') : '') }}";
 
         window.oldValues = {
-            branch_id: "{{ old('branch_id', $collectionTarget->branch_id) }}",
             team_ids: @json(old('team_ids', $collectionTarget->team_ids ?? [])),
             user_id: "{{ old('user_id', $collectionTarget->user_id) }}",
             target_type: "{{ old('target_type', $collectionTarget->target_type) }}",
@@ -94,26 +88,7 @@
                         <div id="target-info-validation" class="content">
                             <div class="row g-6">
 
-                                {{-- السطر الأول: الفرع والمجموعات --}}
-                                <div class="col-sm-6">
-                                    <label class="form-label" for="branch_id">الفرع <span
-                                            class="text-danger">*</span></label>
-                                    <select name="branch_id" id="branch_id"
-                                        class="form-control select2 @error('branch_id') is-invalid @enderror"
-                                        data-allow-clear="true" data-placeholder="اختر الفرع">
-                                        <option value=""></option>
-                                        @foreach ($branches as $branch)
-                                            <option value="{{ $branch->id }}"
-                                                {{ old('branch_id', $collectionTarget->branch_id) == $branch->id ? 'selected' : '' }}>
-                                                {{ $branch->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('branch_id')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
+                                {{-- السطر الأول: المجموعات والمستخدم --}}
                                 <div class="col-sm-6">
                                     <label class="form-label" for="team_ids">المجموعات <span
                                             class="text-danger">*</span></label>
@@ -132,7 +107,6 @@
                                     @enderror
                                 </div>
 
-                                {{-- السطر الثاني: المستخدم ونوع الهدف --}}
                                 <div class="col-sm-6">
                                     <label class="form-label" for="user_id">المستخدم <span
                                             class="text-danger">*</span></label>
@@ -142,6 +116,7 @@
                                         <option value=""></option>
                                         @foreach ($users as $user)
                                             <option value="{{ $user->id }}"
+                                                data-team-id="{{ $user->team_id }}"
                                                 {{ old('user_id', $collectionTarget->user_id) == $user->id ? 'selected' : '' }}>
                                                 {{ $user->name }}
                                             </option>

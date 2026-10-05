@@ -2,7 +2,6 @@
 
 namespace App\Services\Tenants\UserManagement\Role;
 
-use App\Models\Tenants\Branch\Branch;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -155,15 +154,6 @@ class RoleService
             if (method_exists($user, 'deniedPermissions')) {
                 $user->deniedPermissions()->detach();
             }
-            if (isset($data['additional_branches']) && is_array($data['additional_branches'])) {
-                $additionalBranches = array_filter($data['additional_branches'], function ($branchId) use ($user) {
-                    return $branchId != $user->branch_id;
-                });
-                $user->additionalBranches()->sync($additionalBranches);
-            } else {
-                $user->additionalBranches()->detach();
-            }
-
             $user->status = $data['status'];
             $user->save();
 
@@ -185,13 +175,6 @@ class RoleService
             'roles' => Role::where('guard_name', 'tenant')->get(),
             'assigned_role' => $user->roles->first()?->id,
             'assigned_status' => $user->status,
-            'branches' => Branch::where('status', 'active')
-                ->orderBy('name')
-                ->get(),
-            'user_additional_branches' => $user->additionalBranches
-                ->pluck('id')
-                ->toArray(),
-            'user_primary_branch_id' => $user->branch_id,
         ];
     }
 

@@ -29,7 +29,6 @@ class AppServiceProvider extends ServiceProvider
                 \Database\Seeders\tenant\CustomerStatusSeeder::class,
                 \Database\Seeders\tenant\ContactResultSeeder::class,
                 \Database\Seeders\tenant\GeneralSettingsSeeder::class,
-                \Database\Seeders\tenant\BranchSeeder::class,
             ]);
         });
     }

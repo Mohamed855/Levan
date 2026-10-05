@@ -46,7 +46,7 @@
                     @csrf
                     @method('PUT')
 
-                    <x-form.wizard.step id="basic-info-validation" :fields="['name', 'employee_number', 'email', 'phone', 'role_id', 'branch_id']">
+                    <x-form.wizard.step id="basic-info-validation" :fields="['name', 'employee_number', 'email', 'phone', 'role_id']">
                         <div class="row g-6">
                             <x-form.controls.input name="name" label="الاسم الكامل" :value="$user->name"
                                 placeholder="ادخل الاسم الكامل" required />
@@ -58,8 +58,6 @@
                                 placeholder="ادخل رقم الهاتف" inputmode="tel" required />
                             <x-form.controls.select name="role_id" label="الدور" :options="$roles" :value="$currentRoleId"
                                 placeholder="اختر الدور" required />
-                            <x-form.controls.select name="branch_id" label="الفرع" :options="$branches" :value="$user->branch_id"
-                                placeholder="اختر الفرع" required />
 
                             <x-form.wizard.actions>
                                 <x-form.wizard.previous-button />

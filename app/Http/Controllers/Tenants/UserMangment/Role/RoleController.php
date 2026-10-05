@@ -7,7 +7,6 @@ use App\Http\Requests\Tenants\UserManagement\Role\StoreRoleRequest;
 use App\Http\Requests\Tenants\UserManagement\Role\UpdateRoleRequest;
 use App\Http\Requests\Tenants\UserManagement\Role\UpdateUserRoleRequest;
 use App\Http\Requests\Tenants\UserManagement\User\UpdateUserStatusRequest;
-use App\Models\Tenants\Branch\Branch;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\UserManagement\Role\RoleService;
 use App\Services\Tenants\UserManagement\User\UserService;
@@ -146,11 +145,8 @@ class RoleController extends Controller
 
             $roles = $this->roleService->getAllRoles();
             $permissions = $this->roleService->getGroupedPermissions();
-            $branches = Branch::where('status', 'active')
-                ->orderBy('name')
-                ->get();
 
-            return view('tenants.users_management.roles.index', compact('roles', 'permissions', 'branches'));
+            return view('tenants.users_management.roles.index', compact('roles', 'permissions'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات. يرجى المحاولة لاحقاً.');
         }
@@ -168,11 +164,8 @@ class RoleController extends Controller
         try {
             $permissions = $this->roleService->getGroupedPermissions();
             $sections = RoleService::PERMISSION_SECTIONS;
-            $branches = Branch::where('status', 'active')
-                ->orderBy('name')
-                ->get();
 
-            return view('tenants.users_management.roles.create', compact('permissions', 'sections', 'branches'));
+            return view('tenants.users_management.roles.create', compact('permissions', 'sections'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'حدث خطأ أثناء تحضير النموذج.');
         }
@@ -227,11 +220,8 @@ class RoleController extends Controller
         try {
             $permissions = $this->roleService->getGroupedPermissions();
             $sections = RoleService::PERMISSION_SECTIONS;
-            $branches = Branch::where('status', 'active')
-                ->orderBy('name')
-                ->get();
 
-            return view('tenants.users_management.roles.edit', compact('role', 'permissions', 'sections', 'branches'));
+            return view('tenants.users_management.roles.edit', compact('role', 'permissions', 'sections'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'حدث خطأ أثناء تحضير النموذج.');
         }

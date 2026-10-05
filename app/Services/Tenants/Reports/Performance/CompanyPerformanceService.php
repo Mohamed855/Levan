@@ -35,9 +35,6 @@ class CompanyPerformanceService extends BasePerformanceService
             ->when(!empty($filters['team_id']), function ($q) use ($filters) {
                 $q->whereHas('relationshipManager', fn($sub) => $sub->where('team_id', $filters['team_id']));
             })
-            ->when(!empty($filters['branch_id']), function ($q) use ($filters) {
-                $q->whereHas('relationshipManager', fn($sub) => $sub->where('branch_id', $filters['branch_id']));
-            })
             ->selectRaw('
                 COUNT(DISTINCT company_id) as companies_count,
                 SUM((SELECT COALESCE(SUM(CASE WHEN type="debit" THEN amount WHEN type="credit" THEN -amount ELSE 0 END), 0)
@@ -62,9 +59,6 @@ class CompanyPerformanceService extends BasePerformanceService
         }
         if (!empty($filters['team_id'])) {
             $collectionsQuery->whereHas('addedBy', fn($q) => $q->where('team_id', $filters['team_id']));
-        }
-        if (!empty($filters['branch_id'])) {
-            $collectionsQuery->whereHas('addedBy', fn($q) => $q->where('branch_id', $filters['branch_id']));
         }
 
         $collectionsStats = $collectionsQuery->selectRaw('
@@ -130,9 +124,6 @@ class CompanyPerformanceService extends BasePerformanceService
         }
         if (!empty($filters['team_id'])) {
             $portfoliosQuery->whereHas('relationshipManager', fn($q) => $q->where('team_id', $filters['team_id']));
-        }
-        if (!empty($filters['branch_id'])) {
-            $portfoliosQuery->whereHas('relationshipManager', fn($q) => $q->where('branch_id', $filters['branch_id']));
         }
         if (!empty($filters['company_id'])) {
             $portfoliosQuery->where('company_id', $filters['company_id']);
@@ -205,14 +196,6 @@ class CompanyPerformanceService extends BasePerformanceService
                         ->where('users.team_id', $filters['team_id']);
                 });
             })
-            ->when(!empty($filters['branch_id']), function ($q) use ($filters) {
-                $q->whereExists(function ($sub) use ($filters) {
-                    $sub->select(DB::raw(1))
-                        ->from('users')
-                        ->whereColumn('users.id', 'customers.relationship_manager_id')
-                        ->where('users.branch_id', $filters['branch_id']);
-                });
-            })
             ->select(
                 'companies.id',
                 'companies.name',
@@ -239,14 +222,6 @@ class CompanyPerformanceService extends BasePerformanceService
                         ->from('users')
                         ->whereColumn('users.id', 'collections.added_by')
                         ->where('users.team_id', $filters['team_id']);
-                });
-            })
-            ->when(!empty($filters['branch_id']), function ($q) use ($filters) {
-                $q->whereExists(function ($sub) use ($filters) {
-                    $sub->select(DB::raw(1))
-                        ->from('users')
-                        ->whereColumn('users.id', 'collections.added_by')
-                        ->where('users.branch_id', $filters['branch_id']);
                 });
             })
             ->select(
@@ -424,10 +399,6 @@ class CompanyPerformanceService extends BasePerformanceService
 
         if (!empty($filters['team_id'])) {
             $query->whereHas('createdBy', fn($q) => $q->where('team_id', $filters['team_id']));
-        }
-
-        if (!empty($filters['branch_id'])) {
-            $query->whereHas('createdBy', fn($q) => $q->where('branch_id', $filters['branch_id']));
         }
 
         $latestFollows = $query->select('customer_id', DB::raw('MAX(id) as latest_follow_id'))

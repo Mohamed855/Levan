@@ -133,7 +133,6 @@ class TenantPermissionSeeder implements TenantSeeder
             'contact_results.view',
             'payment_methods.view',
             'debt_types.view',
-            'branches_settings.view',
             'countries.view',
             'message_templates.view',
             'contact_channels.view',

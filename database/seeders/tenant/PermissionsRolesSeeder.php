@@ -46,12 +46,6 @@ class PermissionsRolesSeeder extends Seeder
                 'customers.send_message', 'customers.update_directly', 'customers.add_phone',
                 'contracts.view', 'contracts.create', 'contracts.edit', 'contracts.delete',
             ],
-            'branches_management' => [
-                'branches.view',
-                'branches.create',
-                'branches.edit',
-                'branches.delete',
-            ],
             'system_management' => [
                 'system.settings',
                 'countries.view',

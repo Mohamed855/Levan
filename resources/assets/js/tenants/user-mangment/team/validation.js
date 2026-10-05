@@ -36,13 +36,6 @@ document.addEventListener('DOMContentLoaded', function (e) {
                                 message: 'اسم المجموعة يجب أن يكون بين 2 و 255 حرف'
                             }
                         }
-                    },
-                    branch_id: {
-                        validators: {
-                            notEmpty: {
-                                message: 'يرجى اختيار الفرع'
-                            }
-                        }
                     }
                 },
                 plugins: {
@@ -148,16 +141,6 @@ document.addEventListener('DOMContentLoaded', function (e) {
                 });
             }
 
-            /*
-            |----------------------------------------------------------------------
-            | Revalidate on change
-            |----------------------------------------------------------------------
-            */
-            $('#branch_id').on('change', function () {
-                if (FormValidation1 && FormValidation1.getFields()['branch_id']) {
-                    FormValidation1.revalidateField('branch_id');
-                }
-            });
         }
     })();
 });
@@ -180,23 +163,7 @@ $(document).ready(function () {
         });
     });
 
-    /*
-    |----------------------------------------------------------------------
-    | Load Users when Branch is selected
-    |----------------------------------------------------------------------
-    */
-    $('#branch_id').on('change', function () {
-        const branchId = $(this).val();
 
-        if (!branchId) {
-            $('#user_select').empty().append('<option value=""></option>').trigger('change');
-            selectedMembers = [];
-            updateMembersTable();
-            return;
-        }
-
-        loadUsersByBranch(branchId);
-    });
 
     /*
     |----------------------------------------------------------------------
@@ -231,44 +198,7 @@ $(document).ready(function () {
     }
 });
 
-/*
-|--------------------------------------------------------------------------
-| Load Users by Branch (AJAX)
-|--------------------------------------------------------------------------
-*/
-function loadUsersByBranch(branchId) {
-    if (!window.routes || !window.routes.getUsersByBranch) {
-        toastr.error('خطأ في الإعدادات');
-        return;
-    }
 
-    let url = window.routes.getUsersByBranch.replace('___BRANCH_ID___', branchId);
-
-    if (typeof window.teamData !== 'undefined' && window.teamData.teamId) {
-        url += `?team_id=${window.teamData.teamId}`;
-    }
-
-    $.ajax({
-        url: url,
-        type: 'GET',
-        beforeSend: function () {
-            $('#user_select').prop('disabled', true);
-        },
-        success: function (response) {
-            if (response.success) {
-                populateUsersDropdown(response.users); 
-            } else {
-                toastr.error(response.message || 'حدث خطأ أثناء جلب المستخدمين');
-            }
-        },
-        error: function (xhr) {
-            toastr.error('حدث خطأ أثناء جلب المستخدمين');
-        },
-        complete: function () {
-            $('#user_select').prop('disabled', false);
-        }
-    });
-}
 
 /*
 |--------------------------------------------------------------------------
@@ -333,9 +263,8 @@ function removeMember(userId) {
     selectedMembers = selectedMembers.filter(m => m.id !== userId);
     updateMembersTable();
 
-    const branchId = $('#branch_id').val();
-    if (branchId) {
-        loadUsersByBranch(branchId);
+    if (typeof window.teamData !== 'undefined' && window.teamData.users) {
+        populateUsersDropdown(window.teamData.users);
     }
 }
 

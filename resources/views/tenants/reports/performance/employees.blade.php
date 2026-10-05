@@ -89,23 +89,11 @@
         </div>
 
         <div class="col-md-4">
-            <label class="form-label">الفرع</label>
-            <select id="filter-branch" class="form-control select2" data-datatable-filter="true" data-filter-key="branch_id" data-placeholder="جميع الفروع">
-                <option value=""></option>
-                @foreach ($branches as $branch)
-                    <option value="{{ $branch->id }}" @selected((string) request('branch_id') === (string) $branch->id)>
-                        {{ $branch->name }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-
-        <div class="col-md-4">
             <label class="form-label">الفريق</label>
             <select id="filter-team" class="form-control select2" data-datatable-filter="true" data-filter-key="team_id" data-placeholder="جميع الفرق">
                 <option value=""></option>
                 @foreach ($teams as $team)
-                    <option value="{{ $team->id }}" data-branch="{{ $team->branch_id }}"
+                    <option value="{{ $team->id }}"
                         @selected((string) request('team_id') === (string) $team->id)>
                         {{ $team->name }}
                     </option>

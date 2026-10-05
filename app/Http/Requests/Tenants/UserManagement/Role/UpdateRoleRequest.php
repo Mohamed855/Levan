@@ -45,8 +45,6 @@ class UpdateRoleRequest extends FormRequest
             'permissions.*' => [
                 'exists:permissions,name'
             ],
-            'additional_branches' => ['nullable', 'array'],
-            'additional_branches.*' => ['integer', 'exists:branches,id'],
             'select_all' => [
                 'sometimes',
                 'boolean'
@@ -73,7 +71,6 @@ class UpdateRoleRequest extends FormRequest
             'permissions.required_if' => 'يجب اختيار صلاحية واحدة على الأقل',
             'permissions.array' => 'الصلاحيات يجب أن تكون مصفوفة',
             'permissions.*.exists' => 'الصلاحية المحددة غير موجودة',
-            'additional_branches' => 'الفروع الإضافية',
 
             'select_all.boolean' => 'قيمة تحديد الكل يجب أن تكون صحيحة أو خاطئة'
         ];

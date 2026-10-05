@@ -29,34 +29,6 @@ trait BelongsToUserBranch
 
     /*
     |--------------------------------------------------------------------------
-    | Filter by specific branch
-    |--------------------------------------------------------------------------
-    */
-    public function scopeForBranch(Builder $query, int $branchId): Builder
-    {
-        $relationName = $this->getUserRelationName();
-
-        return $query->whereHas($relationName, function ($q) use ($branchId) {
-            $q->where('branch_id', $branchId);
-        });
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Filter by multiple branches
-    |--------------------------------------------------------------------------
-    */
-    public function scopeForBranches(Builder $query, array $branchIds): Builder
-    {
-        $relationName = $this->getUserRelationName();
-
-        return $query->whereHas($relationName, function ($q) use ($branchIds) {
-            $q->whereIn('branch_id', $branchIds);
-        });
-    }
-
-    /*
-    |--------------------------------------------------------------------------
     | Filter by specific team
     |--------------------------------------------------------------------------
     */
@@ -85,7 +57,7 @@ trait BelongsToUserBranch
 
     /*
     |--------------------------------------------------------------------------
-    | Disable branch scope temporarily
+    | Disable scope temporarily
     |--------------------------------------------------------------------------
     */
     public function scopeWithoutBranchScope(Builder $query): Builder
@@ -93,50 +65,9 @@ trait BelongsToUserBranch
         return $query->withoutGlobalScope(UserBranchScope::class);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Get all records without filtering
-    |--------------------------------------------------------------------------
-    */
     public function scopeAllBranches(Builder $query): Builder
     {
         return $query->withoutGlobalScope(UserBranchScope::class);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Get branch name from related user
-    |--------------------------------------------------------------------------
-    */
-    public function getBranchNameAttribute(): string
-    {
-        $relationName = $this->getUserRelationName();
-
-        if (!method_exists($this, $relationName)) {
-            return 'غير محدد';
-        }
-
-        $user = $this->$relationName;
-
-        return $user?->branch?->name ?? 'غير محدد';
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Get branch code from related user
-    |--------------------------------------------------------------------------
-    */
-    public function getBranchCodeAttribute(): ?string
-    {
-        $relationName = $this->getUserRelationName();
-
-        if (!method_exists($this, $relationName)) {
-            return null;
-        }
-
-        $user = $this->$relationName;
-
-        return $user?->branch?->code;
     }
 
     /*

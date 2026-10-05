@@ -29,9 +29,7 @@
         };
         window.csrfToken = "{{ csrf_token() }}";
 
-        // بيانات المخططات
         window.chartData = {
-            branchData: @json($collections_by_branch),
             usersPerformance: @json($users_performance_chart),
         };
     </script>
@@ -128,18 +126,7 @@
 
     {{-- المخططات البيانية --}}
     <div class="row g-4 mb-4">
-        <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between">
-                    <h5 class="card-title mb-0">التحصيلات حسب الفرع</h5>
-                </div>
-                <div class="card-body">
-                    <div id="branchChart"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
+        <div class="col-12">
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between">
                     <h5 class="card-title mb-0">أعلى 10 محصلين</h5>
@@ -153,33 +140,26 @@
 
     {{-- جدول التقرير --}}
     <x-data-table.filters table="#users-report-table" reset-id="reset-filters">
-        <div class="col-md-3">
-            <label for="branch_id">الفرع</label>
-            <select id="branch_id" name="branch_id" class="form-control select2" data-datatable-filter="true" data-filter-key="branch_id" data-placeholder="جميع الفروع">
-                <option value=""></option>
-                @foreach ($branches as $branch)
-                    <option value="{{ $branch->id }}">{{ $branch->name }}</option>
-                @endforeach
-            </select>
-        </div>
-
-        <div class="col-md-3">
+        <div class="col-md-4">
             <label for="status">حالة المستخدم</label>
-            <select id="status" name="status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="جميع الحالات">
+            <select id="status" name="status" class="form-control select2" data-datatable-filter="true"
+                data-filter-key="status" data-placeholder="جميع الحالات">
                 <option value=""></option>
                 <option value="active">نشط</option>
                 <option value="inactive">غير نشط</option>
             </select>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-4">
             <label for="date_from">من تاريخ</label>
-            <input type="text" id="date_from" name="date_from" class="form-control flatpickr-date" data-datatable-filter="true" data-filter-key="date_from" placeholder="اختر التاريخ">
+            <input type="text" id="date_from" name="date_from" class="form-control flatpickr-date"
+                data-datatable-filter="true" data-filter-key="date_from" placeholder="اختر التاريخ">
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-4">
             <label for="date_to">إلى تاريخ</label>
-            <input type="text" id="date_to" name="date_to" class="form-control flatpickr-date" data-datatable-filter="true" data-filter-key="date_to" placeholder="اختر التاريخ">
+            <input type="text" id="date_to" name="date_to" class="form-control flatpickr-date"
+                data-datatable-filter="true" data-filter-key="date_to" placeholder="اختر التاريخ">
         </div>
     </x-data-table.filters>
 
@@ -193,7 +173,6 @@
                         <th></th>
                         <th>معلومات المستخدم</th>
                         <th>بيانات الاتصال</th>
-                        <th>الفرع</th>
                         <th>الأداء الإجمالي</th>
                         <th>الأداء الشهري</th>
                         <th>آخر نشاط</th>

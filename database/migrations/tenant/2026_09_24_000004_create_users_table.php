@@ -16,7 +16,6 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('phone', 20)->nullable();
-            $table->foreignId('branch_id')->nullable()->constrained('branches')->nullOnDelete();
             $table->foreignId('team_id')->nullable()->constrained('teams')->nullOnDelete();
             $table->boolean('is_team_leader')->default(false);
             $table->string('status')->default('active');
@@ -33,7 +32,7 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
-            $table->index(['status', 'branch_id']);
+            $table->index(['status']);
         });
     }
 

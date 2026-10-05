@@ -42,7 +42,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant.2fa.force'      => \App\Http\Middleware\Tenancy\EnsureTenantTwoFactorIsEnforced::class,
             'prevent.central'       => \Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains::class,
 
-            'branches.limit'          => \App\Http\Middleware\Tenancy\CheckLimits\CheckBranchesLimits::class,
             'check.domain.management' => \App\Http\Middleware\Tenancy\CheckLimits\CheckDomainManagement::class,
             'check.domain.balance'    => \App\Http\Middleware\CheckDomainBalance::class,
 

@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Customers\Distribution\CustomerDistribution;
 use App\Http\Requests\Tenants\BusinessCenter\Customer\Distribution\CreateDistributionRequest;
-use App\Models\Tenants\Branch\Branch;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Models\Tenants\UserMangment\Team\Team;
 use App\Models\Tenants\UserMangment\User\User;
@@ -78,7 +77,6 @@ class CustomerDistributionController extends Controller
             'companies' => $formData['companies'],
             'portfolios' => $formData['portfolios'],
             'collectors' => User::role('collector')->select('id', 'name')->orderBy('name')->get(),
-            'branches' =>  Branch::pluck('name','id')->all(),
             'teams' => Team::pluck('name','id')->all(),
             'distributionMethods' => $this->distributionService->getDistributionMethods(),
         ]);
@@ -387,55 +385,27 @@ class CustomerDistributionController extends Controller
         return $monthlyTargets;
     }
 
-   public function getTeamsByBranch(Request $request)
-{
-    $branchId = $request->branch_id;
-    
-    if (!$branchId) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Branch ID is required'
-        ], 400);
-    }
-    
-    // جلب المجموعات من المستخدمين الموجودين في هذا الفرع
-    $teams = Team::whereHas('branch', function($query) use ($branchId) {
-        $query->where('branch_id', $branchId);
-    })
-    ->select('id', 'name')
-    ->orderBy('name')
-    ->get();
-    
-    return response()->json([
-        'success' => true,
-        'teams' => $teams
-    ]);
-}
+    public function getCollectorsByTeam(Request $request): JsonResponse
+    {
+        $teamIds = $request->team_ids;
 
-public function getCollectorsByTeam(Request $request)
-{
-    $teamIds = $request->team_ids; // array of team IDs
-    $branchId = $request->branch_id;
-    
-    if (!$teamIds || !is_array($teamIds)) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Team IDs are required'
-        ], 400);
-    }
-    
-    // جلب المحصلين بناءً على الفرع والمجموعات
-    $collectors = User::
-         where('branch_id', $branchId)
-        ->whereIn('team_id', $teamIds)
-        ->select('id', 'name', 'branch_id', 'team_id')
-        ->orderBy('name')
-        ->get();
-    
-    return response()->json([
-        'success' => true,
-        'collectors' => $collectors
-    ]);
-}
+        if (!$teamIds || !is_array($teamIds)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Team IDs are required'
+            ], 400);
+        }
 
+        // جلب المحصلين بناءً على المجموعات
+        $collectors = User::whereIn('team_id', $teamIds)
+            ->role('collector')
+            ->select('id', 'name', 'team_id')
+            ->orderBy('name')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'collectors' => $collectors
+        ]);
+    }
 }

@@ -104,7 +104,7 @@
 
                                     confirmDeleteSelectedmss(selectedIds,
                                         "{{ tenant_route_name('mass-delete') }}",
-                                        'SettingsBranch'
+                                        'ContactResult'
                                     );
                                 }
                             }

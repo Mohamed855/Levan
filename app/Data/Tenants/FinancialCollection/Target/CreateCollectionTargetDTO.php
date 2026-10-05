@@ -4,7 +4,6 @@ namespace App\Data\Tenants\FinancialCollection\Target;
 
 class CreateCollectionTargetDTO
 {
-    public int $branch_id;
     public int $user_id;
     public string $target_type;
     public float $target_amount;
@@ -20,7 +19,6 @@ class CreateCollectionTargetDTO
     public ?string $custom_end_date;
 
     public function __construct(
-        int $branch_id,
         int $user_id,
         string $target_type,
         float $target_amount,
@@ -31,7 +29,6 @@ class CreateCollectionTargetDTO
         ?string $custom_start_date = null,
         ?string $custom_end_date = null,
     ) {
-        $this->branch_id = $branch_id;
         $this->user_id = $user_id;
         $this->target_type = $target_type;
         $this->target_amount = $target_amount;
@@ -58,7 +55,6 @@ class CreateCollectionTargetDTO
         $status = $data['status'] ?? 'active';
 
         return new self(
-            branch_id: (int) $data['branch_id'],
             user_id: (int) $data['user_id'],
             target_type: $data['target_type'],
             target_amount: $targetAmount,
@@ -77,7 +73,6 @@ class CreateCollectionTargetDTO
     public function toArray(): array
     {
         return [
-            'branch_id' => $this->branch_id,
             'user_id' => $this->user_id,
             'target_type' => $this->target_type,
             'target_amount' => $this->target_amount,

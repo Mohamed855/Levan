@@ -30,7 +30,7 @@ class UserBranchScope implements Scope
             return;
         }
 
-        $this->applyBranchFilter($builder, $model, $user);
+        $this->applyUserFilter($builder, $model, $user);
     }
 
     /*
@@ -43,7 +43,7 @@ class UserBranchScope implements Scope
         $teamMemberIds = $user->teamMemberIds();
 
         if (empty($teamMemberIds)) {
-            $this->applyBranchFilter($builder, $model, $user);
+            $this->applyUserFilter($builder, $model, $user);
             return;
         }
 
@@ -56,21 +56,15 @@ class UserBranchScope implements Scope
 
     /*
     |--------------------------------------------------------------------------
-    | Apply branch-based filtering
+    | Apply user-based filtering
     |--------------------------------------------------------------------------
     */
-    private function applyBranchFilter(Builder $builder, Model $model, $user): void
+    private function applyUserFilter(Builder $builder, Model $model, $user): void
     {
-        $allowedBranches = $user->accessible_branch_ids;
-
-        if (empty($allowedBranches)) {
-            return;
-        }
-
         $relationName = $this->getUserRelationName($model);
 
-        $builder->whereHas($relationName, function ($q) use ($allowedBranches) {
-            $q->whereIn('branch_id', $allowedBranches);
+        $builder->whereHas($relationName, function ($q) use ($user) {
+            $q->where('id', $user->id);
         });
     }
 

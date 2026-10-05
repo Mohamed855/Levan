@@ -34,8 +34,6 @@ class UpdateUserRoleRequest extends FormRequest
                 'required',
                 'in:active,inactive'
             ],
-            'additional_branches' => ['nullable', 'array'],
-            'additional_branches.*' => ['integer', 'exists:branches,id'],
         ];
     }
 
@@ -53,9 +51,6 @@ class UpdateUserRoleRequest extends FormRequest
 
             'status.required' => 'الحالة مطلوبة',
             'status.in' => 'الحالة يجب أن تكون نشط أو غير نشط',
-            'additional_branches.array' => 'الفروع الإضافية يجب أن تكون مصفوفة',
-            'additional_branches.*.integer' => 'معرف الفرع يجب أن يكون رقم صحيح',
-            'additional_branches.*.exists' => 'الفرع المحدد غير موجود',
         ];
     }
 
@@ -70,7 +65,6 @@ class UpdateUserRoleRequest extends FormRequest
         return [
             'role' => 'الدور',
             'status' => 'الحالة',
-            'additional_branches' => 'الفروع الإضافية',
         ];
     }
 }

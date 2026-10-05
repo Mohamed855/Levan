@@ -16,7 +16,6 @@ return [
         'system_management' => 'System Management',
         'domain_management' => 'Domain Management',
         'bills_management' => 'Bills Management',
-        'branches_management' => 'Branches Management',
         'archive_management' => 'Archive Management',
         'communication_management' => 'Communication Management',
         'general_settings' => 'General Settings',
@@ -148,12 +147,6 @@ return [
     'bills.view' => 'Bills',
     'bills.pay' => 'Pay Bill',
 
-    // Branches
-    'branches.view' => 'Branches',
-    'branches.create' => 'Create Branch',
-    'branches.edit' => 'Edit Branch',
-    'branches.delete' => 'Delete Branch',
-
     // Archive
     'user_archive.view' => 'User Archive',
     'user_archive.restore' => 'Restore Records',
@@ -169,7 +162,6 @@ return [
     'countries.view' => 'Countries List',
     'payment_methods.view' => 'Payment Methods',
     'message_templates.view' => 'Message Templates',
-    'branches_settings.view' => 'Branches List',
     'client_statuses.view' => 'Client Statuses',
     'contact_results.view' => 'Contact Results',
     'debt_types.view' => 'Debt Types',

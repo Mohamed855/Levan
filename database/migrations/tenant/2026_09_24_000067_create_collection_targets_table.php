@@ -10,7 +10,6 @@ return new class extends Migration
     {
         Schema::create('collection_targets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('branch_id')->nullable()->constrained('branches')->cascadeOnDelete();
             $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnDelete();
             $table->json('team_ids')->nullable();
             $table->enum('target_type', ['monthly', 'yearly', 'custom'])->default('monthly')->index();
@@ -23,7 +22,7 @@ return new class extends Migration
             $table->foreignId('added_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
             $table->softDeletes();
-            $table->index(['branch_id', 'user_id']);
+            $table->index(['user_id']);
             $table->index(['target_type', 'target_year', 'target_month']);
         });
     }

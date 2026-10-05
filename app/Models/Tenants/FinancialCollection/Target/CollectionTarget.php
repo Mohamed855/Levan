@@ -2,7 +2,6 @@
 
 namespace App\Models\Tenants\FinancialCollection\Target;
 
-use App\Models\Tenants\Branch\Branch;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,7 +16,6 @@ class CollectionTarget extends Model
     use HasFactory, SoftDeletes, LogsActivity;
 
     protected $fillable = [
-        'branch_id',
         'user_id',
         'team_ids',
         'target_type',
@@ -66,22 +64,21 @@ class CollectionTarget extends Model
     private function getEventDescription(string $eventName): string
     {
         $userName = $this->user->name ?? 'غير محدد';
-        $branchName = $this->branch->name ?? 'غير محدد';
         $targetType = $this->target_type_label;
         $period = $this->getTargetPeriodFormatted();
         $amount = number_format($this->target_amount, 2);
 
         $descriptions = [
-            'created' => "تم إنشاء هدف تحصيل جديد للموظف: {$userName} في الفرع: {$branchName} | نوع الهدف: {$targetType} | الفترة: {$period} | المبلغ المستهدف: {$amount} ريال | الحالة: {$this->status_label}",
+            'created' => "تم إنشاء هدف تحصيل جديد للموظف: {$userName} | نوع الهدف: {$targetType} | الفترة: {$period} | المبلغ المستهدف: {$amount} ريال | الحالة: {$this->status_label}",
 
-            'updated' => "تم تحديث هدف التحصيل للموظف: {$userName} في الفرع: {$branchName} | نوع الهدف: {$targetType} | الفترة: {$period} | المبلغ المستهدف: {$amount} ريال",
+            'updated' => "تم تحديث هدف التحصيل للموظف: {$userName} | نوع الهدف: {$targetType} | الفترة: {$period} | المبلغ المستهدف: {$amount} ريال",
 
-            'deleted' => "تم حذف هدف التحصيل للموظف: {$userName} في الفرع: {$branchName} | نوع الهدف: {$targetType} | الفترة: {$period} | المبلغ المستهدف: {$amount} ريال",
+            'deleted' => "تم حذف هدف التحصيل للموظف: {$userName} | نوع الهدف: {$targetType} | الفترة: {$period} | المبلغ المستهدف: {$amount} ريال",
 
-            'restored' => "تم استعادة هدف التحصيل للموظف: {$userName} في الفرع: {$branchName} | نوع الهدف: {$targetType} | الفترة: {$period} | المبلغ المستهدف: {$amount} ريال",
+            'restored' => "تم استعادة هدف التحصيل للموظف: {$userName} | نوع الهدف: {$targetType} | الفترة: {$period} | المبلغ المستهدف: {$amount} ريال",
         ];
 
-        $description = $descriptions[$eventName] ?? "عملية على هدف التحصيل للموظف: {$userName} في الفرع: {$branchName} | نوع الهدف: {$targetType} | الفترة: {$period}";
+        $description = $descriptions[$eventName] ?? "عملية على هدف التحصيل للموظف: {$userName} | نوع الهدف: {$targetType} | الفترة: {$period}";
 
         if ($eventName === 'updated' && $this->isDirty()) {
             $description .= $this->getChangesSummary();
@@ -99,7 +96,6 @@ class CollectionTarget extends Model
     {
         $changes = [];
         $fieldNames = [
-            'branch_id' => 'الفرع',
             'user_id' => 'الموظف',
             'target_type' => 'نوع الهدف',
             'target_month' => 'الشهر المستهدف',
@@ -158,10 +154,6 @@ class CollectionTarget extends Model
             case 'target_amount':
                 return number_format((float)$value, 2) . ' ريال';
 
-            case 'branch_id':
-                $branch = Branch::find($value);
-                return $branch ? $branch->name : 'غير محدد';
-
             case 'user_id':
                 $user = User::find($value);
                 return $user ? $user->name : 'غير محدد';
@@ -199,11 +191,6 @@ class CollectionTarget extends Model
     | Relationships
     |--------------------------------------------------------------------------
     */
-
-    public function branch(): BelongsTo
-    {
-        return $this->belongsTo(Branch::class);
-    }
 
     public function user(): BelongsTo
     {
@@ -305,11 +292,6 @@ class CollectionTarget extends Model
     public function scopeInactive($query)
     {
         return $query->where('status', 'inactive');
-    }
-
-    public function scopeByBranch($query, $branchId)
-    {
-        return $query->where('branch_id', $branchId);
     }
 
     public function scopeByUser($query, $userId)

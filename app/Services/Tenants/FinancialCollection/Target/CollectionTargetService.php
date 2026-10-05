@@ -6,7 +6,6 @@ use App\Data\Tenants\FinancialCollection\Target\CreateCollectionTargetDTO;
 use App\Data\Tenants\FinancialCollection\Target\UpdateCollectionTargetDTO;
 use App\Models\Tenants\FinancialCollection\Target\CollectionTarget;
 use App\Models\Tenants\FinancialCollection\Collection\Collection;
-use App\Models\Tenants\Branch\Branch;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -147,7 +146,6 @@ class CollectionTargetService
 
         return CollectionTarget::whereIn('id', $targetIds)
             ->with([
-                'branch:id,name',
                 'user:id,name,email,phone',
                 'addedBy:id,name'
             ])
@@ -211,7 +209,7 @@ class CollectionTargetService
     private function getUserCurrentTarget(int $userId): ?CollectionTarget
     {
         return CollectionTarget::where('user_id', $userId)
-            ->with(['branch:id,name', 'user:id,name,email,phone', 'addedBy:id,name'])
+            ->with(['user:id,name,email,phone', 'addedBy:id,name'])
             ->orderBy('created_at', 'desc')
             ->first();
     }
@@ -221,13 +219,6 @@ class CollectionTargetService
     | Get User All Targets
     |--------------------------------------------------------------------------
     */
-    // private function getUserAllTargets(int $userId): EloquentCollection
-    // {
-    //     return CollectionTarget::where('user_id', $userId)
-    //         ->with(['branch:id,name'])
-    //         ->orderBy('created_at', 'desc')
-    //         ->get();
-    // }
 
     /*
     |--------------------------------------------------------------------------
@@ -388,32 +379,15 @@ class CollectionTargetService
 
     /*
     |--------------------------------------------------------------------------
-    | Get Active Branches
+    | Get Active Users
     |--------------------------------------------------------------------------
     */
-    public function getActiveBranches()
+    public function getActiveUsers()
     {
-        return Branch::where('status', 'active')
-            ->select('id', 'name')
+        return User::select('id', 'name', 'email', 'phone', 'team_id')
+            ->where('status', 'active')
             ->orderBy('name')
             ->get();
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Get Users By Branch
-    |--------------------------------------------------------------------------
-    */
-    public function getUsersByBranch($branchId = null)
-    {
-        $query = User::select('id', 'name', 'email', 'phone', 'branch_id')
-            ->where('status', 'active');
-
-        if ($branchId) {
-            $query->where('branch_id', $branchId);
-        }
-
-        return $query->orderBy('name')->get();
     }
 
     /*
@@ -473,7 +447,7 @@ class CollectionTargetService
     public function getUserAllTargets(int $userId)
 {
     return CollectionTarget::where('user_id', $userId)
-        ->with(['branch:id,name', 'user:id,name,email,phone', 'addedBy:id,name'])
+        ->with(['user:id,name,email,phone', 'addedBy:id,name'])
         ->orderBy('created_at', 'desc')
         ->get();
 }

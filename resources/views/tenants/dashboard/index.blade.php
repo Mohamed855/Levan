@@ -13,11 +13,6 @@
                         <p class="text-body mb-0">لوحة تحكم الشركة - جاهزة للانطلاق في إدارة المزادات العقارية</p>
                     </div>
                     <div class="d-flex gap-2">
-                        @can('branches.view')
-                            <a href="{{ tenant_route_name('branches.index') }}" class="btn btn-label-primary">
-                                <i class="ti ti-git-fork me-1"></i> الفروع
-                            </a>
-                        @endcan
                         @can('users.view')
                             <a href="{{ tenant_route_name('users.index') }}" class="btn btn-primary">
                                 <i class="ti ti-users me-1"></i> إدارة المستخدمين
@@ -29,7 +24,7 @@
         </div>
 
         <!-- الإحصائيات الأساسية -->
-        <div class="col-sm-6 col-xl-3">
+        <div class="col-sm-6 col-xl-4">
             <div class="card h-100">
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">
@@ -49,26 +44,7 @@
             </div>
         </div>
 
-        <div class="col-sm-6 col-xl-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-muted d-block mb-1">الفروع</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $stats['total_branches'] }}</h4>
-                            </div>
-                            <small class="text-muted">إدارة الفروع والمواقع</small>
-                        </div>
-                        <span class="badge bg-label-info rounded p-2">
-                            <i class="ti ti-git-fork ti-md"></i>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-6 col-xl-3">
+        <div class="col-sm-6 col-xl-4">
             <div class="card h-100">
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">
@@ -87,7 +63,7 @@
             </div>
         </div>
 
-        <div class="col-sm-6 col-xl-3">
+        <div class="col-sm-6 col-xl-4">
             <div class="card h-100">
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">

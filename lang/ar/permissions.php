@@ -17,7 +17,6 @@ return [
         'system_management' => 'إدارة النظام',
         'domain_management' => 'إعدادات الدومين',
         'bills_management' => 'إدارة الفواتير',
-        'branches_management' => 'إدارة الفروع',
         'archive_management' => 'إدارة الأرشيف',
         'communication_management' => 'إدارة الرسائل والتواصل',
         'general_settings' => 'الإعدادات العامة',
@@ -149,12 +148,6 @@ return [
     'bills.view' => 'الفواتير',
     'bills.pay' => 'دفع فاتورة',
 
-    // Branches
-    'branches.view' => 'الفروع',
-    'branches.create' => 'إضافة فرع',
-    'branches.edit' => 'تعديل فرع',
-    'branches.delete' => 'حذف فرع',
-
     // Archive
     'user_archive.view' => 'أرشيف المستخدمين',
     'user_archive.restore' => 'إسترجاع السجلات',
@@ -170,7 +163,6 @@ return [
     'countries.view' => 'قائمة الدول',
     'payment_methods.view' => 'طرق الدفع / التحصيل',
     'message_templates.view' => 'نماذج الرسائل',
-    'branches_settings.view' => 'قائمة الفروع',
     'client_statuses.view' => 'حالات العميل',
     'contact_results.view' => 'نتائج الاتصال',
     'debt_types.view' => 'أنواع المديونية',

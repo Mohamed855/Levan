@@ -2,7 +2,6 @@
 
  
 return [
-    'SettingsBranch' => App\Models\Tenants\GeneralSetting\Branch\SettingsBranch::class,
     'User' => App\Models\Tenants\UserMangment\user\user::class,
     'SettingsCountry' => App\Models\Tenants\GeneralSetting\Country\SettingsCountry::class,
     'Company' => App\Models\Tenants\BusinessCenter\Company\Company::class,
@@ -13,13 +12,13 @@ return [
     'SettingsPaymentMethod' => App\Models\Tenants\GeneralSetting\PaymentMethod\SettingsPaymentMethod::class,
     'SettingsCustomerStatus' => App\Models\Tenants\GeneralSetting\CustomerStatus\SettingsCustomerStatus::class,
     'SettingsContactMethod' => App\Models\Tenants\GeneralSetting\ContactMethod\SettingsContactMethod::class,
+    'ContactResult' => App\Models\Tenants\GeneralSetting\ContactResult\ContactResult::class,
     // 'Collection' => App\Models\Tenants\FinancialCollection\Collection::class,
     'CollectionTarget' => App\Models\Tenants\FinancialCollection\Target\CollectionTarget::class,
     'SettingsDebtType' => App\Models\Tenants\GeneralSetting\DebtType\SettingsDebtType::class,
     'CustomerDistribution' => App\Models\Tenants\BusinessCenter\Customers\Distribution\CustomerDistribution::class,
     'MessageIndividualLog' => App\Models\Tenants\Communication\MessageLog\MessageIndividualLog::class,
     'Contract' =>             App\Models\Tenants\BusinessCenter\Contract\Contract::class,
-    'Branch' => App\Models\Tenants\Branch\Branch::class,
 
     // super admin models
     'Plan' => App\Models\Admin\Plans\Plan::class,

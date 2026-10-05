@@ -407,15 +407,11 @@ class EmployeePerformanceService extends BasePerformanceService
 
     private function getFilteredUsersQuery(array $filters): Builder
     {
-        $query = User::select('id', 'name', 'team_id', 'branch_id')
+        $query = User::select('id', 'name', 'team_id')
             ->whereHas('roles', fn($q) => $q->where('name', '!=', 'Super Admin'));
 
         if (!empty($filters['team_id'])) {
             $query->where('team_id', $filters['team_id']);
-        }
-
-        if (!empty($filters['branch_id'])) {
-            $query->where('branch_id', $filters['branch_id']);
         }
 
         if (!empty($filters['user_id'])) {
@@ -559,7 +555,6 @@ class EmployeePerformanceService extends BasePerformanceService
         return User::select('id', 'name')
             ->when(!empty($filters['user_id']),   fn($q) => $q->where('id',        $filters['user_id']))
             ->when(!empty($filters['team_id']),   fn($q) => $q->where('team_id',   $filters['team_id']))
-            ->when(!empty($filters['branch_id']), fn($q) => $q->where('branch_id', $filters['branch_id']))
             ->when(
                 !empty($filters['company_id']) || !empty($filters['portfolio_id']),
                 fn($q) => $q->whereHas('managedCustomers', function (Builder $c) use ($filters): void {

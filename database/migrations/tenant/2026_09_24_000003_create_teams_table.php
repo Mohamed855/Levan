@@ -10,7 +10,6 @@ return new class extends Migration
     {
         Schema::create('teams', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('branch_id')->nullable()->constrained('branches')->nullOnDelete();
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('status')->default('active');

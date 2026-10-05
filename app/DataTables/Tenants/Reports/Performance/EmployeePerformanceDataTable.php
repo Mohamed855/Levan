@@ -65,7 +65,6 @@ class EmployeePerformanceDataTable extends AbstractDataTable
             'company_id' => request('company_id'),
             'portfolio_id' => request('portfolio_id'),
             'team_id' => request('team_id'),
-            'branch_id' => request('branch_id'),
             'user_id' => request('user_id'),
         ];
 

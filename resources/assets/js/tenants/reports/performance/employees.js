@@ -81,7 +81,7 @@ function setDefaultDates() {
 //  الفلاتر — AJAX بدون reload
 // ════════════════════════════════════════════════════════════════════════════
 function bindFilters() {
-    const selectors = '#filter-year,#filter-month,#filter-company,#filter-portfolio,#filter-branch,#filter-team,#filter-user';
+    const selectors = '#filter-year,#filter-month,#filter-company,#filter-portfolio,#filter-team,#filter-user';
 
     $(selectors).on('change', debounce(function () {
         fetchStats();
@@ -406,11 +406,6 @@ function bindCascadeFilters() {
         cascadeOptions('#filter-portfolio', 'company', id);
     });
 
-    $('#filter-branch').on('change', function () {
-        const id = $(this).val();
-        cascadeOptions('#filter-team', 'branch', id);
-    });
-
     $('#filter-team').on('change', function () {
         const id = $(this).val();
         cascadeOptions('#filter-user', 'team', id);
@@ -437,7 +432,7 @@ function cascadeOptions(selectId, dataAttr, parentId) {
 function bindReset() {
     // داخل bindReset — بعد fetchStats
     $('#reset-filters').on('click', function () {
-        $('#filter-company,#filter-portfolio,#filter-branch,#filter-team,#filter-user')
+        $('#filter-company,#filter-portfolio,#filter-team,#filter-user')
             .val('').trigger('change');
         setDefaultDates();
         adjustStatLayout(getCurrentFilters()); // ← الإضافة
@@ -466,7 +461,6 @@ function getCurrentFilters() {
         date_to: dateTo,
         company_id: $('#filter-company').val() || '',
         portfolio_id: $('#filter-portfolio').val() || '',
-        branch_id: $('#filter-branch').val() || '',
         team_id: $('#filter-team').val() || '',
         user_id: $('#filter-user').val() || '',
     };

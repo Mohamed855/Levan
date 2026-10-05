@@ -16,16 +16,12 @@
 
 @section('page-script')
     <script>
-        window.routes = {
-            getUsersByBranch: "{{ tenant_route_name('financial-collections.collection-targets.users-by-branch') }}",
-            getTeamsByBranch: "{{ tenant_route_name('financial-collections.collection-targets.teams-by-branch') }}"
-        };
+        window.routes = {};
         window.csrfToken = "{{ csrf_token() }}";
         window.months = @json($months);
         window.years = @json($years);
 
         window.oldValues = {
-            branch_id: "{{ old('branch_id') }}",
             team_ids: @json(old('team_ids', [])),
             user_id: "{{ old('user_id') }}",
             target_type: "{{ old('target_type') }}",
@@ -79,47 +75,39 @@
                         <div id="target-info-validation" class="content">
                             <div class="row g-6">
 
-                                {{-- السطر الأول: الفرع والمجموعات --}}
-                                <div class="col-sm-6">
-                                    <label class="form-label" for="branch_id">الفرع <span
-                                            class="text-danger">*</span></label>
-                                    <select name="branch_id" id="branch_id"
-                                        class="form-control select2 @error('branch_id') is-invalid @enderror"
-                                        data-allow-clear="true" data-placeholder="اختر الفرع">
-                                        <option value=""></option>
-                                        @foreach ($branches as $branch)
-                                            <option value="{{ $branch->id }}"
-                                                {{ old('branch_id') == $branch->id ? 'selected' : '' }}>
-                                                {{ $branch->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('branch_id')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
+                                {{-- السطر الأول: المجموعات والمستخدم --}}
                                 <div class="col-sm-6">
                                     <label class="form-label" for="team_ids">المجموعات <span
                                             class="text-danger">*</span></label>
                                     <select name="team_ids[]" id="team_ids"
                                         class="form-control select2 @error('team_ids') is-invalid @enderror"
-                                        data-allow-clear="true" data-placeholder="اختر المجموعات" multiple disabled>
-                                        <option value=""></option>
+                                        data-allow-clear="true" data-placeholder="اختر المجموعات" multiple>
+                                        @foreach ($teams as $team)
+                                            <option value="{{ $team->id }}"
+                                                {{ in_array($team->id, old('team_ids', [])) ? 'selected' : '' }}>
+                                                {{ $team->name }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                     @error('team_ids')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
 
-                                {{-- السطر الثاني: المستخدم ونوع الهدف --}}
                                 <div class="col-sm-6">
                                     <label class="form-label" for="user_id">المستخدم <span
                                             class="text-danger">*</span></label>
                                     <select name="user_id" id="user_id"
                                         class="form-control select2 @error('user_id') is-invalid @enderror"
-                                        data-allow-clear="true" data-placeholder="اختر المستخدم" disabled>
+                                        data-allow-clear="true" data-placeholder="اختر المستخدم">
                                         <option value=""></option>
+                                        @foreach ($users as $user)
+                                            <option value="{{ $user->id }}"
+                                                data-team-id="{{ $user->team_id }}"
+                                                {{ old('user_id') == $user->id ? 'selected' : '' }}>
+                                                {{ $user->name }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                     @error('user_id')
                                         <div class="invalid-feedback">{{ $message }}</div>

@@ -80,12 +80,7 @@
                                             <span class="fw-bold small">{{ $user->phone }}</span>
                                         </li>
                                     @endif
-                                    @if ($user->branch)
-                                        <li class="list-inline-item d-flex gap-2 align-items-center">
-                                            <i class="ti ti-building ti-lg text-primary"></i>
-                                            <span class="fw-bold small">{{ $user->branch->name }}</span>
-                                        </li>
-                                    @endif
+
                                 </ul>
                             </div>
                         </div>
@@ -286,27 +281,6 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-6">
-                                    <div class="d-flex align-items-start">
-                                        <div class="flex-shrink-0">
-                                            <div class="avatar avatar-sm">
-                                                <span class="avatar-initial rounded bg-secondary">
-                                                    <i class="ti ti-building"></i>
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div class="flex-grow-1 ms-3">
-                                            <div class="text-muted mb-1" style="font-size: 0.75rem;">الفرع</div>
-                                            <div class="fw-semibold" style="font-size: 0.875rem;">
-                                                @if ($user->branch)
-                                                    <span class="badge bg-secondary">{{ $user->branch->name }}</span>
-                                                @else
-                                                    <span class="text-muted">غير محدد</span>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
 
                                 <div class="col-md-6">
                                     <div class="d-flex align-items-start">

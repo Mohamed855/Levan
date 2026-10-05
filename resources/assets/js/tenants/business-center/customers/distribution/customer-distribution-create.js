@@ -407,13 +407,6 @@ function initializeValidation() {
                     }
                 }
             },
-            branch_id: {
-                validators: {
-                    notEmpty: {
-                        message: 'يرجى اختيار الفرع'
-                    }
-                }
-            },
             'team_ids[]': {
                 validators: {
                     notEmpty: {
@@ -438,14 +431,12 @@ function initializeValidation() {
         fv.revalidateField('portfolio_id');
         loadPortfolioTotal();
     });
-    $('#branch_id').on('change', () => fv.revalidateField('branch_id'));
     $('#team_ids').on('change', () => fv.revalidateField('team_ids[]'));
 }
 
 function bindEvents() {
     $('input[name="distribution_method"]').on('change', updateDistributionMethodStyles);
     $('#company_id').on('change', filterPortfoliosByCompany);
-    $('#branch_id').on('change', handleBranchChange);
     $('#team_ids').on('change', filterCollectorsByTeams);
 
     $('#step-method .btn-next').on('click', () => distributionStepper.next());
@@ -456,84 +447,16 @@ function bindEvents() {
 
 /*
 |--------------------------------------------------------------------------
-| معالجة تغيير الفرع - جلب المجموعات عبر AJAX
-|--------------------------------------------------------------------------
-*/
-function handleBranchChange() {
-    const branchId = $('#branch_id').val();
-
-    // إعادة تعيين المجموعات والمحصلين
-    $('#team_ids').val(null).trigger('change');
-    $('#collector_ids').val(null).trigger('change');
-
-    // إفراغ وتعطيل المحصلين
-    $('#collector_ids').empty().prop('disabled', true);
-
-    if (!branchId) {
-        // تعطيل المجموعات
-        $('#team_ids').prop('disabled', true).empty();
-        return;
-    }
-
-    // جلب المجموعات بناءً على الفرع
-    $.ajax({
-        url: window.routes.teamsByBranch,
-        type: 'GET',
-        data: { branch_id: branchId },
-        beforeSend: function () {
-            $('#team_ids').prop('disabled', true);
-            $('#team_ids').empty().append(new Option('جاري التحميل...', '', false, false));
-        },
-        success: function (response) {
-            console.log('Teams Response:', response); // للتأكد من البيانات
-
-            if (response.success && response.teams && response.teams.length > 0) {
-                $('#team_ids').empty();
-
-                // إضافة المجموعات
-                response.teams.forEach(function (team) {
-                    $('#team_ids').append(new Option(team.name, team.id, false, false));
-                });
-
-                // إعادة تهيئة Select2
-                $('#team_ids').select2('destroy');
-                initializeTeamsSelect2();
-
-                // تفعيل حقل المجموعات
-                $('#team_ids').prop('disabled', false);
-
-                // فتح القائمة تلقائياً
-                setTimeout(() => {
-                    $('#team_ids').select2('open');
-                }, 150);
-
-                // toastr.success(`تم تحميل ${response.teams.length} مجموعة`);
-            } else {
-                toastr.warning('لا توجد مجموعات لهذا الفرع');
-                $('#team_ids').prop('disabled', true).empty();
-            }
-        },
-        error: function (xhr) {
-            console.error('Teams Error:', xhr);
-            toastr.error('فشل في تحميل المجموعات');
-            $('#team_ids').prop('disabled', true).empty();
-        }
-    });
-}
-
-/*
-|--------------------------------------------------------------------------
 | فلترة المحصلين بناءً على المجموعات المختارة - AJAX
 |--------------------------------------------------------------------------
 */
 function filterCollectorsByTeams() {
     const teamIds = $('#team_ids').val(); // array
-    const branchId = $('#branch_id').val();
 
     // إعادة تعيين المحصلين
     $('#collector_ids').val(null).trigger('change');
 
-    if (!teamIds || teamIds.length === 0 || !branchId) {
+    if (!teamIds || teamIds.length === 0) {
         $('#collector_ids').prop('disabled', true).empty();
         return;
     }
@@ -543,8 +466,7 @@ function filterCollectorsByTeams() {
         url: window.routes.collectorsByTeam,
         type: 'GET',
         data: {
-            team_ids: teamIds,
-            branch_id: branchId
+            team_ids: teamIds
         },
         beforeSend: function () {
             $('#collector_ids').prop('disabled', true);
