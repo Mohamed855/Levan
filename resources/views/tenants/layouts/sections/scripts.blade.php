@@ -22,6 +22,7 @@
     'resources/js/shared/modal-close-controls.js',
     'resources/js/shared/input-guards.js',
     'resources/js/shared/datatable-search.js',
+    'resources/js/shared/datatable-primary-actions.js',
     'resources/js/shared/datatable-filter-selects.js',
     'resources/js/shared/wizard/create-wizard-enhancer.js',
 ])

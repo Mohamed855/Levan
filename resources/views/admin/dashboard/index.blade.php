@@ -58,36 +58,24 @@
     ═══════════════════════════════════════ --}}
     <div class="row g-4 mb-4">
         <div class="col-md-6">
-            <div class="card h-100 dashboard-chart-card">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <h5 class="card-title mb-0">
-                        <i class="ti ti-chart-bar me-1 text-primary"></i>
-                        استخدام المنصة
-                    </h5>
+            <x-admin.dashboard-panel class="h-100" title="استخدام المنصة" icon="ti-chart-bar">
+                <x-slot:headerAction>
                     <select id="platform-activity-range" class="form-select chart-range-select w-25">
                         <option value="1month">آخر شهر</option>
                         <option value="3months">آخر 3 أشهر</option>
                         <option value="6months">آخر 6 أشهر</option>
                         <option value="1year">آخر سنة</option>
                     </select>
-                </div>
-                <div class="card-body">
+                </x-slot:headerAction>
+
                     <div class="platform-activity-chart-wrap">
                         <canvas id="platformActivityChart"></canvas>
                     </div>
-                </div>
-            </div>
+            </x-admin.dashboard-panel>
         </div>
 
         <div class="col-md-6">
-            <div class="card h-100 dashboard-chart-card">
-                <div class="card-header d-flex align-items-center">
-                    <h5 class="card-title mb-0">
-                        <i class="ti ti-donut me-1 text-info"></i>
-                        توزيع حالات الاشتراكات
-                    </h5>
-                </div>
-                <div class="card-body">
+            <x-admin.dashboard-panel class="h-100" title="توزيع حالات الاشتراكات" icon="ti-donut" icon-color="info">
                     <div class="row g-0 row-gap-3 h-100">
                         {{-- القائمة اليمين --}}
                         <div class="col-sm-6 col-lg-12 col-xxl-6 d-flex flex-column justify-content-center pe-3">
@@ -108,8 +96,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
+            </x-admin.dashboard-panel>
         </div>
     </div>
 
@@ -119,14 +106,7 @@
     <div class="row g-4 mb-4">
         <div class="col-lg-6 d-flex flex-column gap-3">
             {{-- إجراءات سريعة --}}
-            <div class="card dashboard-chart-card">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <h5 class="card-title mb-0">
-                        <i class="ti ti-bolt me-1 text-primary"></i>
-                        إجراءات سريعة
-                    </h5>
-                </div>
-                <div class="card-body">
+            <x-admin.dashboard-panel title="إجراءات سريعة" icon="ti-bolt">
                     <div class="row g-2">
                         <div class="col-4">
                             <a href="{{ route('admin.companies.create') }}" class="quick-action-box">
@@ -189,21 +169,16 @@
                             </a>
                         </div>
                     </div>
-                </div>
-            </div>
+            </x-admin.dashboard-panel>
 
             {{-- أحدث الأنشطة --}}
-            <div class="card dashboard-chart-card flex-grow-1">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <h5 class="card-title mb-0">
-                        <i class="ti ti-clock me-1 text-primary"></i>
-                        أحدث الأنشطة
-                    </h5>
+            <x-admin.dashboard-panel class="flex-grow-1" title="أحدث الأنشطة" icon="ti-clock" body-class="p-0">
+                <x-slot:headerAction>
                     <a href="{{ route('admin.activity-logs.index') }}" class="btn btn-sm btn-label-primary">
                         عرض الكل
                     </a>
-                </div>
-                <div class="card-body p-0">
+                </x-slot:headerAction>
+
                     <div class="table-responsive text-nowrap">
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
@@ -218,10 +193,18 @@
                                     <tr>
                                         <td>
                                             <div class="d-flex align-items-center">
+                                                @php
+                                                    $causer = $activity->causer;
+                                                    $hasCauserImage = filled($causer?->image) || filled($causer?->profile_picture);
+                                                @endphp
                                                 <div class="avatar avatar-xs me-2">
-                                                    <span class="avatar-initial rounded-circle bg-secondary">
-                                                        <i class="ti ti-user ti-xs"></i>
-                                                    </span>
+                                                    @if ($hasCauserImage && method_exists($causer, 'getProfilePhotoUrlAttribute'))
+                                                        <img src="{{ $causer->profile_photo_url }}" alt="" class="rounded-circle object-fit-cover">
+                                                    @else
+                                                        <span class="avatar-initial rounded-circle bg-secondary">
+                                                            <i class="ti ti-user ti-xs"></i>
+                                                        </span>
+                                                    @endif
                                                 </div>
                                                 <span
                                                     class="fw-medium text-heading small">{{ $activity->causer_name }}</span>
@@ -229,8 +212,8 @@
                                         </td>
                                         <td>
                                             <div class="d-flex align-items-center gap-1">
-                                                <span
-                                                    class="badge bg-label-primary small">{{ $activity->formatted_event }}</span>
+                                                <span class="badge bg-label-primary small dashboard-activity-event"
+                                                    title="{{ $activity->formatted_event }}">{{ $activity->formatted_event }}</span>
                                                 @if ($activity->formatted_module)
                                                     <span
                                                         class="text-muted small">({{ $activity->formatted_module }})</span>
@@ -252,23 +235,18 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
-            </div>
+            </x-admin.dashboard-panel>
         </div>
 
         {{-- أحدث طلبات الإشتراك --}}
         <div class="col-md-6">
-            <div class="card h-100 dashboard-chart-card">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <h5 class="card-title mb-0">
-                        <i class="ti ti-list me-1 text-primary"></i>
-                        أحدث طلبات الإشتراك
-                    </h5>
+            <x-admin.dashboard-panel class="h-100" title="أحدث طلبات الإشتراك" icon="ti-list" body-class="p-0">
+                <x-slot:headerAction>
                     <a href="{{ route('admin.subscriptionManage.pending') }}" class="btn btn-sm btn-label-primary">
                         عرض الكل
                     </a>
-                </div>
-                <div class="card-body p-0">
+                </x-slot:headerAction>
+
                     <div class="table-responsive text-nowrap">
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
@@ -321,8 +299,7 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
-            </div>
+            </x-admin.dashboard-panel>
         </div>
     </div>
 @endsection

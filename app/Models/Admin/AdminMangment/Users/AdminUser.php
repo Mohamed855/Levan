@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Spatie\Activitylog\Support\LogOptions;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
@@ -127,5 +129,20 @@ class AdminUser extends Authenticatable
     public function coupons()
     {
         return $this->hasMany(Coupon::class, 'admin_user_id');
+    }
+
+    public function getProfilePhotoUrlAttribute(): string
+    {
+        $imagePath = $this->image ?: $this->profile_picture;
+
+        if (! $imagePath) {
+            return asset('img/logo.svg');
+        }
+
+        if (Str::startsWith($imagePath, ['http://', 'https://'])) {
+            return $imagePath;
+        }
+
+        return Storage::disk('public')->url($imagePath);
     }
 }

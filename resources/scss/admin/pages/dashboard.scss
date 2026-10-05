@@ -63,6 +63,15 @@
     text-align: end;
 }
 
+.dashboard-activity-event {
+    display: inline-block;
+    max-inline-size: 11rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
 /* ── KPI icon circle ── */
 .avatar.circle .avatar-initial {
     border-radius: 50% !important;
@@ -134,4 +143,3 @@
         transition: color 0.25s ease;
     }
 }
-
