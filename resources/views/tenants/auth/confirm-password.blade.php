@@ -1,71 +1,38 @@
 @php
     $customizerHidden = 'customizer-hide';
-
     $pageConfigs = ['myLayout' => 'blank'];
 @endphp
 
 @extends('tenants.layouts.layoutMaster')
 
-@section('title', 'Confirm Password - Pages')
-
-@section('vendor-style')
-    @vite(['resources/assets/vendor/libs/@form-validation/form-validation.scss'])
-@endsection
+@section('title', 'تأكيد كلمة المرور')
 
 @section('page-style')
-    @vite(['resources/assets/vendor/scss/pages/page-auth.scss'])
-@endsection
-
-@section('vendor-script')
-    @vite(['resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js'])
+    @vite(['resources/assets/css/shared/auth-layout.css'])
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/shared/auth/pages-auth.js'])
+    @vite(['resources/assets/js/shared/auth-layout.js'])
 @endsection
 
 @section('content')
-    <div class="container-xxl">
-        <div class="authentication-wrapper authentication-basic container-p-y">
-            <div class="authentication-inner py-6">
-                <!-- Confirm Password -->
-                <div class="card">
-                    <div class="card-body">
-                        <!-- Logo -->
-                        <div class="app-brand justify-content-center mb-6">
-                            <a href="{{ url('/') }}" class="app-brand-link">
-                                <span class="app-brand-logo demo">@include('_partials.macros', ['height' => 20, 'withbg' => 'fill: #fff;'])</span>
-                                <span
-                                    class="app-brand-text demo text-heading fw-bold">{{ config('variables.templateName') }}</span>
-                            </a>
-                        </div>
-                        <!-- /Logo -->
-                        <div class="mb-4 text-sm text-muted">
-                            يرجى تأكيد كلمة المرور الخاصة بك قبل المتابعة.
-                        </div>
+    <x-auth.split-layout form-title="تأكيد كلمة المرور" form-subtitle="يرجى تأكيد كلمة المرور الخاصة بك قبل المتابعة"
+        :bg-image="asset('img/auth-security-bg.jpg')" media-tagline="حماية الحساب | ليفان العقارية" media-title="تحقق من هويتك | لمواصلة العملية"
+        media-desc="لضمان أمان حسابك، نطلب منك تأكيد كلمة المرور قبل الوصول إلى هذه الصفحة الحساسة." :features="[
+            ['icon' => 'ti ti-shield-lock', 'text' => 'حماية البيانات الحساسة'],
+            ['icon' => 'ti ti-lock-check', 'text' => 'التحقق من الهوية'],
+            ['icon' => 'ti ti-user-check', 'text' => 'وصول آمن ومُتحكَّم به'],
+        ]">
+        <form method="POST" action="{{ tenant_route_name('password.confirm') }}" novalidate>
+            @csrf
 
-                        <form method="POST" action="{{ tenant_route_name('password.confirm') }}">
-                            @csrf
+            <x-form.controls.password name="password" id="password" label="كلمة المرور" placeholder="أدخل كلمة المرور الحالية"
+                required autocomplete="current-password" col="col-12 mb-4" icon="ti ti-lock" />
 
-                            <!-- Password -->
-                            <div class="mb-4 form-password-toggle">
-                                <label for="password" class="form-label">كلمة المرور</label>
-                                <div class="input-group input-group-merge">
-                                    <input id="password" class="form-control" type="password" name="password" required
-                                        autocomplete="current-password" />
-                                    <span class="input-group-text cursor-pointer"><i class="ti ti-eye-off"></i></span>
-                                </div>
-                                <x-input-error :messages="$errors->get('password')" class="mt-2" />
-                            </div>
-
-                            <div class="d-flex justify-content-end mt-4">
-                                <button type="submit" class="btn btn-primary">تأكيد</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                <!-- /Confirm Password -->
-            </div>
-        </div>
-    </div>
+            <button type="submit" class="btn-auth-primary">
+                <span>تأكيد</span>
+                <i class="ti ti-arrow-left" aria-hidden="true"></i>
+            </button>
+        </form>
+    </x-auth.split-layout>
 @endsection

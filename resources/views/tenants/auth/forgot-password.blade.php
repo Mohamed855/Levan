@@ -5,93 +5,37 @@
 
 @extends('tenants.layouts.layoutMaster')
 
-@section('title', 'إعادة تعين كلمة المرور')
-
-@section('vendor-style')
-    @vite(['resources/assets/vendor/libs/@form-validation/form-validation.scss'])
-@endsection
+@section('title', 'نسيت كلمة المرور')
 
 @section('page-style')
-    @vite(['resources/assets/vendor/scss/pages/page-auth.scss'])
-@endsection
-
-@section('vendor-script')
-    @vite(['resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js'])
-@endsection
-
-@section('toastr')
-    @vite(['resources/css/toastr.css', 'resources/js/toastr.js'])
+    @vite(['resources/assets/css/shared/auth-layout.css'])
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/shared/auth/pages-auth.js'])
-
-    @if (session('status'))
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                toastr.success("{{ session('status') }}", "نجاح");
-            });
-        </script>
-    @endif
+    @vite(['resources/assets/js/shared/auth-layout.js'])
 @endsection
 
 @section('content')
-    <div class="container-xxl">
-        <div class="authentication-wrapper authentication-basic container-p-y">
-            <div class="authentication-inner py-6">
-                <!-- Forgot Password -->
-                <div class="card">
-                    <div class="card-body">
-                        <!-- Logo -->
-                        <div class="app-brand justify-content-center mb-6">
-                            <a href="{{ url('/') }}" class="app-brand-link">
-                                <span class="app-brand-logo demo">
-                                    @include('_partials.macros', [
-                                        'height' => 20,
-                                        'withbg' => 'fill: #fff;',
-                                    ])
-                                </span>
-                                <span class="app-brand-text demo text-heading fw-bold">
-                                    {{ config('variables.templateName') }}
-                                </span>
-                            </a>
-                        </div>
-                        <!-- /Logo -->
-                        <h4 class="mb-1">هل نسيت كلمة المرور؟ 🔒</h4>
-                        <p class="mb-6">أدخل بريدك الإلكتروني وسنرسل لك تعليمات لإعادة تعيين كلمة المرور الخاصة بك</p>
+    <x-auth.split-layout form-title="هل نسيت كلمة المرور؟"
+        form-subtitle="أدخل بريدك الإلكتروني وسنرسل لك رابطاً لإعادة تعيين كلمة المرور" :bg-image="asset('img/auth-security-bg.jpg')"
+        media-tagline="استعادة الحساب | ليفان العقارية" media-title="استعد وصولك الآمن | إلى حساب شركتك"
+        media-desc="سنرسل لك رابطاً مشفراً عبر بريدك الإلكتروني يتيح لك إعادة تعيين كلمة المرور بسهولة ومتابعة أعمالك العقارية بأمان."
+        :features="[
+            ['icon' => 'ti ti-lock-check', 'text' => 'استرداد آمن وموثوق'],
+            ['icon' => 'ti ti-mail-fast', 'text' => 'إرسال فوري لرابط الاستعادة'],
+            ['icon' => 'ti ti-shield', 'text' => 'حماية تامة للبيانات والخصوصية'],
+        ]" :back-url="tenant_route_name('login')" back-text="العودة لتسجيل الدخول">
+        <form id="formAuthentication" method="POST" action="{{ tenant_route_name('password.email') }}" novalidate>
+            @csrf
 
-                        <!-- Session Status -->
-                        <x-auth-session-status class="mb-4" :status="session('status')" />
+            <x-form.controls.input name="email" label="البريد الإلكتروني" placeholder="أدخل البريد الإلكتروني"
+                type="email" :value="old('email')" required autofocus autocomplete="email" col="col-12 mb-4"
+                icon="ti ti-mail" />
 
-                        <form id="formAuthentication" class="mb-6 needs-validation" method="POST"
-                            action="{{ tenant_route_name('password.email') }}" novalidate>
-                            @csrf
-
-                            <div class="mb-6">
-                                <label for="email" class="form-label">البريد الإلكتروني</label>
-                                <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                    id="email" name="email" value="{{ old('email') }}"
-                                    placeholder="أدخل البريد الإلكتروني" required autofocus>
-                                <div class="invalid-feedback">
-                                    @error('email')
-                                        {{ $message }}
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <button class="btn btn-primary d-grid w-100" type="submit">إرسال رابط إعادة التعيين</button>
-                        </form>
-
-                        <div class="text-center">
-                            <a href="{{ url('/') }}" class="d-flex justify-content-center">
-                                <i class="ti ti-chevron-left scaleX-n1-rtl me-1_5"></i>
-                                العودة إلى بوابة الدخول
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <!-- /Forgot Password -->
-            </div>
-        </div>
-    </div>
+            <button class="btn-auth-primary mb-3" type="submit">
+                <span>إرسال رابط إعادة التعيين</span>
+                <i class="ti ti-arrow-left" aria-hidden="true"></i>
+            </button>
+        </form>
+    </x-auth.split-layout>
 @endsection

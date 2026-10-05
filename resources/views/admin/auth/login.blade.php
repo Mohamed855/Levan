@@ -5,109 +5,46 @@
 
 @extends('admin.layouts.layoutMaster')
 
-@section('title', 'تسجيل الدخول')
-
-@section('vendor-style')
-    @vite(['resources/assets/vendor/libs/@form-validation/form-validation.scss'])
-@endsection
-
-@section('toastr')
-    @vite(['resources/css/toastr.css', 'resources/js/toastr.js'])
-@endsection
+@section('title', 'تسجيل الدخول - الإدارة')
 
 @section('page-style')
-    @vite(['resources/assets/vendor/scss/pages/page-auth.scss'])
-@endsection
-
-@section('vendor-script')
-    @vite(['resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js'])
+    @vite(['resources/assets/css/shared/auth-layout.css'])
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/shared/auth/pages-auth.js'])
+    @vite(['resources/assets/js/shared/auth-layout.js'])
 @endsection
 
 @section('content')
-    <div class="container-xxl">
-        <div class="authentication-wrapper authentication-basic container-p-y">
-            <div class="authentication-inner py-6">
-                <!-- Login -->
-                <div class="card">
-                    <div class="card-body">
-                        <!-- Logo -->
-                        <div class="app-brand justify-content-center mb-6">
-                            <a href="{{ url('/') }}" class="app-brand-link">
-                                <span class="app-brand-logo demo">
-                                    @include('_partials.macros', [
-                                        'height' => 40,
-                                        'logoPath' => asset('img/Levan-logo.svg'),
-                                        'withbg' => 'fill: #fff;',
-                                    ])
-                                </span>
+    <x-auth.split-layout form-title="مرحباً بك مجدداً" form-subtitle="تسجيل الدخول للوحة تحكم الإدارة المركزية"
+        :bg-image="asset('img/admin-login-bg.jpg')" media-tagline="الإدارة المركزية | ليفان العقارية"
+        media-title="منظومة الإدارة والتحكم الشامل | للمنصة العقارية"
+        media-desc="أدوات حصرية للإدارة العامة لمتابعة الشركات العقارية، إدارة التراخيص والاشتراكات، والتحكم في إعدادات المنظومة بدقة وكفاءة عالية."
+        :features="[
+            ['icon' => 'ti ti-building-community', 'text' => 'إدارة الشركات والمستأجرين'],
+            ['icon' => 'ti ti-chart-arrows', 'text' => 'مؤشرات وتقارير شمولية'],
+            ['icon' => 'ti ti-shield-lock', 'text' => 'أمان ورقابة مركزية متقدمة'],
+        ]">
+        <form id="formAuthentication" action="{{ route('admin.login') }}" method="POST" novalidate>
+            @csrf
+            <x-form.controls.input name="email" label="البريد الإلكتروني" placeholder="أدخل البريد الإلكتروني"
+                type="email" :value="old('email')" required autofocus autocomplete="username" col="col-12 mb-3"
+                icon="ti ti-mail" />
 
-                            </a>
-                        </div>
-                        <!-- /Logo -->
-                        <h4 class="mb-1"> مرحبـا بـك 👋</h4>
-                        <p class="mb-6">لوحة تحكم الادارة </p>
+            <x-form.controls.password name="password" label="كلمة المرور" placeholder="أدخل كلمة المرور" required
+                autocomplete="current-password" col="col-12 mb-3" icon="ti ti-lock" />
 
-                        <!-- Session Status -->
-                        <x-auth-session-status class="mb-4" :status="session('status')" />
-
-                        <form id="formAuthentication" class="mb-4" action="{{ route('admin.login') }}" method="POST">
-                            @csrf
-                            <div class="mb-6">
-                                <label for="email" class="form-label">البريد الإلكتروني </label>
-                                <input type="email" class="form-control" id="email" name="email"
-                                    placeholder="الرجاء إدخال البريد الإلكتروني  " value="{{ old('email') }}" required
-                                    autofocus autocomplete="username">
-                                <x-input-error :messages="$errors->get('email')" class="mt-2 text-danger" />
-                            </div>
-                            <div class="mb-6 form-password-toggle">
-                                <label class="form-label" for="password">كلمة المرور</label>
-                                <div class="input-group input-group-merge">
-                                    <input type="password" id="password" class="form-control" name="password"
-                                        placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
-                                        required autocomplete="current-password" />
-                                    <span class="input-group-text cursor-pointer">
-                                        <i class="ti ti-eye-off"></i>
-                                    </span>
-                                </div>
-                                <x-input-error :messages="$errors->get('password')" class="mt-2 text-danger" />
-                            </div>
-                            <div class="my-8">
-                                <div class="d-flex justify-content-between">
-                                    <div class="form-check mb-0 ms-2">
-                                        <input class="form-check-input" type="checkbox" id="remember_me" name="remember">
-                                        <label class="form-check-label" for="remember_me">
-                                            تذكرني
-                                        </label>
-                                    </div>
-                                    {{-- @if (Route::has('password.request'))
-                                        <a href="{{ route('password.request') }}">
-                                            <p class="mb-0">هل نسيت كلمة المرور ؟</p>
-                                        </a>
-                                    @endif --}}
-                                </div>
-                            </div>
-                            <div class="mb-6">
-                                <button class="btn btn-primary d-grid w-100" type="submit">تسجيل الدخول</button>
-                            </div>
-                        </form>
-
-                        <p class="text-center">
-                        <div class="text-body text-center pt-4">
-                            جميع الحقوق محفوظة 2026 @
-                            <a href="https://e-tec.sa" target="_blank" class="footer-link">
-                                إتمام لتقنية نظم المعلومات ❤️
-                            </a>
-                            <p>V.{{ config('app.version') }}</p>
-                        </div>
-                        </p>
-                    </div>
+            <div class="auth-options">
+                <div class="form-check d-flex align-items-center gap-2 mb-0">
+                    <input class="form-check-input" type="checkbox" id="remember_me" name="remember">
+                    <label class="form-check-label" for="remember_me">تذكرني في هذا الجهاز</label>
                 </div>
-                <!-- /Login -->
             </div>
-        </div>
-    </div>
+
+            <button class="btn-auth-primary" type="submit">
+                <span>تسجيل الدخول للوحة التحكم</span>
+                <i class="ti ti-arrow-left" aria-hidden="true"></i>
+            </button>
+        </form>
+    </x-auth.split-layout>
 @endsection
