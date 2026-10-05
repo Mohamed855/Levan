@@ -48,9 +48,9 @@ if (!function_exists('tenant_route_name')) {
             $parameters = $parameters ? [$parameters] : [];
         }
 
-        // If no tenant, use regular route
+        // If no tenant, use regular route if it exists
         if (!tenant()) {
-            return route($name, $parameters, $absolute);
+            return Route::has($name) ? route($name, $parameters, $absolute) : '#';
         }
 
         $currentHost = request()->getHost();

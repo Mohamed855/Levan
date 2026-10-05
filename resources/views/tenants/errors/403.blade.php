@@ -2,7 +2,7 @@
     $customizerHidden = 'customizer-hide';
     // التحقق من إعدادات الصفحة الممررة من المتحكم
     $pageConfigs = ['myLayout' => 'blank'];
-    $configData = Helper::appClasses();
+    $configData = App\Helpers\Helpers::appClasses();
 @endphp
 
 @extends('tenants.layouts.layoutMaster')

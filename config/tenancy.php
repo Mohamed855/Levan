@@ -23,9 +23,21 @@ return [
     // ],
 
     // ممنوع التعديل عليها
-    'central_domains' => [
-        env('APP_CENTRAL_DOMAIN', 'levan.com'),
-    ],
+    'central_domains' => (function () {
+        $rawDomain = env('APP_CENTRAL_DOMAIN', 'levan.com');
+        $clean = parse_url($rawDomain, PHP_URL_HOST)
+            ?: preg_replace('#^https?://#', '', rtrim(explode(':', $rawDomain)[0], '/'));
+
+        $domains = array_values(array_filter([$clean]));
+
+        if (in_array($clean, ['localhost', '127.0.0.1'], true)) {
+            $domains = array_unique(array_merge($domains, ['localhost', '127.0.0.1']));
+        } elseif ($clean && !str_starts_with($clean, 'www.')) {
+            $domains = array_unique(array_merge($domains, [$clean, 'www.' . $clean]));
+        }
+
+        return $domains;
+    })(),
 
     // 'identification' => [
     //     'resolvers' => [

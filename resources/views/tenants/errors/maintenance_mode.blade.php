@@ -1,6 +1,6 @@
 @php
     $customizerHidden = 'customizer-hide';
-    $configData = Helper::appClasses();
+    $configData = App\Helpers\Helpers::appClasses();
     $pageConfigs = ['myLayout' => 'blank'];
 @endphp
 
