@@ -15,6 +15,28 @@ document.addEventListener('DOMContentLoaded', function () {
       element.textContent = value;
     });
   };
+  const planColors = {
+    purple: '#372632',
+    blue: '#00a8c0',
+    green: '#218c5b',
+    orange: '#d97706',
+    red: '#c2414b',
+    gray: '#64748b'
+  };
+  const formatPlanColor = (option) => {
+    if (!option.id || !planColors[option.id]) return option.text;
+
+    const wrapper = document.createElement('span');
+    const swatch = document.createElement('span');
+    const label = document.createElement('span');
+    wrapper.className = 'plan-color-option';
+    swatch.className = 'plan-color-option__swatch';
+    swatch.style.backgroundColor = planColors[option.id];
+    swatch.setAttribute('aria-hidden', 'true');
+    label.textContent = option.text;
+    wrapper.append(swatch, label);
+    return wrapper;
+  };
 
   if (window.jQuery) {
     const $ = window.jQuery;
@@ -23,14 +45,21 @@ document.addEventListener('DOMContentLoaded', function () {
       if ($select.hasClass('select2-hidden-accessible')) return;
 
       $select.wrap('<div class="position-relative"></div>');
-      $select.select2({
+      const select2Options = {
         placeholder: $select.data('placeholder') || 'اختر خيارًا',
         dropdownParent: $select.parent(),
         allowClear: true,
         width: '100%',
         language: 'ar',
         dir: 'rtl'
-      }).on('change', function () {
+      };
+
+      if (this.id === 'color') {
+        select2Options.templateResult = formatPlanColor;
+        select2Options.templateSelection = formatPlanColor;
+      }
+
+      $select.select2(select2Options).on('change', function () {
         this.dispatchEvent(new Event('input', { bubbles: true }));
       });
     });
@@ -100,14 +129,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const featuresList = getInput('features-list');
   const addFeatureButton = getInput('btn-add-feature');
-  let featureIndex = featuresList?.querySelectorAll('.feature-item').length ?? 0;
+  let featureIndex = Array.from(featuresList?.querySelectorAll('input[name^="features["]') ?? []).reduce((nextIndex, input) => {
+    const match = input.name.match(/^features\[(\d+)]$/);
+    return Math.max(nextIndex, match ? Number(match[1]) + 1 : nextIndex);
+  }, 0);
 
   function updateFeaturesStepButton() {
     refreshStepNextButton(featuresList);
     updatePackageCards();
   }
 
-  function addFeature(value = '') {
+  function syncFeatureRemovalButtons() {
+    if (!featuresList) return;
+    const canRemove = featuresList.querySelectorAll('.feature-item').length > 1;
+    featuresList.querySelectorAll('.btn-remove-feature').forEach((button) => {
+      button.hidden = !canRemove;
+    });
+  }
+
+  function addFeature(value = '', shouldFocus = true) {
     const template = getInput('feature-template');
     if (!template || !featuresList) return;
 
@@ -118,8 +158,23 @@ document.addEventListener('DOMContentLoaded', function () {
     input.value = value;
     featuresList.appendChild(item);
     featureIndex += 1;
-    input.focus();
+    syncFeatureRemovalButtons();
+    if (shouldFocus) input.focus();
     updateFeaturesStepButton();
+  }
+
+  function restoreDraftFeatures(features) {
+    if (!featuresList) return;
+
+    const restoredFeatures = Array.isArray(features)
+      ? features.filter((feature) => typeof feature === 'string' && feature.trim() !== '')
+      : [];
+
+    featuresList.replaceChildren();
+    featureIndex = 0;
+    restoredFeatures.forEach((feature) => addFeature(feature, false));
+    if (!restoredFeatures.length) addFeature('', false);
+    syncFeatureRemovalButtons();
   }
 
   if (addFeatureButton && featuresList) {
@@ -129,11 +184,21 @@ document.addEventListener('DOMContentLoaded', function () {
       const removeButton = event.target.closest('.btn-remove-feature');
       if (!removeButton) return;
 
+      if (featuresList.querySelectorAll('.feature-item').length <= 1) return;
       removeButton.closest('.feature-item')?.remove();
-      if (!featuresList.querySelector('.feature-item')) addFeature();
-      else updateFeaturesStepButton();
+      syncFeatureRemovalButtons();
+      updateFeaturesStepButton();
     });
+
+    if (!featuresList.querySelector('.feature-item')) addFeature('', false);
+    else syncFeatureRemovalButtons();
   }
+
+  form.addEventListener('wizardDraftRestored', (event) => {
+    if (Object.prototype.hasOwnProperty.call(event.detail?.data || {}, 'features')) {
+      restoreDraftFeatures(event.detail.data.features);
+    }
+  });
 
   function renderFeatures(card) {
     const list = card.querySelector('[data-plan-features]');

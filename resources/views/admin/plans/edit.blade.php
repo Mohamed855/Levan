@@ -3,11 +3,11 @@
 @section('title', 'تعديل الباقة - ' . $plan->name)
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/scss/shared/package-card.scss'])
+    @vite(['resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss', 'resources/scss/shared/package-card.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.js'])
+    @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
 @endsection
 
 @section('toastr')
@@ -46,13 +46,13 @@
         <x-ui.validation-errors class="mb-4" />
 
         <form id="plan-wizard-form" action="{{ route('admin.plans.update', $plan->id) }}" method="POST" autocomplete="off"
-            data-form-validate data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}">
+            data-form-validate data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}"
+            data-draft-url="{{ route('admin.wizard-drafts.store') }}" data-draft-resource-key="admin.plan-edit-{{ $plan->id }}">
             @csrf
             @method('PUT')
 
             <x-form.wizard.step id="basics-validation" :fields="['name', 'code', 'plan_type', 'color', 'description', 'features', 'is_active', 'available_from', 'admin_notes']">
                 <div class="row g-3">
-                    <div class="col-12"><h6 class="fw-bold border-bottom pb-2 mb-0 text-primary"><i class="ti ti-sparkles me-1"></i>أساسيات الباقة ومميزاتها</h6></div>
                     <x-form.controls.input name="name" label="اسم الباقة" :value="$plan->name" placeholder="مثال: الباقة الاحترافية" required col="col-md-6" />
                     <div class="col-md-6" data-form-field data-field-name="code">
                         <label class="form-label" for="code">كود الباقة (English Uppercase) <span class="text-danger">*</span></label>
@@ -72,7 +72,7 @@
                         </div>
                         <div id="features-list">
                             @foreach (old('features', $plan->features ?? []) as $index => $feature)
-                                <div class="border rounded p-3 mb-2 feature-item bg-lighter"><div class="d-flex align-items-end gap-2"><div class="flex-grow-1"><input type="text" name="features[{{ $index }}]" data-form-control class="form-control" value="{{ $feature }}" placeholder="مثال: لوحة تحكم مخصصة" required></div><button type="button" class="btn btn-icon btn-label-danger btn-remove-feature" aria-label="حذف الميزة"><i class="ti ti-trash"></i></button></div></div>
+                                <div class="feature-item mb-2"><div class="d-flex align-items-end gap-2"><div class="flex-grow-1"><input type="text" name="features[{{ $index }}]" data-form-control class="form-control" value="{{ $feature }}" placeholder="مثال: لوحة تحكم مخصصة" required></div><button type="button" class="btn btn-icon btn-label-danger btn-remove-feature" aria-label="حذف الميزة"><i class="ti ti-trash"></i></button></div></div>
                             @endforeach
                         </div>
                         <div class="invalid-feedback d-block" data-form-error role="alert" hidden></div>
@@ -81,32 +81,32 @@
                     <x-form.controls.select name="is_active" id="is_active" label="حالة تفعيل الباقة" required :value="$plan->is_active ? '1' : '0'" col="col-md-6" :options="[['value' => '1', 'label' => 'مفعلة'], ['value' => '0', 'label' => 'معطلة']]" />
                     <x-form.controls.input type="date" name="available_from" id="available_from" label="تاريخ بدء الإتاحة" :value="$plan->available_from?->format('Y-m-d')" col="col-md-6" help="اتركه فارغاً لإتاحتها فوراً." />
                     <x-form.controls.textarea name="admin_notes" id="admin_notes" label="ملاحظات إدارية" :value="$plan->admin_notes" rows="2" col="col-12" />
-                    <x-form.wizard.actions class="col-12"><x-form.wizard.previous-button :href="route('admin.plans.index')" text="رجوع" /><x-form.wizard.next-button /></x-form.wizard.actions>
                 </div>
+                <x-form.wizard.actions><x-form.wizard.previous-button :href="route('admin.plans.index')" text="رجوع" /><div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button /></div></x-form.wizard.actions>
             </x-form.wizard.step>
 
             <x-form.wizard.step id="pricing-validation" :fields="['price', 'discount_percentage', 'yearly_renewal_price']">
-                <div class="row g-3"><div class="col-12"><h6 class="fw-bold border-bottom pb-2 mb-0 text-primary"><i class="ti ti-cash me-1"></i>التسعير والعروض</h6></div>
+                <div class="row g-3">
                     <x-form.controls.input type="number" step="0.01" min="0" name="price" id="price" label="سعر الدورة الأساسية (ر.س)" :value="$plan->price" required col="col-md-6" />
                     <x-form.controls.input type="number" step="0.01" min="0" max="100" name="discount_percentage" id="discount_percentage" label="نسبة الخصم (%)" :value="$plan->discount_percentage" col="col-md-6" />
                     <x-form.controls.input type="number" step="0.01" min="0" name="yearly_renewal_price" id="yearly_renewal_price" label="سعر العرض السنوي الترويجي (ر.س)" :value="$plan->yearly_renewal_price" col="col-md-6" help="عرض سنوي اختياري للباقات الشهرية والربع سنوية." />
-                    <x-form.wizard.actions class="col-12"><x-form.wizard.previous-button /><x-form.wizard.next-button /></x-form.wizard.actions>
                 </div>
+                <x-form.wizard.actions><x-form.wizard.previous-button /><div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button /></div></x-form.wizard.actions>
             </x-form.wizard.step>
 
             <x-form.wizard.step id="billing-validation" :fields="['subscription_billing_cycle']">
-                <div class="row g-3"><div class="col-12"><h6 class="fw-bold border-bottom pb-2 mb-0 text-primary"><i class="ti ti-calendar-repeat me-1"></i>دورة الفوترة</h6></div>
+                <div class="row g-3">
                     @if ($hasSubscriptions)
                         <div class="col-md-6" data-form-field data-field-name="subscription_billing_cycle"><label class="form-label">دورة الفوترة الأساسية</label><input type="text" class="form-control" value="{{ $currentCycleLabel }}" readonly><input id="subscription_billing_cycle" type="hidden" name="subscription_billing_cycle" value="{{ $currentCycle }}" data-plan-label="{{ $currentCycleLabel }}" data-form-control></div>
                     @else
                         <x-form.controls.select name="subscription_billing_cycle" id="subscription_billing_cycle" label="دورة الفوترة الأساسية" required :value="$currentCycle" col="col-md-6" :options="array_map(fn($cycle) => ['value' => $cycle->value, 'label' => $cycle->label()], \App\Enums\Admin\Subscriptions\SubscriptionBillingCycle::cases())" />
                     @endif
-                    <x-form.wizard.actions class="col-12"><x-form.wizard.previous-button /><x-form.wizard.next-button /></x-form.wizard.actions>
                 </div>
+                <x-form.wizard.actions><x-form.wizard.previous-button /><div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button /></div></x-form.wizard.actions>
             </x-form.wizard.step>
 
             <x-form.wizard.step id="limits-validation" :fields="['limits_mode', 'included_users', 'extra_user_license_price', 'properties_limit', 'storage_quota_gb', 'active_auctions_limit', 'unlimited_branches', 'branches_limit', 'domain_management_enabled']">
-                <div class="row g-3"><div class="col-12"><h6 class="fw-bold border-bottom pb-2 mb-0 text-primary"><i class="ti ti-adjustments me-1"></i>الحدود والحصص</h6></div>
+                <div class="row g-3">
                     @if ($hasSubscriptions)
                         <div class="col-md-6" data-form-field data-field-name="limits_mode"><label class="form-label">وضع الحدود</label><input type="text" class="form-control" value="{{ $currentLimitsMode === 'unlimited' ? 'غير محدود' : 'محدود' }}" readonly><input id="limits_mode" type="hidden" name="limits_mode" value="{{ $currentLimitsMode }}" data-form-control></div>
                     @else
@@ -121,13 +121,13 @@
                     <x-form.controls.select name="unlimited_branches" id="unlimited_branches" label="حد الفروع" :value="$plan->unlimited_branches ? '1' : '0'" col="col-md-6 limits-field" :options="[['value' => '0', 'label' => 'محدود بعدد'], ['value' => '1', 'label' => 'غير محدود']]" />
                     <div class="col-md-6 limits-field" id="branches_limit_container"><x-form.controls.input type="number" min="1" name="branches_limit" id="branches_limit" label="عدد الفروع" :value="$plan->branches_limit" required col="col-12" /></div>
                     <x-form.controls.select name="domain_management_enabled" id="domain_management_enabled" label="إدارة الدومينات" required :value="$plan->domain_management_enabled ? '1' : '0'" col="col-md-6" :options="[['value' => '1', 'label' => 'مفعلة'], ['value' => '0', 'label' => 'غير مفعلة']]" />
-                    <x-form.wizard.actions class="col-12"><x-form.wizard.previous-button /><x-form.wizard.next-button text="التالي للمراجعة" /></x-form.wizard.actions>
                 </div>
+                <x-form.wizard.actions><x-form.wizard.previous-button /><div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button text="التالي للمراجعة" /></div></x-form.wizard.actions>
             </x-form.wizard.step>
 
-            <x-form.wizard.step id="review-validation" :fields="[]"><div class="row justify-content-center"><div class="col-lg-7"><x-ui.package-card :plan="$plan" preview /><x-form.wizard.actions><x-form.wizard.previous-button /><x-form.wizard.save-button text="حفظ التعديلات" class="btn-success" /></x-form.wizard.actions></div></div></x-form.wizard.step>
+            <x-form.wizard.step id="review-validation" :fields="[]"><div class="row justify-content-center"><div class="col-lg-7"><x-ui.package-card :plan="$plan" preview /><x-form.wizard.actions><x-form.wizard.previous-button /><div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.save-button text="حفظ التعديلات" class="btn-success" /></div></x-form.wizard.actions></div></div></x-form.wizard.step>
         </form>
     </x-form.wizard.stepper>
 
-    <template id="feature-template"><div class="border rounded p-3 mb-2 feature-item bg-lighter"><div class="d-flex align-items-end gap-2"><div class="flex-grow-1"><input type="text" name="features[{index}]" data-form-control class="form-control" placeholder="مثال: لوحة تحكم مخصصة" required></div><button type="button" class="btn btn-icon btn-label-danger btn-remove-feature" aria-label="حذف الميزة"><i class="ti ti-trash"></i></button></div></div></template>
+    <template id="feature-template"><div class="feature-item mb-2"><div class="d-flex align-items-end gap-2"><div class="flex-grow-1"><input type="text" name="features[{index}]" data-form-control class="form-control" placeholder="مثال: لوحة تحكم مخصصة" required></div><button type="button" class="btn btn-icon btn-label-danger btn-remove-feature" aria-label="حذف الميزة"><i class="ti ti-trash"></i></button></div></div></template>
 @endsection

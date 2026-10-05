@@ -313,6 +313,9 @@ async function restoreDraft(form) {
     addHiddenField(form, '_wizard_draft_id', draft.draft_id);
     addHiddenField(form, '_wizard_resource_key', draftResourceKey(form));
     restoreDraftValues(form, draft.data || {});
+    form.dispatchEvent(new CustomEvent('wizardDraftRestored', {
+      detail: { data: draft.data || {}, draftId: draft.draft_id }
+    }));
     getFormState(form).stepper?.to(Math.max(1, Number(draft.step || 1)));
   } catch (_) {
     window.toastr?.error?.('تعذر استعادة المسودة. يرجى المحاولة مرة أخرى.');

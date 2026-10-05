@@ -3,11 +3,11 @@
 @section('title', 'إضافة باقة جديدة')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/scss/shared/package-card.scss'])
+    @vite(['resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss', 'resources/scss/shared/package-card.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.js'])
+    @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
 @endsection
 
 @section('toastr')
@@ -29,16 +29,15 @@
         ];
     @endphp
 
-    <x-form.wizard.stepper id="plan-wizard" :steps="$steps">
-        <x-ui.validation-errors class="mb-4" />
+    <div class="row g-4 align-items-start">
+        <div class="col-lg-9" data-plan-form-column>
+            <x-form.wizard.stepper id="plan-wizard" class="h-100" :steps="$steps">
+                <x-ui.validation-errors class="mb-4" />
 
-        <form id="plan-wizard-form" action="{{ route('admin.plans.store') }}" method="POST" autocomplete="off"
-            data-form-validate data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}"
-            data-draft-url="{{ route('admin.wizard-drafts.store') }}">
-            @csrf
-
-            <div class="row g-4 align-items-start">
-                <div class="col-lg-9" data-plan-form-column>
+                <form id="plan-wizard-form" action="{{ route('admin.plans.store') }}" method="POST" autocomplete="off"
+                    data-form-validate data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}"
+                    data-draft-url="{{ route('admin.wizard-drafts.store') }}" data-draft-resource-key="admin.plan-create">
+                    @csrf
                     <x-form.wizard.step id="basics-validation" :fields="[
                         'name',
                         'code',
@@ -51,10 +50,6 @@
                         'admin_notes',
                     ]">
                         <div class="row g-3">
-                            <div class="col-12">
-                                <h6 class="fw-bold border-bottom pb-2 mb-0 text-primary"><i
-                                        class="ti ti-sparkles me-1"></i>أساسيات الباقة ومميزاتها</h6>
-                            </div>
                             <x-form.controls.input name="name" label="اسم الباقة" placeholder="مثال: الباقة الاحترافية"
                                 required col="col-md-6" />
                             <x-form.controls.input name="code" label="كود الباقة (English Uppercase)"
@@ -74,15 +69,22 @@
                             <x-form.controls.textarea name="description" id="description" label="وصف الباقة" rows="3"
                                 placeholder="وصف واضح لقيمة الباقة..." col="col-12" />
 
+                            <x-form.controls.select name="is_active" id="is_active" label="حالة تفعيل الباقة" required
+                                value="1" col="col-md-6" :options="[['value' => '1', 'label' => 'مفعلة'], ['value' => '0', 'label' => 'معطلة']]" />
+                            <x-form.controls.input type="date" name="available_from" id="available_from"
+                                label="تاريخ بدء الإتاحة" col="col-md-6" help="اتركه فارغاً لإتاحتها فوراً." />
+                            <x-form.controls.textarea name="admin_notes" id="admin_notes" label="ملاحظات إدارية"
+                                rows="2" col="col-12" />
+
                             <div class="col-12" data-form-field data-field-name="features">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <label class="form-label mb-0">ميزات الباقة <span class="text-danger">*</span></label>
-                                    <button type="button" class="btn btn-label-primary btn-sm" id="btn-add-feature"><i
+                                    <button type="button" class="btn btn-label-primary" id="btn-add-feature"><i
                                             class="ti ti-plus me-1"></i>إضافة ميزة</button>
                                 </div>
                                 <div id="features-list">
-                                    @foreach (old('features', ['دعم فني على مدار الساعة', 'تقارير وإحصاءات متقدمة']) as $index => $feature)
-                                        <div class="border rounded p-3 mb-2 feature-item bg-lighter">
+                                    @foreach (old('features', []) as $index => $feature)
+                                        <div class="feature-item mb-2">
                                             <div class="d-flex align-items-end gap-2">
                                                 <div class="flex-grow-1"><input type="text"
                                                         name="features[{{ $index }}]" data-form-control
@@ -96,54 +98,42 @@
                                 </div>
                                 <div class="invalid-feedback d-block" data-form-error role="alert" hidden></div>
                             </div>
-
-                            <x-form.controls.select name="is_active" id="is_active" label="حالة تفعيل الباقة" required
-                                value="1" col="col-md-6" :options="[['value' => '1', 'label' => 'مفعلة'], ['value' => '0', 'label' => 'معطلة']]" />
-                            <x-form.controls.input type="date" name="available_from" id="available_from"
-                                label="تاريخ بدء الإتاحة" col="col-md-6" help="اتركه فارغاً لإتاحتها فوراً." />
-                            <x-form.controls.textarea name="admin_notes" id="admin_notes" label="ملاحظات إدارية"
-                                rows="2" col="col-12" />
-                            <x-form.wizard.actions class="col-12"><x-form.wizard.previous-button :href="route('admin.plans.index')"
-                                    text="رجوع" /><x-form.wizard.next-button /></x-form.wizard.actions>
                         </div>
+                        <x-form.wizard.actions><x-form.wizard.previous-button :href="route('admin.plans.index')" text="رجوع" />
+                            <div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button /></div>
+                        </x-form.wizard.actions>
                     </x-form.wizard.step>
 
                     <x-form.wizard.step id="pricing-validation" :fields="['price', 'discount_percentage', 'yearly_renewal_price']">
                         <div class="row g-3">
-                            <div class="col-12">
-                                <h6 class="fw-bold border-bottom pb-2 mb-0 text-primary"><i
-                                        class="ti ti-cash me-1"></i>التسعير والعروض</h6>
-                            </div>
                             <x-form.controls.input type="number" step="0.01" min="0" name="price"
                                 id="price" label="سعر الدورة الأساسية (ر.س)" placeholder="500" required
                                 col="col-md-6" />
                             <x-form.controls.input type="number" step="0.01" min="0" max="100"
-                                name="discount_percentage" id="discount_percentage" label="نسبة الخصم (%)"
-                                value="0" col="col-md-6" />
+                                name="discount_percentage" id="discount_percentage" label="نسبة الخصم (%)" value="0"
+                                col="col-md-6" />
                             <x-form.controls.input type="number" step="0.01" min="0"
                                 name="yearly_renewal_price" id="yearly_renewal_price"
                                 label="سعر العرض السنوي الترويجي (ر.س)" col="col-md-6"
                                 help="عرض سنوي اختياري للباقات الشهرية والربع سنوية." />
-                            <x-form.wizard.actions
-                                class="col-12"><x-form.wizard.previous-button /><x-form.wizard.next-button /></x-form.wizard.actions>
                         </div>
+                        <x-form.wizard.actions><x-form.wizard.previous-button />
+                            <div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button /></div>
+                        </x-form.wizard.actions>
                     </x-form.wizard.step>
 
                     <x-form.wizard.step id="billing-validation" :fields="['subscription_billing_cycle']">
                         <div class="row g-3">
-                            <div class="col-12">
-                                <h6 class="fw-bold border-bottom pb-2 mb-0 text-primary"><i
-                                        class="ti ti-calendar-repeat me-1"></i>دورة الفوترة</h6>
-                            </div>
                             <x-form.controls.select name="subscription_billing_cycle" id="subscription_billing_cycle"
                                 label="دورة الفوترة الأساسية" required value="monthly" col="col-md-6"
                                 :options="array_map(
                                     fn($cycle) => ['value' => $cycle->value, 'label' => $cycle->label()],
                                     \App\Enums\Admin\Subscriptions\SubscriptionBillingCycle::cases(),
                                 )" />
-                            <x-form.wizard.actions
-                                class="col-12"><x-form.wizard.previous-button /><x-form.wizard.next-button /></x-form.wizard.actions>
                         </div>
+                        <x-form.wizard.actions><x-form.wizard.previous-button />
+                            <div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button /></div>
+                        </x-form.wizard.actions>
                     </x-form.wizard.step>
 
                     <x-form.wizard.step id="limits-validation" :fields="[
@@ -158,10 +148,6 @@
                         'domain_management_enabled',
                     ]">
                         <div class="row g-3">
-                            <div class="col-12">
-                                <h6 class="fw-bold border-bottom pb-2 mb-0 text-primary"><i
-                                        class="ti ti-adjustments me-1"></i>الحدود والحصص</h6>
-                            </div>
                             <x-form.controls.select name="limits_mode" id="limits_mode" label="وضع الحدود" required
                                 value="limited" col="col-md-6" :options="[
                                     ['value' => 'limited', 'label' => 'محدود'],
@@ -199,29 +185,32 @@
                                     ['value' => '1', 'label' => 'مفعلة'],
                                     ['value' => '0', 'label' => 'غير مفعلة'],
                                 ]" />
-                            <x-form.wizard.actions
-                                class="col-12"><x-form.wizard.previous-button /><x-form.wizard.next-button
-                                    text="التالي للمراجعة" /></x-form.wizard.actions>
                         </div>
+                        <x-form.wizard.actions><x-form.wizard.previous-button />
+                            <div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button
+                                    text="التالي للمراجعة" /></div>
+                        </x-form.wizard.actions>
                     </x-form.wizard.step>
 
                     <x-form.wizard.step id="review-validation" :fields="[]">
                         <div class="row g-4 justify-content-center">
                             <div class="col-lg-8"><x-ui.package-card
-                                    preview /><x-form.wizard.actions><x-form.wizard.previous-button /><x-form.wizard.save-button
-                                        text="إنشاء ونشر الباقة" class="btn-success" /></x-form.wizard.actions></div>
+                                    preview /><x-form.wizard.actions><x-form.wizard.previous-button />
+                                    <div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.save-button
+                                            text="إنشاء ونشر الباقة" class="btn-success" /></div>
+                                </x-form.wizard.actions></div>
                         </div>
                     </x-form.wizard.step>
-                </div>
-                <aside class="col-lg-3 d-none d-lg-block" data-package-preview-aside>
-                    <div class="position-sticky" style="top: 1.5rem;"><x-ui.package-card preview /></div>
-                </aside>
-            </div>
-        </form>
-    </x-form.wizard.stepper>
+                </form>
+            </x-form.wizard.stepper>
+        </div>
+        <aside class="col-lg-3 d-none d-lg-block" data-package-preview-aside>
+            <div class="position-sticky" style="top: 1.5rem;"><x-ui.package-card preview /></div>
+        </aside>
+    </div>
 
     <template id="feature-template">
-        <div class="border rounded p-3 mb-2 feature-item bg-lighter">
+        <div class="feature-item mb-2">
             <div class="d-flex align-items-end gap-2">
                 <div class="flex-grow-1"><input type="text" name="features[{index}]" data-form-control
                         class="form-control" placeholder="مثال: لوحة تحكم مخصصة" required></div><button type="button"
