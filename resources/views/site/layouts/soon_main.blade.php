@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
-@include('site.layout.head')
+@include('site.layouts.head')
 
 <body>
     <x-shared.toastr />
@@ -33,7 +33,7 @@
         <i class="ti ti-chevron-up"></i>
     </button>
 
-    @include('site.layout.script')
+    @include('site.layouts.script')
 
     @yield('toastr')
 

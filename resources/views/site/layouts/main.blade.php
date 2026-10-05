@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
-@include('site.layout.head')
+@include('site.layouts.head')
 
 <body>
     <x-shared.toastr />
@@ -23,11 +23,11 @@
     </div>
 
 
-    @include('site.layout.header')
+    @include('site.layouts.header')
 
     @yield('content')
 
-    @include('site.layout.footer')
+    @include('site.layouts.footer')
 
     <button type="button"
         class="back-to-top inline-flex w-12 h-12 rounded-full items-center justify-center text-lg/none bg-[#e3d8d1] text-primary hover:bg-primary hover:text-primary fixed bottom-[80px] right-[20px] hover:-translate-y-1 opacity-100 visible z-50 is-hided"
@@ -35,7 +35,7 @@
         <i class="ti ti-chevron-up"></i>
     </button>
 
-    @include('site.layout.script')
+    @include('site.layouts.script')
 
     @yield('toastr')
 

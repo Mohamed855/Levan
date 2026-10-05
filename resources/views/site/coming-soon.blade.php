@@ -1,4 +1,4 @@
-@extends('site.layout.soon_main')
+@extends('site.layouts.soon_main')
 
 @section('title', 'ليفـــان LEVAN')
 

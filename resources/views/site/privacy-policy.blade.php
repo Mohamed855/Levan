@@ -1,4 +1,4 @@
-@extends('site.layout.main')
+@extends('site.layouts.main')
 
 @section('title', 'ليفـــان LEVAN - السياسات ')
 
