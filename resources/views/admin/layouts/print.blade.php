@@ -9,11 +9,7 @@
 
     <link rel="icon" type="image/x-icon" href="{{ asset('img/logo-light.svg') }}" />
 
-    {{-- Fonts: Tabler Icons + Cairo (for Arabic) --}}
-    @vite([
-        'resources/assets/vendor/fonts/tabler-icons.scss',
-        'resources/scss/admin/print.scss',
-    ])
+    @vite(['resources/assets/vendor/fonts/tabler-icons.scss', 'resources/scss/admin/print.scss'])
 
     @yield('print-style')
 </head>

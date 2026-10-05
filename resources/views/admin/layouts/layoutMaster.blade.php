@@ -5,7 +5,6 @@
     $configData = App\Helpers\Helpers::appClasses();
 @endphp
 
-
 @if (!isset($excludeJquery) || !$excludeJquery)
     <script src="{{ asset('assets/shared/js/cdn/jquery-init.js') }}"></script>
 @endif
@@ -20,9 +19,3 @@
                     ? 'admin.layouts.layoutFront'
                     : 'admin.layouts.contentNavbarLayout')))
 @endisset
-
-{{--
-    All global JS (CSRF setup, toastr flash, confirm-delete, delete-btn listener)
-    is now loaded via @vite in admin/layouts/sections/scripts.blade.php
-    from resources/js/shared/*.js
---}}
