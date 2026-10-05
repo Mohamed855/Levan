@@ -17,6 +17,9 @@
             <h1 class="mb-2 mx-2 fs-xxlarge" style="line-height: 6rem;font-size: 6rem;">404</h1>
             <h4 class="mb-2 mx-2">الصفحة غير موجودة </h4>
             <p class="mb-6 mx-2">لم نتمكن من العثور على الصفحة التي تبحث عنها</p>
+            <div class="mb-4">
+                <a href="{{ tenant() ? url(tenant('id') . '/dashboard') : url('/') }}" class="btn btn-primary">العودة إلى الصفحة الرئيسية</a>
+            </div>
             <div class="mt-4">
                 <img src="{{ asset('assets/img/illustrations/boy-with-laptop-light.png') }}" alt="page-misc-error"
                     width="250" class="img-fluid">
