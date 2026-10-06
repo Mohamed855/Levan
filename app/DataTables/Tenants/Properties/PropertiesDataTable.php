@@ -24,16 +24,7 @@ class PropertiesDataTable extends AbstractDataTable
     {
         return [
             ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'title' => '#', 'orderable' => false, 'searchable' => false, 'width' => '40px'],
-            [
-                'data'       => 'checkbox',
-                'name'       => 'checkbox',
-                'title'      => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
-                'orderable'  => false,
-                'searchable' => false,
-                'width'      => '10px',
-                'className'  => 'custom-checkbox',
-                'titleAttr'  => 'تحديد الكل',
-            ],
+            ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
             ['data' => 'property_number', 'name' => 'property_number', 'title' => 'رقم العقار', 'width' => '100px'],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم العقار', 'width' => '170px'],
             ['data' => 'assignment_name', 'name' => 'assignment.name', 'title' => 'الإسناد التابع له', 'width' => '150px'],
@@ -151,5 +142,49 @@ class PropertiesDataTable extends AbstractDataTable
         }
 
         return $query;
+    }
+
+    protected function buttons(): array
+    {
+        return [
+            $this->getActionsDropdownButton(),
+            $this->getAddButton(),
+        ];
+    }
+
+    private function getActionsDropdownButton(): array
+    {
+        $buttons = [
+            ['extend' => 'copy', 'text' => 'نسخ'],
+            ['extend' => 'excel', 'text' => 'إكسل'],
+        ];
+
+        if (auth()->user()?->can('properties.delete')) {
+            $buttons[] = [
+                'text'      => 'حذف المحدد',
+                'className' => 'btn btn-default btn-delete-selected',
+                'action'    => 'function() { handleMassDelete(); }',
+            ];
+        }
+
+        return [
+            'extend'    => 'collection',
+            'className' => 'btn btn-export',
+            'text'      => 'الإجراءات',
+            'buttons'   => $buttons,
+        ];
+    }
+
+    private function getAddButton(): array
+    {
+        if (auth()->user()?->can('properties.create')) {
+            return [
+                'text'      => '<i class="ti ti-plus me-1"></i> إضافة عقار',
+                'className' => 'btn btn-primary btn-add',
+                'action'    => "function(){ window.location.href='" . tenant_route_name($this->route . '.create') . "'; }",
+            ];
+        }
+
+        return [];
     }
 }

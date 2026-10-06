@@ -37,21 +37,29 @@ class PropertyArchiveController extends Controller
         }
     }
 
-    public function forceDelete(int $id): JsonResponse
+    public function forceDelete(int $id)
     {
         try {
             $property = Property::onlyTrashed()->findOrFail($id);
             $property->forceDelete();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'تم حذف العقار نهائياً بنجاح',
-            ]);
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'تم حذف العقار نهائياً بنجاح',
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'تم حذف العقار نهائياً بنجاح');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'حدث خطأ أثناء حذف العقار نهائياً',
-            ], 500);
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'حدث خطأ أثناء حذف العقار نهائياً',
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'حدث خطأ أثناء حذف العقار نهائياً');
         }
     }
 }

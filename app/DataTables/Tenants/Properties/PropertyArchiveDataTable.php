@@ -30,8 +30,8 @@ class PropertyArchiveDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => '', 'orderable' => false, 'searchable' => false],
-            ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
+            ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'title' => '#', 'orderable' => false, 'searchable' => false, 'width' => '40px'],
+            ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
             ['data' => 'property_number', 'name' => 'property_number', 'title' => 'رقم العقار'],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم العقار'],
             ['data' => 'assignment_name', 'name' => 'assignment.name', 'title' => 'الإسناد التابع له'],
@@ -44,6 +44,9 @@ class PropertyArchiveDataTable extends AbstractDataTable
     protected function addCustomColumns($datatable): void
     {
         $datatable
+            ->addColumn('checkbox', function ($row) {
+                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+            })
             ->addColumn('assignment_name', function ($row) {
                 return $row->assignment?->name ?? '-';
             })
@@ -57,6 +60,34 @@ class PropertyArchiveDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['actions'];
+        return ['checkbox', 'actions'];
+    }
+
+    protected function buttons(): array
+    {
+        return [
+            $this->getActionsDropdownButton(),
+            $this->getAddButton(),
+        ];
+    }
+
+    private function getActionsDropdownButton(): array
+    {
+        $buttons = [
+            ['extend' => 'copy', 'text' => 'نسخ'],
+            ['extend' => 'excel', 'text' => 'إكسل'],
+        ];
+
+        return [
+            'extend'    => 'collection',
+            'className' => 'btn btn-export',
+            'text'      => 'الإجراءات',
+            'buttons'   => $buttons,
+        ];
+    }
+
+    private function getAddButton(): array
+    {
+        return [];
     }
 }

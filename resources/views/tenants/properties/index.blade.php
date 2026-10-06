@@ -32,6 +32,46 @@
 @section('page-script')
     @vite(['resources/assets/js/shared/table-status-toggle.js'])
     <script>
+        window.routes = {
+            massDelete: "{{ tenant_route_name('mass-delete') }}"
+        };
+
+        $(document).ready(function() {
+            $('#properties-table').on('init.dt', function() {
+                const table = $(this).DataTable();
+                const tableWrapper = $('#properties-table_wrapper');
+
+                tableWrapper.on('click', '#select-all', function() {
+                    $('.row-checkbox', table.rows({ search: 'applied' }).nodes()).prop('checked', this.checked);
+                });
+
+                tableWrapper.on('change', '.row-checkbox', function() {
+                    if (!this.checked) {
+                        $('#select-all').prop('checked', false);
+                    }
+                });
+            });
+
+            $('#properties-table').on('draw.dt', function() {
+                $('#select-all').prop('checked', false);
+            });
+        });
+
+        function handleMassDelete() {
+            const selectedIds = [];
+            $('.row-checkbox:checked').each(function() {
+                selectedIds.push($(this).val());
+            });
+
+            if (selectedIds.length === 0) {
+                toastr.warning('يرجى تحديد عقار واحد على الأقل');
+                return;
+            }
+
+            confirmDeleteSelectedmss(selectedIds, window.routes.massDelete, 'Property');
+        }
+        window.handleMassDelete = handleMassDelete;
+
         $(document).on('click', '.copyable-code-wrapper', function() {
             const code = $(this).data('code');
             if (code) {
@@ -44,17 +84,6 @@
 @endsection
 
 @section('content')
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="fw-bold mb-1"><i class="ti ti-building me-2 text-primary"></i>إدارة العقارات</h4>
-            <p class="text-muted mb-0">متابعة العقارات المسجلة التابعة للإسنادات وتفاصيلها ومطابقتها للمزادات.</p>
-        </div>
-        @can('properties.create')
-            <a href="{{ tenant_route_name('properties.create') }}" class="btn btn-primary">
-                <i class="ti ti-plus me-1"></i> إضافة عقار جديد
-            </a>
-        @endcan
-    </div>
 
     <x-data-table.page table-id="properties-table">
         <x-slot:stats>

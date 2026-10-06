@@ -105,20 +105,28 @@ class PropertiesController extends Controller
         }
     }
 
-    public function destroy(Property $property): JsonResponse
+    public function destroy(Property $property)
     {
         try {
             $this->propertyService->deleteProperty($property);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'تم نقل العقار إلى المحذوفات بنجاح',
-            ]);
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'تم نقل العقار إلى المحذوفات بنجاح',
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'تم نقل العقار إلى المحذوفات بنجاح');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'حدث خطأ أثناء حذف العقار',
-            ], 500);
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'حدث خطأ أثناء حذف العقار',
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'حدث خطأ أثناء حذف العقار');
         }
     }
 

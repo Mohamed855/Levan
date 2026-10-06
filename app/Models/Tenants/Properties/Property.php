@@ -85,7 +85,7 @@ class Property extends Model
             'completed'    => 'bg-label-success',
             'needs_images' => 'bg-label-warning',
             'incomplete'   => 'bg-label-danger',
-            default        => 'bg-label-secondary',
+            default        => 'bg-secondary',
         };
     }
 
