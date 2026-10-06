@@ -33,92 +33,21 @@ document.addEventListener('DOMContentLoaded', function () {
         const $durationDays = $('#duration_readonly');
         const $durationMonths = $('#duration_months');
 
-        /*
-        |--------------------------------------------------------------------------
-        | إعداد FormValidation الموحد
-        |--------------------------------------------------------------------------
-        */
-        const formValidation = FormValidation.formValidation(wizard, {
-            fields: {
-                company_id: {
-                    validators: {
-                        notEmpty: {
-                            message: 'يرجى اختيار شركة'
-                        }
-                    }
-                },
-                contract_number: {
-                    validators: {
-                        stringLength: {
-                            min: 0,
-                            max: 100,
-                            message: 'رقم العقد يجب ألا يتجاوز 100 حرف'
-                        }
-                    }
-                },
-                start_date: {
-                    validators: {
-                        notEmpty: {
-                            message: 'تاريخ البداية مطلوب'
-                        },
-                        date: {
-                            format: 'YYYY-MM-DD',
-                            message: 'تاريخ غير صحيح'
-                        }
-                    }
-                },
-                end_date: {
-                    validators: {
-                        notEmpty: {
-                            message: 'تاريخ النهاية مطلوب'
-                        },
-                        date: {
-                            format: 'YYYY-MM-DD',
-                            message: 'تاريخ غير صحيح'
-                        },
-                        callback: {
-                            message: 'تاريخ النهاية يجب أن يكون بعد أو يساوي تاريخ البداية',
-                            callback: function (input) {
-                                const startDateInput = document.querySelector('[name="start_date"]');
-                                const start = startDateInput ? startDateInput.value : '';
-                                if (!input.value.trim() || !start) {
-                                    return true;
-                                }
-                                return input.value >= start;
-                            }
-                        }
-                    }
-                },
-                'commission_types[]': {
-                    validators: {
-                        callback: {
-                            message: 'يرجى اختيار نوع عمولة واحد على الأقل',
-                            callback: function (input) {
-                                const selected = $commissionTypes.val();
-                                return selected && selected.length > 0;
-                            }
-                        }
-                    }
-                },
-                notes: {
-                    validators: {
-                        stringLength: {
-                            max: 1000,
-                            message: 'الملاحظات يجب ألا تتجاوز 1000 حرف'
-                        }
-                    }
-                }
+        const form = document.getElementById('wizard-validation-form');
+        const formValidator = {
+            revalidateField(fieldName) {
+                return window.SharedFormValidation.validateFields(form, [fieldName]);
             },
-            plugins: {
-                trigger: new FormValidation.plugins.Trigger(),
-                bootstrap5: new FormValidation.plugins.Bootstrap5({
-                    eleValidClass: '',
-                    rowSelector: '.col-sm-6, .col-sm-4, .col-12'
-                }),
-                autoFocus: new FormValidation.plugins.AutoFocus(),
-                submitButton: new FormValidation.plugins.SubmitButton()
+            validateField(fieldName) {
+                return window.SharedFormValidation.validateFields(form, [fieldName])
+                    .then((valid) => valid ? 'Valid' : 'Invalid');
+            },
+            updateFieldStatus(fieldName, status) {
+                if (status === 'Valid') {
+                    window.SharedFormValidation.setFieldValid(form, fieldName);
+                }
             }
-        });
+        };
 
         /*
         |--------------------------------------------------------------------------
@@ -228,17 +157,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             });
 
-            if (btnSubmit) {
-                btnSubmit.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    handleFormSubmit();
-                });
-            }
+            // The shared validator owns the native submit event and final validation.
         }
 
         function setupFieldEvents() {
             $company.off('change.validation').on('change.validation', function () {
-                formValidation.revalidateField('company_id');
+                formValidator.revalidateField('company_id');
                 clearSelect2Error($company, 'company_id');
             });
 
@@ -251,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     $commissionTypeHidden.val('');
                 }
 
-                formValidation.revalidateField('commission_types[]');
+                formValidator.revalidateField('commission_types[]');
                 clearSelect2Error($commissionTypes, 'commission_types[]');
 
                 renderCommissionTypeButtons(selectedTypes);
@@ -320,9 +244,9 @@ document.addEventListener('DOMContentLoaded', function () {
         */
         function validateStep1() {
             return new Promise(function (resolve) {
-                formValidation.validateField('company_id').then(function (result1) {
-                    formValidation.validateField('start_date').then(function (result2) {
-                        formValidation.validateField('end_date').then(function (result3) {
+                formValidator.validateField('company_id').then(function (result1) {
+                    formValidator.validateField('start_date').then(function (result2) {
+                        formValidator.validateField('end_date').then(function (result3) {
                             const isValid = result1 === 'Valid' && result2 === 'Valid' && result3 === 'Valid';
                             resolve(isValid);
                         });
@@ -333,7 +257,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function validateStep2() {
             return new Promise(function (resolve) {
-                formValidation.validateField('commission_types[]').then(function (result) {
+                formValidator.validateField('commission_types[]').then(function (result) {
                     const isValid = result === 'Valid';
                     resolve(isValid);
                 });
@@ -361,11 +285,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 $end.removeAttr('min');
             }
 
-            formValidation.revalidateField('start_date');
+            formValidator.revalidateField('start_date');
 
             if ($end.val()) {
                 setTimeout(function () {
-                    formValidation.revalidateField('end_date');
+                    formValidator.revalidateField('end_date');
                 }, 50);
             }
 
@@ -374,7 +298,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function handleEndDateChange() {
             setTimeout(function () {
-                formValidation.revalidateField('end_date');
+                formValidator.revalidateField('end_date');
             }, 50);
 
             recalcDurations();
@@ -388,7 +312,7 @@ document.addEventListener('DOMContentLoaded', function () {
         function clearSelect2Error($select, fieldName) {
             if (!$select.val()) return;
 
-            formValidation.updateFieldStatus(fieldName, 'Valid');
+            formValidator.updateFieldStatus(fieldName, 'Valid');
             $select.removeClass('is-invalid');
 
             const $messageContainer = $select.closest('.has-validation').find('.invalid-feedback, .fv-plugins-message-container');

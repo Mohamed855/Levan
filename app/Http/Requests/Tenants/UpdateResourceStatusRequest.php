@@ -8,6 +8,22 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateResourceStatusRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        if ($this->filled('status')) {
+            return;
+        }
+
+        $action = $this->route()?->getActionName() ?? '';
+        $contract = $this->route('contract');
+
+        if (str_contains($action, 'ContractController@') && $contract) {
+            $this->merge([
+                'status' => $contract->status === 'active' ? 'inactive' : 'active',
+            ]);
+        }
+    }
+
     public function authorize(): bool
     {
         $action = (string) $this->route()?->getActionName();

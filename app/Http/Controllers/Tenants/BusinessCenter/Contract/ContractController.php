@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\DataTables\Tenants\BusinessCenter\Contract\ContractsDataTable;
 use App\Http\Requests\Tenants\BusinessCenter\Contract\StoreContractRequest;
 use App\Http\Requests\Tenants\BusinessCenter\Contract\UpdateContractRequest;
+use App\Http\Requests\Tenants\BusinessCenter\Contract\CheckContractNumberRequest;
 use App\Http\Requests\Tenants\UpdateResourceStatusRequest;
 use App\Models\Tenants\BusinessCenter\Contract\Contract;
 use App\Models\Tenants\BusinessCenter\Contract\ContractCommission;
@@ -411,17 +412,14 @@ class ContractController extends Controller
     | Check Contract Number Availability
     |--------------------------------------------------------------------------
     */
-    public function checkContractNumber(Request $request): JsonResponse
+    public function checkContractNumber(CheckContractNumberRequest $request): JsonResponse
     {
         try {
-            $request->validate([
-                'contract_number' => 'required|string|max:100',
-                'contract_id' => 'nullable|integer|exists:contracts,id'
-            ]);
+            $validated = $request->validated();
 
             $available = $this->contractService->isContractNumberAvailable(
-                $request->get('contract_number'),
-                $request->get('contract_id')
+                $validated['contract_number'],
+                $validated['contract_id'] ?? null,
             );
 
             return response()->json([

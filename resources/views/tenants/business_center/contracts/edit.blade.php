@@ -3,11 +3,11 @@
 @section('title', 'تعديل العقد')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js', 'resources/assets/vendor/libs/select2/select2.js'])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/select2/select2.js'])
 @endsection
 
 @section('toastr')
@@ -21,13 +21,13 @@
         };
         window.initialCommissionIndex = {{ count(old('commissions', $contractCommissions)) }};
     </script>
-    @vite(['resources/assets/js/tenants/business-center/contracts/validation.js'])
+    @vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/tenants/business-center/contracts/validation.js'])
 @endsection
 
 @section('content')
     <div class="row">
         <div class="col-12 mb-6">
-            <div id="wizard-validation" class="bs-stepper mt-2">
+            <div id="wizard-validation" class="bs-stepper mt-2" data-form-stepper>
                 <div class="bs-stepper-header">
                     <div class="step" data-target="#contract-info-validation">
                         <button type="button" class="step-trigger">
@@ -62,7 +62,7 @@
                     @endif
 
                     <form id="wizard-validation-form" action="{{ tenant_route_name('contracts.update', $contract) }}"
-                        method="POST" onSubmit="return false">
+                        method="POST" novalidate data-form-validate data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                         @csrf
                         @method('PUT')
 
@@ -71,7 +71,7 @@
                                 <div class="col-sm-6">
                                     <label class="form-label" for="company_id">الشركة <span
                                             class="text-danger">*</span></label>
-                                    <select id="company_id" name="company_id" class="select2 form-select"
+                                    <select id="company_id" name="company_id" class="select2 form-select" required
                                         data-placeholder="اختر شركة">
                                         <option></option>
                                         @foreach ($companies as $company)
@@ -92,14 +92,14 @@
                                 <div class="col-sm-4">
                                     <label class="form-label" for="start_date">تاريخ البداية <span
                                             class="text-danger">*</span></label>
-                                    <input type="date" id="start_date" name="start_date" class="form-control"
+                                    <input type="date" id="start_date" name="start_date" class="form-control" required
                                         value="{{ old('start_date', $contract->start_date?->format('Y-m-d')) }}">
                                 </div>
 
                                 <div class="col-sm-4">
                                     <label class="form-label" for="end_date">تاريخ النهاية <span
                                             class="text-danger">*</span></label>
-                                    <input type="date" id="end_date" name="end_date" class="form-control"
+                                    <input type="date" id="end_date" name="end_date" class="form-control" required
                                         value="{{ old('end_date', $contract->end_date?->format('Y-m-d')) }}">
                                 </div>
 
@@ -116,7 +116,7 @@
                                         <i class="ti ti-arrow-left ti-xs me-sm-2 me-0"></i>
                                         <span>السابق</span>
                                     </button>
-                                    <button type="button" class="btn btn-primary btn-next">
+                                    <button type="button" class="btn btn-primary btn-next" disabled>
                                         <span class="me-sm-2">التالي</span>
                                         <i class="ti ti-arrow-right ti-xs"></i>
                                     </button>

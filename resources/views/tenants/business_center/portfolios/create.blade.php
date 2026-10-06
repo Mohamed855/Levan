@@ -3,11 +3,11 @@
 @section('title', 'إضافة محفظة جديدة')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js', 'resources/assets/vendor/libs/select2/select2.js'])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/select2/select2.js'])
 @endsection
 
 @section('toastr')
@@ -22,13 +22,13 @@
         window.isEditMode = false;
         window.existingFields = [];
     </script>
-    @vite(['resources/assets/js/tenants/business-center/portfolios/validation.js'])
+    @vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/tenants/business-center/portfolios/validation.js'])
 @endsection
 
 @section('content')
     <div class="row">
         <div class="col-12 mb-6">
-            <div id="wizard-validation" class="bs-stepper mt-2">
+            <div id="wizard-validation" class="bs-stepper mt-2" data-form-stepper>
                 <div class="bs-stepper-header">
                     <div class="step" data-target="#basic-info-validation">
                         <button type="button" class="step-trigger">
@@ -67,7 +67,8 @@
                         </div>
                     @endif
 
-                    <form id="wizard-validation-form" action="{{ tenant_route_name('portfolios.store') }}" method="POST">
+                    <form id="wizard-validation-form" action="{{ tenant_route_name('portfolios.store') }}" method="POST"
+                        novalidate data-form-validate data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                         @csrf
 
                         <!-- المعلومات الأساسية -->
@@ -76,7 +77,7 @@
                                 <div class="col-sm-6">
                                     <label class="form-label" for="company_id">الشركة <span
                                             class="text-danger">*</span></label>
-                                    <select name="company_id" id="company_id"
+                                    <select name="company_id" id="company_id" required
                                         class="form-control select2 @error('company_id') is-invalid @enderror"
                                         data-placeholder="اختر الشركة">
                                         <option value=""></option>
@@ -94,7 +95,7 @@
                                 <div class="col-sm-6">
                                     <label class="form-label" for="name">اسم المحفظة <span
                                             class="text-danger">*</span></label>
-                                    <input type="text" name="name" id="name"
+                                    <input type="text" name="name" id="name" required
                                         class="form-control @error('name') is-invalid @enderror"
                                         placeholder="ادخل اسم المحفظة" value="{{ old('name') }}" />
                                     @error('name')
@@ -115,7 +116,7 @@
                                         <i class="ti ti-arrow-left ti-xs me-sm-2 me-0"></i>
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
                                     </a>
-                                    <button type="button" class="btn btn-primary btn-next">
+                                    <button type="button" class="btn btn-primary btn-next" disabled>
                                         <span class="align-middle d-sm-inline-block d-none me-sm-2">التالي</span>
                                         <i class="ti ti-arrow-right ti-xs"></i>
                                     </button>

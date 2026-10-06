@@ -1,6 +1,6 @@
 'use strict';
 
-let validation, stepper;
+let stepper;
 
 const config = {
     maxFields: 50,
@@ -326,35 +326,7 @@ const FieldManager = {
 
 const ValidationManager = {
     initializeValidation(wizard) {
-        if (typeof FormValidation === 'undefined') return null;
-
-        validation = FormValidation.formValidation(wizard, {
-            fields: {
-                name: {
-                    validators: {
-                        notEmpty: { message: 'يرجى إدخال اسم المحفظة' },
-                        stringLength: { min: 2, max: 255, message: 'اسم المحفظة يجب أن يكون بين 2 و 255 حرف' }
-                    }
-                },
-                company_id: { validators: { notEmpty: { message: 'يرجى اختيار الشركة' } } }
-            },
-            plugins: {
-                trigger: new FormValidation.plugins.Trigger(),
-                bootstrap5: new FormValidation.plugins.Bootstrap5({
-                    eleValidClass: '',
-                    rowSelector: '.col-sm-6, .col-12, .col-md-6'
-                }),
-                autoFocus: new FormValidation.plugins.AutoFocus(),
-                submitButton: new FormValidation.plugins.SubmitButton()
-            }
-        }).on('core.form.valid', () => {
-            if (FieldManager.validateFields() && TimeValidation.validateCallTimes()) {
-                LoadingManager.showSubmissionLoading();
-                wizard.querySelector('#wizard-validation-form')?.submit();
-            }
-        });
-
-        return validation;
+        return wizard.querySelector('#wizard-validation-form') ?? null;
     },
 
     async validateFirstStep() {
@@ -457,7 +429,12 @@ const InitializationManager = {
         }).on('select2:select select2:clear', function () {
             $(this).removeClass('is-invalid');
             FieldManager.clearFieldError(this);
-            if (validation && this.name) validation.revalidateField(this.name);
+            if (this.name) {
+                window.SharedFormValidation?.validateFields(
+                    document.querySelector('#wizard-validation-form'),
+                    [this.name]
+                );
+            }
         });
     },
 
@@ -479,9 +456,7 @@ const InitializationManager = {
         document.querySelectorAll('.btn-submit').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                if (ValidationManager.validateAllSteps()) {
-                    validation?.validate();
-                }
+                document.querySelector('#wizard-validation-form')?.requestSubmit();
             });
         });
 
