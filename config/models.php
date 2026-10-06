@@ -19,6 +19,9 @@ return [
     'CustomerDistribution' => App\Models\Tenants\BusinessCenter\Customers\Distribution\CustomerDistribution::class,
     'MessageIndividualLog' => App\Models\Tenants\Communication\MessageLog\MessageIndividualLog::class,
     'Contract' =>             App\Models\Tenants\BusinessCenter\Contract\Contract::class,
+    'Assignment' => App\Models\Tenants\Assignments\Assignment::class,
+    'Property' => App\Models\Tenants\Properties\Property::class,
+    'Auction' => App\Models\Tenants\Auctions\Auction::class,
 
     // super admin models
     'Plan' => App\Models\Admin\Plans\Plan::class,
