@@ -8,11 +8,11 @@ use Carbon\Carbon;
 
 class AssignmentsDataTable extends AbstractDataTable
 {
-    private string $route = "assignments";
+    private string $route = 'assignments';
 
     protected function getTableId(): string
     {
-        return "assignments-table";
+        return 'assignments-table';
     }
 
     protected function resource()
@@ -25,16 +25,7 @@ class AssignmentsDataTable extends AbstractDataTable
     {
         return [
             ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'title' => '#', 'orderable' => false, 'searchable' => false, 'width' => '40px'],
-            [
-                'data'       => 'checkbox',
-                'name'       => 'checkbox',
-                'title'      => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
-                'orderable'  => false,
-                'searchable' => false,
-                'width'      => '10px',
-                'className'  => 'custom-checkbox',
-                'titleAttr'  => 'تحديد الكل',
-            ],
+            ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
             ['data' => 'assignment_number', 'name' => 'assignment_number', 'title' => 'رقم الإسناد', 'width' => '130px'],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم الإسناد', 'width' => '180px'],
             ['data' => 'issuing_entity', 'name' => 'issuing_entity', 'title' => 'الجهة المسندة', 'width' => '140px'],
@@ -53,28 +44,28 @@ class AssignmentsDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
             ->editColumn('assignment_number', function ($row) {
                 return $this->copyableCode($row->assignment_number);
             })
             ->editColumn('name', function ($row) {
                 $img = $row->entity_logo ? tasset($row->entity_logo) : asset('assets/img/illustrations/page-pricing-enterprise.png');
-                $showUrl = tenant_route_name($this->route . '.show', $row->id);
+                $showUrl = tenant_route_name($this->route.'.show', $row->id);
 
                 return '<div class="d-flex align-items-center">
-                    <img src="' . $img . '" alt="logo" class="rounded me-2" style="width:28px;height:28px;object-fit:cover" />
-                    <a href="' . $showUrl . '" class="text-body fw-medium">' . e($row->name) . '</a>
+                    <img src="'.$img.'" alt="logo" class="rounded me-2" style="width:28px;height:28px;object-fit:cover" />
+                    <a href="'.$showUrl.'" class="text-body fw-medium">'.e($row->name).'</a>
                 </div>';
             })
             ->editColumn('category', function ($row) {
-                return '<span class="badge bg-label-primary">' . e($row->category_label) . '</span>';
+                return '<span class="badge bg-label-primary">'.e($row->category_label).'</span>';
             })
             ->editColumn('properties_count', function ($row) {
-                return '<span class="badge bg-label-info">' . (int) $row->properties_count . '</span>';
+                return '<span class="badge bg-label-info">'.(int) $row->properties_count.'</span>';
             })
             ->editColumn('auctions_count', function ($row) {
-                return '<span class="badge bg-label-secondary">' . (int) $row->auctions_count . '</span>';
+                return '<span class="badge bg-secondary">'.(int) $row->auctions_count.'</span>';
             })
             ->editColumn('start_date', function ($row) {
                 return $row->start_date ? Carbon::parse($row->start_date)->format('Y-m-d') : '-';
@@ -88,13 +79,13 @@ class AssignmentsDataTable extends AbstractDataTable
                     $checked = $row->is_active ? 'checked' : '';
                     $url = tenant_route_name('assignments.toggle-status', $row->id);
 
-                    return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_' . $row->id . '" data-url="' . e($url) . '" data-active-value="active" data-inactive-value="inactive" ' . $checked . ' aria-label="تبديل حالة الإسناد"></div></div>';
+                    return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_'.$row->id.'" data-url="'.e($url).'" data-active-value="active" data-inactive-value="inactive" '.$checked.' aria-label="تبديل حالة الإسناد"></div></div>';
                 }
 
                 $statusClass = $row->is_active ? 'bg-label-success' : 'bg-label-danger';
                 $statusText = $row->is_active ? 'نشط' : 'متوقف';
 
-                return '<span class="badge ' . $statusClass . '">' . $statusText . '</span>';
+                return '<span class="badge '.$statusClass.'">'.$statusText.'</span>';
             })
             ->addColumn('actions', function ($row) {
                 return view('tenants.assignments.action', ['row' => $row, 'route' => $this->route])->render();
@@ -104,6 +95,7 @@ class AssignmentsDataTable extends AbstractDataTable
     private function copyableCode(string $code): string
     {
         $escaped = htmlspecialchars($code, ENT_QUOTES, 'UTF-8');
+
         return sprintf(
             '<div class="d-inline-flex align-items-center gap-1 copyable-code-wrapper"
                   data-code="%s"
@@ -139,13 +131,57 @@ class AssignmentsDataTable extends AbstractDataTable
         }
 
         if ($request->filled('issuing_entity')) {
-            $query->where('issuing_entity', 'like', '%' . $request->issuing_entity . '%');
+            $query->where('issuing_entity', 'like', '%'.$request->issuing_entity.'%');
         }
 
         if ($request->filled('assignment_number')) {
-            $query->where('assignment_number', 'like', '%' . $request->assignment_number . '%');
+            $query->where('assignment_number', 'like', '%'.$request->assignment_number.'%');
         }
 
         return $query;
+    }
+
+    protected function buttons(): array
+    {
+        return [
+            $this->getActionsDropdownButton(),
+            $this->getAddButton(),
+        ];
+    }
+
+    private function getActionsDropdownButton(): array
+    {
+        $buttons = [
+            ['extend' => 'copy', 'text' => 'نسخ'],
+            ['extend' => 'excel', 'text' => 'إكسل'],
+        ];
+
+        if (auth()->user()?->can('assignments.delete')) {
+            $buttons[] = [
+                'text' => 'حذف المحدد',
+                'className' => 'btn btn-default btn-delete-selected',
+                'action' => 'function() { handleMassDelete(); }',
+            ];
+        }
+
+        return [
+            'extend' => 'collection',
+            'className' => 'btn btn-export',
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
+        ];
+    }
+
+    private function getAddButton(): array
+    {
+        if (auth()->user()?->can('assignments.create')) {
+            return [
+                'text' => '<i class="ti ti-plus me-1"></i> إضافة إسناد',
+                'className' => 'btn btn-primary btn-add',
+                'action' => "function(){ window.location.href='".tenant_route_name($this->route.'.create')."'; }",
+            ];
+        }
+
+        return [];
     }
 }

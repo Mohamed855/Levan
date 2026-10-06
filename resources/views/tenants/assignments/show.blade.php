@@ -13,7 +13,8 @@
                 <i class="ti ti-file-certificate me-2 text-primary"></i>تفاصيل الإسناد: {{ $assignment->name }}
             </h4>
             <div class="d-flex align-items-center gap-2">
-                <code class="copyable-code fs-6" style="cursor: pointer;" onclick="navigator.clipboard.writeText('{{ $assignment->assignment_number }}'); toastr.success('تم نسخ الرقم');">
+                <code class="copyable-code fs-6" style="cursor: pointer;"
+                    onclick="navigator.clipboard.writeText('{{ $assignment->assignment_number }}'); toastr.success('تم نسخ الرقم');">
                     {{ $assignment->assignment_number }}
                 </code>
                 <span class="badge {{ $assignment->status_badge_class }}">{{ $assignment->status_label }}</span>
@@ -25,7 +26,7 @@
                     <i class="ti ti-edit me-1"></i> تعديل الإسناد
                 </a>
             @endcan
-            <a href="{{ tenant_route_name('assignments.index') }}" class="btn btn-label-secondary">
+            <a href="{{ tenant_route_name('assignments.index') }}" class="btn btn-secondary">
                 <i class="ti ti-arrow-right me-1"></i> العودة
             </a>
         </div>
@@ -56,10 +57,14 @@
 
                     <div class="info-container text-start">
                         <ul class="list-unstyled">
-                            <li class="mb-2"><span class="fw-bold me-1">الجهة المسندة:</span> <span>{{ $assignment->issuing_entity }}</span></li>
-                            <li class="mb-2"><span class="fw-bold me-1">المدينة:</span> <span>{{ $assignment->city ?? '-' }}</span></li>
-                            <li class="mb-2"><span class="fw-bold me-1">تاريخ البداية:</span> <span>{{ $assignment->start_date?->format('Y-m-d') ?? '-' }}</span></li>
-                            <li class="mb-2"><span class="fw-bold me-1">تاريخ الانتهاء:</span> <span>{{ $assignment->end_date?->format('Y-m-d') ?? '-' }}</span></li>
+                            <li class="mb-2"><span class="fw-bold me-1">الجهة المسندة:</span>
+                                <span>{{ $assignment->issuing_entity }}</span></li>
+                            <li class="mb-2"><span class="fw-bold me-1">المدينة:</span>
+                                <span>{{ $assignment->city ?? '-' }}</span></li>
+                            <li class="mb-2"><span class="fw-bold me-1">تاريخ البداية:</span>
+                                <span>{{ $assignment->start_date?->format('Y-m-d') ?? '-' }}</span></li>
+                            <li class="mb-2"><span class="fw-bold me-1">تاريخ الانتهاء:</span>
+                                <span>{{ $assignment->end_date?->format('Y-m-d') ?? '-' }}</span></li>
                         </ul>
                     </div>
                 </div>
@@ -71,9 +76,11 @@
             {{-- العقارات التابعة --}}
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">العقارات المسجلة ضمن هذا الإسناد ({{ $assignment->properties->count() }})</h5>
+                    <h5 class="card-title mb-0">العقارات المسجلة ضمن هذا الإسناد ({{ $assignment->properties->count() }})
+                    </h5>
                     @can('properties.create')
-                        <a href="{{ tenant_route_name('properties.create') }}?assignment_id={{ $assignment->id }}" class="btn btn-sm btn-primary">
+                        <a href="{{ tenant_route_name('properties.create') }}?assignment_id={{ $assignment->id }}"
+                            class="btn btn-sm btn-primary">
                             <i class="ti ti-plus me-1"></i> إضافة عقار
                         </a>
                     @endcan
@@ -94,17 +101,21 @@
                                 <tr>
                                     <td><code>{{ $prop->property_number }}</code></td>
                                     <td>
-                                        <a href="{{ tenant_route_name('properties.show', $prop->id) }}" class="fw-medium text-body">
+                                        <a href="{{ tenant_route_name('properties.show', $prop->id) }}"
+                                            class="fw-medium text-body">
                                             {{ $prop->name }}
                                         </a>
                                     </td>
                                     <td><span class="badge bg-label-info">{{ $prop->type_label }}</span></td>
                                     <td>{{ number_format((float) $prop->area) }} م²</td>
-                                    <td><span class="badge {{ $prop->data_status_badge_class }}">{{ $prop->data_status_label }}</span></td>
+                                    <td><span
+                                            class="badge {{ $prop->data_status_badge_class }}">{{ $prop->data_status_label }}</span>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center py-4 text-muted">لا توجد عقارات مضافة لهذا الإسناد حتى الآن.</td>
+                                    <td colspan="5" class="text-center py-4 text-muted">لا توجد عقارات مضافة لهذا الإسناد
+                                        حتى الآن.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -136,17 +147,20 @@
                             @forelse($assignment->auctions as $auc)
                                 <tr>
                                     <td>
-                                        <a href="{{ tenant_route_name('auctions.show', $auc->id) }}" class="fw-medium text-body">
+                                        <a href="{{ tenant_route_name('auctions.show', $auc->id) }}"
+                                            class="fw-medium text-body">
                                             {{ $auc->name }}
                                         </a>
                                     </td>
                                     <td>{{ $auc->start_date?->format('Y-m-d') }}</td>
-                                    <td><span class="badge bg-label-secondary">{{ $auc->type_label }}</span></td>
-                                    <td><span class="badge {{ $auc->status_badge_class }}">{{ $auc->status_label }}</span></td>
+                                    <td><span class="badge bg-secondary">{{ $auc->type_label }}</span></td>
+                                    <td><span class="badge {{ $auc->status_badge_class }}">{{ $auc->status_label }}</span>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="text-center py-4 text-muted">لم يتم إنشاء أي مزاد مرتبط بهذا الإسناد بعد.</td>
+                                    <td colspan="4" class="text-center py-4 text-muted">لم يتم إنشاء أي مزاد مرتبط بهذا
+                                        الإسناد بعد.</td>
                                 </tr>
                             @endforelse
                         </tbody>

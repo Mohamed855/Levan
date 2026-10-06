@@ -32,6 +32,46 @@
 @section('page-script')
     @vite(['resources/assets/js/shared/table-status-toggle.js'])
     <script>
+        window.routes = {
+            massDelete: "{{ tenant_route_name('mass-delete') }}"
+        };
+
+        $(document).ready(function() {
+            $('#assignments-table').on('init.dt', function() {
+                const table = $(this).DataTable();
+                const tableWrapper = $('#assignments-table_wrapper');
+
+                tableWrapper.on('click', '#select-all', function() {
+                    $('.row-checkbox', table.rows({ search: 'applied' }).nodes()).prop('checked', this.checked);
+                });
+
+                tableWrapper.on('change', '.row-checkbox', function() {
+                    if (!this.checked) {
+                        $('#select-all').prop('checked', false);
+                    }
+                });
+            });
+
+            $('#assignments-table').on('draw.dt', function() {
+                $('#select-all').prop('checked', false);
+            });
+        });
+
+        function handleMassDelete() {
+            const selectedIds = [];
+            $('.row-checkbox:checked').each(function() {
+                selectedIds.push($(this).val());
+            });
+
+            if (selectedIds.length === 0) {
+                toastr.warning('يرجى تحديد إسناد واحد على الأقل');
+                return;
+            }
+
+            confirmDeleteSelectedmss(selectedIds, window.routes.massDelete, 'Assignment');
+        }
+        window.handleMassDelete = handleMassDelete;
+
         $(document).on('click', '.copyable-code-wrapper', function() {
             const code = $(this).data('code');
             if (code) {
@@ -44,17 +84,6 @@
 @endsection
 
 @section('content')
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="fw-bold mb-1"><i class="ti ti-file-certificate me-2 text-primary"></i>الإسنادات</h4>
-            <p class="text-muted mb-0">إدارة الإسنادات الواردة من الجهات الحكومية والخاصة ومتابعة حالتها.</p>
-        </div>
-        @can('assignments.create')
-            <a href="{{ tenant_route_name('assignments.create') }}" class="btn btn-primary">
-                <i class="ti ti-plus me-1"></i> إضافة إسناد جديد
-            </a>
-        @endcan
-    </div>
 
     <x-data-table.page table-id="assignments-table">
         <x-slot:stats>

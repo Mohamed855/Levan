@@ -98,20 +98,28 @@ class AssignmentsController extends Controller
         }
     }
 
-    public function destroy(Assignment $assignment): JsonResponse
+    public function destroy(Assignment $assignment)
     {
         try {
             $this->assignmentService->deleteAssignment($assignment);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'تم نقل الإسناد إلى المحذوفات بنجاح',
-            ]);
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'تم نقل الإسناد إلى المحذوفات بنجاح',
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'تم نقل الإسناد إلى المحذوفات بنجاح');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'حدث خطأ أثناء حذف الإسناد',
-            ], 500);
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'حدث خطأ أثناء حذف الإسناد',
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'حدث خطأ أثناء حذف الإسناد');
         }
     }
 
