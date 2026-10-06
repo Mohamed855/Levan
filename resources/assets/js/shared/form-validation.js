@@ -83,6 +83,39 @@ function clearFieldValidState(form, fieldName) {
   });
 }
 
+function ensureValidationContract(form) {
+  form.querySelectorAll('[data-form-control][name], input[name], select[name], textarea[name]').forEach((control) => {
+    if (control.type === 'hidden' || control.matches('[data-validation-skip]')) {
+      return;
+    }
+
+    control.dataset.formControl = '';
+    const wrapper = control.closest('[data-form-field]') || control.parentElement;
+    if (!wrapper || !control.name) {
+      return;
+    }
+
+    wrapper.dataset.formField = '';
+    wrapper.dataset.fieldName = control.name;
+    const error = wrapper.querySelector('[data-form-error], .invalid-feedback');
+    if (error) {
+      error.dataset.formError = '';
+      if (error.textContent.trim() === '') {
+        error.hidden = true;
+        error.classList.add('hidden');
+      }
+      return;
+    }
+
+    const generatedError = document.createElement('p');
+    generatedError.className = 'invalid-feedback hidden';
+    generatedError.dataset.formError = '';
+    generatedError.setAttribute('aria-live', 'polite');
+    generatedError.hidden = true;
+    wrapper.append(generatedError);
+  });
+}
+
 /**
  * Single-spot error clearing:
  * Resets the single dedicated error element ([data-form-error] or .invalid-feedback)
@@ -94,6 +127,7 @@ function clearFieldError(form, fieldName) {
     if (error) {
       error.textContent = '';
       error.hidden = true;
+      error.classList.add('hidden');
       error.style.display = 'none';
     }
   });
@@ -131,6 +165,8 @@ function setFieldError(form, fieldName, message) {
     if (error) {
       error.textContent = message;
       error.hidden = false;
+      error.classList.remove('hidden');
+      error.setAttribute('aria-live', 'polite');
       error.style.display = 'block';
     }
   });
@@ -448,22 +484,6 @@ function validateControlClientSide(form, control) {
       }
     }
 
-    // Phone (Saudi format 05xxxxxxxx)
-    if (control.type === 'tel' || name.toLowerCase().includes('phone')) {
-      if (!/^05[0-9]{8}$/.test(trimmed)) {
-        setFieldError(form, name, 'رقم الهاتف يجب أن يبدأ بـ 05 ويتكون من 10 أرقام');
-        return false;
-      }
-    }
-
-    // Commercial number (10 digits)
-    if (name === 'commercial_number') {
-      if (!/^[0-9]{10}$/.test(trimmed)) {
-        setFieldError(form, name, 'رقم السجل التجاري يجب أن يتكون من 10 أرقام');
-        return false;
-      }
-    }
-
     // HTML5 pattern attribute
     if (control.pattern) {
       try {
@@ -474,6 +494,7 @@ function validateControlClientSide(form, control) {
         }
       } catch (_) {}
     }
+
 
     // Minlength
     if (control.minLength && control.minLength > 0 && trimmed.length < control.minLength) {
@@ -563,13 +584,8 @@ function isStepValid(form, step) {
       if ((control.type === 'email' || control.name.toLowerCase().includes('email')) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
         return false;
       }
-      if ((control.type === 'tel' || control.name.toLowerCase().includes('phone')) && !/^05[0-9]{8}$/.test(val)) {
-        return false;
-      }
-      if (control.name === 'commercial_number' && !/^[0-9]{10}$/.test(val)) {
-        return false;
-      }
       if (control.name === 'password_confirmation') {
+
         const pwd = form.querySelector('[name="password"]')?.value;
         if (pwd && val !== pwd) {
           return false;
@@ -836,6 +852,7 @@ function initForm(form) {
 
   form.dataset.formValidationInitialized = 'true';
   form.noValidate = true;
+  ensureValidationContract(form);
   initStepper(form);
   initDrafts(form);
 
@@ -910,7 +927,9 @@ function initForm(form) {
     }
 
     event.preventDefault();
-    const fields = Array.from(form.querySelectorAll('[name]')).map((control) => control.name);
+    const fields = Array.from(form.querySelectorAll('[name]'))
+      .filter((control) => !control.matches('[data-validation-skip]'))
+      .map((control) => control.name);
     const valid = await validateFields(form, fields);
     if (!valid) {
       const stepperElement = form.closest('[data-form-stepper]');
@@ -923,6 +942,7 @@ function initForm(form) {
     }
 
     state.isSubmitting = true;
+    form.dispatchEvent(new CustomEvent('formValidationPassed'));
     HTMLFormElement.prototype.submit.call(form);
   });
 }

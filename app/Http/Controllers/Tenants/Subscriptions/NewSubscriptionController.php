@@ -2,19 +2,23 @@
 
 namespace App\Http\Controllers\Tenants\Subscriptions;
 
-use App\Enums\Admin\Subscriptions\SubscriptionStatus;
+use App\Enums\Admin\Billing\BillType;
+use App\Enums\Admin\Billing\PaymentMethod;
+use App\Exceptions\Payment\PaymentInitiationException;
+use App\Exceptions\Payment\PaymentVerificationException;
+use App\Exceptions\Subscription\SubscriptionCreationException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Payment\PaymentRequest;
+use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\Plans\Plan;
+use App\Services\shared\Bills\BillService;
 use App\Services\shared\Coupons\CouponService;
 use App\Services\shared\Payment\Moyasar\MoyasarCallbackHandler;
-use App\Services\shared\Payment\Moyasar\MoyasarService;
+use App\Services\shared\Payment\Moyasar\MoyasarFormConfiguration;
 use App\Services\shared\Session\SessionManagerService;
-use App\Services\shared\Subscription\SubscriptionCalculatorService;
-use App\Services\shared\Subscription\SubscriptionManager;
+use App\Services\shared\Subscription\SubscriptionService;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Stancl\Tenancy\Facades\Tenancy;
 
 class NewSubscriptionController extends Controller
@@ -22,10 +26,12 @@ class NewSubscriptionController extends Controller
     private $page = "tenants.subscription.new_subscription.";
 
     public function __construct(
-        private MoyasarService                  $moyasarService,
         private MoyasarCallbackHandler          $moyasarCallbackHandler,
+        private MoyasarFormConfiguration        $moyasarFormConfiguration,
         private SessionManagerService           $sessionManagerService,
-        private CouponService                   $couponService
+        private CouponService                   $couponService,
+        private BillService                     $billService,
+        private SubscriptionService             $subscriptionService,
     ) {
 
         // اذا كان هناك اشتراك
@@ -78,17 +84,14 @@ class NewSubscriptionController extends Controller
                 return $this->redirectWithError('subscribe.index', $couponData['error']);
             }
 
-            $this->saveCouponData($plan->price_after_discount, $couponData);
+            $this->moyasarFormConfiguration->getPublishableKey();
+            $this->moyasarFormConfiguration->amountInHalala((float) $couponData['final_total']);
 
-            //   الدفع
-            $paymentUrl = $this->initiatePayment($request, $sessionData, $couponData['final_total']);
+            $pendingBill = $this->createPendingBill($plan, $couponData);
 
-            if ($paymentUrl instanceof \Illuminate\Http\RedirectResponse) {
-                return $paymentUrl;
-            }
-
-            return redirect($paymentUrl);
-            //
+            return $this->showMoyasarCheckout($pendingBill, $plan);
+        } catch (PaymentInitiationException $e) {
+            return $this->redirectWithError('subscribe.index', $e->getMessage());
         } catch (\Throwable $e) {
             report($e);
             return $this->redirectWithError('subscribe.index', 'حدث خطأ أثناء المعالجة ');
@@ -99,25 +102,16 @@ class NewSubscriptionController extends Controller
     public function handleNewSubscriptionCallback(Request $request)
     {
         try {
-            //
-            $result = $this->moyasarCallbackHandler->handleSubscriptionToTenant($request);
+            $result = $this->moyasarCallbackHandler->verify($request);
+            $this->subscriptionService->completeExistingTenantSubscription($result['bill'], $result['payment']);
+            $this->sessionManagerService->clear('subscription_data');
 
-            if ($result['success']) {
-
-                // تطبيق الكوبون بعد نجاح الدفع
-                $this->applyCouponAfterPayment();
-
-                // مسح بيانات الجلسة
-                $this->sessionManagerService->clear();
-
-                return redirect()->to(tenant_route_name('subscriptions.index'))->with('success', $result['message'] ?? 'تم الاشتراك بنجاح');
-            }
-
-            return redirect()->route('site.index')->with('error', $result['message']);
+            return redirect()->to(tenant_route_name('subscriptions.index'))->with('success', 'تم الاشتراك بنجاح.');
+        } catch (PaymentVerificationException|SubscriptionCreationException $e) {
+            return redirect()->to(tenant_route_name('subscribe.index'))->with('error', $e->getMessage());
         } catch (\Throwable $e) {
-            //
             report($e);
-            return redirect()->route('site.index')->with('error', 'حدث خطأ أثناء معالجة نتيجة الدفع');
+            return redirect()->to(tenant_route_name('subscribe.index'))->with('error', 'حدث خطأ أثناء معالجة نتيجة الدفع');
         }
     }
 
@@ -128,57 +122,40 @@ class NewSubscriptionController extends Controller
     |============================================================================
     |============================================================================
     */
-    private function saveCouponData($total, array $couponData): void
+    private function createPendingBill(Plan $plan, array $couponData): Bill
     {
-        $this->sessionManagerService->update('subscription_data', [
-            'original_total'  => $total,
-            'discount_amount' => $couponData['discount_amount'],
-            'final_total'     => $couponData['final_total'],
+        $tenant = tenant();
+        $user = auth('tenant')->user();
 
-            'coupon_id'       => $couponData['coupon_id'],
-            'coupon_code'     => $couponData['coupon_code'],
-            'coupon_value'    => $couponData['coupon_value'],
-            'coupon_type'     => $couponData['coupon_type'],
-        ]);
+        return $this->billService->createPendingBill(
+            amount: $couponData['final_total'],
+            paymentMethod: PaymentMethod::ONLINE,
+            originalAmount: $plan->price_after_discount,
+            type: BillType::NEW_SUBSCRIPTION,
+            couponData: $couponData,
+            metadata: [
+                'tenant_id' => $tenant->id,
+                'plan_id' => $plan->id,
+                'billing_name' => $user->name ?? $tenant->primary_contact_name,
+                'billing_email' => $user->email ?? $tenant->primary_contact_email,
+                'billing_phone' => $user->phone ?? $tenant->primary_contact_phone,
+                'billing_company_name' => $tenant->company_name,
+                'billing_commercial_number' => $tenant->commercial_number,
+            ],
+        );
     }
 
-    // الدفع
-    private function initiatePayment(Request $request, array $sessionData, $final_total)
+    private function showMoyasarCheckout(Bill $bill, Plan $plan)
     {
-        $plan = Plan::findOrfail($sessionData['plan_id']);
-
-        $request->merge([
-            'amount'            => $final_total,
-            'description'       => 'اشتراك في ' . $plan->name,
+        return view('tenants.payment.moyasar-checkout', [
+            'amountInHalala' => $this->moyasarFormConfiguration->amountInHalala((float) $bill->amount),
+            'backUrl' => tenant_route_name('subscribe.checkout', ['plan' => $plan->id]),
+            'bill' => $bill,
+            'callbackUrl' => tenant_route_name('subscribe.callback', ['bill' => $bill->bill_number]),
+            'description' => 'اشتراك في ' . $plan->name,
+            'mode' => $this->moyasarFormConfiguration->getMode(),
+            'publishableKey' => $this->moyasarFormConfiguration->getPublishableKey(),
         ]);
-
-        // دفع عبر مسير
-        $payment = $this->moyasarService->createNewSubscriptionToTenant($request);
-
-        if (isset($payment['source']['transaction_url'])) {
-
-            return $payment['source']['transaction_url'];
-        }
-
-        return $this->redirectWithError('subscribe.index', 'حدث خطأ أثناء إنشاء عملية الدفع.');
-    }
-
-
-    private function applyCouponAfterPayment(): void
-    {
-        $pendingPayment = session('subscription_data');
-
-        if (!$pendingPayment || empty($pendingPayment['coupon_code'])) {
-            return;
-        }
-
-        $coupon = $this->couponService->findActiveCoupon($pendingPayment['coupon_code']);
-
-        if (!$coupon) {
-            return;
-        }
-
-        $this->couponService->applyCoupon($coupon);
     }
 
 

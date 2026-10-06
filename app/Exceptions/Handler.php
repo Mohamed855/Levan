@@ -49,9 +49,9 @@ class Handler extends ExceptionHandler
             //
         });
 
-        // اذا لم يتم التعرف على المستأجر من خلال المسار، عرض صفحة خطأ مخصصة
+        // إذا لم يتم التعرف على المستأجر فلا توجد هوية tenant صالحة لعرض قالبها.
         $this->renderable(function (TenantCouldNotBeIdentifiedByPathException $e) {
-            return response()->view('tenants.errors.404', [], 404);
+            return response()->view('errors.404', [], 404);
         });
     }
 

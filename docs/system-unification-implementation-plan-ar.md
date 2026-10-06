@@ -53,6 +53,11 @@
 
 ## 4. بوابة البداية المشتركة — المرحلة 0
 
+> **الحالة الحالية (5 أكتوبر 2026):** اكتمل الـbaseline الثابت وقائمة الاختبار اليدوية في
+> [`baselines/phase-0-baseline-2026-10-05.md`](baselines/phase-0-baseline-2026-10-05.md) و
+> [`baselines/manual-smoke-checklist.md`](baselines/manual-smoke-checklist.md).
+> التحقق التشغيلي مؤجل لحين توفير MySQL المحلي؛ تفاصيل العائق موثقة في الـbaseline.
+
 ### التنفيذ
 
 1. إنشاء inventory مولد من الكود لكل routes في Website وAdmin وTenant وAPI، متضمناً method، middleware، controller/action، name، ونطاق قاعدة البيانات.
@@ -73,6 +78,9 @@
 - تم تمييز ما هو مؤكد من الكود وما يحتاج اختبار runtime.
 
 ## 5. مرحلة الأمان والعزل — المرحلة 1
+
+> **الحالة الحالية (6 أكتوبر 2026):** **مكتملة**. تم تأمين API الترقية بـHMAC وحماية replay مع اختبارات آلية ناجحة، تحويل كافة mutations المثبتة إلى POST-only، وعزل قوالب الأخطاء؛ التفاصيل وسجل بوابة القبول في
+> [`baselines/phase-1-security-register.md`](baselines/phase-1-security-register.md).
 
 ### 1.1 API upgrade
 
@@ -100,6 +108,9 @@
 
 ## 6. مرحلة عقود الـUI الأساسية — المرحلة 2
 
+> **الحالة الحالية (6 أكتوبر 2026):** **مكتملة**. تم تثبيت design tokens الموحدة للألوان والحلقات والانحناءات وحالات المكونات في `_variables.scss`، إلغاء حركات placeholder/button translations في `_forms.scss` و`_buttons.scss`، توحيد حالات `.btn.is-loading` و`.spinner` و`.empty-state` و`.card-footer` و`.page-header`، إنشاء المكون المشترك `<x-ui.empty-state>`، واجتياز بناء الأصول `npm run build`؛ التفاصيل في
+> [`baselines/phase-2-ui-contracts-register.md`](baselines/phase-2-ui-contracts-register.md).
+
 ### التنفيذ
 
 1. تدقيق SCSS/JS العام لإزالة placeholder movement وhover translations من النظام العام.
@@ -120,6 +131,9 @@
 - لا يتغير DOM أو سلوك الصفحات غير المستهدفة بلا اختبار.
 
 ## 7. مرحلة محرك form-validation والمكوّنات — المرحلة 3
+
+> **الحالة الحالية (6 أكتوبر 2026):** **مكتملة**. تم اعتماد `shared/form-validation.js` كمحرك موحد وإزالة القواعد البرمجية المكررة منه، مطابقة كافة مكوّنات الحقول لعقد الـ DOM، ربط نقطة التحقق `validate-step` بالـ FormRequest الحقيقي، وتوثيق دورة حياة الـ Wizard والمسودات؛ التفاصيل في
+> [`baselines/phase-3-forms-validation-register.md`](baselines/phase-3-forms-validation-register.md).
 
 ### التنفيذ
 
@@ -145,6 +159,9 @@
 
 ## 8. مرحلة Website — المرحلة 4
 
+> **الحالة الحالية (6 أكتوبر 2026):** **مكتملة**. تمت مزامنة قواعد التحقق في التجربة المجانية وإتمام الدفع مع الـ FormRequests الرسمية، حصر وإلغاء الاعتماد على سكربتات التحقق المنفصلة، توثيق قرارات الضرائب وإتاحة الباقات، واعتماد بطاقة الباقات الموحدة `<x-ui.package-card>` واجتياز بناء الأصول بنجاح؛ التفاصيل في
+> [`baselines/phase-4-website-register.md`](baselines/phase-4-website-register.md).
+
 ### الترتيب
 
 1. Landing/contact/trial.
@@ -166,6 +183,9 @@
 - checkout يعالج card/bank/coupon/error/callback دون كسر redirect أو session.
 
 ## 9. مرحلة Super Admin — المرحلة 5
+
+> **الحالة الحالية (6 أكتوبر 2026):** **مكتملة**. تم فصل `admin.mass-delete` في متحكم مركزي مستقل `AdminMassDeleteController` مع تقييد القائمة البيضاء والصلاحيات، توحيد نموذج وسكربت إنشاء الاشتراكات مع عقد الـ Wizard والـ Controls ومحرك التحقق المشترك، توحيد أزرار تبديل الحالة `js-table-status-toggle` ومطابقة ترتيب عمود `الحالة` قبل `الإجراءات` في كافة الـ DataTables، حماية مسارات الفواتير، واجتياز اختبارات العقد وبناء الواجهة بنجاح؛ التفاصيل في
+> [`baselines/phase-5-admin-register.md`](baselines/phase-5-admin-register.md).
 
 ### ترتيب الإدارات
 

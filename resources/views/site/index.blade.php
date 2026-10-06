@@ -14,7 +14,7 @@
 <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
 
 
-@vite(['resources/assets/js/site/landing.js'])
+@vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/site/landing.js'])
 @endsection
 
 @section('toastr')
@@ -636,39 +636,36 @@
                             </p>
                         </div>
                         <form id="form" method="POST" action="{{ route('site.contact.store') }}" autocomplete="off"
-                            novalidate>
+                            data-form-validate data-validation-url="{{ route('site.form-validation') }}" novalidate>
                             @csrf
 
                             <div class="row">
                                 <div class="col-12 md:col-6">
-                                    <input type="text" name="customer_name" minlength="3"
+                                    <input type="text" name="customer_name" minlength="3" data-form-control
                                         class="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                         placeholder="الاسم" required />
-                                    <p class="invalid-feedback hidden text-red-500 text-xs mt-1">
-                                        الرجاء إدخال الاسم الكامل (على الأقل 3 أحرف)
-                                    </p>
+                                    <p class="invalid-feedback hidden text-red-500 text-xs mt-1" data-form-error
+                                        aria-live="polite" hidden></p>
                                 </div>
 
                                 <div class="col-12 md:col-6">
-                                    <input type="email" name="customer_email"
+                                    <input type="email" name="customer_email" data-form-control
                                         class="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                         placeholder="البريد الإلكتروني" />
-                                    <p class="invalid-feedback hidden text-red-500 text-xs mt-1">
-                                        الرجاء إدخال بريد إلكتروني صحيح
-                                    </p>
+                                    <p class="invalid-feedback hidden text-red-500 text-xs mt-1" data-form-error
+                                        aria-live="polite" hidden></p>
                                 </div>
 
                                 <div class="col-12">
-                                    <textarea name="message" rows="5"
+                                    <textarea name="message" rows="5" minlength="10" data-form-control
                                         class="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                         placeholder="رسالتك أو استفسارك" required></textarea>
-                                    <p class="invalid-feedback hidden text-red-500 text-xs mt-1">
-                                        الرجاء كتابة رسالتك
-                                    </p>
+                                    <p class="invalid-feedback hidden text-red-500 text-xs mt-1" data-form-error
+                                        aria-live="polite" hidden></p>
                                 </div>
 
                                 <!-- recaptcha -->
-                                <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
+                                <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response" data-validation-skip>
 
                                 @error('recaptcha')
                                 <div class="text-danger mt-2">{{ $message }}</div>

@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\Tenants\__LinkDomain;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Domains\ProcessExternalDomainLinkRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -23,22 +24,24 @@ class LinkDomainController extends Controller
     {
         $this->whmToken = env('WHM_TOKEN');
         $this->whmUrl = env('WHM_HOST');
-        $this->serverIp = env('135.181.215.105');
+        $this->serverIp = env('SERVER_IP', '135.181.215.105');
     }
 
   
-    public function processLinkExternalDomain(Request $request)
+    public function processLinkExternalDomain(ProcessExternalDomainLinkRequest $request)
     {
-        $domainName = trim($request->domain_name);
-        $dns1 = trim($request->ns1);
-        $dns2 = trim($request->ns2);
+        $domainName = $request->validated('domain_name');
+        $dns1 = $request->validated('ns1');
+        $dns2 = $request->validated('ns2');
 
         try {
-            // ============================
-            // 1️⃣ التحقق من البيانات
-            // ============================
-            if (empty($domainName) || empty($dns1) || empty($dns2)) {
-                return $this->respondError('❌ جميع الحقول مطلوبة (الدومين + NS1 + NS2)', $request);
+            if (blank($this->whmUrl) || blank($this->whmToken) || blank($this->serverIp)) {
+                Log::error('External domain linking is unavailable because WHM configuration is missing.', [
+                    'tenant_id' => tenant('id'),
+                    'domain' => $domainName,
+                ]);
+
+                return $this->respondError('خدمة ربط الدومين غير متاحة حالياً. يرجى التواصل مع الدعم الفني.', $request);
             }
 
             // ============================
@@ -58,7 +61,7 @@ class LinkDomainController extends Controller
             if (!isset($zoneJson['metadata']['result']) || $zoneJson['metadata']['result'] != 1) {
                 $errorMsg = $zoneJson['metadata']['reason'] ?? 'خطأ في إضافة Zone';
                 Log::error('WHM Zone Addition Failed', ['error' => $errorMsg, 'domain' => $domainName]);
-                return $this->respondError('❌ فشل إضافة الدومين: ' . $errorMsg, $request);
+                return $this->respondError('تعذر ربط الدومين حالياً. يرجى المحاولة لاحقاً.', $request);
             }
 
             Log::info('External Domain Zone Added Successfully', [
@@ -106,7 +109,7 @@ class LinkDomainController extends Controller
                 'line' => $th->getLine(),
             ]);
 
-            return $this->respondError('❌ حدث خطأ: ' . $th->getMessage(), $request);
+            return $this->respondError('تعذر ربط الدومين حالياً. يرجى المحاولة لاحقاً.', $request);
         }
     }
 

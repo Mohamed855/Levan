@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Admin\Settings\Bank;
 
 use App\DataTables\Admin\Setting\Bank\BankDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Settings\Bank\StoreBankRequest;
+use App\Http\Requests\Admin\Settings\Bank\UpdateBankRequest;
 use App\Models\Admin\Bank\Bank;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class SettingsBankController extends Controller
@@ -43,25 +43,9 @@ class SettingsBankController extends Controller
         return view($this->page . '.create');
     }
 
-    // التحقق يجب ان يكون في ملف منفصل بنفس المسار الكنترول
-    public function store(Request $request)
+    public function store(StoreBankRequest $request)
     {
-        $validated = $request->validate([
-            'bank_name' => 'required|string|max:255',
-            'icon' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
-            'account_name' => 'required|string|max:255',
-            'iban' => 'required|string|max:255',
-            'account_number' => 'required|string|max:255',
-        ], [
-            'bank_name.required' => 'اسم البنك مطلوب',
-            'icon.required' => 'أيقونة البنك مطلوبة',
-            'icon.image' => 'يجب أن يكون الملف صورة',
-            'icon.mimes' => 'الصيغ المسموحة: jpeg, png, jpg, svg',
-            'icon.max' => 'حجم الصورة يجب ألا يتجاوز 2 ميجابايت',
-            'account_name.required' => 'اسم الحساب مطلوب',
-            'iban.required' => 'رقم الآيبان مطلوب',
-            'account_number.required' => 'رقم الحساب مطلوب',
-        ]);
+        $validated = $request->validated();
 
         // رفع الأيقونة
         if ($request->hasFile('icon')) {
@@ -86,23 +70,9 @@ class SettingsBankController extends Controller
     /**
      * تحديث بيانات بنك
      */
-    public function update(Request $request, Bank $bank)
+    public function update(UpdateBankRequest $request, Bank $bank)
     {
-        $validated = $request->validate([
-            'bank_name' => 'required|string|max:255',
-            'icon' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
-            'account_name' => 'required|string|max:255',
-            'iban' => 'required|string|max:255',
-            'account_number' => 'required|string|max:255',
-        ], [
-            'bank_name.required' => 'اسم البنك مطلوب',
-            'icon.image' => 'يجب أن يكون الملف صورة',
-            'icon.mimes' => 'الصيغ المسموحة: jpeg, png, jpg, svg',
-            'icon.max' => 'حجم الصورة يجب ألا يتجاوز 2 ميجابايت',
-            'account_name.required' => 'اسم الحساب مطلوب',
-            'iban.required' => 'رقم الآيبان مطلوب',
-            'account_number.required' => 'رقم الحساب مطلوب',
-        ]);
+        $validated = $request->validated();
 
         // رفع الأيقونة الجديدة
         if ($request->hasFile('icon')) {

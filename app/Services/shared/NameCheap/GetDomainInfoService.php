@@ -16,12 +16,12 @@ class GetDomainInfoService
     private $serverIp;
     public function __construct()
     {
-        $this->apiUser = "nhjsa";
-        $this->apiKey = "f38b308ef2fb45dcac4145a4f216b27b";
-        $this->clientIp = "41.237.215.140";
+        $this->apiUser = config('services.namecheap.user');
+        $this->apiKey = config('services.namecheap.api_key');
+        $this->clientIp = config('services.namecheap.client_ip');
         $this->baseUrl = "https://api.namecheap.com/xml.response";
         $this->whmUrl = 'https://server7.e-tec.sa:2087/json-api';
-        $this->whmToken = "C94RS4JLTPKTTCXMD14IZ75JADUSG3TC";
+        $this->whmToken = config('services.namecheap.whm_token');
         $this->serverIp = '41.237.215.140';
     }
     public function getDomainInfo($domain)

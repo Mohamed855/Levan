@@ -39,6 +39,16 @@ class MoyasarCallbackHandler
             throw new PaymentVerificationException("فشل الدفع. الحالة: " . ($payment['status'] ?? 'unknown'));
         }
 
+        if (strtoupper((string) ($payment['currency'] ?? '')) !== 'SAR') {
+            Log::critical('عملة الدفع لا تطابق العملة المتوقعة', [
+                'currency' => $payment['currency'] ?? null,
+                'bill_number' => $billNumber,
+                'payment_id' => $paymentId,
+            ]);
+
+            throw new PaymentVerificationException('عملة الدفع غير متطابقة.');
+        }
+
         $paidAmount = (float) $payment['amount'] / 100;
 
         if (abs($paidAmount - (float) $bill->amount) > 0.01) {

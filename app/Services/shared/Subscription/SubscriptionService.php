@@ -36,6 +36,49 @@ class SubscriptionService
         return $this->processNewSubscription($bill, PaymentMethod::ONLINE, $payment);
     }
 
+    public function completeExistingTenantSubscription(Bill $bill, array $payment): void
+    {
+        try {
+            $metadata = $bill->metadata;
+            $tenantId = $metadata['tenant_id'] ?? null;
+            $planId = $metadata['plan_id'] ?? null;
+
+            if (! $tenantId || ! $planId) {
+                throw new SubscriptionCreationException('بيانات الاشتراك غير مكتملة.');
+            }
+
+            $tenant = Tenancy::central(fn () => Tenant::findOrFail($tenantId));
+
+            if ($this->subscriptionManager->getTenantSubscription($tenant->id)) {
+                throw new SubscriptionCreationException('يوجد اشتراك مسجل لهذه المنشأة بالفعل.');
+            }
+
+            $plan = Tenancy::central(fn () => Plan::findOrFail($planId));
+            $subscription = $this->subscriptionManager->createSubscription($tenant, $plan, (float) $bill->amount);
+
+            $this->billService->markAsPaid($bill, $tenant->id, $subscription->id, PaymentMethod::ONLINE, $payment);
+            $this->applyCoupon($bill);
+
+            SendSubscriptionMailJob::dispatch(
+                $metadata['billing_email'] ?? $tenant->primary_contact_email,
+                $subscription,
+                'new'
+            )->onQueue('email');
+        } catch (SubscriptionCreationException $e) {
+            $this->billService->cancelBill($bill);
+            throw $e;
+        } catch (\Throwable $e) {
+            $this->billService->cancelBill($bill);
+
+            Log::error('فشل تفعيل اشتراك Tenant موجود', [
+                'bill_number' => $bill->bill_number,
+                'error' => $e->getMessage(),
+            ]);
+
+            throw new SubscriptionCreationException('حدث خطأ أثناء تفعيل الاشتراك.');
+        }
+    }
+
     // اشتراك جديد عبر تحويل بنكي (بعد موافقة الأدمن)
     public function completeBankTransferSubscription(Bill $bill): array
     {

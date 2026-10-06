@@ -10,6 +10,28 @@
     width: 80%;
     max-width: 500px;
     z-index: 9999;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-md, 0.5rem);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
+
+// Unified Alert component styling
+.alert {
+    border-radius: var(--radius-sm, 0.375rem);
+    padding: 0.875rem 1.125rem;
+    font-size: 0.925rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+
+    .alert-icon,
+    > i {
+        font-size: 1.25rem;
+        line-height: 1.4;
+        flex-shrink: 0;
+    }
+
+    .btn-close {
+        padding: 1rem 1.125rem;
+    }
+}
+

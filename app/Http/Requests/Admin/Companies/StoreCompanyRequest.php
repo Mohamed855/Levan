@@ -30,7 +30,7 @@ class StoreCompanyRequest extends WizardFormRequest
             // Step 2: First Admin User
             'name' => ['required', 'string', 'min:2', 'max:255', 'regex:/^[\pL\s\-\.]+$/u'],
             'phone' => ['required', 'string', 'size:10', 'regex:/^05[0-9]{8}$/'],
-            'email' => ['required', 'email:rfc,dns', 'max:255'],
+            'email' => ['required', 'email:rfc', 'max:255'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
 
             // Step 3: Subscription & Payment

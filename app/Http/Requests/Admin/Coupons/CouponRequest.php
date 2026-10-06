@@ -6,14 +6,16 @@ use App\Http\Requests\Concerns\WizardFormRequest;
 
 class CouponRequest extends WizardFormRequest
 {
-    public function authorize()
+    public function authorize(): bool
     {
-        return true;
+        $permission = $this->isMethod('POST') ? 'coupons.create' : 'coupons.edit';
+        return $this->user('admin')?->can($permission) ?? false;
     }
 
-    public function rules()
+    public function rules(): array
     {
-        $couponId = $this->route('coupon') ? $this->route('coupon')->id : null;
+        $coupon = $this->route('coupon');
+        $couponId = $coupon instanceof \App\Models\Admin\Coupons\Coupon ? $coupon->id : (is_numeric($coupon) ? (int) $coupon : null);
 
         return [
             'name' => 'required|string|max:255',

@@ -55,7 +55,7 @@ class TenantDashboardComprehensiveTest extends TestCase
         $this->getJson($this->tenantUrl('dashboard/approvals'))->assertStatus(200);
         $this->getJson($this->tenantUrl('dashboard/overdue-tasks'))->assertStatus(200);
         $this->getJson($this->tenantUrl('dashboard/my-overdue-tasks'))->assertStatus(200);
-        $this->get($this->tenantUrl('dashboard/collection-sessions-page'))->assertStatus(200);
+        $this->get($this->tenantUrl('dashboard/collection-sessions-page'))->assertNotFound();
         $this->get($this->tenantUrl('dashboard/excellence'))->assertStatus(200);
         $this->getJson($this->tenantUrl('dashboard/my-performance-comparison'))->assertStatus(200);
     }

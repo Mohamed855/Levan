@@ -7,17 +7,13 @@
 
 @endsection
 
-@section('vendor-script')
-    @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js', 'resources/assets/vendor/libs/cleavejs/cleave.js'])
-@endsection
-
 @section('page-script')
     <script>
         window.paymentData = {
             total: {{ $plan->price_after_discount }},
         };
     </script>
-    @vite(['resources/assets/js/shared/payment/validation.js', 'resources/assets/js/shared/payment/apply-coupon.js', 'resources/assets/js/site/front-page-payment.js'])
+    @vite(['resources/assets/js/shared/payment/apply-coupon.js'])
 @endsection
 
 @section('toastr')
@@ -46,60 +42,11 @@
                             <div class="border-1 border-light border-dashed mb-2"></div>
 
                             <div class="card-body">
-                                <div id="form-credit-card" class="mt-5">
-                                    <div class="row g-4">
-                                        <!-- رقم البطاقة -->
-                                        <div class="col-12">
-                                            <label class="form-label" for="card_number">
-                                                <i class="ti ti-credit-card me-1"></i>
-                                                رقم البطاقة
-                                                <span class="text-danger">*</span>
-                                            </label>
-                                            <div class="input-group input-group-merge">
-                                                <input type="text" id="billings-card-num" name="card_number"
-                                                    class="form-control billing-card-mask text-start"
-                                                    placeholder="7465 8374 5837 5067" dir="ltr" inputmode="numeric"
-                                                    dir="ltr" autocomplete="cc-number" maxlength="19" required />
-                                                <span class="input-group-text cursor-pointer p-1" id="paymentCard">
-                                                    <span class="card-type"></span>
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <!-- اسم حامل البطاقة -->
-                                        <div class="col-md-6">
-                                            <label class="form-label" for="card_name_display">
-                                                <i class="ti ti-user me-1"></i>
-                                                اسم حامل البطاقة
-                                                <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="text" id="card_name_display" name="card_name_display"
-                                                class="form-control text-uppercase" placeholder="ALI AHMED" required />
-                                        </div>
-
-                                        <!-- تاريخ الانتهاء -->
-                                        <div class="col-md-3">
-                                            <label class="form-label" for="exp_date_display">
-                                                <i class="ti ti-calendar me-1"></i>
-                                                تاريخ الانتهاء
-                                                <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="text" name="exp_date_display" id="exp_date_display"
-                                                class="form-control text-start" inputmode="numeric" autocomplete="cc-exp"
-                                                maxlength="5" placeholder="MM/YY" required />
-                                        </div>
-
-                                        <!-- رمز التحقق CVC -->
-                                        <div class="col-md-3">
-                                            <label class="form-label" for="cvc">
-                                                <i class="ti ti-lock me-1"></i>
-                                                رمز الأمان (CVV)
-                                                <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="text" id="cvc" name="cvc"
-                                                class="form-control text-start" inputmode="numeric" autocomplete="cc-csc"
-                                                maxlength="4" placeholder="123" required />
-                                        </div>
+                                <div class="alert alert-primary mb-0 d-flex align-items-start gap-3" role="status">
+                                    <i class="ti ti-shield-lock fs-4"></i>
+                                    <div>
+                                        <h6 class="alert-heading mb-1">الدفع الآمن بالبطاقة</h6>
+                                        <p class="mb-0">بعد مراجعة الطلب ستنتقل إلى نموذج Moyasar الآمن لإدخال بيانات البطاقة مباشرة.</p>
                                     </div>
                                 </div>
                             </div>

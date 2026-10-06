@@ -47,11 +47,22 @@ return Application::configure(basePath: dirname(__DIR__))
 
             // Tenant API Middleware
             'tenant.token'          => \App\Http\Middleware\Tenancy\VerifyTenantToken::class,
+            'tenant.upgrade.signature' => \App\Http\Middleware\VerifyTenantUpgradeRequest::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $errorView = static function ($request, int $status): string {
+            if (tenant()) {
+                return "tenants.errors.{$status}";
+            }
+
+            return $request->is('admin') || $request->is('admin/*')
+                ? "admin.errors.{$status}"
+                : "site.errors.{$status}";
+        };
+
         // Tenant identification failure -> 404
-        $exceptions->render(function (\Stancl\Tenancy\Contracts\TenantCouldNotBeIdentifiedException $e, $request) {
+        $exceptions->render(function (\Stancl\Tenancy\Contracts\TenantCouldNotBeIdentifiedException $e, $request) use ($errorView) {
             if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -59,11 +70,11 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], 404);
             }
 
-            return response()->view('tenants.errors.404', ['exception' => $e], 404);
+            return response()->view($errorView($request, 404), ['exception' => $e], 404);
         });
 
         // Authorization exceptions -> 403
-        $exceptions->render(function (\Illuminate\Auth\Access\AuthorizationException $e, $request) {
+        $exceptions->render(function (\Illuminate\Auth\Access\AuthorizationException $e, $request) use ($errorView) {
             if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -71,11 +82,11 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], 403);
             }
 
-            return response()->view('tenants.errors.403', ['exception' => $e], 403);
+            return response()->view($errorView($request, 403), ['exception' => $e], 403);
         });
 
         // HTTP Exceptions (403, 404, 500)
-        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpExceptionInterface $e, $request) {
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpExceptionInterface $e, $request) use ($errorView) {
             $status = $e->getStatusCode();
 
             if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
@@ -90,17 +101,18 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], $status);
             }
 
-            if (view()->exists("tenants.errors.{$status}")) {
-                return response()->view("tenants.errors.{$status}", ['exception' => $e], $status);
+            $view = $errorView($request, $status);
+            if (view()->exists($view)) {
+                return response()->view($view, ['exception' => $e], $status);
             }
 
             if ($status >= 500) {
-                return response()->view('tenants.errors.500', ['exception' => $e], $status);
+                return response()->view($errorView($request, 500), ['exception' => $e], $status);
             }
         });
 
         // Unhandled server exceptions -> 500
-        $exceptions->render(function (\Throwable $e, $request) {
+        $exceptions->render(function (\Throwable $e, $request) use ($errorView) {
             if ($e instanceof \Illuminate\Validation\ValidationException || $e instanceof \Illuminate\Auth\AuthenticationException) {
                 return null;
             }
@@ -108,12 +120,12 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => config('app.debug') ? $e->getMessage() : 'حدث خطأ داخلي في الخادم',
+                    'message' => 'حدث خطأ داخلي في الخادم',
                 ], 500);
             }
 
             try {
-                return response()->view('tenants.errors.500', ['exception' => $e], 500);
+                return response()->view($errorView($request, 500), ['exception' => $e], 500);
             } catch (\Throwable) {
                 return null;
             }

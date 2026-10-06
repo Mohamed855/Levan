@@ -36,6 +36,13 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+        RateLimiter::for('tenant-upgrade', function (Request $request) {
+            $limit = min(max((int) config('app.upgrade_api_rate_limit', 5), 1), 60);
+            $tenantId = (string) $request->route('tenantId');
+
+            return Limit::perMinute($limit)->by(hash('sha256', $tenantId . '|' . $request->ip()));
+        });
+
         $this->routes(function () {
             $this->mapSiteRoutes();
             $this->mapAdminRoutes();
@@ -47,27 +54,37 @@ class RouteServiceProvider extends ServiceProvider
     // Main Site Routes (Landing, Trial, Subscription)
     protected function mapSiteRoutes(): void
     {
-        foreach (config('tenancy.central_domains') as $domain) {
+        foreach ($this->centralDomains() as $index => $domain) {
             $cleanDomain = str_replace(['http://', 'https://'], '', $domain);
 
-            Route::middleware(['web'])->domain($cleanDomain)->group(base_path('routes/site/site.php'));
+            $routes = Route::middleware(['web'])->domain($cleanDomain);
+            if ($index > 0) {
+                $routes->as("central-domain-{$index}.");
+            }
+
+            $routes->group(base_path('routes/site/site.php'));
         }
     }
 
     // Admin Panel Routes
     protected function mapAdminRoutes(): void
     {
-        foreach (config('tenancy.central_domains') as $domain) {
+        foreach ($this->centralDomains() as $index => $domain) {
             $cleanDomain = str_replace(['http://', 'https://'], '', $domain);
 
-            Route::middleware(['web'])->domain($cleanDomain)->group(base_path('routes/admin/admin.php'));
+            $routes = Route::middleware(['web'])->domain($cleanDomain);
+            if ($index > 0) {
+                $routes->as("central-domain-{$index}.");
+            }
+
+            $routes->group(base_path('routes/admin/admin.php'));
         }
     }
 
     // Tenant-Specific Routes
     protected function mapTenantRoutes(): void
     {
-        foreach (config('tenancy.central_domains') as $domain) {
+        foreach ($this->centralDomains() as $index => $domain) {
             $cleanDomain = str_replace(['http://', 'https://'], '', $domain);
 
             Route::middleware([
@@ -78,7 +95,7 @@ class RouteServiceProvider extends ServiceProvider
             ])
                 ->domain($cleanDomain)
                 ->prefix('{tenant}')
-                ->name('path.')
+                ->name($index === 0 ? 'path.' : "central-domain-{$index}.path.")
                 ->where(['tenant' => '^(?!(?i)(admin|api)(?:\/|$))[^/]+$'])
                 ->group(base_path('routes/tenant/tenant.php'));
         }
@@ -89,6 +106,21 @@ class RouteServiceProvider extends ServiceProvider
             "tenant.domain",
             'tenant.maintenance',
         ])->name('domain.')->group(base_path('routes/tenant/tenant.php'));
+    }
+
+    /**
+     * Only the primary central domain owns the canonical route names. Additional
+     * development/alias domains receive unique route-name prefixes so route:cache
+     * remains serializable while inbound requests keep working on every domain.
+     *
+     * @return list<string>
+     */
+    private function centralDomains(): array
+    {
+        return array_values(array_unique(array_filter(
+            config('tenancy.central_domains', []),
+            static fn (mixed $domain): bool => is_string($domain) && $domain !== '',
+        )));
     }
 
     protected function mapApiRoutes(): void

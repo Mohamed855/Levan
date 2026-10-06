@@ -55,6 +55,16 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    'next_version_url' => env('NEXT_VERSION_URL'),
+
+    'upgrade_secret' => env('UPGRADE_SECRET'),
+
+    'upgrade_hmac_max_age_seconds' => (int) env('UPGRADE_HMAC_MAX_AGE_SECONDS', 300),
+
+    'upgrade_legacy_secret_until' => env('UPGRADE_LEGACY_SECRET_UNTIL', '2026-11-05T00:00:00+03:00'),
+
+    'upgrade_api_rate_limit' => (int) env('UPGRADE_API_RATE_LIMIT', 5),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone

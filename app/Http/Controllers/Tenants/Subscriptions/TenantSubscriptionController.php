@@ -14,13 +14,11 @@ use App\Models\Admin\Plans\Plan;
 use App\Services\shared\Bills\BillService;
 use App\Services\shared\Coupons\CouponService;
 use App\Services\shared\Payment\Moyasar\MoyasarCallbackHandler;
-use App\Services\shared\Payment\PaymentData;
-use App\Services\shared\Payment\PaymentService;
+use App\Services\shared\Payment\Moyasar\MoyasarFormConfiguration;
 use App\Services\shared\Subscription\SubscriptionFormatter;
 use App\Services\shared\Subscription\SubscriptionManager;
 use App\Services\shared\Subscription\SubscriptionService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Stancl\Tenancy\Facades\Tenancy;
 
 class TenantSubscriptionController extends Controller
@@ -29,9 +27,9 @@ class TenantSubscriptionController extends Controller
         private SubscriptionManager     $subscriptionManager,
         private SubscriptionFormatter   $subscriptionFormatter,
         private MoyasarCallbackHandler  $moyasarCallbackHandler,
+        private MoyasarFormConfiguration $moyasarFormConfiguration,
         private CouponService           $couponService,
         private BillService             $billService,
-        private PaymentService          $paymentService,
         private SubscriptionService     $subscriptionService,
     ) {
         $this->middleware('can:subscriptions.view')->only(['index']);
@@ -88,11 +86,17 @@ class TenantSubscriptionController extends Controller
                 return redirect()->back()->with('error', $couponData['error'])->withInput();
             }
 
-            $pendingBill = $this->createPendingBill($plan, $couponData, BillType::RENEWAL, $plan->yearly_renewal_price);
-            $url         = $this->handlePaymentInitiation($request, $couponData, $pendingBill, 'تجديد الإشتراك في ' . $plan->name, 'renewSubscriptionPayment');
+            $this->moyasarFormConfiguration->getPublishableKey();
+            $this->moyasarFormConfiguration->amountInHalala((float) $couponData['final_total']);
 
-            return redirect($url);
-            //
+            $pendingBill = $this->createPendingBill($plan, $couponData, BillType::RENEWAL, $plan->yearly_renewal_price);
+
+            return $this->showMoyasarCheckout(
+                $pendingBill,
+                'تجديد الاشتراك في ' . $plan->name,
+                tenant_route_name('subscriptions.renew.callback', ['bill' => $pendingBill->bill_number]),
+                tenant_route_name('subscriptions.renew.checkout'),
+            );
         } catch (PaymentInitiationException $e) {
             return redirect()->back()->with('error', $e->getMessage());
         } catch (\Throwable $e) {
@@ -171,6 +175,9 @@ class TenantSubscriptionController extends Controller
                 return redirect()->back()->with('error', $couponData['error'])->withInput();
             }
 
+            $this->moyasarFormConfiguration->getPublishableKey();
+            $this->moyasarFormConfiguration->amountInHalala((float) $couponData['final_total']);
+
             $pendingBill = $this->createPendingBill(
                 $plan,
                 $couponData,
@@ -181,10 +188,12 @@ class TenantSubscriptionController extends Controller
                     'license_unit_price' => $plan->extra_user_license_price,
                 ]
             );
-            $url         = $this->handlePaymentInitiation($request, $couponData, $pendingBill, "شراء تراخيص إضافية ", 'licensePayment');
-
-            return redirect($url);
-            //
+            return $this->showMoyasarCheckout(
+                $pendingBill,
+                'شراء تراخيص إضافية',
+                tenant_route_name('subscriptions.licenses.callback', ['bill' => $pendingBill->bill_number]),
+                tenant_route_name('subscriptions.index'),
+            );
         } catch (PaymentInitiationException $e) {
             return redirect()->back()->with('error', $e->getMessage());
         } catch (\Throwable $e) {
@@ -240,13 +249,17 @@ class TenantSubscriptionController extends Controller
         );
     }
 
-    private function handlePaymentInitiation(Request $request, array $couponData, Bill $bill, $description, $functionName)
+    private function showMoyasarCheckout(Bill $bill, string $description, string $callbackUrl, string $backUrl)
     {
-        return $this->paymentService->initiatePayment(
-            PaymentData::fromRequest($request, $couponData['final_total'], $description),
-            $bill,
-            $functionName
-        );
+        return view('tenants.payment.moyasar-checkout', [
+            'amountInHalala' => $this->moyasarFormConfiguration->amountInHalala((float) $bill->amount),
+            'backUrl' => $backUrl,
+            'bill' => $bill,
+            'callbackUrl' => $callbackUrl,
+            'description' => $description,
+            'mode' => $this->moyasarFormConfiguration->getMode(),
+            'publishableKey' => $this->moyasarFormConfiguration->getPublishableKey(),
+        ]);
     }
 
     private function getCentralPlan()

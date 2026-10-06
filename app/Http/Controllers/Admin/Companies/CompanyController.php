@@ -6,6 +6,11 @@ namespace App\Http\Controllers\Admin\Companies;
 
 use App\DataTables\Admin\Companies\CompanyDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Companies\CheckAdminEmailUniqueRequest;
+use App\Http\Requests\Admin\Companies\CheckAdminPhoneUniqueRequest;
+use App\Http\Requests\Admin\Companies\CheckCommercialNumberUniqueRequest;
+use App\Http\Requests\Admin\Companies\CheckCompanyNameUniqueRequest;
+use App\Http\Requests\Admin\Companies\CheckTaxNumberUniqueRequest;
 use App\Http\Requests\Admin\Companies\StoreCompanyRequest;
 use App\Http\Requests\Admin\Companies\UpdateCompanyRequest;
 use App\Models\Admin\City;
@@ -14,7 +19,6 @@ use App\Models\Admin\Tenants\Tenant;
 use App\Services\Admin\Companies\CompanyService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class CompanyController extends Controller
@@ -193,16 +197,13 @@ class CompanyController extends Controller
     /**
      * التحقق من تفرد رقم السجل التجاري
      */
-    public function checkCommercialNumberUnique(Request $request): JsonResponse
+    public function checkCommercialNumberUnique(CheckCommercialNumberUniqueRequest $request): JsonResponse
     {
-        $request->validate([
-            'commercial_number' => ['required', 'string', 'digits:10'],
-            'company_id'        => ['nullable', 'string'],
-        ]);
+        $validated = $request->validated();
 
-        $query = Tenant::where('commercial_number', $request->input('commercial_number'));
-        if ($request->filled('company_id')) {
-            $query->where('id', '!=', $request->input('company_id'));
+        $query = Tenant::where('commercial_number', $validated['commercial_number']);
+        if (! empty($validated['company_id'])) {
+            $query->where('id', '!=', $validated['company_id']);
         }
 
         $exists = $query->exists();
@@ -216,16 +217,13 @@ class CompanyController extends Controller
     /**
      * التحقق من تفرد اسم الشركة
      */
-    public function checkCompanyNameUnique(Request $request): JsonResponse
+    public function checkCompanyNameUnique(CheckCompanyNameUniqueRequest $request): JsonResponse
     {
-        $request->validate([
-            'company_name' => ['required', 'string', 'max:255'],
-            'company_id'   => ['nullable', 'string'],
-        ]);
+        $validated = $request->validated();
 
-        $query = Tenant::where('company_name', $request->input('company_name'));
-        if ($request->filled('company_id')) {
-            $query->where('id', '!=', $request->input('company_id'));
+        $query = Tenant::where('company_name', $validated['company_name']);
+        if (! empty($validated['company_id'])) {
+            $query->where('id', '!=', $validated['company_id']);
         }
 
         $exists = $query->exists();
@@ -239,16 +237,13 @@ class CompanyController extends Controller
     /**
      * التحقق من تفرد الرقم الضريبي
      */
-    public function checkTaxNumberUnique(Request $request): JsonResponse
+    public function checkTaxNumberUnique(CheckTaxNumberUniqueRequest $request): JsonResponse
     {
-        $request->validate([
-            'tax_number' => ['required', 'string', 'max:50'],
-            'company_id' => ['nullable', 'string'],
-        ]);
+        $validated = $request->validated();
 
-        $query = Tenant::where('tax_number', $request->input('tax_number'));
-        if ($request->filled('company_id')) {
-            $query->where('id', '!=', $request->input('company_id'));
+        $query = Tenant::where('tax_number', $validated['tax_number']);
+        if (! empty($validated['company_id'])) {
+            $query->where('id', '!=', $validated['company_id']);
         }
 
         $exists = $query->exists();
@@ -262,14 +257,12 @@ class CompanyController extends Controller
     /**
      * التحقق من تفرد البريد الإلكتروني للمسؤول
      */
-    public function checkAdminEmailUnique(Request $request): JsonResponse
+    public function checkAdminEmailUnique(CheckAdminEmailUniqueRequest $request): JsonResponse
     {
-        $request->validate([
-            'email' => ['required', 'email'],
-        ]);
+        $email = $request->validated('email');
 
-        $existsInTenants = Tenant::where('primary_contact_email', $request->input('email'))->exists();
-        $existsInUsers = \App\Models\Tenants\UserMangment\User\User::where('email', $request->input('email'))->exists();
+        $existsInTenants = Tenant::where('primary_contact_email', $email)->exists();
+        $existsInUsers = \App\Models\Tenants\UserMangment\User\User::where('email', $email)->exists();
 
         $exists = $existsInTenants || $existsInUsers;
 
@@ -282,14 +275,12 @@ class CompanyController extends Controller
     /**
      * التحقق من تفرد رقم هاتف المسؤول
      */
-    public function checkAdminPhoneUnique(Request $request): JsonResponse
+    public function checkAdminPhoneUnique(CheckAdminPhoneUniqueRequest $request): JsonResponse
     {
-        $request->validate([
-            'phone' => ['required', 'string', 'size:10', 'regex:/^05[0-9]{8}$/'],
-        ]);
+        $phone = $request->validated('phone');
 
-        $existsInTenants = Tenant::where('primary_contact_phone', $request->input('phone'))->exists();
-        $existsInUsers = \App\Models\Tenants\UserMangment\User\User::where('phone', $request->input('phone'))->exists();
+        $existsInTenants = Tenant::where('primary_contact_phone', $phone)->exists();
+        $existsInUsers = \App\Models\Tenants\UserMangment\User\User::where('phone', $phone)->exists();
 
         $exists = $existsInTenants || $existsInUsers;
 

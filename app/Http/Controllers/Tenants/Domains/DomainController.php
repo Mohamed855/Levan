@@ -936,6 +936,15 @@ class DomainController extends Controller
     {
 
         $domainName = $request->domain;
+        if (blank($this->whmUrl) || blank($this->whmToken)) {
+            Log::error('WHM configuration is missing while linking a domain.', [
+                'tenant_id' => tenant('id'),
+                'domain' => $domainName,
+            ]);
+
+            return redirect()->back()->with('error', 'إعدادات استضافة الدومين غير مكتملة.');
+        }
+
         // $method = $request->method;
         $exists = Domain::where('domain', $domainName)->first();
         if ($exists) {
@@ -958,8 +967,8 @@ class DomainController extends Controller
             $whmPass = Str::random(16) . '@1Aa';
 
             $whmResponse = Http::withHeaders([
-                'Authorization' => 'whm levan:8EPSQ67GW3XWGGRBYN51EP105R6C31P5'
-            ])->timeout(60)->get('https://server.levan.com:2087/json-api/createacct', [
+                'Authorization' => 'whm levan:' . $this->whmToken,
+            ])->timeout(60)->get(rtrim($this->whmUrl, '/') . '/json-api/createacct', [
                 'username' => $whmUser,
                 'domain' => $domainName,
                 'password' => $whmPass,

@@ -49,7 +49,6 @@
         window.routes = {
             upcomingFollowUps: "{{ tenant_route_name('dashboard.upcomingFollowUps') }}",
             dashboard: "{{ tenant_route_name('dashboard') }}",
-            collectionSessionsPage: "{{ tenant_route_name('dashboard.collectionSessionsPage') }}",
             statistics: "{{ tenant_route_name('dashboard.statistics') }}",
             approvals: "{{ tenant_route_name('dashboard.approvals') }}",
             overdueTasks: "{{ tenant_route_name('dashboard.overdueTasks') }}",

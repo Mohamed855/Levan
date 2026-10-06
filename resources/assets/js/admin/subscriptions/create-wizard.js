@@ -2,99 +2,18 @@
 
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('subscription-wizard-form');
-    const wizardEl = document.getElementById('subscription-wizard');
-
-    if (!wizardEl || !form) {
+    if (!form) {
         return;
     }
 
     const companiesData = window.companiesData || [];
     const plansData = window.plansData || [];
 
-    let validationStepper = null;
-    if (typeof Stepper !== 'undefined') {
-        validationStepper = new Stepper(wizardEl, { linear: false });
-    }
-
     function formatNumber(number) {
         return new Intl.NumberFormat('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         }).format(number);
-    }
-
-    // Initialize FormValidation
-    const fv = FormValidation.formValidation(form, {
-        fields: {
-            company_id: {
-                validators: {
-                    notEmpty: { message: 'يرجى اختيار الشركة' }
-                }
-            },
-            plan_id: {
-                validators: {
-                    notEmpty: { message: 'يرجى اختيار الباقة' }
-                }
-            },
-            start_date: {
-                validators: {
-                    notEmpty: { message: 'يرجى تحديد تاريخ بداية الاشتراك' },
-                    date: { format: 'YYYY-MM-DD', message: 'تاريخ البداية غير صالح' }
-                }
-            },
-            payment_type: {
-                validators: {
-                    notEmpty: { message: 'يرجى اختيار حالة الدفع' }
-                }
-            },
-            payment_method: {
-                validators: {
-                    callback: {
-                        message: 'يرجى اختيار طريقة الدفع',
-                        callback: function (input) {
-                            const payType = document.getElementById('sub_payment-status')?.value;
-                            if (payType === 'paid') {
-                                return input.value !== '';
-                            }
-                            return true;
-                        }
-                    }
-                }
-            },
-            receipt_upload: {
-                validators: {
-                    callback: {
-                        message: 'يرجى رفع إيصال التحويل البنكي',
-                        callback: function (input) {
-                            const payType = document.getElementById('sub_payment-status')?.value;
-                            const payMethod = document.getElementById('sub_payment-method-select')?.value;
-                            if (payType === 'paid' && payMethod === 'bank_transfer') {
-                                return input.files && input.files.length > 0;
-                            }
-                            return true;
-                        }
-                    }
-                }
-            }
-        },
-        plugins: {
-            trigger: new FormValidation.plugins.Trigger(),
-            bootstrap5: new FormValidation.plugins.Bootstrap5({
-                eleValidClass: '',
-                rowSelector: '.col-md-6, .col-12, .col-md-3, .col-md-4'
-            }),
-            autoFocus: new FormValidation.plugins.AutoFocus()
-        }
-    });
-
-    // Revalidate Select2 fields on change
-    if (typeof jQuery !== 'undefined' && jQuery.fn.select2) {
-        $('.select2').on('change.select2', function () {
-            const fieldName = $(this).attr('name');
-            if (fieldName) {
-                fv.revalidateField(fieldName);
-            }
-        });
     }
 
     // Company selection handler
@@ -152,10 +71,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const companySelect = document.getElementById('company_id');
     if (companySelect) {
-        $(companySelect).on('change', function () {
-            updateCompanyCard(this.value);
-            fv.revalidateField('company_id');
-        });
+        if (window.jQuery) {
+            $(companySelect).on('change', function () {
+                updateCompanyCard(this.value);
+            });
+        } else {
+            companySelect.addEventListener('change', function () {
+                updateCompanyCard(this.value);
+            });
+        }
         if (companySelect.value) {
             updateCompanyCard(companySelect.value);
         }
@@ -197,20 +121,37 @@ document.addEventListener('DOMContentLoaded', function () {
                     end.setFullYear(end.getFullYear() + 1);
                 }
                 const formattedEnd = end.toISOString().split('T')[0];
-                document.getElementById('sub_end_date').value = formattedEnd;
+                const endDateInput = document.getElementById('sub_end_date');
+                if (endDateInput) {
+                    endDateInput.value = formattedEnd;
+                }
             }
         }
     }
 
     const planSelect = document.getElementById('plan_id');
     if (planSelect) {
-        $(planSelect).on('change', function () {
-            updatePlanDetails(this.value);
-            fv.revalidateField('plan_id');
-        });
+        if (window.jQuery) {
+            $(planSelect).on('change', function () {
+                updatePlanDetails(this.value);
+            });
+        } else {
+            planSelect.addEventListener('change', function () {
+                updatePlanDetails(this.value);
+            });
+        }
         if (planSelect.value) {
             updatePlanDetails(planSelect.value);
         }
+    }
+
+    const startDateInput = document.getElementById('sub_start_date');
+    if (startDateInput) {
+        startDateInput.addEventListener('change', function () {
+            if (planSelect && planSelect.value) {
+                updatePlanDetails(planSelect.value);
+            }
+        });
     }
 
     // Payment status change handlers
@@ -222,18 +163,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function handlePaymentStatusChange(status) {
         if (status === 'paid') {
-            paymentMethodWrapper.style.display = 'block';
-            trialDateWrapper.style.display = 'none';
+            if (paymentMethodWrapper) paymentMethodWrapper.style.display = 'block';
+            if (trialDateWrapper) trialDateWrapper.style.display = 'none';
+            if (paymentMethodSelect && paymentMethodSelect.value === 'bank_transfer') {
+                if (receiptUploadWrapper) receiptUploadWrapper.style.display = 'block';
+            } else {
+                if (receiptUploadWrapper) receiptUploadWrapper.style.display = 'none';
+            }
         } else if (status === 'trial') {
-            paymentMethodWrapper.style.display = 'none';
-            receiptUploadWrapper.style.display = 'none';
-            trialDateWrapper.style.display = 'block';
+            if (paymentMethodWrapper) paymentMethodWrapper.style.display = 'none';
+            if (receiptUploadWrapper) receiptUploadWrapper.style.display = 'none';
+            if (trialDateWrapper) trialDateWrapper.style.display = 'block';
         } else {
-            paymentMethodWrapper.style.display = 'none';
-            receiptUploadWrapper.style.display = 'none';
-            trialDateWrapper.style.display = 'none';
+            if (paymentMethodWrapper) paymentMethodWrapper.style.display = 'none';
+            if (receiptUploadWrapper) receiptUploadWrapper.style.display = 'none';
+            if (trialDateWrapper) trialDateWrapper.style.display = 'none';
         }
-        fv.revalidateField('payment_type');
     }
 
     if (paymentStatus) {
@@ -246,18 +191,17 @@ document.addEventListener('DOMContentLoaded', function () {
     if (paymentMethodSelect) {
         paymentMethodSelect.addEventListener('change', function () {
             if (this.value === 'bank_transfer' && paymentStatus?.value === 'paid') {
-                receiptUploadWrapper.style.display = 'block';
+                if (receiptUploadWrapper) receiptUploadWrapper.style.display = 'block';
             } else {
-                receiptUploadWrapper.style.display = 'none';
+                if (receiptUploadWrapper) receiptUploadWrapper.style.display = 'none';
             }
-            fv.revalidateField('payment_method');
         });
     }
 
     // Discount toggle
     const discountType = document.getElementById('sub_discount-type');
     const discountWrapper = document.getElementById('sub_discount-wrapper');
-    if (discountType) {
+    if (discountType && discountWrapper) {
         discountType.addEventListener('change', function () {
             discountWrapper.style.display = this.value === 'yes' ? 'block' : 'none';
         });
@@ -272,40 +216,64 @@ document.addEventListener('DOMContentLoaded', function () {
         const compSelect = document.getElementById('company_id');
         const compText = compSelect && compSelect.selectedIndex >= 0 ? compSelect.options[compSelect.selectedIndex].text : '-';
 
-        document.getElementById('sub_review-company-name').textContent = comp ? comp.company_name : compText;
-        document.getElementById('sub_review-commercial-number').textContent = comp ? (comp.commercial_number || '-') : '-';
-        document.getElementById('sub_review-tax-number').textContent = comp ? (comp.tax_number || '-') : '-';
-        document.getElementById('sub_review-city').textContent = comp ? (comp.city?.name || '-') : '-';
+        const rCompName = document.getElementById('sub_review-company-name');
+        if (rCompName) rCompName.textContent = comp ? comp.company_name : compText;
+
+        const rComm = document.getElementById('sub_review-commercial-number');
+        if (rComm) rComm.textContent = comp ? (comp.commercial_number || '-') : '-';
+
+        const rTax = document.getElementById('sub_review-tax-number');
+        if (rTax) rTax.textContent = comp ? (comp.tax_number || '-') : '-';
+
+        const rCity = document.getElementById('sub_review-city');
+        if (rCity) rCity.textContent = comp ? (comp.city?.name || '-') : '-';
 
         const lastSub = comp ? (comp.last_subscription || comp.lastSubscription) : null;
-        if (lastSub) {
-            const planTitle = lastSub.plan?.name || '-';
-            const endsAt = lastSub.ends_at ? String(lastSub.ends_at).substring(0, 10) : '-';
-            document.getElementById('sub_review-last-sub').textContent = `${planTitle} (انتهى: ${endsAt})`;
-        } else {
-            document.getElementById('sub_review-last-sub').textContent = 'لا يوجد اشتراك سابق';
+        const rLastSub = document.getElementById('sub_review-last-sub');
+        if (rLastSub) {
+            if (lastSub) {
+                const planTitle = lastSub.plan?.name || '-';
+                const endsAt = lastSub.ends_at ? String(lastSub.ends_at).substring(0, 10) : '-';
+                rLastSub.textContent = `${planTitle} (انتهى: ${endsAt})`;
+            } else {
+                rLastSub.textContent = 'لا يوجد اشتراك سابق';
+            }
         }
 
         // Plan & Limits
         const planId = document.getElementById('plan_id')?.value;
         const plan = plansData.find(p => String(p.id) === String(planId));
 
-        document.getElementById('sub_review-plan-name').textContent = plan ? plan.name : '-';
-        document.getElementById('sub_review-plan-users').textContent = (plan ? (plan.included_users || 1) : '-') + ' مستخدم';
-        document.getElementById('sub_review-plan-props').textContent = plan ? (plan.properties_limit !== null ? plan.properties_limit : 'غير محدود (∞)') : '-';
-        document.getElementById('sub_review-plan-storage').textContent = plan ? (plan.storage_quota_gb !== null ? plan.storage_quota_gb + ' GB' : 'غير محدود (∞)') : '-';
-        document.getElementById('sub_review-plan-auctions').textContent = plan ? (plan.active_auctions_limit !== null ? plan.active_auctions_limit : 'غير محدود (∞)') : '-';
+        const rPlanName = document.getElementById('sub_review-plan-name');
+        if (rPlanName) rPlanName.textContent = plan ? plan.name : '-';
+
+        const rUsers = document.getElementById('sub_review-plan-users');
+        if (rUsers) rUsers.textContent = (plan ? (plan.included_users || 1) : '-') + ' مستخدم';
+
+        const rProps = document.getElementById('sub_review-plan-props');
+        if (rProps) rProps.textContent = plan ? (plan.properties_limit !== null ? plan.properties_limit : 'غير محدود (∞)') : '-';
+
+        const rStorage = document.getElementById('sub_review-plan-storage');
+        if (rStorage) rStorage.textContent = plan ? (plan.storage_quota_gb !== null ? plan.storage_quota_gb + ' GB' : 'غير محدود (∞)') : '-';
+
+        const rAuctions = document.getElementById('sub_review-plan-auctions');
+        if (rAuctions) rAuctions.textContent = plan ? (plan.active_auctions_limit !== null ? plan.active_auctions_limit : 'غير محدود (∞)') : '-';
 
         const featRev = document.getElementById('sub_review-plan-features');
-        if (plan && Array.isArray(plan.features) && plan.features.length > 0) {
-            featRev.innerHTML = plan.features.map(f => `<span class="badge bg-label-info">${f}</span>`).join(' ');
-        } else {
-            featRev.textContent = '-';
+        if (featRev) {
+            if (plan && Array.isArray(plan.features) && plan.features.length > 0) {
+                featRev.innerHTML = plan.features.map(f => `<span class="badge bg-label-info">${f}</span>`).join(' ');
+            } else {
+                featRev.textContent = '-';
+            }
         }
 
         // Dates & Payments
-        document.getElementById('sub_review-start-date').textContent = document.getElementById('sub_start_date')?.value || '-';
-        document.getElementById('sub_review-end-date').textContent = document.getElementById('sub_end_date')?.value || '-';
+        const rStartDate = document.getElementById('sub_review-start-date');
+        if (rStartDate) rStartDate.textContent = document.getElementById('sub_start_date')?.value || '-';
+
+        const rEndDate = document.getElementById('sub_review-end-date');
+        if (rEndDate) rEndDate.textContent = document.getElementById('sub_end_date')?.value || '-';
 
         const isImmediate = document.getElementById('sub_activate_immediately')?.checked;
         const rAct = document.getElementById('sub_review-activation-status');
@@ -338,59 +306,31 @@ document.addEventListener('DOMContentLoaded', function () {
         const basePrice = plan ? parseFloat(plan.price_after_discount || plan.price || 0) : 0;
         const discountVal = discountType?.value === 'yes' ? parseFloat(document.getElementById('sub_discount_value')?.value || 0) : 0;
         const finalPrice = payType === 'trial' ? 0 : Math.max(0, basePrice - discountVal);
-        document.getElementById('sub_review-final-total').textContent = formatNumber(finalPrice) + ' ر.س';
+        const rTotal = document.getElementById('sub_review-final-total');
+        if (rTotal) rTotal.textContent = formatNumber(finalPrice) + ' ر.س';
     }
 
-    // Step navigation buttons
-    const stepFields = {
-        1: ['company_id', 'plan_id'],
-        2: ['start_date', 'payment_type', 'payment_method', 'receipt_upload']
-    };
-
-    document.querySelectorAll('.btn-next').forEach(btn => {
-        btn.addEventListener('click', async function () {
-            const stepNum = parseInt(this.dataset.step, 10);
-            const fieldsToValidate = stepFields[stepNum] || [];
-
-            let isValid = true;
-            for (const field of fieldsToValidate) {
-                const status = await fv.revalidateField(field);
-                if (status !== 'Valid') {
-                    isValid = false;
-                }
-            }
-
-            if (!isValid) return;
-
-            if (stepNum === 2) {
-                updateReviewSummary();
-            }
-
-            if (validationStepper) {
-                validationStepper.next();
-            }
-        });
+    form.addEventListener('stepChanged', function () {
+        updateReviewSummary();
     });
 
-    document.querySelectorAll('.btn-prev').forEach(btn => {
-        btn.addEventListener('click', function () {
-            if (validationStepper) {
-                if (validationStepper._currentIndex === 0) {
-                    window.history.back();
-                } else {
-                    validationStepper.previous();
-                }
-            }
-        });
-    });
-
-    // Final Form Submission
-    form.addEventListener('submit', function (e) {
-        const submitBtn = document.getElementById('btn-submit-subscription');
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> جاري الحفظ والإنشاء...';
+    form.addEventListener('wizardDraftRestored', function (event) {
+        const data = event.detail?.data || {};
+        if (data.company_id) {
+            updateCompanyCard(data.company_id);
         }
+        if (data.plan_id) {
+            updatePlanDetails(data.plan_id);
+        }
+        if (data.payment_type) {
+            handlePaymentStatusChange(data.payment_type);
+        }
+        if (data.has_discount && discountWrapper) {
+            discountWrapper.style.display = data.has_discount === 'yes' ? 'block' : 'none';
+        }
+        updateReviewSummary();
     });
 
+    // Initial review sync
+    updateReviewSummary();
 });

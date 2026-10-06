@@ -7,11 +7,11 @@ use App\Enums\Admin\Billing\BillStatus;
 use App\Enums\Admin\Billing\BillType;
 use App\Exceptions\Subscription\SubscriptionCreationException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Bills\RejectBillRequest;
 use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\Settings\Settings;
 use App\Services\shared\Bills\BillService;
 use App\Services\shared\Subscription\SubscriptionService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -19,7 +19,15 @@ class AdminBillsController extends Controller
 {
     protected const VIEW_PATH  = "admin.bills";
 
-    public function __construct(private BillService $billService, private SubscriptionService $subscriptionService) {}
+    public function __construct(
+        private BillService $billService,
+        private SubscriptionService $subscriptionService
+    ) {
+        $this->middleware('auth:admin');
+        $this->middleware('can:financial_transactions.view')->only(['index', 'show', 'print']);
+        $this->middleware('can:subscriptions.pending.approve')->only(['verify', 'reactivate']);
+        $this->middleware('can:subscriptions.pending.reject')->only(['reject']);
+    }
 
     public function index(AdminBillsDataTable $dataTable)
     {
@@ -119,12 +127,8 @@ class AdminBillsController extends Controller
         }
     }
 
-    public function reject(Request $request, Bill $bill)
+    public function reject(RejectBillRequest $request, Bill $bill)
     {
-        $request->validate([
-            'reject_reason' => 'required|string|max:255'
-        ]);
-
         try {
             if ($bill->status !== BillStatus::PENDING_VERIFICATION) {
                 return redirect()->back()->with('error', 'هذه الفاتورة لا يمكن رفضها في حالتها الحالية.');
@@ -133,7 +137,7 @@ class AdminBillsController extends Controller
             match ($bill->type) {
                 BillType::NEW_SUBSCRIPTION => !$bill->tenant_id
                     ? $this->billService->cancelBill($bill)
-                    : $this->billService->rejectBill($bill, $request->reject_reason),
+                    : $this->billService->rejectBill($bill, $request->validated('reject_reason')),
 
                 // BillType::RENEWAL,
                 // BillType::LICENSE_PURCHASE => $this->billService->rejectBill($bill, $request->reject_reason),

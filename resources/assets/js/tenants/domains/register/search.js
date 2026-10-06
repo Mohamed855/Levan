@@ -194,8 +194,6 @@ $(document).ready(function () {
         $('#dsPricingPrice').text(selectedPrice.toFixed(2) + ' ر.س');
         $('#dsPricingTotal').text(selectedPrice.toFixed(2) + ' ر.س');
         $('#paymentDomainInput').val(domain);
-        $('#paymentPrice').val(selectedPrice);
-        $('#paymentTotal').val(selectedPrice.toFixed(2));
         $('#resultAvailable').removeAttr('hidden');
     }
 

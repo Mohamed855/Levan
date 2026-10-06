@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Integration\Customer\CustomerApiController;
 use App\Http\Controllers\Api\SubscriptionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 
@@ -23,14 +24,10 @@ Route::prefix('v1')->middleware(['tenant.token'])->group(function () {
 
 
 // الترقية
-Route::post('tenants/{tenantId}/upgrade', function (Request $request, $tenantId) {
-
-    if ($request->header('X-Secret-Key') !== config('app.upgrade_secret')) {
-        abort(403, 'غير مصرح');
-    }
+Route::post('tenants/{tenantId}/upgrade', function (Request $request, string $tenantId) {
+    $requestId = (string) $request->attributes->get('tenant_upgrade_request_id');
 
     try {
-
         $exitCode = Artisan::call('tenants:migrate', [
             '--tenants' => [$tenantId],
             '--force' => true,
@@ -44,12 +41,20 @@ Route::post('tenants/{tenantId}/upgrade', function (Request $request, $tenantId)
             'success' => true,
             'message' => 'تمت migrations بنجاح',
             'tenant_id' => $tenantId,
+            'request_id' => $requestId,
         ]);
     } catch (\Throwable $e) {
+        Log::error('Tenant upgrade migration failed.', [
+            'tenant_id' => $tenantId,
+            'request_id' => $requestId,
+            'auth_mode' => $request->attributes->get('tenant_upgrade_auth_mode'),
+            'exception' => $e->getMessage(),
+        ]);
 
         return response()->json([
             'success' => false,
-            'message' => $e->getMessage(),
+            'message' => 'فشلت عملية الترقية. راجع سجل النظام باستخدام معرف الطلب.',
+            'request_id' => $requestId,
         ], 500);
     }
-});
+})->middleware(['throttle:tenant-upgrade', 'tenant.upgrade.signature']);

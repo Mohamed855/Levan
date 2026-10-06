@@ -253,7 +253,6 @@
 <script>
     const CHECK_URL   = "{{ tenant_route_name('domains.check', ['domain' => '__DOMAIN__']) }}";
     const SUGGEST_URL = "{{ tenant_route_name('domains.suggest-alternatives') }}";
-    const PAYMENT_URL = "{{ tenant_route_name('domains.payment.new') }}";
 </script>
 
 {{-- Hidden Payment Form --}}
@@ -263,9 +262,6 @@
       hidden>
     @csrf
     <input type="hidden" name="domainname"  id="paymentDomainInput">
-    <input type="hidden" name="price"       id="paymentPrice">
-    <input type="hidden" name="base_price"  id="paymentBasePrice">
-    <input type="hidden" name="total"       id="paymentTotal">
 </form>
 
 @endsection

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Auth\ConfirmAdminTwoFactorRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -36,17 +37,9 @@ class AdminTwoFactorSettingsController extends Controller
         return response()->json(['svg' => $user->twoFactorQrCodeSvg()]);
     }
 
-    public function confirm(Request $request, ConfirmTwoFactorAuthentication $confirm): JsonResponse
+    public function confirm(ConfirmAdminTwoFactorRequest $request, ConfirmTwoFactorAuthentication $confirm): JsonResponse
     {
-        $request->validate(
-            ['code' => 'required|string'],
-            [
-                'code.required' => 'الرجاء إدخال كود التحقق.',
-                'code.string' => 'كود التحقق يجب أن يكون نصًا.',
-            ]
-        );
-
-        $confirm(Auth::guard('admin')->user(), $request->code);
+        $confirm(Auth::guard('admin')->user(), $request->validated('code'));
 
         return response()->json(['status' => 'confirmed']);
     }

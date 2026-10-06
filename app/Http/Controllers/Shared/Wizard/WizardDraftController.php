@@ -101,23 +101,20 @@ class WizardDraftController extends Controller
         }
 
         try {
-            if ($targetMethod === 'POST') {
-                $route = app('router')->getRoutes()->match(Request::create($path, 'POST'));
-            } else {
-                $routeRequest = Request::create($path, $targetMethod, [], [], [], [
-                    'HTTP_HOST' => $sourceRequest->getHost(),
-                    'HTTPS' => $sourceRequest->isSecure() ? 'on' : 'off',
-                ]);
-                $route = app('router')->getRoutes()->match($routeRequest);
-                $route->bind($routeRequest);
-                app('router')->substituteBindings($route);
-            }
+            $routeRequest = Request::create($path, $targetMethod, [], [], [], [
+                'HTTP_HOST' => $sourceRequest->getHost(),
+                'HTTPS' => $sourceRequest->isSecure() ? 'on' : 'off',
+            ]);
+            $route = app('router')->getRoutes()->match($routeRequest);
+            $route->bind($routeRequest);
+            app('router')->substituteBindings($route);
         } catch (\Throwable) {
             throw new NotFoundHttpException();
         }
 
         $action = $route->getActionMethod();
-        abort_unless(in_array($action, ['store', 'update'], true), 404);
+        $allowsSharedValidation = (bool) ($route->defaults['shared_form_validation'] ?? false);
+        abort_unless(in_array($action, ['store', 'update'], true) || $allowsSharedValidation, 404);
 
         return $route;
     }

@@ -13,7 +13,7 @@
 
 <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
 
-@vite(['resources/assets/js/site/trial.js'])
+@vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/site/trial.js'])
 @endsection
 
 @section('toastr')
@@ -79,39 +79,33 @@
                             </p>
                         </div>
                         <form id="form" method="POST" action="{{ route('site.trial.store') }}" autocomplete="off"
-                            novalidate>
+                            data-form-validate data-validation-url="{{ route('site.form-validation') }}" novalidate>
                             @csrf
 
                             <div class="row">
-                                <div class="col-12">
-                                    <input type="text" name="customer_name" minlength="3"
+                                <div class="col-12" data-form-field data-field-name="customer_name">
+                                    <input type="text" name="customer_name" data-form-control
                                         class="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                         placeholder="الاسم" required />
-                                    <p class="invalid-feedback hidden text-red-500 text-xs mt-1">
-                                        الرجاء إدخال الاسم الكامل (على الأقل 3 أحرف)
-                                    </p>
+                                    <p class="invalid-feedback hidden text-red-500 text-xs mt-1" data-form-error hidden></p>
                                 </div>
 
-                                <div class="col-12 md:col-6">
-                                    <input type="email" name="customer_email"
+                                <div class="col-12 md:col-6" data-form-field data-field-name="customer_email">
+                                    <input type="email" name="customer_email" data-form-control
                                         class="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                         placeholder="البريد الإلكتروني" required />
-                                    <p class="invalid-feedback hidden text-red-500 text-xs mt-1">
-                                        الرجاء إدخال بريد إلكتروني صحيح
-                                    </p>
+                                    <p class="invalid-feedback hidden text-red-500 text-xs mt-1" data-form-error hidden></p>
                                 </div>
 
-                                <div class="col-12 md:col-6">
-                                    <input type="tel" name="customer_phone" dir="rtl" data-phone-format="international"
+                                <div class="col-12 md:col-6" data-form-field data-field-name="customer_phone">
+                                    <input type="tel" name="customer_phone" data-form-control dir="rtl" data-phone-format="international"
                                         class="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                         placeholder="رقم الهاتف" required />
-                                    <p class="invalid-feedback hidden text-red-500 text-xs mt-1">
-                                        الرجاء إدخال رقم هاتف صحيح
-                                    </p>
+                                    <p class="invalid-feedback hidden text-red-500 text-xs mt-1" data-form-error hidden></p>
                                 </div>
 
                                 <!-- recaptcha -->
-                                <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
+                                <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response" data-validation-skip>
 
                                 @error('recaptcha')
                                 <div class="text-danger mt-2">{{ $message }}</div>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\ContentManagement\Portfolio;
 use App\DataTables\Admin\ContentManagement\Portfolio\PortfolioDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ContentManagement\StorePortfolioRequest;
+use App\Http\Requests\Admin\ContentManagement\UpdatePortfolioRequest;
 use App\Models\Admin\ContentManagement\Portfolio;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -61,20 +62,9 @@ class PortfolioController extends Controller
         return view('admin.content_management.portfolio.edit', compact('portfolio'));
     }
 
-    public function update(Request $request, Portfolio $portfolio)
+    public function update(UpdatePortfolioRequest $request, Portfolio $portfolio)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'status' => 'required|boolean',
-        ], [
-            'name.required' => 'اسم المحفظة مطلوب',
-            'name.string' => 'اسم المحفظة يجب أن يكون نص',
-            'name.max' => 'اسم المحفظة لا يمكن أن يتجاوز 255 حرف',
-            'logo.image' => 'الشعار يجب أن يكون صورة',
-            'logo.mimes' => 'الشعار يجب أن يكون من نوع: jpeg, png, jpg, gif',
-            'status.required' => 'حالة المحفظة مطلوبة',
-        ]);
+        $validated = $request->validated();
 
         try {
             if ($request->hasFile('logo')) {

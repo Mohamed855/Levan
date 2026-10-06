@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Admin\APILayer\APILayerController;
-use App\Http\Controllers\Admin\Payments\Moyaser\MoyaserController;
 use App\Http\Controllers\Tenants\__LinkDomain\LinkDomainController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Shared\Wizard\WizardDraftController;
@@ -47,6 +46,7 @@ use App\Http\Controllers\Tenants\DeleteBulk\MassDeleteController;
 use App\Http\Controllers\Tenants\Domains\CheckMultipleDomainController as DomainsCheckMultipleDomainController;
 use App\Http\Controllers\Tenants\Domains\CpanelController;
 use App\Http\Controllers\Tenants\Domains\DomainController;
+use App\Http\Controllers\Tenants\Domains\DomainPaymentController;
 use App\Http\Controllers\Tenants\Domains\GetDomainInfoController;
 use App\Http\Controllers\Tenants\Domains\RenewalDomainController;
 use App\Http\Controllers\Tenants\FinancialCollection\Admin\AdminCollectionsController;
@@ -194,8 +194,8 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             // end domain renewal
 
             // moyasar for domain renewal
-            Route::name('moyasar.renewal.callback')->get('renewal/payment/domain/callback', [MoyaserController::class, 'moyasarPaymentRenewalCallback']);
-            Route::name('moyasar.renewal')->post('renewal/payment/domain', [MoyaserController::class, 'moyasarPaymentRenewal']);
+            Route::name('moyasar.renewal.callback')->get('renewal/payment/domain/callback', [DomainPaymentController::class, 'renewalCallback']);
+            Route::name('moyasar.renewal')->post('renewal/payment/domain', [DomainPaymentController::class, 'startRenewal']);
             // moyasar for domain renewal
 
 
@@ -233,33 +233,32 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             // end api layer
 
             // moyaser start
-            Route::name('payment.new')->match(['post', 'get'], 'payment', [MoyaserController::class, 'newDomain'])->middleware('check.domain.balance');
-            Route::match(['get', 'post'], 'payment/proccess', [MoyaserController::class, 'newDomainPayment']);
-            Route::name('payment.callbacknewdomain')->match(['get', 'post'], 'payment/callbacknewDomain', [MoyaserController::class, 'CallbacknewDomainPayment']);
+            Route::name('payment.new')->post('payment', [DomainPaymentController::class, 'startRegistration'])->middleware('check.domain.balance');
+            Route::name('payment.callbacknewdomain')->get('payment/callbacknewDomain', [DomainPaymentController::class, 'registrationCallback']);
             Route::get('createCpanelAccount/{username}', [DomainController::class, 'createCpanelAccount']);
-            Route::name('process-transfer-payment')->post('process-transfer-payment', [MoyaserController::class, 'processTransferPayment']);
-            Route::name('payment.callback.transfer')->match(['get', 'post'], 'process-transfer-payment-callback', [MoyaserController::class, 'processTransferCallback']);
+            Route::name('process-transfer-payment')->post('process-transfer-payment', [DomainPaymentController::class, 'startTransfer']);
+            Route::name('payment.callback.transfer')->get('process-transfer-payment-callback', [DomainPaymentController::class, 'transferCallback']);
             // moyaser end
 
             Route::name('checkExistTransferDomain')->post('checkExistTransferDomain/{domain}', [APILayerController::class, 'checkExistTransferDomain']);;
 
             //start domain controller
             Route::name('transfer.domain.status')->match(['post', 'get'], 'checkTransferStatus/{domain}', [DomainController::class, 'checkTransferStatus']);
-            Route::name('linkDomainproccess')->match(['post', 'get'], 'link-domain-proccess', [DomainController::class, 'setupdnsForDomain']);
+            Route::name('linkDomainproccess')->post('link-domain-proccess', [DomainController::class, 'setupdnsForDomain']);
             Route::post('/verify-dns', [DomainController::class, 'verifyDNS'])->name('domains.verify-dns');
             Route::name('check-domain-exists')->post('check-domain-exists', [DomainController::class, 'checkDomainExists']);
-            Route::name('switch.active')->match(['post', 'get'], '/switch-active', [DomainController::class, 'switchActiveDomain']);
+            Route::name('switch.active')->post('/switch-active', [DomainController::class, 'switchActiveDomain']);
             // Route::name('checkSubDomain')->get('/check/{subdomain}', [DomainController::class, 'checkSubDomain']);
             Route::name('transfer-domain-proccess')->post('/transfer', [DomainController::class, 'transferDomainProcess']);
-            Route::match(['post', 'get'], '/process-transfer', [DomainController::class, 'processTransfer']);
+            Route::post('/process-transfer', [DomainController::class, 'processTransfer']);
             Route::name('modifyaccount')->post('modifyaccount', [DomainController::class, 'modifyaccount']);
             //end domain controller
             Route::name('testverify')->get('verifydns/{domain}/{method}', [DomainController::class, 'verifyDNSTest']);
             // start link domain controller
 
-            Route::name('link-external')->match(['post', 'get'], '/link-external-domain', [LinkDomainController::class, 'linkExternalDomain']);
+            Route::name('link-external')->get('/link-external-domain', [LinkDomainController::class, 'linkExternalDomain']);
             // معالجة ربط دومين خارجي
-            Route::name('link-external-process')->match(['post', 'get'], '/link-external-domain-process', [LinkDomainController::class, 'processLinkExternalDomain']);
+            Route::name('link-external-process')->post('/link-external-domain-process', [LinkDomainController::class, 'processLinkExternalDomain']);
 
 
             //balance and domain pricing
@@ -295,7 +294,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             Route::name('dashboard.upcomingFollowUps')->get('/upcoming-follow-ups', [DashboardController::class, 'getUpcomingFollowUps']);
             Route::name('dashboard.myUpcomingFollowUps')->get('/my-upcoming-followups', [DashboardController::class, 'getMyUpcomingFollowUps']);
             Route::name('dashboard.exportSessions')->get('/export-sessions', [DashboardController::class, 'exportCollectionSessions']);
-            Route::name('dashboard.collectionSessionsPage')->get('/collection-sessions-page', [DashboardController::class, 'collectionSessionsPage']); // صفحة جلسات التحصيل المنفصلة
             Route::name('dashboard.excellence')->get('/excellence', [DashboardController::class, 'excellence']);
             Route::name('dashboard.myPerformanceComparison')->get('/my-performance-comparison', [DashboardController::class, 'getMyPerformanceComparison']);
             Route::name('dashboard.statistics')->get('/statistics', [DashboardController::class, 'getStatisticsData']);

@@ -15,8 +15,15 @@ return [
     */
 
     'moyasar' => [
-        'secret' => env('MOYASER_SECRET_KEY', env('MOYASAR_SECRET_KEY', '')),
-        'publishable' => env('MOYASER_PUBLISHABLE_KEY', env('MOYASAR_PUBLISHABLE_KEY', '')),
+        'mode' => env('MOYASAR_MODE', 'test'),
+        'secret' => env('MOYASAR_MODE', 'test') === 'live'
+            ? env('MOYASAR_LIVE_SECRET_KEY', '')
+            : env('MOYASAR_TEST_SECRET_KEY', ''),
+        'publishable' => env('MOYASAR_MODE', 'test') === 'live'
+            ? env('MOYASAR_LIVE_PUBLISHABLE_KEY', '')
+            : env('MOYASAR_TEST_PUBLISHABLE_KEY', ''),
+        'base_url' => env('MOYASAR_API_BASE_URL', 'https://api.moyasar.com/v1'),
+        'timeout' => (int) env('MOYASAR_API_TIMEOUT', 15),
     ],
 
     'mailgun' => [
@@ -40,10 +47,20 @@ return [
         'api_key' => env('OPENAI_API_KEY'),
     ],
 
+    'namecheap' => [
+        'user' => env('NAMECHEAP_API_USER'),
+        'api_key' => env('NAMECHEAP_API_KEY'),
+        'client_ip' => env('NAMECHEAP_CLIENT_IP'),
+        'base_url' => env('NAMECHEAP_URL', 'https://api.namecheap.com/xml.response'),
+        'whm_api_url' => env('WHM_API_URL'),
+        'whm_token' => env('WHM_TOKEN'),
+        'server_ip' => env('SERVER_IP'),
+    ],
+
     'ticket_api' => [
-        'base_url' => 'https://app.e-tec.sa/api/v1',
-        'key' => 'pk_live_2JkzAr71BivRrEEemRIeMzA81Ty3deB52GeWpDHO',
-        'secret' => 'sk_live_o5NVyOtDwQknUkaoyiHlxvw7QefUG4f2qvhNA0hg',
+        'base_url' => env('TICKET_API_BASE_URL'),
+        'key' => env('TICKET_API_KEY'),
+        'secret' => env('TICKET_API_SECRET'),
     ],
 
     'recaptcha' => [

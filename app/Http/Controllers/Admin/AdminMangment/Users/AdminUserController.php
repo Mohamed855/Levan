@@ -5,6 +5,10 @@ namespace App\Http\Controllers\Admin\AdminMangment\Users;
 use App\DataTables\Admin\AdminMangment\Users\AdminUserDataTable;
 use App\Enums\Admin\Users\AdminUserStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\AdminMangment\Users\CheckAdminUserEmailUniqueRequest;
+use App\Http\Requests\Admin\AdminMangment\Users\CheckAdminUserNameUniqueRequest;
+use App\Http\Requests\Admin\AdminMangment\Users\CheckAdminUserPhoneUniqueRequest;
+use App\Http\Requests\Admin\AdminMangment\Users\BulkDeleteAdminUsersRequest;
 use App\Http\Requests\Admin\AdminMangment\Users\AdminUserStoreRequest;
 use App\Http\Requests\Admin\AdminMangment\Users\AdminUserUpdateRequest;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
@@ -109,19 +113,9 @@ class AdminUserController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'تم حذف المستخدم بنجاح');
     }
 
-    public function bulkDelete(Request $request)
+    public function bulkDelete(BulkDeleteAdminUsersRequest $request)
     {
-        $rawIds = $request->input('ids');
-        $ids = is_array($rawIds)
-            ? array_filter($rawIds)
-            : array_filter(array_map('trim', explode(',', (string) $rawIds)));
-
-        if (empty($ids)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'يرجى تحديد مستخدم واحد على الأقل',
-            ], 422);
-        }
+        $ids = $request->validated('ids');
 
         $users = AdminUser::whereIn('id', $ids)->get();
 
@@ -202,16 +196,13 @@ class AdminUserController extends Controller
         return view($this->page.'.show', compact('user', 'recentActivities', 'role', 'coupons'));
     }
 
-    public function checkEmailUnique(Request $request)
+    public function checkEmailUnique(CheckAdminUserEmailUniqueRequest $request)
     {
-        $request->validate([
-            'email'   => ['required', 'email'],
-            'user_id' => ['nullable', 'integer'],
-        ]);
+        $validated = $request->validated();
 
-        $query = AdminUser::where('email', $request->input('email'));
-        if ($request->filled('user_id')) {
-            $query->where('id', '!=', $request->input('user_id'));
+        $query = AdminUser::where('email', $validated['email']);
+        if (! empty($validated['user_id'])) {
+            $query->where('id', '!=', $validated['user_id']);
         }
 
         $exists = $query->exists();
@@ -232,16 +223,13 @@ class AdminUserController extends Controller
     /**
      * التحقق من تفرد الاسم
      */
-    public function checkNameUnique(Request $request)
+    public function checkNameUnique(CheckAdminUserNameUniqueRequest $request)
     {
-        $request->validate([
-            'name'    => ['required', 'string', 'max:255'],
-            'user_id' => ['nullable', 'integer'],
-        ]);
+        $validated = $request->validated();
 
-        $query = AdminUser::where('name', $request->input('name'));
-        if ($request->filled('user_id')) {
-            $query->where('id', '!=', $request->input('user_id'));
+        $query = AdminUser::where('name', $validated['name']);
+        if (! empty($validated['user_id'])) {
+            $query->where('id', '!=', $validated['user_id']);
         }
 
         $exists = $query->exists();
@@ -262,16 +250,13 @@ class AdminUserController extends Controller
     /**
      * التحقق من تفرد رقم الهاتف
      */
-    public function checkPhoneUnique(Request $request)
+    public function checkPhoneUnique(CheckAdminUserPhoneUniqueRequest $request)
     {
-        $request->validate([
-            'phone'   => ['required', 'string', 'size:10', 'regex:/^05[0-9]{8}$/'],
-            'user_id' => ['nullable', 'integer'],
-        ]);
+        $validated = $request->validated();
 
-        $query = AdminUser::where('phone', $request->input('phone'));
-        if ($request->filled('user_id')) {
-            $query->where('id', '!=', $request->input('user_id'));
+        $query = AdminUser::where('phone', $validated['phone']);
+        if (! empty($validated['user_id'])) {
+            $query->where('id', '!=', $validated['user_id']);
         }
 
         $exists = $query->exists();

@@ -10,7 +10,10 @@ class ValidateWizardStepRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return auth('admin')->check() || auth('tenant')->check();
+        // The target FormRequest is authorized again by WizardDraftController.
+        // Keeping this transport request public also allows public website forms
+        // to use the same server-side validation contract.
+        return true;
     }
 
     public function rules(): array

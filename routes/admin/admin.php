@@ -25,7 +25,7 @@ use App\Http\Controllers\Admin\Versions\VersionController;
 use App\Http\Controllers\Admin\VersionTester\VersionTesterController;
 use App\Http\Controllers\Admin\Tickets\AdminTicketController;
 use App\Http\Controllers\Tenants\Auth\NewPasswordController;
-use App\Http\Controllers\Tenants\DeleteBulk\MassDeleteController;
+use App\Http\Controllers\Admin\DeleteBulk\AdminMassDeleteController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Shared\Wizard\WizardDraftController;
 
@@ -209,7 +209,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
         Route::resource('/', VersionTesterController::class)->except('show')->parameters(['' => 'version_tester']);
         Route::patch('{version_tester}/toggle-status', [VersionTesterController::class, 'toggleStatus'])->name('toggle-status');
     });
-    Route::name('mass-delete')->post('/mass-delete', [MassDeleteController::class, 'massDelete']);
+    Route::name('mass-delete')->post('/mass-delete', [AdminMassDeleteController::class, 'massDelete']);
 
     Route::prefix('content-management')->name('content_management.')->group(function () {
         Route::prefix('client')->name('client.')->group(function () {

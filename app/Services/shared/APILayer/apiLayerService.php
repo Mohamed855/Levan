@@ -11,10 +11,10 @@ class apiLayerService
 
     public function checkDomainNamecheap($domain)
     {
-        $apiUser = 'nhjsa';      // API User
-        $apiKey = 'f38b308ef2fb45dcac4145a4f216b27b';        // API Key
-        $username = 'nhjsa';     // Username
-        $clientIp = '154.180.133.192';    // IP المسجل في Namecheap API whitelist
+        $apiUser = config('services.namecheap.user');
+        $apiKey = config('services.namecheap.api_key');
+        $username = $apiUser;
+        $clientIp = config('services.namecheap.client_ip');
 
         $query = http_build_query([
             'ApiUser' => $apiUser,

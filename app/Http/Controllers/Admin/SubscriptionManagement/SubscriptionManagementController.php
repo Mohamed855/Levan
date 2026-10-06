@@ -10,6 +10,10 @@ use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Models\Admin\City;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\SubscriptionManagement\FinalizeCompanySubscriptionRequest;
+use App\Http\Requests\Admin\SubscriptionManagement\MassAcceptSubscriptionsRequest;
+use App\Http\Requests\Admin\SubscriptionManagement\MassRejectSubscriptionsRequest;
+use App\Http\Requests\Admin\SubscriptionManagement\RejectSubscriptionRequest;
+use App\Http\Requests\Admin\SubscriptionManagement\UpdateCompanySubscriptionRequest;
 use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
@@ -216,22 +220,9 @@ class SubscriptionManagementController extends Controller
         return view('admin.companies.edit', compact('subscription', 'allStatus', 'plan', 'plans', 'cities'));
     }
 
-    public function update(Request $request, Subscription $subscription)
+    public function update(UpdateCompanySubscriptionRequest $request, Subscription $subscription)
     {
-        $validated = $request->validate([
-            'tenant_id'         => 'required|exists:tenants,id',
-            'tax_number'        => 'required|string|max:255',
-            'city_id'           => 'required|exists:cities,id',
-            'address'           => 'required|string|max:1000',
-            'plan_id'           => 'required|exists:plans,id',
-            'price'             => 'required|numeric|min:0',
-            'status'            => 'required|string',
-            'total_users'       => 'required|integer|min:1',
-            'licenses_quota'    => 'nullable|integer|min:0',
-            'starts_at'         => 'required|date',
-            'ends_at'           => 'nullable|date|after:starts_at',
-            'next_payment_date' => 'nullable|date',
-        ]);
+        $validated = $request->validated();
 
         try {
             DB::beginTransaction();
@@ -357,11 +348,9 @@ class SubscriptionManagementController extends Controller
         }
     }
 
-    public function reject(Request $request, Subscription $subscription)
+    public function reject(RejectSubscriptionRequest $request, Subscription $subscription)
     {
-        $validated = $request->validate([
-            'reject_reason' => 'nullable|string|max:1000',
-        ]);
+        $validated = $request->validated();
 
         try {
             DB::beginTransaction();
@@ -411,12 +400,9 @@ class SubscriptionManagementController extends Controller
         }
     }
 
-    public function massAccept(Request $request)
+    public function massAccept(MassAcceptSubscriptionsRequest $request)
     {
-        $validated = $request->validate([
-            'ids'   => 'required|array|min:1',
-            'ids.*' => 'required|integer|exists:subscriptions,id',
-        ]);
+        $validated = $request->validated();
 
         try {
             DB::beginTransaction();
@@ -463,13 +449,9 @@ class SubscriptionManagementController extends Controller
         }
     }
 
-    public function massReject(Request $request)
+    public function massReject(MassRejectSubscriptionsRequest $request)
     {
-        $validated = $request->validate([
-            'ids'           => 'required|array|min:1',
-            'ids.*'         => 'required|integer|exists:subscriptions,id',
-            'reject_reason' => 'nullable|string|max:1000',
-        ]);
+        $validated = $request->validated();
 
         try {
             DB::beginTransaction();

@@ -16,11 +16,11 @@ class CheckMultipleDomainService
 
     public function __construct()
     {
-        $this->apiUser = 'nhjsa';
-        $this->apiKey = 'f38b308ef2fb45dcac4145a4f216b27b';
-        $this->username = 'nhjsa';
-        $this->clientIp = '154.180.133.192';
-        $this->baseUrl = 'https://api.namecheap.com/xml.response';
+        $this->apiUser = config('services.namecheap.user');
+        $this->apiKey = config('services.namecheap.api_key');
+        $this->username = $this->apiUser;
+        $this->clientIp = config('services.namecheap.client_ip');
+        $this->baseUrl = config('services.namecheap.base_url');
         
         // التحقق من إمكانية استخدام Cache
         $this->checkCacheAvailability();
@@ -123,12 +123,12 @@ class CheckMultipleDomainService
      * @param string $domain
      * @return array
      */
-    public function checkSingleDomain(string $domain): array
+    public function checkSingleDomain(string $domain, bool $forceFresh = false): array
     {
         $cacheKey = 'domain_check_' . md5($domain);
         
         // محاولة جلب من Cache
-        if ($this->safeCacheHas($cacheKey)) {
+        if (! $forceFresh && $this->safeCacheHas($cacheKey)) {
             $cached = $this->safeGetCache($cacheKey);
             if ($cached !== null) {
                 return $cached;
@@ -190,7 +190,9 @@ class CheckMultipleDomainService
             ];
 
             // محاولة حفظ في Cache
-            $this->safeCache($cacheKey, $result, now()->addHour());
+            if (! $forceFresh) {
+                $this->safeCache($cacheKey, $result, now()->addHour());
+            }
 
             return $result;
 

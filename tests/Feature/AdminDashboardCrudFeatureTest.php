@@ -570,11 +570,20 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $planName = 'باقة المزادات المميزة ' . rand(100, 999);
         $storeResponse = $this->post($this->adminUrl('plans'), [
             'name'                      => $planName,
+            'code'                      => 'AUCTION_' . rand(10000, 99999),
+            'plan_type'                 => 'professional',
+            'color'                     => 'purple',
             'is_active'                 => 1,
             'price'                     => 12000,
             'extra_user_license_price'  => 500,
             'yearly_renewal_price'      => 10000,
             'included_users'            => 5,
+            'limits_mode'               => 'limited',
+            'properties_limit'          => 50,
+            'storage_quota_gb'          => 10,
+            'active_auctions_limit'     => 10,
+            'branches_limit'            => 5,
+            'subscription_billing_cycle' => 'monthly',
             'description'               => 'باقة مخصصة لإدارة المزادات العقارية',
             'discount_percentage'       => 10,
             'unlimited_branches'        => 1,
@@ -596,7 +605,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $showResponse->assertSee($plan->name);
         $showResponse->assertSee('تفاصيل الباقة');
         $showResponse->assertSee('ميزات الباقة');
-        $showResponse->assertSee('الشركات المشتركة');
+        $showResponse->assertSee('الاشتراكات والشركات');
 
         $detailsResponse = $this->get($this->adminUrl("plans/details/{$plan->id}"));
         $detailsResponse->assertStatus(200);
@@ -611,11 +620,20 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $updatedPlanName = $planName . ' معدلة';
         $updateResponse = $this->put($this->adminUrl("plans/{$plan->id}"), [
             'name'                      => $updatedPlanName,
+            'code'                      => $plan->code,
+            'plan_type'                 => 'professional',
+            'color'                     => 'purple',
             'is_active'                 => 1,
             'price'                     => 15000,
             'extra_user_license_price'  => 600,
             'yearly_renewal_price'      => 12000,
             'included_users'            => 10,
+            'limits_mode'               => 'limited',
+            'properties_limit'          => 50,
+            'storage_quota_gb'          => 10,
+            'active_auctions_limit'     => 10,
+            'branches_limit'            => 5,
+            'subscription_billing_cycle' => 'monthly',
             'unlimited_branches'        => 1,
             'domain_management_enabled' => 1,
             'features'                  => ['ميزة محدثة'],
@@ -651,13 +669,20 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $planName = 'باقة حذف جماعي ' . rand(1000, 9999);
         $this->post($this->adminUrl('plans'), [
             'name'                       => $planName,
+            'code'                       => 'DELETE_' . rand(10000, 99999),
+            'plan_type'                  => 'basic',
+            'color'                      => 'blue',
             'is_active'                  => 1,
             'price'                      => 1000,
             'extra_user_license_price'   => 100,
             'yearly_renewal_price'       => 900,
             'included_users'             => 2,
-            'subscription_duration_type' => 'limited',
+            'limits_mode'                => 'limited',
             'subscription_billing_cycle' => 'monthly',
+            'properties_limit'           => 10,
+            'storage_quota_gb'           => 5,
+            'active_auctions_limit'      => 5,
+            'branches_limit'             => 2,
             'unlimited_branches'         => 1,
             'domain_management_enabled'  => 1,
             'features'                   => ['اختبار الحذف الجماعي'],
@@ -703,7 +728,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
             'fields'            => ['company_name', 'commercial_number', 'tax_number', 'city_id', 'address'],
             'company_name'      => 'شركة اختبار خطوات ' . rand(1000, 9999),
             'commercial_number' => (string) rand(1000000000, 9999999999),
-            'tax_number'        => (string) rand(100000000000000, 999999999999999),
+            'tax_number'        => '3' . str_pad((string) rand(10000000000000, 99999999999999), 14, '0', STR_PAD_LEFT),
             'city_id'           => $city->id,
             'address'           => 'عنوان اختبار التحقق من خطوات النموذج',
         ])->assertOk()
@@ -876,12 +901,12 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $companyPayload = [
             'company_name'          => 'شركة اختبار إنشاء محلي ' . rand(1000, 9999),
             'commercial_number'     => $commercialNumber,
-            'tax_number'            => (string) rand(100000000000000, 999999999999999),
+            'tax_number'            => '3' . str_pad((string) rand(10000000000000, 99999999999999), 14, '0', STR_PAD_LEFT),
             'city_id'               => $city->id,
             'address'               => 'عنوان اختبار إنشاء شركة محليًا',
             'name'                  => 'مدير شركة الاختبار',
             'phone'                 => '05' . rand(10000000, 99999999),
-            'email'                 => 'company-' . uniqid() . '@example.test',
+            'email'                 => 'company-' . uniqid() . '@example.com',
             'password'              => 'Password123!',
             'password_confirmation' => 'Password123!',
             'plan_id'               => $plan->id,
@@ -927,15 +952,20 @@ class AdminDashboardCrudFeatureTest extends TestCase
             ])->assertRedirect($this->adminUrl('companies'));
             $this->assertSame('عنوان محدث لاختبار الشركة', $tenant->fresh()->address);
 
-            // Soft delete company: soft deletes tenant and hard deletes its subscriptions
+            // Archive keeps subscription history attached to the archived company.
             $this->delete($this->adminUrl("companies/{$tenant->id}"))->assertRedirect($this->adminUrl('companies'));
             $this->assertSoftDeleted('tenants', ['id' => $tenant->id]);
-            $this->assertDatabaseMissing('subscriptions', ['id' => $subscription->id]);
+            $this->assertDatabaseHas('subscriptions', ['id' => $subscription->id]);
 
-            // Restore company from archive: restores tenant only
+            // Restore preserves the original subscription history.
             $this->patch($this->adminUrl("archives/tenants/restore/{$tenant->id}"))->assertStatus(302);
             $this->assertDatabaseHas('tenants', ['id' => $tenant->id, 'deleted_at' => null]);
+            $this->assertDatabaseHas('subscriptions', ['id' => $subscription->id]);
+
+            $this->delete($this->adminUrl("companies/{$tenant->id}"))->assertRedirect($this->adminUrl('companies'));
+            $this->delete($this->adminUrl("archives/tenants/force-delete/{$tenant->id}"))->assertStatus(302);
             $this->assertDatabaseMissing('subscriptions', ['id' => $subscription->id]);
+            $tenant = null;
         } finally {
             if ($tenant) {
                 Tenant::withTrashed()->whereKey($tenant->id)->forceDelete();

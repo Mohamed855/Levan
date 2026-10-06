@@ -1,1 +1,1 @@
-@include('tenants.errors.403')
+@include('site.errors.403')

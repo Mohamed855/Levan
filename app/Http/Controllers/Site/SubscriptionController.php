@@ -16,19 +16,17 @@ use App\Models\Admin\Plans\Plan;
 use App\Services\shared\Bills\BillService;
 use App\Services\shared\Coupons\CouponService;
 use App\Services\shared\Payment\Moyasar\MoyasarCallbackHandler;
-use App\Services\shared\Payment\PaymentData;
-use App\Services\shared\Payment\PaymentService;
+use App\Services\shared\Payment\Moyasar\MoyasarFormConfiguration;
 use App\Services\shared\Subscription\SubscriptionService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class SubscriptionController extends Controller
 {
     public function __construct(
         private CouponService          $couponService,
         private BillService            $billingService,
-        private PaymentService         $paymentService,
         private MoyasarCallbackHandler $moyasarCallbackHandler,
+        private MoyasarFormConfiguration $moyasarFormConfiguration,
         private SubscriptionService    $subscriptionService
     ) {}
 
@@ -65,11 +63,7 @@ class SubscriptionController extends Controller
                 return redirect()->route('site.index')->with('success', 'تم استلام طلبك بنجاح. سيتم تفعيل اشتراكك خلال 24 ساعة بعد التحقق من التحويل.');
             }
 
-            // جلب الرابط
-            $url = $this->handlePaymentInitiation($request, $plan, $couponData, $pendingBill);
-
-            return redirect($url);
-            //
+            return $this->showMoyasarCheckout($pendingBill, $plan);
         } catch (PaymentInitiationException $e) {
             //
             return redirect()->back()->with('error', $e->getMessage())->withInput();
@@ -144,12 +138,25 @@ class SubscriptionController extends Controller
         ]);
     }
 
-    private function handlePaymentInitiation(Request $request, Plan $plan, array $couponData, Bill $bill)
+    private function showMoyasarCheckout(Bill $bill, Plan $plan)
     {
-        return $this->paymentService->initiatePayment(
-            PaymentData::fromRequest($request, $couponData['final_total'], 'اشتراك في ' . $plan->name),
-            $bill,
-            'newSubscriptionPayment'
-        );
+        try {
+            $mode = $this->moyasarFormConfiguration->getMode();
+            $publishableKey = $this->moyasarFormConfiguration->getPublishableKey();
+            $amountInHalala = $this->moyasarFormConfiguration->amountInHalala((float) $bill->amount);
+        } catch (PaymentInitiationException $e) {
+            $this->billingService->cancelBill($bill);
+            throw $e;
+        }
+
+        return view('site.moyasar-checkout', [
+            'amountInHalala' => $amountInHalala,
+            'bill' => $bill,
+            'callbackUrl' => route('site.plans.checkout.callback', ['bill' => $bill->bill_number]),
+            'description' => 'اشتراك في ' . $plan->name,
+            'mode' => $mode,
+            'plan' => $plan,
+            'publishableKey' => $publishableKey,
+        ]);
     }
 }

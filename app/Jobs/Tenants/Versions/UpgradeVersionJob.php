@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Tenants\Versions;
 
+use App\Support\Security\TenantUpgradeRequestSignature;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use App\Models\Tenants\Settings\Settings;
 
 class UpgradeVersionJob implements ShouldQueue
@@ -75,21 +77,46 @@ class UpgradeVersionJob implements ShouldQueue
         $nextVersionUrl = config('app.next_version_url');
         $upgradeSecret  = config('app.upgrade_secret');
 
+        if (! is_string($nextVersionUrl) || trim($nextVersionUrl) === '') {
+            throw new \RuntimeException('رابط النسخة التالية غير مهيأ.');
+        }
+
+        if (! is_string($upgradeSecret) || trim($upgradeSecret) === '') {
+            throw new \RuntimeException('سر ترقية النسخ غير مهيأ.');
+        }
+
+        $timestamp = now()->getTimestamp();
+        $requestId = (string) Str::uuid();
+
         $endpoint = "{$nextVersionUrl}/api/tenants/{$this->tenantId}/upgrade";
+
+        $headers = [
+            TenantUpgradeRequestSignature::TIMESTAMP_HEADER => (string) $timestamp,
+            TenantUpgradeRequestSignature::REQUEST_ID_HEADER => $requestId,
+            TenantUpgradeRequestSignature::SIGNATURE_HEADER => TenantUpgradeRequestSignature::make(
+                $this->tenantId,
+                $timestamp,
+                $requestId,
+                $upgradeSecret,
+            ),
+        ];
+
+        if (TenantUpgradeRequestSignature::legacyCompatibilityIsEnabled()) {
+            $headers['X-Secret-Key'] = $upgradeSecret;
+        }
 
         $response = Http::timeout(1200)
             ->retry(2, 1000)
-            ->withHeaders([
-                'X-Secret-Key' => $upgradeSecret,
-            ])->post($endpoint);
+            ->withHeaders($headers)
+            ->post($endpoint);
 
         if ($response->failed()) {
-            throw new \RuntimeException("فشل الـ migrations: " . $response->body());
+            throw new \RuntimeException("فشل الـ migrations للطلب {$requestId}: " . $response->status());
         }
 
         $data = $response->json();
         if (!($data['success'] ?? false)) {
-            throw new \RuntimeException("خطأ من الـ endpoint: " . ($data['message'] ?? 'unknown'));
+            throw new \RuntimeException("فشل endpoint الترقية للطلب {$requestId}.");
         }
     }
 

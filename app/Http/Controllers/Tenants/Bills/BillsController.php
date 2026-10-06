@@ -15,8 +15,7 @@ use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\Settings\Settings;
 use App\Services\shared\Bills\BillService;
 use App\Services\shared\Payment\Moyasar\MoyasarCallbackHandler;
-use App\Services\shared\Payment\PaymentData;
-use App\Services\shared\Payment\PaymentService;
+use App\Services\shared\Payment\Moyasar\MoyasarFormConfiguration;
 use App\Services\shared\Subscription\SubscriptionService;
 use Closure;
 use Illuminate\Http\Request;
@@ -31,7 +30,7 @@ class BillsController extends Controller
 
     public function __construct(
         private MoyasarCallbackHandler $moyasarCallbackHandler,
-        private PaymentService         $paymentService,
+        private MoyasarFormConfiguration $moyasarFormConfiguration,
         private BillService            $billService,
         private SubscriptionService    $subscriptionService,
     ) {
@@ -131,14 +130,15 @@ class BillsController extends Controller
                 return redirect()->to(tenant_route_name('bills.index'))->with('error', 'هذه الفاتورة غير متاحة للدفع.');
             }
 
-            $url = $this->paymentService->initiatePayment(
-                PaymentData::fromRequest($request, $bill->amount, 'دفع فاتورة'),
-                $bill,
-                'billPayment'
-            );
-
-            return redirect($url);
-            //
+            return view('tenants.payment.moyasar-checkout', [
+                'amountInHalala' => $this->moyasarFormConfiguration->amountInHalala((float) $bill->amount),
+                'backUrl' => tenant_route_name('bills.show', $bill->id),
+                'bill' => $bill,
+                'callbackUrl' => tenant_route_name('bills.callback', ['bill' => $bill->bill_number]),
+                'description' => 'دفع فاتورة ' . $bill->bill_number,
+                'mode' => $this->moyasarFormConfiguration->getMode(),
+                'publishableKey' => $this->moyasarFormConfiguration->getPublishableKey(),
+            ]);
         } catch (PaymentInitiationException $e) {
             return redirect()->back()->with('error', $e->getMessage());
         } catch (\Throwable $e) {

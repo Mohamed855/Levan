@@ -1,1 +1,1 @@
-@include('tenants.errors.500')
+@include('site.errors.500')

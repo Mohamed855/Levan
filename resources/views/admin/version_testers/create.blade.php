@@ -7,7 +7,7 @@
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js'])
+    @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.js'])
 @endsection
 
 @section('toastr')
@@ -15,7 +15,7 @@
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/admin/version_testers/form-validation.js'])
+    @vite(['resources/assets/js/shared/form-validation.js'])
 @endsection
 
 @section('content')
@@ -46,7 +46,7 @@
                     @endif
 
                     <form id="wizard-validation-form" action="{{ route('admin.version_testers.store') }}" method="POST"
-                        enctype="multipart/form-data" onSubmit="return false">
+                        enctype="multipart/form-data" data-form-validate data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}">
                         @csrf
 
                         <div id="info-validation" class="content">

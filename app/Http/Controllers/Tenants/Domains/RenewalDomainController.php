@@ -3,33 +3,28 @@
 namespace App\Http\Controllers\Tenants\Domains;
 
 use App\Http\Controllers\Controller;
-use App\Models\Admin\ControlDomain\ControlDomain;
+use App\Http\Requests\Tenants\Domains\ShowDomainRenewalCheckoutRequest;
 use App\Services\shared\NameCheap\RenewalDomainService;
-use Illuminate\Http\Request;
+use App\Services\shared\Payment\Moyasar\DomainRegistrationPaymentService;
 
 class RenewalDomainController extends Controller
 {
     public function __construct(
-        private RenewalDomainService $renewal_domain_service
+        private RenewalDomainService $renewal_domain_service,
+        private DomainRegistrationPaymentService $paymentService,
     ) {}
 
-    public function renewalDomainBlade(Request $request)
+    public function renewalDomainBlade(ShowDomainRenewalCheckoutRequest $request)
     {
-        $domain_name = $request->domain_name;
-        $domain_id   = $request->domain_id;
+        $preview = $this->paymentService->renewalPreview(
+            (string) tenant('id'),
+            (int) $request->validated('domain_id'),
+        );
 
-        $parts = explode('.', $domain_name);
-        $extension = end($parts);
-
-        $price = tenancy()->central(function () use ($extension) {
-            return ControlDomain::where('domain_extension', 'like', '%' . $extension . '%')->first()->price;
-        });
-
-        $tax = 0.15;
-        $taxPrice = $price * $tax;
-        $priceWithoutTax = $price - $taxPrice;
-
-        return view('tenants.domain_setting.renewalpayment', compact('domain_name', 'domain_id', 'taxPrice', 'priceWithoutTax', 'price'));
+        return view('tenants.domain_setting.renewalpayment', [
+            'domain' => $preview['domain'],
+            'unitPrice' => $preview['unit_price'],
+        ]);
     }
 
 

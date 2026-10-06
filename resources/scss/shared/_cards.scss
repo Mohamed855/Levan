@@ -15,3 +15,72 @@
     gap: 0.5rem;
     flex-wrap: wrap;
 }
+
+// Unified card footer
+.card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    background-color: transparent;
+    border-top: 1px solid rgba(55, 38, 50, 0.08);
+}
+
+// Page header / breadcrumb wrapper
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    .page-title {
+        margin-bottom: 0;
+        font-size: 1.35rem;
+        font-weight: 600;
+        color: var(--primary-color, #372632);
+    }
+}
+
+// Unified empty state pattern
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 3rem 1.5rem;
+    min-height: 240px;
+
+    .empty-state-icon {
+        font-size: 3rem;
+        line-height: 1;
+        margin-bottom: 1rem;
+        color: var(--bs-secondary, #6c757d);
+        opacity: 0.75;
+
+        i {
+            font-size: inherit;
+        }
+    }
+
+    .empty-state-title {
+        font-size: 1.15rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--primary-color, #372632);
+    }
+
+    .empty-state-description {
+        font-size: 0.925rem;
+        color: #6c757d;
+        max-width: 420px;
+        margin-bottom: 1.25rem;
+    }
+
+    .empty-state-action {
+        margin-top: 0.5rem;
+    }
+}
+

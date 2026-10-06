@@ -22,8 +22,7 @@
     @php
         $steps = [
             ['id' => 'basics-validation', 'title' => 'الأساسيات والميزات', 'subtitle' => 'هوية الباقة وقيمتها'],
-            ['id' => 'pricing-validation', 'title' => 'التسعير', 'subtitle' => 'السعر والخصومات'],
-            ['id' => 'billing-validation', 'title' => 'دورة الفوترة', 'subtitle' => 'مدة الاشتراك'],
+            ['id' => 'pricing-validation', 'title' => 'التسعير والفوترة', 'subtitle' => 'السعر ودورة الاشتراك'],
             ['id' => 'limits-validation', 'title' => 'الحدود', 'subtitle' => 'الحصص والصلاحيات'],
             ['id' => 'review-validation', 'title' => 'المراجعة والنشر', 'subtitle' => 'تأكيد الباقة'],
         ];
@@ -104,11 +103,17 @@
                         </x-form.wizard.actions>
                     </x-form.wizard.step>
 
-                    <x-form.wizard.step id="pricing-validation" :fields="['price', 'discount_percentage', 'yearly_renewal_price']">
+                    <x-form.wizard.step id="pricing-validation" :fields="['price', 'subscription_billing_cycle', 'discount_percentage', 'yearly_renewal_price']">
                         <div class="row g-3">
                             <x-form.controls.input type="number" step="0.01" min="0" name="price"
                                 id="price" label="سعر الدورة الأساسية (ر.س)" placeholder="500" required
                                 col="col-md-6" />
+                            <x-form.controls.select name="subscription_billing_cycle" id="subscription_billing_cycle"
+                                label="دورة الفوترة الأساسية" required value="monthly" col="col-md-6"
+                                :options="array_map(
+                                    fn($cycle) => ['value' => $cycle->value, 'label' => $cycle->label()],
+                                    \App\Enums\Admin\Subscriptions\SubscriptionBillingCycle::cases(),
+                                )" />
                             <x-form.controls.input type="number" step="0.01" min="0" max="100"
                                 name="discount_percentage" id="discount_percentage" label="نسبة الخصم (%)" value="0"
                                 col="col-md-6" />
@@ -116,20 +121,6 @@
                                 name="yearly_renewal_price" id="yearly_renewal_price"
                                 label="سعر العرض السنوي الترويجي (ر.س)" col="col-md-6"
                                 help="عرض سنوي اختياري للباقات الشهرية والربع سنوية." />
-                        </div>
-                        <x-form.wizard.actions><x-form.wizard.previous-button />
-                            <div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button /></div>
-                        </x-form.wizard.actions>
-                    </x-form.wizard.step>
-
-                    <x-form.wizard.step id="billing-validation" :fields="['subscription_billing_cycle']">
-                        <div class="row g-3">
-                            <x-form.controls.select name="subscription_billing_cycle" id="subscription_billing_cycle"
-                                label="دورة الفوترة الأساسية" required value="monthly" col="col-md-6"
-                                :options="array_map(
-                                    fn($cycle) => ['value' => $cycle->value, 'label' => $cycle->label()],
-                                    \App\Enums\Admin\Subscriptions\SubscriptionBillingCycle::cases(),
-                                )" />
                         </div>
                         <x-form.wizard.actions><x-form.wizard.previous-button />
                             <div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button /></div>
@@ -194,12 +185,17 @@
 
                     <x-form.wizard.step id="review-validation" :fields="[]">
                         <div class="row g-4 justify-content-center">
-                            <div class="col-lg-8"><x-ui.package-card
-                                    preview /><x-form.wizard.actions><x-form.wizard.previous-button />
-                                    <div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.save-button
-                                            text="إنشاء ونشر الباقة" class="btn-success" /></div>
-                                </x-form.wizard.actions></div>
+                            <div class="col-12 col-sm-9 col-md-6 col-lg-3">
+                                <x-ui.package-card preview />
+                            </div>
                         </div>
+                        <x-form.wizard.actions>
+                            <x-form.wizard.previous-button />
+                            <div class="d-flex gap-2">
+                                <x-form.wizard.draft-button />
+                                <x-form.wizard.save-button text="إنشاء ونشر الباقة" class="btn-success" />
+                            </div>
+                        </x-form.wizard.actions>
                     </x-form.wizard.step>
                 </form>
             </x-form.wizard.stepper>

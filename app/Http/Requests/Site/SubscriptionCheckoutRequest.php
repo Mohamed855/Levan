@@ -16,15 +16,12 @@ class SubscriptionCheckoutRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'card_number'      => preg_replace('/\s+/', '', (string) $this->input('card_number')),
-            'exp_date_display' => preg_replace('/\s+/', '', (string) $this->input('exp_date_display')),
             'billing_phone'    => preg_replace('/\D+/', '', (string) $this->input('billing_phone')),
         ]);
     }
 
     public function rules(): array
     {
-        $isCard         = $this->input('payment_method') === 'card';
         $isBankTransfer = $this->input('payment_method') === 'bank_transfer';
 
 
@@ -42,46 +39,12 @@ class SubscriptionCheckoutRequest extends FormRequest
 
             'coupon_code'               => ['nullable', 'string', 'exists:coupons,code'],
 
-            //  حقول البطاقة
-            'card_number'               => $isCard ? ['required', 'string', 'regex:/^[0-9]{13,19}$/'] : ['nullable'],
-            'card_name_display'         => $isCard ? ['required', 'string', 'regex:/^[a-zA-Z\s]+$/', 'max:100'] : ['nullable'],
-            'cvc'                       => $isCard ? ['required', 'digits_between:3,4'] : ['nullable'],
-            'exp_date_display'          => $isCard ? ['required', 'string', 'regex:/^\d{2}\/?\d{2}$/'] : ['nullable'],
-
             // حقول التحويل البنكي
             'bank_id'                   => $isBankTransfer ? ['required', 'exists:banks,id'] : ['nullable'],
             'transfer_receipt'          => $isBankTransfer ? ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'] : ['nullable'],
 
         ];
     }
-
-    public function withValidator($validator): void
-    {
-        $validator->after(function ($v) {
-            if ($this->input('payment_method') !== 'card') {
-                return;
-            }
-
-            $exp = $this->input('exp_date_display');
-            if ($exp && preg_match('/^(\d{2})\/?(\d{2})$/', $exp, $m)) {  //  أُزيلت المسافة
-                $mm = (int) $m[1];
-                $yy = (int) $m[2];
-
-                if ($mm < 1 || $mm > 12) {
-                    $v->errors()->add('exp_date_display', 'شهر انتهاء البطاقة غير صحيح.');
-                    return;
-                }
-
-                $nowY = (int) now()->format('y');
-                $nowM = (int) now()->format('m');
-
-                if ($yy < $nowY || ($yy === $nowY && $mm < $nowM)) {
-                    $v->errors()->add('exp_date_display', 'تاريخ انتهاء البطاقة يجب أن يكون مستقبليًا.');
-                }
-            }
-        });
-    }
-
 
     public function messages(): array
     {
@@ -109,19 +72,6 @@ class SubscriptionCheckoutRequest extends FormRequest
             'payment_method.required'            => 'يرجى اختيار طريقة الدفع',
             'payment_method.in'                  => 'طريقة الدفع المختارة غير مدعومة',
 
-            'card_number.required'               => 'رقم البطاقة مطلوب',
-            'card_number.regex'                  => 'صيغة رقم البطاقة غير صحيحة',
-
-            'card_name_display.required'         => 'اسم حامل البطاقة مطلوب',
-            'card_name_display.regex'            => 'الاسم على البطاقة يجب أن يكون بحروف إنجليزية فقط',
-
-            'cvc.required'                       => 'رمز التحقق مطلوب',
-            'cvc.digits_between'                 => 'رمز التحقق يجب أن يكون بين 3 و 4 أرقام',
-
-            'exp_date_display.required'          => 'تاريخ انتهاء البطاقة مطلوب',
-            'exp_date_display.regex'             => 'صيغة تاريخ الانتهاء يجب أن تكون MM/YY',
-
-
             'bank_id.required'                   => 'البنك مطلوب',
             'bank_id.exists'                     => 'البنك المختار غير صالح',
 
@@ -143,9 +93,6 @@ class SubscriptionCheckoutRequest extends FormRequest
                     $this->except([
                         'billing_password',
                         'billing_password_confirmation',
-                        'card_number',
-                        'cvc',
-                        'exp_date_display',
                     ])
                 )
         );

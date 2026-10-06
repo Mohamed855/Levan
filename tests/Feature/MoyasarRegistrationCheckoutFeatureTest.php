@@ -3,10 +3,8 @@
 namespace Tests\Feature;
 
 use App\Enums\Admin\Billing\BillStatus;
-use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\Plans\Plan;
-use App\Models\Admin\Tenants\Tenant;
 use Tests\TestCase;
 
 class MoyasarRegistrationCheckoutFeatureTest extends TestCase
@@ -21,8 +19,11 @@ class MoyasarRegistrationCheckoutFeatureTest extends TestCase
         $response->assertSee($plan->name);
     }
 
-    public function test_registration_checkout_with_demo_card_succeeds_without_error(): void
+    public function test_registration_checkout_renders_moyasar_form_without_card_payload(): void
     {
+        config()->set('services.moyasar.mode', 'test');
+        config()->set('services.moyasar.publishable', 'pk_test_feature_checkout');
+
         $plan = Plan::where('is_active', true)->first();
         $this->assertNotNull($plan, 'An active plan must exist');
 
@@ -44,62 +45,17 @@ class MoyasarRegistrationCheckoutFeatureTest extends TestCase
             'billing_password'          => 'Secret1234!',
             'billing_password_confirmation' => 'Secret1234!',
             'payment_method'            => 'card',
-            'card_number'               => '4111 1111 1111 1111',
-            'card_name_display'         => 'AHMED MOHAMED',
-            'exp_date_display'          => '12/28',
-            'cvc'                       => '123',
         ];
 
-        // 1. Submit the registration checkout form
         $response = $this->post(route('site.plans.checkout.store', $plan->id), $payload);
 
-        // 2. Must redirect to payment transaction URL (which points to callback with demo payment id)
-        $response->assertStatus(302);
-        $redirectUrl = $response->headers->get('Location');
-        $this->assertNotNull($redirectUrl);
-        $this->assertStringContainsString('checkout/callback', $redirectUrl);
-        $this->assertStringContainsString('id=pay_demo_', $redirectUrl);
-        $this->assertStringContainsString('bill=', $redirectUrl);
+        $response->assertOk();
+        $response->assertSee('mysr-form', false);
+        $response->assertDontSee('name="card_number"', false);
+        $response->assertDontSee('name="cvc"', false);
 
-        // Parse query params to extract bill and payment ID
-        $queryParts = parse_url($redirectUrl, PHP_URL_QUERY);
-        parse_str($queryParts, $params);
-        $this->assertArrayHasKey('bill', $params);
-        $this->assertArrayHasKey('id', $params);
-
-        $billNumber = $params['bill'];
-        $paymentId = $params['id'];
-
-        $pendingBill = Bill::where('bill_number', $billNumber)->first();
+        $pendingBill = Bill::latest('id')->first();
         $this->assertNotNull($pendingBill);
         $this->assertEquals(BillStatus::PENDING, $pendingBill->status);
-
-        // 3. Process the callback (Moyasar Callback Handler)
-        $callbackResponse = $this->get(route('site.plans.checkout.callback', [
-            'id'     => $paymentId,
-            'bill'   => $billNumber,
-            'status' => 'paid',
-        ]));
-
-        // 4. Must redirect to tenant login URL
-        $callbackResponse->assertStatus(302);
-        $tenantLoginUrl = $callbackResponse->headers->get('Location');
-        $this->assertStringContainsString('/login', $tenantLoginUrl);
-
-        // 5. Verify database records
-        $pendingBill->refresh();
-        $this->assertEquals(BillStatus::PAID, $pendingBill->status);
-        $this->assertNotNull($pendingBill->tenant_id);
-
-        $tenant = Tenant::find($pendingBill->tenant_id);
-        $this->assertNotNull($tenant);
-        $this->assertEquals($companyName, $tenant->company_name);
-        $this->assertEquals($commercialNumber, $tenant->commercial_number);
-
-        // Check subscription created
-        $subscription = $tenant->lastSubscription;
-        $this->assertNotNull($subscription);
-        $this->assertEquals(SubscriptionStatus::ACTIVE, $subscription->status);
-        $this->assertEquals($plan->id, $subscription->plan_id);
     }
 }

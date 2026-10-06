@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  function updatePackageCards() {
+  function updatePackageCards(event) {
     const cards = document.querySelectorAll('[data-package-card]');
     if (!cards.length) return;
 
@@ -264,15 +264,49 @@ document.addEventListener('DOMContentLoaded', function () {
     const reviewStep = getInput('review-validation');
     const previewAside = document.querySelector('[data-package-preview-aside]');
     const formColumn = document.querySelector('[data-plan-form-column]');
-    const isReviewStep = reviewStep?.classList.contains('active');
-    if (previewAside) previewAside.hidden = Boolean(isReviewStep);
-    if (formColumn) formColumn.classList.toggle('col-lg-12', Boolean(isReviewStep));
-    if (formColumn) formColumn.classList.toggle('col-lg-9', !isReviewStep);
+
+    let isReviewStep = false;
+    if (event?.detail?.step) {
+      isReviewStep = event.detail.step.id === 'review-validation';
+    } else if (event?.detail?.to !== undefined || event?.detail?.stepIndex !== undefined) {
+      const stepper = document.getElementById('plan-wizard');
+      const targetIndex = event.detail.to !== undefined ? event.detail.to : event.detail.stepIndex;
+      const targetStep = stepper?.querySelectorAll('[data-form-step], .content')?.[targetIndex];
+      isReviewStep = targetStep?.id === 'review-validation';
+    } else {
+      isReviewStep = Boolean(
+        reviewStep?.classList.contains('active') ||
+        reviewStep?.classList.contains('dstepper-block')
+      );
+    }
+
+    if (previewAside) {
+      previewAside.hidden = isReviewStep;
+      previewAside.classList.toggle('d-lg-none', isReviewStep);
+      previewAside.classList.toggle('d-lg-block', !isReviewStep);
+      if (isReviewStep) {
+        previewAside.style.setProperty('display', 'none', 'important');
+      } else {
+        previewAside.style.removeProperty('display');
+      }
+    }
+
+    if (formColumn) {
+      formColumn.classList.toggle('col-lg-12', isReviewStep);
+      formColumn.classList.toggle('col-lg-9', !isReviewStep);
+    }
   }
 
   form.addEventListener('input', updatePackageCards);
   form.addEventListener('change', updatePackageCards);
   form.addEventListener('stepChanged', updatePackageCards);
+
+  const stepperElement = document.getElementById('plan-wizard');
+  if (stepperElement) {
+    stepperElement.addEventListener('show.bs-stepper', updatePackageCards);
+    stepperElement.addEventListener('shown.bs-stepper', updatePackageCards);
+  }
+
   toggleLimitsMode();
   toggleBranchesLimit();
   updatePackageCards();

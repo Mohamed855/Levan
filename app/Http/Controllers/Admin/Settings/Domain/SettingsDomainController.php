@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Admin\Settings\Domain;
 
 use App\DataTables\Admin\Setting\SettingDomainDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Settings\Domain\StoreControlDomainRequest;
+use App\Http\Requests\Admin\Settings\Domain\UpdateControlDomainRequest;
 use App\Models\Admin\ControlDomain\ControlDomain;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 
 class SettingsDomainController extends Controller
 {
@@ -42,35 +42,23 @@ class SettingsDomainController extends Controller
     }
 
     // Store extension
-    public function store(Request $request)
+    public function store(StoreControlDomainRequest $request)
     {
-        $request->validate([
-            'domain_extension' => 'required|string|unique:control_domains,domain_extension',
-            'price' => 'required|numeric|min:0'
-        ]);
-
-        ControlDomain::create($request->only('domain_extension', 'price'));
+        ControlDomain::create($request->validated());
 
         return redirect()->route('admin.settings.domains.index')->with('success', 'تم إضافة الامتداد بنجاح');
     }
 
     // Show edit form
-    public function edit($id)
+    public function edit(ControlDomain $domain)
     {
-        $domain = ControlDomain::findOrFail($id);
         return view($this->page . '.edit', compact('domain'));
     }
 
     // Update
-    public function update(Request $request, $id)
+    public function update(UpdateControlDomainRequest $request, ControlDomain $domain)
     {
-        $domain = ControlDomain::findOrFail($id);
-        $request->validate([
-            'domain_extension' => 'required|string|unique:control_domains,domain_extension,' . $domain->id,
-            'price' => 'required|numeric|min:0'
-        ]);
-
-        $domain->update($request->only('domain_extension', 'price'));
+        $domain->update($request->validated());
 
         return redirect()->route('admin.settings.domains.index')->with('success', 'تم التعديل بنجاح');
     }
@@ -86,9 +74,8 @@ class SettingsDomainController extends Controller
     }
 
     // Delete
-    public function destroy($id)
+    public function destroy(ControlDomain $domain)
     {
-        $domain = ControlDomain::findOrFail($id);
         $domain->delete();
         return redirect()->route('admin.settings.domains.index')->with('success', 'تم حذف الامتداد بنجاح');
     }

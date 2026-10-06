@@ -41,13 +41,13 @@ class CreateDomainProceesJob implements ShouldQueue
         $this->plan = $plan;
         $this->tenantId = $tenantId;
 
-        $this->apiUser = config('namecheap.api_user');
-        $this->apiKey = config('namecheap.api_key');
-        $this->clientIp = '135.181.215.105';
-        $this->baseUrl = config('namecheap.api_url');
-        $this->whmUrl = 'https://server.levan.com:2087/json-api';
-        $this->whmToken = '8EPSQ67GW3XWGGRBYN51EP105R6C31P5';
-        $this->serverIp = '135.181.215.105';
+        $this->apiUser = config('services.namecheap.user');
+        $this->apiKey = config('services.namecheap.api_key');
+        $this->clientIp = config('services.namecheap.client_ip');
+        $this->baseUrl = config('services.namecheap.base_url');
+        $this->whmUrl = config('services.namecheap.whm_api_url');
+        $this->whmToken = config('services.namecheap.whm_token');
+        $this->serverIp = config('services.namecheap.server_ip');
     }
 
     public function handle()

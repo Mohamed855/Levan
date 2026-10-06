@@ -16,7 +16,7 @@
             total: {{ $plan->price_after_discount }},
         };
     </script>
-    @vite(['resources/assets/vendor/libs/cleavejs/cleave.js', 'resources/assets/js/site/checkout.js', 'resources/assets/js/shared/payment/apply-coupon.js'])
+    @vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/site/checkout.js', 'resources/assets/js/shared/payment/apply-coupon.js'])
 @endsection
 
 @section('content')
@@ -66,7 +66,8 @@
                 @endif
                 <div class="mt-2">
                     <form id="payment-form" method="POST" action="{{ route('site.plans.checkout.store', $plan->id) }}"
-                        autocomplete="off" enctype="multipart/form-data" novalidate>
+                        autocomplete="off" enctype="multipart/form-data" data-form-validate
+                        data-validation-url="{{ route('site.form-validation') }}" novalidate>
                         @csrf
                         <input type="hidden" name="coupon_code" id="coupon_code_hidden">
                         <input type="hidden" name="bank_id" id="bank_id">
@@ -265,75 +266,21 @@
                                     </div>
                                 </div>
 
-                                {{-- قسم بوابة الدفع (البطاقة) --}}
+                                {{-- تُدخل البطاقة في نموذج Moyasar الآمن بعد حفظ الطلب. --}}
                                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hidden"
                                     id="card-payment-section">
                                     <div class="px-6 py-4 border-b border-dashed border-gray-200">
                                         <h6 class="text-sm font-semibold text-gray-800 flex items-center gap-2 mb-0">
                                             <i class="ti ti-credit-card text-green-500 text-base"></i>
-                                            معلومات البطاقة
+                                            الدفع الآمن بالبطاقة
                                         </h6>
                                     </div>
                                     <div class="p-6">
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div class="md:col-span-2">
-                                                <label class="block text-sm font-medium text-gray-700 mb-1.5"
-                                                    for="billings-card-num">
-                                                    <i class="ti ti-credit-card me-1"></i>
-                                                    رقم البطاقة <span class="text-red-500">*</span>
-                                                </label>
-                                                <div style="position:relative">
-                                                    <input type="text" id="billings-card-num" name="card_number"
-                                                        class="billing-card-mask w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                                                        placeholder="XXXX XXXX XXXX XXXX" dir="ltr"
-                                                        inputmode="numeric" autocomplete="cc-number"
-                                                        value="{{ old('card_number') }}" maxlength="19" />
-                                                    {{-- أيقونة نوع البطاقة --}}
-                                                    <span id="paymentCard"
-                                                        style="position:absolute; left:12px; top:50%; transform:translateY(-50%); display:flex; align-items:center; pointer-events:none;">
-                                                        <span class="card-type"></span>
-                                                    </span>
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1.5"
-                                                    for="card_name_display">
-                                                    <i class="ti ti-user me-1"></i>
-                                                    اسم حامل البطاقة <span class="text-red-500">*</span>
-                                                </label>
-                                                <input type="text" id="card_name_display" name="card_name_display"
-                                                    value="{{ old('card_name_display') }}"
-                                                    class="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                                                    placeholder="ALI AHMED" />
-                                            </div>
-
-                                            <div class="grid grid-cols-2 gap-4">
-                                                <div>
-                                                    <label class="block text-sm font-medium text-gray-700 mb-1.5"
-                                                        for="exp_date_display">
-                                                        <i class="ti ti-calendar me-1"></i>
-                                                        تاريخ الانتهاء <span class="text-red-500">*</span>
-                                                    </label>
-                                                    <input type="text" name="exp_date_display" id="exp_date_display"
-                                                        value="{{ old('exp_date_display') }}"
-                                                        class="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                                                        inputmode="numeric" autocomplete="cc-exp" maxlength="5"
-                                                        placeholder="MM/YY" />
-                                                </div>
-
-                                                <div>
-                                                    <label class="block text-sm font-medium text-gray-700 mb-1.5"
-                                                        for="cvc">
-                                                        <i class="ti ti-lock me-1"></i>
-                                                        رمز الأمان (CVV) <span class="text-red-500">*</span>
-                                                    </label>
-                                                    <input type="text" id="cvc" name="cvc"
-                                                        class="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                                                        inputmode="numeric" autocomplete="cc-csc" maxlength="4"
-                                                        placeholder="123" />
-                                                </div>
-                                            </div>
+                                        <div class="flex items-start gap-3 rounded-xl bg-blue-50 border border-blue-100 p-4 text-sm text-blue-900">
+                                            <i class="ti ti-shield-lock text-xl text-blue-600 flex-shrink-0"></i>
+                                            <p class="mb-0 leading-6">
+                                                بعد مراجعة الطلب ستنتقل إلى نموذج دفع Moyasar الآمن لإدخال بيانات البطاقة مباشرة. لا تُرسل بيانات البطاقة إلى موقعنا.
+                                            </p>
                                         </div>
                                     </div>
                                 </div>

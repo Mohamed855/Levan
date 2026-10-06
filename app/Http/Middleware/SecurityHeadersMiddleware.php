@@ -46,7 +46,8 @@ class SecurityHeadersMiddleware
         'https://www.google.com',
         'https://www.gstatic.com',
         'https://www.recaptcha.net',
-        'https://www.google.com/recaptcha/api.js'
+        'https://www.google.com/recaptcha/api.js',
+        'https://cdn.moyasar.com',
     ];
 
     private const STYLE_CDN = [
@@ -120,11 +121,11 @@ class SecurityHeadersMiddleware
          */
         // $connectSrc = "'self'";
         // $connectSrc = "'self' https://cdn.jsdelivr.net https://www.google.com https://www.google.com/recaptcha/api.js";
-        $connectSrc = "'self' http://127.0.0.1:5173 ws://127.0.0.1:5173 https://cdn.jsdelivr.net https://www.google.com https://www.google.com/recaptcha/api.js";
+        $connectSrc = "'self' http://127.0.0.1:5173 ws://127.0.0.1:5173 https://cdn.jsdelivr.net https://www.google.com https://www.google.com/recaptcha/api.js https://api.moyasar.com https://payment.moyasar.com";
 
         $csp = implode('; ', array_filter([
     // للسماح بإطارات reCAPTCHA
-    "frame-src 'self' https://www.google.com https://www.recaptcha.net https://www.google.com/recaptcha/api.js",
+    "frame-src 'self' https://www.google.com https://www.recaptcha.net https://www.google.com/recaptcha/api.js https://api.moyasar.com https://payment.moyasar.com",
 
     "default-src 'none'",
 

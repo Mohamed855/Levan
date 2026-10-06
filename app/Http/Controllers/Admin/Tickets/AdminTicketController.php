@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Admin\Tickets;
 use App\DataTables\Admin\Tickets\AdminTicketsDataTable;
 use App\Enums\Tenants\Tickets\TicketStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Tickets\ReplyTicketRequest;
+use App\Http\Requests\Admin\Tickets\ToggleTicketsServiceRequest;
+use App\Http\Requests\Admin\Tickets\UpdateTicketStatusRequest;
 use App\Models\Admin\Settings\Settings;
 use App\Models\Admin\Tickets\TicketSection;
 use App\Services\Admin\Tickets\AdminTicketService;
@@ -89,19 +92,8 @@ class AdminTicketController extends Controller
     /**
      * Reply to ticket from Admin
      */
-    public function reply(Request $request, string $ticketNumber)
+    public function reply(ReplyTicketRequest $request, string $ticketNumber)
     {
-        $request->validate([
-            'message'       => 'required|string|min:2',
-            'attachments'   => 'nullable|array',
-            'attachments.*' => 'file|max:10240|mimes:jpg,jpeg,png,pdf,doc,docx',
-        ], [
-            'message.required'    => 'نص الرد مطلوب',
-            'message.min'         => 'يجب أن يحتوي الرد على حرفين على الأقل',
-            'attachments.*.max'   => 'حجم الملف يجب ألا يتجاوز 10 ميجابايت',
-            'attachments.*.mimes' => 'نوع الملف غير مدعوم',
-        ]);
-
         try {
             $result = $this->ticketService->addReply(
                 $ticketNumber,
@@ -123,12 +115,8 @@ class AdminTicketController extends Controller
     /**
      * Update ticket status
      */
-    public function updateStatus(Request $request, string $ticketNumber)
+    public function updateStatus(UpdateTicketStatusRequest $request, string $ticketNumber)
     {
-        $request->validate([
-            'status' => 'required|string|in:open,in_progress,resolved,resolved_pending_survey,reopened,closed',
-        ]);
-
         try {
             $result = $this->ticketService->updateStatus($ticketNumber, $request->input('status'));
 
@@ -146,12 +134,8 @@ class AdminTicketController extends Controller
     /**
      * Toggle tickets service on/off
      */
-    public function toggleService(Request $request)
+    public function toggleService(ToggleTicketsServiceRequest $request)
     {
-        $request->validate([
-            'tickets_enabled' => 'required|boolean',
-        ]);
-
         try {
             $settings = Settings::first();
             if (!$settings) {
