@@ -70,6 +70,40 @@
             @endcan
         @endcanany
 
+        {{-- المزادات والعقارات --}}
+        @canany(['assignments.view', 'properties.view', 'auctions.view'])
+            <li class="menu-header small">
+                <span class="menu-header-text">المزادات والعقارات</span>
+            </li>
+
+            @can('assignments.view')
+                <li class="menu-item @if (Helpers::isActiveRoute('assignments.*')) active @endif">
+                    <a href="{{ tenant_route_name('assignments.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons ti ti-file-certificate"></i>
+                        <div>الإسنادات</div>
+                    </a>
+                </li>
+            @endcan
+
+            @can('properties.view')
+                <li class="menu-item @if (Helpers::isActiveRoute('properties.*')) active @endif">
+                    <a href="{{ tenant_route_name('properties.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons ti ti-building"></i>
+                        <div>العقارات</div>
+                    </a>
+                </li>
+            @endcan
+
+            @can('auctions.view')
+                <li class="menu-item @if (Helpers::isActiveRoute('auctions.*')) active @endif">
+                    <a href="{{ tenant_route_name('auctions.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons ti ti-gavel"></i>
+                        <div>المزادات</div>
+                    </a>
+                </li>
+            @endcan
+        @endcanany
+
         {{-- الاشتراكات والفوترة --}}
         @canany(['subscriptions.view', 'bills.view', 'domain.view'])
             <li class="menu-header small">
@@ -125,14 +159,47 @@
             </li>
         @endcan
 
-        @can('user_archive.view')
-            <li class="menu-item @if (Helpers::isActiveRoute('archive.users.*')) active @endif">
-                <a href="{{ tenant_route_name('archive.users.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons ti ti-archive"></i>
-                    <div>المستخدمون المحذوفون</div>
+        @canany(['user_archive.view', 'assignments_archive.view', 'properties_archive.view', 'auctions_archive.view'])
+            <li class="menu-item @if (Helpers::isActiveRoute('archive.*')) active open @endif">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons ti ti-trash"></i>
+                    <div>البيانات المحذوفة</div>
                 </a>
+                <ul class="menu-sub">
+                    @can('user_archive.view')
+                        <li class="menu-item @if (Helpers::isActiveRoute('archive.users.*')) active @endif">
+                            <a href="{{ tenant_route_name('archive.users.index') }}" class="menu-link">
+                                <div>المستخدمون</div>
+                            </a>
+                        </li>
+                    @endcan
+
+                    @can('assignments_archive.view')
+                        <li class="menu-item @if (Helpers::isActiveRoute('archive.assignments.*')) active @endif">
+                            <a href="{{ tenant_route_name('archive.assignments.index') }}" class="menu-link">
+                                <div>الإسنادات</div>
+                            </a>
+                        </li>
+                    @endcan
+
+                    @can('properties_archive.view')
+                        <li class="menu-item @if (Helpers::isActiveRoute('archive.properties.*')) active @endif">
+                            <a href="{{ tenant_route_name('archive.properties.index') }}" class="menu-link">
+                                <div>العقارات</div>
+                            </a>
+                        </li>
+                    @endcan
+
+                    @can('auctions_archive.view')
+                        <li class="menu-item @if (Helpers::isActiveRoute('archive.auctions.*')) active @endif">
+                            <a href="{{ tenant_route_name('archive.auctions.index') }}" class="menu-link">
+                                <div>المزادات</div>
+                            </a>
+                        </li>
+                    @endcan
+                </ul>
             </li>
-        @endcan
+        @endcanany
 
         @can('system.settings')
             <li class="menu-item @if (Helpers::isActiveRoute('settings.*')) active @endif">

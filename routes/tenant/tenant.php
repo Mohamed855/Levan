@@ -13,6 +13,12 @@ use App\Http\Controllers\Tenants\Archive\Contract\ContractArchiveController;
 use App\Http\Controllers\Tenants\Archive\Portfolio\PortfolioArchiveController;
 use App\Http\Controllers\Tenants\Archive\Customer\CustomerArchiveController;
 use App\Http\Controllers\Tenants\Archive\User\UserArchiveController;
+use App\Http\Controllers\Tenants\Archive\Assignment\AssignmentArchiveController;
+use App\Http\Controllers\Tenants\Archive\Property\PropertyArchiveController;
+use App\Http\Controllers\Tenants\Archive\Auction\AuctionArchiveController;
+use App\Http\Controllers\Tenants\Assignments\AssignmentsController;
+use App\Http\Controllers\Tenants\Properties\PropertiesController;
+use App\Http\Controllers\Tenants\Auctions\AuctionsController;
 use App\Http\Controllers\Tenants\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Tenants\Bills\BillsController;
 use App\Http\Controllers\Tenants\BusinessCenter\Company\CompanyController;
@@ -432,6 +438,55 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
 
         /*
         |--------------------------------------------------------------------------
+        | Assignments Management
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('assignments')->name('assignments.')->group(function () {
+            Route::name('index')->get('/',                     [AssignmentsController::class, 'index']);
+            Route::name('create')->get('create',                [AssignmentsController::class, 'create']);
+            Route::name('store')->post('/',                    [AssignmentsController::class, 'store']);
+            Route::name('properties')->get('{assignment}/properties', [AssignmentsController::class, 'getProperties']);
+            Route::name('show')->get('{assignment}',             [AssignmentsController::class, 'show']);
+            Route::name('edit')->get('{assignment}/edit',        [AssignmentsController::class, 'edit']);
+            Route::name('update')->put('{assignment}',             [AssignmentsController::class, 'update']);
+            Route::name('destroy')->delete('{assignment}',          [AssignmentsController::class, 'destroy']);
+            Route::name('toggle-status')->patch('{assignment}/toggle-status', [AssignmentsController::class, 'toggleStatus']);
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Properties Management
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('properties')->name('properties.')->group(function () {
+            Route::name('index')->get('/',                     [PropertiesController::class, 'index']);
+            Route::name('create')->get('create',                [PropertiesController::class, 'create']);
+            Route::name('store')->post('/',                    [PropertiesController::class, 'store']);
+            Route::name('show')->get('{property}',             [PropertiesController::class, 'show']);
+            Route::name('edit')->get('{property}/edit',        [PropertiesController::class, 'edit']);
+            Route::name('update')->put('{property}',             [PropertiesController::class, 'update']);
+            Route::name('destroy')->delete('{property}',          [PropertiesController::class, 'destroy']);
+            Route::name('toggle-status')->patch('{property}/toggle-status', [PropertiesController::class, 'toggleStatus']);
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Auctions Management
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('auctions')->name('auctions.')->group(function () {
+            Route::name('index')->get('/',                     [AuctionsController::class, 'index']);
+            Route::name('create')->get('create',                [AuctionsController::class, 'create']);
+            Route::name('store')->post('/',                    [AuctionsController::class, 'store']);
+            Route::name('show')->get('{auction}',             [AuctionsController::class, 'show']);
+            Route::name('edit')->get('{auction}/edit',        [AuctionsController::class, 'edit']);
+            Route::name('update')->put('{auction}',             [AuctionsController::class, 'update']);
+            Route::name('destroy')->delete('{auction}',          [AuctionsController::class, 'destroy']);
+            Route::name('toggle-status')->patch('{auction}/toggle-status', [AuctionsController::class, 'toggleStatus']);
+        });
+
+        /*
+        |--------------------------------------------------------------------------
         | Company Management
         |--------------------------------------------------------------------------
         */
@@ -819,6 +874,27 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
                 Route::name('force-delete')->delete('{user}/force-delete', [UserArchiveController::class, 'forceDelete']);
                 Route::name('mass-restore')->post('mass-restore', [UserArchiveController::class, 'massRestore']);
                 Route::name('mass-force-delete')->delete('mass-force-delete', [UserArchiveController::class, 'massForceDelete']);
+            });
+
+            // Assignment Archive
+            Route::prefix('assignments')->name('assignments.')->group(function () {
+                Route::name('index')->get('/', [AssignmentArchiveController::class, 'index']);
+                Route::name('restore')->match(['post', 'patch'], '{assignment}/restore', [AssignmentArchiveController::class, 'restore']);
+                Route::name('force-delete')->delete('{assignment}/force-delete', [AssignmentArchiveController::class, 'forceDelete']);
+            });
+
+            // Property Archive
+            Route::prefix('properties')->name('properties.')->group(function () {
+                Route::name('index')->get('/', [PropertyArchiveController::class, 'index']);
+                Route::name('restore')->match(['post', 'patch'], '{property}/restore', [PropertyArchiveController::class, 'restore']);
+                Route::name('force-delete')->delete('{property}/force-delete', [PropertyArchiveController::class, 'forceDelete']);
+            });
+
+            // Auction Archive
+            Route::prefix('auctions')->name('auctions.')->group(function () {
+                Route::name('index')->get('/', [AuctionArchiveController::class, 'index']);
+                Route::name('restore')->match(['post', 'patch'], '{auction}/restore', [AuctionArchiveController::class, 'restore']);
+                Route::name('force-delete')->delete('{auction}/force-delete', [AuctionArchiveController::class, 'forceDelete']);
             });
 
         });

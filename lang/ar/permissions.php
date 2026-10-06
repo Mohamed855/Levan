@@ -226,4 +226,29 @@ return [
     'archives.portfolios' => 'أرشيف المحافظ',
     'archives.clients' => 'أرشيف العملاء',
     'archives.contracts' => 'أرشيف العقود',
+    'archives.assignments' => 'أرشيف الإسنادات',
+    'archives.properties' => 'أرشيف العقارات',
+    'archives.auctions' => 'أرشيف المزادات',
+
+    // Assignments
+    'assignments.view' => 'عرض الإسنادات',
+    'assignments.create' => 'إضافة إسناد',
+    'assignments.edit' => 'تعديل إسناد',
+    'assignments.delete' => 'حذف إسناد',
+    'assignments.toggle_status' => 'تغيير حالة الإسناد',
+
+    // Properties
+    'properties.view' => 'عرض العقارات',
+    'properties.create' => 'إضافة عقار',
+    'properties.edit' => 'تعديل عقار',
+    'properties.delete' => 'حذف عقار',
+    'properties.toggle_status' => 'تغيير حالة العقار',
+
+    // Auctions
+    'auctions.view' => 'عرض المزادات',
+    'auctions.create' => 'إنشاء مزاد جديد',
+    'auctions.edit' => 'تعديل المزاد',
+    'auctions.delete' => 'حذف المزاد',
+    'auctions.toggle_status' => 'تغيير حالة المزاد',
 ];
+

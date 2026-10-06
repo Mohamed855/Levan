@@ -72,6 +72,18 @@ class PermissionsRolesSeeder extends Seeder
                 'portfolios_archive.view', 'portfolios_archive.restore', 'portfolios_archive.force_delete',
                 'customers_archive.view', 'customers_archive.restore', 'customers_archive.force_delete',
                 'contracts_archive.view', 'contracts_archive.restore', 'contracts_archive.force_delete',
+                'assignments_archive.view', 'assignments_archive.restore', 'assignments_archive.force_delete',
+                'properties_archive.view', 'properties_archive.restore', 'properties_archive.force_delete',
+                'auctions_archive.view', 'auctions_archive.restore', 'auctions_archive.force_delete',
+            ],
+            'assignments_management' => [
+                'assignments.view', 'assignments.create', 'assignments.edit', 'assignments.delete', 'assignments.toggle_status',
+            ],
+            'properties_management' => [
+                'properties.view', 'properties.create', 'properties.edit', 'properties.delete', 'properties.toggle_status',
+            ],
+            'auctions_management' => [
+                'auctions.view', 'auctions.create', 'auctions.edit', 'auctions.delete', 'auctions.toggle_status',
             ],
             'tickets_management' => [
                 'tickets.view',
