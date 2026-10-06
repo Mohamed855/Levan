@@ -3,11 +3,11 @@
 @section('title', 'رفع تذكرة ')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss'])
+    @vite(['resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js'])
+    @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.js'])
 @endsection
 
 @section('toastr')
@@ -15,7 +15,7 @@
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/tenants/tickets/form-validation.js'])
+    @vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/tenants/tickets/form-validation.js'])
 @endsection
 
 @section('content')
@@ -46,21 +46,22 @@
                     @endif
 
                     <form id="wizard-validation-form" action="{{ tenant_route_name('tickets.store') }}" method="POST"
-                        enctype="multipart/form-data" onSubmit="return false">
+                        enctype="multipart/form-data" novalidate data-form-validate
+                        data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                         @csrf
 
                         <div id="info-validation" class="content">
                             <div class="row g-4">
-                                <div class="col-md-6">
+                                <div class="col-md-6" data-form-field data-field-name="title">
                                     <label for="title" class="form-label">عنوان التذكرة <span
                                             class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="title" name="title"
+                                    <input type="text" class="form-control" id="title" name="title" data-form-control
                                         value="{{ old('title') }}" placeholder="أدخل عنوان التذكرة" required>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-6" data-form-field data-field-name="ticketing_sections_id">
                                     <label for="ticketing_sections_id" class="form-label"> تصنيف التذكرة <span
                                             class="text-danger">*</span></label>
-                                    <select class="form-select select2" id="ticketing_sections_id"
+                                    <select class="form-select select2" id="ticketing_sections_id" data-form-control
                                         name="ticketing_sections_id" required data-placeholder="اختر التصنيف">
                                         <option value=""> </option>
                                         @foreach ($sections as $section)
@@ -69,16 +70,16 @@
                                     </select>
                                 </div>
 
-                                <div class="col-12">
+                                <div class="col-12" data-form-field data-field-name="description">
                                     <label for="description" class="form-label">وصف المشكلة <span
                                             class="text-danger">*</span></label>
-                                    <textarea class="form-control" id="description" name="description" rows="5"
+                                    <textarea class="form-control" id="description" name="description" data-form-control rows="5"
                                         placeholder="اشرح تفاصيل المشكلة التي تواجهها..." required>{{ old('description') }}</textarea>
                                 </div>
 
-                                <div class="col-md-12">
+                                <div class="col-md-12" data-form-field data-field-name="attachments[]">
                                     <label for="attachments" class="form-label">المرفقات (اختياري)</label>
-                                    <input type="file" class="form-control" id="attachments" name="attachments[]"
+                                    <input type="file" class="form-control" id="attachments" name="attachments[]" data-form-control
                                         multiple accept="image/*,application/pdf,.doc,.docx,.txt" onchange="previewFiles()">
                                     <small class="text-muted">يمكنك رفع عدة صور أو ملفات (حد أقصى 5 ملفات، كل ملف حتى
                                         5MB)</small>
