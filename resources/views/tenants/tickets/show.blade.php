@@ -3,11 +3,11 @@
 @section('title', 'تفاصيل التذكرة #' . $ticket->ticket_number)
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/@form-validation/form-validation.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss', 'resources/assets/css/tenants/tickets/show.css'])
+    @vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.scss', 'resources/assets/css/tenants/tickets/show.css'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js', 'resources/assets/js/tenants/tickets/show.js'])
+    @vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.js', 'resources/assets/js/tenants/tickets/show.js'])
 
     @if ($ticket->status === 'resolved_pending_survey')
         <script>
@@ -43,22 +43,23 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
                 </div>
 
-                <form action="{{ tenant_route_name('tickets.survey.submit', $ticket->ticket_number) }}" method="POST">
+                <form action="{{ tenant_route_name('tickets.survey.submit', $ticket->ticket_number) }}" method="POST"
+                    novalidate data-form-validate data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                     @csrf
 
                     <div class="modal-body text-center">
                         <p class="mb-3 fw-bold fs-5">
                             شاركنا تجربتك! هل تم حل مشكلتك بنجاح؟
                         </p>
-                        <div class="d-flex justify-content-center gap-3 mb-4 choice-buttons">
+                        <div class="d-flex justify-content-center gap-3 mb-4 choice-buttons" data-form-field data-field-name="solved">
                             <input type="radio" class="btn-check" name="solved" id="solvedYes" value="1"
-                                autocomplete="off" required {{ old('solved') == '1' ? 'checked' : '' }}>
+                                autocomplete="off" required data-form-control {{ old('solved') == '1' ? 'checked' : '' }}>
                             <label class="btn btn-outline-success" for="solvedYes">
                                 نعم، تم الحل
                             </label>
 
                             <input type="radio" class="btn-check" name="solved" id="solvedNo" value="0"
-                                autocomplete="off" required {{ old('solved') == '0' ? 'checked' : '' }}>
+                                autocomplete="off" required data-form-control {{ old('solved') == '0' ? 'checked' : '' }}>
                             <label class="btn btn-outline-danger" for="solvedNo">
                                 لا، لم تُحل
                             </label>
@@ -71,7 +72,7 @@
                                 <div class="my-4">
                                     <label class="form-label d-block mb-2 fw-semibold">{{ $label }}</label>
 
-                                    <input type="hidden" name="{{ $field }}" value="{{ old($field) }}" />
+                                    <input type="hidden" name="{{ $field }}" value="{{ old($field) }}" data-validation-skip />
 
                                     <div class="d-flex justify-content-center">
                                         <div class="survey-stars" data-target="{{ $field }}">
@@ -86,7 +87,7 @@
 
                         <hr class="my-4">
                         <div class="mt-3">
-                            <textarea name="comment" class="form-control" rows="3" placeholder="شاركنا رأيك أو أي ملاحظات لديك...">{{ old('comment') }}</textarea>
+                            <textarea name="comment" class="form-control" data-form-control rows="3" placeholder="شاركنا رأيك أو أي ملاحظات لديك...">{{ old('comment') }}</textarea>
                         </div>
                     </div>
 
@@ -246,7 +247,8 @@
 
                                         {{-- تقييم الردود (فقط لردود الدعم الفني) --}}
                                         @if (!$isTenant && $replyId)
-                                            <form method="POST" class="m-0"
+                                            <form method="POST" class="m-0" novalidate data-form-validate
+                                                data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}"
                                                 action="{{ tenant_route_name('tickets.replies.rate', ['ticket' => $ticket->ticket_number, 'reply' => $replyId]) }}">
                                                 @csrf
                                                 <div
@@ -280,13 +282,14 @@
                     <hr class="my-4">
                     @if (in_array($ticket->status, ['open', 'in_progress', 'reopened']))
                         <form action="{{ tenant_route_name('tickets.reply', $ticket->ticket_number) }}" method="POST"
-                            enctype="multipart/form-data">
+                            enctype="multipart/form-data" novalidate data-form-validate
+                            data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                             @csrf
-                            <div class="mb-3">
+                            <div class="mb-3" data-form-field data-field-name="message">
                                 <label class="form-label fw-bold" for="replyMessage">إضافة رد على التذكرة:</label>
                                 <div class="position-relative border rounded @error('message') border-danger @enderror"
                                     style="background-color: var(--bs-paper-bg, var(--bs-card-bg, #fff));">
-                                    <textarea class="form-control border-0 shadow-none" id="replyMessage" name="message" rows="4"
+                                    <textarea class="form-control border-0 shadow-none" id="replyMessage" name="message" data-form-control rows="4"
                                         placeholder="اكتب ردك هنا..."
                                         style="resize: vertical; min-height: 140px; margin-bottom: 48px; background: transparent;" required>{{ old('message') }}</textarea>
 
@@ -307,7 +310,7 @@
 
                                         {{-- الـ icon ع الشمال --}}
                                         <div class="d-flex align-items-center">
-                                            <input type="file" id="attachments" name="attachments[]" multiple
+                                            <input type="file" id="attachments" name="attachments[]" data-form-control multiple
                                                 class="d-none" accept="image/*,application/pdf,.doc,.docx">
                                             <button type="button" id="btn-trigger-attachments"
                                                 class="btn btn-icon mb-0 cursor-pointer" title="إرفاق ملفات">
@@ -549,6 +552,7 @@
 @endsection
 
 @section('page-script')
+    @vite(['resources/assets/js/shared/form-validation.js'])
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var fileInput = document.getElementById('attachments');
