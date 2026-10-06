@@ -26,16 +26,7 @@ class AuctionsDataTable extends AbstractDataTable
     {
         return [
             ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'title' => '#', 'orderable' => false, 'searchable' => false, 'width' => '40px'],
-            [
-                'data'       => 'checkbox',
-                'name'       => 'checkbox',
-                'title'      => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
-                'orderable'  => false,
-                'searchable' => false,
-                'width'      => '10px',
-                'className'  => 'custom-checkbox',
-                'titleAttr'  => 'تحديد الكل',
-            ],
+            ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم المزاد', 'width' => '200px'],
             ['data' => 'platform_name', 'name' => 'platform_name', 'title' => 'المنصة / القاعة', 'width' => '150px'],
             ['data' => 'start_date', 'name' => 'start_date', 'title' => 'تاريخ البداية', 'width' => '130px'],
@@ -99,10 +90,10 @@ class AuctionsDataTable extends AbstractDataTable
             })
             ->addColumn('outputs', function ($row) {
                 return '<div class="d-flex justify-content-center gap-1">
-                    <span class="badge bg-label-secondary p-1" title="بروشور"><i class="ti ti-file-description ti-xs"></i></span>
-                    <span class="badge bg-label-secondary p-1" title="شاشة العرض"><i class="ti ti-device-desktop ti-xs"></i></span>
-                    <span class="badge bg-label-secondary p-1" title="باركود"><i class="ti ti-qrcode ti-xs"></i></span>
-                    <span class="badge bg-label-secondary p-1" title="صور"><i class="ti ti-photo ti-xs"></i></span>
+                    <span class="badge bg-secondary p-1" title="بروشور"><i class="ti ti-file-description ti-xs"></i></span>
+                    <span class="badge bg-secondary p-1" title="شاشة العرض"><i class="ti ti-device-desktop ti-xs"></i></span>
+                    <span class="badge bg-secondary p-1" title="باركود"><i class="ti ti-qrcode ti-xs"></i></span>
+                    <span class="badge bg-secondary p-1" title="صور"><i class="ti ti-photo ti-xs"></i></span>
                 </div>';
             })
             ->addColumn('actions', function ($row) {
@@ -140,5 +131,49 @@ class AuctionsDataTable extends AbstractDataTable
         }
 
         return $query;
+    }
+
+    protected function buttons(): array
+    {
+        return [
+            $this->getActionsDropdownButton(),
+            $this->getAddButton(),
+        ];
+    }
+
+    private function getActionsDropdownButton(): array
+    {
+        $buttons = [
+            ['extend' => 'copy', 'text' => 'نسخ'],
+            ['extend' => 'excel', 'text' => 'إكسل'],
+        ];
+
+        if (auth()->user()?->can('auctions.delete')) {
+            $buttons[] = [
+                'text'      => 'حذف المحدد',
+                'className' => 'btn btn-default btn-delete-selected',
+                'action'    => 'function() { handleMassDelete(); }',
+            ];
+        }
+
+        return [
+            'extend'    => 'collection',
+            'className' => 'btn btn-export',
+            'text'      => 'الإجراءات',
+            'buttons'   => $buttons,
+        ];
+    }
+
+    private function getAddButton(): array
+    {
+        if (auth()->user()?->can('auctions.create')) {
+            return [
+                'text'      => '<i class="ti ti-plus me-1"></i> إضافة مزاد',
+                'className' => 'btn btn-primary btn-add',
+                'action'    => "function(){ window.location.href='" . tenant_route_name($this->route . '.create') . "'; }",
+            ];
+        }
+
+        return [];
     }
 }

@@ -13,7 +13,7 @@
             <div class="d-flex gap-2 align-items-center">
                 <span class="badge {{ $auction->status_badge_class }}">{{ $auction->status_label }}</span>
                 <span class="badge bg-label-info">{{ $auction->type_label }}</span>
-                <span class="badge bg-label-secondary">{{ $auction->city }}</span>
+                <span class="badge bg-secondary">{{ $auction->city }}</span>
             </div>
         </div>
         <div class="d-flex gap-2">
@@ -22,7 +22,7 @@
                     <i class="ti ti-edit me-1"></i> تعديل المزاد
                 </a>
             @endcan
-            <a href="{{ tenant_route_name('auctions.index') }}" class="btn btn-label-secondary">
+            <a href="{{ tenant_route_name('auctions.index') }}" class="btn btn-secondary">
                 <i class="ti ti-arrow-right me-1"></i> العودة للمزادات
             </a>
         </div>
@@ -42,23 +42,29 @@
 
                     <ul class="list-unstyled border-top pt-3">
                         <li class="mb-2"><span class="fw-bold me-1">الإسناد المرتبط:</span>
-                            @if($auction->assignment)
-                                <a href="{{ tenant_route_name('assignments.show', $auction->assignment_id) }}" class="text-primary fw-medium">
+                            @if ($auction->assignment)
+                                <a href="{{ tenant_route_name('assignments.show', $auction->assignment_id) }}"
+                                    class="text-primary fw-medium">
                                     {{ $auction->assignment->name }} ({{ $auction->assignment->assignment_number }})
                                 </a>
                             @else
                                 -
                             @endif
                         </li>
-                        <li class="mb-2"><span class="fw-bold me-1">الجهة المشرفة:</span> <span>{{ $auction->supervising_entity ?? '-' }}</span></li>
-                        <li class="mb-2"><span class="fw-bold me-1">منصة المزاد:</span> <span>{{ $auction->platform_name ?? '-' }}</span></li>
-                        @if($auction->platform_url)
+                        <li class="mb-2"><span class="fw-bold me-1">الجهة المشرفة:</span>
+                            <span>{{ $auction->supervising_entity ?? '-' }}</span></li>
+                        <li class="mb-2"><span class="fw-bold me-1">منصة المزاد:</span>
+                            <span>{{ $auction->platform_name ?? '-' }}</span></li>
+                        @if ($auction->platform_url)
                             <li class="mb-2"><span class="fw-bold me-1">رابط المزاد:</span>
-                                <a href="{{ $auction->platform_url }}" target="_blank" class="text-primary">زيارة المنصة <i class="ti ti-external-link"></i></a>
+                                <a href="{{ $auction->platform_url }}" target="_blank" class="text-primary">زيارة المنصة <i
+                                        class="ti ti-external-link"></i></a>
                             </li>
                         @endif
-                        <li class="mb-2"><span class="fw-bold me-1">تاريخ البداية:</span> <span>{{ $auction->start_date?->format('Y-m-d') }} {{ $auction->start_time }}</span></li>
-                        <li class="mb-2"><span class="fw-bold me-1">تاريخ النهاية:</span> <span>{{ $auction->end_date?->format('Y-m-d') }} {{ $auction->end_time }}</span></li>
+                        <li class="mb-2"><span class="fw-bold me-1">تاريخ البداية:</span>
+                            <span>{{ $auction->start_date?->format('Y-m-d') }} {{ $auction->start_time }}</span></li>
+                        <li class="mb-2"><span class="fw-bold me-1">تاريخ النهاية:</span>
+                            <span>{{ $auction->end_date?->format('Y-m-d') }} {{ $auction->end_time }}</span></li>
                     </ul>
                 </div>
             </div>
@@ -87,7 +93,8 @@
                                 <tr>
                                     <td><code>{{ $prop->property_number }}</code></td>
                                     <td>
-                                        <a href="{{ tenant_route_name('properties.show', $prop->id) }}" class="fw-medium text-body">
+                                        <a href="{{ tenant_route_name('properties.show', $prop->id) }}"
+                                            class="fw-medium text-body">
                                             {{ $prop->name }}
                                         </a>
                                     </td>
@@ -97,7 +104,8 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center py-4 text-muted">لم يتم إدراج عقارات في هذا المزاد بعد.</td>
+                                    <td colspan="5" class="text-center py-4 text-muted">لم يتم إدراج عقارات في هذا المزاد
+                                        بعد.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -127,14 +135,16 @@
                                     <td><span class="badge bg-label-primary">{{ $att->category_label }}</span></td>
                                     <td>{{ number_format($att->file_size / 1024, 1) }} KB</td>
                                     <td>
-                                        <a href="{{ tasset($att->file_path) }}" target="_blank" class="btn btn-sm btn-icon btn-label-secondary">
+                                        <a href="{{ tasset($att->file_path) }}" target="_blank"
+                                            class="btn btn-sm btn-icon btn-secondary">
                                             <i class="ti ti-download"></i>
                                         </a>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="text-center py-4 text-muted">لا توجد ملفات مرفقة لهذا المزاد.</td>
+                                    <td colspan="4" class="text-center py-4 text-muted">لا توجد ملفات مرفقة لهذا المزاد.
+                                    </td>
                                 </tr>
                             @endforelse
                         </tbody>

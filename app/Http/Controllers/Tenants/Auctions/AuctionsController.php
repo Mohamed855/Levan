@@ -106,20 +106,28 @@ class AuctionsController extends Controller
         }
     }
 
-    public function destroy(Auction $auction): JsonResponse
+    public function destroy(Auction $auction)
     {
         try {
             $this->auctionService->deleteAuction($auction);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'تم نقل المزاد إلى المحذوفات بنجاح',
-            ]);
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'تم نقل المزاد إلى المحذوفات بنجاح',
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'تم نقل المزاد إلى المحذوفات بنجاح');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'حدث خطأ أثناء حذف المزاد',
-            ], 500);
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'حدث خطأ أثناء حذف المزاد',
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'حدث خطأ أثناء حذف المزاد');
         }
     }
 

@@ -3,19 +3,11 @@
 @section('title', 'أرشيف المزادات المحذوفة')
 
 @section('vendor-style')
-    @vite([
-        'resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
-        'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
-        'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss',
-        'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'
-    ])
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite([
-        'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js',
-        'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'
-    ])
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
     {!! $dataTable->scripts() !!}
 @endsection
 
@@ -29,6 +21,29 @@
 
 @section('page-script')
     <script>
+        $(document).ready(function() {
+            $('#auctions-archive-table').on('init.dt', function() {
+                const table = $(this).DataTable();
+                const tableWrapper = $('#auctions-archive-table_wrapper');
+
+                tableWrapper.on('click', '#select-all', function() {
+                    $('.row-checkbox', table.rows({
+                        search: 'applied'
+                    }).nodes()).prop('checked', this.checked);
+                });
+
+                tableWrapper.on('change', '.row-checkbox', function() {
+                    if (!this.checked) {
+                        $('#select-all').prop('checked', false);
+                    }
+                });
+            });
+
+            $('#auctions-archive-table').on('draw.dt', function() {
+                $('#select-all').prop('checked', false);
+            });
+        });
+
         $(document).on('click', '.js-force-delete', function() {
             const url = $(this).data('url');
             Swal.fire({
@@ -40,7 +55,7 @@
                 cancelButtonText: 'إلغاء',
                 customClass: {
                     confirmButton: 'btn btn-danger me-3',
-                    cancelButton: 'btn btn-label-secondary'
+                    cancelButton: 'btn btn-secondary'
                 },
                 buttonsStyling: false
             }).then(function(result) {
@@ -54,7 +69,8 @@
                         success: function(response) {
                             if (response.success) {
                                 toastr.success(response.message);
-                                window.LaravelDataTables["auctions-archive-table"].ajax.reload();
+                                window.LaravelDataTables["auctions-archive-table"].ajax
+                            .reload();
                             }
                         },
                         error: function() {
@@ -68,24 +84,12 @@
 @endsection
 
 @section('content')
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="fw-bold mb-1"><i class="ti ti-trash me-2 text-danger"></i>أرشيف المزادات</h4>
-            <p class="text-muted mb-0">عرض واستعادة المزادات المحذوفة أو حذفها نهائياً.</p>
+    <div class="card">
+        <div class="card-body">
+            {!! $dataTable->table(
+                ['class' => 'table table-striped table-bordered w-100', 'id' => 'auctions-archive-table'],
+                false,
+            ) !!}
         </div>
-        <a href="{{ tenant_route_name('auctions.index') }}" class="btn btn-label-secondary">
-            <i class="ti ti-arrow-right me-1"></i> العودة للمزادات
-        </a>
     </div>
-
-    <x-data-table.page table-id="auctions-archive-table">
-        <x-slot:stats>
-            <x-ui.stat-card col="col-md-4" title="إجمالي المحذوفات" :value="$totalArchived" subtitle="مزادات محذوفة"
-                icon="ti-archive" color="danger" />
-        </x-slot:stats>
-
-        <x-slot:table>
-            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'auctions-archive-table'], false) !!}
-        </x-slot:table>
-    </x-data-table.page>
 @endsection

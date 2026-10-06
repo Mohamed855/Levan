@@ -31,20 +31,50 @@
 
 @section('page-script')
     @vite(['resources/assets/js/shared/table-status-toggle.js'])
+    <script>
+        window.routes = {
+            massDelete: "{{ tenant_route_name('mass-delete') }}"
+        };
+
+        $(document).ready(function() {
+            $('#auctions-table').on('init.dt', function() {
+                const table = $(this).DataTable();
+                const tableWrapper = $('#auctions-table_wrapper');
+
+                tableWrapper.on('click', '#select-all', function() {
+                    $('.row-checkbox', table.rows({ search: 'applied' }).nodes()).prop('checked', this.checked);
+                });
+
+                tableWrapper.on('change', '.row-checkbox', function() {
+                    if (!this.checked) {
+                        $('#select-all').prop('checked', false);
+                    }
+                });
+            });
+
+            $('#auctions-table').on('draw.dt', function() {
+                $('#select-all').prop('checked', false);
+            });
+        });
+
+        function handleMassDelete() {
+            const selectedIds = [];
+            $('.row-checkbox:checked').each(function() {
+                selectedIds.push($(this).val());
+            });
+
+            if (selectedIds.length === 0) {
+                toastr.warning('يرجى تحديد مزاد واحد على الأقل');
+                return;
+            }
+
+            confirmDeleteSelectedmss(selectedIds, window.routes.massDelete, 'Auction');
+        }
+        window.handleMassDelete = handleMassDelete;
+    </script>
 @endsection
 
 @section('content')
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="fw-bold mb-1"><i class="ti ti-gavel me-2 text-primary"></i>إدارة المزادات</h4>
-            <p class="text-muted mb-0">إدارة جميع المزادات الخاصة بشركتكم ومتابعة حالتها ومواعيدها والجهات المشرفة عليها.</p>
-        </div>
-        @can('auctions.create')
-            <a href="{{ tenant_route_name('auctions.create') }}" class="btn btn-primary">
-                <i class="ti ti-plus me-1"></i> إنشاء مزاد جديد
-            </a>
-        @endcan
-    </div>
 
     <x-data-table.page table-id="auctions-table">
         <x-slot:stats>

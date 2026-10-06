@@ -109,7 +109,7 @@ class Auction extends Model
     public function getStatusBadgeClassAttribute(): string
     {
         return match ($this->status) {
-            'draft'            => 'bg-label-secondary',
+            'draft'            => 'bg-secondary',
             'in_preparation'   => 'bg-label-warning',
             'pending_approval' => 'bg-label-info',
             'active'           => 'bg-label-success',
