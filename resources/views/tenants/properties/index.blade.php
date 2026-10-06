@@ -37,6 +37,21 @@
         };
 
         $(document).ready(function() {
+            function initializeComponents() {
+                if ($.fn.select2) {
+                    $('.select2').not('.select2-hidden-accessible').each(function() {
+                        $(this).select2({
+                            placeholder: $(this).data('placeholder') || 'اختر',
+                            allowClear: true,
+                            width: '100%',
+                            language: 'ar',
+                            dir: 'rtl'
+                        });
+                    });
+                }
+            }
+            initializeComponents();
+
             $('#properties-table').on('init.dt', function() {
                 const table = $(this).DataTable();
                 const tableWrapper = $('#properties-table_wrapper');

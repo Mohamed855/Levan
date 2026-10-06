@@ -5,7 +5,6 @@
 @section('vendor-style')
     @vite([
         'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss',
-        'resources/assets/vendor/libs/@form-validation/form-validation.scss',
         'resources/assets/vendor/libs/select2/select2.scss'
     ])
 @endsection
@@ -13,9 +12,6 @@
 @section('vendor-script')
     @vite([
         'resources/assets/vendor/libs/bs-stepper/bs-stepper.js',
-        'resources/assets/vendor/libs/@form-validation/popular.js',
-        'resources/assets/vendor/libs/@form-validation/bootstrap5.js',
-        'resources/assets/vendor/libs/@form-validation/auto-focus.js',
         'resources/assets/vendor/libs/select2/select2.js'
     ])
 @endsection
@@ -26,6 +22,21 @@
 
 @section('page-script')
     @vite(['resources/assets/js/shared/form-validation.js'])
+    <script>
+        $(document).ready(function() {
+            if ($.fn.select2) {
+                $('.select2').not('.select2-hidden-accessible').each(function() {
+                    $(this).select2({
+                        placeholder: $(this).data('placeholder') || 'اختر',
+                        allowClear: !$(this).prop('required'),
+                        width: '100%',
+                        language: 'ar',
+                        dir: 'rtl'
+                    });
+                });
+            }
+        });
+    </script>
 @endsection
 
 @section('content')

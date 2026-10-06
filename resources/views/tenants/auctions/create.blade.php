@@ -3,11 +3,11 @@
 @section('title', 'إنشاء مزاد جديد')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js', 'resources/assets/vendor/libs/flatpickr/flatpickr.js', 'resources/assets/vendor/libs/select2/select2.js'])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/flatpickr/flatpickr.js', 'resources/assets/vendor/libs/select2/select2.js'])
 @endsection
 
 @section('toastr')
@@ -18,6 +18,19 @@
     @vite(['resources/assets/js/shared/form-validation.js'])
     <script>
         $(document).ready(function() {
+            // Initialize Select2 controls
+            if ($.fn.select2) {
+                $('.select2').not('.select2-hidden-accessible').each(function() {
+                    $(this).select2({
+                        placeholder: $(this).data('placeholder') || 'اختر',
+                        allowClear: !$(this).prop('required'),
+                        width: '100%',
+                        language: 'ar',
+                        dir: 'rtl'
+                    });
+                });
+            }
+
             // Live Preview in Step 1
             $('#name').on('input', function() {
                 $('#preview-auction-name').text($(this).val() || 'اسم المزاد الافتراضي');

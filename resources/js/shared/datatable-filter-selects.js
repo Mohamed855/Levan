@@ -36,8 +36,13 @@ let isResettingFilters = false;
 /**
  * Initialize Select2 on filter dropdowns.
  */
-function initializeDataTableFilterSelects() {
-  if (!window.jQuery) return;
+function initializeDataTableFilterSelects(retryCount = 0) {
+  if (!window.jQuery || typeof window.jQuery.fn.select2 !== 'function') {
+    if (retryCount < 10) {
+      setTimeout(() => initializeDataTableFilterSelects(retryCount + 1), 100);
+    }
+    return;
+  }
   const $ = window.jQuery;
 
   $(filterSelector)

@@ -829,8 +829,38 @@ function initStepper(form) {
     true
   );
 
+  form.addEventListener('stepChanged', () => {
+    initSelect2Controls(form);
+  });
+
   // Initial check on load
   setTimeout(updateCurrentStepButton, 150);
+}
+
+function initSelect2Controls(form, retryCount = 0) {
+  if (!window.jQuery || typeof window.jQuery.fn.select2 !== 'function') {
+    if (retryCount < 10) {
+      setTimeout(() => initSelect2Controls(form, retryCount + 1), 100);
+    }
+    return;
+  }
+
+  const $ = window.jQuery;
+  $(form)
+    .find('select.select2, select[data-form-control]')
+    .not('.select2-hidden-accessible, [data-select2-ignore]')
+    .each(function () {
+      const $select = $(this);
+      const $modal = $select.closest('.modal');
+
+      $select.select2({
+        placeholder: $select.data('placeholder') || $select.attr('placeholder') || 'اختر',
+        allowClear: !$select.prop('required'),
+        width: '100%',
+        dir: 'rtl',
+        dropdownParent: $modal.length ? $modal : undefined
+      });
+    });
 }
 
 function initForm(form) {
@@ -843,6 +873,7 @@ function initForm(form) {
   ensureValidationContract(form);
   initStepper(form);
   initDrafts(form);
+  initSelect2Controls(form);
 
   const getStepForControl = (control) => control.closest('[data-form-step], .content');
 
@@ -992,6 +1023,10 @@ if (document.readyState === 'loading') {
 } else {
   boot();
 }
+
+window.addEventListener('load', () => {
+  document.querySelectorAll('form[data-form-validate]').forEach((form) => initSelect2Controls(form));
+});
 
 window.SharedFormValidation = {
   validateFields,
