@@ -32,7 +32,8 @@
     <div class="card">
         <div class="card-body">
             <form action="{{ tenant_route_name('auctions.update', $auction->id) }}" method="POST"
-                enctype="multipart/form-data">
+                enctype="multipart/form-data" novalidate data-form-validate
+                data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                 @csrf
                 @method('PUT')
 

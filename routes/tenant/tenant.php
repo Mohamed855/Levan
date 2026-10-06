@@ -129,12 +129,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
                 CustomerController::class . '@store',
                 CustomerController::class . '@update',
                 \App\Http\Controllers\Tenants\Auth\Fortify\TenantTwoFactorSettingsController::class . '@confirm',
-                AssignmentsController::class . '@store',
-                AssignmentsController::class . '@update',
-                PropertiesController::class . '@store',
-                PropertiesController::class . '@update',
-                AuctionsController::class . '@store',
-                AuctionsController::class . '@update',
             ])
             ->name('validate-step');
     });

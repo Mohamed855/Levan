@@ -119,14 +119,21 @@ class WizardDraftController extends Controller
         $action = $route->getActionMethod();
         $allowsSharedValidation = (bool) ($route->defaults['shared_form_validation'] ?? false);
         abort_unless(in_array($action, ['store', 'update'], true) || $allowsSharedValidation, 404);
-        abort_if($allowedActions !== [] && ! in_array($route->getActionName(), $allowedActions, true), 404);
+
+        $normalizedRouteAction = ltrim($route->getActionName(), '\\');
+        $normalizedAllowedActions = array_map(
+            static fn (string $allowedAction): string => ltrim($allowedAction, '\\'),
+            $allowedActions,
+        );
+
+        abort_if($normalizedAllowedActions !== [] && ! in_array($normalizedRouteAction, $normalizedAllowedActions, true), 404);
 
         return $route;
     }
 
     private function makeResourceRequest(Request $request, Route $route): FormRequest
     {
-        [$controller, $method] = explode('@', $route->getActionName());
+        [$controller, $method] = explode('@', ltrim($route->getActionName(), '\\'));
         $reflection = new \ReflectionMethod($controller, $method);
 
         foreach ($reflection->getParameters() as $parameter) {
