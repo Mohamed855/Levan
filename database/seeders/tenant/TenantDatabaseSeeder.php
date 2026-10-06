@@ -18,6 +18,7 @@ class TenantDatabaseSeeder extends Seeder
             CompanyPortfolioSeeder::class,
             UserSeeder::class,
             CustomerDataSeeder::class,
+            AuctionsAndPropertiesSeeder::class,
         ]);
     }
 }
