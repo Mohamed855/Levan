@@ -8,7 +8,7 @@ class TicketRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user('tenant')?->can('tickets.create') ?? false;
     }
 
     public function rules(): array
@@ -33,9 +33,13 @@ class TicketRequest extends WizardFormRequest
         ];
     }
 
-    protected function prepareForValidation()
+    protected function prepareForValidation(): void
     {
-        $user = auth()->user();
+        $user = $this->user('tenant');
+
+        if (! $user) {
+            return;
+        }
 
         $this->merge([
             'customer_name'     => $user->name,

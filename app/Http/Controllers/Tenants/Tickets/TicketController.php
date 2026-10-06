@@ -5,10 +5,11 @@ namespace App\Http\Controllers\Tenants\Tickets;
 use App\DataTables\Tenants\Tickets\TicketsDataTable;
 use App\Enums\Tenants\Tickets\TicketStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Tickets\RateTicketReplyRequest;
+use App\Http\Requests\Tenants\Tickets\SubmitTicketSurveyRequest;
 use App\Http\Requests\Tenants\Tickets\TicketReplyRequest;
 use App\Http\Requests\Tenants\Tickets\TicketRequest;
 use App\Services\shared\Integration\EtmamTicketService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class TicketController extends Controller
@@ -162,13 +163,9 @@ class TicketController extends Controller
     }
 
 
-    public function rateReply(Request $request, string $ticketNumber, int $replyId)
+    public function rateReply(RateTicketReplyRequest $request, string $ticketNumber, int $replyId)
     {
-        $request->validate([
-            'stars' => 'required|integer|min:1|max:5',
-        ]);
-
-        $stars = (int) $request->input('stars');
+        $stars = (int) $request->validated('stars');
 
         $result = $this->ticketService->rateReply($ticketNumber, $replyId, $stars);
 
@@ -180,16 +177,9 @@ class TicketController extends Controller
     }
 
 
-    public function submitSurvey(Request $request, string $ticketNumber)
+    public function submitSurvey(SubmitTicketSurveyRequest $request, string $ticketNumber)
     {
-        $data = $request->validate([
-            'solved'           => ['required', 'boolean'],
-            'agent_rating'     => ['nullable', 'integer', 'between:1,5'],
-            'system_rating'    => ['nullable', 'integer', 'between:1,5'],
-            'solution_rating'  => ['nullable', 'integer', 'between:1,5'],
-            'comment'          => ['nullable', 'string', 'max:1000'],
-        ]);
-
+        $data = $request->validated();
 
         $result = $this->ticketService->answerSurvey($ticketNumber, $data);
 

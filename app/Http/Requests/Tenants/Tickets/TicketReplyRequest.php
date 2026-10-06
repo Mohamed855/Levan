@@ -8,7 +8,7 @@ class TicketReplyRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user('tenant')?->can('tickets.view') ?? false;
     }
 
     public function rules(): array
