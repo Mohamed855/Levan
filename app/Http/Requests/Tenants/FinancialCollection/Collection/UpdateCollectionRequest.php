@@ -12,7 +12,7 @@ class UpdateCollectionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true; // يمكن تعديلها حسب الصلاحيات
+        return $this->user('tenant')?->can('collections.edit') ?? false;
     }
 
     /**

@@ -17,7 +17,7 @@ class StoreCollectionTargetRequest extends WizardFormRequest
     */
     public function authorize(): bool
     {
-        return true;
+        return $this->user('tenant')?->can('collection_targets.create') ?? false;
     }
 
     /*

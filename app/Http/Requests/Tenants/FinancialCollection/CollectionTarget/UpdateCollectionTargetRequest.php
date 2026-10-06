@@ -17,7 +17,7 @@ class UpdateCollectionTargetRequest extends FormRequest
     */
     public function authorize(): bool
     {
-        return true;
+        return $this->user('tenant')?->can('collection_targets.edit') ?? false;
     }
 
     /*
