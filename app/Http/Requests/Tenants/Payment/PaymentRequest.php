@@ -6,12 +6,12 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class PaymentRequest extends FormRequest
 {
-    public function authorize()
+    public function authorize(): bool
     {
-        return true;
+        return $this->user('tenant') !== null;
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'coupon_code'               => ['nullable', 'string',],

@@ -128,6 +128,10 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
                 AuctionsController::class . '@update',
                 CustomerController::class . '@store',
                 CustomerController::class . '@update',
+                TicketController::class . '@store',
+                TicketController::class . '@reply',
+                TicketController::class . '@rateReply',
+                TicketController::class . '@submitSurvey',
                 \App\Http\Controllers\Tenants\Auth\Fortify\TenantTwoFactorSettingsController::class . '@confirm',
             ])
             ->name('validate-step');
@@ -190,14 +194,17 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         // الدعم الفني
         Route::name('tickets.')->prefix('tickets')->group(function () {
             Route::resource('/', TicketController::class)->parameters(['' => 'ticket'])->only(['index', 'show', 'create', 'store']);
-            Route::name('reply')->post('/reply/{ticket}', [TicketController::class, 'reply']);
+            Route::name('reply')->post('/reply/{ticket}', [TicketController::class, 'reply'])
+                ->defaults('shared_form_validation', true);
 
 
             // تقييم الرد
-            Route::name('replies.rate')->post('{ticket}/replies/{reply}/rate', [TicketController::class, 'rateReply']);
+            Route::name('replies.rate')->post('{ticket}/replies/{reply}/rate', [TicketController::class, 'rateReply'])
+                ->defaults('shared_form_validation', true);
 
             // التقييم النهائي للتذكرة
-            Route::name('survey.submit')->post('{ticket}/survey', [TicketController::class, 'submitSurvey']);
+            Route::name('survey.submit')->post('{ticket}/survey', [TicketController::class, 'submitSurvey'])
+                ->defaults('shared_form_validation', true);
         });
 
         Route::prefix('chartSetting')->name('charSetting.')->group(function () {
@@ -269,7 +276,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             // moyaser start
             Route::name('payment.new')->post('payment', [DomainPaymentController::class, 'startRegistration'])->middleware('check.domain.balance');
             Route::name('payment.callbacknewdomain')->get('payment/callbacknewDomain', [DomainPaymentController::class, 'registrationCallback']);
-            Route::get('createCpanelAccount/{username}', [DomainController::class, 'createCpanelAccount']);
             Route::name('process-transfer-payment')->post('process-transfer-payment', [DomainPaymentController::class, 'startTransfer']);
             Route::name('payment.callback.transfer')->get('process-transfer-payment-callback', [DomainPaymentController::class, 'transferCallback']);
             // moyaser end

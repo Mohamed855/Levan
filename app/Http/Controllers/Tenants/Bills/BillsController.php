@@ -37,15 +37,14 @@ class BillsController extends Controller
         $this->middleware('can:bills.view');
 
         $this->middleware(function (Request $request, Closure $next) {
-            $id   = $request->route('id');
-            $bill = Bill::find($id);
+            $id = $request->route('id');
+            $bill = Bill::query()
+                ->whereKey($id)
+                ->where('tenant_id', tenant()->id)
+                ->first();
 
             if (!$bill) {
                 return redirect()->to(tenant_route_name('bills.index'))->with('error', 'الفاتورة غير موجودة.');
-            }
-
-            if ($bill->tenant_id !== tenant()->id) {
-                return redirect()->to(tenant_route_name('bills.index'))->with('error', 'ليس لديك صلاحية الوصول لهذه الفاتورة.');
             }
 
             if ($bill->status !== BillStatus::UNPAID) {
@@ -75,7 +74,7 @@ class BillsController extends Controller
 
     public function show($id)
     {
-        $bill      = Bill::findOrFail($id);
+        $bill      = $this->tenantBillOrFail($id);
         $settings  = Settings::firstOrFail();
 
 
@@ -98,7 +97,7 @@ class BillsController extends Controller
     public function checkout($id)
     {
         try {
-            $bill  = Bill::findOrFail($id);
+            $bill  = $this->tenantBillOrFail($id);
 
             if ($bill->status != BillStatus::UNPAID) {
                 return redirect()->to(tenant_route_name('bills.index'))->with('error', "لا يمكن دفع هذه الفاتورة  ");
@@ -124,7 +123,7 @@ class BillsController extends Controller
     public function processCheckout(PaymentRequest $request, $id)
     {
         try {
-            $bill  = Bill::findOrFail($id);
+            $bill = $this->tenantBillOrFail($id);
 
             if ($bill->status !== BillStatus::UNPAID) {
                 return redirect()->to(tenant_route_name('bills.index'))->with('error', 'هذه الفاتورة غير متاحة للدفع.');
@@ -151,6 +150,7 @@ class BillsController extends Controller
     {
         try {
             $result = $this->moyasarCallbackHandler->verify($request);
+            abort_unless($result['bill']->tenant_id === tenant()->id, 403);
             $this->subscriptionService->completeUnpaidBill($result['bill'], $result['payment']);
 
             return redirect()->to(tenant_route_name('subscriptions.index'))->with('success', 'تم الدفع وتفعيل الاشتراك بنجاح');
@@ -167,7 +167,7 @@ class BillsController extends Controller
     public function bankTransfer($id)
     {
         try {
-            $bill  = Bill::findOrFail($id);
+            $bill  = $this->tenantBillOrFail($id);
             $banks = Bank::where('is_active', 1)->get();
 
             $amount = $bill->amount;
@@ -184,14 +184,12 @@ class BillsController extends Controller
         try {
             $receiptPath = $request->file('receipt')->store('receipts', 'public');
 
-            Tenancy::central(function () use ($id, $receiptPath, $request) {
-                Bill::findOrFail($id)->update([
-                    'invoice_url'    => $receiptPath,
-                    'bank_id'        => $request->bank_id,
-                    'payment_method' => PaymentMethod::BANK_TRANSFER,
-                    'status'         => BillStatus::PENDING_VERIFICATION,
-                ]);
-            });
+            $this->tenantBillOrFail($id)->update([
+                'invoice_url'    => $receiptPath,
+                'bank_id'        => $request->bank_id,
+                'payment_method' => PaymentMethod::BANK_TRANSFER,
+                'status'         => BillStatus::PENDING_VERIFICATION,
+            ]);
 
             return redirect(tenant_route_name('bills.show', $id))->with('success', 'تم رفع الإيصال بنجاح. سيتم التحقق منه قريباً.');
         } catch (\Exception $e) {
@@ -230,23 +228,27 @@ class BillsController extends Controller
 
             $receiptPath = $request->file('receipt')->store('receipts', 'tenant_public');
 
-            Tenancy::central(function () use ($id, $receiptPath, $request) {
-                $bill = Bill::findOrFail($id);
-
-                $bill->update([
-                    'invoice_url'    => $receiptPath,
-                    'bank_id'        => $request->bank_id,
-                    'transfer_date'  => $request->transfer_date,
-                    'transfer_notes' => $request->notes,
-                    'payment_method' => PaymentMethod::BANK_TRANSFER,
-                    'status'         => BillStatus::PENDING_VERIFICATION,
-                ]);
-            });
+            $this->tenantBillOrFail($id)->update([
+                'invoice_url'    => $receiptPath,
+                'bank_id'        => $request->bank_id,
+                'transfer_date'  => $request->transfer_date,
+                'transfer_notes' => $request->notes,
+                'payment_method' => PaymentMethod::BANK_TRANSFER,
+                'status'         => BillStatus::PENDING_VERIFICATION,
+            ]);
 
             return redirect(tenant_route_name('bills.show', $id))->with('success', 'تم رفع إيصال التحويل بنجاح. سيتم التحقق منه قريباً.');
         } catch (\Exception $e) {
             report($e);
             return redirect()->back()->with('error', 'حدث خطأ أثناء رفع الإيصال. يرجى المحاولة مرة أخرى.');
         }
+    }
+
+    private function tenantBillOrFail(int|string $id): Bill
+    {
+        return Bill::query()
+            ->whereKey($id)
+            ->where('tenant_id', tenant()->id)
+            ->firstOrFail();
     }
 }

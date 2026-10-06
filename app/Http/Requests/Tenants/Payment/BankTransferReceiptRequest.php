@@ -6,15 +6,15 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class BankTransferReceiptRequest extends FormRequest
 {
-    public function authorize()
+    public function authorize(): bool
     {
-        return true;
+        return $this->user('tenant')?->can('bills.view') ?? false;
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
-            'bank_id' => ['required'],
+            'bank_id' => ['required', 'integer', 'exists:mysql.banks,id'],
             'receipt' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
         ];
     }
