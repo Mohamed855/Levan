@@ -10,13 +10,6 @@ class AssignmentsDataTable extends AbstractDataTable
 {
     private string $route = "assignments";
 
-    public function dataTable($query)
-    {
-        $datatable = datatables()->eloquent($query)->addIndexColumn();
-        $this->addCustomColumns($datatable);
-        return $datatable->rawColumns($this->rawColumns());
-    }
-
     protected function getTableId(): string
     {
         return "assignments-table";
@@ -24,19 +17,14 @@ class AssignmentsDataTable extends AbstractDataTable
 
     protected function resource()
     {
-        $query = Assignment::query()
+        return Assignment::query()
             ->withCount(['properties', 'auctions']);
-
-        $this->applyCustomFilters($query);
-
-        return $query;
     }
 
     protected function getColumns(): array
     {
         return [
-            ['data' => '', 'orderable' => false, 'searchable' => false],
-            ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
+            ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'title' => '#', 'orderable' => false, 'searchable' => false, 'width' => '40px'],
             [
                 'data'       => 'checkbox',
                 'name'       => 'checkbox',
@@ -134,7 +122,7 @@ class AssignmentsDataTable extends AbstractDataTable
         return ['checkbox', 'assignment_number', 'name', 'category', 'properties_count', 'auctions_count', 'status', 'actions'];
     }
 
-    protected function applyCustomFilters($query): void
+    protected function applyCustomFilters($query)
     {
         $request = request();
 
@@ -157,5 +145,7 @@ class AssignmentsDataTable extends AbstractDataTable
         if ($request->filled('assignment_number')) {
             $query->where('assignment_number', 'like', '%' . $request->assignment_number . '%');
         }
+
+        return $query;
     }
 }

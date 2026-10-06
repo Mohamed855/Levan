@@ -10,13 +10,6 @@ class AuctionsDataTable extends AbstractDataTable
 {
     private string $route = "auctions";
 
-    public function dataTable($query)
-    {
-        $datatable = datatables()->eloquent($query)->addIndexColumn();
-        $this->addCustomColumns($datatable);
-        return $datatable->rawColumns($this->rawColumns());
-    }
-
     protected function getTableId(): string
     {
         return "auctions-table";
@@ -24,20 +17,15 @@ class AuctionsDataTable extends AbstractDataTable
 
     protected function resource()
     {
-        $query = Auction::query()
+        return Auction::query()
             ->with(['assignment'])
             ->withCount('properties');
-
-        $this->applyCustomFilters($query);
-
-        return $query;
     }
 
     protected function getColumns(): array
     {
         return [
-            ['data' => '', 'orderable' => false, 'searchable' => false],
-            ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
+            ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'title' => '#', 'orderable' => false, 'searchable' => false, 'width' => '40px'],
             [
                 'data'       => 'checkbox',
                 'name'       => 'checkbox',
@@ -127,7 +115,7 @@ class AuctionsDataTable extends AbstractDataTable
         return ['checkbox', 'name', 'start_date', 'end_date', 'properties_count', 'status', 'outputs', 'actions'];
     }
 
-    protected function applyCustomFilters($query): void
+    protected function applyCustomFilters($query)
     {
         $request = request();
 
@@ -150,5 +138,7 @@ class AuctionsDataTable extends AbstractDataTable
         if ($request->filled('end_date')) {
             $query->whereDate('end_date', '<=', $request->end_date);
         }
+
+        return $query;
     }
 }

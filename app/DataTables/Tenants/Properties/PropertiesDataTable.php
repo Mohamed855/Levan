@@ -9,13 +9,6 @@ class PropertiesDataTable extends AbstractDataTable
 {
     private string $route = "properties";
 
-    public function dataTable($query)
-    {
-        $datatable = datatables()->eloquent($query)->addIndexColumn();
-        $this->addCustomColumns($datatable);
-        return $datatable->rawColumns($this->rawColumns());
-    }
-
     protected function getTableId(): string
     {
         return "properties-table";
@@ -23,19 +16,14 @@ class PropertiesDataTable extends AbstractDataTable
 
     protected function resource()
     {
-        $query = Property::query()
+        return Property::query()
             ->with('assignment');
-
-        $this->applyCustomFilters($query);
-
-        return $query;
     }
 
     protected function getColumns(): array
     {
         return [
-            ['data' => '', 'orderable' => false, 'searchable' => false],
-            ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
+            ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'title' => '#', 'orderable' => false, 'searchable' => false, 'width' => '40px'],
             [
                 'data'       => 'checkbox',
                 'name'       => 'checkbox',
@@ -138,7 +126,7 @@ class PropertiesDataTable extends AbstractDataTable
         return ['checkbox', 'property_number', 'name', 'assignment_name', 'type', 'deed_number', 'data_status', 'status', 'actions'];
     }
 
-    protected function applyCustomFilters($query): void
+    protected function applyCustomFilters($query)
     {
         $request = request();
 
@@ -161,5 +149,7 @@ class PropertiesDataTable extends AbstractDataTable
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
+
+        return $query;
     }
 }
