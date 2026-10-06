@@ -31,79 +31,11 @@
         };
 
         window.csrfToken = "{{ csrf_token() }}";
-        window.totalArchivedCount = {{ $totalArchivedCustomers }};
     </script>
     @vite(['resources/assets/js/tenants/archive/customers/index.js', 'resources/assets/js/tenants/archive/customers/selection.js'])
 @endsection
 
 @section('content')
-    <div class="row g-4 mb-4">
-        <div class="col-sm-6 col-xl-4">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">العملاء المحذوفون</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $totalArchivedCustomers }}</h4>
-                            </div>
-                            <small class="mb-0">إجمالي العملاء المحذوفين</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-warning">
-                                <i class="ti ti-archive ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-6 col-xl-4">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">العملاء الأفراد</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $archivedIndividualCustomers }}</h4>
-                            </div>
-                            <small class="mb-0">العملاء الأفراد المحذوفين</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-info">
-                                <i class="ti ti-user ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-6 col-xl-4">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">عملاء الشركات</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $archivedCompanyCustomers }}</h4>
-                            </div>
-                            <small class="mb-0">عملاء الشركات المحذوفين</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-secondary">
-                                <i class="ti ti-building ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    {{-- Filters Card --}}
     <x-data-table.filters table="#archived-customers-table">
         <div class="col-md-2">
             <x-filter.select id="filter-customer-type" filterKey="customer_type" table="#archived-customers-table"

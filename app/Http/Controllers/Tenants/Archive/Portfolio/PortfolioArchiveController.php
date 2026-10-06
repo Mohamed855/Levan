@@ -42,14 +42,8 @@ class PortfolioArchiveController extends Controller
     public function index(ArchivedPortfoliosDataTable $dataTable)
     {
         try {
-            $statistics = $this->portfolioArchiveService->getArchivedPortfolioStatistics();
-
             $companies = Company::select('id', 'name')->orderBy('name')->get();
             return $dataTable->render('tenants.archive.portfolios.index', [
-                'totalArchivedPortfolios'    => $statistics['total'],
-                'archivedActivePortfolios'   => $statistics['active'],
-                'archivedInactivePortfolios' => $statistics['inactive'],
-                'recentlyArchivedPortfolios' => $statistics['recently_archived'],
                 'companies' => $companies,
             ]);
         } catch (\Exception $e) {
@@ -63,16 +57,24 @@ class PortfolioArchiveController extends Controller
     |--------------------------------------------------------------------------
     | Restore the specified archived portfolio.
     */
-    public function restore(ArchiveItemIdRequest $request): RedirectResponse
+    public function restore(ArchiveItemIdRequest $request): RedirectResponse|JsonResponse
     {
         try {
             $portfolio = Portfolio::onlyTrashed()->findOrFail($request->validated('id'));
             $this->portfolioArchiveService->restorePortfolio($portfolio);
 
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'تم استرجاع المحفظة بنجاح']);
+            }
+
             return redirect()
                 ->back()
                 ->with('success', 'تم استرجاع المحفظة بنجاح');
         } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'حدث خطأ أثناء استرجاع المحفظة'], 500);
+            }
+
             return redirect()
                 ->back()
                 ->with('error', 'حدث خطأ أثناء استرجاع المحفظة');
@@ -85,16 +87,24 @@ class PortfolioArchiveController extends Controller
     |--------------------------------------------------------------------------
     | Permanently delete the specified archived portfolio.
     */
-    public function forceDelete(ArchiveItemIdRequest $request): RedirectResponse
+    public function forceDelete(ArchiveItemIdRequest $request): RedirectResponse|JsonResponse
     {
         try {
             $portfolio = Portfolio::onlyTrashed()->findOrFail($request->validated('id'));
             $this->portfolioArchiveService->forceDeletePortfolio($portfolio);
 
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'تم حذف المحفظة نهائياً']);
+            }
+
             return redirect()
                 ->back()
                 ->with('success', 'تم حذف المحفظة نهائياً');
         } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'حدث خطأ أثناء الحذف النهائي'], 500);
+            }
+
             return redirect()
                 ->back()
                 ->with('error', 'حدث خطأ أثناء الحذف النهائي');

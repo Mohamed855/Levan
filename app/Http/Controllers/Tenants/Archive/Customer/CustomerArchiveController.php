@@ -43,8 +43,6 @@ class CustomerArchiveController extends Controller
     public function index(ArchivedCustomersDataTable $dataTable)
     {
         try {
-            $statistics = $this->customerArchiveService->getArchivedCustomerStatistics();
-
             $companies = Company::active()
                 ->select('id', 'name', 'logo_path')
                 ->orderBy('name')
@@ -65,11 +63,6 @@ class CustomerArchiveController extends Controller
                 ->get();
 
             return $dataTable->render('tenants.archive.customers.index', [
-                'totalArchivedCustomers'      => $statistics['total'],
-                'archivedIndividualCustomers' => $statistics['individual'],
-                'archivedCompanyCustomers'    => $statistics['company'],
-                'totalArchivedDebt'           => number_format($statistics['total_debt'] ?? 0, 2),
-                'recentlyArchivedCustomers'   => $statistics['recently_archived'],
                 'companies'                   => $companies,
                 'portfolios'                  => $portfolios,
                 'users'                       => $users,
@@ -84,16 +77,24 @@ class CustomerArchiveController extends Controller
     | استرجاع عميل من الأرشيف
     |--------------------------------------------------------------------------
     */
-    public function restore(ArchiveItemIdRequest $request): RedirectResponse
+    public function restore(ArchiveItemIdRequest $request): RedirectResponse|JsonResponse
     {
         try {
             $customer = Customer::onlyTrashed()->findOrFail($request->validated('id'));
             $this->customerArchiveService->restoreCustomer($customer);
 
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'تم استرجاع العميل بنجاح']);
+            }
+
             return redirect()
                 ->back()
                 ->with('success', 'تم استرجاع العميل بنجاح');
         } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'حدث خطأ أثناء استرجاع العميل'], 500);
+            }
+
             return redirect()
                 ->back()
                 ->with('error', 'حدث خطأ أثناء استرجاع العميل');
@@ -105,16 +106,24 @@ class CustomerArchiveController extends Controller
     | حذف عميل نهائياً من الأرشيف
     |--------------------------------------------------------------------------
     */
-    public function forceDelete(ArchiveItemIdRequest $request): RedirectResponse
+    public function forceDelete(ArchiveItemIdRequest $request): RedirectResponse|JsonResponse
     {
         try {
             $customer = Customer::onlyTrashed()->findOrFail($request->validated('id'));
             $this->customerArchiveService->forceDeleteCustomer($customer);
 
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'تم حذف العميل نهائياً']);
+            }
+
             return redirect()
                 ->back()
                 ->with('success', 'تم حذف العميل نهائياً');
         } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'حدث خطأ أثناء الحذف النهائي'], 500);
+            }
+
             return redirect()
                 ->back()
                 ->with('error', 'حدث خطأ أثناء الحذف النهائي');

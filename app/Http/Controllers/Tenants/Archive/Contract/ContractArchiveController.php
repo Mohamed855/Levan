@@ -39,19 +39,11 @@ class ContractArchiveController extends Controller
     public function index(ArchivedContractsDataTable $dataTable)
     {
         try {
-            $statistics = $this->contractArchiveService->getArchivedContractStatistics();
-
             $companies = Company::select('id', 'name')
                 ->orderBy('name')
                 ->get();
 
             return $dataTable->render('tenants.archive.contracts.index', [
-                'totalArchivedContracts'    => $statistics['total'],
-                'archivedActiveContracts'   => $statistics['active'],
-                'archivedExpiredContracts'  => $statistics['expired'],
-                'archivedInactiveContracts' => $statistics['inactive'],
-                'recentlyArchivedContracts' => $statistics['recently_archived'],
-                'commissionTypeStats'       => $statistics['by_commission_type'],
                 'companies'                 => $companies,
             ]);
         } catch (\Exception $e) {
@@ -64,16 +56,24 @@ class ContractArchiveController extends Controller
     | استرجاع عقد من الأرشيف
     |--------------------------------------------------------------------------
     */
-    public function restore(ArchiveItemIdRequest $request): RedirectResponse
+    public function restore(ArchiveItemIdRequest $request): RedirectResponse|JsonResponse
     {
         try {
             $contract = Contract::onlyTrashed()->findOrFail($request->validated('id'));
             $this->contractArchiveService->restoreContract($contract);
 
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'تم استرجاع العقد بنجاح']);
+            }
+
             return redirect()
                 ->back()
                 ->with('success', 'تم استرجاع العقد بنجاح');
         } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'حدث خطأ أثناء استرجاع العقد'], 500);
+            }
+
             return redirect()
                 ->back()
                 ->with('error', 'حدث خطأ أثناء استرجاع العقد');
@@ -85,16 +85,24 @@ class ContractArchiveController extends Controller
     | حذف عقد نهائياً من الأرشيف
     |--------------------------------------------------------------------------
     */
-    public function forceDelete(ArchiveItemIdRequest $request): RedirectResponse
+    public function forceDelete(ArchiveItemIdRequest $request): RedirectResponse|JsonResponse
     {
         try {
             $contract = Contract::onlyTrashed()->findOrFail($request->validated('id'));
             $this->contractArchiveService->forceDeleteContract($contract);
 
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'تم حذف العقد نهائياً']);
+            }
+
             return redirect()
                 ->back()
                 ->with('success', 'تم حذف العقد نهائياً');
         } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'حدث خطأ أثناء الحذف النهائي'], 500);
+            }
+
             return redirect()
                 ->back()
                 ->with('error', 'حدث خطأ أثناء الحذف النهائي');

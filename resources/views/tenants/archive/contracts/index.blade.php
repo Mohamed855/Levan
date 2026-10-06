@@ -31,99 +31,11 @@
         };
 
         window.csrfToken = "{{ csrf_token() }}";
-        window.totalArchivedCount = {{ $totalArchivedContracts }};
     </script>
     @vite(['resources/assets/js/tenants/archive/contracts/index.js'])
 @endsection
 
 @section('content')
-    <div class="row g-4 mb-4">
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">العقود المحذوفة</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $totalArchivedContracts }}</h4>
-                            </div>
-                            <small class="mb-0">إجمالي العقود المحذوفة</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-warning">
-                                <i class="ti ti-archive ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">العقود النشطة</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $archivedActiveContracts }}</h4>
-                            </div>
-                            <small class="mb-0">العقود النشطة المحذوفة</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-success">
-                                <i class="ti ti-check ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">العقود المنتهية</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $archivedExpiredContracts }}</h4>
-                            </div>
-                            <small class="mb-0">العقود المنتهية المحذوفة</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-danger">
-                                <i class="ti ti-x ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-6 col-xl-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div class="content-left">
-                            <span class="text-heading">العقود غير النشطة</span>
-                            <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $archivedInactiveContracts }}</h4>
-                            </div>
-                            <small class="mb-0">العقود غير النشطة المحذوفة</small>
-                        </div>
-                        <div class="avatar">
-                            <span class="avatar-initial rounded bg-secondary">
-                                <i class="ti ti-circle-off ti-26px"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- Filters Card --}}
     <x-data-table.filters table="#archived-contracts-table">
         <div class="col-md-4">
             <x-filter.select id="filter-status" filterKey="status" table="#archived-contracts-table" name="status"

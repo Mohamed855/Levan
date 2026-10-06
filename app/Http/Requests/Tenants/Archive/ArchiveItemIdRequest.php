@@ -10,8 +10,12 @@ class ArchiveItemIdRequest extends FormRequest
 {
     protected function prepareForValidation(): void
     {
-        $parameters = $this->route()?->parameters() ?? [];
-        $this->merge(['id' => reset($parameters)]);
+        $parameters = array_values($this->route()?->parameters() ?? []);
+        $id = $parameters[0] ?? null;
+
+        $this->merge([
+            'id' => is_object($id) && method_exists($id, 'getKey') ? $id->getKey() : $id,
+        ]);
     }
 
     public function authorize(): bool

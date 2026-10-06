@@ -42,17 +42,11 @@ class UserArchiveController extends Controller
     public function index(ArchivedUsersDataTable $dataTable)
     {
         try {
-            $statistics = $this->userArchiveService->getArchivedUserStatistics();
-            
             $roles = Role::select('id', 'name')
                 ->orderBy('name')
                 ->get();
 
             return $dataTable->render('tenants.archive.users.index', [
-                'totalArchivedUsers'    => $statistics['total'],
-                'archivedActiveUsers'   => $statistics['active'],
-                'archivedInactiveUsers' => $statistics['inactive'],
-                'recentlyArchivedUsers' => $statistics['recently_archived'],
                 'roles' => $roles,
             ]);
         } catch (\Exception $e) {
@@ -66,16 +60,24 @@ class UserArchiveController extends Controller
     |--------------------------------------------------------------------------
     | Restore the specified archived user.
     */
-    public function restore(ArchiveItemIdRequest $request): RedirectResponse
+    public function restore(ArchiveItemIdRequest $request): RedirectResponse|JsonResponse
     {
         try {
             $user = User::onlyTrashed()->findOrFail($request->validated('id'));
             $this->userArchiveService->restoreUser($user);
 
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'تم استرجاع المستخدم بنجاح']);
+            }
+
             return redirect()
                 ->back()
                 ->with('success', 'تم استرجاع المستخدم بنجاح');
         } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'حدث خطأ أثناء استرجاع المستخدم'], 500);
+            }
+
             return redirect()
                 ->back()
                 ->with('error', 'حدث خطأ أثناء استرجاع المستخدم');
@@ -88,16 +90,24 @@ class UserArchiveController extends Controller
     |--------------------------------------------------------------------------
     | Permanently delete the specified archived user.
     */
-    public function forceDelete(ArchiveItemIdRequest $request): RedirectResponse
+    public function forceDelete(ArchiveItemIdRequest $request): RedirectResponse|JsonResponse
     {
         try {
             $user = User::onlyTrashed()->findOrFail($request->validated('id'));
             $this->userArchiveService->forceDeleteUser($user);
 
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'تم حذف المستخدم نهائياً']);
+            }
+
             return redirect()
                 ->back()
                 ->with('success', 'تم حذف المستخدم نهائياً');
         } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'حدث خطأ أثناء الحذف النهائي'], 500);
+            }
+
             return redirect()
                 ->back()
                 ->with('error', 'حدث خطأ أثناء الحذف النهائي');

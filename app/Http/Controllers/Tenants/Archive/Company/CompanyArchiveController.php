@@ -41,14 +41,7 @@ class CompanyArchiveController extends Controller
     public function index(ArchivedCompaniesDataTable $dataTable)
     {
         try {
-            $statistics = $this->companyArchiveService->getArchivedCompanyStatistics();
-
-            return $dataTable->render('tenants.archive.companies.index', [
-                'totalArchivedCompanies'    => $statistics['total'],
-                'archivedActiveCompanies'   => $statistics['active'],
-                'archivedInactiveCompanies' => $statistics['inactive'],
-                'recentlyArchivedCompanies' => $statistics['recently_archived'],
-            ]);
+            return $dataTable->render('tenants.archive.companies.index');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
@@ -60,16 +53,24 @@ class CompanyArchiveController extends Controller
     |--------------------------------------------------------------------------
     | Restore the specified archived company.
     */
-    public function restore(ArchiveItemIdRequest $request): RedirectResponse
+    public function restore(ArchiveItemIdRequest $request): RedirectResponse|JsonResponse
     {
         try {
             $company = Company::onlyTrashed()->findOrFail($request->validated('id'));
             $this->companyArchiveService->restoreCompany($company);
 
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'تم استرجاع الشركة بنجاح']);
+            }
+
             return redirect()
                 ->back()
                 ->with('success', 'تم استرجاع الشركة بنجاح');
         } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'حدث خطأ أثناء استرجاع الشركة'], 500);
+            }
+
             return redirect()
                 ->back()
                 ->with('error', 'حدث خطأ أثناء استرجاع الشركة');
@@ -82,16 +83,24 @@ class CompanyArchiveController extends Controller
     |--------------------------------------------------------------------------
     | Permanently delete the specified archived company.
     */
-    public function forceDelete(ArchiveItemIdRequest $request): RedirectResponse
+    public function forceDelete(ArchiveItemIdRequest $request): RedirectResponse|JsonResponse
     {
         try {
             $company = Company::onlyTrashed()->findOrFail($request->validated('id'));
             $this->companyArchiveService->forceDeleteCompany($company);
 
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'تم حذف الشركة نهائياً']);
+            }
+
             return redirect()
                 ->back()
                 ->with('success', 'تم حذف الشركة نهائياً');
         } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'حدث خطأ أثناء الحذف النهائي'], 500);
+            }
+
             return redirect()
                 ->back()
                 ->with('error', 'حدث خطأ أثناء الحذف النهائي');

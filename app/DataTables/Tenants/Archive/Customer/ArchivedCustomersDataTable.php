@@ -65,7 +65,7 @@ class ArchivedCustomersDataTable extends AbstractDataTable
             [
                 'data'       => 'checkbox',
                 'name'       => 'checkbox',
-                'title'      => $this->getCheckboxHeader(),
+                'title'      => '<input type="checkbox" id="select-all">',
                 'orderable'  => false,
                 'searchable' => false,
                 'width' => '10px',
@@ -276,59 +276,15 @@ class ArchivedCustomersDataTable extends AbstractDataTable
     */
     private function getActionsDropdownButton(): array
     {
-        $buttons = [
-            ['extend' => 'copy', 'text' => 'نسخ'],
-            ['extend' => 'excel', 'text' => 'إكسل'],
-        ];
-
-        if (auth()->user()?->can('customers_archive.restore')) {
-            $buttons[] = [
-                'text'      => 'استرجاع المحدد',
-                'className' => 'btn btn-default btn-restore-selected',
-                'action'    => "function() { handleMassRestore(); }",
-            ];
-        }
-
-        if (auth()->user()?->can('customers_archive.force_delete')) {
-            $buttons[] = [
-                'text'      => 'حذف نهائي للمحدد',
-                'className' => 'btn btn-default btn-force-delete-selected',
-                'action'    => "function() { handleMassForceDelete(); }",
-            ];
-        }
-
         return [
             'extend'    => 'collection',
             'className' => 'btn btn-export',
             'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'buttons'   => [
+                ['extend' => 'copy', 'text' => 'نسخ'],
+                ['extend' => 'excel', 'text' => 'إكسل'],
+            ],
         ];
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Custom Checkbox Header
-    |--------------------------------------------------------------------------
-    */
-    private function getCheckboxHeader(): string
-    {
-        return '<div class="d-flex justify-content-center h-100 w-100" style="cursor: pointer;" data-bs-toggle="dropdown" aria-expanded="false" tabindex="0" id="selectAllDropdownCell">
-            <input type="checkbox" id="select-all" disabled style="pointer-events: none;">
-             <i class="ti ti-chevron-down ms-3"></i>
-              </div>
-              <ul class="dropdown-menu p-2" aria-labelledby="selectAllDropdownCell" style="min-width: 180px;">
-              <li>
-                  <a href="#" class="dropdown-item d-flex align-items-center" id="select-page">
-                      <input type="checkbox" class="row-checkbox me-2" id="selectPageCheckbox" disabled>
-                      <span>الصفحة</span>
-                  </a>
-              </li>
-              <li>
-                  <a href="#" class="dropdown-item d-flex align-items-center" id="select-all-items">
-                      <input type="checkbox" class="row-checkbox me-2" id="selectAllCheckbox" disabled>
-                      <span>الكل</span>
-                  </a>
-              </li>
-          </ul>';
-    }
 }

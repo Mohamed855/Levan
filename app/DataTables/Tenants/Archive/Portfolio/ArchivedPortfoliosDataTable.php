@@ -180,32 +180,14 @@ class ArchivedPortfoliosDataTable extends AbstractDataTable
     */
     private function getActionsDropdownButton(): array
     {
-        $buttons = [
-            ['extend' => 'copy', 'text' => 'نسخ'],
-            ['extend' => 'excel', 'text' => 'إكسل'],
-        ];
-
-        if (auth()->user()?->can('portfolios_archive.restore')) {
-            $buttons[] = [
-                'text'      => 'استرجاع المحدد',
-                'className' => 'btn btn-default btn-restore-selected',
-                'action'    => "function() { handleMassRestore(); }",
-            ];
-        }
-
-        if (auth()->user()?->can('portfolios_archive.force_delete')) {
-            $buttons[] = [
-                'text'      => 'حذف نهائي للمحدد',
-                'className' => 'btn btn-default btn-force-delete-selected',
-                'action'    => "function() { handleMassForceDelete(); }",
-            ];
-        }
-
         return [
             'extend'    => 'collection',
             'className' => 'btn btn-export',
             'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'buttons'   => [
+                ['extend' => 'copy', 'text' => 'نسخ'],
+                ['extend' => 'excel', 'text' => 'إكسل'],
+            ],
         ];
     }
 }
