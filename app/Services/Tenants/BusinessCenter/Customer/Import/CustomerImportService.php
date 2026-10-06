@@ -92,7 +92,7 @@ class CustomerImportService
     }
 
     // بدء عملية الاستيراد
-    public function startImport(string $tempPath, int $portfolioId): array
+    public function startImport(string $tempPath, int $portfolioId, int $userId): array
     {
         try {
 
@@ -126,7 +126,7 @@ class CustomerImportService
             //  إنشاء سجل الجلسة
             $importSession = ImportSession::create([
                 'session_id'        => $sessionId,
-                'user_id'           => auth()->id(),
+                'user_id'           => $userId,
                 'portfolio_id'      => $portfolioId,
                 'total_rows'        => count($data),
                 'processed_rows'    => 0,
@@ -181,9 +181,11 @@ class CustomerImportService
     |--------------------------------------------------------------------------
     | Retrieve the current status of an import session.
     */
-    public function getImportStatus(string $sessionId): array
+    public function getImportStatus(string $sessionId, int $userId): array
     {
-        $session = ImportSession::where('session_id', $sessionId)->first();
+        $session = ImportSession::where('session_id', $sessionId)
+            ->where('user_id', $userId)
+            ->first();
 
         if (!$session) {
             return ['found' => false, 'message' => 'جلسة الاستيراد غير موجودة'];
@@ -216,9 +218,11 @@ class CustomerImportService
     |--------------------------------------------------------------------------
     | Cancel an ongoing import process.
     */
-    public function cancelImport(string $sessionId): array
+    public function cancelImport(string $sessionId, int $userId): array
     {
-        $session = ImportSession::where('session_id', $sessionId)->first();
+        $session = ImportSession::where('session_id', $sessionId)
+            ->where('user_id', $userId)
+            ->first();
 
         if (!$session) {
             return ['success' => false, 'message' => 'جلسة الاستيراد غير موجودة'];
@@ -238,9 +242,11 @@ class CustomerImportService
     |--------------------------------------------------------------------------
     | Create and download an Excel report of import errors.
     */
-    public function generateErrorReport(string $sessionId)
+    public function generateErrorReport(string $sessionId, int $userId)
     {
-        $session = ImportSession::where('session_id', $sessionId)->first();
+        $session = ImportSession::where('session_id', $sessionId)
+            ->where('user_id', $userId)
+            ->first();
 
         if (!$session || !$session->errors) {
             abort(404, 'تقرير الأخطاء غير موجود');

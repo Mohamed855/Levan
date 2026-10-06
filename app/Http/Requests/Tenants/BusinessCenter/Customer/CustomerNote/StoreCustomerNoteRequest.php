@@ -8,7 +8,7 @@ class StoreCustomerNoteRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; // أو تحديد الصلاحيات المناسبة
+        return $this->user('tenant')?->can('customers.edit') ?? false;
     }
 
     public function rules(): array

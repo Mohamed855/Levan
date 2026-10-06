@@ -9,7 +9,7 @@ class  StoreCustomerFollowRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user('tenant')?->can('customer_follows.edit') ?? false;
     }
 
     public function rules(): array

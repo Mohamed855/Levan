@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Tenants\BusinessCenter\Customer\Sms;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\SendCustomerSmsRequest;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\Sms\PreviewCustomerSmsRequest;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Customers\Sms\CustomerSms;
 use App\Models\Tenants\GeneralSetting\MessageTemplate\MessageTemplate;
 use App\Services\Tenants\BusinessCenter\Customer\Sms\CustomerSmsService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class CustomerSmsController extends Controller
@@ -17,6 +18,7 @@ class CustomerSmsController extends Controller
     public function __construct(CustomerSmsService $customerSmsService)
     {
         $this->customerSmsService = $customerSmsService;
+        $this->middleware('can:customers.edit');
     }
 
     /**
@@ -59,26 +61,10 @@ class CustomerSmsController extends Controller
     /**
      * معاينة القالب مع بيانات العميل
      */
-    public function previewTemplate(Request $request, Customer $customer): JsonResponse
+    public function previewTemplate(PreviewCustomerSmsRequest $request, Customer $customer): JsonResponse
     {
         try {
-            $templateId = $request->input('template_id');
-
-            if (!$templateId) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'يجب اختيار قالب أولاً'
-                ], 400);
-            }
-
-            $template = MessageTemplate::find($templateId);
-
-            if (!$template) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'القالب غير موجود'
-                ], 404);
-            }
+            $template = MessageTemplate::findOrFail($request->validated('template_id'));
 
             $previewContent = $this->customerSmsService->previewTemplate($template, $customer);
 
@@ -100,34 +86,16 @@ class CustomerSmsController extends Controller
     /**
      * إرسال الرسالة النصية
      */
-    public function send(Request $request, Customer $customer): JsonResponse
+    public function send(SendCustomerSmsRequest $request, Customer $customer): JsonResponse
     {
         try {
-            // التحقق من صحة البيانات
-            $validated = $request->validate([
-                'phone_number' => 'required|string',
-                'phone_type' => 'required|string',
-                'template_id' => 'required|exists:message_templates,id',
-            ], [
-                'phone_number.required' => 'رقم الهاتف مطلوب',
-                'phone_type.required' => 'نوع الهاتف مطلوب',
-                'template_id.required' => 'القالب مطلوب',
-                'template_id.exists' => 'القالب المحدد غير موجود',
-            ]);
-
-            $sms = $this->customerSmsService->sendSms($customer, $validated);
+            $sms = $this->customerSmsService->sendSms($customer, $request->validated());
 
             return response()->json([
                 'success' => true,
                 'message' => 'تم إرسال الرسالة بنجاح',
                 'data' => $sms
             ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'خطأ في البيانات المدخلة',
-                'errors' => $e->errors()
-            ], 422);
         } catch (\Exception $e) {
             \Log::error('خطأ في إرسال الرسالة: ' . $e->getMessage());
 
