@@ -40,7 +40,6 @@ class PlanDataTable extends AbstractDataTable
 
             ['data' => 'included_users',     'name' => 'included_users',            'title' => 'عدد المستخدمين',],
             ['data' => 'extra_user_license_price',     'name' => 'extra_user_license_price',            'title' => 'سعر الترخيص الاضافي',],
-            ['data' => 'branches_info',      'name' => 'branches_limit',            'title' => 'عدد الفروع'],
             ['data' => 'domain_management',  'name' => 'domain_management_enabled', 'title' => 'إعدادات الدومينات'],
             ['data' => 'is_active',          'name' => 'is_active',                 'title' => 'الحالة',],
             ['data' => 'actions',            'name' => 'actions',                   'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px'],
@@ -86,14 +85,6 @@ class PlanDataTable extends AbstractDataTable
                 return number_format($row->yearly_renewal_price);
             })
 
-            ->addColumn('branches_info', function ($row) {
-                if ($row->unlimited_branches) {
-                    return '<span class="badge bg-label-primary">غير محدود</span>';
-                }
-
-                return $row->branches_limit ? e($row->branches_limit) : '-';
-            })
-
             ->addColumn('domain_management', function ($row) {
                 if ($row->domain_management_enabled) {
                     return '<span class="badge bg-success">مفعّلة</span>';
@@ -116,7 +107,7 @@ class PlanDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'name', 'branches_info', 'domain_management', 'is_active', 'status', 'actions'];
+        return ['checkbox', 'name', 'domain_management', 'is_active', 'status', 'actions'];
     }
 
     protected function applyCustomFilters($query)

@@ -102,7 +102,41 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         Route::get('/', [WizardDraftController::class, 'show'])->name('index');
         Route::post('/', [WizardDraftController::class, 'store'])->name('store');
         Route::delete('/', [WizardDraftController::class, 'destroy'])->name('destroy');
-        Route::post('validate-step', [WizardDraftController::class, 'validateStep'])->name('validate-step');
+        Route::post('validate-step', [WizardDraftController::class, 'validateStep'])
+            ->defaults('shared_form_validation_actions', [
+                UserController::class . '@store',
+                UserController::class . '@update',
+                UserController::class . '@updateImage',
+                UserController::class . '@updateBackgroundImage',
+                UserController::class . '@updatePassword',
+                TeamController::class . '@store',
+                TeamController::class . '@update',
+                RoleController::class . '@store',
+                RoleController::class . '@update',
+                SettingsController::class . '@update',
+                CompanyController::class . '@store',
+                CompanyController::class . '@update',
+                ContractController::class . '@store',
+                ContractController::class . '@update',
+                PortfolioController::class . '@store',
+                PortfolioController::class . '@update',
+                AssignmentsController::class . '@store',
+                AssignmentsController::class . '@update',
+                PropertiesController::class . '@store',
+                PropertiesController::class . '@update',
+                AuctionsController::class . '@store',
+                AuctionsController::class . '@update',
+                CustomerController::class . '@store',
+                CustomerController::class . '@update',
+                \App\Http\Controllers\Tenants\Auth\Fortify\TenantTwoFactorSettingsController::class . '@confirm',
+                AssignmentsController::class . '@store',
+                AssignmentsController::class . '@update',
+                PropertiesController::class . '@store',
+                PropertiesController::class . '@update',
+                AuctionsController::class . '@store',
+                AuctionsController::class . '@update',
+            ])
+            ->name('validate-step');
     });
 
 
@@ -392,13 +426,13 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             Route::name('edit')->get('{user}/edit',      [UserController::class, 'edit']);
             Route::name('update')->put('{user}',           [UserController::class, 'update']);
 
-            Route::name('update-image')->post('{user}/image', [UserController::class, 'updateImage']);
-            Route::name('update-background')->post('{user}/background', [UserController::class, 'updateBackgroundImage']);
+            Route::name('update-image')->post('{user}/image', [UserController::class, 'updateImage'])->defaults('shared_form_validation', true);
+            Route::name('update-background')->post('{user}/background', [UserController::class, 'updateBackgroundImage'])->defaults('shared_form_validation', true);
 
             Route::name('destroy')->delete('{user}',        [UserController::class, 'destroy']);
             Route::name('toggle-status')->patch('{user}/toggle-status', [UserController::class, 'toggleStatus']);
             Route::name('password.change')->get('password/change', [UserController::class, 'showChangePasswordForm']);
-            Route::name('password.update')->post('password/change', [UserController::class, 'updatePassword']);
+            Route::name('password.update')->post('password/change', [UserController::class, 'updatePassword'])->defaults('shared_form_validation', true);
         });
 
 

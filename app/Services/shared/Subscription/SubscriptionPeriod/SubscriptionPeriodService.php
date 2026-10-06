@@ -44,8 +44,6 @@ class SubscriptionPeriodService
             'properties_limit'      => (int) ($plan?->properties_limit ?: 50),
             'storage_quota_gb'      => (int) ($plan?->storage_quota_gb ?: 10),
             'active_auctions_limit' => (int) ($plan?->active_auctions_limit ?: 10),
-            'branches_limit'        => (int) ($plan?->branches_limit ?: 1),
-            'unlimited_branches'    => (bool) ($plan?->unlimited_branches ?? false),
         ];
 
         return SubscriptionPeriod::create([

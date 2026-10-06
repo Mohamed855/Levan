@@ -316,24 +316,6 @@
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
                                                 <div
-                                                    class="avatar bg-label-success rounded p-2 me-3 d-flex align-items-center justify-content-center">
-                                                    <i class="ti ti-git-branch fs-4 text-success"></i>
-                                                </div>
-                                                <div>
-                                                    <small class="text-muted d-block">حد الفروع</small>
-                                                    <span
-                                                        class="fw-bold fs-6">{{ $plan->isUnlimited() || $plan->unlimited_branches ? 'غير محدود (∞)' : $plan->branches_limit ?? '-' }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-3 col-sm-6">
-                                    <div class="card border h-100 shadow-none">
-                                        <div class="card-body">
-                                            <div class="d-flex align-items-center">
-                                                <div
                                                     class="avatar bg-label-primary rounded p-2 me-3 d-flex align-items-center justify-content-center">
                                                     <i class="ti ti-world fs-4 text-primary"></i>
                                                 </div>

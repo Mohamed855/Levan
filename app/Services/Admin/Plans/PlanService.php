@@ -46,8 +46,6 @@ class PlanService
                 'properties_limit'          => $isUnlimited ? null : ($data['properties_limit'] ?? null),
                 'storage_quota_gb'          => $isUnlimited ? null : ($data['storage_quota_gb'] ?? null),
                 'active_auctions_limit'     => $isUnlimited ? null : ($data['active_auctions_limit'] ?? null),
-                'branches_limit'            => $isUnlimited ? null : ($data['branches_limit'] ?? null),
-                'unlimited_branches'        => $isUnlimited ? true : (bool) ($data['unlimited_branches'] ?? false),
                 'features'                  => $features,
                 'created_by'                => auth()->id(),
             ]);
@@ -99,8 +97,6 @@ class PlanService
                 $updateData['properties_limit']      = null;
                 $updateData['storage_quota_gb']      = null;
                 $updateData['active_auctions_limit'] = null;
-                $updateData['branches_limit']        = null;
-                $updateData['unlimited_branches']    = true;
             }
 
             $plan->update($updateData);

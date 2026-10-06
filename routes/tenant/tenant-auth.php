@@ -11,12 +11,23 @@ use App\Http\Controllers\Tenants\Auth\PasswordController;
 use App\Http\Controllers\Tenants\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Tenants\Auth\RegisteredUserController;
 use App\Http\Controllers\Tenants\Auth\VerifyEmailController;
+use App\Http\Controllers\Shared\Wizard\WizardDraftController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('impersonate', [AuthenticatedSessionController::class, 'impersonate'])
     ->name('impersonate');
 
 Route::middleware('guest:tenant')->group(function () {
+    Route::post('form-validation', [WizardDraftController::class, 'validateStep'])
+        ->defaults('shared_form_validation_actions', [
+            AuthenticatedSessionController::class . '@store',
+            RegisteredUserController::class . '@store',
+            PasswordResetLinkController::class . '@store',
+            NewPasswordController::class . '@store',
+            TenantTwoFactorChallengeController::class . '@store',
+        ])
+        ->name('form-validation');
+
     Route::name('register')->get('register', [RegisteredUserController::class, 'create']);
     Route::post('register', [RegisteredUserController::class, 'store']);
     Route::name('login')->get('login', [AuthenticatedSessionController::class, 'create']);
@@ -44,7 +55,9 @@ Route::middleware('auth:tenant')->group(function () {
         Route::get('two-factor-authentication', [TenantTwoFactorSettingsController::class, 'show'])->name('index');
         Route::post('two-factor-authentication', [TenantTwoFactorSettingsController::class, 'enable'])->name('enable');
         Route::delete('two-factor-authentication', [TenantTwoFactorSettingsController::class, 'disable'])->name('disable');
-        Route::post('confirmed-two-factor-authentication', [TenantTwoFactorSettingsController::class, 'confirm'])->name('confirm');
+        Route::post('confirmed-two-factor-authentication', [TenantTwoFactorSettingsController::class, 'confirm'])
+            ->defaults('shared_form_validation', true)
+            ->name('confirm');
         Route::get('two-factor-qr-code', [TenantTwoFactorSettingsController::class, 'qrCode'])->name('qr-code');
         Route::post('two-factor-recovery-codes', [TenantTwoFactorSettingsController::class, 'recoveryCodes'])->name('recovery-codes');
     });

@@ -22,8 +22,6 @@ return new class extends Migration
             $table->decimal('yearly_renewal_price', 10, 2)->default(0);
             $table->decimal('extra_user_license_price', 10, 2)->default(0);
             $table->decimal('discount_percentage', 5, 2)->default(0);
-            $table->integer('branches_limit')->nullable();
-            $table->boolean('unlimited_branches')->default(false);
             $table->boolean('domain_management_enabled')->default(false);
             $table->json('features')->nullable();
             $table->boolean('is_active')->default(true);

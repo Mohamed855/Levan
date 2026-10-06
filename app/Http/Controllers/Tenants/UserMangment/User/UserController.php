@@ -4,7 +4,11 @@ namespace App\Http\Controllers\Tenants\UserMangment\User;
 
 use App\DataTables\Tenants\UserManagement\User\UsersDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Users\UpdateUserBackgroundImageRequest;
+use App\Http\Requests\Tenants\Users\UpdateUserProfileImageRequest;
+use App\Http\Requests\Tenants\Users\ChangeCurrentUserPasswordRequest;
 use App\Http\Requests\Tenants\UserManagement\User\StoreUserRequest;
+use App\Http\Requests\Tenants\UserManagement\User\UpdateManagedUserStatusRequest;
 use App\Http\Requests\Tenants\UserManagement\User\UpdateUserRequest;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\shared\Subscription\SubscriptionFormatter;
@@ -16,7 +20,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Permission\Models\Role;
@@ -38,9 +41,9 @@ class UserController extends Controller
     ) {
 
         $this->middleware('auth');
-        $this->middleware('can:users.view')->only(['index']);
+        $this->middleware('can:users.view')->only(['index', 'show']);
         $this->middleware('can:users.create')->only(['create', 'store']);
-        $this->middleware('can:users.edit')->only(['edit', 'update']);
+        $this->middleware('can:users.edit')->only(['edit', 'update', 'toggleStatus']);
         $this->middleware('can:users.delete')->only(['destroy']);
     }
 
@@ -53,7 +56,7 @@ class UserController extends Controller
     public function index(UsersDataTable $dataTable)
     {
         $statistics = $this->userService->getUserStatistics();
-        $roles = Role::select('id', 'name')->orderBy('name', 'asc')->get();
+        $roles = Role::query()->where('guard_name', 'tenant')->select('id', 'name')->orderBy('name')->get();
 
         $tenant = tenant();
         $subscription = $this->subscriptionManager->getTenantSubscription($tenant->id);
@@ -80,7 +83,7 @@ class UserController extends Controller
     {
         $generatedEmployeeNumber = $this->userService->generateNextEmployeeNumber();
 
-        $roles = Role::select('id', 'name')->orderBy('name', 'asc')->get();
+        $roles = Role::query()->where('guard_name', 'tenant')->select('id', 'name')->orderBy('name')->get();
 
         return view('tenants.users_management.users.create', compact('generatedEmployeeNumber', 'roles'));
     }
@@ -115,7 +118,7 @@ class UserController extends Controller
     public function edit(User $user): View
     {
         $user->load('roles');
-        $roles = Role::select('id', 'name')->orderBy('name', 'asc')->get();
+        $roles = Role::query()->where('guard_name', 'tenant')->select('id', 'name')->orderBy('name')->get();
 
         return view('tenants.users_management.users.edit', compact('user', 'roles'));
     }
@@ -219,10 +222,10 @@ class UserController extends Controller
     |--------------------------------------------------------------------------
     | Toggle user status between active and inactive.
     */
-    public function toggleStatus(User $user): JsonResponse
+    public function toggleStatus(UpdateManagedUserStatusRequest $request, User $user): JsonResponse
     {
         try {
-            $newStatus = $user->status === 'active' ? 'inactive' : 'active';
+            $newStatus = $request->validated('status');
             $user->update(['status' => $newStatus]);
 
             $statusText = $newStatus === 'active' ? 'نشط' : 'غير نشط';
@@ -258,29 +261,15 @@ class UserController extends Controller
     |--------------------------------------------------------------------------
     | Update the authenticated user's password.
     */
-    public function updatePassword(Request $request): RedirectResponse
+    public function updatePassword(ChangeCurrentUserPasswordRequest $request): RedirectResponse
     {
-        $request->validate([
-            'current_password' => ['required'],
-            'new_password' => ['required', 'string', 'min:8', 'confirmed'],
-        ], [
-            'new_password.confirmed' => 'كلمة المرور الجديدة وتأكيدها غير متطابقتين.',
-            'new_password.min' => 'كلمة المرور يجب أن تكون على الأقل 8 أحرف.',
-        ]);
+        $user = $request->user('tenant');
 
-        $user = Auth::user();
-
-        if (! Hash::check($request->current_password, $user->password)) {
-            throw ValidationException::withMessages([
-                'current_password' => ['كلمة المرور الحالية غير صحيحة.'],
-            ]);
-        }
-
-        $user->password = Hash::make($request->new_password);
+        $user->password = Hash::make($request->validated('new_password'));
         $user->save();
 
-        Auth::logoutOtherDevices($request->new_password);
-        Auth::logout();
+        Auth::guard('tenant')->logoutOtherDevices($request->validated('new_password'));
+        Auth::guard('tenant')->logout();
 
         return redirect()->to(tenant_route_name('login'))
             ->with('success', 'تم إعادة تعيين كلمة المرور بنجاح. يرجى تسجيل الدخول باستخدام كلمة المرور الجديدة.');
@@ -292,25 +281,8 @@ class UserController extends Controller
     |--------------------------------------------------------------------------
     | Update the user profile image.
     */
-    public function updateImage(Request $request, User $user): JsonResponse
+    public function updateImage(UpdateUserProfileImageRequest $request, User $user): JsonResponse
     {
-        // التحقق من الصلاحيات
-        // if (auth()->id() !== (int) $user->id && !auth()->user()->can('users.edit')) {
-        //     return response()->json([
-        //         'success' => false,
-        //         'message' => 'ليس لديك صلاحية لتعديل هذا المستخدم'
-        //     ], 403);
-        // }
-
-        $request->validate([
-            'profile_image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
-        ], [
-            'profile_image.required' => 'يرجى اختيار صورة',
-            'profile_image.image' => 'يجب أن يكون الملف صورة',
-            'profile_image.mimes' => 'الصيغ المسموح بها: JPEG, PNG, JPG, GIF',
-            'profile_image.max' => 'حجم الصورة يجب ألا يتجاوز 2 ميجابايت',
-        ]);
-
         try {
             $this->userService->updateUserImage($user, $request->file('profile_image'));
 
@@ -327,16 +299,8 @@ class UserController extends Controller
         }
     }
 
-    public function updateBackgroundImage(Request $request, User $user)
+    public function updateBackgroundImage(UpdateUserBackgroundImageRequest $request, User $user): JsonResponse
     {
-        $request->validate([
-            'background_image' => 'required|image|mimes:jpg,jpeg,png,gif',
-        ], [
-            'background_image.required' => 'يرجى تحميل صورة خلفية.',
-            'background_image.image' => 'يجب أن تكون الصورة ملفًا بصيغة صورة.',
-            'background_image.mimes' => 'يجب أن تكون الصورة بامتداد jpg, jpeg, png, gif.',
-            'background_image.max' => 'يجب ألا يتجاوز حجم الصورة 4 ميجابايت.',
-        ]);
 
         try {
             $this->userService->updateBackgroundImage($user, $request->file('background_image'));

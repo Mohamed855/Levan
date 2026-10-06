@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Tenants\Archive\Company;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Archive\BulkArchiveActionRequest;
+use App\Http\Requests\Tenants\Archive\ArchiveItemIdRequest;
 use App\DataTables\Tenants\Archive\Company\ArchivedCompaniesDataTable;
 use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Services\Tenants\Archive\Company\CompanyArchiveService;
@@ -58,10 +60,10 @@ class CompanyArchiveController extends Controller
     |--------------------------------------------------------------------------
     | Restore the specified archived company.
     */
-    public function restore(int $companyId): RedirectResponse
+    public function restore(ArchiveItemIdRequest $request): RedirectResponse
     {
         try {
-            $company = Company::onlyTrashed()->findOrFail($companyId);
+            $company = Company::onlyTrashed()->findOrFail($request->validated('id'));
             $this->companyArchiveService->restoreCompany($company);
 
             return redirect()
@@ -80,10 +82,10 @@ class CompanyArchiveController extends Controller
     |--------------------------------------------------------------------------
     | Permanently delete the specified archived company.
     */
-    public function forceDelete(int $companyId): RedirectResponse
+    public function forceDelete(ArchiveItemIdRequest $request): RedirectResponse
     {
         try {
-            $company = Company::onlyTrashed()->findOrFail($companyId);
+            $company = Company::onlyTrashed()->findOrFail($request->validated('id'));
             $this->companyArchiveService->forceDeleteCompany($company);
 
             return redirect()
@@ -102,17 +104,10 @@ class CompanyArchiveController extends Controller
     |--------------------------------------------------------------------------
     | Restore multiple archived companies at once.
     */
-    public function massRestore(Request $request): JsonResponse
+    public function massRestore(BulkArchiveActionRequest $request): JsonResponse
     {
         try {
-            $companyIds = $request->input('ids', []);
-
-            if (empty($companyIds)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'لم يتم تحديد أي شركة'
-                ], 400);
-            }
+            $companyIds = $request->validated('ids');
 
             $restoredCount = $this->companyArchiveService->massRestoreCompanies($companyIds);
 
@@ -134,17 +129,10 @@ class CompanyArchiveController extends Controller
     |--------------------------------------------------------------------------
     | Permanently delete multiple archived companies at once.
     */
-    public function massForceDelete(Request $request): JsonResponse
+    public function massForceDelete(BulkArchiveActionRequest $request): JsonResponse
     {
         try {
-            $companyIds = $request->input('ids', []);
-
-            if (empty($companyIds)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'لم يتم تحديد أي شركة'
-                ], 400);
-            }
+            $companyIds = $request->validated('ids');
 
             $deletedCount = $this->companyArchiveService->massForceDeleteCompanies($companyIds);
 

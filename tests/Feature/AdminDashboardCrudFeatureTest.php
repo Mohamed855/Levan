@@ -582,11 +582,9 @@ class AdminDashboardCrudFeatureTest extends TestCase
             'properties_limit'          => 50,
             'storage_quota_gb'          => 10,
             'active_auctions_limit'     => 10,
-            'branches_limit'            => 5,
             'subscription_billing_cycle' => 'monthly',
             'description'               => 'باقة مخصصة لإدارة المزادات العقارية',
             'discount_percentage'       => 10,
-            'unlimited_branches'        => 1,
             'domain_management_enabled' => 1,
             'features'                  => [
                 'إدارة المزادات والمحافظ',
@@ -632,9 +630,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
             'properties_limit'          => 50,
             'storage_quota_gb'          => 10,
             'active_auctions_limit'     => 10,
-            'branches_limit'            => 5,
             'subscription_billing_cycle' => 'monthly',
-            'unlimited_branches'        => 1,
             'domain_management_enabled' => 1,
             'features'                  => ['ميزة محدثة'],
         ]);
@@ -682,8 +678,6 @@ class AdminDashboardCrudFeatureTest extends TestCase
             'properties_limit'           => 10,
             'storage_quota_gb'           => 5,
             'active_auctions_limit'      => 5,
-            'branches_limit'             => 2,
-            'unlimited_branches'         => 1,
             'domain_management_enabled'  => 1,
             'features'                   => ['اختبار الحذف الجماعي'],
         ])->assertStatus(302);

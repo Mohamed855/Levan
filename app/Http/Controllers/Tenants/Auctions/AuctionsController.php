@@ -6,6 +6,7 @@ use App\DataTables\Tenants\Auctions\AuctionsDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Auctions\StoreAuctionRequest;
 use App\Http\Requests\Tenants\Auctions\UpdateAuctionRequest;
+use App\Http\Requests\Tenants\UpdateResourceStatusRequest;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Services\Tenants\Auctions\AuctionService;
@@ -122,10 +123,13 @@ class AuctionsController extends Controller
         }
     }
 
-    public function toggleStatus(Auction $auction): JsonResponse
+    public function toggleStatus(UpdateResourceStatusRequest $request, Auction $auction): JsonResponse
     {
         try {
-            $newStatus = $this->auctionService->toggleStatus($auction);
+            $newStatus = $this->auctionService->toggleStatus(
+                $auction,
+                $request->validated('status') === 'active',
+            );
 
             return response()->json([
                 'success' => true,

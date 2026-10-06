@@ -36,7 +36,10 @@ class RoleService
     public function createRole(array $data): Role
     {
         return DB::transaction(function () use ($data) {
-            $role = Role::create(['name' => $data['name']]);
+            $role = Role::create([
+                'name' => $data['name'],
+                'guard_name' => 'tenant',
+            ]);
 
             $permissions = $this->getPermissionsFromData($data);
             $role->syncPermissions($permissions);
@@ -110,7 +113,10 @@ class RoleService
     private function getPermissionsFromData(array $data): array
     {
         if (!empty($data['select_all'])) {
-            return Permission::pluck('name')->toArray();
+            return Permission::query()
+                ->where('guard_name', 'tenant')
+                ->pluck('name')
+                ->toArray();
         }
 
         return $data['permissions'] ?? [];
@@ -124,13 +130,10 @@ class RoleService
     */
     public function getGroupedPermissions(): \Illuminate\Support\Collection
     {
-        $permissions = Permission::all()->groupBy('section');
-
-        foreach (self::PERMISSION_SECTIONS as $section) {
-            if (!$permissions->has($section)) {
-                $permissions->put($section, collect());
-            }
-        }
+        $permissions = Permission::query()
+            ->where('guard_name', 'tenant')
+            ->get()
+            ->groupBy('section');
 
         return $permissions;
     }
@@ -144,7 +147,9 @@ class RoleService
     public function updateUserRole(User $user, array $data): User
     {
         return DB::transaction(function () use ($user, $data) {
-            $role = Role::findOrFail($data['role']);
+            $role = Role::query()
+                ->where('guard_name', 'tenant')
+                ->findOrFail($data['role']);
 
             $user->syncRoles([$role]);
 
@@ -213,7 +218,10 @@ class RoleService
     */
     public function getAllRoles(): Collection
     {
-        return Role::with('users')->get();
+        return Role::query()
+            ->where('guard_name', 'tenant')
+            ->with('users')
+            ->get();
     }
 
     /*

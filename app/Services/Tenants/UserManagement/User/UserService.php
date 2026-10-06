@@ -39,7 +39,7 @@ class UserService
             $user = User::create($data);
 
             if ($roleId) {
-                $role = Role::findOrFail($roleId);
+                $role = Role::query()->where('guard_name', 'tenant')->findOrFail($roleId);
                 $user->syncRoles([$role->name]);
             }
 
@@ -76,7 +76,7 @@ class UserService
             $user->update($data);
 
             if ($roleId) {
-                $role = Role::findOrFail($roleId);
+                $role = Role::query()->where('guard_name', 'tenant')->findOrFail($roleId);
                 $user->syncRoles([$role->name]);
             }
 

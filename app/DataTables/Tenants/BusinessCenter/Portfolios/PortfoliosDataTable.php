@@ -103,7 +103,7 @@ class PortfoliosDataTable extends AbstractDataTable
                     $checked = $portfolio->status === 'active' ? 'checked' : '';
                     $url = tenant_route_name('portfolios.toggle-status', $portfolio->id);
 
-                    return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_' . $portfolio->id . '" data-url="' . e($url) . '" ' . $checked . ' aria-label="تبديل حالة المحفظة"></div></div>';
+                    return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_' . $portfolio->id . '" data-url="' . e($url) . '" data-active-value="active" data-inactive-value="inactive" ' . $checked . ' aria-label="تبديل حالة المحفظة"></div></div>';
                 }
 
                 return '<span class="badge ' . $portfolio->status_class . '" title="للقراءة فقط">' . $portfolio->status_label . '</span>';

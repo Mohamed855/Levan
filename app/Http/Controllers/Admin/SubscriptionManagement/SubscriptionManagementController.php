@@ -273,11 +273,6 @@ class SubscriptionManagementController extends Controller
                 ]);
             }
 
-            if ($subscription->wasChanged('plan_id')) {
-                $tenant->branches_limit = $plan->unlimited_branches ? null : $plan->branches_limit;
-                $tenant->save();
-            }
-
             DB::commit();
 
             return redirect()

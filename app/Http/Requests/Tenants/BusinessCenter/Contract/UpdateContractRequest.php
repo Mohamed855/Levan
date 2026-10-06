@@ -11,7 +11,7 @@ class UpdateContractRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user('tenant')?->can('contracts.edit') ?? false;
     }
 
     /*

@@ -71,9 +71,9 @@ class ContractService
     | Toggle Contract Status
     |--------------------------------------------------------------------------
     */
-    public function toggleStatus(Contract $contract): Contract
+    public function toggleStatus(Contract $contract, ?string $status = null): Contract
     {
-        $newStatus = $contract->status === 'active' ? 'inactive' : 'active';
+        $newStatus = $status ?? ($contract->status === 'active' ? 'inactive' : 'active');
         $contract->update(['status' => $newStatus]);
         return $contract;
     }

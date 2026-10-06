@@ -8,7 +8,7 @@ class UpdatePropertyRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user('tenant')?->can('properties.edit') ?? false;
     }
 
     public function rules(): array

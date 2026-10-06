@@ -40,8 +40,6 @@ class SubscriptionFormatter
             'storage_quota_gb'         => $subscription->plan?->storage_quota_gb,
             'active_auctions_limit'    => $subscription->plan?->active_auctions_limit,
             'unlimited_auctions'       => (bool) ($subscription->plan?->unlimited_auctions ?? false),
-            'branches_limit'           => $subscription->plan?->branches_limit,
-            'unlimited_branches'       => (bool) ($subscription->plan?->unlimited_branches ?? false),
         ];
     }
 
@@ -86,8 +84,6 @@ class SubscriptionFormatter
             'storage_quota_gb'         => null,
             'active_auctions_limit'    => null,
             'unlimited_auctions'       => false,
-            'branches_limit'           => null,
-            'unlimited_branches'       => false,
         ];
     }
 }

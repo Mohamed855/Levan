@@ -12,7 +12,7 @@
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/shared/auth-layout.js'])
+    @vite(['resources/assets/js/shared/auth-layout.js', 'resources/assets/js/shared/form-validation.js'])
 @endsection
 
 @section('content')
@@ -25,7 +25,8 @@
             ['icon' => 'ti ti-mail-fast', 'text' => 'إرسال فوري لرابط الاستعادة'],
             ['icon' => 'ti ti-shield', 'text' => 'حماية تامة للبيانات والخصوصية'],
         ]" :back-url="tenant_route_name('login')" back-text="العودة لتسجيل الدخول">
-        <form id="formAuthentication" method="POST" action="{{ tenant_route_name('password.email') }}" novalidate>
+        <form id="formAuthentication" method="POST" action="{{ tenant_route_name('password.email') }}" novalidate
+            data-form-validate data-validation-url="{{ tenant_route_name('form-validation') }}">
             @csrf
 
             <x-form.controls.input name="email" label="البريد الإلكتروني" placeholder="أدخل البريد الإلكتروني"

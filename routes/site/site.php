@@ -15,7 +15,13 @@ Route::name('site.')->group(function () {
     Route::post('contact', [LandingPageController::class, 'contactRequest'])
         ->defaults('shared_form_validation', true)
         ->name('contact.store');
-    Route::post('form-validation', [WizardDraftController::class, 'validateStep'])->name('form-validation');
+    Route::post('form-validation', [WizardDraftController::class, 'validateStep'])
+        ->defaults('shared_form_validation_actions', [
+            LandingPageController::class . '@contactRequest',
+            SubscriptionController::class . '@processCheckout',
+            TrialController::class . '@demoRequest',
+        ])
+        ->name('form-validation');
 
 
     Route::prefix('')->name('plans.')->group(function () {

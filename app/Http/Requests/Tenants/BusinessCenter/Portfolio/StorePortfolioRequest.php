@@ -9,7 +9,7 @@ class StorePortfolioRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user('tenant')?->can('portfolios.create') ?? false;
     }
 
     /*

@@ -2,7 +2,7 @@
     <div class="card mb-6">
         <div class="card-body">
             <form id="formPrintSettings" method="POST" action="{{ tenant_route_name('settings.update') }}"
-                enctype="multipart/form-data">
+                enctype="multipart/form-data" novalidate data-form-validate data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="active_tab" id="" value="#printSettings">

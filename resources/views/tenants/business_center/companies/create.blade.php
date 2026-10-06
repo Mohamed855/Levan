@@ -3,11 +3,11 @@
 @section('title', 'إضافة شركة جديدة')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss'])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js'])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.js'])
 @endsection
 
 @section('toastr')
@@ -15,7 +15,7 @@
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/tenants/business-center/companies/validation.js'])
+    @vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/tenants/business-center/companies/validation.js'])
 @endsection
 
 @section('content')
@@ -46,7 +46,7 @@
                     @endif
 
                     <form id="wizard-validation-form" action="{{ tenant_route_name('companies.store') }}" method="POST"
-                        enctype="multipart/form-data" onSubmit="return false">
+                        enctype="multipart/form-data" novalidate data-form-validate data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                         @csrf
 
                         <div id="company-info-validation" class="content">
@@ -57,7 +57,7 @@
                                         اسم الشركة
                                         <span class="text-danger">*</span>
                                     </label>
-                                    <input type="text" name="name" id="name" class="form-control"
+                                    <input type="text" name="name" id="name" class="form-control" required
                                         placeholder="ادخل اسم الشركة" value="{{ old('name') }}" />
                                 </div>
 
@@ -67,7 +67,7 @@
                                         شعار الشركة
                                         <span class="text-danger">*</span>
                                     </label>
-                                    <input type="file" name="logo" id="logo" class="form-control"
+                                    <input type="file" name="logo" id="logo" class="form-control" required
                                         accept=".jpg,.jpeg,.png,.webp" />
                                     <small class="text-muted d-block mt-1">
                                         الأنواع: JPG, JPEG, PNG — الحجم الأقصى: 2MB
@@ -82,7 +82,7 @@
                                     </label>
                                     <input type="number" name="target_percentage" id="target_percentage"
                                         class="form-control" placeholder="مثال: 10" value="{{ old('target_percentage') }}"
-                                        step="0.01" min="0" max="100" />
+                                        step="0.01" min="0" max="100" required />
                                     <small class="text-muted d-block mt-1">
                                         النسبة المئوية من إجمالي المحفظة (مثال: 10 تعني 10%)
                                     </small>

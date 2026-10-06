@@ -6,6 +6,7 @@ use App\DataTables\Tenants\BusinessCenter\Portfolios\PortfoliosDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\BusinessCenter\Portfolio\StorePortfolioRequest;
 use App\Http\Requests\Tenants\BusinessCenter\Portfolio\UpdatePortfolioRequest;
+use App\Http\Requests\Tenants\UpdateResourceStatusRequest;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Models\Tenants\BusinessCenter\Portfolio\PortfolioField;
 use App\Services\Tenants\BusinessCenter\Portfolio\PortfolioService;
@@ -146,10 +147,10 @@ class PortfolioController extends Controller
     | Toggle Status
     |--------------------------------------------------------------------------
     */
-    public function toggleStatus(Portfolio $portfolio): JsonResponse
+    public function toggleStatus(UpdateResourceStatusRequest $request, Portfolio $portfolio): JsonResponse
     {
         try {
-            $newStatus = $portfolio->status === 'active' ? 'inactive' : 'active';
+            $newStatus = $request->validated('status');
             $portfolio->update(['status' => $newStatus]);
 
             $statusText = $newStatus === 'active' ? 'نشط' : 'غير نشط';

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tenants\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Auth\ResetTenantPasswordRequest;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
@@ -10,7 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
 class NewPasswordController extends Controller
@@ -33,14 +33,8 @@ class NewPasswordController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(ResetTenantPasswordRequest $request): RedirectResponse
     {
-        $request->validate([
-            'token' => ['required'],
-            'email' => ['required', 'email'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
-
         // Here we will attempt to reset the user's password. If it is successful we
         // will update the password on an actual user model and persist it to the
         // database. Otherwise we will parse the error and return the response.
@@ -67,13 +61,8 @@ class NewPasswordController extends Controller
     }
 
 
-    public function updatePassword(Request $request)
+    public function updatePassword(ResetTenantPasswordRequest $request)
     {
-        $request->validate([
-            'token' => ['required'],
-            'email' => ['required', 'email'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
         $tenant = $request->tenant_id;
 
         // Here we will attempt to reset the user's password. If it is successful we

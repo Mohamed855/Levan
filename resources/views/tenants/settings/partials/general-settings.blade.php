@@ -1,7 +1,7 @@
 <div class="tab-pane fade show active" id="generalSettings">
     <div class="card mb-6">
         <form id="formGeneralSettings" method="POST" action="{{ tenant_route_name('settings.update') }}"
-            enctype="multipart/form-data">
+            enctype="multipart/form-data" novalidate data-form-validate data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
             @csrf
             @method('PUT')
             <input type="hidden" name="active_tab" id="" value="#generalSettings">
@@ -28,7 +28,7 @@
                 <div class="row">
                     <div class="mb-4 col-md-6">
                         <label for="officeName" class="form-label">إسم الشركة</label>
-                        <input class="form-control" type="text" id="officeName" name="office_name" required
+                        <input class="form-control" type="text" id="officeName" name="office_name"
                             value="{{ old('office_name', $settings->office_name ?? '') }}"
                             placeholder="أدخل إسم الشركة" />
                         @error('office_name')
@@ -38,7 +38,7 @@
                     <!-- وضع الصيانة -->
                     <div class="mb-4 col-md-6">
                         <label for="logoText" class="form-label">النص بجانب الشعار</label>
-                        <input type="text" class="form-control" id="logoText" name="logo_text" required
+                        <input type="text" class="form-control" id="logoText" name="logo_text"
                             value="{{ old('logo_text', $settings->logo_text ?? '') }}"
                             placeholder="أدخل النص بجانب الشعار" maxlength="14" />
                         @error('logo_text')

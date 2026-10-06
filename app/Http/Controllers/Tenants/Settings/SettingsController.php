@@ -21,7 +21,7 @@ class SettingsController extends Controller
     */
     public function index()
     {
-        $settings = Settings::first();
+        $settings = Settings::firstOrNew();
         return view('tenants.settings.settings', compact('settings'));
     }
 
@@ -46,7 +46,7 @@ class SettingsController extends Controller
             $settings = new Settings();
         }
 
-        if ($request->has('office_name')) {
+        if ($request->input('active_tab') === '#generalSettings') {
             $settings->office_name = $validated['office_name'];
             $settings->logo_text = $validated['logo_text'];
             // تحديث وضع الصيانة
@@ -61,27 +61,17 @@ class SettingsController extends Controller
         }
 
         // إعدادات طباعة
-        if ($request->has('horizontal_header_image')) {
-
-            if ($request->hasFile('horizontal_header_image')) {
-                $settings->horizontal_header_image = $request->file('horizontal_header_image')
-                    ->store('settings/print', 'tenant_public');
-            }
-            if ($request->hasFile('vertical_header_image')) {
-                $settings->vertical_header_image = $request->file('vertical_header_image')
-                    ->store('settings/print', 'tenant_public');
-            }
-            if ($request->hasFile('horizontal_footer_image')) {
-                $settings->horizontal_footer_image = $request->file('horizontal_footer_image')
-                    ->store('settings/print', 'tenant_public');
-            }
-            if ($request->hasFile('vertical_footer_image')) {
-                $settings->vertical_footer_image = $request->file('vertical_footer_image')
-                    ->store('settings/print', 'tenant_public');
-            }
-            if ($request->hasFile('signature')) {
-                $settings->signature = $request->file('signature')
-                    ->store('settings/print', 'tenant_public');
+        if ($request->input('active_tab') === '#printSettings') {
+            foreach ([
+                'horizontal_header_image',
+                'vertical_header_image',
+                'horizontal_footer_image',
+                'vertical_footer_image',
+                'signature',
+            ] as $field) {
+                if ($request->hasFile($field)) {
+                    $settings->{$field} = $request->file($field)->store('settings/print', 'tenant_public');
+                }
             }
         }
 
@@ -93,7 +83,7 @@ class SettingsController extends Controller
         //     $settings->whatsapp_enabled     = $request->has('whatsapp_enabled');
         // }
 
-        if ($request->has('sms_provider')) {
+        if ($request->input('active_tab') === '#SmsSettings') {
             $settings->sms_provider     = $validated['sms_provider']      ?? $settings->sms_provider;
             $settings->sms_api_key      = $validated['sms_api_key']       ?? $settings->sms_api_key;
             $settings->sms_api_secret   = $validated['sms_api_secret']    ?? $settings->sms_api_secret;
@@ -107,11 +97,13 @@ class SettingsController extends Controller
             $settings->sms_rate_limit   = $validated['sms_rate_limit']    ?? $settings->sms_rate_limit;
         }
 
-        if ($request->has('two_factor_settings_submit')) {
+        if ($request->input('active_tab') === '#twoFactorSettings') {
             $settings->force_two_factor_auth = $request->has('force_two_factor_auth');
         }
 
-        $settings->support_emails = $validated['support_emails'] ?? null;
+        if ($request->has('support_emails')) {
+            $settings->support_emails = $validated['support_emails'] ?? null;
+        }
 
         $settings->save();
         Cache::forget('app_settings');

@@ -24,7 +24,7 @@ use App\Models\Tenants\GeneralSetting\ContactResult\ContactResult;
 use App\Models\Tenants\GeneralSetting\Country\SettingsCountry;
 use App\Models\Tenants\GeneralSetting\CustomerStatus\SettingsCustomerStatus;
 use App\Models\Tenants\UserMangment\User\User;
-use App\Traits\Tenants\BelongsToUserBranch;
+use App\Traits\Tenants\HasUserAccessScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -34,7 +34,7 @@ use Spatie\Activitylog\Models\Concerns\LogsActivity;
 
 class Customer extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity, BelongsToUserBranch;
+    use HasFactory, SoftDeletes, LogsActivity, HasUserAccessScope;
 
     /**
      * The attributes that are mass assignable.
@@ -750,7 +750,7 @@ class Customer extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | Trait Methods - BelongsToUserBranch  --  last update for the Branch Scopes
+    | Trait Methods - HasUserAccessScope
     |--------------------------------------------------------------------------
     */
 

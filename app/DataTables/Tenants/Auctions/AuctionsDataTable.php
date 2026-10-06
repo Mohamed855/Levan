@@ -101,7 +101,7 @@ class AuctionsDataTable extends AbstractDataTable
 
                     return '<div class="d-flex justify-content-center align-items-center gap-1">
                         <div class="form-check form-switch mb-0">
-                            <input type="checkbox" class="form-check-input js-table-status-toggle" id="auction_status_' . $row->id . '" data-url="' . e($url) . '" ' . $checked . ' aria-label="تبديل حالة المزاد">
+                            <input type="checkbox" class="form-check-input js-table-status-toggle" id="auction_status_' . $row->id . '" data-url="' . e($url) . '" data-active-value="active" data-inactive-value="inactive" ' . $checked . ' aria-label="تبديل حالة المزاد">
                         </div>
                         <span class="badge ' . $row->status_badge_class . ' ms-1">' . e($row->status_label) . '</span>
                     </div>';

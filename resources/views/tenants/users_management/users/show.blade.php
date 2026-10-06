@@ -19,7 +19,7 @@
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/tenants/user-mangment/user/pages-profile.js', 'resources/assets/js/tenants/user-mangment/user/user-sessions.js'])
+    @vite(['resources/assets/js/tenants/user-mangment/user/pages-profile.js', 'resources/assets/js/tenants/user-mangment/user/user-sessions.js', 'resources/assets/js/shared/form-validation.js'])
     <script>
         window.sessionsData = @json($sessionsData ?? ['days' => [], 'statistics' => []]);
         window.userId = {{ $user->id }};
@@ -96,7 +96,8 @@
                             <h5 class="modal-title">تغيير الصورة الشخصية</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form id="changeProfileImageForm" method="POST" enctype="multipart/form-data">
+                        <form id="changeProfileImageForm" method="POST" enctype="multipart/form-data" novalidate data-form-validate data-validation-submit="ajax"
+                            action="{{ tenant_route_name('users.update-image', $user->id) }}" data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                             @csrf
                             <div class="modal-body">
                                 <div class="text-center mb-4">
@@ -128,7 +129,8 @@
             <div class="modal fade" id="editBackgroundImageModal" tabindex="-1"
                 aria-labelledby="editBackgroundImageModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog">
-                    <form id="changeBackgroundImageForm" enctype="multipart/form-data">
+                    <form id="changeBackgroundImageForm" method="POST" enctype="multipart/form-data" novalidate data-form-validate data-validation-submit="ajax"
+                        action="{{ tenant_route_name('users.update-background', $user->id) }}" data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                         @csrf
                         <div class="modal-content">
                             <div class="modal-header pb-5">
@@ -414,8 +416,7 @@
                 }
             });
 
-            document.getElementById('changeProfileImageForm').addEventListener('submit', function(e) {
-                e.preventDefault();
+            document.getElementById('changeProfileImageForm').addEventListener('formValidationPassed', function() {
 
                 const formData = new FormData(this);
                 const submitBtn = this.querySelector('button[type="submit"]');
@@ -458,8 +459,7 @@
                     });
             });
 
-            document.getElementById('changeBackgroundImageForm').addEventListener('submit', function(e) {
-                e.preventDefault();
+            document.getElementById('changeBackgroundImageForm').addEventListener('formValidationPassed', function() {
 
                 const formData = new FormData(this);
                 const submitBtn = document.getElementById('submitBackgroundBtn');

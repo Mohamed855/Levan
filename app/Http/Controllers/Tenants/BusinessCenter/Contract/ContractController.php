@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\DataTables\Tenants\BusinessCenter\Contract\ContractsDataTable;
 use App\Http\Requests\Tenants\BusinessCenter\Contract\StoreContractRequest;
 use App\Http\Requests\Tenants\BusinessCenter\Contract\UpdateContractRequest;
+use App\Http\Requests\Tenants\UpdateResourceStatusRequest;
 use App\Models\Tenants\BusinessCenter\Contract\Contract;
 use App\Models\Tenants\BusinessCenter\Contract\ContractCommission;
 use App\Models\Tenants\FinancialCollection\Collection\Collection;
@@ -366,7 +367,7 @@ class ContractController extends Controller
     | Toggle Contract Status
     |--------------------------------------------------------------------------
     */
-    public function toggleStatus(Contract $contract): JsonResponse
+    public function toggleStatus(UpdateResourceStatusRequest $request, Contract $contract): JsonResponse
     {
         try {
             if (!auth()->user()->can('contracts.edit')) {
@@ -376,7 +377,7 @@ class ContractController extends Controller
                 ], 403);
             }
 
-            $updated = $this->contractService->toggleStatus($contract);
+            $updated = $this->contractService->toggleStatus($contract, $request->validated('status'));
 
             return response()->json([
                 'success' => true,

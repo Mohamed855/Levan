@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Tenants\Auth\Fortify;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Auth\ConfirmTenantTwoFactorRequest;
+use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -22,7 +24,7 @@ class TenantTwoFactorSettingsController extends Controller
         ]);
     }
 
-    public function enable(Request $request, EnableTwoFactorAuthentication $enable): JsonResponse
+    public function enable(TenantAuthenticatedRequest $request, EnableTwoFactorAuthentication $enable): JsonResponse
     {
         $enable(Auth::guard('tenant')->user());
 
@@ -36,29 +38,21 @@ class TenantTwoFactorSettingsController extends Controller
         return response()->json(['svg' => $user->twoFactorQrCodeSvg()]);
     }
 
-    public function confirm(Request $request, ConfirmTwoFactorAuthentication $confirm): JsonResponse
+    public function confirm(ConfirmTenantTwoFactorRequest $request, ConfirmTwoFactorAuthentication $confirm): JsonResponse
     {
-        $request->validate(
-            ['code' => 'required|string'],
-            [
-                'code.required' => 'الرجاء إدخال كود التحقق.',
-                'code.string' => 'كود التحقق يجب أن يكون نصًا.',
-            ]
-        );
-
-        $confirm(Auth::guard('tenant')->user(), $request->code);
+        $confirm(Auth::guard('tenant')->user(), $request->validated('code'));
 
         return response()->json(['status' => 'confirmed']);
     }
 
-    public function disable(Request $request, DisableTwoFactorAuthentication $disable): JsonResponse
+    public function disable(TenantAuthenticatedRequest $request, DisableTwoFactorAuthentication $disable): JsonResponse
     {
         $disable(Auth::guard('tenant')->user());
 
         return response()->json(['status' => 'disabled']);
     }
 
-    public function recoveryCodes(Request $request): JsonResponse
+    public function recoveryCodes(TenantAuthenticatedRequest $request): JsonResponse
     {
         $user = Auth::guard('tenant')->user();
 

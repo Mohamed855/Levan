@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tenants\Auth\Fortify;
 
 use App\Actions\Auth\ResolveTwoFactorLogin;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Auth\TenantTwoFactorChallengeRequest;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -21,13 +22,14 @@ class TenantTwoFactorChallengeController extends Controller
         return view('tenants.auth.two-factor-challenge');
     }
 
-    public function store(Request $request, ResolveTwoFactorLogin $resolver): RedirectResponse
+    public function store(TenantTwoFactorChallengeRequest $request, ResolveTwoFactorLogin $resolver): RedirectResponse
     {
-        $user = $resolver->verify('tenant', $request);
+        $user = $resolver->verify('tenant', $request, $request->validated());
+        $remember = $request->session()->pull('login.remember', false);
 
-        $request->session()->forget(['login.id', 'login.remember']);
+        $request->session()->forget('login.id');
 
-        Auth::guard('tenant')->login($user, $request->session()->get('login.remember', false));
+        Auth::guard('tenant')->login($user, $remember);
 
         $request->session()->regenerate();
 

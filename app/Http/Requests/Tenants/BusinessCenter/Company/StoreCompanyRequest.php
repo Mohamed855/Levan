@@ -9,7 +9,7 @@ class StoreCompanyRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user('tenant')?->can('companies.create') ?? false;
     }
 
     public function rules(): array

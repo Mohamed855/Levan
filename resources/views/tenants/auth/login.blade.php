@@ -21,7 +21,7 @@
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/shared/auth-layout.js'])
+    @vite(['resources/assets/js/shared/auth-layout.js', 'resources/assets/js/shared/form-validation.js'])
 @endsection
 
 @section('content')
@@ -32,10 +32,11 @@
             ['icon' => 'ti ti-file-text', 'text' => 'مخرجات تسويقية جاهزة للاستخدام'],
             ['icon' => 'ti ti-shield-check', 'text' => 'بيانات دقيقة وموثوقة'],
         ]">
-        <form id="formAuthentication" action="{{ $loginAction }}" method="POST" novalidate>
+        <form id="formAuthentication" action="{{ $loginAction }}" method="POST" novalidate data-form-validate
+            data-validation-url="{{ tenant_route_name('form-validation') }}">
             @csrf
-            <x-form.controls.input name="email" label="البريد الإلكتروني" placeholder="أدخل البريد الإلكتروني"
-                type="email" :value="old('email')" required autofocus autocomplete="username" col="col-12 mb-3"
+            <x-form.controls.input name="email" label="البريد الإلكتروني أو رقم الجوال" placeholder="أدخل البريد الإلكتروني أو رقم الجوال"
+                type="text" :value="old('email')" required autofocus autocomplete="username" col="col-12 mb-3"
                 icon="ti ti-mail" />
 
             <x-form.controls.password name="password" label="كلمة المرور" placeholder="أدخل كلمة المرور" required

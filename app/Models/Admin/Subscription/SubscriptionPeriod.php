@@ -90,8 +90,6 @@ class SubscriptionPeriod extends Model
                 'properties_limit'      => null,
                 'storage_quota_gb'      => null,
                 'active_auctions_limit' => null,
-                'branches_limit'        => null,
-                'unlimited_branches'    => true,
             ];
         }
 

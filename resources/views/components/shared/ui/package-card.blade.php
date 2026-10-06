@@ -22,8 +22,6 @@
     $includedUsers = old('included_users', $plan?->included_users);
     $propertiesLimit = old('properties_limit', $plan?->properties_limit);
     $storageQuota = old('storage_quota_gb', $plan?->storage_quota_gb);
-    $branchesLimit = old('branches_limit', $plan?->branches_limit);
-    $unlimitedBranches = old('unlimited_branches', $plan?->unlimited_branches);
 @endphp
 
 <article {{ $attributes->class(['package-card'])->merge(['data-package-card' => $preview ? '' : null, 'data-plan-color' => $planColor]) }}>
@@ -62,11 +60,6 @@
             <i class="ti ti-cloud" aria-hidden="true"></i>
             <span>التخزين</span>
             <strong data-plan-field="storage">{{ $isUnlimited ? 'غير محدود' : (($storageQuota ?? '—') . ' GB') }}</strong>
-        </div>
-        <div class="package-card__limit">
-            <i class="ti ti-world" aria-hidden="true"></i>
-            <span>الفروع</span>
-            <strong data-plan-field="branches">{{ $isUnlimited || $unlimitedBranches ? 'غير محدود' : (($branchesLimit ?? '—') . ' فرع') }}</strong>
         </div>
     </section>
 

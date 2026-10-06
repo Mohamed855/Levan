@@ -77,8 +77,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const limitsModeSelect = getInput('limits_mode');
   const unlimitedAlert = getInput('unlimited-mode-alert');
-  const unlimitedBranchesSelect = getInput('unlimited_branches');
-  const branchesLimitContainer = getInput('branches_limit_container');
 
   function refreshStepNextButton(control) {
     const step = control?.closest('[data-form-step], .content');
@@ -105,26 +103,8 @@ document.addEventListener('DOMContentLoaded', function () {
     updatePackageCards();
   }
 
-  function toggleBranchesLimit() {
-    if (!unlimitedBranchesSelect || !branchesLimitContainer) return;
-    const isUnlimited = unlimitedBranchesSelect.value === '1';
-    branchesLimitContainer.hidden = isUnlimited;
-
-    if (isUnlimited) {
-      const input = branchesLimitContainer.querySelector('[name="branches_limit"]');
-      if (input) window.SharedFormValidation?.clearFieldError?.(form, input.name);
-    }
-
-    refreshStepNextButton(unlimitedBranchesSelect);
-    updatePackageCards();
-  }
-
   if (limitsModeSelect) {
     limitsModeSelect.addEventListener('change', toggleLimitsMode);
-  }
-
-  if (unlimitedBranchesSelect) {
-    unlimitedBranchesSelect.addEventListener('change', toggleBranchesLimit);
   }
 
   const featuresList = getInput('features-list');
@@ -237,7 +217,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const discount = Math.min(100, Math.max(0, Number.parseFloat(getValue('discount_percentage', '0')) || 0));
     const finalPrice = Math.max(0, price - (price * discount / 100));
     const isUnlimited = getValue('limits_mode', 'limited') === 'unlimited';
-    const hasUnlimitedBranches = getValue('unlimited_branches') === '1';
     const formatPrice = (value) => value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const limitValue = (id, suffix) => isUnlimited ? 'غير محدود' : `${getValue(id, '—')} ${suffix}`;
 
@@ -253,7 +232,6 @@ document.addEventListener('DOMContentLoaded', function () {
       setText(card, 'users', limitValue('included_users', 'مستخدم'));
       setText(card, 'properties', limitValue('properties_limit', 'عقار'));
       setText(card, 'storage', limitValue('storage_quota_gb', 'GB'));
-      setText(card, 'branches', isUnlimited || hasUnlimitedBranches ? 'غير محدود' : `${getValue('branches_limit', '—')} فرع`);
 
       card.querySelectorAll('[data-plan-field="discount"], [data-plan-field="original-price"]').forEach((element) => {
         element.hidden = discount <= 0;

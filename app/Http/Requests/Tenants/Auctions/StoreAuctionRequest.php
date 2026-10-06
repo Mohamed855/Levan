@@ -8,7 +8,7 @@ class StoreAuctionRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user('tenant')?->can('auctions.create') ?? false;
     }
 
     public function rules(): array

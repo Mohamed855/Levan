@@ -24,9 +24,10 @@
     <script>
         window.routes = {
             massDelete: "{{ tenant_route_name('notifications.mass-delete') }}",
-            markAsRead: "/notifications/{id}/read",
+            markAsRead: "{{ tenant_route_name('notifications.mark-as-read', ['id' => '__ID__']) }}",
             markAllAsRead: "{{ tenant_route_name('notifications.mark-all-read') }}",
-            deleteNotification: "/notifications/{id}"
+            deleteNotification: "{{ tenant_route_name('notifications.destroy', ['id' => '__ID__']) }}",
+            unreadCount: "{{ tenant_route_name('notifications.unread-count') }}"
         };
 
         window.csrfToken = "{{ csrf_token() }}";

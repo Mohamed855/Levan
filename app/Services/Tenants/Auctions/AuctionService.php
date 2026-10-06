@@ -106,9 +106,9 @@ class AuctionService
         });
     }
 
-    public function toggleStatus(Auction $auction): bool
+    public function toggleStatus(Auction $auction, ?bool $isActive = null): bool
     {
-        $newStatus = ! $auction->is_active;
+        $newStatus = $isActive ?? ! $auction->is_active;
         $auction->update([
             'is_active' => $newStatus,
             'status'    => $newStatus ? 'active' : 'suspended',

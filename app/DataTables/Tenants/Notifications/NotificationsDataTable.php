@@ -43,7 +43,7 @@ class NotificationsDataTable extends AbstractDataTable
     */
     protected function resource()
     {
-        $user = auth()->user();
+        $user = auth('tenant')->user();
         return $user->notifications()->orderBy('created_at', 'desc');
     }
 
@@ -102,12 +102,14 @@ class NotificationsDataTable extends AbstractDataTable
                 $colorClass = $iconColors[$row->data['type'] ?? 'info'] ?? 'text-info';
                 
                 return '<div class="d-flex align-items-center">
-                    <i class="' . $icon . ' ' . $colorClass . ' me-2"></i>
-                    <span>' . ($row->data['title'] ?? '') . '</span>
+                    <i class="' . e($icon) . ' ' . $colorClass . ' me-2"></i>
+                    <span>' . e($row->data['title'] ?? '') . '</span>
                 </div>';
             })
             ->editColumn('message', function ($row) {
-                return '<span class="text-truncate d-block" style="max-width: 300px;" title="' . ($row->data['message'] ?? '') . '">' . ($row->data['message'] ?? '') . '</span>';
+                $message = e($row->data['message'] ?? '');
+
+                return '<span class="text-truncate d-block" style="max-width: 300px;" title="' . $message . '">' . $message . '</span>';
             })
             ->editColumn('type', function ($row) {
                 $type = $row->data['type'] ?? 'info';

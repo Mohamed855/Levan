@@ -115,6 +115,8 @@ class UsersDataTable extends AbstractDataTable
                                 class="form-check-input js-table-status-toggle"
                                 id="status_' . $user->id . '"
                                 data-url="' . e($url) . '"
+                                data-active-value="active"
+                                data-inactive-value="inactive"
                                 ' . $checked . '
                                 aria-label="تبديل حالة المستخدم"
                             >

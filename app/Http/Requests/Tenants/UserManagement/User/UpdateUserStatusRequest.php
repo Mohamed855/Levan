@@ -13,7 +13,7 @@ class UpdateUserStatusRequest extends FormRequest
     */
     public function authorize(): bool
     {
-        return true;
+        return $this->user('tenant')?->can('roles.assign') ?? false;
     }
 
     /*

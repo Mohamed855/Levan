@@ -598,7 +598,7 @@ class EmployeePerformanceService extends BasePerformanceService
     // استعلام إجمالي التحصيل + عدد العملاء المسددين + متوسط السداد.
     private function queryCollections(array $userIds, array $filters, string $from, string $to): array
     {
-        return Collection::withoutGlobalScope(\App\Traits\Tenants\Scopes\UserBranchScope::class)
+        return Collection::withoutGlobalScope(\App\Traits\Tenants\Scopes\UserAccessScope::class)
             ->where('status', 'approved')
             ->whereBetween('collection_date', [$from, $to])
             ->whereIn('added_by', $userIds)

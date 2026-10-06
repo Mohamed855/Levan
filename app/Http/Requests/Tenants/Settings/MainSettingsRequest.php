@@ -15,7 +15,7 @@ class MainSettingsRequest extends FormRequest
     */
     public function authorize(): bool
     {
-        return true;
+        return $this->user('tenant')?->can('system.settings') ?? false;
     }
 
     /*
@@ -26,6 +26,7 @@ class MainSettingsRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'active_tab'                => 'nullable|string|in:#generalSettings,#printSettings,#SmsSettings,#twoFactorSettings',
             // عامة
             'office_name'               => 'nullable|string|max:255',
             'logo_text'                 => 'nullable|string|max:14',
@@ -36,7 +37,9 @@ class MainSettingsRequest extends FormRequest
 
             // طباعة
             'horizontal_header_image'       => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1200',
+            'vertical_header_image'         => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1200',
             'horizontal_footer_image'       => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1200',
+            'vertical_footer_image'         => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1200',
             'signature'           => 'nullable|image|mimes:jpeg,png,jpg,gif|max:500',
 
             // WhatsApp (Twilio)

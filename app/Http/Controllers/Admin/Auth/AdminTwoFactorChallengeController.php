@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Auth;
 
 use App\Actions\Auth\ResolveTwoFactorLogin;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Auth\AdminTwoFactorChallengeRequest;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
@@ -22,13 +23,14 @@ class AdminTwoFactorChallengeController extends Controller
         return view('admin.auth.two-factor-challenge');
     }
 
-    public function store(Request $request, ResolveTwoFactorLogin $resolver): RedirectResponse
+    public function store(AdminTwoFactorChallengeRequest $request, ResolveTwoFactorLogin $resolver): RedirectResponse
     {
-        $admin = $resolver->verify('admin', $request);
+        $admin = $resolver->verify('admin', $request, $request->validated());
+        $remember = $request->session()->pull('login.remember', false);
 
-        $request->session()->forget(['login.id', 'login.remember']);
+        $request->session()->forget('login.id');
 
-        Auth::guard('admin')->login($admin, $request->session()->get('login.remember', false));
+        Auth::guard('admin')->login($admin, $remember);
 
         $request->session()->regenerate();
 

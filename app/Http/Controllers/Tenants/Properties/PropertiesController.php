@@ -6,6 +6,7 @@ use App\DataTables\Tenants\Properties\PropertiesDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Properties\StorePropertyRequest;
 use App\Http\Requests\Tenants\Properties\UpdatePropertyRequest;
+use App\Http\Requests\Tenants\UpdateResourceStatusRequest;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Properties\Property;
 use App\Services\Tenants\Properties\PropertyService;
@@ -121,10 +122,13 @@ class PropertiesController extends Controller
         }
     }
 
-    public function toggleStatus(Property $property): JsonResponse
+    public function toggleStatus(UpdateResourceStatusRequest $request, Property $property): JsonResponse
     {
         try {
-            $newStatus = $this->propertyService->toggleStatus($property);
+            $newStatus = $this->propertyService->toggleStatus(
+                $property,
+                $request->validated('status') === 'active',
+            );
 
             return response()->json([
                 'success' => true,

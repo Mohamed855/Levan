@@ -49,14 +49,12 @@ class PlanRequest extends WizardFormRequest
                 : (string) $plan->limits_mode;
         }
 
-        // When limits_mode is unlimited, force limits to null and unlimited_branches to true
+        // When limits_mode is unlimited, force numeric limits to null.
         if ($limitsMode === PlanLimitsMode::UNLIMITED->value) {
             $mergeData['included_users']        = null;
             $mergeData['properties_limit']      = null;
             $mergeData['storage_quota_gb']      = null;
             $mergeData['active_auctions_limit'] = null;
-            $mergeData['branches_limit']        = null;
-            $mergeData['unlimited_branches']    = true;
         }
 
         $this->merge($mergeData);
@@ -100,16 +98,12 @@ class PlanRequest extends WizardFormRequest
             $rules['properties_limit']         = ['required', 'integer', 'min:1'];
             $rules['storage_quota_gb']         = ['required', 'integer', 'min:1'];
             $rules['active_auctions_limit']    = ['required', 'integer', 'min:1'];
-            $rules['branches_limit']           = ['required', 'integer', 'min:1'];
-            $rules['unlimited_branches']       = ['nullable', 'boolean'];
             $rules['extra_user_license_price'] = ['required', 'numeric', 'min:0'];
         } else {
             $rules['included_users']           = ['nullable'];
             $rules['properties_limit']         = ['nullable'];
             $rules['storage_quota_gb']         = ['nullable'];
             $rules['active_auctions_limit']    = ['nullable'];
-            $rules['branches_limit']           = ['nullable'];
-            $rules['unlimited_branches']       = ['nullable', 'boolean'];
             $rules['extra_user_license_price'] = ['nullable', 'numeric', 'min:0'];
         }
 
@@ -169,10 +163,6 @@ class PlanRequest extends WizardFormRequest
             'active_auctions_limit.required'      => 'حد المزادات النشطة مطلوب للباقات المحدودة.',
             'active_auctions_limit.integer'       => 'حد المزادات النشطة يجب أن يكون رقماً صحيحاً.',
             'active_auctions_limit.min'           => 'حد المزادات النشطة يجب أن يكون 1 على الأقل.',
-
-            'branches_limit.required'             => 'حد الفروع مطلوب للباقات المحدودة.',
-            'branches_limit.integer'              => 'حد الفروع يجب أن يكون رقماً صحيحاً.',
-            'branches_limit.min'                  => 'حد الفروع يجب أن يكون 1 على الأقل.',
 
             'is_active.required'                  => 'حالة تفعيل الباقة مطلوبة.',
             'domain_management_enabled.required'  => 'حالة إدارة الدومينات مطلوبة.',

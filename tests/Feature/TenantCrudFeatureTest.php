@@ -54,6 +54,23 @@ class TenantCrudFeatureTest extends TestCase
      */
     public function test_teams_crud_lifecycle(): void
     {
+        $teamLeader = User::create([
+            'name' => 'قائد فريق اختباري',
+            'employee_number' => 'LEAD' . random_int(1000, 9999),
+            'email' => 'team-leader-' . random_int(1000, 9999) . '@levan.test',
+            'password' => bcrypt('Password123!'),
+            'status' => 'active',
+            'license_seat_id' => $this->user->license_seat_id,
+        ]);
+        $teamMember = User::create([
+            'name' => 'عضو فريق اختباري',
+            'employee_number' => 'TEAM' . random_int(1000, 9999),
+            'email' => 'team-member-' . random_int(1000, 9999) . '@levan.test',
+            'password' => bcrypt('Password123!'),
+            'status' => 'active',
+            'license_seat_id' => $this->user->license_seat_id,
+        ]);
+
         // 1. Index
         $indexResponse = $this->get($this->tenantUrl('teams'));
         $indexResponse->assertStatus(200);
@@ -67,7 +84,8 @@ class TenantCrudFeatureTest extends TestCase
         $storeResponse = $this->post($this->tenantUrl('teams'), [
             'name'        => $teamName,
             'description' => 'وصف الفريق للاختبار',
-            'status'      => 'active',
+            'members' => [$teamLeader->id, $teamMember->id],
+            'leaders' => [$teamLeader->id],
         ]);
         $storeResponse->assertStatus(302);
 
@@ -87,14 +105,17 @@ class TenantCrudFeatureTest extends TestCase
         $updateResponse = $this->put($this->tenantUrl("teams/{$team->id}"), [
             'name'        => $updatedName,
             'description' => 'وصف الفريق المحدث',
-            'status'      => 'active',
+            'members' => [$teamLeader->id, $teamMember->id],
+            'leaders' => [$teamMember->id],
         ]);
         $updateResponse->assertStatus(302);
         $team->refresh();
         $this->assertEquals($updatedName, $team->name);
 
         // 7. Toggle Status
-        $toggleResponse = $this->patch($this->tenantUrl("teams/{$team->id}/toggle-status"));
+        $toggleResponse = $this->patch($this->tenantUrl("teams/{$team->id}/toggle-status"), [
+            'status' => 'inactive',
+        ]);
         $toggleResponse->assertStatus(200);
         $toggleResponse->assertJson(['success' => true]);
 
@@ -102,6 +123,8 @@ class TenantCrudFeatureTest extends TestCase
         $destroyResponse = $this->delete($this->tenantUrl("teams/{$team->id}"));
         $destroyResponse->assertStatus(302);
         $this->assertSoftDeleted('teams', ['id' => $team->id]);
+        $teamLeader->forceDelete();
+        $teamMember->forceDelete();
     }
 
     /**
@@ -119,7 +142,7 @@ class TenantCrudFeatureTest extends TestCase
 
         // 3. Store
         $roleSuffix = chr(rand(97, 122)) . chr(rand(97, 122)) . chr(rand(97, 122));
-        $roleName = 'دور تجريبي ' . $roleSuffix;
+        $roleName = 'custom_role_' . $roleSuffix;
         $storeResponse = $this->post($this->tenantUrl('roles'), [
             'name'        => $roleName,
             'description' => 'وصف الدور التجريبي',
@@ -139,7 +162,7 @@ class TenantCrudFeatureTest extends TestCase
         $editResponse->assertStatus(200);
 
         // 6. Update
-        $updatedRoleName = $roleName . ' معدل';
+        $updatedRoleName = $roleName . '_updated';
         $updateResponse = $this->put($this->tenantUrl("roles/{$role->id}"), [
             'name'        => $updatedRoleName,
             'description' => 'وصف الدور بعد التعديل',

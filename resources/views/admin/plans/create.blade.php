@@ -134,8 +134,6 @@
                         'properties_limit',
                         'storage_quota_gb',
                         'active_auctions_limit',
-                        'unlimited_branches',
-                        'branches_limit',
                         'domain_management_enabled',
                     ]">
                         <div class="row g-3">
@@ -163,14 +161,6 @@
                             <x-form.controls.input type="number" min="1" name="active_auctions_limit"
                                 id="active_auctions_limit" label="حد المزادات النشطة" value="10" required
                                 col="col-md-6 limits-field" />
-                            <x-form.controls.select name="unlimited_branches" id="unlimited_branches" label="حد الفروع"
-                                value="0" col="col-md-6 limits-field" :options="[
-                                    ['value' => '0', 'label' => 'محدود بعدد'],
-                                    ['value' => '1', 'label' => 'غير محدود'],
-                                ]" />
-                            <div class="col-md-6 limits-field" id="branches_limit_container"><x-form.controls.input
-                                    type="number" min="1" name="branches_limit" id="branches_limit"
-                                    label="عدد الفروع" value="1" required col="col-12" /></div>
                             <x-form.controls.select name="domain_management_enabled" id="domain_management_enabled"
                                 label="إدارة الدومينات" required value="1" col="col-md-6" :options="[
                                     ['value' => '1', 'label' => 'مفعلة'],

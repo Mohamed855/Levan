@@ -12,7 +12,7 @@
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/shared/auth-layout.js'])
+    @vite(['resources/assets/js/shared/auth-layout.js', 'resources/assets/js/shared/form-validation.js'])
 @endsection
 
 @section('content')
@@ -23,7 +23,8 @@
             ['icon' => 'ti ti-lock-check', 'text' => 'التحقق من الهوية'],
             ['icon' => 'ti ti-user-check', 'text' => 'وصول آمن ومُتحكَّم به'],
         ]">
-        <form method="POST" action="{{ tenant_route_name('password.confirm') }}" novalidate>
+        <form method="POST" action="{{ tenant_route_name('password.confirm') }}" novalidate data-form-validate
+            data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
             @csrf
 
             <x-form.controls.password name="password" id="password" label="كلمة المرور" placeholder="أدخل كلمة المرور الحالية"

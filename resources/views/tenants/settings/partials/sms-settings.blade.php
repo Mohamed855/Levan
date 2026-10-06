@@ -1,7 +1,7 @@
 <div class="tab-pane fade" id="SmsSettings">
     <div class="card mb-6">
         <div class="card-body">
-            <form id="SmsSettings" method="POST" action="{{ tenant_route_name('settings.update') }}">
+            <form id="SmsSettings" method="POST" action="{{ tenant_route_name('settings.update') }}" novalidate data-form-validate data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="active_tab" id="" value="#SmsSettings">
@@ -11,7 +11,7 @@
                     <!-- مزود الخدمة -->
                     <div class="col-12 col-md-6 mb-4">
                         <label for="sms_provider" class="form-label">مزود الخدمة</label>
-                        <select class="form-select select2" required id="sms_provider" name="sms_provider"
+                        <select class="form-select select2" id="sms_provider" name="sms_provider"
                             data-placeholder="اختر مزود الخدمة">
                             <option value="4jawaly" {{ old('sms_provider', $settings->sms_provider ?? '') == '4jawaly' ?
                                 'selected' : '' }}>
@@ -35,7 +35,7 @@
                     <!-- مفتاح API -->
                     <div class="col-12 col-md-6 mb-4">
                         <label for="sms_api_key" class="form-label"> Api Key</label>
-                        <input type="text" class="form-control" id="sms_api_key" name="sms_api_key" required
+                        <input type="text" class="form-control" id="sms_api_key" name="sms_api_key"
                             value="{{ old('sms_api_key', $settings->sms_api_key ?? '') }}">
                         @error('sms_api_key')
                         <div class="text-danger small">{{ $message }}</div>
@@ -45,7 +45,7 @@
                     <!-- سر API -->
                     <div class="col-12 col-md-6 mb-4">
                         <label for="sms_api_secret" class="form-label">Api Secret</label>
-                        <input type="text" class="form-control" id="sms_api_secret" required name="sms_api_secret"
+                        <input type="text" class="form-control" id="sms_api_secret" name="sms_api_secret"
                             value="{{ old('sms_api_secret', $settings->sms_api_secret ?? '') }}">
                         @error('sms_api_secret')
                         <div class="text-danger small">{{ $message }}</div>
@@ -55,7 +55,7 @@
                     <!-- معرف المرسل -->
                     <div class="col-12 col-md-6 mb-4">
                         <label for="sms_sender_id" class="form-label">معرف المرسل</label>
-                        <input type="text" class="form-control" id="sms_sender_id" required name="sms_sender_id"
+                        <input type="text" class="form-control" id="sms_sender_id" name="sms_sender_id"
                             value="{{ old('sms_sender_id', $settings->sms_sender_id ?? '') }}">
                         @error('sms_sender_id')
                         <div class="text-danger small">{{ $message }}</div>

@@ -98,7 +98,7 @@
                 <x-form.wizard.actions><x-form.wizard.previous-button /><div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button /></div></x-form.wizard.actions>
             </x-form.wizard.step>
 
-            <x-form.wizard.step id="limits-validation" :fields="['limits_mode', 'included_users', 'extra_user_license_price', 'properties_limit', 'storage_quota_gb', 'active_auctions_limit', 'unlimited_branches', 'branches_limit', 'domain_management_enabled']">
+            <x-form.wizard.step id="limits-validation" :fields="['limits_mode', 'included_users', 'extra_user_license_price', 'properties_limit', 'storage_quota_gb', 'active_auctions_limit', 'domain_management_enabled']">
                 <div class="row g-3">
                     @if ($hasSubscriptions)
                         <div class="col-md-6" data-form-field data-field-name="limits_mode"><label class="form-label">وضع الحدود</label><input type="text" class="form-control" value="{{ $currentLimitsMode === 'unlimited' ? 'غير محدود' : 'محدود' }}" readonly><input id="limits_mode" type="hidden" name="limits_mode" value="{{ $currentLimitsMode }}" data-form-control></div>
@@ -111,8 +111,6 @@
                     <x-form.controls.input type="number" min="1" name="properties_limit" id="properties_limit" label="حد العقارات" :value="$plan->properties_limit" required col="col-md-6 limits-field" />
                     <x-form.controls.input type="number" min="1" name="storage_quota_gb" id="storage_quota_gb" label="حصة التخزين (GB)" :value="$plan->storage_quota_gb" required col="col-md-6 limits-field" />
                     <x-form.controls.input type="number" min="1" name="active_auctions_limit" id="active_auctions_limit" label="حد المزادات النشطة" :value="$plan->active_auctions_limit" required col="col-md-6 limits-field" />
-                    <x-form.controls.select name="unlimited_branches" id="unlimited_branches" label="حد الفروع" :value="$plan->unlimited_branches ? '1' : '0'" col="col-md-6 limits-field" :options="[['value' => '0', 'label' => 'محدود بعدد'], ['value' => '1', 'label' => 'غير محدود']]" />
-                    <div class="col-md-6 limits-field" id="branches_limit_container"><x-form.controls.input type="number" min="1" name="branches_limit" id="branches_limit" label="عدد الفروع" :value="$plan->branches_limit" required col="col-12" /></div>
                     <x-form.controls.select name="domain_management_enabled" id="domain_management_enabled" label="إدارة الدومينات" required :value="$plan->domain_management_enabled ? '1' : '0'" col="col-md-6" :options="[['value' => '1', 'label' => 'مفعلة'], ['value' => '0', 'label' => 'غير مفعلة']]" />
                 </div>
                 <x-form.wizard.actions><x-form.wizard.previous-button /><div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button text="التالي للمراجعة" /></div></x-form.wizard.actions>

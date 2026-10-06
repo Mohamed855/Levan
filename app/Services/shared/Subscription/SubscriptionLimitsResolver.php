@@ -24,8 +24,6 @@ class SubscriptionLimitsResolver
      *     properties_limit: ?int,
      *     storage_quota_gb: ?int,
      *     active_auctions_limit: ?int,
-     *     branches_limit: ?int,
-     *     unlimited_branches: bool,
      *     plan_name: string
      * }
      */
@@ -55,8 +53,6 @@ class SubscriptionLimitsResolver
                     'properties_limit'      => 0,
                     'storage_quota_gb'      => 0,
                     'active_auctions_limit' => 0,
-                    'branches_limit'        => 0,
-                    'unlimited_branches'    => false,
                     'plan_name'             => '-',
                 ];
             }
@@ -77,8 +73,6 @@ class SubscriptionLimitsResolver
                         'properties_limit'      => null,
                         'storage_quota_gb'      => null,
                         'active_auctions_limit' => null,
-                        'branches_limit'        => null,
-                        'unlimited_branches'    => true,
                         'plan_name'             => (string) ($currentPeriod->plan_name_snapshot ?? $plan?->name ?? 'Plan'),
                     ];
                 }
@@ -90,8 +84,6 @@ class SubscriptionLimitsResolver
                     'properties_limit'      => isset($snapshot['properties_limit']) ? (int) $snapshot['properties_limit'] : (int) ($plan?->properties_limit ?: 50),
                     'storage_quota_gb'      => isset($snapshot['storage_quota_gb']) ? (int) $snapshot['storage_quota_gb'] : (int) ($plan?->storage_quota_gb ?: 10),
                     'active_auctions_limit' => isset($snapshot['active_auctions_limit']) ? (int) $snapshot['active_auctions_limit'] : (int) ($plan?->active_auctions_limit ?: 10),
-                    'branches_limit'        => isset($snapshot['branches_limit']) ? (int) $snapshot['branches_limit'] : (int) ($plan?->branches_limit ?: 1),
-                    'unlimited_branches'    => !empty($snapshot['unlimited_branches']),
                     'plan_name'             => (string) ($currentPeriod->plan_name_snapshot ?? $plan?->name ?? 'Plan'),
                 ];
             }
@@ -106,8 +98,6 @@ class SubscriptionLimitsResolver
                     'properties_limit'      => null,
                     'storage_quota_gb'      => null,
                     'active_auctions_limit' => null,
-                    'branches_limit'        => null,
-                    'unlimited_branches'    => true,
                     'plan_name'             => (string) ($plan?->name ?? 'Plan'),
                 ];
             }
@@ -119,8 +109,6 @@ class SubscriptionLimitsResolver
                 'properties_limit'      => (int) ($plan?->properties_limit ?: 50),
                 'storage_quota_gb'      => (int) ($plan?->storage_quota_gb ?: 10),
                 'active_auctions_limit' => (int) ($plan?->active_auctions_limit ?: 10),
-                'branches_limit'        => (int) ($plan?->branches_limit ?: 1),
-                'unlimited_branches'    => (bool) ($plan?->unlimited_branches ?? false),
                 'plan_name'             => (string) ($plan?->name ?? 'Plan'),
             ];
         });
@@ -131,13 +119,4 @@ class SubscriptionLimitsResolver
         return $this->resolveForTenant($tenant)['is_unlimited'];
     }
 
-    public function canAddBranch(string|Tenant $tenant, int $currentCount): bool
-    {
-        $resolved = $this->resolveForTenant($tenant);
-        if ($resolved['is_unlimited'] || $resolved['unlimited_branches']) {
-            return true;
-        }
-
-        return $currentCount < $resolved['branches_limit'];
-    }
 }

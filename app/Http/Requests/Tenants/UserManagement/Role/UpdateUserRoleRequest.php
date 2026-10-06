@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Tenants\UserManagement\Role;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateUserRoleRequest extends FormRequest
 {
@@ -14,7 +15,7 @@ class UpdateUserRoleRequest extends FormRequest
     */
     public function authorize(): bool
     {
-        return true;
+        return $this->user('tenant')?->can('roles.assign') ?? false;
     }
 
     /*
@@ -26,10 +27,7 @@ class UpdateUserRoleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'role' => [
-                'required',
-                'exists:roles,id'
-            ],
+            'role' => ['required', Rule::exists('roles', 'id')->where('guard_name', 'tenant')],
             'status' => [
                 'required',
                 'in:active,inactive'

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tenants\activity_log;
 
 use App\Exports\Tenants\ActivityLog\ActivityLogsExport;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\ActivityLog\ExportActivityLogsRequest;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Traits\ActivityLogPresenterTrait;
 use Carbon\Carbon;
@@ -280,13 +281,9 @@ class ActivityLogController extends Controller
     | تصدير السجلات المحددة إلى ملف Excel (يُخزَّن الملف ويُعاد اسمه للتنزيل)
     |--------------------------------------------------------------------------
     */
-    public function export(Request $request): JsonResponse
+    public function export(ExportActivityLogsRequest $request): JsonResponse
     {
-        $request->validate([
-            'ids' => 'required|string',
-        ]);
-
-        $ids = collect(json_decode($request->input('ids'), true) ?: [])
+        $ids = collect(json_decode($request->validated('ids'), true) ?: [])
             ->filter()
             ->take(self::EXPORT_MAX)
             ->values();

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tenants\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Auth\ConfirmTenantPasswordRequest;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,11 +24,11 @@ class ConfirmablePasswordController extends Controller
     /**
      * Confirm the user's password.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(ConfirmTenantPasswordRequest $request): RedirectResponse
     {
         if (! Auth::guard('tenant')->validate([
             'email' => $request->user()->email,
-            'password' => $request->password,
+            'password' => $request->validated('password'),
         ])) {
             throw ValidationException::withMessages([
                 'password' => __('auth.password'),

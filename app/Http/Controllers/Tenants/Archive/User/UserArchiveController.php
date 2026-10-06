@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Tenants\Archive\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Archive\BulkArchiveActionRequest;
+use App\Http\Requests\Tenants\Archive\ArchiveItemIdRequest;
 use App\DataTables\Tenants\Archive\User\ArchivedUsersDataTable;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\Archive\User\UserArchiveService;
@@ -64,10 +66,10 @@ class UserArchiveController extends Controller
     |--------------------------------------------------------------------------
     | Restore the specified archived user.
     */
-    public function restore(int $userId): RedirectResponse
+    public function restore(ArchiveItemIdRequest $request): RedirectResponse
     {
         try {
-            $user = User::onlyTrashed()->findOrFail($userId);
+            $user = User::onlyTrashed()->findOrFail($request->validated('id'));
             $this->userArchiveService->restoreUser($user);
 
             return redirect()
@@ -86,10 +88,10 @@ class UserArchiveController extends Controller
     |--------------------------------------------------------------------------
     | Permanently delete the specified archived user.
     */
-    public function forceDelete(int $userId): RedirectResponse
+    public function forceDelete(ArchiveItemIdRequest $request): RedirectResponse
     {
         try {
-            $user = User::onlyTrashed()->findOrFail($userId);
+            $user = User::onlyTrashed()->findOrFail($request->validated('id'));
             $this->userArchiveService->forceDeleteUser($user);
 
             return redirect()
@@ -108,17 +110,10 @@ class UserArchiveController extends Controller
     |--------------------------------------------------------------------------
     | Restore multiple archived users at once.
     */
-    public function massRestore(Request $request): JsonResponse
+    public function massRestore(BulkArchiveActionRequest $request): JsonResponse
     {
         try {
-            $userIds = $request->input('ids', []);
-            
-            if (empty($userIds)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'لم يتم تحديد أي مستخدم'
-                ], 400);
-            }
+            $userIds = $request->validated('ids');
 
             $restoredCount = $this->userArchiveService->massRestoreUsers($userIds);
 
@@ -140,17 +135,10 @@ class UserArchiveController extends Controller
     |--------------------------------------------------------------------------
     | Permanently delete multiple archived users at once.
     */
-    public function massForceDelete(Request $request): JsonResponse
+    public function massForceDelete(BulkArchiveActionRequest $request): JsonResponse
     {
         try {
-            $userIds = $request->input('ids', []);
-            
-            if (empty($userIds)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'لم يتم تحديد أي مستخدم'
-                ], 400);
-            }
+            $userIds = $request->validated('ids');
 
             $deletedCount = $this->userArchiveService->massForceDeleteUsers($userIds);
 

@@ -63,9 +63,9 @@ class AssignmentService
         return $assignment;
     }
 
-    public function toggleStatus(Assignment $assignment): bool
+    public function toggleStatus(Assignment $assignment, ?bool $isActive = null): bool
     {
-        $newStatus = ! $assignment->is_active;
+        $newStatus = $isActive ?? ! $assignment->is_active;
         $assignment->update([
             'is_active' => $newStatus,
             'status'    => $newStatus ? 'active' : 'suspended',

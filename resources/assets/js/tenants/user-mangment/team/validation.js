@@ -1,412 +1,167 @@
-/**
- * Form Wizard Validation for Teams
- */
 'use strict';
 
-let FormValidation1, FormValidation2;
 let selectedMembers = [];
 
-document.addEventListener('DOMContentLoaded', function (e) {
-    (function () {
-        const wizardValidation = document.querySelector('#wizard-validation'),
-            wizardValidationBtnNextList = [].slice.call(wizardValidation.querySelectorAll('.btn-next')),
-            wizardValidationBtnPrevList = [].slice.call(wizardValidation.querySelectorAll('.btn-prev')),
-            wizardValidationBtnSubmit = wizardValidation.querySelector('.btn-submit');
+function teamForm() {
+  return document.getElementById('team-form');
+}
 
-        if (typeof wizardValidation !== undefined && wizardValidation !== null) {
-            const validationStepper = new Stepper(wizardValidation, {
-                linear: false
-            });
+function normalizeMember(member) {
+  return {
+    id: Number(member.id),
+    name: String(member.name || ''),
+    email: String(member.email || ''),
+    is_leader: Boolean(member.is_leader),
+  };
+}
 
-            /*
-            |----------------------------------------------------------------------
-            | Step 1 Validation
-            |----------------------------------------------------------------------
-            */
-            FormValidation1 = FormValidation.formValidation(wizardValidation, {
-                fields: {
-                    name: {
-                        validators: {
-                            notEmpty: {
-                                message: 'يرجى إدخال اسم المجموعة'
-                            },
-                            stringLength: {
-                                min: 2,
-                                max: 255,
-                                message: 'اسم المجموعة يجب أن يكون بين 2 و 255 حرف'
-                            }
-                        }
-                    }
-                },
-                plugins: {
-                    trigger: new FormValidation.plugins.Trigger(),
-                    bootstrap5: new FormValidation.plugins.Bootstrap5({
-                        eleValidClass: '',
-                        rowSelector: '.col-sm-6, .col-12'
-                    }),
-                    autoFocus: new FormValidation.plugins.AutoFocus(),
-                    submitButton: new FormValidation.plugins.SubmitButton()
-                }
-            }).on('core.form.valid', function () {
-                validationStepper.next();
-            });
+function refreshAvailableUsers() {
+  const select = $('#user_select');
+  const users = window.teamData?.users || [];
+  const selectedIds = new Set(selectedMembers.map((member) => member.id));
 
-            /*
-            |----------------------------------------------------------------------
-            | Step 2 Validation
-            |----------------------------------------------------------------------
-            */
-            FormValidation2 = FormValidation.formValidation(wizardValidation, {
-                fields: {},
-                plugins: {
-                    trigger: new FormValidation.plugins.Trigger(),
-                    bootstrap5: new FormValidation.plugins.Bootstrap5({
-                        eleValidClass: '',
-                        rowSelector: '.col-12'
-                    }),
-                    autoFocus: new FormValidation.plugins.AutoFocus()
-                }
-            });
+  select.empty().append(new Option('', '', false, false));
+  users.forEach((user) => {
+    if (!selectedIds.has(Number(user.id))) {
+      select.append(new Option(`${user.name} (${user.email})`, user.id, false, false));
+    }
+  });
+  select.val('').trigger('change.select2');
+}
 
-            /*
-            |----------------------------------------------------------------------
-            | Navigation Buttons
-            |----------------------------------------------------------------------
-            */
-            wizardValidationBtnNextList.forEach(function (wizardValidationBtnNext) {
-                wizardValidationBtnNext.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const currentStep = validationStepper._currentIndex;
+function syncHiddenInputs() {
+  const membersContainer = document.getElementById('team-members-inputs');
+  const leadersContainer = document.getElementById('team-leaders-inputs');
+  if (!membersContainer || !leadersContainer) return;
 
-                    switch (currentStep) {
-                        case 0:
-                            FormValidation1.validate();
-                            break;
-                        default:
-                            break;
-                    }
-                });
-            });
+  membersContainer.replaceChildren();
+  leadersContainer.replaceChildren();
 
-            wizardValidationBtnPrevList.forEach(function (wizardValidationBtnPrev) {
-                wizardValidationBtnPrev.addEventListener('click', function (e) {
-                    switch (validationStepper._currentIndex) {
-                        case 1:
-                            validationStepper.previous();
-                            break;
-                        case 0:
-                        default:
-                            window.history.back();
-                            break;
-                    }
-                });
-            });
+  selectedMembers.forEach((member) => {
+    const memberInput = document.createElement('input');
+    memberInput.type = 'hidden';
+    memberInput.name = 'members[]';
+    memberInput.value = String(member.id);
+    membersContainer.append(memberInput);
 
-            /*
-            |----------------------------------------------------------------------
-            | Submit Button Handler - التحقق المحسّن
-            |----------------------------------------------------------------------
-            */
-            if (wizardValidationBtnSubmit) {
-                wizardValidationBtnSubmit.addEventListener('click', function (e) {
-                    e.preventDefault();
+    if (member.is_leader) {
+      const leaderInput = document.createElement('input');
+      leaderInput.type = 'hidden';
+      leaderInput.name = 'leaders[]';
+      leaderInput.value = String(member.id);
+      leadersContainer.append(leaderInput);
+    }
+  });
+}
 
-                    // التحقق من وجود أعضاء
-                    if (selectedMembers.length === 0) {
-                        toastr.warning('يجب إضافة أعضاء للمجموعة');
-                        return;
-                    }
+function validateAssignments() {
+  const form = teamForm();
+  if (form && window.SharedFormValidation) {
+    window.SharedFormValidation.validateFields(form, ['members', 'leaders']);
+  }
+}
 
-                    // التحقق من وجود عضوين على الأقل
-                    if (selectedMembers.length < 2) {
-                        toastr.warning('يجب إضافة عضوين على الأقل (عضو واحد + قائد واحد)');
-                        return;
-                    }
+function renderMembers() {
+  const body = document.getElementById('members-table-body');
+  const count = document.getElementById('members-count');
+  if (!body || !count) return;
 
-                    // التحقق من وجود قائد
-                    const hasLeader = selectedMembers.some(m => m.is_leader);
-                    if (!hasLeader) {
-                        toastr.warning('يجب تحديد قائد واحد على الأقل للمجموعة');
-                        return;
-                    }
+  body.replaceChildren();
+  count.textContent = String(selectedMembers.length);
 
-                    // التحقق من وجود أعضاء عاديين (غير قادة)
-                    const regularMembers = selectedMembers.filter(m => !m.is_leader);
-                    if (regularMembers.length === 0) {
-                        toastr.warning('يجب أن يكون هناك عضو عادي واحد على الأقل بالإضافة إلى القائد');
-                        return;
-                    }
+  if (selectedMembers.length === 0) {
+    const row = body.insertRow();
+    const cell = row.insertCell();
+    cell.colSpan = 3;
+    cell.className = 'text-center text-muted py-4';
+    cell.textContent = 'لا يوجد أعضاء في المجموعة';
+    return;
+  }
 
-                    submitForm();
-                });
-            }
+  selectedMembers.forEach((member) => {
+    const row = body.insertRow();
+    row.className = 'align-middle';
 
-        }
-    })();
+    const userCell = row.insertCell();
+    const name = document.createElement('div');
+    name.className = 'fw-semibold';
+    name.textContent = member.name;
+    const email = document.createElement('small');
+    email.className = 'text-muted';
+    email.textContent = member.email;
+    userCell.append(name, email);
+
+    const leaderCell = row.insertCell();
+    const leaderWrapper = document.createElement('div');
+    leaderWrapper.className = 'form-check';
+    const leaderInput = document.createElement('input');
+    leaderInput.className = 'form-check-input';
+    leaderInput.type = 'radio';
+    leaderInput.name = 'team-leader-picker';
+    leaderInput.checked = member.is_leader;
+    leaderInput.dataset.validationSkip = '';
+    leaderInput.id = `leader-${member.id}`;
+    leaderInput.addEventListener('change', () => {
+      selectedMembers = selectedMembers.map((current) => ({
+        ...current,
+        is_leader: current.id === member.id,
+      }));
+      syncHiddenInputs();
+      renderMembers();
+      validateAssignments();
+    });
+    const leaderLabel = document.createElement('label');
+    leaderLabel.className = 'form-check-label';
+    leaderLabel.htmlFor = leaderInput.id;
+    leaderLabel.textContent = 'تعيين كقائد';
+    leaderWrapper.append(leaderInput, leaderLabel);
+    leaderCell.append(leaderWrapper);
+
+    const actionCell = row.insertCell();
+    actionCell.className = 'text-center';
+    const removeButton = document.createElement('button');
+    removeButton.type = 'button';
+    removeButton.className = 'btn btn-icon btn-label-danger';
+    removeButton.setAttribute('aria-label', `حذف ${member.name}`);
+    removeButton.innerHTML = '<i class="ti ti-trash" aria-hidden="true"></i>';
+    removeButton.addEventListener('click', () => {
+      selectedMembers = selectedMembers.filter((current) => current.id !== member.id);
+      syncHiddenInputs();
+      refreshAvailableUsers();
+      renderMembers();
+      validateAssignments();
+    });
+    actionCell.append(removeButton);
+  });
+}
+
+function addSelectedUser() {
+  const select = $('#user_select');
+  const userId = Number(select.val());
+  if (!userId) return;
+
+  const user = (window.teamData?.users || []).find((candidate) => Number(candidate.id) === userId);
+  if (!user || selectedMembers.some((member) => member.id === userId)) return;
+
+  selectedMembers.push(normalizeMember(user));
+  syncHiddenInputs();
+  refreshAvailableUsers();
+  renderMembers();
+  validateAssignments();
+}
+
+$(document).ready(() => {
+  selectedMembers = (window.teamData?.members || []).map(normalizeMember);
+
+  $('#user_select').select2({
+    placeholder: $('#user_select').data('placeholder'),
+    allowClear: true,
+    width: '100%',
+    language: 'ar',
+    dir: 'rtl',
+  }).on('change', addSelectedUser);
+
+  syncHiddenInputs();
+  refreshAvailableUsers();
+  renderMembers();
 });
-
-/*
-|--------------------------------------------------------------------------
-| Initialize Select2
-|--------------------------------------------------------------------------
-*/
-$(document).ready(function () {
-    $('.select2').each(function () {
-        $(this).select2({
-            placeholder: function () {
-                return $(this).data('placeholder');
-            },
-            allowClear: true,
-            width: '100%',
-            language: 'ar',
-            dir: 'rtl'
-        });
-    });
-
-
-
-    /*
-    |----------------------------------------------------------------------
-    | Add Member when User is selected
-    |----------------------------------------------------------------------
-    */
-    $('#user_select').on('change', function () {
-        const userId = $(this).val();
-
-        if (!userId) return;
-
-        const userText = $(this).find('option:selected').text();
-        const userData = {
-            id: parseInt(userId),
-            name: userText.split('(')[0].trim(),
-            email: userText.match(/\((.*?)\)/)?.[1] || '',
-            is_leader: false
-        };
-
-        addMember(userData);
-
-        $(this).val('').trigger('change');
-    });
-
-    /*
-    |----------------------------------------------------------------------
-    | For Edit Mode: Load existing data
-    |----------------------------------------------------------------------
-    */
-    if (typeof window.teamData !== 'undefined') {
-        loadEditModeData();
-    }
-});
-
-
-
-/*
-|--------------------------------------------------------------------------
-| Populate Users Dropdown
-|--------------------------------------------------------------------------
-*/
-function populateUsersDropdown(users) {
-    const $userSelect = $('#user_select');
-    $userSelect.empty().append('<option value=""></option>');
-
-    if (!users || users.length === 0) {
-        const isEditMode = typeof window.teamData !== 'undefined';
-
-        if (!isEditMode) {
-            toastr.info('جميع المستخدمين في هذا الفرع مرتبطون بفرق ');
-        }
-        return;
-    }
-
-    users.forEach(function (user) {
-        const isAlreadyAdded = selectedMembers.some(m => m.id === user.id);
-
-        if (!isAlreadyAdded) {
-            const option = new Option(
-                `${user.name} (${user.email})`,
-                user.id,
-                false,
-                false
-            );
-            $userSelect.append(option);
-        }
-    });
-
-    $userSelect.trigger('change');
-}
-/*
-|--------------------------------------------------------------------------
-| Add Member to List
-|--------------------------------------------------------------------------
-*/
-function addMember(userData) {
-    const exists = selectedMembers.some(m => m.id === userData.id);
-
-    if (exists) {
-        toastr.warning('هذا المستخدم موجود بالفعل في القائمة');
-        return;
-    }
-
-    selectedMembers.push(userData);
-    updateMembersTable();
-
-    const $userSelect = $('#user_select');
-    $userSelect.find(`option[value="${userData.id}"]`).remove();
-}
-
-/*
-|--------------------------------------------------------------------------
-| Remove Member from List
-|--------------------------------------------------------------------------
-*/
-function removeMember(userId) {
-    selectedMembers = selectedMembers.filter(m => m.id !== userId);
-    updateMembersTable();
-
-    if (typeof window.teamData !== 'undefined' && window.teamData.users) {
-        populateUsersDropdown(window.teamData.users);
-    }
-}
-
-/*
-|--------------------------------------------------------------------------
-| Toggle Leader Status
-|--------------------------------------------------------------------------
-*/
-function toggleLeader(userId) {
-    selectedMembers = selectedMembers.map(member => {
-        member.is_leader = (member.id === userId);
-        return member;
-    });
-
-    updateMembersTable();
-}
-
-/*
-|--------------------------------------------------------------------------
-| Update Members Table
-|--------------------------------------------------------------------------
-*/
-function updateMembersTable() {
-    const tbody = $('#members-table-body');
-    tbody.empty();
-
-    if (selectedMembers.length === 0) {
-        tbody.append(`
-            <tr id="no-members-row">
-                <td colspan="3" class="text-center text-muted py-4">
-                    <i class="ti ti-users ti-lg mb-2 d-block"></i>
-                    لا يوجد أعضاء في المجموعة
-                </td>
-            </tr>
-        `);
-    } else {
-        selectedMembers.forEach(member => {
-            const row = `
-                <tr class="align-middle">
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="avatar avatar-sm me-3">
-                                <span class="avatar-initial rounded-circle bg-label-primary">
-                                    ${member.name.charAt(0).toUpperCase()}
-                                </span>
-                            </div>
-                            <div>
-                                <div class="fw-semibold">${member.name}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="form-check d-flex align-items-center">
-                            <input 
-                                class="form-check-input mt-0 me-2" 
-                                type="radio" 
-                                name="leader_radio" 
-                                id="leader_${member.id}"
-                                ${member.is_leader ? 'checked' : ''}
-                                onchange="toggleLeader(${member.id})"
-                            >
-                            <label class="form-check-label mb-0" for="leader_${member.id}">
-                                ${member.is_leader ? '<span class="badge bg-label-primary"><i class="ti ti-crown ti-xs me-1"></i>قائد الفريق</span>' : '<span class="text-muted">تعيين كقائد</span>'}
-                            </label>
-                        </div>
-                    </td>
-                    <td class="text-center">
-                        <button 
-                            type="button" 
-                            class="btn btn-icon btn-label-primary"
-                            onclick="removeMember(${member.id})"
-                            data-bs-toggle="tooltip"
-                            title="حذف"
-                        >
-                            <i class="ti ti-trash ti-md"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
-            tbody.append(row);
-        });
-    }
-
-    $('#members-count').text(selectedMembers.length);
-}
-/*
-|--------------------------------------------------------------------------
-| Submit Form
-|--------------------------------------------------------------------------
-*/
-function submitForm() {
-    const form = document.getElementById('wizard-validation-form');
-
-    if (!form) {
-        toastr.error('خطأ: لم يتم العثور على النموذج');
-        return;
-    }
-
-    const memberIds = selectedMembers.map(m => m.id);
-    const uniqueIds = [...new Set(memberIds)];
-
-    if (memberIds.length !== uniqueIds.length) {
-        toastr.error('يوجد أعضاء مكررين في القائمة');
-        return;
-    }
-
-    const oldInputs = form.querySelectorAll('input[name^="members"], input[name^="leaders"]');
-    oldInputs.forEach(input => input.remove());
-
-    selectedMembers.forEach((member, index) => {
-        const memberInput = document.createElement('input');
-        memberInput.type = 'hidden';
-        memberInput.name = `members[${index}]`;
-        memberInput.value = member.id;
-        form.appendChild(memberInput);
-
-        if (member.is_leader) {
-            const leaderInput = document.createElement('input');
-            leaderInput.type = 'hidden';
-            leaderInput.name = `leaders[0]`;
-            leaderInput.value = member.id;
-            form.appendChild(leaderInput);
-        }
-    });
-
-    form.onsubmit = null;
-    form.submit();
-}
-
-/*
-|--------------------------------------------------------------------------
-| Load Edit Mode Data
-|--------------------------------------------------------------------------
-*/
-function loadEditModeData() {
-    const teamData = window.teamData;
-
-    selectedMembers = teamData.members || [];
-
-    populateUsersDropdown(teamData.users);
-    updateMembersTable();
-}
-
-window.removeMember = removeMember;
-window.toggleLeader = toggleLeader;

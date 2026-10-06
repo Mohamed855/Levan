@@ -8,6 +8,7 @@ use App\DataTables\Tenants\BusinessCenter\Company\CompanyCollectionsDataTable;
 use App\DataTables\Tenants\BusinessCenter\Company\CompanyCustomersDataTable;
 use App\Http\Requests\Tenants\BusinessCenter\Company\StoreCompanyRequest;
 use App\Http\Requests\Tenants\BusinessCenter\Company\UpdateCompanyRequest;
+use App\Http\Requests\Tenants\UpdateResourceStatusRequest;
 use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Models\Tenants\BusinessCenter\Company\CompanyAuthorizedPerson;
 use App\Models\Tenants\BusinessCenter\Contract\Contract;
@@ -259,10 +260,10 @@ class CompanyController extends Controller
     |--------------------------------------------------------------------------
     | Toggle the company's active/inactive status.
     */
-    public function toggleStatus(Company $company): JsonResponse
+    public function toggleStatus(UpdateResourceStatusRequest $request, Company $company): JsonResponse
     {
         try {
-            $newStatus = $company->status === 'active' ? 'inactive' : 'active';
+            $newStatus = $request->validated('status');
             $company->update(['status' => $newStatus]);
 
             $statusText = $newStatus === 'active' ? 'نشط' : 'غير نشط';

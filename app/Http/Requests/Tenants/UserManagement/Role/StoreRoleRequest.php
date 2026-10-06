@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Tenants\UserManagement\Role;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreRoleRequest extends FormRequest
 {
@@ -14,7 +15,7 @@ class StoreRoleRequest extends FormRequest
     */
     public function authorize(): bool
     {
-        return true;
+        return $this->user('tenant')?->can('roles.create') ?? false;
     }
 
     /*
@@ -31,16 +32,14 @@ class StoreRoleRequest extends FormRequest
                 'string',
                 'max:255',
                 'min:2',
-                'unique:roles,name',
-                'regex:/^[\pL\s\-\.]+$/u'
+                Rule::unique('roles', 'name')->where('guard_name', 'tenant'),
+                'regex:/^[A-Za-z][A-Za-z0-9_-]*$/'
             ],
             'permissions' => [
                 'required_if:select_all,0',
                 'array'
             ],
-            'permissions.*' => [
-                'exists:permissions,name'
-            ],
+            'permissions.*' => [Rule::exists('permissions', 'name')->where('guard_name', 'tenant')],
             'select_all' => [
                 'sometimes',
                 'boolean'
@@ -62,7 +61,7 @@ class StoreRoleRequest extends FormRequest
             'name.max' => 'اسم الدور يجب ألا يزيد عن 255 حرف',
             'name.min' => 'اسم الدور يجب ألا يقل عن حرفين',
             'name.unique' => 'اسم الدور مستخدم مسبقاً',
-            'name.regex' => 'اسم الدور يجب أن يحتوي على أحرف فقط',
+            'name.regex' => 'معرّف الدور يبدأ بحرف إنجليزي ويحتوي على أحرف وأرقام وشرطة أو شرطة سفلية فقط',
 
             'permissions.required_if' => 'يجب اختيار صلاحية واحدة على الأقل',
             'permissions.array' => 'الصلاحيات يجب أن تكون مصفوفة',

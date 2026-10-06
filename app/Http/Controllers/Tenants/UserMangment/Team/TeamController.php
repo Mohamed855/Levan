@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenants\UserMangment\Team;
 use App\DataTables\Tenants\UserManagement\Team\TeamsDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\UserManagement\Team\StoreTeamRequest;
+use App\Http\Requests\Tenants\UserManagement\Team\UpdateTeamStatusRequest;
 use App\Http\Requests\Tenants\UserManagement\Team\UpdateTeamRequest;
 use App\Models\Tenants\UserMangment\Team\Team;
 use App\Services\Tenants\UserManagement\Team\TeamService;
@@ -25,6 +26,7 @@ class TeamController extends Controller
     {
         $this->teamService = $teamService;
         $this->middleware('auth');
+        $this->middleware('can:teams.manage');
     }
 
     /*
@@ -146,10 +148,10 @@ class TeamController extends Controller
     | Toggle Team Status
     |--------------------------------------------------------------------------
     */
-    public function toggleStatus(Team $team): JsonResponse
+    public function toggleStatus(UpdateTeamStatusRequest $request, Team $team): JsonResponse
     {
         try {
-            $newStatus = $team->status === 'active' ? 'inactive' : 'active';
+            $newStatus = $request->validated('status');
             $team->update(['status' => $newStatus]);
 
             $statusText = $newStatus === 'active' ? 'نشط' : 'غير نشط';

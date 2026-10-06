@@ -42,7 +42,7 @@ class TeamService
             $team->update([
                 'name' => $data['name'],
                 'description' => $data['description'] ?? null,
-                'status' => $data['status'] ?? 'active',
+                'status' => $data['status'] ?? $team->status,
             ]);
 
             if (isset($data['members'])) {

@@ -79,12 +79,15 @@ document.addEventListener('DOMContentLoaded', function () {
             isRecoveryMode = !isRecoveryMode;
 
             if (isRecoveryMode) {
+                hiddenField.value = '';
                 codeWrapper.classList.add('d-none');
                 recoveryWrapper.classList.remove('d-none');
                 if (codeLabel) codeLabel.classList.add('d-none');
                 toggleRecoveryLink.textContent = 'استخدام رمز المصادقة بدلاً من ذلك';
                 document.getElementById('recovery_code')?.focus();
             } else {
+                const recoveryInput = document.getElementById('recovery_code');
+                if (recoveryInput) recoveryInput.value = '';
                 codeWrapper.classList.remove('d-none');
                 recoveryWrapper.classList.add('d-none');
                 if (codeLabel) codeLabel.classList.remove('d-none');

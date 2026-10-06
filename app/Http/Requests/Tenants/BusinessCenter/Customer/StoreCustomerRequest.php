@@ -12,7 +12,7 @@ class StoreCustomerRequest extends WizardFormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user('tenant')?->can('customers.create') ?? false;
     }
 
     /**

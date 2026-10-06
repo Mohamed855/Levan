@@ -8,8 +8,8 @@ use App\Models\Tenants\BusinessCenter\Customers\Letter\CompanyLetter;
 use App\Models\Tenants\FinancialCollection\Reconciliation\PaymentReconciliationItem;
 use App\Models\Tenants\GeneralSetting\PaymentMethod\SettingsPaymentMethod;
 use App\Models\Tenants\UserMangment\User\User;
-use App\Traits\Tenants\BelongsToUserBranch;
-use App\Traits\Tenants\Scopes\UserBranchScope;
+use App\Traits\Tenants\HasUserAccessScope;
+use App\Traits\Tenants\Scopes\UserAccessScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -19,7 +19,7 @@ use Spatie\Activitylog\Models\Concerns\LogsActivity;
 
 class Collection extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity, BelongsToUserBranch;
+    use HasFactory, SoftDeletes, LogsActivity, HasUserAccessScope;
 
     /**
      * The attributes that are mass assignable.
@@ -439,7 +439,7 @@ class Collection extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | Trait Methods - BelongsToUserBranch --  last update for the Branch Scopes
+    | Trait Methods - HasUserAccessScope
     |--------------------------------------------------------------------------
     */
 
@@ -473,7 +473,7 @@ class Collection extends Model
     public function customerForTable()
     {
         return $this->belongsTo(Customer::class, 'customer_id')
-            ->withoutGlobalScope(UserBranchScope::class);
+            ->withoutGlobalScope(UserAccessScope::class);
     }
 
     /*

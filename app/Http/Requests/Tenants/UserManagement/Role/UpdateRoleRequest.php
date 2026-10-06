@@ -16,7 +16,7 @@ class UpdateRoleRequest extends FormRequest
     */
     public function authorize(): bool
     {
-        return true;
+        return $this->user('tenant')?->can('roles.edit') ?? false;
     }
 
     /*
@@ -35,16 +35,14 @@ class UpdateRoleRequest extends FormRequest
                 'string',
                 'max:255',
                 'min:2',
-                Rule::unique('roles', 'name')->ignore($roleId),
-                'regex:/^[\pL\s\-\.]+$/u'
+                Rule::unique('roles', 'name')->where('guard_name', 'tenant')->ignore($roleId),
+                'regex:/^[A-Za-z][A-Za-z0-9_-]*$/'
             ],
             'permissions' => [
                 'required_if:select_all,0',
                 'array'
             ],
-            'permissions.*' => [
-                'exists:permissions,name'
-            ],
+            'permissions.*' => [Rule::exists('permissions', 'name')->where('guard_name', 'tenant')],
             'select_all' => [
                 'sometimes',
                 'boolean'
@@ -66,7 +64,7 @@ class UpdateRoleRequest extends FormRequest
             'name.max' => 'اسم الدور يجب ألا يزيد عن 255 حرف',
             'name.min' => 'اسم الدور يجب ألا يقل عن حرفين',
             'name.unique' => 'اسم الدور مستخدم مسبقاً',
-            'name.regex' => 'اسم الدور يجب أن يحتوي على أحرف فقط',
+            'name.regex' => 'معرّف الدور يبدأ بحرف إنجليزي ويحتوي على أحرف وأرقام وشرطة أو شرطة سفلية فقط',
 
             'permissions.required_if' => 'يجب اختيار صلاحية واحدة على الأقل',
             'permissions.array' => 'الصلاحيات يجب أن تكون مصفوفة',
@@ -117,7 +115,10 @@ class UpdateRoleRequest extends FormRequest
 
         // تحديد الصلاحيات بناءً على select_all
         if ($validated['select_all']) {
-            $validated['permissions'] = Permission::pluck('name')->toArray();
+            $validated['permissions'] = Permission::query()
+                ->where('guard_name', 'tenant')
+                ->pluck('name')
+                ->toArray();
         } else {
             $validated['permissions'] = $validated['permissions'] ?? [];
         }

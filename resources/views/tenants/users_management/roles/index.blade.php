@@ -151,8 +151,9 @@
                         <th>البريد الإلكتروني</th>
                         <th>رقم الهاتف</th>
                         <th>الدور</th>
-                        <th>الحالة</th>
                         <th>تاريخ الإضافة</th>
+                        <th>الحالة</th>
+                        <th>الإجراءات</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -162,7 +163,7 @@
         </div>
     </div>
 
-    <!-- مودال تعديل الدور والحالة والفروع -->
+    <!-- مودال تعديل الدور والحالة -->
     <div class="modal fade" id="editRoleModal" tabindex="-1" aria-labelledby="editRoleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <form id="updateRoleForm">

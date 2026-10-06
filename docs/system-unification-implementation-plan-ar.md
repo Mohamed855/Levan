@@ -220,7 +220,7 @@
 
 لا تنفذ Tenant دفعة واحدة. تعمل الوحدات التالية بالترتيب، وكل وحدة تمر بالبوابة قبل التالية:
 
-1. Authentication، profile، users، teams، roles، branches.
+1. Authentication **(مكتمل)**، profile، users، teams، roles. **Branches ملغاة من المنتج لكل Tenant وتُزال مراجعها قبل استكمال هذه الوحدة.**
 2. Settings وnotifications وactivity logs وarchive.
 3. Companies، contracts، portfolios، tasks.
 4. Customers: الأساس، الهواتف، fields، notes، comments، attachments، follows، payments، settlements، payment plans، SMS، update requests.

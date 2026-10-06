@@ -10,7 +10,7 @@ class StoreContractRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user('tenant')?->can('contracts.create') ?? false;
     }
 
     /*

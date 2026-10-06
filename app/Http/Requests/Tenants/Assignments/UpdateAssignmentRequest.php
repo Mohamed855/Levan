@@ -9,7 +9,7 @@ class UpdateAssignmentRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user('tenant')?->can('assignments.edit') ?? false;
     }
 
     public function rules(): array

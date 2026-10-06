@@ -1,6 +1,6 @@
 <div class="tab-pane fade" id="twoFactorSettings">
     <div class="card mb-6">
-        <form id="formTwoFactorSettings" method="POST" action="{{ tenant_route_name('settings.update') }}">
+        <form id="formTwoFactorSettings" method="POST" action="{{ tenant_route_name('settings.update') }}" novalidate data-form-validate data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
             @csrf
             @method('PUT')
             <input type="hidden" name="active_tab" value="#twoFactorSettings">

@@ -48,7 +48,6 @@ class PlanDataTable extends AbstractDataTable
             ['data' => 'properties_limit', 'name' => 'properties_limit', 'title' => 'العقارات', 'className' => 'text-center'],
             ['data' => 'storage_quota_gb', 'name' => 'storage_quota_gb', 'title' => 'التخزين', 'className' => 'text-center'],
             ['data' => 'active_auctions_limit', 'name' => 'active_auctions_limit', 'title' => 'المزادات', 'className' => 'text-center'],
-            ['data' => 'branches_info', 'name' => 'branches_limit', 'title' => 'الفروع', 'className' => 'text-center'],
             ['data' => 'available_from', 'name' => 'available_from', 'title' => 'الإتاحة', 'className' => 'text-center'],
             ['data' => 'domain_management', 'name' => 'domain_management_enabled', 'title' => 'الدومينات', 'className' => 'text-center'],
             ['data' => 'is_active', 'name' => 'is_active', 'title' => 'الحالة', 'className' => 'text-center'],
@@ -167,14 +166,6 @@ class PlanDataTable extends AbstractDataTable
                 return $row->active_auctions_limit ? (string) $row->active_auctions_limit : '-';
             })
 
-            ->addColumn('branches_info', function ($row) {
-                if ($row->isUnlimited() || $row->unlimited_branches) {
-                    return '<span class="badge bg-label-primary">∞ غير محدود</span>';
-                }
-
-                return $row->branches_limit ? e((string) $row->branches_limit) : '-';
-            })
-
             ->editColumn('available_from', function ($row) {
                 if (!$row->available_from) {
                     return '<span class="badge bg-label-success">متاحة فوراً</span>';
@@ -239,7 +230,6 @@ class PlanDataTable extends AbstractDataTable
             'properties_limit',
             'storage_quota_gb',
             'active_auctions_limit',
-            'branches_info',
             'available_from',
             'domain_management',
             'is_active',

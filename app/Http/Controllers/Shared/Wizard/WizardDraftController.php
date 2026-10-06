@@ -65,6 +65,7 @@ class WizardDraftController extends Controller
             $request->validated('target_path'),
             $request->validated('target_method', 'POST'),
             $request,
+            $request->route()?->defaults['shared_form_validation_actions'] ?? [],
         );
         $formRequest = $this->makeResourceRequest($request, $targetRoute);
 
@@ -92,7 +93,10 @@ class WizardDraftController extends Controller
         return response()->json(['success' => true]);
     }
 
-    private function resolveFormRoute(string $targetPath, string $targetMethod, Request $sourceRequest): Route
+    /**
+     * @param list<string> $allowedActions
+     */
+    private function resolveFormRoute(string $targetPath, string $targetMethod, Request $sourceRequest, array $allowedActions = []): Route
     {
         $path = parse_url($targetPath, PHP_URL_PATH);
 
@@ -115,6 +119,7 @@ class WizardDraftController extends Controller
         $action = $route->getActionMethod();
         $allowsSharedValidation = (bool) ($route->defaults['shared_form_validation'] ?? false);
         abort_unless(in_array($action, ['store', 'update'], true) || $allowsSharedValidation, 404);
+        abort_if($allowedActions !== [] && ! in_array($route->getActionName(), $allowedActions, true), 404);
 
         return $route;
     }

@@ -54,9 +54,9 @@ class PropertyService
         return $property;
     }
 
-    public function toggleStatus(Property $property): bool
+    public function toggleStatus(Property $property, ?bool $isActive = null): bool
     {
-        $newStatus = ! $property->is_active;
+        $newStatus = $isActive ?? ! $property->is_active;
         $property->update([
             'is_active' => $newStatus,
             'status'    => $newStatus ? 'available' : 'sold',

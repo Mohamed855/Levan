@@ -8,7 +8,7 @@ class UpdateAuctionRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user('tenant')?->can('auctions.edit') ?? false;
     }
 
     public function rules(): array

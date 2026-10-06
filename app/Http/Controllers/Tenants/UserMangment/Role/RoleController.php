@@ -34,7 +34,7 @@ class RoleController extends Controller
         $this->userService = $userService;
         $this->roleService = $roleService;
 
-        $this->middleware('can:roles.view')->only(['index']);
+        $this->middleware('can:roles.view')->only(['index', 'show']);
         $this->middleware('can:roles.create')->only(['create', 'store']);
         $this->middleware('can:roles.edit')->only(['edit', 'update']);
         $this->middleware('can:roles.delete')->only(['destroy']);
@@ -89,18 +89,10 @@ class RoleController extends Controller
                     ->addColumn('email', function (User $user) {
                         return '<a href="mailto:' . $user->email . '">' . $user->email . '</a>';
                     })
-                    ->addColumn('role', function ($row) {
-                        if (auth()->user()->can('roles.edit')) {
-                            $roleName = $row->roles->count() > 0 ? $row->roles->first()->name : 'غير محدد';
-                            $colorClasses = ['bg-label-primary', 'bg-label-success', 'bg-label-warning', 'bg-label-info', 'bg-secondary'];
-                            $randomColor = $colorClasses[array_rand($colorClasses)];
+                    ->addColumn('role', function (User $user) {
+                        $roleName = $user->roles->first()?->name ?? 'غير محدد';
 
-                            return '<a href="javascript:void(0);" class="edit-role-link" data-user-id="' . htmlspecialchars($row->id, ENT_QUOTES, 'UTF-8') . '">
-                                    <span class="badge ' . htmlspecialchars($randomColor, ENT_QUOTES, 'UTF-8') . '">' . e($roleName) . '</span>
-                                </a>';
-                        } else {
-                            return $row->roles->count() > 0 ? $row->roles->first()->name : 'غير محدد';
-                        }
+                        return '<span class="badge bg-label-primary">' . e($roleName) . '</span>';
                     })
                     ->addColumn('status', function (User $user) {
                         if (auth()->user()->can('roles.assign')) {
@@ -132,6 +124,13 @@ class RoleController extends Controller
                     ->addColumn('created_at_formatted', function (User $user) {
                         return $user->created_at->locale('ar')->translatedFormat('d F Y');
                     })
+                    ->addColumn('actions', function (User $user) {
+                        if (! auth()->user()->can('roles.assign')) {
+                            return '-';
+                        }
+
+                        return '<button type="button" class="btn btn-icon btn-label-primary edit-role-link" data-user-id="' . e((string) $user->id) . '" aria-label="تعديل دور المستخدم"><i class="ti ti-shield-check" aria-hidden="true"></i></button>';
+                    })
                     ->orderColumn('name', fn($query, $order) => $query->orderBy('name', $order))
                     ->orderColumn('email', fn($query, $order) => $query->orderBy('email', $order))
                     ->orderColumn('status', fn($query, $order) => $query->orderBy('status', $order))
@@ -139,7 +138,7 @@ class RoleController extends Controller
                     ->filterColumn('name', fn($query, $keyword) => $query->where('name', 'like', "%{$keyword}%"))
                     ->filterColumn('email', fn($query, $keyword) => $query->where('email', 'like', "%{$keyword}%"))
                     ->filterColumn('phone', fn($query, $keyword) => $query->where('phone', 'like', "%{$keyword}%"))
-                    ->rawColumns(['checkbox', 'image', 'name', 'email', 'role', 'status'])
+                    ->rawColumns(['checkbox', 'image', 'name', 'email', 'role', 'status', 'actions'])
                     ->make(true);
             }
 
@@ -163,9 +162,7 @@ class RoleController extends Controller
     {
         try {
             $permissions = $this->roleService->getGroupedPermissions();
-            $sections = RoleService::PERMISSION_SECTIONS;
-
-            return view('tenants.users_management.roles.create', compact('permissions', 'sections'));
+            return view('tenants.users_management.roles.create', compact('permissions'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'حدث خطأ أثناء تحضير النموذج.');
         }
@@ -219,9 +216,7 @@ class RoleController extends Controller
     {
         try {
             $permissions = $this->roleService->getGroupedPermissions();
-            $sections = RoleService::PERMISSION_SECTIONS;
-
-            return view('tenants.users_management.roles.edit', compact('role', 'permissions', 'sections'));
+            return view('tenants.users_management.roles.edit', compact('role', 'permissions'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'حدث خطأ أثناء تحضير النموذج.');
         }
@@ -275,7 +270,7 @@ class RoleController extends Controller
     public function getUserRoles(int $id): JsonResponse
     {
         try {
-            $user = User::findOrFail($id);
+            $user = User::query()->accessible()->findOrFail($id);
             $data = $this->roleService->getUserRoleData($user);
 
             return response()->json($data);
@@ -296,7 +291,7 @@ class RoleController extends Controller
     public function updateUserRoles(UpdateUserRoleRequest $request, int $id): JsonResponse
     {
         try {
-            $user = User::findOrFail($id);
+            $user = User::query()->accessible()->findOrFail($id);
             $this->roleService->updateUserRole($user, $request->validated());
 
             return response()->json([
@@ -320,7 +315,7 @@ class RoleController extends Controller
     public function updateStatus(UpdateUserStatusRequest $request, int $userId): JsonResponse
     {
         try {
-            $user = User::findOrFail($userId);
+            $user = User::query()->accessible()->findOrFail($userId);
             $this->roleService->updateUserStatus($user, $request->validated()['status']);
 
             return response()->json([

@@ -8,7 +8,7 @@ class StorePropertyRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user('tenant')?->can('properties.create') ?? false;
     }
 
     public function rules(): array

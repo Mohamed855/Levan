@@ -6,6 +6,10 @@
     @vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
 @endsection
 
+@section('page-script')
+    @vite('resources/assets/js/shared/form-validation.js')
+@endsection
+
 @section('content')
     <div class="row">
         <div class="col-12 mb-4">
@@ -23,28 +27,21 @@
                         </div>
                     @endif
 
-                    <form action="{{ tenant_route_name('roles.update', $role->id) }}" method="POST">
+                    <form action="{{ tenant_route_name('roles.update', $role->id) }}" method="POST" novalidate data-form-validate
+                        data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                         @csrf
                         @method('PUT')
 
-                        <div class="col-md-6 mb-3">
-                            <label for="name" class="form-label">اسم الدور</label>
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" id="name"
-                                name="name" value="{{ old('name', $role->name) }}" required>
-                            @error('name')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
-                            @enderror
-                        </div>
+                        <x-form.controls.input name="name" label="معرّف الدور" :value="$role->name" placeholder="مثال: collection_manager" required
+                            col="col-md-6 mb-3" help="يُحفظ معرفاً إنجليزياً فقط، وتُترجم التسمية في الواجهة." />
 
-                        <div class="mb-3">
+                        <div class="mb-3" data-form-field data-field-name="permissions">
                             <label for="permissions" class="form-label">الصلاحيات</label>
                             <div id="permissions-treeview">
 
                                 <!-- تحديد الكل العام -->
                                 <div class="form-check mb-3">
-                                    <input type="checkbox" class="form-check-input" id="select-all">
+                                    <input type="checkbox" name="select_all" value="1" class="form-check-input" id="select-all" data-validation-skip>
                                     <label class="form-check-label" for="select-all">تحديد الكل</label>
                                 </div>
 
@@ -93,6 +90,7 @@
                                                                                 class="form-check-input permission-checkbox"
                                                                                 id="permission-{{ $permission->id }}"
                                                                                 data-section="{{ $loop->parent->index }}"
+                                                                                data-form-control
                                                                                 {{ $role->hasPermissionTo($permission->name) ? 'checked' : '' }}>
                                                                             <label class="form-check-label"
                                                                                 for="permission-{{ $permission->id }}">
@@ -110,6 +108,7 @@
                                     @endforeach
                                 </div>
                             </div>
+                            <div class="invalid-feedback d-block" data-form-error role="alert" hidden></div>
                         </div>
 
                         <div class="text-end">

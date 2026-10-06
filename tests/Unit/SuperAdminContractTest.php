@@ -6,6 +6,8 @@ namespace Tests\Unit;
 
 use App\Http\Controllers\Admin\DeleteBulk\AdminMassDeleteController;
 use App\Http\Controllers\Admin\Bills\AdminBillsController;
+use App\Http\Controllers\Admin\Auth\AdminTwoFactorChallengeController;
+use App\Http\Requests\Admin\Auth\AdminTwoFactorChallengeRequest;
 use App\Http\Requests\Admin\Bills\RejectBillRequest;
 use App\Http\Requests\Admin\DeleteBulk\MassDeleteRequest;
 use App\Http\Requests\Admin\Plans\PlanRequest;
@@ -49,6 +51,15 @@ class SuperAdminContractTest extends TestCase
         }
     }
 
+    public function test_admin_two_factor_challenge_uses_a_dedicated_form_request(): void
+    {
+        $twoFactor = new ReflectionClass(AdminTwoFactorChallengeController::class);
+        $this->assertSame(
+            AdminTwoFactorChallengeRequest::class,
+            $twoFactor->getMethod('store')->getParameters()[0]->getType()?->getName(),
+        );
+    }
+
     public function test_super_admin_form_requests_have_authorization_and_rules(): void
     {
         $requests = [
@@ -82,7 +93,7 @@ class SuperAdminContractTest extends TestCase
     public function test_admin_controllers_do_not_keep_inline_request_validation_rules(): void
     {
         $controllers = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator(app_path('Http/Controllers/Admin')),
+            new \RecursiveDirectoryIterator(dirname(__DIR__, 2) . '/app/Http/Controllers/Admin'),
         );
 
         foreach ($controllers as $controller) {

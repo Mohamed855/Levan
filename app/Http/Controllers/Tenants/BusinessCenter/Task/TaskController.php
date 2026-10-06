@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Tenants\BusinessCenter\Task;
 use App\DataTables\Tenants\BusinessCenter\Tasks\TasksDataTable;
 use App\Exports\Tenants\BusinessCenter\Task\TasksExport;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\BusinessCenter\Task\ExportTasksRequest;
 use App\Models\Tenants\BusinessCenter\Customers\Task\Task;
 use App\Services\Tenants\BusinessCenter\Task\TaskService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -57,20 +57,10 @@ class TaskController extends Controller
     | Export to Excel
     |--------------------------------------------------------------------------
     */
-    public function export(Request $request)
+    public function export(ExportTasksRequest $request)
     {
-
         $query = $this->taskService->getAllTasksQuery();
-        $filters = [
-            'company_id' => $request->input('company_id'),
-            'portfolio_id' => $request->input('portfolio_id'),
-            'relationship_manager_id' => $request->input('relationship_manager_id'),
-            'task_type' => $request->input('task_type'),
-            'status' => $request->input('status'),
-            'overdue_days' => $request->input('overdue_days'),
-            'date_from' => $request->input('date_from'),
-            'date_to' => $request->input('date_to'),
-        ];
+        $filters = $request->validated();
 
         $query = $this->taskService->applyFilters($query, $filters);
         $query->orderByRaw('DATEDIFF(CURDATE(), tasks.due_date) DESC')

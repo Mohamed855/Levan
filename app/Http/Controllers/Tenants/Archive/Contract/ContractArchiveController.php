@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Tenants\Archive\Contract;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Archive\BulkArchiveActionRequest;
+use App\Http\Requests\Tenants\Archive\ArchiveItemIdRequest;
 use App\DataTables\Tenants\Archive\Contract\ArchivedContractsDataTable;
 use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Models\Tenants\BusinessCenter\Contract\Contract;
@@ -62,10 +64,10 @@ class ContractArchiveController extends Controller
     | استرجاع عقد من الأرشيف
     |--------------------------------------------------------------------------
     */
-    public function restore(int $contractId): RedirectResponse
+    public function restore(ArchiveItemIdRequest $request): RedirectResponse
     {
         try {
-            $contract = Contract::onlyTrashed()->findOrFail($contractId);
+            $contract = Contract::onlyTrashed()->findOrFail($request->validated('id'));
             $this->contractArchiveService->restoreContract($contract);
 
             return redirect()
@@ -83,10 +85,10 @@ class ContractArchiveController extends Controller
     | حذف عقد نهائياً من الأرشيف
     |--------------------------------------------------------------------------
     */
-    public function forceDelete(int $contractId): RedirectResponse
+    public function forceDelete(ArchiveItemIdRequest $request): RedirectResponse
     {
         try {
-            $contract = Contract::onlyTrashed()->findOrFail($contractId);
+            $contract = Contract::onlyTrashed()->findOrFail($request->validated('id'));
             $this->contractArchiveService->forceDeleteContract($contract);
 
             return redirect()
@@ -104,17 +106,10 @@ class ContractArchiveController extends Controller
     | استرجاع جماعي للعقود
     |--------------------------------------------------------------------------
     */
-    public function massRestore(Request $request): JsonResponse
+    public function massRestore(BulkArchiveActionRequest $request): JsonResponse
     {
         try {
-            $contractIds = $request->input('ids', []);
-
-            if (empty($contractIds)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'لم يتم تحديد أي عقد'
-                ], 400);
-            }
+            $contractIds = $request->validated('ids');
 
             $restoredCount = $this->contractArchiveService->massRestoreContracts($contractIds);
 
@@ -135,17 +130,10 @@ class ContractArchiveController extends Controller
     | حذف نهائي جماعي للعقود
     |--------------------------------------------------------------------------
     */
-    public function massForceDelete(Request $request): JsonResponse
+    public function massForceDelete(BulkArchiveActionRequest $request): JsonResponse
     {
         try {
-            $contractIds = $request->input('ids', []);
-
-            if (empty($contractIds)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'لم يتم تحديد أي عقد'
-                ], 400);
-            }
+            $contractIds = $request->validated('ids');
 
             $deletedCount = $this->contractArchiveService->massForceDeleteContracts($contractIds);
 

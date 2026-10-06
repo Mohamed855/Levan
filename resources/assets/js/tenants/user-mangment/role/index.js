@@ -60,7 +60,7 @@ function initializeDataTable() {
             }
         },
         columns: getTableColumns(),
-        order: [[8, 'desc']],
+        order: [[7, 'desc']],
         dom: getTableDom(),
         buttons: getTableButtons(),
         language: {
@@ -123,12 +123,18 @@ function getTableColumns() {
             searchable: false
         },
         {
+            data: 'created_at_formatted',
+            name: 'created_at'
+        },
+        {
             data: 'status',
             name: 'status'
         },
         {
-            data: 'created_at_formatted',
-            name: 'created_at'
+            data: 'actions',
+            name: 'actions',
+            orderable: false,
+            searchable: false
         }
     ];
 }
@@ -247,10 +253,6 @@ function bindEvents() {
         $('input[type="checkbox"]', rows).prop('checked', this.checked);
     });
 
-    // كود تحريك النص
-    $(document).on('mouseenter', '.table-ellipsis', handleTextAnimation);
-    $(document).on('mouseleave', '.table-ellipsis', resetTextAnimation);
-
     // ربط أحداث المودالات
     bindModalEvents();
 }
@@ -277,11 +279,6 @@ function bindModalEvents() {
         updateUserRole();
     });
 
-    $('#users-table').on('change', '.status-dropdown', function () {
-        const userId = $(this).data('user-id');
-        const newStatus = $(this).val();
-        updateUserStatus(userId, newStatus);
-    });
 }
 
 /**
@@ -354,7 +351,7 @@ function populateRoleModal(data) {
 }
 
 /**
- * تحديث دور المستخدم + الحالة + الفروع الإضافية
+ * تحديث دور المستخدم وحالته
  */
 function updateUserRole() {
     const userId = $('#user-id').val();
@@ -387,87 +384,6 @@ function updateUserRole() {
 
 
 /**
- * تبديل حالة المستخدم عبر مفتاح التبديل (Switch)
- */
-function toggleUserStatus(element, userId) {
-    let el = null;
-    let id = userId;
-    if (typeof element === 'number' || typeof element === 'string') {
-        id = element;
-        el = document.getElementById('status_' + id);
-    } else {
-        el = element;
-    }
-
-    if (!id) {
-        toastr.error('معرف المستخدم غير صحيح');
-        return;
-    }
-
-    const newStatus = el && el.checked ? 'active' : 'inactive';
-
-    if (el) {
-        $(el).prop('disabled', true);
-    }
-
-    $.ajax({
-        url: window.routes.updateStatus.replace('___ID___', id),
-        method: 'PATCH',
-        data: {
-            status: newStatus,
-            _token: window.csrfToken
-        },
-        success: function (response) {
-            if (response.success) {
-                toastr.success(response.message);
-                if (el) {
-                    $(el).prop('disabled', false);
-                }
-            } else {
-                toastr.error(response.message || 'فشل في تحديث الحالة.');
-                if (el) {
-                    $(el).prop('checked', !el.checked).prop('disabled', false);
-                }
-            }
-        },
-        error: function (xhr) {
-            let errorMsg = 'فشل في تحديث الحالة.';
-            if (xhr.responseJSON?.message) {
-                errorMsg = xhr.responseJSON.message;
-            }
-            toastr.error(errorMsg);
-            if (el) {
-                $(el).prop('checked', !el.checked).prop('disabled', false);
-            }
-        }
-    });
-}
-
-/**
- * تحديث حالة المستخدم
- */
-function updateUserStatus(userId, newStatus) {
-    $.ajax({
-        url: window.routes.updateStatus.replace('___ID___', userId),
-        method: 'PATCH',
-        data: {
-            status: newStatus,
-            _token: window.csrfToken
-        },
-        success: function (response) {
-            if (response.success) {
-                toastr.success(response.message);
-            } else {
-                toastr.error(response.message);
-            }
-        },
-        error: function () {
-            toastr.error('فشل في تحديث الحالة.');
-        }
-    });
-}
-
-/**
  * تأكيد الحذف
  */
 function confirmDelete(roleId) {
@@ -496,27 +412,5 @@ function confirmDelete(roleId) {
     });
 }
 
-/**
- * معالجة تحريك النص
- */
-function handleTextAnimation() {
-    const span = $(this).find('span');
-    const textWidth = span.width();
-    const cellWidth = $(this).width();
-
-    if (textWidth > cellWidth) {
-        span.css('transform', 'translateX(' + (textWidth - cellWidth) + 'px)');
-    }
-}
-
-/**
- * إعادة تعيين تحريك النص
- */
-function resetTextAnimation() {
-    $(this).find('span').css('transform', 'translateX(0)');
-}
-
 // تصدير الدوال للاستخدام العام
 window.confirmDelete = confirmDelete;
-window.toggleUserStatus = toggleUserStatus;
-window.updateUserStatus = updateUserStatus;

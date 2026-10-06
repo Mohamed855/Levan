@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Tenants\Archive\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Archive\BulkArchiveActionRequest;
+use App\Http\Requests\Tenants\Archive\ArchiveItemIdRequest;
 use App\DataTables\Tenants\Archive\Customer\ArchivedCustomersDataTable;
 use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
@@ -82,10 +84,10 @@ class CustomerArchiveController extends Controller
     | استرجاع عميل من الأرشيف
     |--------------------------------------------------------------------------
     */
-    public function restore(int $customerId): RedirectResponse
+    public function restore(ArchiveItemIdRequest $request): RedirectResponse
     {
         try {
-            $customer = Customer::onlyTrashed()->findOrFail($customerId);
+            $customer = Customer::onlyTrashed()->findOrFail($request->validated('id'));
             $this->customerArchiveService->restoreCustomer($customer);
 
             return redirect()
@@ -103,10 +105,10 @@ class CustomerArchiveController extends Controller
     | حذف عميل نهائياً من الأرشيف
     |--------------------------------------------------------------------------
     */
-    public function forceDelete(int $customerId): RedirectResponse
+    public function forceDelete(ArchiveItemIdRequest $request): RedirectResponse
     {
         try {
-            $customer = Customer::onlyTrashed()->findOrFail($customerId);
+            $customer = Customer::onlyTrashed()->findOrFail($request->validated('id'));
             $this->customerArchiveService->forceDeleteCustomer($customer);
 
             return redirect()
@@ -124,17 +126,10 @@ class CustomerArchiveController extends Controller
     | استرجاع جماعي للعملاء
     |--------------------------------------------------------------------------
     */
-    public function massRestore(Request $request): JsonResponse
+    public function massRestore(BulkArchiveActionRequest $request): JsonResponse
     {
         try {
-            $customerIds = $request->input('ids', []);
-
-            if (empty($customerIds)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'لم يتم تحديد أي عميل'
-                ], 400);
-            }
+            $customerIds = $request->validated('ids');
 
             $restoredCount = $this->customerArchiveService->massRestoreCustomers($customerIds);
 
@@ -155,17 +150,10 @@ class CustomerArchiveController extends Controller
     | حذف نهائي جماعي للعملاء
     |--------------------------------------------------------------------------
     */
-    public function massForceDelete(Request $request): JsonResponse
+    public function massForceDelete(BulkArchiveActionRequest $request): JsonResponse
     {
         try {
-            $customerIds = $request->input('ids', []);
-
-            if (empty($customerIds)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'لم يتم تحديد أي عميل'
-                ], 400);
-            }
+            $customerIds = $request->validated('ids');
 
             $deletedCount = $this->customerArchiveService->massForceDeleteCustomers($customerIds);
 

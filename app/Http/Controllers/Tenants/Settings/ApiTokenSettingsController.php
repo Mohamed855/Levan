@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tenants\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Settings\RegenerateApiTokenRequest;
 use App\Models\Tenants\Api\ApiRequestLog;
 
 class ApiTokenSettingsController extends Controller
@@ -29,7 +30,7 @@ class ApiTokenSettingsController extends Controller
     | توليد توكن API جديد للتينانت الحالي
     |--------------------------------------------------------------------------
     */
-    public function regenerate()
+    public function regenerate(RegenerateApiTokenRequest $request)
     {
         $plainTextToken = tenant()->regenerateApiToken();
 

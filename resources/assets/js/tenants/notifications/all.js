@@ -66,7 +66,7 @@ function markAsRead(notificationId) {
         return;
     }
 
-    const url = window.routes.markAsRead.replace('{id}', notificationId);
+    const url = window.routes.markAsRead.replace('__ID__', notificationId);
 
     $.ajax({
         url: url,
@@ -157,7 +157,7 @@ function deleteNotification(notificationId) {
         reverseButtons: false,
     }).then((result) => {
         if (result.isConfirmed) {
-            const url = window.routes.deleteNotification.replace('{id}', notificationId);
+            const url = window.routes.deleteNotification.replace('__ID__', notificationId);
 
             $.ajax({
                 url: url,
@@ -243,7 +243,7 @@ function handleMassDelete() {
 
 // تحديث عدد الإشعارات غير المقروءة
 function updateNotificationCount() {
-    fetch('/notifications/unread-count', {
+    fetch(window.routes.unreadCount, {
         method: 'GET',
         headers: {
             'X-Requested-With': 'XMLHttpRequest',

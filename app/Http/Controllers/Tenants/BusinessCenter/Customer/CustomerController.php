@@ -6,6 +6,10 @@ use App\DataTables\Tenants\BusinessCenter\Customer\CustomersDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\BusinessCenter\Customer\StoreCustomerRequest;
 use App\Http\Requests\Tenants\BusinessCenter\Customer\UpdateCustomerRequest;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\PreviewCustomerSmsTemplateRequest;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\SendBulkCustomerSmsRequest;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\SetPrimaryCustomerPhoneRequest;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\ShowCustomerSmsFormRequest;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Customers\Phone\CustomerPhone;
 use App\Models\Tenants\FinancialCollection\Collection\CustomerTransaction;
@@ -21,7 +25,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -519,21 +522,9 @@ class CustomerController extends Controller
     |--------------------------------------------------------------------------
     | عرض نموذج إرسال الرسائل للعملاء المحددين
     */
-    public function showSMSForm(Request $request): JsonResponse
+    public function showSMSForm(ShowCustomerSmsFormRequest $request): JsonResponse
     {
-        $request->validate([
-            'customer_ids' => 'required',
-            // 'customer_ids.*' => 'exists:customers,id',
-        ]);
-
-        $customerIds = $this->prepareCustomerIds($request->input('customer_ids'));
-
-        if (empty($customerIds)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'يرجى تحديد عميل واحد على الأقل'
-            ], 400);
-        }
+        $customerIds = $request->validated('customer_ids');
 
         $result = $this->customerSMSService->prepareCustomersForSMSForm($customerIds);
 
@@ -551,50 +542,21 @@ class CustomerController extends Controller
     |--------------------------------------------------------------------------
     | إرسال الرسائل النصية للعملاء باستخدام SMSService فقط
     */
-    public function sendSMS(Request $request): JsonResponse
+    public function sendSMS(SendBulkCustomerSmsRequest $request): JsonResponse
     {
-        // التحقق الأساسي
-        $request->validate([
-            'customer_ids' => 'required',
-            'message_type' => 'required|in:template,custom',
-        ]);
-
-        // تحقق مشروط حسب نوع الرسالة
-        if ($request->message_type === 'template') {
-            $request->validate([
-                'template_id' => 'required|exists:message_templates,id',
-            ], [
-                'template_id.required' => 'يرجى اختيار قالب الرسالة',
-                'template_id.exists' => 'القالب المحدد غير موجود',
-            ]);
-        } else {
-            $request->validate([
-                'custom_message' => 'required|string|max:1000',
-            ], [
-                'custom_message.required' => 'يرجى كتابة نص الرسالة',
-                'custom_message.max' => 'نص الرسالة يتجاوز الحد الأقصى المسموح (1000 حرف)',
-            ]);
-        }
-
         try {
-            $customerIds = $this->prepareCustomerIds($request->customer_ids);
-
-            if (empty($customerIds)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'يرجى تحديد عميل واحد على الأقل'
-                ], 400);
-            }
+            $validated = $request->validated();
+            $customerIds = $validated['customer_ids'];
 
             // استخدام الطابور دائماً
-            if ($request->message_type === 'template') {
+            if ($validated['message_type'] === 'template') {
                 $result = $this->customerSMSService->sendTemplateMessageWithQueue(
-                    $request->template_id,
+                    $validated['template_id'],
                     $customerIds
                 );
             } else {
                 $result = $this->customerSMSService->sendCustomMessageWithQueue(
-                    $request->custom_message,
+                    $validated['custom_message'],
                     $customerIds
                 );
             }
@@ -606,9 +568,11 @@ class CustomerController extends Controller
 
             return response()->json($result, $result['success'] ? 200 : 500);
         } catch (\Exception $e) {
+            Log::error('Customer SMS dispatch failed', ['exception' => $e]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء إرسال الرسائل: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء إرسال الرسائل'
             ], 500);
         }
     }
@@ -620,17 +584,12 @@ class CustomerController extends Controller
     |--------------------------------------------------------------------------
     | معاينة الرسالة بالمتغيرات
     */
-    public function previewTemplateMessage(Request $request): JsonResponse
+    public function previewTemplateMessage(PreviewCustomerSmsTemplateRequest $request): JsonResponse
     {
-        $request->validate([
-            'template_id' => 'required|exists:message_templates,id',
-            'customer_id' => 'nullable|exists:customers,id'
-        ]);
-
         try {
             $result = $this->customerSMSService->previewTemplateMessage(
-                $request->template_id,
-                $request->customer_id
+                $request->validated('template_id'),
+                $request->validated('customer_id')
             );
 
             return response()->json($result);
@@ -742,33 +701,10 @@ class CustomerController extends Controller
     | Set Primary Phone
     |--------------------------------------------------------------------------
     */
-    public function setPrimaryPhone(Request $request, Customer $customer): JsonResponse
+    public function setPrimaryPhone(SetPrimaryCustomerPhoneRequest $request, Customer $customer): JsonResponse
     {
-        if (!auth()->user()->can('customers.add_phone')) {
-            return response()->json([
-                'success' => false,
-                'message' => 'ليس لديك صلاحية لتعديل هذا العميل'
-            ], 403);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'phone_id' => 'required|integer|exists:customer_phones,id'
-        ], [
-            'phone_id.required' => 'معرف رقم الهاتف مطلوب',
-            'phone_id.integer' => 'معرف رقم الهاتف يجب أن يكون رقمًا صحيحًا',
-            'phone_id.exists' => 'رقم الهاتف المحدد غير موجود'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => $validator->errors()->first(),
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
         try {
-            $phoneId = (int) $request->phone_id;
+            $phoneId = (int) $request->validated('phone_id');
 
             $phone = CustomerPhone::where('id', $phoneId)->where('customer_id', $customer->id)->first();
 

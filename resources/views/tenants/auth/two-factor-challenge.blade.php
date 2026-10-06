@@ -12,7 +12,7 @@
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/shared/auth-layout.js'])
+    @vite(['resources/assets/js/shared/auth-layout.js', 'resources/assets/js/shared/form-validation.js'])
 @endsection
 
 @section('content')
@@ -30,10 +30,11 @@
             </div>
         @endif
 
-        <form id="twoStepsForm" action="{{ tenant_route_name('tenants.two-factor.store') }}" method="POST">
+        <form id="twoStepsForm" action="{{ tenant_route_name('tenants.two-factor.store') }}" method="POST" novalidate
+            data-form-validate data-validation-url="{{ tenant_route_name('form-validation') }}">
             @csrf
 
-            <div class="mb-4" id="codeInputsWrapper">
+            <div class="mb-4" id="codeInputsWrapper" data-form-field data-field-name="code">
                 <label class="form-label text-center d-block mb-3" id="codeLabel">أدخل الرمز الأمني المكون من 6
                     أرقام</label>
                 <div class="auth-otp-wrapper" dir="ltr">
@@ -45,6 +46,7 @@
                     <input type="tel" class="form-control auth-otp-input" maxlength="1" autocomplete="off">
                 </div>
                 <input type="hidden" name="code" id="otpHidden" />
+                <p class="invalid-feedback hidden" data-form-error aria-live="polite" hidden></p>
             </div>
 
             <div class="mb-4 d-none" id="recoveryWrapper">

@@ -522,18 +522,6 @@ function validateControlClientSide(form, control) {
 function isStepValid(form, step) {
   if (!step) return true;
 
-  // If step requires features, check at least 1 feature exists and has non-empty values
-  try {
-    const stepFields = JSON.parse(step?.dataset.validationFields || '[]');
-    if (stepFields.includes('features')) {
-      const featureInputs = step.querySelectorAll('input[name^="features"]');
-      if (featureInputs.length === 0) return false;
-      for (const fi of featureInputs) {
-        if (!fi.value || fi.value.trim() === '') return false;
-      }
-    }
-  } catch (_) {}
-
   const controls = Array.from(step.querySelectorAll('[name]')).filter((control) => {
     if (['submit', 'button', 'reset', 'hidden'].includes(control.type)) {
       return false;
@@ -581,7 +569,7 @@ function isStepValid(form, step) {
       if (control.type === 'date' && control.min && val < control.min) {
         return false;
       }
-      if ((control.type === 'email' || control.name.toLowerCase().includes('email')) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+      if (control.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
         return false;
       }
       if (control.name === 'password_confirmation') {
@@ -943,6 +931,12 @@ function initForm(form) {
 
     state.isSubmitting = true;
     form.dispatchEvent(new CustomEvent('formValidationPassed'));
+
+    if (form.dataset.validationSubmit === 'ajax') {
+      state.isSubmitting = false;
+      return;
+    }
+
     HTMLFormElement.prototype.submit.call(form);
   });
 }

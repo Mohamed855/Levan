@@ -11,13 +11,8 @@ class ResolveTwoFactorLogin
 {
     public function __construct(protected TwoFactorAuthenticationProvider $provider) {}
 
-    public function verify(string $guard, Request $request): Authenticatable
+    public function verify(string $guard, Request $request, array $credentials): Authenticatable
     {
-        $request->validate([
-            'code'          => 'nullable|string',
-            'recovery_code' => 'nullable|string',
-        ]);
-
         $userId = $request->session()->get('login.id');
 
         abort_unless($userId, 419);
@@ -26,14 +21,14 @@ class ResolveTwoFactorLogin
 
         abort_unless($user, 419);
 
-        if ($request->filled('code')) {
-            if (! $this->provider->verify(decrypt($user->two_factor_secret), $request->code)) {
+        if (! empty($credentials['code'])) {
+            if (! $this->provider->verify(decrypt($user->two_factor_secret), $credentials['code'])) {
                 throw \Illuminate\Validation\ValidationException::withMessages([
                     'code' => 'الكود غير صحيح.',
                 ]);
             }
-        } elseif ($request->filled('recovery_code')) {
-            $this->consumeRecoveryCode($user, $request->recovery_code);
+        } elseif (! empty($credentials['recovery_code'])) {
+            $this->consumeRecoveryCode($user, $credentials['recovery_code']);
         } else {
             throw \Illuminate\Validation\ValidationException::withMessages([
                 'code' => 'الرجاء إدخال الكود أو كود الاسترجاع.',

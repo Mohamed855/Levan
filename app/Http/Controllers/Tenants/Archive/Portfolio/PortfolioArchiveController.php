@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Tenants\Archive\Portfolio;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Archive\BulkArchiveActionRequest;
+use App\Http\Requests\Tenants\Archive\ArchiveItemIdRequest;
 use App\DataTables\Tenants\Archive\Portfolio\ArchivedPortfoliosDataTable;
 use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
@@ -61,10 +63,10 @@ class PortfolioArchiveController extends Controller
     |--------------------------------------------------------------------------
     | Restore the specified archived portfolio.
     */
-    public function restore(int $portfolioId): RedirectResponse
+    public function restore(ArchiveItemIdRequest $request): RedirectResponse
     {
         try {
-            $portfolio = Portfolio::onlyTrashed()->findOrFail($portfolioId);
+            $portfolio = Portfolio::onlyTrashed()->findOrFail($request->validated('id'));
             $this->portfolioArchiveService->restorePortfolio($portfolio);
 
             return redirect()
@@ -83,10 +85,10 @@ class PortfolioArchiveController extends Controller
     |--------------------------------------------------------------------------
     | Permanently delete the specified archived portfolio.
     */
-    public function forceDelete(int $portfolioId): RedirectResponse
+    public function forceDelete(ArchiveItemIdRequest $request): RedirectResponse
     {
         try {
-            $portfolio = Portfolio::onlyTrashed()->findOrFail($portfolioId);
+            $portfolio = Portfolio::onlyTrashed()->findOrFail($request->validated('id'));
             $this->portfolioArchiveService->forceDeletePortfolio($portfolio);
 
             return redirect()
@@ -105,17 +107,10 @@ class PortfolioArchiveController extends Controller
     |--------------------------------------------------------------------------
     | Restore multiple archived portfolios at once.
     */
-    public function massRestore(Request $request): JsonResponse
+    public function massRestore(BulkArchiveActionRequest $request): JsonResponse
     {
         try {
-            $portfolioIds = $request->input('ids', []);
-
-            if (empty($portfolioIds)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'لم يتم تحديد أي محفظة'
-                ], 400);
-            }
+            $portfolioIds = $request->validated('ids');
 
             $restoredCount = $this->portfolioArchiveService->massRestorePortfolios($portfolioIds);
 
@@ -137,17 +132,10 @@ class PortfolioArchiveController extends Controller
     |--------------------------------------------------------------------------
     | Permanently delete multiple archived portfolios at once.
     */
-    public function massForceDelete(Request $request): JsonResponse
+    public function massForceDelete(BulkArchiveActionRequest $request): JsonResponse
     {
         try {
-            $portfolioIds = $request->input('ids', []);
-
-            if (empty($portfolioIds)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'لم يتم تحديد أي محفظة'
-                ], 400);
-            }
+            $portfolioIds = $request->validated('ids');
 
             $deletedCount = $this->portfolioArchiveService->massForceDeletePortfolios($portfolioIds);
 

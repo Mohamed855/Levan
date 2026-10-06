@@ -3,11 +3,11 @@
 @section('title', 'تعديل الشركة')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss'])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js'])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.js'])
 @endsection
 
 @section('toastr')
@@ -15,7 +15,7 @@
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/tenants/business-center/companies/validation.js'])
+    @vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/tenants/business-center/companies/validation.js'])
 @endsection
 
 @section('content')
@@ -46,7 +46,7 @@
                     @endif
 
                     <form id="wizard-validation-form" action="{{ tenant_route_name('companies.update', $company) }}"
-                        method="POST" enctype="multipart/form-data" onSubmit="return false">
+                        method="POST" enctype="multipart/form-data" novalidate data-form-validate data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                         @csrf
                         @method('PUT')
 
@@ -58,7 +58,7 @@
                                         اسم الشركة
                                         <span class="text-danger">*</span>
                                     </label>
-                                    <input type="text" name="name" id="name" class="form-control"
+                                    <input type="text" name="name" id="name" class="form-control" required
                                         placeholder="ادخل اسم الشركة" value="{{ old('name', $company->name) }}" />
                                 </div>
 

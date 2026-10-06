@@ -12,7 +12,7 @@
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/shared/auth-layout.js'])
+    @vite(['resources/assets/js/shared/auth-layout.js', 'resources/assets/js/shared/form-validation.js'])
 @endsection
 
 @section('content')
@@ -25,7 +25,8 @@
             ['icon' => 'ti ti-users', 'text' => 'إدارة فرق العمل والصلاحيات'],
             ['icon' => 'ti ti-device-laptop', 'text' => 'منظومة سحابية متكاملة'],
         ]">
-        <form method="POST" action="{{ tenant_route_name('register') }}" autocomplete="off" novalidate>
+        <form method="POST" action="{{ tenant_route_name('register') }}" autocomplete="off" novalidate
+            data-form-validate data-validation-url="{{ tenant_route_name('form-validation') }}">
             @csrf
 
             <x-form.controls.input name="name" label="الاسم الكامل" placeholder="أدخل الاسم الكامل" :value="old('name')"

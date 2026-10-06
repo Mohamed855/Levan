@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tenants\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Auth\LoginRequest;
+use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -88,7 +89,7 @@ class AuthenticatedSessionController extends Controller
     |--------------------------------------------------------------------------
     | معالجة طلب تسجيل الخروج وتنظيف بيانات الجلسة
     */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(TenantAuthenticatedRequest $request): RedirectResponse
     {
         $user = Auth::guard('tenant')->user();
 

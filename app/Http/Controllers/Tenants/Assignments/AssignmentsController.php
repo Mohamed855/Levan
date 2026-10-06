@@ -6,6 +6,7 @@ use App\DataTables\Tenants\Assignments\AssignmentsDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Assignments\StoreAssignmentRequest;
 use App\Http\Requests\Tenants\Assignments\UpdateAssignmentRequest;
+use App\Http\Requests\Tenants\UpdateResourceStatusRequest;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Services\Tenants\Assignments\AssignmentService;
 use Illuminate\Http\JsonResponse;
@@ -114,10 +115,13 @@ class AssignmentsController extends Controller
         }
     }
 
-    public function toggleStatus(Assignment $assignment): JsonResponse
+    public function toggleStatus(UpdateResourceStatusRequest $request, Assignment $assignment): JsonResponse
     {
         try {
-            $newStatus = $this->assignmentService->toggleStatus($assignment);
+            $newStatus = $this->assignmentService->toggleStatus(
+                $assignment,
+                $request->validated('status') === 'active',
+            );
 
             return response()->json([
                 'success' => true,
