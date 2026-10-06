@@ -132,6 +132,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
                 TicketController::class . '@reply',
                 TicketController::class . '@rateReply',
                 TicketController::class . '@submitSurvey',
+                BillsController::class . '@uploadReceipt',
                 \App\Http\Controllers\Tenants\Auth\Fortify\TenantTwoFactorSettingsController::class . '@confirm',
             ])
             ->name('validate-step');
@@ -159,7 +160,8 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
 
         // مسارات التحويل البنكي
         Route::name('bank-transfer')->get('{id}/bank-transfer', [BillsController::class, 'bankTransfer']);
-        Route::name('upload-receipt')->post('{id}/upload-receipt', [BillsController::class, 'uploadReceipt']);
+        Route::name('upload-receipt')->post('{id}/upload-receipt', [BillsController::class, 'uploadReceipt'])
+            ->defaults('shared_form_validation', true);
     });
 
     Route::prefix('subscriptions')->name('subscriptions.')->group(function () {

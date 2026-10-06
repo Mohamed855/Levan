@@ -3,15 +3,19 @@
 @section('title', ' الفاتورة')
 
 @section('vendor-style')
-    @vite(['resources/assets/css/components/icons.css', 'resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss', 'resources/assets/vendor/libs/animate-css/animate.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
+    @vite(['resources/assets/css/components/icons.css', 'resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/animate-css/animate.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/moment/moment.js', 'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js', 'resources/assets/vendor/libs/cleavejs/cleave.js', 'resources/assets/vendor/libs/cleavejs/cleave-phone.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
+    @vite(['resources/assets/vendor/libs/moment/moment.js', 'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/cleavejs/cleave.js', 'resources/assets/vendor/libs/cleavejs/cleave-phone.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
 @endsection
 
 @section('toastr')
     @vite(['resources/css/toastr.css', 'resources/js/toastr.js'])
+@endsection
+
+@section('page-script')
+    @vite(['resources/assets/js/shared/form-validation.js'])
 @endsection
 
 @section('content')
@@ -33,16 +37,17 @@
                 </div>
 
                 <form action="{{ tenant_route_name('bills.upload-receipt', $bill->id) }}" method="POST"
-                    enctype="multipart/form-data">
+                    enctype="multipart/form-data" novalidate data-form-validate
+                    data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                     @csrf
 
                     <!-- اختيار البنك -->
-                    <div class="form-group mb-3">
+                    <div class="form-group mb-3" data-form-field data-field-name="bank_id">
                         <label for="bank_id" class="form-label">
                             البنك المحول إليه
                         </label>
 
-                        <select class="form-select select2 @error('bank_id') is-invalid @enderror" id="bank_id"
+                        <select class="form-select select2 @error('bank_id') is-invalid @enderror" id="bank_id" data-form-control
                             name="bank_id" data-placeholder="اختر البنك" required>
                             <option value=""></option>
                             @foreach ($banks as $bank)
@@ -55,9 +60,9 @@
                         @enderror
                     </div>
 
-                    <div class="form-group mb-3">
+                    <div class="form-group mb-3" data-form-field data-field-name="receipt">
                         <label for="receipt">إيصال التحويل</label>
-                        <input type="file" class="form-control @error('receipt') is-invalid @enderror" id="receipt"
+                        <input type="file" class="form-control @error('receipt') is-invalid @enderror" id="receipt" data-form-control
                             name="receipt" value="{{ old('receipt') }}" required>
                         @error('receipt')
                             <div class="invalid-feedback">{{ $message }}</div>
