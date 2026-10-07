@@ -119,7 +119,7 @@ class ClientController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ: ' . $e->getMessage()
+                'message' => 'تعذر تحديث حالة العميل.',
             ], 500);
         }
     }

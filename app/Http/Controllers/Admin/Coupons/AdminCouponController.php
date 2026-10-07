@@ -52,7 +52,7 @@ class AdminCouponController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'تعذر تحديث حالة الكوبون: ' . $exception->getMessage(),
+                'message' => 'تعذر تحديث حالة الكوبون.',
             ], 500);
         }
     }

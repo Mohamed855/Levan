@@ -87,6 +87,7 @@ trait CommonSettingController
 
         return response()->json([
             'success' => true,
+            'message' => 'تم تحديث الحالة بنجاح.',
             'status' => $setting->status,
         ]);
     }

@@ -30,6 +30,7 @@
     'resources/js/shared/input-guards.js',
     'resources/js/shared/datatable-primary-actions.js',
     'resources/js/shared/datatable-filter-selects.js',
+    'resources/assets/js/shared/table-status-toggle.js',
     'resources/assets/js/shared/form-validation.js',
 ])
 <!-- END: Shared JS -->

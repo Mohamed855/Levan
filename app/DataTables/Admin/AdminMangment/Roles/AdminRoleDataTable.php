@@ -34,9 +34,9 @@ class AdminRoleDataTable extends AbstractDataTable
             ['data' => 'email',     'name' => 'email',      'title' => 'البريد الإلكتروني'],
             ['data' => 'phone',     'name' => 'phone',      'title' => 'رقم الهاتف'],
             ['data' => 'roles',     'name' => 'roles', 'title' => 'الأدوار',   'orderable' => false, 'searchable' => true],
-            ['data' => 'status',    'name' => 'status',     'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'last_login_at', 'name' => 'last_login_at', 'title' => 'آخر دخول'],
-            // ['data' => 'actions',        'name' => 'actions',            'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px'],
+            ['data' => 'status',    'name' => 'status',     'title' => 'الحالة', 'className' => 'text-center'],
+            ['data' => 'actions',   'name' => 'actions',    'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
 
         ];
     }

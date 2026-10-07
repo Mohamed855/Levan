@@ -12,6 +12,30 @@ function csrfToken() {
     return document.querySelector('meta[name="csrf-token"]')?.content || window.csrfToken;
 }
 
+function responseStatusValue(response) {
+    const value = response?.is_active ?? response?.status ?? response?.new_status;
+
+    if (typeof value === 'boolean') {
+        return value;
+    }
+
+    if (typeof value === 'number') {
+        return value === 1;
+    }
+
+    if (typeof value === 'string') {
+        if (['active', '1', 'true'].includes(value.toLowerCase())) {
+            return true;
+        }
+
+        if (['inactive', '0', 'false'].includes(value.toLowerCase())) {
+            return false;
+        }
+    }
+
+    return null;
+}
+
 function handleStatusToggle(event) {
     const toggle = event.target.closest(switchSelector);
 
@@ -46,6 +70,11 @@ function handleStatusToggle(event) {
         },
         success(response) {
             if (response.success) {
+                const canonicalStatus = responseStatusValue(response);
+                if (canonicalStatus !== null) {
+                    toggle.checked = canonicalStatus;
+                }
+
                 notify('success', response.message || 'تم تحديث الحالة بنجاح');
                 toggle.dispatchEvent(new CustomEvent('table-status-toggled', {
                     bubbles: true,
@@ -76,3 +105,5 @@ export function initializeTableStatusToggles() {
     document.documentElement.dataset.tableStatusTogglesInitialized = 'true';
     document.addEventListener('change', handleStatusToggle);
 }
+
+initializeTableStatusToggles();

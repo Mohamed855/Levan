@@ -165,6 +165,7 @@ class AdminUserController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'تم تعديل الحالة بنجاح',
+                'status' => $newStatus->value,
                 'new_status' => $newStatus,
                 'status_text' => $statusText,
             ]);
@@ -173,7 +174,7 @@ class AdminUserController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تبديل الحالة: '.$e->getMessage(),
+                'message' => 'حدث خطأ أثناء تبديل الحالة.',
             ], 500);
         }
     }
