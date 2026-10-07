@@ -1,6 +1,6 @@
 # سجل المرحلة 4 — الموقع العام (Website)
 
-> الحالة: **قيد الإغلاق**. أُغلق Trial وCheckout عبر المحرك المشترك؛ يبقى إثبات Contact في تدقيق الإغلاق قبل الاعتماد النهائي. راجع [`phase-0-5-closure-audit-2026-10-06.md`](phase-0-5-closure-audit-2026-10-06.md).
+> الحالة: **مغلقة تقنياً ضمن نطاق Website**. أُثبت Contact وTrial وCheckout في تدقيق الإغلاق؛ قرارات الضريبة وإتاحة الباقات أدناه قرارات business مقصودة وليست عيب تنفيذ. راجع [مواءمة إغلاق المراحل 1–6](phase-1-6-closure-reconciliation-2026-10-07.md).
 > المرجع: [`../system-unification-implementation-plan-ar.md`](../system-unification-implementation-plan-ar.md)
 
 ## 1. نماذج الموقع والتحقق

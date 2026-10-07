@@ -333,5 +333,81 @@
 8. المرحلة 7: DataTables/responses أثناء كل وحدة ثم تدقيق نهائي.
 9. المرحلة 8: legacy/routes cleanup.
 10. المرحلة 9: regression/final acceptance.
+11. المرحلة 10: تطبيق عقد الـGolden Pattern على جميع إدارات Super Admin وTenant.
 
 لا يتم دمج مرحلتين في pull request واحد عندما تمسّان الأمان أو قواعد البيانات أو الـtenancy. كل مرحلة لها changelog، قائمة ملفات، نتائج build/test، وخطة rollback قابلة للتنفيذ.
+
+## 16. المرحلة 10 — عقد الـGolden Pattern والتوحيد المعماري الكامل
+
+> **القرار:** تظل المراحل 7–9 قائمة وتُستكمل دون إيقاف. هذه المرحلة تضيف العقد المعماري المتفق عليه ولا تستبدل الخطة السابقة. يجوز إعداد وثائق العقد والجرد أثناء المراحل 7–9، أما تعديل طبقات الإدارات فلا يبدأ قبل إغلاق المرحلة 9 إلا لإصلاح أمني أو لكسر عقد قائم.
+>
+> **نطاق التنفيذ:** جميع الإدارات والـroutes النشطة الحالية في Super Admin وTenant. لا توجد مرحلة pilot أو استثناء «يُرحّل لاحقاً»؛ تُقسّم الأعمال إلى streams تقنية مستقلة لتقليل التعارض، لكن لا تعد المرحلة مكتملة حتى تطابق كل الإدارات العقد كاملاً.
+>
+> **المرجع المعياري:** [`docs/architecture/golden-pattern.md`](architecture/golden-pattern.md) هو عقد التطبيق التفصيلي؛ تبقى هذه المرحلة مرجع التنفيذ والقبول.
+
+### 16.1 القرار المعماري الملزم
+
+يعتمد النظام **Modular Monolith** بنطاقين صريحين، وليس Microservices أو Generic Repository Pattern:
+
+```text
+Central / Super Admin
+    Companies, Plans, Subscriptions, Billing, Platform Settings, Content, Support
+
+Tenant
+    Users, Business Center, Auctions, Collections, Communication, Settings, Reports
+```
+
+- يبقى Eloquent طبقة الوصول للبيانات؛ لا تنشأ طبقة Repository عامة حول كل Model.
+- تستخدم `Action` لعملية أعمال واحدة ذات transaction أو آثار جانبية، و`Service` لتنسيق use case أو مجموعة عمليات مترابطة.
+- تبقى route names وsubmitted field names وdatabase keys متوافقة ما لم يعتمد تغيير مستقل؛ لا يغيّر هذا العمل قواعد تسعير أو دفع أو بيانات production.
+- لا يستدعي كود Tenant موديلات Central مباشرة. أي عمل عابر للنطاق يمر عبر خدمة/gateway معلن تستعمل `tenancy()->central(...)` وتحمل `tenantId` صراحة في Jobs وEvents.
+
+### 16.2 عقد الإدارة الواحدة
+
+لكل إدارة نشطة يُنشأ أو يُستكمل Manifest موثق يربط العناصر التالية:
+
+```text
+Scope → routes/middleware/guard → Controller → FormRequest → Policy
+      → Action/Service → Model/Enum/Event/Job → DataTable or Blade View
+      → shared frontend contract → Feature/Unit tests
+```
+
+ويحتوي الـManifest على: owner، قاعدة البيانات/tenant connection، الصلاحيات الإنجليزية، policy abilities، routes وHTTP methods، models والعلاقات، FormRequests، actions/services، views/scripts، DataTables، الملفات أو queues أو cache، والاختبارات الدالة على القبول.
+
+### 16.3 قواعد Backend الإلزامية
+
+1. الـController حقن dependencies، orchestration خفيف، وإرجاع redirect أو JSON فقط؛ يمنع إنشاء Service بـ`new` داخله.
+2. كل mutation يستعمل FormRequest يملك `authorize()` و`rules()` و`messages()` و`attributes()`؛ تظل هذه الدوال مصدر الحقيقة للتحقق.
+3. تستخدم middleware للصلاحية العامة (`module.action`) وPolicy للصلاحية على السجل المحدد، وخصوصاً الملكية وحدود Tenant. لا يكفي ظهور الزر في Blade كتحكم صلاحية.
+4. تستعمل Actions للمعاملات، رفع/حذف الملفات، أو تسلسل تغييرات العلاقات؛ وتُطلق Events/Jobs بعد نجاح transaction عند الحاجة.
+5. الحالات Roles وPermissions وEnums ومعرفات قاعدة البيانات إنجليزية؛ النص العربي حصراً في ملفات الترجمة أو طبقة العرض.
+6. كل Model يعرّف casts والعلاقات وscopes البسيطة بوضوح؛ وتُحمّل العلاقات المطلوبة مسبقاً في القوائم والتقارير لتفادي N+1.
+7. الحذف والاستعادة والحذف النهائي يلتزم بعقد redirect+flash للطلب العادي وJSON للـAJAX، مع authorization وtenant scope في الحالتين.
+
+### 16.4 قواعد Frontend وDataTables وDashboards
+
+1. صفحة الإدارة القياسية تستخدم `<x-data-table.page>` بالترتيب: stats ثم filters ثم table، وزرا الإجراءات والإضافة داخل DataTable toolbar فقط.
+2. النماذج تستخدم `x-form.controls.*` وعقد `data-form-field`/`data-form-control` ومخرج خطأ قابل للوصول؛ لا تكرر JavaScript قواعد FormRequest.
+3. `x-filter.select` خاص بالـDataTable filters ولا يستخدم كـform control؛ كل filter key يطابق الحقل الذي يقرأه الاستعلام.
+4. جدول النشاط القابل للتعديل يستخدم `js-table-status-toggle` فقط، وعمود `الحالة` قبل `الإجراءات` مباشرة. حالات workflow غير القابلة للتعديل تبقى badges موثقة في الـManifest.
+5. الأرشيف لا يحتوي stats أو heading أو زر إضافة؛ أدواته تصدير وإجراءات lifecycle المصرح بها فقط.
+6. كل response AJAX يلتزم بالعقود الموثقة في المرحلة 7، ولا يحمل استثناءات داخلية للمستخدم.
+7. لوحات Super Admin وTenant تستخدم Dashboard Service وDTO/view-data واضحين، مع cache بالمفتاح الصحيح عند الحاجة؛ لا تبقى queries التجارية أو تجميع المؤشرات داخل Controller أو Blade.
+
+### 16.5 مسار تنفيذ مباشر شامل
+
+1. إصدار `golden-pattern-manifest` يغطي كل إدارات Admin وTenant قبل أول تعديل معماري، ويصنف كل عنصر: compliant، gap، أو not-applicable مع السبب.
+2. تنفيذ streams متوازية حسب الطبقة لا حسب pilot: authorization/policies، FormRequests/controllers/actions، models/services/tenancy، DataTables/views/frontend، dashboards/reports، ثم tests.
+3. لا تغلق إدارة قبل اكتمال جميع صفوف الـManifest الخاصة بها؛ ولا يعتبر تحويل View أو DataTable وحده توحيداً كاملاً.
+4. لا يحذف legacy أثناء هذه المرحلة؛ يمر الحذف فقط عبر بوابة المرحلة 8 وسجل deprecation المعتمد.
+5. بعد اكتمال كل streams، يجرى تدقيق شامل static/runtime على كامل النطاق، ثم توثق الاستثناءات القليلة المقبولة مع owner وتاريخ إزالة أو سبب دائم.
+
+### 16.6 بوابات القبول
+
+- كل route نشط في Admin وTenant له owner ونطاق وقاعدة بيانات/tenant context وصلاحية واختبار أو smoke checklist.
+- كل mutation يمر بـFormRequest وPolicy/authorization مناسبين، ولا توجد قواعد أعمال مكررة في JavaScript.
+- كل مورد tenant-bound يثبت عزل Tenant A عن Tenant B؛ وكل عملية central cross-tenant موثقة ومصرح بها.
+- كل إدارة CRUD تثبت create/update/delete/restore أو تذكر صراحةً سبب عدم انطباق العملية.
+- كل DataTable يطابق عقد الأعمدة والفلاتر والأزرار والحالة، وكل Dashboard يطابق عقد Service/view-data.
+- تمر اختبارات Feature وUnit الكاملة، و`php artisan view:cache` و`php artisan route:cache` ثم `route:clear`، و`git diff --check`، و`npm run build` عند تعديل أصول الواجهة.
+- لا تغلق المرحلة بناءً على عداد ملفات فقط؛ الإغلاق يتطلب Manifest مكتمل وأدلة تحقق لكل إدارة.

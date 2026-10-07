@@ -85,3 +85,11 @@
 - In archive DataTables:
   - `getActionsDropdownButton()` provides `copy` and `excel`.
   - `getAddButton()` returns `[]`.
+
+## 6. Golden Pattern for System Administrations (Mandatory)
+- The Golden Pattern applies directly to every current and future SuperAdmin and Tenant administration; no administration is exempted for a later migration.
+- Every administration must have a complete manifest covering: scope, route/middleware/guard, Controller, FormRequest, Policy, Action/Service, Model/Enum/Event/Job, DataTable or Blade UI, shared frontend contract, and tests.
+- The mandatory flow is: `Controller → FormRequest → Policy → Action/Service → UI → Tests`.
+- Use a Modular Monolith with explicit `Central` and `Tenant` boundaries. Tenant code must not access Central models directly; cross-boundary work must use an explicit central service/gateway and tenant context.
+- Do not add a generic Repository layer around Eloquent models. Use Actions for single transactional business operations and Services for use-case orchestration.
+- The canonical pattern is documented in `docs/architecture/golden-pattern.md`; its implementation and acceptance plan is `docs/system-unification-implementation-plan-ar.md`, stage 10.
