@@ -250,7 +250,12 @@ abstract class AbstractDataTable extends DataTable
         $params = [
             'processing' => true,
             'serverSide' => true,
-            'language'   => ['url' => asset('static/i18n/ar.json')],
+            'language'   => [
+                'url' => asset('static/i18n/ar.json'),
+                'processing' => 'جارٍ تحميل البيانات…',
+                'emptyTable' => 'لا توجد بيانات لعرضها.',
+                'zeroRecords' => 'لا توجد نتائج مطابقة.',
+            ],
             'pageLength' => 10,
 
             'orderCellsTop' => true,

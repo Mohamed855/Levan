@@ -228,6 +228,7 @@ class CollectionTargetController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'تم تبديل الحالة بنجاح',
+                'status' => $updatedTarget->status,
                 'new_status' => $updatedTarget->status,
                 'status_text' => $statusText,
                 'status_class' => $statusClass

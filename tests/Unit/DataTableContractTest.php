@@ -14,10 +14,14 @@ class DataTableContractTest extends TestCase
     {
         $layout = file_get_contents(dirname(__DIR__, 2) . '/resources/views/components/shared/layout/scripts.blade.php');
         $handler = file_get_contents(dirname(__DIR__, 2) . '/resources/assets/js/shared/table-status-toggle.js');
+        $feedback = file_get_contents(dirname(__DIR__, 2) . '/resources/js/shared/datatable-feedback.js');
 
         $this->assertStringContainsString("'resources/assets/js/shared/table-status-toggle.js'", $layout);
+        $this->assertStringContainsString("'resources/js/shared/datatable-feedback.js'", $layout);
         $this->assertStringContainsString("\ninitializeTableStatusToggles();", $handler);
         $this->assertStringContainsString('response?.is_active ?? response?.status ?? response?.new_status', $handler);
+        $this->assertStringContainsString('processing.dt.sharedDataTableFeedback', $feedback);
+        $this->assertStringContainsString('error.dt.sharedDataTableFeedback', $feedback);
     }
 
     public function test_status_toggle_columns_precede_actions_in_every_active_data_table(): void
@@ -67,6 +71,10 @@ class DataTableContractTest extends TestCase
 
                 $this->assertStringContainsString("'success'", $body, "{$prefix} must return a success flag.");
                 $this->assertStringContainsString("'message'", $body, "{$prefix} must return a user-facing message.");
+                $this->assertTrue(
+                    str_contains($body, "'status'") || str_contains($body, "'is_active'"),
+                    "{$prefix} must return the resulting status.",
+                );
                 $this->assertDoesNotMatchRegularExpression(
                     "/['\"]message['\"]\\s*=>[^;\\n]*getMessage\\(/",
                     $body,

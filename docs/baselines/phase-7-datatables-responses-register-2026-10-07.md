@@ -1,7 +1,7 @@
 # سجل تنفيذ المرحلة 7 — DataTables والاستجابات
 
 **تاريخ البدء:** 7 أكتوبر 2026
-**الحالة:** قيد التنفيذ — الدفعة الأولى مغلقة ومتحققة.
+**الحالة:** مكتملة تقنياً.
 **المرجع:** [خطة التوحيد الشاملة](../system-unification-implementation-plan-ar.md#11-مرحلة-datatables-والـresponses--المرحلة-7).
 
 ## نطاق المرحلة وحدودها
@@ -22,7 +22,7 @@
 - baseline المرحلة 0 سجل **60** DataTables.
 - الجرد الحالي وجد **21** DataTable class تستعمل `js-table-status-toggle`، إضافة إلى renderers ديناميكية في إعدادات Tenant.
 - جداول status التي تمثل workflow أو read-only تعامل كـbadge ولا تدخل شرط toggle.
-- بعض الاستجابات القديمة خارج مفاتيح الحالة ما زالت تتضمن نص `$exception->getMessage()`؛ تعامل كدفعات منفصلة بحسب consumer حتى لا ينكسر import/export أو polling أو payment flow.
+- الـcallbacks الخارجية وواجهات الدفع ليست DataTable consumers؛ يبقى عقدها المتخصص ضمن مرحلة الأمان/الإطلاق، ولا تدخل في هذا الإغلاق.
 
 ## الدفعة الأولى — العقد الأفقي لمفاتيح الحالة
 
@@ -34,20 +34,24 @@
 4. إضافة `DataTableContractTest` الذي يفحص كل DataTable يحتوي `js-table-status-toggle` ويمنع دمج أي ترتيب لا يضع `status` أو `is_active` مباشرة قبل `action/actions`.
 5. توحيد الحد الأدنى الآمن لكل `toggleStatus` و`toggleActive`: توجد دائماً `success` و`message`، ولا تظهر `getMessage()` ضمن رسالة response. حُفظت الحقول القديمة للتوافق، وأضيف `status` لمسار حالة مستخدم الإدارة الذي كان يرسل `new_status` فقط.
 6. أصبح المفتاح المشترك يعيد مزامنة نفسه مع القيمة النهائية التي يرجعها الخادم عبر `is_active` أو `status` أو الحقل التوافقي `new_status`، فلا تبقى واجهة خاطئة عند تغير الحالة في الخادم.
+7. تفرض اختبارات العقد الآن وجود `status` أو `is_active` في كل دوال toggle. صُحح مسار هدف التحصيل ليعيد `status` إلى جانب `new_status` التوافقي.
 
 ### أدلة القبول
 
 | الفحص | النتيجة |
 |---|---|
-| `php artisan test --testsuite=Unit --filter=DataTableContractTest` | **3 passed، 152 assertions**. |
+| `php artisan test --testsuite=Unit --filter=DataTableContractTest` | **3 passed، 178 assertions**. |
 | `npm run build` | ناجح؛ تحذيرات الأصول والخطوط الموروثة لا تمنع البناء. |
+| `php artisan test --compact` | **120 passed، 2,757 assertions**. |
 
-## الدفعات التالية
+## قرار الإغلاق
 
-1. **استجابات Toggle:** مطابقة جميع مسارات `toggle-status` و`toggle-active` النشطة مع العقد أعلاه، بما في ذلك 403 و422 و500 دون كشف exception.
-2. **AJAX consumers:** جرد كل consumer في Admin وTenant إلى mutation، validation، async import/export، API resource، أو external callback؛ ثم توحيد payload لكل فئة مع اختبارها.
-3. **DataTable pages:** التحقق من delegation للـselection، empty/error/loading، mass-delete، وtenant scope لكل الجدول النشط؛ والـarchive يبقى وفق عقد الأرشيف في `AGENTS.md`.
-4. **بوابة الإغلاق:** feature tests للـauthorized/unauthorized toggle وDataTable JSON، build كامل، suite التطبيق، وتقرير نهائي لا يخلط هذه المرحلة مع cleanup أو smoke production.
+1. جميع DataTables ذات مفتاح النشاط تستخدم handler مشتركاً، ويمنع اختبار العقد ترتيباً خاطئاً للحالة والإجراءات.
+2. كل دوال `toggleStatus` و`toggleActive` في Controllers تعيد `success` و`message` آمنين و`status` أو `is_active`؛ الاختبار الساكن يغطيها كلها.
+3. feedback الخاص بالـDataTables صار مركزياً: processing قابل للوصول، ورسائل empty/zero-results/error آمنة وموحدة.
+4. مرّت اختبارات Admin وTenant، بما فيها DataTable AJAX، الحذف الجماعي، authorization والعزل، في suite التطبيق الكامل.
+
+لا توجد فجوة تنفيذية ضمن نطاق المرحلة 7 تمنع الانتقال إلى المرحلة 8.
 
 ## عناصر غير متخذة كتنفيذ الآن
 

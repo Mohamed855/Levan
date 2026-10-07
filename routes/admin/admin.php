@@ -20,7 +20,6 @@ use App\Http\Controllers\Admin\Settings\Bank\SettingsBankController;
 use App\Http\Controllers\Admin\Settings\Domain\SettingsDomainController;
 use App\Http\Controllers\Admin\Settings\SettingsController;
 use App\Http\Controllers\Admin\SubscriptionManagement\SubscriptionManagementController;
-use App\Http\Controllers\Admin\TransferRequest\TransferRequestController;
 use App\Http\Controllers\Admin\Versions\VersionController;
 use App\Http\Controllers\Admin\VersionTester\VersionTesterController;
 use App\Http\Controllers\Admin\Tickets\AdminTicketController;
@@ -129,14 +128,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
         Route::get('/', [AdminActivityLogController::class, 'index'])->name('index');
         Route::get('{id}', [AdminActivityLogController::class, 'show'])->name('show');
     });
-
-    // transfers requests management
-    // Route::prefix('transfer-requests')->name('transfer-requests.')->group(function () {
-    //     Route::get('/', [TransferRequestController::class, 'index'])->name('index');
-    //     Route::get('/details/{subscription}', [TransferRequestController::class, 'details'])->name('details');
-    //     Route::post('{subscription}/approve', [TransferRequestController::class, 'approveTransferRequest'])->name('approve');
-    //     Route::post('{subscription}/reject', [TransferRequestController::class, 'rejectTransferRequest'])->name('reject');
-    // });
 
     // Plans Management
     Route::prefix('plans')->name('plans.')->group(function () {

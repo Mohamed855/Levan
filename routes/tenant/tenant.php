@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Shared\Wizard\WizardDraftController;
 use App\Http\Controllers\Tenants\License\LicenseController;
 use App\Http\Controllers\Tenants\dashboard\DashboardController;
-use App\Http\Controllers\Tenants\Auth\PasswordChangeController;
 use App\Http\Controllers\Tenants\activity_log\ActivityLogController;
 use App\Http\Controllers\Tenants\Archive\Company\CompanyArchiveController;
 use App\Http\Controllers\Tenants\Archive\Contract\ContractArchiveController;
@@ -61,7 +60,6 @@ use App\Http\Controllers\Tenants\FinancialCollection\Import\CollectionImportCont
 use App\Http\Controllers\Tenants\FinancialCollection\Reconciliation\PaymentReconciliationController;
 use App\Http\Controllers\Tenants\FinancialCollection\Target\CollectionTargetController;
 use App\Http\Controllers\Tenants\GeneralSetting\ContactMethod\SettingsContactMethodController;
-use App\Http\Controllers\Tenants\GeneralSetting\ContactResult\ContactResultController;
 use App\Http\Controllers\Tenants\GeneralSetting\Country\SettingsCountryController;
 use App\Http\Controllers\Tenants\GeneralSetting\CustomerStatus\SettingsCustomerStatusController;
 use App\Http\Controllers\Tenants\GeneralSetting\DocumentRequest\SettingsDocumentRequestReasonController;
@@ -69,15 +67,11 @@ use App\Http\Controllers\Tenants\GeneralSetting\MessageTemplate\MessageTemplateC
 use App\Http\Controllers\Tenants\GeneralSetting\PaymentMethod\SettingsPaymentMethodController;
 use App\Http\Controllers\Tenants\Notification\NotificationController;
 use App\Http\Controllers\Tenants\Reports\Company\CompanyReportController;
-use App\Http\Controllers\Tenants\Reports\Contract\ContractReportController;
 use App\Http\Controllers\Tenants\Reports\Executive\ExecutiveReportController;
 use App\Http\Controllers\Tenants\Reports\Customer\CustomerReportController;
 use App\Http\Controllers\Tenants\Reports\CustomerFollow\CustomerFollowReportController;
 use App\Http\Controllers\Tenants\Reports\Financial\FinancialReportController;
 use App\Http\Controllers\Tenants\Reports\Performance\EmployeePerformanceReportController;
-use App\Http\Controllers\Tenants\Reports\Performance\CompanyPerformanceReportController;
-use App\Http\Controllers\Tenants\Reports\Portfolio\PortfolioReportController;
-use App\Http\Controllers\Tenants\Reports\User\UserReportController;
 use App\Http\Controllers\Tenants\Settings\ApiTokenSettingsController;
 use App\Http\Controllers\Tenants\Settings\SettingsController;
 use App\Http\Controllers\Tenants\Subscriptions\NewSubscriptionController;
@@ -313,7 +307,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             Route::post('/verify-dns', [DomainController::class, 'verifyDNS'])->name('domains.verify-dns');
             Route::name('check-domain-exists')->post('check-domain-exists', [DomainController::class, 'checkDomainExists']);
             Route::name('switch.active')->post('/switch-active', [DomainController::class, 'switchActiveDomain']);
-            // Route::name('checkSubDomain')->get('/check/{subdomain}', [DomainController::class, 'checkSubDomain']);
             Route::name('transfer-domain-proccess')->post('/transfer', [DomainController::class, 'transferDomainProcess']);
             Route::post('/process-transfer', [DomainController::class, 'processTransfer']);
             Route::name('modifyaccount')->post('modifyaccount', [DomainController::class, 'modifyaccount']);
@@ -372,20 +365,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
 
         /*
         |--------------------------------------------------------------------------
-        | Password Change
-        |--------------------------------------------------------------------------
-        */
-        // Route::prefix('password')->name('password.')->group(function () {
-        //     Route::name('change.form')->get('change', [PasswordChangeController::class, 'showChangeForm']);
-        //     Route::name('change')->post('change', [PasswordChangeController::class, 'changePassword']);
-        // });
-
-
-
-
-
-        /*
-        |--------------------------------------------------------------------------
         | Notifications
         |--------------------------------------------------------------------------
         */
@@ -429,12 +408,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             });
             Route::resource('message-templates', MessageTemplateController::class);
 
-            //  === راوتات نتائج الإتصال  ===
-            // Route::resource('contact-results', ContactResultController::class);
-            // Route::prefix('contact-results')->name('contact-results.')->group(function () {
-            //     Route::name('toggle-status')->patch('/{contactResult}/toggle-status', [ContactResultController::class, 'toggleStatus']);
-            //     Route::name('get-results-by-category')->get('/get-results-by-category', [ContactResultController::class, 'getResultsByCategory']);
-            // });
         });
 
         /*
@@ -878,7 +851,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             Route::name('export-download')->get('export-download/{file}', [ActivityLogController::class, 'downloadExportFile']);
             Route::name('show')->get('{id}', [ActivityLogController::class, 'show']);
 
-            // Route::name('download')->get('download/{file}', [ActivityLogController::class, 'downloadFile']);
         });
 
         /*
@@ -1122,27 +1094,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
                 Route::name('download')->get('/download/{file}', [CompanyReportController::class, 'downloadFile']);
             });
 
-            // Route::prefix('contracts')->name('contracts.')->group(function () {
-            //     Route::get('/', [ContractReportController::class, 'index'])->name('index');
-            //     Route::get('/{id}', [ContractReportController::class, 'show'])->name('show');
-            // });
-
-
-            // Route::prefix('portfolios')->name('portfolios.')->group(function () {
-            //     Route::name('index')->get('/', [PortfolioReportController::class, 'index']);
-            //     // Route::name('show')->get('/{id}', [PortfolioReportController::class, 'show']);
-            // });
-
-
-            // Route::prefix('performance')->name('performance.')->group(function () {
-            //     Route::name('index')->get('/', [CompanyPerformanceReportController::class, 'index']);
-            //     Route::name('export.pdf')->post('/export-pdf', [CompanyPerformanceReportController::class, 'exportPDF']);
-            //     Route::name('export.excel')->post('/export-excel', [CompanyPerformanceReportController::class, 'exportExcel']);
-            //     Route::name('show-export-modal')->post('/show-export-modal', [CompanyPerformanceReportController::class, 'showExportFieldsModal']);
-            //     Route::name('check-progress')->post('/check-progress', [CompanyPerformanceReportController::class, 'checkExportProgress']);
-            //     Route::name('download')->get('/download/{file}', [CompanyPerformanceReportController::class, 'downloadFile']);
-            //     Route::name('check.count')->post('/check-count', [CompanyPerformanceReportController::class, 'checkRecordsCount']);
-
             Route::prefix('employees')->name('employees.')->group(function () {
                 Route::name('index')->get('/', [EmployeePerformanceReportController::class, 'index']);
                 Route::name('export.pdf')->post('/export-pdf', [EmployeePerformanceReportController::class, 'exportPDF']);
@@ -1155,11 +1106,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             });
             // });
 
-
-            // Route::prefix('users')->name('users.')->group(function () {
-            //     Route::name('index')->get('/', [UserReportController::class, 'index']);
-            //     Route::name('export.pdf')->post('/export-pdf', [UserReportController::class, 'exportPDF']);
-            // });
 
             // التقارير التنفيذية
             Route::prefix('executive')->name('executive.')->group(function () {

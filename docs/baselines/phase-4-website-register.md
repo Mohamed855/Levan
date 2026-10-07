@@ -12,7 +12,7 @@
   - يعتمد خادماً على [`StoreTrialRequest`](file:///mnt/Hub/Work/Etmam/Levan/app/Http/Requests/Site/StoreTrialRequest.php).
   - تم تحديث سكربت [`resources/assets/js/site/trial.js`](file:///mnt/Hub/Work/Etmam/Levan/resources/assets/js/site/trial.js) لمطابقة قيود الـ FormRequest بدقة:
     - السماح بأرقام الجوال السعودية الدولية والمحلية (`05xxxxxxxx` و`966xxxxxxxxx`) حتى 12 رقماً دون قص أو رفض في المتصفح.
-  - حصر السكربتات المتروكة غير المستخدمة: `trial-validation.js` و`trial/trial-validation.js` وتوثيقها كـ Orphan Candidates لترحيلها إلى المرحلة 8.
+  - حُصرت السكربتات المتروكة غير المستخدمة `trial-validation.js` و`trial/trial-validation.js` ثم أزيلت في المرحلة 8 بعد إثبات عدم الاستهلاك وموافقة صريحة.
 - **نموذج الاشتراك والدفع (Checkout Form):**
   - يعتمد خادماً على [`SubscriptionCheckoutRequest`](file:///mnt/Hub/Work/Etmam/Levan/app/Http/Requests/Site/SubscriptionCheckoutRequest.php).
   - تم تحديث سكربت [`resources/assets/js/site/checkout.js`](file:///mnt/Hub/Work/Etmam/Levan/resources/assets/js/site/checkout.js) لمطابقة الـ FormRequest:

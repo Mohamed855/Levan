@@ -30,6 +30,7 @@
 
 - [ ] users/teams/roles: CRUD، status، الصلاحيات، والـprofile.
 - [ ] companies/contracts/portfolios/tasks: CRUD، route-model binding، archive/restore، وتصدير إن وجد.
+- [ ] assignments/properties/auctions: إنشاء متسلسل Assignment→Property→Auction، رفض ربط عقار بإسناد آخر، الحالات، المرفقات، الأرشيف والاسترجاع والحذف النهائي.
 - [ ] customers: create/edit/show/delete، phones، fields، attachments، notes، comments، follows، payments، settlements، plans، SMS، update requests.
 - [ ] import/bulk update/distribution/export: upload خاطئ، progress، cancel، file download، والنتيجة النهائية.
 
