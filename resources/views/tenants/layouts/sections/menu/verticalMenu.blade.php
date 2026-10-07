@@ -11,7 +11,7 @@
     @if (!isset($navbarFull))
         <div class="app-brand demo">
             <a href="{{ tenant_route_name('dashboard') }}" class="app-brand-link">
-                <x-partials.tenant-logo :logo-path="asset('static/brand/logos/logo.svg')" />
+                <x-partials.tenant-logo :logo-path="asset('static/brand/logos/logo-light.svg')" />
                 <span class="app-brand-text demo menu-text fw-bold">
                     {{ App\Helpers\Tenants\Settings\SettingsHelper::get('logo_text') }}
                 </span>

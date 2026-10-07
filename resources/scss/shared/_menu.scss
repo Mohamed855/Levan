@@ -1,140 +1,24 @@
 // =============================================================================
-// Sidebar Menu — Theme & Color Overrides (Admin & Tenant)
+// Sidebar Menu — Active Item Color Overrides (Admin & Tenant)
+// Reverts sidebar back to primary color background (#372632) from theme-semi-dark
 // =============================================================================
 
-@use '../variables' as vars;
+.bg-menu-theme.menu-vertical .menu-item.active > .menu-link:not(.menu-toggle) {
+    background: var(--menu-active-bg) !important;
+    color: var(--menu-active-text) !important;
 
-.bg-menu-theme.menu-vertical,
-#layout-menu.menu-vertical {
-    background-color: var(--secondary-color, #{vars.$secondary-color}) !important;
-
-    // Sub-menus background
-    .menu-sub {
-        background-color: var(--secondary-color, #{vars.$secondary-color}) !important;
-    }
-
-    // Scroll shadow gradient matching the secondary background
-    .menu-inner-shadow {
-        background: linear-gradient(
-            var(--secondary-color, #{vars.$secondary-color}) 41%,
-            rgba(243, 237, 234, 0.11) 95%,
-            rgba(243, 237, 234, 0)
-        ) !important;
-    }
-
-    // 2. Menu Text & Brand Text (Primary Color: #372632)
-    .menu-text,
-    .app-brand-text {
-        color: var(--primary-color, #{vars.$primary-color}) !important;
-    }
-
-    // 3. Menu Links & Icons (Primary Color: #372632)
-    .menu-link,
-    .menu-link .menu-icon,
-    .menu-toggle::after {
-        color: var(--primary-color, #{vars.$primary-color}) !important;
-    }
-
-    .menu-item:not(.active) > .menu-link:hover,
-    .menu-item:not(.active) > .menu-link:focus {
-        background-color: rgba(vars.$primary-color, 0.05) !important;
-        color: var(--primary-color, #{vars.$primary-color}) !important;
-
-        .menu-icon,
-        &::after {
-            color: var(--primary-color, #{vars.$primary-color}) !important;
-        }
-    }
-
-    // Sub-menu bullet indicator:
-    // Inactive / default: bordered circle (\ea6b - ti-icon-circle)
-    .menu-sub > .menu-item > .menu-link::before,
-    .menu-sub > .menu-item > .menu-link:before {
-        content: '\ea6b' !important;
-        font-family: 'tabler-icons' !important;
-        font-size: 0.75rem !important;
-        color: var(--primary-color, #{vars.$primary-color}) !important;
-        background-color: transparent !important;
-        border: none !important;
-    }
-
-    // Active sub-menu bullet indicator: filled circle (\f671 - ti-icon-circle-filled)
-    .menu-sub > .menu-item.active > .menu-link::before,
-    .menu-sub > .menu-item.active > .menu-link:before,
-    .menu-inner > .menu-item.open .menu-item.active > .menu-link::before,
-    .menu-inner > .menu-item.open .menu-item.active > .menu-link:before {
-        content: '\f671' !important;
-        font-family: 'tabler-icons' !important;
-        font-size: 0.75rem !important;
-        color: var(--primary-color, #{vars.$primary-color}) !important;
-        background-color: transparent !important;
-        border: none !important;
-    }
-
-    // 4. Active Menu Link (including menu-toggle)
-    // Darkened Secondary #e9ddd8 + Primary Text #372632
-    .menu-item.active > .menu-link,
-    .menu-link.active {
-        background: var(--menu-active-bg, #{vars.$secondary-darker}) !important;
-        color: var(--primary-color, #{vars.$primary-color}) !important;
-        box-shadow: none !important;
-
-        .menu-icon,
-        &::after {
-            color: var(--primary-color, #{vars.$primary-color}) !important;
-        }
-
-        &:hover,
-        &:focus {
-            background: var(--menu-active-bg, #{vars.$secondary-darker}) !important;
-            color: var(--primary-color, #{vars.$primary-color}) !important;
-        }
+    .menu-icon {
+        color: var(--menu-active-text) !important;
     }
 }
 
-// RTL specificity overrides: outrank [dir=rtl] vendor rules that inject gradients with !important
-:root[dir="rtl"] .bg-menu-theme.menu-vertical,
-[dir="rtl"] .bg-menu-theme.menu-vertical {
-    // Inactive sub-menu bullet indicator: bordered circle
-    .menu-sub > .menu-item > .menu-link::before,
-    .menu-sub > .menu-item > .menu-link:before {
-        content: '\ea6b' !important;
-        font-family: 'tabler-icons' !important;
-        font-size: 0.75rem !important;
-        color: var(--primary-color, #{vars.$primary-color}) !important;
-        background-color: transparent !important;
-        border: none !important;
-    }
+// RTL: outrank [dir=rtl] vendor rules that inject gradients with !important
+:root[dir="rtl"] .bg-menu-theme.menu-vertical .menu-item.active > .menu-link:not(.menu-toggle),
+[dir="rtl"] .bg-menu-theme.menu-vertical .menu-item.active > .menu-link:not(.menu-toggle) {
+    background: var(--menu-active-bg) !important;
+    color: var(--menu-active-text) !important;
 
-    // Active sub-menu bullet indicator: filled circle
-    .menu-sub > .menu-item.active > .menu-link::before,
-    .menu-sub > .menu-item.active > .menu-link:before,
-    .menu-inner > .menu-item.open .menu-item.active > .menu-link::before,
-    .menu-inner > .menu-item.open .menu-item.active > .menu-link:before {
-        content: '\f671' !important;
-        font-family: 'tabler-icons' !important;
-        font-size: 0.75rem !important;
-        color: var(--primary-color, #{vars.$primary-color}) !important;
-        background-color: transparent !important;
-        border: none !important;
-    }
-
-    // Active menu link (including menu-toggle)
-    .menu-item.active > .menu-link,
-    .menu-link.active {
-        background: var(--menu-active-bg, #{vars.$secondary-darker}) !important;
-        color: var(--primary-color, #{vars.$primary-color}) !important;
-        box-shadow: none !important;
-
-        .menu-icon,
-        &::after {
-            color: var(--primary-color, #{vars.$primary-color}) !important;
-        }
-
-        &:hover,
-        &:focus {
-            background: var(--menu-active-bg, #{vars.$secondary-darker}) !important;
-            color: var(--primary-color, #{vars.$primary-color}) !important;
-        }
+    .menu-icon {
+        color: var(--menu-active-text) !important;
     }
 }

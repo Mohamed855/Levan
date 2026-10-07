@@ -11,7 +11,7 @@ $secondary-darker:  darken($secondary-color, 5.5%);
     --primary-color:        #{$primary-color};
     --secondary-color:      #{$secondary-color};
     --secondary-color-dark: #{$secondary-darker};
-    --menu-active-bg:       #{$secondary-darker};
+    --menu-active-bg:       #e3d8d1;
     --menu-active-text:     #{$primary-color};
 
     // Bootstrap-compatible tokens. Primary is deliberately dark and secondary
