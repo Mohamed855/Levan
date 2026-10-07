@@ -4,21 +4,24 @@ namespace App\Http\Controllers\Tenants\GeneralSetting\DocumentRequest;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tenants\Traits\CommonSettingController;
+use App\Http\Requests\Tenants\GeneralSetting\SaveDocumentRequestReasonRequest;
 use App\Models\Tenants\GeneralSetting\DocumentRequest\SettingsDocumentRequestReason;
-use Illuminate\Http\Request;
 
 class SettingsDocumentRequestReasonController extends Controller
 {
-    // public function __construct()
-    // {
-    //     $this->middleware('can:قائمة أسباب طلب المستندات')->only([
-    //         'index',
-    //         'edit',
-    //         'store',
-    //         'update',
-    //         'destroy',
-    //     ]);
-    // }
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            $user = $request->user('tenant');
+
+            abort_unless(
+                $user?->can('document_request_reasons.view') || $user?->can('system.settings'),
+                403,
+            );
+
+            return $next($request);
+        });
+    }
 
     use CommonSettingController;
 
@@ -34,31 +37,13 @@ class SettingsDocumentRequestReasonController extends Controller
         return $this->toggleStatus_trait($this->model, $id);
     }
 
-    public function store(Request $request)
+    public function store(SaveDocumentRequestReasonRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:settings_document_request_reasons,name,NULL,id,deleted_at,NULL',
-        ], [
-            'name.required' => 'اسم سبب طلب المستندات مطلوب',
-            'name.string' => 'اسم سبب طلب المستندات يجب أن يكون نص',
-            'name.max' => 'اسم سبب طلب المستندات يجب أن لا يتجاوز 255 حرف',
-            'name.unique' => 'اسم سبب طلب المستندات موجود مسبقاً',
-        ]);
-
         return $this->store_trait($request, $this->model);
     }
 
-    public function update(Request $request, $id)
+    public function update(SaveDocumentRequestReasonRequest $request, $id)
     {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:settings_document_request_reasons,name,' . $id . ',id,deleted_at,NULL',
-        ], [
-            'name.required' => 'اسم سبب طلب المستندات مطلوب',
-            'name.string' => 'اسم سبب طلب المستندات يجب أن يكون نص',
-            'name.max' => 'اسم سبب طلب المستندات يجب أن لا يتجاوز 255 حرف',
-            'name.unique' => 'اسم سبب طلب المستندات موجود مسبقاً',
-        ]);
-
         return $this->update_trait($request, $this->model, $id);
     }
 

@@ -26,18 +26,6 @@
     @vite(['resources/assets/js/shared/form-validation.js'])
     <script>
         $(document).ready(function() {
-            if ($.fn.select2) {
-                $('.select2').not('.select2-hidden-accessible').each(function() {
-                    $(this).select2({
-                        placeholder: $(this).data('placeholder') || 'اختر',
-                        allowClear: !$(this).prop('required'),
-                        width: '100%',
-                        language: 'ar',
-                        dir: 'rtl'
-                    });
-                });
-            }
-
             $('#btn-generate-assignment-number').on('click', function() {
                 const year = new Date().getFullYear();
                 const random = Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -113,7 +101,8 @@
                             ]" />
 
                             <x-form.controls.image-upload name="entity_logo" label="شعار الجهة أو صورة الإسناد"
-                                hint="JPG، PNG أو SVG. الحد الأقصى 2MB" col="col-md-6" />
+                                accept="image/jpeg,image/png,image/webp,image/svg+xml"
+                                hint="JPG، PNG أو WebP أو SVG. الحد الأقصى 2MB" col="col-md-6" />
 
                             <x-form.wizard.actions>
                                 <x-form.wizard.previous-button />

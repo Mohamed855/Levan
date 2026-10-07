@@ -9,6 +9,7 @@ use App\Http\Requests\Tenants\Auctions\UpdateAuctionRequest;
 use App\Http\Requests\Tenants\UpdateResourceStatusRequest;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
+use App\Models\Tenants\Properties\Property;
 use App\Services\Tenants\Auctions\AuctionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -80,10 +81,16 @@ class AuctionsController extends Controller
     {
         $auction->load(['assignment', 'properties', 'attachments']);
         $assignments = Assignment::select(['id', 'name', 'assignment_number', 'issuing_entity'])->get();
+        $properties = Property::query()
+            ->where('assignment_id', $auction->assignment_id)
+            ->select(['id', 'property_number', 'name'])
+            ->orderBy('property_number')
+            ->get();
 
         return view('tenants.auctions.edit', [
             'auction'     => $auction,
             'assignments' => $assignments,
+            'properties'  => $properties,
         ]);
     }
 

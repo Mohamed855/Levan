@@ -18,17 +18,31 @@
     @vite(['resources/assets/js/shared/form-validation.js'])
     <script>
         $(document).ready(function() {
-            if ($.fn.select2) {
-                $('.select2').not('.select2-hidden-accessible').each(function() {
-                    $(this).select2({
-                        placeholder: $(this).data('placeholder') || 'اختر',
-                        allowClear: !$(this).prop('required'),
-                        width: '100%',
-                        language: 'ar',
-                        dir: 'rtl'
+            const propertiesUrl = "{{ tenant_route_name('assignments.properties', ':assignment') }}";
+
+            $('#assignment_id').on('change', function() {
+                const assignmentId = $(this).val();
+                const $properties = $('#property_ids');
+
+                if (!assignmentId) {
+                    $properties.empty().trigger('change');
+                    return;
+                }
+
+                $.get(propertiesUrl.replace(':assignment', assignmentId))
+                    .done(function(response) {
+                        const options = (response.properties || []).map(function(property) {
+                            const label = `${property.property_number} — ${property.name}`;
+                            return new Option(label, property.id, false, false);
+                        });
+
+                        $properties.empty().append(options).trigger('change');
+                    })
+                    .fail(function() {
+                        $properties.empty().trigger('change');
+                        window.toastr?.error?.('تعذر تحميل عقارات الإسناد المختار.');
                     });
-                });
-            }
+            });
         });
     </script>
 @endsection
@@ -98,6 +112,14 @@
                             ['value' => 'suspended', 'label' => 'معلق'],
                         ]" />
 
+                    <x-form.controls.input name="expected_properties_count" type="number" min="1"
+                        label="عدد العقارات المتوقع" :value="$auction->expected_properties_count" col="col-md-4" />
+
+                    <x-form.controls.select name="property_ids" id="property_ids" label="العقارات المرتبطة"
+                        multiple col="col-12" :value="$auction->properties->pluck('id')->all()"
+                        help="يتغير الاختيار تلقائياً عند تغيير الإسناد، ولا يقبل النظام إلا عقارات الإسناد المختار."
+                        :options="$properties->map(fn ($property) => ['value' => $property->id, 'label' => $property->property_number . ' — ' . $property->name])->all()" />
+
                     <x-form.controls.input name="supervising_entity" label="الجهة المشرفة" :value="$auction->supervising_entity"
                         col="col-md-6" />
                     <x-form.controls.input name="platform_name" label="منصة المزاد" :value="$auction->platform_name" col="col-md-6" />
@@ -110,7 +132,29 @@
                         rows="2" />
 
                     <x-form.controls.image-upload name="cover_image" label="صورة الغلاف" :value="$auction->cover_image ? tasset($auction->cover_image) : null"
+                        accept="image/jpeg,image/png,image/webp"
                         hint="JPG، PNG أو WebP. الحد الأقصى 4MB" col="col-12" />
+
+                    <div class="col-12" data-form-field data-field-name="attachments[]">
+                        <label class="form-label" for="attachments">إضافة مرفقات</label>
+                        <input id="attachments" type="file" name="attachments[]" multiple data-form-control
+                            class="form-control" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx">
+                        <p class="invalid-feedback hidden" data-form-error aria-live="polite" hidden></p>
+                        <div class="form-text">PDF، PNG، JPG، DOC أو XLS؛ الحد الأقصى لكل ملف 10MB.</div>
+                    </div>
+
+                    @if ($auction->attachments->isNotEmpty())
+                        <div class="col-12">
+                            <div class="border rounded p-3 bg-label-secondary">
+                                <div class="fw-medium mb-2">المرفقات الحالية</div>
+                                <ul class="mb-0 ps-3">
+                                    @foreach ($auction->attachments as $attachment)
+                                        <li>{{ $attachment->file_name }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                    @endif
 
                     <div class="col-12 text-end mt-4">
                         <button type="submit" class="btn btn-primary">

@@ -229,6 +229,7 @@ class ProcessCollectionImport implements ShouldQueue
     {
         try {
             $data = [
+                'requested_by' => $this->importConfig['current_user_id'],
                 'progress' => max(0, min(100, $progress)), // تأكد من أن التقدم بين 0-100
                 'message' => $message,
                 'completed' => $progress === 100,

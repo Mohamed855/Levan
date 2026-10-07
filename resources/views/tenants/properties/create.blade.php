@@ -22,21 +22,6 @@
 
 @section('page-script')
     @vite(['resources/assets/js/shared/form-validation.js'])
-    <script>
-        $(document).ready(function() {
-            if ($.fn.select2) {
-                $('.select2').not('.select2-hidden-accessible').each(function() {
-                    $(this).select2({
-                        placeholder: $(this).data('placeholder') || 'اختر',
-                        allowClear: !$(this).prop('required'),
-                        width: '100%',
-                        language: 'ar',
-                        dir: 'rtl'
-                    });
-                });
-            }
-        });
-    </script>
 @endsection
 
 @section('content')
@@ -97,6 +82,7 @@
                             <x-form.controls.input name="district" label="الحي" placeholder="مثال: حي النرجس" col="col-md-6" />
 
                             <x-form.controls.image-upload name="main_image" label="صورة العقار"
+                                accept="image/jpeg,image/png,image/webp"
                                 hint="JPG، PNG أو WebP. الحد الأقصى 4MB" col="col-12" />
 
                             <x-form.wizard.actions>

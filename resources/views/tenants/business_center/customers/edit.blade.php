@@ -4,10 +4,10 @@
 
 {{-- ▸ Vendor assets --}}
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
 @endsection
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js', 'resources/assets/vendor/libs/flatpickr/flatpickr.js', 'resources/assets/vendor/libs/select2/select2.js'])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/flatpickr/flatpickr.js', 'resources/assets/vendor/libs/select2/select2.js'])
 @endsection
 @section('toastr')
     @vite(['resources/css/toastr.css', 'resources/js/toastr.js'])
@@ -24,7 +24,7 @@
         window.initialDynamic = @json($customer->dynamic);
     </script>
 
-    @vite(['resources/assets/js/tenants/business-center/customers/dynamic-fields/customers-dynamic-fields.js', 'resources/assets/js/tenants/business-center/customers/phone-fields/customers-phone-fields.js', 'resources/assets/js/tenants/business-center/customers/basic/validation.js', 'resources/assets/js/tenants/business-center/customers/name-toggle/customers-name-toggle.js'])
+    @vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/tenants/business-center/customers/dynamic-fields/customers-dynamic-fields.js', 'resources/assets/js/tenants/business-center/customers/phone-fields/customers-phone-fields.js', 'resources/assets/js/tenants/business-center/customers/basic/validation.js', 'resources/assets/js/tenants/business-center/customers/name-toggle/customers-name-toggle.js'])
 @endsection
 
 
@@ -32,7 +32,7 @@
 @section('content')
     <div class="row">
         <div class="col-12 mb-6">
-            <div id="wizard-validation" class="bs-stepper mt-2">
+            <div id="wizard-validation" class="bs-stepper mt-2" data-form-stepper>
 
                 {{-- ▼ Header --}}
                 <div class="bs-stepper-header">
@@ -82,7 +82,7 @@
                     @endif
 
                     <form id="wizard-validation-form" action="{{ tenant_route_name('customers.update', $customer) }}"
-                        method="POST" onsubmit="return false">
+                        method="POST" novalidate data-form-validate data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                         @csrf @method('PUT')
 
                         {{-- ───── STEP 1 ─ المعلومات الشخصية + الشركة / المحفظة ───── --}}
@@ -93,7 +93,7 @@
                                 <div class="col-sm-6">
                                     <label class="form-label" for="company_id">الشركة <span
                                             class="text-danger">*</span></label>
-                                    <select name="company_id" id="company_id" class="form-control select2"
+                                    <select name="company_id" id="company_id" class="form-control select2" required
                                         data-placeholder="اختر الشركة">
                                         <option value=""></option>
                                         @foreach ($companies as $company)
@@ -109,7 +109,7 @@
                                 <div class="col-sm-6">
                                     <label class="form-label" for="portfolio_id">المحفظة <span
                                             class="text-danger">*</span></label>
-                                    <select name="portfolio_id" id="portfolio_id" class="form-control select2"
+                                    <select name="portfolio_id" id="portfolio_id" class="form-control select2" required
                                         data-placeholder="اختر المحفظة">
                                         <option value=""></option>
                                         @foreach ($portfolios as $portfolio)
@@ -161,7 +161,7 @@
                                 <div class="col-sm-6">
                                     <label class="form-label" for="customer_type">نوع العميل <span
                                             class="text-danger">*</span></label>
-                                    <select name="customer_type" id="customer_type" class="form-control select2"
+                                    <select name="customer_type" id="customer_type" class="form-control select2" required
                                         data-placeholder="اختر النوع">
                                         <option value=""></option>
                                         <option value="individual"
@@ -176,7 +176,7 @@
                                 <div class="col-sm-6">
                                     <label class="form-label" for="identity_number">رقم الهوية <span
                                             class="text-danger">*</span></label>
-                                    <input type="text" id="identity_number" name="identity_number" maxlength="10"
+                                    <input type="text" id="identity_number" name="identity_number" maxlength="10" required
                                         class="form-control"
                                         value="{{ old('identity_number', $customer->identity_number) }}">
                                 </div>
@@ -201,7 +201,7 @@
                                         <i class="ti ti-arrow-left ti-xs me-sm-2 me-0"></i>
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
                                     </button>
-                                    <button type="button" class="btn btn-primary btn-next">
+                                    <button type="button" class="btn btn-primary btn-next" disabled>
                                         <span class="align-middle d-sm-inline-block d-none me-sm-2">التالي</span>
                                         <i class="ti ti-arrow-right ti-xs"></i>
                                     </button>
@@ -252,7 +252,7 @@
                                         <i class="ti ti-arrow-left ti-xs me-sm-2 me-0"></i>
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
                                     </button>
-                                    <button type="button" class="btn btn-primary btn-next">
+                                    <button type="button" class="btn btn-primary btn-next" disabled>
                                         <span class="align-middle d-sm-inline-block d-none me-sm-2">التالي</span>
                                         <i class="ti ti-arrow-right ti-xs"></i>
                                     </button>

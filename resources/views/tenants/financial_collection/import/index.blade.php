@@ -1,10 +1,10 @@
 @extends('tenants.layouts.layoutMaster')
 @section('title', 'استيراد التحصيلات')
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/dropzone/dropzone.scss'])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/dropzone/dropzone.scss'])
 @endsection
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js', 'resources/assets/vendor/libs/flatpickr/flatpickr.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/dropzone/dropzone.js'])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/flatpickr/flatpickr.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/dropzone/dropzone.js'])
 @endsection
 
 @section('toastr')
@@ -30,7 +30,7 @@
         };
         window.csrfToken = "{{ csrf_token() }}";
         window.systemOptions = @json($systemOptions);
-        window.currentUser = @json(auth()->user());
+        window.currentUser = @json(auth('tenant')->user());
     </script>
     @vite(['resources/assets/js/tenants/financial_collection/import/import.js'])
 @endsection
@@ -53,7 +53,7 @@
                 </div>
             </div>
             <div id="configuration-form" style="display: none;">
-                <form id="import-form">
+                <form id="import-form" novalidate>
                     <input type="hidden" id="temp_path" name="temp_path">
                     <!-- قسم ربط الحقول -->
                     <div class="card mb-4">
@@ -119,7 +119,7 @@
                     </div>
                     <div class="text-end">
                         <button type="button" class="btn btn-outline-secondary me-2" onclick="resetImport()">إعادة</button>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary" disabled>
                             إستيراد
                         </button>
                     </div>

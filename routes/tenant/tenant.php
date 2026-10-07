@@ -128,11 +128,26 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
                 AuctionsController::class . '@update',
                 CustomerController::class . '@store',
                 CustomerController::class . '@update',
+                CollectionController::class . '@store',
+                CollectionController::class . '@update',
                 TicketController::class . '@store',
                 TicketController::class . '@reply',
                 TicketController::class . '@rateReply',
                 TicketController::class . '@submitSurvey',
                 BillsController::class . '@uploadReceipt',
+                BillsController::class . '@processCheckout',
+                TenantSubscriptionController::class . '@processRenew',
+                TenantSubscriptionController::class . '@processLicense',
+                NewSubscriptionController::class . '@checkoutStore',
+                TenantSubscriptionController::class . '@licenseCheckout',
+                SettingsCountryController::class . '@store',
+                SettingsCountryController::class . '@update',
+                SettingsPaymentMethodController::class . '@store',
+                SettingsPaymentMethodController::class . '@update',
+                SettingsContactMethodController::class . '@store',
+                SettingsContactMethodController::class . '@update',
+                SettingsDocumentRequestReasonController::class . '@store',
+                SettingsDocumentRequestReasonController::class . '@update',
                 \App\Http\Controllers\Tenants\Auth\Fortify\TenantTwoFactorSettingsController::class . '@confirm',
             ])
             ->name('validate-step');
@@ -143,7 +158,8 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
     Route::prefix('subscribe')->name('subscribe.')->group(function () {
         Route::name('index')->get('/', [NewSubscriptionController::class, 'index']);
         Route::name('checkout')->get('plan/{plan}/checkout', [NewSubscriptionController::class, 'checkout']);
-        Route::name('checkout.store')->post('checkout', [NewSubscriptionController::class, 'checkoutStore']);
+        Route::name('checkout.store')->post('checkout', [NewSubscriptionController::class, 'checkoutStore'])
+            ->defaults('shared_form_validation', true);
         Route::name('callback')->get('callback', [NewSubscriptionController::class, 'handleNewSubscriptionCallback']);
     });
 
@@ -156,7 +172,8 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         Route::name('show')->get('{id}', [BillsController::class, 'show']);
 
         Route::name('checkout')->get('{id}/checkout', [BillsController::class, 'checkout']);
-        Route::name('checkout.process')->post('{id}/checkout', [BillsController::class, 'processCheckout']);
+        Route::name('checkout.process')->post('{id}/checkout', [BillsController::class, 'processCheckout'])
+            ->defaults('shared_form_validation', true);
 
         // مسارات التحويل البنكي
         Route::name('bank-transfer')->get('{id}/bank-transfer', [BillsController::class, 'bankTransfer']);
@@ -176,14 +193,20 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
 
             Route::prefix('renew')->name('renew.')->group(function () {
                 Route::get('/', [TenantSubscriptionController::class, 'renewCheckout'])->name('checkout');
-                Route::post('/', [TenantSubscriptionController::class, 'processRenew'])->name('process');
+                Route::post('/', [TenantSubscriptionController::class, 'processRenew'])
+                    ->defaults('shared_form_validation', true)
+                    ->name('process');
                 Route::get('/callback', [TenantSubscriptionController::class, 'renewCallback'])->name('callback');
             });
 
             // شراء تراخيص إضافية
             Route::prefix('licenses')->name('licenses.')->group(function () {
-                Route::get('/', [TenantSubscriptionController::class, 'licenseCheckout'])->name('checkout');
-                Route::post('/', [TenantSubscriptionController::class, 'processLicense'])->name('process');
+                Route::get('/', [TenantSubscriptionController::class, 'licenseCheckout'])
+                    ->defaults('shared_form_validation', true)
+                    ->name('checkout');
+                Route::post('/', [TenantSubscriptionController::class, 'processLicense'])
+                    ->defaults('shared_form_validation', true)
+                    ->name('process');
                 Route::get('/callback', [TenantSubscriptionController::class, 'licenseCallback'])->name('callback');
             });
         });
@@ -915,21 +938,21 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             // Assignment Archive
             Route::prefix('assignments')->name('assignments.')->group(function () {
                 Route::name('index')->get('/', [AssignmentArchiveController::class, 'index']);
-                Route::name('restore')->match(['post', 'patch'], '{assignment}/restore', [AssignmentArchiveController::class, 'restore']);
+                Route::name('restore')->patch('{assignment}/restore', [AssignmentArchiveController::class, 'restore']);
                 Route::name('force-delete')->delete('{assignment}/force-delete', [AssignmentArchiveController::class, 'forceDelete']);
             });
 
             // Property Archive
             Route::prefix('properties')->name('properties.')->group(function () {
                 Route::name('index')->get('/', [PropertyArchiveController::class, 'index']);
-                Route::name('restore')->match(['post', 'patch'], '{property}/restore', [PropertyArchiveController::class, 'restore']);
+                Route::name('restore')->patch('{property}/restore', [PropertyArchiveController::class, 'restore']);
                 Route::name('force-delete')->delete('{property}/force-delete', [PropertyArchiveController::class, 'forceDelete']);
             });
 
             // Auction Archive
             Route::prefix('auctions')->name('auctions.')->group(function () {
                 Route::name('index')->get('/', [AuctionArchiveController::class, 'index']);
-                Route::name('restore')->match(['post', 'patch'], '{auction}/restore', [AuctionArchiveController::class, 'restore']);
+                Route::name('restore')->patch('{auction}/restore', [AuctionArchiveController::class, 'restore']);
                 Route::name('force-delete')->delete('{auction}/force-delete', [AuctionArchiveController::class, 'forceDelete']);
             });
 

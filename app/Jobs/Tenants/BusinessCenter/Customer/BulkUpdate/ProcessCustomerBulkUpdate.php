@@ -142,6 +142,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
             $errorReportPath = null;
             if ($result['failed'] > 0 && !empty($result['errors'])) {
                 $errorReportPath = $service->generateErrorReport($result['errors']);
+                $service->rememberErrorReportOwner($errorReportPath, (int) $this->data['user_id']);
             }
 
             $this->updateProgress(
@@ -1050,6 +1051,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
         ?string $errorReport = null
     ): void {
         $progress = [
+            'requested_by' => $this->data['user_id'],
             'status' => $status,
             'processed' => $processed,
             'total' => $total,

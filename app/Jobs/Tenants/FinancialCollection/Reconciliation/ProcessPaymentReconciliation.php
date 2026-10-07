@@ -481,6 +481,7 @@ class ProcessPaymentReconciliation implements ShouldQueue
     protected function updateProgress(string $status, int $processed, int $total): void
     {
         $progressData = [
+            'requested_by' => $this->data['user_id'],
             'status' => $status,
             'processed' => $processed,
             'total' => $total,
@@ -512,6 +513,7 @@ class ProcessPaymentReconciliation implements ShouldQueue
         }
 
         Cache::put("reconciliation_progress_{$this->jobId}", [
+            'requested_by' => $this->data['user_id'],
             'status' => 'failed',
             'error' => $e->getMessage(),
             'processed' => 0,

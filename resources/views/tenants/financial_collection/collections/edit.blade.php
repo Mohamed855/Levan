@@ -3,11 +3,11 @@
 @section('title', 'تعديل التحصيل')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js', 'resources/assets/vendor/libs/flatpickr/flatpickr.js', 'resources/assets/vendor/libs/select2/select2.js'])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/flatpickr/flatpickr.js', 'resources/assets/vendor/libs/select2/select2.js'])
 @endsection
 
 @section('toastr')
@@ -24,13 +24,13 @@
         window.csrfToken = "{{ csrf_token() }}";
         window.collectionId = {{ $collection->id }};
     </script>
-    @vite(['resources/assets/js/tenants/financial_collection/collections/validation.js'])
+    @vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/tenants/financial_collection/collections/validation.js'])
 @endsection
 
 @section('content')
     <div class="row">
         <div class="col-12 mb-6">
-            <div id="wizard-validation" class="bs-stepper mt-2">
+            <div id="wizard-validation" class="bs-stepper mt-2" data-form-stepper>
                 <div class="bs-stepper-header">
                     <div class="step" data-target="#basic-info-validation">
                         <button type="button" class="step-trigger">
@@ -87,7 +87,8 @@
 
                     <form id="wizard-validation-form"
                         action="{{ tenant_route_name('financial-collections.collections.update', $collection) }}"
-                        method="POST" enctype="multipart/form-data" onSubmit="return false">
+                        method="POST" enctype="multipart/form-data" novalidate data-form-validate
+                        data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                         @csrf
                         @method('PUT')
 
@@ -99,7 +100,7 @@
                                             class="text-danger">*</span></label>
                                     <select name="customer_id" id="customer_id" class="form-control select2-ajax"
                                         data-placeholder="ابحث عن العميل برقم الحساب"
-                                        {{ $collection->status === 'approved' ? 'disabled' : '' }}>
+                                        {{ $collection->status === 'approved' ? 'disabled' : '' }} required>
                                         @if ($collection->customer)
                                             <option value="{{ $collection->customer->id }}" selected>
                                                 {{ $collection->customer->account_number }}
@@ -115,7 +116,7 @@
                                         <input type="number" name="collected_amount" id="collected_amount"
                                             class="form-control" placeholder="0.00" step="0.01" min="0"
                                             value="{{ old('collected_amount', $collection->collected_amount) }}"
-                                            {{ $collection->status === 'approved' ? 'readonly' : '' }} />
+                                            {{ $collection->status === 'approved' ? 'readonly' : '' }} required />
                                         <span class="input-group-text"><span class="icon-saudi_riyal"></span></span>
                                     </div>
                                 </div>
@@ -125,7 +126,7 @@
                                         <i class="ti ti-arrow-left ti-xs me-sm-2 me-0"></i>
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
                                     </button>
-                                    <button type="button" class="btn btn-primary btn-next">
+                                    <button type="button" class="btn btn-primary btn-next" disabled>
                                         <span class="align-middle d-sm-inline-block d-none me-sm-2">التالي</span>
                                         <i class="ti ti-arrow-right ti-xs"></i>
                                     </button>
@@ -141,7 +142,7 @@
                                             class="text-danger">*</span></label>
                                     <select name="collection_type" id="collection_type" class="form-control select2"
                                         data-placeholder="اختر نوع التحصيل"
-                                        {{ $collection->status === 'approved' ? 'disabled' : '' }}>
+                                        {{ $collection->status === 'approved' ? 'disabled' : '' }} required>
                                         <option value=""></option>
                                         <option value="cash"
                                             {{ old('collection_type', $collection->collection_type) == 'cash' ? 'selected' : '' }}>
@@ -157,7 +158,7 @@
                                             class="text-danger">*</span></label>
                                     <select name="payment_method_id" id="payment_method_id" class="form-control select2"
                                         data-placeholder="اختر طريقة التحصيل"
-                                        {{ $collection->status === 'approved' ? 'disabled' : '' }}>
+                                        {{ $collection->status === 'approved' ? 'disabled' : '' }} required>
                                         <option value=""></option>
                                         @foreach ($paymentMethods as $method)
                                             <option value="{{ $method->id }}"
@@ -173,7 +174,7 @@
                                             class="text-danger">*</span></label>
                                     <select name="payment_type" id="payment_type" class="form-control select2"
                                         data-placeholder="اختر نوع السداد"
-                                        {{ $collection->status === 'approved' ? 'disabled' : '' }}>
+                                        {{ $collection->status === 'approved' ? 'disabled' : '' }} required>
                                         <option value=""></option>
                                         <option value="settlement"
                                             {{ old('payment_type', $collection->payment_type) == 'settlement' ? 'selected' : '' }}>
@@ -190,7 +191,7 @@
                                     <input type="text" name="collection_date" id="collection_date"
                                         class="form-control flatpickr-date" placeholder="اختر تاريخ التحصيل"
                                         value="{{ old('collection_date', $collection->collection_date?->format('Y-m-d')) }}"
-                                        {{ $collection->status === 'approved' ? 'readonly' : '' }} />
+                                        {{ $collection->status === 'approved' ? 'readonly' : '' }} required />
                                 </div>
 
                                 <div class="col-12 d-flex justify-content-between">
@@ -198,7 +199,7 @@
                                         <i class="ti ti-arrow-left ti-xs me-sm-2 me-0"></i>
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
                                     </button>
-                                    <button type="button" class="btn btn-primary btn-next">
+                                    <button type="button" class="btn btn-primary btn-next" disabled>
                                         <span class="align-middle d-sm-inline-block d-none me-sm-2">التالي</span>
                                         <i class="ti ti-arrow-right ti-xs"></i>
                                     </button>
@@ -216,7 +217,7 @@
                                         <input type="text" name="receipt_number" id="receipt_number"
                                             class="form-control" placeholder="رقم السند"
                                             value="{{ old('receipt_number', $collection->receipt_number) }}"
-                                            {{ $collection->status === 'approved' ? 'readonly' : '' }} />
+                                            {{ $collection->status === 'approved' ? 'readonly' : '' }} required />
                                         @if ($collection->status !== 'approved')
                                             <button type="button" class="btn btn-outline-secondary"
                                                 id="generate-receipt" title="توليد رقم جديد">

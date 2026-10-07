@@ -9,6 +9,8 @@ use App\Exceptions\Payment\PaymentVerificationException;
 use App\Exceptions\Subscription\SubscriptionCreationException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Payment\PaymentRequest;
+use App\Http\Requests\Tenants\Subscriptions\LicenseCheckoutRequest;
+use App\Http\Requests\Tenants\Subscriptions\ProcessLicensePaymentRequest;
 use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\Plans\Plan;
 use App\Services\shared\Bills\BillService;
@@ -134,14 +136,10 @@ class TenantSubscriptionController extends Controller
     |============================================================================
     |============================================================================
     */
-    public function licenseCheckout(Request $request)
+    public function licenseCheckout(LicenseCheckoutRequest $request)
     {
         try {
-            $newLicensesCount = (int) $request->input('new_licenses_count', 0);
-
-            if ($newLicensesCount <= 0) {
-                return redirect()->to(tenant_route_name('subscriptions.index'))->with('error', 'يرجى تحديد عدد التراخيص المطلوبة');
-            }
+            $newLicensesCount = (int) $request->validated('new_licenses_count');
 
             $plan            = $this->getCentralPlan();
             $total           = $plan->extra_user_license_price * $newLicensesCount;
@@ -157,19 +155,16 @@ class TenantSubscriptionController extends Controller
         }
     }
 
-    public function processLicense(PaymentRequest $request)
+    public function processLicense(ProcessLicensePaymentRequest $request)
     {
         try {
-            $newLicensesCount = (int) $request->input('new_licenses_count', 0);
-
-            if ($newLicensesCount <= 0) {
-                return redirect()->back()->with('error', 'عدد التراخيص غير صحيح');
-            }
+            $validated = $request->validated();
+            $newLicensesCount = (int) $validated['new_licenses_count'];
 
             $plan   =  $this->getCentralPlan();
             $total  = $plan->extra_user_license_price * $newLicensesCount;
 
-            $couponData = $this->couponService->processCoupon($request->input('coupon_code'), $total);
+            $couponData = $this->couponService->processCoupon($validated['coupon_code'] ?? null, $total);
 
             if (isset($couponData['error'])) {
                 return redirect()->back()->with('error', $couponData['error'])->withInput();

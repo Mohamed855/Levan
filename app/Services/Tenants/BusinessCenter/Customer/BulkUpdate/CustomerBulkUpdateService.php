@@ -200,6 +200,7 @@ class CustomerBulkUpdateService
         $jobId = uniqid('bulk_update_');
 
         Cache::put("bulk_update_progress_{$jobId}", [
+            'requested_by' => auth('tenant')->id(),
             'status' => 'queued',
             'processed' => 0,
             'total' => 0,
@@ -214,7 +215,7 @@ class CustomerBulkUpdateService
             'portfolio_id' => $data['portfolio_id'],
             'match_key' => $data['match_key'],
             'field_mappings' => $fieldMappings,
-            'user_id' => auth()->id(),
+            'user_id' => auth('tenant')->id(),
         ]);
 
         return $jobId;
@@ -225,15 +226,21 @@ class CustomerBulkUpdateService
     | Get Progress Status
     |--------------------------------------------------------------------------
     */
-    public function getProgressStatus(string $jobId): array
+    public function getProgressStatus(string $jobId, int $userId): array
     {
-        return Cache::get("bulk_update_progress_{$jobId}", [
-            'status' => 'not_found',
-            'processed' => 0,
-            'total' => 0,
-            'updated' => 0,
-            'failed' => 0,
-        ]);
+        $progress = Cache::get("bulk_update_progress_{$jobId}");
+
+        if (! is_array($progress) || (int) ($progress['requested_by'] ?? 0) !== $userId) {
+            return [
+                'status' => 'not_found',
+                'processed' => 0,
+                'total' => 0,
+                'updated' => 0,
+                'failed' => 0,
+            ];
+        }
+
+        return $progress;
     }
 
     /*
@@ -301,6 +308,15 @@ class CustomerBulkUpdateService
         $writer->save(storage_path('app/' . $filePath));
 
         return $filePath;
+    }
+
+    public function rememberErrorReportOwner(string $path, int $userId): void
+    {
+        Cache::put(
+            \App\Http\Requests\Tenants\BusinessCenter\Customer\BulkUpdate\BulkUpdateRequest::errorReportOwnerKey($path),
+            $userId,
+            now()->addHours(2),
+        );
     }
 
     /*
@@ -422,6 +438,7 @@ class CustomerBulkUpdateService
         $jobId = uniqid('bulk_exclusion_');
 
         Cache::put("bulk_exclusion_progress_{$jobId}", [
+            'requested_by' => auth('tenant')->id(),
             'status' => 'queued',
             'processed' => 0,
             'total' => 0,
@@ -435,7 +452,7 @@ class CustomerBulkUpdateService
             'temp_file_path' => $tempPath,
             'portfolio_id' => $data['portfolio_id'],
             'exclusion_key' => $data['exclusion_key'],
-            'user_id' => auth()->id(),
+            'user_id' => auth('tenant')->id(),
         ]);
 
         return $jobId;
@@ -446,14 +463,20 @@ class CustomerBulkUpdateService
     | Get Exclusion Progress Status
     |--------------------------------------------------------------------------
     */
-    public function getExclusionProgressStatus(string $jobId): array
+    public function getExclusionProgressStatus(string $jobId, int $userId): array
     {
-        return Cache::get("bulk_exclusion_progress_{$jobId}", [
-            'status' => 'not_found',
-            'processed' => 0,
-            'total' => 0,
-            'excluded' => 0,
-            'failed' => 0,
-        ]);
+        $progress = Cache::get("bulk_exclusion_progress_{$jobId}");
+
+        if (! is_array($progress) || (int) ($progress['requested_by'] ?? 0) !== $userId) {
+            return [
+                'status' => 'not_found',
+                'processed' => 0,
+                'total' => 0,
+                'excluded' => 0,
+                'failed' => 0,
+            ];
+        }
+
+        return $progress;
     }
 }

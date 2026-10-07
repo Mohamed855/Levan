@@ -32,8 +32,8 @@ class AuctionsDataTable extends AbstractDataTable
             ['data' => 'start_date', 'name' => 'start_date', 'title' => 'تاريخ البداية', 'width' => '130px'],
             ['data' => 'end_date', 'name' => 'end_date', 'title' => 'تاريخ النهاية', 'width' => '130px'],
             ['data' => 'properties_count', 'name' => 'properties_count', 'title' => 'عدد العقارات', 'width' => '90px', 'className' => 'text-center'],
-            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'width' => '100px', 'className' => 'text-center'],
             ['data' => 'outputs', 'name' => 'outputs', 'title' => 'المخرجات', 'orderable' => false, 'searchable' => false, 'width' => '110px', 'className' => 'text-center'],
+            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'width' => '100px', 'className' => 'text-center'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
@@ -73,7 +73,7 @@ class AuctionsDataTable extends AbstractDataTable
                 return '<span class="badge bg-label-info">' . (int) $row->properties_count . '</span>';
             })
             ->editColumn('status', function ($row) {
-                $canEdit = auth()->user()?->can('auctions.edit');
+                $canEdit = auth('tenant')->user()?->can('auctions.edit');
                 if ($canEdit) {
                     $checked = $row->is_active ? 'checked' : '';
                     $url = tenant_route_name('auctions.toggle-status', $row->id);
@@ -148,7 +148,7 @@ class AuctionsDataTable extends AbstractDataTable
             ['extend' => 'excel', 'text' => 'إكسل'],
         ];
 
-        if (auth()->user()?->can('auctions.delete')) {
+        if (auth('tenant')->user()?->can('auctions.delete')) {
             $buttons[] = [
                 'text'      => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
@@ -166,7 +166,7 @@ class AuctionsDataTable extends AbstractDataTable
 
     private function getAddButton(): array
     {
-        if (auth()->user()?->can('auctions.create')) {
+        if (auth('tenant')->user()?->can('auctions.create')) {
             return [
                 'text'      => '<i class="ti ti-plus me-1"></i> إضافة مزاد',
                 'className' => 'btn btn-primary btn-add',

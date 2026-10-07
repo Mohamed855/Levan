@@ -3,11 +3,11 @@
 @section('title', 'إعدادات وسائل الاتصال بالعميل')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss', 'resources/assets/vendor/libs/animate-css/animate.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/animate-css/animate.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/moment/moment.js', 'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js', 'resources/assets/vendor/libs/cleavejs/cleave.js', 'resources/assets/vendor/libs/cleavejs/cleave-phone.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
+    @vite(['resources/assets/vendor/libs/moment/moment.js', 'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/cleavejs/cleave.js', 'resources/assets/vendor/libs/cleavejs/cleave-phone.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
 @endsection
 
 @section('toastr')
@@ -19,6 +19,7 @@
 @endsection
 
 @section('page-script')
+    @vite(['resources/assets/js/shared/form-validation.js'])
     @vite(['resources/assets/js/tenants/general-settings/common-status-toggle.js'])
     <script>
         $(document).ready(function() {
@@ -160,7 +161,7 @@
                     <div class="text-center mb-6">
                         <h4 class="mb-2">إضافة وسيلة اتصال جديدة</h4>
                     </div>
-                    <form class="needs-validation row" novalidate id="addForm"
+                    <form class="needs-validation row" novalidate data-form-validate data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}" id="addForm"
                         action="{{ tenant_route_name($route . '.store') }}" method="POST">
                         @csrf
 
@@ -191,7 +192,7 @@
                     <div class="text-center mb-6">
                         <h4 class="mb-2">تعديل بيانات وسيلة الاتصال</h4>
                     </div>
-                    <form id="editSettingForm" class="needs-validation row" novalidate method="POST">
+                    <form id="editSettingForm" class="needs-validation row" novalidate data-form-validate data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}" method="POST">
                         @csrf
                         @method('PUT')
                         <div class="col-12 mb-4">

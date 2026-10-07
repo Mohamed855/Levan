@@ -4,13 +4,18 @@ namespace App\Http\Controllers\Tenants\GeneralSetting\ContactResult;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tenants\Traits\CommonSettingController;
+use App\Http\Requests\Tenants\GeneralSetting\SaveGeneralSettingRequest;
 use App\Models\Tenants\GeneralSetting\ContactResult\ContactResult;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
 
 class ContactResultController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:contact_results.view');
+    }
+
     use CommonSettingController;
 
     protected $model = ContactResult::class;
@@ -25,12 +30,12 @@ class ContactResultController extends Controller
         return $this->toggleStatus_trait($this->model, $id);
     }
 
-    public function store(Request $request)
+    public function store(SaveGeneralSettingRequest $request)
     {
         return $this->store_trait($request, $this->model);
     }
 
-    public function update(Request $request, $id)
+    public function update(SaveGeneralSettingRequest $request, $id)
     {
         return $this->update_trait($request, $this->model, $id);
     }

@@ -5,12 +5,11 @@ namespace App\Http\Controllers\Tenants\Archive\Auction;
 use App\DataTables\Tenants\Auctions\AuctionArchiveDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\Tenants\Auctions\Auction;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
+use App\Services\Tenants\Auctions\AuctionService;
 
 class AuctionArchiveController extends Controller
 {
-    public function __construct()
+    public function __construct(private readonly AuctionService $auctionService)
     {
         $this->middleware('auth:tenant');
         $this->middleware('can:auctions_archive.view')->only(['index']);
@@ -20,19 +19,25 @@ class AuctionArchiveController extends Controller
 
     public function index(AuctionArchiveDataTable $dataTable)
     {
-        return $dataTable->render('tenants.archive.auctions.index', [
-            'totalArchived' => Auction::onlyTrashed()->count(),
-        ]);
+        return $dataTable->render('tenants.archive.auctions.index');
     }
 
-    public function restore(int $id): RedirectResponse
+    public function restore(int $id)
     {
         try {
             $auction = Auction::onlyTrashed()->findOrFail($id);
             $auction->restore();
 
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'تم استعادة المزاد بنجاح']);
+            }
+
             return redirect()->back()->with('success', 'تم استعادة المزاد بنجاح');
         } catch (\Exception $e) {
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'حدث خطأ أثناء استعادة المزاد'], 500);
+            }
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء استعادة المزاد');
         }
     }
@@ -41,7 +46,7 @@ class AuctionArchiveController extends Controller
     {
         try {
             $auction = Auction::onlyTrashed()->findOrFail($id);
-            $auction->forceDelete();
+            $this->auctionService->forceDeleteAuction($auction);
 
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([

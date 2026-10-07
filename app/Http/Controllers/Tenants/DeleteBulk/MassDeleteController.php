@@ -2,40 +2,32 @@
 
 namespace App\Http\Controllers\Tenants\DeleteBulk;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Jobs\Tenants\DeleteBulk\ProcessMassDelete;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
+use App\Http\Requests\Tenants\DeleteBulk\MassDeleteRequest;
 
 class MassDeleteController extends Controller
 {
+    /** @var array<string, string> */
+    private const MODEL_DELETE_PERMISSIONS = [
+        'Assignment' => 'assignments.delete',
+        'Property' => 'properties.delete',
+        'Auction' => 'auctions.delete',
+    ];
 
     /*
     |--------------------------------------------------------------------------
     | Mass Delete Handler
     |--------------------------------------------------------------------------
     */
-    public function massDelete(Request $request)
+    public function massDelete(MassDeleteRequest $request)
     {
-        $model = $request->input('model');
-        $idsData = $request->input('ids');
-        // $password = $request->input('password');
+        $model = (string) $request->validated('model');
+        $idsData = $request->validated('ids');
 
-        if (!$model || !$idsData) {
-            return response()->json(['success' => false, 'message' => 'بيانات غير صحيحة.'], 400);
+        $permission = self::MODEL_DELETE_PERMISSIONS[$model] ?? null;
+        if ($permission && ! $request->user('tenant')?->can($permission)) {
+            return response()->json(['success' => false, 'message' => 'غير مصرح لك بتنفيذ عملية الحذف هذه.'], 403);
         }
-
-        // if (!$password) {
-        //     return response()->json(['success' => false, 'message' => 'يجب إدخال كلمة المرور.'], 400);
-        // }
-
-        // $user = Auth::user();
-        // if (!Hash::check($password, $user->password)) {
-        //     return response()->json(['success' => false, 'message' => 'كلمة المرور غير صحيحة.'], 401);
-        // }
 
         $ids = $this->parseIds($idsData);
         if (empty($ids)) {
@@ -46,12 +38,6 @@ class MassDeleteController extends Controller
         if (!$modelClass || !class_exists($modelClass)) {
             return response()->json(['success' => false, 'message' => 'الموديل غير موجود.'], 400);
         }
-
-        // $totalIds = count($ids);
-
-        // if ($totalIds > 1000) {
-        //     return $this->processLargeDelete($modelClass, $ids, $totalIds);
-        // }
 
         return $this->processSmallDelete($modelClass, $ids);
     }
@@ -74,65 +60,16 @@ class MassDeleteController extends Controller
         }
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Process Large Delete
-    |--------------------------------------------------------------------------
-    */
-    private function processLargeDelete($modelClass, $ids, $totalIds)
-    {
-        $batchId = Str::uuid();
-        $chunks = array_chunk($ids, 100);
-
-        foreach ($chunks as $chunk) {
-            ProcessMassDelete::dispatch($modelClass, $chunk, $batchId)
-                ->onQueue('default')
-                ->delay(now()->addSeconds(rand(1, 3)));
-        }
-
-        return response()->json([
-            'success' => true,
-            'is_queued' => true,
-            'batch_id' => $batchId,
-            'message' => "تم إرسال {$totalIds} عنصر للحذف في الخلفية. ستتم معالجتها خلال دقائق.",
-            'total_batches' => count($chunks)
-        ]);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Parse IDs
-    |--------------------------------------------------------------------------
-    */
-    private function parseIds($idsData)
+    private function parseIds(mixed $idsData): array
     {
         if (is_string($idsData)) {
             $ids = explode(',', $idsData);
-        } else {
+        } elseif (is_array($idsData)) {
             $ids = $idsData;
+        } else {
+            return [];
         }
 
-        return array_filter(array_map('intval', $ids), function ($id) {
-            return $id > 0;
-        });
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Check Status
-    |--------------------------------------------------------------------------
-    */
-    public function checkStatus(Request $request)
-    {
-        $batchId = $request->input('batch_id');
-
-        $pendingJobs = DB::table('jobs')
-            ->where('payload', 'LIKE', "%{$batchId}%")
-            ->count();
-
-        return response()->json([
-            'completed' => $pendingJobs === 0,
-            'pending_jobs' => $pendingJobs
-        ]);
+        return array_values(array_filter(array_map('intval', $ids), fn (int $id): bool => $id > 0));
     }
 }

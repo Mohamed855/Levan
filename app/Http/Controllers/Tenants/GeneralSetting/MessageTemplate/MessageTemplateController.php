@@ -11,7 +11,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Yajra\DataTables\Facades\DataTables;
-use Illuminate\Support\Facades\Auth;
 
 class MessageTemplateController extends Controller
 {
@@ -159,7 +158,7 @@ class MessageTemplateController extends Controller
                 'category'   => $data['category'],
                 'channel'    => $data['channel'],
                 'is_active'  => $request->boolean('is_active', true),
-                'created_by' => Auth::id(),
+                'created_by' => $request->user('tenant')->getKey(),
             ]);
 
             return redirect()

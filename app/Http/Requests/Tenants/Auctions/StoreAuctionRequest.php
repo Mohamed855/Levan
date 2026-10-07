@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Tenants\Auctions;
 
 use App\Http\Requests\Concerns\WizardFormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreAuctionRequest extends WizardFormRequest
 {
@@ -36,7 +37,12 @@ class StoreAuctionRequest extends WizardFormRequest
 
             // Step 3: Linked Properties
             'property_ids'              => ['nullable', 'array'],
-            'property_ids.*'            => ['exists:properties,id'],
+            'property_ids.*'            => [
+                'distinct',
+                Rule::exists('properties', 'id')->where(
+                    fn ($query) => $query->where('assignment_id', $this->input('assignment_id')),
+                ),
+            ],
 
             // Step 4: Marketing Templates & Attachments
             'brochure_template_id'      => ['nullable', 'string'],
@@ -64,6 +70,8 @@ class StoreAuctionRequest extends WizardFormRequest
             'city.required'             => 'المدينة الرئيسية مطلوبة.',
             'assignment_id.required'    => 'يجب ربط المزاد بإسناد مسجل.',
             'assignment_id.exists'      => 'الإسناد المختار غير موجود.',
+            'property_ids.*.exists'     => 'يجب أن تكون جميع العقارات المختارة تابعة للإسناد المختار.',
+            'property_ids.*.distinct'   => 'لا يمكن اختيار العقار نفسه أكثر من مرة.',
             'platform_url.url'          => 'رابط المنصة يجب أن يكون رابطاً صالحاً.',
         ];
     }

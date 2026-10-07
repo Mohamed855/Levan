@@ -3,11 +3,21 @@
 namespace App\Http\Controllers\Tenants\BusinessCenter\Customer\BulkUpdate;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\BulkUpdate\AnalyzeBulkUpdateFileRequest;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\BulkUpdate\BulkUpdateRequest;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\BulkUpdate\DownloadBulkExclusionTemplateRequest;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\BulkUpdate\DownloadBulkUpdateErrorReportRequest;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\BulkUpdate\DownloadBulkUpdateTemplateRequest;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\BulkUpdate\GetBulkUpdateFieldsRequest;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\BulkUpdate\GetBulkUpdatePortfoliosRequest;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\BulkUpdate\GetBulkUpdateProgressRequest;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\BulkUpdate\ProcessBulkExclusionRequest;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\BulkUpdate\ProcessBulkUpdateRequest;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\BulkUpdate\StoreBulkUpdateFileRequest;
 use App\Services\Tenants\BusinessCenter\Customer\BulkUpdate\CustomerBulkUpdateService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class CustomerBulkUpdateController extends Controller
@@ -22,7 +32,7 @@ class CustomerBulkUpdateController extends Controller
     public function __construct(CustomerBulkUpdateService $bulkUpdateService)
     {
         $this->bulkUpdateService = $bulkUpdateService;
-        $this->middleware('auth');
+        $this->middleware(['auth:tenant', 'can:customers.update']);
     }
 
     /*
@@ -45,22 +55,10 @@ class CustomerBulkUpdateController extends Controller
     | Get Portfolios By Company
     |--------------------------------------------------------------------------
     */
-    public function getPortfolios(Request $request): JsonResponse
+    public function getPortfolios(GetBulkUpdatePortfoliosRequest $request): JsonResponse
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'company_id' => 'required|integer|exists:companies,id'
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'بيانات غير صحيحة',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-
-            $portfolios = $this->bulkUpdateService->getPortfoliosForCompany($request->company_id);
+            $portfolios = $this->bulkUpdateService->getPortfoliosForCompany($request->integer('company_id'));
 
             return response()->json([
                 'success' => true,
@@ -84,22 +82,10 @@ class CustomerBulkUpdateController extends Controller
     | Get Updatable Fields
     |--------------------------------------------------------------------------
     */
-    public function getUpdatableFields(Request $request): JsonResponse
+    public function getUpdatableFields(GetBulkUpdateFieldsRequest $request): JsonResponse
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'portfolio_id' => 'required|integer|exists:portfolios,id'
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'معرف المحفظة غير صحيح',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-
-            $fields = $this->bulkUpdateService->getUpdatableFieldsForPortfolio($request->portfolio_id);
+            $fields = $this->bulkUpdateService->getUpdatableFieldsForPortfolio($request->integer('portfolio_id'));
 
             return response()->json([
                 'success' => true,
@@ -118,20 +104,9 @@ class CustomerBulkUpdateController extends Controller
     | Analyze File Headers
     |--------------------------------------------------------------------------
     */
-    public function analyzeHeaders(Request $request): JsonResponse
+    public function analyzeHeaders(AnalyzeBulkUpdateFileRequest $request): JsonResponse
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'file' => 'required|file|mimes:xlsx,xls|max:10240',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $validator->errors()->first()
-                ], 422);
-            }
-
             $headers = $this->bulkUpdateService->analyzeFileHeaders($request->file('file'));
 
             return response()->json([
@@ -151,25 +126,12 @@ class CustomerBulkUpdateController extends Controller
     | Process Bulk Update
     |--------------------------------------------------------------------------
     */
-    public function process(Request $request): JsonResponse
+    public function process(ProcessBulkUpdateRequest $request): JsonResponse
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'temp_file_path' => 'required|string',
-                'portfolio_id' => 'required|integer|exists:portfolios,id',
-                'match_key' => 'required|string|in:account_number,identity_number',
-                'field_mappings' => 'required|array',
-                'field_mappings.*.column' => 'required|string',
-            ]);
+            $validated = $request->validated();
 
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $validator->errors()->first()
-                ], 422);
-            }
-
-            if (!Storage::exists($request->temp_file_path)) {
+            if (! Storage::exists($validated['temp_file_path'])) {
                 return response()->json([
                     'success' => false,
                     'message' => 'الملف المؤقت غير موجود أو انتهت صلاحيته'
@@ -177,8 +139,8 @@ class CustomerBulkUpdateController extends Controller
             }
 
             $jobId = $this->bulkUpdateService->queueBulkUpdate(
-                $validator->validated(),
-                $request->field_mappings
+                $validated,
+                $validated['field_mappings']
             );
 
             return response()->json([
@@ -199,28 +161,17 @@ class CustomerBulkUpdateController extends Controller
     | Get Progress Status
     |--------------------------------------------------------------------------
     */
-    public function getProgress(Request $request): JsonResponse
+    public function getProgress(GetBulkUpdateProgressRequest $request): JsonResponse
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'job_id' => 'required|string'
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'معرف المهمة مطلوب'
-                ], 422);
-            }
-
-            $jobId = $request->job_id;
+            $jobId = $request->string('job_id')->toString();
 
             // محاولة جلب Progress للتحديث أولاً
-            $progress = $this->bulkUpdateService->getProgressStatus($jobId);
+            $progress = $this->bulkUpdateService->getProgressStatus($jobId, (int) $request->user('tenant')->getKey());
 
             // إذا لم يوجد، نحاول جلب Progress للاستبعاد
             if ($progress['status'] === 'not_found') {
-                $progress = $this->bulkUpdateService->getExclusionProgressStatus($jobId);
+                $progress = $this->bulkUpdateService->getExclusionProgressStatus($jobId, (int) $request->user('tenant')->getKey());
             }
 
             return response()->json([
@@ -240,21 +191,10 @@ class CustomerBulkUpdateController extends Controller
     | Download Customized Template
     |--------------------------------------------------------------------------
     */
-    public function downloadTemplate(Request $request)
+    public function downloadTemplate(DownloadBulkUpdateTemplateRequest $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'portfolio_id' => 'required|integer|exists:portfolios,id',
-                'match_key' => 'required|string|in:account_number,identity_number',
-                'update_fields' => 'required|array|min:1',
-                'update_fields.*' => 'string',
-            ]);
-
-            if ($validator->fails()) {
-                return back()->withErrors($validator)->withInput();
-            }
-
-            $file = $this->bulkUpdateService->generateTemplate($validator->validated());
+            $file = $this->bulkUpdateService->generateTemplate($request->validated());
 
             return response()->download($file['path'], $file['name'])
                 ->deleteFileAfterSend(true);
@@ -268,26 +208,18 @@ class CustomerBulkUpdateController extends Controller
     | Download Error Report
     |--------------------------------------------------------------------------
     */
-    public function downloadErrorReport(Request $request): BinaryFileResponse
+    public function downloadErrorReport(DownloadBulkUpdateErrorReportRequest $request): BinaryFileResponse
     {
-        try {
-            $path = $request->query('path');
+        $path = $request->string('path')->toString();
 
-            if (!$path) {
-                abort(400, 'مسار الملف غير محدد');
-            }
-
-            if (!Storage::disk('local')->exists($path)) {
-                abort(404, 'ملف التقرير غير موجود أو انتهت صلاحيته');
-            }
-
-            $fullPath = storage_path('app/' . $path);
-            $fileName = 'error_report_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
-
-            return response()->download($fullPath, $fileName);
-        } catch (\Exception $e) {
-            abort(500, 'فشل في تحميل تقرير الأخطاء');
+        if (! Storage::disk('local')->exists($path)) {
+            abort(404, 'ملف التقرير غير موجود أو انتهت صلاحيته');
         }
+
+        $fullPath = storage_path('app/' . $path);
+        $fileName = 'error_report_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
+
+        return response()->download($fullPath, $fileName);
     }
 
     /*
@@ -295,25 +227,9 @@ class CustomerBulkUpdateController extends Controller
     | Store Temporary File
     |--------------------------------------------------------------------------
     */
-    public function storeTemporaryFile(Request $request): JsonResponse
+    public function storeTemporaryFile(StoreBulkUpdateFileRequest $request): JsonResponse
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'file' => 'required|file|mimes:xlsx,xls|max:51200',
-            ], [
-                'file.required' => 'الملف مطلوب.',
-                'file.file' => 'يجب أن يكون الملف صالحاً.',
-                'file.mimes' => 'يجب أن يكون الملف من نوع Excel (xlsx أو xls).',
-                'file.max' => 'يجب ألا يتجاوز حجم الملف 50 ميجابايت.',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $validator->errors()->first()
-                ], 422);
-            }
-
             $validation = $this->bulkUpdateService->validateFileRowCount($request->file('file'));
 
             if (!$validation['valid']) {
@@ -324,6 +240,11 @@ class CustomerBulkUpdateController extends Controller
             }
 
             $tempPath = $request->file('file')->store('temp_updates');
+            Cache::put(
+                BulkUpdateRequest::temporaryFileOwnerKey($tempPath),
+                $request->user('tenant')->getKey(),
+                now()->addHours(2),
+            );
 
             return response()->json([
                 'success' => true,
@@ -343,23 +264,12 @@ class CustomerBulkUpdateController extends Controller
     | Process Bulk Exclusion
     |--------------------------------------------------------------------------
     */
-    public function processExclusion(Request $request): JsonResponse
+    public function processExclusion(ProcessBulkExclusionRequest $request): JsonResponse
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'temp_file_path' => 'required|string',
-                'portfolio_id' => 'required|integer|exists:portfolios,id',
-                'exclusion_key' => 'required|string|in:account_number,identity_number',
-            ]);
+            $validated = $request->validated();
 
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $validator->errors()->first()
-                ], 422);
-            }
-
-            if (!Storage::exists($request->temp_file_path)) {
+            if (! Storage::exists($validated['temp_file_path'])) {
                 return response()->json([
                     'success' => false,
                     'message' => 'الملف المؤقت غير موجود أو انتهت صلاحيته'
@@ -367,7 +277,7 @@ class CustomerBulkUpdateController extends Controller
             }
 
             $jobId = $this->bulkUpdateService->queueBulkExclusion(
-                $validator->validated()
+                $validated
             );
 
             return response()->json([
@@ -388,18 +298,10 @@ class CustomerBulkUpdateController extends Controller
     | Download Exclusion Template
     |--------------------------------------------------------------------------
     */
-    public function downloadExclusionTemplate(Request $request)
+    public function downloadExclusionTemplate(DownloadBulkExclusionTemplateRequest $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'exclusion_key' => 'required|string|in:account_number,identity_number',
-            ]);
-
-            if ($validator->fails()) {
-                return back()->withErrors($validator)->withInput();
-            }
-
-            $file = $this->bulkUpdateService->generateExclusionTemplate($validator->validated());
+            $file = $this->bulkUpdateService->generateExclusionTemplate($request->validated());
 
             return response()->download($file['path'], $file['name'])
                 ->deleteFileAfterSend(true);

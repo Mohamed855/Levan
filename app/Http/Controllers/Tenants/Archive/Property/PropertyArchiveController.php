@@ -5,12 +5,11 @@ namespace App\Http\Controllers\Tenants\Archive\Property;
 use App\DataTables\Tenants\Properties\PropertyArchiveDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\Tenants\Properties\Property;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
+use App\Services\Tenants\Properties\PropertyService;
 
 class PropertyArchiveController extends Controller
 {
-    public function __construct()
+    public function __construct(private readonly PropertyService $propertyService)
     {
         $this->middleware('auth:tenant');
         $this->middleware('can:properties_archive.view')->only(['index']);
@@ -20,19 +19,25 @@ class PropertyArchiveController extends Controller
 
     public function index(PropertyArchiveDataTable $dataTable)
     {
-        return $dataTable->render('tenants.archive.properties.index', [
-            'totalArchived' => Property::onlyTrashed()->count(),
-        ]);
+        return $dataTable->render('tenants.archive.properties.index');
     }
 
-    public function restore(int $id): RedirectResponse
+    public function restore(int $id)
     {
         try {
             $property = Property::onlyTrashed()->findOrFail($id);
             $property->restore();
 
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'تم استعادة العقار بنجاح']);
+            }
+
             return redirect()->back()->with('success', 'تم استعادة العقار بنجاح');
         } catch (\Exception $e) {
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'حدث خطأ أثناء استعادة العقار'], 500);
+            }
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء استعادة العقار');
         }
     }
@@ -41,7 +46,7 @@ class PropertyArchiveController extends Controller
     {
         try {
             $property = Property::onlyTrashed()->findOrFail($id);
-            $property->forceDelete();
+            $this->propertyService->forceDeleteProperty($property);
 
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([

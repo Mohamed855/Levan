@@ -3,11 +3,11 @@
 @section('title', 'إضافة عميل جديد')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js', 'resources/assets/vendor/libs/flatpickr/flatpickr.js', 'resources/assets/vendor/libs/select2/select2.js'])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/flatpickr/flatpickr.js', 'resources/assets/vendor/libs/select2/select2.js'])
 @endsection
 
 @section('toastr')
@@ -24,13 +24,13 @@
         window.csrfToken = "{{ csrf_token() }}";
     </script>
 
-    @vite(['resources/assets/js/tenants/business-center/customers/dynamic-fields/customers-dynamic-fields.js', 'resources/assets/js/tenants/business-center/customers/phone-fields/customers-phone-fields.js', 'resources/assets/js/tenants/business-center/customers/basic/validation.js', 'resources/assets/js/tenants/business-center/customers/name-toggle/customers-name-toggle.js'])
+    @vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/tenants/business-center/customers/dynamic-fields/customers-dynamic-fields.js', 'resources/assets/js/tenants/business-center/customers/phone-fields/customers-phone-fields.js', 'resources/assets/js/tenants/business-center/customers/basic/validation.js', 'resources/assets/js/tenants/business-center/customers/name-toggle/customers-name-toggle.js'])
 @endsection
 
 @section('content')
     <div class="row">
         <div class="col-12 mb-6">
-            <div id="wizard-validation" class="bs-stepper mt-2">
+            <div id="wizard-validation" class="bs-stepper mt-2" data-form-stepper>
                 <div class="bs-stepper-header">
                     <div class="step" data-target="#personal-info-validation">
                         <button type="button" class="step-trigger">
@@ -79,7 +79,7 @@
                     @endif
 
                     <form id="wizard-validation-form" action="{{ tenant_route_name('customers.store') }}" method="POST"
-                        onSubmit="return false">
+                        novalidate data-form-validate data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                         @csrf
 
                         <!-- المرحلة الأولى: المعلومات الشخصية -->
@@ -90,7 +90,7 @@
                                 <div class="col-sm-6">
                                     <label class="form-label" for="company_id">الشركة <span
                                             class="text-danger">*</span></label>
-                                    <select name="company_id" id="company_id" class="form-control select2"
+                                    <select name="company_id" id="company_id" class="form-control select2" required
                                         data-placeholder="اختر الشركة">
                                         <option value=""></option>
                                         @foreach ($companies as $company)
@@ -105,7 +105,7 @@
                                 <div class="col-sm-6">
                                     <label class="form-label" for="portfolio_id">المحفظة <span
                                             class="text-danger">*</span></label>
-                                    <select name="portfolio_id" id="portfolio_id" class="form-control select2"
+                                    <select name="portfolio_id" id="portfolio_id" class="form-control select2" required
                                         data-placeholder="اختر المحفظة">
                                         <option value=""></option>
                                         @foreach ($portfolios as $portfolio)
@@ -162,7 +162,7 @@
                                 <div class="col-sm-6">
                                     <label class="form-label" for="customer_type">نوع العميل <span
                                             class="text-danger">*</span></label>
-                                    <select name="customer_type" id="customer_type" class="form-control select2"
+                                    <select name="customer_type" id="customer_type" class="form-control select2" required
                                         data-placeholder="اختر نوع العميل">
                                         <option value=""></option>
                                         <option value="individual"
@@ -175,7 +175,7 @@
                                 <div class="col-sm-6">
                                     <label class="form-label" for="identity_number">رقم الهوية <span
                                             class="text-danger">*</span></label>
-                                    <input type="text" name="identity_number" id="identity_number" maxlength="10"
+                                    <input type="text" name="identity_number" id="identity_number" maxlength="10" required
                                         class="form-control" placeholder="ادخل رقم الهوية"
                                         value="{{ old('identity_number') }}" />
                                 </div>
@@ -201,7 +201,7 @@
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
                                     </button>
                                     <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-primary btn-next">
+                                        <button type="button" class="btn btn-primary btn-next" disabled>
                                             <span class="align-middle d-sm-inline-block d-none me-sm-2">التالي</span>
                                             <i class="ti ti-arrow-right ti-xs"></i>
                                         </button>
@@ -242,7 +242,7 @@
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
                                     </button>
                                     <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-primary btn-next">
+                                        <button type="button" class="btn btn-primary btn-next" disabled>
                                             <span class="align-middle d-sm-inline-block d-none me-sm-2">التالي</span>
                                             <i class="ti ti-arrow-right ti-xs"></i>
                                         </button>

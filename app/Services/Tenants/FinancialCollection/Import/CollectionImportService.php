@@ -10,6 +10,7 @@ use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -256,6 +257,16 @@ class CollectionImportService
     protected function processLargeFileWithQueue(array $importConfig, array $dataRows): array
     {
         $jobId = uniqid('import_', true);
+
+        Cache::put("import_progress_{$jobId}", [
+            'requested_by' => $importConfig['current_user_id'],
+            'progress' => 0,
+            'message' => 'تمت جدولة عملية الاستيراد.',
+            'completed' => false,
+            'failed' => false,
+            'job_id' => $jobId,
+            'updated_at' => now()->toISOString(),
+        ], now()->addHours(24));
 
         dispatch(new ProcessCollectionImport($jobId, $importConfig, $dataRows));
 

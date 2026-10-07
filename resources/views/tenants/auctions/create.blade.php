@@ -18,19 +18,6 @@
     @vite(['resources/assets/js/shared/form-validation.js'])
     <script>
         $(document).ready(function() {
-            // Initialize Select2 controls
-            if ($.fn.select2) {
-                $('.select2').not('.select2-hidden-accessible').each(function() {
-                    $(this).select2({
-                        placeholder: $(this).data('placeholder') || 'اختر',
-                        allowClear: !$(this).prop('required'),
-                        width: '100%',
-                        language: 'ar',
-                        dir: 'rtl'
-                    });
-                });
-            }
-
             // Live Preview in Step 1
             $('#name').on('input', function() {
                 $('#preview-auction-name').text($(this).val() || 'اسم المزاد الافتراضي');
@@ -269,6 +256,7 @@
                                         label="عدد العقارات المتوقع" :value="1" min="1" col="col-md-6" />
 
                                     <x-form.controls.image-upload name="cover_image" label="صورة الغلاف للمزاد"
+                                        accept="image/jpeg,image/png,image/webp"
                                         hint="JPG، PNG أو WebP. الحد الأقصى 4MB" col="col-md-6" />
                                 </div>
                             </div>
@@ -429,7 +417,7 @@
 
                             <div class="col-12 mt-4 border-top pt-3">
                                 <h6 class="fw-bold mb-3"><i class="ti ti-paperclip me-1"></i>مرفقات ووثائق المزاد:</h6>
-                                <input type="file" name="attachments[]" class="form-control" multiple
+                                <input type="file" name="attachments[]" class="form-control" multiple data-form-control
                                     accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx" />
                                 <small class="text-muted d-block mt-1">الملفات المدعومة: PDF, PNG, JPG, DOC, XLS (الحد
                                     الأقصى لكل ملف: 10MB)</small>

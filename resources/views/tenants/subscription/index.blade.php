@@ -3,11 +3,11 @@
 @section('title', 'إدارة الاشتراك')
 
 @section('vendor-style')
-    @vite(['resources/assets/css/components/icons.css', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
+    @vite(['resources/assets/css/components/icons.css', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
+    @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
 @endsection
 
 @section('page-style')
@@ -296,12 +296,13 @@
                     </div>
                 @else
                     <form action="{{ tenant_route_name('subscriptions.licenses.checkout') }}" method="GET"
-                        id="upgrade-form">
+                        id="upgrade-form" novalidate data-form-validate
+                        data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                         <div class="card-body pb-0">
-                            <div class="mb-4">
+                            <div class="mb-4" data-form-field data-field-name="new_licenses_count">
                                 <div class="input-group input-group-md">
 
-                                    <input name="new_licenses_count" type="number"
+                                    <input name="new_licenses_count" type="number" data-form-control
                                         class="form-control text-center fw-bold" id="custom-licenses" min="0"
                                         max="1000" value="0">
                                     <button class="btn btn-outline-secondary" type="button" id="increase-licenses">

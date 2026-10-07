@@ -30,7 +30,7 @@ class AuctionService
             $propertyIds = $data['property_ids'] ?? [];
             unset($data['property_ids'], $data['attachments']);
 
-            $data['created_by'] = auth()->id();
+            $data['created_by'] = auth('tenant')->id();
             if (empty($data['status'])) {
                 $data['status'] = 'draft';
             }
@@ -120,5 +120,27 @@ class AuctionService
     public function deleteAuction(Auction $auction): bool
     {
         return (bool) $auction->delete();
+    }
+
+    public function forceDeleteAuction(Auction $auction): bool
+    {
+        $attachmentPaths = $auction->attachments()->pluck('file_path')->filter()->all();
+
+        $coverImage = $auction->cover_image;
+        $deleted = (bool) $auction->forceDelete();
+
+        if (! $deleted) {
+            return false;
+        }
+
+        if ($coverImage) {
+            Storage::disk('tenant_public')->delete($coverImage);
+        }
+
+        foreach ($attachmentPaths as $attachmentPath) {
+            Storage::disk('tenant_public')->delete($attachmentPath);
+        }
+
+        return true;
     }
 }

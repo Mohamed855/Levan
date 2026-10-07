@@ -35,7 +35,7 @@ class PropertyService
             $data['property_number'] = $this->generatePropertyNumber($data['assignment_id'] ?? null);
         }
 
-        $data['created_by'] = auth()->id();
+        $data['created_by'] = auth('tenant')->id();
 
         return Property::create($data);
     }
@@ -59,7 +59,6 @@ class PropertyService
         $newStatus = $isActive ?? ! $property->is_active;
         $property->update([
             'is_active' => $newStatus,
-            'status'    => $newStatus ? 'available' : 'sold',
         ]);
 
         return $newStatus;
@@ -68,5 +67,17 @@ class PropertyService
     public function deleteProperty(Property $property): bool
     {
         return (bool) $property->delete();
+    }
+
+    public function forceDeleteProperty(Property $property): bool
+    {
+        $mainImage = $property->main_image;
+        $deleted = (bool) $property->forceDelete();
+
+        if ($deleted && $mainImage) {
+            Storage::disk('tenant_public')->delete($mainImage);
+        }
+
+        return $deleted;
     }
 }

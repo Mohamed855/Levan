@@ -4,21 +4,15 @@ namespace App\Http\Controllers\Tenants\GeneralSetting\DebtType;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tenants\Traits\CommonSettingController;
+use App\Http\Requests\Tenants\GeneralSetting\SaveGeneralSettingRequest;
 use App\Models\Tenants\GeneralSetting\DebtType\SettingsDebtType;
-use Illuminate\Http\Request;
 
 class SettingsDebtTypeController extends Controller
 {
-    // public function __construct()
-    // {
-    //     $this->middleware('can:أنواع المديونية')->only([
-    //         'index',
-    //         'edit',
-    //         'store',
-    //         'update',
-    //         'destroy',
-    //     ]);
-    // }
+    public function __construct()
+    {
+        $this->middleware('can:debt_types.view');
+    }
 
     use CommonSettingController;
 
@@ -34,12 +28,12 @@ class SettingsDebtTypeController extends Controller
         return $this->toggleStatus_trait($this->model, $id);
     }
 
-    public function store(Request $request)
+    public function store(SaveGeneralSettingRequest $request)
     {
         return $this->store_trait($request, $this->model);
     }
 
-    public function update(Request $request, $id)
+    public function update(SaveGeneralSettingRequest $request, $id)
     {
         return $this->update_trait($request, $this->model, $id);
     }

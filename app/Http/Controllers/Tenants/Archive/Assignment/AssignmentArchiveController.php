@@ -5,12 +5,11 @@ namespace App\Http\Controllers\Tenants\Archive\Assignment;
 use App\DataTables\Tenants\Assignments\AssignmentArchiveDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\Tenants\Assignments\Assignment;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
+use App\Services\Tenants\Assignments\AssignmentService;
 
 class AssignmentArchiveController extends Controller
 {
-    public function __construct()
+    public function __construct(private readonly AssignmentService $assignmentService)
     {
         $this->middleware('auth:tenant');
         $this->middleware('can:assignments_archive.view')->only(['index']);
@@ -20,19 +19,25 @@ class AssignmentArchiveController extends Controller
 
     public function index(AssignmentArchiveDataTable $dataTable)
     {
-        return $dataTable->render('tenants.archive.assignments.index', [
-            'totalArchived' => Assignment::onlyTrashed()->count(),
-        ]);
+        return $dataTable->render('tenants.archive.assignments.index');
     }
 
-    public function restore(int $id): RedirectResponse
+    public function restore(int $id)
     {
         try {
             $assignment = Assignment::onlyTrashed()->findOrFail($id);
             $assignment->restore();
 
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'تم استعادة الإسناد بنجاح']);
+            }
+
             return redirect()->back()->with('success', 'تم استعادة الإسناد بنجاح');
         } catch (\Exception $e) {
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'حدث خطأ أثناء استعادة الإسناد'], 500);
+            }
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء استعادة الإسناد');
         }
     }
@@ -41,7 +46,7 @@ class AssignmentArchiveController extends Controller
     {
         try {
             $assignment = Assignment::onlyTrashed()->findOrFail($id);
-            $assignment->forceDelete();
+            $this->assignmentService->forceDeleteAssignment($assignment);
 
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([
@@ -51,6 +56,12 @@ class AssignmentArchiveController extends Controller
             }
 
             return redirect()->back()->with('success', 'تم حذف الإسناد نهائياً بنجاح');
+        } catch (\LogicException $e) {
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+            }
+
+            return redirect()->back()->with('error', $e->getMessage());
         } catch (\Exception $e) {
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([

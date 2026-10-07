@@ -21,29 +21,6 @@
 
 @section('page-script')
     <script>
-        $(document).ready(function() {
-            $('#assignments-archive-table').on('init.dt', function() {
-                const table = $(this).DataTable();
-                const tableWrapper = $('#assignments-archive-table_wrapper');
-
-                tableWrapper.on('click', '#select-all', function() {
-                    $('.row-checkbox', table.rows({
-                        search: 'applied'
-                    }).nodes()).prop('checked', this.checked);
-                });
-
-                tableWrapper.on('change', '.row-checkbox', function() {
-                    if (!this.checked) {
-                        $('#select-all').prop('checked', false);
-                    }
-                });
-            });
-
-            $('#assignments-archive-table').on('draw.dt', function() {
-                $('#select-all').prop('checked', false);
-            });
-        });
-
         $(document).on('click', '.js-force-delete', function() {
             const url = $(this).data('url');
             Swal.fire({

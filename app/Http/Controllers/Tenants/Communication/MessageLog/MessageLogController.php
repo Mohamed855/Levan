@@ -22,6 +22,7 @@ class MessageLogController extends Controller
     {
         $this->messageLogService = $messageLogService;
 
+        $this->middleware('can:message_logs.view')->except(['destroy']);
         $this->middleware('can:message_logs.delete')->only(['destroy']);
     }
 

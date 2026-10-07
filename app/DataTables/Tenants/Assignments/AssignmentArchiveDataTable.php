@@ -32,7 +32,6 @@ class AssignmentArchiveDataTable extends AbstractDataTable
     {
         return [
             ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'title' => '#', 'orderable' => false, 'searchable' => false, 'width' => '40px'],
-            ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
             ['data' => 'assignment_number', 'name' => 'assignment_number', 'title' => 'رقم الإسناد'],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم الإسناد'],
             ['data' => 'issuing_entity', 'name' => 'issuing_entity', 'title' => 'الجهة المسندة'],
@@ -45,9 +44,6 @@ class AssignmentArchiveDataTable extends AbstractDataTable
     protected function addCustomColumns($datatable): void
     {
         $datatable
-            ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
-            })
             ->editColumn('deleted_at', function ($row) {
                 return $row->deleted_at ? Carbon::parse($row->deleted_at)->format('Y-m-d H:i') : '-';
             })
@@ -58,7 +54,7 @@ class AssignmentArchiveDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'actions'];
+        return ['actions'];
     }
 
     protected function buttons(): array

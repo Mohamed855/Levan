@@ -4,11 +4,11 @@
 
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js', 'resources/assets/vendor/libs/flatpickr/flatpickr.js', 'resources/assets/vendor/libs/select2/select2.js'])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/flatpickr/flatpickr.js', 'resources/assets/vendor/libs/select2/select2.js'])
 @endsection
 
 @section('toastr')
@@ -24,13 +24,13 @@
         };
         window.csrfToken = "{{ csrf_token() }}";
     </script>
-    @vite(['resources/assets/js/tenants/financial_collection/collections/validation.js'])
+    @vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/tenants/financial_collection/collections/validation.js'])
 @endsection
 
 @section('content')
     <div class="row">
         <div class="col-12 mb-6">
-            <div id="wizard-validation" class="bs-stepper mt-2">
+            <div id="wizard-validation" class="bs-stepper mt-2" data-form-stepper>
                 <div class="bs-stepper-header">
                     <div class="step" data-target="#basic-info-validation">
                         <button type="button" class="step-trigger">
@@ -80,7 +80,8 @@
 
                     <form id="wizard-validation-form"
                         action="{{ tenant_route_name('financial-collections.collections.store') }}" method="POST"
-                        enctype="multipart/form-data" onSubmit="return false">
+                        enctype="multipart/form-data" novalidate data-form-validate
+                        data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                         @csrf
 
                         <!-- معلومات العميل والمبلغ -->
@@ -90,7 +91,7 @@
                                     <label class="form-label" for="customer_id">العميل <span
                                             class="text-danger">*</span></label>
                                     <select name="customer_id" id="customer_id" class="form-control select2-ajax"
-                                        data-placeholder="ابحث عن العميل برقم الحساب">
+                                        data-placeholder="ابحث عن العميل برقم الحساب" required>
                                         <option value=""></option>
                                         @foreach (array_slice($initialCustomers, 0, 10) as $customer)
                                             <option value="{{ $customer['id'] }}">{{ $customer['text'] }}</option>
@@ -103,7 +104,7 @@
                                     <div class="input-group">
                                         <input type="number" name="collected_amount" id="collected_amount"
                                             class="form-control" placeholder="0.00" step="0.01" min="0"
-                                            value="{{ old('collected_amount') }}" />
+                                            value="{{ old('collected_amount') }}" required />
                                         <span class="input-group-text">ريال</span>
                                     </div>
                                 </div>
@@ -114,7 +115,7 @@
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
                                     </button>
                                     <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-primary btn-next">
+                                        <button type="button" class="btn btn-primary btn-next" disabled>
                                             <span class="align-middle d-sm-inline-block d-none me-sm-2">التالي</span>
                                             <i class="ti ti-arrow-right ti-xs"></i>
                                         </button>
@@ -130,7 +131,7 @@
                                     <label class="form-label" for="collection_type">نوع التحصيل <span
                                             class="text-danger">*</span></label>
                                     <select name="collection_type" id="collection_type" class="form-control select2"
-                                        data-placeholder="اختر نوع التحصيل">
+                                        data-placeholder="اختر نوع التحصيل" required>
                                         <option value=""></option>
                                         <option value="cash" {{ old('collection_type') == 'cash' ? 'selected' : '' }}>نقدي
                                         </option>
@@ -143,7 +144,7 @@
                                     <label class="form-label" for="payment_method_id">طريقة التحصيل <span
                                             class="text-danger">*</span></label>
                                     <select name="payment_method_id" id="payment_method_id" class="form-control select2"
-                                        data-placeholder="اختر طريقة التحصيل">
+                                        data-placeholder="اختر طريقة التحصيل" required>
                                         <option value=""></option>
                                         @foreach ($paymentMethods as $method)
                                             <option value="{{ $method->id }}"
@@ -158,7 +159,7 @@
                                     <label class="form-label" for="payment_type">نوع السداد <span
                                             class="text-danger">*</span></label>
                                     <select name="payment_type" id="payment_type" class="form-control select2"
-                                        data-placeholder="اختر نوع السداد">
+                                        data-placeholder="اختر نوع السداد" required>
                                         <option value=""></option>
                                         <option value="settlement"
                                             {{ old('payment_type') == 'settlement' ? 'selected' : '' }}>سداد بتسوية
@@ -175,7 +176,7 @@
                                             class="text-danger">*</span></label>
                                     <input type="text" name="collection_date" id="collection_date"
                                         class="form-control flatpickr-date" placeholder="اختر تاريخ التحصيل"
-                                        value="{{ old('collection_date', date('Y-m-d')) }}" />
+                                        value="{{ old('collection_date', date('Y-m-d')) }}" required />
                                 </div>
 
                                 <div class="mt-4 d-flex justify-content-between">
@@ -184,7 +185,7 @@
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
                                     </button>
                                     <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-primary btn-next">
+                                        <button type="button" class="btn btn-primary btn-next" disabled>
                                             <span class="align-middle d-sm-inline-block d-none me-sm-2">التالي</span>
                                             <i class="ti ti-arrow-right ti-xs"></i>
                                         </button>
@@ -202,7 +203,7 @@
                                     <div class="input-group">
                                         <input type="text" name="receipt_number" id="receipt_number"
                                             class="form-control" placeholder="رقم السند"
-                                            value="{{ old('receipt_number', $receiptNumber) }}" />
+                                            value="{{ old('receipt_number', $receiptNumber) }}" required />
                                         <button type="button" class="btn btn-outline-secondary" id="generate-receipt"
                                             title="توليد رقم جديد">
                                             <i class="ti ti-refresh"></i>

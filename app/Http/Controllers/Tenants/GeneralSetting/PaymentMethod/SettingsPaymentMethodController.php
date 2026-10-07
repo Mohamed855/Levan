@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Tenants\GeneralSetting\PaymentMethod;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tenants\Traits\CommonSettingController;
+use App\Http\Requests\Tenants\GeneralSetting\SaveGeneralSettingRequest;
 use App\Models\Tenants\GeneralSetting\PaymentMethod\SettingsPaymentMethod;
-use Illuminate\Http\Request;
 
 class SettingsPaymentMethodController extends Controller
 {
@@ -34,12 +34,12 @@ class SettingsPaymentMethodController extends Controller
         return $this->toggleStatus_trait($this->model, $id);
     }
 
-    public function store(Request $request)
+    public function store(SaveGeneralSettingRequest $request)
     {
         return $this->store_trait($request, $this->model);
     }
 
-    public function update(Request $request, $id)
+    public function update(SaveGeneralSettingRequest $request, $id)
     {
         return $this->update_trait($request, $this->model, $id);
     }

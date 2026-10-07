@@ -33,8 +33,6 @@ function initializeComponents() {
         });
     });
 
-    // تهيئة التحقق من النماذج
-    initializeFormValidation();
 }
 
 /**
@@ -262,9 +260,6 @@ function bindEvents() {
         $('input[type="checkbox"]', rows).prop('checked', this.checked);
     });
 
-    // كود تحريك النص
-    $(document).on('mouseenter', '.table-ellipsis', handleTextAnimation);
-    $(document).on('mouseleave', '.table-ellipsis', resetTextAnimation);
 }
 
 /**
@@ -289,42 +284,6 @@ function handleMassDelete() {
  */
 function deleteMessage(id) {
     confirmDelete(id, window.routes.messageLogsDestroy.replace(':id', id), 'MessageLog');
-}
-
-/**
- * معالجة تحريك النص
- */
-function handleTextAnimation() {
-    const span = $(this).find('span');
-    const textWidth = span.width();
-    const cellWidth = $(this).width();
-
-    if (textWidth > cellWidth) {
-        span.css('transform', 'translateX(' + (textWidth - cellWidth) + 'px)');
-    }
-}
-
-/**
- * إعادة تعيين تحريك النص
- */
-function resetTextAnimation() {
-    $(this).find('span').css('transform', 'translateX(0)');
-}
-
-/**
- * تهيئة التحقق من النماذج
- */
-function initializeFormValidation() {
-    const forms = document.querySelectorAll('.needs-validation');
-    Array.prototype.slice.call(forms).forEach(function(form) {
-        form.addEventListener('submit', function(event) {
-            if (!form.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            form.classList.add('was-validated');
-        }, false);
-    });
 }
 
 // تصدير الدوال للاستخدام العام

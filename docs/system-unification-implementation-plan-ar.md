@@ -223,6 +223,7 @@
 1. Authentication **(مكتمل)**، profile، users، teams، roles. **Branches ملغاة من المنتج لكل Tenant وتُزال مراجعها قبل استكمال هذه الوحدة.**
 2. Settings وnotifications وactivity logs وarchive.
 3. Companies، contracts، portfolios، tasks.
+3.1. Assignments، properties، auctions، وأرشيفاتها **(تدخل من Stage 0R إلى 5R قبل اعتماد وحدة Tenant؛ ثم تُغلق في 6R باختبارات العزل ودورة حياة الملفات والعلاقات)**.
 4. Customers: الأساس، الهواتف، fields، notes، comments، attachments، follows، payments، settlements، payment plans، SMS، update requests.
 5. Customer import، bulk update، distribution، exports.
 6. Financial collections، targets، collection process، reconciliation.

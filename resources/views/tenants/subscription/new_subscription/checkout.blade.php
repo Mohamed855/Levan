@@ -13,7 +13,7 @@
             total: {{ $plan->price_after_discount }},
         };
     </script>
-    @vite(['resources/assets/js/shared/payment/apply-coupon.js'])
+    @vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/shared/payment/apply-coupon.js'])
 @endsection
 
 @section('toastr')
@@ -24,10 +24,11 @@
     <section class="section-py bg-body">
         <div class="">
             <form id="payment-form" method="POST" action="{{ tenant_route_name('subscribe.checkout.store') }}"
-                autocomplete="off">
+                autocomplete="off" novalidate data-form-validate
+                data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                 @csrf
-                <input type="hidden" name="coupon_code" id="coupon_code_hidden">
-                <input type="hidden" name="discount_amount" id="discount_amount_hidden">
+                <input type="hidden" name="coupon_code" id="coupon_code_hidden" data-validation-skip>
+                <input type="hidden" name="discount_amount" id="discount_amount_hidden" data-validation-skip>
 
                 <div class="row g-2">
                     <div class="col-lg-8">
@@ -80,7 +81,7 @@
                                 <!-- قسم الكوبون -->
                                 <div class="mb-4">
                                     <div class="d-flex gap-2">
-                                        <input type="text" id="coupon_code_input" name="coupon_code_display"
+                                        <input type="text" id="coupon_code_input" name="coupon_code_display" data-validation-skip
                                             class="form-control" placeholder="أدخل كود الخصم">
 
                                         <button type="button" id="apply-coupon-btn" class="btn btn-outline-primary">

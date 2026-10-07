@@ -74,7 +74,7 @@ class AssignmentsDataTable extends AbstractDataTable
                 return $row->end_date ? Carbon::parse($row->end_date)->format('Y-m-d') : '-';
             })
             ->editColumn('status', function ($row) {
-                $canEdit = auth()->user()?->can('assignments.edit');
+                $canEdit = auth('tenant')->user()?->can('assignments.edit');
                 if ($canEdit) {
                     $checked = $row->is_active ? 'checked' : '';
                     $url = tenant_route_name('assignments.toggle-status', $row->id);
@@ -156,7 +156,7 @@ class AssignmentsDataTable extends AbstractDataTable
             ['extend' => 'excel', 'text' => 'إكسل'],
         ];
 
-        if (auth()->user()?->can('assignments.delete')) {
+        if (auth('tenant')->user()?->can('assignments.delete')) {
             $buttons[] = [
                 'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
@@ -174,7 +174,7 @@ class AssignmentsDataTable extends AbstractDataTable
 
     private function getAddButton(): array
     {
-        if (auth()->user()?->can('assignments.create')) {
+        if (auth('tenant')->user()?->can('assignments.create')) {
             return [
                 'text' => '<i class="ti ti-plus me-1"></i> إضافة إسناد',
                 'className' => 'btn btn-primary btn-add',

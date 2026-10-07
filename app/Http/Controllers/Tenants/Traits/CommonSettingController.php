@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Tenants\Traits;
 
 
 use Carbon\Carbon;
-use Illuminate\Http\Request;
+use Illuminate\Foundation\Http\FormRequest;
 
 trait CommonSettingController
 {
@@ -91,38 +91,26 @@ trait CommonSettingController
         ]);
     }
 
-    public function store_trait(Request $request, $model)
+    public function store_trait(FormRequest $request, $model)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-        ], [
-            'name.required' => 'حقل الاسم مطلوب.',
-            'name.string' => 'يجب أن يكون الاسم نصاً.',
-            'name.max' => 'يجب ألا يتجاوز الاسم 255 حرفاً.',
-        ]);
+        $validated = $request->validated();
 
         $model::create([
-            'name' => $request->name,
-            'user_id' => auth()->id(),
+            'name' => $validated['name'],
+            'user_id' => auth('tenant')->id(),
         ]);
 
         return redirect()->back()->with('success', 'تمت الإضافة بنجاح.');
     }
 
-    public function update_trait(Request $request, $model, $id)
+    public function update_trait(FormRequest $request, $model, $id)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-        ], [
-            'name.required' => 'حقل الاسم مطلوب.',
-            'name.string' => 'يجب أن يكون الاسم نصاً.',
-            'name.max' => 'يجب ألا يتجاوز الاسم 255 حرفاً.',
-        ]);
+        $validated = $request->validated();
 
         $item = $model::findOrFail($id);
         $item->update([
-            'name' => $request->name,
-            'user_id' => auth()->id(),
+            'name' => $validated['name'],
+            'user_id' => auth('tenant')->id(),
         ]);
 
         return redirect()->back()->with('success', 'تم التحديث بنجاح.');

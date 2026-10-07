@@ -3,12 +3,17 @@
 namespace App\Http\Controllers\Tenants\FinancialCollection\Reconciliation;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\FinancialCollection\Reconciliation\AnalyzeReconciliationFileRequest;
+use App\Http\Requests\Tenants\FinancialCollection\Reconciliation\GetReconciliationPortfoliosRequest;
+use App\Http\Requests\Tenants\FinancialCollection\Reconciliation\GetReconciliationProgressRequest;
+use App\Http\Requests\Tenants\FinancialCollection\Reconciliation\ProcessReconciliationRequest;
+use App\Http\Requests\Tenants\FinancialCollection\Reconciliation\ReconciliationRequest;
+use App\Http\Requests\Tenants\FinancialCollection\Reconciliation\StoreReconciliationFileRequest;
 use App\Models\Tenants\FinancialCollection\Reconciliation\PaymentReconciliation;
 use App\Services\Tenants\FinancialCollection\Reconciliation\PaymentReconciliationService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PaymentReconciliationController extends Controller
@@ -28,8 +33,7 @@ class PaymentReconciliationController extends Controller
     public function __construct(PaymentReconciliationService $reconciliationService)
     {
         $this->reconciliationService = $reconciliationService;
-        $this->middleware('auth');
-        $this->middleware('can:reconciliation.view');
+        $this->middleware(['auth:tenant', 'can:reconciliation.view']);
     }
 
     /*
@@ -53,22 +57,10 @@ class PaymentReconciliationController extends Controller
     | Get Portfolios By Company
     |--------------------------------------------------------------------------
     */
-    public function getPortfolios(Request $request): JsonResponse
+    public function getPortfolios(GetReconciliationPortfoliosRequest $request): JsonResponse
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'company_id' => 'required|integer|exists:companies,id'
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'بيانات غير صحيحة',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-
-            $portfolios = $this->reconciliationService->getPortfoliosForCompany($request->company_id);
+            $portfolios = $this->reconciliationService->getPortfoliosForCompany($request->integer('company_id'));
 
             return response()->json([
                 'success' => true,
@@ -92,20 +84,9 @@ class PaymentReconciliationController extends Controller
     | Analyze File Headers
     |--------------------------------------------------------------------------
     */
-    public function analyzeHeaders(Request $request): JsonResponse
+    public function analyzeHeaders(AnalyzeReconciliationFileRequest $request): JsonResponse
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'file' => 'required|file|mimes:xlsx,xls|max:10240',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $validator->errors()->first()
-                ], 422);
-            }
-
             $headers = $this->reconciliationService->analyzeFileHeaders($request->file('file'));
 
             return response()->json([
@@ -125,26 +106,15 @@ class PaymentReconciliationController extends Controller
     | Store Temporary File
     |--------------------------------------------------------------------------
     */
-    public function storeTemporaryFile(Request $request): JsonResponse
+    public function storeTemporaryFile(StoreReconciliationFileRequest $request): JsonResponse
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'file' => 'required|file|mimes:xlsx,xls|max:51200',
-            ], [
-                'file.required' => 'الملف مطلوب.',
-                'file.file' => 'يجب أن يكون الملف صالحاً.',
-                'file.mimes' => 'يجب أن يكون الملف من نوع Excel (xlsx أو xls).',
-                'file.max' => 'يجب ألا يتجاوز حجم الملف 50 ميجابايت.',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $validator->errors()->first()
-                ], 422);
-            }
-
             $result = $this->reconciliationService->storeTemporaryFile($request->file('file'));
+            Cache::put(
+                ReconciliationRequest::temporaryFileOwnerKey($result['temp_file_path']),
+                $request->user('tenant')->getKey(),
+                now()->addHours(2),
+            );
 
             return response()->json([
                 'success' => true,
@@ -164,33 +134,13 @@ class PaymentReconciliationController extends Controller
     | Process Reconciliation
     |--------------------------------------------------------------------------
     */
-    public function process(Request $request): JsonResponse
+    public function process(ProcessReconciliationRequest $request): JsonResponse
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'temp_file_path' => 'required|string',
-                'company_id' => 'required|integer|exists:companies,id',
-                'portfolio_id' => 'required|integer|exists:portfolios,id',
-                'reconciliation_month' => 'required|date',
-                'field_mappings' => 'required|array',
-                'field_mappings.account_number' => 'required|array',
-                'field_mappings.account_number.column' => 'required|string',
-                'field_mappings.collected_amount' => 'required|array',
-                'field_mappings.collected_amount.column' => 'required|string',
-                'field_mappings.collection_date' => 'required|array',
-                'field_mappings.collection_date.column' => 'required|string',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $validator->errors()->first()
-                ], 422);
-            }
-
+            $validated = $request->validated();
             $jobId = $this->reconciliationService->queueReconciliationProcess(
-                $validator->validated(),
-                $request->field_mappings
+                $validated,
+                $validated['field_mappings']
             );
 
             return response()->json([
@@ -211,21 +161,13 @@ class PaymentReconciliationController extends Controller
     | Get Progress Status
     |--------------------------------------------------------------------------
     */
-    public function getProgress(Request $request): JsonResponse
+    public function getProgress(GetReconciliationProgressRequest $request): JsonResponse
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'job_id' => 'required|string'
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'معرف المهمة مطلوب'
-                ], 422);
-            }
-
-            $progress = $this->reconciliationService->getProgressStatus($request->job_id);
+            $progress = $this->reconciliationService->getProgressStatus(
+                $request->string('job_id')->toString(),
+                (int) $request->user('tenant')->getKey(),
+            );
 
             return response()->json([
                 'success' => true,

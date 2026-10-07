@@ -8,6 +8,9 @@ use App\Data\Tenants\FinancialCollection\Collection\CollectionUpdateDto;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\FinancialCollection\Collection\StoreCollectionRequest;
 use App\Http\Requests\Tenants\FinancialCollection\Collection\UpdateCollectionRequest;
+use App\Http\Requests\Tenants\FinancialCollection\Collection\DeleteSelectedCollectionsRequest;
+use App\Http\Requests\Tenants\FinancialCollection\Collection\RecentCollectionsRequest;
+use App\Http\Requests\Tenants\FinancialCollection\Collection\RejectCollectionRequest;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\FinancialCollection\Collection\Collection;
 use App\Services\Tenants\FinancialCollection\Collection\CollectionService;
@@ -15,7 +18,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
 class CollectionController extends Controller
@@ -130,7 +132,7 @@ class CollectionController extends Controller
     public function show(Collection $collection): View
     {
         // التأكد من أن التحصيل يخص المستخدم الحالي
-        if (!$this->collectionService->canUserViewCollection($collection, Auth::id())) {
+        if (!$this->collectionService->canUserViewCollection($collection, auth('tenant')->id())) {
             abort(403, 'غير مسموح لك بعرض هذا التحصيل');
         }
 
@@ -147,7 +149,7 @@ class CollectionController extends Controller
     */
     public function edit(Collection $collection): View
     {
-        if (!$this->collectionService->canUserEditCollection($collection, Auth::id())) {
+        if (!$this->collectionService->canUserEditCollection($collection, auth('tenant')->id())) {
             abort(403, 'غير مسموح لك بتعديل هذا التحصيل');
         }
         $customers = $this->collectionService->getActiveCustomers();
@@ -178,7 +180,7 @@ class CollectionController extends Controller
                 $data['remove_attachment'] = true;
             }
 
-            $this->collectionService->updateMyCollection($collection, $data, Auth::id());
+            $this->collectionService->updateMyCollection($collection, $data, auth('tenant')->id());
 
             return redirect()
                 ->to(tenant_route_name('financial-collections.collections.index'))
@@ -203,7 +205,7 @@ class CollectionController extends Controller
     public function destroy(Collection $collection): RedirectResponse
     {
         try {
-            $this->collectionService->deleteCollection($collection, Auth::id());
+            $this->collectionService->deleteCollection($collection, auth('tenant')->id());
             return redirect()->back()->with('success', 'تم حذف التحصيل بنجاح');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
@@ -216,20 +218,13 @@ class CollectionController extends Controller
     |--------------------------------------------------------------------------
     | Remove multiple selected collections from storage.
     */
-    public function deleteSelected(Request $request): JsonResponse
+    public function deleteSelected(DeleteSelectedCollectionsRequest $request): JsonResponse
     {
-        $request->validate([
-            'ids' => 'required|array|min:1',
-            'ids.*' => 'required|integer|exists:collections,id'
-        ], [
-            'ids.required' => 'يرجى تحديد تحصيل واحد على الأقل',
-            'ids.array' => 'البيانات المرسلة غير صحيحة',
-            'ids.min' => 'يرجى تحديد تحصيل واحد على الأقل',
-            'ids.*.exists' => 'أحد التحصيلات المحددة غير موجود'
-        ]);
-
         try {
-            $deletedCount = $this->collectionService->deleteSelectedCollections($request->ids, Auth::id());
+            $deletedCount = $this->collectionService->deleteSelectedCollections(
+                $request->validated('ids'),
+                auth('tenant')->id(),
+            );
 
             return response()->json([
                 'success' => true,
@@ -253,7 +248,7 @@ class CollectionController extends Controller
     public function approve(Collection $collection): JsonResponse
     {
         try {
-            $this->collectionService->approveCollection($collection, Auth::id());
+            $this->collectionService->approveCollection($collection, auth('tenant')->id());
 
             return response()->json([
                 'success' => true,
@@ -275,17 +270,14 @@ class CollectionController extends Controller
     |--------------------------------------------------------------------------
     | Reject the specified collection.
     */
-    public function reject(Request $request, Collection $collection): JsonResponse
+    public function reject(RejectCollectionRequest $request, Collection $collection): JsonResponse
     {
-        $request->validate([
-            'rejection_reason' => 'required|string|max:500'
-        ], [
-            'rejection_reason.required' => 'يرجى إدخال سبب الرفض',
-            'rejection_reason.max' => 'سبب الرفض طويل جداً'
-        ]);
-
         try {
-            $this->collectionService->rejectCollection($collection, $request->rejection_reason, Auth::id());
+            $this->collectionService->rejectCollection(
+                $collection,
+                $request->validated('rejection_reason'),
+                auth('tenant')->id(),
+            );
 
             return response()->json([
                 'success' => true,
@@ -307,9 +299,9 @@ class CollectionController extends Controller
     |--------------------------------------------------------------------------
     | Get collections with recent additions within specified days.
     */
-    public function getRecentCollections(Request $request): JsonResponse
+    public function getRecentCollections(RecentCollectionsRequest $request): JsonResponse
     {
-        $days = $request->get('days', 7);
+        $days = $request->integer('days', 7);
         $collections = $this->collectionService->getMyRecentCollections($days)->get();
 
         return response()->json([

@@ -151,6 +151,7 @@ class PaymentReconciliationService
         $jobId = uniqid('reconciliation_');
 
         Cache::put("reconciliation_progress_{$jobId}", [
+            'requested_by' => auth('tenant')->id(),
             'status' => 'queued',
             'processed' => 0,
             'total' => 0,
@@ -168,7 +169,7 @@ class PaymentReconciliationService
             'portfolio_id' => $data['portfolio_id'],
             'reconciliation_month' => $data['reconciliation_month'],
             'field_mappings' => $fieldMappings,
-            'user_id' => auth()->id(),
+            'user_id' => auth('tenant')->id(),
         ]);
 
         return $jobId;
@@ -179,17 +180,23 @@ class PaymentReconciliationService
     | Get Progress Status
     |--------------------------------------------------------------------------
     */
-    public function getProgressStatus(string $jobId): array
+    public function getProgressStatus(string $jobId, int $userId): array
     {
-        return Cache::get("reconciliation_progress_{$jobId}", [
-            'status' => 'not_found',
-            'processed' => 0,
-            'total' => 0,
-            'matched' => 0,
-            'unmatched' => 0,
-            'discrepancies' => 0,
-            'errors' => 0,
-        ]);
+        $progress = Cache::get("reconciliation_progress_{$jobId}");
+
+        if (! is_array($progress) || (int) ($progress['requested_by'] ?? 0) !== $userId) {
+            return [
+                'status' => 'not_found',
+                'processed' => 0,
+                'total' => 0,
+                'matched' => 0,
+                'unmatched' => 0,
+                'discrepancies' => 0,
+                'errors' => 0,
+            ];
+        }
+
+        return $progress;
     }
 
     /*

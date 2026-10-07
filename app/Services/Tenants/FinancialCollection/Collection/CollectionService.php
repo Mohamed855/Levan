@@ -14,7 +14,6 @@ use App\Services\Tenants\Notification\NotificationService;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class CollectionService
@@ -46,7 +45,7 @@ class CollectionService
     public function getMyCollectionsQuery(): Builder
     {
         return $this->getCollectionsQuery()
-            ->where('added_by', Auth::id());
+            ->where('added_by', auth('tenant')->id());
     }
 
     /*
@@ -83,7 +82,7 @@ class CollectionService
     {
         return DB::transaction(function () use ($data) {
             $data['status'] = 'pending';
-            $data['added_by'] = Auth::id();
+            $data['added_by'] = auth('tenant')->id();
 
             // معالجة الملف المرفق
             if (isset($data['attachment']) && $data['attachment'] instanceof UploadedFile) {
@@ -153,7 +152,7 @@ class CollectionService
     {
         return Collection::selectRaw('collection_type, COUNT(*) as count, SUM(collected_amount) as amount')
             ->where('status', 'approved')
-            ->where('added_by', Auth::id())
+            ->where('added_by', auth('tenant')->id())
             ->groupBy('collection_type')
             ->get()
             ->map(function ($item) {
@@ -176,7 +175,7 @@ class CollectionService
     {
         return Collection::selectRaw('payment_type, COUNT(*) as count, SUM(collected_amount) as amount')
             ->where('status', 'approved')
-            ->where('added_by', Auth::id())
+            ->where('added_by', auth('tenant')->id())
             ->groupBy('payment_type')
             ->get()
             ->map(function ($item) {
@@ -440,7 +439,7 @@ class CollectionService
     public function canUserViewCollection(Collection $collection, int $userId): bool
     {
         // يمكن للمستخدم عرض تحصيلاته، أو للمدير عرض أي تحصيل
-        return $collection->added_by === $userId || auth()->user()->can('admin_collections.view');
+        return $collection->added_by === $userId || auth('tenant')->user()?->can('admin_collections.view');
     }
 
     /*
@@ -674,12 +673,12 @@ class CollectionService
     {
         $query = Customer::select('id', 'name', 'phone', 'account_number');
 
-        if (auth()->user()->can('customers.view')) {
+        if (auth('tenant')->user()?->can('customers.view')) {
             return $query->orderBy('account_number')->get();
         }
 
-        if (auth()->user()->can('customers.my_view')) {
-            return $query->where('relationship_manager_id', auth()->id())
+        if (auth('tenant')->user()?->can('customers.my_view')) {
+            return $query->where('relationship_manager_id', auth('tenant')->id())
                 ->orderBy('account_number')
                 ->get();
         }
@@ -946,7 +945,7 @@ class CollectionService
     */
     public function updateCollection(Collection $collection, array $data): Collection
     {
-        return $this->updateMyCollection($collection, $data, Auth::id());
+        return $this->updateMyCollection($collection, $data, auth('tenant')->id());
     }
 
     /*
@@ -1062,9 +1061,9 @@ class CollectionService
     {
         $query = Customer::select('id', 'name', 'account_number', 'phone');
 
-        if (auth()->user()->can('customers.view')) {
-        } elseif (auth()->user()->can('customers.my_view')) {
-            $query->where('relationship_manager_id', auth()->id());
+        if (auth('tenant')->user()?->can('customers.view')) {
+        } elseif (auth('tenant')->user()?->can('customers.my_view')) {
+            $query->where('relationship_manager_id', auth('tenant')->id());
         } else {
             return [];
         }
@@ -1103,9 +1102,9 @@ class CollectionService
             return null;
         }
         if (
-            !auth()->user()->can('customers.view') &&
-            auth()->user()->can('customers.my_view') &&
-            $customer->relationship_manager_id !== auth()->id()
+            !auth('tenant')->user()?->can('customers.view') &&
+            auth('tenant')->user()?->can('customers.my_view') &&
+            $customer->relationship_manager_id !== auth('tenant')->id()
         ) {
             return null;
         }
@@ -1127,9 +1126,9 @@ class CollectionService
     {
         $query = Customer::select('id', 'name', 'account_number', 'phone');
 
-        if (!auth()->user()->can('customers.view') && auth()->user()->can('customers.my_view')) {
-            $query->where('relationship_manager_id', auth()->id());
-        } elseif (!auth()->user()->can('customers.view')) {
+        if (!auth('tenant')->user()?->can('customers.view') && auth('tenant')->user()?->can('customers.my_view')) {
+            $query->where('relationship_manager_id', auth('tenant')->id());
+        } elseif (!auth('tenant')->user()?->can('customers.view')) {
             return [];
         }
 

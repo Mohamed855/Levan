@@ -1,7 +1,7 @@
 /**
  * Dynamic extra-fields loader for the Customer form
  * -------------------------------------------------
- * يعتمد على: jQuery – Toastr – FormValidation2
+ * يعتمد على: jQuery – Toastr – SharedFormValidation
  *
  * يجب أن توفّر الصفحة:
  *   window.routes.fieldsByPortfolio   (string)
@@ -14,14 +14,6 @@
     function loadDynamicFields(portfolioId, initial = {}) {
         const $wrap = $('#dynamic-fields').empty();
         if (!portfolioId) return;
-
-        // إزالة الحقول السابقة من FormValidation2
-        if (window.FormValidation2) {
-            Object.keys(window.dynamicFieldNames || {}).forEach(name => {
-                window.FormValidation2.removeField(name, false);
-            });
-            window.dynamicFieldNames = {};
-        }
 
         $.get(window.routes.fieldsByPortfolio, { portfolio_id: portfolioId })
             .done(res => {
@@ -39,35 +31,23 @@
                     let input;
                     switch (type) {
                         case 'numeric':
-                            input = `<input type="number" step="0.01" name="${inputName}" class="form-control" value="${value}">`;
+                            input = `<input type="number" step="0.01" name="${inputName}" class="form-control" data-form-control ${isReq ? 'required' : ''} value="${value}">`;
                             break;
                         case 'date':
-                            input = `<input type="date" name="${inputName}" class="form-control" value="${value}">`;
+                            input = `<input type="date" name="${inputName}" class="form-control" data-form-control ${isReq ? 'required' : ''} value="${value}">`;
                             break;
                         default:
-                            input = `<input type="text" name="${inputName}" class="form-control" value="${value}">`;
+                            input = `<input type="text" name="${inputName}" class="form-control" data-form-control ${isReq ? 'required' : ''} value="${value}">`;
                     }
 
                     // حقن فى الـ DOM
                     $wrap.append(`
-                        <div class="col-sm-6 mb-3">
+                        <div class="col-sm-6 mb-3" data-form-field data-field-name="${inputName}">
                             <label class="form-label">${fname}${isReq ? '<span class="text-danger">*</span>' : ''}</label>
                             ${input}
                         </div>
                     `);
 
-                    // إضافة التحقق إن وُجد
-                    if (window.FormValidation2) {
-                        const validators = {};
-                        if (isReq) validators.notEmpty = { message: 'هذا الحقل مطلوب' };
-                        if (type === 'numeric') {
-                            validators.numeric = { message: 'يجب إدخال رقم صالح' };
-                        } else if (type === 'date') {
-                            validators.date = { format: 'YYYY-MM-DD', message: 'صيغة التاريخ غير صحيحة' };
-                        }
-                        window.FormValidation2.addField(inputName, { validators });
-                        window.dynamicFieldNames[inputName] = true;
-                    }
                 });
             })
             .fail(() => toastr.error('تعذّر تحميل الحقول'));

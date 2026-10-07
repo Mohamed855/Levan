@@ -51,6 +51,7 @@ class PermissionsRolesSeeder extends Seeder
                 'countries.view',
                 'payment_methods.view',
                 'message_templates.view',
+                'document_request_reasons.view',
                 'contact_methods.view',
                 'customer_statuses.view',
                 'roles.view',

@@ -3,8 +3,12 @@
 namespace App\Http\Controllers\Tenants\FinancialCollection\Import;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\FinancialCollection\Import\CollectionImportProgressRequest;
+use App\Http\Requests\Tenants\FinancialCollection\Import\CollectionImportRequest;
+use App\Http\Requests\Tenants\FinancialCollection\Import\CancelCollectionImportRequest;
+use App\Http\Requests\Tenants\FinancialCollection\Import\ProcessCollectionImportRequest;
+use App\Http\Requests\Tenants\FinancialCollection\Import\UploadCollectionImportRequest;
 use App\Services\Tenants\FinancialCollection\Import\CollectionImportService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -21,6 +25,7 @@ class CollectionImportController extends Controller
     public function __construct(CollectionImportService $importService)
     {
         $this->importService = $importService;
+        $this->middleware(['auth:tenant', 'can:collections.create']);
     }
 
     /*
@@ -55,11 +60,17 @@ class CollectionImportController extends Controller
     | Upload And Analyze File
     |--------------------------------------------------------------------------
     */
-    public function uploadAndAnalyze(Request $request)
+    public function uploadAndAnalyze(UploadCollectionImportRequest $request)
     {
-        $request->validate(['import_file' => 'required|mimes:xlsx,xls|max:10240']);
-
         $result = $this->importService->uploadAndAnalyzeFile($request->file('import_file'));
+
+        if ($result['success']) {
+            Cache::put(
+                CollectionImportRequest::temporaryFileOwnerKey($result['data']['temp_path']),
+                $request->user('tenant')->getKey(),
+                now()->addHours(2),
+            );
+        }
 
         return response()->json($result, $result['success'] ? 200 : 400);
     }
@@ -69,28 +80,10 @@ class CollectionImportController extends Controller
     | Process Import
     |--------------------------------------------------------------------------
     */
-    public function processImport(Request $request)
+    public function processImport(ProcessCollectionImportRequest $request)
     {
-        $request->validate([
-            'temp_path' => 'required|string',
-            'account_column' => 'required|integer|min:0',
-            'amount_column' => 'required|integer|min:0',
-            'date_column' => 'required|integer|min:0',
-            'date_format' => 'required|string',
-            'payment_method_id' => 'required|integer|exists:settings_payment_methods,id',
-            'collection_type' => 'required|string|in:cash,scheduled',
-            'payment_type' => 'required|string|in:settlement,without_settlement',
-            'assigned_user_id' => 'nullable|integer|exists:users,id',
-            'notes_column' => 'nullable|integer|min:0'
-        ]);
-
-        $importConfig = $request->only([
-            'temp_path', 'account_column', 'amount_column', 'date_column',
-            'date_format', 'payment_method_id', 'collection_type',
-            'payment_type', 'assigned_user_id', 'notes_column'
-        ]);
-
-        $importConfig['current_user_id'] = auth()->id();
+        $importConfig = $request->validated();
+        $importConfig['current_user_id'] = $request->user('tenant')->getKey();
 
         $result = $this->importService->processImportFile($importConfig);
 
@@ -102,13 +95,11 @@ class CollectionImportController extends Controller
     | Get Import Progress
     |--------------------------------------------------------------------------
     */
-    public function getImportProgress(Request $request)
+    public function getImportProgress(CollectionImportProgressRequest $request)
     {
-        $request->validate(['job_id' => 'required|string']);
+        $progress = Cache::get('import_progress_' . $request->validated('job_id'));
 
-        $progress = Cache::get("import_progress_{$request->job_id}");
-
-        if (!$progress) {
+        if (! is_array($progress) || (int) ($progress['requested_by'] ?? 0) !== (int) $request->user('tenant')->getKey()) {
             return response()->json([
                 'success' => false,
                 'message' => 'لم يتم العثور على معلومات العملية'
@@ -142,12 +133,10 @@ class CollectionImportController extends Controller
     | Cancel Import
     |--------------------------------------------------------------------------
     */
-    public function cancelImport(Request $request)
+    public function cancelImport(CancelCollectionImportRequest $request)
     {
-        $tempPath = $request->input('temp_path');
-        if ($tempPath) {
-            Storage::disk('tenant_public')->delete($tempPath);
-        }
+        $tempPath = $request->validated('temp_path');
+        Storage::disk('tenant_public')->delete($tempPath);
         return response()->json(['success' => true]);
     }
 }

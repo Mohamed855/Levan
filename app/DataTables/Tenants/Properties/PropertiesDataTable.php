@@ -78,7 +78,7 @@ class PropertiesDataTable extends AbstractDataTable
                 return '<span class="badge ' . $row->data_status_badge_class . '">' . e($row->data_status_label) . '</span>';
             })
             ->editColumn('status', function ($row) {
-                $canEdit = auth()->user()?->can('properties.edit');
+                $canEdit = auth('tenant')->user()?->can('properties.edit');
                 if ($canEdit) {
                     $checked = $row->is_active ? 'checked' : '';
                     $url = tenant_route_name('properties.toggle-status', $row->id);
@@ -159,7 +159,7 @@ class PropertiesDataTable extends AbstractDataTable
             ['extend' => 'excel', 'text' => 'إكسل'],
         ];
 
-        if (auth()->user()?->can('properties.delete')) {
+        if (auth('tenant')->user()?->can('properties.delete')) {
             $buttons[] = [
                 'text'      => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
@@ -177,7 +177,7 @@ class PropertiesDataTable extends AbstractDataTable
 
     private function getAddButton(): array
     {
-        if (auth()->user()?->can('properties.create')) {
+        if (auth('tenant')->user()?->can('properties.create')) {
             return [
                 'text'      => '<i class="ti ti-plus me-1"></i> إضافة عقار',
                 'className' => 'btn btn-primary btn-add',

@@ -10,13 +10,18 @@
     @vite(['resources/css/toastr.css', 'resources/js/toastr.js'])
 @endsection
 
+@section('page-script')
+    @vite(['resources/assets/js/shared/form-validation.js'])
+@endsection
+
 @section('content')
     <section class="section-py bg-body">
         <div class="">
-            <form id="payment-form" method="POST" action="{{ tenant_route_name('bills.checkout.store') }}" autocomplete="off">
+            <form id="payment-form" method="POST" action="{{ tenant_route_name('bills.checkout.store') }}" autocomplete="off"
+                novalidate data-form-validate data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                 @csrf
-                <input type="hidden" name="coupon_code" id="coupon_code_hidden">
-                <input type="hidden" name="discount_amount" id="discount_amount_hidden">
+                <input type="hidden" name="coupon_code" id="coupon_code_hidden" data-validation-skip>
+                <input type="hidden" name="discount_amount" id="discount_amount_hidden" data-validation-skip>
 
                 <div class="row g-2">
                     <div class="col-lg-8">

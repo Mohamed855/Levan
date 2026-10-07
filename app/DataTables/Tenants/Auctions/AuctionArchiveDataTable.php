@@ -31,7 +31,6 @@ class AuctionArchiveDataTable extends AbstractDataTable
     {
         return [
             ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'title' => '#', 'orderable' => false, 'searchable' => false, 'width' => '40px'],
-            ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم المزاد'],
             ['data' => 'assignment_name', 'name' => 'assignment.name', 'title' => 'الإسناد المرتبط'],
             ['data' => 'city', 'name' => 'city', 'title' => 'المدينة'],
@@ -43,9 +42,6 @@ class AuctionArchiveDataTable extends AbstractDataTable
     protected function addCustomColumns($datatable): void
     {
         $datatable
-            ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
-            })
             ->addColumn('assignment_name', function ($row) {
                 return $row->assignment?->name ?? '-';
             })
@@ -59,7 +55,7 @@ class AuctionArchiveDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'actions'];
+        return ['actions'];
     }
 
     protected function buttons(): array

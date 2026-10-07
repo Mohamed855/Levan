@@ -6,6 +6,7 @@ use App\Models\Tenants\Assignments\Assignment;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use LogicException;
 
 class AssignmentService
 {
@@ -44,7 +45,7 @@ class AssignmentService
             $data['assignment_number'] = $this->generateAssignmentNumber();
         }
 
-        $data['created_by'] = auth()->id();
+        $data['created_by'] = auth('tenant')->id();
 
         return Assignment::create($data);
     }
@@ -76,6 +77,26 @@ class AssignmentService
 
     public function deleteAssignment(Assignment $assignment): bool
     {
+        if ($assignment->properties()->withTrashed()->exists() || $assignment->auctions()->withTrashed()->exists()) {
+            throw new LogicException('لا يمكن نقل الإسناد إلى المحذوفات قبل معالجة العقارات والمزادات المرتبطة به.');
+        }
+
         return (bool) $assignment->delete();
+    }
+
+    public function forceDeleteAssignment(Assignment $assignment): bool
+    {
+        if ($assignment->properties()->withTrashed()->exists() || $assignment->auctions()->withTrashed()->exists()) {
+            throw new LogicException('لا يمكن حذف الإسناد نهائياً قبل حذف العقارات والمزادات المرتبطة به نهائياً.');
+        }
+
+        $entityLogo = $assignment->entity_logo;
+        $deleted = (bool) $assignment->forceDelete();
+
+        if ($deleted && $entityLogo) {
+            Storage::disk('tenant_public')->delete($entityLogo);
+        }
+
+        return $deleted;
     }
 }

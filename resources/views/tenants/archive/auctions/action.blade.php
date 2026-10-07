@@ -1,6 +1,7 @@
 <div class="d-flex justify-content-center gap-1">
     <form action="{{ tenant_route_name('archive.auctions.restore', $row->id) }}" method="POST" class="d-inline">
         @csrf
+        @method('PATCH')
         <button type="submit" class="btn btn-sm btn-icon btn-label-success" title="استعادة المزاد">
             <i class="ti ti-rotate"></i>
         </button>

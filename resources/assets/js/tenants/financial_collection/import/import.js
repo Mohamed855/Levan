@@ -58,9 +58,7 @@ function initializeSelect2() {
             }).on('select2:select select2:clear', function () {
                 $(this).removeClass('is-invalid');
                 $(this).closest('.col-sm-6, .col-sm-12, .col-12').find('.invalid-feedback').remove();
-                if (FormValidation1) {
-                    FormValidation1.revalidateField(this.name);
-                }
+                updateImportSubmitState();
             });
         });
     }
@@ -75,6 +73,8 @@ function bindEvents() {
     window.resetImport = resetImport;
     window.removeSelectedFile = removeSelectedFile;
     window.downloadErrorReport = downloadErrorReport;
+
+    $('#import-form').on('change input', 'select', updateImportSubmitState);
 }
 
 /*
@@ -124,6 +124,7 @@ function resetFileState() {
     uploadedFileData = null;
     $('#temp_path').val('');
     hideConfigurationForm();
+    updateImportSubmitState();
 }
 
 /*
@@ -184,6 +185,7 @@ function resetDropzoneUIToInitial() {
 function showConfigurationForm(columns) {
     populateColumnSelects(columns);
     $('#configuration-form').slideDown(300);
+    updateImportSubmitState();
 }
 
 function hideConfigurationForm() {
@@ -242,6 +244,12 @@ function populateSelect(selectName, options, allowEmpty = false) {
 
     // إعادة تهيئة Select2 بعد تحديث الخيارات
     select.trigger('change');
+}
+
+function updateImportSubmitState() {
+    const required = ['account_column', 'amount_column', 'date_column', 'date_format', 'payment_method_id', 'collection_type', 'payment_type'];
+    const ready = fileAnalyzed && required.every((name) => String($(`[name="${name}"]`).val() || '') !== '');
+    $('#import-form button[type="submit"]').prop('disabled', !ready);
 }
 
 /*

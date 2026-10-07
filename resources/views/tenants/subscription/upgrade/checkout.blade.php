@@ -12,7 +12,7 @@
         };
     </script>
 
-    @vite(['resources/assets/js/shared/payment/apply-coupon.js'])
+    @vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/shared/payment/apply-coupon.js'])
 @endsection
 
 @section('toastr')
@@ -21,10 +21,12 @@
 
 @section('content')
     <section class="section-py bg-body">
-        <form id="payment-form" method="POST" action="{{ tenant_route_name('subscriptions.licenses.process') }}">
+        <form id="payment-form" method="POST" action="{{ tenant_route_name('subscriptions.licenses.process') }}"
+            novalidate data-form-validate data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
             @csrf
-            <input type="hidden" name="coupon_code" id="coupon_code_hidden">
-            <input type="hidden" name="discount_amount" id="discount_amount_hidden">
+            <input type="hidden" name="new_licenses_count" value="{{ $newLicensesCount }}" data-validation-skip>
+            <input type="hidden" name="coupon_code" id="coupon_code_hidden" data-validation-skip>
+            <input type="hidden" name="discount_amount" id="discount_amount_hidden" data-validation-skip>
 
             <div class="row g-2">
 
@@ -80,7 +82,7 @@
                             <!-- قسم الكوبون -->
                             <div class="mb-4">
                                 <div class="d-flex gap-2">
-                                    <input type="text" id="coupon_code_input" name="coupon_code_display"
+                                    <input type="text" id="coupon_code_input" name="coupon_code_display" data-validation-skip
                                         class="form-control" placeholder="أدخل كود الخصم">
 
                                     <button type="button" id="apply-coupon-btn" class="btn btn-outline-primary">
