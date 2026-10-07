@@ -972,7 +972,14 @@ function initForm(form) {
   });
 }
 
+let passwordTogglesInitialized = false;
+
 function initPasswordToggles() {
+  if (passwordTogglesInitialized) {
+    return;
+  }
+  passwordTogglesInitialized = true;
+
   document.addEventListener('click', (event) => {
     const toggle = event.target.closest('[data-password-toggle]');
     if (!toggle) {
