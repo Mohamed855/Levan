@@ -25,7 +25,8 @@
             ['icon' => 'ti ti-chart-arrows', 'text' => 'مؤشرات وتقارير شمولية'],
             ['icon' => 'ti ti-shield-lock', 'text' => 'أمان ورقابة مركزية متقدمة'],
         ]">
-        <form id="formAuthentication" action="{{ route('admin.login') }}" method="POST" novalidate>
+        <form id="formAuthentication" action="{{ route('admin.login') }}" method="POST" novalidate data-form-validate
+            data-validation-url="{{ route('admin.form-validation') }}">
             @csrf
             <x-form.controls.input name="email" label="البريد الإلكتروني" placeholder="أدخل البريد الإلكتروني"
                 type="email" :value="old('email')" required autofocus autocomplete="username" col="col-12 mb-3"

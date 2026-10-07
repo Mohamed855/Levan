@@ -16,7 +16,7 @@
 | 6 — Tenant | مغلقة تقنياً | [phase-6-tenant-closure-2026-10-07.md](phase-6-tenant-closure-2026-10-07.md) | اختبار المسارات مع مستخدمين حقيقيين وعزل tenancy في المتصفح ضمن smoke. Branches مستبعدة نهائياً. |
 | 7 — DataTables والاستجابات | مغلقة تقنياً | [phase-7-datatables-responses-register-2026-10-07.md](phase-7-datatables-responses-register-2026-10-07.md) | loading/empty/error المرئي لكل جدول يثبت في smoke، والعقد البرمجي مغطى بالاختبارات. |
 | 8 — routes والـlegacy | مغلقة | [phase-8-legacy-routes-register-2026-10-07.md](phase-8-legacy-routes-register-2026-10-07.md)، `LegacyRouteContractTest` | حُذفت مرشحات الملفات المحددة في 8 أكتوبر بعد موافقة صريحة؛ الإدارات غير المفعّلة تبقى مسجلة بمالكيها إلى قرار product مستقل. |
-| 9 — regression وقبول التشغيل | مكتملة تقنياً محلياً، **غير معتمدة للإصدار بعد** | [phase-9-regression-register-2026-10-07.md](phase-9-regression-register-2026-10-07.md)، suite الإغلاق: 121 اختباراً و2,767 assertion؛ وبعد حذف legacy: 32 Unit و23 Feature متأثرين نجحوا، وbuild/cache/routes | checklist المتصفح والتكاملات الحية لم تنفذ؛ لا يصح وسمها مكتملة بلا بيئة وحسابات ونتائج فعلية. |
+| 9 — regression وقبول التشغيل | مغلقة محلياً | [phase-9-regression-register-2026-10-07.md](phase-9-regression-register-2026-10-07.md)، [سجل smoke المحلي](phase-9-local-smoke-register-2026-10-08.md)، suite الإغلاق وbuild/cache/routes | لا يمثل القبول المحلي قبول production أو transaction حي؛ ذلك قرار release مستقل. |
 
 ## نتيجة فحص الإغلاق الحالي
 
@@ -24,8 +24,8 @@
 2. أزيلت ملفات legacy المحددة بعد تحقق مراجعها وموافقة صريحة؛ يحتفظ Git بسجل الاسترجاع. لا يشمل ذلك الإدارات غير المفعّلة المسجلة كـInactive لأنها تتطلب قرار product مستقل.
 3. أغلقت suite الإغلاق بـ**121 اختباراً و2,767 assertion**؛ وبعد حذف legacy نجحت إعادة فحص 32 Unit (1,544 assertion) و23 Feature متأثراً (122 assertion).
 4. `npm run build` و`route:cache` و`config:cache` و`view:cache` نجحت، ثم أزيلت caches المؤقتة.
-5. لا يوجد في المشروع Dusk أو Playwright أو Cypress؛ كما لا يملك هذا التدقيق حسابات أو مفاتيح تسمح بإثبات عمليات 2FA وreCAPTCHA ومزودات الدفع/DNS في متصفح حقيقي.
+5. نُفذ smoke فعلي محلي عبر Chromium وsessions للحسابات المزروعة، وشمل Website وSuper Admin وpath/domain tenancy وDataTables و2FA والـvalidation. تفاصيله في سجل smoke المحلي.
 
 ## بوابة المرحلة التالية
 
-المرحلة 10 لا تبدأ قبل اعتماد نتيجة smoke في بيئة الإصدار. التنفيذ المطلوب هو تشغيل وتسجيل عناصر [manual-smoke-checklist.md](manual-smoke-checklist.md) من منفذ يملك حسابات الاختبار والخدمات المرتبطة، ثم إلحاق النتيجة بهذا السجل ووسم المرحلة 9 «معتمدة للإصدار» أو فتح defects صريحة.
+اكتمل شرط البدء المحلي للمرحلة 10. عند تجهيز production، تعاد قائمة [manual-smoke-checklist.md](manual-smoke-checklist.md) ضمن إجراءات الإصدار ولا تعيد فتح إغلاق التطوير المحلي.

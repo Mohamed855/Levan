@@ -223,13 +223,8 @@
 // Applied equally on ALL top-level items (both leaf items and togglers)
 // -----------------------------------------------------------------------------
 
-// Eliminate vendor indicator bar
-.bg-menu-theme .menu-inner > .menu-item:before,
-.layout-wrapper:not(.layout-horizontal) .bg-menu-theme .menu-inner > .menu-item:before {
-    display: none !important;
-}
-
 // Allocate concave scoops on top-level items with opacity: 0 for synchronous transition
+.layout-wrapper .bg-menu-theme.menu-vertical .menu-inner > .menu-item,
 .bg-menu-theme.menu-vertical .menu-inner > .menu-item {
     position: relative !important;
 
@@ -244,7 +239,7 @@
         border: none !important;
         box-shadow: none !important;
         pointer-events: none !important;
-        z-index: 1 !important;
+        z-index: 10 !important;
         opacity: 0 !important;
         transition: opacity 0.1s ease !important;
         transition-duration: 0.1s !important;
@@ -252,55 +247,53 @@
 }
 
 // RTL Geometry (Cutout on Left Edge at left: 0)
-:root[dir="rtl"] .bg-menu-theme.menu-vertical .menu-inner > .menu-item,
-[dir="rtl"] .bg-menu-theme.menu-vertical .menu-inner > .menu-item {
-    // Concave arc above tab (top-left)
-    &::before {
-        top: -20px !important;
-        left: 0 !important;
-        right: auto !important;
-        background: radial-gradient(circle 20px at 100% 0%, transparent 20px, var(--menu-cutout-bg, #f8f7fa) 20.5px) !important;
-    }
+:root[dir="rtl"] .bg-menu-theme.menu-vertical .menu-inner > .menu-item::before,
+[dir="rtl"] .bg-menu-theme.menu-vertical .menu-inner > .menu-item::before,
+.layout-wrapper[dir="rtl"] .bg-menu-theme.menu-vertical .menu-inner > .menu-item::before {
+    top: -20px !important;
+    left: 0 !important;
+    right: auto !important;
+    background: radial-gradient(circle 20px at 100% 0%, transparent 20px, var(--menu-cutout-bg, #f8f7fa) 20.5px) !important;
+}
 
-    // Concave arc below tab (bottom-left)
-    &::after {
-        bottom: -20px !important;
-        left: 0 !important;
-        right: auto !important;
-        background: radial-gradient(circle 20px at 100% 100%, transparent 20px, var(--menu-cutout-bg, #f8f7fa) 20.5px) !important;
-    }
+:root[dir="rtl"] .bg-menu-theme.menu-vertical .menu-inner > .menu-item::after,
+[dir="rtl"] .bg-menu-theme.menu-vertical .menu-inner > .menu-item::after,
+.layout-wrapper[dir="rtl"] .bg-menu-theme.menu-vertical .menu-inner > .menu-item::after {
+    bottom: -20px !important;
+    left: 0 !important;
+    right: auto !important;
+    background: radial-gradient(circle 20px at 100% 100%, transparent 20px, var(--menu-cutout-bg, #f8f7fa) 20.5px) !important;
 }
 
 // LTR Geometry (Cutout on Right Edge at right: 0)
-:root:not([dir="rtl"]) .bg-menu-theme.menu-vertical .menu-inner > .menu-item,
-[dir="ltr"] .bg-menu-theme.menu-vertical .menu-inner > .menu-item {
-    // Concave arc above tab (top-right)
-    &::before {
-        top: -20px !important;
-        right: 0 !important;
-        left: auto !important;
-        background: radial-gradient(circle 20px at 0% 0%, transparent 20px, var(--menu-cutout-bg, #f8f7fa) 20.5px) !important;
-    }
-
-    // Concave arc below tab (bottom-right)
-    &::after {
-        bottom: -20px !important;
-        right: 0 !important;
-        left: auto !important;
-        background: radial-gradient(circle 20px at 0% 100%, transparent 20px, var(--menu-cutout-bg, #f8f7fa) 20.5px) !important;
-    }
+:root:not([dir="rtl"]) .bg-menu-theme.menu-vertical .menu-inner > .menu-item::before,
+[dir="ltr"] .bg-menu-theme.menu-vertical .menu-inner > .menu-item::before,
+.layout-wrapper:not([dir="rtl"]) .bg-menu-theme.menu-vertical .menu-inner > .menu-item::before {
+    top: -20px !important;
+    right: 0 !important;
+    left: auto !important;
+    background: radial-gradient(circle 20px at 0% 0%, transparent 20px, var(--menu-cutout-bg, #f8f7fa) 20.5px) !important;
 }
 
-// Top-level items on Active OR Hover (Leaf items and Togglers share the exact same styling)
+:root:not([dir="rtl"]) .bg-menu-theme.menu-vertical .menu-inner > .menu-item::after,
+[dir="ltr"] .bg-menu-theme.menu-vertical .menu-inner > .menu-item::after,
+.layout-wrapper:not([dir="rtl"]) .bg-menu-theme.menu-vertical .menu-inner > .menu-item::after {
+    bottom: -20px !important;
+    right: 0 !important;
+    left: auto !important;
+    background: radial-gradient(circle 20px at 0% 100%, transparent 20px, var(--menu-cutout-bg, #f8f7fa) 20.5px) !important;
+}
+
+// Top-level items on Active OR Hover (All items including togglers share the exact same styling)
+.layout-wrapper .bg-menu-theme.menu-vertical .menu-inner > .menu-item.active,
 .bg-menu-theme.menu-vertical .menu-inner > .menu-item.active,
-.bg-menu-theme.menu-vertical .menu-item.active,
+.layout-wrapper .bg-menu-theme.menu-vertical .menu-inner > .menu-item:hover,
 .bg-menu-theme.menu-vertical .menu-inner > .menu-item:hover {
     z-index: 5 !important;
 
     // Show scoops
-    &:not(.open)::before,
-    &:not(.open)::after,
-    &.open::before {
+    &::before,
+    &::after {
         opacity: 1 !important;
     }
 
@@ -313,6 +306,8 @@
 
         color: var(--primary-color, #372632) !important;
         font-weight: 600 !important;
+        transition: background-color 0.1s ease, color 0.1s ease !important;
+        transition-duration: 0.1s !important;
 
         > div,
         > div:not(.badge),
@@ -334,38 +329,70 @@
     }
 }
 
+// When hovering over the submenu of an open toggler, gracefully restore parent toggler to normal if it's not active
+.bg-menu-theme.menu-vertical .menu-inner > .menu-item.open:not(.active):has(.menu-sub:hover) {
+    &::before,
+    &::after {
+        opacity: 0 !important;
+    }
+
+    > .menu-link {
+        background: transparent !important;
+        color: rgba(255, 255, 255, 0.82) !important;
+
+        > div, span, .menu-icon, i {
+            color: rgba(255, 255, 255, 0.82) !important;
+        }
+
+        &.menu-toggle::after {
+            color: rgba(255, 255, 255, 0.6) !important;
+        }
+    }
+}
+
+// Neutralize vendor theme overrides on togglers when inactive and not hovered
+.bg-menu-theme.menu-vertical .menu-inner > .menu-item:not(.active):not(:hover) > .menu-link.menu-toggle,
+.bg-menu-theme.menu-vertical .menu-inner > .menu-item.open:not(.active):not(:hover) > .menu-link.menu-toggle {
+    background: transparent !important;
+    color: rgba(255, 255, 255, 0.82) !important;
+}
+
 // -----------------------------------------------------------------------------
-// 6. Submenu & Inner Menu Items
+// 6. Submenu & Inner Menu Items (Simple, seamless list without container box)
 // -----------------------------------------------------------------------------
 .bg-menu-theme.menu-vertical {
-    // Submenu container
     .menu-sub {
-        background-color: rgba(0, 0, 0, 0.16) !important;
-        border-radius: 12px !important;
-        padding: 0.35rem 0.5rem !important;
-        margin: 0.35rem 0.875rem 0.5rem 0.875rem !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        padding: 0.25rem 0 !important;
+        margin: 0 !important;
 
         .menu-item {
             margin: 0.25rem 0 !important;
             position: relative !important;
         }
 
-        // Submenu links base state (font-weight: 600 constant to prevent any text movement)
+        // Submenu links base state
         .menu-link {
-            padding: 0.6rem 0.85rem !important;
-            min-height: 40px !important;
+            padding: 0.65rem 1.15rem !important;
+            min-height: 42px !important;
             border-radius: 8px !important;
             font-size: 0.875rem !important;
-            font-weight: 600 !important; // Stable font-weight
+            font-weight: 600 !important; // Strictly constant font-weight
             color: rgba(255, 255, 255, 0.75) !important;
+            background: transparent !important;
             transition: background-color 0.1s ease, color 0.1s ease !important;
             transition-duration: 0.1s !important;
-            margin: 0 !important;
+            margin-inline-start: 1.5rem !important;
+            margin-inline-end: 0.875rem !important;
             display: flex !important;
             align-items: center !important;
             transform: none !important;
 
-            // Stable bullet dot (NO scale or movement)
+            // Stable bullet dot (strictly 6px, NO transform/scale)
             &::before {
                 content: '' !important;
                 display: inline-block !important;
@@ -373,7 +400,7 @@
                 width: 6px !important;
                 height: 6px !important;
                 border-radius: 50% !important;
-                background-color: rgba(255, 255, 255, 0.35) !important;
+                background-color: rgba(255, 255, 255, 0.45) !important;
                 margin-inline-end: 0.65rem !important;
                 flex-shrink: 0 !important;
                 transform: none !important;
@@ -391,11 +418,13 @@
 
         // Submenu link HOVER & ACTIVE (Both take the EXACT same color as menu-link)
         .menu-item:hover > .menu-link,
-        .menu-item.active > .menu-link {
+        .menu-item.active > .menu-link,
+        .menu-link:hover,
+        .menu-link.active {
             background: var(--menu-cutout-bg, #f8f7fa) !important;
             background-image: none !important;
             color: var(--primary-color, #372632) !important;
-            font-weight: 600 !important;
+            font-weight: 600 !important; // Stays 600, NO jumping
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12) !important;
             transform: none !important;
 
@@ -407,7 +436,7 @@
 
             &::before {
                 background-color: var(--primary-color, #372632) !important;
-                transform: none !important; // Fixed size, zero movement
+                transform: none !important; // Stays 6px, ZERO movement
             }
         }
     }

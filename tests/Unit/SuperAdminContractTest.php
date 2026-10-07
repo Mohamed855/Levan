@@ -60,6 +60,17 @@ class SuperAdminContractTest extends TestCase
         );
     }
 
+    public function test_admin_login_uses_the_shared_validation_contract(): void
+    {
+        $view = file_get_contents(dirname(__DIR__, 2) . '/resources/views/admin/auth/login.blade.php');
+        $routes = file_get_contents(dirname(__DIR__, 2) . '/routes/admin/admin-auth.php');
+
+        $this->assertStringContainsString('data-form-validate', $view);
+        $this->assertStringContainsString("route('admin.form-validation')", $view);
+        $this->assertStringContainsString('WizardDraftController::class, \'validateStep\'', $routes);
+        $this->assertStringContainsString("AdminAuthController::class . '@login'", $routes);
+    }
+
     public function test_super_admin_form_requests_have_authorization_and_rules(): void
     {
         $requests = [

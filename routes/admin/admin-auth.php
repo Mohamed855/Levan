@@ -3,14 +3,23 @@
 use App\Http\Controllers\Admin\Auth\AdminAuthController;
 use App\Http\Controllers\Admin\Auth\AdminTwoFactorChallengeController;
 use App\Http\Controllers\Admin\Auth\AdminTwoFactorSettingsController;
+use App\Http\Controllers\Shared\Wizard\WizardDraftController;
 use Illuminate\Support\Facades\Route;
 
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::middleware('guest:admin')->group(function () {
+        Route::post('form-validation', [WizardDraftController::class, 'validateStep'])
+            ->defaults('shared_form_validation_actions', [
+                AdminAuthController::class . '@login',
+            ])
+            ->name('form-validation');
+
         Route::get('login', [AdminAuthController::class, 'showLoginForm'])->name('login');
-        Route::post('login', [AdminAuthController::class, 'login'])->middleware('throttle:5,1');
+        Route::post('login', [AdminAuthController::class, 'login'])
+            ->middleware('throttle:5,1')
+            ->defaults('shared_form_validation', true);
 
         Route::get('two-factor-challenge', [AdminTwoFactorChallengeController::class, 'create'])->name('two-factor.login');
         Route::post('two-factor-challenge', [AdminTwoFactorChallengeController::class, 'store'])->name('two-factor.store')->middleware('throttle:5,1');
