@@ -25,9 +25,13 @@ class AdminBillsController extends Controller
         private SubscriptionService $subscriptionService
     ) {
         $this->middleware('auth:admin');
+        $this->authorizeResource(Bill::class, 'bill');
         $this->middleware('can:financial_transactions.view')->only(['index', 'show', 'print']);
         $this->middleware('can:subscriptions.pending.approve')->only(['verify', 'reactivate']);
         $this->middleware('can:subscriptions.pending.reject')->only(['reject']);
+        $this->middleware('can:verify,bill')->only(['verify']);
+        $this->middleware('can:reject,bill')->only(['reject']);
+        $this->middleware('can:reactivate,bill')->only(['reactivate']);
     }
 
     public function index(AdminBillsDataTable $dataTable)

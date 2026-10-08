@@ -12,6 +12,8 @@ use App\Models\Admin\ContentManagement\Client;
 use App\Models\Admin\ContentManagement\Portfolio as ContentPortfolio;
 use App\Models\Admin\Version\Version;
 use App\Models\Admin\Version\VersionTester;
+use App\Models\Admin\Bills\Bill;
+use App\Models\Admin\Subscription\Subscription;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\BusinessCenter\Company\Company;
@@ -36,6 +38,8 @@ use App\Policies\Admin\ContentManagement\ClientPolicy;
 use App\Policies\Admin\ContentManagement\ContentPortfolioPolicy;
 use App\Policies\Admin\Versions\VersionPolicy;
 use App\Policies\Admin\Versions\VersionTesterPolicy;
+use App\Policies\Admin\Bills\BillPolicy;
+use App\Policies\Admin\Subscriptions\SubscriptionPolicy;
 use App\Policies\Tenants\Assignments\AssignmentPolicy;
 use App\Policies\Tenants\Auctions\AuctionPolicy;
 use App\Policies\Tenants\BusinessCenter\Company\CompanyPolicy;
@@ -70,6 +74,8 @@ class AuthServiceProvider extends ServiceProvider
         ContentPortfolio::class => ContentPortfolioPolicy::class,
         Version::class => VersionPolicy::class,
         VersionTester::class => VersionTesterPolicy::class,
+        Bill::class => BillPolicy::class,
+        Subscription::class => SubscriptionPolicy::class,
         Assignment::class => AssignmentPolicy::class,
         Property::class => PropertyPolicy::class,
         Auction::class => AuctionPolicy::class,

@@ -24,6 +24,7 @@ class SubscriptionController extends Controller
     public function __construct(
         private readonly AdminSubscriptionService $subscriptionService
     ) {
+        $this->authorizeResource(Subscription::class, 'subscription');
         $this->middleware('can:subscriptions.view')->only(['index']);
         $this->middleware('can:subscriptions.create')->only(['create', 'store', 'planDuration', 'companyDetails']);
         $this->middleware('can:subscriptions.delete')->only(['destroy']);

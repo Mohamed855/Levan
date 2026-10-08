@@ -14,6 +14,8 @@ use App\Http\Controllers\Admin\Settings\Bank\SettingsBankController;
 use App\Http\Controllers\Admin\Settings\Domain\SettingsDomainController;
 use App\Http\Controllers\Admin\Versions\VersionController;
 use App\Http\Controllers\Admin\VersionTester\VersionTesterController;
+use App\Http\Controllers\Admin\Bills\AdminBillsController;
+use App\Http\Controllers\Admin\Subscriptions\SubscriptionController;
 use App\Policies\Admin\Coupons\CouponPolicy;
 use App\Policies\Admin\Plans\PlanPolicy;
 use App\Policies\Admin\Tenants\TenantPolicy;
@@ -24,6 +26,8 @@ use App\Policies\Admin\ContentManagement\ClientPolicy;
 use App\Policies\Admin\ContentManagement\ContentPortfolioPolicy;
 use App\Policies\Admin\Versions\VersionPolicy;
 use App\Policies\Admin\Versions\VersionTesterPolicy;
+use App\Policies\Admin\Bills\BillPolicy;
+use App\Policies\Admin\Subscriptions\SubscriptionPolicy;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -42,6 +46,8 @@ class CentralPolicyContractTest extends TestCase
             ContentPortfolioPolicy::class,
             VersionPolicy::class,
             VersionTesterPolicy::class,
+            BillPolicy::class,
+            SubscriptionPolicy::class,
         ] as $policy) {
             $reflection = new ReflectionClass($policy);
 
@@ -64,6 +70,8 @@ class CentralPolicyContractTest extends TestCase
             PortfolioController::class,
             VersionController::class,
             VersionTesterController::class,
+            AdminBillsController::class,
+            SubscriptionController::class,
         ] as $controller) {
             $content = file_get_contents((new ReflectionClass($controller))->getFileName());
 
