@@ -35,6 +35,7 @@ class CollectionTargetController extends Controller
     public function __construct(CollectionTargetService $collectionTargetService)
     {
         $this->collectionTargetService = $collectionTargetService;
+        $this->authorizeResource(CollectionTarget::class, 'collection_target');
         $this->middleware('can:collection_targets.view')->only(['index', 'showUserDetails']);
         $this->middleware('can:collection_targets.create')->only(['create', 'store']);
         $this->middleware('can:collection_targets.edit')->only(['edit', 'update', 'toggleStatus']);

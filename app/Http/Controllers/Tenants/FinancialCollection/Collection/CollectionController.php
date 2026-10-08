@@ -34,6 +34,7 @@ class CollectionController extends Controller
     public function __construct(CollectionService $collectionService)
     {
         $this->collectionService = $collectionService;
+        $this->authorizeResource(Collection::class, 'collection');
 
         $this->middleware('can:collections.view')->only(['index','show']);
         $this->middleware('can:collections.create')->only(['create', 'store']);
@@ -41,6 +42,8 @@ class CollectionController extends Controller
         $this->middleware('can:collections.delete')->only(['destroy', 'deleteSelected']);
         $this->middleware('can:collections.approve')->only(['approve']);
         $this->middleware('can:collections.reject')->only(['reject']);
+        $this->middleware('can:approve,collection')->only(['approve']);
+        $this->middleware('can:reject,collection')->only(['reject']);
     }
 
     /*

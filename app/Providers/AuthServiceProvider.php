@@ -19,6 +19,8 @@ use App\Models\Tenants\BusinessCenter\Contract\Contract;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Models\Tenants\Properties\Property;
+use App\Models\Tenants\FinancialCollection\Collection\Collection;
+use App\Models\Tenants\FinancialCollection\Target\CollectionTarget;
 use App\Models\Tenants\UserMangment\Team\Team;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Policies\Admin\Plans\PlanPolicy;
@@ -38,6 +40,8 @@ use App\Policies\Tenants\BusinessCenter\Contract\ContractPolicy;
 use App\Policies\Tenants\BusinessCenter\Customer\CustomerPolicy;
 use App\Policies\Tenants\BusinessCenter\Portfolio\PortfolioPolicy;
 use App\Policies\Tenants\Properties\PropertyPolicy;
+use App\Policies\Tenants\FinancialCollection\Collection\CollectionPolicy;
+use App\Policies\Tenants\FinancialCollection\Target\CollectionTargetPolicy;
 use App\Policies\Tenants\UserManagement\Team\TeamPolicy;
 use App\Policies\Tenants\UserManagement\User\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -69,6 +73,8 @@ class AuthServiceProvider extends ServiceProvider
         Customer::class => CustomerPolicy::class,
         Team::class => TeamPolicy::class,
         User::class => UserPolicy::class,
+        Collection::class => CollectionPolicy::class,
+        CollectionTarget::class => CollectionTargetPolicy::class,
     ];
 
     /**
