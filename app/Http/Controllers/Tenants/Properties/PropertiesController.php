@@ -20,6 +20,7 @@ class PropertiesController extends Controller
         protected PropertyService $propertyService
     ) {
         $this->middleware('auth:tenant');
+        $this->authorizeResource(Property::class, 'property');
         $this->middleware('can:properties.view')->only(['index', 'show']);
         $this->middleware('can:properties.create')->only(['create', 'store']);
         $this->middleware('can:properties.edit')->only(['edit', 'update', 'toggleStatus']);

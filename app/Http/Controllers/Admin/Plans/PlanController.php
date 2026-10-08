@@ -26,6 +26,7 @@ class PlanController extends Controller
     public function __construct(private readonly PlanService $planService)
     {
         $this->middleware('auth:admin');
+        $this->authorizeResource(Plan::class, 'plan');
         $this->middleware('can:plans.view')->only(['index', 'show']);
         $this->middleware('can:plans.create')->only(['create', 'store']);
         $this->middleware('can:plans.edit')->only(['edit', 'update', 'toggleActive']);

@@ -39,7 +39,7 @@ class UserController extends Controller
         private SubscriptionManager $subscriptionManager,
         private SubscriptionFormatter $subscriptionFormatter
     ) {
-
+        $this->authorizeResource(User::class, 'user');
         $this->middleware('auth');
         $this->middleware('can:users.view')->only(['index', 'show']);
         $this->middleware('can:users.create')->only(['create', 'store']);

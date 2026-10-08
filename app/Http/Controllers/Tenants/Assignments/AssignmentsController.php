@@ -19,10 +19,12 @@ class AssignmentsController extends Controller
         protected AssignmentService $assignmentService
     ) {
         $this->middleware('auth:tenant');
+        $this->authorizeResource(Assignment::class, 'assignment');
         $this->middleware('can:assignments.view')->only(['index', 'show', 'getProperties']);
         $this->middleware('can:assignments.create')->only(['create', 'store']);
         $this->middleware('can:assignments.edit')->only(['edit', 'update', 'toggleStatus']);
         $this->middleware('can:assignments.delete')->only(['destroy']);
+        $this->middleware('can:view,assignment')->only(['getProperties']);
     }
 
     public function index(AssignmentsDataTable $dataTable)

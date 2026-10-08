@@ -23,10 +23,12 @@ class AdminCouponController extends Controller
     public function __construct(private CouponService $couponService)
     {
         $this->middleware('auth:admin');
+        $this->authorizeResource(Coupon::class, 'coupon');
         $this->middleware('can:coupons.view')->only(['index']);
         $this->middleware('can:coupons.create')->only(['create', 'store']);
         $this->middleware('can:coupons.edit')->only(['edit', 'update', 'toggleStatus']);
         $this->middleware('can:coupons.delete')->only(['destroy']);
+        $this->middleware('can:view,coupon')->only(['getCouponDetails']);
     }
 
     public function toggleStatus(AdminAuthenticatedRequest $request, Coupon $coupon): JsonResponse

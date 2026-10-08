@@ -33,6 +33,7 @@ class CompanyController extends Controller
     public function __construct(CompanyService $companyService)
     {
         $this->companyService = $companyService;
+        $this->authorizeResource(Company::class, 'company');
         $this->middleware('auth');
         $this->middleware('can:companies.view')->only(['index', 'show']);
         $this->middleware('can:companies.create')->only(['create', 'store']);

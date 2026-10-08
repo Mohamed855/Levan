@@ -36,6 +36,7 @@ class ContractController extends Controller
     public function __construct(ContractService $contractService)
     {
         $this->contractService = $contractService;
+        $this->authorizeResource(Contract::class, 'contract');
         $this->middleware('auth');
         $this->middleware('can:contracts.view')->only(['index', 'show']);
         $this->middleware('can:contracts.create')->only(['create', 'store']);

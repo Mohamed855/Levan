@@ -27,6 +27,7 @@ class CompanyController extends Controller
     public function __construct(
         private readonly CompanyService $companyService
     ) {
+        $this->authorizeResource(Tenant::class, 'company');
         $this->middleware('can:companies.view')->only(['index']);
         $this->middleware('can:companies.create')->only(['create', 'store', 'planDuration']);
         $this->middleware('can:companies.show')->only(['show']);

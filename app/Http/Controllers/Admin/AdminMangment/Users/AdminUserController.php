@@ -28,6 +28,7 @@ class AdminUserController extends Controller
 
     public function __construct(private UserService $userService)
     {
+        $this->authorizeResource(AdminUser::class, 'user');
         $this->middleware('can:users.view')->only(['index', 'showProfile']);
         $this->middleware('can:users.create')->only(['create', 'store']);
         $this->middleware('can:users.edit')->only(['edit', 'update']);
@@ -183,6 +184,7 @@ class AdminUserController extends Controller
     public function showProfile($id)
     {
         $user = AdminUser::with('roles')->findOrFail($id);
+        $this->authorize('view', $user);
         $role = $user->roles->first() ?? null;
 
         $recentActivities = Activity::where('causer_id', $user->id)

@@ -155,12 +155,7 @@ class CustomerController extends Controller
     */
     public function show(Customer $customer): View
     {
-        if (
-            !auth()->user()->can('customers.view') &&
-            $customer->relationship_manager_id !== auth()->id()
-        ) {
-            abort(403, 'ليس لديك صلاحية لعرض هذا العميل');
-        }
+        $this->authorize('view', $customer);
 
         $allAccounts = $this->customerService->getCustomerAccountsByIdentity($customer->identity_number);
         $comprehensiveStats = $this->customerService->getComprehensiveFinancialStats($customer->identity_number);
@@ -212,12 +207,7 @@ class CustomerController extends Controller
     */
     public function edit(Customer $customer): View
     {
-        if (
-            !auth()->user()->can('customers.edit_all') &&
-            !(auth()->user()->can('customers.edit') && $customer->relationship_manager_id === auth()->id())
-        ) {
-            abort(403, 'ليس لديك صلاحية لتعديل هذا العميل');
-        }
+        $this->authorize('update', $customer);
 
         $customer->load('dynamicValues');
         $formData = $this->customerService->getFormData();
@@ -238,12 +228,7 @@ class CustomerController extends Controller
     */
     public function update(UpdateCustomerRequest $request, Customer $customer): RedirectResponse
     {
-        if (
-            !auth()->user()->can('customers.edit_all') &&
-            !(auth()->user()->can('customers.edit') && $customer->relationship_manager_id === auth()->id())
-        ) {
-            abort(403, 'ليس لديك صلاحية لتعديل هذا العميل');
-        }
+        $this->authorize('update', $customer);
 
         try {
             if (auth()->user()->can('customers.update_directly')) {
@@ -292,13 +277,7 @@ class CustomerController extends Controller
     */
     public function destroy(Customer $customer): RedirectResponse
     {
-
-        if (
-            !auth()->user()->can('customers.delete_all') &&
-            !(auth()->user()->can('customers.delete') && $customer->relationship_manager_id === auth()->id())
-        ) {
-            abort(403, 'ليس لديك صلاحية لحذف هذا العميل');
-        }
+        $this->authorize('delete', $customer);
         try {
             $this->customerService->deleteCustomer($customer);
 

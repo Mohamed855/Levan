@@ -8,6 +8,7 @@ use App\Models\Admin\Tickets\Ticket;
 use App\Models\Admin\Tickets\TicketReply;
 use App\Models\Admin\Tickets\TicketSection;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -22,6 +23,19 @@ class EtmamTicketService
             $this->connector = new EtmamConnector(tenant('id'));
         }
         return $this->connector;
+    }
+
+    /**
+     * Build the only local ticket query allowed from a tenant request.
+     *
+     * Ticket data is stored centrally for the support team, so an unscoped
+     * lookup by ticket number would otherwise disclose another tenant's data.
+     */
+    private function tenantTicketQuery(): Builder
+    {
+        $tenantId = tenant('id') ?? $this->getConnector()->getTenantId();
+
+        return Ticket::query()->where('tenant_id', $tenantId ?? '__missing_tenant__');
     }
 
     /**
@@ -77,12 +91,7 @@ class EtmamTicketService
 
         // Local Database Mode
         try {
-            $tenantId = tenant('id') ?? $this->getConnector()->getTenantId();
-            $query = Ticket::query();
-
-            if ($tenantId) {
-                $query->where('tenant_id', $tenantId);
-            }
+            $query = $this->tenantTicketQuery();
 
             if (!empty($filters['status'])) {
                 $query->where('status', $filters['status']);
@@ -151,7 +160,15 @@ class EtmamTicketService
 
         // Local Database Mode
         try {
-            $tenantId = tenant('id') ?? $data['tenant_id'] ?? $this->getConnector()->getTenantId() ?? 'default';
+            $tenantId = tenant('id') ?? $this->getConnector()->getTenantId();
+
+            if (! $tenantId) {
+                return [
+                    'success' => false,
+                    'message' => 'تعذر تحديد المستأجر الحالي.',
+                ];
+            }
+
             $user = auth()->user();
 
             $uploadedAttachments = [];
@@ -218,7 +235,9 @@ class EtmamTicketService
 
         // Local Database Mode
         try {
-            $ticket = Ticket::where('ticket_number', $ticketNumber)->first();
+            $ticket = $this->tenantTicketQuery()
+                ->where('ticket_number', $ticketNumber)
+                ->first();
 
             if (!$ticket) {
                 return [
@@ -283,7 +302,9 @@ class EtmamTicketService
 
         // Local Database Mode
         try {
-            $ticket = Ticket::where('ticket_number', $ticketNumber)->first();
+            $ticket = $this->tenantTicketQuery()
+                ->where('ticket_number', $ticketNumber)
+                ->first();
 
             if (!$ticket) {
                 return [
@@ -350,7 +371,9 @@ class EtmamTicketService
 
         // Local Database Mode
         try {
-            $ticket = Ticket::where('ticket_number', $ticketNumber)->first();
+            $ticket = $this->tenantTicketQuery()
+                ->where('ticket_number', $ticketNumber)
+                ->first();
 
             if (!$ticket) {
                 return [
@@ -408,7 +431,16 @@ class EtmamTicketService
 
         // Local Database Mode
         try {
-            $reply = TicketReply::find($replyId);
+            $ticket = $this->tenantTicketQuery()
+                ->where('ticket_number', $ticketNumber)
+                ->first();
+
+            $reply = $ticket
+                ? TicketReply::query()
+                    ->where('id', $replyId)
+                    ->where('ticket_id', $ticket->id)
+                    ->first()
+                : null;
             if ($reply) {
                 $reply->update(['rating' => $rating]);
                 return [
@@ -446,7 +478,9 @@ class EtmamTicketService
 
         // Local Database Mode
         try {
-            $ticket = Ticket::where('ticket_number', $ticketNumber)->first();
+            $ticket = $this->tenantTicketQuery()
+                ->where('ticket_number', $ticketNumber)
+                ->first();
             if ($ticket) {
                 $status = ($data['solved'] ?? false) ? 'resolved' : 'reopened';
                 $ticket->update([

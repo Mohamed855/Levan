@@ -26,6 +26,7 @@ class TeamController extends Controller
     public function __construct(TeamService $teamService)
     {
         $this->teamService = $teamService;
+        $this->authorizeResource(Team::class, 'team');
         $this->middleware('auth');
         $this->middleware('can:teams.manage');
     }

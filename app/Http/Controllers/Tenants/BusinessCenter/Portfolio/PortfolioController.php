@@ -27,6 +27,7 @@ class PortfolioController extends Controller
     public function __construct(PortfolioService $portfolioService)
     {
         $this->portfolioService = $portfolioService;
+        $this->authorizeResource(Portfolio::class, 'portfolio');
 
         $this->middleware('auth');
         $this->middleware('can:portfolios.view')->only(['index', 'show']);
