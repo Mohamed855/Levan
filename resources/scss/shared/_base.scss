@@ -103,6 +103,11 @@ body {
     transform: none !important;
 }
 
+// Keep hover states visually stable; upward movement shifts surrounding content.
+:where(.pull-up, .task-card, .email-list-item):hover {
+    transform: none !important;
+}
+
 :where(a, button, input, select, textarea):focus-visible {
     outline: 2px solid var(--primary-color);
     outline-offset: 2px;
