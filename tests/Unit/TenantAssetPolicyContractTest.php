@@ -81,5 +81,8 @@ class TenantAssetPolicyContractTest extends TestCase
         $this->assertStringContainsString('authorize(\'view\', $customer)', $customerController);
         $this->assertStringContainsString('authorize(\'update\', $customer)', $customerController);
         $this->assertStringContainsString('authorize(\'delete\', $customer)', $customerController);
+
+        $customerPolicy = new ReflectionClass(CustomerPolicy::class);
+        $this->assertTrue($customerPolicy->hasMethod('collect'));
     }
 }

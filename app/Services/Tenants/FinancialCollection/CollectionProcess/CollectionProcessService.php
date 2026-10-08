@@ -50,6 +50,14 @@ class CollectionProcessService
         return null;
     }
 
+    public function findCustomerForCurrentUser(int $customerId): ?Customer
+    {
+        return Customer::query()
+            ->whereKey($customerId)
+            ->where('relationship_manager_id', Auth::id())
+            ->first();
+    }
+
     /*
     |--------------------------------------------------------------------------
     | الحصول على العملاء الذين لديهم مهام اليوم
@@ -275,6 +283,7 @@ class CollectionProcessService
 
         // جلب جميع الحسابات المرتبطة برقم الهوية
         $allAccounts = Customer::where('identity_number', $customer->identity_number)
+            ->where('relationship_manager_id', Auth::id())
             ->with([
                 'company:id,name,logo_path',
                 'portfolio:id,name',

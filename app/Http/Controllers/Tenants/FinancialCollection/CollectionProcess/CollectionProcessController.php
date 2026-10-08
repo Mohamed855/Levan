@@ -30,6 +30,16 @@ class CollectionProcessController extends Controller
         private CollectionSessionService $collectionSessionService
     ) {
         $this->middleware('can:collection_process.start');
+        $this->middleware('can:collect,customer')->only([
+            'storeFollow',
+            'getContactResultFields',
+            'getCustomerDebt',
+            'previewWhatsAppTemplate',
+            'getCustomerPhoneNumberForWhatsApp',
+            'addCustomerPhone',
+            'setPrimaryPhone',
+            'getRelatedAccounts',
+        ]);
     }
 
     // عرض شاشة بدء التحصيل
@@ -44,7 +54,7 @@ class CollectionProcessController extends Controller
         $remainingCustomersCount = $this->collectionProcessService->getRemainingCustomersCount();  // عدد العملاء لدي المستخدم
 
         if ($currentCustomerId) {
-            $currentCustomer = Customer::find($currentCustomerId);
+            $currentCustomer = $this->collectionProcessService->findCustomerForCurrentUser((int) $currentCustomerId);
             if ($currentCustomer && $this->collectionProcessService->hasRemainingDebt($currentCustomer->id)) {
                 $customerData = $this->collectionProcessService->getCustomerDetails($currentCustomer);
             } else {
@@ -134,7 +144,7 @@ class CollectionProcessController extends Controller
                 ->with('error', 'لا يوجد عميل محدد');
         }
 
-        $customer = Customer::find($currentCustomerId);
+        $customer = $this->collectionProcessService->findCustomerForCurrentUser((int) $currentCustomerId);
 
         if (!$customer) {
             return redirect()->to(tenant_route_name('collection-process.index'))
@@ -336,16 +346,15 @@ class CollectionProcessController extends Controller
     | معاينة قالب الواتساب
     |--------------------------------------------------------------------------
     */
-    public function previewWhatsAppTemplate(Request $request): JsonResponse
+    public function previewWhatsAppTemplate(Request $request, Customer $customer): JsonResponse
     {
         $request->validate([
             'template_id' => 'required|exists:message_templates,id',
-            'customer_id' => 'required|exists:customers,id'
         ]);
 
         try {
             $template = MessageTemplate::findOrFail($request->template_id);
-            $customer = Customer::with(['nationalityCountry', 'customerStatus', 'relationshipManager', 'company', 'portfolio', 'dynamicValues.portfolioField', 'phones'])->findOrFail($request->customer_id);
+            $customer->load(['nationalityCountry', 'customerStatus', 'relationshipManager', 'company', 'portfolio', 'dynamicValues.portfolioField', 'phones']);
 
             // حساب المديونية الصحيحة
             $totalDebit = CustomerTransaction::where('customer_id', $customer->id)
@@ -428,10 +437,10 @@ class CollectionProcessController extends Controller
     | الحصول على رقم هاتف العميل للواتساب
     |--------------------------------------------------------------------------
     */
-    public function getCustomerPhoneNumberForWhatsApp(Request $request): JsonResponse
+    public function getCustomerPhoneNumberForWhatsApp(Request $request, Customer $customer): JsonResponse
     {
         try {
-            $customer = Customer::with('phones')->findOrFail($request->customer_id);
+            $customer->load('phones');
 
             // إرجاع جميع أرقام الهواتف
             $phones = [];

@@ -38,4 +38,11 @@ class CustomerPolicy
             && ($user->can('customers.delete_all')
                 || ($user->can('customers.delete') && $customer->relationship_manager_id === $user->id));
     }
+
+    public function collect(User $user, Customer $customer): bool
+    {
+        return tenancy()->initialized
+            && $user->can('collection_process.start')
+            && $customer->relationship_manager_id === $user->id;
+    }
 }
