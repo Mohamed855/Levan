@@ -32,6 +32,22 @@ class LoginRequest extends FormRequest
         ];
     }
 
+    public function messages(): array
+    {
+        return [
+            'email.required' => 'البريد الإلكتروني أو رقم الهاتف مطلوب.',
+            'password.required' => 'كلمة المرور مطلوبة.',
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'email' => 'البريد الإلكتروني أو رقم الهاتف',
+            'password' => 'كلمة المرور',
+        ];
+    }
+
     /**
      * Attempt to authenticate the request's credentials.
      *

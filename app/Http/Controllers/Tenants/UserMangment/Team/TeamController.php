@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tenants\UserMangment\Team;
 
 use App\DataTables\Tenants\UserManagement\Team\TeamsDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
 use App\Http\Requests\Tenants\UserManagement\Team\StoreTeamRequest;
 use App\Http\Requests\Tenants\UserManagement\Team\UpdateTeamStatusRequest;
 use App\Http\Requests\Tenants\UserManagement\Team\UpdateTeamRequest;
@@ -128,7 +129,7 @@ class TeamController extends Controller
     | Delete Team
     |--------------------------------------------------------------------------
     */
-    public function destroy(Team $team): RedirectResponse
+    public function destroy(TenantAuthenticatedRequest $request, Team $team): RedirectResponse
     {
         try {
             $this->teamService->deleteTeam($team);

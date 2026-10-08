@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenants\GeneralSetting\Country;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tenants\Traits\CommonSettingController;
 use App\Http\Requests\Tenants\GeneralSetting\SaveGeneralSettingRequest;
+use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
 use App\Models\Tenants\GeneralSetting\Country\SettingsCountry;
 
 class SettingsCountryController extends Controller
@@ -29,7 +30,17 @@ class SettingsCountryController extends Controller
         return $this->index_trait($this->model, 'tenants.general_setting.countries.settings_country', 'general-settings.settings-country');
     }
 
-    public function edit($id) // لتغيير حالة الاعدادات
+    public function create()
+    {
+        return $this->create_trait('general-settings.settings-country');
+    }
+
+    public function show($id)
+    {
+        return $this->show_trait($this->model, $id);
+    }
+
+    public function edit(TenantAuthenticatedRequest $request, $id) // لتغيير حالة الاعدادات
     {
         return $this->toggleStatus_trait($this->model, $id);
     }
@@ -49,7 +60,7 @@ class SettingsCountryController extends Controller
     //     return $this->destroy_trait($this->model, $id);
     // }
 
-    public function destroy($id)
+    public function destroy(TenantAuthenticatedRequest $request, $id)
     {
         try {
             $country = SettingsCountry::findOrFail($id);

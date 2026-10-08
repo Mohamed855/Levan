@@ -15,7 +15,7 @@ class CheckAccountInfoService
     private $whmUrl;
     private $whmToken;
     private $serverIp;
-    public function __construct(private MicrosoftMailService $mail_service)
+    public function __construct()
     {
         $this->apiUser = config('services.namecheap.user');
         $this->apiKey = config('services.namecheap.api_key');
@@ -140,7 +140,7 @@ class CheckAccountInfoService
 
         $tenantId = tenant('id'); // اسم العميل
 
-        $mail = $this->mail_service->sendEmail(
+        $mail = app(MicrosoftMailService::class)->sendEmail(
             'is606ay@gmail.com',
             'تنبيه - محاولة تسجيل دومين',
             "تنبيه:\n\nالعميل {$tenantId} حاول تسجيل الدومين .{$domain[1]}، ولكن العملية لم تتم بسبب عدم كفاية الرصيد.\nالرصيد الحالي للعميل: {$balance['balance']} {$domain_price['currency']}.\nالسعر المطلوب لتسجيل الدومين: {$domain_price['total_price']} {$domain_price['currency']}.\n\nيرجى متابعة الأمر مع العميل."

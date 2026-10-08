@@ -22,4 +22,14 @@ class MarkNotificationReadRequest extends FormRequest
     {
         return ['id' => ['required', 'string', 'max:255']];
     }
+
+    public function messages(): array
+    {
+        return ['id.required' => 'معرف الإشعار مطلوب.'];
+    }
+
+    public function attributes(): array
+    {
+        return ['id' => 'معرف الإشعار'];
+    }
 }

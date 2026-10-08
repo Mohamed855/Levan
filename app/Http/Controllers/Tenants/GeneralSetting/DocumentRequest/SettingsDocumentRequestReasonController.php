@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenants\GeneralSetting\DocumentRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tenants\Traits\CommonSettingController;
 use App\Http\Requests\Tenants\GeneralSetting\SaveDocumentRequestReasonRequest;
+use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
 use App\Models\Tenants\GeneralSetting\DocumentRequest\SettingsDocumentRequestReason;
 
 class SettingsDocumentRequestReasonController extends Controller
@@ -32,7 +33,17 @@ class SettingsDocumentRequestReasonController extends Controller
         return $this->index_trait($this->model, 'tenants.general_setting.document_request_reasons.settings_document_request_reasons', 'general-settings.settings-document-request-reasons');
     }
 
-    public function edit($id) // لتغيير حالة أسباب طلب المستندات
+    public function create()
+    {
+        return $this->create_trait('general-settings.settings-document-request-reasons');
+    }
+
+    public function show($id)
+    {
+        return $this->show_trait($this->model, $id);
+    }
+
+    public function edit(TenantAuthenticatedRequest $request, $id) // لتغيير حالة أسباب طلب المستندات
     {
         return $this->toggleStatus_trait($this->model, $id);
     }
@@ -47,7 +58,7 @@ class SettingsDocumentRequestReasonController extends Controller
         return $this->update_trait($request, $this->model, $id);
     }
 
-    public function destroy($id)
+    public function destroy(TenantAuthenticatedRequest $request, $id)
     {
         try {
             $documentRequestReason = SettingsDocumentRequestReason::findOrFail($id);

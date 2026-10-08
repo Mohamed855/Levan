@@ -20,6 +20,14 @@ class RejectBillRequest extends FormRequest
         ];
     }
 
+    public function messages(): array
+    {
+        return [
+            'reject_reason.required' => 'سبب الرفض مطلوب.',
+            'reject_reason.max' => 'سبب الرفض لا يمكن أن يتجاوز 255 حرفاً.',
+        ];
+    }
+
     public function attributes(): array
     {
         return [

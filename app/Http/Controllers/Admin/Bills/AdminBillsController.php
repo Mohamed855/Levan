@@ -7,6 +7,7 @@ use App\Enums\Admin\Billing\BillStatus;
 use App\Enums\Admin\Billing\BillType;
 use App\Exceptions\Subscription\SubscriptionCreationException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\Bills\RejectBillRequest;
 use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\Settings\Settings;
@@ -97,7 +98,7 @@ class AdminBillsController extends Controller
     }
 
 
-    public function verify(Bill $bill)
+    public function verify(AdminAuthenticatedRequest $request, Bill $bill)
     {
         try {
             if ($bill->status !== BillStatus::PENDING_VERIFICATION) {
@@ -151,7 +152,7 @@ class AdminBillsController extends Controller
     }
 
 
-    public function reactivate(Bill $bill)
+    public function reactivate(AdminAuthenticatedRequest $request, Bill $bill)
     {
         try {
             if ($bill->status !== BillStatus::CANCELLED) {

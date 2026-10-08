@@ -9,6 +9,7 @@ use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Models\Admin\City;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\SubscriptionManagement\FinalizeCompanySubscriptionRequest;
 use App\Http\Requests\Admin\SubscriptionManagement\MassAcceptSubscriptionsRequest;
 use App\Http\Requests\Admin\SubscriptionManagement\MassRejectSubscriptionsRequest;
@@ -293,7 +294,7 @@ class SubscriptionManagementController extends Controller
         }
     }
 
-    public function accept(Subscription $subscription)
+    public function accept(AdminAuthenticatedRequest $request, Subscription $subscription)
     {
         try {
             DB::beginTransaction();

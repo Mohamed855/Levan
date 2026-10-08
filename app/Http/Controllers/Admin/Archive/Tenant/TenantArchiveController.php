@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Admin\Archive\Tenant;
 
 use App\DataTables\Admin\Archive\Tenant\TenantDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Services\Admin\Companies\CompanyService;
 use Illuminate\Support\Facades\Log;
 
@@ -35,7 +36,7 @@ class TenantArchiveController extends Controller
         return $dataTable->render('admin.archive.tenant.index', compact('filterOptions'));
     }
 
-    public function restore($id)
+    public function restore(AdminAuthenticatedRequest $request, $id)
     {
         try {
             $company = $this->companyService->restoreCompany((string) $id);
@@ -50,7 +51,7 @@ class TenantArchiveController extends Controller
         }
     }
 
-    public function forceDelete($id)
+    public function forceDelete(AdminAuthenticatedRequest $request, $id)
     {
         try {
             $this->companyService->forceDeleteCompany((string) $id);

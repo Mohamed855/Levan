@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Archive\AdminUser;
 
 use App\DataTables\Admin\Archive\AdminUser\AdminUserDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Services\Admin\AdminMangment\Users\UserService;
 use Illuminate\Support\Facades\Log;
@@ -37,7 +38,7 @@ class AdminUserController extends Controller
         return $dataTable->render('admin.archive.admin_user.index', compact('roles', 'filterOptions'));
     }
 
-    public function restore(int $id)
+    public function restore(AdminAuthenticatedRequest $request, int $id)
     {
         try {
             $adminUser = AdminUser::withTrashed()->findOrFail($id);
@@ -59,7 +60,7 @@ class AdminUserController extends Controller
         }
     }
 
-    public function forceDelete(int $id)
+    public function forceDelete(AdminAuthenticatedRequest $request, int $id)
     {
         try {
             $adminUser = AdminUser::withTrashed()->findOrFail($id);

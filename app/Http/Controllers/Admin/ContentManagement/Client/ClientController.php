@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\ContentManagement\Client;
 
 use App\DataTables\Admin\ContentManagement\Client\ClientDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\ContentManagement\StoreClientRequest;
 use App\Http\Requests\Admin\ContentManagement\UpdateClientRequest;
 use App\Models\Admin\ContentManagement\Client;
@@ -85,7 +86,7 @@ class ClientController extends Controller
         }
     }
 
-    public function destroy(Client $client)
+    public function destroy(AdminAuthenticatedRequest $request, Client $client)
     {
         try {
             if ($client->logo) {
@@ -100,7 +101,7 @@ class ClientController extends Controller
         }
     }
 
-    public function toggleStatus(Request $request, Client $client)
+    public function toggleStatus(AdminAuthenticatedRequest $request, Client $client)
     {
         try {
             $newStatus = !$client->status;

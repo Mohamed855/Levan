@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Admin\Archive\Plan;
 
 use App\DataTables\Admin\Archive\Plan\PlanDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Models\Admin\Plans\Plan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -36,7 +37,7 @@ class PlanArchiveController extends Controller
         return $dataTable->render('admin.archive.plan.index', compact('filterOptions'));
     }
 
-    public function restore(int $id)
+    public function restore(AdminAuthenticatedRequest $request, int $id)
     {
         try {
             $plan = Plan::withTrashed()->findOrFail($id);
@@ -52,7 +53,7 @@ class PlanArchiveController extends Controller
         }
     }
 
-    public function forceDelete(int $id)
+    public function forceDelete(AdminAuthenticatedRequest $request, int $id)
     {
         try {
             $plan = Plan::withTrashed()->findOrFail($id);

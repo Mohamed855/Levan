@@ -18,10 +18,15 @@ class PaymentRequest extends FormRequest
         ];
     }
 
-    public function messages()
+    public function messages(): array
     {
         return [
             'coupon_code.string' => 'رمز الخصم غير صالح.',
         ];
+    }
+
+    public function attributes(): array
+    {
+        return ['coupon_code' => 'رمز الخصم'];
     }
 }

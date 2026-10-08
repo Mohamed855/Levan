@@ -46,4 +46,11 @@ class SaveSettingsCustomerStatusRequest extends FormRequest
             'name.max' => 'اسم الحالة يجب ألا يتجاوز 255 حرف.',
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'name' => 'اسم الحالة',
+        ];
+    }
 }

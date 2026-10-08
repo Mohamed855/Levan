@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Coupons;
 
 use App\DataTables\Admin\Coupons\CouponDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\Coupons\CouponRequest;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\Bills\Bill;
@@ -28,7 +29,7 @@ class AdminCouponController extends Controller
         $this->middleware('can:coupons.delete')->only(['destroy']);
     }
 
-    public function toggleStatus(Coupon $coupon): JsonResponse
+    public function toggleStatus(AdminAuthenticatedRequest $request, Coupon $coupon): JsonResponse
     {
         try {
             $requestedStatus = null;
@@ -124,7 +125,7 @@ class AdminCouponController extends Controller
     }
 
 
-    public function destroy(Coupon $coupon)
+    public function destroy(AdminAuthenticatedRequest $request, Coupon $coupon)
     {
         $coupon->delete();
 

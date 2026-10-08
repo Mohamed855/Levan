@@ -320,9 +320,9 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
 
 
             //balance and domain pricing
-            Route::name('check.balance')->match(['post', 'get'], '/check-balance', [DomainController::class, 'getBalance']);
-            Route::name('get.info.domain')->match(['post', 'get'], '/get-domain-info/{domain}', [DomainController::class, 'getDomainInfo']);
-            Route::name('get.result')->match(['post', 'get'], '/check-domain-result/{domain}', [DomainController::class, 'CalculateResults']);
+            Route::name('check.balance')->get('/check-balance', [DomainController::class, 'getBalance']);
+            Route::name('get.info.domain')->get('/get-domain-info/{domain}', [GetDomainInfoController::class, 'getDomainInfo']);
+            Route::name('get.result')->post('/check-domain-result/{domain}', [DomainController::class, 'calculateResults']);
 
 
             //check cpanel limits

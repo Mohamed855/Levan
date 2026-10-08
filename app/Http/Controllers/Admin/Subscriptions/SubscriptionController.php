@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Admin\Subscriptions;
 use App\DataTables\Admin\Subscriptions\SubscriptionDataTable;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\Subscriptions\StoreSubscriptionRequest;
 use App\Models\Admin\City;
 use App\Models\Admin\Plans\Plan;
@@ -109,7 +110,7 @@ class SubscriptionController extends Controller
         }
     }
 
-    public function toggleStatus(Subscription $subscription): JsonResponse|RedirectResponse
+    public function toggleStatus(AdminAuthenticatedRequest $request, Subscription $subscription): JsonResponse|RedirectResponse
     {
         try {
             $updated = $this->subscriptionService->toggleStatus($subscription);
@@ -139,7 +140,7 @@ class SubscriptionController extends Controller
         }
     }
 
-    public function destroy(Subscription $subscription): JsonResponse|RedirectResponse
+    public function destroy(AdminAuthenticatedRequest $request, Subscription $subscription): JsonResponse|RedirectResponse
     {
         try {
             $subscriptionNumber = $subscription->subscription_number;

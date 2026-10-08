@@ -9,6 +9,7 @@ use App\Enums\Admin\Plans\PlanLimitsMode;
 use App\Enums\Admin\Plans\PlanType;
 use App\Enums\Admin\Subscriptions\SubscriptionBillingCycle;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\Plans\PlanReorderRequest;
 use App\Http\Requests\Admin\Plans\PlanRequest;
 use App\Models\Admin\Plans\Plan;
@@ -129,7 +130,7 @@ class PlanController extends Controller
         return redirect()->route($this->route . '.index')->with('success', __('plans.success.updated'));
     }
 
-    public function destroy(Plan $plan): RedirectResponse
+    public function destroy(AdminAuthenticatedRequest $request, Plan $plan): RedirectResponse
     {
         try {
             $this->planService->delete($plan);
@@ -143,7 +144,7 @@ class PlanController extends Controller
         }
     }
 
-    public function toggleActive(Plan $plan): JsonResponse
+    public function toggleActive(AdminAuthenticatedRequest $request, Plan $plan): JsonResponse
     {
         try {
             $plan = $this->planService->toggleActive($plan);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tenants\FinancialCollection\CollectionProcess;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\FinancialCollection\CollectionProcess\SearchCollectionCustomerRequest;
 use App\Http\Requests\Tenants\BusinessCenter\Customer\CustomerFollow\StoreCustomerFollowRequest;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Customers\Phone\CustomerPhone;
@@ -756,9 +757,9 @@ class CollectionProcessController extends Controller
     }
 
     // البحث
-    public function searchCustomer(Request $request): JsonResponse
+    public function searchCustomer(SearchCollectionCustomerRequest $request): JsonResponse
     {
-        $query = $request->input('query');
+        $query = $request->validated('query', '');
 
         $customers = Customer::where(function ($q) use ($query) {
             $q->where('name', 'like', "%{$query}%")->orWhere('identity_number', 'like', "%{$query}%")->orWhere('account_number', 'like', "%{$query}%");

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tenants\GeneralSetting\CustomerStatus;
 
 use App\DataTables\Tenants\GeneralSetting\CustomerStatus\SettingsCustomerStatusDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
 use App\Http\Requests\Tenants\GeneralSetting\CustomerStatus\SaveSettingsCustomerStatusRequest;
 use App\Models\Tenants\GeneralSetting\CustomerStatus\SettingsCustomerStatus;
 use Illuminate\Http\JsonResponse;
@@ -26,7 +27,10 @@ class SettingsCustomerStatusController extends Controller
             'store',
             'update',
             'destroy',
-            'toggleStatus'
+            'toggleStatus',
+            'create',
+            'show',
+            'edit',
         ]);
     }
 
@@ -39,6 +43,24 @@ class SettingsCustomerStatusController extends Controller
     public function index(SettingsCustomerStatusDataTable $dataTable): View|JsonResponse
     {
         return $dataTable->render('tenants.general_setting.settings_customer_status.index');
+    }
+
+    public function create(): RedirectResponse
+    {
+        return redirect(tenant_route_name('general-settings.settings-customer-status.index'));
+    }
+
+    public function show($id): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data' => SettingsCustomerStatus::query()->findOrFail($id),
+        ]);
+    }
+
+    public function edit($id): JsonResponse
+    {
+        return $this->show($id);
     }
 
     /*
@@ -97,7 +119,7 @@ class SettingsCustomerStatusController extends Controller
     |--------------------------------------------------------------------------
     | يقوم بحذف حالة عميل من قاعدة البيانات عبر AJAX.
     */
-    public function destroy($id): RedirectResponse
+    public function destroy(TenantAuthenticatedRequest $request, $id): RedirectResponse
     {
         try {
             $customerStatus = SettingsCustomerStatus::findOrFail($id);

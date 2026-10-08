@@ -26,4 +26,11 @@ class SaveGeneralSettingRequest extends FormRequest
             'name.max' => 'يجب ألا يتجاوز الاسم 255 حرفاً.',
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'name' => 'الاسم',
+        ];
+    }
 }

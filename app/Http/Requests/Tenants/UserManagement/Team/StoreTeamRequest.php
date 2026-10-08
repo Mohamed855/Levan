@@ -54,6 +54,18 @@ class StoreTeamRequest extends WizardFormRequest
         ];
     }
 
+    public function attributes(): array
+    {
+        return [
+            'name' => 'اسم المجموعة',
+            'description' => 'وصف المجموعة',
+            'members' => 'الأعضاء',
+            'members.*' => 'العضو',
+            'leaders' => 'قائد المجموعة',
+            'leaders.*' => 'قائد المجموعة',
+        ];
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Prepare For Validation

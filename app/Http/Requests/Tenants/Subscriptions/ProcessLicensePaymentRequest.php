@@ -27,4 +27,12 @@ class ProcessLicensePaymentRequest extends FormRequest
             'coupon_code.string' => 'رمز الخصم غير صالح.',
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'new_licenses_count' => 'عدد التراخيص الجديدة',
+            'coupon_code' => 'رمز الخصم',
+        ];
+    }
 }

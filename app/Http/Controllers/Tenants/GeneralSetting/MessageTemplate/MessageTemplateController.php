@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tenants\GeneralSetting\MessageTemplate;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
 use App\Http\Requests\Tenants\GeneralSetting\MessageTemplate\StoreMessageTemplateRequest;
 use App\Http\Requests\Tenants\GeneralSetting\MessageTemplate\UpdateMessageTemplateRequest;
 use App\Models\Tenants\GeneralSetting\MessageTemplate\MessageTemplate;
@@ -232,7 +233,7 @@ class MessageTemplateController extends Controller
     | Delete Template
     |--------------------------------------------------------------------------
     */
-    public function destroy(MessageTemplate $messageTemplate): RedirectResponse
+    public function destroy(TenantAuthenticatedRequest $request, MessageTemplate $messageTemplate): RedirectResponse
     {
         try {
             $messageTemplate->delete();

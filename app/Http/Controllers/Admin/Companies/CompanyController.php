@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Admin\Companies;
 
 use App\DataTables\Admin\Companies\CompanyDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\Companies\CheckAdminEmailUniqueRequest;
 use App\Http\Requests\Admin\Companies\CheckAdminPhoneUniqueRequest;
 use App\Http\Requests\Admin\Companies\CheckCommercialNumberUniqueRequest;
@@ -149,7 +150,7 @@ class CompanyController extends Controller
         }
     }
 
-    public function destroy(Tenant $company): RedirectResponse|JsonResponse
+    public function destroy(AdminAuthenticatedRequest $request, Tenant $company): RedirectResponse|JsonResponse
     {
         try {
             $this->companyService->deleteCompany($company);

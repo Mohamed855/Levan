@@ -17,4 +17,14 @@ class TenantAuthenticatedRequest extends FormRequest
     {
         return [];
     }
+
+    public function messages(): array
+    {
+        return [];
+    }
+
+    public function attributes(): array
+    {
+        return [];
+    }
 }

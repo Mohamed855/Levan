@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\AdminMangment\Roles;
 
 use App\DataTables\Admin\AdminMangment\Roles\AdminRoleDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\AdminMangment\Role\AdminStoreRoleRequest;
 use App\Http\Requests\Admin\AdminMangment\Role\AdminUpdateRoleRequest;
 use App\Http\Requests\Admin\AdminMangment\Role\AdminUpdateUserRoleRequest;
@@ -153,7 +154,7 @@ class AdminRoleController extends Controller
     |--------------------------------------------------------------------------
     | Remove the specified role from storage.
     */
-    public function destroy(Role $role)
+    public function destroy(AdminAuthenticatedRequest $request, Role $role)
     {
         try {
             $this->roleService->deleteRole($role);

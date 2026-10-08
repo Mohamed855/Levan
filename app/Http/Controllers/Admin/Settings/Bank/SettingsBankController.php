@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Settings\Bank;
 
 use App\DataTables\Admin\Setting\Bank\BankDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\Settings\Bank\StoreBankRequest;
 use App\Http\Requests\Admin\Settings\Bank\UpdateBankRequest;
 use App\Models\Admin\Bank\Bank;
@@ -91,7 +92,7 @@ class SettingsBankController extends Controller
             ->with('success', 'تم تحديث البنك بنجاح');
     }
 
-    public function toggleStatus(Bank $bank): JsonResponse
+    public function toggleStatus(AdminAuthenticatedRequest $request, Bank $bank): JsonResponse
     {
         $bank->update(['is_active' => ! $bank->is_active]);
 
@@ -104,7 +105,7 @@ class SettingsBankController extends Controller
     /**
      * حذف بنك
      */
-    public function destroy(Bank $bank)
+    public function destroy(AdminAuthenticatedRequest $request, Bank $bank)
     {
         try {
             // حذف الأيقونة

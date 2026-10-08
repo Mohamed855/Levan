@@ -17,4 +17,14 @@ class MarkAllNotificationsReadRequest extends FormRequest
     {
         return [];
     }
+
+    public function messages(): array
+    {
+        return [];
+    }
+
+    public function attributes(): array
+    {
+        return [];
+    }
 }

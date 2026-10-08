@@ -17,4 +17,14 @@ class ConfirmTenantPasswordRequest extends FormRequest
     {
         return ['password' => ['required', 'string']];
     }
+
+    public function messages(): array
+    {
+        return ['password.required' => 'كلمة المرور مطلوبة.'];
+    }
+
+    public function attributes(): array
+    {
+        return ['password' => 'كلمة المرور'];
+    }
 }

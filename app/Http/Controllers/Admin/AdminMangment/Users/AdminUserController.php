@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\AdminMangment\Users;
 use App\DataTables\Admin\AdminMangment\Users\AdminUserDataTable;
 use App\Enums\Admin\Users\AdminUserStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\AdminMangment\Users\CheckAdminUserEmailUniqueRequest;
 use App\Http\Requests\Admin\AdminMangment\Users\CheckAdminUserNameUniqueRequest;
 use App\Http\Requests\Admin\AdminMangment\Users\CheckAdminUserPhoneUniqueRequest;
@@ -102,7 +103,7 @@ class AdminUserController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'تم تحديث المستخدم بنجاح');
     }
 
-    public function destroy(AdminUser $user)
+    public function destroy(AdminAuthenticatedRequest $request, AdminUser $user)
     {
         if ($user->isSuperAdmin()) {
             return redirect()->route($this->route.'.index')->with('error', 'لا يمكن حذف السوبر أدمن');
@@ -143,7 +144,7 @@ class AdminUserController extends Controller
     }
 
     // تغيير حالة المستخدم
-    public function toggleStatus(AdminUser $user)
+    public function toggleStatus(AdminAuthenticatedRequest $request, AdminUser $user)
     {
         try {
             if ($user->isSuperAdmin()) {

@@ -28,4 +28,12 @@ class AdminTwoFactorChallengeRequest extends FormRequest
             'recovery_code.required_without' => 'الرجاء إدخال الكود أو كود الاسترجاع.',
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'code' => 'كود التحقق',
+            'recovery_code' => 'كود الاسترجاع',
+        ];
+    }
 }

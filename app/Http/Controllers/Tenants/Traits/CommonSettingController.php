@@ -5,9 +5,24 @@ namespace App\Http\Controllers\Tenants\Traits;
 
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 
 trait CommonSettingController
 {
+    public function create_trait(string $route): RedirectResponse
+    {
+        return redirect(tenant_route_name($route . '.index'));
+    }
+
+    public function show_trait(string $model, int|string $id): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data' => $model::query()->findOrFail($id),
+        ]);
+    }
+
     public function index_trait($model, $view, $route, $with = null)
     {
         $request = request();

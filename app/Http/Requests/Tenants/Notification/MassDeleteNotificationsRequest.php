@@ -20,4 +20,20 @@ class MassDeleteNotificationsRequest extends FormRequest
             'ids.*' => ['required', 'string', 'max:255', 'distinct'],
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'ids.required' => 'اختر إشعاراً واحداً على الأقل.',
+            'ids.array' => 'قائمة الإشعارات غير صالحة.',
+            'ids.min' => 'اختر إشعاراً واحداً على الأقل.',
+            'ids.max' => 'عدد الإشعارات المحددة كبير جداً.',
+            'ids.*.distinct' => 'لا يمكن تكرار الإشعار.',
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return ['ids' => 'الإشعارات', 'ids.*' => 'معرف الإشعار'];
+    }
 }

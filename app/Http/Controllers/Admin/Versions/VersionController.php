@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Admin\Versions;
 use App\DataTables\Admin\Versions\VersionDataTable;
 use App\Enums\Admin\Version\VersionStage;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\Versions\VersionRequest;
 use App\Models\Admin\Version\Version;
 use App\Services\Admin\Versions\VersionService;
@@ -103,7 +104,7 @@ class VersionController extends Controller
         return redirect()->route($this->route . '.index')->with('success', 'تم تحديث الإصدارة بنجاح');
     }
 
-    public function toggleStatus(Version $version): JsonResponse
+    public function toggleStatus(AdminAuthenticatedRequest $request, Version $version): JsonResponse
     {
         $version->update(['is_active' => ! $version->is_active]);
 
@@ -114,7 +115,7 @@ class VersionController extends Controller
     }
 
 
-    public function destroy(Version $version)
+    public function destroy(AdminAuthenticatedRequest $request, Version $version)
     {
         $version->delete();
 

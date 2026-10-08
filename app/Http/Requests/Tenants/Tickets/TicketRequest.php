@@ -33,6 +33,17 @@ class TicketRequest extends WizardFormRequest
         ];
     }
 
+    public function attributes(): array
+    {
+        return [
+            'title' => 'عنوان التذكرة',
+            'description' => 'وصف المشكلة',
+            'ticketing_sections_id' => 'القسم',
+            'attachments' => 'المرفقات',
+            'attachments.*' => 'المرفق',
+        ];
+    }
+
     protected function prepareForValidation(): void
     {
         $user = $this->user('tenant');

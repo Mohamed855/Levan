@@ -33,4 +33,13 @@ class StoreClientRequest extends WizardFormRequest
             'status.required' => 'حالة العميل مطلوبة',
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'name' => 'اسم العميل',
+            'logo' => 'الشعار',
+            'status' => 'الحالة',
+        ];
+    }
 }

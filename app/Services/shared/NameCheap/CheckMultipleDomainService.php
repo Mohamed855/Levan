@@ -125,7 +125,7 @@ class CheckMultipleDomainService
      */
     public function checkSingleDomain(string $domain, bool $forceFresh = false): array
     {
-        $cacheKey = 'domain_check_' . md5($domain);
+        $cacheKey = $this->domainCacheKey($domain);
         
         // محاولة جلب من Cache
         if (! $forceFresh && $this->safeCacheHas($cacheKey)) {
@@ -274,7 +274,7 @@ class CheckMultipleDomainService
                         ];
 
                         // حفظ في Cache بشكل آمن
-                        $cacheKey = 'domain_check_' . md5($domain);
+                        $cacheKey = $this->domainCacheKey($domain);
                         $this->safeCache($cacheKey, [
                             'success' => true,
                             'domain' => $domain,
@@ -442,6 +442,27 @@ class CheckMultipleDomainService
             'suggestions' => $suggestions,
             'total' => count($suggestions)
         ];
+    }
+
+    public function clearDomainCache(string $domain): void
+    {
+        Cache::forget($this->domainCacheKey($domain));
+    }
+
+    public function clearCurrentTenantDomainCache(): void
+    {
+        $versionKey = $this->cachePrefix() . ':version';
+        Cache::put($versionKey, ((int) Cache::get($versionKey, 0)) + 1, now()->addDay());
+    }
+
+    private function domainCacheKey(string $domain): string
+    {
+        return $this->cachePrefix() . ':v' . (int) Cache::get($this->cachePrefix() . ':version', 0) . ':' . md5($domain);
+    }
+
+    private function cachePrefix(): string
+    {
+        return 'domain_check:' . (string) (tenant('id') ?: 'central');
     }
 
     /**

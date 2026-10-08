@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\VersionTester;
 
 use App\DataTables\Admin\VersionTester\VersionTesterDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Admin\Version\VersionTester;
 use App\Enums\Admin\Version\VersionTesterType;
@@ -92,7 +93,7 @@ class VersionTesterController extends Controller
         return redirect()->route($this->route . '.index')->with('success', 'تم تحديث العميل  بنجاح');
     }
 
-    public function toggleStatus(VersionTester $versionTester): JsonResponse
+    public function toggleStatus(AdminAuthenticatedRequest $request, VersionTester $versionTester): JsonResponse
     {
         $versionTester->update(['is_active' => ! $versionTester->is_active]);
 
@@ -103,7 +104,7 @@ class VersionTesterController extends Controller
     }
 
 
-    public function destroy(VersionTester $versionTester)
+    public function destroy(AdminAuthenticatedRequest $request, VersionTester $versionTester)
     {
         $versionTester->delete();
 

@@ -20,6 +20,14 @@ class UpdateTeamStatusRequest extends FormRequest
         ];
     }
 
+    public function messages(): array
+    {
+        return [
+            'status.required' => 'الحالة مطلوبة.',
+            'status.in' => 'الحالة غير صالحة.',
+        ];
+    }
+
     public function attributes(): array
     {
         return [

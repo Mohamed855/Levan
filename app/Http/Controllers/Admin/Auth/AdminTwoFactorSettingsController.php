@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\Auth\ConfirmAdminTwoFactorRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -23,7 +24,7 @@ class AdminTwoFactorSettingsController extends Controller
         ]);
     }
 
-    public function enable(Request $request, EnableTwoFactorAuthentication $enable): JsonResponse
+    public function enable(AdminAuthenticatedRequest $request, EnableTwoFactorAuthentication $enable): JsonResponse
     {
         $enable(Auth::guard('admin')->user());
 
@@ -44,14 +45,14 @@ class AdminTwoFactorSettingsController extends Controller
         return response()->json(['status' => 'confirmed']);
     }
 
-    public function disable(Request $request, DisableTwoFactorAuthentication $disable): JsonResponse
+    public function disable(AdminAuthenticatedRequest $request, DisableTwoFactorAuthentication $disable): JsonResponse
     {
         $disable(Auth::guard('admin')->user());
 
         return response()->json(['status' => 'disabled']);
     }
 
-    public function recoveryCodes(Request $request): JsonResponse
+    public function recoveryCodes(AdminAuthenticatedRequest $request): JsonResponse
     {
         $user = Auth::guard('admin')->user();
 

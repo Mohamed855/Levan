@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Archive\Coupon;
 
 use App\DataTables\Admin\Archive\Coupon\CouponDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Models\Admin\Coupons\Coupon;
 use Illuminate\Support\Facades\Log;
 
@@ -24,7 +25,7 @@ class CouponArchiveController extends Controller
 
         return $dataTable->render('admin.archive.coupon.index', compact('filterOptions'));
     }
-    public function restore(int $id)
+    public function restore(AdminAuthenticatedRequest $request, int $id)
     {
         try {
             $plan = Coupon::withTrashed()->findOrFail($id);
@@ -40,7 +41,7 @@ class CouponArchiveController extends Controller
         }
     }
 
-    public function forceDelete(int $id)
+    public function forceDelete(AdminAuthenticatedRequest $request, int $id)
     {
         try {
             $plan = Coupon::withTrashed()->findOrFail($id);

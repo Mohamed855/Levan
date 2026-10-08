@@ -133,6 +133,16 @@ class CustomerImportController extends Controller
         return response()->json($result);
     }
 
+    public function cancelQueuedImport(CustomerImportSessionRequest $request): JsonResponse
+    {
+        return $this->cancelImport($request);
+    }
+
+    public function getQueueStatus(CustomerImportSessionRequest $request): JsonResponse
+    {
+        return $this->checkImportStatus($request);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Download Error Report

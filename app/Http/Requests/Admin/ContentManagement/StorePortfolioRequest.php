@@ -33,4 +33,13 @@ class StorePortfolioRequest extends WizardFormRequest
             'status.required' => 'حالة المحفظة مطلوبة',
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'name' => 'اسم المحفظة',
+            'logo' => 'الشعار',
+            'status' => 'الحالة',
+        ];
+    }
 }

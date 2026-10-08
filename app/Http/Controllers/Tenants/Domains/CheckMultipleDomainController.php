@@ -1,12 +1,13 @@
 <?php
 namespace App\Http\Controllers\Tenants\Domains;
 
-
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Domains\CheckMultipleDomainsRequest;
+use App\Http\Requests\Tenants\Domains\ClearAllDomainCacheRequest;
+use App\Http\Requests\Tenants\Domains\ClearDomainCacheRequest;
 use App\Services\shared\NameCheap\CheckMultipleDomainService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Request;
 
 class CheckMultipleDomainController extends Controller
 {
@@ -14,6 +15,7 @@ class CheckMultipleDomainController extends Controller
 
     public function __construct(CheckMultipleDomainService $domainService)
     {
+        $this->middleware('can:domain.view');
         $this->domainService = $domainService;
     }
 
@@ -51,37 +53,9 @@ class CheckMultipleDomainController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function checkMultiple(Request $request): JsonResponse
+    public function checkMultiple(CheckMultipleDomainsRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'domains' => 'required|array|min:1|max:10',
-            'domains.*' => 'required|string'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'error' => 'بيانات غير صالحة',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $domains = $request->input('domains');
-        
-        // تنظيف الدومينات
-        $domains = array_map(function($domain) {
-            return strtolower(trim($domain));
-        }, $domains);
-
-        // التحقق من صحة كل دومين
-        foreach ($domains as $domain) {
-            if (!$this->isValidDomain($domain)) {
-                return response()->json([
-                    'success' => false,
-                    'error' => "الدومين غير صحيح: {$domain}"
-                ], 400);
-            }
-        }
+        $domains = $request->validated('domains');
 
         $result = $this->domainService->checkMultipleDomains($domains);
 
@@ -160,6 +134,26 @@ class CheckMultipleDomainController extends Controller
         $result = $this->domainService->suggestAlternativeNames($domainName, $extension);
 
         return response()->json($result);
+    }
+
+    public function clearCache(ClearDomainCacheRequest $request): JsonResponse
+    {
+        $this->domainService->clearDomainCache($request->validated('domain'));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم مسح ذاكرة النطاق المؤقتة.',
+        ]);
+    }
+
+    public function clearAllCache(ClearAllDomainCacheRequest $request): JsonResponse
+    {
+        $this->domainService->clearCurrentTenantDomainCache();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم مسح ذاكرة النطاقات المؤقتة.',
+        ]);
     }
 
     /**

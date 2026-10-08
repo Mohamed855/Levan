@@ -37,4 +37,11 @@ class SaveDocumentRequestReasonRequest extends FormRequest
             'name.unique' => 'اسم سبب طلب المستندات موجود مسبقاً.',
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'name' => 'اسم سبب طلب المستندات',
+        ];
+    }
 }

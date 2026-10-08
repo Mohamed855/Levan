@@ -6,12 +6,16 @@ use App\DataTables\Admin\Setting\SettingDomainDatatable;
 use App\DataTables\Tenants\Bills\DomainDataTable;
 use App\DataTables\Tenants\Domain\DomainDataTable as DomainDomainDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Domains\DomainDnsLookupRequest;
+use App\Http\Requests\Tenants\Domains\DomainLookupRequest;
+use App\Http\Requests\Tenants\Domains\ProcessDomainTransferRequest;
 use App\Models\Admin\Cpanel\CpanelAccount;
 use App\Models\Admin\Tenants\Domain;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\Settings\TransferDomain;
 use App\Services\shared\Cpanel\CpanelService;
 use App\Services\shared\Domain\DomainService;
+use App\Services\shared\NameCheap\CheckAccountInfoService;
 use App\Services\shared\NameCheap\NameCheapService;
 use Exception;
 use Illuminate\Http\Request;
@@ -38,10 +42,16 @@ class DomainController extends Controller
     protected $tenantId;
     protected $domain_service;
     protected $cpanelService;
-    public function __construct(private NameCheapService $namecheapService, DomainService $domain_service, CpanelService $cpanelService)
+    public function __construct(
+        private NameCheapService $namecheapService,
+        private CheckAccountInfoService $accountInfoService,
+        DomainService $domain_service,
+        CpanelService $cpanelService,
+    )
     {
         // لتحقق هل الباقة تحتوي على ميزة الدومينات ام لا
         $this->middleware('check.domain.management');
+        $this->middleware('can:domain.view');
 
         $this->cpanelService = $cpanelService;
         $this->domain_service = $domain_service;
@@ -280,19 +290,11 @@ class DomainController extends Controller
     }
 
 
-    public function processTransfer(Request $request)
+    public function processTransfer(ProcessDomainTransferRequest $request)
     {
-        $request->validate([
-            'domain' => 'required|string',
-            'eppCode' => 'required|string|min:6'
-        ], [
-            'eppCode.required' => 'الرجاء إدخال كود EPP',
-            'eppCode.min' => 'كود EPP يجب أن يكون 6 أحرف على الأقل'
-        ]);
-
         try {
-            $domain = $request->domain;
-            $eppCode = $request->eppCode;
+            $domain = $request->validated('domain');
+            $eppCode = $request->validated('epp_code');
 
             Log::info("Processing transfer for: " . $domain);
 
@@ -749,10 +751,10 @@ class DomainController extends Controller
     // Public Methods
     // ============================================================
 
-    public function verifyDNS(Request $request)
+    public function verifyDNS(DomainDnsLookupRequest $request)
     {
-        $domain   = trim($request->domain);
-        $method   = $request->method;
+        $domain = $request->validated('domain');
+        $method = $request->validated('method');
 
         $serverIp = env('SERVER_IP', '135.181.215.105');
         $serverNS = [
@@ -1008,5 +1010,39 @@ class DomainController extends Controller
     public function modifyaccount(Request $request)
     {
         return  $this->namecheapService->modifyAccount($request->domain, $request->tenant_id);
+    }
+
+    public function verifyDNSTest(DomainDnsLookupRequest $request)
+    {
+        return $this->verifyDNS($request);
+    }
+
+    public function getBalance()
+    {
+        $result = $this->accountInfoService->getBalance();
+
+        return response()->json([
+            'success' => (bool) ($result['ok'] ?? false),
+            'data' => $result,
+        ], ($result['ok'] ?? false) ? 200 : 502);
+    }
+
+    public function calculateResults(DomainLookupRequest $request)
+    {
+        try {
+            $result = $this->accountInfoService->CalculateResults($request->validated('domain'));
+
+            return response()->json([
+                'success' => true,
+                'data' => ['result' => $result],
+            ]);
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'تعذر التحقق من أهلية تسجيل النطاق حالياً.',
+            ], 502);
+        }
     }
 }

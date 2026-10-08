@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Admin\ContentManagement\Portfolio;
 
 use App\DataTables\Admin\ContentManagement\Portfolio\PortfolioDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\ContentManagement\StorePortfolioRequest;
 use App\Http\Requests\Admin\ContentManagement\UpdatePortfolioRequest;
 use App\Models\Admin\ContentManagement\Portfolio;
@@ -83,7 +84,7 @@ class PortfolioController extends Controller
         }
     }
 
-    public function destroy(Portfolio $portfolio)
+    public function destroy(AdminAuthenticatedRequest $request, Portfolio $portfolio)
     {
         try {
             if ($portfolio->logo) {
@@ -98,7 +99,7 @@ class PortfolioController extends Controller
         }
     }
 
-    public function toggleStatus(Request $request, Portfolio $portfolio)
+    public function toggleStatus(AdminAuthenticatedRequest $request, Portfolio $portfolio)
     {
         try {
             $newStatus = !$portfolio->status;

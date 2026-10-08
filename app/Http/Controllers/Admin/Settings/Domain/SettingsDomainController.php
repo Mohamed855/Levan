@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Settings\Domain;
 
 use App\DataTables\Admin\Setting\SettingDomainDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\Settings\Domain\StoreControlDomainRequest;
 use App\Http\Requests\Admin\Settings\Domain\UpdateControlDomainRequest;
 use App\Models\Admin\ControlDomain\ControlDomain;
@@ -63,7 +64,7 @@ class SettingsDomainController extends Controller
         return redirect()->route('admin.settings.domains.index')->with('success', 'تم التعديل بنجاح');
     }
 
-    public function toggleStatus(ControlDomain $domain): JsonResponse
+    public function toggleStatus(AdminAuthenticatedRequest $request, ControlDomain $domain): JsonResponse
     {
         $domain->update(['is_active' => ! $domain->is_active]);
 
@@ -74,7 +75,7 @@ class SettingsDomainController extends Controller
     }
 
     // Delete
-    public function destroy(ControlDomain $domain)
+    public function destroy(AdminAuthenticatedRequest $request, ControlDomain $domain)
     {
         $domain->delete();
         return redirect()->route('admin.settings.domains.index')->with('success', 'تم حذف الامتداد بنجاح');

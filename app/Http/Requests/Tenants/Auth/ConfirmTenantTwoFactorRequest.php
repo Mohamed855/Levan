@@ -25,4 +25,9 @@ class ConfirmTenantTwoFactorRequest extends FormRequest
             'code.string' => 'كود التحقق يجب أن يكون نصًا.',
         ];
     }
+
+    public function attributes(): array
+    {
+        return ['code' => 'كود التحقق'];
+    }
 }

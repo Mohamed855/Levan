@@ -61,6 +61,26 @@ class CustomerFollowController extends Controller
         }
     }
 
+    public function index(Customer $customer): JsonResponse
+    {
+        return $this->getFollowsList($customer);
+    }
+
+    public function show(Customer $customer, CustomerFollow $customerFollow): JsonResponse
+    {
+        abort_unless($customerFollow->customer_id === $customer->getKey(), 404);
+
+        return response()->json([
+            'success' => true,
+            'data' => $customerFollow->loadMissing([
+                'contactMethod',
+                'customerStatus',
+                'contactResult',
+                'createdBy',
+            ]),
+        ]);
+    }
+
 
     /*
     |--------------------------------------------------------------------------

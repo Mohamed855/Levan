@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\Auth\AdminLoginRequest;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Providers\RouteServiceProvider;
@@ -53,7 +54,7 @@ class AdminAuthController extends Controller
         return redirect()->intended(RouteServiceProvider::ADMIN);
     }
 
-    public function logout(Request $request): RedirectResponse
+    public function logout(AdminAuthenticatedRequest $request): RedirectResponse
     {
         Auth::guard('admin')->logout();
         $request->session()->invalidate();
