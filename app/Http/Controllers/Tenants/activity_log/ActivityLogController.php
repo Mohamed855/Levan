@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenants\activity_log;
 use App\Exports\Tenants\ActivityLog\ActivityLogsExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\ActivityLog\ExportActivityLogsRequest;
+use App\Http\Requests\Tenants\ActivityLog\DownloadActivityLogExportRequest;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Traits\ActivityLogPresenterTrait;
 use Carbon\Carbon;
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 use Spatie\Activitylog\Models\Activity;
@@ -300,9 +302,14 @@ class ActivityLogController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        $fileName = 'سجل-النشاطات-' . now()->format('Y-m-d-His') . '.xlsx';
+        $fileName = 'activity-logs-' . now()->format('Ymd-His') . '.xlsx';
 
         Excel::store(new ActivityLogsExport($activities), 'exports/' . $fileName, 'tenant_public');
+        Cache::put(
+            DownloadActivityLogExportRequest::ownerKey($fileName),
+            $request->user('tenant')->getKey(),
+            now()->addHours(2),
+        );
 
         return response()->json([
             'success' => true,
@@ -316,7 +323,7 @@ class ActivityLogController extends Controller
     | تحميل ملف التصدير المُجهَّز مسبقًا (يُحذف بعد الإرسال)
     |--------------------------------------------------------------------------
     */
-    public function downloadExportFile(string $file): BinaryFileResponse|RedirectResponse
+    public function downloadExportFile(DownloadActivityLogExportRequest $request, string $file): BinaryFileResponse|RedirectResponse
     {
         $disk = Storage::disk('tenant_public');
         $relative = 'exports/' . basename($file);
