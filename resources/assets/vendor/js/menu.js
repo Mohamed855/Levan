@@ -643,6 +643,28 @@ class Menu {
 
     const linkHeight = Math.round(toggleLink.getBoundingClientRect().height)
 
+    // Vertical sidebar cutouts extend beyond the menu item. The vendor height
+    // animation clips them with overflow: hidden, so vertical toggles update
+    // immediately while preserving the same callbacks and accordion behavior.
+    if (!this._horizontal) {
+      item.classList.remove('menu-item-animating', 'menu-item-closing')
+      item.style.overflow = null
+      item.style.height = null
+      item.classList.toggle('open', open)
+
+      if (!open && closeChildren) {
+        const opened = item.querySelectorAll('.menu-item.open')
+        for (let i = 0, l = opened.length; i < l; i++) opened[i].classList.remove('open')
+      }
+
+      this.update()
+
+      if (open) this._onOpened(this, item, toggleLink, menu)
+      else this._onClosed(this, item, toggleLink, menu)
+
+      return
+    }
+
     item.style.overflow = 'hidden'
 
     const clearItemStyle = () => {

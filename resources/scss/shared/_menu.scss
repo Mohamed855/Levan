@@ -298,21 +298,13 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
     box-shadow: none !important;
 }
 
-// A toggle owns the arrow in its link, so its container never renders tab scoops.
-.bg-menu-theme.menu-vertical .menu-inner > .menu-item:has(> .menu-link.menu-toggle) {
-    &::before,
-    &::after {
-        content: none !important;
-        display: none !important;
-        opacity: 0 !important;
-    }
-}
-
 // Top-level items on Active OR Hover (All items including togglers share the exact same styling)
 .layout-wrapper .bg-menu-theme.menu-vertical .menu-inner > .menu-item.active,
 .bg-menu-theme.menu-vertical .menu-inner > .menu-item.active,
 .layout-wrapper .bg-menu-theme.menu-vertical .menu-inner > .menu-item.open,
 .bg-menu-theme.menu-vertical .menu-inner > .menu-item.open,
+.layout-wrapper .bg-menu-theme.menu-vertical .menu-inner > .menu-item.menu-item-closing,
+.bg-menu-theme.menu-vertical .menu-inner > .menu-item.menu-item-closing,
 .layout-wrapper .bg-menu-theme.menu-vertical .menu-inner > .menu-item:hover,
 .bg-menu-theme.menu-vertical .menu-inner > .menu-item:hover {
     z-index: 5 !important;
