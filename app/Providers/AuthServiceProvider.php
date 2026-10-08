@@ -22,6 +22,8 @@ use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\FinancialCollection\Collection\Collection;
 use App\Models\Tenants\FinancialCollection\Target\CollectionTarget;
 use App\Models\Tenants\FinancialCollection\Reconciliation\PaymentReconciliation;
+use App\Models\Tenants\Communication\MessageLog\MessageLog;
+use App\Models\Tenants\Communication\MessageLog\MessageIndividualLog;
 use App\Models\Tenants\UserMangment\Team\Team;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Policies\Admin\Plans\PlanPolicy;
@@ -44,6 +46,8 @@ use App\Policies\Tenants\Properties\PropertyPolicy;
 use App\Policies\Tenants\FinancialCollection\Collection\CollectionPolicy;
 use App\Policies\Tenants\FinancialCollection\Target\CollectionTargetPolicy;
 use App\Policies\Tenants\FinancialCollection\Reconciliation\PaymentReconciliationPolicy;
+use App\Policies\Tenants\Communication\MessageLog\MessageLogPolicy;
+use App\Policies\Tenants\Communication\MessageLog\MessageIndividualLogPolicy;
 use App\Policies\Tenants\UserManagement\Team\TeamPolicy;
 use App\Policies\Tenants\UserManagement\User\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -78,6 +82,8 @@ class AuthServiceProvider extends ServiceProvider
         Collection::class => CollectionPolicy::class,
         CollectionTarget::class => CollectionTargetPolicy::class,
         PaymentReconciliation::class => PaymentReconciliationPolicy::class,
+        MessageLog::class => MessageLogPolicy::class,
+        MessageIndividualLog::class => MessageIndividualLogPolicy::class,
     ];
 
     /**

@@ -31,9 +31,11 @@ class MessageIndividualLogController extends Controller
     {
         $this->messageLogService = $messageLogService;
         $this->middleware('auth');
-        // $this->middleware('can:عرض سجلات الرسائل')->only(['index', 'show']);
-        // $this->middleware('can:حذف سجلات الرسائل')->only(['destroy']);
-        // $this->middleware('can:تصدير سجلات الرسائل')->only(['export']);
+        $this->authorizeResource(MessageIndividualLog::class, 'messageIndividualLog');
+        $this->middleware('can:message_logs.view')->except(['show', 'destroy', 'export']);
+        $this->middleware('can:message_logs.show')->only(['show']);
+        $this->middleware('can:message_logs.delete')->only(['destroy']);
+        $this->middleware('can:export,' . MessageIndividualLog::class)->only(['export']);
     }
 
     /*
@@ -218,7 +220,7 @@ class MessageIndividualLogController extends Controller
     public function getPortfoliosByCompany(Request $request): JsonResponse
     {
         try {
-            $companyId = $request->tenant_route_name('companyId');
+            $companyId = $request->route('companyId');
 
             $portfolios = Portfolio::where('company_id', $companyId)
                 ->where('status', 'active')
@@ -247,7 +249,7 @@ class MessageIndividualLogController extends Controller
     public function getCustomersByPortfolio(Request $request): JsonResponse
     {
         try {
-            $portfolioId = $request->tenant_route_name('portfolioId');
+            $portfolioId = $request->route('portfolioId');
 
             $customers = Customer::where('portfolio_id', $portfolioId)
                 ->select('id', 'name')

@@ -13,6 +13,8 @@ use App\Http\Controllers\Tenants\BusinessCenter\Portfolio\PortfolioController;
 use App\Http\Controllers\Tenants\FinancialCollection\Collection\CollectionController;
 use App\Http\Controllers\Tenants\FinancialCollection\Target\CollectionTargetController;
 use App\Http\Controllers\Tenants\FinancialCollection\Reconciliation\PaymentReconciliationController;
+use App\Http\Controllers\Tenants\Communication\MessageLog\MessageLogController;
+use App\Http\Controllers\Tenants\Communication\MessageLog\MessageIndividualLogController;
 use App\Http\Controllers\Tenants\Properties\PropertiesController;
 use App\Http\Controllers\Tenants\UserMangment\Team\TeamController;
 use App\Http\Controllers\Tenants\UserMangment\User\UserController;
@@ -25,6 +27,8 @@ use App\Policies\Tenants\BusinessCenter\Portfolio\PortfolioPolicy;
 use App\Policies\Tenants\FinancialCollection\Collection\CollectionPolicy;
 use App\Policies\Tenants\FinancialCollection\Target\CollectionTargetPolicy;
 use App\Policies\Tenants\FinancialCollection\Reconciliation\PaymentReconciliationPolicy;
+use App\Policies\Tenants\Communication\MessageLog\MessageLogPolicy;
+use App\Policies\Tenants\Communication\MessageLog\MessageIndividualLogPolicy;
 use App\Policies\Tenants\Properties\PropertyPolicy;
 use App\Policies\Tenants\UserManagement\Team\TeamPolicy;
 use App\Policies\Tenants\UserManagement\User\UserPolicy;
@@ -48,6 +52,8 @@ class TenantAssetPolicyContractTest extends TestCase
             CollectionPolicy::class,
             CollectionTargetPolicy::class,
             PaymentReconciliationPolicy::class,
+            MessageLogPolicy::class,
+            MessageIndividualLogPolicy::class,
         ] as $policy) {
             $reflection = new ReflectionClass($policy);
 
@@ -71,6 +77,8 @@ class TenantAssetPolicyContractTest extends TestCase
             CollectionController::class,
             CollectionTargetController::class,
             PaymentReconciliationController::class,
+            MessageLogController::class,
+            MessageIndividualLogController::class,
         ] as $controller) {
             $content = file_get_contents((new ReflectionClass($controller))->getFileName());
 

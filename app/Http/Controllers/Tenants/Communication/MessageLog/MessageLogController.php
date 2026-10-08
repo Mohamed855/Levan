@@ -21,8 +21,10 @@ class MessageLogController extends Controller
     public function __construct(MessageLogService $messageLogService)
     {
         $this->messageLogService = $messageLogService;
+        $this->authorizeResource(MessageLog::class, 'messageLog');
 
-        $this->middleware('can:message_logs.view')->except(['destroy']);
+        $this->middleware('can:message_logs.view')->except(['destroy', 'show']);
+        $this->middleware('can:message_logs.show')->only(['show']);
         $this->middleware('can:message_logs.delete')->only(['destroy']);
     }
 
