@@ -30,4 +30,9 @@ abstract class CollectionImportRequest extends FormRequest
     {
         return 'collection_import_file_owner:' . hash('sha256', $path);
     }
+
+    public static function errorReportOwnerKey(string $path): string
+    {
+        return 'collection_import_report_owner:' . hash('sha256', $path);
+    }
 }

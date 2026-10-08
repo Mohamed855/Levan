@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\FinancialCollection\Import\CollectionImportProgressRequest;
 use App\Http\Requests\Tenants\FinancialCollection\Import\CollectionImportRequest;
 use App\Http\Requests\Tenants\FinancialCollection\Import\CancelCollectionImportRequest;
+use App\Http\Requests\Tenants\FinancialCollection\Import\DownloadCollectionImportErrorReportRequest;
 use App\Http\Requests\Tenants\FinancialCollection\Import\ProcessCollectionImportRequest;
 use App\Http\Requests\Tenants\FinancialCollection\Import\UploadCollectionImportRequest;
 use App\Services\Tenants\FinancialCollection\Import\CollectionImportService;
@@ -87,6 +88,15 @@ class CollectionImportController extends Controller
 
         $result = $this->importService->processImportFile($importConfig);
 
+        $reportPath = $result['data']['error_report_path'] ?? null;
+        if ($result['success'] && is_string($reportPath)) {
+            Cache::put(
+                CollectionImportRequest::errorReportOwnerKey($reportPath),
+                $request->user('tenant')->getKey(),
+                now()->addHours(24),
+            );
+        }
+
         return response()->json($result, $result['success'] ? 200 : 500);
     }
 
@@ -117,9 +127,9 @@ class CollectionImportController extends Controller
     | Download Error Report
     |--------------------------------------------------------------------------
     */
-    public function downloadErrorReport(Request $request): BinaryFileResponse|\Illuminate\Http\JsonResponse
+    public function downloadErrorReport(DownloadCollectionImportErrorReportRequest $request): BinaryFileResponse|\Illuminate\Http\JsonResponse
     {
-        $reportPath = $request->get('report_path');
+        $reportPath = $request->validated('report_path');
 
         if (!$reportPath || !Storage::disk('local')->exists($reportPath)) {
             return response()->json(['success' => false, 'message' => 'ملف التقرير غير موجود.'], 404);

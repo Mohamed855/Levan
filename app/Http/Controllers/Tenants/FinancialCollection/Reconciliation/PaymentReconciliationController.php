@@ -33,7 +33,16 @@ class PaymentReconciliationController extends Controller
     public function __construct(PaymentReconciliationService $reconciliationService)
     {
         $this->reconciliationService = $reconciliationService;
+        $this->authorizeResource(PaymentReconciliation::class, 'reconciliation');
         $this->middleware(['auth:tenant', 'can:reconciliation.view']);
+        $this->middleware('can:view,reconciliation')->only([
+            'downloadSummaryReport',
+            'downloadUnmatchedReport',
+            'downloadDiscrepanciesReport',
+            'downloadSystemOnlyReport',
+            'downloadEmployeePerformanceReport',
+            'downloadErrorsReport',
+        ]);
     }
 
     /*

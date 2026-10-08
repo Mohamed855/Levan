@@ -99,6 +99,14 @@ class ProcessCollectionImport implements ShouldQueue
                         ];
                         $errorReportPath = $reportService->generateImportErrorReport($reportData);
                         $results['error_report_path'] = $errorReportPath;
+
+                        if ($errorReportPath !== '') {
+                            Cache::put(
+                                \App\Http\Requests\Tenants\FinancialCollection\Import\CollectionImportRequest::errorReportOwnerKey($errorReportPath),
+                                $this->importConfig['current_user_id'],
+                                now()->addHours(24),
+                            );
+                        }
                     } catch (\Exception $e) {
                         // Log::error("خطأ في إنشاء تقرير الأخطاء: " . $e->getMessage(), [
                         //     'job_id' => $this->jobId
