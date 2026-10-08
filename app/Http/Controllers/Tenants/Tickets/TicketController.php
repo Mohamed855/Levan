@@ -19,6 +19,15 @@ class TicketController extends Controller
 
     public function __construct(private EtmamTicketService $ticketService)
     {
+        $this->middleware('auth:tenant');
+        $this->middleware('can:tickets.view')->only([
+            'index',
+            'show',
+            'reply',
+            'rateReply',
+            'submitSurvey',
+        ]);
+        $this->middleware('can:tickets.create')->only(['create', 'store']);
         $this->middleware(function ($request, $next) {
             if (!$this->ticketService->isServiceEnabled()) {
                 if ($request->expectsJson()) {

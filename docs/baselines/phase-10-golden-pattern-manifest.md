@@ -56,7 +56,7 @@
 | Tenant archive | `archives.*` · `Archive\\{User,Company,Contract,Portfolio,Customer,Assignment,Property,Auction}*Controller` | tenant soft deletes/files/relations | restore/force-delete requests and isolation Policies: Gap | archive DT | F,U,I,S | Gap |
 | Tenant mass delete | `mass-delete` · `MassDeleteController` | tenant model whitelist | allow-list/request exists; Policy per row: Gap | shared handler | F,U,I,S | Gap |
 | Subscription / billing / license | `subscribe.*`, `subscriptions.*`, `bills.*`, `licenses.*`, `versions.*` · `NewSubscriptionController`, `TenantSubscriptionController`, `BillsController`, `LicenseController`, `VersionController` | central gateway/payment callbacks/tenant ownership | checkout requests موجودة جزئياً; callback/idempotency/gateway: Gap | Views + API | F,U,I,S | Gap |
-| Tickets | `tickets.*` · `TicketController` | central ticket storage scoped by current tenant; replies/survey | typed ticket/reply requests + scoped local gateway; external-record Policy and feature isolation: Gap | DT + forms | F,U,I,S | Partial |
+| Tickets | `tickets.*` · `TicketController` | central ticket storage scoped by current tenant; replies/survey | typed requests + explicit guard/permissions + scoped local gateway; external-record Policy and feature isolation: Gap | DT + forms | F,U,I,S | Partial |
 
 ## 4. Tenant — business center and customer operations
 
