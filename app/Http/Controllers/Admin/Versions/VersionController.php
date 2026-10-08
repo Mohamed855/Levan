@@ -22,6 +22,7 @@ class VersionController extends Controller
     public function __construct(private VersionService $versionService)
     {
         $this->middleware('auth:admin');
+        $this->authorizeResource(Version::class, 'version');
         $this->middleware('can:versions.view')->only(['index']);
         $this->middleware('can:versions.create')->only(['create', 'store']);
         $this->middleware('can:versions.edit')->only(['edit', 'update', 'toggleStatus']);
@@ -82,9 +83,9 @@ class VersionController extends Controller
     //     return view($this->page . '.show', compact('version'));
     // }
 
-    public function show($id)
+    public function show(Version $version)
     {
-        $version = Version::with(['creator', 'updater'])->findOrFail($id);
+        $version->load(['creator', 'updater']);
         return view('admin.versions.show', compact('version'));
     }
 

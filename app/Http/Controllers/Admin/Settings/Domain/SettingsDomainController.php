@@ -17,6 +17,7 @@ class SettingsDomainController extends Controller
 
     public function __construct()
     {
+        $this->authorizeResource(ControlDomain::class, 'domain');
         $this->middleware('can:domain_extension_prices.settings');
     }
 

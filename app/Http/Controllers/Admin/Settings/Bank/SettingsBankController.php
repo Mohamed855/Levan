@@ -19,6 +19,7 @@ class SettingsBankController extends Controller
 
     public function __construct()
     {
+        $this->authorizeResource(Bank::class, 'bank');
         $this->middleware('can:bank_settings.view');
     }
 

@@ -10,7 +10,7 @@ class StorePortfolioRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user('admin')?->can('clients.create') ?? false;
     }
 
     public function rules(): array

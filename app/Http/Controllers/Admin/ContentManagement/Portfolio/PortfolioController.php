@@ -12,6 +12,13 @@ use Illuminate\Support\Facades\Storage;
 
 class PortfolioController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:admin');
+        $this->authorizeResource(Portfolio::class, 'portfolio');
+        $this->middleware('can:update,portfolio')->only(['toggleStatus']);
+    }
+
     public function index(PortfolioDataTable $datatable)
     {
         $portfolio = Portfolio::query();

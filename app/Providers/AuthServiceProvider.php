@@ -6,6 +6,12 @@ use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\Coupons\Coupon;
+use App\Models\Admin\Bank\Bank;
+use App\Models\Admin\ControlDomain\ControlDomain;
+use App\Models\Admin\ContentManagement\Client;
+use App\Models\Admin\ContentManagement\Portfolio as ContentPortfolio;
+use App\Models\Admin\Version\Version;
+use App\Models\Admin\Version\VersionTester;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\BusinessCenter\Company\Company;
@@ -19,6 +25,12 @@ use App\Policies\Admin\Plans\PlanPolicy;
 use App\Policies\Admin\Tenants\TenantPolicy;
 use App\Policies\Admin\Coupons\CouponPolicy;
 use App\Policies\Admin\Users\AdminUserPolicy;
+use App\Policies\Admin\Settings\BankPolicy;
+use App\Policies\Admin\Settings\ControlDomainPolicy;
+use App\Policies\Admin\ContentManagement\ClientPolicy;
+use App\Policies\Admin\ContentManagement\ContentPortfolioPolicy;
+use App\Policies\Admin\Versions\VersionPolicy;
+use App\Policies\Admin\Versions\VersionTesterPolicy;
 use App\Policies\Tenants\Assignments\AssignmentPolicy;
 use App\Policies\Tenants\Auctions\AuctionPolicy;
 use App\Policies\Tenants\BusinessCenter\Company\CompanyPolicy;
@@ -42,6 +54,12 @@ class AuthServiceProvider extends ServiceProvider
         Tenant::class => TenantPolicy::class,
         AdminUser::class => AdminUserPolicy::class,
         Coupon::class => CouponPolicy::class,
+        Bank::class => BankPolicy::class,
+        ControlDomain::class => ControlDomainPolicy::class,
+        Client::class => ClientPolicy::class,
+        ContentPortfolio::class => ContentPortfolioPolicy::class,
+        Version::class => VersionPolicy::class,
+        VersionTester::class => VersionTesterPolicy::class,
         Assignment::class => AssignmentPolicy::class,
         Property::class => PropertyPolicy::class,
         Auction::class => AuctionPolicy::class,

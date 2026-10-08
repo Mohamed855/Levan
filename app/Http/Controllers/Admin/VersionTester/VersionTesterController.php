@@ -24,6 +24,7 @@ class VersionTesterController extends Controller
     public function __construct(private VersionTestersService $versionTestersService)
     {
         $this->middleware('auth:admin');
+        $this->authorizeResource(VersionTester::class, 'version_tester');
         $this->middleware('can:version_testers.view')->only(['index']);
         $this->middleware('can:version_testers.create')->only(['create', 'store']);
         $this->middleware('can:version_testers.edit')->only(['edit', 'update', 'toggleStatus']);

@@ -13,6 +13,13 @@ use Illuminate\Support\Facades\Storage;
 
 class ClientController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:admin');
+        $this->authorizeResource(Client::class, 'client');
+        $this->middleware('can:update,client')->only(['toggleStatus']);
+    }
+
     public function index(ClientDataTable $datatable)
     {
         $client = Client::query();
