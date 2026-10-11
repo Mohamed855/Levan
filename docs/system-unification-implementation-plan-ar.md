@@ -266,11 +266,13 @@
 
 4. توحيد status toggle وتأكيد bulk-delete، مع مراجعة authorization والـtenant scope.
 5. تدقيق ترتيب الأعمدة: `الحالة` قبل `الإجراءات`.
+6. توحيد أزرار الإجراءات في جميع جداول `index` للنطاقين Central/SuperAdmin وTenant: الحاوية `d-flex justify-content-center gap-2` والزر `btn btn-icon btn-label-primary`، مع الحفاظ على الصلاحيات والأيقونات والـhandlers الحالية.
 
 ### بوابة القبول
 
 - لا يوجد consumer يعتمد response غير موثق.
 - DataTables تعالج empty/error/loading states بنفس النمط.
+- أزرار إجراءات الصفوف متطابقة بصريًا مع عقد SuperAdmin Admin Users، ولا توجد overrides لونية أو حجمية خاصة بالصفحة.
 - عمليات bulk/delete لا تتجاوز authorization أو tenancy.
 
 ## 12. مرحلة routes والـlegacy — المرحلة 8

@@ -1,8 +1,8 @@
-<div class="d-flex justify-content-center">
+<div class="d-flex justify-content-center gap-2">
     
     <button title="استرجاع المستخدم" type="button"
 
-        class="btn btn-icon btn-label-primary me-1 js-restore-btn" data-id="{{ $id }}">
+        class="btn btn-icon btn-label-primary js-restore-btn" data-id="{{ $id }}">
         <i class="ti ti-refresh"></i>
     </button>
     

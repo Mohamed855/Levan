@@ -42,9 +42,9 @@ final class CreateAssignmentAction
                 $data['is_active'] = $data['status'] === 'active';
                 $assignment = Assignment::query()->create($data);
 
-                $properties = Property::query()->whereKey($propertyIds)->whereNull('assignment_id')->lockForUpdate()->get(['id']);
+                $properties = Property::query()->whereKey($propertyIds)->lockForUpdate()->get(['id']);
                 if ($properties->count() !== count($propertyIds)) {
-                    throw ValidationException::withMessages(['property_ids' => 'تعذر ربط أحد العقارات المختارة لأنه لم يعد متاحًا.']);
+                    throw ValidationException::withMessages(['property_ids' => 'تعذر العثور على أحد العقارات المختارة.']);
                 }
 
                 Property::query()->whereKey($propertyIds)->update(['assignment_id' => $assignment->getKey()]);

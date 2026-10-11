@@ -84,10 +84,10 @@
                                     {{ $role->created_at ? $role->created_at->locale('ar')->translatedFormat('d F Y') : '-' }}
                                 </td>
                                 <td>
-                                    <div class="d-flex justify-content-center gap-1">
+                                    <div class="d-flex justify-content-center gap-2">
                                         @can('roles.edit')
                                             <a href="{{ tenant_route_name('roles.edit', $role->id) }}"
-                                                class="btn btn-icon btn-label-primary me-1" title="تعديل الدور">
+                                                class="btn btn-icon btn-label-primary" title="تعديل الدور">
                                                 <i class="ti ti-edit"></i>
                                             </a>
                                         @endcan

@@ -13,12 +13,12 @@
 
     @can('plans.delete')
         @if ($row->hasSubscriptions())
-            <button type="button" class="btn btn-icon btn-secondary"
+            <button type="button" class="btn btn-icon btn-label-primary"
                 title="لا يمكن حذف باقة مرتبطة باشتراكات، استخدم زر التعطيل بدلاً من ذلك" disabled>
                 <i class="ti ti-trash-off"></i>
             </button>
         @else
-            <button type="button" class="btn btn-icon btn-label-danger js-delete-btn" data-id="{{ $row->id }}"
+            <button type="button" class="btn btn-icon btn-label-primary js-delete-btn" data-id="{{ $row->id }}"
                 title="حذف الباقة">
                 <i class="ti ti-trash"></i>
             </button>

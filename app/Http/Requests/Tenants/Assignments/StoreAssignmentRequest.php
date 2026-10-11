@@ -30,7 +30,7 @@ class StoreAssignmentRequest extends WizardFormRequest
             'notes' => ['required', 'string', 'max:1000'],
             'status' => ['required', Rule::enum(AssignmentStatus::class)],
             'property_ids' => ['required', 'array', 'min:1'],
-            'property_ids.*' => ['required', 'integer', 'distinct', Rule::exists('properties', 'id')->where(fn ($query) => $query->whereNull('assignment_id')->whereNull('deleted_at'))],
+            'property_ids.*' => ['required', 'integer', 'distinct', Rule::exists('properties', 'id')->where(fn ($query) => $query->whereNull('deleted_at'))],
             'assignment_image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
             'assignment_letter' => ['required', 'file', 'mimes:pdf', 'max:10240'],
             'general_documents' => ['required', 'array', 'min:1'],

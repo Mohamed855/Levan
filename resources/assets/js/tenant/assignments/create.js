@@ -29,9 +29,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     target.innerHTML = [...selectedProperties.values()].map(property => `
-      <article class="assignment-item-card">
-        <img class="assignment-item-card__image" src="${escapeHtml(property.image)}" alt="">
-        <div class="assignment-item-card__content"><div class="fw-medium text-truncate">${escapeHtml(property.name)}</div><small class="text-muted">${escapeHtml(property.number)}</small></div>
+      <article class="assignment-file-card assignment-property-card">
+        <img class="assignment-property-card__image" src="${escapeHtml(property.image)}" alt="">
+        <span class="assignment-file-card__name" title="${escapeHtml(property.name)}">${escapeHtml(property.name)}</span>
         ${removable ? `<button type="button" class="btn btn-sm btn-icon btn-label-danger" data-remove-property="${property.id}" aria-label="إزالة ${escapeHtml(property.name)}"><i class="ti ti-x"></i></button>` : ''}
       </article>`).join('');
   }
@@ -42,6 +42,10 @@ document.addEventListener('DOMContentLoaded', () => {
     renderPropertyCards();
     document.querySelectorAll('.property-selector').forEach(checkbox => { checkbox.checked = selectedProperties.has(String(checkbox.value)); });
     form.dispatchEvent(new Event('change', { bubbles: true }));
+    window.SharedFormValidation?.validateFields(form, ['property_ids']).then(() => {
+      const step = document.getElementById('assignment-properties-validation');
+      if (step) window.SharedFormValidation.updateStepNextButton(form, step);
+    });
   }
 
   function propertyFromCheckbox(checkbox) {
@@ -74,8 +78,17 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   if (window.jQuery) {
+    const tableWrapper = document.getElementById('assignment-properties-table_wrapper');
+    tableWrapper?.querySelectorAll('input, select, textarea').forEach(control => {
+      control.removeAttribute('name');
+      control.dataset.validationSkip = 'true';
+      control.classList.remove('is-valid', 'is-invalid');
+      control.removeAttribute('aria-invalid');
+    });
+
     window.jQuery('#assignment-properties-table').on('draw.dt', () => {
-      document.getElementById('select-all-properties')?.removeAttribute('checked');
+      const selectAll = document.getElementById('select-all-properties');
+      if (selectAll) selectAll.checked = false;
       document.querySelectorAll('.property-selector').forEach(checkbox => { checkbox.checked = selectedProperties.has(String(checkbox.value)); });
     });
   }

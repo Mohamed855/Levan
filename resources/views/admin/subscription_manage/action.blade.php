@@ -6,7 +6,7 @@
 <div class="d-flex justify-content-center gap-2">
     @if ($isPendingRow)
         <button type="button"
-                class="btn btn-icon btn-label-success js-subscription-action"
+                class="btn btn-icon btn-label-primary js-subscription-action"
                 title="قبول الاشتراك"
                 data-bs-toggle="tooltip"
                 data-action="accept"
@@ -16,7 +16,7 @@
         </button>
 
         <button type="button"
-                class="btn btn-icon btn-label-danger js-subscription-action"
+                class="btn btn-icon btn-label-primary js-subscription-action"
                 title="رفض الاشتراك"
                 data-bs-toggle="tooltip"
                 data-action="reject"

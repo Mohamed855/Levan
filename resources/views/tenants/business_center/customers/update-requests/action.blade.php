@@ -1,7 +1,7 @@
-<div class="dropdown">
-    <button class="btn btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false"
-        style="border: none; box-shadow: none;">
-        <i class="ti ti-dots-vertical" style="font-size: 14px;"></i>
+<div class="dropdown d-flex justify-content-center gap-2">
+    <button class="btn btn-icon btn-label-primary" type="button" data-bs-toggle="dropdown" aria-expanded="false"
+        title="الإجراءات" aria-label="الإجراءات">
+        <i class="ti ti-dots-vertical" aria-hidden="true"></i>
     </button>
 
     <ul class="dropdown-menu dropdown-menu-sm">

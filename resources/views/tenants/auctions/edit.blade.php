@@ -98,10 +98,17 @@
                     <x-form.controls.input name="expected_properties_count" type="number" min="1"
                         label="عدد العقارات المتوقع" :value="$auction->expected_properties_count" col="col-md-4" />
 
-                    <x-form.controls.select name="property_ids" id="property_ids" label="العقارات المرتبطة"
-                        multiple col="col-12" :value="$auction->properties->pluck('id')->all()"
+                    <x-form.controls.select name="property_ids" id="property_ids" label="العقارات المرتبطة" multiple
+                        col="col-12" :value="$auction->properties->pluck('id')->all()"
                         help="يتغير الاختيار تلقائياً عند تغيير الإسناد، ولا يقبل النظام إلا عقارات الإسناد المختار."
-                        :options="$properties->map(fn ($property) => ['value' => $property->id, 'label' => $property->property_number . ' — ' . $property->name])->all()" />
+                        :options="$properties
+                            ->map(
+                                fn($property) => [
+                                    'value' => $property->id,
+                                    'label' => $property->property_number . ' — ' . $property->name,
+                                ],
+                            )
+                            ->all()" />
 
                     <x-form.controls.input name="supervising_entity" label="الجهة المشرفة" :value="$auction->supervising_entity"
                         col="col-md-6" />
@@ -115,8 +122,7 @@
                         rows="2" />
 
                     <x-form.controls.image-upload name="cover_image" label="صورة الغلاف" :value="$auction->cover_image ? tasset($auction->cover_image) : null"
-                        accept="image/jpeg,image/png,image/webp"
-                        hint="JPG، PNG أو WebP. الحد الأقصى 4MB" col="col-12" />
+                        accept="image/jpeg,image/png,image/webp" hint="JPG، PNG أو WebP. الحد الأقصى 4MB" col="col-12" />
 
                     <div class="col-12" data-form-field data-field-name="attachments[]">
                         <label class="form-label" for="attachments">إضافة مرفقات</label>
@@ -128,7 +134,7 @@
 
                     @if ($auction->attachments->isNotEmpty())
                         <div class="col-12">
-                            <div class="border rounded p-3 bg-label-secondary">
+                            <div class="border rounded p-3 bg-secondary">
                                 <div class="fw-medium mb-2">المرفقات الحالية</div>
                                 <ul class="mb-0 ps-3">
                                     @foreach ($auction->attachments as $attachment)

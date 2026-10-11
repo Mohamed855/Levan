@@ -302,6 +302,12 @@ error:   data-form-error + aria-describedby + aria-live
 - filters تربط بـ`filterKey` يطابق اسم الحقل الذي يقرأه DataTable query.
 - لا تكتب handler AJAX خاصًا لكل صفحة لـtoggle أو mass-delete إذا كان shared handler يغطيها.
 
+#### 6.3.1 عقد التصميم الموحد لأزرار إجراءات الصفوف
+
+- جميع أزرار الإجراءات داخل جداول صفحات `index` في نطاقي Central/SuperAdmin وTenant تستخدم حاوية `d-flex justify-content-center gap-2`.
+- يستخدم كل زر إجراء الفئات `btn btn-icon btn-label-primary`، مع بقاء الأيقونة، الصلاحية، والـhandler معبرة عن وظيفة الإجراء.
+- لا تستخدم الصفحات المنفردة ألوانًا أو أحجامًا بديلة لأزرار العرض أو التعديل أو الحذف أو الاستعادة أو الإجراءات الخاصة.
+
 ### 6.4 Responses وfeedback
 
 | الحالة | العقد الأدنى |

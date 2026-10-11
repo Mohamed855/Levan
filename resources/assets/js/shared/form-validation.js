@@ -7,7 +7,7 @@ function getFormState(form) {
     formStates.set(form, {
       controllers: new Map(),
       fieldVersions: new Map(),
-      timers: new Map(),
+      successfulValidations: new Map(),
       isSubmitting: false,
       isNavigating: false,
       stepper: null
@@ -38,6 +38,29 @@ function findControls(form, fieldName) {
   return Array.from(form.querySelectorAll('[data-form-control][name], input[name], select[name], textarea[name]')).filter((control) =>
     fieldMatches(control.name, fieldName)
   );
+}
+
+function validationSignature(form, fields) {
+  const values = [...new Set(fields.map(normalizeFieldName))]
+    .sort()
+    .map((fieldName) => {
+      const controls = findControls(form, fieldName);
+      const fieldValues = controls.map((control) => {
+        if (control.type === 'file') {
+          return Array.from(control.files || []).map((file) => [file.name, file.size, file.lastModified]);
+        }
+
+        if (control.type === 'checkbox' || control.type === 'radio') {
+          return [control.value, control.checked];
+        }
+
+        return control.value;
+      });
+
+      return [fieldName, fieldValues];
+    });
+
+  return JSON.stringify(values);
 }
 
 function stateTargets(control) {
@@ -600,7 +623,15 @@ function isStepValid(form, step) {
 function updateStepNextButton(form, step) {
   if (!step) return;
   const nextButtons = step.querySelectorAll('[data-wizard-next], .btn-next:not(.btn-submit)');
-  const valid = isStepValid(form, step);
+  const state = getFormState(form);
+  const stepFields = validationFieldsFromStep(step).map(normalizeFieldName);
+  const hasSuccessfulServerValidation = stepFields.every((fieldName) =>
+    Array.from(state.successfulValidations.entries()).some(([key, signature]) => {
+      const validatedFields = key.split('|').filter(Boolean);
+      return validatedFields.includes(fieldName) && signature === validationSignature(form, validatedFields);
+    })
+  );
+  const valid = isStepValid(form, step) && hasSuccessfulServerValidation;
 
   nextButtons.forEach((btn) => {
     btn.disabled = !valid;
@@ -614,7 +645,7 @@ function updateStepNextButton(form, step) {
   });
 }
 
-async function validateFields(form, fieldNames) {
+async function validateFields(form, fieldNames, { force = false } = {}) {
   const fields = [...new Set(fieldNames.filter(Boolean))];
   let validationUrl = form.dataset.validationUrl;
 
@@ -633,6 +664,10 @@ async function validateFields(form, fieldNames) {
 
   const state = getFormState(form);
   const requestKey = fields.map(normalizeFieldName).sort().join('|');
+  const requestSignature = validationSignature(form, fields);
+  if (!force && state.successfulValidations.get(requestKey) === requestSignature) {
+    return true;
+  }
   const fieldVersions = new Map(
     fields.map((field) => {
       const key = normalizeFieldName(field);
@@ -653,6 +688,12 @@ async function validateFields(form, fieldNames) {
     '';
 
   const data = new FormData(form);
+  form.querySelectorAll('input[type="file"][name]').forEach((fileInput) => {
+    const isRequestedFileField = fields.some((field) => fieldMatches(fileInput.name, field));
+    if (!isRequestedFileField) {
+      data.delete(fileInput.name);
+    }
+  });
   if (csrfToken) {
     data.set('_token', csrfToken);
   }
@@ -684,8 +725,11 @@ async function validateFields(form, fieldNames) {
 
     if (response.ok && payload.success) {
       fields.forEach((field) => setFieldValid(form, field));
+      state.successfulValidations.set(requestKey, requestSignature);
       return true;
     }
+
+    state.successfulValidations.delete(requestKey);
 
     const errors = payload.errors || {};
     fields.forEach((field) => {
@@ -711,6 +755,7 @@ async function validateFields(form, fieldNames) {
       return false;
     }
 
+    state.successfulValidations.delete(requestKey);
     setFieldError(form, fields[0], 'تعذر التحقق من الحقل الآن. يرجى المحاولة مرة أخرى.');
     return false;
   } finally {
@@ -718,26 +763,6 @@ async function validateFields(form, fieldNames) {
       state.controllers.delete(requestKey);
     }
   }
-}
-
-function scheduleValidation(form, fields) {
-  const state = getFormState(form);
-  const key = fields.map(normalizeFieldName).sort().join('|');
-  window.clearTimeout(state.timers.get(key));
-  state.timers.set(
-    key,
-    window.setTimeout(() => {
-      validateFields(form, fields).then(() => {
-        const stepperElement = form.closest('[data-form-stepper]');
-        if (stepperElement) {
-          const steps = Array.from(stepperElement.querySelectorAll('[data-form-step], .content'));
-          const currentStep = steps.find((s) => s.classList.contains('active')) || steps[0];
-          updateStepNextButton(form, currentStep);
-        }
-      });
-      state.timers.delete(key);
-    }, 400)
-  );
 }
 
 function initStepper(form) {
@@ -766,7 +791,7 @@ function initStepper(form) {
     }
   };
 
-  const moveTo = async (targetIndex) => {
+  const moveTo = (targetIndex) => {
     if (state.isNavigating) {
       return;
     }
@@ -778,21 +803,7 @@ function initStepper(form) {
 
     state.isNavigating = true;
     const steps = getSteps();
-    const currentStep = steps[currentIndex];
-    const nextBtn = currentStep?.querySelector('[data-wizard-next], .btn-next');
-    if (nextBtn) {
-      nextBtn.disabled = true;
-    }
-
     try {
-      if (targetIndex > currentIndex) {
-        const valid = await validateFields(form, validationFieldsFromStep(currentStep));
-        if (!valid) {
-          updateCurrentStepButton();
-          return;
-        }
-      }
-
       state.stepper.to(targetIndex + 1);
       form.dispatchEvent(new CustomEvent('stepChanged', { detail: { stepIndex: targetIndex, step: steps[targetIndex] } }));
       setTimeout(updateCurrentStepButton, 100);
@@ -893,15 +904,43 @@ function initForm(form) {
   initSelect2Controls(form);
 
   const getStepForControl = (control) => control.closest('[data-form-step], .content');
+  const validationFieldsForControl = (control) => [control.name, ...parseDependencies(control)];
+  const activeControlValidations = new WeakMap();
+  const validateImmediately = (control, step, { force = false } = {}) => {
+    if (!control.name || control.matches('[data-validation-skip], [data-datatable-filter]')) {
+      return Promise.resolve(true);
+    }
 
-  form.querySelectorAll('[data-form-control][name], input[name], select[name], textarea[name]').forEach((control) => {
+    const fields = validationFieldsForControl(control);
+    const signature = validationSignature(form, fields);
+    const activeValidation = activeControlValidations.get(control);
+
+    if (activeValidation?.signature === signature && activeValidation.pending) {
+      return activeValidation.promise;
+    }
+
+    const validation = validateFields(form, fields, { force })
+      .then((isValid) => {
+        if (step) updateStepNextButton(form, step);
+        return isValid;
+      })
+      .finally(() => {
+        const currentValidation = activeControlValidations.get(control);
+        if (currentValidation?.promise === validation) {
+          currentValidation.pending = false;
+        }
+      });
+
+    activeControlValidations.set(control, { signature, pending: true, promise: validation });
+    return validation;
+  };
+
+  const formControls = Array.from(form.querySelectorAll('[data-form-control][name], input[name], select[name], textarea[name]'));
+
+  formControls.forEach((control) => {
     if (['submit', 'button', 'reset', 'hidden'].includes(control.type)) {
       return;
     }
-
-    const fields = () => [control.name, ...parseDependencies(control)];
-    const immediateEvents = ['select', 'file', 'checkbox', 'radio'];
-    const shouldValidateOnChange = immediateEvents.includes(control.type) || control.tagName === 'SELECT';
 
     control.addEventListener('input', () => {
       // 1. Instant client-side feedback
@@ -912,11 +951,7 @@ function initForm(form) {
       if (step) {
         updateStepNextButton(form, step);
       }
-
-      // 3. Debounced backend check if appropriate
-      if (!shouldValidateOnChange) {
-        scheduleValidation(form, fields());
-      }
+      validateImmediately(control, step);
     });
 
     control.addEventListener('change', () => {
@@ -925,9 +960,7 @@ function initForm(form) {
       if (step) {
         updateStepNextButton(form, step);
       }
-      validateFields(form, fields()).then(() => {
-        if (step) updateStepNextButton(form, step);
-      });
+      validateImmediately(control, step);
     });
 
     control.addEventListener('blur', () => {
@@ -936,25 +969,65 @@ function initForm(form) {
       if (step) {
         updateStepNextButton(form, step);
       }
-      validateFields(form, fields()).then(() => {
-        if (step) updateStepNextButton(form, step);
-      });
+      validateImmediately(control, step, { force: true });
     });
   });
 
-  // Select2 change integration
   if (window.jQuery) {
-    window.jQuery(form).on('change.select2', 'select', function () {
+    const validatedSelectSelector = 'select[data-form-control][name]:not([data-validation-skip])';
+
+    window.jQuery(form).on('change.sharedFormValidation', validatedSelectSelector, function () {
       validateControlClientSide(form, this);
       const step = getStepForControl(this);
-      if (step) {
-        updateStepNextButton(form, step);
-      }
-      validateFields(form, [this.name, ...parseDependencies(this)]).then(() => {
-        if (step) updateStepNextButton(form, step);
-      });
+      if (step) updateStepNextButton(form, step);
+      validateImmediately(this, step);
+    });
+
+    window.jQuery(form).on('select2:close.sharedFormValidation', validatedSelectSelector, function () {
+      validateControlClientSide(form, this);
+      const step = getStepForControl(this);
+      if (step) updateStepNextButton(form, step);
+      validateImmediately(this, step, { force: true });
     });
   }
+
+  const hasInitialValue = (control) => {
+    if (
+      control.disabled
+      || ['submit', 'button', 'reset', 'hidden'].includes(control.type)
+      || control.matches('[data-validation-skip], [data-datatable-filter]')
+    ) {
+      return false;
+    }
+
+    if (control.type === 'checkbox' || control.type === 'radio') {
+      return control.checked;
+    }
+
+    if (control.type === 'file') {
+      return (control.files?.length || 0) > 0;
+    }
+
+    if (control.tagName === 'SELECT' && control.multiple) {
+      return Array.from(control.selectedOptions).some((option) => option.value !== '');
+    }
+
+    return String(control.value ?? '').trim() !== '';
+  };
+
+  const initialFieldsByStep = new Map();
+  formControls.filter(hasInitialValue).forEach((control) => {
+    const step = getStepForControl(control);
+    const fields = initialFieldsByStep.get(step) || new Set();
+    fields.add(control.name);
+    initialFieldsByStep.set(step, fields);
+  });
+
+  initialFieldsByStep.forEach((fields, step) => {
+    validateFields(form, Array.from(fields)).then(() => {
+      if (step) updateStepNextButton(form, step);
+    });
+  });
 
   form.addEventListener('submit', async (event) => {
     const state = getFormState(form);

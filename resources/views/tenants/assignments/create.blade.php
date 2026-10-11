@@ -36,7 +36,11 @@
     <x-form.wizard.stepper id="wizard-validation" class="mt-2" :steps="$steps">
         @if ($errors->any())
             <div class="alert alert-danger" role="alert">
-                <ul class="mb-0">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
         @endif
 
@@ -49,9 +53,21 @@
             data-draft-resource-key="tenant.assignment-create">
             @csrf
 
-            <x-form.wizard.step id="assignment-basic-validation" :fields="['assignment_number', 'name', 'category', 'status', 'issuing_entity', 'city', 'district', 'start_date', 'end_date', 'notes']">
+            <x-form.wizard.step id="assignment-basic-validation" :fields="[
+                'assignment_number',
+                'name',
+                'category',
+                'status',
+                'issuing_entity',
+                'city',
+                'district',
+                'start_date',
+                'end_date',
+                'notes',
+            ]">
                 <div class="row g-4">
-                    <x-form.controls.input name="assignment_number" label="رقم الإسناد" :value="$generatedAssignmentNumber" required col="col-md-6" />
+                    <x-form.controls.input name="assignment_number" label="رقم الإسناد" :value="$generatedAssignmentNumber" required
+                        col="col-md-6" />
                     <x-form.controls.input name="name" label="اسم الإسناد" required col="col-md-6" />
                     <x-form.controls.select name="category" label="نوع الإسناد" required col="col-md-6" :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class" />
                     <x-form.controls.select name="status" label="حالة الإسناد" required col="col-md-6" :enum="\App\Enums\Tenants\Assignments\AssignmentStatus::class" />
@@ -71,43 +87,108 @@
             <x-form.wizard.step id="assignment-properties-validation" :fields="['property_ids']">
                 <div id="selected-property-inputs"></div>
                 <div data-form-field data-field-name="property_ids">
-                    <x-data-table.filters table="#assignment-properties-table">
-                        <x-filter.select id="assignment-property-type" filterKey="type" label="نوع العقار" placeholder="جميع الأنواع" :enum="\App\Enums\Tenants\Properties\PropertyType::class" />
-                        <x-filter.select id="assignment-property-data-status" filterKey="data_status" label="حالة البيانات" placeholder="جميع الحالات" :enum="\App\Enums\Tenants\Properties\PropertyDataStatus::class" />
-                        <x-filter.select id="assignment-property-city" filterKey="city" label="المدينة" placeholder="جميع المدن" :options="$cityOptions" />
-                    </x-data-table.filters>
-                    <div class="card"><div class="card-body">{!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'assignment-properties-table'], false) !!}</div></div>
-                    <div id="property_ids-error" class="invalid-feedback d-block" data-form-error role="alert" hidden></div>
+                    <div class="card assignment-properties-table-card">
+                        <div class="card-body">
+                            <div class="row g-3 mb-4" data-datatable-filter-group="assignment-properties"
+                                data-datatable-target="#assignment-properties-table">
+                                <x-filter.select id="assignment-property-type" filterKey="type" label="نوع العقار"
+                                    placeholder="جميع الأنواع" :enum="\App\Enums\Tenants\Properties\PropertyType::class" col="col-md-4" />
+                                <x-filter.select id="assignment-property-data-status" filterKey="data_status"
+                                    label="حالة البيانات" placeholder="جميع الحالات" :enum="\App\Enums\Tenants\Properties\PropertyDataStatus::class" col="col-md-4" />
+                                <x-filter.select id="assignment-property-city" filterKey="city" label="المدينة"
+                                    placeholder="جميع المدن" :options="$cityOptions" col="col-md-4" />
+                            </div>
+                            {!! $dataTable->table(
+                                ['class' => 'table table-striped table-bordered w-100', 'id' => 'assignment-properties-table'],
+                                false,
+                            ) !!}
+                        </div>
+                    </div>
+                    <div id="property_ids-error" class="invalid-feedback d-block" data-form-error role="alert" hidden>
+                    </div>
                 </div>
                 <section class="assignment-selection mt-4" aria-live="polite">
-                    <div class="d-flex align-items-center justify-content-between mb-3"><h5 class="mb-0">العقارات المحددة</h5><span class="badge bg-label-primary"><span id="selected-properties-count">0</span> عقار</span></div>
-                    <div id="selected-properties-cards" class="assignment-selection__items"><p class="text-muted mb-0" data-empty>لم يتم اختيار عقارات بعد.</p></div>
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <h5 class="mb-0">العقارات المحددة</h5><span class="badge bg-label-primary"><span
+                                id="selected-properties-count">0</span> عقار</span>
+                    </div>
+                    <div id="selected-properties-cards" class="assignment-selection__items">
+                        <p class="text-muted mb-0" data-empty>لم يتم اختيار عقارات بعد.</p>
+                    </div>
                 </section>
-                <x-form.wizard.actions><x-form.wizard.previous-button /><div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button /></div></x-form.wizard.actions>
+                <x-form.wizard.actions><x-form.wizard.previous-button />
+                    <div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button /></div>
+                </x-form.wizard.actions>
             </x-form.wizard.step>
 
             <x-form.wizard.step id="assignment-files-validation" :fields="['assignment_image', 'assignment_letter', 'general_documents', 'additional_attachments']">
                 <div class="row g-4">
-                    <x-form.controls.image-upload name="assignment_image" label="صورة الإسناد" required accept="image/jpeg,image/png,image/webp,image/svg+xml" hint="JPG أو PNG أو WebP أو SVG، بحد أقصى 2MB" col="col-md-6" />
-                    <x-form.controls.file name="assignment_letter" label="خطاب الإسناد" required accept="application/pdf" help="PDF فقط، بحد أقصى 10MB" col="col-md-6" />
-                    <x-form.controls.file name="general_documents" id="general_documents" label="مستندات عامة" required multiple help="يمكن اختيار الملفات على أكثر من مرة" col="col-md-6" />
-                    <x-form.controls.file name="additional_attachments" id="additional_attachments" label="مرفقات إضافية" required multiple help="يمكن اختيار الملفات على أكثر من مرة" col="col-md-6" />
-                    <div class="col-12"><div id="general-documents-cards" class="assignment-file-list" aria-live="polite"></div></div>
-                    <div class="col-12"><div id="additional-attachments-cards" class="assignment-file-list" aria-live="polite"></div></div>
+                    <x-form.controls.image-upload name="assignment_image" label="صورة الإسناد" required
+                        accept="image/jpeg,image/png,image/webp,image/svg+xml"
+                        hint="JPG أو PNG أو WebP أو SVG، بحد أقصى 2MB" col="col-md-4" />
+                    <x-form.controls.file name="assignment_letter" label="خطاب الإسناد" required accept="application/pdf"
+                        help="PDF فقط، بحد أقصى 10MB" col="col-md-4" />
+                    <x-form.controls.file name="general_documents" id="general_documents" label="مستندات عامة" required
+                        multiple help="يمكن اختيار الملفات على أكثر من مرة" col="col-md-4" />
+                    <x-form.controls.file name="additional_attachments" id="additional_attachments" label="مرفقات إضافية"
+                        required multiple help="يمكن اختيار الملفات على أكثر من مرة" col="col-md-4" />
+                    <div class="col-12">
+                        <div id="general-documents-cards" class="assignment-file-list row" aria-live="polite"></div>
+                    </div>
+                    <div class="col-12">
+                        <div id="additional-attachments-cards" class="assignment-file-list" aria-live="polite"></div>
+                    </div>
                 </div>
-                <x-form.wizard.actions><x-form.wizard.previous-button /><div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button text="المراجعة" /></div></x-form.wizard.actions>
+                <x-form.wizard.actions><x-form.wizard.previous-button />
+                    <div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button text="المراجعة" />
+                    </div>
+                </x-form.wizard.actions>
             </x-form.wizard.step>
 
             <x-form.wizard.step id="assignment-review-validation" :fields="[]">
                 <div class="row g-4 assignment-review">
                     <div class="col-lg-9 d-flex flex-column gap-4">
-                        <article class="card assignment-review__card"><div class="card-header d-flex justify-content-between"><h5 class="mb-0">البيانات الأساسية</h5><button type="button" class="btn btn-sm btn-outline-primary" data-edit-step="1">تعديل</button></div><div class="card-body" id="review-basic"></div></article>
-                        <article class="card assignment-review__card"><div class="card-header d-flex justify-content-between"><h5 class="mb-0">العقارات المرتبطة</h5><button type="button" class="btn btn-sm btn-outline-primary" data-edit-step="2">تعديل</button></div><div class="card-body"><div id="review-properties" class="assignment-selection__items"></div></div></article>
-                        <article class="card assignment-review__card"><div class="card-header d-flex justify-content-between"><h5 class="mb-0">الملفات والمستندات</h5><button type="button" class="btn btn-sm btn-outline-primary" data-edit-step="3">تعديل</button></div><div class="card-body"><div id="review-files" class="assignment-file-list"></div></div></article>
+                        <article class="card assignment-review__card">
+                            <div class="card-header d-flex justify-content-between">
+                                <h5 class="mb-0">البيانات الأساسية</h5><button type="button"
+                                    class="btn btn-sm btn-outline-primary" data-edit-step="1">تعديل</button>
+                            </div>
+                            <div class="card-body" id="review-basic"></div>
+                        </article>
+                        <article class="card assignment-review__card">
+                            <div class="card-header d-flex justify-content-between">
+                                <h5 class="mb-0">العقارات المرتبطة</h5><button type="button"
+                                    class="btn btn-sm btn-outline-primary" data-edit-step="2">تعديل</button>
+                            </div>
+                            <div class="card-body">
+                                <div id="review-properties" class="assignment-selection__items"></div>
+                            </div>
+                        </article>
+                        <article class="card assignment-review__card">
+                            <div class="card-header d-flex justify-content-between">
+                                <h5 class="mb-0">الملفات والمستندات</h5><button type="button"
+                                    class="btn btn-sm btn-outline-primary" data-edit-step="3">تعديل</button>
+                            </div>
+                            <div class="card-body">
+                                <div id="review-files" class="assignment-file-list"></div>
+                            </div>
+                        </article>
                     </div>
-                    <div class="col-lg-3"><article class="card assignment-preview h-100"><img id="review-image" src="{{ asset('static/brand/logos/logo.svg') }}" alt="معاينة صورة الإسناد" class="assignment-preview__image"><div class="card-body"><h5 id="review-name">اسم الإسناد</h5><p id="review-description" class="text-muted mb-0">وصف الإسناد</p></div></article></div>
+                    <div class="col-lg-3">
+                        <article class="card assignment-preview h-100"><img id="review-image"
+                                src="{{ asset('static/brand/logos/logo.svg') }}" alt="معاينة صورة الإسناد"
+                                class="assignment-preview__image">
+                            <div class="card-body">
+                                <h5 id="review-name">اسم الإسناد</h5>
+                                <p id="review-description" class="text-muted mb-0">وصف الإسناد</p>
+                            </div>
+                        </article>
+                    </div>
                 </div>
-                <x-form.wizard.actions><x-form.wizard.previous-button /><div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.save-button text="حفظ الإسناد" /></div></x-form.wizard.actions>
+                <x-form.wizard.actions><x-form.wizard.previous-button />
+                    <div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.save-button
+                            text="حفظ الإسناد" /></div>
+                </x-form.wizard.actions>
             </x-form.wizard.step>
         </form>
     </x-form.wizard.stepper>

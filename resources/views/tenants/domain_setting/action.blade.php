@@ -1,4 +1,4 @@
-<div class="d-flex gap-2 justify-content-center">
+<div class="d-flex justify-content-center gap-2">
     {{-- زر التفعيل --}}
 
     @if ($row->type == 'transfered' && $row->trasnfer_status !== 'Completed')

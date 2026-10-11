@@ -1,4 +1,4 @@
-<div class="d-flex justify-content-center">
+<div class="d-flex justify-content-center gap-2">
 
     {{-- <a href="{{ tenant_route_name($route . '.edit', $row->id) }}" class="btn btn-sm text-secondary">
         <i class="ti ti-edit"></i>

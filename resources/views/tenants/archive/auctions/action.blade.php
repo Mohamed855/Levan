@@ -1,12 +1,12 @@
-<div class="d-flex justify-content-center gap-1">
+<div class="d-flex justify-content-center gap-2">
     <form action="{{ tenant_route_name('archive.auctions.restore', $row->id) }}" method="POST" class="d-inline">
         @csrf
         @method('PATCH')
-        <button type="submit" class="btn btn-sm btn-icon btn-label-success" title="استعادة المزاد">
+        <button type="submit" class="btn btn-icon btn-label-primary" title="استعادة المزاد">
             <i class="ti ti-rotate"></i>
         </button>
     </form>
-    <button type="button" class="btn btn-sm btn-icon btn-label-danger js-force-delete"
+    <button type="button" class="btn btn-icon btn-label-primary js-force-delete"
         data-url="{{ tenant_route_name('archive.auctions.force-delete', $row->id) }}"
         title="حذف نهائي">
         <i class="ti ti-trash"></i>

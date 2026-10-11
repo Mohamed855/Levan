@@ -79,7 +79,6 @@ class AssignmentsController extends Controller
     {
         $properties = Property::query()
             ->whereKey($request->validated('ids'))
-            ->whereNull('assignment_id')
             ->get(['id', 'property_number', 'name', 'main_image'])
             ->map(fn (Property $property): array => [
                 'id' => (string) $property->id,

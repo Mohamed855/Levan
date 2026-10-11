@@ -105,14 +105,16 @@
                                 <td>{{ $permission->name }}</td>
                                 <td>{{ $permission->created_at }}</td>
                                 <td>
-                                    <a href="#" class="btn btn-icon btn-label-primary me-1" data-bs-toggle="modal"
-                                        data-bs-target="#editPermissionModal-{{ $permission->id }}">
-                                        <i class="ti ti-edit"></i>
-                                    </a>
-                                    <button type="button" class="btn btn-icon btn-label-primary"
-                                        onclick="confirmDelete({{ $permission->id }})">
-                                        <i class="ti ti-trash"></i>
-                                    </button>
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <a href="#" class="btn btn-icon btn-label-primary" data-bs-toggle="modal"
+                                            data-bs-target="#editPermissionModal-{{ $permission->id }}">
+                                            <i class="ti ti-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-icon btn-label-primary"
+                                            onclick="confirmDelete({{ $permission->id }})">
+                                            <i class="ti ti-trash"></i>
+                                        </button>
+                                    </div>
                                     <form id="delete-form-{{ $permission->id }}"
                                         action="{{ tenant_route_name('permissions.destroy', $permission->id) }}"
                                         method="POST" style="display: none;">

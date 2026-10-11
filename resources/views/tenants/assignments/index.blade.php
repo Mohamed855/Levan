@@ -108,16 +108,16 @@
 
         <x-slot:filters>
             <x-data-table.filters table="#assignments-table">
-                <x-filter.select id="filter-status" filterKey="status" label="حالة الإسناد"
-                    placeholder="جميع الحالات" :enum="\App\Enums\Tenants\Assignments\AssignmentStatus::class" />
-                <x-filter.select id="filter-category" filterKey="category" label="نوع الإسناد"
-                    placeholder="جميع التصنيفات" :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class" />
+                <x-filter.select id="filter-status" filterKey="status" label="حالة الإسناد" placeholder="جميع الحالات"
+                    :enum="\App\Enums\Tenants\Assignments\AssignmentStatus::class" />
+                <x-filter.select id="filter-category" filterKey="category" label="نوع الإسناد" placeholder="جميع التصنيفات"
+                    :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class" />
                 <x-filter.select id="filter-city" filterKey="city" label="المدينة" placeholder="جميع المدن"
                     :options="$cityOptions" />
-                <x-form.controls.input name="start_date_from" id="filter-start-date" type="date" label="تاريخ البداية" />
-                <x-form.controls.input name="end_date_to" id="filter-end-date" type="date" label="تاريخ النهاية" />
                 <x-form.controls.input name="filter_issuing_entity" id="filter-entity" label="الجهة المسندة"
                     placeholder="بحث باسم الجهة..." />
+                <x-form.controls.input name="start_date_from" id="filter-start-date" type="date" label="تاريخ البداية" />
+                <x-form.controls.input name="end_date_to" id="filter-end-date" type="date" label="تاريخ النهاية" />
             </x-data-table.filters>
         </x-slot:filters>
 

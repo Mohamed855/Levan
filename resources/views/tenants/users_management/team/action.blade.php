@@ -1,4 +1,4 @@
-<div class="d-flex align-items-center gap-2">
+<div class="d-flex justify-content-center align-items-center gap-2">
     <a href="{{ tenant_route_name($route . '.edit', $id) }}" 
        class="btn btn-icon btn-label-primary waves-effect waves-light" 
        data-bs-toggle="tooltip" 

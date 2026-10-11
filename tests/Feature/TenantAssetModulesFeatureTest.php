@@ -118,7 +118,7 @@ class TenantAssetModulesFeatureTest extends TestCase
         $assignment->attachments->each(fn ($attachment) => Storage::disk('tenant_public')->assertExists($attachment->file_path));
     }
 
-    public function test_assignment_creation_rejects_a_property_already_linked_to_an_assignment(): void
+    public function test_assignment_creation_accepts_a_property_already_linked_to_an_assignment(): void
     {
         [$existingAssignment] = $this->assignments();
         $property = Property::create([
@@ -135,11 +135,14 @@ class TenantAssetModulesFeatureTest extends TestCase
         ]);
 
         $this->actingAs($this->owner, 'tenant')
-            ->postJson($this->tenantUrl('assignments'), [
+            ->postJson($this->tenantUrl('wizard-drafts/validate-step'), [
+                'target_path' => '/assignments',
+                'target_method' => 'POST',
+                'fields' => ['property_ids'],
                 'property_ids' => [$property->id],
             ])
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors('property_ids.0');
+            ->assertOk()
+            ->assertJson(['success' => true]);
     }
 
     public function test_property_activity_toggle_does_not_mark_the_property_as_sold(): void

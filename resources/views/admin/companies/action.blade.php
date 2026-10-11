@@ -3,7 +3,7 @@
     $dashboardUrl = url('/' . $row->id . '/dashboard');
 @endphp
 
-<div class="d-flex justify-content-center gap-1">
+<div class="d-flex justify-content-center gap-2">
     @can('companies.show')
         <a href="{{ route($route . '.show', $row->id) }}" class="btn btn-icon btn-label-primary" title="عرض التفاصيل">
             <i class="ti ti-eye"></i>
