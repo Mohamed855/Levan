@@ -46,13 +46,13 @@ class TestTenantSeeder extends Seeder
         $tenant = Tenant::updateOrCreate(
             ['id' => 'test'],
             [
-                'db_database' => env('TEST_TENANT_DATABASE', 'etmam_levan_test'),
-                'db_username' => env('DB_USERNAME', 'admin'),
-                'db_password' => env('DB_PASSWORD', 'admin'),
-                'db_host' => env('DB_HOST', '127.0.0.1'),
+                'db_database' => env('TEST_TENANT_DATABASE', 'levan_test'),
+                'db_username' => env('DB_USERNAME', 'root'),
+                'db_password' => env('DB_PASSWORD', ''),
+                'db_host' => env('DB_HOST', 'localhost'),
                 'db_port' => env('DB_PORT', '3306'),
                 'folderName' => 'test',
-                'company_name' => 'مستخدم النسخة الثانية',
+                'company_name' => 'تجربة',
                 'commercial_number' => '2222222222',
                 'version_id' => $version?->id ?? 1,
                 'tax_number' => '300000000000003',

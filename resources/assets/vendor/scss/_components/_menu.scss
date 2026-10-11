@@ -128,7 +128,7 @@
   // link hover animation
   .menu:not(.menu-no-animation) & {
     transition-duration: $menu-animation-duration;
-    transition-property: color, background-color;
+    transition-property: color, background-color, padding;
   }
 
   > :not(.menu-icon) {
@@ -174,7 +174,7 @@
 
   .menu:not(.menu-no-animation) & {
     transition-duration: $menu-animation-duration;
-    transition-property: -webkit-transform, transform;
+    transition-property: opacity, visibility, -webkit-transform, transform;
   }
 }
 
@@ -384,7 +384,8 @@
     display: none;
   }
   .menu-inner > .menu-item > .menu-toggle::after {
-    display: none;
+    visibility: hidden;
+    opacity: 0;
   }
 
   &:not(.layout-menu-hover) {

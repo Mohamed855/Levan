@@ -499,13 +499,21 @@
 
 .layout-menu-toggle {
   display: block;
+
+  &:not(.menu-no-animation) {
+    transition: color $menu-animation-duration ease-in-out;
+  }
+
   // Updated menu toggle icon for menu expanded and collapsed
   .menu-toggle-icon::before {
     content: '\efb1';
+    display: inline-block;
+    transition: transform $menu-animation-duration ease-in-out;
   }
   .menu-toggle-icon::before {
     .layout-menu-collapsed & {
       content: '\ea6b';
+      transform: rotate(180deg);
     }
   }
 }

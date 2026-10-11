@@ -19,6 +19,9 @@
 <x-form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help" :col="$col">
     @if ($icon)
         <div class="input-group input-group-merge">
+            <span class="input-group-text">
+                <i class="{{ $icon }}" aria-hidden="true"></i>
+            </span>
             <input
                 id="{{ $fieldId }}"
                 name="{{ $name }}"
@@ -31,9 +34,6 @@
                 aria-invalid="{{ $errors->has($name) ? 'true' : 'false' }}"
                 {{ $attributes->class(['form-control', 'is-invalid' => $errors->has($name)]) }}
             >
-            <span class="input-group-text">
-                <i class="{{ $icon }}" aria-hidden="true"></i>
-            </span>
         </div>
     @else
         <input
