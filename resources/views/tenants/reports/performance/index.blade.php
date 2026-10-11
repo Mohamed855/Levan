@@ -346,7 +346,7 @@
         </div>
 
         <x-data-table.filters id="filtersSection" class="collapse" card-class="border-bottom shadow-none mb-0" table="#company-performance-table" reset-id="reset-filters">
-            <div class="col-md-3">
+            <div>
                 <label for="filter-year" class="form-label">السنة</label>
                 <select id="filter-year" class="form-control select2" data-datatable-filter="true" data-filter-key="year" data-placeholder="اختر السنة">
                     <option value=""></option>
@@ -357,7 +357,7 @@
                 </select>
             </div>
 
-            <div class="col-md-3">
+            <div>
                 <label for="filter-month" class="form-label">الشهر</label>
                 <select id="filter-month" class="form-control select2" data-datatable-filter="true" data-filter-key="month" data-placeholder="اختر الشهر">
                     <option value=""></option>
@@ -384,7 +384,7 @@
                 </select>
             </div>
 
-            <div class="col-md-3">
+            <div>
                 <label for="filter-company" class="form-label">الشركة</label>
                 <select id="filter-company" class="form-control select2" data-datatable-filter="true" data-filter-key="company_id" data-placeholder="جميع الشركات">
                     <option value=""></option>
@@ -394,7 +394,7 @@
                 </select>
             </div>
 
-            <div class="col-md-3">
+            <div>
                 <label for="filter-portfolio" class="form-label">المحفظة</label>
                 <select id="filter-portfolio" class="form-control select2" data-datatable-filter="true" data-filter-key="portfolio_id" data-placeholder="اختر المحفظة">
                     <option value=""></option>
@@ -406,7 +406,7 @@
                 </select>
             </div>
 
-            <div class="col-md-3">
+            <div>
                 <label for="filter-team" class="form-label">الفريق</label>
                 <select id="filter-team" class="form-control select2" data-datatable-filter="true" data-filter-key="team_id" data-placeholder="جميع الفرق">
                     <option value=""></option>
@@ -418,7 +418,7 @@
                 </select>
             </div>
 
-            <div class="col-md-3">
+            <div>
                 <label for="filter-user" class="form-label">الموظف</label>
                 <select id="filter-user" class="form-control select2" data-datatable-filter="true" data-filter-key="user_id" data-placeholder="جميع الموظفين">
                     <option value=""></option>

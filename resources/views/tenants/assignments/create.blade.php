@@ -113,7 +113,10 @@
 
                             <x-form.wizard.actions>
                                 <x-form.wizard.previous-button />
-                                <x-form.wizard.next-button />
+                                <div class="d-flex gap-2">
+                                    <x-form.wizard.draft-button />
+                                    <x-form.wizard.next-button />
+                                </div>
                             </x-form.wizard.actions>
                         </div>
                     </x-form.wizard.step>
@@ -129,7 +132,10 @@
 
                             <x-form.wizard.actions>
                                 <x-form.wizard.previous-button />
-                                <x-form.wizard.save-button text="حفظ الإسناد" />
+                                <div class="d-flex gap-2">
+                                    <x-form.wizard.draft-button />
+                                    <x-form.wizard.save-button text="حفظ الإسناد" />
+                                </div>
                             </x-form.wizard.actions>
                         </div>
                     </x-form.wizard.step>

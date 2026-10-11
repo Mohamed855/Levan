@@ -45,11 +45,11 @@
 
     {{-- Filters Card --}}
     <x-data-table.filters table="#bill-archive-table">
-        <x-filter.select col="col-md-4" id="filter-type" filterKey="type" label="نوع الفاتورة"
+        <x-filter.select id="filter-type" filterKey="type" label="نوع الفاتورة"
             placeholder="اختر نوع الفاتورة" :options="$filterOptions['types'] ?? []" />
-        <x-filter.select col="col-md-4" id="filter-status" filterKey="status" label="حالة الدفع"
+        <x-filter.select id="filter-status" filterKey="status" label="حالة الدفع"
             placeholder="اختر حالة الدفع" :options="$filterOptions['statuses'] ?? []" />
-        <x-filter.select col="col-md-4" id="filter-payment-method" filterKey="payment_method" label="طريقة الدفع"
+        <x-filter.select id="filter-payment-method" filterKey="payment_method" label="طريقة الدفع"
             placeholder="اختر طريقة الدفع" :options="$filterOptions['paymentMethods'] ?? []" />
     </x-data-table.filters>
 

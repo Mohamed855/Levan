@@ -54,11 +54,11 @@
     @endif
 
     <x-data-table.filters table="#bill-table">
-        <x-filter.select col="col-md-4" id="filter-status" filterKey="type" label="نوع العملية"
+        <x-filter.select id="filter-status" filterKey="type" label="نوع العملية"
             placeholder="اختر نوع العملية" :options="$filterOptions['operationTypes'] ?? []" />
-        <x-filter.select col="col-md-4" id="filter-paid" filterKey="status" label="حالة العملية"
+        <x-filter.select id="filter-paid" filterKey="status" label="حالة العملية"
             placeholder="اختر حالة العملية" :options="$filterOptions['statuses'] ?? []" />
-        <x-filter.select col="col-md-4" id="filter-type" filterKey="payment_method" label="نوع الدفع"
+        <x-filter.select id="filter-type" filterKey="payment_method" label="نوع الدفع"
             placeholder="اختر نوع الدفع" :options="$filterOptions['paymentTypes'] ?? []" />
     </x-data-table.filters>
 

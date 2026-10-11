@@ -132,7 +132,7 @@
     </div>
 
     <x-data-table.filters table="#distributions-table">
-        <div class="col-md-4">
+        <div>
             <x-filter.select
                 id="filter-distribution-method"
                 filterKey="distribution_method"
@@ -148,12 +148,12 @@
             />
         </div>
 
-        <div class="col-md-4">
+        <div>
             <label for="filter-date-from" class="form-label">من تاريخ</label>
             <input type="date" id="filter-date-from" class="form-control" data-filter-key="date_from" data-datatable-filter="true" data-datatable-target="#distributions-table">
         </div>
 
-        <div class="col-md-4">
+        <div>
             <label for="filter-date-to" class="form-label">إلى تاريخ</label>
             <input type="date" id="filter-date-to" class="form-control" data-filter-key="date_to" data-datatable-filter="true" data-datatable-target="#distributions-table">
         </div>

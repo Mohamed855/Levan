@@ -105,7 +105,7 @@
 
         <x-slot:filters>
             <x-data-table.filters table="#auctions-table">
-                <x-filter.select col="col-md-4" id="filter-status" filterKey="status" label="الحالة" placeholder="جميع الحالات"
+                <x-filter.select id="filter-status" filterKey="status" label="الحالة" placeholder="جميع الحالات"
                     :options="[
                         'active'           => 'نشط',
                         'in_preparation'   => 'قيد الإعداد',
@@ -113,13 +113,13 @@
                         'completed'        => 'منتهي',
                         'suspended'        => 'معلق'
                     ]" />
-                <x-filter.select col="col-md-4" id="filter-type" filterKey="type" label="نوع المزاد" placeholder="جميع الأنواع"
+                <x-filter.select id="filter-type" filterKey="type" label="نوع المزاد" placeholder="جميع الأنواع"
                     :options="[
                         'electronic' => 'إلكتروني',
                         'in_person'  => 'حضوري',
                         'hybrid'     => 'هجين'
                     ]" />
-                <x-form.controls.input col="col-md-4" name="filter_platform_name" id="filter-platform" label="المنصة / القاعة" placeholder="بحث بالمنصة أو القاعة..." />
+                <x-form.controls.input name="filter_platform_name" id="filter-platform" label="المنصة / القاعة" placeholder="بحث بالمنصة أو القاعة..." />
             </x-data-table.filters>
         </x-slot:filters>
 

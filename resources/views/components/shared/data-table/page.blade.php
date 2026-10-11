@@ -1,7 +1,7 @@
 @props([
     'tableId' => null,
     'tableClass' => 'table table-striped table-bordered w-100',
-    'responsive' => false,
+    'responsive' => true,
     'cardId' => null,
 ])
 

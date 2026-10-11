@@ -8,7 +8,7 @@
     'filterKey' => null,
     'table' => null,
     'target' => null,
-    'col' => 'col-md-6',
+    'col' => 'col-md-6 col-lg-3',
     'wrapperClass' => '',
     'selectClass' => '',
     'multiple' => false,

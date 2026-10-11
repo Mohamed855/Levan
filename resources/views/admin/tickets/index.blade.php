@@ -60,11 +60,11 @@
     @endif
 
     <x-data-table.filters table="#admin-tickets-table">
-        <x-filter.select col="col-md-4" id="filter-status" filterKey="status" label="حالة التذكرة"
+        <x-filter.select id="filter-status" filterKey="status" label="حالة التذكرة"
             placeholder="اختر حالة التذكرة" :options="$filterOptions['statuses'] ?? []" />
-        <x-filter.select col="col-md-4" id="filter-section" filterKey="section" label="القسم"
+        <x-filter.select id="filter-section" filterKey="section" label="القسم"
             placeholder="اختر القسم" :options="$filterOptions['sections'] ?? []" />
-        <x-filter.select col="col-md-4" id="filter-tenant" filterKey="tenant_id" label="الشركة / المستأجر"
+        <x-filter.select id="filter-tenant" filterKey="tenant_id" label="الشركة / المستأجر"
             placeholder="اختر الشركة" :options="$filterOptions['tenants'] ?? []" />
     </x-data-table.filters>
 

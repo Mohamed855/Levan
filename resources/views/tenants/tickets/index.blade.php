@@ -36,7 +36,7 @@
 
     {{-- Filters Card --}}
     <x-data-table.filters table="#tickets-table" reset-id="btn-reset-filters">
-        <div class="col-md-6">
+        <div>
             <label class="form-label" for="filter-status">حالة التذكرة</label>
             <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر حالة التذكرة">
                 <option value=""></option>

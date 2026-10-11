@@ -138,7 +138,7 @@
 
     {{-- Filters Card --}}
     <x-data-table.filters table="#collections-table">
-        <div class="col-md-3">
+        <div>
             <x-filter.select
                 id="filter-status"
                 filterKey="status"
@@ -154,7 +154,7 @@
             />
         </div>
 
-        <div class="col-md-2">
+        <div>
             <x-filter.select
                 id="filter-collection-type"
                 filterKey="collection_type"
@@ -169,7 +169,7 @@
             />
         </div>
 
-        <div class="col-md-2">
+        <div>
             <x-filter.select
                 id="filter-payment-type"
                 filterKey="payment_type"
@@ -184,7 +184,7 @@
             />
         </div>
 
-        <div class="col-md-2">
+        <div>
             <label for="filter-customer" class="form-label">العميل</label>
             <select id="filter-customer" class="form-control select2-ajax-filter"
                 data-placeholder="اختر رقم حساب العميل"
@@ -202,7 +202,7 @@
             </select>
         </div>
 
-        <div class="col-md-3">
+        <div>
             <x-filter.select
                 id="filter-payment-method"
                 filterKey="payment_method_id"
@@ -214,12 +214,12 @@
             />
         </div>
 
-        <div class="col-md-6">
+        <div>
             <label for="filter-date-from" class="form-label">من تاريخ</label>
             <input type="date" id="filter-date-from" class="form-control" placeholder="اختر التاريخ" data-filter-key="date_from" data-datatable-filter="true" data-datatable-target="#collections-table">
         </div>
 
-        <div class="col-md-6">
+        <div>
             <label for="filter-date-to" class="form-label">إلى تاريخ</label>
             <input type="date" id="filter-date-to" class="form-control" placeholder="اختر التاريخ" data-filter-key="date_to" data-datatable-filter="true" data-datatable-target="#collections-table">
         </div>

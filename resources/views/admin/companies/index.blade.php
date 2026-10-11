@@ -39,15 +39,15 @@
 
         <x-slot:filters>
             <x-data-table.filters table="#companies-table">
-                <x-filter.select col="col-md-3" id="filter-status" filterKey="status" label="حالة الشركة"
+                <x-filter.select id="filter-status" filterKey="status" label="حالة الشركة"
                     placeholder="اختر حالة الشركة" :options="$filterOptions['statuses'] ?? []" />
-                <x-filter.select col="col-md-3" id="filter-sub-status" filterKey="subscription_status" label="حالة آخر اشتراك"
+                <x-filter.select id="filter-sub-status" filterKey="subscription_status" label="حالة آخر اشتراك"
                     placeholder="اختر حالة الاشتراك" :options="$filterOptions['subscriptionStatuses'] ?? []" />
-                <x-filter.select col="col-md-2" id="filter-plan" filterKey="plan_id" label="الباقة"
+                <x-filter.select id="filter-plan" filterKey="plan_id" label="الباقة"
                     placeholder="اختر الباقة" :options="$filterOptions['plans'] ?? []" />
-                <x-filter.select col="col-md-2" id="filter-city" filterKey="city_id" label="المدينة"
+                <x-filter.select id="filter-city" filterKey="city_id" label="المدينة"
                     placeholder="اختر المدينة" :options="$filterOptions['cities'] ?? []" />
-                <x-filter.select col="col-md-2" id="filter-expiring" filterKey="expiring_in" label="انتهاء الاشتراك"
+                <x-filter.select id="filter-expiring" filterKey="expiring_in" label="انتهاء الاشتراك"
                     placeholder="انتهاء الاشتراك" :options="$filterOptions['expiring'] ?? []" />
             </x-data-table.filters>
         </x-slot:filters>

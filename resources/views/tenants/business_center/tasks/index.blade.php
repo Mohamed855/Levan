@@ -130,7 +130,7 @@
 
     {{-- Filters Card --}}
     <x-data-table.filters table="#tasks-table">
-        <div class="col-md-2">
+        <div>
             <x-filter.select
                 id="filter-company"
                 filterKey="company_id"
@@ -142,7 +142,7 @@
             />
         </div>
 
-        <div class="col-md-2">
+        <div>
             <x-filter.select
                 id="filter-portfolio"
                 filterKey="portfolio_id"
@@ -154,7 +154,7 @@
             />
         </div>
 
-        <div class="col-md-2">
+        <div>
             <x-filter.select
                 id="filter-manager"
                 filterKey="relationship_manager_id"
@@ -166,7 +166,7 @@
             />
         </div>
 
-        <div class="col-md-2">
+        <div>
             <x-filter.select
                 id="filter-task-type"
                 filterKey="task_type"
@@ -182,7 +182,7 @@
             />
         </div>
 
-        <div class="col-md-2">
+        <div>
             <x-filter.select
                 id="filter-status"
                 filterKey="status"
@@ -198,7 +198,7 @@
             />
         </div>
 
-        <div class="col-md-2">
+        <div>
             <x-filter.select
                 id="filter-overdue-days"
                 filterKey="overdue_days"
@@ -216,13 +216,13 @@
             />
         </div>
 
-        <div id="custom-date-range" class="col-md-6 d-none">
+        <div id="custom-date-range" class="d-none">
             <label class="form-label">نطاق تاريخي مخصص</label>
             <div class="row g-2">
-                <div class="col-md-6">
+                <div class="col-6">
                     <input type="date" id="filter-date-from" class="form-control" placeholder="من تاريخ" data-filter-key="date_from" data-datatable-filter="true" data-datatable-target="#tasks-table">
                 </div>
-                <div class="col-md-6">
+                <div class="col-6">
                     <input type="date" id="filter-date-to" class="form-control" placeholder="إلى تاريخ" data-filter-key="date_to" data-datatable-filter="true" data-datatable-target="#tasks-table">
                 </div>
             </div>

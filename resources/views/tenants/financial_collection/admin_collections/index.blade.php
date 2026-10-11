@@ -144,7 +144,7 @@
     </div>
 
     <x-data-table.filters table="#admin-collections-table" reset-id="btn-reset-filters">
-        <div class="col-md-2">
+        <div>
             <label for="filter-status" class="form-label">الحالة</label>
             <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر الحالة">
                 <option value=""></option>
@@ -154,7 +154,7 @@
             </select>
         </div>
 
-        <div class="col-md-2">
+        <div>
             <label for="filter-added-by" class="form-label">المستخدم</label>
             <select id="filter-added-by" class="form-control select2" data-datatable-filter="true" data-filter-key="added_by" data-placeholder="اختر المستخدم">
                 <option value=""></option>
@@ -164,7 +164,7 @@
             </select>
         </div>
 
-        <div class="col-md-2">
+        <div>
             <label for="filter-collection-type" class="form-label">نوع التحصيل</label>
             <select id="filter-collection-type" class="form-control select2" data-datatable-filter="true" data-filter-key="collection_type" data-placeholder="اختر النوع">
                 <option value=""></option>
@@ -173,7 +173,7 @@
             </select>
         </div>
 
-        <div class="col-md-2">
+        <div>
             <label for="filter-payment-type" class="form-label">نوع السداد</label>
             <select id="filter-payment-type" class="form-control select2" data-datatable-filter="true" data-filter-key="payment_type" data-placeholder="اختر نوع السداد">
                 <option value=""></option>
@@ -182,7 +182,7 @@
             </select>
         </div>
 
-        <div class="col-md-2">
+        <div>
             <label for="filter-customer" class="form-label">العميل</label>
             <select id="filter-customer" class="form-control select2-ajax-filter" data-datatable-filter="true" data-filter-key="customer_id" data-placeholder="اختر العميل">
                 <option value=""></option>
@@ -192,7 +192,7 @@
             </select>
         </div>
 
-        <div class="col-md-2">
+        <div>
             <label for="filter-payment-method" class="form-label">طريقة التحصيل</label>
             <select id="filter-payment-method" class="form-control select2" data-datatable-filter="true" data-filter-key="payment_method_id" data-placeholder="اختر طريقة التحصيل">
                 <option value=""></option>
@@ -202,12 +202,12 @@
             </select>
         </div>
 
-        <div class="col-md-6">
+        <div>
             <label for="filter-date-from" class="form-label">من تاريخ</label>
             <input type="date" id="filter-date-from" class="form-control" data-datatable-filter="true" data-filter-key="date_from" placeholder="اختر التاريخ">
         </div>
 
-        <div class="col-md-6">
+        <div>
             <label for="filter-date-to" class="form-label">إلى تاريخ</label>
             <input type="date" id="filter-date-to" class="form-control" data-datatable-filter="true" data-filter-key="date_to" placeholder="اختر التاريخ">
         </div>

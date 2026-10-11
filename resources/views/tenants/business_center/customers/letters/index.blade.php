@@ -135,7 +135,7 @@
     </div>
 
     <x-data-table.filters table="#company-letters-table">
-        <div class="col-md-3">
+        <div>
             <x-filter.select
                 id="filter-status"
                 filterKey="status"
@@ -152,7 +152,7 @@
             />
         </div>
 
-        <div class="col-md-3">
+        <div>
             <x-filter.select
                 id="filter-company"
                 filterKey="company_id"
@@ -164,7 +164,7 @@
             />
         </div>
 
-        <div class="col-md-3">
+        <div>
             <label for="filter-portfolio" class="form-label">المحفظة</label>
             <select id="filter-portfolio" class="form-control select2" data-placeholder="اختر المحفظة" data-filter-key="portfolio_id" data-datatable-filter="true" data-datatable-target="#company-letters-table">
                 <option value=""></option>
@@ -176,7 +176,7 @@
             </select>
         </div>
 
-        <div class="col-md-3">
+        <div>
             <label for="filter-date-from" class="form-label">من تاريخ</label>
             <input type="date" id="filter-date-from" class="form-control" data-filter-key="date_from" data-datatable-filter="true" data-datatable-target="#company-letters-table">
         </div>

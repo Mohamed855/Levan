@@ -146,15 +146,15 @@
     </div>
 
     <x-data-table.filters table="#customer-reports-table" reset-id="reset-filters">
-        <div class="col-md-3">
+        <div>
             <label for="filter-date-from" class="form-label">من تاريخ</label>
             <input type="date" id="filter-date-from" class="form-control" data-datatable-filter="true" data-filter-key="date_from" placeholder="اختر التاريخ">
         </div>
-        <div class="col-md-3">
+        <div>
             <label for="filter-date-to" class="form-label">إلى تاريخ</label>
             <input type="date" id="filter-date-to" class="form-control" data-datatable-filter="true" data-filter-key="date_to" placeholder="اختر التاريخ">
         </div>
-        <div class="col-md-3">
+        <div>
             <label for="filter-customer-status" class="form-label">حالة العميل</label>
             <select id="filter-customer-status" class="form-control select2" data-datatable-filter="true" data-filter-key="customer_status_id" data-placeholder="جميع الحالات">
                 <option value=""></option>
@@ -163,7 +163,7 @@
                 @endforeach
             </select>
         </div>
-        <div class="col-md-3">
+        <div>
             <label for="filter-customer-type" class="form-label">نوع العميل</label>
             <select id="filter-customer-type" class="form-control select2" data-datatable-filter="true" data-filter-key="customer_type" data-placeholder="جميع الأنواع">
                 <option value=""></option>
@@ -172,7 +172,7 @@
             </select>
         </div>
 
-        <div class="col-md-4">
+        <div>
             <label for="filter-company" class="form-label">الشركة</label>
             <select id="filter-company" class="form-control select2" data-datatable-filter="true" data-filter-key="company_id" data-placeholder="جميع الشركات">
                 <option value=""></option>
@@ -181,7 +181,7 @@
                 @endforeach
             </select>
         </div>
-        <div class="col-md-4">
+        <div>
             <label for="filter-portfolio" class="form-label">المحفظة</label>
             <select id="filter-portfolio" class="form-control select2" data-datatable-filter="true" data-filter-key="portfolio_id" data-placeholder="جميع المحافظ">
                 <option value=""></option>
@@ -191,7 +191,7 @@
                 @endforeach
             </select>
         </div>
-        <div class="col-md-4">
+        <div>
             <label for="filter-nationality" class="form-label">الجنسية</label>
             <select id="filter-nationality" class="form-control select2" data-datatable-filter="true" data-filter-key="nationality" data-placeholder="جميع الجنسيات">
                 <option value=""></option>
@@ -201,7 +201,7 @@
             </select>
         </div>
 
-        <div class="col-md-6">
+        <div>
             <label for="filter-manager" class="form-label">مسؤول العلاقة</label>
             <select id="filter-manager" class="form-control select2-multiple" multiple data-datatable-filter="true" data-filter-key="relationship_manager_id"
                 data-placeholder="اختر المسؤولين">
@@ -210,7 +210,7 @@
                 @endforeach
             </select>
         </div>
-        <div class="col-md-6">
+        <div>
             <label for="filter-contact-result" class="form-label">نتيجة الاتصال</label>
             <select id="filter-contact-result" class="form-control select2-multiple" multiple data-datatable-filter="true" data-filter-key="contact_result_id"
                 data-placeholder="اختر نتائج الاتصال">
@@ -220,11 +220,11 @@
             </select>
         </div>
 
-        <div class="col-md-6">
+        <div>
             <label for="filter-debt-from" class="form-label">مديونية من</label>
             <input type="number" id="filter-debt-from" class="form-control" data-datatable-filter="true" data-filter-key="debt_from" placeholder="0" step="0.01">
         </div>
-        <div class="col-md-6">
+        <div>
             <label for="filter-debt-to" class="form-label">مديونية إلى</label>
             <input type="number" id="filter-debt-to" class="form-control" data-datatable-filter="true" data-filter-key="debt_to" placeholder="0" step="0.01">
         </div>

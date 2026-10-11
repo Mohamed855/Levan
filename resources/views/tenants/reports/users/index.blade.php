@@ -140,7 +140,7 @@
 
     {{-- جدول التقرير --}}
     <x-data-table.filters table="#users-report-table" reset-id="reset-filters">
-        <div class="col-md-4">
+        <div>
             <label for="status">حالة المستخدم</label>
             <select id="status" name="status" class="form-control select2" data-datatable-filter="true"
                 data-filter-key="status" data-placeholder="جميع الحالات">
@@ -150,13 +150,13 @@
             </select>
         </div>
 
-        <div class="col-md-4">
+        <div>
             <label for="date_from">من تاريخ</label>
             <input type="text" id="date_from" name="date_from" class="form-control flatpickr-date"
                 data-datatable-filter="true" data-filter-key="date_from" placeholder="اختر التاريخ">
         </div>
 
-        <div class="col-md-4">
+        <div>
             <label for="date_to">إلى تاريخ</label>
             <input type="text" id="date_to" name="date_to" class="form-control flatpickr-date"
                 data-datatable-filter="true" data-filter-key="date_to" placeholder="اختر التاريخ">

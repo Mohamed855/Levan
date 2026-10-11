@@ -20,7 +20,7 @@
     @if ($name) data-datatable-filter-group="{{ $name }}" @endif
 >
     <div class="card-body">
-        <div class="row g-4">
+        <div class="row g-4 datatable-filters-grid">
             {{ $slot }}
         </div>
 
@@ -35,4 +35,3 @@
         @endif
     </div>
 </div>
-

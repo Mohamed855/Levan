@@ -52,7 +52,7 @@
 
     {{-- Filters Card --}}
     <x-data-table.filters table="#teams-table" reset-id="btn-reset-filters">
-        <div class="col-md-12">
+        <div>
             <label class="form-label" for="filter-status">حالة المجموعة</label>
             <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر حالة المجموعة">
                 <option value=""></option>

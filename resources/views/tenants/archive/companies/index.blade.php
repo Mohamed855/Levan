@@ -36,7 +36,7 @@
 
 @section('content')
     <x-data-table.filters table="#archived-companies-table">
-        <div class="col-md-4">
+        <div>
             <x-filter.select
                 id="filter-status"
                 filterKey="status"
@@ -48,7 +48,7 @@
             />
         </div>
 
-        <div class="col-md-4">
+        <div>
             <x-filter.select
                 id="filter-authorized-count"
                 filterKey="authorized_count"
@@ -65,7 +65,7 @@
             />
         </div>
 
-        <div class="col-md-4">
+        <div>
             <label for="filter-search" class="form-label">البحث</label>
             <input type="text" id="filter-search" class="form-control"
                 placeholder="البحث في اسم الشركة أو المفوضين"

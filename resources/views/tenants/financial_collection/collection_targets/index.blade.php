@@ -121,7 +121,7 @@
     </div>
 
     <x-data-table.filters table="#collection-targets-table" reset-id="btn-reset-filters">
-        <div class="col-md-6">
+        <div>
             <label for="filter-status" class="form-label">حالة الهدف</label>
             <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر حالة الهدف">
                 <option value=""></option>
@@ -130,7 +130,7 @@
             </select>
         </div>
 
-        <div class="col-md-6">
+        <div>
             <label for="filter-user" class="form-label">المستخدم</label>
             <select id="filter-user" class="form-control select2" data-datatable-filter="true" data-filter-key="user_id" data-placeholder="اختر المستخدم">
                 <option value=""></option>

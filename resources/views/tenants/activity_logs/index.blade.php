@@ -52,7 +52,7 @@
 
     {{-- Filters Card --}}
     <x-data-table.filters table="#activity-logs-table" reset-id="btn-reset-filters">
-        <div class="col-md-3">
+        <div>
             <label class="form-label" for="filter-user">المستخدم</label>
             <select id="filter-user" class="form-control select2" data-datatable-filter="true" data-filter-key="user_id" data-placeholder="اختر المستخدم">
                 <option value=""></option>
@@ -62,7 +62,7 @@
             </select>
         </div>
 
-        <div class="col-md-3">
+        <div>
             <label class="form-label" for="filter-log-name">نوع النشاط</label>
             <select id="filter-log-name" class="form-control select2" data-datatable-filter="true" data-filter-key="log_name" data-placeholder="اختر النوع">
                 <option value=""></option>
@@ -80,12 +80,12 @@
             </select>
         </div>
 
-        <div class="col-md-3">
+        <div>
             <label class="form-label" for="filter-date-from">من تاريخ</label>
             <input type="date" id="filter-date-from" class="form-control" data-datatable-filter="true" data-filter-key="date_from">
         </div>
 
-        <div class="col-md-3">
+        <div>
             <label class="form-label" for="filter-date-to">إلى تاريخ</label>
             <input type="date" id="filter-date-to" class="form-control" data-datatable-filter="true" data-filter-key="date_to">
         </div>

@@ -133,7 +133,7 @@
     </div>
 </div>
 <x-data-table.filters table="#customer-update-requests-table">
-    <div class="col-md-6">
+    <div>
         <x-filter.select
             id="filter-status"
             filterKey="status"
@@ -148,7 +148,7 @@
             ]"
         />
     </div>
-    <div class="col-md-6">
+    <div>
         <label for="filter-requested-by" class="form-label">مقدم الطلب</label>
         <select id="filter-requested-by" class="form-control select2" data-placeholder="اختر مقدم الطلب" data-filter-key="requested_by" data-datatable-filter="true" data-datatable-target="#customer-update-requests-table">
             <option value=""></option>

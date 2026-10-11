@@ -37,7 +37,7 @@
 
 @section('content')
     <x-data-table.filters table="#archived-contracts-table">
-        <div class="col-md-4">
+        <div>
             <x-filter.select id="filter-status" filterKey="status" table="#archived-contracts-table" name="status"
                 label="حالة العقد" placeholder="اختر حالة العقد" :options="[
                     'active' => 'نشط',
@@ -47,12 +47,12 @@
                 ]" />
         </div>
 
-        <div class="col-md-4">
+        <div>
             <x-filter.select id="filter-company" filterKey="company_id" table="#archived-contracts-table" name="company_id"
                 label="الشركة" placeholder="اختر الشركة" :options="$companies->pluck('name', 'id')" />
         </div>
 
-        <div class="col-md-4">
+        <div>
             <x-filter.select id="filter-commission-type" filterKey="commission_type" table="#archived-contracts-table"
                 name="commission_type" label="نوع العمولة" placeholder="اختر نوع العمولة" :options="[
                     'procedure' => 'حسب الإجراء',

@@ -160,7 +160,7 @@
     {{-- فلاتر البحث --}}
     {{-- Filters Card --}}
     <x-data-table.filters table="#customers-table">
-        <div class="col-md-2">
+        <div>
             <x-filter.select
                 id="filter-status"
                 filterKey="customer_status_id"
@@ -172,7 +172,7 @@
             />
         </div>
 
-        <div class="col-md-2">
+        <div>
             <x-filter.select
                 id="filter-contact-result"
                 filterKey="last_contact_result_id"
@@ -184,7 +184,7 @@
             />
         </div>
 
-        <div class="col-md-2">
+        <div>
             <x-filter.select
                 id="filter-customer-type"
                 filterKey="customer_type"
@@ -197,7 +197,7 @@
         </div>
 
         @if ($viewType !== 'my')
-            <div class="col-md-2">
+            <div>
                 <x-filter.select
                     id="filter-company"
                     filterKey="company_id"
@@ -209,7 +209,7 @@
                 />
             </div>
 
-            <div class="col-md-2">
+            <div>
                 <label class="form-label" for="filter-portfolio">المحفظة</label>
                 <select id="filter-portfolio" class="form-control select2" data-placeholder="اختر المحفظة" data-filter-key="portfolio_id" data-datatable-filter="true" data-datatable-target="#customers-table">
                     <option value=""></option>
@@ -221,7 +221,7 @@
                 </select>
             </div>
 
-            <div class="col-md-2">
+            <div>
                 <x-filter.select
                     id="filter-manager"
                     filterKey="relationship_manager_id"
@@ -234,7 +234,7 @@
                 />
             </div>
         @else
-            <div class="col-md-6">
+            <div>
                 <x-filter.select
                     id="filter-sms-status"
                     filterKey="sms_status"
@@ -248,7 +248,7 @@
         @endif
 
         @if ($viewType !== 'my')
-            <div class="col-md-4">
+            <div>
                 <x-filter.select
                     id="filter-sms-status"
                     filterKey="sms_status"
@@ -260,22 +260,22 @@
                 />
             </div>
 
-            <div class="col-md-4">
+            <div>
                 <label class="form-label" for="filter-sms-date-from">تاريخ الإرسال من</label>
                 <input type="date" id="filter-sms-date-from" class="form-control" placeholder="من التاريخ" data-filter-key="sms_date_from" data-datatable-filter="true" data-datatable-target="#customers-table">
             </div>
 
-            <div class="col-md-4">
+            <div>
                 <label class="form-label" for="filter-sms-date-to">تاريخ الإرسال إلى</label>
                 <input type="date" id="filter-sms-date-to" class="form-control" placeholder="إلى التاريخ" data-filter-key="sms_date_to" data-datatable-filter="true" data-datatable-target="#customers-table">
             </div>
         @else
-            <div class="col-md-6">
+            <div>
                 <label class="form-label" for="filter-sms-date-from">تاريخ الإرسال من</label>
                 <input type="date" id="filter-sms-date-from" class="form-control" placeholder="من التاريخ" data-filter-key="sms_date_from" data-datatable-filter="true" data-datatable-target="#customers-table">
             </div>
 
-            <div class="col-md-6">
+            <div>
                 <label class="form-label" for="filter-sms-date-to">تاريخ الإرسال إلى</label>
                 <input type="date" id="filter-sms-date-to" class="form-control" placeholder="إلى التاريخ" data-filter-key="sms_date_to" data-datatable-filter="true" data-datatable-target="#customers-table">
             </div>

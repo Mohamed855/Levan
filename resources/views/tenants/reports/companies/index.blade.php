@@ -399,7 +399,7 @@
 
 
             <x-data-table.filters id="filtersSection" class="table-filters d-none" card-class="border-0 shadow-none mb-0" table="#companies-table" reset-id="reset-filters">
-                <div class="col-md-4">
+                <div>
                     <label for="filter-status" class="form-label form-label-sm">الحالة</label>
                     <select id="filter-status" class="form-select form-select-sm" data-datatable-filter="true" data-filter-key="status">
                         <option value="">الكل</option>
@@ -407,11 +407,11 @@
                         <option value="inactive">غير نشط</option>
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div>
                     <label for="filter-date-from" class="form-label form-label-sm">من تاريخ الإنشاء</label>
                     <input type="date" id="filter-date-from" class="form-control form-control-sm" data-datatable-filter="true" data-filter-key="date_from">
                 </div>
-                <div class="col-md-4">
+                <div>
                     <label for="filter-date-to" class="form-label form-label-sm">إلى تاريخ الإنشاء</label>
                     <input type="date" id="filter-date-to" class="form-control form-control-sm" data-datatable-filter="true" data-filter-key="date_to">
                 </div>

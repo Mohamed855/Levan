@@ -84,7 +84,7 @@
 
     {{-- Filters Card --}}
     <x-data-table.filters table="#users-table" reset-id="btn-reset-filters">
-        <div class="col-md-6">
+        <div>
             <label class="form-label" for="filter-status">حالة المستخدم</label>
             <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر حالة المستخدم">
                 <option value=""></option>
@@ -93,7 +93,7 @@
             </select>
         </div>
 
-        <div class="col-md-6">
+        <div>
             <label class="form-label" for="filter-role">دور المستخدم</label>
             <select id="filter-role" class="form-control select2" data-datatable-filter="true" data-filter-key="role" data-placeholder="اختر الدور">
                 <option value=""></option>

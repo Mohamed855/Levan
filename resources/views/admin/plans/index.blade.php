@@ -53,21 +53,21 @@
 
     {{-- Filters Card --}}
     <x-data-table.filters table="#paln-table">
-        <x-filter.select col="col-md-3" id="filter-status" filterKey="is_active" label="حالة الباقة"
+        <x-filter.select id="filter-status" filterKey="is_active" label="حالة الباقة"
             placeholder="اختر حالة الباقة" :options="$filterOptions['statuses'] ?? []" />
-        <x-filter.select col="col-md-3" id="filter-plan-type" filterKey="plan_type" label="نوع الباقة"
+        <x-filter.select id="filter-plan-type" filterKey="plan_type" label="نوع الباقة"
             placeholder="اختر نوع الباقة" :options="$filterOptions['plan_types'] ?? []" />
-        <x-filter.select col="col-md-3" id="filter-billing-cycle" filterKey="subscription_billing_cycle" label="دورة الفوترة"
+        <x-filter.select id="filter-billing-cycle" filterKey="subscription_billing_cycle" label="دورة الفوترة"
             placeholder="اختر دورة الفوترة" :options="$filterOptions['billing_cycles'] ?? []" />
-        <x-filter.select col="col-md-3" id="filter-limits-mode" filterKey="limits_mode" label="وضع الحدود"
+        <x-filter.select id="filter-limits-mode" filterKey="limits_mode" label="وضع الحدود"
             placeholder="اختر وضع الحدود" :options="$filterOptions['limits_modes'] ?? []" />
-        <x-filter.select col="col-md-3" id="filter-availability" filterKey="availability" label="حالة الإتاحة"
+        <x-filter.select id="filter-availability" filterKey="availability" label="حالة الإتاحة"
             placeholder="اختر حالة الإتاحة" :options="$filterOptions['availability'] ?? []" />
-        <x-filter.select col="col-md-3" id="filter-discounts" filterKey="discounts" label="حالة الخصم"
+        <x-filter.select id="filter-discounts" filterKey="discounts" label="حالة الخصم"
             placeholder="اختر حالة الخصم" :options="$filterOptions['discounts'] ?? []" />
-        <x-filter.select col="col-md-3" id="filter-domain" filterKey="domain_management_enabled" label="إدارة الدومينات"
+        <x-filter.select id="filter-domain" filterKey="domain_management_enabled" label="إدارة الدومينات"
             placeholder="اختر حالة الدومين" :options="$filterOptions['domains'] ?? []" />
-        <x-filter.select col="col-md-3" id="filter-most-requested" filterKey="most_requested" label="الأكثر طلباً"
+        <x-filter.select id="filter-most-requested" filterKey="most_requested" label="الأكثر طلباً"
             placeholder="اختر الأكثر طلباً" :options="$filterOptions['most_requested'] ?? []" />
     </x-data-table.filters>
 

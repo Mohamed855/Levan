@@ -171,7 +171,7 @@
     </div>
 
     <x-data-table.filters table="#financial-reports-table" reset-id="reset-filters">
-        <div class="col-md-6">
+        <div>
             <label for="filter-company" class="form-label">الشركة</label>
             <select id="filter-company" class="form-control select2" data-datatable-filter="true" data-filter-key="company_id" data-placeholder="جميع الشركات">
                 <option value=""></option>
@@ -180,31 +180,31 @@
                 @endforeach
             </select>
         </div>
-        <div class="col-md-6">
+        <div>
             <label for="filter-portfolio" class="form-label">المحفظة</label>
             <select id="filter-portfolio" class="form-control select2" data-datatable-filter="true" data-filter-key="portfolio_id" data-placeholder="اختر المحفظة" disabled>
                 <option value=""></option>
             </select>
         </div>
 
-        <div class="col-md-3">
+        <div>
             <label for="filter-date-from" class="form-label">من تاريخ التحصيل</label>
             <input type="date" id="filter-date-from" class="form-control" data-datatable-filter="true" data-filter-key="date_from" placeholder="اختر التاريخ">
         </div>
-        <div class="col-md-3">
+        <div>
             <label for="filter-date-to" class="form-label">إلى تاريخ التحصيل</label>
             <input type="date" id="filter-date-to" class="form-control" data-datatable-filter="true" data-filter-key="date_to" placeholder="اختر التاريخ">
         </div>
-        <div class="col-md-3">
+        <div>
             <label for="filter-created-from" class="form-label">من تاريخ الإنشاء</label>
             <input type="date" id="filter-created-from" class="form-control" data-datatable-filter="true" data-filter-key="created_from" placeholder="اختر التاريخ">
         </div>
-        <div class="col-md-3">
+        <div>
             <label for="filter-created-to" class="form-label">إلى تاريخ الإنشاء</label>
             <input type="date" id="filter-created-to" class="form-control" data-datatable-filter="true" data-filter-key="created_to" placeholder="اختر التاريخ">
         </div>
 
-        <div class="col-md-4">
+        <div>
             <label for="filter-customer" class="form-label">العميل</label>
             <select id="filter-customer" class="form-control select2-ajax" data-datatable-filter="true" data-filter-key="customer_id" data-placeholder="ابحث عن العميل برقم الحساب">
                 <option value=""></option>
@@ -213,7 +213,7 @@
                 @endforeach
             </select>
         </div>
-        <div class="col-md-4">
+        <div>
             <label for="filter-status" class="form-label">حالة التحصيل</label>
             <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="جميع الحالات">
                 <option value=""></option>
@@ -222,7 +222,7 @@
                 <option value="rejected">مرفوض</option>
             </select>
         </div>
-        <div class="col-md-4">
+        <div>
             <label for="filter-created-by" class="form-label">أنشأ بواسطة</label>
             <select id="filter-created-by" class="form-control select2" data-datatable-filter="true" data-filter-key="created_by" data-placeholder="جميع المستخدمين">
                 <option value=""></option>
@@ -232,11 +232,11 @@
             </select>
         </div>
 
-        <div class="col-md-6">
+        <div>
             <label for="filter-amount-from" class="form-label">المبلغ من</label>
             <input type="number" id="filter-amount-from" class="form-control" data-datatable-filter="true" data-filter-key="amount_from" placeholder="0" step="0.01">
         </div>
-        <div class="col-md-6">
+        <div>
             <label for="filter-amount-to" class="form-label">المبلغ إلى</label>
             <input type="number" id="filter-amount-to" class="form-control" data-datatable-filter="true" data-filter-key="amount_to" placeholder="0" step="0.01">
         </div>

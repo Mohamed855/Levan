@@ -102,7 +102,7 @@
 
     {{-- Filters Card --}}
     <x-data-table.filters table="#message-individual-logs-table" reset-id="btn-reset-filters">
-        <div class="col-md-2">
+        <div>
             <label for="filter-status" class="form-label">الحالة</label>
             <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="الكل">
                 <option value=""></option>
@@ -112,7 +112,7 @@
             </select>
         </div>
 
-        <div class="col-md-2">
+        <div>
             <label for="filter-company" class="form-label">الشركة</label>
             <select id="filter-company" class="form-control select2" data-datatable-filter="true" data-filter-key="company_id" data-placeholder="الكل">
                 <option value=""></option>
@@ -122,26 +122,26 @@
             </select>
         </div>
 
-        <div class="col-md-2">
+        <div>
             <label for="filter-portfolio" class="form-label">المحفظة</label>
             <select id="filter-portfolio" class="form-control select2" data-datatable-filter="true" data-filter-key="portfolio_id" name="portfolio_id" data-placeholder="الكل">
                 <option value=""></option>
             </select>
         </div>
 
-        <div class="col-md-2">
+        <div>
             <label for="filter-customer" class="form-label">العميل</label>
             <select id="filter-customer" class="form-control select2" data-datatable-filter="true" data-filter-key="customer_id" name="customer_id" data-placeholder="الكل">
                 <option value=""></option>
             </select>
         </div>
 
-        <div class="col-md-2">
+        <div>
             <label for="filter-date-from" class="form-label">من تاريخ</label>
             <input type="date" id="filter-date-from" class="form-control" data-datatable-filter="true" data-filter-key="date_from">
         </div>
 
-        <div class="col-md-2">
+        <div>
             <label for="filter-date-to" class="form-label">إلى تاريخ</label>
             <input type="date" id="filter-date-to" class="form-control" data-datatable-filter="true" data-filter-key="date_to">
         </div>

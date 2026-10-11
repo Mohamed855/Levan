@@ -119,11 +119,11 @@
     @endif
 
     <x-data-table.filters table="#contract-report-table" reset-id="reset-filters">
-        <div class="col-md-6">
+        <div>
             <label for="filter-date-from" class="form-label">من تاريخ</label>
             <input type="date" id="filter-date-from" class="form-control" data-datatable-filter="true" data-filter-key="date_from" placeholder="اختر التاريخ">
         </div>
-        <div class="col-md-6">
+        <div>
             <label for="filter-date-to" class="form-label">إلى تاريخ</label>
             <input type="date" id="filter-date-to" class="form-control" data-datatable-filter="true" data-filter-key="date_to" placeholder="اختر التاريخ">
         </div>

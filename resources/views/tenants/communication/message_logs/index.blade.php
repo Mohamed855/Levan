@@ -59,7 +59,7 @@
 
     {{-- Filters Card --}}
     <x-data-table.filters table="#message-logs-table" reset-id="btn-reset-filters">
-        <div class="col-md-4">
+        <div>
             <label class="form-label" for="filter-status">الحالة</label>
             <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر الحالة">
                 <option value=""></option>
@@ -71,7 +71,7 @@
             </select>
         </div>
 
-        <div class="col-md-4">
+        <div>
             <label class="form-label" for="filter-message-type">نوع الرسالة</label>
             <select id="filter-message-type" class="form-control select2" data-datatable-filter="true" data-filter-key="message_type" data-placeholder="اختر النوع">
                 <option value=""></option>
@@ -81,7 +81,7 @@
             </select>
         </div>
 
-        <div class="col-md-4">
+        <div>
             <label class="form-label" for="filter-sender">المرسل</label>
             <select id="filter-sender" class="form-control select2" data-datatable-filter="true" data-filter-key="sender_id" data-placeholder="اختر المرسل">
                 <option value=""></option>

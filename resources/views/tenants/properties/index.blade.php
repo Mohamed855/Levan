@@ -114,9 +114,9 @@
 
         <x-slot:filters>
             <x-data-table.filters table="#properties-table">
-                <x-filter.select col="col-md-3" id="filter-assignment" filterKey="assignment_id" label="الإسناد" placeholder="جميع الإسنادات"
+                <x-filter.select id="filter-assignment" filterKey="assignment_id" label="الإسناد" placeholder="جميع الإسنادات"
                     :options="$assignments->pluck('name', 'id')->toArray()" />
-                <x-filter.select col="col-md-3" id="filter-type" filterKey="type" label="نوع العقار" placeholder="جميع الأنواع"
+                <x-filter.select id="filter-type" filterKey="type" label="نوع العقار" placeholder="جميع الأنواع"
                     :options="[
                         'residential_land'     => 'أرض سكنية',
                         'villa'                => 'فيلا',
@@ -125,13 +125,13 @@
                         'commercial_land'      => 'أرض تجارية',
                         'mixed_use'            => 'متعدد الاستخدام'
                     ]" />
-                <x-filter.select col="col-md-3" id="filter-data-status" filterKey="data_status" label="حالة البيانات" placeholder="جميع الحالات"
+                <x-filter.select id="filter-data-status" filterKey="data_status" label="حالة البيانات" placeholder="جميع الحالات"
                     :options="[
                         'completed'    => 'مكتمل',
                         'needs_images' => 'يحتاج صور',
                         'incomplete'   => 'ناقص بيانات'
                     ]" />
-                <x-filter.select col="col-md-3" id="filter-city" filterKey="city" label="المدينة" placeholder="جميع المدن"
+                <x-filter.select id="filter-city" filterKey="city" label="المدينة" placeholder="جميع المدن"
                     :options="['الرياض' => 'الرياض', 'جدة' => 'جدة', 'مكة المكرمة' => 'مكة المكرمة', 'المدينة المنورة' => 'المدينة المنورة', 'الدمام' => 'الدمام']" />
             </x-data-table.filters>
         </x-slot:filters>

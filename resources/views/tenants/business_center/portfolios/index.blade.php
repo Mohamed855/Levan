@@ -131,7 +131,7 @@
 
     {{-- Filters Card --}}
     <x-data-table.filters table="#portfolios-table">
-        <div class="col-md-6">
+        <div>
             <x-filter.select
                 id="filter-company"
                 filterKey="company_id"
@@ -143,7 +143,7 @@
             />
         </div>
 
-        <div class="col-md-6">
+        <div>
             <x-filter.select
                 id="filter-status"
                 filterKey="status"

@@ -108,14 +108,14 @@
 
         <x-slot:filters>
             <x-data-table.filters table="#assignments-table">
-                <x-filter.select col="col-md-3" id="filter-status" filterKey="status" label="حالة الإسناد"
+                <x-filter.select id="filter-status" filterKey="status" label="حالة الإسناد"
                     placeholder="جميع الحالات" :options="[
                         'active' => 'نشط',
                         'under_review' => 'قيد المراجعة',
                         'suspended' => 'متوقف',
                         'auctioned' => 'محول لمزاد',
                     ]" />
-                <x-filter.select col="col-md-3" id="filter-category" filterKey="category" label="نوع الإسناد"
+                <x-filter.select id="filter-category" filterKey="category" label="نوع الإسناد"
                     placeholder="جميع التصنيفات" :options="[
                         'lands' => 'أراضي',
                         'villas' => 'فلل سكنية',
@@ -123,7 +123,7 @@
                         'educational' => 'مباني تعليمية',
                         'industrial' => 'أراضي صناعية',
                     ]" />
-                <x-filter.select col="col-md-3" id="filter-city" filterKey="city" label="المدينة" placeholder="جميع المدن"
+                <x-filter.select id="filter-city" filterKey="city" label="المدينة" placeholder="جميع المدن"
                     :options="[
                         'الرياض' => 'الرياض',
                         'جدة' => 'جدة',
@@ -132,7 +132,7 @@
                         'الدمام' => 'الدمام',
                         'الخبر' => 'الخبر',
                     ]" />
-                <x-form.controls.input col="col-md-3" name="filter_issuing_entity" id="filter-entity" label="الجهة المسندة"
+                <x-form.controls.input name="filter_issuing_entity" id="filter-entity" label="الجهة المسندة"
                     placeholder="بحث باسم الجهة..." />
             </x-data-table.filters>
         </x-slot:filters>

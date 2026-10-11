@@ -133,7 +133,7 @@
 
     {{-- Filters Card --}}
     <x-data-table.filters table="#message-templates-table" reset-id="btn-reset-filters">
-        <div class="col-md-3">
+        <div>
             <label class="form-label" for="filter-category">الفئة</label>
             <select id="filter-category" class="form-control select2" data-datatable-filter="true" data-filter-key="category" data-placeholder="اختر الفئة">
                 <option value=""></option>
@@ -143,7 +143,7 @@
             </select>
         </div>
 
-        <div class="col-md-3">
+        <div>
             <label class="form-label" for="filter-channel">القناة</label>
             <select id="filter-channel" class="form-control select2" data-datatable-filter="true" data-filter-key="channel" data-placeholder="اختر القناة">
                 <option value=""></option>
@@ -153,7 +153,7 @@
             </select>
         </div>
 
-        <div class="col-md-3">
+        <div>
             <label class="form-label" for="filter-status">الحالة</label>
             <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر الحالة">
                 <option value=""></option>
@@ -162,7 +162,7 @@
             </select>
         </div>
 
-        <div class="col-md-3">
+        <div>
             <label class="form-label" for="filter-search">البحث</label>
             <input type="text" id="filter-search" class="form-control" data-datatable-filter="true" data-filter-key="search" placeholder="البحث في الاسم أو المحتوى">
         </div>
