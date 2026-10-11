@@ -40,29 +40,21 @@
             <label class="form-label" for="filter-type">نوع العملية</label>
             <select id="filter-type" class="form-control select2" data-datatable-filter="true" data-filter-key="type" data-placeholder="اختر نوع العملية">
                 <option value=""></option>
-                <option value="subscription">اشتراك</option>
-                <option value="renewal">تجديد</option>
-                <option value="extra_users">مستخدمين إضافيين</option>
-                <option value="domain">دومين</option>
+                <x-form.controls.enum-options :enum="\App\Enums\Tenants\Billing\BillOperationType::class" />
             </select>
         </div>
         <div>
             <label class="form-label" for="filter-status">حالة العملية</label>
             <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر حالة العملية">
                 <option value=""></option>
-                <option value="paid">مدفوعة</option>
-                <option value="unpaid">غير مدفوعة</option>
-                <option value="partially_paid">مدفوعة جزئياً</option>
-                <option value="cancelled">ملغاة</option>
+                <x-form.controls.enum-options :enum="\App\Enums\Tenants\Billing\BillStatus::class" />
             </select>
         </div>
         <div>
             <label class="form-label" for="filter-payment-method">طريقة الدفع</label>
             <select id="filter-payment-method" class="form-control select2" data-datatable-filter="true" data-filter-key="payment_method" data-placeholder="اختر طريقة الدفع">
                 <option value=""></option>
-                <option value="bank_transfer">تحويل بنكي</option>
-                <option value="credit_card">بطاقة ائتمانية</option>
-                <option value="cash">نقدي</option>
+                <x-form.controls.enum-options :enum="\App\Enums\Tenants\Billing\PaymentMethod::class" />
             </select>
         </div>
     </x-data-table.filters>

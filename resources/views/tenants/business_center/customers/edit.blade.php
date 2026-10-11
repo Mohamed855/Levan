@@ -164,12 +164,8 @@
                                     <select name="customer_type" id="customer_type" class="form-control select2" required
                                         data-placeholder="اختر النوع">
                                         <option value=""></option>
-                                        <option value="individual"
-                                            {{ old('customer_type', $customer->customer_type) == 'individual' ? 'selected' : '' }}>
-                                            فردي</option>
-                                        <option value="company"
-                                            {{ old('customer_type', $customer->customer_type) == 'company' ? 'selected' : '' }}>
-                                            شركة</option>
+                                        <x-form.controls.enum-options :enum="\App\Enums\Tenants\Customers\CustomerType::class"
+                                            :selected="old('customer_type', $customer->customer_type)" />
                                     </select>
                                 </div>
 
@@ -284,18 +280,8 @@
                                                         value="{{ $phone->phone }}">
                                                     <select name="phones[{{ $i }}][type]" class="form-select"
                                                         style="max-width:100px;">
-                                                        <option value="mobile"
-                                                            {{ $phone->type == 'mobile' ? 'selected' : '' }}>
-                                                            جوال</option>
-                                                        <option value="home"
-                                                            {{ $phone->type == 'home' ? 'selected' : '' }}>
-                                                            منزل</option>
-                                                        <option value="work"
-                                                            {{ $phone->type == 'work' ? 'selected' : '' }}>
-                                                            عمل</option>
-                                                        <option value="other"
-                                                            {{ $phone->type == 'other' ? 'selected' : '' }}>
-                                                            أخرى</option>
+                                                        <x-form.controls.enum-options :enum="\App\Enums\Tenants\Customers\PhoneType::class"
+                                                            :selected="$phone->type" />
                                                     </select>
                                                     @if ($loop->first)
                                                         <button type="button"
@@ -317,10 +303,7 @@
                                                         class="form-control phone-input additional-phone">
                                                     <select name="phones[0][type]" class="form-select"
                                                         style="max-width:100px;">
-                                                        <option value="mobile">جوال</option>
-                                                        <option value="home">منزل</option>
-                                                        <option value="work">عمل</option>
-                                                        <option value="other">أخرى</option>
+                                                        <x-form.controls.enum-options :enum="\App\Enums\Tenants\Customers\PhoneType::class" />
                                                     </select>
                                                     <button type="button"
                                                         class="btn btn-outline-success js-add-phone-field-btn">

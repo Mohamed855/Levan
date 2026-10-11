@@ -63,11 +63,7 @@
             <label class="form-label" for="filter-status">الحالة</label>
             <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر الحالة">
                 <option value=""></option>
-                <option value="pending">في الانتظار</option>
-                <option value="processing">جاري المعالجة</option>
-                <option value="sent">تم الإرسال</option>
-                <option value="failed">فشل الإرسال</option>
-                <option value="cancelled">ملغي</option>
+                <x-form.controls.enum-options :enum="\App\Enums\Tenants\Communication\MessageStatus::class" />
             </select>
         </div>
 
@@ -75,9 +71,7 @@
             <label class="form-label" for="filter-message-type">نوع الرسالة</label>
             <select id="filter-message-type" class="form-control select2" data-datatable-filter="true" data-filter-key="message_type" data-placeholder="اختر النوع">
                 <option value=""></option>
-                <option value="sms">رسالة نصية</option>
-                <option value="email">بريد إلكتروني</option>
-                <option value="whatsapp">واتساب</option>
+                <x-form.controls.enum-options :enum="\App\Enums\Tenants\Communication\MessageType::class" />
             </select>
         </div>
 

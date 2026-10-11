@@ -88,8 +88,7 @@
             <label class="form-label" for="filter-status">حالة المستخدم</label>
             <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر حالة المستخدم">
                 <option value=""></option>
-                <option value="active">نشط</option>
-                <option value="inactive">غير نشط</option>
+                <x-form.controls.enum-options :enum="\App\Enums\Shared\ActivityStatus::class" />
             </select>
         </div>
 

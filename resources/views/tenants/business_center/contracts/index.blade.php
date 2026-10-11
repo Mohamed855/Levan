@@ -140,7 +140,7 @@
                 name="status"
                 label="حالة العقد"
                 placeholder="اختر حالة العقد"
-                :options="['active' => 'نشط', 'inactive' => 'غير نشط']"
+                :enum="\App\Enums\Shared\ActivityStatus::class"
             />
         </div>
     </x-data-table.filters>

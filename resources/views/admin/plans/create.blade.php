@@ -69,7 +69,7 @@
                                 placeholder="وصف واضح لقيمة الباقة..." col="col-12" />
 
                             <x-form.controls.select name="is_active" id="is_active" label="حالة تفعيل الباقة" required
-                                value="1" col="col-md-6" :options="[['value' => '1', 'label' => 'مفعلة'], ['value' => '0', 'label' => 'معطلة']]" />
+                                value="1" col="col-md-6" :enum="\App\Enums\Shared\ActivationStatus::class" />
                             <x-form.controls.input type="date" name="available_from" id="available_from"
                                 label="تاريخ بدء الإتاحة" col="col-md-6" help="اتركه فارغاً لإتاحتها فوراً." />
                             <x-form.controls.textarea name="admin_notes" id="admin_notes" label="ملاحظات إدارية"
@@ -138,10 +138,7 @@
                     ]">
                         <div class="row g-3">
                             <x-form.controls.select name="limits_mode" id="limits_mode" label="وضع الحدود" required
-                                value="limited" col="col-md-6" :options="[
-                                    ['value' => 'limited', 'label' => 'محدود'],
-                                    ['value' => 'unlimited', 'label' => 'غير محدود'],
-                                ]" />
+                                value="limited" col="col-md-6" :enum="\App\Enums\Admin\Plans\PlanLimitsMode::class" />
                             <div class="col-12" id="unlimited-mode-alert" hidden>
                                 <div class="alert alert-primary mb-0"><i class="ti ti-infinity me-2"></i>لن تُفرض حدود
                                     استخدام على هذه الباقة.</div>
@@ -162,10 +159,7 @@
                                 id="active_auctions_limit" label="حد المزادات النشطة" value="10" required
                                 col="col-md-6 limits-field" />
                             <x-form.controls.select name="domain_management_enabled" id="domain_management_enabled"
-                                label="إدارة الدومينات" required value="1" col="col-md-6" :options="[
-                                    ['value' => '1', 'label' => 'مفعلة'],
-                                    ['value' => '0', 'label' => 'غير مفعلة'],
-                                ]" />
+                                label="إدارة الدومينات" required value="1" col="col-md-6" :enum="\App\Enums\Shared\ActivationStatus::class" />
                         </div>
                         <x-form.wizard.actions><x-form.wizard.previous-button />
                             <div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button

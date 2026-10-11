@@ -46,21 +46,17 @@
             <div class="col-md-6">
                 <label for="filter-type" class="form-label">نوع الإشعار</label>
                 <select id="filter-type" class="form-control select2" data-placeholder="الكل">
-                    <option value=""></option>
-                    <option value="success">نجاح</option>
-                    <option value="warning">تحذير</option>
-                    <option value="info">معلومات</option>
-                    <option value="danger">خطر</option>
-                </select>
+                <option value=""></option>
+                <x-form.controls.enum-options :enum="\App\Enums\Tenants\Notifications\NotificationType::class" />
+            </select>
             </div>
 
             <div class="col-md-6">
                 <label for="filter-status" class="form-label">حالة الإشعار</label>
                 <select id="filter-status" class="form-control select2" data-placeholder="الكل">
-                    <option value=""></option>
-                    <option value="read">مقروء</option>
-                    <option value="unread">غير مقروء</option>
-                </select>
+                <option value=""></option>
+                <x-form.controls.enum-options :enum="\App\Enums\Tenants\Notifications\ReadStatus::class" />
+            </select>
             </div>
         </div> --}}
 

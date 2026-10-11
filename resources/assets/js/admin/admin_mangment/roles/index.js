@@ -117,10 +117,11 @@ function populateRoleModal(data) {
         );
     });
 
-    statusSelect.empty()
-        .append('<option value=""></option>')
-        .append(`<option value="active" ${data.assigned_status === 'active' ? 'selected' : ''}>نشط</option>`)
-        .append(`<option value="inactive" ${data.assigned_status === 'inactive' ? 'selected' : ''}>غير نشط</option>`);
+    statusSelect.empty().append('<option value=""></option>');
+    $.each(data.status_options, function (value, label) {
+        const option = new Option(label, value, false, data.assigned_status === value);
+        statusSelect.append(option);
+    });
 
     // تهيئة Select2 داخل المودال
     roleSelect.select2({

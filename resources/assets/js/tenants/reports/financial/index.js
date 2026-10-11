@@ -188,9 +188,7 @@ function initializeStatusChart() {
         return;
     }
 
-    const labels = Object.keys(statusData).map(key => {
-        return key === 'approved' ? 'معتمد' : (key === 'pending' ? 'معلق' : 'مرفوض');
-    });
+    const labels = Object.keys(statusData).map(key => window.chartData.collectionStatusLabels[key] ?? key);
     const series = Object.values(statusData);
 
     const totalValues = series.reduce((sum, val) => sum + (parseFloat(val) || 0), 0);

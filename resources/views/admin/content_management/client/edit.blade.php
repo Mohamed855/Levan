@@ -88,10 +88,7 @@
                                     <select id="status" name="status"
                                         class="form-select select2 @error('status') is-invalid @enderror" required>
                                         <option value="">اختر الحالة</option>
-                                        <option value="1" {{ old('status', $client->status) == 1 ? 'selected' : '' }}>
-                                            نشط</option>
-                                        <option value="0" {{ old('status', $client->status) == 0 ? 'selected' : '' }}>
-                                            غير نشط</option>
+                                        <x-form.controls.enum-options :enum="\App\Enums\Shared\ActivationStatus::class" :selected="old('status', $client->status)" />
                                     </select>
                                     @error('status')
                                         <span class="invalid-feedback">{{ $message }}</span>

@@ -57,11 +57,8 @@
             <x-admin.dashboard-panel class="h-100" title="استخدام المنصة" icon="ti-chart-bar">
                 <x-slot:headerAction>
                     <select id="platform-activity-range" class="form-select chart-range-select w-25">
-                        <option value="1month">آخر شهر</option>
-                        <option value="3months">آخر 3 أشهر</option>
-                        <option value="6months">آخر 6 أشهر</option>
-                        <option value="1year">آخر سنة</option>
-                    </select>
+                                        <x-form.controls.enum-options :enum="\App\Enums\Admin\Dashboard\ActivityRange::class" :selected="null" />
+                                    </select>
                 </x-slot:headerAction>
 
                 <div class="platform-activity-chart-wrap">

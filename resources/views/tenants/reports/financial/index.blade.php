@@ -39,6 +39,7 @@
 
         window.chartData = {
             collectionsByStatus: @json($collections_by_status),
+            collectionStatusLabels: @json(\App\Support\SelectOptions::fromEnum(\App\Enums\Shared\ApprovalStatus::class)),
             transactionsByUser: @json($collections_by_user),
             transactionsByMonth: @json($collections_by_month)
         };
@@ -217,9 +218,7 @@
             <label for="filter-status" class="form-label">حالة التحصيل</label>
             <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="جميع الحالات">
                 <option value=""></option>
-                <option value="pending">معلق</option>
-                <option value="approved">معتمد</option>
-                <option value="rejected">مرفوض</option>
+                <x-form.controls.enum-options :enum="\App\Enums\Shared\ApprovalStatus::class" />
             </select>
         </div>
         <div>

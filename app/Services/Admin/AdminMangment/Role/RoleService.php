@@ -2,7 +2,9 @@
 
 namespace App\Services\Admin\AdminMangment\Role;
 
+use App\Enums\Shared\ActivityStatus;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
+use App\Support\SelectOptions;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
@@ -172,6 +174,7 @@ class RoleService
             'roles' => Role::where('guard_name', 'admin')->get(),
             'assigned_role' => $user->roles->first()?->id,
             'assigned_status' => $user->status,
+            'status_options' => SelectOptions::fromEnum(ActivityStatus::class),
         ];
     }
 

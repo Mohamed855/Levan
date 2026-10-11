@@ -403,8 +403,7 @@
                     <label for="filter-status" class="form-label form-label-sm">الحالة</label>
                     <select id="filter-status" class="form-select form-select-sm" data-datatable-filter="true" data-filter-key="status">
                         <option value="">الكل</option>
-                        <option value="active">نشط</option>
-                        <option value="inactive">غير نشط</option>
+                        <x-form.controls.enum-options :enum="\App\Enums\Shared\ActivityStatus::class" />
                     </select>
                 </div>
                 <div>

@@ -75,10 +75,7 @@
 
                             <!-- نوع الخصم -->
                             <x-form.controls.select name="discount_type" id="discount_type" label="نوع الخصم" required
-                                :value="$discountTypeValue" col="col-md-6" :options="[
-                                    ['value' => 'fixed', 'label' => 'مبلغ ثابت'],
-                                    ['value' => 'percentage', 'label' => 'نسبة مئوية'],
-                                ]" />
+                                :value="$discountTypeValue" col="col-md-6" :enum="\App\Enums\Admin\Coupons\CouponDiscountType::class" />
 
                             <!-- قيمة الخصم -->
                             <div class="col-md-6" data-form-field data-field-name="discount_value">
@@ -116,10 +113,7 @@
 
                             <!-- الحالة -->
                             <x-form.controls.select name="is_active" id="is_active" label="حالة الكوبون" required
-                                :value="$isActiveValue" col="col-md-6" :options="[
-                                    ['value' => '1', 'label' => 'مفعلة'],
-                                    ['value' => '0', 'label' => 'غير مفعلة'],
-                                ]" />
+                                :value="$isActiveValue" col="col-md-6" :enum="\App\Enums\Shared\ActivationStatus::class" />
 
                             <!-- إسناد الكوبون -->
                             <x-form.controls.select name="admin_user_id" id="users" label="إسناد الكوبون"

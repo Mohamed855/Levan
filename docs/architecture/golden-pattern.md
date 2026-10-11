@@ -236,6 +236,17 @@ return redirect()->back()->with('success', __('messages.deleted'));
 
 ## 6. Frontend Contract
 
+### 6.0 مصادر خيارات القوائم المنسدلة (إلزامي)
+
+- لا يجوز تعريف أي قيمة أعمال أو label لأي `<select>` داخل Blade أو JavaScript أو داخل مصفوفة خيارات inline في الواجهة، بما في ذلك `active` / `inactive` والقيم المنطقية المكافئة لهما.
+- القيم الثابتة المحدودة مصدرها الوحيد PHP string-backed Enum بمفاتيح إنجليزية، ويعرض الـEnum التسمية المترجمة من خلال `label()` أو option contract مشترك.
+- القيم الديناميكية مصدرها قاعدة البيانات الصحيحة للنطاق: Central forms تقرأ من Central DB، وTenant forms تقرأ من Tenant DB. لا يتجاوز Tenant حدوده لجلب خيارات Central إلا عبر gateway/service صريح.
+- القوائم المشتقة وقتيًا أو حسابيًا، مثل السنوات المتاحة، ينشئها backend option provider أو Service؛ لا تبنى داخل Blade أو page-specific JavaScript.
+- Blade مسؤولة عن rendering فقط عبر `x-form.controls.select` أو `x-filter.select` ومصفوفة `options` مجهزة من الخادم. JavaScript قد يجلب dependent options من endpoint، لكنه لا يحتوي business fallback dictionaries.
+- placeholder فارغ مسموح لأنه presentation-only، لكن كل `<option>` غير فارغ يجب أن يأتي من Enum أو database/provider موثق.
+- FormRequest validation يستخدم قيم الـEnum (`Rule::enum(...)`) أو تحقق وجود السجل الديناميكي في الاتصال الصحيح، ولا يكرر قائمة القيم يدويًا.
+- يجب وجود architecture test يمنع non-empty literal `<option value="...">` وinline business option dictionaries داخل Blade/JavaScript.
+
 ### 6.1 صفحات Index
 
 ```blade

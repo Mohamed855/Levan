@@ -143,12 +143,7 @@
                 name="status"
                 label="الحالة"
                 placeholder="اختر الحالة"
-                :options="[
-                    'ready_to_send' => 'جاهز للإرسال',
-                    'approved_ready_to_send' => 'معتمد - جاهز للإرسال',
-                    'sent' => 'تم الإرسال',
-                    'failed' => 'فشل الإرسال'
-                ]"
+                :enum="\App\Enums\Tenants\Customers\LetterStatus::class"
             />
         </div>
 

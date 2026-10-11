@@ -133,11 +133,8 @@
                                     <select name="collection_type" id="collection_type" class="form-control select2"
                                         data-placeholder="اختر نوع التحصيل" required>
                                         <option value=""></option>
-                                        <option value="cash" {{ old('collection_type') == 'cash' ? 'selected' : '' }}>نقدي
-                                        </option>
-                                        <option value="scheduled"
-                                            {{ old('collection_type') == 'scheduled' ? 'selected' : '' }}>مجدول</option>
-                                    </select>
+                                        <x-form.controls.enum-options :enum="\App\Enums\Tenants\Collections\CollectionType::class" :selected="old('collection_type')" />
+                                    $3
                                 </div>
 
                                 <div class="col-sm-6">
@@ -161,14 +158,8 @@
                                     <select name="payment_type" id="payment_type" class="form-control select2"
                                         data-placeholder="اختر نوع السداد" required>
                                         <option value=""></option>
-                                        <option value="settlement"
-                                            {{ old('payment_type') == 'settlement' ? 'selected' : '' }}>سداد بتسوية
-                                        </option>
-                                        <option value="without_settlement"
-                                            {{ old('payment_type') == 'without_settlement' ? 'selected' : '' }}>
-                                            سداد بدون
-                                            تسوية</option>
-                                    </select>
+                                        <x-form.controls.enum-options :enum="\App\Enums\Tenants\Collections\PaymentType::class" :selected="old('payment_type')" />
+                                    $3
                                 </div>
 
                                 <div class="col-sm-6">

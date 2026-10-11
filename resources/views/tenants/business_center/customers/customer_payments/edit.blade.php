@@ -27,9 +27,8 @@
                 <select name="collection_type" id="edit_collection_type" class="form-control select2-modal"
                     data-placeholder="اختر نوع التحصيل" required>
                     <option value=""></option>
-                    <option value="cash" {{ $collection->collection_type == 'cash' ? 'selected' : '' }}>نقدي</option>
-                    <option value="scheduled" {{ $collection->collection_type == 'scheduled' ? 'selected' : '' }}>مجدول
-                    </option>
+                    <x-form.controls.enum-options :enum="\App\Enums\Tenants\Collections\CollectionType::class"
+                        :selected="old('collection_type', $collection->collection_type)" />
                 </select>
                 <div class="invalid-feedback"></div>
             </div>
@@ -55,11 +54,8 @@
                 <select name="payment_type" id="edit_payment_type" class="form-control select2-modal"
                     data-placeholder="اختر نوع السداد" required>
                     <option value=""></option>
-                    <option value="settlement" {{ $collection->payment_type == 'settlement' ? 'selected' : '' }}>سداد
-                        بتسوية</option>
-                    <option value="without_settlement"
-                        {{ $collection->payment_type == 'without_settlement' ? 'selected' : '' }}>
-                        سداد بدون تسوية</option>
+                    <x-form.controls.enum-options :enum="\App\Enums\Tenants\Collections\PaymentType::class"
+                        :selected="old('payment_type', $collection->payment_type)" />
                 </select>
                 <div class="invalid-feedback"></div>
             </div>

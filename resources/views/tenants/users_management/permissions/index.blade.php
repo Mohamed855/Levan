@@ -69,9 +69,7 @@
                 </div>
                 <div class="col-md-1">
                     <select id="rows-per-page" class="form-select" style="width: 100%;">
-                        <option value="10">10</option>
-                        <option value="20">20</option>
-                        <option value="50">50</option>
+                        <x-form.controls.enum-options :enum="\App\Enums\Shared\RowsPerPage::class" />
                     </select>
                 </div>
                 <div class="col-md-6 text-end">

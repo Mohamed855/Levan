@@ -2,6 +2,7 @@
     'id',
     'label',
     'options' => [],
+    'enum' => null,
     'placeholder' => 'الكل',
     'value' => null,
     'name' => null,
@@ -18,6 +19,10 @@
 ])
 
 @php
+    if ($enum) {
+        $options = \App\Support\SelectOptions::fromEnum($enum);
+    }
+
     $customClass = $attributes->get('class', '');
     $hasColInClass = $customClass && preg_match('/(^|\s)col(-[a-z0-9]+)?(-\d+)?(\s|$)/', $customClass);
     $columnClass = trim(($hasColInClass ? $customClass : "$col $wrapperClass"));

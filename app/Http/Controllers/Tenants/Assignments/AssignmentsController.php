@@ -9,6 +9,7 @@ use App\Http\Requests\Tenants\Assignments\UpdateAssignmentRequest;
 use App\Http\Requests\Tenants\UpdateResourceStatusRequest;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Services\Tenants\Assignments\AssignmentService;
+use App\Services\Tenants\Shared\CentralCityOptionsGateway;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -16,7 +17,8 @@ use Illuminate\View\View;
 class AssignmentsController extends Controller
 {
     public function __construct(
-        protected AssignmentService $assignmentService
+        protected AssignmentService $assignmentService,
+        protected CentralCityOptionsGateway $cityOptionsGateway
     ) {
         $this->middleware('auth:tenant');
         $this->authorizeResource(Assignment::class, 'assignment');
@@ -37,6 +39,7 @@ class AssignmentsController extends Controller
             'underReviewAssignments' => $statistics['under_review'],
             'suspendedAssignments'   => $statistics['suspended'],
             'auctionedAssignments'   => $statistics['auctioned'],
+            'cityOptions'            => $this->cityOptionsGateway->optionsByName(),
         ]);
     }
 
@@ -46,6 +49,7 @@ class AssignmentsController extends Controller
 
         return view('tenants.assignments.create', [
             'generatedAssignmentNumber' => $generatedAssignmentNumber,
+            'cityOptions'                => $this->cityOptionsGateway->optionsByName(),
         ]);
     }
 
@@ -79,6 +83,7 @@ class AssignmentsController extends Controller
     {
         return view('tenants.assignments.edit', [
             'assignment' => $assignment,
+            'cityOptions' => $this->cityOptionsGateway->optionsByName(),
         ]);
     }
 

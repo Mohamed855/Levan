@@ -10,6 +10,7 @@ use App\Http\Requests\Tenants\UpdateResourceStatusRequest;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Properties\Property;
 use App\Services\Tenants\Properties\PropertyService;
+use App\Services\Tenants\Shared\CentralCityOptionsGateway;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -17,7 +18,8 @@ use Illuminate\View\View;
 class PropertiesController extends Controller
 {
     public function __construct(
-        protected PropertyService $propertyService
+        protected PropertyService $propertyService,
+        protected CentralCityOptionsGateway $cityOptionsGateway
     ) {
         $this->middleware('auth:tenant');
         $this->authorizeResource(Property::class, 'property');
@@ -38,6 +40,7 @@ class PropertiesController extends Controller
             'assignedProperties'   => $statistics['assigned_to_auction'],
             'completedProperties'  => $statistics['completed'],
             'assignments'          => $assignments,
+            'cityOptions'          => $this->cityOptionsGateway->optionsByName(),
         ]);
     }
 
@@ -49,6 +52,7 @@ class PropertiesController extends Controller
         return view('tenants.properties.create', [
             'assignments'             => $assignments,
             'generatedPropertyNumber' => $generatedPropertyNumber,
+            'cityOptions'             => $this->cityOptionsGateway->optionsByName(),
         ]);
     }
 
@@ -85,6 +89,7 @@ class PropertiesController extends Controller
         return view('tenants.properties.edit', [
             'property'    => $property,
             'assignments' => $assignments,
+            'cityOptions' => $this->cityOptionsGateway->optionsByName(),
         ]);
     }
 

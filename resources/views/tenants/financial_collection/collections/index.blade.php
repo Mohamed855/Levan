@@ -146,11 +146,7 @@
                 name="status"
                 label="الحالة"
                 placeholder="اختر الحالة"
-                :options="[
-                    'pending' => 'غير معتمد',
-                    'approved' => 'معتمد',
-                    'rejected' => 'مرفوض'
-                ]"
+                :enum="\App\Enums\Shared\ApprovalStatus::class"
             />
         </div>
 
@@ -162,10 +158,7 @@
                 name="collection_type"
                 label="نوع التحصيل"
                 placeholder="اختر النوع"
-                :options="[
-                    'cash' => 'نقدي',
-                    'scheduled' => 'مجدول'
-                ]"
+                :enum="\App\Enums\Tenants\Collections\CollectionType::class"
             />
         </div>
 
@@ -177,10 +170,7 @@
                 name="payment_type"
                 label="نوع السداد"
                 placeholder="اختر نوع السداد"
-                :options="[
-                    'settlement' => 'سداد بتسوية',
-                    'without_settlement' => 'سداد بدون تسوية'
-                ]"
+                :enum="\App\Enums\Tenants\Collections\PaymentType::class"
             />
         </div>
 

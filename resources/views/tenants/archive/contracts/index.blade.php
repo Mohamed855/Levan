@@ -39,12 +39,7 @@
     <x-data-table.filters table="#archived-contracts-table">
         <div>
             <x-filter.select id="filter-status" filterKey="status" table="#archived-contracts-table" name="status"
-                label="حالة العقد" placeholder="اختر حالة العقد" :options="[
-                    'active' => 'نشط',
-                    'inactive' => 'غير نشط',
-                    'expired' => 'منتهي',
-                    'suspended' => 'معلق',
-                ]" />
+                label="حالة العقد" placeholder="اختر حالة العقد" :enum="\App\Enums\Shared\ActivityStatus::class" />
         </div>
 
         <div>
@@ -54,11 +49,7 @@
 
         <div>
             <x-filter.select id="filter-commission-type" filterKey="commission_type" table="#archived-contracts-table"
-                name="commission_type" label="نوع العمولة" placeholder="اختر نوع العمولة" :options="[
-                    'procedure' => 'حسب الإجراء',
-                    'duration' => 'حسب المدة',
-                    'delinquency' => 'حسب مدة التعثر',
-                ]" />
+                name="commission_type" label="نوع العمولة" placeholder="اختر نوع العمولة" :enum="\App\Enums\Tenants\Contracts\CommissionType::class" />
         </div>
     </x-data-table.filters>
 

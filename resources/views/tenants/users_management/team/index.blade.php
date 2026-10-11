@@ -56,8 +56,7 @@
             <label class="form-label" for="filter-status">حالة المجموعة</label>
             <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر حالة المجموعة">
                 <option value=""></option>
-                <option value="active">نشط</option>
-                <option value="inactive">غير نشط</option>
+                <x-form.controls.enum-options :enum="\App\Enums\Shared\ActivityStatus::class" />
             </select>
         </div>
     </x-data-table.filters>

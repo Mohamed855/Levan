@@ -11,6 +11,7 @@ use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Properties\Property;
 use App\Services\Tenants\Auctions\AuctionService;
+use App\Services\Tenants\Shared\CentralCityOptionsGateway;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -18,7 +19,8 @@ use Illuminate\View\View;
 class AuctionsController extends Controller
 {
     public function __construct(
-        protected AuctionService $auctionService
+        protected AuctionService $auctionService,
+        protected CentralCityOptionsGateway $cityOptionsGateway
     ) {
         $this->middleware('auth:tenant');
         $this->authorizeResource(Auction::class, 'auction');
@@ -37,6 +39,7 @@ class AuctionsController extends Controller
             'activeAuctions'        => $statistics['active'],
             'inPreparationAuctions' => $statistics['in_preparation'],
             'pendingAuctions'       => $statistics['pending_approval'],
+            'cityOptions'           => $this->cityOptionsGateway->optionsByName(),
         ]);
     }
 
@@ -48,6 +51,7 @@ class AuctionsController extends Controller
 
         return view('tenants.auctions.create', [
             'assignments' => $assignments,
+            'cityOptions' => $this->cityOptionsGateway->optionsByName(),
         ]);
     }
 
@@ -92,6 +96,7 @@ class AuctionsController extends Controller
             'auction'     => $auction,
             'assignments' => $assignments,
             'properties'  => $properties,
+            'cityOptions' => $this->cityOptionsGateway->optionsByName(),
         ]);
     }
 

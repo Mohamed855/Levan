@@ -134,15 +134,8 @@
                                         class="form-control select2 @error('target_type') is-invalid @enderror"
                                         data-allow-clear="true" data-placeholder="اختر نوع الهدف">
                                         <option value=""></option>
-                                        <option value="monthly"
-                                            {{ old('target_type', $collectionTarget->target_type) == 'monthly' ? 'selected' : '' }}>
-                                            شهري</option>
-                                        {{-- <option value="yearly"
-                                            {{ old('target_type', $collectionTarget->target_type) == 'yearly' ? 'selected' : '' }}>
-                                            سنوي</option>
-                                        <option value="custom"
-                                            {{ old('target_type', $collectionTarget->target_type) == 'custom' ? 'selected' : '' }}>
-                                            فترة مخصصة</option> --}}
+                                        <x-form.controls.enum-options :enum="\App\Enums\Tenants\Collections\TargetType::class"
+                                            :selected="old('target_type', $collectionTarget->target_type)" />
                                     </select>
                                     @error('target_type')
                                         <div class="invalid-feedback">{{ $message }}</div>

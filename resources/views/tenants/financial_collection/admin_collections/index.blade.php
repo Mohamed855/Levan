@@ -148,9 +148,7 @@
             <label for="filter-status" class="form-label">الحالة</label>
             <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر الحالة">
                 <option value=""></option>
-                <option value="pending">غير معتمد</option>
-                <option value="approved">معتمد</option>
-                <option value="rejected">مرفوض</option>
+                <x-form.controls.enum-options :enum="\App\Enums\Shared\ApprovalStatus::class" />
             </select>
         </div>
 
@@ -168,8 +166,7 @@
             <label for="filter-collection-type" class="form-label">نوع التحصيل</label>
             <select id="filter-collection-type" class="form-control select2" data-datatable-filter="true" data-filter-key="collection_type" data-placeholder="اختر النوع">
                 <option value=""></option>
-                <option value="cash">نقدي</option>
-                <option value="scheduled">مجدول</option>
+                <x-form.controls.enum-options :enum="\App\Enums\Tenants\Collections\CollectionType::class" />
             </select>
         </div>
 
@@ -177,8 +174,7 @@
             <label for="filter-payment-type" class="form-label">نوع السداد</label>
             <select id="filter-payment-type" class="form-control select2" data-datatable-filter="true" data-filter-key="payment_type" data-placeholder="اختر نوع السداد">
                 <option value=""></option>
-                <option value="settlement">سداد بتسوية</option>
-                <option value="without_settlement">سداد بدون تسوية</option>
+                <x-form.controls.enum-options :enum="\App\Enums\Tenants\Collections\PaymentType::class" />
             </select>
         </div>
 

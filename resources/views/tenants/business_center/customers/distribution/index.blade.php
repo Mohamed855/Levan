@@ -140,11 +140,7 @@
                 name="distribution_method"
                 label="نوع التوزيع"
                 placeholder="جميع الأنواع"
-                :options="[
-                    'balanced_amount' => 'توزيع متوازن (مبلغ)',
-                    'balanced_count' => 'توزيع متوازن (عدد)',
-                    'hybrid_balanced' => 'توزيع مختلط'
-                ]"
+                :enum="\App\Enums\Tenants\Customers\DistributionMethod::class"
             />
         </div>
 

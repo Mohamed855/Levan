@@ -33,8 +33,8 @@
                 <select name="contacted_person" id="contacted_person" class="form-control select2-modal"
                     data-placeholder="اختر الشخص المتصل به">
                     <option value=""></option>
-                    <option value="customer">العميل نفسه</option>
-                    <option value="relative">أحد أقارب العميل</option>
+                    <x-form.controls.enum-options :enum="\App\Enums\Tenants\Customers\ContactedPerson::class"
+                        :selected="old('contacted_person')" />
                 </select>
                 <div class="invalid-feedback"></div>
             </div>

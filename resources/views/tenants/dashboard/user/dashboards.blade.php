@@ -224,12 +224,8 @@
                                 </div>
                                 <select id="userComparisonPeriodFilter" class="form-select form-select-sm"
                                     style="width: 150px;">
-                                    <option value="today">اليوم</option>
-                                    <option value="week">هذا الأسبوع</option>
-                                    <option value="month" selected>هذا الشهر</option>
-                                    <option value="quarter">ربع سنوي</option>
-                                    <option value="year">سنوي</option>
-                                </select>
+                <x-form.controls.enum-options :enum="\App\Enums\Shared\DashboardPeriod::class" />
+            </select>
                             </div>
                         </div>
                         <div class="card-body">
@@ -306,19 +302,15 @@
                                 <select id="myOverdueResultTypeFilter" class="form-select form-select-sm"
                                     style="width:160px;">
                                     <option value="">كل الأنواع</option>
-                                    <option value="3">وعد بالسداد</option>
-                                    <option value="4">معاودة اتصال</option>
-                                    <option value="9">طلب مستندات</option>
+                                    @foreach ($overdueContactResults ?? [] as $resultId => $resultName)
+                                        <option value="{{ $resultId }}">{{ $resultName }}</option>
+                                    @endforeach
                                 </select>
 
                                 <select id="myOverdueDaysFilter" class="form-select form-select-sm" style="width:160px;">
-                                    <option value="">كل الفترات</option>
-                                    <option value="1">أمس فقط</option>
-                                    <option value="3">آخر 3 أيام</option>
-                                    <option value="7">آخر أسبوع</option>
-                                    <option value="30">آخر شهر</option>
-                                    <option value="custom">نطاق مخصص</option>
-                                </select>
+                <option value="">كل الفترات</option>
+                <x-form.controls.enum-options :enum="\App\Enums\Tenants\Collections\OverdueDaysRange::class" />
+            </select>
 
                                 <div id="myCustomDateRange" class="d-none" style="display: flex; gap: 5px;">
                                     <input type="date" id="myOverdueDateFrom" class="form-control form-control-sm"

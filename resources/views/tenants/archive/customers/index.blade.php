@@ -39,7 +39,7 @@
     <x-data-table.filters table="#archived-customers-table">
         <div>
             <x-filter.select id="filter-customer-type" filterKey="customer_type" table="#archived-customers-table"
-                name="customer_type" label="نوع العميل" placeholder="اختر نوع العميل" :options="['individual' => 'فردي', 'company' => 'شركة']" />
+                name="customer_type" label="نوع العميل" placeholder="اختر نوع العميل" :enum="\App\Enums\Tenants\Customers\CustomerType::class" />
         </div>
 
         <div>

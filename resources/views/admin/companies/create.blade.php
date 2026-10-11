@@ -150,11 +150,11 @@
                                 help="يُحسب تلقائياً حسب نوع الباقة، ويمكن تعديله عند الحاجة." col="col-md-6" />
                             <x-form.controls.input name="total_users" type="number" label="إجمالي المستخدمين"
                                 min="1" step="1" inputmode="numeric" col="col-md-6" />
-                            <x-form.controls.select name="payment_type" label="حالة الدفع" :options="['paid' => 'تم الدفع', 'unpaid' => 'لم يتم الدفع', 'trial' => 'فترة تجربة']"
+                            <x-form.controls.select name="payment_type" label="حالة الدفع" :enum="\App\Enums\Admin\Billing\BillStatus::class"
                                 placeholder="اختر حالة الدفع"
                                 data-validation-dependents="payment_method receipt_upload trial_end_date" required
                                 col="col-md-6" />
-                            <x-form.controls.select name="payment_method" label="وسيلة الدفع" :options="['online' => 'دفع إلكتروني', 'bank_transfer' => 'تحويل بنكي', 'cash' => 'نقدي']"
+                            <x-form.controls.select name="payment_method" label="وسيلة الدفع" :enum="\App\Enums\Admin\Billing\PaymentMethod::class"
                                 placeholder="اختر وسيلة الدفع" data-validation-dependents="receipt_upload"
                                 col="col-md-6" />
                             <x-form.controls.file name="receipt_upload" label="إيصال التحويل البنكي"
@@ -162,7 +162,7 @@
                                 help="يُقبل PDF أو صور بحد أقصى 5MB." col="col-md-6" />
                             <x-form.controls.input name="trial_end_date" type="date" label="تاريخ نهاية التجربة"
                                 col="col-md-6" />
-                            <x-form.controls.select name="has_discount" label="هل يوجد خصم أو تسوية؟" :options="['no' => 'لا', 'yes' => 'نعم']"
+                            <x-form.controls.select name="has_discount" label="هل يوجد خصم أو تسوية؟" :enum="\App\Enums\Shared\YesNo::class"
                                 :value="'no'" data-validation-dependents="discount_value" col="col-md-6" />
                             <x-form.controls.input name="discount_value" type="number"
                                 label="مبلغ الخصم / التسوية (ر.س)" min="0" step="0.01" inputmode="decimal"

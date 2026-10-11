@@ -19,9 +19,7 @@
         <div class="col-md-4 commission-type-col{{ $ctype ? '' : '' }}">
             <label class="form-label fw-semibold">نوع الشريحة <span class="text-danger">*</span></label>
             <select name="commissions[{{ $index }}][commission_type]" class="form-select commission-type-select">
-                <option value="procedure" {{ $ctype === 'procedure' ? 'selected' : '' }}>إجراء</option>
-                <option value="duration" {{ $ctype === 'duration' ? 'selected' : '' }}>مدة</option>
-                <option value="delinquency" {{ $ctype === 'delinquency' ? 'selected' : '' }}>مدة التعثر</option>
+                <x-form.controls.enum-options :enum="\App\Enums\Tenants\Contracts\CommissionType::class" :selected="$ctype" />
             </select>
         </div>
 
@@ -29,12 +27,8 @@
             <label class="form-label fw-semibold">نوع الإجراء <span class="text-danger">*</span></label>
             <select name="commissions[{{ $index }}][procedure_type]" class="form-select">
                 <option value="">اختر نوع الإجراء</option>
-                <option value="friendly"
-                    {{ isset($commission['procedure_type']) && $commission['procedure_type'] === 'friendly' ? 'selected' : '' }}>
-                    ودي</option>
-                <option value="legal"
-                    {{ isset($commission['procedure_type']) && $commission['procedure_type'] === 'legal' ? 'selected' : '' }}>
-                    قانوني</option>
+                <x-form.controls.enum-options :enum="\App\Enums\Tenants\Contracts\ProcedureType::class"
+                    :selected="$commission['procedure_type'] ?? null" />
             </select>
         </div>
 

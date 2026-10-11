@@ -327,8 +327,10 @@ function populateRoleModal(data) {
 
     // 3) تعبئة قائمة الحالات
     statusSelect.append('<option value=""></option>');
-    statusSelect.append('<option value="active" ' + (data.assigned_status === 'active' ? 'selected' : '') + '>نشط</option>');
-    statusSelect.append('<option value="inactive" ' + (data.assigned_status === 'inactive' ? 'selected' : '') + '>غير نشط</option>');
+    $.each(data.status_options, function (value, label) {
+        const option = new Option(label, value, false, data.assigned_status === value);
+        statusSelect.append(option);
+    });
 
     // 4) تهيئة Select2 للمودال (الدور + الحالة)
     roleSelect.select2({

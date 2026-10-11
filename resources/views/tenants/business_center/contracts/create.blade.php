@@ -300,8 +300,7 @@
                     <label class="form-label fw-semibold">نوع الإجراء <span class="text-danger">*</span></label>
                     <select name="commissions[__INDEX__][procedure_type]" class="select2-commission form-select">
                         <option value="">اختر نوع الإجراء</option>
-                        <option value="friendly">ودي</option>
-                        <option value="legal">قانوني</option>
+                        <x-form.controls.enum-options :enum="\App\Enums\Tenants\Contracts\ProcedureType::class" />
                     </select>
                 </div>
 

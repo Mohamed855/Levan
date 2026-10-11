@@ -106,19 +106,9 @@
         <x-slot:filters>
             <x-data-table.filters table="#auctions-table">
                 <x-filter.select id="filter-status" filterKey="status" label="الحالة" placeholder="جميع الحالات"
-                    :options="[
-                        'active'           => 'نشط',
-                        'in_preparation'   => 'قيد الإعداد',
-                        'pending_approval' => 'بانتظار الاعتماد',
-                        'completed'        => 'منتهي',
-                        'suspended'        => 'معلق'
-                    ]" />
+                    :enum="\App\Enums\Tenants\Auctions\AuctionStatus::class" />
                 <x-filter.select id="filter-type" filterKey="type" label="نوع المزاد" placeholder="جميع الأنواع"
-                    :options="[
-                        'electronic' => 'إلكتروني',
-                        'in_person'  => 'حضوري',
-                        'hybrid'     => 'هجين'
-                    ]" />
+                    :enum="\App\Enums\Tenants\Auctions\AuctionType::class" />
                 <x-form.controls.input name="filter_platform_name" id="filter-platform" label="المنصة / القاعة" placeholder="بحث بالمنصة أو القاعة..." />
             </x-data-table.filters>
         </x-slot:filters>

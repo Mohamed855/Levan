@@ -13,19 +13,8 @@
                         <label for="sms_provider" class="form-label">مزود الخدمة</label>
                         <select class="form-select select2" id="sms_provider" name="sms_provider"
                             data-placeholder="اختر مزود الخدمة">
-                            <option value="4jawaly" {{ old('sms_provider', $settings->sms_provider ?? '') == '4jawaly' ?
-                                'selected' : '' }}>
-                                4Jawaly</option>
-                            <option disabled value="twilio" {{ old('sms_provider', $settings->sms_provider ?? '') ==
-                                'twilio' ? 'selected' : '' }}>
-                                Twilio - غير متاحة حاليا</option>
-                            <option disabled value="nexmo" {{ old('sms_provider', $settings->sms_provider ?? '') ==
-                                'nexmo' ? 'selected' : '' }}>
-                                Nexmo - غير متاحة حاليا</option>
-                            <option disabled value="nexmo" {{ old('sms_provider', $settings->sms_provider ?? '') ==
-                                'nexmo' ? 'selected' : '' }}>
-                                taqnyat - غير متاحة حاليا</option>
-                            <!-- أضف مزودي خدمة آخرين حسب الحاجة -->
+                            <x-form.controls.enum-options :enum="\App\Enums\Tenants\Settings\SmsProvider::class"
+                                :selected="old('sms_provider', $settings->sms_provider ?? '')" />
                         </select>
                         @error('sms_provider')
                         <div class="text-danger small">{{ $message }}</div>

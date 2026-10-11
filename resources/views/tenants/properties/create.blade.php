@@ -61,23 +61,9 @@
 
                             <x-form.controls.input name="name" label="اسم العقار" placeholder="مثال: أرض النرجس" required col="col-md-6" />
 
-                            <x-form.controls.select name="type" label="نوع العقار" required col="col-md-6" :options="[
-                                ['value' => 'residential_land', 'label' => 'أرض سكنية'],
-                                ['value' => 'villa', 'label' => 'فيلا'],
-                                ['value' => 'residential_building', 'label' => 'عمارة سكنية'],
-                                ['value' => 'commercial_building', 'label' => 'مبنى تجاري'],
-                                ['value' => 'commercial_land', 'label' => 'أرض تجارية'],
-                                ['value' => 'mixed_use', 'label' => 'متعدد الاستخدام'],
-                            ]" />
+                            <x-form.controls.select name="type" label="نوع العقار" required col="col-md-6" :enum="\App\Enums\Tenants\Properties\PropertyType::class" />
 
-                            <x-form.controls.select name="city" label="المدينة" required col="col-md-6" :options="[
-                                ['value' => 'الرياض', 'label' => 'الرياض'],
-                                ['value' => 'جدة', 'label' => 'جدة'],
-                                ['value' => 'مكة المكرمة', 'label' => 'مكة المكرمة'],
-                                ['value' => 'المدينة المنورة', 'label' => 'المدينة المنورة'],
-                                ['value' => 'الدمام', 'label' => 'الدمام'],
-                                ['value' => 'الخبر', 'label' => 'الخبر'],
-                            ]" />
+                            <x-form.controls.select name="city" label="المدينة" required col="col-md-6" :options="$cityOptions" />
 
                             <x-form.controls.input name="district" label="الحي" placeholder="مثال: حي النرجس" col="col-md-6" />
 
@@ -100,11 +86,7 @@
 
                             <x-form.controls.input name="estimated_value" type="number" step="0.01" label="القيمة التقديرية (ر.س)" placeholder="مثال: 1500000" col="col-md-6" />
 
-                            <x-form.controls.select name="data_status" label="حالة اكتمال البيانات" col="col-md-6" :options="[
-                                ['value' => 'completed', 'label' => 'مكتمل'],
-                                ['value' => 'needs_images', 'label' => 'يحتاج صور'],
-                                ['value' => 'incomplete', 'label' => 'ناقص بيانات'],
-                            ]" />
+                            <x-form.controls.select name="data_status" label="حالة اكتمال البيانات" col="col-md-6" :enum="\App\Enums\Tenants\Properties\PropertyDataStatus::class" />
 
                             <x-form.controls.textarea name="notes" label="ملاحظات العقار" placeholder="أي مواصفات إضافية للعقار..." col="col-12" rows="3" />
 

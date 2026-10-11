@@ -2,7 +2,9 @@
 
 namespace App\Services\Tenants\UserManagement\Role;
 
+use App\Enums\Shared\ActivityStatus;
 use App\Models\Tenants\UserMangment\User\User;
+use App\Support\SelectOptions;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
@@ -180,6 +182,7 @@ class RoleService
             'roles' => Role::where('guard_name', 'tenant')->get(),
             'assigned_role' => $user->roles->first()?->id,
             'assigned_status' => $user->status,
+            'status_options' => SelectOptions::fromEnum(ActivityStatus::class),
         ];
     }
 

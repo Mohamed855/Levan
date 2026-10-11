@@ -167,8 +167,7 @@
             <label for="filter-customer-type" class="form-label">نوع العميل</label>
             <select id="filter-customer-type" class="form-control select2" data-datatable-filter="true" data-filter-key="customer_type" data-placeholder="جميع الأنواع">
                 <option value=""></option>
-                <option value="individual">فردي</option>
-                <option value="company">شركة</option>
+                <x-form.controls.enum-options :enum="\App\Enums\Tenants\Customers\CustomerType::class" />
             </select>
         </div>
 

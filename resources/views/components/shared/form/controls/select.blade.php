@@ -2,6 +2,7 @@
     'name',
     'label' => null,
     'options' => [],
+    'enum' => null,
     'id' => null,
     'value' => null,
     'placeholder' => 'اختر خيارًا',
@@ -11,6 +12,12 @@
     'help' => null,
     'col' => 'col-sm-6',
 ])
+
+@php
+    if ($enum) {
+        $options = \App\Support\SelectOptions::fromEnum($enum);
+    }
+@endphp
 
 @php
     $fieldId = $id ?: str_replace(['[', ']'], '-', $name);

@@ -38,10 +38,8 @@
                 <select name="contacted_person" id="edit_contacted_person" class="form-control select2-modal"
                     data-placeholder="اختر الشخص المتصل به">
                     <option value=""></option>
-                    <option value="customer" {{ $customerFollow->contacted_person == 'customer' ? 'selected' : '' }}>
-                        العميل نفسه</option>
-                    <option value="relative" {{ $customerFollow->contacted_person == 'relative' ? 'selected' : '' }}>أحد
-                        أقارب العميل</option>
+                    <x-form.controls.enum-options :enum="\App\Enums\Tenants\Customers\ContactedPerson::class"
+                        :selected="old('contacted_person', $customerFollow->contacted_person)" />
                 </select>
                 <div class="invalid-feedback"></div>
             </div>

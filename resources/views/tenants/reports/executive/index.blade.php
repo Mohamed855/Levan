@@ -212,7 +212,7 @@
                 <div class="col-lg-3 col-md-6">
                     <label class="form-label">الشركة</label>
                     <select id="companyFilter" class="form-select filter-control">
-                        <option value="all">الكل</option>
+                            <x-form.controls.enum-options :enum="\App\Enums\Shared\AllScope::class" />
                         @foreach ($companies as $company)
                             <option value="{{ $company->id }}">{{ $company->name }}</option>
                         @endforeach
@@ -222,7 +222,7 @@
                 <div class="col-lg-3 col-md-6">
                     <label class="form-label">المحفظة</label>
                     <select id="portfolioFilter" class="form-select filter-control">
-                        <option value="all">الكل</option>
+                            <x-form.controls.enum-options :enum="\App\Enums\Shared\AllScope::class" />
                         @foreach ($portfolios as $portfolio)
                             <option value="{{ $portfolio->id }}" data-company="{{ $portfolio->company_id }}">
                                 {{ $portfolio->name }}</option>

@@ -117,22 +117,11 @@
                 <x-filter.select id="filter-assignment" filterKey="assignment_id" label="الإسناد" placeholder="جميع الإسنادات"
                     :options="$assignments->pluck('name', 'id')->toArray()" />
                 <x-filter.select id="filter-type" filterKey="type" label="نوع العقار" placeholder="جميع الأنواع"
-                    :options="[
-                        'residential_land'     => 'أرض سكنية',
-                        'villa'                => 'فيلا',
-                        'residential_building' => 'عمارة سكنية',
-                        'commercial_building'  => 'مبنى تجاري',
-                        'commercial_land'      => 'أرض تجارية',
-                        'mixed_use'            => 'متعدد الاستخدام'
-                    ]" />
+                    :enum="\App\Enums\Tenants\Properties\PropertyType::class" />
                 <x-filter.select id="filter-data-status" filterKey="data_status" label="حالة البيانات" placeholder="جميع الحالات"
-                    :options="[
-                        'completed'    => 'مكتمل',
-                        'needs_images' => 'يحتاج صور',
-                        'incomplete'   => 'ناقص بيانات'
-                    ]" />
+                    :enum="\App\Enums\Tenants\Properties\PropertyDataStatus::class" />
                 <x-filter.select id="filter-city" filterKey="city" label="المدينة" placeholder="جميع المدن"
-                    :options="['الرياض' => 'الرياض', 'جدة' => 'جدة', 'مكة المكرمة' => 'مكة المكرمة', 'المدينة المنورة' => 'المدينة المنورة', 'الدمام' => 'الدمام']" />
+                    :options="$cityOptions" />
             </x-data-table.filters>
         </x-slot:filters>
 

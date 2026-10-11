@@ -188,19 +188,12 @@
 
                             <!-- حالة الدفع -->
                             <x-form.controls.select name="payment_type" id="sub_payment-status" label="حالة الدفع"
-                                required :select2="false" :options="[
-                                    ['value' => 'paid', 'label' => 'تم الدفع'],
-                                    ['value' => 'unpaid', 'label' => 'لم يتم الدفع (معلق)'],
-                                    ['value' => 'trial', 'label' => 'فترة تجربة (مجاني)'],
-                                ]" col="col-md-6" />
+                                required :select2="false" :enum="\App\Enums\Admin\Billing\BillStatus::class" col="col-md-6" />
 
                             <!-- طريقة الدفع -->
                             <div class="col-md-6" id="sub_payment-method-wrapper">
                                 <x-form.controls.select name="payment_method" id="sub_payment-method-select"
-                                    label="طريقة الدفع" :select2="false" col="col-12" :options="[
-                                        ['value' => 'bank_transfer', 'label' => 'تحويل بنكي'],
-                                        ['value' => 'online', 'label' => 'دفع إلكتروني (بطاقة / سداد)'],
-                                    ]" />
+                                    label="طريقة الدفع" :select2="false" col="col-12" :enum="\App\Enums\Admin\Billing\PaymentMethod::class" />
                             </div>
 
                             <!-- إيصال التحويل البنكي -->
@@ -218,10 +211,7 @@
 
                             <!-- تطبيق خصم -->
                             <x-form.controls.select name="has_discount" id="sub_discount-type"
-                                label="تطبيق خصم أو تسوية؟" :select2="false" :options="[
-                                    ['value' => 'no', 'label' => 'لا يوجد خصم'],
-                                    ['value' => 'yes', 'label' => 'نعم، يوجد خصم'],
-                                ]" col="col-md-6" />
+                                label="تطبيق خصم أو تسوية؟" :select2="false" :enum="\App\Enums\Shared\YesNo::class" col="col-md-6" />
 
                             <div class="col-md-6" id="sub_discount-wrapper" style="display: none;">
                                 <x-form.controls.input type="number" step="0.01" min="0" name="discount_value"

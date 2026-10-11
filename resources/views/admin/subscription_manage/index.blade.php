@@ -62,13 +62,7 @@
         {{-- Filters Card --}}
         <x-data-table.filters table="#subscriptions-table">
             <x-filter.select id="filter-status" filterKey="status" label="حالة الشركات"
-                placeholder="اختر حالة الشركة" :options="$filterOptions['statuses'] ?? [
-                    ['value' => 'pending', 'label' => 'قيد المراجعة'],
-                    ['value' => 'active', 'label' => 'نشط'],
-                    ['value' => 'suspended', 'label' => 'معلق'],
-                    ['value' => 'cancelled', 'label' => 'ملغي'],
-                    ['value' => 'expired', 'label' => 'منتهي'],
-                ]" />
+                placeholder="اختر حالة الشركة" :enum="\App\Enums\Admin\Subscriptions\SubscriptionStatus::class" />
         </x-data-table.filters>
     @endif
 

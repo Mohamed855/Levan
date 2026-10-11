@@ -26,8 +26,7 @@
         <select name="contacted_person" id="contacted_person" class="form-select select2"
             data-placeholder="اختر الشخص المتصل به">
             <option value=""></option>
-            <option value="customer">العميل نفسه</option>
-            <option value="relative">أحد أقارب العميل</option>
+            <x-form.controls.enum-options :enum="\App\Enums\Tenants\Customers\ContactedPerson::class" />
         </select>
     </div>
 

@@ -44,7 +44,7 @@
                 name="status"
                 label="حالة المحفظة"
                 placeholder="اختر حالة المحفظة"
-                :options="['active' => 'نشط', 'inactive' => 'غير نشط']"
+                :enum="\App\Enums\Shared\ActivityStatus::class"
             />
         </div>
 

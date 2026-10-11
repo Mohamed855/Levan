@@ -40,10 +40,7 @@
             <label class="form-label" for="filter-status">حالة التذكرة</label>
             <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر حالة التذكرة">
                 <option value=""></option>
-                <option value="open">مفتوحة</option>
-                <option value="in_progress">قيد المعالجة</option>
-                <option value="resolved">تم الحل</option>
-                <option value="closed">مغلقة</option>
+                <x-form.controls.enum-options :enum="\App\Enums\Tenants\Tickets\TicketStatus::class" />
             </select>
         </div>
     </x-data-table.filters>

@@ -18,21 +18,16 @@
             <div class="mb-3">
                 <label class="form-label">الأولوية</label>
                 <select name="priority" class="form-control" required>
-                    <option value="low">منخفضة</option>
-                    <option value="medium">متوسطة</option>
-                    <option value="high">مرتفعة</option>
-                </select>
+                                        <x-form.controls.enum-options :enum="\App\Enums\Admin\Support\SupportPriority::class" :selected="old('priority')" />
+                                    </select>
             </div>
 
             <!-- نوع المشكلة -->
             <div class="mb-3">
                 <label class="form-label">نوع المشكلة</label>
                 <select name="problem" class="form-control" required>
-                    <option value="technical">مشكلة تقنية</option>
-                    <option value="billing">مشكلة في الفواتير</option>
-                    <option value="account">مشكلة في الحساب</option>
-                    <option value="other">أخرى</option>
-                </select>
+                                        <x-form.controls.enum-options :enum="\App\Enums\Admin\Support\SupportProblemType::class" :selected="old('problem')" />
+                                    </select>
             </div>
 
             <!-- التفاصيل -->

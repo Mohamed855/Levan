@@ -87,30 +87,13 @@
                         col="col-md-3" />
 
                     <x-form.controls.select name="type" label="نوع المزاد" :value="$auction->type" required col="col-md-4"
-                        :options="[
-                            ['value' => 'electronic', 'label' => 'إلكتروني'],
-                            ['value' => 'in_person', 'label' => 'حضوري'],
-                            ['value' => 'hybrid', 'label' => 'هجين'],
-                        ]" />
+                        :enum="\App\Enums\Tenants\Auctions\AuctionType::class" />
 
                     <x-form.controls.select name="city" label="المدينة الرئيسية" :value="$auction->city" required
-                        col="col-md-4" :options="[
-                            ['value' => 'الرياض', 'label' => 'الرياض'],
-                            ['value' => 'جدة', 'label' => 'جدة'],
-                            ['value' => 'مكة المكرمة', 'label' => 'مكة المكرمة'],
-                            ['value' => 'المدينة المنورة', 'label' => 'المدينة المنورة'],
-                            ['value' => 'الدمام', 'label' => 'الدمام'],
-                        ]" />
+                        col="col-md-4" :options="$cityOptions" />
 
                     <x-form.controls.select name="status" label="حالة المزاد" :value="$auction->status" col="col-md-4"
-                        :options="[
-                            ['value' => 'draft', 'label' => 'مسودة'],
-                            ['value' => 'in_preparation', 'label' => 'قيد الإعداد'],
-                            ['value' => 'pending_approval', 'label' => 'بانتظار الاعتماد'],
-                            ['value' => 'active', 'label' => 'نشط'],
-                            ['value' => 'completed', 'label' => 'منتهي'],
-                            ['value' => 'suspended', 'label' => 'معلق'],
-                        ]" />
+                        :enum="\App\Enums\Tenants\Auctions\AuctionStatus::class" />
 
                     <x-form.controls.input name="expected_properties_count" type="number" min="1"
                         label="عدد العقارات المتوقع" :value="$auction->expected_properties_count" col="col-md-4" />

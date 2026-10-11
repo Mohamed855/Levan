@@ -66,17 +66,7 @@
             <label class="form-label" for="filter-log-name">نوع النشاط</label>
             <select id="filter-log-name" class="form-control select2" data-datatable-filter="true" data-filter-key="log_name" data-placeholder="اختر النوع">
                 <option value=""></option>
-                <option value="companies">الشركات</option>
-                <option value="contracts">العقود</option>
-                <option value="customers">العملاء</option>
-                <option value="customer_follow">المتابعات</option>
-                <option value="customer_payment_plan">خطط السداد</option>
-                <option value="customer_phone">أرقام الاتصال</option>
-                <option value="customer_settlement">طلبات التسوية</option>
-                <option value="users">المستخدمين</option>
-                <option value="portfolios">المحافظ</option>
-                <option value="collections">التحصيلات</option>
-                <option value="auth">تسجيل الدخول</option>
+                <x-form.controls.enum-options :enum="\App\Enums\Tenants\ActivityLogs\ActivityLogName::class" />
             </select>
         </div>
 

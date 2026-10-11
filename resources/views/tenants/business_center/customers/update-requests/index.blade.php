@@ -141,11 +141,7 @@
             name="status"
             label="الحالة"
             placeholder="اختر الحالة"
-            :options="[
-                'pending' => 'معلق',
-                'approved' => 'موافق عليه',
-                'rejected' => 'مرفوض',
-            ]"
+            :enum="\App\Enums\Shared\ApprovalStatus::class"
         />
     </div>
     <div>

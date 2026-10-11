@@ -421,12 +421,8 @@
                         <p class="mb-0 text-body">الإحصائيات</p>
                     </div>
                     <select id="statisticsPeriodFilter" class="form-select form-select-sm" style="width: 150px;">
-                        <option value="today">اليوم</option>
-                        <option value="week">هذا الأسبوع</option>
-                        <option value="month" selected>هذا الشهر</option>
-                        <option value="quarter">ربع سنوي</option>
-                        <option value="year">سنوي</option>
-                    </select>
+                <x-form.controls.enum-options :enum="\App\Enums\Shared\DashboardPeriod::class" />
+            </select>
                 </div>
                 <div class="mb-4"></div>
                 <div class="card-body">
@@ -499,12 +495,8 @@
                         <p class="mb-0 text-body">الاعتمادات</p>
                     </div>
                     <select id="approvalsPeriodFilter" class="form-select form-select-sm" style="width: 150px;">
-                        <option value="today">اليوم</option>
-                        <option value="week">هذا الأسبوع</option>
-                        <option value="month" selected>هذا الشهر</option>
-                        <option value="quarter">ربع سنوي</option>
-                        <option value="year">سنوي</option>
-                    </select>
+                <x-form.controls.enum-options :enum="\App\Enums\Shared\DashboardPeriod::class" />
+            </select>
                 </div>
                 <div class="mb-4"></div>
                 <div class="card-body">

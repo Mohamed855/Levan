@@ -77,7 +77,7 @@
                         <div class="invalid-feedback d-block" data-form-error role="alert" hidden></div>
                     </div>
 
-                    <x-form.controls.select name="is_active" id="is_active" label="حالة تفعيل الباقة" required :value="$plan->is_active ? '1' : '0'" col="col-md-6" :options="[['value' => '1', 'label' => 'مفعلة'], ['value' => '0', 'label' => 'معطلة']]" />
+                    <x-form.controls.select name="is_active" id="is_active" label="حالة تفعيل الباقة" required :value="$plan->is_active ? '1' : '0'" col="col-md-6" :enum="\App\Enums\Shared\ActivationStatus::class" />
                     <x-form.controls.input type="date" name="available_from" id="available_from" label="تاريخ بدء الإتاحة" :value="$plan->available_from?->format('Y-m-d')" col="col-md-6" help="اتركه فارغاً لإتاحتها فوراً." />
                     <x-form.controls.textarea name="admin_notes" id="admin_notes" label="ملاحظات إدارية" :value="$plan->admin_notes" rows="2" col="col-12" />
                 </div>
@@ -103,7 +103,7 @@
                     @if ($hasSubscriptions)
                         <div class="col-md-6" data-form-field data-field-name="limits_mode"><label class="form-label">وضع الحدود</label><input type="text" class="form-control" value="{{ $currentLimitsMode === 'unlimited' ? 'غير محدود' : 'محدود' }}" readonly><input id="limits_mode" type="hidden" name="limits_mode" value="{{ $currentLimitsMode }}" data-form-control></div>
                     @else
-                        <x-form.controls.select name="limits_mode" id="limits_mode" label="وضع الحدود" required :value="$currentLimitsMode" col="col-md-6" :options="[['value' => 'limited', 'label' => 'محدود'], ['value' => 'unlimited', 'label' => 'غير محدود']]" />
+                        <x-form.controls.select name="limits_mode" id="limits_mode" label="وضع الحدود" required :value="$currentLimitsMode" col="col-md-6" :enum="\App\Enums\Admin\Plans\PlanLimitsMode::class" />
                     @endif
                     <div class="col-12" id="unlimited-mode-alert" hidden><div class="alert alert-primary mb-0"><i class="ti ti-infinity me-2"></i>لن تُفرض حدود استخدام على هذه الباقة.</div></div>
                     <x-form.controls.input type="number" min="1" name="included_users" id="included_users" label="عدد المستخدمين المشمولين" :value="$plan->included_users" required col="col-md-6 limits-field" />
@@ -111,7 +111,7 @@
                     <x-form.controls.input type="number" min="1" name="properties_limit" id="properties_limit" label="حد العقارات" :value="$plan->properties_limit" required col="col-md-6 limits-field" />
                     <x-form.controls.input type="number" min="1" name="storage_quota_gb" id="storage_quota_gb" label="حصة التخزين (GB)" :value="$plan->storage_quota_gb" required col="col-md-6 limits-field" />
                     <x-form.controls.input type="number" min="1" name="active_auctions_limit" id="active_auctions_limit" label="حد المزادات النشطة" :value="$plan->active_auctions_limit" required col="col-md-6 limits-field" />
-                    <x-form.controls.select name="domain_management_enabled" id="domain_management_enabled" label="إدارة الدومينات" required :value="$plan->domain_management_enabled ? '1' : '0'" col="col-md-6" :options="[['value' => '1', 'label' => 'مفعلة'], ['value' => '0', 'label' => 'غير مفعلة']]" />
+                    <x-form.controls.select name="domain_management_enabled" id="domain_management_enabled" label="إدارة الدومينات" required :value="$plan->domain_management_enabled ? '1' : '0'" col="col-md-6" :enum="\App\Enums\Shared\ActivationStatus::class" />
                 </div>
                 <x-form.wizard.actions><x-form.wizard.previous-button /><div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button text="التالي للمراجعة" /></div></x-form.wizard.actions>
             </x-form.wizard.step>

@@ -127,8 +127,7 @@
                                                                     class="text-danger">*</span></label>
                                                             <select name="match_key" id="match_key"
                                                                 class="form-control select2">
-                                                                <option value="account_number">رقم الحساب</option>
-                                                                <option value="identity_number">رقم الهوية</option>
+                                                                <x-form.controls.enum-options :enum="\App\Enums\Tenants\Customers\CustomerMatchKey::class" />
                                                             </select>
                                                         </div>
 
@@ -150,8 +149,7 @@
                                                                 <span class="text-danger">*</span></label>
                                                             <select name="exclusion_key" id="exclusion_key"
                                                                 class="form-control select2">
-                                                                <option value="account_number">رقم الحساب</option>
-                                                                <option value="identity_number">رقم الهوية</option>
+                                                                <x-form.controls.enum-options :enum="\App\Enums\Tenants\Customers\CustomerMatchKey::class" />
                                                             </select>
                                                             <small class="text-muted d-block mt-2">
                                                                 <i class="ti ti-info-circle me-1"></i>

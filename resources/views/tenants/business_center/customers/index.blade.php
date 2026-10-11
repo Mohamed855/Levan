@@ -20,6 +20,9 @@
 
 @section('page-script')
     <script>
+        window.customerExportTruncationCriteria = @json(collect(\App\Support\SelectOptions::fromEnum(\App\Enums\Tenants\Customers\ExportTruncationCriterion::class))->map(fn ($label, $key) => compact('key', 'label'))->values());
+    </script>
+    <script>
         window.viewType = '{{ $viewType }}';
         window.routes = {
             customersIndex: "{{ tenant_route_name('customers.index') }}",
@@ -192,7 +195,7 @@
                 name="customer_type"
                 label="نوع العميل"
                 placeholder="اختر النوع"
-                :options="['individual' => 'فردي', 'company' => 'شركة']"
+                :enum="\App\Enums\Tenants\Customers\CustomerType::class"
             />
         </div>
 
@@ -242,7 +245,7 @@
                     name="sms_status"
                     label="حالة الإرسال"
                     placeholder="اختر الحالة"
-                    :options="['sent' => 'تم الإرسال', 'not_sent' => 'لم يتم الإرسال']"
+                    :enum="\App\Enums\Tenants\Customers\SmsDeliveryStatus::class"
                 />
             </div>
         @endif
@@ -256,7 +259,7 @@
                     name="sms_status"
                     label="حالة الإرسال"
                     placeholder="اختر الحالة"
-                    :options="['sent' => 'تم الإرسال', 'not_sent' => 'لم يتم الإرسال']"
+                    :enum="\App\Enums\Tenants\Customers\SmsDeliveryStatus::class"
                 />
             </div>
 

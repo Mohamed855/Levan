@@ -44,7 +44,7 @@
                 name="status"
                 label="حالة المستخدم"
                 placeholder="اختر حالة المستخدم"
-                :options="['active' => 'نشط', 'inactive' => 'غير نشط']"
+                :enum="\App\Enums\Shared\ActivityStatus::class"
             />
         </div>
 

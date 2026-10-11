@@ -174,11 +174,7 @@
                 name="task_type"
                 label="نوع المهمة"
                 placeholder="اختر نوع المهمة"
-                :options="[
-                    'promise' => 'وعد بالسداد',
-                    'callback' => 'معاودة اتصال',
-                    'document_request' => 'طلب مستندات'
-                ]"
+                :enum="\App\Enums\Tenants\Tasks\TaskType::class"
             />
         </div>
 
@@ -190,11 +186,7 @@
                 name="status"
                 label="الحالة"
                 placeholder="اختر الحالة"
-                :options="[
-                    'pending' => 'معلقة',
-                    'completed' => 'مكتملة',
-                    'overdue' => 'متأخرة'
-                ]"
+                :enum="\App\Enums\Tenants\Tasks\TaskStatus::class"
             />
         </div>
 
@@ -206,13 +198,7 @@
                 name="overdue_days"
                 label="أيام التأخير"
                 placeholder="اختر الفترة"
-                :options="[
-                    '1' => 'أمس فقط',
-                    '3' => 'آخر 3 أيام',
-                    '7' => 'آخر أسبوع',
-                    '30' => 'آخر شهر',
-                    'custom' => 'نطاق مخصص'
-                ]"
+                :enum="\App\Enums\Tenants\Collections\OverdueDaysRange::class"
             />
         </div>
 

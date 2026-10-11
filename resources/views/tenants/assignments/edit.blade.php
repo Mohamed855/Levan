@@ -70,32 +70,16 @@
                                 col="col-md-6" />
 
                             <x-form.controls.select name="category" label="نوع الإسناد" :value="$assignment->category" required
-                                col="col-md-6" :options="[
-                                    ['value' => 'lands', 'label' => 'أراضي'],
-                                    ['value' => 'villas', 'label' => 'فلل سكنية'],
-                                    ['value' => 'commercial_buildings', 'label' => 'عمائر تجارية'],
-                                    ['value' => 'educational', 'label' => 'مباني تعليمية'],
-                                    ['value' => 'industrial', 'label' => 'أراضي صناعية'],
-                                ]" />
+                                col="col-md-6" :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class" />
 
                             <x-form.controls.select name="status" label="حالة الإسناد" :value="$assignment->status" required
-                                col="col-md-6" :options="[
-                                    ['value' => 'active', 'label' => 'نشط'],
-                                    ['value' => 'inactive', 'label' => 'غير نشط'],
-                                ]" />
+                                col="col-md-6" :enum="\App\Enums\Shared\ActivityStatus::class" />
 
                             <x-form.controls.input name="issuing_entity" label="الجهة المسندة" :value="$assignment->issuing_entity" required
                                 col="col-md-6" />
 
                             <x-form.controls.select name="city" label="المدينة الرئيسية" :value="$assignment->city" col="col-md-6"
-                                :options="[
-                                    ['value' => 'الرياض', 'label' => 'الرياض'],
-                                    ['value' => 'جدة', 'label' => 'جدة'],
-                                    ['value' => 'مكة المكرمة', 'label' => 'مكة المكرمة'],
-                                    ['value' => 'المدينة المنورة', 'label' => 'المدينة المنورة'],
-                                    ['value' => 'الدمام', 'label' => 'الدمام'],
-                                    ['value' => 'الخبر', 'label' => 'الخبر'],
-                                ]" />
+                                :options="$cityOptions" />
 
                             <x-form.controls.image-upload name="entity_logo" label="شعار الجهة أو صورة الإسناد"
                                 :value="$assignment->entity_logo ? tasset($assignment->entity_logo) : null" accept="image/jpeg,image/png,image/webp,image/svg+xml"

@@ -87,9 +87,7 @@
                                             class="text-danger">*</span></label>
                                     <select id="is_active" name="is_active" class="form-select select2">
                                         <option value="">اختر الحالة</option>
-                                        <option value="1" {{ old('is_active') == 1 ? 'selected' : '' }}>مفعل</option>
-                                        <option value="0" {{ old('is_active') == 0 ? 'selected' : '' }}>غير مفعل
-                                        </option>
+                                        <x-form.controls.enum-options :enum="\App\Enums\Shared\ActivationStatus::class" :selected="old('is_active')" />
                                     </select>
                                 </div>
                             </div>

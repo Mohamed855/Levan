@@ -227,30 +227,13 @@
                                         col="col-md-6" />
 
                                     <x-form.controls.select name="type" label="نوع المزاد" required col="col-md-4"
-                                        :options="[
-                                            ['value' => 'electronic', 'label' => 'إلكتروني'],
-                                            ['value' => 'in_person', 'label' => 'حضوري'],
-                                            ['value' => 'hybrid', 'label' => 'هجين'],
-                                        ]" />
+                                        :enum="\App\Enums\Tenants\Auctions\AuctionType::class" />
 
                                     <x-form.controls.select name="category" label="تصنيف المزاد" required col="col-md-4"
-                                        :options="[
-                                            ['value' => 'residential', 'label' => 'سكني'],
-                                            ['value' => 'commercial', 'label' => 'تجاري'],
-                                            ['value' => 'investment', 'label' => 'استثماري'],
-                                            ['value' => 'educational', 'label' => 'تعليمي'],
-                                            ['value' => 'lands', 'label' => 'أراضي'],
-                                            ['value' => 'mixed_use', 'label' => 'متعدد الاستخدام'],
-                                        ]" />
+                                        :enum="\App\Enums\Tenants\Auctions\AuctionCategory::class" />
 
                                     <x-form.controls.select name="city" label="المدينة الرئيسية" required col="col-md-4"
-                                        :options="[
-                                            ['value' => 'الرياض', 'label' => 'الرياض'],
-                                            ['value' => 'جدة', 'label' => 'جدة'],
-                                            ['value' => 'مكة المكرمة', 'label' => 'مكة المكرمة'],
-                                            ['value' => 'المدينة المنورة', 'label' => 'المدينة المنورة'],
-                                            ['value' => 'الدمام', 'label' => 'الدمام'],
-                                        ]" />
+                                        :options="$cityOptions" />
 
                                     <x-form.controls.input name="expected_properties_count" type="number"
                                         label="عدد العقارات المتوقع" :value="1" min="1" col="col-md-6" />
@@ -397,23 +380,13 @@
                             </div>
 
                             <x-form.controls.select name="brochure_template_id" label="قالب البروشور" col="col-md-4"
-                                :options="[
-                                    ['value' => 'template_classic', 'label' => 'البروشور الكلاسيكي الفاخر'],
-                                    ['value' => 'template_modern', 'label' => 'البروشور العصري'],
-                                    ['value' => 'template_infath', 'label' => 'نموذج إنفاذ الرسمي'],
-                                ]" />
+                                :enum="\App\Enums\Tenants\Auctions\BrochureTemplate::class" />
 
                             <x-form.controls.select name="billboard_template_id" label="قالب اللوحة الإعلانية"
-                                col="col-md-4" :options="[
-                                    ['value' => 'billboard_banner', 'label' => 'بانر الشوارع الرئيسي'],
-                                    ['value' => 'billboard_vertical', 'label' => 'لوحة موقع العقار العمودية'],
-                                ]" />
+                                col="col-md-4" :enum="\App\Enums\Tenants\Auctions\BillboardTemplate::class" />
 
                             <x-form.controls.select name="social_template_id" label="قالب منصات التواصل" col="col-md-4"
-                                :options="[
-                                    ['value' => 'social_post', 'label' => 'منشور مربع (Instagram / X)'],
-                                    ['value' => 'social_story', 'label' => 'ستوري عمودي (Snapchat / Story)'],
-                                ]" />
+                                :enum="\App\Enums\Tenants\Auctions\SocialTemplate::class" />
 
                             <div class="col-12 mt-4 border-top pt-3">
                                 <h6 class="fw-bold mb-3"><i class="ti ti-paperclip me-1"></i>مرفقات ووثائق المزاد:</h6>

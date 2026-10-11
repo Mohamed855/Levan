@@ -109,29 +109,11 @@
         <x-slot:filters>
             <x-data-table.filters table="#assignments-table">
                 <x-filter.select id="filter-status" filterKey="status" label="حالة الإسناد"
-                    placeholder="جميع الحالات" :options="[
-                        'active' => 'نشط',
-                        'under_review' => 'قيد المراجعة',
-                        'suspended' => 'متوقف',
-                        'auctioned' => 'محول لمزاد',
-                    ]" />
+                    placeholder="جميع الحالات" :enum="\App\Enums\Tenants\Assignments\AssignmentStatus::class" />
                 <x-filter.select id="filter-category" filterKey="category" label="نوع الإسناد"
-                    placeholder="جميع التصنيفات" :options="[
-                        'lands' => 'أراضي',
-                        'villas' => 'فلل سكنية',
-                        'commercial_buildings' => 'عمائر تجارية',
-                        'educational' => 'مباني تعليمية',
-                        'industrial' => 'أراضي صناعية',
-                    ]" />
+                    placeholder="جميع التصنيفات" :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class" />
                 <x-filter.select id="filter-city" filterKey="city" label="المدينة" placeholder="جميع المدن"
-                    :options="[
-                        'الرياض' => 'الرياض',
-                        'جدة' => 'جدة',
-                        'مكة المكرمة' => 'مكة المكرمة',
-                        'المدينة المنورة' => 'المدينة المنورة',
-                        'الدمام' => 'الدمام',
-                        'الخبر' => 'الخبر',
-                    ]" />
+                    :options="$cityOptions" />
                 <x-form.controls.input name="filter_issuing_entity" id="filter-entity" label="الجهة المسندة"
                     placeholder="بحث باسم الجهة..." />
             </x-data-table.filters>

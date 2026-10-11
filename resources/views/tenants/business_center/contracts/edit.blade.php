@@ -141,18 +141,8 @@
                                     @endphp
                                     <select id="commission_types" name="commission_types[]" class="select2 form-select"
                                         multiple data-placeholder="اختر أنواع العمولة">
-                                        <option value="procedure"
-                                            {{ in_array('procedure', $existingTypes) ? 'selected' : '' }}>
-                                            حسب الإجراء
-                                        </option>
-                                        <option value="duration"
-                                            {{ in_array('duration', $existingTypes) ? 'selected' : '' }}>
-                                            حسب المدة
-                                        </option>
-                                        <option value="delinquency"
-                                            {{ in_array('delinquency', $existingTypes) ? 'selected' : '' }}>
-                                            حسب مدة التعثر
-                                        </option>
+                                        <x-form.controls.enum-options :enum="\App\Enums\Tenants\Contracts\CommissionType::class"
+                                            :selected="$existingTypes" />
                                     </select>
                                     <input type="hidden" id="commission_type" name="commission_type"
                                         value="{{ old('commission_type', $contract->commission_type) }}">
@@ -230,13 +220,8 @@
                                                                 name="commissions[{{ $index }}][procedure_type]"
                                                                 class="select2-commission form-select">
                                                                 <option value="">اختر نوع الإجراء</option>
-                                                                <option value="friendly"
-                                                                    {{ $procedureType === 'friendly' ? 'selected' : '' }}>
-                                                                    ودي</option>
-                                                                <option value="legal"
-                                                                    {{ $procedureType === 'legal' ? 'selected' : '' }}>
-                                                                    قانوني
-                                                                </option>
+                                                                <x-form.controls.enum-options :enum="\App\Enums\Tenants\Contracts\ProcedureType::class"
+                                                                    :selected="$procedureType" />
                                                             </select>
                                                         </div>
                                                         <div class="col-md-6 commission-rate-col">
@@ -334,8 +319,7 @@
                     <label class="form-label fw-semibold">نوع الإجراء <span class="text-danger">*</span></label>
                     <select name="commissions[__INDEX__][procedure_type]" class="select2-commission form-select">
                         <option value="">اختر نوع الإجراء</option>
-                        <option value="friendly">ودي</option>
-                        <option value="legal">قانوني</option>
+                        <x-form.controls.enum-options :enum="\App\Enums\Tenants\Contracts\ProcedureType::class" />
                     </select>
                 </div>
 

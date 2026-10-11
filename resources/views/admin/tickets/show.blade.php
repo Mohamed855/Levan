@@ -201,20 +201,8 @@
                         <div class="mb-3">
                             <label class="form-label small">الحالة الحالية:</label>
                             <select name="status" class="form-select">
-                                <option value="open" {{ $ticket->status === 'open' ? 'selected' : '' }}>جديدة (Open)
-                                </option>
-                                <option value="in_progress" {{ $ticket->status === 'in_progress' ? 'selected' : '' }}>قيد
-                                    المعالجة (In Progress)</option>
-                                <option value="resolved_pending_survey"
-                                    {{ $ticket->status === 'resolved_pending_survey' ? 'selected' : '' }}>تم الحل وفي
-                                    انتظار التقييم</option>
-                                <option value="resolved" {{ $ticket->status === 'resolved' ? 'selected' : '' }}>تم
-                                    المعالجة والحل (Resolved)</option>
-                                <option value="reopened" {{ $ticket->status === 'reopened' ? 'selected' : '' }}>معادة
-                                    (Reopened)</option>
-                                <option value="closed" {{ $ticket->status === 'closed' ? 'selected' : '' }}>مغلقة (Closed)
-                                </option>
-                            </select>
+                                        <x-form.controls.enum-options :enum="\App\Enums\Tenants\Tickets\TicketStatus::class" :selected="`$ticket->status" />
+                                    </select>
                         </div>
                         <button type="submit" class="btn btn-outline-warning w-100">
                             <i class="ti ti-check me-1"></i> تحديث الحالة

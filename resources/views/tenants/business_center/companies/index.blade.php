@@ -49,9 +49,9 @@
         <x-slot:filters>
             <x-data-table.filters table="#companies-table">
                 <x-filter.select id="filter-status" filterKey="status" label="حالة الشركة" placeholder="اختر حالة الشركة"
-                    :options="['active' => 'نشط', 'inactive' => 'غير نشط']" />
+                    :enum="\App\Enums\Shared\ActivityStatus::class" />
                 <x-filter.select id="filter-authorized-count" filterKey="authorized_count" label="عدد المفوضين" placeholder="اختر عدد المفوضين"
-                    :options="['0' => 'بدون مفوضين', '1' => 'مفوض واحد', '2-5' => 'من 2 إلى 5 مفوضين', '6+' => 'أكثر من 5 مفوضين']" />
+                    :enum="\App\Enums\Tenants\Companies\AuthorizedCountRange::class" />
             </x-data-table.filters>
         </x-slot:filters>
 

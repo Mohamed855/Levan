@@ -23,16 +23,14 @@
     function addPhoneField() {
         const $container = $('#additional-phones');
         const idx = phoneCounter++;
+        const phoneTypeOptions = $container.find('select[name$="[type]"]').first().html();
 
         $container.append(`
             <div class="phone-entry mb-2">
                 <div class="input-group">
                     <input type="text" name="phones[${idx}][phone]" class="form-control phone-input additional-phone" placeholder="رقم الهاتف" maxlength="10">
                     <select name="phones[${idx}][type]" class="form-select" style="max-width: 100px;">
-                        <option value="mobile">جوال</option>
-                        <option value="home">منزل</option>
-                        <option value="work">عمل</option>
-                        <option value="other">أخرى</option>
+                        ${phoneTypeOptions}
                     </select>
                     <button type="button" class="btn btn-outline-danger js-remove-phone-field-btn">
                         <i class="ti ti-minus"></i>

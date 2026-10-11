@@ -86,26 +86,13 @@
                                 placeholder="مثال: إسناد أراضي شمال الرياض" required col="col-md-6" />
 
                             <x-form.controls.select name="category" label="نوع الإسناد" required col="col-md-6"
-                                :options="[
-                                    ['value' => 'lands', 'label' => 'أراضي'],
-                                    ['value' => 'villas', 'label' => 'فلل سكنية'],
-                                    ['value' => 'commercial_buildings', 'label' => 'عمائر تجارية'],
-                                    ['value' => 'educational', 'label' => 'مباني تعليمية'],
-                                    ['value' => 'industrial', 'label' => 'أراضي صناعية'],
-                                ]" />
+                                :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class" />
 
                             <x-form.controls.input name="issuing_entity" label="الجهة المسندة"
                                 placeholder="مثال: مركز الإسناد والتصفية - إنفاذ" required col="col-md-6" />
 
                             <x-form.controls.select name="city" label="المدينة الرئيسية" col="col-md-6"
-                                :options="[
-                                    ['value' => 'الرياض', 'label' => 'الرياض'],
-                                    ['value' => 'جدة', 'label' => 'جدة'],
-                                    ['value' => 'مكة المكرمة', 'label' => 'مكة المكرمة'],
-                                    ['value' => 'المدينة المنورة', 'label' => 'المدينة المنورة'],
-                                    ['value' => 'الدمام', 'label' => 'الدمام'],
-                                    ['value' => 'الخبر', 'label' => 'الخبر'],
-                                ]" />
+                                :options="$cityOptions" />
 
                             <x-form.controls.image-upload name="entity_logo" label="شعار الجهة أو صورة الإسناد"
                                 accept="image/jpeg,image/png,image/webp,image/svg+xml"

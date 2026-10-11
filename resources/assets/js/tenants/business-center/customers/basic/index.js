@@ -301,14 +301,7 @@ const CUSTOMERS_EXPORT_FIELDS = [
 | في CustomerService.php الخاص بالباك-إند.
 */
 const CUSTOMERS_EXPORT_ABSOLUTE_MAX = 25000;
-const CUSTOMERS_EXPORT_TRUNCATE_CRITERIA = [
-    { key: 'created_desc', label: 'الأحدث إنشاءً' },
-    { key: 'created_asc', label: 'الأقدم إنشاءً' },
-    { key: 'debt_desc', label: 'الأعلى مديونية' },
-    { key: 'debt_asc', label: 'الأقل مديونية' },
-    { key: 'paid_desc', label: 'الأعلى دفعًا' },
-    { key: 'paid_asc', label: 'الأقل دفعًا' },
-];
+const CUSTOMERS_EXPORT_TRUNCATE_CRITERIA = window.customerExportTruncationCriteria ?? [];
 
 /*
 |--------------------------------------------------------------------------
