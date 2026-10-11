@@ -96,6 +96,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         Route::get('/', [WizardDraftController::class, 'show'])->name('index');
         Route::post('/', [WizardDraftController::class, 'store'])->name('store');
         Route::delete('/', [WizardDraftController::class, 'destroy'])->name('destroy');
+        Route::delete('file', [WizardDraftController::class, 'destroyFile'])->name('file.destroy');
         Route::post('validate-step', [WizardDraftController::class, 'validateStep'])
             ->defaults('shared_form_validation_actions', [
                 UserController::class . '@store',
@@ -477,6 +478,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             Route::name('index')->get('/',                     [AssignmentsController::class, 'index']);
             Route::name('create')->get('create',                [AssignmentsController::class, 'create']);
             Route::name('store')->post('/',                    [AssignmentsController::class, 'store']);
+            Route::name('selected-properties')->get('selected-properties', [AssignmentsController::class, 'selectedProperties']);
             Route::name('properties')->get('{assignment}/properties', [AssignmentsController::class, 'getProperties']);
             Route::name('show')->get('{assignment}',             [AssignmentsController::class, 'show']);
             Route::name('edit')->get('{assignment}/edit',        [AssignmentsController::class, 'edit']);

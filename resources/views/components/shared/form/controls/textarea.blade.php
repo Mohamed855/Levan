@@ -19,7 +19,6 @@
         id="{{ $fieldId }}"
         name="{{ $name }}"
         @if ($placeholder) placeholder="{{ $placeholder }}" @endif
-        @required($required)
         data-form-control
         aria-describedby="{{ $errorId }}"
         aria-invalid="{{ $errors->has($name) ? 'true' : 'false' }}"

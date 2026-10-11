@@ -28,7 +28,6 @@
                 type="{{ $type }}"
                 value="{{ old($name, $value) }}"
                 @if ($placeholder) placeholder="{{ $placeholder }}" @endif
-                @required($required)
                 data-form-control
                 aria-describedby="{{ $errorId }}"
                 aria-invalid="{{ $errors->has($name) ? 'true' : 'false' }}"
@@ -42,7 +41,6 @@
             type="{{ $type }}"
             value="{{ old($name, $value) }}"
             @if ($placeholder) placeholder="{{ $placeholder }}" @endif
-            @required($required)
             data-form-control
             aria-describedby="{{ $errorId }}"
             aria-invalid="{{ $errors->has($name) ? 'true' : 'false' }}"

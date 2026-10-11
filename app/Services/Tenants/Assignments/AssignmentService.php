@@ -2,6 +2,7 @@
 
 namespace App\Services\Tenants\Assignments;
 
+use App\Enums\Tenants\Assignments\AssignmentAttachmentCategory;
 use App\Models\Tenants\Assignments\Assignment;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -13,11 +14,11 @@ class AssignmentService
     public function getStatistics(): array
     {
         return [
-            'total'        => Assignment::count(),
-            'active'       => Assignment::where('status', 'active')->count(),
+            'total' => Assignment::count(),
+            'active' => Assignment::where('status', 'active')->count(),
             'under_review' => Assignment::where('status', 'under_review')->count(),
-            'suspended'    => Assignment::where('status', 'suspended')->count(),
-            'auctioned'    => Assignment::where('status', 'auctioned')->count(),
+            'suspended' => Assignment::where('status', 'suspended')->count(),
+            'auctioned' => Assignment::where('status', 'auctioned')->count(),
         ];
     }
 
@@ -35,30 +36,27 @@ class AssignmentService
         return $number;
     }
 
-    public function createAssignment(array $data, ?UploadedFile $logo = null): Assignment
-    {
-        if ($logo) {
-            $data['entity_logo'] = $logo->store('assignments/logos', 'tenant_public');
-        }
-
-        if (empty($data['assignment_number'])) {
-            $data['assignment_number'] = $this->generateAssignmentNumber();
-        }
-
-        $data['created_by'] = auth('tenant')->id();
-
-        return Assignment::create($data);
-    }
-
     public function updateAssignment(Assignment $assignment, array $data, ?UploadedFile $logo = null): Assignment
     {
         if ($logo) {
-            if ($assignment->entity_logo && Storage::disk('tenant_public')->exists($assignment->entity_logo)) {
-                Storage::disk('tenant_public')->delete($assignment->entity_logo);
+            $currentImage = $assignment->assignmentImage;
+            if ($currentImage) {
+                Storage::disk($currentImage->disk)->delete($currentImage->file_path);
+                $currentImage->delete();
             }
-            $data['entity_logo'] = $logo->store('assignments/logos', 'tenant_public');
+            $path = $logo->store('assignments/attachments', 'tenant_public');
+            $assignment->attachments()->create([
+                'disk' => 'tenant_public',
+                'file_path' => $path,
+                'original_name' => $logo->getClientOriginalName(),
+                'mime_type' => $logo->getClientMimeType(),
+                'extension' => $logo->getClientOriginalExtension(),
+                'file_size' => $logo->getSize(),
+                'category' => AssignmentAttachmentCategory::IMAGE->value,
+            ]);
         }
 
+        unset($data['assignment_image']);
         $assignment->update($data);
 
         return $assignment;
@@ -69,7 +67,7 @@ class AssignmentService
         $newStatus = $isActive ?? ! $assignment->is_active;
         $assignment->update([
             'is_active' => $newStatus,
-            'status'    => $newStatus ? 'active' : 'suspended',
+            'status' => $newStatus ? 'active' : 'suspended',
         ]);
 
         return $newStatus;
@@ -90,11 +88,18 @@ class AssignmentService
             throw new LogicException('لا يمكن حذف الإسناد نهائياً قبل حذف العقارات والمزادات المرتبطة به نهائياً.');
         }
 
+        $attachments = $assignment->attachments()->get(['id', 'disk', 'file_path']);
         $entityLogo = $assignment->entity_logo;
         $deleted = (bool) $assignment->forceDelete();
 
-        if ($deleted && $entityLogo) {
-            Storage::disk('tenant_public')->delete($entityLogo);
+        if ($deleted) {
+            foreach ($attachments as $attachment) {
+                Storage::disk($attachment->disk)->delete($attachment->file_path);
+            }
+            $assignment->attachments()->delete();
+            if ($entityLogo) {
+                Storage::disk('tenant_public')->delete($entityLogo);
+            }
         }
 
         return $deleted;

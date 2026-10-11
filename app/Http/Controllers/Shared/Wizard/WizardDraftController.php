@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Shared\Wizard;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Shared\Wizard\DiscardWizardDraftRequest;
+use App\Http\Requests\Shared\Wizard\RemoveWizardDraftFileRequest;
 use App\Http\Requests\Shared\Wizard\StoreWizardDraftRequest;
 use App\Http\Requests\Shared\Wizard\ValidateWizardStepRequest;
 use App\Services\Shared\Wizard\WizardDraftService;
@@ -18,9 +19,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class WizardDraftController extends Controller
 {
-    public function __construct(private readonly WizardDraftService $drafts)
-    {
-    }
+    public function __construct(private readonly WizardDraftService $drafts) {}
 
     public function show(Request $request): JsonResponse
     {
@@ -59,6 +58,20 @@ class WizardDraftController extends Controller
         ]);
     }
 
+    public function destroyFile(RemoveWizardDraftFileRequest $request): JsonResponse
+    {
+        $removed = $this->drafts->removeFile(
+            $request,
+            $request->validated('resource_key'),
+            $request->validated('file_key'),
+        );
+
+        return response()->json([
+            'success' => $removed,
+            'message' => $removed ? 'تم حذف الملف من المسودة.' : 'الملف غير موجود في المسودة.',
+        ], $removed ? 200 : 404);
+    }
+
     public function validateStep(ValidateWizardStepRequest $request): JsonResponse
     {
         $targetRoute = $this->resolveFormRoute(
@@ -94,14 +107,14 @@ class WizardDraftController extends Controller
     }
 
     /**
-     * @param list<string> $allowedActions
+     * @param  list<string>  $allowedActions
      */
     private function resolveFormRoute(string $targetPath, string $targetMethod, Request $sourceRequest, array $allowedActions = []): Route
     {
         $path = parse_url($targetPath, PHP_URL_PATH);
 
         if (! is_string($path) || ! str_starts_with($path, '/')) {
-            throw new NotFoundHttpException();
+            throw new NotFoundHttpException;
         }
 
         try {
@@ -113,7 +126,7 @@ class WizardDraftController extends Controller
             $route->bind($routeRequest);
             app('router')->substituteBindings($route);
         } catch (\Throwable) {
-            throw new NotFoundHttpException();
+            throw new NotFoundHttpException;
         }
 
         $action = $route->getActionMethod();
@@ -185,18 +198,22 @@ class WizardDraftController extends Controller
         );
     }
 
-    private function fileNames(array $files): array
+    private function fileNames(array $files, string $prefix = ''): array
     {
         $names = [];
 
         foreach ($files as $key => $file) {
             if (is_array($file) && ! array_key_exists('name', $file)) {
-                $names[$key] = $this->fileNames($file);
+                $names[$key] = $this->fileNames($file, $prefix === '' ? (string) $key : $prefix.'.'.$key);
+
                 continue;
             }
 
             if (is_array($file) && isset($file['name'])) {
-                $names[$key] = $file['name'];
+                $names[$key] = [
+                    'key' => $prefix === '' ? (string) $key : $prefix.'.'.$key,
+                    'name' => $file['name'],
+                ];
             }
         }
 

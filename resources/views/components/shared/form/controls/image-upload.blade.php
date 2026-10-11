@@ -33,7 +33,6 @@
                 data-image-input="{{ $fieldId }}"
                 aria-describedby="{{ $errorId }}"
                 aria-invalid="{{ $errors->has($name) ? 'true' : 'false' }}"
-                @required($required)
                 {{ $attributes }}
             >
             @if ($hint)

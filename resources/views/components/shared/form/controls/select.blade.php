@@ -33,7 +33,6 @@
         id="{{ $fieldId }}"
         name="{{ $fieldName }}"
         @if ($multiple) multiple @endif
-        @required($required)
         data-form-control
         data-placeholder="{{ $placeholder }}"
         aria-describedby="{{ $errorId }}"

@@ -53,7 +53,7 @@
                     @csrf
                     @method('PUT')
 
-                    <x-form.wizard.step id="assignment-info-validation" :fields="['assignment_number', 'name', 'issuing_entity', 'city', 'category', 'entity_logo']">
+                    <x-form.wizard.step id="assignment-info-validation" :fields="['assignment_number', 'name', 'issuing_entity', 'city', 'district', 'category', 'assignment_image']">
                         <div class="row g-6">
                             <div class="col-md-6" data-form-field data-field-name="assignment_number">
                                 <label for="assignment_number" class="form-label">رقم الإسناد <span
@@ -73,16 +73,18 @@
                                 col="col-md-6" :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class" />
 
                             <x-form.controls.select name="status" label="حالة الإسناد" :value="$assignment->status" required
-                                col="col-md-6" :enum="\App\Enums\Shared\ActivityStatus::class" />
+                                col="col-md-6" :enum="\App\Enums\Tenants\Assignments\AssignmentStatus::class" />
 
                             <x-form.controls.input name="issuing_entity" label="الجهة المسندة" :value="$assignment->issuing_entity" required
                                 col="col-md-6" />
 
-                            <x-form.controls.select name="city" label="المدينة الرئيسية" :value="$assignment->city" col="col-md-6"
+                            <x-form.controls.select name="city" label="المدينة" :value="$assignment->city" col="col-md-6"
                                 :options="$cityOptions" />
 
-                            <x-form.controls.image-upload name="entity_logo" label="شعار الجهة أو صورة الإسناد"
-                                :value="$assignment->entity_logo ? tasset($assignment->entity_logo) : null" accept="image/jpeg,image/png,image/webp,image/svg+xml"
+                            <x-form.controls.input name="district" label="النطاق/الحي" :value="$assignment->district" required col="col-md-6" />
+
+                            <x-form.controls.image-upload name="assignment_image" label="صورة الإسناد"
+                                :value="$assignment->assignmentImage ? tasset($assignment->assignmentImage->file_path) : null" accept="image/jpeg,image/png,image/webp,image/svg+xml"
                                 hint="JPG، PNG أو WebP أو SVG. الحد الأقصى 2MB" col="col-md-6" />
 
                             <x-form.wizard.actions>
@@ -94,11 +96,11 @@
 
                     <x-form.wizard.step id="assignment-period-validation" :fields="['start_date', 'end_date', 'notes']">
                         <div class="row g-6">
-                            <x-form.controls.input name="start_date" type="date" label="تاريخ بداية الإسناد"
+                            <x-form.controls.input name="start_date" type="date" label="تاريخ البداية"
                                 :value="$assignment->start_date?->format('Y-m-d')" col="col-md-6" />
-                            <x-form.controls.input name="end_date" type="date" label="تاريخ نهاية الإسناد"
+                            <x-form.controls.input name="end_date" type="date" label="تاريخ النهاية"
                                 :value="$assignment->end_date?->format('Y-m-d')" col="col-md-6" />
-                            <x-form.controls.textarea name="notes" label="الملاحظات والتفاصيل" :value="$assignment->notes"
+                            <x-form.controls.textarea name="notes" label="وصف الإسناد" :value="$assignment->notes"
                                 col="col-12" rows="4" />
 
                             <x-form.wizard.actions>

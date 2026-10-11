@@ -38,7 +38,7 @@
             <div class="card mb-4">
                 <div class="card-body text-center">
                     <div class="mx-auto mb-3">
-                        <img src="{{ $assignment->entity_logo ? tasset($assignment->entity_logo) : asset('assets/img/illustrations/page-pricing-enterprise.png') }}"
+                        <img src="{{ $assignment->assignmentImage ? tasset($assignment->assignmentImage->file_path) : asset('assets/img/illustrations/page-pricing-enterprise.png') }}"
                             alt="Logo" class="rounded" style="width: 100px; height: 100px; object-fit: cover;">
                     </div>
                     <h5 class="mb-1">{{ $assignment->name }}</h5>
@@ -61,6 +61,10 @@
                                 <span>{{ $assignment->issuing_entity }}</span></li>
                             <li class="mb-2"><span class="fw-bold me-1">المدينة:</span>
                                 <span>{{ $assignment->city ?? '-' }}</span></li>
+                            @if ($assignment->district)
+                                <li class="mb-2"><span class="fw-bold me-1">النطاق/الحي:</span>
+                                    <span>{{ $assignment->district }}</span></li>
+                            @endif
                             <li class="mb-2"><span class="fw-bold me-1">تاريخ البداية:</span>
                                 <span>{{ $assignment->start_date?->format('Y-m-d') ?? '-' }}</span></li>
                             <li class="mb-2"><span class="fw-bold me-1">تاريخ الانتهاء:</span>
@@ -69,6 +73,29 @@
                     </div>
                 </div>
             </div>
+
+            @if ($assignment->attachments()->where('category', '!=', \App\Enums\Tenants\Assignments\AssignmentAttachmentCategory::IMAGE->value)->exists())
+                <div class="card mb-4">
+                    <div class="card-header pb-2">
+                        <h6 class="card-title mb-0">المستندات والمرفقات</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            @foreach ($assignment->attachments()->where('category', '!=', \App\Enums\Tenants\Assignments\AssignmentAttachmentCategory::IMAGE->value)->get() as $doc)
+                                <li class="d-flex align-items-center justify-content-between py-2 border-bottom">
+                                    <div class="d-flex align-items-center gap-2 text-truncate me-2">
+                                        <i class="ti ti-file text-primary fs-5"></i>
+                                        <span class="text-truncate" title="{{ $doc->file_name }}">{{ $doc->file_name }}</span>
+                                    </div>
+                                    <a href="{{ tasset($doc->file_path) }}" target="_blank" class="btn btn-sm btn-icon btn-label-primary" title="عرض أو تحميل">
+                                        <i class="ti ti-download"></i>
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            @endif
         </div>
 
         {{-- تفاصيل العقارات والمزادات --}}

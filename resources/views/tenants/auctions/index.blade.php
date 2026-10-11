@@ -109,6 +109,8 @@
                     :enum="\App\Enums\Tenants\Auctions\AuctionStatus::class" />
                 <x-filter.select id="filter-type" filterKey="type" label="نوع المزاد" placeholder="جميع الأنواع"
                     :enum="\App\Enums\Tenants\Auctions\AuctionType::class" />
+                <x-form.controls.input name="start_date" id="filter-auction-start-date" type="date" label="تاريخ البداية من" />
+                <x-form.controls.input name="end_date" id="filter-auction-end-date" type="date" label="تاريخ النهاية حتى" />
                 <x-form.controls.input name="filter_platform_name" id="filter-platform" label="المنصة / القاعة" placeholder="بحث بالمنصة أو القاعة..." />
             </x-data-table.filters>
         </x-slot:filters>

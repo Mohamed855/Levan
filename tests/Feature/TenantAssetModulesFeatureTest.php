@@ -11,6 +11,7 @@ use App\Models\Tenants\Auctions\AuctionAttachment;
 use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\Properties\PropertyService;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -43,7 +44,7 @@ class TenantAssetModulesFeatureTest extends TestCase
         [$selectedAssignment, $otherAssignment] = $this->assignments();
         $otherProperty = Property::create([
             'assignment_id' => $otherAssignment->id,
-            'property_number' => 'PROP-' . uniqid(),
+            'property_number' => 'PROP-'.uniqid(),
             'name' => 'عقار اختبار غير تابع للإسناد',
             'type' => 'residential_land',
             'city' => 'الرياض',
@@ -69,12 +70,84 @@ class TenantAssetModulesFeatureTest extends TestCase
             ->assertJsonValidationErrors('property_ids.0');
     }
 
+    public function test_assignment_creation_links_properties_and_stores_polymorphic_files(): void
+    {
+        Storage::fake('tenant_public');
+        $property = Property::create([
+            'assignment_id' => null,
+            'property_number' => 'PROP-'.uniqid(),
+            'name' => 'عقار إسناد جديد',
+            'type' => 'villa',
+            'city' => 'الرياض',
+            'district' => 'الياسمين',
+            'area' => 400,
+            'data_status' => 'completed',
+            'status' => 'available',
+            'is_active' => true,
+            'created_by' => $this->owner->id,
+        ]);
+        $assignmentNumber = 'TEST-CREATE-'.strtoupper(uniqid());
+
+        $this->actingAs($this->owner, 'tenant')
+            ->post($this->tenantUrl('assignments'), [
+                'assignment_number' => $assignmentNumber,
+                'name' => 'إسناد إنشاء متكامل',
+                'issuing_entity' => 'جهة اختبار',
+                'city' => 'الرياض',
+                'district' => 'الياسمين',
+                'category' => 'lands',
+                'status' => 'active',
+                'start_date' => now()->toDateString(),
+                'end_date' => now()->addMonth()->toDateString(),
+                'notes' => 'وصف الإسناد التجريبي',
+                'property_ids' => [$property->id],
+                'assignment_image' => UploadedFile::fake()->image('assignment.jpg'),
+                'assignment_letter' => UploadedFile::fake()->create('letter.pdf', 100, 'application/pdf'),
+                'general_documents' => [UploadedFile::fake()->create('general.docx', 100)],
+                'additional_attachments' => [UploadedFile::fake()->create('extra.zip', 100)],
+            ])
+            ->assertRedirect($this->tenantUrl('assignments'));
+
+        $assignment = Assignment::where('assignment_number', $assignmentNumber)->firstOrFail();
+        $this->assertSame($assignment->id, $property->fresh()->assignment_id);
+        $this->assertSame('assignment', $assignment->attachments()->firstOrFail()->attachable_type);
+        $this->assertEqualsCanonicalizing(
+            ['assignment_image', 'assignment_letter', 'general_document', 'additional_attachment'],
+            $assignment->attachments()->pluck('category')->all(),
+        );
+        $assignment->attachments->each(fn ($attachment) => Storage::disk('tenant_public')->assertExists($attachment->file_path));
+    }
+
+    public function test_assignment_creation_rejects_a_property_already_linked_to_an_assignment(): void
+    {
+        [$existingAssignment] = $this->assignments();
+        $property = Property::create([
+            'assignment_id' => $existingAssignment->id,
+            'property_number' => 'PROP-'.uniqid(),
+            'name' => 'عقار مرتبط مسبقًا',
+            'type' => 'villa',
+            'city' => 'الرياض',
+            'area' => 400,
+            'data_status' => 'completed',
+            'status' => 'available',
+            'is_active' => true,
+            'created_by' => $this->owner->id,
+        ]);
+
+        $this->actingAs($this->owner, 'tenant')
+            ->postJson($this->tenantUrl('assignments'), [
+                'property_ids' => [$property->id],
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('property_ids.0');
+    }
+
     public function test_property_activity_toggle_does_not_mark_the_property_as_sold(): void
     {
         [$assignment] = $this->assignments();
         $property = Property::create([
             'assignment_id' => $assignment->id,
-            'property_number' => 'PROP-' . uniqid(),
+            'property_number' => 'PROP-'.uniqid(),
             'name' => 'عقار اختبار حالة النشاط',
             'type' => 'villa',
             'city' => 'جدة',
@@ -99,7 +172,7 @@ class TenantAssetModulesFeatureTest extends TestCase
         [$selectedAssignment, $otherAssignment] = $this->assignments();
         $otherProperty = Property::create([
             'assignment_id' => $otherAssignment->id,
-            'property_number' => 'PROP-' . uniqid(),
+            'property_number' => 'PROP-'.uniqid(),
             'name' => 'عقار تحقق Wizard',
             'type' => 'residential_land',
             'city' => 'الرياض',
@@ -127,8 +200,8 @@ class TenantAssetModulesFeatureTest extends TestCase
         [$assignment] = $this->assignments();
         $limitedUser = User::create([
             'name' => 'مستخدم اختبار محدود',
-            'employee_number' => 'LIMITED-' . uniqid(),
-            'email' => 'limited-' . uniqid() . '@levan.test',
+            'employee_number' => 'LIMITED-'.uniqid(),
+            'email' => 'limited-'.uniqid().'@levan.test',
             'password' => bcrypt('Password123!'),
             'status' => 'active',
             'license_seat_id' => $this->owner->license_seat_id,
@@ -164,7 +237,7 @@ class TenantAssetModulesFeatureTest extends TestCase
         [$assignment] = $this->assignments();
         Property::create([
             'assignment_id' => $assignment->id,
-            'property_number' => 'PROP-' . uniqid(),
+            'property_number' => 'PROP-'.uniqid(),
             'name' => 'عقار يمنع حذف الإسناد',
             'type' => 'residential_land',
             'city' => 'الرياض',
@@ -257,6 +330,6 @@ class TenantAssetModulesFeatureTest extends TestCase
 
     private function tenantUrl(string $path): string
     {
-        return 'http://test.localhost/' . ltrim($path, '/');
+        return 'http://test.localhost/'.ltrim($path, '/');
     }
 }

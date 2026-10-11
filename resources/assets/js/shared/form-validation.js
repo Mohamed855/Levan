@@ -350,7 +350,7 @@ async function restoreDraft(form) {
     addHiddenField(form, '_wizard_resource_key', draftResourceKey(form));
     restoreDraftValues(form, draft.data || {});
     form.dispatchEvent(new CustomEvent('wizardDraftRestored', {
-      detail: { data: draft.data || {}, draftId: draft.draft_id }
+      detail: { data: draft.data || {}, files: draft.files || {}, draftId: draft.draft_id }
     }));
     getFormState(form).stepper?.to(Math.max(1, Number(draft.step || 1)));
   } catch (_) {

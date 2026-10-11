@@ -1,8 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Tenants\Assignments;
 
+use App\Enums\Tenants\Assignments\AssignmentCategory;
+use App\Enums\Tenants\Assignments\AssignmentStatus;
 use App\Http\Requests\Concerns\WizardFormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreAssignmentRequest extends WizardFormRequest
 {
@@ -17,13 +22,21 @@ class StoreAssignmentRequest extends WizardFormRequest
             'assignment_number' => ['required', 'string', 'max:100', 'unique:assignments,assignment_number'],
             'name' => ['required', 'string', 'max:255'],
             'issuing_entity' => ['required', 'string', 'max:255'],
-            'entity_logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
-            'city' => ['nullable', 'string', 'max:100'],
-            'category' => ['required', 'string', 'in:lands,villas,commercial_buildings,educational,industrial'],
-            'start_date' => ['nullable', 'date'],
-            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
-            'notes' => ['nullable', 'string', 'max:1000'],
-            'status' => ['nullable', 'string', 'in:active,under_review,suspended,auctioned'],
+            'city' => ['required', 'string', 'max:100'],
+            'district' => ['required', 'string', 'max:255'],
+            'category' => ['required', Rule::enum(AssignmentCategory::class)],
+            'start_date' => ['required', 'date'],
+            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
+            'notes' => ['required', 'string', 'max:1000'],
+            'status' => ['required', Rule::enum(AssignmentStatus::class)],
+            'property_ids' => ['required', 'array', 'min:1'],
+            'property_ids.*' => ['required', 'integer', 'distinct', Rule::exists('properties', 'id')->where(fn ($query) => $query->whereNull('assignment_id')->whereNull('deleted_at'))],
+            'assignment_image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
+            'assignment_letter' => ['required', 'file', 'mimes:pdf', 'max:10240'],
+            'general_documents' => ['required', 'array', 'min:1'],
+            'general_documents.*' => ['required', 'file', 'max:10240'],
+            'additional_attachments' => ['required', 'array', 'min:1'],
+            'additional_attachments.*' => ['required', 'file', 'max:10240'],
         ];
     }
 
@@ -31,21 +44,34 @@ class StoreAssignmentRequest extends WizardFormRequest
     {
         return [
             'assignment_number.required' => 'رقم الإسناد مطلوب.',
-            'assignment_number.unique' => 'رقم الإسناد مسجل مسبقاً.',
-            'assignment_number.max' => 'رقم الإسناد يجب ألا يتجاوز 100 حرف.',
+            'assignment_number.unique' => 'رقم الإسناد مسجل مسبقًا.',
             'name.required' => 'اسم الإسناد مطلوب.',
-            'name.max' => 'اسم الإسناد يجب ألا يتجاوز 255 حرف.',
             'issuing_entity.required' => 'الجهة المسندة مطلوبة.',
-            'issuing_entity.max' => 'اسم الجهة المسندة يجب ألا يتجاوز 255 حرف.',
-            'entity_logo.image' => 'شعار الجهة يجب أن يكون صورة صالحة.',
-            'entity_logo.mimes' => 'أنواع الصور المدعومة: JPG, JPEG, PNG, WebP, SVG.',
-            'entity_logo.max' => 'حجم الشعار يجب ألا يتجاوز 2 ميجابايت.',
+            'city.required' => 'المدينة مطلوبة.',
+            'district.required' => 'النطاق/الحي مطلوب.',
             'category.required' => 'نوع الإسناد مطلوب.',
-            'category.in' => 'التصنيف المختار غير صالح.',
-            'start_date.date' => 'تاريخ الإسناد غير صالح.',
-            'end_date.date' => 'تاريخ الانتهاء غير صالح.',
-            'end_date.after_or_equal' => 'تاريخ الانتهاء يجب أن يكون مساوياً أو بعد تاريخ البداية.',
-            'notes.max' => 'الملاحظات يجب ألا تتجاوز 1000 حرف.',
+            'status.required' => 'حالة الإسناد مطلوبة.',
+            'start_date.required' => 'تاريخ البداية مطلوب.',
+            'end_date.required' => 'تاريخ النهاية مطلوب.',
+            'end_date.after_or_equal' => 'تاريخ النهاية يجب أن يكون مساويًا أو بعد تاريخ البداية.',
+            'notes.required' => 'وصف الإسناد مطلوب.',
+            'notes.max' => 'وصف الإسناد يجب ألا يتجاوز 1000 حرف.',
+            'property_ids.required' => 'يجب اختيار عقار واحد على الأقل.',
+            'property_ids.min' => 'يجب اختيار عقار واحد على الأقل.',
+            'property_ids.*.exists' => 'أحد العقارات المختارة غير متاح للربط.',
+            'assignment_image.required' => 'صورة الإسناد مطلوبة.',
+            'assignment_image.image' => 'صورة الإسناد يجب أن تكون صورة صالحة.',
+            'assignment_image.mimes' => 'صيغة صورة الإسناد غير مدعومة.',
+            'assignment_image.max' => 'حجم صورة الإسناد يجب ألا يتجاوز 2 ميجابايت.',
+            'assignment_letter.required' => 'خطاب الإسناد مطلوب.',
+            'assignment_letter.mimes' => 'خطاب الإسناد يجب أن يكون ملف PDF.',
+            'assignment_letter.max' => 'حجم خطاب الإسناد يجب ألا يتجاوز 10 ميجابايت.',
+            'general_documents.required' => 'يجب إرفاق مستند عام واحد على الأقل.',
+            'general_documents.min' => 'يجب إرفاق مستند عام واحد على الأقل.',
+            'general_documents.*.max' => 'حجم كل مستند عام يجب ألا يتجاوز 10 ميجابايت.',
+            'additional_attachments.required' => 'يجب إرفاق مرفق إضافي واحد على الأقل.',
+            'additional_attachments.min' => 'يجب إرفاق مرفق إضافي واحد على الأقل.',
+            'additional_attachments.*.max' => 'حجم كل مرفق إضافي يجب ألا يتجاوز 10 ميجابايت.',
         ];
     }
 
@@ -55,12 +81,18 @@ class StoreAssignmentRequest extends WizardFormRequest
             'assignment_number' => 'رقم الإسناد',
             'name' => 'اسم الإسناد',
             'issuing_entity' => 'الجهة المسندة',
-            'entity_logo' => 'شعار الجهة',
             'city' => 'المدينة',
+            'district' => 'النطاق/الحي',
             'category' => 'نوع الإسناد',
-            'start_date' => 'تاريخ الإسناد',
-            'end_date' => 'تاريخ الانتهاء',
-            'notes' => 'الملاحظات',
+            'status' => 'حالة الإسناد',
+            'start_date' => 'تاريخ البداية',
+            'end_date' => 'تاريخ النهاية',
+            'notes' => 'وصف الإسناد',
+            'property_ids' => 'العقارات المرتبطة',
+            'assignment_image' => 'صورة الإسناد',
+            'assignment_letter' => 'خطاب الإسناد',
+            'general_documents' => 'المستندات العامة',
+            'additional_attachments' => 'المرفقات الإضافية',
         ];
     }
 }
