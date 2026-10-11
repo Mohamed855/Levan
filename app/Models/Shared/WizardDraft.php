@@ -14,6 +14,15 @@ class WizardDraft extends Model
 
     protected $connection = 'mysql';
 
+    public function getConnectionName(): ?string
+    {
+        if (function_exists('tenant') && tenant()) {
+            return config('tenancy.database.connection') ?: 'tenant';
+        }
+
+        return $this->connection ?? config('database.default', 'mysql');
+    }
+
     protected $fillable = [
         'guard',
         'user_id',

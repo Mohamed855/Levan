@@ -66,6 +66,7 @@ HTTP route
 3. أي قراءة أو كتابة مركزية من Tenant تمر عبر gateway/service معلن يستخدم `tenancy()->central(...)`.
 4. كل Job أو Event أو Notification عابر للـtenant يحمل `tenantId` صراحة ويهيئ السياق قبل لمس البيانات أو التخزين أو cache.
 5. كل مورد tenant-bound يثبت في الاختبار أن Tenant A لا يرى أو يعدل مورد Tenant B.
+6. جدول المسودات (`drafts` / `wizard_drafts`) في نطاق `Tenant` يقع وجوباً في قاعدة بيانات المستأجر (`tenant connection/migrations`)، بحيث تخزن نماذج الإنشاء التابعة للمستأجرين مسوداتها محلياً داخل قاعدة المستأجر، التزاماً بمبدأ العزل التام وعدم كتابة أو قراءة كود الـ Tenant في نماذج أو جداول مركزية مباشرة. بينما نماذج `Central` تخزن مسوداتها في جدول المسودات بالقاعدة المركزية.
 
 ### 3.2 مثال لعبور نطاق مشروع
 
@@ -224,6 +225,15 @@ return redirect()->back()->with('success', __('messages.deleted'));
 - archive view لا يظهر stats أو heading أو add button.
 - لا يُحذف ملف أو child record إلا وفق سياسة lifecycle موثقة واختبار مخصص.
 
+### 5.8 المسودات ودورة حياتها (Drafts Lifecycle)
+
+- توفر المنصة عقد endpoints موحد للتعامل مع المسودات (`show`, `store`, `destroy` / `discard`).
+- حفظ المسودة لا يُلزم استيفاء قواعد الـ Validation الصارمة الخاصة بـ `Store...Request` النهائي؛ بل يسمح بالحفظ المرحلي لبيانات النموذج غير الحساسة (`withoutSecrets`) والملفات المرفوعة (`draft_files`).
+- فور نجاح عملية الإنشاء النهائية (`store`) وإنشاء السجل في قاعدة البيانات، تُحذف المسودة المرتبطة تلقائياً لتفادي بقاء بيانات معلقة (عبر middleware أو cleanup action).
+- **الفصل المعماري والتخزين:**
+  - في نطاق `Tenant`: يُشترط أن يقع جدول المسودات (`drafts` / `wizard_drafts`) داخل قاعدة بيانات المستأجر (`Tenant Database`) حصراً، وتتعامل معه نماذج الـ Tenant عبر اتصال المستأجر لضمان العزل التام للبيانات وعدم اختراق حدود النطاقات.
+  - في نطاق `Central`: تُخزن مسودات نماذج الـ SuperAdmin في جدول المسودات بالقاعدة المركزية.
+
 ## 6. Frontend Contract
 
 ### 6.1 صفحات Index
@@ -252,6 +262,20 @@ error:   data-form-error + aria-describedby + aria-live
 - النموذج المركب: wizard مشترك، وخطوة Next لا تفعل قبل نجاح تحقق FormRequest.
 - `x-filter.select` للـfilters فقط وليس submitted form field.
 - accessibility جزء من العقد: label مرتبط، `aria-invalid`، ومخرج خطأ واحد للحقل.
+
+#### 6.2.1 معيار زر «حفظ كمسودة» وجدول المسودات (إلزامي لجميع نماذج الإنشاء)
+
+1. **إلزامية زر «حفظ كمسودة» في جميع نماذج الإنشاء:**
+   - كل نموذج إنشاء (`create form`) — سواء كان شاشة بسيطة (`single-card form`) أو نموذجاً متعدد الخطوات (`wizard`) — **يجب وجوباً** أن يحتوي على زر «حفظ كمسودة» إلى جانب أزرار الإجراءات الأساسية (`Submit` / `Cancel`).
+2. **الربط مع جدول المسودات الموحد:**
+   - ترتبط كافة نماذج الإنشاء بجدول المسودات عبر Endpoint موحد (`drafts` / `wizard-drafts`).
+   - عند النقر على «حفظ كمسودة»، يتم حفظ البيانات والمدخلات الحالية والملفات المرفوعة مرحلياً دون فرض شروط الـ Validation الإلزامية الكاملة الخاصة بالإرسال النهائي.
+   - عند معاودة فتح نموذج الإنشاء من قِبل المستخدم، يتم فحص وجود مسودة سابقة وتنبيه المستخدم لإمكانية استعادتها تلقائياً لتجنب ضياع العمل غير المكتمل.
+   - عند إتمام عملية الإنشاء بنجاح وحفظ السجل، يتم حذف/تفريغ المسودة المرتبطة فوراً لمنع تراكم البيانات المؤقتة.
+3. **تموضع جدول المسودات وعزل بيانات المستأجرين (Tenant Database Requirement):**
+   - **جدول المسودات لنماذج المستأجرين يجب أن يكون متواجداً داخل قاعدة بيانات المستأجر (`Tenant Database / Migrations`) حصراً.**
+   - هذا التموضع إلزامي لكي تتمكن نماذج الـ Tenant من تخزين مسوداتها محلياً داخل قاعدة المستأجر، التزاماً بمبدأ العزل التام للبيانات (Tenant Isolation) وقاعدة الـ Golden Pattern الصارمة: *«لا يستدعي أو يكتب كود Tenant في نماذج أو جداول مركزية مباشرة»*.
+   - نماذج المركز (`Central / SuperAdmin`) تخزن مسوداتها في جدول المسودات التابع للقاعدة المركزية.
 
 ### 6.3 DataTables
 
@@ -296,6 +320,7 @@ error:   data-form-error + aria-describedby + aria-live
 - 403 عند محاولة الوصول إلى سجل خارج scope أو Tenant.
 - validation: redirect للـform العادي و422 للـAJAX.
 - create/update/delete/restore/force-delete وفق ما ينطبق.
+- حفظ كمسودة من نموذج الإنشاء واستعادتها وحذفها تلقائياً عند الإنشاء الناجح.
 - status toggle وmass delete إن وُجدا.
 - archive lifecycle والملفات والعلاقات عند وجودها.
 
@@ -303,7 +328,7 @@ error:   data-form-error + aria-describedby + aria-live
 
 | النطاق | اختبارات إضافية |
 |---|---|
-| Tenant | Tenant A مقابل Tenant B، queues/cache/files عند استخدامها |
+| Tenant | Tenant A مقابل Tenant B (بما في ذلك عزل جدول ومسودات المستأجرين داخل قاعدة بيانات المستأجر)، queues/cache/files عند استخدامها |
 | Central cross-tenant | دخول صريح إلى `tenancy()->central()`، permission وaudit |
 | Payment/callback | idempotency، توقيع/authentication، concurrency، لا mutation بـGET |
 | Import/export | owner-only progress/download، cancellation، files، background job |
@@ -331,6 +356,7 @@ npm run build # إلزامي بعد أي تعديل JS/CSS/SCSS
 - لا يوجد mutation بلا FormRequest أو response contract.
 - لا يوجد business validation مكرر في JavaScript.
 - الواجهة تستخدم shared components والعقود المناسبة أو استثناء موثق.
+- جميع نماذج الإنشاء تحوي زر «حفظ كمسودة» وترتبط بجدول المسودات في قاعدة البيانات الصحيحة (قاعدة بيانات المستأجر لنماذج Tenant، والقاعدة المركزية لنماذج Central).
 - DataTable أو Dashboard أو Report يطبق العقد الخاص به.
 - tenant isolation وlifecycle files/jobs/cache اختبرت عند انطباقها.
 - مرت اختبارات الإدارة وبوابة التحقق العامة.
@@ -342,7 +368,7 @@ npm run build # إلزامي بعد أي تعديل JS/CSS/SCSS
 3. أضف Model/Enum/migration والعلاقات وindexes اللازمة.
 4. أضف routes صريحة وFormRequests وPolicy.
 5. اكتب Action/Service للعملية التجارية؛ لا تضعها في Controller.
-6. أنشئ DataTable أو View والنموذج بالمكونات المشتركة.
+6. أنشئ DataTable أو View والنموذج بالمكونات المشتركة، مع تضمين زر «حفظ كمسودة» في كل نموذج إنشاء وربطه بجدول المسودات التابع لقاعدة بيانات النطاق المعني (Tenant DB للمستأجرين، Central DB للمركز).
 7. أضف responses، notifications، Jobs، files، cache بالعقد المناسب.
 8. اكتب الاختبارات ثم أضف صف الإدارة إلى الـManifest.
 9. شغّل بوابة التحقق وسجل الدليل.

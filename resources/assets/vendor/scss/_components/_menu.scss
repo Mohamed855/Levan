@@ -195,6 +195,10 @@
   // menu expand collapse animation
   &:not(.menu-no-animation) {
     transition: width $menu-animation-duration;
+
+    .menu-inner > .menu-item {
+      transition: width $menu-animation-duration;
+    }
   }
 
   &,

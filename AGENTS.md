@@ -8,6 +8,10 @@
 - Every reusable form control must expose the shared validation DOM contract (`data-form-field`, `data-field-name`, `data-form-control`, accessible error output) so it receives immediate validation on input/change/blur.
 - The shared frontend validation endpoint must validate against the actual target FormRequest. Browser-only validation is supplementary UI behavior and never replaces final Laravel validation.
 - Keep `x-filter.select` separate from form select components; it is a DataTable filter, not a submitted form field.
+- **Create Forms & Drafts Contract (Mandatory)**:
+  - ALL create forms (single-card forms and wizards alike) MUST include a "حفظ كمسودة" (Save as Draft) button alongside primary form action buttons.
+  - All create forms must be wired to the drafts subsystem/table: clicking "حفظ كمسودة" saves current inputs and uploaded files progressively without enforcing full mandatory creation validation, restores saved draft data upon reopening the form, and automatically discards/purges the draft upon successful record creation.
+  - **Drafts Table Multi-Tenancy**: The drafts table for Tenant administrations MUST reside in the **tenant database** (tenant migrations/connection) so tenant forms store and isolate drafts directly within each tenant's database. Central/SuperAdmin forms store drafts in the central database drafts table.
 
 ## DataTable Activity Statuses (Mandatory)
 - Any index table that permits changing an activity state must render it with the reusable `js-table-status-toggle` switch, not an active/inactive text badge.
