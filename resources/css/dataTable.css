@@ -196,5 +196,6 @@ div.dataTables_processing>div:last-child>div {
 
 
 .table-responsive {
-    overflow-x: unset !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
 }
