@@ -224,7 +224,7 @@ abstract class AbstractDataTable extends DataTable
             '<"dt-toolbar-left d-flex flex-column flex-sm-row align-items-start align-items-sm-center" f l >' .
             '<"dt-toolbar-right d-flex flex-column flex-sm-row align-items-end align-items-sm-center justify-content-between" B >' .
             '>' .
-            'rt' .
+            'r<"table-responsive"t>' .
             '<"row mt-3"' .
             '<"d-flex flex-column flex-sm-row align-items-center justify-content-between w-100" i <"pagination-wrapper overflow-auto w-100" p >' .
             '>' .

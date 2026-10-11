@@ -1,7 +1,12 @@
 'use strict';
 
 function ensureResponsiveDataTable(tableElement) {
-  if (!(tableElement instanceof HTMLTableElement) || tableElement.closest('.table-responsive')) {
+  if (!(tableElement instanceof HTMLTableElement)) {
+    return;
+  }
+
+  // If the table is already directly wrapped in table-responsive, do nothing
+  if (tableElement.parentElement && tableElement.parentElement.classList.contains('table-responsive')) {
     return;
   }
 

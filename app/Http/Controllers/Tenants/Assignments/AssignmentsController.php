@@ -96,7 +96,7 @@ class AssignmentsController extends Controller
         $assignment->load(['properties', 'auctions', 'attachments', 'assignmentImage']);
 
         return view('tenants.assignments.show', [
-            'assignment' => $assignment->load('assignmentImage'),
+            'assignment' => $assignment,
         ]);
     }
 

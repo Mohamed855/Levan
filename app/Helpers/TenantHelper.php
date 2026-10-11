@@ -65,11 +65,17 @@ if (!function_exists('tenant_route_name')) {
             in_array('www.' . $currentHost, $centralDomains);
 
         if ($isCentralDomain) {
-            // Path-based: add tenant parameter
-            $routeName = 'path.' . $name;
+            $cleanHost = str_replace('www.', '', $currentHost);
+            $domainIndex = array_search($cleanHost, $centralDomains, true);
+            $prefix = ($domainIndex === false || $domainIndex === 0) ? 'path.' : "central-domain-{$domainIndex}.path.";
+            $routeName = $prefix . $name;
 
             if (!isset($parameters['tenant'])) {
                 $parameters = array_merge(['tenant' => tenant('id')], $parameters);
+            }
+
+            if (!Route::has($routeName)) {
+                $routeName = 'path.' . $name;
             }
 
             if (Route::has($routeName)) {

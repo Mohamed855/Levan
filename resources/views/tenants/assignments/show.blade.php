@@ -74,18 +74,25 @@
                 </div>
             </div>
 
-            @if ($assignment->attachments()->where('category', '!=', \App\Enums\Tenants\Assignments\AssignmentAttachmentCategory::IMAGE->value)->exists())
+            @php
+                $assignmentDocuments = $assignment->attachments->where(
+                    'category',
+                    '!=',
+                    \App\Enums\Tenants\Assignments\AssignmentAttachmentCategory::IMAGE->value,
+                );
+            @endphp
+            @if ($assignmentDocuments->isNotEmpty())
                 <div class="card mb-4">
                     <div class="card-header pb-2">
                         <h6 class="card-title mb-0">المستندات والمرفقات</h6>
                     </div>
                     <div class="card-body">
                         <ul class="list-unstyled mb-0">
-                            @foreach ($assignment->attachments()->where('category', '!=', \App\Enums\Tenants\Assignments\AssignmentAttachmentCategory::IMAGE->value)->get() as $doc)
+                            @foreach ($assignmentDocuments as $doc)
                                 <li class="d-flex align-items-center justify-content-between py-2 border-bottom">
                                     <div class="d-flex align-items-center gap-2 text-truncate me-2">
                                         <i class="ti ti-file text-primary fs-5"></i>
-                                        <span class="text-truncate" title="{{ $doc->file_name }}">{{ $doc->file_name }}</span>
+                                        <span class="text-truncate" title="{{ $doc->original_name }}">{{ $doc->original_name }}</span>
                                     </div>
                                     <a href="{{ tasset($doc->file_path) }}" target="_blank" class="btn btn-sm btn-icon btn-label-primary" title="عرض أو تحميل">
                                         <i class="ti ti-download"></i>

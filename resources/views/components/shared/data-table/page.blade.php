@@ -21,18 +21,10 @@
 
 <div @if ($cardId) id="{{ $cardId }}" @endif class="card">
     <div class="card-body">
-        @if ($responsive)
-            <div class="table-responsive">
-        @endif
-
         @if (isset($table) && ! $table->isEmpty())
             {{ $table }}
         @else
             {{ $slot }}
-        @endif
-
-        @if ($responsive)
-            </div>
         @endif
     </div>
 </div>

@@ -105,9 +105,7 @@
 
     <div class="card" id="card-users">
         <div class="card-body">
-            <div class="table-responsive">
-                {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100']) !!}
-            </div>
+            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100']) !!}
         </div>
     </div>
 @endsection

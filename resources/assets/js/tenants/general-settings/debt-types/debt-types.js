@@ -54,7 +54,7 @@ $(document).ready(function () {
             'B' +
             '>' +
             '>' +
-            'rt' +
+            'r<"table-responsive"t>' +
             '<"row"' +
             '<"col-12 d-flex align-items-center justify-content-between"' +
             'i' +

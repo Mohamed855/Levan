@@ -616,10 +616,19 @@ function updateStepNextButton(form, step) {
 
 async function validateFields(form, fieldNames) {
   const fields = [...new Set(fieldNames.filter(Boolean))];
-  const validationUrl = form.dataset.validationUrl;
+  let validationUrl = form.dataset.validationUrl;
 
   if (!validationUrl || fields.length === 0) {
     return true;
+  }
+
+  try {
+    const parsed = new URL(validationUrl, window.location.origin);
+    if (parsed.origin !== window.location.origin && (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1')) {
+      validationUrl = parsed.pathname + parsed.search;
+    }
+  } catch (_) {
+    // Keep validationUrl as-is if parsing fails
   }
 
   const state = getFormState(form);
@@ -638,7 +647,15 @@ async function validateFields(form, fieldNames) {
   const controller = new AbortController();
   state.controllers.set(requestKey, controller);
 
+  const csrfToken =
+    document.querySelector('meta[name="csrf-token"]')?.content ||
+    form.querySelector('input[name="_token"]')?.value ||
+    '';
+
   const data = new FormData(form);
+  if (csrfToken) {
+    data.set('_token', csrfToken);
+  }
   data.append('target_path', getTargetPath(form));
   data.append('target_method', getTargetMethod(form));
   fields.forEach((field) => data.append('fields[]', field));
@@ -651,7 +668,7 @@ async function validateFields(form, fieldNames) {
       headers: {
         Accept: 'application/json',
         'X-Requested-With': 'XMLHttpRequest',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+        'X-CSRF-TOKEN': csrfToken,
       },
       signal: controller.signal
     });

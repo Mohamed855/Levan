@@ -167,7 +167,7 @@ function getTableDom() {
         'B' +
         '>' +
         '>' +
-        'rt' +
+        'r<"table-responsive"t>' +
         '<"row mt-3"' +
         '<"d-flex flex-column flex-sm-row align-items-center justify-content-between w-100"' +
         'i' +

@@ -17,6 +17,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(changeEnvAttributes::class);
         $middleware->append(\App\Http\Middleware\DiscardCompletedWizardDraft::class);
 
+        $middleware->validateCsrfTokens(except: [
+            'wizard-drafts/validate-step',
+            '*/wizard-drafts/validate-step',
+            'form-validation',
+            '*/form-validation',
+        ]);
+
         // Middleware groups
         $middleware->group('admin', [
             'web',
