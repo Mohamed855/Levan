@@ -26,6 +26,10 @@
 @endsection
 
 @section('page-script')
+    <script>
+        window.routes = window.routes || {};
+        window.routes.propertyLocationSearch = "{{ tenant_route_name('properties.search-location') }}";
+    </script>
     @vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/tenant/properties/create.js'])
 @endsection
 
@@ -86,6 +90,7 @@
                 'plan_number',
                 'parcel_number',
                 'google_maps_url',
+                'boundary_geojson',
                 'boundaries',
             ]">
                 <input type="hidden" name="latitude" id="latitude" value="{{ old('latitude', $property->latitude) }}">
@@ -107,7 +112,7 @@
                 @endphp
 
                 <div class="row g-4">
-                    <div class="col-lg-9">
+                    <div class="col-lg-7">
                         <div class="card assignment-properties-table-card h-100">
                             <div class="card-header pb-2">
                                 <h5 class="card-title mb-0"><i class="ti ti-map-pin me-2 text-primary"></i>بيانات الموقع</h5>
@@ -126,7 +131,7 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-3">
+                    <div class="col-lg-5">
                         @include('tenants.properties._location-map-card')
                     </div>
 

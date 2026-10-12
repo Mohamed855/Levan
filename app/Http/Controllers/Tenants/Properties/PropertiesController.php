@@ -8,11 +8,13 @@ use App\Actions\Tenants\Properties\CreatePropertyAction;
 use App\Actions\Tenants\Properties\UpdatePropertyAction;
 use App\DataTables\Tenants\Properties\PropertiesDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Properties\SearchPropertyLocationRequest;
 use App\Http\Requests\Tenants\Properties\StorePropertyRequest;
 use App\Http\Requests\Tenants\Properties\UpdatePropertyRequest;
 use App\Http\Requests\Tenants\UpdateResourceStatusRequest;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Properties\Property;
+use App\Services\Tenants\Properties\GooglePlacesService;
 use App\Services\Tenants\Properties\PropertyService;
 use App\Services\Tenants\Shared\CentralCityOptionsGateway;
 use Illuminate\Http\JsonResponse;
@@ -163,6 +165,30 @@ class PropertiesController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'حدث خطأ أثناء تعديل الحالة',
+            ], 500);
+        }
+    }
+
+    public function searchLocation(SearchPropertyLocationRequest $request, GooglePlacesService $placesService): JsonResponse
+    {
+        try {
+            $query = (string) $request->validated('query');
+            $lat = $request->validated('latitude') !== null ? (float) $request->validated('latitude') : null;
+            $lng = $request->validated('longitude') !== null ? (float) $request->validated('longitude') : null;
+
+            $places = $placesService->search($query, $lat, $lng);
+
+            return response()->json([
+                'success' => true,
+                'places' => $places,
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('Property location search failed: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'تعذر البحث عن الموقع حالياً: ' . $e->getMessage(),
+                'places' => [],
             ], 500);
         }
     }

@@ -13,6 +13,16 @@ use Illuminate\Validation\Rule;
 
 class UpdatePropertyRequest extends WizardFormRequest
 {
+    public function validationData(): array
+    {
+        $data = parent::validationData();
+        if (is_string($data['boundary_geojson'] ?? null)) {
+            $data['boundary_geojson'] = json_decode($data['boundary_geojson'], true);
+        }
+
+        return $data;
+    }
+
     public function authorize(): bool
     {
         return $this->user('tenant')?->can('properties.edit') ?? false;
@@ -39,6 +49,13 @@ class UpdatePropertyRequest extends WizardFormRequest
             'google_maps_url' => ['required', 'string', 'max:1000'],
             'latitude' => ['nullable', 'numeric'],
             'longitude' => ['nullable', 'numeric'],
+            'boundary_geojson' => ['required', 'array'],
+            'boundary_geojson.type' => ['required', 'in:Polygon'],
+            'boundary_geojson.coordinates' => ['required', 'array', 'size:1'],
+            'boundary_geojson.coordinates.0' => ['required', 'array', 'min:4'],
+            'boundary_geojson.coordinates.0.*' => ['required', 'array', 'size:2'],
+            'boundary_geojson.coordinates.0.*.0' => ['required', 'numeric', 'between:-180,180'],
+            'boundary_geojson.coordinates.0.*.1' => ['required', 'numeric', 'between:-90,90'],
             'boundaries' => ['nullable', 'array'],
             'boundaries.*.direction' => ['nullable', Rule::enum(PropertyBoundaryDirection::class)],
             'boundaries.*.border_type' => ['nullable', 'string', 'max:100'],
@@ -96,6 +113,8 @@ class UpdatePropertyRequest extends WizardFormRequest
             'plan_number.required' => 'رقم المخطط مطلوب.',
             'parcel_number.required' => 'رقم القطعة مطلوب.',
             'google_maps_url.required' => 'رابط الموقع من Google Maps مطلوب.',
+            'boundary_geojson.required' => 'يجب رسم حدود العقار على الخريطة.',
+            'boundary_geojson.coordinates.0.min' => 'يجب أن تحتوي حدود العقار على ثلاث نقاط على الأقل.',
             'deed_number.required' => 'رقم الصك مطلوب.',
             'deed_date.required' => 'تاريخ الصك مطلوب.',
             'issuing_authority.required' => 'جهة إصدار الصك مطلوبة.',
@@ -118,6 +137,7 @@ class UpdatePropertyRequest extends WizardFormRequest
             'plan_number' => 'رقم المخطط',
             'parcel_number' => 'رقم القطعة',
             'google_maps_url' => 'رابط الموقع من Google Maps',
+            'boundary_geojson' => 'الرسم الجغرافي لحدود العقار',
             'boundaries' => 'حدود العقار',
             'deed_number' => 'رقم الصك',
             'deed_date' => 'تاريخ الصك',

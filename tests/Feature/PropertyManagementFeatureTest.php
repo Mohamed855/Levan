@@ -85,6 +85,20 @@ class PropertyManagementFeatureTest extends TestCase
             'plan_number' => 'PLAN-999',
             'parcel_number' => 'PARCEL-123',
             'google_maps_url' => 'https://maps.google.com/?q=24.7136,46.6753',
+            'latitude' => 24.7136,
+            'longitude' => 46.6753,
+            'boundary_geojson' => [
+                'type' => 'Polygon',
+                'coordinates' => [
+                    [
+                        [46.6750, 24.7130],
+                        [46.6760, 24.7130],
+                        [46.6760, 24.7140],
+                        [46.6750, 24.7140],
+                        [46.6750, 24.7130],
+                    ],
+                ],
+            ],
             'boundaries' => [
                 ['direction' => 'north', 'border_type' => 'شارع', 'border_description' => 'شارع عرض 20م', 'length' => 25.0],
                 ['direction' => 'south', 'border_type' => 'قطعة', 'border_description' => 'قطعة 12', 'length' => 25.0],
@@ -123,12 +137,49 @@ class PropertyManagementFeatureTest extends TestCase
         ]);
 
         $property = Property::where('deed_number', '31099887766')->firstOrFail();
+        $this->assertNotNull($property->boundary_geojson);
+        $this->assertEquals('Polygon', $property->boundary_geojson['type']);
         $this->assertCount(2, $property->boundaries);
         $this->assertCount(1, $property->owners);
         $this->assertCount(1, $property->units);
         $this->assertGreaterThanOrEqual(4, $property->attachments()->count());
 
         $property->forceDelete();
+    }
+
+    public function test_property_location_search_endpoint(): void
+    {
+        $mockService = $this->createMock(\App\Services\Tenants\Properties\GooglePlacesService::class);
+        $mockService->method('search')->willReturn([
+            [
+                'id' => 'place_123',
+                'name' => 'حي النرجس - الرياض',
+                'address' => 'الرياض، المملكة العربية السعودية',
+                'latitude' => 24.8123,
+                'longitude' => 46.6543,
+            ]
+        ]);
+        $this->app->instance(\App\Services\Tenants\Properties\GooglePlacesService::class, $mockService);
+
+        $response = $this->actingAs($this->owner, 'tenant')
+            ->postJson($this->tenantUrl('properties/search-location'), [
+                'query' => 'حي النرجس',
+                'latitude' => 24.7136,
+                'longitude' => 46.6753,
+            ]);
+
+        $response->assertOk()
+            ->assertJson([
+                'success' => true,
+                'places' => [
+                    [
+                        'id' => 'place_123',
+                        'name' => 'حي النرجس - الرياض',
+                        'latitude' => 24.8123,
+                        'longitude' => 46.6543,
+                    ]
+                ]
+            ]);
     }
 
     public function test_property_service_statistics(): void

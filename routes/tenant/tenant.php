@@ -459,6 +459,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             Route::name('index')->get('/', [PropertiesController::class, 'index']);
             Route::name('create')->get('create', [PropertiesController::class, 'create']);
             Route::name('store')->post('/', [PropertiesController::class, 'store']);
+            Route::name('search-location')->post('search-location', [PropertiesController::class, 'searchLocation']);
             Route::name('show')->get('{property}', [PropertiesController::class, 'show']);
             Route::name('edit')->get('{property}/edit', [PropertiesController::class, 'edit']);
             Route::name('update')->put('{property}', [PropertiesController::class, 'update']);

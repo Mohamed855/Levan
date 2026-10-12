@@ -47,6 +47,10 @@ return [
         'api_key' => env('OPENAI_API_KEY'),
     ],
 
+    'google_maps' => [
+        'api_key' => env('GOOGLE_MAPS_API_KEY'),
+    ],
+
     'namecheap' => [
         'user' => env('NAMECHEAP_API_USER'),
         'api_key' => env('NAMECHEAP_API_KEY'),

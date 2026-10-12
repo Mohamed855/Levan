@@ -87,3 +87,137 @@
   .assignment-item-card:hover,
   .assignment-file-card:hover { border-color: rgba(var(--bs-primary-rgb), 0.35); box-shadow: 0 0.25rem 0.75rem rgba(var(--bs-primary-rgb), 0.08); }
 }
+
+/* Property Map & Boundary Controls */
+.property-map-card {
+  overflow: hidden;
+  border-radius: var(--bs-border-radius-lg);
+
+  .leaflet-map-container {
+    width: 100%;
+    min-height: 440px;
+    background-color: #12141d;
+  }
+}
+
+.property-map-search-wrapper {
+  transition: all 0.2s ease-in-out;
+
+  .property-map-search-box {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+
+    &:focus-within {
+      background: #ffffff;
+      border-color: var(--bs-primary) !important;
+      box-shadow: 0 0.5rem 1.25rem rgba(var(--bs-primary-rgb), 0.18) !important;
+    }
+
+    input {
+      font-size: 0.875rem;
+      background: transparent;
+    }
+  }
+
+  .list-group-item-action {
+    font-size: 0.85rem;
+    padding: 0.6rem 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    &:hover,
+    &:focus {
+      background-color: rgba(var(--bs-primary-rgb), 0.08);
+      color: var(--bs-primary);
+    }
+  }
+}
+
+.property-map-toolbar {
+  background-color: #ffffff;
+  border-top: 1px solid var(--bs-border-color);
+
+  .btn {
+    white-space: nowrap;
+    border-radius: var(--bs-border-radius);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+    }
+  }
+}
+
+/* Draggable Polygon Vertex Handles */
+.polygon-vertex-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .vertex-dot {
+    width: 15px;
+    height: 15px;
+    background-color: #2b56f5;
+    border: 2.5px solid #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+    cursor: grab;
+    transition: transform 0.15s ease, background-color 0.15s ease;
+
+    &:hover {
+      transform: scale(1.35);
+      background-color: #0b37e0;
+    }
+
+    &:active {
+      cursor: grabbing;
+      transform: scale(1.2);
+    }
+  }
+}
+
+/* Center Property Pin */
+.property-center-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .pin-badge {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #1e1b4b;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2.5px solid #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  }
+}
+
+/* Custom Leaflet Controls */
+.leaflet-control-locate-btn {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background-color: #ffffff;
+  color: #333333;
+  text-decoration: none !important;
+  font-size: 1.1rem;
+
+  &:hover {
+    background-color: #f4f4f4;
+    color: var(--bs-primary);
+  }
+}
+
+/* Remove Leaflet branding badge */
+.leaflet-control-attribution a[href*="leaflet"] {
+  display: none !important;
+}
+
