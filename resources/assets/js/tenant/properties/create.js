@@ -58,6 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
     addBorderBtn.addEventListener('click', () => {
       bordersList.appendChild(createBorderRow());
       reindexBorders();
+      const position = markerInstance?.getLatLng();
+      if (position) renderBoundaries(position.lat, position.lng);
       form.dispatchEvent(new Event('change', { bubbles: true }));
     });
 
@@ -71,6 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       removeBtn.closest('.boundary-row').remove();
       reindexBorders();
+      const position = markerInstance?.getLatLng();
+      if (position) renderBoundaries(position.lat, position.lng);
       form.dispatchEvent(new Event('change', { bubbles: true }));
     });
   }
@@ -236,11 +240,112 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================================================================
   let mapInstance = null;
   let markerInstance = null;
+  let boundariesLayer = null;
+  let boundaryMaskLayer = null;
   const mapsInput = form.elements.namedItem('google_maps_url');
   const latInput = form.elements.namedItem('latitude');
   const lngInput = form.elements.namedItem('longitude');
   const mapWarningBox = document.getElementById('map-warning-box');
   const mapContainer = document.getElementById('property-leaflet-map');
+
+  function getBoundaryLengths() {
+    const lengths = { north: 0, south: 0, east: 0, west: 0 };
+    if (!bordersList) return lengths;
+
+    bordersList.querySelectorAll('.boundary-row').forEach((row) => {
+      const direction = row.querySelector('select[name*="[direction]"]')?.value;
+      const length = Number.parseFloat(row.querySelector('input[name*="[length]"]')?.value);
+      if (direction in lengths && Number.isFinite(length) && length > 0) {
+        lengths[direction] = Math.max(lengths[direction], length);
+      }
+    });
+
+    return lengths;
+  }
+
+  function renderBoundaries(lat, lng) {
+    const L = window.L || window.leaFlet;
+    if (!mapInstance || !L) return;
+
+    if (boundariesLayer) {
+      boundariesLayer.remove();
+      boundariesLayer = null;
+    }
+    if (boundaryMaskLayer) {
+      boundaryMaskLayer.remove();
+      boundaryMaskLayer = null;
+    }
+
+    const lengths = getBoundaryLengths();
+    const enteredLengths = Object.values(lengths).filter((length) => length > 0);
+    if (!enteredLengths.length) return;
+
+    const width = Math.max(lengths.north, lengths.south, 10);
+    const height = Math.max(lengths.east, lengths.west, 10);
+    const latitudeMeters = 111320;
+    const longitudeMeters = Math.max(latitudeMeters * Math.cos(lat * Math.PI / 180), 1);
+    const northLat = lat + (height / 2) / latitudeMeters;
+    const southLat = lat - (height / 2) / latitudeMeters;
+    const eastLng = lng + (width / 2) / longitudeMeters;
+    const westLng = lng - (width / 2) / longitudeMeters;
+    const propertyBounds = [
+      [northLat, westLng],
+      [northLat, eastLng],
+      [southLat, eastLng],
+      [southLat, westLng]
+    ];
+
+    boundaryMaskLayer = L.polygon([
+      [
+        [85.05112878, -180],
+        [85.05112878, 180],
+        [-85.05112878, 180],
+        [-85.05112878, -180]
+      ],
+      propertyBounds
+    ], {
+      stroke: false,
+      fillColor: '#10121a',
+      fillOpacity: 0.72,
+      fillRule: 'evenodd',
+      interactive: false
+    }).addTo(mapInstance);
+
+    boundariesLayer = L.featureGroup().addTo(mapInstance);
+    const boundaryPolygon = L.polygon(propertyBounds, {
+      color: '#7367f0',
+      weight: 4,
+      opacity: 1,
+      fillColor: '#7367f0',
+      fillOpacity: 0.08
+    }).addTo(boundariesLayer);
+
+    const sideCoordinates = {
+      north: [[northLat, lng - (lengths.north / 2) / longitudeMeters], [northLat, lng + (lengths.north / 2) / longitudeMeters]],
+      south: [[southLat, lng - (lengths.south / 2) / longitudeMeters], [southLat, lng + (lengths.south / 2) / longitudeMeters]],
+      east: [[lat + (lengths.east / 2) / latitudeMeters, eastLng], [lat - (lengths.east / 2) / latitudeMeters, eastLng]],
+      west: [[lat + (lengths.west / 2) / latitudeMeters, westLng], [lat - (lengths.west / 2) / latitudeMeters, westLng]]
+    };
+
+    Object.entries(lengths).forEach(([direction, length]) => {
+      if (length <= 0) return;
+      L.polyline(sideCoordinates[direction], {
+        color: '#7367f0',
+        weight: 4,
+        opacity: 1
+      }).addTo(boundariesLayer);
+    });
+
+    boundaryPolygon.bringToBack();
+    window.requestAnimationFrame(() => {
+      mapInstance.invalidateSize();
+      mapInstance.fitBounds(boundariesLayer.getBounds(), {
+        padding: [8, 8],
+        maxZoom: 19
+      });
+      markerInstance?.bringToFront();
+    });
+  }
 
   function initMap(lat = 24.7136, lng = 46.6753, zoom = 14) {
     if (!mapContainer) return;
@@ -259,6 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const position = markerInstance.getLatLng();
         if (latInput) latInput.value = position.lat.toFixed(7);
         if (lngInput) lngInput.value = position.lng.toFixed(7);
+        renderBoundaries(position.lat, position.lng);
         form.dispatchEvent(new Event('change', { bubbles: true }));
       });
     } else {
@@ -268,6 +374,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       setTimeout(() => mapInstance.invalidateSize(), 200);
     }
+
+    renderBoundaries(lat, lng);
   }
 
   function parseGoogleMapsUrl(url) {
@@ -313,6 +421,17 @@ document.addEventListener('DOMContentLoaded', () => {
   if (mapsInput) {
     mapsInput.addEventListener('input', updateMapFromUrl);
     mapsInput.addEventListener('change', updateMapFromUrl);
+  }
+
+  if (bordersList) {
+    bordersList.addEventListener('input', () => {
+      const position = markerInstance?.getLatLng();
+      if (position) renderBoundaries(position.lat, position.lng);
+    });
+    bordersList.addEventListener('change', () => {
+      const position = markerInstance?.getLatLng();
+      if (position) renderBoundaries(position.lat, position.lng);
+    });
   }
 
   // Invalidate map size on step change

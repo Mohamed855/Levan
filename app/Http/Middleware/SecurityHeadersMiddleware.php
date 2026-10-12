@@ -134,7 +134,7 @@ class SecurityHeadersMiddleware
 
     "style-src 'self' 'unsafe-inline' {$styleCdn}",
 
-    "img-src 'self' data: blob: https://www.gstatic.com",
+    "img-src 'self' data: blob: https://www.gstatic.com https://a.tile.openstreetmap.org https://b.tile.openstreetmap.org https://c.tile.openstreetmap.org",
 
     "font-src 'self' data: {$fontCdn}",
 
