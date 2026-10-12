@@ -15,48 +15,38 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================================================================
   const bordersList = document.getElementById('boundaries-list');
   const addBorderBtn = document.getElementById('btn-add-border');
+  const borderRowTemplate = document.getElementById('boundary-row-template');
 
   function getBorderIndex() {
     return bordersList ? bordersList.querySelectorAll('.boundary-row').length : 0;
   }
 
   function createBorderRow(data = {}) {
+    if (!borderRowTemplate) return null;
+
     const index = getBorderIndex();
-    const row = document.createElement('tr');
-    row.className = 'boundary-row';
-    row.innerHTML = `
-      <td>
-        <select name="boundaries[${index}][direction]" class="form-select form-select-sm" data-form-control required>
-          <option value="north" ${data.direction === 'north' ? 'selected' : ''}>الشمال</option>
-          <option value="south" ${data.direction === 'south' ? 'selected' : ''}>الجنوب</option>
-          <option value="east" ${data.direction === 'east' ? 'selected' : ''}>الشرق</option>
-          <option value="west" ${data.direction === 'west' ? 'selected' : ''}>الغرب</option>
-        </select>
-      </td>
-      <td>
-        <input type="text" name="boundaries[${index}][border_type]" class="form-control form-control-sm"
-               value="${escapeHtml(data.border_type || '')}" placeholder="شارع / قطعة..." data-form-control required>
-      </td>
-      <td>
-        <input type="text" name="boundaries[${index}][border_description]" class="form-control form-control-sm"
-               value="${escapeHtml(data.border_description || '')}" placeholder="عرض 20 متر..." data-form-control required>
-      </td>
-      <td>
-        <input type="number" step="0.01" name="boundaries[${index}][length]" class="form-control form-control-sm"
-               value="${escapeHtml(data.length || '')}" placeholder="0.00" data-form-control required>
-      </td>
-      <td class="text-center">
-        <button type="button" class="btn btn-icon btn-sm btn-label-danger btn-remove-border" aria-label="حذف الحد">
-          <i class="ti ti-trash"></i>
-        </button>
-      </td>
-    `;
+    const row = borderRowTemplate.content.firstElementChild.cloneNode(true);
+    row.querySelectorAll('*').forEach((element) => {
+      Array.from(element.attributes).forEach((attribute) => {
+        if (attribute.value.includes('__INDEX__')) {
+          element.setAttribute(attribute.name, attribute.value.replaceAll('__INDEX__', String(index)));
+        }
+      });
+    });
+
+    row.querySelector('select[name*="[direction]"]').value = data.direction ?? '';
+    row.querySelector('input[name*="[border_type]"]').value = data.border_type ?? '';
+    row.querySelector('input[name*="[border_description]"]').value = data.border_description ?? '';
+    row.querySelector('input[name*="[length]"]').value = data.length ?? '';
+
     return row;
   }
 
   if (addBorderBtn && bordersList) {
     addBorderBtn.addEventListener('click', () => {
-      bordersList.appendChild(createBorderRow());
+      const row = createBorderRow();
+      if (!row) return;
+      bordersList.appendChild(row);
       reindexBorders();
       const position = markerInstance?.getLatLng();
       if (position) renderBoundaries(position.lat, position.lng);
@@ -81,15 +71,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function reindexBorders() {
     if (!bordersList) return;
+    if (window.jQuery?.fn?.select2) {
+      window.jQuery(bordersList).find('select.select2-hidden-accessible').select2('destroy');
+    }
+
     bordersList.querySelectorAll('.boundary-row').forEach((row, index) => {
       row.querySelectorAll('input, select').forEach((input) => {
         const name = input.getAttribute('name');
         if (name) {
           input.setAttribute('name', name.replace(/boundaries\[\d+\]/, `boundaries[${index}]`));
         }
+      });
 
+      row.querySelectorAll('*').forEach((element) => {
+        ['id', 'for', 'data-field-name', 'aria-describedby'].forEach((attributeName) => {
+          const value = element.getAttribute(attributeName);
+          if (!value) return;
+          element.setAttribute(attributeName, value
+            .replace(/boundaries\[\d+\]/, `boundaries[${index}]`)
+            .replace(/boundaries-\d+-/, `boundaries-${index}-`));
+        });
       });
     });
+
+    form.dispatchEvent(new CustomEvent('stepChanged'));
   }
 
   // =========================================================================
@@ -354,8 +359,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!mapInstance) {
       mapInstance = L.map('property-leaflet-map').setView([lat, lng], zoom);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19,
+        attribution: 'Tiles &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community'
       }).addTo(mapInstance);
 
       markerInstance = L.marker([lat, lng], { draggable: true }).addTo(mapInstance);
@@ -586,7 +592,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Restore boundaries
     if (Array.isArray(data.boundaries) && data.boundaries.length && bordersList) {
       bordersList.innerHTML = '';
-      data.boundaries.forEach(b => bordersList.appendChild(createBorderRow(b)));
+      data.boundaries.forEach((boundary) => {
+        const row = createBorderRow(boundary);
+        if (row) bordersList.appendChild(row);
+      });
       reindexBorders();
     }
 

@@ -5,6 +5,15 @@
     </button>
 </div>
 
+@php
+    $boundaryDirectionOptions = [
+        'north' => 'الشمال',
+        'south' => 'الجنوب',
+        'east' => 'الشرق',
+        'west' => 'الغرب',
+    ];
+@endphp
+
 <div class="table-responsive" data-form-field data-field-name="boundaries">
     <table class="table table-striped table-bordered w-100">
         <thead>
@@ -20,21 +29,24 @@
             @foreach ($bordersData as $idx => $border)
                 <tr class="boundary-row">
                     <td>
-                        <select name="boundaries[{{ $idx }}][direction]" class="form-select form-select-sm" data-form-control required>
-                            <option value="north" {{ ($border['direction'] ?? '') === 'north' ? 'selected' : '' }}>الشمال</option>
-                            <option value="south" {{ ($border['direction'] ?? '') === 'south' ? 'selected' : '' }}>الجنوب</option>
-                            <option value="east" {{ ($border['direction'] ?? '') === 'east' ? 'selected' : '' }}>الشرق</option>
-                            <option value="west" {{ ($border['direction'] ?? '') === 'west' ? 'selected' : '' }}>الغرب</option>
-                        </select>
+                        <x-form.controls.select name="boundaries[{{ $idx }}][direction]"
+                            id="boundaries-{{ $idx }}-direction" :options="$boundaryDirectionOptions"
+                            :value="$border['direction'] ?? null" placeholder="اختر الجهة" required col="" />
                     </td>
                     <td>
-                        <input type="text" name="boundaries[{{ $idx }}][border_type]" class="form-control form-control-sm" value="{{ $border['border_type'] ?? '' }}" placeholder="شارع / قطعة..." data-form-control required>
+                        <x-form.controls.input name="boundaries[{{ $idx }}][border_type]"
+                            id="boundaries-{{ $idx }}-border-type" :value="$border['border_type'] ?? null"
+                            placeholder="شارع / قطعة..." required col="" />
                     </td>
                     <td>
-                        <input type="text" name="boundaries[{{ $idx }}][border_description]" class="form-control form-control-sm" value="{{ $border['border_description'] ?? '' }}" placeholder="عرض 20 متر..." data-form-control required>
+                        <x-form.controls.input name="boundaries[{{ $idx }}][border_description]"
+                            id="boundaries-{{ $idx }}-border-description" :value="$border['border_description'] ?? null"
+                            placeholder="عرض 20 متر..." required col="" />
                     </td>
                     <td>
-                        <input type="number" step="0.01" name="boundaries[{{ $idx }}][length]" class="form-control form-control-sm" value="{{ $border['length'] ?? '' }}" placeholder="0.00" data-form-control required>
+                        <x-form.controls.input name="boundaries[{{ $idx }}][length]"
+                            id="boundaries-{{ $idx }}-length" type="number" step="0.01"
+                            :value="$border['length'] ?? null" placeholder="0.00" required col="" />
                     </td>
                     <td class="text-center">
                         <button type="button" class="btn btn-icon btn-sm btn-label-danger btn-remove-border" aria-label="حذف الحد">
@@ -46,3 +58,31 @@
         </tbody>
     </table>
 </div>
+
+<template id="boundary-row-template">
+    <tr class="boundary-row">
+        <td>
+            <x-form.controls.select name="boundaries[__INDEX__][direction]"
+                id="boundaries-__INDEX__-direction" :options="$boundaryDirectionOptions"
+                placeholder="اختر الجهة" required col="" />
+        </td>
+        <td>
+            <x-form.controls.input name="boundaries[__INDEX__][border_type]"
+                id="boundaries-__INDEX__-border-type" placeholder="شارع / قطعة..." required col="" />
+        </td>
+        <td>
+            <x-form.controls.input name="boundaries[__INDEX__][border_description]"
+                id="boundaries-__INDEX__-border-description" placeholder="عرض 20 متر..." required col="" />
+        </td>
+        <td>
+            <x-form.controls.input name="boundaries[__INDEX__][length]"
+                id="boundaries-__INDEX__-length" type="number" step="0.01"
+                placeholder="0.00" required col="" />
+        </td>
+        <td class="text-center">
+            <button type="button" class="btn btn-icon btn-sm btn-label-danger btn-remove-border" aria-label="حذف الحد">
+                <i class="ti ti-trash"></i>
+            </button>
+        </td>
+    </tr>
+</template>
