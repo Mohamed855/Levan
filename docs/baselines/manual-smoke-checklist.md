@@ -1,6 +1,6 @@
 # قائمة Smoke Tests اليدوية
 
-> تستخدم بعد كل مرحلة تمسّ التدفق المذكور. ضع النتيجة والتاريخ واسم المنفذ في سجل التنفيذ، ولا تستبدل الاختبارات الآلية.
+> تستخدم بعد كل تغيير يمسّ التدفق المذكور. ضع النتيجة والتاريخ واسم المنفذ في سجل التنفيذ، ولا تستبدل الاختبارات الآلية.
 
 ## 1. Website
 
@@ -39,7 +39,7 @@
 - [ ] collections/admin collections/targets/collection process/reconciliation: الصلاحيات، approval/reject، progress، التقارير.
 - [ ] message templates/logs/letters: preview، send، failure، archive/download.
 - [ ] subscription/bills/licenses/tickets/versions: دفع، callback، bank receipt، reply/rating، upgrade.
-- [ ] domains: search، DNS، transfer، CPanel limits، payment، callback، idempotency، ورفض GET للـmutation بعد المرحلة 1.
+- [ ] domains: search، DNS، transfer، CPanel limits، payment، callback، idempotency، ورفض GET لكل mutation.
 
 ## 6. Form validation وواجهة المستخدم
 

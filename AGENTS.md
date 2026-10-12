@@ -96,4 +96,4 @@
 - The mandatory flow is: `Controller → FormRequest → Policy → Action/Service → UI → Tests`.
 - Use a Modular Monolith with explicit `Central` and `Tenant` boundaries. Tenant code must not access Central models directly; cross-boundary work must use an explicit central service/gateway and tenant context.
 - Do not add a generic Repository layer around Eloquent models. Use Actions for single transactional business operations and Services for use-case orchestration.
-- The canonical pattern is documented in `docs/architecture/golden-pattern.md`; its implementation and acceptance plan is `docs/system-unification-implementation-plan-ar.md`, stage 10.
+- The canonical pattern and its file-by-file implementation checklist are documented in `docs/architecture/golden-pattern.md`; administration compliance is tracked in `docs/baselines/golden-pattern-manifest.md`.

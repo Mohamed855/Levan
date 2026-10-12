@@ -1,217 +1,372 @@
-# Golden Pattern — عقد الإدارات الموحد
+# Golden Pattern — الدليل التنفيذي الكامل لبناء أي إدارة
 
-> **الحالة:** معيار إلزامي لجميع إدارات SuperAdmin وTenant الحالية والجديدة.
+> **الحالة:** المرجع المعماري الإلزامي والوحيد لكل إدارة حالية أو جديدة في المشروع.
 >
-> **خطة التطبيق:** [المرحلة 10 من خطة توحيد النظام](../system-unification-implementation-plan-ar.md#16-المرحلة-10--عقد-الgolden-pattern-والتوحيد-المعماري-الكامل).
+> **الهدف:** يستطيع مطور يدخل المشروع لأول مرة بناء إدارة كاملة ومتطابقة مع بقية النظام باتباع هذا الملف بالترتيب، دون تخمين طبقة ناقصة أو إنشاء عقد خاص بالإدارة.
 >
-> **القواعد المختصرة الملزمة:** [`AGENTS.md`](../../AGENTS.md).
+> **متابعة المطابقة:** يسجل وضع الإدارات الحالية في [`golden-pattern-manifest.md`](../baselines/golden-pattern-manifest.md). السجل يتابع التنفيذ، أما هذا الملف فهو مصدر القواعد.
 
-## 1. الغرض والنطاق
+---
 
-هذا المستند هو المرجع التنفيذي لإنشاء أو تعديل أي إدارة في Levan. هدفه أن يكون لكل إدارة نفس الحدود الأمنية، تدفق البيانات، تجربة الواجهة، وعقد الاختبار، من دون فرض إعادة تسمية أو نقل شامل للملفات الحالية قبل الحاجة.
+## 1. معنى «إدارة» وحدود هذا الدليل
 
-ينطبق على نطاقين فقط:
-
-| النطاق | أمثلة | قاعدة البيانات والحارس |
-|---|---|---|
-| `Central` / SuperAdmin | الشركات، الباقات، الاشتراكات، الفواتير، المحتوى، إعدادات المنصة | قاعدة مركزية، `auth:admin` |
-| `Tenant` | المستخدمون، العملاء، العقود، المزادات، التحصيل، التقارير، الإعدادات | قاعدة المستأجر الحالية، `auth:tenant` |
-
-لا يعني توحيد العقد أن كل إدارة CRUD؛ فالتقارير، لوحات المتابعة، الاستيراد، checkout، والأرشيف لها عقودها الخاصة أدناه.
-
-## 2. القرارات المعمارية
-
-### 2.1 Modular Monolith
-
-النظام Laravel واحد، لكن كل إدارة تنتمي بوضوح إلى نطاق ومجال أعمال. لا تُنشأ Microservices، ولا طبقة `Repository` عامة تكرر ما يقدمه Eloquent.
+الإدارة هي capability كاملة يراها المستخدم، مثل الباقات أو الشركات أو الإسنادات. ليست الإدارة Controller أو صفحة منفردة؛ بل slice رأسي يمر بالترتيب التالي:
 
 ```text
-HTTP route
-  → guard + tenancy + broad permission middleware
+Route
+  → Middleware / Guard
   → Controller
-  → FormRequest + Policy
-  → Action / Service
-  → Eloquent Model + Enum + Event / Job
-  → Blade / DataTable / JSON
-  → Shared frontend contracts
-  → Feature and Unit tests
+  → FormRequest
+  → Policy
+  → Action أو Service
+  → Model / Enum / Event / Job
+  → DataTable أو Query + Blade Components
+  → Shared JavaScript contracts
+  → Feature / Unit / Isolation tests
 ```
 
-### 2.2 فصل المسؤوليات
+لا تعتبر الإدارة مكتملة إذا كان أحد هذه الأجزاء مطلوبًا ولم يُنشأ أو لم يُعلّم صراحةً `not_applicable` مع السبب.
 
-| الطبقة | مسؤوليتها | لا تفعل |
+ينطبق الدليل نفسه على SuperAdmin وTenant. الفرق الوحيد هو boundary التنفيذ:
+
+| القرار | SuperAdmin / Central | Tenant |
 |---|---|---|
-| Route | المسار، الاسم، method، middleware، model binding | قواعد أعمال أو validation |
-| Controller | orchestration خفيف وتحويل النتيجة إلى HTTP response | استعلامات/transactions/رفع ملفات معقدة |
-| FormRequest | authorization على مستوى الفعل وvalidation ورسائلها | حفظ البيانات أو قواعد واجهة مكررة |
-| Policy | قرار الوصول إلى سجل محدد وtenant ownership | validation أو HTML |
-| Action | عملية أعمال واحدة، غالباً transactional | تنسيق شاشة أو multiple use cases غير مترابطة |
-| Service | orchestration لـuse case أو عائلة عمليات مترابطة | generic CRUD مكرر لكل Model |
-| Model | العلاقات، casts، scopes الصغيرة، invariants المحلية | تدفق HTTP أو presentation |
-| DataTable / View | العرض فقط، formatting محدود ومؤمن | authorization أو business rules |
+| قاعدة البيانات | الاتصال المركزي | اتصال قاعدة المستأجر المهيأ بواسطة tenancy middleware |
+| Guard | `auth:admin` | `auth:tenant` |
+| Namespace | `Admin` | `Tenants` |
+| Routes | `routes/admin/admin.php` | `routes/tenant/tenant.php` |
+| Views | `resources/views/admin/{module}` | `resources/views/tenants/{module}` |
+| Drafts | جدول `drafts` المركزي | جدول `drafts` داخل قاعدة كل مستأجر |
+| اختبار العزل | صلاحية وسجل مركزي | Tenant A لا يرى أو يعدل بيانات Tenant B |
 
-### 2.3 متى نستخدم Action أو Service
+كود Tenant ممنوع أن يستدعي Model مركزيًا مباشرة. أي عبور للحدود يمر عبر Gateway/Service صريح يستقبل tenant context، مثل نمط `CentralCityOptionsGateway`.
 
-- استخدم `CreateAuction`, `UpdateAuction`, `ArchiveAuction` عند وجود transaction أو إدارة علاقات/ملفات/side effects.
-- استخدم `AuctionService` لتنسيق العملية أو لإعادة استعمالها بين HTTP وJobs وCommands.
-- لا تنشئ `BaseCrudService` أو `BaseRepository`.
-- إذا كان الاستعلام ثقيلاً أو يستخدم في أكثر من سياق، أنشئ Query/Report service واضح الاسم بدلاً من إخفائه داخل Controller.
+---
 
-## 3. حدود Central وTenant
+## 2. مرحلة التصميم قبل إنشاء الملفات
 
-### 3.1 قواعد غير قابلة للتجاوز
+أنشئ Manifest للإدارة قبل كتابة الكود، ويحتوي على:
 
-1. لا يحدد العميل `tenant_id` كي يختار بياناته؛ السياق يأتي من tenancy middleware.
-2. لا يستدعي كود Tenant Model مركزيًا مباشرة.
-3. أي قراءة أو كتابة مركزية من Tenant تمر عبر gateway/service معلن يستخدم `tenancy()->central(...)`.
-4. كل Job أو Event أو Notification عابر للـtenant يحمل `tenantId` صراحة ويهيئ السياق قبل لمس البيانات أو التخزين أو cache.
-5. كل مورد tenant-bound يثبت في الاختبار أن Tenant A لا يرى أو يعدل مورد Tenant B.
-6. جدول المسودات (`drafts` / `wizard_drafts`) في نطاق `Tenant` يقع وجوباً في قاعدة بيانات المستأجر (`tenant connection/migrations`)، بحيث تخزن نماذج الإنشاء التابعة للمستأجرين مسوداتها محلياً داخل قاعدة المستأجر، التزاماً بمبدأ العزل التام وعدم كتابة أو قراءة كود الـ Tenant في نماذج أو جداول مركزية مباشرة. بينما نماذج `Central` تخزن مسوداتها في جدول المسودات بالقاعدة المركزية.
-
-### 3.2 مثال لعبور نطاق مشروع
-
-```php
-final class TenantSubscriptionGateway
-{
-    public function currentSubscription(string $tenantId): ?Subscription
-    {
-        return tenancy()->central(fn () => Subscription::query()
-            ->where('tenant_id', $tenantId)
-            ->latest()
-            ->first());
-    }
-}
-```
-
-لا يستدعي Controller أو Blade هذا الاستعلام مباشرة.
-
-## 4. عقد الإدارة (Module Manifest)
-
-قبل تعديل الإدارة أو اعتبارها موحدة، يُسجل صف لها في `golden-pattern-manifest` يحتوي على:
-
-| الحقل | المطلوب |
+| الحقل | المطلوب كتابته |
 |---|---|
-| الاسم والمالك | اسم المجال ومالك تقني واضح |
-| النطاق | `Central` أو `Tenant`، connection، guard |
-| routes | name، method، middleware، bindings، consumer خارجي إن وجد |
-| الصلاحيات | مفاتيح English dot notation وقدرات Policy |
-| البيانات | Models، relations، enums، migrations، files/cache/queues |
-| التطبيق | Controllers، FormRequests، Policies، Actions، Services |
-| العرض | views، DataTables، shared components، scripts/styles |
-| الاختبارات | Feature، Unit، isolation، smoke checklist |
-| الحالة | `compliant` أو `gap` أو `not_applicable` مع سبب وowner |
+| الاسم | اسم مفرد للنموذج واسم جمع للإدارة بالإنجليزية |
+| Boundary | `central` أو `tenant` |
+| Route prefix/name | مثال `plans` و`admin.plans.*` أو `assignments.*` |
+| Guard/middleware | guard، subscription/license/verified عند الحاجة |
+| Permissions | مفاتيح إنجليزية `module.action` لكل عملية |
+| Aggregate root | النموذج الرئيسي والعلاقات التابعة له |
+| Operations | index/show/create/store/edit/update/destroy وما عداها |
+| State | activity boolean أم workflow enum؛ لا تخلطهما |
+| Files | أنواع الملفات، disk، المسارات، وحدود الحجم |
+| Side effects | Events/Listeners/Jobs/notifications/cache/external providers |
+| UI | DataTable، form عادي أم wizard، archive، filters |
+| Draft | resource key، خطوات الاستعادة، الملفات المؤقتة، purge |
+| Tests | Feature، Unit، Policy، isolation، files، jobs |
+| N/A | كل ملف غير مطلوب وسبب عدم الحاجة إليه |
 
-لا تعني كلمة `not_applicable` الإعفاء؛ تعني أن البند لا ينطبق بوضوح، مثل عدم وجود delete في تقرير read-only.
+### قواعد التسمية
 
-## 5. Backend Contract
+- مفاتيح DB والصلاحيات والحالات والأكواد والـslugs إنجليزية فقط.
+- الصلاحيات: `{module}.view`, `{module}.create`, `{module}.edit`, `{module}.delete`، وإجراءات متخصصة مثل `{module}_archive.restore`.
+- حالات workflow تستخدم lowercase snake_case ويفضل Enum.
+- النص العربي للعرض فقط في ملفات الترجمة أو Blade.
+- لا تنشئ Repository عامًا حول Eloquent.
+- Action لعملية business واحدة ذرّية؛ Service لتنسيق use cases أو queries مشتركة.
 
-### 5.1 Routes وHTTP methods
+---
 
-| الفعل | method القياسي |
-|---|---|
-| عرض index/create/show/edit | `GET` |
-| إنشاء | `POST` |
-| تعديل كامل | `PUT` أو `PATCH` بحسب العقد الحالي |
-| حذف ناعم | `DELETE` |
-| استعادة أو toggle status | `PATCH` |
-| حذف نهائي | `DELETE` |
+## 3. خريطة الملفات الإلزامية لكل إدارة
 
-- لا mutation عبر `GET`.
-- تبقى أسماء routes وحقول الطلب الحالية متوافقة ما لم يوافق قرار مستقل.
-- لا يستعمل `Route::resource()` إذا احتاجت الإدارة endpoints خاصة غير موثقة؛ تُكتب المسارات بوضوح مع أسماء ثابتة.
-
-### 5.2 Controller
-
-```php
-final class AuctionController extends Controller
-{
-    public function __construct(
-        private readonly CreateAuction $createAuction,
-    ) {
-        $this->middleware('can:auctions.view')->only('index');
-        $this->middleware('can:auctions.create')->only(['create', 'store']);
-    }
-
-    public function store(StoreAuctionRequest $request): RedirectResponse
-    {
-        $auction = $this->createAuction->handle($request->validated());
-
-        return to_route(tenant_route_name('auctions.show', $auction))
-            ->with('success', __('auctions.created'));
-    }
-}
-```
-
-القواعد:
-
-- تستخدم dependencies عبر constructor injection؛ يمنع `new SomeService()` داخل Controller.
-- لا تعرض exception message للمستخدم.
-- الطلب العادي يعيد redirect مع flash؛ الـAJAX يعيد JSON بالعقد الموحد.
-- لا يختفي authorization عند endpoint ثانوي مثل download، restore، import progress أو uniqueness check.
-
-### 5.3 FormRequest
-
-كل mutation لديه FormRequest مخصص أو مبرر موثق لاستعمال request مشترك. الـFormRequest يعرّف دائماً:
-
-```php
-public function authorize(): bool;
-public function rules(): array;
-public function messages(): array;
-public function attributes(): array;
-```
-
-- `rules/messages/attributes` هي المصدر الوحيد لقواعد النموذج.
-- JavaScript يرسل البيانات إلى endpoint التحقق المرتبط بالـFormRequest؛ لا ينسخ القواعد التجارية.
-- استخدم `prepareForValidation()` لتطبيع input، لا Controller ولا JavaScript.
-- قواعد القيم المخزنة تبقى English؛ labels والرسائل العربية في `attributes()` أو files الترجمة.
-
-### 5.4 الصلاحيات وPolicies
-
-الصلاحية ذات مستويين:
+استبدل `{Boundary}` بـ`Admin` أو`Tenants`، و`{Module}` و`{Entity}` باسم الإدارة والنموذج.
 
 ```text
-Permission / middleware: هل يملك المستخدم نوع الفعل؟
-Policy: هل يجوز لهذا المستخدم تنفيذ الفعل على هذا السجل تحديداً؟
+routes/{boundary}/{boundary}.php
+app/Models/{Boundary}/{Module}/{Entity}.php
+app/Enums/{Boundary}/{Module}/{StateEnum}.php                 # عند وجود حالات محددة
+app/Http/Controllers/{Boundary}/{Module}/{Entity}Controller.php
+app/Http/Requests/{Boundary}/{Module}/Store{Entity}Request.php
+app/Http/Requests/{Boundary}/{Module}/Update{Entity}Request.php
+app/Http/Requests/{Boundary}/{Module}/Update{Entity}StatusRequest.php # عند وجود activity toggle
+app/Policies/{Boundary}/{Module}/{Entity}Policy.php
+app/Actions/{Boundary}/{Module}/Create{Entity}Action.php       # عند وجود transaction/relations/files
+app/Actions/{Boundary}/{Module}/Update{Entity}Action.php       # عند تعقيد التحديث
+app/Services/{Boundary}/{Module}/{Entity}Service.php
+app/DataTables/{Boundary}/{Module}/{Entity}DataTable.php       # للقوائم server-side
+app/Http/Controllers/{Boundary}/Archive/{Module}/{Entity}ArchiveController.php
+app/DataTables/{Boundary}/Archive/{Module}/Archived{Entity}DataTable.php
+resources/views/{boundary}/{module}/index.blade.php
+resources/views/{boundary}/{module}/create.blade.php
+resources/views/{boundary}/{module}/edit.blade.php
+resources/views/{boundary}/{module}/show.blade.php             # إن كان العرض مطلوبًا
+resources/views/{boundary}/{module}/action.blade.php
+resources/views/{boundary}/{module}/archive.blade.php
+resources/assets/js/{boundary}/{module}/form.js                # فقط orchestration؛ لا قواعد validation
+database/migrations/{tenant-or-central}/...                    # حسب boundary
+database/factories/.../{Entity}Factory.php
+database/seeders/...                                           # إذا احتاجت الإدارة بيانات مرجعية
+tests/Feature/{Boundary}/{Module}/{Entity}CrudTest.php
+tests/Unit/{Boundary}/{Module}/{Entity}PolicyTest.php
+tests/Feature/{Boundary}/{Module}/{Entity}IsolationTest.php     # Tenant فقط
 ```
 
+ليس المطلوب إنشاء ملفات فارغة. الملف غير اللازم يوضع `not_applicable` في Manifest بسبب محدد. الملف المطلوب لا يدمج داخل Controller لمجرد تقليل عدد الملفات.
+
+---
+
+## 4. ملف routes
+
+### مكانه ومسؤوليته
+
+- Central: `routes/admin/admin.php` داخل مجموعة `admin.` و`auth:admin`.
+- Tenant: `routes/tenant/tenant.php` داخل مجموعة `auth:tenant` وبعد تهيئة tenancy، وتضاف `tenant.subscription` و`tenant.license` عند اعتماد الإدارة عليهما.
+- الـroute يعرّف HTTP contract فقط؛ لا يحتوي business logic أو closures لتنفيذ عمليات الإدارة.
+
+### الشكل القياسي
+
 ```php
-final class AuctionPolicy
+Route::prefix('entities')->name('entities.')->group(function () {
+    Route::patch('{entity}/toggle-status', [EntityController::class, 'toggleStatus'])
+        ->name('toggle-status');
+    Route::resource('/', EntityController::class)
+        ->parameters(['' => 'entity']);
+});
+```
+
+### قواعد إلزامية
+
+- أسماء route مستقرة وتستخدم في Blade وDataTable، لا URLs مكتوبة يدويًا.
+- GET للقراءة فقط. عمليات create/update/delete/toggle تستخدم POST/PUT/PATCH/DELETE.
+- Route model binding باسم يطابق parameter المستخدم في `authorizeResource`.
+- ضع routes الأكثر تحديدًا قبل resource أو wildcard routes.
+- callback خارجي له Request للتحقق من signature/idempotency ولا يختبئ داخل CRUD route.
+- لا تضف compatibility alias إلا بمالك وموعد إزالة مسجلين.
+
+### اختبار الملف
+
+- route name موجود، HTTP method صحيح، middleware/guard صحيح.
+- guest يحصل على redirect/401، والمستخدم بلا صلاحية يحصل على 403.
+- mutation عبر GET ترجع 404/405.
+
+---
+
+## 5. ملف Migration
+
+### مكانه
+
+- الجداول المركزية في migrations المركزية المعتمدة بالمشروع.
+- جداول Tenant في `database/migrations/tenant` حتى تنفذ في كل قاعدة مستأجر.
+
+### ما يجب أن يحتويه
+
+- أسماء أعمدة ومفاتيح إنجليزية فقط.
+- foreign keys وindexes المناسبة للاستعلامات والفلاتر.
+- timestamps وsoft deletes إذا للإدارة archive lifecycle.
+- status activity يكون boolean مثل `is_active`؛ workflow status يكون string/enum key موثقًا.
+- قيود uniqueness تعكس boundary الحقيقي. uniqueness داخل Tenant لا يفحص central DB.
+- `down()` قابل للعكس ما لم تكن migration retention معتمدة صراحةً.
+
+### محظورات
+
+- لا تخزن labels عربية.
+- لا تجعل JSON بديلًا لعلاقات أساسية تحتاج constraints واستعلامات.
+- لا تعدّل migration منشورة لتغيير production schema؛ أضف migration جديدة.
+- لا تضع drafts الخاصة بالمستأجر في central DB.
+
+### التحقق
+
+اختبر migrate fresh للمركزي ولـTenant، وفشل القيود، والفهارس المطلوبة في queries الثقيلة.
+
+---
+
+## 6. ملف Model
+
+### مسؤوليته
+
+يمثل البيانات والعلاقات وcasts/scopes البسيطة. لا يدير request، redirect، upload، أو workflow متعدد الخطوات.
+
+### البناء
+
+```php
+final class Entity extends Model
 {
-    public function update(User $user, Auction $auction): bool
+    use SoftDeletes;
+
+    protected $fillable = [/* الحقول المعتمدة فقط */];
+
+    protected function casts(): array
     {
-        return $user->can('auctions.edit')
-            && $auction->belongsToCurrentTenant();
+        return [
+            'is_active' => 'boolean',
+            'status' => EntityStatus::class,
+        ];
+    }
+
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }
 ```
 
-- مفاتيح permissions والأدوار والحالات English only: `auctions.edit`, `active`, `SuperAdmin`.
-- يستخدم Blade `@can('auctions.edit')` للعرض، لكنه لا يغني عن middleware أو Policy على الخادم.
-- Policy مطلوبة لكل Model يمكن الوصول له برقم أو binding، أو يبرر عدم انطباقها في الـManifest.
+### القواعد
 
-### 5.5 Models والبيانات
+- عرّف كل relation بنوع return واضح.
+- استخدم Enum cast للحالات المحددة.
+- استخدم scopes لاستعلامات قابلة لإعادة الاستخدام، لا authorization مخفيًا.
+- Model Tenant لا يستخدم connection مركزيًا ولا relation مباشرة إلى Central Model.
+- accessor للعرض البسيط مقبول؛ queries وعمليات business في Service/Action.
+- file path المخزن نسبي، وتحويله إلى URL يتم في طبقة عرض/خدمة مناسبة.
 
-- حدّد `$fillable` و`$casts` والعلاقات وscopes الصغيرة.
-- استخدم Enum backed string للحالة عندما تمثل state ثابتة؛ يوفر enum `label()` و`badgeClass()` للعرض.
-- لا تخزن نصوصًا عربية كمفاتيح أو statuses أو slugs أو permissions.
-- استخدم eager loading و`withCount()` في القوائم، ولا تنفذ query لكل صف في DataTable أو Blade.
-- ضع indexes للـforeign keys والـfilters والبحث الفعلي عند إضافة/تعديل schema.
+### الاختبارات
 
-### 5.6 المعاملات والـside effects
+relations، casts، scopes، soft delete، uniqueness/domain invariants التي تقع فعلاً داخل النموذج.
 
-```text
-Action
-  → DB transaction
-  → حفظ المورد والعلاقات
-  → commit
-  → event / queued job / notification
+---
+
+## 7. ملف Enum
+
+أنشئه لكل status/category/type ذي مجموعة قيم مغلقة.
+
+```php
+enum EntityStatus: string
+{
+    case ACTIVE = 'active';
+    case UNDER_REVIEW = 'under_review';
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::ACTIVE => __('statuses.active'),
+            self::UNDER_REVIEW => __('statuses.under_review'),
+        };
+    }
+}
 ```
 
-- أوقف أو نظّف الملف الجديد إذا فشل workflow قبل اكتمال العملية.
-- لا ترسل event أو job يعتمد على بيانات غير committed.
-- عمليات الدفع، callbacks، import، وupgrade تحتاج idempotency key أو حالة تمنع التنفيذ المكرر.
+- values إنجليزية lowercase snake_case.
+- label مترجم ولا يخزن في DB.
+- validation يستخدم `Rule::enum(EntityStatus::class)`.
+- لا تستخدم activity toggle لتغيير workflow enum عشوائيًا.
 
-### 5.7 الحذف والأرشيف
+---
+
+## 8. ملفات FormRequest
+
+### الملفات
+
+- `Store{Entity}Request`: إنشاء نهائي.
+- `Update{Entity}Request`: تحديث مع uniqueness يتجاهل السجل الحالي.
+- Request مستقل لكل mutation متخصصة: status، reorder، import، restore، force delete، callback.
+- Wizard create request يمتد من `WizardFormRequest` حتى يستطيع endpoint المشترك التحقق من الخطوة الفعلية.
+
+### المصدر الوحيد للتحقق
+
+`rules()`, `messages()`, `attributes()` هي المصدر الوحيد. ممنوع تكرار القواعد في JavaScript أو Controller.
+
+```php
+final class StoreEntityRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return $this->user('tenant')?->can('entities.create') ?? false;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'name' => ['required', 'string', 'max:255'],
+            'status' => ['required', Rule::enum(EntityStatus::class)],
+        ];
+    }
+
+    public function messages(): array { return [/* رسائل المجال */]; }
+    public function attributes(): array { return [/* أسماء الحقول للعرض */]; }
+}
+```
+
+### قواعد مهمة
+
+- `authorize()` يستخدم guard والpermission الصحيحين.
+- validation للعلاقات يثبت ownership وsoft-delete state، وليس مجرد وجود ID عالمي.
+- الملفات لها `file/image`, `mimes`, `max` وقواعد العدد.
+- لا تستخدم `$request->all()` بعد التحقق؛ مرّر `validated()`.
+- draft saving لا يفرض اكتمال create request؛ final submit وحده يفرضه.
+- uniqueness endpoints الإضافية إن وجدت تستخدم Request مستقل ولا تستبدل final validation.
+
+### الاختبارات
+
+اختبر كل required/type/enum/unique/relation/file rule، ورسالة 422 JSON، و403 عند فقد الصلاحية.
+
+---
+
+## 9. ملف Policy وتسجيله
+
+### البناء
+
+```php
+final class EntityPolicy
+{
+    public function viewAny(User $user): bool
+    {
+        return $user->can('entities.view');
+    }
+
+    public function view(User $user, Entity $entity): bool
+    {
+        return $user->can('entities.view') && $this->belongsToCurrentBoundary($entity);
+    }
+
+    public function create(User $user): bool { return $user->can('entities.create'); }
+    public function update(User $user, Entity $entity): bool { /* permission + ownership */ }
+    public function delete(User $user, Entity $entity): bool { /* permission + invariant */ }
+    public function restore(User $user, Entity $entity): bool { /* archive permission */ }
+    public function forceDelete(User $user, Entity $entity): bool { /* archive permission */ }
+}
+```
+
+### القواعد
+
+- permission middleware يحمي capability، والـPolicy يحمي السجل نفسه؛ نحتاج الاثنين.
+- سجل Policy في `AuthServiceProvider` أو آلية discovery المثبتة واختبر التسجيل.
+- `authorizeResource(Entity::class, 'entity')` في Controller القياسي.
+- subresource يفحص parent ownership أيضًا.
+- Tenant Policy يرفض أي سجل خارج tenant context حتى مع وجود permission.
+- mass delete يعيد فحص Policy لكل row؛ allow-list وحدها ليست authorization.
+
+---
+
+## 10. ملف Controller
+
+### مسؤوليته الوحيدة
+
+تحويل HTTP إلى use case: يستقبل dependencies، يمرر validated data، يستدعي authorization/action/service، ثم يرجع response. لا يحمل transaction أو business algorithm أو file lifecycle.
+
+### constructor
+
+```php
+public function __construct(private readonly EntityService $service)
+{
+    $this->middleware('auth:tenant');
+    $this->authorizeResource(Entity::class, 'entity');
+    $this->middleware('can:entities.view')->only(['index', 'show']);
+    $this->middleware('can:entities.create')->only(['create', 'store']);
+    $this->middleware('can:entities.edit')->only(['edit', 'update', 'toggleStatus']);
+    $this->middleware('can:entities.delete')->only('destroy');
+}
+```
+
+### CRUD methods
+
+- `index(DataTable $dataTable)`: يجلب statistics/options من Service أو Gateway ويعمل render.
+- `create()`: options/read models فقط، ولا ينشئ records.
+- `store(StoreRequest $request, CreateAction $action)`: `execute($request->validated(), actor)` ثم redirect success.
+- `show(Entity $entity)`: eager-load العلاقات المطلوبة فقط.
+- `edit(Entity $entity)`: record + options.
+- `update(UpdateRequest $request, Entity $entity)`: Action/Service بالـvalidated data.
+- `destroy(Entity $entity)`: يفوض lifecycle ثم يفرق بين JSON وbrowser redirect.
+- `toggleStatus(StatusRequest $request, Entity $entity)`: يرجع `success`, `message`, `status|is_active`.
+
+### عقد الحذف
 
 ```php
 if (request()->ajax() || request()->wantsJson()) {
@@ -221,178 +376,417 @@ if (request()->ajax() || request()->wantsJson()) {
 return redirect()->back()->with('success', __('messages.deleted'));
 ```
 
-- الحذف العادي، الاستعادة، والحذف النهائي يراجعون Policy وtenant scope.
-- archive view لا يظهر stats أو heading أو add button.
-- لا يُحذف ملف أو child record إلا وفق سياسة lifecycle موثقة واختبار مخصص.
+رسائل الخطأ العامة لا تعرض exception message. سجّل التفاصيل داخليًا مع context آمن.
 
-### 5.8 المسودات ودورة حياتها (Drafts Lifecycle)
+### المحظورات
 
-- توفر المنصة عقد endpoints موحد للتعامل مع المسودات (`show`, `store`, `destroy` / `discard`).
-- حفظ المسودة لا يُلزم استيفاء قواعد الـ Validation الصارمة الخاصة بـ `Store...Request` النهائي؛ بل يسمح بالحفظ المرحلي لبيانات النموذج غير الحساسة (`withoutSecrets`) والملفات المرفوعة (`draft_files`).
-- فور نجاح عملية الإنشاء النهائية (`store`) وإنشاء السجل في قاعدة البيانات، تُحذف المسودة المرتبطة تلقائياً لتفادي بقاء بيانات معلقة (عبر middleware أو cleanup action).
-- **الفصل المعماري والتخزين:**
-  - في نطاق `Tenant`: يُشترط أن يقع جدول المسودات (`drafts` / `wizard_drafts`) داخل قاعدة بيانات المستأجر (`Tenant Database`) حصراً، وتتعامل معه نماذج الـ Tenant عبر اتصال المستأجر لضمان العزل التام للبيانات وعدم اختراق حدود النطاقات.
-  - في نطاق `Central`: تُخزن مسودات نماذج الـ SuperAdmin في جدول المسودات بالقاعدة المركزية.
+- `validate()` inline عند وجود FormRequest.
+- queries طويلة أو transaction داخل Controller.
+- استدعاء Central Model من Tenant Controller.
+- raw JSON لعملية بدأت من hidden HTML delete form.
+- تمرير request الكامل إلى Service.
 
-## 6. Frontend Contract
+---
 
-### 6.0 مصادر خيارات القوائم المنسدلة (إلزامي)
+## 11. ملف Action
 
-- لا يجوز تعريف أي قيمة أعمال أو label لأي `<select>` داخل Blade أو JavaScript أو داخل مصفوفة خيارات inline في الواجهة، بما في ذلك `active` / `inactive` والقيم المنطقية المكافئة لهما.
-- القيم الثابتة المحدودة مصدرها الوحيد PHP string-backed Enum بمفاتيح إنجليزية، ويعرض الـEnum التسمية المترجمة من خلال `label()` أو option contract مشترك.
-- القيم الديناميكية مصدرها قاعدة البيانات الصحيحة للنطاق: Central forms تقرأ من Central DB، وTenant forms تقرأ من Tenant DB. لا يتجاوز Tenant حدوده لجلب خيارات Central إلا عبر gateway/service صريح.
-- القوائم المشتقة وقتيًا أو حسابيًا، مثل السنوات المتاحة، ينشئها backend option provider أو Service؛ لا تبنى داخل Blade أو page-specific JavaScript.
-- Blade مسؤولة عن rendering فقط عبر `x-form.controls.select` أو `x-filter.select` ومصفوفة `options` مجهزة من الخادم. JavaScript قد يجلب dependent options من endpoint، لكنه لا يحتوي business fallback dictionaries.
-- placeholder فارغ مسموح لأنه presentation-only، لكن كل `<option>` غير فارغ يجب أن يأتي من Enum أو database/provider موثق.
-- FormRequest validation يستخدم قيم الـEnum (`Rule::enum(...)`) أو تحقق وجود السجل الديناميكي في الاتصال الصحيح، ولا يكرر قائمة القيم يدويًا.
-- يجب وجود architecture test يمنع non-empty literal `<option value="...">` وinline business option dictionaries داخل Blade/JavaScript.
+أنشئ Action عندما تنفذ العملية الواحدة أكثر من write، أو تربط علاقات، أو تتعامل مع ملفات/side effects.
 
-### 6.1 صفحات Index
+```php
+final class CreateEntityAction
+{
+    public function execute(array $data, int $actorId): Entity
+    {
+        $storedPaths = [];
 
-```blade
-<x-data-table.page table-id="auctions-table">
-    <x-slot:stats>...</x-slot:stats>
-    <x-slot:filters>...</x-slot:filters>
-    <x-slot:table>...</x-slot:table>
-</x-data-table.page>
+        try {
+            return DB::transaction(function () use ($data, $actorId, &$storedPaths) {
+                // normalize validated data
+                // create aggregate
+                // sync owned relations after locking/revalidation
+                // store files and record paths
+                // dispatch after-commit work
+            });
+        } catch (Throwable $exception) {
+            foreach ($storedPaths as $path) {
+                Storage::delete($path);
+            }
+            throw $exception;
+        }
+    }
+}
 ```
 
-الترتيب ثابت: stats ثم filters ثم table. لا يوجد banner أو `<h1>` أو زر إضافة مستقل فوقها. زر الإضافة و`الإجراءات` داخل DataTable toolbar فقط.
+### القواعد
 
-### 6.2 النماذج
+- اسم action فعل واحد: Create/Update/Restore/Approve/Reconcile.
+- transaction تشمل كل DB writes الخاصة بالعملية.
+- تحقق مرة أخرى من العلاقات الحساسة داخل transaction عند وجود race condition.
+- نظف الملفات الجديدة عند rollback، واحذف القديمة فقط بعد نجاح الاستبدال.
+- dispatch لما يعتمد على commit يكون `afterCommit`.
+- لا يرجع RedirectResponse أو View؛ يرجع entity/value/DTO.
+- Action لا يصبح Service شاملًا لكل عمليات الإدارة.
 
-استخدم فقط `x-form.controls.*` و`x-form.layout.field` حيث يناسب الحقل. كل control submitted يلتزم بـ:
+---
+
+## 12. ملف Service
+
+يستخدم للقراءات المشتركة، statistics، توليد الأرقام، تنسيق use cases متعددة أو integration abstraction.
+
+- methods ذات أسماء business واضحة: `getStatistics`, `generateNumber`, `updateEntity`, `toggleStatus`.
+- لا يعتمد على HTTP request/session إلا إذا كان service مخصصًا لذلك ومعلنًا.
+- الـqueries تضيف select/eager loading وتمنع N+1.
+- cache key وTTL وآلية invalidation موثقة في نفس الخدمة.
+- external provider خلف interface/gateway، مع timeout/retry/idempotency وترجمة أخطائه إلى domain result.
+- crossing Central/Tenant خلف Gateway واضح، ولا يعاد كـEloquent model عابر للحدود إذا كان DTO/options كافيًا.
+
+إذا كانت العملية write واحدة بسيطة يمكن Service تنفيذها؛ عندما تصبح transactional متعددة الأجزاء استخرج Action.
+
+---
+
+## 13. ملفات Event / Listener / Job / Notification
+
+أنشئها عند وجود side effect لا يجب أن يثقل request أو عند الحاجة للفصل.
+
+| الملف | متى يستخدم | العقد |
+|---|---|---|
+| Event | حدث domain تم بالفعل | يحمل IDs/DTOs لازمة، لا request |
+| Listener | رد فعل مستقل | idempotent قدر الإمكان |
+| Job | عمل queue طويل/قابل لإعادة المحاولة | tenant context، owner، timeout، retries، failed handling |
+| Notification | إخطار مستخدم | authorization/recipient scope، ترجمة، deep link آمن |
+
+- Jobs الخاصة بـTenant تحفظ tenant identifier وتعيد تهيئة السياق قبل query.
+- export/import files مرتبطة بصاحبها ولا يمكن تنزيلها بالتخمين.
+- تقدم العمليات async له عقد `job/session_id`, `status`, `progress`.
+- لا ترسل side effect قبل commit إذا كان يفترض وجود record ناجح.
+
+---
+
+## 14. ملف DataTable
+
+يمتد من `AbstractDataTable` ويعرّف query/columns/rendering/filtering/buttons فقط.
+
+### الترتيب القياسي
 
 ```text
-wrapper: data-form-field + data-field-name
-control: data-form-control
-error:   data-form-error + aria-describedby + aria-live
+control/details → hidden id → checkbox → business columns → الحالة → الإجراءات
 ```
 
-- النموذج البسيط: card واحد.
-- النموذج المركب: wizard مشترك، وخطوة Next لا تفعل قبل نجاح تحقق FormRequest.
-- `x-filter.select` للـfilters فقط وليس submitted form field.
-- accessibility جزء من العقد: label مرتبط، `aria-invalid`، ومخرج خطأ واحد للحقل.
+### الأعمدة الإلزامية للحذف الجماعي
 
-#### 6.2.1 معيار زر «حفظ كمسودة» وجدول المسودات (إلزامي لجميع نماذج الإنشاء)
-
-1. **إلزامية زر «حفظ كمسودة» في جميع نماذج الإنشاء:**
-   - كل نموذج إنشاء (`create form`) — سواء كان شاشة بسيطة (`single-card form`) أو نموذجاً متعدد الخطوات (`wizard`) — **يجب وجوباً** أن يحتوي على زر «حفظ كمسودة» إلى جانب أزرار الإجراءات الأساسية (`Submit` / `Cancel`).
-2. **الربط مع جدول المسودات الموحد:**
-   - ترتبط كافة نماذج الإنشاء بجدول المسودات عبر Endpoint موحد (`drafts` / `wizard-drafts`).
-   - عند النقر على «حفظ كمسودة»، يتم حفظ البيانات والمدخلات الحالية والملفات المرفوعة مرحلياً دون فرض شروط الـ Validation الإلزامية الكاملة الخاصة بالإرسال النهائي.
-   - عند معاودة فتح نموذج الإنشاء من قِبل المستخدم، يتم فحص وجود مسودة سابقة وتنبيه المستخدم لإمكانية استعادتها تلقائياً لتجنب ضياع العمل غير المكتمل.
-   - عند إتمام عملية الإنشاء بنجاح وحفظ السجل، يتم حذف/تفريغ المسودة المرتبطة فوراً لمنع تراكم البيانات المؤقتة.
-3. **تموضع جدول المسودات وعزل بيانات المستأجرين (Tenant Database Requirement):**
-   - **جدول المسودات لنماذج المستأجرين يجب أن يكون متواجداً داخل قاعدة بيانات المستأجر (`Tenant Database / Migrations`) حصراً.**
-   - هذا التموضع إلزامي لكي تتمكن نماذج الـ Tenant من تخزين مسوداتها محلياً داخل قاعدة المستأجر، التزاماً بمبدأ العزل التام للبيانات (Tenant Isolation) وقاعدة الـ Golden Pattern الصارمة: *«لا يستدعي أو يكتب كود Tenant في نماذج أو جداول مركزية مباشرة»*.
-   - نماذج المركز (`Central / SuperAdmin`) تخزن مسوداتها في جدول المسودات التابع للقاعدة المركزية.
-
-### 6.3 DataTables
-
-ترتيب الأعمدة عند وجود CRUD قابل للحذف:
-
-```text
-# → checkbox → business columns → الحالة → الإجراءات
+```php
+['data' => 'checkbox', 'name' => 'checkbox',
+ 'title' => '<input type="checkbox" id="select-all">',
+ 'orderable' => false, 'searchable' => false,
+ 'className' => 'custom-checkbox']
 ```
 
-- checkbox وmass delete يظهران فقط عند وجود action فعلي وصلاحية وموديل مسجل في `config/models.php`.
-- الحالة القابلة للتعديل تستخدم `js-table-status-toggle` فقط وendpoint `PATCH` وFormRequest للحالة.
-- حالة workflow مثل فاتورة أو اشتراك قد تكون badge فقط؛ يوثق السبب في الـManifest.
-- filters تربط بـ`filterKey` يطابق اسم الحقل الذي يقرأه DataTable query.
-- لا تكتب handler AJAX خاصًا لكل صفحة لـtoggle أو mass-delete إذا كان shared handler يغطيها.
+وفي `addCustomColumns()`:
 
-#### 6.3.1 عقد التصميم الموحد لأزرار إجراءات الصفوف
+```php
+->addColumn('checkbox', fn ($row) =>
+    '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">')
+```
 
-- جميع أزرار الإجراءات داخل جداول صفحات `index` في نطاقي Central/SuperAdmin وTenant تستخدم حاوية `d-flex justify-content-center gap-2`.
-- يستخدم كل زر إجراء الفئات `btn btn-icon btn-label-primary`، مع بقاء الأيقونة، الصلاحية، والـhandler معبرة عن وظيفة الإجراء.
-- لا تستخدم الصفحات المنفردة ألوانًا أو أحجامًا بديلة لأزرار العرض أو التعديل أو الحذف أو الاستعادة أو الإجراءات الخاصة.
+### الحالة
 
-### 6.4 Responses وfeedback
+- activity state قابل للتعديل: `js-table-status-toggle` مع `data-url` وpermission guard.
+- عمود الحالة قبل الإجراءات مباشرة.
+- workflow/read-only state: badge، وليس toggle.
+- لا تكتب AJAX handler خاصًا بالصفحة؛ استخدم `resources/assets/js/shared/table-status-toggle.js`.
 
-| الحالة | العقد الأدنى |
+### الأزرار
+
+```php
+protected function buttons(): array
+{
+    return [
+        $this->getActionsDropdownButton(),
+        $this->getAddButton(),
+    ];
+}
+```
+
+- Actions dropdown: copy، excel، وحذف المحدد إذا كان مدعومًا.
+- Add button داخل DataTable toolbar فقط ومشروط بـ`{module}.create`.
+- archive DataTable يوفر copy/excel، و`getAddButton()` يعيد `[]`.
+
+### الأداء والأمان
+
+- ابدأ query من Model scoped للـboundary الحالي.
+- eager-load ما يستخدمه renderer.
+- escape user values؛ أي HTML يدخل `rawColumns()` عمدًا فقط.
+- filters تعدل query ولا تحمل collection كاملة.
+- action view لا يظهر زرًا بلا permission.
+- Model يدعم mass delete يجب أن يكون في `config/models.php`.
+
+---
+
+## 15. ملفات Blade
+
+### `index.blade.php`
+
+الترتيب الإلزامي:
+
+1. statistics cards مباشرة؛ لا page heading banner فوقها.
+2. filters عبر `<x-data-table.filters>` إن وجدت.
+3. card يحتوي DataTable.
+4. scripts/routes config اللازمة، مع event delegation على wrapper.
+
+زر الإضافة لا يوضع منفردًا في الصفحة؛ مكانه DataTable header عبر `buttons()`.
+
+### `create.blade.php`
+
+- يستخدم reusable form controls بعقد `data-form-field`, `data-field-name`, `data-form-control` وerror output accessible.
+- كل create form يحتوي «حفظ كمسودة» بجوار زر الإنشاء.
+- form يعلن resource key وFormRequest الحقيقي للـshared validation endpoint.
+- `multipart/form-data` عند وجود files.
+- old input والدraft restore لهما precedence واضح، ولا تفقد الملفات المؤقتة.
+- wizard buttons موحدة: السابق، التالي/تحقق، حفظ كمسودة، إنشاء نهائي.
+
+### `edit.blade.php`
+
+- نفس shared controls والعرض، لكن لا يعامل edit كcreate draft تلقائيًا إلا إذا اعتمد Manifest ذلك.
+- method spoofing إلى PUT/PATCH.
+- يعرض الملف الحالي وقرار الاحتفاظ/الاستبدال/الحذف صراحةً.
+
+### `show.blade.php`
+
+- read-only، لا mutation عبر links من نوع GET.
+- كل بيانات حساسة تمر بالـPolicy.
+- العلاقات الكبيرة تستخدم pagination/DataTable ولا تحمل بلا حد.
+
+### `action.blade.php`
+
+- يستخدم `<x-actions.*>` المشتركة.
+- كل action داخل `@can` بالمفتاح الإنجليزي.
+- الحذف الفردي يستخدم hidden form `#delete-form-{id}` و`window.confirmDelete(id)`.
+- لا يكرر modal/AJAX implementation خاصًا بالإدارة.
+
+### `archive.blade.php`
+
+يتكون فقط من: optional errors، optional filters، table card. ممنوع العنوان والبreadcrumbs والإحصائيات. restore وforce-delete بصلاحيات مستقلة.
+
+---
+
+## 16. ملف JavaScript الخاص بالإدارة
+
+ينشأ فقط عند وجود orchestration لا يغطيه shared code.
+
+### المسموح
+
+- تشغيل wizard والتنقل بين الخطوات.
+- جمع IDs المختارة وعرض review state.
+- استدعاء endpoints وإدارة loading/empty/error UI.
+- تهيئة plugins ومزامنة قيمها مع form controls.
+- event delegation الخاص بـ`#select-all` و`.row-checkbox` على `#table-id_wrapper`، وإلغاء select-all عند `draw.dt`.
+
+### الممنوع
+
+- نسخ Laravel validation rules أو الرسائل.
+- status-toggle AJAX handler خاص؛ استخدم المشترك.
+- URLs hard-coded بدل `window.routes` أو data attributes.
+- ابتلاع server errors أو إظهار exception داخلي.
+- query selectors لا تعتمد shared validation DOM contract.
+
+بعد أي تعديل `.js`, `.css`, `.scss` يجب تشغيل `npm run build` قبل إغلاق المهمة.
+
+---
+
+## 17. عقد المسودات لكل Create Form
+
+كل create form، سواء بطاقة واحدة أو wizard، متصل بنظام drafts.
+
+### الملفات المشتركة
+
+- `app/Http/Controllers/Shared/Wizard/WizardDraftController.php`
+- `app/Services/Shared/Wizard/WizardDraftService.php`
+- routes `wizard-drafts.show/store/destroy/file.destroy/validate-step`
+- جدول drafts في boundary الصحيح.
+
+### lifecycle
+
+1. فتح create يبحث عن draft لنفس user + resource key.
+2. تعرض الاستعادة بوضوح وتعيد values والملفات المؤقتة.
+3. «حفظ كمسودة» يحفظ المدخلات الناقصة والملفات دون full create validation.
+4. validate-step يشغل FormRequest الحقيقي ويطبق subset الخطوة، لا قواعد JS بديلة.
+5. كل رفع تدريجي مرتبط بمسودة ومالك وboundary ومسار غير قابل للتخمين.
+6. final submit يستخدم StoreRequest الكامل.
+7. بعد نجاح الإنشاء فقط تحذف المسودة وملفاتها المؤقتة.
+8. عند الفشل تبقى المسودة قابلة للاستعادة.
+9. cleanup job يزيل المسودات المنتهية وفق retention موثق.
+
+اختبر العزل بين المستخدمين والمستأجرين، حذف ملف واحد، purge بعد النجاح، والبقاء بعد rollback.
+
+---
+
+## 18. الأرشيف والحذف
+
+### Soft delete
+
+- `destroy` ينقل للأرشيف بعد Policy وdomain invariants.
+- العلاقات/الملفات لا تحذف نهائيًا عند soft delete إلا بقرار domain موثق.
+
+### Restore
+
+- PATCH + Request/Policy مستقلان.
+- يعيد العلاقات والحالة اللازمة بصورة transaction-safe.
+- يفحص conflicts التي ظهرت بعد الحذف مثل unique keys.
+
+### Force delete
+
+- DELETE + permission/Policy مستقلان.
+- Action/Service يحذف العلاقات والملفات في ترتيب آمن.
+- يمنع الحذف إذا كان record مستخدمًا في سجل مالي/تاريخي وفق قواعد المجال.
+
+### Mass delete
+
+- IDs array validated، Model موجود في allow-list، Policy لكل row.
+- العملية scoped للـboundary، ولا تقبل اسم class من المتصفح مباشرة.
+- partial failure contract موثق أو العملية transaction كاملة؛ لا نتيجة مبهمة.
+
+---
+
+## 19. الاستجابات والـfeedback
+
+| العملية | الاستجابة القياسية |
 |---|---|
-| Mutation AJAX | `success`, `message`, `data?` |
-| Validation | `success: false`, `errors`، HTTP 422 |
+| HTML success | redirect + session `success` |
+| HTML validation | redirect back + errors + old input |
+| AJAX success | `success`, `message`, وأي payload موثق |
+| AJAX validation | 422 + `message`, `errors` |
 | Toggle | `success`, `message`, `status` أو `is_active` |
-| Async import/export | `success`, `job/session_id`, `status`, `progress?` |
-| API resource | `data`, `meta?`, `errors?` |
+| Async | `success`, `job/session_id`, `status`, `progress?` |
+| Unauthorized | 403 دون كشف تفاصيل |
+| Unexpected error | رسالة عامة + log داخلي آمن |
 
-لا يلتقط JavaScript exception text ويعرضه للمستخدم. يستخدم رسالة عامة مع logging آمن على الخادم.
+Toastr يعتمد flash messages في browser flow. لا ترجع JSON خامًا من hidden-form deletion.
 
-## 7. Dashboards والتقارير
+---
 
-- Dashboard ليس صفحة Index ولا يطبق عليها شرط toolbar.
-- كل Dashboard يستخدم Service لإعداد view-data/DTO واضح؛ لا يحوي Controller تجميع KPIs أو استعلامات تجارية طويلة.
-- cache للمؤشرات الثقيلة بمفتاح يشمل scope وtenant/user/role عند الحاجة، مع invalidation معلن.
-- endpoints الرسوم والتقارير تعيد عقد JSON موثقًا وتخضع للصلاحية والـtenant scope.
-- التقارير read-only، لكنها تحتاج validation للفلاتر، authorization، eager loading، وتصدير مؤمن.
+## 20. ملفات الاختبارات المطلوبة
 
-## 8. الاختبارات المطلوبة
+### Feature CRUD test
 
-### 8.1 لكل إدارة CRUD
+يغطي:
 
-- authorized index وDataTable response.
-- 403 عند فقد permission.
-- 403 عند محاولة الوصول إلى سجل خارج scope أو Tenant.
-- validation: redirect للـform العادي و422 للـAJAX.
-- create/update/delete/restore/force-delete وفق ما ينطبق.
-- حفظ كمسودة من نموذج الإنشاء واستعادتها وحذفها تلقائياً عند الإنشاء الناجح.
-- status toggle وmass delete إن وُجدا.
-- archive lifecycle والملفات والعلاقات عند وجودها.
+- guard + permission لكل endpoint.
+- index/create/show/edit render.
+- store/update happy path وكل validation groups.
+- Policy للسجل، وليس permission فقط.
+- DB writes والعلاقات والملفات.
+- destroy browser redirect وAJAX JSON.
+- status toggle وعقد response.
+- draft save/restore/purge.
+- archive restore/force delete.
+- DataTable filters/buttons/column contracts عند الحاجة.
 
-### 8.2 للنطاقات الحساسة
+### Policy unit test
 
-| النطاق | اختبارات إضافية |
-|---|---|
-| Tenant | Tenant A مقابل Tenant B (بما في ذلك عزل جدول ومسودات المستأجرين داخل قاعدة بيانات المستأجر)، queues/cache/files عند استخدامها |
-| Central cross-tenant | دخول صريح إلى `tenancy()->central()`، permission وaudit |
-| Payment/callback | idempotency، توقيع/authentication، concurrency، لا mutation بـGET |
-| Import/export | owner-only progress/download، cancellation، files، background job |
-| Wizard | validation endpoint، drafts، Select2/repeater/files، next button |
+جدول حالات لكل ability: بدون permission، permission صحيحة، record داخل scope، record خارجه، soft-deleted record.
 
-### 8.3 بوابة التحقق
+### Tenant isolation test
 
-بعد تعديل PHP/Blade/JS/SCSS ضمن الإدارة، شغّل ما ينطبق:
+- جهز Tenant A وTenant B.
+- record في A لا يظهر ولا يرتبط ولا يعدل ولا يحذف من B.
+- IDs العلاقات من B تفشل validation/authorization.
+- drafts/files/jobs/cache keys لا تتسرب بين المستأجرين.
 
-```bash
-php artisan test
-php artisan view:cache
-php artisan route:cache
-php artisan route:clear
-git diff --check
-npm run build # إلزامي بعد أي تعديل JS/CSS/SCSS
+### Action/Service unit test
+
+- success والـdomain failures.
+- rollback الكامل عند exception.
+- file cleanup.
+- cache invalidation.
+- idempotency للcallbacks/jobs.
+
+### Contract tests
+
+حافظ على الاختبارات الأفقية الموجودة للصلاحيات الإنجليزية، DataTable status/actions، route methods، shared validation، وسياسات Central/Tenant.
+
+---
+
+## 21. ترتيب بناء إدارة جديدة من الصفر
+
+نفذ الخطوات بالترتيب ولا تبدأ من الواجهة:
+
+1. اكتب Manifest وحدد boundary والعمليات والحالات والصلاحيات والعلاقات والملفات.
+2. أضف permission keys الإنجليزية وترجماتها واختبار seeding/guard.
+3. أنشئ migration في قاعدة البيانات الصحيحة.
+4. أنشئ Enum ثم Model بعلاقاته وcasts.
+5. أنشئ Factory/Seeder الضروريين للاختبارات والبيانات المرجعية.
+6. أنشئ Store/Update/operation FormRequests كاملة rules/messages/attributes/authorize.
+7. أنشئ Policy وسجلها واختبر abilities.
+8. أنشئ Actions للعمليات transactional وService للقراءات/orchestration.
+9. أضف Events/Jobs/Notifications اللازمة مع tenant context وafter-commit.
+10. أنشئ Controller نحيفًا ووصل dependencies.
+11. أضف routes بالmiddleware وHTTP methods الصحيحة.
+12. أنشئ DataTable وترتيب checkbox/business/status/actions والأزرار القياسية.
+13. أنشئ index/create/edit/show/action باستخدام shared components.
+14. اربط كل create form بالمسودات والتحقق المشترك.
+15. أضف archive controller/DataTable/view عند استخدام SoftDeletes.
+16. أضف model إلى `config/models.php` إذا دعمت mass delete.
+17. اكتب Feature/Policy/Isolation/Action tests قبل اعتبار الإدارة مكتملة.
+18. شغّل الاختبارات المركزة ثم المجموعة الأفقية المتأثرة.
+19. إذا تغيرت assets شغّل `npm run build`.
+20. حدّث Manifest إلى `compliant` مع روابط أدلة الاختبار، لا بمجرد وجود الملفات.
+
+---
+
+## 22. قالب مراجعة كل ملف قبل الدمج
+
+انسخ القائمة التالية داخل وصف PR أو سجل الإدارة:
+
+```text
+[ ] Route: method/name/middleware/binding صحيحة
+[ ] Migration: boundary/keys/indexes/rollback صحيحة
+[ ] Model: fillable/casts/relations/scopes بلا crossing ممنوع
+[ ] Enum: English values + translated labels
+[ ] Requests: authorize/rules/messages/attributes ومغطاة بالاختبارات
+[ ] Policy: capability + record scope + registered
+[ ] Controller: thin + validated data + correct responses
+[ ] Action: transaction/locking/files/after-commit/rollback
+[ ] Service: orchestration/query/cache/gateway فقط
+[ ] Events/Jobs: idempotency + tenant context + ownership
+[ ] DataTable: query/filters/checkbox/status/actions/buttons
+[ ] Index: stats first + filters + table؛ لا banner/add button خارجي
+[ ] Create: shared controls + draft + restore + final validation
+[ ] Edit/Show/Action: authorization + no GET mutation
+[ ] Archive: strict layout + restore/force-delete policies
+[ ] JavaScript: orchestration only + shared handlers
+[ ] Tests: CRUD + validation + policy + isolation + files + drafts
+[ ] Verification: focused tests + contracts + npm build عند assets
 ```
 
-## 9. Definition of Done
+---
 
-لا تعتبر الإدارة مطابقة للـGolden Pattern إلا إذا:
+## 23. Definition of Done للإدارة
 
-- اكتمل الـManifest ولم يبق بند `gap` بلا owner وخطة معالجة.
-- routes وguard وconnection وpermissions وPolicies موثقة ومختبرة.
-- لا يوجد mutation بلا FormRequest أو response contract.
-- لا يوجد business validation مكرر في JavaScript.
-- الواجهة تستخدم shared components والعقود المناسبة أو استثناء موثق.
-- جميع نماذج الإنشاء تحوي زر «حفظ كمسودة» وترتبط بجدول المسودات في قاعدة البيانات الصحيحة (قاعدة بيانات المستأجر لنماذج Tenant، والقاعدة المركزية لنماذج Central).
-- DataTable أو Dashboard أو Report يطبق العقد الخاص به.
-- tenant isolation وlifecycle files/jobs/cache اختبرت عند انطباقها.
-- مرت اختبارات الإدارة وبوابة التحقق العامة.
+الإدارة `compliant` فقط عندما:
 
-## 10. قائمة إنشاء إدارة جديدة
+- كل ملف مطلوب أعلاه موجود ويلتزم بمسؤوليته، وكل استثناء موثق بسبب.
+- التدفق الفعلي هو Controller → FormRequest → Policy → Action/Service → UI → Tests.
+- لا توجد قواعد validation منسوخة في JavaScript.
+- لا يوجد Tenant/Central crossing مباشر.
+- كل create form يدعم draft lifecycle كاملًا.
+- كل activity table يستخدم status toggle المشترك وترتيب الأعمدة الصحيح.
+- الحذف والأرشيف وmass delete لها Policies واستجابات صحيحة.
+- مفاتيح DB والصلاحيات والحالات إنجليزية وتترجم في العرض.
+- الاختبارات المركزة والأفقية ناجحة، وbuild ناجح إذا تغير asset.
+- صف الإدارة في Manifest لا يحتوي `gap` بلا owner ودليل معالجة.
 
-1. حدّد النطاق: `Central` أو `Tenant`، ومالك الإدارة وحارسها.
-2. سجّل permissions الإنجليزية وPolicy abilities قبل إنشاء route.
-3. أضف Model/Enum/migration والعلاقات وindexes اللازمة.
-4. أضف routes صريحة وFormRequests وPolicy.
-5. اكتب Action/Service للعملية التجارية؛ لا تضعها في Controller.
-6. أنشئ DataTable أو View والنموذج بالمكونات المشتركة، مع تضمين زر «حفظ كمسودة» في كل نموذج إنشاء وربطه بجدول المسودات التابع لقاعدة بيانات النطاق المعني (Tenant DB للمستأجرين، Central DB للمركز).
-7. أضف responses، notifications، Jobs، files، cache بالعقد المناسب.
-8. اكتب الاختبارات ثم أضف صف الإدارة إلى الـManifest.
-9. شغّل بوابة التحقق وسجل الدليل.
+أي إدارة لا تحقق بندًا تظل `gap` أو `partial`، حتى لو كانت صفحاتها تعمل يدويًا.
 
-## 11. الاستثناءات والتغيير
+---
 
-- أي استثناء يكتب في الـManifest مع السبب والمالك وتاريخ المراجعة.
-- لا يحذف legacy أو route أو migration أو بيانات تاريخية عبر هذا المستند؛ يتبع ذلك مرحلة deprecation/retention المعتمدة.
-- تغيير قاعدة أعمال، تسعير، ضريبة، مزود دفع، أو route public يحتاج قرار منتج وخطة منفصلة.
-- عند تعارض هذا المستند مع `AGENTS.md`، تكون قواعد `AGENTS.md` الإلزامية مقدمة؛ ويحدّث المستندان معًا عند اعتماد قاعدة جديدة.
+## 24. أمثلة المشروع التي يرجع إليها المطور
+
+هذه أمثلة للاستدلال على توصيل الطبقات، وليست إعفاءً من القواعد السابقة:
+
+- Tenant transactional wizard: `AssignmentsController` + `StoreAssignmentRequest` + `AssignmentPolicy` + `CreateAssignmentAction` + `AssignmentService` + `AssignmentsDataTable`.
+- Central CRUD مع lifecycle وstatistics: `PlanController` + `PlanRequest` + `PlanPolicy` + `PlanService` + `PlanDataTable`.
+- Boundary gateway: `CentralCityOptionsGateway` بدل وصول Tenant المباشر إلى Model مركزي.
+- Shared drafts: `WizardDraftController` و`WizardDraftService`.
+- Shared table activity: `resources/assets/js/shared/table-status-toggle.js`.
+
+إذا خالف مثال قديم بندًا في هذا المرجع، المرجع هو الحاكم ويسجل المثال كفجوة في الـManifest؛ لا تنسخ المخالفة إلى إدارة جديدة.

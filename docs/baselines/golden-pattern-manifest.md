@@ -1,7 +1,7 @@
-# Golden Pattern Manifest — المرحلة 10
+# Golden Pattern Manifest — سجل مطابقة الإدارات
 
 - **تاريخ خط الأساس:** 8 أكتوبر 2026
-- **النطاق:** كل route نشط في `Admin` و`Tenant` فقط. لا يشمل Website أو المسارات المسجلة صراحةً كـInactive في سجل المرحلة 8.
+- **النطاق:** كل route نشط في `Admin` و`Tenant` فقط. لا يشمل Website أو التعريفات غير المحمّلة في runtime والمثبت عدم نشاطها.
 - **المالك التقني:** فريق Levan Backend.
 - **مرجع العقد:** [golden-pattern.md](../architecture/golden-pattern.md).
 - **مصدر الجرد:** `php artisan route:list --json`، ثم إزالة تكرارات نفس `Controller@method` الناتجة من central-domain aliases. هذا يمنع اعتبار المسار الواحد إدارةً مرتين.
@@ -15,7 +15,7 @@
 | الحقل | المعنى |
 |---|---|
 | Routes | بادئة الاسم؛ methods المقابلة تقرأ من route list، وكل mutation يجب أن يكون POST/PUT/PATCH/DELETE. |
-| Request/Policy | `موجود` يعني أن العقد مثبت في الكود أو الاختبار؛ `Gap` يعني أن مرحلة 10 مطالبة بإكماله، وليس إقراراً بصحته. |
+| Request/Policy | `موجود` يعني أن العقد مثبت في الكود أو الاختبار؛ `Gap` يعني أن الإدارة ما زالت مطالبة بإكماله، وليس إقراراً بصحته. |
 | UI | `DT` = DataTable، `View` = Blade، `API` = JSON/endpoint، `Dashboard/Report` = عقد خدمة view-data/report. |
 | Tests | أدنى الدليل المطلوب: `F` Feature، `U` Unit، `I` tenant isolation، `S` smoke. |
 
@@ -92,4 +92,4 @@
 5. **Presentation:** close DataTable, archive, form-control, dashboard-service and report-filter gaps without changing route names or database keys.
 6. **Verification:** add focused Feature/Unit/isolation tests as each family becomes compliant, then run the full stage-10 acceptance gate.
 
-The initial status is intentionally **Gap**, not a failure declaration: previous stages prove shared infrastructure and selected modules, while Phase 10 proves the full per-administration contract and records the missing evidence rather than assuming it.
+The initial status is intentionally **Gap**, not a failure declaration. This manifest proves the full per-administration contract and records missing evidence rather than assuming it.

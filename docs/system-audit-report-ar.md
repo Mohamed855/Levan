@@ -29,7 +29,7 @@
 | تجربة مجانية | `/trial` | نموذج طلب تجربة |
 | إرسال التجربة | `POST /trial` | إرسال الطلب للخدمة الخارجية |
 
-كانت صفحة `coming-soon` موجودة مع route معلّق؛ أزيلت في مرحلة 8 بعد إثبات عدم الاستهلاك.
+كانت صفحة `coming-soon` موجودة مع route معلّق؛ أزيلت بعد إثبات عدم الاستهلاك.
 
 ### الـlayout وأجزاء الصفحات
 
@@ -151,7 +151,7 @@
 - تقارير العقود والمحافظ وأداء الشركات والمستخدمين.
 - route قديم لتغيير كلمة المرور.
 
-أزيلت ملفات الـlegacy التي ثبت عدم استهلاكها في مرحلة 8: نسخ `.orig`، و`DashboardService-2-2-2025.php`، ونسختا Moyasar المسبوقتان بـ`__`، وملفات Trial validation القديمة، وصفحة `coming-soon`. يوثق [سجل المرحلة 8](baselines/phase-8-legacy-routes-register-2026-10-07.md) الدليل وموافقة الحذف.
+أزيلت ملفات الـlegacy التي ثبت عدم استهلاكها: نسخ `.orig`، و`DashboardService-2-2-2025.php`، ونسختا Moyasar المسبوقتان بـ`__`، وملفات Trial validation القديمة، وصفحة `coming-soon`.
 
 تبقى DataTables والواجهات المرتبطة بتقارير أو وظائف غير مفعّلة ضمن سجل Inactive؛ لا تحذف دون قرار product مستقل.
 
@@ -208,7 +208,7 @@
 
 قبل اعتماده إنتاجياً ينبغي إضافة authentication أو HMAC، rate limit صريح، audit log، منع التوازي، عدم كشف exception messages، وتشغيل العملية عبر Job إذا طال التنفيذ.
 
-## ملاحظات عامة قبل المرحلة القادمة
+## ملاحظات عامة للأعمال القادمة
 
 1. الـException handler العام يعرض صفحات أخطاء Tenant حتى لطلبات Website أو Super Admin؛ يجب اختيار صفحة الخطأ حسب السياق.
 2. يوجد تنوع في response patterns: Redirect + flash، JSON success/data، DataTables، وdownloads/progress. يلزم contract واضح لكل نوع.
