@@ -41,7 +41,7 @@
                             <div class="input-group">
                                 <input type="text" id="apiTokenField" class="form-control font-monospace"
                                     value="{{ session('new_api_token') }}" readonly>
-                                <button type="button" class="btn btn-outline-secondary" id="copyApiTokenBtn">
+                                <button type="button" class="btn btn-secondary" id="copyApiTokenBtn">
                                     <i class="ti ti-copy"></i>
                                 </button>
                             </div>

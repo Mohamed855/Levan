@@ -148,31 +148,16 @@
             <x-form.wizard.step id="assignment-review-validation" :fields="[]">
                 <div class="row g-4 assignment-review">
                     <div class="col-lg-9 d-flex flex-column gap-4">
-                        <article class="card assignment-review__card">
-                            <div class="card-header d-flex justify-content-between">
-                                <h5 class="mb-0">البيانات الأساسية</h5><button type="button"
-                                    class="btn btn-sm btn-outline-primary" data-edit-step="1">تعديل</button>
-                            </div>
-                            <div class="card-body" id="review-basic"></div>
-                        </article>
-                        <article class="card assignment-review__card">
-                            <div class="card-header d-flex justify-content-between">
-                                <h5 class="mb-0">العقارات المرتبطة</h5><button type="button"
-                                    class="btn btn-sm btn-outline-primary" data-edit-step="2">تعديل</button>
-                            </div>
-                            <div class="card-body">
-                                <div id="review-properties" class="assignment-selection__items"></div>
-                            </div>
-                        </article>
-                        <article class="card assignment-review__card">
-                            <div class="card-header d-flex justify-content-between">
-                                <h5 class="mb-0">الملفات والمستندات</h5><button type="button"
-                                    class="btn btn-sm btn-outline-primary" data-edit-step="3">تعديل</button>
-                            </div>
-                            <div class="card-body">
-                                <div id="review-files" class="assignment-file-list"></div>
-                            </div>
-                        </article>
+                        <x-form.wizard.review-card title="البيانات الأساسية" step="1" body-id="review-basic"
+                            class="assignment-review__card" />
+                        <x-form.wizard.review-card title="العقارات المرتبطة" step="2"
+                            class="assignment-review__card">
+                            <div id="review-properties" class="assignment-selection__items"></div>
+                        </x-form.wizard.review-card>
+                        <x-form.wizard.review-card title="الملفات والمستندات" step="3"
+                            class="assignment-review__card">
+                            <div id="review-files" class="assignment-file-list"></div>
+                        </x-form.wizard.review-card>
                     </div>
                     <div class="col-lg-3">
                         <article class="card assignment-preview h-100"><img id="review-image"

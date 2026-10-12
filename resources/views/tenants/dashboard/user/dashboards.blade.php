@@ -218,7 +218,7 @@
                                     </label>
                                     <input type="radio" class="btn-check" name="userDataTypeFilter"
                                         id="userFollowsTab" value="follows">
-                                    <label class="btn btn-outline-secondary btn-sm" for="userFollowsTab">
+                                    <label class="btn btn-secondary btn-sm" for="userFollowsTab">
                                         <i class="ti ti-phone-call me-1"></i> المتابعات
                                     </label>
                                 </div>

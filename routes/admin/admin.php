@@ -85,13 +85,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
 
     // ادارة الاشتراكات
     Route::prefix('subscriptions')->name('subscriptions.')->group(function () {
-        Route::get('/', [CentralSubscriptionController::class, 'index'])->name('index');
-        Route::get('create', [CentralSubscriptionController::class, 'create'])->name('create');
-        Route::post('/', [CentralSubscriptionController::class, 'store'])->name('store');
-        Route::delete('{subscription}', [CentralSubscriptionController::class, 'destroy'])->name('destroy');
         Route::patch('{subscription}/toggle-status', [CentralSubscriptionController::class, 'toggleStatus'])->name('toggle-status');
         Route::get('plans/{plan}/duration', [CentralSubscriptionController::class, 'planDuration'])->name('plan-duration');
         Route::get('companies/{company}/details', [CentralSubscriptionController::class, 'companyDetails'])->name('company-details');
+        Route::resource('/', CentralSubscriptionController::class)
+            ->only(['index', 'create', 'store', 'destroy'])
+            ->parameters(['' => 'subscription']);
     });
     // الكوبونات
     Route::prefix('coupons')->name('coupons.')->group(function () {
@@ -126,8 +125,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
 
     //Activity Logs
     Route::prefix('activity-logs')->name('activity-logs.')->group(function () {
-        Route::get('/', [AdminActivityLogController::class, 'index'])->name('index');
-        Route::get('{id}', [AdminActivityLogController::class, 'show'])->name('show');
+        Route::resource('/', AdminActivityLogController::class)
+            ->only(['index', 'show'])
+            ->parameters(['' => 'id']);
     });
 
     // Plans Management
@@ -140,21 +140,23 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
     });
 
     Route::prefix('bills')->name('bills.')->group(function () {
-        Route::get('/', [AdminBillsController::class, 'index'])->name('index');
-        Route::get('/{bill}', [AdminBillsController::class, 'show'])->name('show');
         Route::get('/{bill}/print', [AdminBillsController::class, 'print'])->name('print');
         Route::post('/{bill}/verify', [AdminBillsController::class, 'verify'])->name('verify');
         Route::post('/{bill}/reject', [AdminBillsController::class, 'reject'])->name('reject');
         Route::post('{bill}/reactivate', [AdminBillsController::class, 'reactivate'])->name('reactivate');
+        Route::resource('/', AdminBillsController::class)
+            ->only(['index', 'show'])
+            ->parameters(['' => 'bill']);
     });
 
     // Tickets Management
     Route::prefix('tickets')->name('tickets.')->group(function () {
-        Route::get('/', [AdminTicketController::class, 'index'])->name('index');
         Route::post('/toggle-service', [AdminTicketController::class, 'toggleService'])->name('toggleService');
-        Route::get('/{ticket}', [AdminTicketController::class, 'show'])->name('show');
         Route::post('/{ticket}/reply', [AdminTicketController::class, 'reply'])->name('reply');
         Route::post('/{ticket}/status', [AdminTicketController::class, 'updateStatus'])->name('updateStatus');
+        Route::resource('/', AdminTicketController::class)
+            ->only(['index', 'show'])
+            ->parameters(['' => 'ticket']);
     });
 
     // super admin archive routes

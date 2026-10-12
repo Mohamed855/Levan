@@ -132,12 +132,26 @@ Route::prefix('entities')->name('entities.')->group(function () {
 });
 ```
 
+`Route::resource()` هو الأصل لكل CRUD. ممنوع كتابة routes منفصلة لـ`index/create/store/show/edit/update/destroy` عندما يستطيع resource التعبير عنها. استخدم `only()` أو `except()` عندما لا تدعم الإدارة كل العمليات، ثم أضف فقط العمليات غير القياسية بجوار resource:
+
+```php
+Route::prefix('entities')->name('entities.')->group(function () {
+    Route::patch('{entity}/toggle-status', [EntityController::class, 'toggleStatus'])
+        ->name('toggle-status');
+
+    Route::resource('/', EntityController::class)
+        ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
+        ->parameters(['' => 'entity']);
+});
+```
+
 ### قواعد إلزامية
 
 - أسماء route مستقرة وتستخدم في Blade وDataTable، لا URLs مكتوبة يدويًا.
 - GET للقراءة فقط. عمليات create/update/delete/toggle تستخدم POST/PUT/PATCH/DELETE.
 - Route model binding باسم يطابق parameter المستخدم في `authorizeResource`.
 - ضع routes الأكثر تحديدًا قبل resource أو wildcard routes.
+- لا تفكك resource إلى سبعة تعريفات route يدوية. الاستثناء الوحيد عملية لا يمثلها resource مثل toggle، reorder، import، export، restore أو callback.
 - callback خارجي له Request للتحقق من signature/idempotency ولا يختبئ داخل CRUD route.
 - لا تضف compatibility alias إلا بمالك وموعد إزالة مسجلين.
 
@@ -494,6 +508,15 @@ control/details → hidden id → checkbox → business columns → الحالة
 - عمود الحالة قبل الإجراءات مباشرة.
 - workflow/read-only state: badge، وليس toggle.
 - لا تكتب AJAX handler خاصًا بالصفحة؛ استخدم `resources/assets/js/shared/table-status-toggle.js`.
+- كل إدارة تحتوي activity state من نوع active/inactive يجب أن تعرض toggler داخل DataTable؛ لا تعرض badge نصيًا للمستخدم الذي يملك صلاحية التعديل.
+- كل togglers في المشروع تستدعي method عامة واحدة مشتركة لتغيير activity state وتوحيد الاستجابة. لا تنشئ `toggleStatus` business implementation مكررة داخل كل Controller؛ الاختلاف المسموح هو Policy/FormRequest واسم الحقل المعتمد (`status` أو `is_active`) عبر العقد العام.
+
+### الصورة الرئيسية
+
+- إذا كان للنموذج صورة واحدة أو صورة رئيسية، يجب أن يكون لها column مستقل في DataTable، ولا تدمج داخل عمود الاسم أو الإجراءات.
+- الصورة تستخدم component عرض مشترك يثبت الأبعاد و`object-fit` وalt text وlazy loading.
+- عند غياب الصورة تستخدم fallback تلقائيًا: شعار المنصة في إدارة Central/SuperAdmin، وشعار الـTenant الحالي في إدارة Tenant، ثم شعار المنصة إذا لم يكن للـTenant شعار.
+- لا تكرر منطق بناء URL أو fallback داخل DataTables؛ يمر عبر component/presenter مشترك.
 
 ### الأزرار
 
@@ -543,12 +566,29 @@ protected function buttons(): array
 - `multipart/form-data` عند وجود files.
 - old input والدraft restore لهما precedence واضح، ولا تفقد الملفات المؤقتة.
 - wizard buttons موحدة: السابق، التالي/تحقق، حفظ كمسودة، إنشاء نهائي.
+- إذا احتوى create flow على خطوتين أو أكثر، تصبح آخر خطوة دائمًا «المراجعة» ولا تنفذ submit قبلها.
+- كروت المراجعة تطابق تصميم إدارة الإسنادات وتستخرج إلى Blade components مشتركة بدل نسخ markup.
+- بداية كل review card تحتوي زر انتقال مباشر إلى الخطوة المالكة للبيانات؛ الزر icon-only من نوع edit مع `aria-label` وtooltip، وليس نص «تعديل».
 
 ### `edit.blade.php`
 
 - نفس shared controls والعرض، لكن لا يعامل edit كcreate draft تلقائيًا إلا إذا اعتمد Manifest ذلك.
 - method spoofing إلى PUT/PATCH.
 - يعرض الملف الحالي وقرار الاحتفاظ/الاستبدال/الحذف صراحةً.
+
+### مكونات حقول النماذج
+
+- كل `select` داخل create/edit يستخدم component المشروع المبني على Select2؛ لا يسمح بعنصر `<select>` خام داخل صفحات الإدارات.
+- كل input أو textarea أو file uploader أو radio/checkbox group أو date/number/password/tel/email control يستخدم Blade component مشتركًا.
+- إذا لم يوجد component لنوع الحقل المطلوب، يُنشأ component عام أولًا بعقد validation وaccessibility ثم يستخدم في الإدارة؛ ممنوع كتابة control محليًا كحل مؤقت.
+- كل component يطبق `data-form-field`, `data-field-name`, `data-form-control` وerror output accessible، ويدعم old value وdisabled/readonly/help text.
+
+### قاعدة المكونات المشتركة
+
+- أي markup أو interaction يتكرر أو يمكن استعماله في أكثر من إدارة يستخرج إلى component مشترك.
+- ابدأ دائمًا من component مشترك بين Admin وTenant. لا تنشئ نسخة Admin ونسخة Tenant إلا عندما يوجد اختلاف وظيفي حقيقي، لا مجرد اختلاف بيانات أو route أو permission.
+- لوحتا Admin وTenant تستخدمان غالبية نفس مكونات cards، metrics، loading، empty/error states، filters والـlayout؛ المكونات الخاصة بواحدة منهما يجب أن تبقى استثناءً محدودًا ومبررًا.
+- الاختلافات في logo، route، permission، labels أو values تمر كـprops/slots، ولا تبرر نسخ component.
 
 ### `show.blade.php`
 
@@ -607,16 +647,19 @@ protected function buttons(): array
 ### lifecycle
 
 1. فتح create يبحث عن draft لنفس user + resource key.
-2. تعرض الاستعادة بوضوح وتعيد values والملفات المؤقتة.
-3. «حفظ كمسودة» يحفظ المدخلات الناقصة والملفات دون full create validation.
-4. validate-step يشغل FormRequest الحقيقي ويطبق subset الخطوة، لا قواعد JS بديلة.
-5. كل رفع تدريجي مرتبط بمسودة ومالك وboundary ومسار غير قابل للتخمين.
-6. final submit يستخدم StoreRequest الكامل.
-7. بعد نجاح الإنشاء فقط تحذف المسودة وملفاتها المؤقتة.
-8. عند الفشل تبقى المسودة قابلة للاستعادة.
-9. cleanup job يزيل المسودات المنتهية وفق retention موثق.
+2. إذا وجدت مسودة، يجب إظهار modal قبل تحرير النموذج بخيارين صريحين: «استرجاع المسودة» أو «تجاهل والبدء من جديد»؛ لا تسترجع أو تتجاهل بصمت.
+3. «استرجاع المسودة» يعيد فعليًا كل scalar values والمصفوفات والعلاقات المختارة وحالة خطوات الـwizard والملفات المرفوعة المؤرشفة مع metadata وروابط preview/remove، وليس أسماء الملفات فقط.
+4. ملفات المسودة تحفظ كملفات مؤرشفة خاصة بالمسودة ومالكها والـboundary حتى الإنشاء النهائي أو التجاهل، ولا تعامل كملفات record نهائية قبل نجاح العملية.
+5. «تجاهل والبدء من جديد» يحذف سجل المسودة وكل الملفات المؤرشفة التابعة له أولًا، ثم يعيد النموذج فارغًا؛ فشل الحذف يمنع البدء الجديد ويعرض رسالة قابلة لإعادة المحاولة حتى لا تترك ملفات orphaned.
+6. «حفظ كمسودة» موجود في كل create form ويحفظ المدخلات الناقصة والملفات دون full create validation.
+7. validate-step يشغل FormRequest الحقيقي ويطبق subset الخطوة، لا قواعد JS بديلة.
+8. كل رفع تدريجي مرتبط بمسودة ومالك وboundary ومسار غير قابل للتخمين.
+9. final submit يستخدم StoreRequest الكامل.
+10. بعد نجاح الإنشاء فقط تنقل/تعتمد الملفات المطلوبة ثم تحذف المسودة وبقايا ملفاتها المؤرشفة.
+11. عند الفشل تبقى المسودة والملفات المؤرشفة قابلة للاستعادة.
+12. cleanup job يزيل المسودات المنتهية وملفاتها وفق retention موثق.
 
-اختبر العزل بين المستخدمين والمستأجرين، حذف ملف واحد، purge بعد النجاح، والبقاء بعد rollback.
+اختبر ظهور modal، كلا القرارين، الاسترجاع الكامل لكل نوع حقل وملف، حذف الملفات عند البدء من جديد، العزل بين المستخدمين والمستأجرين، حذف ملف واحد، purge بعد النجاح، والبقاء بعد rollback.
 
 ---
 
@@ -738,7 +781,7 @@ Toastr يعتمد flash messages في browser flow. لا ترجع JSON خامً�
 انسخ القائمة التالية داخل وصف PR أو سجل الإدارة:
 
 ```text
-[ ] Route: method/name/middleware/binding صحيحة
+[ ] Route: resource + only/except أولًا، ثم العمليات غير القياسية فقط
 [ ] Migration: boundary/keys/indexes/rollback صحيحة
 [ ] Model: fillable/casts/relations/scopes بلا crossing ممنوع
 [ ] Enum: English values + translated labels
@@ -748,9 +791,11 @@ Toastr يعتمد flash messages في browser flow. لا ترجع JSON خامً�
 [ ] Action: transaction/locking/files/after-commit/rollback
 [ ] Service: orchestration/query/cache/gateway فقط
 [ ] Events/Jobs: idempotency + tenant context + ownership
-[ ] DataTable: query/filters/checkbox/status/actions/buttons
+[ ] DataTable: query/filters/checkbox/image/status/actions/buttons + shared activity toggler
 [ ] Index: stats first + filters + table؛ لا banner/add button خارجي
-[ ] Create: shared controls + draft + restore + final validation
+[ ] Create: shared controls فقط + draft modal + full data/files restore + discard purge + final validation
+[ ] Multi-step create: final review step + reusable assignment-style cards + icon-only edit navigation
+[ ] Components: كل UI قابل لإعادة الاستخدام مشترك بين Admin/Tenant ما لم يوجد اختلاف وظيفي حقيقي
 [ ] Edit/Show/Action: authorization + no GET mutation
 [ ] Archive: strict layout + restore/force-delete policies
 [ ] JavaScript: orchestration only + shared handlers
@@ -769,7 +814,11 @@ Toastr يعتمد flash messages في browser flow. لا ترجع JSON خامً�
 - لا توجد قواعد validation منسوخة في JavaScript.
 - لا يوجد Tenant/Central crossing مباشر.
 - كل create form يدعم draft lifecycle كاملًا.
-- كل activity table يستخدم status toggle المشترك وترتيب الأعمدة الصحيح.
+- كل create متعدد الخطوات ينتهي بخطوة مراجعة تستخدم review-card components المشتركة وزر edit icon ينقل للخطوة المطلوبة.
+- كل form control يستخدم component المشروع؛ وأي نوع غير موجود له component عام جديد.
+- كل activity table يستخدم status toggle المشترك والـmethod العامة وترتيب الأعمدة الصحيح.
+- كل model له صورة رئيسية يعرض image column مستقلًا مع platform/tenant logo fallback المناسب.
+- المكونات القابلة للمشاركة موحدة بين Admin وTenant، والنسخ boundary-specific لها مبرر وظيفي موثق.
 - الحذف والأرشيف وmass delete لها Policies واستجابات صحيحة.
 - مفاتيح DB والصلاحيات والحالات إنجليزية وتترجم في العرض.
 - الاختبارات المركزة والأفقية ناجحة، وbuild ناجح إذا تغير asset.

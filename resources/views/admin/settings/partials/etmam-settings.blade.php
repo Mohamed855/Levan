@@ -46,7 +46,7 @@
                                 value="{{ old('etmam_hmac_secret', $settings->etmam_hmac_secret) }}"
                                 autocomplete="new-password"
                                 placeholder="ادخل المفتاح السري  المقدم من اتمام">
-                            <button class="btn btn-outline-secondary" type="button"
+                            <button class="btn btn-secondary" type="button"
                                 onclick="toggleVisibility('etmam_hmac_secret', this)">
                                 <i class="ti ti-eye"></i>
                             </button>

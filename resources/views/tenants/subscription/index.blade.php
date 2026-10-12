@@ -305,7 +305,7 @@
                                     <input name="new_licenses_count" type="number" data-form-control
                                         class="form-control text-center fw-bold" id="custom-licenses" min="0"
                                         max="1000" value="0">
-                                    <button class="btn btn-outline-secondary" type="button" id="increase-licenses">
+                                    <button class="btn btn-secondary" type="button" id="increase-licenses">
                                         <i class="ti ti-plus"></i>
                                     </button>
                                 </div>

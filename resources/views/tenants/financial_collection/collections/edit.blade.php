@@ -211,7 +211,7 @@
                                             value="{{ old('receipt_number', $collection->receipt_number) }}"
                                             {{ $collection->status === 'approved' ? 'readonly' : '' }} required />
                                         @if ($collection->status !== 'approved')
-                                            <button type="button" class="btn btn-outline-secondary"
+                                            <button type="button" class="btn btn-secondary"
                                                 id="generate-receipt" title="توليد رقم جديد">
                                                 <i class="ti ti-refresh"></i>
                                             </button>

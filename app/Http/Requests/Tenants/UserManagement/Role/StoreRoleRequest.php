@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests\Tenants\UserManagement\Role;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreRoleRequest extends FormRequest
+class StoreRoleRequest extends WizardFormRequest
 {
     /*
     |--------------------------------------------------------------------------

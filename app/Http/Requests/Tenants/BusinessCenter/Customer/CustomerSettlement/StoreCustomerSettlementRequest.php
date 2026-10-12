@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Tenants\BusinessCenter\Customer\CustomerSettlement;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 
-class StoreCustomerSettlementRequest extends FormRequest
+class StoreCustomerSettlementRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {

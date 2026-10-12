@@ -205,7 +205,7 @@ $hasAnyActions = isset($hasAnyActions) ? $hasAnyActions : false;
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <strong>الملاحظة</strong>
 
-                            <button type="button" class="btn btn-sm btn-outline-secondary copy-note-btn"
+                            <button type="button" class="btn btn-sm btn-secondary copy-note-btn"
                                 data-follow-id="{{ $follow->id }}">
                                 نسخ
                             </button>

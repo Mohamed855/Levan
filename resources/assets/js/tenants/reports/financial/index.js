@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 let financialReportsTable;
 let exportProgressInterval;
@@ -18,64 +18,64 @@ $(document).ready(function () {
 */
 function initializeComponents() {
     // تهيئة Select2 العادي
-    $('.select2').each(function () {
+    $(".select2").each(function () {
         $(this).select2({
             placeholder: function () {
-                return $(this).data('placeholder');
+                return $(this).data("placeholder");
             },
             allowClear: true,
-            width: '100%',
+            width: "100%",
             language: {
                 noResults: function () {
                     return "لا توجد نتائج";
                 },
                 searching: function () {
                     return "جاري البحث...";
-                }
+                },
             },
-            dir: 'rtl'
+            dir: "rtl",
         });
     });
 
     // تهيئة Select2 مع AJAX للعملاء
-    $('.select2-ajax').select2({
+    $(".select2-ajax").select2({
         placeholder: function () {
-            return $(this).data('placeholder');
+            return $(this).data("placeholder");
         },
         allowClear: true,
-        width: '100%',
+        width: "100%",
         language: {
             noResults: function () {
                 return "لا توجد نتائج";
             },
             searching: function () {
                 return "جاري البحث...";
-            }
+            },
         },
-        dir: 'rtl',
+        dir: "rtl",
         minimumInputLength: 0,
         ajax: {
             url: function () {
                 return window.routes.financialSearchCustomers;
             },
-            dataType: 'json',
+            dataType: "json",
             delay: 300,
             data: function (params) {
                 return {
-                    q: params.term || '',
-                    page: params.page || 1
+                    q: params.term || "",
+                    page: params.page || 1,
                 };
             },
             processResults: function (data) {
                 return {
                     results: data,
                     pagination: {
-                        more: data.length === 20
-                    }
+                        more: data.length === 20,
+                    },
                 };
             },
-            cache: true
-        }
+            cache: true,
+        },
     });
 }
 
@@ -86,8 +86,11 @@ function initializeComponents() {
 */
 function initializeTableAfterRender() {
     const checkTable = setInterval(function () {
-        if ($('#financial-reports-table').length && $.fn.DataTable.isDataTable('#financial-reports-table')) {
-            financialReportsTable = $('#financial-reports-table').DataTable();
+        if (
+            $("#financial-reports-table").length &&
+            $.fn.DataTable.isDataTable("#financial-reports-table")
+        ) {
+            financialReportsTable = $("#financial-reports-table").DataTable();
             setupTableEvents();
             clearInterval(checkTable);
         }
@@ -102,21 +105,21 @@ function initializeTableAfterRender() {
 function setupTableEvents() {
     if (!financialReportsTable) return;
 
-    const tableWrapper = $('#financial-reports-table_wrapper');
+    const tableWrapper = $("#financial-reports-table_wrapper");
 
-    tableWrapper.on('click', '#select-all', function () {
-        const rows = financialReportsTable.rows({ search: 'applied' }).nodes();
-        $('input.row-checkbox', rows).prop('checked', this.checked);
+    tableWrapper.on("click", "#select-all", function () {
+        const rows = financialReportsTable.rows({ search: "applied" }).nodes();
+        $("input.row-checkbox", rows).prop("checked", this.checked);
     });
 
-    tableWrapper.on('change', '.row-checkbox', function () {
+    tableWrapper.on("change", ".row-checkbox", function () {
         if (!this.checked) {
-            $('#select-all').prop('checked', false);
+            $("#select-all").prop("checked", false);
         }
     });
 
-    financialReportsTable.on('draw', function () {
-        $('#select-all').prop('checked', false);
+    financialReportsTable.on("draw", function () {
+        $("#select-all").prop("checked", false);
     });
 }
 
@@ -139,21 +142,25 @@ function initializeCharts() {
 function generateColorPalette(baseColor, count) {
     const colors = [];
 
-    if (baseColor === '#4cc1bb') {
+    if (baseColor === "#4cc1bb") {
         // أزرق فيروزي بدرجات متفاوتة
-        const baseR = 76, baseG = 193, baseB = 187;
+        const baseR = 76,
+            baseG = 193,
+            baseB = 187;
         for (let i = 0; i < count; i++) {
-            const factor = 1 - (i * 0.15);
+            const factor = 1 - i * 0.15;
             const r = Math.round(baseR * factor);
             const g = Math.round(baseG * factor);
             const b = Math.round(baseB * factor);
             colors.push(`rgb(${r}, ${g}, ${b})`);
         }
-    } else if (baseColor === '#372632') {
+    } else if (baseColor === "#372632") {
         // أزرق داكن بدرجات متفاوتة
-        const baseR = 31, baseG = 42, baseB = 68;
+        const baseR = 31,
+            baseG = 42,
+            baseB = 68;
         for (let i = 0; i < count; i++) {
-            const factor = 1 - (i * 0.12);
+            const factor = 1 - i * 0.12;
             const r = Math.round(baseR * factor);
             const g = Math.round(baseG * factor);
             const b = Math.round(baseB * factor);
@@ -162,8 +169,13 @@ function generateColorPalette(baseColor, count) {
     } else {
         // اللون الافتراضي
         for (let i = 0; i < count; i++) {
-            const opacity = 1 - (i * 0.15);
-            colors.push(baseColor + Math.round(opacity * 255).toString(16).padStart(2, '0'));
+            const opacity = 1 - i * 0.15;
+            colors.push(
+                baseColor +
+                    Math.round(opacity * 255)
+                        .toString(16)
+                        .padStart(2, "0"),
+            );
         }
     }
 
@@ -179,7 +191,7 @@ function initializeStatusChart() {
     const statusData = window.chartData.collectionsByStatus;
 
     if (!statusData || Object.keys(statusData).length === 0) {
-        $('#transactionTypeChart').html(`
+        $("#transactionTypeChart").html(`
             <div class="text-center text-muted p-4">
                 <i class="ti ti-chart-pie-off ti-24px mb-2 d-block"></i>
                 <small>لا توجد بيانات للحالات</small>
@@ -188,12 +200,17 @@ function initializeStatusChart() {
         return;
     }
 
-    const labels = Object.keys(statusData).map(key => window.chartData.collectionStatusLabels[key] ?? key);
+    const labels = Object.keys(statusData).map(
+        (key) => window.chartData.collectionStatusLabels[key] ?? key,
+    );
     const series = Object.values(statusData);
 
-    const totalValues = series.reduce((sum, val) => sum + (parseFloat(val) || 0), 0);
+    const totalValues = series.reduce(
+        (sum, val) => sum + (parseFloat(val) || 0),
+        0,
+    );
     if (totalValues === 0) {
-        $('#transactionTypeChart').html(`
+        $("#transactionTypeChart").html(`
             <div class="text-center text-muted p-4">
                 <i class="ti ti-chart-pie-off ti-24px mb-2 d-block"></i>
                 <small>لا توجد بيانات للحالات</small>
@@ -202,61 +219,64 @@ function initializeStatusChart() {
         return;
     }
 
-    const colors = ['#4cc1bb', '#372632', '#6fc8d3'];
+    const colors = ["#4cc1bb", "#372632", "#6fc8d3"];
 
     const options = {
         series: series,
         chart: {
-            type: 'donut',
+            type: "donut",
             height: 280,
-            fontFamily: 'Cairo, sans-serif',
-            toolbar: { show: false }
+            fontFamily: "Cairo, sans-serif",
+            toolbar: { show: false },
         },
         labels: labels,
         colors: colors,
         legend: {
-            position: 'bottom',
-            fontSize: '12px',
-            fontWeight: '500'
+            position: "bottom",
+            fontSize: "12px",
+            fontWeight: "500",
         },
         plotOptions: {
             pie: {
                 donut: {
-                    size: '65%',
+                    size: "65%",
                     labels: {
                         show: true,
                         total: {
                             show: true,
-                            label: 'المجموع',
-                            fontSize: '14px',
-                            fontWeight: '600',
-                            color: '#333'
-                        }
-                    }
-                }
-            }
+                            label: "المجموع",
+                            fontSize: "14px",
+                            fontWeight: "600",
+                            color: "#333",
+                        },
+                    },
+                },
+            },
         },
         dataLabels: {
             enabled: true,
             formatter: function (val) {
-                return Math.round(val) + '%';
+                return Math.round(val) + "%";
             },
             style: {
-                fontSize: '11px',
-                fontWeight: 'bold',
-                colors: ['#fff']
-            }
+                fontSize: "11px",
+                fontWeight: "bold",
+                colors: ["#fff"],
+            },
         },
         tooltip: {
             y: {
                 formatter: function (val) {
-                    return val + ' تحصيل';
-                }
-            }
-        }
+                    return val + " تحصيل";
+                },
+            },
+        },
     };
 
-    const statusChart = new ApexCharts(document.querySelector("#transactionTypeChart"), options);
+    const statusChart = new ApexCharts(
+        document.querySelector("#transactionTypeChart"),
+        options,
+    );
     statusChart.render();
 }
 
@@ -269,7 +289,7 @@ function initializeUserChart() {
     const userData = window.chartData.transactionsByUser;
 
     if (!userData || Object.keys(userData).length === 0) {
-        $('#userChart').html(`
+        $("#userChart").html(`
             <div class="text-center text-muted p-4">
                 <i class="ti ti-user-off ti-24px mb-2 d-block"></i>
                 <small>لا توجد بيانات للمستخدمين</small>
@@ -279,11 +299,11 @@ function initializeUserChart() {
     }
 
     const labels = Object.keys(userData);
-    const series = Object.values(userData).map(val => parseFloat(val) || 0);
+    const series = Object.values(userData).map((val) => parseFloat(val) || 0);
 
     const totalValues = series.reduce((sum, val) => sum + val, 0);
     if (totalValues === 0) {
-        $('#userChart').html(`
+        $("#userChart").html(`
             <div class="text-center text-muted p-4">
                 <i class="ti ti-user-off ti-24px mb-2 d-block"></i>
                 <small>لا توجد بيانات للمستخدمين</small>
@@ -292,64 +312,67 @@ function initializeUserChart() {
         return;
     }
 
-    const colors = generateColorPalette('#372632', labels.length);
+    const colors = generateColorPalette("#372632", labels.length);
 
     const options = {
         series: series,
         chart: {
-            type: 'donut',
+            type: "donut",
             height: 280,
-            fontFamily: 'Cairo, sans-serif',
-            toolbar: { show: false }
+            fontFamily: "Cairo, sans-serif",
+            toolbar: { show: false },
         },
         labels: labels,
         colors: colors,
         legend: {
-            position: 'bottom',
-            fontSize: '12px',
-            fontWeight: '500'
+            position: "bottom",
+            fontSize: "12px",
+            fontWeight: "500",
         },
         plotOptions: {
             pie: {
                 donut: {
-                    size: '65%',
+                    size: "65%",
                     labels: {
                         show: true,
                         total: {
                             show: true,
-                            label: 'الإجمالي',
-                            fontSize: '14px',
-                            fontWeight: '600',
-                            color: '#333',
+                            label: "الإجمالي",
+                            fontSize: "14px",
+                            fontWeight: "600",
+                            color: "#333",
                             formatter: function (val) {
                                 return formatCurrency(totalValues);
-                            }
-                        }
-                    }
-                }
-            }
+                            },
+                        },
+                    },
+                },
+            },
         },
         dataLabels: {
             enabled: true,
             formatter: function (val) {
-                return Math.round(val) + '%';
+                return Math.round(val) + "%";
             },
             style: {
-                fontSize: '11px',
-                fontWeight: 'bold',
-                colors: ['#fff']
-            }
+                fontSize: "11px",
+                fontWeight: "bold",
+                colors: ["#fff"],
+            },
         },
         tooltip: {
             y: {
                 formatter: function (val) {
                     return formatCurrency(val);
-                }
-            }
-        }
+                },
+            },
+        },
     };
 
-    const userChart = new ApexCharts(document.querySelector("#userChart"), options);
+    const userChart = new ApexCharts(
+        document.querySelector("#userChart"),
+        options,
+    );
     userChart.render();
 }
 
@@ -360,11 +383,11 @@ function initializeUserChart() {
 */
 function formatCurrency(amount) {
     if (amount >= 1000000) {
-        return (amount / 1000000).toFixed(1) + 'م';
+        return (amount / 1000000).toFixed(1) + "م";
     } else if (amount >= 1000) {
-        return (amount / 1000).toFixed(1) + 'ألف';
+        return (amount / 1000).toFixed(1) + "ألف";
     } else {
-        return amount.toFixed(2) + 'SAR';
+        return amount.toFixed(2) + "SAR";
     }
 }
 
@@ -377,7 +400,7 @@ function initializeMonthlyChart() {
     const monthlyData = window.chartData.transactionsByMonth;
 
     if (!monthlyData || Object.keys(monthlyData).length === 0) {
-        $('#monthlyChart').html(`
+        $("#monthlyChart").html(`
             <div class="text-center text-muted p-4">
                 <i class="ti ti-calendar-off ti-24px mb-2 d-block"></i>
                 <small>لا توجد بيانات شهرية</small>
@@ -387,11 +410,13 @@ function initializeMonthlyChart() {
     }
 
     const categories = Object.keys(monthlyData);
-    const series = Object.values(monthlyData).map(val => parseFloat(val) || 0);
+    const series = Object.values(monthlyData).map(
+        (val) => parseFloat(val) || 0,
+    );
 
     const totalAmount = series.reduce((sum, val) => sum + val, 0);
     if (totalAmount === 0) {
-        $('#monthlyChart').html(`
+        $("#monthlyChart").html(`
             <div class="text-center text-muted p-4">
                 <i class="ti ti-calendar-off ti-24px mb-2 d-block"></i>
                 <small>لا توجد بيانات شهرية</small>
@@ -401,25 +426,27 @@ function initializeMonthlyChart() {
     }
 
     const options = {
-        series: [{
-            name: 'عدد المعاملات',
-            data: series
-        }],
+        series: [
+            {
+                name: "عدد المعاملات",
+                data: series,
+            },
+        ],
         chart: {
-            type: 'bar',
+            type: "bar",
             height: 280,
-            fontFamily: 'Cairo, sans-serif',
+            fontFamily: "Cairo, sans-serif",
             toolbar: { show: false },
-            background: 'transparent'
+            background: "transparent",
         },
         plotOptions: {
             bar: {
                 borderRadius: 8,
-                columnWidth: '60%',
+                columnWidth: "60%",
                 dataLabels: {
-                    position: 'top'
-                }
-            }
+                    position: "top",
+                },
+            },
         },
         dataLabels: {
             enabled: true,
@@ -427,73 +454,73 @@ function initializeMonthlyChart() {
                 return val;
             },
             style: {
-                fontSize: '12px',
-                colors: ['#333'],
-                fontWeight: 'bold'
+                fontSize: "12px",
+                colors: ["#333"],
+                fontWeight: "bold",
             },
-            offsetY: -20
+            offsetY: -20,
         },
-        colors: ['#4cc1bb'],
+        colors: ["#4cc1bb"],
         grid: {
             show: true,
-            borderColor: '#e0e0e0',
+            borderColor: "#e0e0e0",
             strokeDashArray: 4,
-            position: 'back',
+            position: "back",
             xaxis: {
                 lines: {
                     show: true,
-                    color: '#f0f0f0'
-                }
+                    color: "#f0f0f0",
+                },
             },
             yaxis: {
                 lines: {
                     show: true,
-                    color: '#f0f0f0'
-                }
+                    color: "#f0f0f0",
+                },
             },
             padding: {
                 top: 0,
                 right: 0,
                 bottom: 0,
-                left: 0
-            }
+                left: 0,
+            },
         },
         xaxis: {
             categories: categories,
             labels: {
                 style: {
-                    colors: '#666',
-                    fontSize: '12px',
-                    fontWeight: '500'
+                    colors: "#666",
+                    fontSize: "12px",
+                    fontWeight: "500",
                 },
                 rotate: -45,
-                offsetY: 5
+                offsetY: 5,
             },
             axisBorder: {
-                show: false
+                show: false,
             },
             axisTicks: {
-                show: false
-            }
+                show: false,
+            },
         },
         yaxis: {
             labels: {
                 style: {
-                    colors: '#666',
-                    fontSize: '12px',
-                    fontWeight: '500'
+                    colors: "#666",
+                    fontSize: "12px",
+                    fontWeight: "500",
                 },
                 formatter: function (val) {
                     return Math.floor(val);
-                }
+                },
             },
             axisBorder: {
-                show: false
+                show: false,
             },
             axisTicks: {
-                show: false
+                show: false,
             },
-            min: 0
+            min: 0,
         },
         tooltip: {
             enabled: true,
@@ -507,12 +534,12 @@ function initializeMonthlyChart() {
                         <div class="apexcharts-tooltip-value" style="font-family: Cairo; font-size: 12px; color: #fff; background: #4cc1bb; padding: 5px 10px; border-radius: 4px; margin-top: 2px;">${value} معاملة</div>`;
             },
             style: {
-                fontSize: '13px',
-                fontFamily: 'Cairo, sans-serif'
+                fontSize: "13px",
+                fontFamily: "Cairo, sans-serif",
             },
             marker: {
-                show: false
-            }
+                show: false,
+            },
         },
         responsive: [
             {
@@ -520,21 +547,24 @@ function initializeMonthlyChart() {
                 options: {
                     plotOptions: {
                         bar: {
-                            columnWidth: '80%'
-                        }
+                            columnWidth: "80%",
+                        },
                     },
                     dataLabels: {
                         offsetY: -15,
                         style: {
-                            fontSize: '10px'
-                        }
-                    }
-                }
-            }
-        ]
+                            fontSize: "10px",
+                        },
+                    },
+                },
+            },
+        ],
     };
 
-    const monthlyChart = new ApexCharts(document.querySelector("#monthlyChart"), options);
+    const monthlyChart = new ApexCharts(
+        document.querySelector("#monthlyChart"),
+        options,
+    );
     monthlyChart.render();
 }
 
@@ -544,65 +574,86 @@ function initializeMonthlyChart() {
 |--------------------------------------------------------------------------
 */
 function bindEvents() {
-    $('#filter-company').on('change', function () {
+    $("#filter-company").on("change", function () {
         const companyId = $(this).val();
-        const portfolioSelect = $('#filter-portfolio');
+        const portfolioSelect = $("#filter-portfolio");
 
-        portfolioSelect.val('').trigger('change.select2');
+        portfolioSelect.val("").trigger("change.select2");
 
         if (companyId) {
             portfolioSelect.html('<option value="">جاري التحميل...</option>');
-            portfolioSelect.prop('disabled', true);
+            portfolioSelect.prop("disabled", true);
 
             $.ajax({
                 url: window.routes.financialPortfoliosByCompany,
-                type: 'GET',
+                type: "GET",
                 data: { company_id: companyId },
                 success: function (data) {
                     portfolioSelect.empty();
 
                     if (data && data.length > 0) {
-                        portfolioSelect.append('<option value="">اختر المحفظة</option>');
+                        portfolioSelect.append(
+                            '<option value="">اختر المحفظة</option>',
+                        );
                         $.each(data, function (index, portfolio) {
-                            portfolioSelect.append('<option value="' + portfolio.id + '">' + portfolio.name + '</option>');
+                            portfolioSelect.append(
+                                '<option value="' +
+                                    portfolio.id +
+                                    '">' +
+                                    portfolio.name +
+                                    "</option>",
+                            );
                         });
-                        portfolioSelect.prop('disabled', false);
+                        portfolioSelect.prop("disabled", false);
                     } else {
-                        portfolioSelect.append('<option value="" disabled>لا توجد محافظ لهذه الشركة</option>');
-                        portfolioSelect.prop('disabled', true);
+                        portfolioSelect.append(
+                            '<option value="" disabled>لا توجد محافظ لهذه الشركة</option>',
+                        );
+                        portfolioSelect.prop("disabled", true);
                     }
                 },
                 error: function () {
                     portfolioSelect.empty();
-                    portfolioSelect.append('<option value="" disabled>حدث خطأ في التحميل</option>');
-                    portfolioSelect.prop('disabled', true);
-                    toastr.error('حدث خطأ أثناء تحميل المحافظ');
-                }
+                    portfolioSelect.append(
+                        '<option value="" disabled>حدث خطأ في التحميل</option>',
+                    );
+                    portfolioSelect.prop("disabled", true);
+                    toastr.error("حدث خطأ أثناء تحميل المحافظ");
+                },
             });
         } else {
             portfolioSelect.empty();
-            portfolioSelect.append('<option value="" disabled>اختر المحفظة</option>');
-            portfolioSelect.prop('disabled', true);
+            portfolioSelect.append(
+                '<option value="" disabled>اختر المحفظة</option>',
+            );
+            portfolioSelect.prop("disabled", true);
         }
     });
 
-    $(document).on('datatable-filter:reset', function (e, data) {
-        if (data && data.tableSelector === '#financial-reports-table') {
-            const portfolioSelect = $('#filter-portfolio');
-            portfolioSelect.empty().append('<option value="" disabled>اختر الشركة أولاً</option>').prop('disabled', true);
+    $(document).on("datatable-filter:reset", function (e, data) {
+        if (data && data.tableSelector === "#financial-reports-table") {
+            const portfolioSelect = $("#filter-portfolio");
+            portfolioSelect
+                .empty()
+                .append('<option value="" disabled>اختر الشركة أولاً</option>')
+                .prop("disabled", true);
         }
     });
 
-    $(document).on('click', '.btn-export-pdf', function () {
+    $(document).on("click", ".btn-export-pdf", function () {
         exportCustomReportToPDF();
     });
 
-    $('#filtersSection').on('show.bs.collapse', function () {
-        $('[data-bs-target="#filtersSection"] i.ti-chevron-down').removeClass('ti-chevron-down').addClass('ti-chevron-up');
+    $("#filtersSection").on("show.bs.collapse", function () {
+        $('[data-bs-target="#filtersSection"] i.ti-chevron-down')
+            .removeClass("ti-chevron-down")
+            .addClass("ti-chevron-up");
     });
 
-    $('#filtersSection').on('hide.bs.collapse', function () {
-        $('[data-bs-target="#filtersSection"] i.ti-chevron-up').removeClass('ti-chevron-up').addClass('ti-chevron-down');
+    $("#filtersSection").on("hide.bs.collapse", function () {
+        $('[data-bs-target="#filtersSection"] i.ti-chevron-up')
+            .removeClass("ti-chevron-up")
+            .addClass("ti-chevron-down");
     });
 }
 
@@ -615,8 +666,8 @@ function getCurrentFiltersAsParams() {
     const filters = getCurrentFilters();
     const params = new URLSearchParams();
 
-    Object.keys(filters).forEach(key => {
-        if (filters[key] && filters[key] !== '') {
+    Object.keys(filters).forEach((key) => {
+        if (filters[key] && filters[key] !== "") {
             params.append(key, filters[key]);
         }
     });
@@ -631,18 +682,18 @@ function getCurrentFiltersAsParams() {
 */
 function getCurrentFilters() {
     return {
-        date_from: $('#filter-date-from').val(),
-        date_to: $('#filter-date-to').val(),
-        created_from: $('#filter-created-from').val(),
-        created_to: $('#filter-created-to').val(),
-        customer_id: $('#filter-customer').val(),
-        status: $('#filter-status').val(),
-        company_id: $('#filter-company').val(),
-        portfolio_id: $('#filter-portfolio').val(),
-        created_by: $('#filter-created-by').val(),
-        amount_from: $('#filter-amount-from').val(),
-        amount_to: $('#filter-amount-to').val(),
-        search_query: $('#filter-search-query').val()
+        date_from: $("#filter-date-from").val(),
+        date_to: $("#filter-date-to").val(),
+        created_from: $("#filter-created-from").val(),
+        created_to: $("#filter-created-to").val(),
+        customer_id: $("#filter-customer").val(),
+        status: $("#filter-status").val(),
+        company_id: $("#filter-company").val(),
+        portfolio_id: $("#filter-portfolio").val(),
+        created_by: $("#filter-created-by").val(),
+        amount_from: $("#filter-amount-from").val(),
+        amount_to: $("#filter-amount-to").val(),
+        search_query: $("#filter-search-query").val(),
     };
 }
 
@@ -654,31 +705,35 @@ function getCurrentFilters() {
 function exportCustomReportToPDF() {
     const filters = getCurrentFilters();
 
-    toastr.info('جاري تحضير تقرير PDF...');
+    toastr.info("جاري تحضير تقرير PDF...");
 
-    const form = $('<form>', {
-        'method': 'POST',
-        'action': window.routes.financialReportsExportPDF,
-        'target': '_blank'
+    const form = $("<form>", {
+        method: "POST",
+        action: window.routes.financialReportsExportPDF,
+        target: "_blank",
     });
 
-    form.append($('<input>', {
-        'type': 'hidden',
-        'name': '_token',
-        'value': window.csrfToken
-    }));
+    form.append(
+        $("<input>", {
+            type: "hidden",
+            name: "_token",
+            value: window.csrfToken,
+        }),
+    );
 
     $.each(filters, function (key, value) {
-        if (value && value !== '') {
-            form.append($('<input>', {
-                'type': 'hidden',
-                'name': key,
-                'value': value
-            }));
+        if (value && value !== "") {
+            form.append(
+                $("<input>", {
+                    type: "hidden",
+                    name: key,
+                    value: value,
+                }),
+            );
         }
     });
 
-    form.appendTo('body').submit().remove();
+    form.appendTo("body").submit().remove();
 }
 
 /*
@@ -707,7 +762,6 @@ function exportCustomReportToPDF() {
 //     });
 // }
 
-
 /*
 |--------------------------------------------------------------------------
 | Export Filtered To Excel - مع فحص تاريخ التحصيل أو الإنشاء
@@ -720,18 +774,26 @@ function exportFilteredToExcel() {
     const hasCreatedDateRange = filters.created_from && filters.created_to;
 
     if (!hasCollectionDateRange && !hasCreatedDateRange) {
-        toastr.error('يرجى تحديد نطاق تاريخ واحد على الأقل (تاريخ التحصيل أو تاريخ الإنشاء)');
+        toastr.error(
+            "يرجى تحديد نطاق تاريخ واحد على الأقل (تاريخ التحصيل أو تاريخ الإنشاء)",
+        );
         return;
     }
 
     if (hasCollectionDateRange) {
         const collectionDateFrom = new Date(filters.date_from);
         const collectionDateTo = new Date(filters.date_to);
-        const collectionDiffTime = Math.abs(collectionDateTo - collectionDateFrom);
-        const collectionDiffDays = Math.ceil(collectionDiffTime / (1000 * 60 * 60 * 24));
+        const collectionDiffTime = Math.abs(
+            collectionDateTo - collectionDateFrom,
+        );
+        const collectionDiffDays = Math.ceil(
+            collectionDiffTime / (1000 * 60 * 60 * 24),
+        );
 
         if (collectionDiffDays > 31) {
-            toastr.error('نطاق تاريخ التحصيل يتجاوز 31 يوم. الرجاء تحديد فترة أقصر');
+            toastr.error(
+                "نطاق تاريخ التحصيل يتجاوز 31 يوم. الرجاء تحديد فترة أقصر",
+            );
             return;
         }
     }
@@ -740,32 +802,40 @@ function exportFilteredToExcel() {
         const createdDateFrom = new Date(filters.created_from);
         const createdDateTo = new Date(filters.created_to);
         const createdDiffTime = Math.abs(createdDateTo - createdDateFrom);
-        const createdDiffDays = Math.ceil(createdDiffTime / (1000 * 60 * 60 * 24));
+        const createdDiffDays = Math.ceil(
+            createdDiffTime / (1000 * 60 * 60 * 24),
+        );
 
         if (createdDiffDays > 31) {
-            toastr.error('نطاق تاريخ الإنشاء يتجاوز 31 يوم. الرجاء تحديد فترة أقصر');
+            toastr.error(
+                "نطاق تاريخ الإنشاء يتجاوز 31 يوم. الرجاء تحديد فترة أقصر",
+            );
             return;
         }
     }
 
     $.ajax({
         url: window.routes.financialReportsShowExportModal,
-        type: 'POST',
+        type: "POST",
         data: {
             _token: window.csrfToken,
-            ...filters
+            ...filters,
         },
         success: function (response) {
             if (response.success) {
-                showExportFieldsModal(response.fields, response.count, filters, response.is_large_export);
+                showExportFieldsModal(
+                    response.fields,
+                    response.count,
+                    filters,
+                    response.is_large_export,
+                );
             }
         },
         error: function () {
-            toastr.error('حدث خطأ أثناء جلب بيانات التصدير');
-        }
+            toastr.error("حدث خطأ أثناء جلب بيانات التصدير");
+        },
     });
 }
-
 
 /*
 |--------------------------------------------------------------------------
@@ -787,7 +857,7 @@ function showExportFieldsModal(fields, count, filters, isLargeExport) {
             <button type="button" class="btn btn-outline-primary btn-sm py-1 px-2 mx-1" id="selectAllFields">
                 تحديد الكل
             </button>
-            <button type="button" class="btn btn-outline-secondary btn-sm py-1 px-2 mx-1" id="deselectAllFields">
+            <button type="button" class="btn btn-secondary btn-sm py-1 px-2 mx-1" id="deselectAllFields">
                 إلغاء التحديد
             </button>
             <button type="button" class="btn btn-outline-info btn-sm py-1 px-2 mx-1" id="selectDefaultFields">
@@ -815,18 +885,22 @@ function showExportFieldsModal(fields, count, filters, isLargeExport) {
         </div>
     `;
 
-    $('#fieldsContainer').html(modalContent);
-    $('#exportFieldsModal').modal('show');
+    $("#fieldsContainer").html(modalContent);
+    $("#exportFieldsModal").modal("show");
 
     updateFieldsCount();
     bindExportModalEvents(filters, isLargeExport);
 
-    $('#fieldsCollapse').on('show.bs.collapse', function () {
-        $('.ti-chevron-down').removeClass('ti-chevron-down').addClass('ti-chevron-up');
+    $("#fieldsCollapse").on("show.bs.collapse", function () {
+        $(".ti-chevron-down")
+            .removeClass("ti-chevron-down")
+            .addClass("ti-chevron-up");
     });
 
-    $('#fieldsCollapse').on('hide.bs.collapse', function () {
-        $('.ti-chevron-up').removeClass('ti-chevron-up').addClass('ti-chevron-down');
+    $("#fieldsCollapse").on("hide.bs.collapse", function () {
+        $(".ti-chevron-up")
+            .removeClass("ti-chevron-up")
+            .addClass("ti-chevron-down");
     });
 }
 
@@ -836,7 +910,7 @@ function showExportFieldsModal(fields, count, filters, isLargeExport) {
 |--------------------------------------------------------------------------
 */
 function generateFieldsGrid(fields) {
-    let html = '';
+    let html = "";
 
     fields.forEach((field, index) => {
         html += `
@@ -846,7 +920,7 @@ function generateFieldsGrid(fields) {
                            type="checkbox" 
                            value="${field.key}" 
                            id="field_${field.key}"
-                           ${field.selected ? 'checked' : ''}>
+                           ${field.selected ? "checked" : ""}>
                     <label class="form-check-label" 
                            for="field_${field.key}">
                         ${field.label}
@@ -865,51 +939,59 @@ function generateFieldsGrid(fields) {
 |--------------------------------------------------------------------------
 */
 function bindExportModalEvents(filters, isLargeExport) {
-    $('#selectAllFields').off('click').on('click', function () {
-        $('.export-field').prop('checked', true);
-        updateFieldsCount();
-    });
-
-    $('#deselectAllFields').off('click').on('click', function () {
-        $('.export-field').prop('checked', false);
-        updateFieldsCount();
-    });
-
-    $('#selectDefaultFields').off('click').on('click', function () {
-        $('.export-field').prop('checked', false);
-        const defaultFields = [
-            'customer_name',
-            'customer_account',
-            'collected_amount',
-            'payment_method',
-            'status',
-            'collection_date',
-            'created_at'
-        ];
-        defaultFields.forEach(key => {
-            $(`#field_${key}`).prop('checked', true);
-        });
-        updateFieldsCount();
-    });
-
-    $('.export-field').on('change', function () {
-        updateFieldsCount();
-    });
-
-    $('#confirmExport').off('click').on('click', function () {
-        const selectedFields = [];
-        $('.export-field:checked').each(function () {
-            selectedFields.push($(this).val());
+    $("#selectAllFields")
+        .off("click")
+        .on("click", function () {
+            $(".export-field").prop("checked", true);
+            updateFieldsCount();
         });
 
-        if (selectedFields.length === 0) {
-            toastr.warning('يرجى اختيار حقل واحد على الأقل');
-            return;
-        }
+    $("#deselectAllFields")
+        .off("click")
+        .on("click", function () {
+            $(".export-field").prop("checked", false);
+            updateFieldsCount();
+        });
 
-        $('#exportFieldsModal').modal('hide');
-        executeExportWithFields(filters, selectedFields, isLargeExport);
+    $("#selectDefaultFields")
+        .off("click")
+        .on("click", function () {
+            $(".export-field").prop("checked", false);
+            const defaultFields = [
+                "customer_name",
+                "customer_account",
+                "collected_amount",
+                "payment_method",
+                "status",
+                "collection_date",
+                "created_at",
+            ];
+            defaultFields.forEach((key) => {
+                $(`#field_${key}`).prop("checked", true);
+            });
+            updateFieldsCount();
+        });
+
+    $(".export-field").on("change", function () {
+        updateFieldsCount();
     });
+
+    $("#confirmExport")
+        .off("click")
+        .on("click", function () {
+            const selectedFields = [];
+            $(".export-field:checked").each(function () {
+                selectedFields.push($(this).val());
+            });
+
+            if (selectedFields.length === 0) {
+                toastr.warning("يرجى اختيار حقل واحد على الأقل");
+                return;
+            }
+
+            $("#exportFieldsModal").modal("hide");
+            executeExportWithFields(filters, selectedFields, isLargeExport);
+        });
 }
 
 /*
@@ -918,14 +1000,14 @@ function bindExportModalEvents(filters, isLargeExport) {
 |--------------------------------------------------------------------------
 */
 function updateFieldsCount() {
-    const totalChecked = $('.export-field:checked').length;
-    $('#selectedFieldsCount').text(totalChecked);
+    const totalChecked = $(".export-field:checked").length;
+    $("#selectedFieldsCount").text(totalChecked);
 
-    const allTotal = $('.export-field').length;
-    $('#allFieldsCount').text(`${totalChecked}/${allTotal}`);
+    const allTotal = $(".export-field").length;
+    $("#allFieldsCount").text(`${totalChecked}/${allTotal}`);
 
-    const btnText = totalChecked > 0 ? `تصدير (${totalChecked} حقل)` : 'تصدير';
-    $('#confirmExport').text(btnText);
+    const btnText = totalChecked > 0 ? `تصدير (${totalChecked} حقل)` : "تصدير";
+    $("#confirmExport").text(btnText);
 }
 
 /*
@@ -937,16 +1019,16 @@ function executeExportWithFields(filters, selectedFields, isLargeExport) {
     if (isLargeExport) {
         showAsyncExportModal();
     } else {
-        showLoadingModal('جاري إنشاء ملف Excel...');
+        showLoadingModal("جاري إنشاء ملف Excel...");
     }
 
     $.ajax({
         url: window.routes.financialReportsExportExcel,
-        type: 'POST',
+        type: "POST",
         data: {
             _token: window.csrfToken,
             selected_fields: selectedFields,
-            ...filters
+            ...filters,
         },
         success: function (response) {
             if (response.success) {
@@ -954,7 +1036,7 @@ function executeExportWithFields(filters, selectedFields, isLargeExport) {
                     handleAsyncExport(response.export_id, response.message);
                 } else {
                     hideLoadingModal();
-                    window.open(response.download_url, '_blank');
+                    window.open(response.download_url, "_blank");
                     toastr.success(response.message);
                 }
             }
@@ -962,9 +1044,10 @@ function executeExportWithFields(filters, selectedFields, isLargeExport) {
         error: function (xhr) {
             hideLoadingModal();
             hideAsyncExportModal();
-            const errorMsg = xhr.responseJSON?.message || 'حدث خطأ أثناء إنشاء الملف';
+            const errorMsg =
+                xhr.responseJSON?.message || "حدث خطأ أثناء إنشاء الملف";
             toastr.error(errorMsg);
-        }
+        },
     });
 }
 
@@ -983,7 +1066,7 @@ function handleAsyncExport(exportId, message) {
         checkExportProgress(exportId);
     }, 2000);
 
-    toastr.info(message, '', { timeOut: 8000 });
+    toastr.info(message, "", { timeOut: 8000 });
 }
 
 /*
@@ -994,37 +1077,38 @@ function handleAsyncExport(exportId, message) {
 function checkExportProgress(exportId) {
     $.ajax({
         url: window.routes.financialReportsCheckProgress,
-        type: 'POST',
+        type: "POST",
         data: {
             _token: window.csrfToken,
-            export_id: exportId
+            export_id: exportId,
         },
         success: function (response) {
             if (response.success && response.data) {
                 const data = response.data;
 
-                if (data.status === 'completed') {
+                if (data.status === "completed") {
                     clearInterval(exportProgressInterval);
                     hideAsyncExportModal();
 
                     showCompletedExportModal(data);
-                    toastr.success('تم إنشاء الملف بنجاح!');
-
-                } else if (data.status === 'failed') {
+                    toastr.success("تم إنشاء الملف بنجاح!");
+                } else if (data.status === "failed") {
                     clearInterval(exportProgressInterval);
                     hideAsyncExportModal();
-                    toastr.error(data.error || 'فشل في إنشاء الملف');
-
-                } else if (data.status === 'processing') {
-                    updateAsyncExportStatus(data.percentage || 0, data.message || 'جاري المعالجة...');
+                    toastr.error(data.error || "فشل في إنشاء الملف");
+                } else if (data.status === "processing") {
+                    updateAsyncExportStatus(
+                        data.percentage || 0,
+                        data.message || "جاري المعالجة...",
+                    );
                 }
             }
         },
         error: function () {
             clearInterval(exportProgressInterval);
             hideAsyncExportModal();
-            toastr.error('حدث خطأ أثناء تتبع التقدم');
-        }
+            toastr.error("حدث خطأ أثناء تتبع التقدم");
+        },
     });
 }
 
@@ -1037,15 +1121,17 @@ function updateAsyncExportStatus(percentage, message) {
     const safePercentage = Math.min(Math.max(percentage, 0), 100);
     const roundedPercentage = Math.round(safePercentage);
 
-    $('#exportProgress')
-        .css('width', safePercentage + '%')
-        .attr('aria-valuenow', safePercentage);
+    $("#exportProgress")
+        .css("width", safePercentage + "%")
+        .attr("aria-valuenow", safePercentage);
 
-    $('#progressText').text(roundedPercentage + '%');
-    $('#exportStatus').text(message);
+    $("#progressText").text(roundedPercentage + "%");
+    $("#exportStatus").text(message);
 
     if (safePercentage >= 100) {
-        $('.spinner-border').removeClass('spinner-border').addClass('ti ti-check-circle text-success');
+        $(".spinner-border")
+            .removeClass("spinner-border")
+            .addClass("ti ti-check-circle text-success");
     }
 }
 
@@ -1055,7 +1141,7 @@ function updateAsyncExportStatus(percentage, message) {
 |--------------------------------------------------------------------------
 */
 function hideAsyncExportModal() {
-    $('#asyncExportModal').modal('hide');
+    $("#asyncExportModal").modal("hide");
 }
 
 /*
@@ -1107,11 +1193,11 @@ function showAsyncExportModal() {
         </div>
     `;
 
-    if ($('#asyncExportModal').length === 0) {
-        $('body').append(modalHtml);
+    if ($("#asyncExportModal").length === 0) {
+        $("body").append(modalHtml);
     }
 
-    $('#asyncExportModal').modal('show');
+    $("#asyncExportModal").modal("show");
 }
 
 /*
@@ -1120,7 +1206,7 @@ function showAsyncExportModal() {
 |--------------------------------------------------------------------------
 */
 function showCompletedExportModal(data) {
-    const downloadUrl = data.download_url || '#';
+    const downloadUrl = data.download_url || "#";
 
     const modalHtml = `
         <div class="modal fade" id="completedExportModal" tabindex="-1">
@@ -1147,21 +1233,21 @@ function showCompletedExportModal(data) {
                                 <div class="p-3 rounded border">
                                     <i class="ti ti-database text-primary d-block mb-2" style="font-size: 24px;"></i>
                                     <small class="text-muted d-block">السجلات</small>
-                                    <strong>${data.total_records?.toLocaleString() || 'غير محدد'}</strong>
+                                    <strong>${data.total_records?.toLocaleString() || "غير محدد"}</strong>
                                 </div>
                             </div>
                             <div class="col-4 text-center">
                                 <div class="p-3 rounded border">
                                    <i class="ti ti-archive text-warning d-block mb-2" style="font-size: 24px;"></i>
                                     <small class="text-muted d-block">الحجم</small>
-                                    <strong>${data.file_size || 'غير محدد'}</strong>
+                                    <strong>${data.file_size || "غير محدد"}</strong>
                                 </div>
                             </div>
                             <div class="col-4 text-center">
                                 <div class="p-3 rounded border">
                                     <i class="ti ti-clock text-success d-block mb-2" style="font-size: 24px;"></i>
                                     <small class="text-muted d-block">التاريخ</small>
-                                    <strong class="small">${formatDateTime(data.created_at) || 'الآن'}</strong>
+                                    <strong class="small">${formatDateTime(data.created_at) || "الآن"}</strong>
                                 </div>
                             </div>
                         </div>
@@ -1177,12 +1263,12 @@ function showCompletedExportModal(data) {
         </div>
     `;
 
-    if ($('#completedExportModal').length) {
-        $('#completedExportModal').remove();
+    if ($("#completedExportModal").length) {
+        $("#completedExportModal").remove();
     }
 
-    $('body').append(modalHtml);
-    $('#completedExportModal').modal('show');
+    $("body").append(modalHtml);
+    $("#completedExportModal").modal("show");
 }
 
 /*
@@ -1195,10 +1281,10 @@ function formatDateTime(dateTime) {
     try {
         const date = new Date(dateTime);
         const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
 
         return `${year}-${month}-${day} ${hours}:${minutes}`;
     } catch (e) {
@@ -1211,9 +1297,9 @@ function formatDateTime(dateTime) {
 | Show Loading Modal
 |--------------------------------------------------------------------------
 */
-function showLoadingModal(message = 'جاري المعالجة...') {
-    $('#loadingMessage').text(message);
-    $('#loadingModal').modal('show');
+function showLoadingModal(message = "جاري المعالجة...") {
+    $("#loadingMessage").text(message);
+    $("#loadingModal").modal("show");
 }
 
 /*
@@ -1222,7 +1308,7 @@ function showLoadingModal(message = 'جاري المعالجة...') {
 |--------------------------------------------------------------------------
 */
 function hideLoadingModal() {
-    $('#loadingModal').modal('hide');
+    $("#loadingModal").modal("hide");
 }
 
 /*

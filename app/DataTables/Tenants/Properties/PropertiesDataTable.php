@@ -26,6 +26,7 @@ class PropertiesDataTable extends AbstractDataTable
             ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'title' => '#', 'orderable' => false, 'searchable' => false, 'width' => '40px'],
             ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
             ['data' => 'property_number', 'name' => 'property_number', 'title' => 'رقم العقار', 'width' => '100px'],
+            ['data' => 'image', 'name' => 'image', 'title' => 'الصورة', 'orderable' => false, 'searchable' => false, 'width' => '70px'],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم العقار', 'width' => '170px'],
             ['data' => 'assignment_name', 'name' => 'assignment.name', 'title' => 'الإسناد التابع له', 'width' => '150px'],
             ['data' => 'type', 'name' => 'type', 'title' => 'نوع العقار', 'width' => '110px'],
@@ -47,14 +48,16 @@ class PropertiesDataTable extends AbstractDataTable
             ->editColumn('property_number', function ($row) {
                 return $this->copyableCode($row->property_number);
             })
+            ->addColumn('image', function ($row): string {
+                return $this->renderTableImage(
+                    $row->main_image ? tasset($row->main_image) : null,
+                    (string) $row->name,
+                );
+            })
             ->editColumn('name', function ($row) {
-                $img = $row->main_image ? tasset($row->main_image) : asset('assets/img/illustrations/page-pricing-standard.png');
                 $showUrl = tenant_route_name($this->route . '.show', $row->id);
 
-                return '<div class="d-flex align-items-center">
-                    <img src="' . $img . '" alt="property" class="rounded me-2" style="width:32px;height:32px;object-fit:cover" />
-                    <a href="' . $showUrl . '" class="text-body fw-medium">' . e($row->name) . '</a>
-                </div>';
+                return '<a href="' . $showUrl . '" class="text-body fw-medium">' . e($row->name) . '</a>';
             })
             ->addColumn('assignment_name', function ($row) {
                 if (! $row->assignment) {
@@ -114,7 +117,7 @@ class PropertiesDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'property_number', 'name', 'assignment_name', 'type', 'deed_number', 'data_status', 'status', 'actions'];
+        return ['checkbox', 'property_number', 'image', 'name', 'assignment_name', 'type', 'deed_number', 'data_status', 'status', 'actions'];
     }
 
     protected function applyCustomFilters($query)

@@ -259,7 +259,7 @@
                             </a>
 
                             <a href="{{ tenant_route_name('bills.bank-transfer', $bill->id) }}"
-                                class="btn btn-outline-secondary">
+                                class="btn btn-secondary">
                                 <i class="ti ti-building-bank me-1"></i>
                                 تحويل بنكي
                             </a>

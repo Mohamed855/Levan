@@ -1,23 +1,20 @@
 <?php
 
 use App\Http\Controllers\Admin\APILayer\APILayerController;
-use App\Http\Controllers\Tenants\__LinkDomain\LinkDomainController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Shared\Wizard\WizardDraftController;
-use App\Http\Controllers\Tenants\License\LicenseController;
-use App\Http\Controllers\Tenants\dashboard\DashboardController;
+use App\Http\Controllers\Tenants\__LinkDomain\LinkDomainController;
 use App\Http\Controllers\Tenants\activity_log\ActivityLogController;
+use App\Http\Controllers\Tenants\Archive\Assignment\AssignmentArchiveController;
+use App\Http\Controllers\Tenants\Archive\Auction\AuctionArchiveController;
 use App\Http\Controllers\Tenants\Archive\Company\CompanyArchiveController;
 use App\Http\Controllers\Tenants\Archive\Contract\ContractArchiveController;
-use App\Http\Controllers\Tenants\Archive\Portfolio\PortfolioArchiveController;
 use App\Http\Controllers\Tenants\Archive\Customer\CustomerArchiveController;
-use App\Http\Controllers\Tenants\Archive\User\UserArchiveController;
-use App\Http\Controllers\Tenants\Archive\Assignment\AssignmentArchiveController;
+use App\Http\Controllers\Tenants\Archive\Portfolio\PortfolioArchiveController;
 use App\Http\Controllers\Tenants\Archive\Property\PropertyArchiveController;
-use App\Http\Controllers\Tenants\Archive\Auction\AuctionArchiveController;
+use App\Http\Controllers\Tenants\Archive\User\UserArchiveController;
 use App\Http\Controllers\Tenants\Assignments\AssignmentsController;
-use App\Http\Controllers\Tenants\Properties\PropertiesController;
 use App\Http\Controllers\Tenants\Auctions\AuctionsController;
+use App\Http\Controllers\Tenants\Auth\Fortify\TenantTwoFactorSettingsController;
 use App\Http\Controllers\Tenants\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Tenants\Bills\BillsController;
 use App\Http\Controllers\Tenants\BusinessCenter\Company\CompanyController;
@@ -44,9 +41,9 @@ use App\Http\Controllers\Tenants\BusinessCenter\Portfolio\PortfolioController;
 use App\Http\Controllers\Tenants\BusinessCenter\Task\MyTaskController;
 use App\Http\Controllers\Tenants\BusinessCenter\Task\TaskController;
 use App\Http\Controllers\Tenants\ChartSetting\ChartSettingController;
-use App\Http\Controllers\Tenants\CheckMultipleDomain\CheckMultipleDomainController;
 use App\Http\Controllers\Tenants\Communication\MessageLog\MessageIndividualLogController;
 use App\Http\Controllers\Tenants\Communication\MessageLog\MessageLogController;
+use App\Http\Controllers\Tenants\dashboard\DashboardController;
 use App\Http\Controllers\Tenants\DeleteBulk\MassDeleteController;
 use App\Http\Controllers\Tenants\Domains\CheckMultipleDomainController as DomainsCheckMultipleDomainController;
 use App\Http\Controllers\Tenants\Domains\CpanelController;
@@ -65,23 +62,25 @@ use App\Http\Controllers\Tenants\GeneralSetting\CustomerStatus\SettingsCustomerS
 use App\Http\Controllers\Tenants\GeneralSetting\DocumentRequest\SettingsDocumentRequestReasonController;
 use App\Http\Controllers\Tenants\GeneralSetting\MessageTemplate\MessageTemplateController;
 use App\Http\Controllers\Tenants\GeneralSetting\PaymentMethod\SettingsPaymentMethodController;
+use App\Http\Controllers\Tenants\License\LicenseController;
 use App\Http\Controllers\Tenants\Notification\NotificationController;
+use App\Http\Controllers\Tenants\Properties\PropertiesController;
 use App\Http\Controllers\Tenants\Reports\Company\CompanyReportController;
-use App\Http\Controllers\Tenants\Reports\Executive\ExecutiveReportController;
 use App\Http\Controllers\Tenants\Reports\Customer\CustomerReportController;
 use App\Http\Controllers\Tenants\Reports\CustomerFollow\CustomerFollowReportController;
+use App\Http\Controllers\Tenants\Reports\Executive\ExecutiveReportController;
 use App\Http\Controllers\Tenants\Reports\Financial\FinancialReportController;
 use App\Http\Controllers\Tenants\Reports\Performance\EmployeePerformanceReportController;
 use App\Http\Controllers\Tenants\Settings\ApiTokenSettingsController;
 use App\Http\Controllers\Tenants\Settings\SettingsController;
 use App\Http\Controllers\Tenants\Subscriptions\NewSubscriptionController;
-use App\Http\Controllers\Tenants\Subscriptions\SubscriptionController;
 use App\Http\Controllers\Tenants\Subscriptions\TenantSubscriptionController;
 use App\Http\Controllers\Tenants\Tickets\TicketController;
 use App\Http\Controllers\Tenants\UserMangment\Role\RoleController;
 use App\Http\Controllers\Tenants\UserMangment\Team\TeamController;
 use App\Http\Controllers\Tenants\UserMangment\User\UserController;
 use App\Http\Controllers\Tenants\Versions\VersionController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |============================================================================
@@ -99,55 +98,54 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         Route::delete('file', [WizardDraftController::class, 'destroyFile'])->name('file.destroy');
         Route::post('validate-step', [WizardDraftController::class, 'validateStep'])
             ->defaults('shared_form_validation_actions', [
-                UserController::class . '@store',
-                UserController::class . '@update',
-                UserController::class . '@updateImage',
-                UserController::class . '@updateBackgroundImage',
-                UserController::class . '@updatePassword',
-                TeamController::class . '@store',
-                TeamController::class . '@update',
-                RoleController::class . '@store',
-                RoleController::class . '@update',
-                SettingsController::class . '@update',
-                CompanyController::class . '@store',
-                CompanyController::class . '@update',
-                ContractController::class . '@store',
-                ContractController::class . '@update',
-                PortfolioController::class . '@store',
-                PortfolioController::class . '@update',
-                AssignmentsController::class . '@store',
-                AssignmentsController::class . '@update',
-                PropertiesController::class . '@store',
-                PropertiesController::class . '@update',
-                AuctionsController::class . '@store',
-                AuctionsController::class . '@update',
-                CustomerController::class . '@store',
-                CustomerController::class . '@update',
-                CollectionController::class . '@store',
-                CollectionController::class . '@update',
-                TicketController::class . '@store',
-                TicketController::class . '@reply',
-                TicketController::class . '@rateReply',
-                TicketController::class . '@submitSurvey',
-                BillsController::class . '@uploadReceipt',
-                BillsController::class . '@processCheckout',
-                TenantSubscriptionController::class . '@processRenew',
-                TenantSubscriptionController::class . '@processLicense',
-                NewSubscriptionController::class . '@checkoutStore',
-                TenantSubscriptionController::class . '@licenseCheckout',
-                SettingsCountryController::class . '@store',
-                SettingsCountryController::class . '@update',
-                SettingsPaymentMethodController::class . '@store',
-                SettingsPaymentMethodController::class . '@update',
-                SettingsContactMethodController::class . '@store',
-                SettingsContactMethodController::class . '@update',
-                SettingsDocumentRequestReasonController::class . '@store',
-                SettingsDocumentRequestReasonController::class . '@update',
-                \App\Http\Controllers\Tenants\Auth\Fortify\TenantTwoFactorSettingsController::class . '@confirm',
+                UserController::class.'@store',
+                UserController::class.'@update',
+                UserController::class.'@updateImage',
+                UserController::class.'@updateBackgroundImage',
+                UserController::class.'@updatePassword',
+                TeamController::class.'@store',
+                TeamController::class.'@update',
+                RoleController::class.'@store',
+                RoleController::class.'@update',
+                SettingsController::class.'@update',
+                CompanyController::class.'@store',
+                CompanyController::class.'@update',
+                ContractController::class.'@store',
+                ContractController::class.'@update',
+                PortfolioController::class.'@store',
+                PortfolioController::class.'@update',
+                AssignmentsController::class.'@store',
+                AssignmentsController::class.'@update',
+                PropertiesController::class.'@store',
+                PropertiesController::class.'@update',
+                AuctionsController::class.'@store',
+                AuctionsController::class.'@update',
+                CustomerController::class.'@store',
+                CustomerController::class.'@update',
+                CollectionController::class.'@store',
+                CollectionController::class.'@update',
+                TicketController::class.'@store',
+                TicketController::class.'@reply',
+                TicketController::class.'@rateReply',
+                TicketController::class.'@submitSurvey',
+                BillsController::class.'@uploadReceipt',
+                BillsController::class.'@processCheckout',
+                TenantSubscriptionController::class.'@processRenew',
+                TenantSubscriptionController::class.'@processLicense',
+                NewSubscriptionController::class.'@checkoutStore',
+                TenantSubscriptionController::class.'@licenseCheckout',
+                SettingsCountryController::class.'@store',
+                SettingsCountryController::class.'@update',
+                SettingsPaymentMethodController::class.'@store',
+                SettingsPaymentMethodController::class.'@update',
+                SettingsContactMethodController::class.'@store',
+                SettingsContactMethodController::class.'@update',
+                SettingsDocumentRequestReasonController::class.'@store',
+                SettingsDocumentRequestReasonController::class.'@update',
+                TenantTwoFactorSettingsController::class.'@confirm',
             ])
             ->name('validate-step');
     });
-
 
     // لا يوجد اشتراك
     Route::prefix('subscribe')->name('subscribe.')->group(function () {
@@ -157,7 +155,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             ->defaults('shared_form_validation', true);
         Route::name('callback')->get('callback', [NewSubscriptionController::class, 'handleNewSubscriptionCallback']);
     });
-
 
     // الفواتير
     Route::prefix('bills')->name('bills.')->group(function () {
@@ -179,7 +176,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
     Route::prefix('subscriptions')->name('subscriptions.')->group(function () {
         Route::name('index')->get('/', [TenantSubscriptionController::class, 'index']);
     });
-
 
     Route::middleware('tenant.license')->group(function () {
 
@@ -217,7 +213,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             Route::name('reply')->post('/reply/{ticket}', [TicketController::class, 'reply'])
                 ->defaults('shared_form_validation', true);
 
-
             // تقييم الرد
             Route::name('replies.rate')->post('{ticket}/replies/{reply}/rate', [TicketController::class, 'rateReply'])
                 ->defaults('shared_form_validation', true);
@@ -245,9 +240,9 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             Route::name('subdomainblade')->get('subdomain', [DomainController::class, 'subdomainblade']);
             // end blade for domains
 
-            //start get domain info
+            // start get domain info
             Route::name('get-domain-info')->get('getInfo/{domain}', [GetDomainInfoController::class, 'getDomainInfo']);
-            //end get domain info
+            // end get domain info
 
             // start domain renewal
             Route::name('payment.renewal')->match(['post', 'get'], 'renewal/payment', [RenewalDomainController::class, 'renewalDomainBlade']);
@@ -259,8 +254,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             Route::name('moyasar.renewal')->post('renewal/payment/domain', [DomainPaymentController::class, 'startRenewal']);
             // moyasar for domain renewal
 
-
-            //start check multiple domain
+            // start check multiple domain
             Route::name('check')->get('/check/{domain}', [DomainsCheckMultipleDomainController::class, 'checkSingle'])
 
                 ->where('domain', '[a-zA-Z0-9.-]+');
@@ -285,7 +279,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             Route::delete('/cache', [DomainsCheckMultipleDomainController::class, 'clearAllCache'])
                 ->name('cache.clear-all');
 
-            //end check multiple domain
+            // end check multiple domain
 
             // start api layer
             Route::name('apilayer')->match(['get', 'post'], 'check-domain/{domain}', [APILayerController::class, 'apiLayerFunc']);
@@ -300,9 +294,9 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             Route::name('payment.callback.transfer')->get('process-transfer-payment-callback', [DomainPaymentController::class, 'transferCallback']);
             // moyaser end
 
-            Route::name('checkExistTransferDomain')->post('checkExistTransferDomain/{domain}', [APILayerController::class, 'checkExistTransferDomain']);;
+            Route::name('checkExistTransferDomain')->post('checkExistTransferDomain/{domain}', [APILayerController::class, 'checkExistTransferDomain']);
 
-            //start domain controller
+            // start domain controller
             Route::name('transfer.domain.status')->match(['post', 'get'], 'checkTransferStatus/{domain}', [DomainController::class, 'checkTransferStatus']);
             Route::name('linkDomainproccess')->post('link-domain-proccess', [DomainController::class, 'setupdnsForDomain']);
             Route::post('/verify-dns', [DomainController::class, 'verifyDNS'])->name('domains.verify-dns');
@@ -311,7 +305,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             Route::name('transfer-domain-proccess')->post('/transfer', [DomainController::class, 'transferDomainProcess']);
             Route::post('/process-transfer', [DomainController::class, 'processTransfer']);
             Route::name('modifyaccount')->post('modifyaccount', [DomainController::class, 'modifyaccount']);
-            //end domain controller
+            // end domain controller
             Route::name('testverify')->get('verifydns/{domain}/{method}', [DomainController::class, 'verifyDNSTest']);
             // start link domain controller
 
@@ -319,14 +313,12 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             // معالجة ربط دومين خارجي
             Route::name('link-external-process')->post('/link-external-domain-process', [LinkDomainController::class, 'processLinkExternalDomain']);
 
-
-            //balance and domain pricing
+            // balance and domain pricing
             Route::name('check.balance')->get('/check-balance', [DomainController::class, 'getBalance']);
             Route::name('get.info.domain')->get('/get-domain-info/{domain}', [GetDomainInfoController::class, 'getDomainInfo']);
             Route::name('get.result')->post('/check-domain-result/{domain}', [DomainController::class, 'calculateResults']);
 
-
-            //check cpanel limits
+            // check cpanel limits
             Route::name('cpanel.limits')->get('check-cpanel-limits', [CpanelController::class, 'checkLimits']);
         });
 
@@ -342,11 +334,9 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             Route::name('upgrade')->post('/', [VersionController::class, 'upgrade']);
         });
 
-
         Route::get('/', function () {
             return redirect(tenant_route_name('dashboard'));
         });
-
 
         Route::prefix('dashboard')->middleware(['verified'])->group(function () {
             Route::name('dashboard')->get('/', [DashboardController::class, 'index']);
@@ -363,23 +353,21 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             Route::name('dashboard.exportMyOverdueTasks')->get('/export-my-overdue-tasks', [DashboardController::class, 'exportMyOverdueTasks']);
         });
 
-
         /*
         |--------------------------------------------------------------------------
         | Notifications
         |--------------------------------------------------------------------------
         */
         Route::prefix('notifications')->name('notifications.')->group(function () {
-            Route::get('/', [NotificationController::class, 'index'])->name('index');
             Route::get('/all', [NotificationController::class, 'allPage'])->name('all');
             Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->name('unread-count');
             Route::post('/{id}/read', [NotificationController::class, 'markAsRead'])->name('mark-as-read');
             Route::post('/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
-            Route::delete('/{id}', [NotificationController::class, 'destroy'])->name('destroy');
             Route::post('/mass-delete', [NotificationController::class, 'massDelete'])->name('mass-delete');
+            Route::resource('/', NotificationController::class)
+                ->only(['index', 'destroy'])
+                ->parameters(['' => 'id']);
         });
-
-
 
         Route::prefix('general-settings')->name('general-settings.')->group(function () {
             Route::resource('settings-country', SettingsCountryController::class);
@@ -417,23 +405,15 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         |--------------------------------------------------------------------------
         */
         Route::prefix('users')->name('users.')->group(function () {
-            Route::name('index')->get('/',                [UserController::class, 'index']);
-            Route::name('create')->get('create',           [UserController::class, 'create']);
-            Route::name('profile')->get('profile',          [UserController::class, 'showProfile']);
-            Route::name('store')->post('/',               [UserController::class, 'store']);
-            Route::name('show')->get('{user}',           [UserController::class, 'show']);
-            Route::name('edit')->get('{user}/edit',      [UserController::class, 'edit']);
-            Route::name('update')->put('{user}',           [UserController::class, 'update']);
-
+            Route::name('profile')->get('profile', [UserController::class, 'showProfile']);
             Route::name('update-image')->post('{user}/image', [UserController::class, 'updateImage'])->defaults('shared_form_validation', true);
             Route::name('update-background')->post('{user}/background', [UserController::class, 'updateBackgroundImage'])->defaults('shared_form_validation', true);
 
-            Route::name('destroy')->delete('{user}',        [UserController::class, 'destroy']);
             Route::name('toggle-status')->patch('{user}/toggle-status', [UserController::class, 'toggleStatus']);
             Route::name('password.change')->get('password/change', [UserController::class, 'showChangePasswordForm']);
             Route::name('password.update')->post('password/change', [UserController::class, 'updatePassword'])->defaults('shared_form_validation', true);
+            Route::resource('/', UserController::class)->parameters(['' => 'user']);
         });
-
 
         /*
         |--------------------------------------------------------------------------
@@ -441,14 +421,8 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         |--------------------------------------------------------------------------
         */
         Route::prefix('teams')->name('teams.')->group(function () {
-            Route::get('/', [TeamController::class, 'index'])->name('index');
-            Route::get('create', [TeamController::class, 'create'])->name('create');
-            Route::post('/', [TeamController::class, 'store'])->name('store');
-            Route::get('{team}', [TeamController::class, 'show'])->name('show');
-            Route::get('{team}/edit', [TeamController::class, 'edit'])->name('edit');
-            Route::put('{team}', [TeamController::class, 'update'])->name('update');
-            Route::delete('{team}', [TeamController::class, 'destroy'])->name('destroy');
             Route::patch('{team}/toggle-status', [TeamController::class, 'toggleStatus'])->name('toggle-status');
+            Route::resource('/', TeamController::class)->parameters(['' => 'team']);
         });
 
         /*
@@ -457,16 +431,10 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         |--------------------------------------------------------------------------
         */
         Route::prefix('roles')->name('roles.')->group(function () {
-            Route::name('index')->get('/', [RoleController::class, 'index']);
-            Route::name('create')->get('create', [RoleController::class, 'create']);
-            Route::name('store')->post('/', [RoleController::class, 'store']);
             Route::name('user.get')->get('users/{id}/get-roles', [RoleController::class, 'getUserRoles']);
             Route::name('user.update')->post('users/{id}/update-roles', [RoleController::class, 'updateUserRoles']);
             Route::name('user.status')->patch('users/{userId}/status', [RoleController::class, 'updateStatus']);
-            Route::name('show')->get('{role}', [RoleController::class, 'show']);
-            Route::name('edit')->get('{role}/edit', [RoleController::class, 'edit']);
-            Route::name('update')->put('{role}', [RoleController::class, 'update']);
-            Route::name('destroy')->delete('{role}', [RoleController::class, 'destroy']);
+            Route::resource('/', RoleController::class)->parameters(['' => 'role']);
         });
 
         /*
@@ -475,15 +443,15 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         |--------------------------------------------------------------------------
         */
         Route::prefix('assignments')->name('assignments.')->group(function () {
-            Route::name('index')->get('/',                     [AssignmentsController::class, 'index']);
-            Route::name('create')->get('create',                [AssignmentsController::class, 'create']);
-            Route::name('store')->post('/',                    [AssignmentsController::class, 'store']);
+            Route::name('index')->get('/', [AssignmentsController::class, 'index']);
+            Route::name('create')->get('create', [AssignmentsController::class, 'create']);
+            Route::name('store')->post('/', [AssignmentsController::class, 'store']);
             Route::name('selected-properties')->get('selected-properties', [AssignmentsController::class, 'selectedProperties']);
             Route::name('properties')->get('{assignment}/properties', [AssignmentsController::class, 'getProperties']);
-            Route::name('show')->get('{assignment}',             [AssignmentsController::class, 'show']);
-            Route::name('edit')->get('{assignment}/edit',        [AssignmentsController::class, 'edit']);
-            Route::name('update')->put('{assignment}',             [AssignmentsController::class, 'update']);
-            Route::name('destroy')->delete('{assignment}',          [AssignmentsController::class, 'destroy']);
+            Route::name('show')->get('{assignment}', [AssignmentsController::class, 'show']);
+            Route::name('edit')->get('{assignment}/edit', [AssignmentsController::class, 'edit']);
+            Route::name('update')->put('{assignment}', [AssignmentsController::class, 'update']);
+            Route::name('destroy')->delete('{assignment}', [AssignmentsController::class, 'destroy']);
             Route::name('toggle-status')->patch('{assignment}/toggle-status', [AssignmentsController::class, 'toggleStatus']);
         });
 
@@ -493,13 +461,13 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         |--------------------------------------------------------------------------
         */
         Route::prefix('properties')->name('properties.')->group(function () {
-            Route::name('index')->get('/',                     [PropertiesController::class, 'index']);
-            Route::name('create')->get('create',                [PropertiesController::class, 'create']);
-            Route::name('store')->post('/',                    [PropertiesController::class, 'store']);
-            Route::name('show')->get('{property}',             [PropertiesController::class, 'show']);
-            Route::name('edit')->get('{property}/edit',        [PropertiesController::class, 'edit']);
-            Route::name('update')->put('{property}',             [PropertiesController::class, 'update']);
-            Route::name('destroy')->delete('{property}',          [PropertiesController::class, 'destroy']);
+            Route::name('index')->get('/', [PropertiesController::class, 'index']);
+            Route::name('create')->get('create', [PropertiesController::class, 'create']);
+            Route::name('store')->post('/', [PropertiesController::class, 'store']);
+            Route::name('show')->get('{property}', [PropertiesController::class, 'show']);
+            Route::name('edit')->get('{property}/edit', [PropertiesController::class, 'edit']);
+            Route::name('update')->put('{property}', [PropertiesController::class, 'update']);
+            Route::name('destroy')->delete('{property}', [PropertiesController::class, 'destroy']);
             Route::name('toggle-status')->patch('{property}/toggle-status', [PropertiesController::class, 'toggleStatus']);
         });
 
@@ -509,13 +477,13 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         |--------------------------------------------------------------------------
         */
         Route::prefix('auctions')->name('auctions.')->group(function () {
-            Route::name('index')->get('/',                     [AuctionsController::class, 'index']);
-            Route::name('create')->get('create',                [AuctionsController::class, 'create']);
-            Route::name('store')->post('/',                    [AuctionsController::class, 'store']);
-            Route::name('show')->get('{auction}',             [AuctionsController::class, 'show']);
-            Route::name('edit')->get('{auction}/edit',        [AuctionsController::class, 'edit']);
-            Route::name('update')->put('{auction}',             [AuctionsController::class, 'update']);
-            Route::name('destroy')->delete('{auction}',          [AuctionsController::class, 'destroy']);
+            Route::name('index')->get('/', [AuctionsController::class, 'index']);
+            Route::name('create')->get('create', [AuctionsController::class, 'create']);
+            Route::name('store')->post('/', [AuctionsController::class, 'store']);
+            Route::name('show')->get('{auction}', [AuctionsController::class, 'show']);
+            Route::name('edit')->get('{auction}/edit', [AuctionsController::class, 'edit']);
+            Route::name('update')->put('{auction}', [AuctionsController::class, 'update']);
+            Route::name('destroy')->delete('{auction}', [AuctionsController::class, 'destroy']);
             Route::name('toggle-status')->patch('{auction}/toggle-status', [AuctionsController::class, 'toggleStatus']);
         });
 
@@ -525,13 +493,13 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         |--------------------------------------------------------------------------
         */
         Route::prefix('companies')->name('companies.')->group(function () {
-            Route::name('index')->get('/',                     [CompanyController::class, 'index']);
-            Route::name('create')->get('create',                [CompanyController::class, 'create']);
-            Route::name('store')->post('/',                    [CompanyController::class, 'store']);
-            Route::name('show')->get('{company}',             [CompanyController::class, 'show']);
-            Route::name('edit')->get('{company}/edit',        [CompanyController::class, 'edit']);
-            Route::name('update')->put('{company}',             [CompanyController::class, 'update']);
-            Route::name('destroy')->delete('{company}',          [CompanyController::class, 'destroy']);
+            Route::name('index')->get('/', [CompanyController::class, 'index']);
+            Route::name('create')->get('create', [CompanyController::class, 'create']);
+            Route::name('store')->post('/', [CompanyController::class, 'store']);
+            Route::name('show')->get('{company}', [CompanyController::class, 'show']);
+            Route::name('edit')->get('{company}/edit', [CompanyController::class, 'edit']);
+            Route::name('update')->put('{company}', [CompanyController::class, 'update']);
+            Route::name('destroy')->delete('{company}', [CompanyController::class, 'destroy']);
             Route::name('toggle-status')->patch('{company}/toggle-status', [CompanyController::class, 'toggleStatus']);
         });
 
@@ -541,16 +509,16 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         |--------------------------------------------------------------------------
         */
         Route::prefix('contracts')->name('contracts.')->group(function () {
-            Route::name('index')->get('/',                         [ContractController::class, 'index']);
-            Route::name('create')->get('create',                    [ContractController::class, 'create']);
-            Route::name('store')->post('/',                        [ContractController::class, 'store']);
-            Route::name('show')->get('{contract}',                [ContractController::class, 'show']);
-            Route::name('edit')->get('{contract}/edit',           [ContractController::class, 'edit']);
-            Route::name('update')->put('{contract}',                [ContractController::class, 'update']);
-            Route::name('destroy')->delete('{contract}',             [ContractController::class, 'destroy']);
+            Route::name('index')->get('/', [ContractController::class, 'index']);
+            Route::name('create')->get('create', [ContractController::class, 'create']);
+            Route::name('store')->post('/', [ContractController::class, 'store']);
+            Route::name('show')->get('{contract}', [ContractController::class, 'show']);
+            Route::name('edit')->get('{contract}/edit', [ContractController::class, 'edit']);
+            Route::name('update')->put('{contract}', [ContractController::class, 'update']);
+            Route::name('destroy')->delete('{contract}', [ContractController::class, 'destroy']);
             Route::name('toggle-status')->patch('{contract}/toggle-status', [ContractController::class, 'toggleStatus']);
-            Route::name('generate-number')->get('generate-number',           [ContractController::class, 'generateContractNumber']);
-            Route::name('check-number')->post('check-number',             [ContractController::class, 'checkContractNumber']);
+            Route::name('generate-number')->get('generate-number', [ContractController::class, 'generateContractNumber']);
+            Route::name('check-number')->post('check-number', [ContractController::class, 'checkContractNumber']);
         });
 
         /*
@@ -559,15 +527,15 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         |--------------------------------------------------------------------------
         */
         Route::prefix('portfolios')->name('portfolios.')->group(function () {
-            Route::name('index')->get('/',                            [PortfolioController::class, 'index']);
-            Route::name('create')->get('create',                      [PortfolioController::class, 'create']);
-            Route::name('store')->post('/',                           [PortfolioController::class, 'store']);
-            Route::name('edit')->get('{portfolio}/edit',              [PortfolioController::class, 'edit']);
-            Route::name('update')->put('{portfolio}',                 [PortfolioController::class, 'update']);
-            Route::name('destroy')->delete('{portfolio}',             [PortfolioController::class, 'destroy']);
+            Route::name('index')->get('/', [PortfolioController::class, 'index']);
+            Route::name('create')->get('create', [PortfolioController::class, 'create']);
+            Route::name('store')->post('/', [PortfolioController::class, 'store']);
+            Route::name('edit')->get('{portfolio}/edit', [PortfolioController::class, 'edit']);
+            Route::name('update')->put('{portfolio}', [PortfolioController::class, 'update']);
+            Route::name('destroy')->delete('{portfolio}', [PortfolioController::class, 'destroy']);
             Route::name('toggle-status')->patch('{portfolio}/toggle-status', [PortfolioController::class, 'toggleStatus']);
             Route::name('recent-assignments')->get('recent-assignments', [PortfolioController::class, 'getRecentAssignments']);
-            Route::name('show')->get('{portfolio}',                   [PortfolioController::class, 'show']);
+            Route::name('show')->get('{portfolio}', [PortfolioController::class, 'show']);
         });
 
         /*
@@ -611,7 +579,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             Route::name('whatsapp-preview-template')->get('whatsapp-preview-template', [CustomerController::class, 'previewWhatsAppTemplate']);
 
             Route::name('portfolios-by-company')->get('portfolios-by-company', [CustomerController::class, 'getPortfoliosByCompany']);
-
 
             // === مسارات التحديث المجتمع العملاء ===
             Route::prefix('bulk-update')->name('bulk-update.')->group(function () {
@@ -685,7 +652,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
 
             Route::name('show')->get('{customer}', [CustomerController::class, 'show']);
 
-
             // === مسارات تحصيلات العملاء ===
             Route::prefix('{customer}/payments')->name('payments.')->group(function () {
                 Route::name('create')->get('create', [CustomerPaymentController::class, 'create']);
@@ -745,7 +711,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
                 Route::name('mentionable-users')->get('mentionable-users', [CustomerCommentController::class, 'getMentionableUsers']);
             });
 
-
             // === مسارات خطط سداد العملاء ===
             Route::prefix('{customer}/payment-plans')->name('payment-plans.')->group(function () {
                 Route::name('list')->get('list', [CustomerPaymentPlanController::class, 'getPaymentPlansList']);
@@ -786,11 +751,11 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         |--------------------------------------------------------------------------
         */
         Route::prefix('company-letters')->name('company-letters.')->group(function () {
-            Route::name('index')->get('/',                         [CompanyLetterController::class, 'index']);
-            Route::name('show')->get('{id}',                      [CompanyLetterController::class, 'show']);
-            Route::name('preview-template')->post('{id}/preview-template',    [CompanyLetterController::class, 'previewTemplate']);
-            Route::name('send')->post('{id}/send',                [CompanyLetterController::class, 'send']);
-            Route::name('statistics')->get('statistics',                [CompanyLetterController::class, 'getStatistics']);
+            Route::name('index')->get('/', [CompanyLetterController::class, 'index']);
+            Route::name('show')->get('{id}', [CompanyLetterController::class, 'show']);
+            Route::name('preview-template')->post('{id}/preview-template', [CompanyLetterController::class, 'previewTemplate']);
+            Route::name('send')->post('{id}/send', [CompanyLetterController::class, 'send']);
+            Route::name('statistics')->get('statistics', [CompanyLetterController::class, 'getStatistics']);
         });
 
         /*
@@ -940,7 +905,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         */
         Route::prefix('financial-collections')->name('financial-collections.')->group(function () {
 
-            //collections
+            // collections
             Route::prefix('collections')->name('collections.')->group(function () {
                 Route::name('index')->get('/', [CollectionController::class, 'index']);
                 Route::name('create')->get('/create', [CollectionController::class, 'create']);
@@ -958,7 +923,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
                 Route::name('recent-collections')->get('/recent/collections', [CollectionController::class, 'getRecentCollections']);
             });
 
-            //admin-collections
+            // admin-collections
             Route::prefix('admin-collections')->name('admin-collections.')->group(function () {
                 Route::name('index')->get('/', [AdminCollectionsController::class, 'index']);
                 Route::name('search-customers')->get('/search-customers', [AdminCollectionsController::class, 'searchCustomers']);
@@ -973,7 +938,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
                 Route::name('quick-stats')->get('/stats/quick', [AdminCollectionsController::class, 'getQuickStats']);
             });
 
-            //collection-targets
+            // collection-targets
             Route::prefix('collection-targets')->name('collection-targets.')->group(function () {
                 Route::name('index')->get('/', [CollectionTargetController::class, 'index']);
                 Route::name('create')->get('/create', [CollectionTargetController::class, 'create']);
@@ -1018,9 +983,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         | عمليات التحصيل - Collection Process Routes
         |--------------------------------------------------------------------------
         */
-        require __DIR__ . '/collection-process.php';
-
-
+        require __DIR__.'/collection-process.php';
 
         /*
         |--------------------------------------------------------------------------
@@ -1108,7 +1071,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             });
             // });
 
-
             // التقارير التنفيذية
             Route::prefix('executive')->name('executive.')->group(function () {
                 Route::name('index')->get('/', [ExecutiveReportController::class, 'index']);
@@ -1127,7 +1089,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
     });
 });
 
-
 /*
 |--------------------------------------------------------------------------
 | Authentication: Password Reset & Change
@@ -1138,5 +1099,4 @@ Route::middleware('guest')->prefix('forgot-password')->group(function () {
     Route::name('password.email')->post('/', [PasswordResetLinkController::class, 'store']);
 });
 
-
-require __DIR__ . '/tenant-auth.php';
+require __DIR__.'/tenant-auth.php';

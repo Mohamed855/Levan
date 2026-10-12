@@ -89,8 +89,8 @@ class UsersDataTable extends AbstractDataTable
             ->editColumn('created_at', fn(User $user) => $user->created_at->locale('ar')->translatedFormat('d F Y'))
             ->addColumn('checkbox', fn($row) => '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">')
             ->addColumn('image', function (User $user) {
-                $profilePicture = tasset($user->image);
-                return '<img src="' . $profilePicture . '" alt="' . $user->name . '" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">';
+                $profilePicture = $user->image ? tasset($user->image) : null;
+                return $this->renderTableImage($profilePicture, (string) $user->name, 40);
             })
             ->editColumn('name', function (User $user) {
                 $url = tenant_route_name('users.show', $user->id);

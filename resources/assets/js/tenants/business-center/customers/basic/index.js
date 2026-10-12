@@ -4,7 +4,7 @@
  * الملف المحدث لنظام التحديد فائق السرعة
  */
 
-'use strict';
+"use strict";
 
 /*
 |--------------------------------------------------------------------------
@@ -12,7 +12,7 @@
 |--------------------------------------------------------------------------
 | متغيرات عامة
 */
-const currentViewType = window.viewType || 'all';
+const currentViewType = window.viewType || "all";
 let customersExportPollInterval = null;
 
 /*
@@ -25,8 +25,7 @@ $(document).ready(function () {
     initializeComponents();
 
     // انتظار تهيئة DataTable
-    $('#customers-table').on('init.dt', function () {
-
+    $("#customers-table").on("init.dt", function () {
         // 👇 حل مشكلة ظهور الكود في الهيدر
         const checkboxHeaderHtml = `
         <div class="d-flex justify-content-center h-100 w-100" style="cursor: pointer;" data-bs-toggle="dropdown" aria-expanded="false" tabindex="0" id="selectAllDropdownCell">
@@ -50,7 +49,7 @@ $(document).ready(function () {
     `;
 
         // 👇 نحط الهيدر في العمود التاني (checkbox column)
-        $('#customers-table thead th').eq(1).html(checkboxHeaderHtml);
+        $("#customers-table thead th").eq(1).html(checkboxHeaderHtml);
 
         // تهيئة النظام الجديد فوراً
         CustomerSelection.initialize();
@@ -72,14 +71,14 @@ $(document).ready(function () {
 */
 function initializeComponents() {
     // ✅ تهيئة Select2
-    $('.filters .select2').each(function () {
+    $(".filters .select2").each(function () {
         $(this).select2({
-            placeholder: $(this).data('placeholder') || 'اختر',
+            placeholder: $(this).data("placeholder") || "اختر",
             allowClear: true,
-            width: '100%',
-            language: 'ar',
-            dir: 'rtl',
-            dropdownParent: $(this).closest('.card-body')
+            width: "100%",
+            language: "ar",
+            dir: "rtl",
+            dropdownParent: $(this).closest(".card-body"),
         });
     });
 
@@ -94,35 +93,35 @@ function initializeComponents() {
 | التحكم في حقول تاريخ الإرسال بناءً على حالة الإرسال
 */
 function setupSMSDateFieldsControl() {
-    const smsStatusFilter = $('#filter-sms-status');
-    const smsDateFrom = $('#filter-sms-date-from');
-    const smsDateTo = $('#filter-sms-date-to');
+    const smsStatusFilter = $("#filter-sms-status");
+    const smsDateFrom = $("#filter-sms-date-from");
+    const smsDateTo = $("#filter-sms-date-to");
 
     // دالة التحكم في حالة حقول التاريخ
     function updateDateFieldsState() {
         const selectedStatus = smsStatusFilter.val();
 
-        if (selectedStatus === 'not_sent') {
+        if (selectedStatus === "not_sent") {
             // ✅ تعطيل حقول التاريخ (لكن تبقى ظاهرة)
-            smsDateFrom.prop('disabled', true).val('');
-            smsDateTo.prop('disabled', true).val('');
+            smsDateFrom.prop("disabled", true).val("");
+            smsDateTo.prop("disabled", true).val("");
 
             // إضافة تنسيق بصري للتوضيح
-            smsDateFrom.addClass('bg-lighter text-muted');
-            smsDateTo.addClass('bg-lighter text-muted');
+            smsDateFrom.addClass("bg-lighter text-muted");
+            smsDateTo.addClass("bg-lighter text-muted");
         } else {
             // ✅ تفعيل حقول التاريخ
-            smsDateFrom.prop('disabled', false);
-            smsDateTo.prop('disabled', false);
+            smsDateFrom.prop("disabled", false);
+            smsDateTo.prop("disabled", false);
 
             // إزالة التنسيق البصري
-            smsDateFrom.removeClass('bg-lighter text-muted');
-            smsDateTo.removeClass('bg-lighter text-muted');
+            smsDateFrom.removeClass("bg-lighter text-muted");
+            smsDateTo.removeClass("bg-lighter text-muted");
         }
     }
 
     // ✅ تطبيق التحكم عند تغيير حالة الإرسال
-    smsStatusFilter.on('change', function () {
+    smsStatusFilter.on("change", function () {
         updateDateFieldsState();
     });
 
@@ -137,29 +136,39 @@ function setupSMSDateFieldsControl() {
 | إعداد الفلاتر - الحفاظ على التبعيات ومسح التحديد
 */
 function setupOptimizedFilters() {
-    const table = $('#customers-table').DataTable();
+    const table = $("#customers-table").DataTable();
 
     // مسح التحديد عند تغيير أو إعادة ضبط الفلاتر
-    $(document).on('datatable-filter:changed datatable-filter:reset', function (e, data) {
-        if (data && data.targetTable === '#customers-table') {
-            if (typeof CustomerSelection !== 'undefined' && CustomerSelection.clearAll) {
-                CustomerSelection.clearAll();
+    $(document).on(
+        "datatable-filter:changed datatable-filter:reset",
+        function (e, data) {
+            if (data && data.targetTable === "#customers-table") {
+                if (
+                    typeof CustomerSelection !== "undefined" &&
+                    CustomerSelection.clearAll
+                ) {
+                    CustomerSelection.clearAll();
+                }
             }
-        }
-    });
+        },
+    );
 
     // معالج تغيير الشركة والمحفظة
-    $('#filter-company').on('change', function () {
+    $("#filter-company").on("change", function () {
         const selectedCompany = $(this).val();
-        const portfolioSelect = $('#filter-portfolio');
+        const portfolioSelect = $("#filter-portfolio");
 
         // إعادة تعيين المحفظة فوراً
-        portfolioSelect.val('').trigger('change');
+        portfolioSelect.val("").trigger("change");
 
         // فلترة خيارات المحفظة
-        portfolioSelect.find('option').each(function () {
-            const portfolioCompany = $(this).data('company');
-            if (!selectedCompany || portfolioCompany == selectedCompany || $(this).val() === '') {
+        portfolioSelect.find("option").each(function () {
+            const portfolioCompany = $(this).data("company");
+            if (
+                !selectedCompany ||
+                portfolioCompany == selectedCompany ||
+                $(this).val() === ""
+            ) {
                 $(this).show();
             } else {
                 $(this).hide();
@@ -171,8 +180,8 @@ function setupOptimizedFilters() {
     });
 
     // إرسال بارامتر view_type الإضافي مع كل طلب
-    table.on('preXhr.dt', function (e, settings, data) {
-        data.view_type = window.viewType || 'all';
+    table.on("preXhr.dt", function (e, settings, data) {
+        data.view_type = window.viewType || "all";
     });
 }
 
@@ -183,22 +192,22 @@ function setupOptimizedFilters() {
 | ربط أحداث الجدول
 */
 function bindTableEvents() {
-    const table = $('#customers-table').DataTable();
+    const table = $("#customers-table").DataTable();
 
     // حدث إعادة رسم الجدول
-    table.on('draw', function () {
+    table.on("draw", function () {
         // تحديث سريع للتحديد وألوان الصفوف
         CustomerSelection.updateAfterDraw();
         CustomerRowColors.applyColors();
     });
 
     // أحداث التصفح
-    table.on('page', function () {
+    table.on("page", function () {
         CustomerSelection.updateAfterDraw();
     });
 
     // حدث البحث
-    table.on('search', function () {
+    table.on("search", function () {
         CustomerSelection.clearAll();
     });
 }
@@ -217,7 +226,7 @@ function handleSendSMS() {
     const selectedIds = CustomerSelection.getSelectedIds();
 
     if (selectedIds.length === 0) {
-        toastr.warning('يرجى تحديد عميل واحد على الأقل');
+        toastr.warning("يرجى تحديد عميل واحد على الأقل");
         return;
     }
 
@@ -231,7 +240,7 @@ function handleExport() {
     const selectedIds = CustomerSelection.getSelectedIds();
 
     if (selectedIds.length === 0) {
-        toastr.warning('يرجى تحديد عميل واحد على الأقل');
+        toastr.warning("يرجى تحديد عميل واحد على الأقل");
         return;
     }
 
@@ -245,11 +254,11 @@ function handleMassDelete() {
     const selectedIds = CustomerSelection.getSelectedIds();
 
     if (selectedIds.length === 0) {
-        toastr.warning('يرجى تحديد عميل واحد على الأقل');
+        toastr.warning("يرجى تحديد عميل واحد على الأقل");
         return;
     }
 
-    confirmDeleteSelectedmss(selectedIds, window.routes.massDelete, 'Customer');
+    confirmDeleteSelectedmss(selectedIds, window.routes.massDelete, "Customer");
 }
 
 /**
@@ -273,24 +282,24 @@ function handleImportCustomers() {
 | حقل اسم العميل إلزامي دائمًا (locked) ولا يمكن إلغاء تحديده.
 */
 const CUSTOMERS_EXPORT_FIELDS = [
-    { key: 'name', label: 'اسم العميل', selected: true, locked: true },
-    { key: 'customer_type', label: 'نوع العميل', selected: true },
-    { key: 'identity_number', label: 'رقم الهوية', selected: true },
-    { key: 'phone', label: 'رقم الهاتف', selected: true },
-    { key: 'account_number', label: 'رقم الحساب', selected: true },
-    { key: 'company_name', label: 'الشركة', selected: true },
-    { key: 'portfolio_name', label: 'المحفظة', selected: true },
-    { key: 'nationality', label: 'الجنسية', selected: false },
-    { key: 'customer_status', label: 'حالة العميل', selected: true },
-    { key: 'manager_name', label: 'مسؤول العلاقة', selected: true },
-    { key: 'commission_rate', label: 'نسبة العمولة', selected: false },
-    { key: 'contract_date', label: 'تاريخ العقد', selected: false },
-    { key: 'default_date', label: 'تاريخ التعثر', selected: false },
-    { key: 'debt_amount', label: 'إجمالي المديونية', selected: true },
-    { key: 'total_credit', label: 'إجمالي المدفوع', selected: true },
-    { key: 'remaining_debt', label: 'المتبقي', selected: true },
-    { key: 'created_by', label: 'أنشئ بواسطة', selected: false },
-    { key: 'created_at', label: 'تاريخ الإضافة', selected: false },
+    { key: "name", label: "اسم العميل", selected: true, locked: true },
+    { key: "customer_type", label: "نوع العميل", selected: true },
+    { key: "identity_number", label: "رقم الهوية", selected: true },
+    { key: "phone", label: "رقم الهاتف", selected: true },
+    { key: "account_number", label: "رقم الحساب", selected: true },
+    { key: "company_name", label: "الشركة", selected: true },
+    { key: "portfolio_name", label: "المحفظة", selected: true },
+    { key: "nationality", label: "الجنسية", selected: false },
+    { key: "customer_status", label: "حالة العميل", selected: true },
+    { key: "manager_name", label: "مسؤول العلاقة", selected: true },
+    { key: "commission_rate", label: "نسبة العمولة", selected: false },
+    { key: "contract_date", label: "تاريخ العقد", selected: false },
+    { key: "default_date", label: "تاريخ التعثر", selected: false },
+    { key: "debt_amount", label: "إجمالي المديونية", selected: true },
+    { key: "total_credit", label: "إجمالي المدفوع", selected: true },
+    { key: "remaining_debt", label: "المتبقي", selected: true },
+    { key: "created_by", label: "أنشئ بواسطة", selected: false },
+    { key: "created_at", label: "تاريخ الإضافة", selected: false },
 ];
 
 /*
@@ -301,7 +310,8 @@ const CUSTOMERS_EXPORT_FIELDS = [
 | في CustomerService.php الخاص بالباك-إند.
 */
 const CUSTOMERS_EXPORT_ABSOLUTE_MAX = 25000;
-const CUSTOMERS_EXPORT_TRUNCATE_CRITERIA = window.customerExportTruncationCriteria ?? [];
+const CUSTOMERS_EXPORT_TRUNCATE_CRITERIA =
+    window.customerExportTruncationCriteria ?? [];
 
 /*
 |--------------------------------------------------------------------------
@@ -311,8 +321,8 @@ const CUSTOMERS_EXPORT_TRUNCATE_CRITERIA = window.customerExportTruncationCriter
 | إذا تجاوز التحديد الحد الأقصى، يظهر أيضًا معيار اختيار من يُستبعد عند القص.
 */
 function showCustomersExportFieldsModal(customerIds) {
-    if ($('#customersExportFieldsModal').length === 0) {
-        $('body').append(`
+    if ($("#customersExportFieldsModal").length === 0) {
+        $("body").append(`
         <div class="modal fade" id="customersExportFieldsModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
@@ -327,7 +337,7 @@ function showCustomersExportFieldsModal(customerIds) {
                         <div id="customersExportTruncateBox"></div>
                         <div class="text-center mb-3">
                             <button type="button" class="btn btn-outline-primary btn-sm py-1 px-2 mx-1" id="customersExportSelectAll">تحديد الكل</button>
-                            <button type="button" class="btn btn-outline-secondary btn-sm py-1 px-2 mx-1" id="customersExportDeselectAll">إلغاء التحديد</button>
+                            <button type="button" class="btn btn-secondary btn-sm py-1 px-2 mx-1" id="customersExportDeselectAll">إلغاء التحديد</button>
                         </div>
                         <div class="row g-2" id="customersExportFieldsGrid"></div>
                     </div>
@@ -341,11 +351,11 @@ function showCustomersExportFieldsModal(customerIds) {
     }
 
     // if (customerIds.length > CUSTOMERS_EXPORT_ABSOLUTE_MAX) {
-    const options = CUSTOMERS_EXPORT_TRUNCATE_CRITERIA
-        .map(c => `<option value="${c.key}">${c.label}</option>`)
-        .join('');
+    const options = CUSTOMERS_EXPORT_TRUNCATE_CRITERIA.map(
+        (c) => `<option value="${c.key}">${c.label}</option>`,
+    ).join("");
 
-    $('#customersExportTruncateBox').html(`
+    $("#customersExportTruncateBox").html(`
             <div class="alert alert-warning d-flex justify-between">
                 <div class="">
                  اختر طريقة الترتيب
@@ -356,42 +366,53 @@ function showCustomersExportFieldsModal(customerIds) {
             </div>
         `);
 
-
-    const grid = CUSTOMERS_EXPORT_FIELDS.map(field => `
+    const grid = CUSTOMERS_EXPORT_FIELDS.map(
+        (field) => `
         <div class="col-md-4 col-sm-6">
             <div class="form-check">
                 <input class="form-check-input customers-export-field" type="checkbox"
                        value="${field.key}" id="customersExportField_${field.key}"
-                       ${field.selected ? 'checked' : ''} ${field.locked ? 'checked disabled' : ''}>
+                       ${field.selected ? "checked" : ""} ${field.locked ? "checked disabled" : ""}>
                 <label class="form-check-label" for="customersExportField_${field.key}">
-                    ${field.label}${field.locked ? ' <span class="text-muted">(إلزامي)</span>' : ''}
+                    ${field.label}${field.locked ? ' <span class="text-muted">(إلزامي)</span>' : ""}
                 </label>
             </div>
         </div>
-    `).join('');
+    `,
+    ).join("");
 
-    $('#customersExportFieldsGrid').html(grid);
+    $("#customersExportFieldsGrid").html(grid);
 
-    $('#customersExportSelectAll').off('click').on('click', () => {
-        $('.customers-export-field').prop('checked', true);
-    });
+    $("#customersExportSelectAll")
+        .off("click")
+        .on("click", () => {
+            $(".customers-export-field").prop("checked", true);
+        });
 
-    $('#customersExportDeselectAll').off('click').on('click', () => {
-        $('.customers-export-field').not(':disabled').prop('checked', false);
-    });
+    $("#customersExportDeselectAll")
+        .off("click")
+        .on("click", () => {
+            $(".customers-export-field")
+                .not(":disabled")
+                .prop("checked", false);
+        });
 
-    $('#customersExportFieldsConfirm').off('click').on('click', () => {
-        const selectedFields = $('.customers-export-field:checked')
-            .map(function () { return $(this).val(); })
-            .get();
+    $("#customersExportFieldsConfirm")
+        .off("click")
+        .on("click", () => {
+            const selectedFields = $(".customers-export-field:checked")
+                .map(function () {
+                    return $(this).val();
+                })
+                .get();
 
-        const truncateBy = $('#customersExportTruncateBy').val() || null;
+            const truncateBy = $("#customersExportTruncateBy").val() || null;
 
-        $('#customersExportFieldsModal').modal('hide');
-        exportCustomersOptimized(customerIds, selectedFields, truncateBy);
-    });
+            $("#customersExportFieldsModal").modal("hide");
+            exportCustomersOptimized(customerIds, selectedFields, truncateBy);
+        });
 
-    $('#customersExportFieldsModal').modal('show');
+    $("#customersExportFieldsModal").modal("show");
 }
 
 /*
@@ -401,7 +422,11 @@ function showCustomersExportFieldsModal(customerIds) {
 | ترسل المعرفات كنص JSON في حقل واحد بدلاً من مصفوفة حقول مخفية،
 | لتفادي حد max_input_vars في PHP الذي كان يقصّ التحديد عند 1000 عميل فقط.
 */
-function exportCustomersOptimized(customerIds, selectedFields = [], truncateBy = null) {
+function exportCustomersOptimized(
+    customerIds,
+    selectedFields = [],
+    truncateBy = null,
+) {
     if (customersExportPollInterval) {
         clearInterval(customersExportPollInterval);
         customersExportPollInterval = null;
@@ -412,16 +437,18 @@ function exportCustomersOptimized(customerIds, selectedFields = [], truncateBy =
 
     $.ajax({
         url: window.routes.customersExport,
-        type: 'POST',
+        type: "POST",
         data: {
             _token: window.csrfToken,
             customer_ids: JSON.stringify(customerIds),
             selected_fields: selectedFields,
-            truncate_by: truncateBy
+            truncate_by: truncateBy,
         },
         success: (response) => {
             if (!response.success) {
-                toastr.error(response.message || 'حدث خطأ أثناء تصدير البيانات');
+                toastr.error(
+                    response.message || "حدث خطأ أثناء تصدير البيانات",
+                );
                 return;
             }
 
@@ -441,9 +468,10 @@ function exportCustomersOptimized(customerIds, selectedFields = [], truncateBy =
             }
         },
         error: (xhr) => {
-            const message = xhr.responseJSON?.message || 'حدث خطأ أثناء تصدير البيانات';
+            const message =
+                xhr.responseJSON?.message || "حدث خطأ أثناء تصدير البيانات";
             toastr.error(message);
-        }
+        },
     });
 }
 
@@ -457,10 +485,10 @@ function pollCustomersExportProgress(exportId) {
     customersExportPollInterval = setInterval(() => {
         $.ajax({
             url: window.routes.customersExportCheckProgress,
-            type: 'POST',
+            type: "POST",
             data: {
                 _token: window.csrfToken,
-                export_id: exportId
+                export_id: exportId,
             },
             success: (response) => {
                 if (!response.success || !response.data) {
@@ -469,26 +497,34 @@ function pollCustomersExportProgress(exportId) {
 
                 const data = response.data;
 
-                if (data.status === 'completed') {
+                if (data.status === "completed") {
                     clearInterval(customersExportPollInterval);
                     customersExportPollInterval = null;
-                    toastr.success(`تم تصدير ${data.total_records ?? ''} عميل بنجاح`);
-                    showCustomersExportReadyModal(data.file_name, data.total_records);
-                } else if (data.status === 'failed') {
+                    toastr.success(
+                        `تم تصدير ${data.total_records ?? ""} عميل بنجاح`,
+                    );
+                    showCustomersExportReadyModal(
+                        data.file_name,
+                        data.total_records,
+                    );
+                } else if (data.status === "failed") {
                     clearInterval(customersExportPollInterval);
                     customersExportPollInterval = null;
                     hideCustomersExportProgressModal();
-                    toastr.error(data.error || 'فشل في تصدير البيانات');
-                } else if (data.status === 'processing') {
-                    updateCustomersExportProgress(data.percentage || 0, data.message || 'جاري المعالجة...');
+                    toastr.error(data.error || "فشل في تصدير البيانات");
+                } else if (data.status === "processing") {
+                    updateCustomersExportProgress(
+                        data.percentage || 0,
+                        data.message || "جاري المعالجة...",
+                    );
                 }
             },
             error: () => {
                 clearInterval(customersExportPollInterval);
                 customersExportPollInterval = null;
                 hideCustomersExportProgressModal();
-                toastr.error('حدث خطأ أثناء تتبع حالة التصدير');
-            }
+                toastr.error("حدث خطأ أثناء تتبع حالة التصدير");
+            },
         });
     }, 3000);
 }
@@ -503,10 +539,13 @@ function downloadCustomersExportFile(fileName) {
         return;
     }
 
-    const url = window.routes.customersExportDownload.replace('FILE_PLACEHOLDER', encodeURIComponent(fileName));
+    const url = window.routes.customersExportDownload.replace(
+        "FILE_PLACEHOLDER",
+        encodeURIComponent(fileName),
+    );
     // فتح في تبويب جديد بدل التنقل بنفس الصفحة، لأن التنقل المباشر يُطلق
     // beforeunload فيمسح حالة تحديد العملاء (CustomerSelection.cleanup) بشكل دائم.
-    window.open(url, '_blank');
+    window.open(url, "_blank");
 }
 
 /*
@@ -515,7 +554,8 @@ function downloadCustomersExportFile(fileName) {
 |--------------------------------------------------------------------------
 | يظهر فقط لمسار التصدير الكبير (job في الخلفية) حتى لا يُثقل التصدير السريع.
 */
-const CUSTOMERS_EXPORT_PROGRESS_TITLE_HTML = '<i class="ti ti-file-export me-2 text-primary"></i>جاري تصدير العملاء';
+const CUSTOMERS_EXPORT_PROGRESS_TITLE_HTML =
+    '<i class="ti ti-file-export me-2 text-primary"></i>جاري تصدير العملاء';
 const CUSTOMERS_EXPORT_PROGRESS_BODY_HTML = `
     <div class="progress mb-3 position-relative" style="height: 25px; border-radius: 12px; overflow: hidden;">
         <div id="customersExportProgressBar"
@@ -540,8 +580,8 @@ const CUSTOMERS_EXPORT_PROGRESS_BODY_HTML = `
 `;
 
 function showCustomersExportProgressModal() {
-    if ($('#customersExportProgressModal').length === 0) {
-        $('body').append(`
+    if ($("#customersExportProgressModal").length === 0) {
+        $("body").append(`
         <div class="modal fade" id="customersExportProgressModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
@@ -555,24 +595,28 @@ function showCustomersExportProgressModal() {
     }
 
     // إعادة ضبط المحتوى في كل مرة، لأن اكتمال التصدير يستبدله بزر التحميل
-    $('#customersExportProgressModal .modal-title').html(CUSTOMERS_EXPORT_PROGRESS_TITLE_HTML);
-    $('#customersExportProgressModal .modal-body').html(CUSTOMERS_EXPORT_PROGRESS_BODY_HTML);
+    $("#customersExportProgressModal .modal-title").html(
+        CUSTOMERS_EXPORT_PROGRESS_TITLE_HTML,
+    );
+    $("#customersExportProgressModal .modal-body").html(
+        CUSTOMERS_EXPORT_PROGRESS_BODY_HTML,
+    );
 
-    $('#customersExportProgressModal').modal('show');
+    $("#customersExportProgressModal").modal("show");
 }
 
 function updateCustomersExportProgress(percentage, message) {
     const safePercentage = Math.min(Math.max(percentage, 0), 100);
     const roundedPercentage = Math.round(safePercentage);
 
-    $('#customersExportProgressBar')
-        .css('width', safePercentage + '%')
-        .attr('aria-valuenow', safePercentage);
+    $("#customersExportProgressBar")
+        .css("width", safePercentage + "%")
+        .attr("aria-valuenow", safePercentage);
 
-    $('#customersExportProgressText').text(roundedPercentage + '%');
+    $("#customersExportProgressText").text(roundedPercentage + "%");
 
     if (message) {
-        $('#customersExportProgressMessage').text(message);
+        $("#customersExportProgressMessage").text(message);
     }
 }
 
@@ -589,13 +633,18 @@ function showCustomersExportReadyModal(fileName, totalRecords) {
         return;
     }
 
-    const url = window.routes.customersExportDownload.replace('FILE_PLACEHOLDER', encodeURIComponent(fileName));
+    const url = window.routes.customersExportDownload.replace(
+        "FILE_PLACEHOLDER",
+        encodeURIComponent(fileName),
+    );
 
-    $('#customersExportProgressModal .modal-title').html('<i class="ti ti-circle-check me-2 text-success"></i>اكتمل التصدير');
-    $('#customersExportProgressModal .modal-body').html(`
+    $("#customersExportProgressModal .modal-title").html(
+        '<i class="ti ti-circle-check me-2 text-success"></i>اكتمل التصدير',
+    );
+    $("#customersExportProgressModal .modal-body").html(`
         <div class="text-center">
             <i class="ti ti-file-spreadsheet text-success mb-3" style="font-size: 48px;"></i>
-            <p class="mb-3">تم تصدير ${totalRecords ?? ''} عميل بنجاح</p>
+            <p class="mb-3">تم تصدير ${totalRecords ?? ""} عميل بنجاح</p>
             <a href="${url}" target="_blank" class="btn btn-success" id="customersExportDownloadBtn">
                 <i class="ti ti-download me-1"></i> تحميل الملف
             </a>
@@ -605,13 +654,15 @@ function showCustomersExportReadyModal(fileName, totalRecords) {
     // لا نستخدم data-bs-dismiss هنا: مستمع Bootstrap العام يستدعي
     // event.preventDefault() على أي عنصر بهذه الخاصية، فيمنع فتح رابط href
     // الحقيقي. لذلك نُغلق المودال يدويًا بعد نقرة التحميل.
-    $('#customersExportDownloadBtn').off('click').on('click', () => {
-        setTimeout(() => hideCustomersExportProgressModal(), 200);
-    });
+    $("#customersExportDownloadBtn")
+        .off("click")
+        .on("click", () => {
+            setTimeout(() => hideCustomersExportProgressModal(), 200);
+        });
 }
 
 function hideCustomersExportProgressModal() {
-    $('#customersExportProgressModal').modal('hide');
+    $("#customersExportProgressModal").modal("hide");
 }
 
 /*
@@ -632,12 +683,12 @@ window.handleImportCustomers = handleImportCustomers;
 |--------------------------------------------------------------------------
 | تنظيف عند مغادرة الصفحة
 */
-$(window).on('beforeunload', function () {
-    if (typeof CustomerSelection !== 'undefined') {
+$(window).on("beforeunload", function () {
+    if (typeof CustomerSelection !== "undefined") {
         CustomerSelection.cleanup();
     }
 
-    if (typeof CustomerRowColors !== 'undefined') {
+    if (typeof CustomerRowColors !== "undefined") {
         CustomerRowColors.cleanup();
     }
 });

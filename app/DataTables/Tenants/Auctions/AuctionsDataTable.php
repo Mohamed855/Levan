@@ -27,6 +27,7 @@ class AuctionsDataTable extends AbstractDataTable
         return [
             ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'title' => '#', 'orderable' => false, 'searchable' => false, 'width' => '40px'],
             ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
+            ['data' => 'image', 'name' => 'image', 'title' => 'الصورة', 'orderable' => false, 'searchable' => false, 'width' => '70px'],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم المزاد', 'width' => '200px'],
             ['data' => 'platform_name', 'name' => 'platform_name', 'title' => 'المنصة / القاعة', 'width' => '150px'],
             ['data' => 'start_date', 'name' => 'start_date', 'title' => 'تاريخ البداية', 'width' => '130px'],
@@ -44,16 +45,18 @@ class AuctionsDataTable extends AbstractDataTable
             ->addColumn('checkbox', function ($row) {
                 return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
             })
+            ->addColumn('image', function ($row): string {
+                return $this->renderTableImage(
+                    $row->cover_image ? tasset($row->cover_image) : null,
+                    (string) $row->name,
+                );
+            })
             ->editColumn('name', function ($row) {
-                $img = $row->cover_image ? tasset($row->cover_image) : asset('assets/img/illustrations/page-pricing-enterprise.png');
                 $showUrl = tenant_route_name($this->route . '.show', $row->id);
 
-                return '<div class="d-flex align-items-center">
-                    <img src="' . $img . '" alt="auction" class="rounded me-2" style="width:36px;height:36px;object-fit:cover" />
-                    <div>
-                        <a href="' . $showUrl . '" class="text-body fw-medium d-block">' . e($row->name) . '</a>
-                        <small class="text-muted">' . e($row->type_label) . ' - ' . e($row->city) . '</small>
-                    </div>
+                return '<div>
+                    <a href="' . $showUrl . '" class="text-body fw-medium d-block">' . e($row->name) . '</a>
+                    <small class="text-muted">' . e($row->type_label) . ' - ' . e($row->city) . '</small>
                 </div>';
             })
             ->editColumn('platform_name', function ($row) {
@@ -103,7 +106,7 @@ class AuctionsDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'name', 'start_date', 'end_date', 'properties_count', 'status', 'outputs', 'actions'];
+        return ['checkbox', 'image', 'name', 'start_date', 'end_date', 'properties_count', 'status', 'outputs', 'actions'];
     }
 
     protected function applyCustomFilters($query)

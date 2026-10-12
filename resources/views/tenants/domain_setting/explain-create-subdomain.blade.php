@@ -443,7 +443,7 @@
                                 <i class="ti ti-message-circle me-1"></i>
                                 تواصل مع الدعم
                             </a>
-                            <a href="{{ tenant_route_name('dashboard') }}" class="btn btn-outline-secondary">
+                            <a href="{{ tenant_route_name('dashboard') }}" class="btn btn-secondary">
                                 <i class="ti ti-arrow-right me-1"></i>
                                 العودة للوحة التحكم
                             </a>

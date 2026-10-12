@@ -50,11 +50,14 @@ $contentLayout = isset($container) ? ($container === 'container-xxl' ? 'layout-c
     data-flash-info="{{ Session::get('info') }}"
     data-flash-warning="{{ Session::get('warning') }}"
     data-username="{{ Auth::guard('admin')->user()->name ?? '' }}"
+    data-app-boundary="admin"
     data-wizard-drafts-url="{{ route('admin.wizard-drafts.index') }}"
 >
 
     <!-- Layout Content -->
     @yield('layoutContent')
+
+    <x-form.wizard.draft-template />
 
     @include('admin.layouts.sections.scripts' . $isFront)
 

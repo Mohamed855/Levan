@@ -42,9 +42,9 @@ class AssignmentPropertySelectionDataTable extends AbstractDataTable
                 return '<input type="checkbox" class="row-checkbox property-selector" value="'.(int) $property->id.'" data-name="'.e($property->name).'" data-number="'.e($property->property_number).'" data-image="'.e($image).'" aria-label="اختيار '.e($property->name).'">';
             })
             ->addColumn('image', function (Property $property): string {
-                $image = $property->main_image ? tasset($property->main_image) : asset('assets/img/illustrations/page-pricing-standard.png');
+                $image = $property->main_image ? tasset($property->main_image) : null;
 
-                return '<img src="'.e($image).'" alt="" class="rounded object-fit-cover" width="44" height="44">';
+                return $this->renderTableImage($image, (string) $property->name);
             })
             ->editColumn('type', fn (Property $property): string => '<span class="badge bg-label-info">'.e($property->type_label).'</span>')
             ->addColumn('location', fn (Property $property): string => e($property->city.($property->district ? ' - '.$property->district : '')))

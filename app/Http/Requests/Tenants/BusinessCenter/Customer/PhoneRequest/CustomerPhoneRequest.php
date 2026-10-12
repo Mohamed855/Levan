@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Tenants\BusinessCenter\Customer\PhoneRequest;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 
-class CustomerPhoneRequest extends FormRequest
+class CustomerPhoneRequest extends WizardFormRequest
 {
     /*
     |--------------------------------------------------------------------------

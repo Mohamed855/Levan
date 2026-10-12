@@ -232,7 +232,7 @@
 
                 <div class="modal-body" id="template-preview-content"></div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                    <button type="button" class="btn btn-sm btn-secondary"
                         data-bs-dismiss="modal">إغلاق</button>
                     <button type="button" class="btn btn-sm btn-primary" id="btn-download-template-modal">
                         تحميل القالب

@@ -73,7 +73,7 @@
                 <div class="input-group">
                     <input type="text" name="receipt_number" id="edit_receipt_number" class="form-control"
                         placeholder="رقم السند" value="{{ $collection->receipt_number }}" required>
-                    <button type="button" class="btn btn-outline-secondary" id="edit-generate-receipt"
+                    <button type="button" class="btn btn-secondary" id="edit-generate-receipt"
                         title="توليد رقم جديد">
                         <i class="ti ti-refresh"></i>
                     </button>

@@ -123,7 +123,7 @@
                                 </div>
 
                                 <div class="d-flex gap-3">
-                                    <button type="button" id="backBtn" class="btn btn-outline-secondary">
+                                    <button type="button" id="backBtn" class="btn btn-secondary">
                                         <i class="ti ti-arrow-right me-2"></i>
                                         رجوع
                                     </button>

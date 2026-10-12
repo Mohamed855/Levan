@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin\Settings\Bank;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 
-class StoreBankRequest extends FormRequest
+class StoreBankRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {

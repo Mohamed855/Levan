@@ -5,21 +5,9 @@
     'bodyClass' => null,
 ])
 
-<div {{ $attributes->class(['card', 'dashboard-chart-card']) }}>
-    <div class="card-header d-flex align-items-center justify-content-between">
-        <h5 class="card-title mb-0">
-            @if ($icon)
-                <i class="ti {{ $icon }} me-1 text-{{ $iconColor }}" aria-hidden="true"></i>
-            @endif
-            {{ $title }}
-        </h5>
-
-        @if (isset($headerAction) && ! $headerAction->isEmpty())
-            {{ $headerAction }}
-        @endif
-    </div>
-
-    <div @class(['card-body', $bodyClass])>
-        {{ $slot }}
-    </div>
-</div>
+<x-ui.dashboard-panel {{ $attributes }} :title="$title" :icon="$icon" :icon-color="$iconColor" :body-class="$bodyClass">
+    @isset($headerAction)
+        <x-slot:headerAction>{{ $headerAction }}</x-slot:headerAction>
+    @endisset
+    {{ $slot }}
+</x-ui.dashboard-panel>

@@ -99,7 +99,7 @@
                         <a href="{{ tenant_route_name('settings.index') }}" class="btn btn-outline-primary">
                             <i class="ti ti-settings me-1"></i> إعدادات الشركة
                         </a>
-                        <a href="{{ tenant_route_name('tickets.index') }}" class="btn btn-outline-secondary">
+                        <a href="{{ tenant_route_name('tickets.index') }}" class="btn btn-secondary">
                             <i class="ti ti-headset me-1"></i> الدعم الفني
                         </a>
                     </div>

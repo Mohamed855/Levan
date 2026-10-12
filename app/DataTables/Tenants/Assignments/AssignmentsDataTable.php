@@ -49,9 +49,9 @@ class AssignmentsDataTable extends AbstractDataTable
             ->editColumn('assignment_number', fn ($row): string => $this->copyableCode($row->assignment_number))
             ->addColumn('image', function ($row): string {
                 $attachment = $row->assignmentImage;
-                $image = $attachment ? tasset($attachment->file_path) : asset('assets/img/illustrations/page-pricing-enterprise.png');
+                $image = $attachment ? tasset($attachment->file_path) : null;
 
-                return '<img src="'.e($image).'" alt="" class="rounded object-fit-cover" width="44" height="44">';
+                return $this->renderTableImage($image, (string) $row->name);
             })
             ->editColumn('name', fn ($row): string => '<a href="'.tenant_route_name($this->route.'.show', $row->id).'" class="text-body fw-medium">'.e($row->name).'</a>')
             ->editColumn('category', fn ($row): string => '<span class="badge bg-label-primary">'.e($row->category_label).'</span>')

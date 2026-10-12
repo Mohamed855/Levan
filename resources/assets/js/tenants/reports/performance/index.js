@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 let companyPerformanceTable;
 let exportProgressInterval;
@@ -17,22 +17,22 @@ $(document).ready(function () {
 |--------------------------------------------------------------------------
 */
 function initializeComponents() {
-    $('.select2').each(function () {
+    $(".select2").each(function () {
         $(this).select2({
             placeholder: function () {
-                return $(this).data('placeholder');
+                return $(this).data("placeholder");
             },
             allowClear: true,
-            width: '100%',
+            width: "100%",
             language: {
                 noResults: function () {
                     return "لا توجد نتائج";
                 },
                 searching: function () {
                     return "جاري البحث...";
-                }
+                },
             },
-            dir: 'rtl'
+            dir: "rtl",
         });
     });
 
@@ -48,8 +48,8 @@ function setDefaultDates() {
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth() + 1;
 
-    $('#filter-year').val(currentYear).trigger('change');
-    $('#filter-month').val(currentMonth).trigger('change');
+    $("#filter-year").val(currentYear).trigger("change");
+    $("#filter-month").val(currentMonth).trigger("change");
 }
 
 /*
@@ -59,15 +59,20 @@ function setDefaultDates() {
 */
 function initializeTableAfterRender() {
     const checkTable = setInterval(function () {
-        if ($('#company-performance-table').length && $.fn.DataTable.isDataTable('#company-performance-table')) {
-            companyPerformanceTable = $('#company-performance-table').DataTable();
+        if (
+            $("#company-performance-table").length &&
+            $.fn.DataTable.isDataTable("#company-performance-table")
+        ) {
+            companyPerformanceTable = $(
+                "#company-performance-table",
+            ).DataTable();
 
             // ✅ ربط الجدول بمسار البيانات
             const dataRoute = window.routes.performanceReportsData;
             companyPerformanceTable.ajax.url(dataRoute).load();
 
             clearInterval(checkTable);
-            console.log('✅ DataTable initialized successfully');
+            console.log("✅ DataTable initialized successfully");
         }
     }, 500);
 }
@@ -91,7 +96,7 @@ function initializePaymentComparisonChart() {
     const paymentData = window.chartData.paymentComparison;
 
     if (!paymentData || !paymentData.achieved_percentage) {
-        $('#paymentComparisonChart').html(`
+        $("#paymentComparisonChart").html(`
             <div class="text-center text-muted p-4">
                 <i class="ti ti-chart-pie-off ti-24px mb-2 d-block"></i>
                 <small>لا توجد بيانات</small>
@@ -102,75 +107,82 @@ function initializePaymentComparisonChart() {
 
     const series = [
         paymentData.achieved_percentage,
-        paymentData.remaining_percentage
+        paymentData.remaining_percentage,
     ];
 
     const options = {
         series: series,
         chart: {
-            type: 'donut',
+            type: "donut",
             height: 220, // ✅ زيادة الارتفاع قليلاً
-            fontFamily: 'Cairo, sans-serif',
-            toolbar: { show: false }
+            fontFamily: "Cairo, sans-serif",
+            toolbar: { show: false },
         },
-        labels: ['تم التحقيق', 'المتبقي'],
-        colors: ['#4cc1bb', '#e0e0e0'],
+        labels: ["تم التحقيق", "المتبقي"],
+        colors: ["#4cc1bb", "#e0e0e0"],
         legend: {
-            position: 'bottom',
-            fontSize: '11px',
-            fontWeight: '500',
-            offsetY: 5
+            position: "bottom",
+            fontSize: "11px",
+            fontWeight: "500",
+            offsetY: 5,
         },
         plotOptions: {
             pie: {
                 donut: {
-                    size: '65%',
+                    size: "65%",
                     labels: {
                         show: true,
                         name: {
                             show: true,
-                            fontSize: '12px',
-                            color: '#666',
-                            offsetY: -10
+                            fontSize: "12px",
+                            color: "#666",
+                            offsetY: -10,
                         },
                         value: {
                             show: true,
-                            fontSize: '28px',
+                            fontSize: "28px",
                             // fontWeight: 'bold',
-                            color: '#323e3e',
+                            color: "#323e3e",
                             offsetY: 10,
                             formatter: function (val) {
-                                return Math.round(val) + '%';
-                            }
+                                return Math.round(val) + "%";
+                            },
                         },
                         total: {
                             show: true,
-                            label: 'الإنجاز',
-                            fontSize: '16px',
-                            fontWeight: '600',
-                            color: '#666',
+                            label: "الإنجاز",
+                            fontSize: "16px",
+                            fontWeight: "600",
+                            color: "#666",
                             formatter: function (w) {
-                                return Math.round(paymentData.achieved_percentage) + '%';
-                            }
-                        }
-                    }
-                }
-            }
+                                return (
+                                    Math.round(
+                                        paymentData.achieved_percentage,
+                                    ) + "%"
+                                );
+                            },
+                        },
+                    },
+                },
+            },
         },
         dataLabels: {
-            enabled: false // ✅ إخفاء الأرقام على القطع لتجنب الازدحام
+            enabled: false, // ✅ إخفاء الأرقام على القطع لتجنب الازدحام
         },
         tooltip: {
             enabled: true,
             y: {
                 formatter: function (val) {
-                    return Math.round(val) + '%';
-                }
-            }
-        }
+                    return Math.round(val) + "%";
+                },
+            },
+        },
     };
 
-    const chart = new ApexCharts(document.querySelector("#paymentComparisonChart"), options);
+    const chart = new ApexCharts(
+        document.querySelector("#paymentComparisonChart"),
+        options,
+    );
     chart.render();
 }
 
@@ -183,7 +195,7 @@ function initializeContactStatsChart() {
     const contactData = window.chartData.contactStats;
 
     if (!contactData) {
-        $('#contactStatsChart').html(`
+        $("#contactStatsChart").html(`
             <div class="text-center text-muted p-4">
                 <i class="ti ti-chart-pie-off ti-24px mb-2 d-block"></i>
                 <small>لا توجد بيانات</small>
@@ -195,49 +207,52 @@ function initializeContactStatsChart() {
     const series = [
         contactData.positive_count,
         contactData.negative_count,
-        contactData.other_count
+        contactData.other_count,
     ];
 
-    const labels = ['إيجابية', 'سلبية', 'أخرى'];
-    const colors = ['#4cc1bb', '#ff4d4f', '#ffa500'];
+    const labels = ["إيجابية", "سلبية", "أخرى"];
+    const colors = ["#4cc1bb", "#ff4d4f", "#ffa500"];
 
     const options = {
         series: series,
         chart: {
-            type: 'pie',
+            type: "pie",
             height: 250,
-            fontFamily: 'Cairo, sans-serif',
-            toolbar: { show: false }
+            fontFamily: "Cairo, sans-serif",
+            toolbar: { show: false },
         },
         labels: labels,
         colors: colors,
         legend: {
-            position: 'bottom',
-            fontSize: '11px',
-            fontWeight: '500'
+            position: "bottom",
+            fontSize: "11px",
+            fontWeight: "500",
         },
         dataLabels: {
             enabled: true,
             formatter: function (val) {
-                return Math.round(val) + '%';
+                return Math.round(val) + "%";
             },
             style: {
-                fontSize: '10px',
-                fontWeight: 'bold',
-                colors: ['#fff']
-            }
+                fontSize: "10px",
+                fontWeight: "bold",
+                colors: ["#fff"],
+            },
         },
         tooltip: {
             y: {
                 formatter: function (val, opts) {
                     const label = opts.w.globals.labels[opts.seriesIndex];
-                    return label + ': ' + val + ' عميل';
-                }
-            }
-        }
+                    return label + ": " + val + " عميل";
+                },
+            },
+        },
     };
 
-    const chart = new ApexCharts(document.querySelector("#contactStatsChart"), options);
+    const chart = new ApexCharts(
+        document.querySelector("#contactStatsChart"),
+        options,
+    );
     chart.render();
 }
 
@@ -248,49 +263,55 @@ function initializeContactStatsChart() {
 */
 function bindEvents() {
     // ✅ الفلاتر المتتابعة
-    $('#filter-company').on('change', function () {
+    $("#filter-company").on("change", function () {
         filterPortfoliosByCompany($(this).val());
     });
 
-    $('#filter-team').on('change', function () {
+    $("#filter-team").on("change", function () {
         filterUsersByTeam($(this).val());
     });
 
     // ✅ زر التصدير PDF - منع التكرار النهائي
     let pdfExporting = false;
 
-    $(document).off('click', '.btn-export-pdf').on('click', '.btn-export-pdf', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
+    $(document)
+        .off("click", ".btn-export-pdf")
+        .on("click", ".btn-export-pdf", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
 
-        // ✅ منع التنفيذ المتكرر
-        if (pdfExporting) {
-            console.log('⚠️ PDF export already in progress');
+            // ✅ منع التنفيذ المتكرر
+            if (pdfExporting) {
+                console.log("⚠️ PDF export already in progress");
+                return false;
+            }
+
+            pdfExporting = true;
+            console.log("✅ Starting PDF export");
+
+            exportCustomReportToPDF();
+
+            // ✅ إعادة التفعيل بعد 2 ثانية
+            setTimeout(() => {
+                pdfExporting = false;
+                console.log("✅ PDF export ready again");
+            }, 2000);
+
             return false;
-        }
-
-        pdfExporting = true;
-        console.log('✅ Starting PDF export');
-
-        exportCustomReportToPDF();
-
-        // ✅ إعادة التفعيل بعد 2 ثانية
-        setTimeout(() => {
-            pdfExporting = false;
-            console.log('✅ PDF export ready again');
-        }, 2000);
-
-        return false;
-    });
+        });
 
     // ✅ تبديل أيقونة الفلاتر
-    $('#filtersSection').on('show.bs.collapse', function () {
-        $('[data-bs-target="#filtersSection"] i.ti-chevron-down').removeClass('ti-chevron-down').addClass('ti-chevron-up');
+    $("#filtersSection").on("show.bs.collapse", function () {
+        $('[data-bs-target="#filtersSection"] i.ti-chevron-down')
+            .removeClass("ti-chevron-down")
+            .addClass("ti-chevron-up");
     });
 
-    $('#filtersSection').on('hide.bs.collapse', function () {
-        $('[data-bs-target="#filtersSection"] i.ti-chevron-up').removeClass('ti-chevron-up').addClass('ti-chevron-down');
+    $("#filtersSection").on("hide.bs.collapse", function () {
+        $('[data-bs-target="#filtersSection"] i.ti-chevron-up')
+            .removeClass("ti-chevron-up")
+            .addClass("ti-chevron-down");
     });
 }
 
@@ -301,23 +322,26 @@ function bindEvents() {
 */
 function reloadTable() {
     if (!companyPerformanceTable) {
-        console.warn('⚠️ Table not initialized yet');
+        console.warn("⚠️ Table not initialized yet");
         return;
     }
 
     const params = getCurrentFiltersAsParams();
     const dataRoute = window.routes.performanceReportsData;
-    const newUrl = params ? dataRoute + '?' + params : dataRoute;
+    const newUrl = params ? dataRoute + "?" + params : dataRoute;
 
-    console.log('📡 Reloading table with URL:', newUrl);
+    console.log("📡 Reloading table with URL:", newUrl);
 
     // ✅ تحديث رابط AJAX وإعادة تحميل البيانات
-    companyPerformanceTable.ajax.url(newUrl).load(function (json) {
-        console.log('✅ Table data loaded:', json);
-    }, function (xhr, error, code) {
-        console.error('❌ Error loading table data:', error);
-        toastr.error('حدث خطأ أثناء تحميل البيانات');
-    });
+    companyPerformanceTable.ajax.url(newUrl).load(
+        function (json) {
+            console.log("✅ Table data loaded:", json);
+        },
+        function (xhr, error, code) {
+            console.error("❌ Error loading table data:", error);
+            toastr.error("حدث خطأ أثناء تحميل البيانات");
+        },
+    );
 }
 
 /*
@@ -326,16 +350,16 @@ function reloadTable() {
 |--------------------------------------------------------------------------
 */
 function filterPortfoliosByCompany(companyId) {
-    const portfolioSelect = $('#filter-portfolio');
+    const portfolioSelect = $("#filter-portfolio");
 
-    portfolioSelect.find('option').each(function () {
+    portfolioSelect.find("option").each(function () {
         const option = $(this);
-        if (option.val() === '') {
+        if (option.val() === "") {
             option.show();
             return;
         }
 
-        if (!companyId || option.data('company') == companyId) {
+        if (!companyId || option.data("company") == companyId) {
             option.show();
         } else {
             option.hide();
@@ -343,12 +367,13 @@ function filterPortfoliosByCompany(companyId) {
     });
 
     const selectedPortfolio = portfolioSelect.val();
-    if (selectedPortfolio && portfolioSelect.find('option:selected').data('company') != companyId) {
-        portfolioSelect.val('').trigger('change');
+    if (
+        selectedPortfolio &&
+        portfolioSelect.find("option:selected").data("company") != companyId
+    ) {
+        portfolioSelect.val("").trigger("change");
     }
 }
-
-
 
 /*
 |--------------------------------------------------------------------------
@@ -356,16 +381,16 @@ function filterPortfoliosByCompany(companyId) {
 |--------------------------------------------------------------------------
 */
 function filterUsersByTeam(teamId) {
-    const userSelect = $('#filter-user');
+    const userSelect = $("#filter-user");
 
-    userSelect.find('option').each(function () {
+    userSelect.find("option").each(function () {
         const option = $(this);
-        if (option.val() === '') {
+        if (option.val() === "") {
             option.show();
             return;
         }
 
-        if (!teamId || option.data('team') == teamId) {
+        if (!teamId || option.data("team") == teamId) {
             option.show();
         } else {
             option.hide();
@@ -373,8 +398,11 @@ function filterUsersByTeam(teamId) {
     });
 
     const selectedUser = userSelect.val();
-    if (selectedUser && userSelect.find('option:selected').data('team') != teamId) {
-        userSelect.val('').trigger('change');
+    if (
+        selectedUser &&
+        userSelect.find("option:selected").data("team") != teamId
+    ) {
+        userSelect.val("").trigger("change");
     }
 }
 
@@ -384,7 +412,9 @@ function filterUsersByTeam(teamId) {
 |--------------------------------------------------------------------------
 */
 function resetFilters() {
-    $('#filter-company, #filter-portfolio, #filter-team, #filter-user').val('').trigger('change');
+    $("#filter-company, #filter-portfolio, #filter-team, #filter-user")
+        .val("")
+        .trigger("change");
     setDefaultDates();
 
     // ✅ إعادة تحميل الجدول فقط
@@ -400,8 +430,8 @@ function getCurrentFiltersAsParams() {
     const filters = getCurrentFilters();
     const params = new URLSearchParams();
 
-    Object.keys(filters).forEach(key => {
-        if (filters[key] && filters[key] !== '') {
+    Object.keys(filters).forEach((key) => {
+        if (filters[key] && filters[key] !== "") {
             params.append(key, filters[key]);
         }
     });
@@ -415,14 +445,14 @@ function getCurrentFiltersAsParams() {
 |--------------------------------------------------------------------------
 */
 function getCurrentFilters() {
-    const year = $('#filter-year').val();
-    const month = $('#filter-month').val();
+    const year = $("#filter-year").val();
+    const month = $("#filter-month").val();
 
-    let dateFrom = '';
-    let dateTo = '';
+    let dateFrom = "";
+    let dateTo = "";
 
     if (year && month) {
-        const paddedMonth = month.toString().padStart(2, '0');
+        const paddedMonth = month.toString().padStart(2, "0");
         const lastDay = new Date(year, month, 0).getDate();
         dateFrom = `${year}-${paddedMonth}-01`;
         dateTo = `${year}-${paddedMonth}-${lastDay}`;
@@ -431,10 +461,10 @@ function getCurrentFilters() {
     return {
         date_from: dateFrom,
         date_to: dateTo,
-        company_id: $('#filter-company').val(),
-        portfolio_id: $('#filter-portfolio').val(),
-        team_id: $('#filter-team').val(),
-        user_id: $('#filter-user').val()
+        company_id: $("#filter-company").val(),
+        portfolio_id: $("#filter-portfolio").val(),
+        team_id: $("#filter-team").val(),
+        user_id: $("#filter-user").val(),
     };
 }
 
@@ -447,32 +477,36 @@ function exportCustomReportToPDF() {
     const filters = getCurrentFilters();
 
     // ✅ إنشاء نموذج مخفي
-    const form = $('<form>', {
-        'method': 'POST',
-        'action': window.routes.performanceReportsExportPDF,
-        'target': '_self' // ✅ نفس التاب، ليس _blank
+    const form = $("<form>", {
+        method: "POST",
+        action: window.routes.performanceReportsExportPDF,
+        target: "_self", // ✅ نفس التاب، ليس _blank
     });
 
     // ✅ CSRF Token
-    form.append($('<input>', {
-        'type': 'hidden',
-        'name': '_token',
-        'value': window.csrfToken
-    }));
+    form.append(
+        $("<input>", {
+            type: "hidden",
+            name: "_token",
+            value: window.csrfToken,
+        }),
+    );
 
     // ✅ إضافة الفلاتر
     $.each(filters, function (key, value) {
-        if (value && value !== '') {
-            form.append($('<input>', {
-                'type': 'hidden',
-                'name': key,
-                'value': value
-            }));
+        if (value && value !== "") {
+            form.append(
+                $("<input>", {
+                    type: "hidden",
+                    name: key,
+                    value: value,
+                }),
+            );
         }
     });
 
     // ✅ إرسال النموذج وحذفه فوراً
-    form.appendTo('body').submit();
+    form.appendTo("body").submit();
 
     // ✅ حذف النموذج بعد 100ms
     setTimeout(function () {
@@ -490,19 +524,24 @@ function exportFilteredToExcel() {
 
     $.ajax({
         url: window.routes.performanceReportsShowExportModal,
-        type: 'POST',
+        type: "POST",
         data: {
             _token: window.csrfToken,
-            ...filters
+            ...filters,
         },
         success: function (response) {
             if (response.success) {
-                showExportFieldsModal(response.fields, response.count, filters, response.is_large_export);
+                showExportFieldsModal(
+                    response.fields,
+                    response.count,
+                    filters,
+                    response.is_large_export,
+                );
             }
         },
         error: function () {
-            toastr.error('حدث خطأ أثناء جلب بيانات التصدير');
-        }
+            toastr.error("حدث خطأ أثناء جلب بيانات التصدير");
+        },
     });
 }
 
@@ -526,7 +565,7 @@ function showExportFieldsModal(fields, count, filters, isLargeExport) {
             <button type="button" class="btn btn-outline-primary btn-sm py-1 px-2 mx-1" id="selectAllFields">
                 تحديد الكل
             </button>
-            <button type="button" class="btn btn-outline-secondary btn-sm py-1 px-2 mx-1" id="deselectAllFields">
+            <button type="button" class="btn btn-secondary btn-sm py-1 px-2 mx-1" id="deselectAllFields">
                 إلغاء التحديد
             </button>
             <button type="button" class="btn btn-outline-info btn-sm py-1 px-2 mx-1" id="selectDefaultFields">
@@ -554,18 +593,22 @@ function showExportFieldsModal(fields, count, filters, isLargeExport) {
         </div>
     `;
 
-    $('#fieldsContainer').html(modalContent);
-    $('#exportFieldsModal').modal('show');
+    $("#fieldsContainer").html(modalContent);
+    $("#exportFieldsModal").modal("show");
 
     updateFieldsCount();
     bindExportModalEvents(filters, isLargeExport);
 
-    $('#fieldsCollapse').on('show.bs.collapse', function () {
-        $('.ti-chevron-down').removeClass('ti-chevron-down').addClass('ti-chevron-up');
+    $("#fieldsCollapse").on("show.bs.collapse", function () {
+        $(".ti-chevron-down")
+            .removeClass("ti-chevron-down")
+            .addClass("ti-chevron-up");
     });
 
-    $('#fieldsCollapse').on('hide.bs.collapse', function () {
-        $('.ti-chevron-up').removeClass('ti-chevron-up').addClass('ti-chevron-down');
+    $("#fieldsCollapse").on("hide.bs.collapse", function () {
+        $(".ti-chevron-up")
+            .removeClass("ti-chevron-up")
+            .addClass("ti-chevron-down");
     });
 }
 
@@ -575,7 +618,7 @@ function showExportFieldsModal(fields, count, filters, isLargeExport) {
 |--------------------------------------------------------------------------
 */
 function generateFieldsGrid(fields) {
-    let html = '';
+    let html = "";
 
     fields.forEach((field, index) => {
         html += `
@@ -585,7 +628,7 @@ function generateFieldsGrid(fields) {
                            type="checkbox" 
                            value="${field.key}" 
                            id="field_${field.key}"
-                           ${field.selected ? 'checked' : ''}>
+                           ${field.selected ? "checked" : ""}>
                     <label class="form-check-label" 
                            for="field_${field.key}">
                         ${field.label}
@@ -604,49 +647,57 @@ function generateFieldsGrid(fields) {
 |--------------------------------------------------------------------------
 */
 function bindExportModalEvents(filters, isLargeExport) {
-    $('#selectAllFields').off('click').on('click', function () {
-        $('.export-field').prop('checked', true);
-        updateFieldsCount();
-    });
-
-    $('#deselectAllFields').off('click').on('click', function () {
-        $('.export-field').prop('checked', false);
-        updateFieldsCount();
-    });
-
-    $('#selectDefaultFields').off('click').on('click', function () {
-        $('.export-field').prop('checked', false);
-        const defaultFields = [
-            'company_name',
-            'customers_count',
-            'total_portfolio',
-            'total_payment',
-            'achievement_rate'
-        ];
-        defaultFields.forEach(key => {
-            $(`#field_${key}`).prop('checked', true);
-        });
-        updateFieldsCount();
-    });
-
-    $('.export-field').on('change', function () {
-        updateFieldsCount();
-    });
-
-    $('#confirmExport').off('click').on('click', function () {
-        const selectedFields = [];
-        $('.export-field:checked').each(function () {
-            selectedFields.push($(this).val());
+    $("#selectAllFields")
+        .off("click")
+        .on("click", function () {
+            $(".export-field").prop("checked", true);
+            updateFieldsCount();
         });
 
-        if (selectedFields.length === 0) {
-            toastr.warning('يرجى اختيار حقل واحد على الأقل');
-            return;
-        }
+    $("#deselectAllFields")
+        .off("click")
+        .on("click", function () {
+            $(".export-field").prop("checked", false);
+            updateFieldsCount();
+        });
 
-        $('#exportFieldsModal').modal('hide');
-        executeExportWithFields(filters, selectedFields, isLargeExport);
+    $("#selectDefaultFields")
+        .off("click")
+        .on("click", function () {
+            $(".export-field").prop("checked", false);
+            const defaultFields = [
+                "company_name",
+                "customers_count",
+                "total_portfolio",
+                "total_payment",
+                "achievement_rate",
+            ];
+            defaultFields.forEach((key) => {
+                $(`#field_${key}`).prop("checked", true);
+            });
+            updateFieldsCount();
+        });
+
+    $(".export-field").on("change", function () {
+        updateFieldsCount();
     });
+
+    $("#confirmExport")
+        .off("click")
+        .on("click", function () {
+            const selectedFields = [];
+            $(".export-field:checked").each(function () {
+                selectedFields.push($(this).val());
+            });
+
+            if (selectedFields.length === 0) {
+                toastr.warning("يرجى اختيار حقل واحد على الأقل");
+                return;
+            }
+
+            $("#exportFieldsModal").modal("hide");
+            executeExportWithFields(filters, selectedFields, isLargeExport);
+        });
 }
 
 /*
@@ -655,14 +706,14 @@ function bindExportModalEvents(filters, isLargeExport) {
 |--------------------------------------------------------------------------
 */
 function updateFieldsCount() {
-    const totalChecked = $('.export-field:checked').length;
-    $('#selectedFieldsCount').text(totalChecked);
+    const totalChecked = $(".export-field:checked").length;
+    $("#selectedFieldsCount").text(totalChecked);
 
-    const allTotal = $('.export-field').length;
-    $('#allFieldsCount').text(`${totalChecked}/${allTotal}`);
+    const allTotal = $(".export-field").length;
+    $("#allFieldsCount").text(`${totalChecked}/${allTotal}`);
 
-    const btnText = totalChecked > 0 ? `تصدير (${totalChecked} حقل)` : 'تصدير';
-    $('#confirmExport').text(btnText);
+    const btnText = totalChecked > 0 ? `تصدير (${totalChecked} حقل)` : "تصدير";
+    $("#confirmExport").text(btnText);
 }
 
 /*
@@ -674,16 +725,16 @@ function executeExportWithFields(filters, selectedFields, isLargeExport) {
     if (isLargeExport) {
         showAsyncExportModal();
     } else {
-        showLoadingModal('جاري إنشاء ملف Excel...');
+        showLoadingModal("جاري إنشاء ملف Excel...");
     }
 
     $.ajax({
         url: window.routes.performanceReportsExportExcel,
-        type: 'POST',
+        type: "POST",
         data: {
             _token: window.csrfToken,
             selected_fields: selectedFields,
-            ...filters
+            ...filters,
         },
         success: function (response) {
             if (response.success) {
@@ -691,7 +742,7 @@ function executeExportWithFields(filters, selectedFields, isLargeExport) {
                     handleAsyncExport(response.export_id, response.message);
                 } else {
                     hideLoadingModal();
-                    window.open(response.download_url, '_blank');
+                    window.open(response.download_url, "_blank");
                     toastr.success(response.message);
                 }
             }
@@ -699,9 +750,10 @@ function executeExportWithFields(filters, selectedFields, isLargeExport) {
         error: function (xhr) {
             hideLoadingModal();
             hideAsyncExportModal();
-            const errorMsg = xhr.responseJSON?.message || 'حدث خطأ أثناء إنشاء الملف';
+            const errorMsg =
+                xhr.responseJSON?.message || "حدث خطأ أثناء إنشاء الملف";
             toastr.error(errorMsg);
-        }
+        },
     });
 }
 
@@ -710,13 +762,13 @@ function executeExportWithFields(filters, selectedFields, isLargeExport) {
 | Show/Hide Loading Modal
 |--------------------------------------------------------------------------
 */
-function showLoadingModal(message = 'جاري المعالجة...') {
-    $('#loadingMessage').text(message);
-    $('#loadingModal').modal('show');
+function showLoadingModal(message = "جاري المعالجة...") {
+    $("#loadingMessage").text(message);
+    $("#loadingModal").modal("show");
 }
 
 function hideLoadingModal() {
-    $('#loadingModal').modal('hide');
+    $("#loadingModal").modal("hide");
 }
 
 /*

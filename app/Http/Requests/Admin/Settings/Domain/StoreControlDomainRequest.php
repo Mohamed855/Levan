@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin\Settings\Domain;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreControlDomainRequest extends FormRequest
+class StoreControlDomainRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {

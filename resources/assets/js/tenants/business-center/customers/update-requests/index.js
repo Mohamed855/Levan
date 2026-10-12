@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 $(document).ready(function () {
     initializeComponents();
@@ -15,12 +15,12 @@ $(document).ready(function () {
 */
 function initializeComponents() {
     // تهيئة Select2 للفلاتر
-    $('.select2').select2({
-        placeholder: 'اختر',
+    $(".select2").select2({
+        placeholder: "اختر",
         allowClear: true,
-        width: '100%',
-        language: 'ar',
-        dir: 'rtl'
+        width: "100%",
+        language: "ar",
+        dir: "rtl",
     });
 }
 
@@ -31,43 +31,41 @@ function initializeComponents() {
 */
 function bindEvents() {
     // حدث النقر على زر الموافقة
-    $(document).on('click', '.js-approve-request-btn', function () {
-        const requestId = $(this).data('id');
+    $(document).on("click", ".js-approve-request-btn", function () {
+        const requestId = $(this).data("id");
         approveUpdateRequest(requestId);
     });
 
     // حدث النقر على زر الرفض
-    $(document).on('click', '.js-reject-request-btn', function () {
-        const requestId = $(this).data('id');
+    $(document).on("click", ".js-reject-request-btn", function () {
+        const requestId = $(this).data("id");
         showRejectionModal(requestId);
     });
 
     // حدث النقر على زر عرض التفاصيل
-    $(document).on('click', '.js-view-request-btn', function () {
-        const requestId = $(this).data('id');
+    $(document).on("click", ".js-view-request-btn", function () {
+        const requestId = $(this).data("id");
         viewUpdateRequest(requestId);
     });
 
     // حدث تأكيد الرفض
-    $('#confirmRejection').on('click', function () {
-        const requestId = $('#rejectionRequestId').val();
-        const reason = $('#rejectionReason').val();
+    $("#confirmRejection").on("click", function () {
+        const requestId = $("#rejectionRequestId").val();
+        const reason = $("#rejectionReason").val();
         rejectUpdateRequest(requestId, reason);
     });
 
     // حدث تأكيد الرفض الجماعي
-    $('#confirmBulkRejection').on('click', function () {
-        const requestIds = JSON.parse($('#bulkRejectionRequestIds').val());
-        const reason = $('#bulkRejectionReason').val();
+    $("#confirmBulkRejection").on("click", function () {
+        const requestIds = JSON.parse($("#bulkRejectionRequestIds").val());
+        const reason = $("#bulkRejectionReason").val();
         bulkRejectRequests(requestIds, reason);
     });
 
     // حدث تحديد الكل
-    $('#select-all').on('change', function () {
-        $('.row-checkbox').prop('checked', $(this).prop('checked'));
+    $("#select-all").on("change", function () {
+        $(".row-checkbox").prop("checked", $(this).prop("checked"));
     });
-
-
 }
 
 /*
@@ -77,120 +75,128 @@ function bindEvents() {
 */
 function approveUpdateRequest(requestId) {
     Swal.fire({
-        title: 'تأكيد الموافقة',
-        text: 'هل أنت متأكد من الموافقة على هذا الطلب؟',
-        icon: 'question',
+        title: "تأكيد الموافقة",
+        text: "هل أنت متأكد من الموافقة على هذا الطلب؟",
+        icon: "question",
         showCancelButton: true,
-        confirmButtonColor: '#28a745',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'موافقة',
-        cancelButtonText: 'إلغاء',
+        confirmButtonColor: "#28a745",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "موافقة",
+        cancelButtonText: "إلغاء",
         buttonsStyling: false,
         customClass: {
-            confirmButton: 'btn btn-success me-2',
-            cancelButton: 'btn btn-secondary'
-        }
+            confirmButton: "btn btn-success me-2",
+            cancelButton: "btn btn-secondary",
+        },
     }).then((result) => {
         if (result.isConfirmed) {
-            axios.post(window.routes.approveRequest.replace(':id', requestId), {
-                _token: window.csrfToken
-            })
-                .then(response => {
+            axios
+                .post(window.routes.approveRequest.replace(":id", requestId), {
+                    _token: window.csrfToken,
+                })
+                .then((response) => {
                     if (response.data.success) {
                         toastr.success(response.data.message);
-                        $('#customer-update-requests-table').DataTable().ajax.reload();
+                        $("#customer-update-requests-table")
+                            .DataTable()
+                            .ajax.reload();
                         updatePendingCount();
                     } else {
                         toastr.error(response.data.message);
                     }
                 })
-                .catch(error => {
-                    toastr.error('حدث خطأ أثناء الموافقة على الطلب');
+                .catch((error) => {
+                    toastr.error("حدث خطأ أثناء الموافقة على الطلب");
                 });
         }
     });
 }
 
 function rejectUpdateRequest(requestId, reason) {
-    axios.post(window.routes.rejectRequest.replace(':id', requestId), {
-        _token: window.csrfToken,
-        reason: reason
-    })
-        .then(response => {
+    axios
+        .post(window.routes.rejectRequest.replace(":id", requestId), {
+            _token: window.csrfToken,
+            reason: reason,
+        })
+        .then((response) => {
             if (response.data.success) {
                 toastr.success(response.data.message);
-                $('#rejectionReasonModal').modal('hide');
-                $('#customer-update-requests-table').DataTable().ajax.reload();
+                $("#rejectionReasonModal").modal("hide");
+                $("#customer-update-requests-table").DataTable().ajax.reload();
                 updatePendingCount();
             } else {
                 toastr.error(response.data.message);
             }
         })
-        .catch(error => {
-            toastr.error('حدث خطأ أثناء رفض الطلب');
+        .catch((error) => {
+            toastr.error("حدث خطأ أثناء رفض الطلب");
         });
 }
 
 function viewUpdateRequest(requestId) {
     // فتح الصفحة في تبويب جديد
-    window.open(window.routes.viewRequest.replace(':id', requestId), '_blank');
+    window.open(window.routes.viewRequest.replace(":id", requestId), "_blank");
 }
 
 function bulkApproveRequests(requestIds) {
     Swal.fire({
-        title: 'تأكيد الموافقة الجماعية',
+        title: "تأكيد الموافقة الجماعية",
         text: `هل أنت متأكد من الموافقة على ${requestIds.length} طلب؟`,
-        icon: 'question',
+        icon: "question",
         showCancelButton: true,
-        confirmButtonColor: '#28a745',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'موافقة',
-        cancelButtonText: 'إلغاء',
+        confirmButtonColor: "#28a745",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "موافقة",
+        cancelButtonText: "إلغاء",
         buttonsStyling: false,
         customClass: {
-            confirmButton: 'btn btn-success me-2',
-            cancelButton: 'btn btn-secondary'
-        }
+            confirmButton: "btn btn-success me-2",
+            cancelButton: "btn btn-secondary",
+        },
     }).then((result) => {
         if (result.isConfirmed) {
-            axios.post(window.routes.bulkApprove, {
-                _token: window.csrfToken,
-                request_ids: requestIds
-            })
-                .then(response => {
+            axios
+                .post(window.routes.bulkApprove, {
+                    _token: window.csrfToken,
+                    request_ids: requestIds,
+                })
+                .then((response) => {
                     if (response.data.success) {
                         toastr.success(response.data.message);
-                        $('#customer-update-requests-table').DataTable().ajax.reload();
+                        $("#customer-update-requests-table")
+                            .DataTable()
+                            .ajax.reload();
                         updatePendingCount();
                     } else {
                         toastr.error(response.data.message);
                     }
                 })
-                .catch(error => {
-                    toastr.error('حدث خطأ أثناء الموافقة على الطلبات');
+                .catch((error) => {
+                    toastr.error("حدث خطأ أثناء الموافقة على الطلبات");
                 });
         }
     });
 }
 
 function bulkRejectRequests(requestIds, reason) {
-    axios.post(window.routes.bulkReject, {
-        _token: window.csrfToken,
-        request_ids: requestIds,
-        reason: reason
-    })
-        .then(response => {
+    axios
+        .post(window.routes.bulkReject, {
+            _token: window.csrfToken,
+            request_ids: requestIds,
+            reason: reason,
+        })
+        .then((response) => {
             if (response.data.success) {
                 toastr.success(response.data.message);
-                $('#bulkRejectionReasonModal').modal('hide');
-                $('#customer-update-requests-table').DataTable().ajax.reload();
+                $("#bulkRejectionReasonModal").modal("hide");
+                $("#customer-update-requests-table").DataTable().ajax.reload();
                 updatePendingCount();
             } else {
                 toastr.error(response.data.message);
             }
         })
-        .catch(error => {
-            toastr.error('حدث خطأ أثناء رفض الطلبات');
+        .catch((error) => {
+            toastr.error("حدث خطأ أثناء رفض الطلبات");
         });
 }
 
@@ -201,17 +207,17 @@ function bulkRejectRequests(requestIds, reason) {
 */
 function exportUpdateRequests() {
     const filters = {
-        status: $('#filter-status').val() || '',
-        requested_by: $('#filter-requested-by').val() || '',
-        search_query: $('#filter-search').val() || ''
+        status: $("#filter-status").val() || "",
+        requested_by: $("#filter-requested-by").val() || "",
+        search_query: $("#filter-search").val() || "",
     };
 
     $.ajax({
         url: window.routes.exportFields,
-        type: 'POST',
+        type: "POST",
         data: {
             _token: window.csrfToken,
-            ...filters
+            ...filters,
         },
         success: function (response) {
             if (response.success) {
@@ -219,8 +225,8 @@ function exportUpdateRequests() {
             }
         },
         error: function () {
-            toastr.error('حدث خطأ أثناء جلب بيانات التصدير');
-        }
+            toastr.error("حدث خطأ أثناء جلب بيانات التصدير");
+        },
     });
 }
 
@@ -251,7 +257,7 @@ function showExportFieldsModal(fields, count, filters) {
                             <button type="button" class="btn btn-outline-primary btn-sm py-1 px-2 mx-1" id="selectAllFields">
                                 تحديد الكل
                             </button>
-                            <button type="button" class="btn btn-outline-secondary btn-sm py-1 px-2 mx-1" id="deselectAllFields">
+                            <button type="button" class="btn btn-secondary btn-sm py-1 px-2 mx-1" id="deselectAllFields">
                                 إلغاء التحديد
                             </button>
                             <button type="button" class="btn btn-outline-info btn-sm py-1 px-2 mx-1" id="selectDefaultFields">
@@ -288,13 +294,13 @@ function showExportFieldsModal(fields, count, filters) {
     `;
 
     // إزالة المودال إذا كان موجودًا بالفعل
-    $('#exportFieldsModal').remove();
+    $("#exportFieldsModal").remove();
 
     // إضافة المودال الجديد
-    $('body').append(modalHtml);
+    $("body").append(modalHtml);
 
     // عرض المودال
-    $('#exportFieldsModal').modal('show');
+    $("#exportFieldsModal").modal("show");
 
     // تحديث عدد الحقول
     updateFieldsCount();
@@ -303,12 +309,16 @@ function showExportFieldsModal(fields, count, filters) {
     bindExportModalEvents(filters);
 
     // أحداث القائمة المنسدلة
-    $('#fieldsCollapse').on('show.bs.collapse', function () {
-        $('.ti-chevron-down').removeClass('ti-chevron-down').addClass('ti-chevron-up');
+    $("#fieldsCollapse").on("show.bs.collapse", function () {
+        $(".ti-chevron-down")
+            .removeClass("ti-chevron-down")
+            .addClass("ti-chevron-up");
     });
 
-    $('#fieldsCollapse').on('hide.bs.collapse', function () {
-        $('.ti-chevron-up').removeClass('ti-chevron-up').addClass('ti-chevron-down');
+    $("#fieldsCollapse").on("hide.bs.collapse", function () {
+        $(".ti-chevron-up")
+            .removeClass("ti-chevron-up")
+            .addClass("ti-chevron-down");
     });
 }
 
@@ -318,7 +328,7 @@ function showExportFieldsModal(fields, count, filters) {
 |--------------------------------------------------------------------------
 */
 function generateFieldsGrid(fields) {
-    let html = '';
+    let html = "";
 
     fields.forEach((field, index) => {
         html += `
@@ -328,7 +338,7 @@ function generateFieldsGrid(fields) {
                            type="checkbox" 
                            value="${field.key}" 
                            id="field_${field.key}"
-                           ${field.selected ? 'checked' : ''}>
+                           ${field.selected ? "checked" : ""}>
                     <label class="form-check-label" 
                            for="field_${field.key}">
                         ${field.label}
@@ -347,50 +357,58 @@ function generateFieldsGrid(fields) {
 |--------------------------------------------------------------------------
 */
 function bindExportModalEvents(filters) {
-    $('#selectAllFields').off('click').on('click', function () {
-        $('.export-field').prop('checked', true);
-        updateFieldsCount();
-    });
-
-    $('#deselectAllFields').off('click').on('click', function () {
-        $('.export-field').prop('checked', false);
-        updateFieldsCount();
-    });
-
-    $('#selectDefaultFields').off('click').on('click', function () {
-        $('.export-field').prop('checked', false);
-        const defaultFields = [
-            'id',
-            'customer_name',
-            'customer_identity_number',
-            'requested_by_name',
-            'created_at',
-            'status'
-        ];
-        defaultFields.forEach(key => {
-            $(`#field_${key}`).prop('checked', true);
-        });
-        updateFieldsCount();
-    });
-
-    $('.export-field').on('change', function () {
-        updateFieldsCount();
-    });
-
-    $('#confirmExport').off('click').on('click', function () {
-        const selectedFields = [];
-        $('.export-field:checked').each(function () {
-            selectedFields.push($(this).val());
+    $("#selectAllFields")
+        .off("click")
+        .on("click", function () {
+            $(".export-field").prop("checked", true);
+            updateFieldsCount();
         });
 
-        if (selectedFields.length === 0) {
-            toastr.warning('يرجى اختيار حقل واحد على الأقل');
-            return;
-        }
+    $("#deselectAllFields")
+        .off("click")
+        .on("click", function () {
+            $(".export-field").prop("checked", false);
+            updateFieldsCount();
+        });
 
-        $('#exportFieldsModal').modal('hide');
-        executeExportWithFields(filters, selectedFields);
+    $("#selectDefaultFields")
+        .off("click")
+        .on("click", function () {
+            $(".export-field").prop("checked", false);
+            const defaultFields = [
+                "id",
+                "customer_name",
+                "customer_identity_number",
+                "requested_by_name",
+                "created_at",
+                "status",
+            ];
+            defaultFields.forEach((key) => {
+                $(`#field_${key}`).prop("checked", true);
+            });
+            updateFieldsCount();
+        });
+
+    $(".export-field").on("change", function () {
+        updateFieldsCount();
     });
+
+    $("#confirmExport")
+        .off("click")
+        .on("click", function () {
+            const selectedFields = [];
+            $(".export-field:checked").each(function () {
+                selectedFields.push($(this).val());
+            });
+
+            if (selectedFields.length === 0) {
+                toastr.warning("يرجى اختيار حقل واحد على الأقل");
+                return;
+            }
+
+            $("#exportFieldsModal").modal("hide");
+            executeExportWithFields(filters, selectedFields);
+        });
 }
 
 /*
@@ -399,14 +417,14 @@ function bindExportModalEvents(filters) {
 |--------------------------------------------------------------------------
 */
 function updateFieldsCount() {
-    const totalChecked = $('.export-field:checked').length;
-    $('#selectedFieldsCount').text(totalChecked);
+    const totalChecked = $(".export-field:checked").length;
+    $("#selectedFieldsCount").text(totalChecked);
 
-    const allTotal = $('.export-field').length;
-    $('#allFieldsCount').text(`${totalChecked}/${allTotal}`);
+    const allTotal = $(".export-field").length;
+    $("#allFieldsCount").text(`${totalChecked}/${allTotal}`);
 
-    const btnText = totalChecked > 0 ? `تصدير (${totalChecked} حقل)` : 'تصدير';
-    $('#confirmExport').text(btnText);
+    const btnText = totalChecked > 0 ? `تصدير (${totalChecked} حقل)` : "تصدير";
+    $("#confirmExport").text(btnText);
 }
 
 /*
@@ -416,46 +434,53 @@ function updateFieldsCount() {
 */
 function executeExportWithFields(filters, selectedFields) {
     // عرض نافذة التحميل هنا فقط
-    showLoadingModal('جاري إنشاء ملف Excel...');
+    showLoadingModal("جاري إنشاء ملف Excel...");
 
-    axios.post(window.routes.exportExcel, {
-        _token: window.csrfToken,
-        selected_fields: selectedFields,
-        ...filters
-    }, {
-        responseType: 'blob' 
-    })
-        .then(response => {
+    axios
+        .post(
+            window.routes.exportExcel,
+            {
+                _token: window.csrfToken,
+                selected_fields: selectedFields,
+                ...filters,
+            },
+            {
+                responseType: "blob",
+            },
+        )
+        .then((response) => {
             // === تعديل 2: التحقق من وجود الاستجابة والبيانات ===
             if (!response || !response.data) {
-                throw new Error('لم يتم استلام أي بيانات من الخادم');
+                throw new Error("لم يتم استلام أي بيانات من الخادم");
             }
 
             // === تعديل 3: التحقق مما إذا كانت الاستجابة خطأ JSON بدلاً من ملف ===
             // إذا كان نوع المحتوى هو JSON، فهذا يعني أن الخادم أرجع خطأ
-            const contentType = response.headers['content-type'];
-            if (contentType && contentType.includes('application/json')) {
+            const contentType = response.headers["content-type"];
+            if (contentType && contentType.includes("application/json")) {
                 // قراءة البيانات كنص JSON ثم تحليلها
-                return response.data.text().then(text => {
+                return response.data.text().then((text) => {
                     const errorData = JSON.parse(text);
-                    throw new Error(errorData.message || 'حدث خطأ غير متوقع');
+                    throw new Error(errorData.message || "حدث خطأ غير متوقع");
                 });
             }
 
             // === تعديل 4: إنشاء رابط تحميل وتنزيل الملف في نفس التبويب ===
             const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
+            const link = document.createElement("a");
             link.href = url;
 
             // استخراج اسم الملف من رأس الاستجابة أو استخدام اسم افتراضي
-            const contentDisposition = response.headers['content-disposition'];
-            let fileName = 'customer_update_requests.xlsx';
+            const contentDisposition = response.headers["content-disposition"];
+            let fileName = "customer_update_requests.xlsx";
             if (contentDisposition) {
-                const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
-                if (fileNameMatch && fileNameMatch.length === 2) fileName = fileNameMatch[1];
+                const fileNameMatch =
+                    contentDisposition.match(/filename="(.+)"/);
+                if (fileNameMatch && fileNameMatch.length === 2)
+                    fileName = fileNameMatch[1];
             }
 
-            link.setAttribute('download', fileName);
+            link.setAttribute("download", fileName);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -463,15 +488,18 @@ function executeExportWithFields(filters, selectedFields) {
 
             // إخفاء التحميل فقط عند النجاح
             hideLoadingModal();
-            toastr.success('تم تصدير البيانات بنجاح');
+            toastr.success("تم تصدير البيانات بنجاح");
         })
-        .catch(error => {
+        .catch((error) => {
             // إخفاء التحميل فقط عند الخطأ
             hideLoadingModal();
-            console.error('Export error:', error);
+            console.error("Export error:", error);
 
             // عرض رسالة الخطأ من الخادم إذا كانت موجودة
-            const errorMessage = error.response?.data?.message || error.message || 'حدث خطأ أثناء تصدير البيانات';
+            const errorMessage =
+                error.response?.data?.message ||
+                error.message ||
+                "حدث خطأ أثناء تصدير البيانات";
             toastr.error(errorMessage);
         });
 }
@@ -480,7 +508,7 @@ function executeExportWithFields(filters, selectedFields) {
 | Show Loading Modal
 |--------------------------------------------------------------------------
 */
-function showLoadingModal(message = 'جاري المعالجة...') {
+function showLoadingModal(message = "جاري المعالجة...") {
     const modalHtml = `
         <div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
             <div class="modal-dialog modal-dialog-centered">
@@ -497,11 +525,11 @@ function showLoadingModal(message = 'جاري المعالجة...') {
     `;
 
     // إزالة المودال إذا كان موجودًا
-    $('#loadingModal').remove();
+    $("#loadingModal").remove();
 
     // إضافة المودال الجديد وعرضه
-    $('body').append(modalHtml);
-    $('#loadingModal').modal('show');
+    $("body").append(modalHtml);
+    $("#loadingModal").modal("show");
 }
 
 /*
@@ -510,7 +538,7 @@ function showLoadingModal(message = 'جاري المعالجة...') {
 |--------------------------------------------------------------------------
 */
 function hideLoadingModal() {
-    $('#loadingModal').modal('hide');
+    $("#loadingModal").modal("hide");
 }
 
 /*
@@ -519,44 +547,44 @@ function hideLoadingModal() {
 |--------------------------------------------------------------------------
 */
 function showRejectionModal(requestId) {
-    $('#rejectionRequestId').val(requestId);
-    $('#rejectionReason').val('');
-    $('#rejectionReasonModal').modal('show');
+    $("#rejectionRequestId").val(requestId);
+    $("#rejectionReason").val("");
+    $("#rejectionReasonModal").modal("show");
 }
 
 function showBulkRejectionModal(requestIds) {
-    $('#bulkRejectionRequestIds').val(JSON.stringify(requestIds));
-    $('#bulkRejectionReason').val('');
-    $('#bulkRejectionReasonModal').modal('show');
+    $("#bulkRejectionRequestIds").val(JSON.stringify(requestIds));
+    $("#bulkRejectionReason").val("");
+    $("#bulkRejectionReasonModal").modal("show");
 }
 
 function getSelectedIds() {
     const ids = [];
-    $('.row-checkbox:checked').each(function () {
+    $(".row-checkbox:checked").each(function () {
         ids.push($(this).val());
     });
     return ids;
 }
 
 function updatePendingCount() {
-    axios.get(window.routes.pendingCount)
-        .then(response => {
+    axios
+        .get(window.routes.pendingCount)
+        .then((response) => {
             if (response.data.success) {
                 const count = response.data.count;
-                $('.pending-count-badge').text(count);
+                $(".pending-count-badge").text(count);
 
                 if (count > 0) {
-                    $('.pending-count-badge').show();
+                    $(".pending-count-badge").show();
                 } else {
-                    $('.pending-count-badge').hide();
+                    $(".pending-count-badge").hide();
                 }
             }
         })
-        .catch(error => {
-            console.error('Error updating pending count:', error);
+        .catch((error) => {
+            console.error("Error updating pending count:", error);
         });
 }
-
 
 /*
 |--------------------------------------------------------------------------
@@ -572,7 +600,7 @@ window.exportUpdateRequests = exportUpdateRequests;
 window.approveSelectedRequests = function () {
     const selectedIds = getSelectedIds();
     if (selectedIds.length === 0) {
-        toastr.warning('يرجى تحديد طلب واحد على الأقل');
+        toastr.warning("يرجى تحديد طلب واحد على الأقل");
         return;
     }
     bulkApproveRequests(selectedIds);
@@ -581,7 +609,7 @@ window.approveSelectedRequests = function () {
 window.rejectSelectedRequests = function () {
     const selectedIds = getSelectedIds();
     if (selectedIds.length === 0) {
-        toastr.warning('يرجى تحديد طلب واحد على الأقل');
+        toastr.warning("يرجى تحديد طلب واحد على الأقل");
         return;
     }
     showBulkRejectionModal(selectedIds);

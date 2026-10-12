@@ -3,9 +3,9 @@
 namespace App\Http\Requests\Admin\AdminMangment\Role;
 
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 
-class AdminStoreRoleRequest extends FormRequest
+class AdminStoreRoleRequest extends WizardFormRequest
 {
     /*
     |--------------------------------------------------------------------------

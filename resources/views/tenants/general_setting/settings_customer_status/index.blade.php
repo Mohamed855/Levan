@@ -59,7 +59,7 @@
                 <div class="invalid-feedback">اسم الحالة مطلوب</div>
             </div>
             <div class="d-flex justify-content-end gap-2">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
                 <button type="submit" class="btn btn-primary">إضافة</button>
             </div>
         </form>
@@ -77,7 +77,7 @@
                 <div class="invalid-feedback">اسم الحالة مطلوب</div>
             </div>
             <div class="d-flex justify-content-end gap-2">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
                 <button type="submit" class="btn btn-primary">تحديث</button>
             </div>
         </form>

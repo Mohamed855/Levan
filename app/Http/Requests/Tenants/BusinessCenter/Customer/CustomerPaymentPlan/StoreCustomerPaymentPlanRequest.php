@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Tenants\BusinessCenter\Customer\CustomerPaymentPlan;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\WizardFormRequest;
 
-class StoreCustomerPaymentPlanRequest extends FormRequest
+class StoreCustomerPaymentPlanRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {

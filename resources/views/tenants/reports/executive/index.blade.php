@@ -236,7 +236,7 @@
                             تصدير
                         </button>
 
-                        <button type="button" class="btn btn-outline-secondary" id="resetFilters">
+                        <button type="button" class="btn btn-secondary" id="resetFilters">
                             <i class="ti ti-refresh me-1"></i>
                             إعادة تعيين
                         </button>

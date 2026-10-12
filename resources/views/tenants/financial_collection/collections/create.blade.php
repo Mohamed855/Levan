@@ -195,7 +195,7 @@
                                         <input type="text" name="receipt_number" id="receipt_number"
                                             class="form-control" placeholder="رقم السند"
                                             value="{{ old('receipt_number', $receiptNumber) }}" required />
-                                        <button type="button" class="btn btn-outline-secondary" id="generate-receipt"
+                                        <button type="button" class="btn btn-secondary" id="generate-receipt"
                                             title="توليد رقم جديد">
                                             <i class="ti ti-refresh"></i>
                                         </button>

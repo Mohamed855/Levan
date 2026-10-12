@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /**
  * Collection Exit Handler
@@ -28,11 +28,11 @@ class CollectionExitHandler {
             success: window.toastrSuccess || null,
             error: window.toastrError || null,
             info: window.toastrInfo || null,
-            warning: window.toastrWarning || null
+            warning: window.toastrWarning || null,
         };
 
         Object.entries(toastrMessages).forEach(([type, message]) => {
-            if (message && typeof toastr !== 'undefined') {
+            if (message && typeof toastr !== "undefined") {
                 toastr[type](message);
             }
         });
@@ -42,9 +42,9 @@ class CollectionExitHandler {
      * ربط معالجات الأحداث
      */
     bindEventHandlers() {
-        const exitBtn = document.getElementById('exitCollectionBtn');
+        const exitBtn = document.getElementById("exitCollectionBtn");
         if (exitBtn) {
-            exitBtn.addEventListener('click', (e) => {
+            exitBtn.addEventListener("click", (e) => {
                 e.preventDefault();
                 this.showExitConfirmation();
             });
@@ -55,23 +55,23 @@ class CollectionExitHandler {
      * عرض نافذة تأكيد الإنهاء
      */
     showExitConfirmation() {
-        if (typeof Swal === 'undefined') {
-            console.error('SweetAlert2 is not loaded');
+        if (typeof Swal === "undefined") {
+            console.error("SweetAlert2 is not loaded");
             return;
         }
 
         Swal.fire({
-            title: 'إنهاء عملية التحصيل',
-            text: 'هل أنت متأكد من إنهاء عملية التحصيل اليومية؟',
-            icon: 'warning',
+            title: "إنهاء عملية التحصيل",
+            text: "هل أنت متأكد من إنهاء عملية التحصيل اليومية؟",
+            icon: "warning",
             showCancelButton: true,
-            confirmButtonText: 'نعم، إنهاء',
-            cancelButtonText: 'إلغاء',
+            confirmButtonText: "نعم، إنهاء",
+            cancelButtonText: "إلغاء",
             customClass: {
-                confirmButton: 'btn btn-primary me-2',
-                cancelButton: 'btn btn-outline-secondary'
+                confirmButton: "btn btn-primary me-2",
+                cancelButton: "btn btn-secondary",
             },
-            buttonsStyling: false
+            buttonsStyling: false,
         }).then((result) => {
             if (result.isConfirmed) {
                 this.exitCollection();
@@ -84,39 +84,39 @@ class CollectionExitHandler {
      */
     exitCollection() {
         fetch(window.routes.exit, {
-            method: 'POST',
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': window.csrfToken
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": window.csrfToken,
             },
-            body: JSON.stringify({})
+            body: JSON.stringify({}),
         })
-            .then(response => {
+            .then((response) => {
                 if (response.ok) {
                     Swal.fire({
-                        title: 'تم الإنهاء بنجاح',
-                        text: 'جاري تحويلك إلى لوحة التحكم...',
-                        icon: 'success',
+                        title: "تم الإنهاء بنجاح",
+                        text: "جاري تحويلك إلى لوحة التحكم...",
+                        icon: "success",
                         timer: 1500,
-                        showConfirmButton: false
+                        showConfirmButton: false,
                     }).then(() => {
                         window.location.href = window.routes.dashboard;
                     });
                 } else {
-                    throw new Error('فشلت عملية الإنهاء');
+                    throw new Error("فشلت عملية الإنهاء");
                 }
             })
-            .catch(error => {
-                console.error('Exit error:', error);
+            .catch((error) => {
+                console.error("Exit error:", error);
                 Swal.fire({
-                    title: 'حدث خطأ',
-                    text: 'فشلت عملية الإنهاء، يرجى المحاولة مرة أخرى',
-                    icon: 'error',
-                    confirmButtonText: 'حسناً',
+                    title: "حدث خطأ",
+                    text: "فشلت عملية الإنهاء، يرجى المحاولة مرة أخرى",
+                    icon: "error",
+                    confirmButtonText: "حسناً",
                     customClass: {
-                        confirmButton: 'btn btn-primary'
+                        confirmButton: "btn btn-primary",
                     },
-                    buttonsStyling: false
+                    buttonsStyling: false,
                 });
             });
     }
@@ -128,5 +128,3 @@ $(document).ready(function () {
         window.CollectionExitHandler = new CollectionExitHandler();
     }
 });
-
-

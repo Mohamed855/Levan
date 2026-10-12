@@ -4,7 +4,7 @@
  * نظام استيراد العملاء
  */
 
-'use strict';
+"use strict";
 
 /*
 |--------------------------------------------------------------------------
@@ -31,12 +31,14 @@ $(document).ready(function () {
 });
 
 function initializeComponents() {
-    $('.select2').select2({
-        placeholder: function () { return $(this).data('placeholder'); },
+    $(".select2").select2({
+        placeholder: function () {
+            return $(this).data("placeholder");
+        },
         allowClear: true,
-        width: '100%',
-        language: 'ar',
-        dir: 'rtl'
+        width: "100%",
+        language: "ar",
+        dir: "rtl",
     });
 
     initializeDropzone();
@@ -50,22 +52,22 @@ function initializeDropzone() {
         url: window.routes.uploadAndAnalyze,
         maxFiles: 1,
         maxFilesize: 50,
-        acceptedFiles: '.xlsx,.xls',
+        acceptedFiles: ".xlsx,.xls",
         addRemoveLinks: true,
         autoProcessQueue: false,
-        dictDefaultMessage: '',
-        dictRemoveFile: 'حذف',
+        dictDefaultMessage: "",
+        dictRemoveFile: "حذف",
         clickable: false,
 
         init: function () {
             this.on("addedfile", function (file) {
                 resetAllOldResults();
-                $('#btn-analyze-file').prop('disabled', false);
+                $("#btn-analyze-file").prop("disabled", false);
                 updateFileUploadArea(file.name);
             });
 
             this.on("removedfile", function (file) {
-                $('#btn-analyze-file').prop('disabled', true);
+                $("#btn-analyze-file").prop("disabled", true);
                 resetFileUploadArea();
                 resetAnalysisResults();
             });
@@ -75,19 +77,19 @@ function initializeDropzone() {
                 this.removeFile(file);
                 resetFileUploadArea();
             });
-        }
+        },
     });
 }
 
 function initializeFileUpload() {
-    hiddenFileInput = document.getElementById('hidden-file-input');
+    hiddenFileInput = document.getElementById("hidden-file-input");
 
-    $('#file-upload-area').on('click', function (e) {
+    $("#file-upload-area").on("click", function (e) {
         e.preventDefault();
         hiddenFileInput.click();
     });
 
-    $(hiddenFileInput).on('change', function (e) {
+    $(hiddenFileInput).on("change", function (e) {
         const file = e.target.files[0];
         if (file) {
             importDropzone.addFile(file);
@@ -101,19 +103,22 @@ function initializeFileUpload() {
 |--------------------------------------------------------------------------
 */
 function bindEvents() {
-    $('#company_id').on('change', function () {
+    $("#company_id").on("change", function () {
         loadPortfolios($(this).val());
     });
 
-    $('#portfolio_id').on('change', function () {
+    $("#portfolio_id").on("change", function () {
         selectedPortfolioId = $(this).val();
         updateTemplateButtons();
     });
 
-    $('#btn-preview-template').on('click', previewTemplate);
-    $('#btn-download-template, #btn-download-template-modal').on('click', downloadTemplate);
-    $('#btn-analyze-file').on('click', analyzeFile);
-    $('#btn-proceed-import').on('click', proceedImport);
+    $("#btn-preview-template").on("click", previewTemplate);
+    $("#btn-download-template, #btn-download-template-modal").on(
+        "click",
+        downloadTemplate,
+    );
+    $("#btn-analyze-file").on("click", analyzeFile);
+    $("#btn-proceed-import").on("click", proceedImport);
 
     // Global functions
     window.removeSelectedFile = removeSelectedFile;
@@ -129,8 +134,8 @@ function bindEvents() {
 |--------------------------------------------------------------------------
 */
 function loadPortfolios(companyId) {
-    const portfolioSelect = $('#portfolio_id');
-    portfolioSelect.val('').trigger('change').prop('disabled', true);
+    const portfolioSelect = $("#portfolio_id");
+    portfolioSelect.val("").trigger("change").prop("disabled", true);
     selectedPortfolioId = null;
     updateTemplateButtons();
 
@@ -138,28 +143,36 @@ function loadPortfolios(companyId) {
 
     $.ajax({
         url: window.routes.getPortfoliosByCompany,
-        type: 'GET',
+        type: "GET",
         data: { company_id: companyId },
         success: function (response) {
             if (response.success) {
-                portfolioSelect.empty().append('<option value="">اختر المحفظة</option>');
-                response.portfolios.forEach(portfolio => {
-                    portfolioSelect.append(`<option value="${portfolio.id}">${portfolio.name}</option>`);
+                portfolioSelect
+                    .empty()
+                    .append('<option value="">اختر المحفظة</option>');
+                response.portfolios.forEach((portfolio) => {
+                    portfolioSelect.append(
+                        `<option value="${portfolio.id}">${portfolio.name}</option>`,
+                    );
                 });
-                portfolioSelect.prop('disabled', false);
+                portfolioSelect.prop("disabled", false);
             } else {
                 toastr.error(response.message);
             }
         },
         error: function () {
-            toastr.error('حدث خطأ أثناء جلب المحافظ');
-        }
+            toastr.error("حدث خطأ أثناء جلب المحافظ");
+        },
     });
 }
 
 function updateTemplateButtons() {
-    const hasPortfolio = selectedPortfolioId !== null && selectedPortfolioId !== '';
-    $('#btn-preview-template, #btn-download-template').prop('disabled', !hasPortfolio);
+    const hasPortfolio =
+        selectedPortfolioId !== null && selectedPortfolioId !== "";
+    $("#btn-preview-template, #btn-download-template").prop(
+        "disabled",
+        !hasPortfolio,
+    );
 
     if (hasPortfolio) {
         showStep(2);
@@ -172,7 +185,7 @@ function updateTemplateButtons() {
 |--------------------------------------------------------------------------
 */
 function updateFileUploadArea(fileName) {
-    $('#file-upload-area').html(`
+    $("#file-upload-area").html(`
         <div class="d-flex align-items-center justify-content-between p-3" style="background: linear-gradient(135deg, #e8f5e8, #f1f8e9); border-radius: 8px;">
             <div class="d-flex align-items-center">
                 <i class="ti ti-file-check me-2 text-success" style="font-size: 1.5rem;"></i>
@@ -189,7 +202,7 @@ function updateFileUploadArea(fileName) {
 }
 
 function resetFileUploadArea() {
-    $('#file-upload-area').html(`
+    $("#file-upload-area").html(`
         <div id="import-dropzone" class="w-100 h-100">
             <div class="d-flex flex-column align-items-center">
                 <i class="ti ti-cloud-upload mb-3" style="font-size: 3rem; color: #6c757d;"></i>
@@ -199,12 +212,14 @@ function resetFileUploadArea() {
         </div>
     `);
 
-    $('#file-upload-area').off('click').on('click', function (e) {
-        e.preventDefault();
-        hiddenFileInput.click();
-    });
+    $("#file-upload-area")
+        .off("click")
+        .on("click", function (e) {
+            e.preventDefault();
+            hiddenFileInput.click();
+        });
 
-    hiddenFileInput.value = '';
+    hiddenFileInput.value = "";
 }
 
 function removeSelectedFile() {
@@ -219,13 +234,13 @@ function removeSelectedFile() {
 */
 function previewTemplate() {
     if (!selectedPortfolioId) {
-        toastr.warning('يرجى اختيار المحفظة أولاً');
+        toastr.warning("يرجى اختيار المحفظة أولاً");
         return;
     }
 
     $.ajax({
         url: window.routes.previewTemplate,
-        type: 'GET',
+        type: "GET",
         data: { portfolio_id: selectedPortfolioId },
         success: function (response) {
             if (response.success) {
@@ -233,8 +248,8 @@ function previewTemplate() {
             }
         },
         error: function () {
-            toastr.error('حدث خطأ أثناء معاينة النموذج');
-        }
+            toastr.error("حدث خطأ أثناء معاينة النموذج");
+        },
     });
 }
 
@@ -247,7 +262,7 @@ function showTemplatePreview(data) {
                         <h6 class="mb-2 fw-bold text-dark">معلومات المحفظة</h6>
                         <p class="mb-1"><strong>الشركة:</strong> ${data.company_name}</p>
                         <p class="mb-0"><strong>المحفظة:</strong> ${data.portfolio_name}</p>
-                        ${data.has_split_names ? '<p class="mb-0 text-info"><small>📝 تدعم الأسماء المنفصلة</small></p>' : ''}
+                        ${data.has_split_names ? '<p class="mb-0 text-info"><small>📝 تدعم الأسماء المنفصلة</small></p>' : ""}
                     </div>
                     <div class="col-md-4 text-md-end">
                         <div class="text-center">
@@ -270,7 +285,6 @@ function showTemplatePreview(data) {
             </ul>
         </div>
     `;
-
 
     //  الحقول الإجبارية بلون أحمر
     if (data.required_headers && data.required_headers.length > 0) {
@@ -320,7 +334,6 @@ function showTemplatePreview(data) {
     }
 
     if (data.dynamic_fields.length > 0) {
-
         content += `
         <div class="mb-4">
             <h6 class="mb-3 text-dark fw-bold">الحقول الإضافية للمحفظة (${data.dynamic_fields.length})</h6>
@@ -340,21 +353,22 @@ function showTemplatePreview(data) {
         content += `</div></div></div>`;
     }
 
-
-
-    $('#template-preview-content').html(content);
-    $('#templatePreviewModal').modal('show');
+    $("#template-preview-content").html(content);
+    $("#templatePreviewModal").modal("show");
 }
 
 function downloadTemplate() {
     if (!selectedPortfolioId) {
-        toastr.warning('يرجى اختيار المحفظة أولاً');
+        toastr.warning("يرجى اختيار المحفظة أولاً");
         return;
     }
 
-    window.open(`${window.routes.downloadTemplate}?portfolio_id=${selectedPortfolioId}`, '_blank');
-    toastr.success('جاري تحميل النموذج...');
-    $('#templatePreviewModal').modal('hide');
+    window.open(
+        `${window.routes.downloadTemplate}?portfolio_id=${selectedPortfolioId}`,
+        "_blank",
+    );
+    toastr.success("جاري تحميل النموذج...");
+    $("#templatePreviewModal").modal("hide");
 }
 
 /*
@@ -366,20 +380,24 @@ function analyzeFile() {
     const files = importDropzone.getAcceptedFiles();
 
     if (files.length === 0) {
-        toastr.warning('يرجى اختيار ملف أولاً');
+        toastr.warning("يرجى اختيار ملف أولاً");
         return;
     }
 
     const formData = new FormData();
-    formData.append('import_file', files[0]);
-    formData.append('portfolio_id', selectedPortfolioId);
-    formData.append('_token', window.csrfToken);
+    formData.append("import_file", files[0]);
+    formData.append("portfolio_id", selectedPortfolioId);
+    formData.append("_token", window.csrfToken);
 
-    $('#btn-analyze-file').prop('disabled', true).html('<i class="spinner-border spinner-border-sm me-1"></i>جاري التحليل...');
+    $("#btn-analyze-file")
+        .prop("disabled", true)
+        .html(
+            '<i class="spinner-border spinner-border-sm me-1"></i>جاري التحليل...',
+        );
 
     $.ajax({
         url: window.routes.uploadAndAnalyze,
-        type: 'POST',
+        type: "POST",
         data: formData,
         processData: false,
         contentType: false,
@@ -394,20 +412,22 @@ function analyzeFile() {
             }
         },
         error: function (xhr) {
-            let message = 'حدث خطأ أثناء تحليل الملف';
+            let message = "حدث خطأ أثناء تحليل الملف";
             if (xhr.responseJSON?.message) {
                 message = xhr.responseJSON.message;
             }
             toastr.error(message);
         },
         complete: function () {
-            $('#btn-analyze-file').prop('disabled', false).html('<i class="ti ti-search me-1"></i>تحليل الملف');
-        }
+            $("#btn-analyze-file")
+                .prop("disabled", false)
+                .html('<i class="ti ti-search me-1"></i>تحليل الملف');
+        },
     });
 }
 
 function showAnalysisResults(data) {
-    $('#general-stats').html(`
+    $("#general-stats").html(`
         <div class="row g-2 mb-4">
             <div class="col-6">
                 <div class="text-center p-3 bg-light rounded">
@@ -424,7 +444,7 @@ function showAnalysisResults(data) {
         </div>
     `);
 
-    let fieldsHtml = '';
+    let fieldsHtml = "";
 
     // ✅ عرض تحذير إذا كانت حقول إجبارية مفقودة
     if (data.missing_required && data.missing_required.length > 0) {
@@ -437,7 +457,7 @@ function showAnalysisResults(data) {
                         <p class="mb-2">الحقول الإجبارية التالية غير موجودة في الملف:</p>
                         <div class="row g-2">`;
 
-        data.missing_required.forEach(field => {
+        data.missing_required.forEach((field) => {
             fieldsHtml += `
                 <div class="col-auto">
                     <span class="badge bg-danger">${field}</span>
@@ -469,29 +489,31 @@ function showAnalysisResults(data) {
                 </h6>
                 <div class="row g-2">`;
 
-        data.required_headers.forEach(requiredField => {
-            const isFound = fieldMapping.some(f =>
-                (f.category === 'core' || f.type === 'static') && f.display_name === requiredField
+        data.required_headers.forEach((requiredField) => {
+            const isFound = fieldMapping.some(
+                (f) =>
+                    (f.category === "core" || f.type === "static") &&
+                    f.display_name === requiredField,
             );
 
-            const borderClass = isFound ? '' : 'border-danger border-2';
-            const bgClass = isFound ? 'bg-light' : 'bg-danger bg-opacity-10';
+            const borderClass = isFound ? "" : "border-danger border-2";
+            const bgClass = isFound ? "bg-light" : "bg-danger bg-opacity-10";
 
             fieldsHtml += `
                 <div class="col-md-6">
                     <div class="d-flex align-items-center justify-content-between p-2 rounded ${borderClass} ${bgClass}">
                         <div class="d-flex align-items-center flex-grow-1">
-                            <i class="ti ti-alert-circle me-2 ${isFound ? 'text-success' : 'text-danger'}"></i>
-                            <span class="text-truncate ${isFound ? 'text-dark' : 'text-danger fw-bold'}" title="${requiredField}">
+                            <i class="ti ti-alert-circle me-2 ${isFound ? "text-success" : "text-danger"}"></i>
+                            <span class="text-truncate ${isFound ? "text-dark" : "text-danger fw-bold"}" title="${requiredField}">
                                 ${requiredField}
                             </span>
                         </div>
-                        <span class="badge ${isFound ? 'bg-success' : 'bg-danger'} ms-2">${isFound ? 'موجود' : 'غير موجود'}</span>
+                        <span class="badge ${isFound ? "bg-success" : "bg-danger"} ms-2">${isFound ? "موجود" : "غير موجود"}</span>
                     </div>
                 </div>`;
         });
 
-        fieldsHtml += '</div></div>';
+        fieldsHtml += "</div></div>";
     }
 
     // ========== الحقول الأساسية الاختيارية ==========
@@ -503,9 +525,11 @@ function showAnalysisResults(data) {
                 </h6>
                 <div class="row g-2">`;
 
-        data.optional_headers.forEach(optionalField => {
-            const isFound = fieldMapping.some(f =>
-                (f.category === 'core' || f.type === 'static') && f.display_name === optionalField
+        data.optional_headers.forEach((optionalField) => {
+            const isFound = fieldMapping.some(
+                (f) =>
+                    (f.category === "core" || f.type === "static") &&
+                    f.display_name === optionalField,
             );
 
             fieldsHtml += `
@@ -515,16 +539,18 @@ function showAnalysisResults(data) {
                             <i class="ti ti-database me-2 text-primary"></i>
                             <span class="text-truncate" title="${optionalField}">${optionalField}</span>
                         </div>
-                        <span class="badge ${isFound ? 'bg-success' : 'bg-warning text-dark'} ms-2">${isFound ? 'موجود' : 'غير موجود'}</span>
+                        <span class="badge ${isFound ? "bg-success" : "bg-warning text-dark"} ms-2">${isFound ? "موجود" : "غير موجود"}</span>
                     </div>
                 </div>`;
         });
 
-        fieldsHtml += '</div></div>';
+        fieldsHtml += "</div></div>";
     }
 
     // ========== الحقول الديناميكية الموجودة ==========
-    const existingDynamicFields = fieldMapping.filter(field => field.category === 'existing_dynamic');
+    const existingDynamicFields = fieldMapping.filter(
+        (field) => field.category === "existing_dynamic",
+    );
     if (existingDynamicFields.length > 0) {
         fieldsHtml += `
             <div class="mb-4">
@@ -533,7 +559,7 @@ function showAnalysisResults(data) {
                 </h6>
                 <div class="row g-2">`;
 
-        existingDynamicFields.forEach(field => {
+        existingDynamicFields.forEach((field) => {
             fieldsHtml += `
                 <div class="col-md-4 col-sm-6">
                     <div class="d-flex align-items-center justify-content-between p-2 border rounded bg-light">
@@ -546,11 +572,13 @@ function showAnalysisResults(data) {
                 </div>`;
         });
 
-        fieldsHtml += '</div></div>';
+        fieldsHtml += "</div></div>";
     }
 
     // ========== الحقول الجديدة ==========
-    const newDynamicFields = fieldMapping.filter(field => field.category === 'new_dynamic');
+    const newDynamicFields = fieldMapping.filter(
+        (field) => field.category === "new_dynamic",
+    );
     if (newDynamicFields.length > 0) {
         fieldsHtml += `
             <div class="mb-4">
@@ -559,7 +587,7 @@ function showAnalysisResults(data) {
                 </h6>
                 <div class="row g-2">`;
 
-        newDynamicFields.forEach(field => {
+        newDynamicFields.forEach((field) => {
             fieldsHtml += `
                 <div class="col-md-4 col-sm-6">
                     <div class="d-flex align-items-center justify-content-between p-2 border rounded" style="background: #fff3e0;">
@@ -584,7 +612,9 @@ function showAnalysisResults(data) {
     }
 
     // ========== الهواتف الإضافية ==========
-    const phoneFields = fieldMapping.filter(field => field.category === 'phone');
+    const phoneFields = fieldMapping.filter(
+        (field) => field.category === "phone",
+    );
     if (phoneFields.length > 0) {
         fieldsHtml += `
             <div class="mb-4">
@@ -593,7 +623,7 @@ function showAnalysisResults(data) {
                 </h6>
                 <div class="row g-2">`;
 
-        phoneFields.forEach(field => {
+        phoneFields.forEach((field) => {
             fieldsHtml += `
                 <div class="col-md-4 col-sm-6">
                     <div class="d-flex align-items-center justify-content-between p-2 border rounded bg-light">
@@ -606,18 +636,20 @@ function showAnalysisResults(data) {
                 </div>`;
         });
 
-        fieldsHtml += '</div></div>';
+        fieldsHtml += "</div></div>";
     }
 
     // ✅ عطّل زر البدء إذا كانت حقول إجبارية مفقودة
     if (data.missing_required && data.missing_required.length > 0) {
-        $('#btn-proceed-import').prop('disabled', true).addClass('disabled');
+        $("#btn-proceed-import").prop("disabled", true).addClass("disabled");
     } else {
-        $('#btn-proceed-import').prop('disabled', false).removeClass('disabled');
+        $("#btn-proceed-import")
+            .prop("disabled", false)
+            .removeClass("disabled");
     }
 
-    $('#fields-analysis').html(fieldsHtml);
-    $('#analysis-results').show();
+    $("#fields-analysis").html(fieldsHtml);
+    $("#analysis-results").show();
 }
 /*
 |--------------------------------------------------------------------------
@@ -626,23 +658,22 @@ function showAnalysisResults(data) {
 */
 function proceedImport() {
     if (!tempFilePath || !selectedPortfolioId) {
-        toastr.error('بيانات غير مكتملة للاستيراد');
+        toastr.error("بيانات غير مكتملة للاستيراد");
         return;
     }
 
-
     Swal.fire({
-        title: 'تأكيد الاستيراد',
+        title: "تأكيد الاستيراد",
         html: `
             <p>هل أنت متأكد من متابعة عملية الاستيراد؟</p>
             <small class="text-muted">سيتم معالجة ${analysisData.total_rows.toLocaleString()} صف</small>
         `,
-        icon: 'question',
+        icon: "question",
         showCancelButton: true,
-        confirmButtonText: 'نعم، متابعة',
-        cancelButtonText: 'إلغاء',
-        confirmButtonColor: '#28a745',
-        cancelButtonColor: '#6c757d'
+        confirmButtonText: "نعم، متابعة",
+        cancelButtonText: "إلغاء",
+        confirmButtonColor: "#28a745",
+        cancelButtonColor: "#6c757d",
     }).then((result) => {
         if (result.isConfirmed) {
             showStep(3);
@@ -650,11 +681,10 @@ function proceedImport() {
             processImport();
         } else {
             // ✅ إخفاء Step-3 إذا تم الإلغاء
-            $('#step-3').hide();
+            $("#step-3").hide();
         }
     });
 }
-
 
 function processImport() {
     // console.log('processImport: Function started.');
@@ -663,25 +693,29 @@ function processImport() {
 
     window.queuedImportErrors = [];
 
-    $('#import-progress').show();
-    $('#import-progress .spinner-border').removeClass('d-none');
-    $('.progress-bar').css('width', '0%').removeClass('bg-danger').addClass('bg-primary').text('جاري التحضير...');
+    $("#import-progress").show();
+    $("#import-progress .spinner-border").removeClass("d-none");
+    $(".progress-bar")
+        .css("width", "0%")
+        .removeClass("bg-danger")
+        .addClass("bg-primary")
+        .text("جاري التحضير...");
 
     const formData = new FormData();
-    formData.append('temp_path', tempFilePath);
-    formData.append('portfolio_id', selectedPortfolioId);
-    formData.append('_token', window.csrfToken);
+    formData.append("temp_path", tempFilePath);
+    formData.append("portfolio_id", selectedPortfolioId);
+    formData.append("_token", window.csrfToken);
 
     // console.log('processImport: FormData prepared.');
 
     $.ajax({
         url: window.routes.processImport,
-        type: 'POST',
+        type: "POST",
         data: formData,
         processData: false,
         contentType: false,
         timeout: 30000,
-        dataType: 'json',
+        dataType: "json",
         success: function (response) {
             // console.log('processImport: AJAX success. Raw response:', response);
 
@@ -690,20 +724,25 @@ function processImport() {
                 if (response.data && response.data.session_id) {
                     // console.log('processImport: Polling started. Session ID:', response.data.session_id);
                     currentSessionId = response.data.session_id;
-                    $('#import-progress .spinner-border').addClass('d-none');
-                    $('.progress-bar').css('width', '0%').text('0% - جاري المعالجة...');
-                    toastr.success('تم بدء عملية الاستيراد');
+                    $("#import-progress .spinner-border").addClass("d-none");
+                    $(".progress-bar")
+                        .css("width", "0%")
+                        .text("0% - جاري المعالجة...");
+                    toastr.success("تم بدء عملية الاستيراد");
                     startProgressPolling();
                     addCancelButton();
                 } else {
                     // console.error('processImport: Missing session_id in response.data');
-                    $('#import-progress').hide();
-                    toastr.error('استجابة غير مكتملة من الخادم - session_id مفقود');
+                    $("#import-progress").hide();
+                    toastr.error(
+                        "استجابة غير مكتملة من الخادم - session_id مفقود",
+                    );
                 }
             } else {
                 // console.warn('processImport: Operation failed.', response);
-                $('#import-progress').hide();
-                const errorMessage = response?.message || 'حدث خطأ أثناء بدء الاستيراد';
+                $("#import-progress").hide();
+                const errorMessage =
+                    response?.message || "حدث خطأ أثناء بدء الاستيراد";
                 toastr.error(errorMessage);
             }
         },
@@ -714,18 +753,18 @@ function processImport() {
             //     status: jqXHR.status,
             //     responseText: jqXHR.responseText ? jqXHR.responseText.substring(0, 500) : 'No response text'
             // });
-            $('#import-progress').hide();
+            $("#import-progress").hide();
 
-            let message = 'حدث خطأ أثناء الاستيراد';
+            let message = "حدث خطأ أثناء الاستيراد";
             if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
                 message = jqXHR.responseJSON.message;
             } else if (jqXHR.status === 0) {
-                message = 'انقطع الاتصال بالخادم';
+                message = "انقطع الاتصال بالخادم";
             } else if (jqXHR.status >= 500) {
-                message = 'خطأ في الخادم';
+                message = "خطأ في الخادم";
             }
             toastr.error(message);
-        }
+        },
     });
 }
 
@@ -749,20 +788,20 @@ function checkImportProgress() {
 
     $.ajax({
         url: window.routes.checkImportStatus,
-        type: 'GET',
+        type: "GET",
         data: { session_id: currentSessionId },
         timeout: 10000,
         success: function (response) {
             if (response.success && response.data) {
                 updateProgressUI(response.data);
 
-                if (response.data.status === 'completed') {
+                if (response.data.status === "completed") {
                     stopProgressPolling();
                     showImportResults(response.data);
-                } else if (response.data.status === 'failed') {
+                } else if (response.data.status === "failed") {
                     stopProgressPolling();
                     showImportError(response.data);
-                } else if (response.data.status === 'cancelled') {
+                } else if (response.data.status === "cancelled") {
                     stopProgressPolling();
                     showImportCancelled();
                 }
@@ -770,28 +809,31 @@ function checkImportProgress() {
         },
         error: function () {
             // لا تفعل شيئًا فقط استمر في المحاولة
-        }
+        },
     });
 }
 
 function updateProgressUI(data) {
-    const percentage = Math.max(0, Math.min(100, data.progress_percentage || 0));
+    const percentage = Math.max(
+        0,
+        Math.min(100, data.progress_percentage || 0),
+    );
     const processed = data.processed_rows || 0;
     const totalRows = data.total_rows || 0;
 
     // تحديث شريط التقدم
-    const progressBar = $('.progress-bar');
-    progressBar.css('width', percentage + '%');
-    progressBar.attr('aria-valuenow', percentage);
+    const progressBar = $(".progress-bar");
+    progressBar.css("width", percentage + "%");
+    progressBar.attr("aria-valuenow", percentage);
 
     // تغيير اللون بناءً على الحالة
-    progressBar.removeClass('bg-primary bg-success bg-warning bg-danger');
-    if (data.status === 'completed') {
-        progressBar.addClass('bg-success');
-    } else if (data.status === 'failed') {
-        progressBar.addClass('bg-danger');
+    progressBar.removeClass("bg-primary bg-success bg-warning bg-danger");
+    if (data.status === "completed") {
+        progressBar.addClass("bg-success");
+    } else if (data.status === "failed") {
+        progressBar.addClass("bg-danger");
     } else {
-        progressBar.addClass('bg-primary');
+        progressBar.addClass("bg-primary");
     }
 
     // تحديث النص
@@ -815,11 +857,12 @@ function stopProgressPolling() {
 |--------------------------------------------------------------------------
 */
 function showImportResults(data) {
-    $('#import-progress').hide();
+    $("#import-progress").hide();
 
-    const successRate = data.total_rows > 0
-        ? ((data.successful_rows / data.total_rows) * 100).toFixed(1)
-        : 0;
+    const successRate =
+        data.total_rows > 0
+            ? ((data.successful_rows / data.total_rows) * 100).toFixed(1)
+            : 0;
 
     let resultsHtml = `
         <div class="result-summary text-center mb-4">
@@ -834,7 +877,7 @@ function showImportResults(data) {
                 <small class="d-block text-muted mt-1">(نسبة النجاح: ${successRate}%)</small>
             </p>
             <small class="text-muted d-block mt-2">
-                وقت الانتهاء: ${new Date(data.completed_at).toLocaleString('en-US')}
+                وقت الانتهاء: ${new Date(data.completed_at).toLocaleString("en-US")}
             </small>
         </div>
     `;
@@ -861,15 +904,15 @@ function showImportResults(data) {
 
     resultsHtml += `
         <div class="d-flex gap-3 justify-content-center mt-4 flex-wrap">
-            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetImport()">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="resetImport()">
                 <i class="ti ti-refresh me-1"></i>استيراد جديد
             </button>
 
         </div>
     `;
 
-    $('#results-content').html(resultsHtml);
-    $('#results-summary').show();
+    $("#results-content").html(resultsHtml);
+    $("#results-summary").show();
 
     // تخزين الأخطاء للاستخدام لاحقًا
     window.queuedImportErrors = data.errors || [];
@@ -877,7 +920,7 @@ function showImportResults(data) {
 
 function showQueuedErrorDetails() {
     if (!window.queuedImportErrors || window.queuedImportErrors.length === 0) {
-        toastr.warning('لا توجد أخطاء للعرض');
+        toastr.warning("لا توجد أخطاء للعرض");
         return;
     }
 
@@ -903,14 +946,14 @@ function showQueuedErrorDetails() {
                         <tbody>`;
 
     const displayErrors = window.queuedImportErrors.slice(0, 100);
-    displayErrors.forEach(error => {
+    displayErrors.forEach((error) => {
         errorDetailsHtml += `
             <tr>
                 <td class="text-center">
                     <span class="badge bg-warning">${error.row}</span>
                 </td>
                 <td class="text-start">
-                    <small>${error.errors.join(' | ')}</small>
+                    <small>${error.errors.join(" | ")}</small>
                 </td>
             </tr>
         `;
@@ -937,25 +980,25 @@ function showQueuedErrorDetails() {
         </div>
     `;
 
-    $('.result-error').after(errorDetailsHtml);
+    $(".result-error").after(errorDetailsHtml);
 
     $('button[onclick="showQueuedErrorDetails()"]')
-        .attr('onclick', 'hideQueuedErrorDetails()')
+        .attr("onclick", "hideQueuedErrorDetails()")
         .html('<i class="ti ti-eye-off me-1"></i>إخفاء تفاصيل الأخطاء');
 }
 
 function hideQueuedErrorDetails() {
-    $('.card.border-warning').remove();
+    $(".card.border-warning").remove();
     $('button[onclick="hideQueuedErrorDetails()"]')
-        .attr('onclick', 'showQueuedErrorDetails()')
+        .attr("onclick", "showQueuedErrorDetails()")
         .html('<i class="ti ti-eye me-1"></i>عرض تفاصيل الأخطاء');
 }
 
 function showImportError(data) {
-    $('#import-progress').hide();
+    $("#import-progress").hide();
 
     //  اقرأ من errors الموجودة!
-    let errorMessage = 'حدث خطأ أثناء عملية الاستيراد';
+    let errorMessage = "حدث خطأ أثناء عملية الاستيراد";
 
     if (data.errors && data.errors.length > 0) {
         // اول خطأ
@@ -974,18 +1017,18 @@ function showImportError(data) {
                 <p class="mb-0">${errorMessage}</p>
             </div>
 
-            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetImport()">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="resetImport()">
                 <i class="ti ti-refresh me-1"></i>محاولة جديدة
             </button>
         </div>
     `;
 
-    $('#results-content').html(errorHtml);
-    $('#results-summary').show();
+    $("#results-content").html(errorHtml);
+    $("#results-summary").show();
 }
 
 function showImportCancelled() {
-    $('#import-progress').hide();
+    $("#import-progress").hide();
 
     const cancelledHtml = `
         <div class="result-warning text-center">
@@ -995,15 +1038,15 @@ function showImportCancelled() {
             <h5 class="text-warning mb-2">تم إلغاء العملية</h5>
             <p class="mb-3 fw-medium">تم إلغاء عملية الاستيراد بناءً على طلبك</p>
             <div class="d-flex gap-3 justify-content-center">
-                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetImport()">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="resetImport()">
                     <i class="ti ti-refresh me-1"></i>بدء عملية جديدة
                 </button>
             </div>
         </div>
     `;
 
-    $('#results-content').html(cancelledHtml);
-    $('#results-summary').show();
+    $("#results-content").html(cancelledHtml);
+    $("#results-summary").show();
 }
 
 /*
@@ -1012,7 +1055,7 @@ function showImportCancelled() {
 |--------------------------------------------------------------------------
 */
 function addCancelButton() {
-    if ($('#btn-cancel-import').length === 0) {
+    if ($("#btn-cancel-import").length === 0) {
         const cancelButton = `
             <div class="d-flex justify-content-center mt-3">
                 <button type="button" class="btn btn-outline-danger btn-sm" id="btn-cancel-import" onclick="cancelCurrentImport()">
@@ -1020,25 +1063,25 @@ function addCancelButton() {
                 </button>
             </div>
         `;
-        $('#import-progress').append(cancelButton);
+        $("#import-progress").append(cancelButton);
     }
 }
 
 function cancelCurrentImport() {
     if (!currentSessionId) {
-        toastr.warning('لا توجد عملية استيراد جارية');
+        toastr.warning("لا توجد عملية استيراد جارية");
         return;
     }
 
     Swal.fire({
-        title: 'تأكيد الإلغاء',
-        text: 'هل أنت متأكد من إلغاء عملية الاستيراد؟',
-        icon: 'warning',
+        title: "تأكيد الإلغاء",
+        text: "هل أنت متأكد من إلغاء عملية الاستيراد؟",
+        icon: "warning",
         showCancelButton: true,
-        confirmButtonText: 'نعم، إلغاء',
-        cancelButtonText: 'استمرار',
-        confirmButtonColor: '#dc3545',
-        cancelButtonColor: '#6c757d'
+        confirmButtonText: "نعم، إلغاء",
+        cancelButtonText: "استمرار",
+        confirmButtonColor: "#dc3545",
+        cancelButtonColor: "#6c757d",
     }).then((result) => {
         if (result.isConfirmed) {
             performCancelImport();
@@ -1049,23 +1092,23 @@ function cancelCurrentImport() {
 function performCancelImport() {
     $.ajax({
         url: window.routes.cancelImport,
-        type: 'POST',
+        type: "POST",
         data: {
             session_id: currentSessionId,
-            _token: window.csrfToken
+            _token: window.csrfToken,
         },
         success: function (response) {
             if (response.success) {
                 stopProgressPolling();
                 showImportCancelled();
-                toastr.success('تم إلغاء العملية بنجاح');
+                toastr.success("تم إلغاء العملية بنجاح");
             } else {
-                toastr.error(response.message || 'فشل في إلغاء العملية');
+                toastr.error(response.message || "فشل في إلغاء العملية");
             }
         },
         error: function () {
-            toastr.error('حدث خطأ أثناء إلغاء العملية');
-        }
+            toastr.error("حدث خطأ أثناء إلغاء العملية");
+        },
     });
 }
 
@@ -1079,10 +1122,10 @@ function showStep(stepNumber) {
 }
 
 function resetAnalysisResults() {
-    $('#analysis-results').hide();
+    $("#analysis-results").hide();
     analysisData = null;
     tempFilePath = null;
-    $('#step-3').hide();
+    $("#step-3").hide();
 }
 
 function resetImport() {
@@ -1095,10 +1138,12 @@ function resetImport() {
     tempFilePath = null;
     window.queuedImportErrors = [];
 
-
-    $('#company_id, #portfolio_id').val('').trigger('change');
-    $('#portfolio_id').prop('disabled', true);
-    $('#btn-preview-template, #btn-download-template, #btn-analyze-file').prop('disabled', true);
+    $("#company_id, #portfolio_id").val("").trigger("change");
+    $("#portfolio_id").prop("disabled", true);
+    $("#btn-preview-template, #btn-download-template, #btn-analyze-file").prop(
+        "disabled",
+        true,
+    );
 
     if (importDropzone) {
         importDropzone.removeAllFiles();
@@ -1106,34 +1151,33 @@ function resetImport() {
 
     resetFileUploadArea();
 
-    $('#step-2, #step-3').hide();
-    $('#analysis-results, #results-summary').hide();
-    $('#import-progress').hide();
-    $('#btn-cancel-import').remove();
+    $("#step-2, #step-3").hide();
+    $("#analysis-results, #results-summary").hide();
+    $("#import-progress").hide();
+    $("#btn-cancel-import").remove();
 
-    toastr.info('تم إعادة البدء');
+    toastr.info("تم إعادة البدء");
 }
-
 
 /**
  * ✅ حذف جميع النتائج والبيانات القديمة
  */
 function resetAllOldResults() {
     // ✅ إخفاء جميع النتائج والخطوات
-    $('#analysis-results').hide();
-    $('#results-summary').hide();
-    $('#import-progress').hide();
+    $("#analysis-results").hide();
+    $("#results-summary").hide();
+    $("#import-progress").hide();
 
     // ✅ تنظيف محتوى النتائج
-    $('#results-content').html('');
-    $('#fields-analysis').html('');
-    $('#general-stats').html('');
+    $("#results-content").html("");
+    $("#fields-analysis").html("");
+    $("#general-stats").html("");
 
     // ✅ إخفاء خطوة الاستيراد
-    $('#step-3').hide();
+    $("#step-3").hide();
 
     // ✅ حذف زر الإلغاء القديم
-    $('#btn-cancel-import').remove();
+    $("#btn-cancel-import").remove();
 
     // ✅ تنظيف البيانات
     analysisData = null;

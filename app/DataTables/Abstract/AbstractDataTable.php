@@ -192,6 +192,15 @@ abstract class AbstractDataTable extends DataTable
         return [];
     }
 
+    protected function renderTableImage(?string $src, string $alt = '', int $size = 44): string
+    {
+        return view('components.shared.data-table.image', [
+            'src' => $src,
+            'alt' => $alt,
+            'size' => $size,
+        ])->render();
+    }
+
     protected function getButtons(): array
     {
         return [];

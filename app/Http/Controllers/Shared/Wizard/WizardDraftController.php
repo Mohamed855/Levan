@@ -32,7 +32,7 @@ class WizardDraftController extends Controller
             'data' => $draft?->draft_data ?? [],
             'draft_id' => $draft?->getKey(),
             'step' => $draft?->last_step,
-            'files' => $this->fileNames($draft?->draft_files ?? []),
+            'files' => $this->fileManifest($draft?->draft_files ?? []),
         ]);
     }
 
@@ -198,13 +198,13 @@ class WizardDraftController extends Controller
         );
     }
 
-    private function fileNames(array $files, string $prefix = ''): array
+    private function fileManifest(array $files, string $prefix = ''): array
     {
         $names = [];
 
         foreach ($files as $key => $file) {
             if (is_array($file) && ! array_key_exists('name', $file)) {
-                $names[$key] = $this->fileNames($file, $prefix === '' ? (string) $key : $prefix.'.'.$key);
+                $names[$key] = $this->fileManifest($file, $prefix === '' ? (string) $key : $prefix.'.'.$key);
 
                 continue;
             }
@@ -213,6 +213,8 @@ class WizardDraftController extends Controller
                 $names[$key] = [
                     'key' => $prefix === '' ? (string) $key : $prefix.'.'.$key,
                     'name' => $file['name'],
+                    'mime' => $file['mime'] ?? null,
+                    'size' => $file['size'] ?? null,
                 ];
             }
         }

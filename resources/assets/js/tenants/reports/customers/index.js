@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 let customerReportsTable;
 let exportProgressInterval;
@@ -17,39 +17,42 @@ $(document).ready(function () {
 |--------------------------------------------------------------------------
 */
 function initializeComponents() {
-    $('.select2').each(function () {
+    $(".select2").each(function () {
         $(this).select2({
             placeholder: function () {
-                return $(this).data('placeholder');
+                return $(this).data("placeholder");
             },
             allowClear: true,
-            width: '100%',
-            language: 'ar',
-            dir: 'rtl'
+            width: "100%",
+            language: "ar",
+            dir: "rtl",
         });
     });
 
-    $('.select2-multiple').each(function () {
+    $(".select2-multiple").each(function () {
         const $element = $(this);
-        const placeholder = $element.data('placeholder');
+        const placeholder = $element.data("placeholder");
 
         $element.select2({
             placeholder: placeholder,
             allowClear: true,
-            width: '100%',
+            width: "100%",
             closeOnSelect: false,
-            language: 'ar',
-            dir: 'rtl'
+            language: "ar",
+            dir: "rtl",
         });
 
         initializePlaceholder($element, placeholder);
     });
 
-    $('.select2-multiple').on('select2:select select2:unselect select2:clear change', function () {
-        const $element = $(this);
-        const placeholder = $element.data('placeholder');
-        updatePlaceholder($element, placeholder);
-    });
+    $(".select2-multiple").on(
+        "select2:select select2:unselect select2:clear change",
+        function () {
+            const $element = $(this);
+            const placeholder = $element.data("placeholder");
+            updatePlaceholder($element, placeholder);
+        },
+    );
 }
 
 /*
@@ -59,18 +62,20 @@ function initializeComponents() {
 */
 function updatePlaceholder($element, placeholder) {
     setTimeout(function () {
-        const $container = $element.siblings('.select2-container');
-        const $rendered = $container.find('.select2-selection__rendered');
+        const $container = $element.siblings(".select2-container");
+        const $rendered = $container.find(".select2-selection__rendered");
 
         if ($rendered.length === 0) return;
 
         const hasValues = $element.val() && $element.val().length > 0;
 
-        $rendered.find('.select2-selection__placeholder').remove();
+        $rendered.find(".select2-selection__placeholder").remove();
 
         if (!hasValues) {
-            if ($rendered.find('li').length === 0) {
-                $rendered.prepend(`<li class="select2-selection__placeholder">${placeholder}</li>`);
+            if ($rendered.find("li").length === 0) {
+                $rendered.prepend(
+                    `<li class="select2-selection__placeholder">${placeholder}</li>`,
+                );
             }
         }
     }, 10);
@@ -86,18 +91,20 @@ function initializePlaceholder($element, placeholder) {
 
     const intervals = [50, 100, 200, 300, 500];
 
-    intervals.forEach(delay => {
+    intervals.forEach((delay) => {
         setTimeout(function () {
-            const $container = $element.siblings('.select2-container');
-            const $rendered = $container.find('.select2-selection__rendered');
+            const $container = $element.siblings(".select2-container");
+            const $rendered = $container.find(".select2-selection__rendered");
 
             if ($container.length > 0 && $rendered.length > 0) {
                 const hasValues = $element.val() && $element.val().length > 0;
                 if (!hasValues) {
-                    $rendered.find('.select2-selection__placeholder').remove();
+                    $rendered.find(".select2-selection__placeholder").remove();
 
-                    if ($rendered.find('li').length === 0) {
-                        $rendered.prepend(`<li class="select2-selection__placeholder">${placeholder}</li>`);
+                    if ($rendered.find("li").length === 0) {
+                        $rendered.prepend(
+                            `<li class="select2-selection__placeholder">${placeholder}</li>`,
+                        );
                     }
                 }
             }
@@ -116,8 +123,11 @@ function initializePlaceholder($element, placeholder) {
 */
 function initializeTableAfterRender() {
     const checkTable = setInterval(function () {
-        if ($('#customer-reports-table').length && $.fn.DataTable.isDataTable('#customer-reports-table')) {
-            customerReportsTable = $('#customer-reports-table').DataTable();
+        if (
+            $("#customer-reports-table").length &&
+            $.fn.DataTable.isDataTable("#customer-reports-table")
+        ) {
+            customerReportsTable = $("#customer-reports-table").DataTable();
             setupTableEvents();
             clearInterval(checkTable);
         }
@@ -132,21 +142,21 @@ function initializeTableAfterRender() {
 function setupTableEvents() {
     if (!customerReportsTable) return;
 
-    const tableWrapper = $('#customer-reports-table_wrapper');
+    const tableWrapper = $("#customer-reports-table_wrapper");
 
-    tableWrapper.on('click', '#select-all', function () {
-        const rows = customerReportsTable.rows({ search: 'applied' }).nodes();
-        $('input.row-checkbox', rows).prop('checked', this.checked);
+    tableWrapper.on("click", "#select-all", function () {
+        const rows = customerReportsTable.rows({ search: "applied" }).nodes();
+        $("input.row-checkbox", rows).prop("checked", this.checked);
     });
 
-    tableWrapper.on('change', '.row-checkbox', function () {
+    tableWrapper.on("change", ".row-checkbox", function () {
         if (!this.checked) {
-            $('#select-all').prop('checked', false);
+            $("#select-all").prop("checked", false);
         }
     });
 
-    customerReportsTable.on('draw', function () {
-        $('#select-all').prop('checked', false);
+    customerReportsTable.on("draw", function () {
+        $("#select-all").prop("checked", false);
     });
 }
 
@@ -168,8 +178,13 @@ function initializeCharts() {
 function generateColorPalette(baseColor, count) {
     const colors = [];
     for (let i = 0; i < count; i++) {
-        const alpha = 1 - (i * 0.15);
-        colors.push(baseColor + Math.round(alpha * 255).toString(16).padStart(2, '0'));
+        const alpha = 1 - i * 0.15;
+        colors.push(
+            baseColor +
+                Math.round(alpha * 255)
+                    .toString(16)
+                    .padStart(2, "0"),
+        );
     }
     return colors;
 }
@@ -183,7 +198,7 @@ function initializeContactResultChart() {
     const contactResultData = window.chartData.contactResultData;
 
     if (!contactResultData || Object.keys(contactResultData).length === 0) {
-        $('#contactResultChart').html(`
+        $("#contactResultChart").html(`
             <div class="text-center text-muted p-4">
                 <i class="ti ti-phone-off ti-24px mb-2 d-block"></i>
                 <small>لا توجد نتائج اتصال محددة</small>
@@ -195,9 +210,12 @@ function initializeContactResultChart() {
     const labels = Object.keys(contactResultData);
     const series = Object.values(contactResultData);
 
-    const totalValues = series.reduce((sum, val) => sum + (parseFloat(val) || 0), 0);
+    const totalValues = series.reduce(
+        (sum, val) => sum + (parseFloat(val) || 0),
+        0,
+    );
     if (totalValues === 0) {
-        $('#contactResultChart').html(`
+        $("#contactResultChart").html(`
             <div class="text-center text-muted p-4">
                 <i class="ti ti-phone-off ti-24px mb-2 d-block"></i>
                 <small>لا توجد نتائج اتصال محددة</small>
@@ -206,55 +224,58 @@ function initializeContactResultChart() {
         return;
     }
 
-    const colors = generateColorPalette('#372632', labels.length);
+    const colors = generateColorPalette("#372632", labels.length);
 
     const options = {
         series: series,
         chart: {
-            type: 'donut',
+            type: "donut",
             height: 280,
-            fontFamily: 'Cairo, sans-serif',
-            toolbar: { show: false }
+            fontFamily: "Cairo, sans-serif",
+            toolbar: { show: false },
         },
         labels: labels,
         colors: colors,
         legend: {
-            position: 'bottom',
-            fontSize: '12px'
+            position: "bottom",
+            fontSize: "12px",
         },
         plotOptions: {
             pie: {
                 donut: {
-                    size: '65%',
+                    size: "65%",
                     labels: {
                         show: true,
                         total: {
                             show: true,
-                            label: 'المجموع',
-                            fontSize: '14px',
+                            label: "المجموع",
+                            fontSize: "14px",
                             fontWeight: 600,
-                            color: '#372632'
-                        }
-                    }
-                }
-            }
+                            color: "#372632",
+                        },
+                    },
+                },
+            },
         },
         dataLabels: {
             enabled: true,
             formatter: function (val) {
-                return Math.round(val) + '%';
-            }
+                return Math.round(val) + "%";
+            },
         },
         tooltip: {
             y: {
                 formatter: function (val) {
-                    return val + ' عميل';
-                }
-            }
-        }
+                    return val + " عميل";
+                },
+            },
+        },
     };
 
-    const contactResultChart = new ApexCharts(document.querySelector("#contactResultChart"), options);
+    const contactResultChart = new ApexCharts(
+        document.querySelector("#contactResultChart"),
+        options,
+    );
     contactResultChart.render();
 }
 
@@ -266,8 +287,11 @@ function initializeContactResultChart() {
 function initializePortfolioAmountChart() {
     const portfoliosAmountData = window.chartData.portfoliosAmountData;
 
-    if (!portfoliosAmountData || Object.keys(portfoliosAmountData).length === 0) {
-        $('#portfolioAmountChart').html(`
+    if (
+        !portfoliosAmountData ||
+        Object.keys(portfoliosAmountData).length === 0
+    ) {
+        $("#portfolioAmountChart").html(`
             <div class="text-center text-muted p-4">
                 <i class="ti ti-wallet-off ti-24px mb-2 d-block"></i>
                 <small>لا توجد بيانات للمحافظ</small>
@@ -277,11 +301,13 @@ function initializePortfolioAmountChart() {
     }
 
     const categories = Object.keys(portfoliosAmountData);
-    const series = Object.values(portfoliosAmountData).map(val => parseFloat(val) || 0);
+    const series = Object.values(portfoliosAmountData).map(
+        (val) => parseFloat(val) || 0,
+    );
 
     const totalAmount = series.reduce((sum, val) => sum + val, 0);
     if (totalAmount === 0) {
-        $('#portfolioAmountChart').html(`
+        $("#portfolioAmountChart").html(`
             <div class="text-center text-muted p-4">
                 <i class="ti ti-wallet-off ti-24px mb-2 d-block"></i>
                 <small>لا توجد مبالغ للمحافظ</small>
@@ -290,51 +316,58 @@ function initializePortfolioAmountChart() {
         return;
     }
 
-    const colors = generateColorPalette('#4cc1bb', categories.length);
+    const colors = generateColorPalette("#4cc1bb", categories.length);
 
     const options = {
-        series: [{
-            name: 'إجمالي المبالغ',
-            data: series
-        }],
+        series: [
+            {
+                name: "إجمالي المبالغ",
+                data: series,
+            },
+        ],
         chart: {
-            type: 'bar',
+            type: "bar",
             height: 280,
-            fontFamily: 'Cairo, sans-serif',
-            toolbar: { show: false }
+            fontFamily: "Cairo, sans-serif",
+            toolbar: { show: false },
         },
         xaxis: {
-            categories: categories
+            categories: categories,
         },
         colors: colors,
         plotOptions: {
             bar: {
                 borderRadius: 6,
-                columnWidth: '60%',
+                columnWidth: "60%",
                 horizontal: true,
-                distributed: true
-            }
+                distributed: true,
+            },
         },
         dataLabels: {
             enabled: true,
             formatter: function (val) {
-                return new Intl.NumberFormat('en-US', {
-                    notation: 'compact',
-                    maximumFractionDigits: 1
-                }).format(val) + ' ر.س';
-            }
+                return (
+                    new Intl.NumberFormat("en-US", {
+                        notation: "compact",
+                        maximumFractionDigits: 1,
+                    }).format(val) + " ر.س"
+                );
+            },
         },
         tooltip: {
             y: {
                 formatter: function (val) {
-                    return new Intl.NumberFormat('en-US').format(val) + ' ريال';
-                }
-            }
+                    return new Intl.NumberFormat("en-US").format(val) + " ريال";
+                },
+            },
         },
-        legend: { show: false }
+        legend: { show: false },
     };
 
-    const portfolioAmountChart = new ApexCharts(document.querySelector("#portfolioAmountChart"), options);
+    const portfolioAmountChart = new ApexCharts(
+        document.querySelector("#portfolioAmountChart"),
+        options,
+    );
     portfolioAmountChart.render();
 }
 
@@ -344,24 +377,28 @@ function initializePortfolioAmountChart() {
 |--------------------------------------------------------------------------
 */
 function bindEvents() {
-    $('#filter-company').on('change', function () {
+    $("#filter-company").on("change", function () {
         filterPortfoliosByCompany();
     });
 
-    $(document).on('click', '.btn-export-pdf', function () {
+    $(document).on("click", ".btn-export-pdf", function () {
         exportCustomReportToPDF();
     });
 
-    $(document).on('click', '.btn-export-excel', function () {
+    $(document).on("click", ".btn-export-excel", function () {
         exportFilteredToExcel();
     });
 
-    $('#filtersSection').on('show.bs.collapse', function () {
-        $('[data-bs-target="#filtersSection"] i.ti-chevron-down').removeClass('ti-chevron-down').addClass('ti-chevron-up');
+    $("#filtersSection").on("show.bs.collapse", function () {
+        $('[data-bs-target="#filtersSection"] i.ti-chevron-down')
+            .removeClass("ti-chevron-down")
+            .addClass("ti-chevron-up");
     });
 
-    $('#filtersSection').on('hide.bs.collapse', function () {
-        $('[data-bs-target="#filtersSection"] i.ti-chevron-up').removeClass('ti-chevron-up').addClass('ti-chevron-down');
+    $("#filtersSection").on("hide.bs.collapse", function () {
+        $('[data-bs-target="#filtersSection"] i.ti-chevron-up')
+            .removeClass("ti-chevron-up")
+            .addClass("ti-chevron-down");
     });
 }
 
@@ -371,14 +408,14 @@ function bindEvents() {
 |--------------------------------------------------------------------------
 */
 function filterPortfoliosByCompany() {
-    const selectedCompany = $('#filter-company').val();
-    const portfolioSelect = $('#filter-portfolio');
+    const selectedCompany = $("#filter-company").val();
+    const portfolioSelect = $("#filter-portfolio");
 
-    portfolioSelect.val('').trigger('change.select2');
+    portfolioSelect.val("").trigger("change.select2");
 
-    portfolioSelect.find('option').each(function () {
+    portfolioSelect.find("option").each(function () {
         const option = $(this);
-        const companyId = option.data('company');
+        const companyId = option.data("company");
 
         if (!selectedCompany || !companyId || companyId == selectedCompany) {
             option.show();
@@ -399,16 +436,16 @@ function getCurrentFiltersAsParams() {
     const filters = getCurrentFilters();
     const params = new URLSearchParams();
 
-    Object.keys(filters).forEach(key => {
+    Object.keys(filters).forEach((key) => {
         const value = filters[key];
 
         if (Array.isArray(value) && value.length > 0) {
-            value.forEach(val => {
-                if (val && val !== '') {
-                    params.append(key + '[]', val);
+            value.forEach((val) => {
+                if (val && val !== "") {
+                    params.append(key + "[]", val);
                 }
             });
-        } else if (value && value !== '' && !Array.isArray(value)) {
+        } else if (value && value !== "" && !Array.isArray(value)) {
             params.append(key, value);
         }
     });
@@ -423,17 +460,17 @@ function getCurrentFiltersAsParams() {
 */
 function getCurrentFilters() {
     return {
-        date_from: $('#filter-date-from').val(),
-        date_to: $('#filter-date-to').val(),
-        customer_status_id: $('#filter-customer-status').val(),
-        customer_type: $('#filter-customer-type').val(),
-        company_id: $('#filter-company').val(),
-        portfolio_id: $('#filter-portfolio').val(),
-        nationality: $('#filter-nationality').val(),
-        relationship_manager_id: $('#filter-manager').val() || [],
-        contact_result_id: $('#filter-contact-result').val() || [],
-        debt_from: $('#filter-debt-from').val(),
-        debt_to: $('#filter-debt-to').val(),
+        date_from: $("#filter-date-from").val(),
+        date_to: $("#filter-date-to").val(),
+        customer_status_id: $("#filter-customer-status").val(),
+        customer_type: $("#filter-customer-type").val(),
+        company_id: $("#filter-company").val(),
+        portfolio_id: $("#filter-portfolio").val(),
+        nationality: $("#filter-nationality").val(),
+        relationship_manager_id: $("#filter-manager").val() || [],
+        contact_result_id: $("#filter-contact-result").val() || [],
+        debt_from: $("#filter-debt-from").val(),
+        debt_to: $("#filter-debt-to").val(),
     };
 }
 
@@ -445,31 +482,35 @@ function getCurrentFilters() {
 function exportCustomReportToPDF() {
     const filters = getCurrentFilters();
 
-    toastr.info('جاري تحضير تقرير PDF...');
+    toastr.info("جاري تحضير تقرير PDF...");
 
-    const form = $('<form>', {
-        'method': 'POST',
-        'action': window.routes.customerReportsExportPDF,
-        'target': '_blank'
+    const form = $("<form>", {
+        method: "POST",
+        action: window.routes.customerReportsExportPDF,
+        target: "_blank",
     });
 
-    form.append($('<input>', {
-        'type': 'hidden',
-        'name': '_token',
-        'value': window.csrfToken
-    }));
+    form.append(
+        $("<input>", {
+            type: "hidden",
+            name: "_token",
+            value: window.csrfToken,
+        }),
+    );
 
     $.each(filters, function (key, value) {
-        if (value && value !== '') {
-            form.append($('<input>', {
-                'type': 'hidden',
-                'name': key,
-                'value': value
-            }));
+        if (value && value !== "") {
+            form.append(
+                $("<input>", {
+                    type: "hidden",
+                    name: key,
+                    value: value,
+                }),
+            );
         }
     });
 
-    form.appendTo('body').submit().remove();
+    form.appendTo("body").submit().remove();
 }
 
 /*
@@ -482,19 +523,24 @@ function exportFilteredToExcel() {
 
     $.ajax({
         url: window.routes.customerReportsShowExportModal,
-        type: 'POST',
+        type: "POST",
         data: {
             _token: window.csrfToken,
-            ...filters
+            ...filters,
         },
         success: function (response) {
             if (response.success) {
-                showExportFieldsModal(response.fields, response.count, filters, response.is_large_export);
+                showExportFieldsModal(
+                    response.fields,
+                    response.count,
+                    filters,
+                    response.is_large_export,
+                );
             }
         },
         error: function () {
-            toastr.error('حدث خطأ أثناء جلب بيانات التصدير');
-        }
+            toastr.error("حدث خطأ أثناء جلب بيانات التصدير");
+        },
     });
 }
 
@@ -518,7 +564,7 @@ function showExportFieldsModal(fields, count, filters, isLargeExport) {
             <button type="button" class="btn btn-outline-primary btn-sm py-1 px-2 mx-1" id="selectAllFields">
                 تحديد الكل
             </button>
-            <button type="button" class="btn btn-outline-secondary btn-sm py-1 px-2 mx-1" id="deselectAllFields">
+            <button type="button" class="btn btn-secondary btn-sm py-1 px-2 mx-1" id="deselectAllFields">
                 إلغاء التحديد
             </button>
             <button type="button" class="btn btn-outline-info btn-sm py-1 px-2 mx-1" id="selectDefaultFields">
@@ -546,18 +592,22 @@ function showExportFieldsModal(fields, count, filters, isLargeExport) {
         </div>
     `;
 
-    $('#fieldsContainer').html(modalContent);
-    $('#exportFieldsModal').modal('show');
+    $("#fieldsContainer").html(modalContent);
+    $("#exportFieldsModal").modal("show");
 
     updateFieldsCount();
     bindExportModalEvents(filters, isLargeExport);
 
-    $('#fieldsCollapse').on('show.bs.collapse', function () {
-        $('.ti-chevron-down').removeClass('ti-chevron-down').addClass('ti-chevron-up');
+    $("#fieldsCollapse").on("show.bs.collapse", function () {
+        $(".ti-chevron-down")
+            .removeClass("ti-chevron-down")
+            .addClass("ti-chevron-up");
     });
 
-    $('#fieldsCollapse').on('hide.bs.collapse', function () {
-        $('.ti-chevron-up').removeClass('ti-chevron-up').addClass('ti-chevron-down');
+    $("#fieldsCollapse").on("hide.bs.collapse", function () {
+        $(".ti-chevron-up")
+            .removeClass("ti-chevron-up")
+            .addClass("ti-chevron-down");
     });
 }
 
@@ -567,7 +617,7 @@ function showExportFieldsModal(fields, count, filters, isLargeExport) {
 |--------------------------------------------------------------------------
 */
 function generateFieldsGrid(fields) {
-    let html = '';
+    let html = "";
 
     fields.forEach((field, index) => {
         html += `
@@ -577,7 +627,7 @@ function generateFieldsGrid(fields) {
                            type="checkbox" 
                            value="${field.key}" 
                            id="field_${field.key}"
-                           ${field.selected ? 'checked' : ''}>
+                           ${field.selected ? "checked" : ""}>
                     <label class="form-check-label" 
                            for="field_${field.key}">
                         ${field.label}
@@ -596,57 +646,65 @@ function generateFieldsGrid(fields) {
 |--------------------------------------------------------------------------
 */
 function bindExportModalEvents(filters, isLargeExport) {
-    $('#selectAllFields').off('click').on('click', function () {
-        $('.export-field').prop('checked', true);
-        updateFieldsCount();
-    });
-
-    $('#deselectAllFields').off('click').on('click', function () {
-        $('.export-field').prop('checked', false);
-        updateFieldsCount();
-    });
-
-    $('#selectDefaultFields').off('click').on('click', function () {
-        $('.export-field').prop('checked', false);
-        const defaultFields = [
-            'name',
-            'customer_type',
-            'identity_number',
-            'phone',
-            'account_number',
-            'company_name',
-            'portfolio_name',
-            'manager_name',
-            'customer_status',
-            'debt_amount',
-            'total_credit',
-            'remaining_debt',
-            'created_at'
-        ];
-        defaultFields.forEach(key => {
-            $(`#field_${key}`).prop('checked', true);
-        });
-        updateFieldsCount();
-    });
-
-    $('.export-field').on('change', function () {
-        updateFieldsCount();
-    });
-
-    $('#confirmExport').off('click').on('click', function () {
-        const selectedFields = [];
-        $('.export-field:checked').each(function () {
-            selectedFields.push($(this).val());
+    $("#selectAllFields")
+        .off("click")
+        .on("click", function () {
+            $(".export-field").prop("checked", true);
+            updateFieldsCount();
         });
 
-        if (selectedFields.length === 0) {
-            toastr.warning('يرجى اختيار حقل واحد على الأقل');
-            return;
-        }
+    $("#deselectAllFields")
+        .off("click")
+        .on("click", function () {
+            $(".export-field").prop("checked", false);
+            updateFieldsCount();
+        });
 
-        $('#exportFieldsModal').modal('hide');
-        executeExportWithFields(filters, selectedFields, isLargeExport);
+    $("#selectDefaultFields")
+        .off("click")
+        .on("click", function () {
+            $(".export-field").prop("checked", false);
+            const defaultFields = [
+                "name",
+                "customer_type",
+                "identity_number",
+                "phone",
+                "account_number",
+                "company_name",
+                "portfolio_name",
+                "manager_name",
+                "customer_status",
+                "debt_amount",
+                "total_credit",
+                "remaining_debt",
+                "created_at",
+            ];
+            defaultFields.forEach((key) => {
+                $(`#field_${key}`).prop("checked", true);
+            });
+            updateFieldsCount();
+        });
+
+    $(".export-field").on("change", function () {
+        updateFieldsCount();
     });
+
+    $("#confirmExport")
+        .off("click")
+        .on("click", function () {
+            const selectedFields = [];
+            $(".export-field:checked").each(function () {
+                selectedFields.push($(this).val());
+            });
+
+            if (selectedFields.length === 0) {
+                toastr.warning("يرجى اختيار حقل واحد على الأقل");
+                return;
+            }
+
+            $("#exportFieldsModal").modal("hide");
+            executeExportWithFields(filters, selectedFields, isLargeExport);
+        });
 }
 
 /*
@@ -655,14 +713,14 @@ function bindExportModalEvents(filters, isLargeExport) {
 |--------------------------------------------------------------------------
 */
 function updateFieldsCount() {
-    const totalChecked = $('.export-field:checked').length;
-    $('#selectedFieldsCount').text(totalChecked);
+    const totalChecked = $(".export-field:checked").length;
+    $("#selectedFieldsCount").text(totalChecked);
 
-    const allTotal = $('.export-field').length;
-    $('#allFieldsCount').text(`${totalChecked}/${allTotal}`);
+    const allTotal = $(".export-field").length;
+    $("#allFieldsCount").text(`${totalChecked}/${allTotal}`);
 
-    const btnText = totalChecked > 0 ? `تصدير (${totalChecked} حقل)` : 'تصدير';
-    $('#confirmExport').text(btnText);
+    const btnText = totalChecked > 0 ? `تصدير (${totalChecked} حقل)` : "تصدير";
+    $("#confirmExport").text(btnText);
 }
 
 /*
@@ -674,16 +732,16 @@ function executeExportWithFields(filters, selectedFields, isLargeExport) {
     if (isLargeExport) {
         showAsyncExportModal();
     } else {
-        showLoadingModal('جاري إنشاء ملف Excel...');
+        showLoadingModal("جاري إنشاء ملف Excel...");
     }
 
     $.ajax({
         url: window.routes.customerReportsExportExcel,
-        type: 'POST',
+        type: "POST",
         data: {
             _token: window.csrfToken,
             selected_fields: selectedFields,
-            ...filters
+            ...filters,
         },
         success: function (response) {
             if (response.success) {
@@ -691,7 +749,7 @@ function executeExportWithFields(filters, selectedFields, isLargeExport) {
                     handleAsyncExport(response.export_id, response.message);
                 } else {
                     hideLoadingModal();
-                    window.open(response.download_url, '_blank');
+                    window.open(response.download_url, "_blank");
                     toastr.success(response.message);
                 }
             }
@@ -699,9 +757,10 @@ function executeExportWithFields(filters, selectedFields, isLargeExport) {
         error: function (xhr) {
             hideLoadingModal();
             hideAsyncExportModal();
-            const errorMsg = xhr.responseJSON?.message || 'حدث خطأ أثناء إنشاء الملف';
+            const errorMsg =
+                xhr.responseJSON?.message || "حدث خطأ أثناء إنشاء الملف";
             toastr.error(errorMsg);
-        }
+        },
     });
 }
 
@@ -720,7 +779,7 @@ function handleAsyncExport(exportId, message) {
         checkExportProgress(exportId);
     }, 2000);
 
-    toastr.info(message, '', { timeOut: 8000 });
+    toastr.info(message, "", { timeOut: 8000 });
 }
 
 /*
@@ -730,41 +789,43 @@ function handleAsyncExport(exportId, message) {
 */
 function checkExportProgress(exportId) {
     $.ajax({
-        url: window.routes.customerReportsCheckProgress || '/reports/customers/check-progress',
-        type: 'POST',
+        url:
+            window.routes.customerReportsCheckProgress ||
+            "/reports/customers/check-progress",
+        type: "POST",
         data: {
             _token: window.csrfToken,
-            export_id: exportId
+            export_id: exportId,
         },
         success: function (response) {
             if (response.success && response.data) {
                 const data = response.data;
 
-                if (data.status === 'completed') {
+                if (data.status === "completed") {
                     clearInterval(exportProgressInterval);
                     hideAsyncExportModal();
 
                     showCompletedExportModal(data);
-                    toastr.success('تم إنشاء الملف بنجاح!');
-
-                } else if (data.status === 'failed') {
+                    toastr.success("تم إنشاء الملف بنجاح!");
+                } else if (data.status === "failed") {
                     clearInterval(exportProgressInterval);
                     hideAsyncExportModal();
-                    toastr.error(data.error || 'فشل في إنشاء الملف');
-
-                } else if (data.status === 'processing') {
-                    updateAsyncExportStatus(data.percentage || 0, data.message || 'جاري المعالجة...');
+                    toastr.error(data.error || "فشل في إنشاء الملف");
+                } else if (data.status === "processing") {
+                    updateAsyncExportStatus(
+                        data.percentage || 0,
+                        data.message || "جاري المعالجة...",
+                    );
                 }
             }
         },
         error: function () {
             clearInterval(exportProgressInterval);
             hideAsyncExportModal();
-            toastr.error('حدث خطأ أثناء تتبع التقدم');
-        }
+            toastr.error("حدث خطأ أثناء تتبع التقدم");
+        },
     });
 }
-
 
 /*
 |--------------------------------------------------------------------------
@@ -775,15 +836,17 @@ function updateAsyncExportStatus(percentage, message) {
     const safePercentage = Math.min(Math.max(percentage, 0), 100);
     const roundedPercentage = Math.round(safePercentage);
 
-    $('#exportProgress')
-        .css('width', safePercentage + '%')
-        .attr('aria-valuenow', safePercentage);
+    $("#exportProgress")
+        .css("width", safePercentage + "%")
+        .attr("aria-valuenow", safePercentage);
 
-    $('#progressText').text(roundedPercentage + '%');
-    $('#exportStatus').text(message);
+    $("#progressText").text(roundedPercentage + "%");
+    $("#exportStatus").text(message);
 
     if (safePercentage >= 100) {
-        $('.spinner-border').removeClass('spinner-border').addClass('ti ti-check-circle text-success');
+        $(".spinner-border")
+            .removeClass("spinner-border")
+            .addClass("ti ti-check-circle text-success");
     }
 }
 
@@ -793,7 +856,7 @@ function updateAsyncExportStatus(percentage, message) {
 |--------------------------------------------------------------------------
 */
 function hideAsyncExportModal() {
-    $('#asyncExportModal').modal('hide');
+    $("#asyncExportModal").modal("hide");
 }
 
 /*
@@ -845,13 +908,12 @@ function showAsyncExportModal() {
         </div>
     `;
 
-    if ($('#asyncExportModal').length === 0) {
-        $('body').append(modalHtml);
+    if ($("#asyncExportModal").length === 0) {
+        $("body").append(modalHtml);
     }
 
-    $('#asyncExportModal').modal('show');
+    $("#asyncExportModal").modal("show");
 }
-
 
 /*
 |--------------------------------------------------------------------------
@@ -859,13 +921,20 @@ function showAsyncExportModal() {
 |--------------------------------------------------------------------------
 */
 function showCompletedExportModal(data) {
-    const fileName = (data && data.file_name) ? String(data.file_name) : '';
-    const baseDownload = (window.routes && window.routes.customerReportsDownload) ? window.routes.customerReportsDownload : '';
-    const downloadUrl = (fileName && baseDownload)
-        ? baseDownload.replace('FILE_PLACEHOLDER', encodeURIComponent(fileName))
-        : '#';
+    const fileName = data && data.file_name ? String(data.file_name) : "";
+    const baseDownload =
+        window.routes && window.routes.customerReportsDownload
+            ? window.routes.customerReportsDownload
+            : "";
+    const downloadUrl =
+        fileName && baseDownload
+            ? baseDownload.replace(
+                  "FILE_PLACEHOLDER",
+                  encodeURIComponent(fileName),
+              )
+            : "#";
 
-    const canDownload = downloadUrl !== '#';
+    const canDownload = downloadUrl !== "#";
 
     const modalHtml = `
     <div class="modal fade" id="completedExportModal" tabindex="-1">
@@ -892,33 +961,37 @@ function showCompletedExportModal(data) {
                 <div class="p-3 rounded border">
                   <i class="ti ti-database text-primary d-block mb-2" style="font-size: 24px;"></i>
                   <small class="text-muted d-block">السجلات</small>
-                  <strong>${data?.total_records?.toLocaleString?.() || 'غير محدد'}</strong>
+                  <strong>${data?.total_records?.toLocaleString?.() || "غير محدد"}</strong>
                 </div>
               </div>
               <div class="col-4 text-center">
                 <div class="p-3 rounded border">
                   <i class="ti ti-archive text-warning d-block mb-2" style="font-size: 24px;"></i>
                   <small class="text-muted d-block">الحجم</small>
-                  <strong>${data?.file_size || 'غير محدد'}</strong>
+                  <strong>${data?.file_size || "غير محدد"}</strong>
                 </div>
               </div>
               <div class="col-4 text-center">
                 <div class="p-3 rounded border">
                   <i class="ti ti-clock text-success d-block mb-2" style="font-size: 24px;"></i>
                   <small class="text-muted d-block">التاريخ</small>
-                  <strong class="small">${formatDateTime(data?.created_at) || 'الآن'}</strong>
+                  <strong class="small">${formatDateTime(data?.created_at) || "الآن"}</strong>
                 </div>
               </div>
             </div>
 
-            ${!canDownload ? `
+            ${
+                !canDownload
+                    ? `
               <div class="alert alert-warning mb-0">
                 تعذّر تجهيز رابط التحميل. الرجاء المحاولة مجددًا.
-              </div>` : ``}
+              </div>`
+                    : ``
+            }
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
-            <a href="${downloadUrl}" class="btn btn-success ${canDownload ? '' : 'disabled'}" ${canDownload ? 'target="_blank"' : 'aria-disabled="true"'} >
+            <a href="${downloadUrl}" class="btn btn-success ${canDownload ? "" : "disabled"}" ${canDownload ? 'target="_blank"' : 'aria-disabled="true"'} >
               <i class="ti ti-download me-1"></i>تحميل الملف
             </a>
           </div>
@@ -927,12 +1000,12 @@ function showCompletedExportModal(data) {
     </div>
   `;
 
-    if ($('#completedExportModal').length) {
-        $('#completedExportModal').remove();
+    if ($("#completedExportModal").length) {
+        $("#completedExportModal").remove();
     }
 
-    $('body').append(modalHtml);
-    $('#completedExportModal').modal('show');
+    $("body").append(modalHtml);
+    $("#completedExportModal").modal("show");
 }
 
 /*
@@ -945,10 +1018,10 @@ function formatDateTime(dateTime) {
     try {
         const date = new Date(dateTime);
         const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
 
         return `${year}-${month}-${day} ${hours}:${minutes}`;
     } catch (e) {
@@ -956,15 +1029,14 @@ function formatDateTime(dateTime) {
     }
 }
 
-
 /*
 |--------------------------------------------------------------------------
 | Show Loading Modal
 |--------------------------------------------------------------------------
 */
-function showLoadingModal(message = 'جاري المعالجة...') {
-    $('#loadingMessage').text(message);
-    $('#loadingModal').modal('show');
+function showLoadingModal(message = "جاري المعالجة...") {
+    $("#loadingMessage").text(message);
+    $("#loadingModal").modal("show");
 }
 
 /*
@@ -973,7 +1045,7 @@ function showLoadingModal(message = 'جاري المعالجة...') {
 |--------------------------------------------------------------------------
 */
 function hideLoadingModal() {
-    $('#loadingModal').modal('hide');
+    $("#loadingModal").modal("hide");
 }
 
 /*

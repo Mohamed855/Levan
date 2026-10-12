@@ -208,7 +208,7 @@
 
                         {{-- Navigation --}}
                         <div class="d-flex justify-content-between mt-4">
-                            <button type="button" class="btn btn-outline-secondary btn-prev btn-sm">
+                            <button type="button" class="btn btn-secondary btn-prev btn-sm">
                                 <i class="ti ti-arrow-left me-2"></i>
                                 السابق
                             </button>
@@ -295,7 +295,7 @@
                                             </div>
                                             <div class="col-md-4">
                                                 <a href="#" id="report-system-only"
-                                                    class="btn btn-outline-secondary w-100">
+                                                    class="btn btn-secondary w-100">
                                                     <i class="ti ti-database me-2"></i>
                                                     سدادات النظام فقط
                                                 </a>
@@ -322,7 +322,7 @@
 
                         {{-- Navigation --}}
                         <div class="d-flex justify-content-between mt-6">
-                            <button type="button" class="btn btn-outline-secondary btn-prev btn-sm">
+                            <button type="button" class="btn btn-secondary btn-prev btn-sm">
                                 <i class="ti ti-arrow-left me-2"></i>
                                 السابق
                             </button>

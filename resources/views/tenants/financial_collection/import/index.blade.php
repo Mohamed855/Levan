@@ -118,7 +118,7 @@
                         </div>
                     </div>
                     <div class="text-end">
-                        <button type="button" class="btn btn-outline-secondary me-2" onclick="resetImport()">إعادة</button>
+                        <button type="button" class="btn btn-secondary me-2" onclick="resetImport()">إعادة</button>
                         <button type="submit" class="btn btn-primary" disabled>
                             إستيراد
                         </button>

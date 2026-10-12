@@ -259,6 +259,115 @@ function draftResourceKey(form) {
   return form.dataset.draftResourceKey || getTargetPath(form);
 }
 
+function isCreatePage() {
+  return window.location.pathname.split('/').filter(Boolean).includes('create');
+}
+
+function isCreateForm(form) {
+  if (!isCreatePage() || form.closest('template')) {
+    return false;
+  }
+
+  const spoofedMethod = form.querySelector('input[name="_method"]')?.value?.toUpperCase();
+  const method = (spoofedMethod || form.method || 'GET').toUpperCase();
+
+  return method === 'POST' && Boolean(form.action);
+}
+
+function draftButtonFromTemplate() {
+  const template = document.querySelector('template[data-create-draft-button-template]');
+  return template?.content.firstElementChild?.cloneNode(true) || null;
+}
+
+function installDraftButton(container, beforeButton) {
+  if (!container || container.querySelector('[data-wizard-draft]')) {
+    return;
+  }
+
+  const draftButton = draftButtonFromTemplate();
+  if (!draftButton) {
+    return;
+  }
+
+  container.insertBefore(draftButton, beforeButton);
+}
+
+function prepareCreateFormContract(form) {
+  if (!isCreateForm(form)) {
+    return;
+  }
+
+  const draftUrl = document.body?.dataset.wizardDraftsUrl;
+  if (!draftUrl) {
+    return;
+  }
+
+  form.dataset.formValidate = '';
+  form.dataset.draftUrl ||= draftUrl;
+  form.dataset.draftFileUrl ||= `${draftUrl.replace(/\/$/, '')}/file`;
+  form.dataset.draftResourceKey ||= `${document.body.dataset.appBoundary || 'app'}:${new URL(form.action).pathname}`;
+
+  const steps = [...form.querySelectorAll('[data-form-step], .content, .bs-stepper-pane')];
+  if (steps.length > 0) {
+    steps.forEach((step) => {
+      const primaryButton = step.querySelector('[data-wizard-next], .btn-next, button[type="submit"]');
+      if (!primaryButton) return;
+      installDraftButton(primaryButton.parentElement, primaryButton);
+    });
+    return;
+  }
+
+  const submitButton = form.querySelector('button[type="submit"], input[type="submit"]');
+  if (submitButton) {
+    installDraftButton(submitButton.parentElement, submitButton);
+  }
+}
+
+function flattenDraftFiles(files, prefix = '') {
+  return Object.entries(files || {}).flatMap(([key, value]) => {
+    const fileKey = prefix ? `${prefix}.${key}` : key;
+    if (value && typeof value === 'object' && !Array.isArray(value) && !value.name) {
+      return flattenDraftFiles(value, fileKey);
+    }
+    if (Array.isArray(value)) {
+      return value.flatMap((item, index) => item?.name ? [{ ...item, key: item.key || `${fileKey}.${index}` }] : []);
+    }
+    return value?.name ? [{ ...value, key: value.key || fileKey }] : [];
+  });
+}
+
+function renderArchivedDraftFiles(form, files) {
+  form.querySelectorAll('[data-archived-draft-files]').forEach((element) => element.remove());
+
+  flattenDraftFiles(files).forEach((file) => {
+    const rootName = String(file.key || '').split('.')[0];
+    const input = form.querySelector(`input[type="file"][name="${CSS.escape(rootName)}"], input[type="file"][name="${CSS.escape(rootName)}[]"]`);
+    if (!input) return;
+
+    let list = input.parentElement?.querySelector('[data-archived-draft-files]');
+    if (!list) {
+      list = document.createElement('div');
+      list.dataset.archivedDraftFiles = '';
+      list.className = 'd-flex flex-column gap-2 mt-2';
+      input.parentElement?.append(list);
+    }
+
+    const item = document.createElement('div');
+    item.className = 'd-flex align-items-center justify-content-between gap-2 rounded border p-2';
+    const name = document.createElement('span');
+    name.className = 'text-truncate';
+    name.textContent = file.name;
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'btn btn-sm btn-icon btn-outline-danger';
+    remove.dataset.draftFileKey = file.key;
+    remove.setAttribute('aria-label', `حذف الملف المؤرشف ${file.name}`);
+    remove.innerHTML = '<i class="ti ti-trash" aria-hidden="true"></i>';
+    item.append(name, remove);
+    list.append(item);
+  });
+}
+
 function addHiddenField(form, name, value) {
   let input = form.querySelector('input[name="' + name + '"]');
   if (!input) {
@@ -332,6 +441,10 @@ async function restoreDraft(form) {
     return;
   }
 
+  let canUseForm = false;
+  form.inert = true;
+  form.setAttribute('aria-busy', 'true');
+
   try {
     const response = await fetch(draftUrl + '?resource_key=' + encodeURIComponent(draftResourceKey(form)), {
       credentials: 'same-origin',
@@ -343,6 +456,7 @@ async function restoreDraft(form) {
 
     const draft = await response.json();
     if (!draft.draft_id) {
+      canUseForm = true;
       return;
     }
 
@@ -366,18 +480,26 @@ async function restoreDraft(form) {
 
     if (!shouldRestore) {
       await discardDraft(form);
+      canUseForm = true;
       return;
     }
 
     addHiddenField(form, '_wizard_draft_id', draft.draft_id);
     addHiddenField(form, '_wizard_resource_key', draftResourceKey(form));
     restoreDraftValues(form, draft.data || {});
+    renderArchivedDraftFiles(form, draft.files || {});
     form.dispatchEvent(new CustomEvent('wizardDraftRestored', {
       detail: { data: draft.data || {}, files: draft.files || {}, draftId: draft.draft_id }
     }));
     getFormState(form).stepper?.to(Math.max(1, Number(draft.step || 1)));
+    canUseForm = true;
   } catch (_) {
-    window.toastr?.error?.('تعذر استعادة المسودة. يرجى المحاولة مرة أخرى.');
+    window.toastr?.error?.('تعذر التعامل مع المسودة. أعد تحميل الصفحة للمحاولة مرة أخرى قبل إدخال بيانات جديدة.');
+  } finally {
+    form.removeAttribute('aria-busy');
+    if (canUseForm) {
+      form.inert = false;
+    }
   }
 }
 
@@ -388,6 +510,33 @@ function initDrafts(form) {
   }
 
   form.addEventListener('click', async (event) => {
+    const removeFileButton = event.target.closest('[data-draft-file-key]');
+    if (removeFileButton) {
+      event.preventDefault();
+      removeFileButton.disabled = true;
+      try {
+        const response = await fetch(form.dataset.draftFileUrl || `${draftUrl.replace(/\/$/, '')}/file`, {
+          method: 'DELETE',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+          },
+          body: JSON.stringify({
+            resource_key: draftResourceKey(form),
+            file_key: removeFileButton.dataset.draftFileKey,
+          }),
+        });
+        if (!response.ok) throw new Error('Unable to remove archived file.');
+        removeFileButton.closest('.d-flex')?.remove();
+      } catch (_) {
+        removeFileButton.disabled = false;
+        window.toastr?.error?.('تعذر حذف الملف المؤرشف. يرجى المحاولة مرة أخرى.');
+      }
+      return;
+    }
+
     const button = event.target.closest('[data-wizard-draft]');
     if (!button) {
       return;
@@ -1110,6 +1259,7 @@ function initImagePreviews() {
 }
 
 function boot() {
+  document.querySelectorAll('form').forEach(prepareCreateFormContract);
   document.querySelectorAll('form[data-form-validate]').forEach(initForm);
   initPasswordToggles();
   initImagePreviews();
