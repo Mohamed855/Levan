@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const propertyInputs = document.getElementById('selected-property-inputs');
   const propertyCards = document.getElementById('selected-properties-cards');
   const propertyCount = document.getElementById('selected-properties-count');
-  let propertyValidationVersion = 0;
   const fileInputs = [
     { input: document.getElementById('general_documents'), list: document.getElementById('general-documents-cards'), label: 'مستند عام' },
     { input: document.getElementById('additional_attachments'), list: document.getElementById('additional-attachments-cards'), label: 'مرفق إضافي' },
@@ -37,33 +36,12 @@ document.addEventListener('DOMContentLoaded', () => {
       </article>`).join('');
   }
 
-  function setPropertiesNextButtonEnabled(isEnabled) {
-    const step = document.getElementById('assignment-properties-validation');
-    step?.querySelectorAll('[data-wizard-next], .btn-next:not(.btn-submit)').forEach(button => {
-      button.disabled = !isEnabled;
-      button.classList.toggle('disabled', !isEnabled);
-    });
-  }
-
   function syncProperties() {
-    const validationVersion = ++propertyValidationVersion;
     propertyInputs.innerHTML = [...selectedProperties.keys()].map(id => `<input type="hidden" name="property_ids[]" value="${id}" data-form-control>`).join('');
     propertyCount.textContent = String(selectedProperties.size);
     renderPropertyCards();
     document.querySelectorAll('.property-selector').forEach(checkbox => { checkbox.checked = selectedProperties.has(String(checkbox.value)); });
     form.dispatchEvent(new Event('change', { bubbles: true }));
-    setPropertiesNextButtonEnabled(false);
-
-    const validation = window.SharedFormValidation?.validateFields(form, ['property_ids']);
-    if (!validation) return;
-
-    validation.then(isValid => {
-      if (validationVersion !== propertyValidationVersion) return;
-
-      const step = document.getElementById('assignment-properties-validation');
-      if (step) window.SharedFormValidation.updateStepNextButton(form, step);
-      setPropertiesNextButtonEnabled(isValid);
-    });
   }
 
   function propertyFromCheckbox(checkbox) {

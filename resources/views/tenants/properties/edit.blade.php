@@ -90,95 +90,44 @@
             ]">
                 <input type="hidden" name="latitude" id="latitude" value="{{ old('latitude', $property->latitude) }}">
                 <input type="hidden" name="longitude" id="longitude" value="{{ old('longitude', $property->longitude) }}">
+                @php
+                    $bordersData = old('boundaries', $property->boundaries->isNotEmpty()
+                        ? $property->boundaries->map(fn($b) => [
+                            'direction' => $b->direction?->value ?? $b->direction,
+                            'border_type' => $b->border_type,
+                            'border_description' => $b->border_description,
+                            'length' => $b->length,
+                        ])->toArray()
+                        : [
+                            ['direction' => 'north', 'border_type' => 'شارع', 'border_description' => 'شارع عرض 20 متر', 'length' => '30.00'],
+                            ['direction' => 'south', 'border_type' => 'قطعة', 'border_description' => 'رقم القطعة 1288', 'length' => '30.00'],
+                            ['direction' => 'east', 'border_type' => 'قطعة', 'border_description' => 'رقم القطعة 1290', 'length' => '20.00'],
+                            ['direction' => 'west', 'border_type' => 'شارع', 'border_description' => 'شارع عرض 15 متر', 'length' => '20.00'],
+                        ]);
+                @endphp
 
                 <div class="row g-4">
-                    <x-form.controls.select name="city" label="المدينة" :value="$property->city" required col="col-md-4" :options="$cityOptions" />
-                    <x-form.controls.input name="district" label="الحي / النطاق" :value="$property->district" placeholder="مثال: حي العارض" required col="col-md-4" />
-                    <x-form.controls.input name="administrative_region" label="المنطقة الإدارية" :value="$property->administrative_region" placeholder="مثال: منطقة الرياض" required col="col-md-4" />
-                    <x-form.controls.input name="plan_number" label="رقم المخطط" :value="$property->plan_number" placeholder="مثال: 2357" required col="col-md-6" />
-                    <x-form.controls.input name="parcel_number" label="رقم القطعة" :value="$property->parcel_number" placeholder="مثال: 1288" required col="col-md-6" />
-                    <x-form.controls.input name="google_maps_url" label="رابط الموقع (Google Maps)" :value="$property->google_maps_url" placeholder="https://maps.google.com/?q=..." required col="col-12" icon="ti ti-link" help="الصق رابط الموقع من خرائط جوجل لاستخراج الإحداثيات وتحديد الموقع على الخريطة تلقائياً." />
-
-                    <div class="col-12">
-                        <div class="card assignment-properties-table-card">
-                            <div class="card-header pb-2 d-flex justify-content-between align-items-center">
-                                <h6 class="card-title mb-0"><i class="ti ti-map me-1 text-primary"></i> موقع العقار على الخريطة</h6>
-                                <small class="text-muted"><i class="ti ti-hand-finger me-1"></i> يمكنك تحريك المؤشر لتعديل الإحداثيات</small>
+                    <div class="col-lg-9">
+                        <div class="card assignment-properties-table-card h-100">
+                            <div class="card-header pb-2">
+                                <h5 class="card-title mb-0"><i class="ti ti-map-pin me-2 text-primary"></i>بيانات الموقع</h5>
                             </div>
                             <div class="card-body">
-                                <div id="property-leaflet-map" class="leaflet-map-container" style="height: 280px; width: 100%;"></div>
+                                <div class="row g-4">
+                                    <x-form.controls.select name="city" label="المدينة" :value="$property->city" required col="col-md-6" :options="$cityOptions" />
+                                    <x-form.controls.input name="district" label="الحي / النطاق" :value="$property->district" placeholder="مثال: حي العارض" required col="col-md-6" />
+                                    <x-form.controls.input name="administrative_region" label="المنطقة الإدارية" :value="$property->administrative_region" placeholder="مثال: منطقة الرياض" required col="col-md-6" />
+                                    <x-form.controls.input name="plan_number" label="رقم المخطط" :value="$property->plan_number" placeholder="مثال: 2357" required col="col-md-6" />
+                                    <x-form.controls.input name="parcel_number" label="رقم القطعة" :value="$property->parcel_number" placeholder="مثال: 1288" required col="col-md-6" />
+                                    <x-form.controls.input name="google_maps_url" label="رابط الموقع (Google Maps)" :value="$property->google_maps_url" placeholder="https://maps.google.com/?q=..." required col="col-md-6" icon="ti ti-link" help="الصق رابط الموقع من خرائط جوجل لاستخراج الإحداثيات وتحديد الموقع على الخريطة تلقائياً." />
+                                </div>
+                                @include('tenants.properties._boundaries-table', ['bordersData' => $bordersData])
                             </div>
                         </div>
                     </div>
 
-                    {{-- حدود العقار وأطوالها --}}
-                    <div class="col-12">
-                        <div class="card assignment-properties-table-card">
-                            <div class="card-header pb-2 d-flex justify-content-between align-items-center">
-                                <h5 class="card-title mb-0"><i class="ti ti-ruler-2 me-2 text-primary"></i>حدود العقار وأطوالها</h5>
-                                <button type="button" class="btn btn-sm btn-primary" id="btn-add-border">
-                                    <i class="ti ti-plus me-1"></i> إضافة حد جديد
-                                </button>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive" data-form-field data-field-name="boundaries">
-                                    <table class="table table-bordered table-sm align-middle">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th style="width: 22%;">الجهة <span class="text-danger">*</span></th>
-                                                <th style="width: 25%;">نوع الحد <span class="text-danger">*</span></th>
-                                                <th style="width: 28%;">وصف الحد <span class="text-danger">*</span></th>
-                                                <th style="width: 17%;">الطول (م) <span class="text-danger">*</span></th>
-                                                <th style="width: 8%;" class="text-center">حذف</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="boundaries-list">
-                                            @php
-                                                $bordersData = old('boundaries', $property->boundaries->isNotEmpty()
-                                                    ? $property->boundaries->map(fn($b) => [
-                                                        'direction' => $b->direction?->value ?? $b->direction,
-                                                        'border_type' => $b->border_type,
-                                                        'border_description' => $b->border_description,
-                                                        'length' => $b->length,
-                                                    ])->toArray()
-                                                    : [
-                                                        ['direction' => 'north', 'border_type' => 'شارع', 'border_description' => 'شارع عرض 20 متر', 'length' => '30.00'],
-                                                        ['direction' => 'south', 'border_type' => 'قطعة', 'border_description' => 'رقم القطعة 1288', 'length' => '30.00'],
-                                                        ['direction' => 'east', 'border_type' => 'قطعة', 'border_description' => 'رقم القطعة 1290', 'length' => '20.00'],
-                                                        ['direction' => 'west', 'border_type' => 'شارع', 'border_description' => 'شارع عرض 15 متر', 'length' => '20.00'],
-                                                    ]);
-                                            @endphp
-                                            @foreach ($bordersData as $idx => $border)
-                                                <tr class="boundary-row">
-                                                    <td>
-                                                        <select name="boundaries[{{ $idx }}][direction]" class="form-select form-select-sm" data-form-control required>
-                                                            <option value="north" {{ ($border['direction'] ?? '') === 'north' ? 'selected' : '' }}>الشمال</option>
-                                                            <option value="south" {{ ($border['direction'] ?? '') === 'south' ? 'selected' : '' }}>الجنوب</option>
-                                                            <option value="east" {{ ($border['direction'] ?? '') === 'east' ? 'selected' : '' }}>الشرق</option>
-                                                            <option value="west" {{ ($border['direction'] ?? '') === 'west' ? 'selected' : '' }}>الغرب</option>
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <input type="text" name="boundaries[{{ $idx }}][border_type]" class="form-control form-control-sm" value="{{ $border['border_type'] ?? '' }}" placeholder="شارع / قطعة..." data-form-control required>
-                                                    </td>
-                                                    <td>
-                                                        <input type="text" name="boundaries[{{ $idx }}][border_description]" class="form-control form-control-sm" value="{{ $border['border_description'] ?? '' }}" placeholder="عرض 20 متر..." data-form-control required>
-                                                    </td>
-                                                    <td>
-                                                        <input type="number" step="0.01" name="boundaries[{{ $idx }}][length]" class="form-control form-control-sm" value="{{ $border['length'] ?? '' }}" placeholder="0.00" data-form-control required>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <button type="button" class="btn btn-icon btn-sm btn-label-danger btn-remove-border" aria-label="حذف الحد">
-                                                            <i class="ti ti-trash"></i>
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="col-lg-3">
+                        @include('tenants.properties._location-map-card')
                     </div>
 
                     <x-form.wizard.actions>

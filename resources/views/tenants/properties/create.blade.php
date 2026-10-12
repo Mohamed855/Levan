@@ -64,12 +64,17 @@
             {{-- الخطوة 1: البيانات الأساسية --}}
             <x-form.wizard.step id="property-basic-validation" :fields="['name', 'type', 'usage_classification', 'area', 'is_active', 'short_description']">
                 <div class="row g-4">
-                    <x-form.controls.input name="name" label="اسم العقار" placeholder="مثال: فيلا النخيل" required col="col-md-6" />
+                    <x-form.controls.input name="name" label="اسم العقار" placeholder="مثال: فيلا النخيل" required
+                        col="col-md-6" />
                     <x-form.controls.select name="type" label="نوع العقار" required col="col-md-6" :enum="\App\Enums\Tenants\Properties\PropertyType::class" />
-                    <x-form.controls.select name="usage_classification" label="تصنيف الاستخدام" required col="col-md-6" :enum="\App\Enums\Tenants\Properties\PropertyUsageClassification::class" />
-                    <x-form.controls.input name="area" type="number" step="0.01" label="المساحة (م²)" placeholder="مثال: 600" required col="col-md-6" />
-                    <x-form.controls.select name="is_active" label="حالة العقار" required col="col-md-6" :options="[['value' => '1', 'label' => 'نشط'], ['value' => '0', 'label' => 'غير نشط']]" value="1" />
-                    <x-form.controls.textarea name="short_description" label="وصف العقار" placeholder="أدخل وصفاً للعقار..." required col="col-12" rows="4" maxlength="500" />
+                    <x-form.controls.select name="usage_classification" label="تصنيف الاستخدام" required col="col-md-6"
+                        :enum="\App\Enums\Tenants\Properties\PropertyUsageClassification::class" />
+                    <x-form.controls.input name="area" type="number" step="0.01" label="المساحة (م²)"
+                        placeholder="مثال: 600" required col="col-md-6" />
+                    <x-form.controls.select name="is_active" label="حالة العقار" required col="col-md-6" :options="[['value' => '1', 'label' => 'نشط'], ['value' => '0', 'label' => 'غير نشط']]"
+                        value="1" />
+                    <x-form.controls.textarea name="short_description" label="وصف العقار" placeholder="أدخل وصفاً للعقار..."
+                        required col="col-12" rows="4" maxlength="500" />
 
                     <x-form.wizard.actions>
                         <x-form.wizard.previous-button :href="tenant_route_name('properties.index')" text="العودة" />
@@ -93,89 +98,69 @@
             ]">
                 <input type="hidden" name="latitude" id="latitude" value="{{ old('latitude') }}">
                 <input type="hidden" name="longitude" id="longitude" value="{{ old('longitude') }}">
+                @php
+                    $defaultBorders = [
+                        [
+                            'direction' => 'north',
+                            'border_type' => 'شارع',
+                            'border_description' => 'شارع عرض 20 متر',
+                            'length' => '30.00',
+                        ],
+                        [
+                            'direction' => 'south',
+                            'border_type' => 'قطعة',
+                            'border_description' => 'رقم القطعة 1288',
+                            'length' => '30.00',
+                        ],
+                        [
+                            'direction' => 'east',
+                            'border_type' => 'قطعة',
+                            'border_description' => 'رقم القطعة 1290',
+                            'length' => '20.00',
+                        ],
+                        [
+                            'direction' => 'west',
+                            'border_type' => 'شارع',
+                            'border_description' => 'شارع عرض 15 متر',
+                            'length' => '20.00',
+                        ],
+                    ];
+                    $bordersData = old('boundaries', $defaultBorders);
+                @endphp
 
                 <div class="row g-4">
-                    <x-form.controls.select name="city" label="المدينة" required col="col-md-4" :options="$cityOptions" />
-                    <x-form.controls.input name="district" label="الحي / النطاق" placeholder="مثال: حي العارض" required col="col-md-4" />
-                    <x-form.controls.input name="administrative_region" label="المنطقة الإدارية" placeholder="مثال: منطقة الرياض" required col="col-md-4" />
-                    <x-form.controls.input name="plan_number" label="رقم المخطط" placeholder="مثال: 2357" required col="col-md-6" />
-                    <x-form.controls.input name="parcel_number" label="رقم القطعة" placeholder="مثال: 1288" required col="col-md-6" />
-                    <x-form.controls.input name="google_maps_url" label="رابط الموقع (Google Maps)" placeholder="https://maps.google.com/?q=..." required col="col-12" icon="ti ti-link" help="الصق رابط الموقع من خرائط جوجل لاستخراج الإحداثيات وتحديد الموقع على الخريطة تلقائياً." />
-
-                    <div class="col-12">
-                        <div class="card assignment-properties-table-card">
-                            <div class="card-header pb-2 d-flex justify-content-between align-items-center">
-                                <h6 class="card-title mb-0"><i class="ti ti-map me-1 text-primary"></i> موقع العقار على الخريطة</h6>
-                                <small class="text-muted"><i class="ti ti-hand-finger me-1"></i> يمكنك تحريك المؤشر لتعديل الإحداثيات</small>
+                    <div class="col-lg-8">
+                        <div class="card assignment-properties-table-card h-100">
+                            <div class="card-header pb-2">
+                                <h5 class="card-title mb-0"><i class="ti ti-map-pin me-2 text-primary"></i>بيانات الموقع
+                                </h5>
                             </div>
                             <div class="card-body">
-                                <div id="property-leaflet-map" class="leaflet-map-container" style="height: 280px; width: 100%;"></div>
+                                <div class="row g-4">
+                                    <x-form.controls.select name="city" label="المدينة" required col="col-md-6"
+                                        :options="$cityOptions" />
+                                    <x-form.controls.input name="district" label="الحي / النطاق"
+                                        placeholder="مثال: حي العارض" required col="col-md-6" />
+                                    <x-form.controls.input name="administrative_region" label="المنطقة الإدارية"
+                                        placeholder="مثال: منطقة الرياض" required col="col-md-6" />
+                                    <x-form.controls.input name="plan_number" label="رقم المخطط" placeholder="مثال: 2357"
+                                        required col="col-md-6" />
+                                    <x-form.controls.input name="parcel_number" label="رقم القطعة" placeholder="مثال: 1288"
+                                        required col="col-md-6" />
+                                    <x-form.controls.input name="google_maps_url" label="رابط الموقع (Google Maps)"
+                                        placeholder="https://maps.google.com/?q=..." required col="col-md-6"
+                                        icon="ti ti-link"
+                                        help="الصق رابط الموقع من خرائط جوجل لاستخراج الإحداثيات وتحديد الموقع على الخريطة تلقائياً." />
+                                </div>
+                                @include('tenants.properties._boundaries-table', [
+                                    'bordersData' => $bordersData,
+                                ])
                             </div>
                         </div>
                     </div>
 
-                    {{-- حدود العقار وأطوالها --}}
-                    <div class="col-12">
-                        <div class="card assignment-properties-table-card">
-                            <div class="card-header pb-2 d-flex justify-content-between align-items-center">
-                                <h5 class="card-title mb-0"><i class="ti ti-ruler-2 me-2 text-primary"></i>حدود العقار وأطوالها</h5>
-                                <button type="button" class="btn btn-sm btn-primary" id="btn-add-border">
-                                    <i class="ti ti-plus me-1"></i> إضافة حد جديد
-                                </button>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive" data-form-field data-field-name="boundaries">
-                                    <table class="table table-bordered table-sm align-middle">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th style="width: 22%;">الجهة <span class="text-danger">*</span></th>
-                                                <th style="width: 25%;">نوع الحد <span class="text-danger">*</span></th>
-                                                <th style="width: 28%;">وصف الحد <span class="text-danger">*</span></th>
-                                                <th style="width: 17%;">الطول (م) <span class="text-danger">*</span></th>
-                                                <th style="width: 8%;" class="text-center">حذف</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="boundaries-list">
-                                            @php
-                                                $defaultBorders = [
-                                                    ['direction' => 'north', 'border_type' => 'شارع', 'border_description' => 'شارع عرض 20 متر', 'length' => '30.00'],
-                                                    ['direction' => 'south', 'border_type' => 'قطعة', 'border_description' => 'رقم القطعة 1288', 'length' => '30.00'],
-                                                    ['direction' => 'east', 'border_type' => 'قطعة', 'border_description' => 'رقم القطعة 1290', 'length' => '20.00'],
-                                                    ['direction' => 'west', 'border_type' => 'شارع', 'border_description' => 'شارع عرض 15 متر', 'length' => '20.00'],
-                                                ];
-                                                $bordersData = old('boundaries', $defaultBorders);
-                                            @endphp
-                                            @foreach ($bordersData as $idx => $border)
-                                                <tr class="boundary-row">
-                                                    <td>
-                                                        <select name="boundaries[{{ $idx }}][direction]" class="form-select form-select-sm" data-form-control required>
-                                                            <option value="north" {{ ($border['direction'] ?? '') === 'north' ? 'selected' : '' }}>الشمال</option>
-                                                            <option value="south" {{ ($border['direction'] ?? '') === 'south' ? 'selected' : '' }}>الجنوب</option>
-                                                            <option value="east" {{ ($border['direction'] ?? '') === 'east' ? 'selected' : '' }}>الشرق</option>
-                                                            <option value="west" {{ ($border['direction'] ?? '') === 'west' ? 'selected' : '' }}>الغرب</option>
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <input type="text" name="boundaries[{{ $idx }}][border_type]" class="form-control form-control-sm" value="{{ $border['border_type'] ?? '' }}" placeholder="شارع / قطعة..." data-form-control required>
-                                                    </td>
-                                                    <td>
-                                                        <input type="text" name="boundaries[{{ $idx }}][border_description]" class="form-control form-control-sm" value="{{ $border['border_description'] ?? '' }}" placeholder="عرض 20 متر..." data-form-control required>
-                                                    </td>
-                                                    <td>
-                                                        <input type="number" step="0.01" name="boundaries[{{ $idx }}][length]" class="form-control form-control-sm" value="{{ $border['length'] ?? '' }}" placeholder="0.00" data-form-control required>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <button type="button" class="btn btn-icon btn-sm btn-label-danger btn-remove-border" aria-label="حذف الحد">
-                                                            <i class="ti ti-trash"></i>
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="col-lg-4">
+                        @include('tenants.properties._location-map-card')
                     </div>
 
                     <x-form.wizard.actions>
@@ -191,17 +176,21 @@
             {{-- الخطوة 3: الملكية والتفاصيل --}}
             <x-form.wizard.step id="property-ownership-validation" :fields="['deed_number', 'deed_date', 'issuing_authority', 'ownership_type', 'owners']">
                 <div class="row g-4">
-                    <x-form.controls.input name="deed_number" label="رقم الصك" placeholder="أدخل رقم الصك" required col="col-md-6" />
+                    <x-form.controls.input name="deed_number" label="رقم الصك" placeholder="أدخل رقم الصك" required
+                        col="col-md-6" />
                     <x-form.controls.input name="deed_date" type="date" label="تاريخ الصك" required col="col-md-6" />
-                    <x-form.controls.input name="issuing_authority" label="جهة الإصدار" placeholder="مثال: كتابة العدل الأولى بالرياض" required col="col-md-6" />
-                    <x-form.controls.select name="ownership_type" label="نوع الملكية" required col="col-md-6" :enum="\App\Enums\Tenants\Properties\PropertyOwnershipType::class" />
+                    <x-form.controls.input name="issuing_authority" label="جهة الإصدار"
+                        placeholder="مثال: كتابة العدل الأولى بالرياض" required col="col-md-6" />
+                    <x-form.controls.select name="ownership_type" label="نوع الملكية" required col="col-md-6"
+                        :enum="\App\Enums\Tenants\Properties\PropertyOwnershipType::class" />
 
                     {{-- ملاك العقار --}}
                     <div class="col-12">
                         <div class="card assignment-properties-table-card">
                             <div class="card-header pb-2 d-flex justify-content-between align-items-center">
                                 <div>
-                                    <h5 class="card-title mb-0"><i class="ti ti-users me-2 text-primary"></i>بيانات الملاك</h5>
+                                    <h5 class="card-title mb-0"><i class="ti ti-users me-2 text-primary"></i>بيانات الملاك
+                                    </h5>
                                     <small class="text-muted">يمكنك إضافة مالك واحد أو أكثر للعقار</small>
                                 </div>
                                 <button type="button" class="btn btn-sm btn-primary" id="btn-add-owner">
@@ -218,19 +207,29 @@
                                             <div class="d-flex justify-content-between align-items-center mb-2">
                                                 <h6 class="mb-0 text-muted owner-number">المالك #{{ $idx + 1 }}</h6>
                                                 @if ($idx > 0)
-                                                    <button type="button" class="btn btn-icon btn-sm btn-label-danger btn-remove-owner" aria-label="حذف المالك">
+                                                    <button type="button"
+                                                        class="btn btn-icon btn-sm btn-label-danger btn-remove-owner"
+                                                        aria-label="حذف المالك">
                                                         <i class="ti ti-trash"></i>
                                                     </button>
                                                 @endif
                                             </div>
                                             <div class="row g-3">
                                                 <div class="col-md-6">
-                                                    <label class="form-label">اسم المالك <span class="text-danger">*</span></label>
-                                                    <input type="text" name="owners[{{ $idx }}][owner_name]" class="form-control" value="{{ $owner['owner_name'] ?? '' }}" placeholder="أدخل اسم المالك" data-form-control required>
+                                                    <label class="form-label">اسم المالك <span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="text" name="owners[{{ $idx }}][owner_name]"
+                                                        class="form-control" value="{{ $owner['owner_name'] ?? '' }}"
+                                                        placeholder="أدخل اسم المالك" data-form-control required>
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <label class="form-label">رقم الهوية / السجل التجاري <span class="text-danger">*</span></label>
-                                                    <input type="text" name="owners[{{ $idx }}][national_id_or_cr]" class="form-control" value="{{ $owner['national_id_or_cr'] ?? '' }}" placeholder="أدخل رقم الهوية أو السجل" data-form-control required>
+                                                    <label class="form-label">رقم الهوية / السجل التجاري <span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="text"
+                                                        name="owners[{{ $idx }}][national_id_or_cr]"
+                                                        class="form-control"
+                                                        value="{{ $owner['national_id_or_cr'] ?? '' }}"
+                                                        placeholder="أدخل رقم الهوية أو السجل" data-form-control required>
                                                 </div>
                                             </div>
                                         </div>
@@ -241,18 +240,24 @@
                     </div>
 
                     {{-- بيانات الوكيل (اختياري) --}}
-                    <x-form.controls.input name="agent_name" label="اسم الوكيل (اختياري)" placeholder="أدخل اسم الوكيل" :required="false" col="col-md-6" />
-                    <x-form.controls.input name="agent_national_id" label="رقم هوية الوكيل (اختياري)" placeholder="أدخل رقم هوية الوكيل" :required="false" col="col-md-6" />
-                    <x-form.controls.input name="agency_number" label="رقم الوكالة (اختياري)" placeholder="أدخل رقم الوكالة" :required="false" col="col-md-6" />
-                    <x-form.controls.input name="agency_date" type="date" label="تاريخ الوكالة (اختياري)" :required="false" col="col-md-6" />
+                    <x-form.controls.input name="agent_name" label="اسم الوكيل (اختياري)" placeholder="أدخل اسم الوكيل"
+                        :required="false" col="col-md-6" />
+                    <x-form.controls.input name="agent_national_id" label="رقم هوية الوكيل (اختياري)"
+                        placeholder="أدخل رقم هوية الوكيل" :required="false" col="col-md-6" />
+                    <x-form.controls.input name="agency_number" label="رقم الوكالة (اختياري)"
+                        placeholder="أدخل رقم الوكالة" :required="false" col="col-md-6" />
+                    <x-form.controls.input name="agency_date" type="date" label="تاريخ الوكالة (اختياري)"
+                        :required="false" col="col-md-6" />
 
                     {{-- وحدات العقار (اختياري) --}}
                     <div class="col-12">
                         <div class="card assignment-properties-table-card">
                             <div class="card-header pb-2 d-flex justify-content-between align-items-center">
                                 <div>
-                                    <h5 class="card-title mb-0"><i class="ti ti-layout-grid me-2 text-primary"></i>وحدات العقار (اختياري)</h5>
-                                    <small class="text-muted">إذا كان العقار يحتوي على وحدات متعددة (شقق، محلات، ملحقات)</small>
+                                    <h5 class="card-title mb-0"><i class="ti ti-layout-grid me-2 text-primary"></i>وحدات
+                                        العقار (اختياري)</h5>
+                                    <small class="text-muted">إذا كان العقار يحتوي على وحدات متعددة (شقق، محلات،
+                                        ملحقات)</small>
                                 </div>
                                 <button type="button" class="btn btn-sm btn-primary" id="btn-add-unit">
                                     <i class="ti ti-plus me-1"></i> إضافة وحدة جديدة
@@ -277,19 +282,44 @@
                                             @endphp
                                             @foreach ($unitsData as $idx => $unit)
                                                 <tr class="unit-row">
-                                                    <td><input type="text" name="units[{{ $idx }}][unit_number]" class="form-control form-control-sm" value="{{ $unit['unit_number'] ?? '' }}" placeholder="رقم الوحدة" data-form-control></td>
-                                                    <td><input type="text" name="units[{{ $idx }}][unit_type]" class="form-control form-control-sm" value="{{ $unit['unit_type'] ?? '' }}" placeholder="فيلا / شقة..." data-form-control></td>
-                                                    <td><input type="number" step="0.01" name="units[{{ $idx }}][area]" class="form-control form-control-sm" value="{{ $unit['area'] ?? '' }}" placeholder="المساحة" data-form-control></td>
-                                                    <td><input type="text" name="units[{{ $idx }}][current_use]" class="form-control form-control-sm" value="{{ $unit['current_use'] ?? '' }}" placeholder="سكني / تجاري..." data-form-control></td>
+                                                    <td><input type="text"
+                                                            name="units[{{ $idx }}][unit_number]"
+                                                            class="form-control form-control-sm"
+                                                            value="{{ $unit['unit_number'] ?? '' }}"
+                                                            placeholder="رقم الوحدة" data-form-control></td>
+                                                    <td><input type="text"
+                                                            name="units[{{ $idx }}][unit_type]"
+                                                            class="form-control form-control-sm"
+                                                            value="{{ $unit['unit_type'] ?? '' }}"
+                                                            placeholder="فيلا / شقة..." data-form-control></td>
+                                                    <td><input type="number" step="0.01"
+                                                            name="units[{{ $idx }}][area]"
+                                                            class="form-control form-control-sm"
+                                                            value="{{ $unit['area'] ?? '' }}" placeholder="المساحة"
+                                                            data-form-control></td>
+                                                    <td><input type="text"
+                                                            name="units[{{ $idx }}][current_use]"
+                                                            class="form-control form-control-sm"
+                                                            value="{{ $unit['current_use'] ?? '' }}"
+                                                            placeholder="سكني / تجاري..." data-form-control></td>
                                                     <td>
-                                                        <select name="units[{{ $idx }}][status]" class="form-select form-select-sm" data-form-control>
-                                                            <option value="available" {{ ($unit['status'] ?? '') === 'available' ? 'selected' : '' }}>متاح</option>
-                                                            <option value="rented" {{ ($unit['status'] ?? '') === 'rented' ? 'selected' : '' }}>مؤجر</option>
-                                                            <option value="sold" {{ ($unit['status'] ?? '') === 'sold' ? 'selected' : '' }}>مباع</option>
+                                                        <select name="units[{{ $idx }}][status]"
+                                                            class="form-select form-select-sm" data-form-control>
+                                                            <option value="available"
+                                                                {{ ($unit['status'] ?? '') === 'available' ? 'selected' : '' }}>
+                                                                متاح</option>
+                                                            <option value="rented"
+                                                                {{ ($unit['status'] ?? '') === 'rented' ? 'selected' : '' }}>
+                                                                مؤجر</option>
+                                                            <option value="sold"
+                                                                {{ ($unit['status'] ?? '') === 'sold' ? 'selected' : '' }}>
+                                                                مباع</option>
                                                         </select>
                                                     </td>
                                                     <td class="text-center">
-                                                        <button type="button" class="btn btn-icon btn-sm btn-label-danger btn-remove-unit" aria-label="حذف الوحدة"><i class="ti ti-trash"></i></button>
+                                                        <button type="button"
+                                                            class="btn btn-icon btn-sm btn-label-danger btn-remove-unit"
+                                                            aria-label="حذف الوحدة"><i class="ti ti-trash"></i></button>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -313,14 +343,23 @@
             {{-- الخطوة 4: الملفات والمستندات --}}
             <x-form.wizard.step id="property-files-validation" :fields="['main_image', 'deed_document', 'cadastral_plan', 'coordinates_statement', 'building_permit']">
                 <div class="row g-4">
-                    <x-form.controls.image-upload name="main_image" label="الصورة الرئيسية للعقار" required accept="image/jpeg,image/png,image/webp" hint="JPG أو PNG أو WebP، بحد أقصى 4MB" col="col-md-4" />
-                    <x-form.controls.file name="deed_document" label="صك الملكية" required accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" col="col-md-4" />
-                    <x-form.controls.file name="cadastral_plan" label="مخطط العقار" required accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" col="col-md-4" />
-                    <x-form.controls.file name="coordinates_statement" label="كشف الإحداثيات" required accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" col="col-md-4" />
-                    <x-form.controls.file name="building_permit" label="رخصة البناء (اختياري)" accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" :required="false" col="col-md-4" />
-                    <x-form.controls.file name="assignment_letter_image" label="صورة الإسناد (اختياري)" accept="image/*" help="صورة فقط بحد أقصى 4MB" :required="false" col="col-md-4" />
-                    <x-form.controls.file name="property_images[]" label="صور إضافية للمعرض (اختياري)" multiple accept="image/*" help="يمكن اختيار عدة صور للمعرض" :required="false" col="col-md-6" />
-                    <x-form.controls.file name="additional_documents[]" label="مستندات إضافية (اختياري)" multiple accept=".pdf,image/*" help="يمكن اختيار عدة ملفات" :required="false" col="col-md-6" />
+                    <x-form.controls.image-upload name="main_image" label="الصورة الرئيسية للعقار" required
+                        accept="image/jpeg,image/png,image/webp" hint="JPG أو PNG أو WebP، بحد أقصى 4MB"
+                        col="col-md-4" />
+                    <x-form.controls.file name="deed_document" label="صك الملكية" required accept=".pdf,image/*"
+                        help="PDF أو صورة، بحد أقصى 10MB" col="col-md-4" />
+                    <x-form.controls.file name="cadastral_plan" label="مخطط العقار" required accept=".pdf,image/*"
+                        help="PDF أو صورة، بحد أقصى 10MB" col="col-md-4" />
+                    <x-form.controls.file name="coordinates_statement" label="كشف الإحداثيات" required
+                        accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" col="col-md-4" />
+                    <x-form.controls.file name="building_permit" label="رخصة البناء (اختياري)" accept=".pdf,image/*"
+                        help="PDF أو صورة، بحد أقصى 10MB" :required="false" col="col-md-4" />
+                    <x-form.controls.file name="assignment_letter_image" label="صورة الإسناد (اختياري)" accept="image/*"
+                        help="صورة فقط بحد أقصى 4MB" :required="false" col="col-md-4" />
+                    <x-form.controls.file name="property_images[]" label="صور إضافية للمعرض (اختياري)" multiple
+                        accept="image/*" help="يمكن اختيار عدة صور للمعرض" :required="false" col="col-md-6" />
+                    <x-form.controls.file name="additional_documents[]" label="مستندات إضافية (اختياري)" multiple
+                        accept=".pdf,image/*" help="يمكن اختيار عدة ملفات" :required="false" col="col-md-6" />
 
                     <div class="col-12">
                         <div id="additional-attachments-cards" class="assignment-file-list" aria-live="polite"></div>
@@ -340,21 +379,28 @@
             <x-form.wizard.step id="property-review-validation" :fields="[]">
                 <div class="row g-4 assignment-review">
                     <div class="col-lg-9 d-flex flex-column gap-4">
-                        <x-form.wizard.review-card title="البيانات الأساسية" step="1" body-id="review-basic" class="assignment-review__card" />
-                        <x-form.wizard.review-card title="الموقع والحدود" step="2" body-id="review-location" class="assignment-review__card" />
-                        <x-form.wizard.review-card title="الملكية والتفاصيل" step="3" body-id="review-ownership" class="assignment-review__card" />
-                        <x-form.wizard.review-card title="الملفات والمستندات" step="4" body-id="review-files" class="assignment-review__card">
+                        <x-form.wizard.review-card title="البيانات الأساسية" step="1" body-id="review-basic"
+                            class="assignment-review__card" />
+                        <x-form.wizard.review-card title="الموقع والحدود" step="2" body-id="review-location"
+                            class="assignment-review__card" />
+                        <x-form.wizard.review-card title="الملكية والتفاصيل" step="3" body-id="review-ownership"
+                            class="assignment-review__card" />
+                        <x-form.wizard.review-card title="الملفات والمستندات" step="4" body-id="review-files"
+                            class="assignment-review__card">
                             <div id="review-files" class="assignment-file-list"></div>
                         </x-form.wizard.review-card>
                         <div class="card assignment-review__card">
                             <div class="card-body">
-                                <x-form.controls.textarea name="notes" label="ملاحظات إضافية (اختياري)" placeholder="أدخل أي ملاحظات إدارية أو توجيهات إضافية للعقار..." :required="false" col="col-12" rows="3" />
+                                <x-form.controls.textarea name="notes" label="ملاحظات إضافية (اختياري)"
+                                    placeholder="أدخل أي ملاحظات إدارية أو توجيهات إضافية للعقار..." :required="false"
+                                    col="col-12" rows="3" />
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-3">
                         <article class="card assignment-preview h-100">
-                            <img id="review-image" src="{{ asset('static/brand/logos/logo.svg') }}" alt="معاينة صورة العقار" class="assignment-preview__image">
+                            <img id="review-image" src="{{ asset('static/brand/logos/logo.svg') }}"
+                                alt="معاينة صورة العقار" class="assignment-preview__image">
                             <div class="card-body">
                                 <h5 id="review-name">اسم العقار</h5>
                                 <p id="review-description" class="text-muted mb-0">وصف العقار</p>

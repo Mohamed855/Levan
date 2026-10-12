@@ -83,6 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (name) {
           input.setAttribute('name', name.replace(/boundaries\[\d+\]/, `boundaries[${index}]`));
         }
+
       });
     });
   }

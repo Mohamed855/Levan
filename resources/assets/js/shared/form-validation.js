@@ -774,17 +774,11 @@ function isStepValid(form, step) {
 function updateStepNextButton(form, step) {
   if (!step) return;
   const nextButtons = step.querySelectorAll('[data-wizard-next], .btn-next:not(.btn-submit)');
-  const valid = !getFormState(form).isValidatingStep && isStepValid(form, step);
 
   nextButtons.forEach((btn) => {
-    btn.disabled = !valid;
-    if (valid) {
-      btn.removeAttribute('disabled');
-      btn.classList.remove('disabled');
-    } else {
-      btn.setAttribute('disabled', 'disabled');
-      btn.classList.add('disabled');
-    }
+    btn.disabled = false;
+    btn.removeAttribute('disabled');
+    btn.classList.remove('disabled');
   });
 }
 
@@ -976,7 +970,7 @@ function initStepper(form) {
       }
 
       if (nextButton) {
-        if (nextButton.disabled || nextButton.classList.contains('disabled') || state.isValidatingStep) {
+        if (state.isValidatingStep) {
           return;
         }
 
@@ -989,8 +983,6 @@ function initStepper(form) {
         const stepFields = validationFieldsFromStep(currentStep);
 
         state.isValidatingStep = true;
-        nextButton.disabled = true;
-        nextButton.classList.add('disabled');
         nextButton.setAttribute('aria-busy', 'true');
 
         try {
@@ -1118,13 +1110,31 @@ function initForm(form) {
   };
 
   const formControls = Array.from(form.querySelectorAll('[data-form-control][name], input[name], select[name], textarea[name]'));
+  const hasControlValue = (control) => {
+    if (control.type === 'checkbox' || control.type === 'radio') {
+      return control.checked;
+    }
+
+    if (control.type === 'file') {
+      return (control.files?.length || 0) > 0;
+    }
+
+    if (control.tagName === 'SELECT' && control.multiple) {
+      return Array.from(control.selectedOptions).some((option) => option.value !== '');
+    }
+
+    return String(control.value ?? '').trim() !== '';
+  };
+  const shouldValidateInteraction = (control, event) => event?.isTrusted || hasControlValue(control);
 
   formControls.forEach((control) => {
     if (['submit', 'button', 'reset', 'hidden'].includes(control.type)) {
       return;
     }
 
-    control.addEventListener('input', () => {
+    control.addEventListener('input', (event) => {
+      if (!shouldValidateInteraction(control, event)) return;
+
       // 1. Instant client-side feedback
       validateControlClientSide(form, control);
 
@@ -1136,7 +1146,9 @@ function initForm(form) {
       scheduleValidation(control, step);
     });
 
-    control.addEventListener('change', () => {
+    control.addEventListener('change', (event) => {
+      if (!shouldValidateInteraction(control, event)) return;
+
       clearScheduledValidation(control);
       validateControlClientSide(form, control);
       const step = getStepForControl(control);
@@ -1160,7 +1172,9 @@ function initForm(form) {
   if (window.jQuery) {
     const validatedSelectSelector = 'select[data-form-control][name]:not([data-validation-skip])';
 
-    window.jQuery(form).on('change.sharedFormValidation', validatedSelectSelector, function () {
+    window.jQuery(form).on('change.sharedFormValidation', validatedSelectSelector, function (event) {
+      if (!shouldValidateInteraction(this, event.originalEvent)) return;
+
       validateControlClientSide(form, this);
       const step = getStepForControl(this);
       if (step) updateStepNextButton(form, step);
@@ -1184,19 +1198,7 @@ function initForm(form) {
       return false;
     }
 
-    if (control.type === 'checkbox' || control.type === 'radio') {
-      return control.checked;
-    }
-
-    if (control.type === 'file') {
-      return (control.files?.length || 0) > 0;
-    }
-
-    if (control.tagName === 'SELECT' && control.multiple) {
-      return Array.from(control.selectedOptions).some((option) => option.value !== '');
-    }
-
-    return String(control.value ?? '').trim() !== '';
+    return hasControlValue(control);
   };
 
   const initialFieldsByStep = new Map();

@@ -2,11 +2,11 @@
     'text' => 'التالي',
     'icon' => 'ti ti-arrow-left ms-2',
     'iconPosition' => 'end',
-    'disabled' => true,
+    'disabled' => false,
     'type' => 'button',
 ])
 
-<button type="{{ $type }}" data-wizard-next {{ $attributes->class(['btn', 'btn-primary', 'btn-next', 'waves-effect', 'waves-light']) }} @disabled($disabled)>
+<button type="{{ $type }}" data-wizard-next {{ $attributes->class(['btn', 'btn-primary', 'btn-next', 'waves-effect', 'waves-light']) }}>
     @if ($icon && $iconPosition === 'start')<i class="{{ $icon }}" aria-hidden="true"></i>@endif
     {{ $slot->isNotEmpty() ? $slot : $text }}
     @if ($icon && $iconPosition === 'end')<i class="{{ $icon }}" aria-hidden="true"></i>@endif
