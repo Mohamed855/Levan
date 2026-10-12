@@ -1,8 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Tenants\Properties;
 
+use App\Enums\Tenants\Properties\PropertyBoundaryDirection;
+use App\Enums\Tenants\Properties\PropertyOwnershipType;
+use App\Enums\Tenants\Properties\PropertyType;
+use App\Enums\Tenants\Properties\PropertyUsageClassification;
 use App\Http\Requests\Concerns\WizardFormRequest;
+use Illuminate\Validation\Rule;
 
 class StorePropertyRequest extends WizardFormRequest
 {
@@ -14,55 +21,151 @@ class StorePropertyRequest extends WizardFormRequest
     public function rules(): array
     {
         return [
-            'assignment_id'   => ['required', 'exists:assignments,id'],
-            'property_number' => ['required', 'string', 'max:100'],
-            'name'            => ['required', 'string', 'max:255'],
-            'type'            => ['required', 'string', 'in:residential_land,villa,residential_building,commercial_building,commercial_land,mixed_use'],
-            'city'            => ['required', 'string', 'max:100'],
-            'district'        => ['nullable', 'string', 'max:100'],
-            'area'            => ['required', 'numeric', 'min:0'],
-            'deed_number'     => ['nullable', 'string', 'max:100'],
-            'estimated_value' => ['nullable', 'numeric', 'min:0'],
-            'data_status'     => ['nullable', 'string', 'in:completed,needs_images,incomplete'],
-            'status'          => ['nullable', 'string', 'in:available,assigned_to_auction,sold'],
-            'main_image'      => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
-            'notes'           => ['nullable', 'string', 'max:1000'],
+            // Step 1: البيانات الأساسية
+            'name' => ['required', 'string', 'max:255'],
+            'type' => ['required', Rule::enum(PropertyType::class)],
+            'usage_classification' => ['required', Rule::enum(PropertyUsageClassification::class)],
+            'area' => ['required', 'numeric', 'min:0.01'],
+            'is_active' => ['required', 'boolean'],
+            'short_description' => ['required', 'string', 'max:500'],
+            'property_number' => ['nullable', 'string', 'max:100'],
+
+            // Step 2: الموقع والحدود
+            'city' => ['required', 'string', 'max:100'],
+            'district' => ['required', 'string', 'max:100'],
+            'administrative_region' => ['required', 'string', 'max:100'],
+            'plan_number' => ['required', 'string', 'max:100'],
+            'parcel_number' => ['required', 'string', 'max:100'],
+            'google_maps_url' => ['required', 'string', 'max:1000'],
+            'latitude' => ['nullable', 'numeric'],
+            'longitude' => ['nullable', 'numeric'],
+            'boundaries' => ['required', 'array', 'min:1'],
+            'boundaries.*.direction' => ['required', Rule::enum(PropertyBoundaryDirection::class)],
+            'boundaries.*.border_type' => ['required', 'string', 'max:100'],
+            'boundaries.*.border_description' => ['required', 'string', 'max:255'],
+            'boundaries.*.length' => ['required', 'numeric', 'min:0'],
+
+            // Step 3: الملكية والتفاصيل
+            'assignment_letter_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'deed_number' => ['required', 'string', 'max:100'],
+            'deed_date' => ['required', 'date'],
+            'issuing_authority' => ['required', 'string', 'max:255'],
+            'ownership_type' => ['required', Rule::enum(PropertyOwnershipType::class)],
+            'owners' => ['required', 'array', 'min:1'],
+            'owners.*.owner_name' => ['required', 'string', 'max:255'],
+            'owners.*.national_id_or_cr' => ['required', 'string', 'max:100'],
+            'agent_name' => ['nullable', 'string', 'max:255'],
+            'agent_national_id' => ['nullable', 'string', 'max:100'],
+            'agency_number' => ['nullable', 'string', 'max:100'],
+            'agency_date' => ['nullable', 'date'],
+            'units' => ['nullable', 'array'],
+            'units.*.unit_number' => ['nullable', 'string', 'max:100'],
+            'units.*.unit_type' => ['nullable', 'string', 'max:100'],
+            'units.*.area' => ['nullable', 'numeric', 'min:0'],
+            'units.*.current_use' => ['nullable', 'string', 'max:100'],
+            'units.*.status' => ['nullable', 'string', 'max:100'],
+
+            // Step 4: المستندات والصور
+            'deed_document' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+            'cadastral_plan' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+            'building_permit' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+            'coordinates_statement' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+            'additional_documents' => ['nullable', 'array'],
+            'additional_documents.*' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+            'main_image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'property_images' => ['nullable', 'array'],
+            'property_images.*' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+
+            // Step 5: المراجعة والملاحظات
+            'notes' => ['nullable', 'string', 'max:1000'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'assignment_id.required'   => 'الإسناد التابع له مطلوب.',
-            'assignment_id.exists'     => 'الإسناد المختار غير موجود.',
-            'property_number.required' => 'رقم العقار مطلوب.',
-            'name.required'            => 'اسم العقار مطلوب.',
-            'type.required'            => 'نوع العقار مطلوب.',
-            'type.in'                  => 'نوع العقار غير صالح.',
-            'city.required'            => 'المدينة مطلوبة.',
-            'area.required'            => 'المساحة مطلوبة.',
-            'area.numeric'             => 'المساحة يجب أن تكون رقماً.',
-            'estimated_value.numeric'  => 'القيمة التقديرية يجب أن تكون رقماً.',
-            'main_image.image'         => 'صورة العقار يجب أن تكون صورة صالحة.',
-            'main_image.max'           => 'حجم الصورة يجب ألا يتجاوز 4 ميجابايت.',
+            // Step 1
+            'name.required' => 'اسم العقار مطلوب.',
+            'type.required' => 'نوع العقار مطلوب.',
+            'usage_classification.required' => 'تصنيف الاستخدام مطلوب.',
+            'area.required' => 'المساحة مطلوبة.',
+            'area.numeric' => 'المساحة يجب أن تكون رقماً.',
+            'is_active.required' => 'حالة العقار مطلوبة.',
+            'short_description.required' => 'الوصف المختصر للعقار مطلوب.',
+            'short_description.max' => 'الوصف المختصر يجب ألا يتجاوز 500 حرف.',
+
+            // Step 2
+            'city.required' => 'المدينة مطلوبة.',
+            'district.required' => 'الحي مطلوب.',
+            'administrative_region.required' => 'المنطقة الإدارية مطلوبة.',
+            'plan_number.required' => 'رقم المخطط مطلوب.',
+            'parcel_number.required' => 'رقم القطعة مطلوب.',
+            'google_maps_url.required' => 'رابط الموقع من Google Maps مطلوب.',
+            'boundaries.required' => 'يجب إدخال حدود العقار وأطوالها.',
+            'boundaries.min' => 'يجب إدخال حد واحد على الأقل للعقار.',
+            'boundaries.*.direction.required' => 'جهة الحد مطلوبة.',
+            'boundaries.*.border_type.required' => 'نوع الحد مطلوب.',
+            'boundaries.*.border_description.required' => 'وصف الحد مطلوب.',
+            'boundaries.*.length.required' => 'طول الحد مطلوب.',
+            'boundaries.*.length.numeric' => 'طول الحد يجب أن يكون رقماً.',
+
+            // Step 3
+            'deed_number.required' => 'رقم الصك مطلوب.',
+            'deed_date.required' => 'تاريخ الصك مطلوب.',
+            'issuing_authority.required' => 'جهة إصدار الصك مطلوبة.',
+            'ownership_type.required' => 'نوع الملكية مطلوب.',
+            'owners.required' => 'يجب إدخال مالك واحد على الأقل.',
+            'owners.min' => 'يجب إدخال مالك واحد على الأقل.',
+            'owners.*.owner_name.required' => 'اسم المالك مطلوب.',
+            'owners.*.national_id_or_cr.required' => 'رقم الهوية أو السجل التجاري مطلوب.',
+            'assignment_letter_image.image' => 'صورة الإسناد يجب أن تكون صورة صالحة.',
+            'assignment_letter_image.max' => 'حجم صورة الإسناد يجب ألا يتجاوز 4 ميجابايت.',
+
+            // Step 4
+            'deed_document.required' => 'صك الملكية مطلوب.',
+            'deed_document.file' => 'صك الملكية يجب أن يكون ملفاً صالحاً (PDF أو صورة).',
+            'cadastral_plan.required' => 'مخطط العقار مطلوب.',
+            'coordinates_statement.required' => 'كشف الإحداثيات مطلوب.',
+            'main_image.required' => 'الصورة الرئيسية للعقار مطلوبة.',
+            'main_image.image' => 'الصورة الرئيسية يجب أن تكون صورة صالحة.',
+            'main_image.max' => 'حجم الصورة الرئيسية يجب ألا يتجاوز 4 ميجابايت.',
         ];
     }
 
     public function attributes(): array
     {
         return [
-            'assignment_id'   => 'الإسناد',
-            'property_number' => 'رقم العقار',
-            'name'            => 'اسم العقار',
-            'type'            => 'نوع العقار',
-            'city'            => 'المدينة',
-            'district'        => 'الحي',
-            'area'            => 'المساحة',
-            'deed_number'     => 'رقم الصك',
-            'estimated_value' => 'القيمة التقديرية',
-            'data_status'     => 'حالة البيانات',
-            'main_image'      => 'صورة العقار',
-            'notes'           => 'الملاحظات',
+            'name' => 'اسم العقار',
+            'type' => 'نوع العقار',
+            'usage_classification' => 'تصنيف الاستخدام',
+            'area' => 'المساحة',
+            'is_active' => 'حالة العقار',
+            'short_description' => 'الوصف المختصر',
+            'city' => 'المدينة',
+            'district' => 'الحي',
+            'administrative_region' => 'المنطقة الإدارية',
+            'plan_number' => 'رقم المخطط',
+            'parcel_number' => 'رقم القطعة',
+            'google_maps_url' => 'رابط الموقع من Google Maps',
+            'boundaries' => 'حدود العقار',
+            'deed_number' => 'رقم الصك',
+            'deed_date' => 'تاريخ الصك',
+            'issuing_authority' => 'جهة إصدار الصك',
+            'ownership_type' => 'نوع الملكية',
+            'owners' => 'ملاك العقار',
+            'agent_name' => 'اسم الوكيل',
+            'agent_national_id' => 'رقم هوية الوكيل',
+            'agency_number' => 'رقم الوكالة',
+            'agency_date' => 'تاريخ الوكالة',
+            'units' => 'وحدات العقار',
+            'deed_document' => 'صك الملكية',
+            'cadastral_plan' => 'مخطط العقار',
+            'building_permit' => 'رخصة البناء',
+            'coordinates_statement' => 'كشف الإحداثيات',
+            'additional_documents' => 'المستندات الإضافية',
+            'main_image' => 'الصورة الرئيسية للعقار',
+            'property_images' => 'صور العقار',
+            'notes' => 'الملاحظات',
         ];
     }
 }

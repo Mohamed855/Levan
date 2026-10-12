@@ -1,7 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Tenants\Properties;
 
+use App\Actions\Tenants\Properties\CreatePropertyAction;
+use App\Actions\Tenants\Properties\UpdatePropertyAction;
 use App\DataTables\Tenants\Properties\PropertiesDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Properties\StorePropertyRequest;
@@ -13,6 +17,7 @@ use App\Services\Tenants\Properties\PropertyService;
 use App\Services\Tenants\Shared\CentralCityOptionsGateway;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class PropertiesController extends Controller
@@ -35,12 +40,12 @@ class PropertiesController extends Controller
         $assignments = Assignment::select(['id', 'name', 'assignment_number'])->get();
 
         return $dataTable->render('tenants.properties.index', [
-            'totalProperties'      => $statistics['total'],
-            'availableProperties'  => $statistics['available'],
-            'assignedProperties'   => $statistics['assigned_to_auction'],
-            'completedProperties'  => $statistics['completed'],
-            'assignments'          => $assignments,
-            'cityOptions'          => $this->cityOptionsGateway->optionsByName(),
+            'totalProperties'              => $statistics['total'],
+            'readyForAssignmentProperties' => $statistics['ready_for_assignment'],
+            'unlinkedProperties'           => $statistics['unlinked'],
+            'needsReviewProperties'        => $statistics['needs_review'],
+            'assignments'                  => $assignments,
+            'cityOptions'                  => $this->cityOptionsGateway->optionsByName(),
         ]);
     }
 
@@ -56,26 +61,28 @@ class PropertiesController extends Controller
         ]);
     }
 
-    public function store(StorePropertyRequest $request): RedirectResponse
+    public function store(StorePropertyRequest $request, CreatePropertyAction $createAction): RedirectResponse
     {
         try {
-            $this->propertyService->createProperty(
+            $createAction->execute(
                 $request->validated(),
-                $request->file('main_image')
+                (int) auth('tenant')->id()
             );
 
             return redirect()->to(tenant_route_name('properties.index'))
                 ->with('success', 'تم إضافة العقار بنجاح');
         } catch (\Exception $e) {
+            Log::error('Property creation failed.', ['exception' => $e]);
+
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'حدث خطأ أثناء إضافة العقار');
+                ->with('error', 'حدث خطأ أثناء إضافة العقار: ' . $e->getMessage());
         }
     }
 
     public function show(Property $property): View
     {
-        $property->load(['assignment', 'auctions']);
+        $property->load(['assignment', 'auctions', 'boundaries', 'owners', 'units', 'attachments', 'creator']);
 
         return view('tenants.properties.show', [
             'property' => $property,
@@ -84,6 +91,7 @@ class PropertiesController extends Controller
 
     public function edit(Property $property): View
     {
+        $property->load(['boundaries', 'owners', 'units', 'attachments', 'assignment']);
         $assignments = Assignment::select(['id', 'name', 'assignment_number'])->get();
 
         return view('tenants.properties.edit', [
@@ -93,21 +101,22 @@ class PropertiesController extends Controller
         ]);
     }
 
-    public function update(UpdatePropertyRequest $request, Property $property): RedirectResponse
+    public function update(UpdatePropertyRequest $request, Property $property, UpdatePropertyAction $updateAction): RedirectResponse
     {
         try {
-            $this->propertyService->updateProperty(
+            $updateAction->execute(
                 $property,
-                $request->validated(),
-                $request->file('main_image')
+                $request->validated()
             );
 
             return redirect()->to(tenant_route_name('properties.index'))
                 ->with('success', 'تم تحديث العقار بنجاح');
         } catch (\Exception $e) {
+            Log::error('Property update failed.', ['exception' => $e]);
+
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'حدث خطأ أثناء تحديث العقار');
+                ->with('error', 'حدث خطأ أثناء تحديث العقار: ' . $e->getMessage());
         }
     }
 

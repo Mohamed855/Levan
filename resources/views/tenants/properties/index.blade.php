@@ -104,16 +104,18 @@
         <x-slot:stats>
             <x-ui.stat-card col="col-sm-6 col-xl-3" title="إجمالي العقارات" :value="$totalProperties" subtitle="كافة العقارات المسجلة"
                 icon="ti-building" color="primary" />
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="عقارات متاحة" :value="$availableProperties" subtitle="جاهزة للإدراج بمزاد"
-                icon="ti-check" color="success" />
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="مدرجة بمزادات" :value="$assignedProperties" subtitle="مرتبطة بمزاد حالي"
-                icon="ti-gavel" color="info" />
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="مكتملة البيانات" :value="$completedProperties" subtitle="بيانات وصور مكتملة"
-                icon="ti-file-check" color="warning" />
+            <x-ui.stat-card col="col-sm-6 col-xl-3" title="مكتملة البيانات" :value="$readyForAssignmentProperties" subtitle="جاهزة للربط بإسناد"
+                icon="ti-file-check" color="success" />
+            <x-ui.stat-card col="col-sm-6 col-xl-3" title="غير مرتبطة بإسناد" :value="$unlinkedProperties" subtitle="متاحة للإسنادات الجديدة"
+                icon="ti-link-off" color="info" />
+            <x-ui.stat-card col="col-sm-6 col-xl-3" title="تحتاج للمراجعة" :value="$needsReviewProperties" subtitle="بيانات أو مستندات غير مكتملة"
+                icon="ti-alert-triangle" color="warning" />
         </x-slot:stats>
 
         <x-slot:filters>
             <x-data-table.filters table="#properties-table">
+                <x-filter.select id="filter-assignment-status" filterKey="assignment_status" label="حالة الارتباط" placeholder="الكل"
+                    :options="['linked' => 'مرتبط بإسناد', 'unlinked' => 'غير مرتبط بإسناد']" />
                 <x-filter.select id="filter-assignment" filterKey="assignment_id" label="الإسناد" placeholder="جميع الإسنادات"
                     :options="$assignments->pluck('name', 'id')->toArray()" />
                 <x-filter.select id="filter-type" filterKey="type" label="نوع العقار" placeholder="جميع الأنواع"

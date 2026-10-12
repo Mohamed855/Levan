@@ -13,7 +13,7 @@
         <div class="container-xxl">
             <div class="row justify-content-center">
                 <div class="col-lg-8">
-                    <a href="{{ tenant_route_name('domains.setting') }}" class="btn btn-label-secondary mb-4">
+                    <a href="{{ tenant_route_name('domains.setting') }}" class="btn btn-secondary mb-4">
                         <i class="ti ti-arrow-right me-1"></i>
                         العودة إلى النطاقات
                     </a>
@@ -51,17 +51,9 @@
                                     <input type="hidden" name="step" value="2">
                                     <div class="mb-4">
                                         <label class="form-label" for="transfer-domain">اسم النطاق</label>
-                                        <input
-                                            class="form-control"
-                                            id="transfer-domain"
-                                            name="domain"
-                                            type="text"
-                                            value="{{ $currentDomain }}"
-                                            placeholder="example.com"
-                                            dir="ltr"
-                                            autocomplete="off"
-                                            required
-                                        >
+                                        <input class="form-control" id="transfer-domain" name="domain" type="text"
+                                            value="{{ $currentDomain }}" placeholder="example.com" dir="ltr"
+                                            autocomplete="off" required>
                                         <div class="form-text">يُعاد التحقق من النطاق والسعر عند بدء الدفع.</div>
                                     </div>
 
@@ -90,22 +82,15 @@
 
                                     <div class="mb-4">
                                         <label class="form-label" for="epp-code">كود EPP / Auth Code</label>
-                                        <input
-                                            class="form-control"
-                                            id="epp-code"
-                                            name="eppCode"
-                                            type="text"
-                                            value="{{ old('eppCode') }}"
-                                            dir="ltr"
-                                            autocomplete="off"
-                                            minlength="6"
-                                            required
-                                        >
+                                        <input class="form-control" id="epp-code" name="eppCode" type="text"
+                                            value="{{ old('eppCode') }}" dir="ltr" autocomplete="off" minlength="6"
+                                            required>
                                         <div class="form-text">اطلب الكود من مزود النطاق الحالي.</div>
                                     </div>
 
                                     <div class="d-flex justify-content-between">
-                                        <a class="btn btn-label-secondary" href="{{ tenant_route_name('domains.transfer-domain') }}">رجوع</a>
+                                        <a class="btn btn-secondary"
+                                            href="{{ tenant_route_name('domains.transfer-domain') }}">رجوع</a>
                                         <button class="btn btn-primary" type="submit">
                                             مراجعة الدفع
                                             <i class="ti ti-arrow-left ms-1"></i>
@@ -129,7 +114,8 @@
                                     <input type="hidden" name="eppCode" value="{{ old('eppCode', request('eppCode')) }}">
 
                                     <div class="d-flex justify-content-between">
-                                        <a class="btn btn-label-secondary" href="{{ tenant_route_name('domains.transfer-domain', ['step' => 2, 'domain' => $currentDomain]) }}">رجوع</a>
+                                        <a class="btn btn-secondary"
+                                            href="{{ tenant_route_name('domains.transfer-domain', ['step' => 2, 'domain' => $currentDomain]) }}">رجوع</a>
                                         <button class="btn btn-primary" type="submit">
                                             المتابعة للدفع الآمن
                                             <i class="ti ti-arrow-left ms-1"></i>

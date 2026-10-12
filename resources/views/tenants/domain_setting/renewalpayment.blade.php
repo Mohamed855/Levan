@@ -16,7 +16,7 @@
         <div class="container-xxl">
             <div class="row justify-content-center">
                 <div class="col-lg-8">
-                    <a href="{{ tenant_route_name('domains.setting') }}" class="btn btn-label-secondary mb-4">
+                    <a href="{{ tenant_route_name('domains.setting') }}" class="btn btn-secondary mb-4">
                         <i class="ti ti-arrow-right me-1"></i>
                         العودة إلى النطاقات
                     </a>
@@ -50,16 +50,12 @@
                             <div class="row g-3">
                                 @for ($year = 1; $year <= 5; $year++)
                                     <div class="col-md-4 col-sm-6">
-                                        <input
-                                            class="btn-check"
-                                            id="renewal-years-{{ $year }}"
-                                            name="years"
-                                            type="radio"
-                                            value="{{ $year }}"
-                                            @checked($selectedYears === $year)
-                                        >
-                                        <label class="btn btn-outline-primary w-100 text-start p-3" for="renewal-years-{{ $year }}">
-                                            <span class="d-block fw-semibold mb-1">{{ $year }} {{ $year === 1 ? 'سنة' : 'سنوات' }}</span>
+                                        <input class="btn-check" id="renewal-years-{{ $year }}" name="years"
+                                            type="radio" value="{{ $year }}" @checked($selectedYears === $year)>
+                                        <label class="btn btn-outline-primary w-100 text-start p-3"
+                                            for="renewal-years-{{ $year }}">
+                                            <span class="d-block fw-semibold mb-1">{{ $year }}
+                                                {{ $year === 1 ? 'سنة' : 'سنوات' }}</span>
                                             <span class="small">{{ number_format($unitPrice * $year, 2) }} ر.س</span>
                                         </label>
                                     </div>
@@ -68,7 +64,8 @@
 
                             <div class="bg-lighter rounded p-3 mt-5 d-flex align-items-center justify-content-between">
                                 <span class="text-muted">إجمالي الخيار الحالي</span>
-                                <strong>{{ number_format($selectedTotal, 2) }} <span class="icon-saudi_riyal fs-6"></span></strong>
+                                <strong>{{ number_format($selectedTotal, 2) }} <span
+                                        class="icon-saudi_riyal fs-6"></span></strong>
                             </div>
                         </div>
 

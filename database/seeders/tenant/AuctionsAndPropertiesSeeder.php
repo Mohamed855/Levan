@@ -98,7 +98,7 @@ class AuctionsAndPropertiesSeeder extends Seeder
         $assignments = [];
         foreach ($assignmentsData as $data) {
             $isArchived = ($data['assignment_number'] === 'ASN-' . date('Y') . '-00106');
-            $assignment = Assignment::updateOrCreate(
+            $assignment = Assignment::withTrashed()->updateOrCreate(
                 ['assignment_number' => $data['assignment_number']],
                 array_merge($data, ['created_by' => $userId])
             );
@@ -247,6 +247,38 @@ class AuctionsAndPropertiesSeeder extends Seeder
                 'notes'           => 'بناء شخصي وتشطيبات فندقية.',
             ],
             [
+                'assignment_id'   => null,
+                'property_number' => 'PROP-010',
+                'name'            => 'أرض تجارية مستقلة بحي النرجس',
+                'type'            => 'commercial_land',
+                'usage_classification' => 'commercial',
+                'city'            => 'الرياض',
+                'district'        => 'النرجس',
+                'area'            => 1500.00,
+                'deed_number'     => '310105009920',
+                'estimated_value' => 7500000.00,
+                'data_status'     => 'completed',
+                'status'          => 'available',
+                'is_active'       => true,
+                'notes'           => 'عقار مستقل مكتمل البيانات جاهز للربط بإسناد.',
+            ],
+            [
+                'assignment_id'   => null,
+                'property_number' => 'PROP-011',
+                'name'            => 'فيلا تحت المراجعة بحي حطين',
+                'type'            => 'villa',
+                'usage_classification' => 'residential',
+                'city'            => 'الرياض',
+                'district'        => 'حطين',
+                'area'            => 450.00,
+                'deed_number'     => '310105009921',
+                'estimated_value' => 3800000.00,
+                'data_status'     => 'needs_review',
+                'status'          => 'available',
+                'is_active'       => true,
+                'notes'           => 'عقار غير مرتبط بإسناد وبحاجة لمراجعة المستندات.',
+            ],
+            [
                 'assignment_id'   => $assignment4->id,
                 'property_number' => 'PROP-009',
                 'name'            => 'عقار ملغي ومؤرشف للاختبار',
@@ -266,10 +298,27 @@ class AuctionsAndPropertiesSeeder extends Seeder
         $createdProperties = [];
         foreach ($propertiesData as $pData) {
             $isArchived = ($pData['property_number'] === 'PROP-009');
-            $prop = Property::updateOrCreate(
+            $prop = Property::withTrashed()->updateOrCreate(
                 ['property_number' => $pData['property_number']],
                 array_merge($pData, ['created_by' => $userId])
             );
+
+            if ($prop->boundaries()->count() === 0) {
+                $prop->boundaries()->createMany([
+                    ['direction' => 'north', 'border_type' => 'شارع', 'border_description' => 'شارع عرض 20 متر', 'length' => 30.0, 'sort_order' => 0],
+                    ['direction' => 'south', 'border_type' => 'قطعة', 'border_description' => 'رقم القطعة 1288', 'length' => 30.0, 'sort_order' => 1],
+                    ['direction' => 'east', 'border_type' => 'قطعة', 'border_description' => 'رقم القطعة 1290', 'length' => 20.0, 'sort_order' => 2],
+                    ['direction' => 'west', 'border_type' => 'شارع', 'border_description' => 'شارع عرض 15 متر', 'length' => 20.0, 'sort_order' => 3],
+                ]);
+            }
+
+            if ($prop->owners()->count() === 0) {
+                $prop->owners()->create([
+                    'owner_name' => 'شركة أصول العقارية',
+                    'national_id_or_cr' => '1010998877',
+                    'sort_order' => 0,
+                ]);
+            }
 
             if ($isArchived && ! $prop->trashed()) {
                 $prop->delete();
