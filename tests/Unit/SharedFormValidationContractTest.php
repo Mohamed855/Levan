@@ -13,6 +13,8 @@ class SharedFormValidationContractTest extends TestCase
         $script = file_get_contents(dirname(__DIR__, 2) . '/resources/assets/js/shared/form-validation.js');
 
         $this->assertStringContainsString('const valid = !getFormState(form).isValidatingStep && isStepValid(form, step);', $script);
+        $this->assertStringContainsString("const currentStep = nextButton.closest('[data-form-step]');", $script);
+        $this->assertStringNotContainsString("querySelectorAll('[data-form-step], .content')", $script);
         $this->assertStringContainsString('const isValid = await validateFields(form, stepFields, { force: true });', $script);
         $this->assertStringContainsString("nextButton.setAttribute('aria-busy', 'true');", $script);
     }

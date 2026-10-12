@@ -917,7 +917,7 @@ function initStepper(form) {
   const state = getFormState(form);
   state.stepper = new window.Stepper(stepperElement, { linear: true });
 
-  const getSteps = () => Array.from(stepperElement.querySelectorAll('[data-form-step], .content'));
+  const getSteps = () => Array.from(stepperElement.querySelectorAll('[data-form-step]'));
 
   const getCurrentIndex = () => {
     const steps = getSteps();
@@ -980,8 +980,12 @@ function initStepper(form) {
           return;
         }
 
-        const currentIndex = getCurrentIndex();
-        const currentStep = getSteps()[currentIndex];
+        const steps = getSteps();
+        const currentStep = nextButton.closest('[data-form-step]');
+        const currentIndex = steps.indexOf(currentStep);
+        if (!currentStep || currentIndex < 0) {
+          return;
+        }
         const stepFields = validationFieldsFromStep(currentStep);
 
         state.isValidatingStep = true;
@@ -1223,7 +1227,7 @@ function initForm(form) {
     if (!valid) {
       const stepperElement = form.closest('[data-form-stepper]');
       if (stepperElement) {
-        const steps = Array.from(stepperElement.querySelectorAll('[data-form-step], .content'));
+        const steps = Array.from(stepperElement.querySelectorAll('[data-form-step]'));
         const currentStep = steps.find((s) => s.classList.contains('active')) || steps[0];
         updateStepNextButton(form, currentStep);
       }
