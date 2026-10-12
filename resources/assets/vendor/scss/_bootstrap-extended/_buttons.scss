@@ -6,9 +6,12 @@
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
-  &:not(.dropdown-toggle):not([class*='btn-text-']) {
-    transition: all 0.135s ease-in-out;
-    transform: scale(1.001);
+  transform: none;
+
+  &:hover,
+  &:focus,
+  &:active {
+    transform: none;
   }
 
   &[class*='btn-outline-'] {
@@ -46,8 +49,7 @@
   }
   &[class*='btn-']:active:not([class*='btn-text']):not(.dropdown-toggle),
   &[class*='btn-'].active:not([class*='btn-text']):not(.dropdown-toggle) {
-    transform: scale(0.98);
-    transition: all 0.135s ease-in-out;
+    transform: none;
   }
 }
 

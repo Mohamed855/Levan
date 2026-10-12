@@ -7,6 +7,7 @@ use App\Models\Shared\Attachment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\UserMangment\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -59,8 +60,10 @@ class Assignment extends Model
     public function assignmentImage(): MorphOne
     {
         return $this->morphOne(Attachment::class, 'attachable')
-            ->where('category', AssignmentAttachmentCategory::IMAGE->value)
-            ->latestOfMany();
+            ->ofMany(['id' => 'max'], fn (Builder $query): Builder => $query->where(
+                'category',
+                AssignmentAttachmentCategory::IMAGE->value,
+            ));
     }
 
     public function creator(): BelongsTo

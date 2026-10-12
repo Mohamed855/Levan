@@ -247,8 +247,7 @@ $bs-stepper-vertical-header-min-width: 18rem !default;
             }
           }
           &.crossed .step-trigger {
-            .bs-stepper-label .bs-stepper-subtitle,
-            .bs-stepper-title {
+            .bs-stepper-label .bs-stepper-subtitle {
               color: light.$text-muted;
             }
           }
@@ -352,8 +351,7 @@ $bs-stepper-vertical-header-min-width: 18rem !default;
             }
           }
           &.crossed .step-trigger {
-            .bs-stepper-label .bs-stepper-subtitle,
-            .bs-stepper-title {
+            .bs-stepper-label .bs-stepper-subtitle {
               color: dark.$text-muted;
             }
           }

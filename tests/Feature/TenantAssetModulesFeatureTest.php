@@ -116,6 +116,20 @@ class TenantAssetModulesFeatureTest extends TestCase
             $assignment->attachments()->pluck('category')->all(),
         );
         $assignment->attachments->each(fn ($attachment) => Storage::disk('tenant_public')->assertExists($attachment->file_path));
+
+        $imagePath = $assignment->assignmentImage()->firstOrFail()->file_path;
+        $imageUrl = tasset($imagePath);
+        $this->assertStringEndsWith('/'.$imagePath, $imageUrl);
+        $this->assertStringNotContainsString('/test/public/test/', $imageUrl);
+
+        $tableResponse = $this->actingAs($this->owner, 'tenant')
+            ->getJson($this->tenantUrl('assignments'), ['X-Requested-With' => 'XMLHttpRequest'])
+            ->assertOk();
+        $assignmentRow = collect($tableResponse->json('data'))
+            ->first(fn (array $row): bool => str_contains($row['assignment_number'], $assignmentNumber));
+
+        $this->assertNotNull($assignmentRow);
+        $this->assertStringContainsString($imageUrl, $assignmentRow['image']);
     }
 
     public function test_assignment_creation_accepts_a_property_already_linked_to_an_assignment(): void

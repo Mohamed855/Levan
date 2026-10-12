@@ -23,7 +23,7 @@ class UpdateAssignmentRequest extends WizardFormRequest
                 'max:100',
                 Rule::unique('assignments', 'assignment_number')->ignore($assignmentId),
             ],
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'min:3', 'max:255'],
             'issuing_entity' => ['required', 'string', 'max:255'],
             'assignment_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
             'city' => ['required', 'string', 'max:100'],

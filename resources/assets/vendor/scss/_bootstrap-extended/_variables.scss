@@ -480,7 +480,7 @@ $btn-active-box-shadow: none !default;
 $btn-border-radius-xs: $border-radius-xs !default; // (C)
 $btn-border-radius-xl: $border-radius-xl !default; // (C)
 
-$btn-transition: all 0.2s ease-in-out !default;
+$btn-transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !default;
 
 $btn-label-bg-shade-amount: 84% !default; // (C)
 $btn-label-bg-tint-amount: 84% !default; // (C)

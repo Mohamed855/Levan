@@ -20,7 +20,7 @@ class StoreAssignmentRequest extends WizardFormRequest
     {
         return [
             'assignment_number' => ['required', 'string', 'max:100', 'unique:assignments,assignment_number'],
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'min:3', 'max:255'],
             'issuing_entity' => ['required', 'string', 'max:255'],
             'city' => ['required', 'string', 'max:100'],
             'district' => ['required', 'string', 'max:255'],

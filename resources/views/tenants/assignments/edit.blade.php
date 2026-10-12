@@ -55,16 +55,9 @@
 
                     <x-form.wizard.step id="assignment-info-validation" :fields="['assignment_number', 'name', 'issuing_entity', 'city', 'district', 'category', 'assignment_image']">
                         <div class="row g-6">
-                            <div class="col-md-6" data-form-field data-field-name="assignment_number">
-                                <label for="assignment_number" class="form-label">رقم الإسناد <span
-                                        class="text-danger">*</span></label>
-                                <input type="text" class="form-control font-monospace" id="assignment_number"
-                                    name="assignment_number"
-                                    value="{{ old('assignment_number', $assignment->assignment_number) }}"
-                                    style="text-transform: uppercase;" data-form-control required>
-                                <div id="assignment_number-error" class="invalid-feedback d-block" data-form-error
-                                    role="alert" hidden></div>
-                            </div>
+                            <x-form.controls.input name="assignment_number" label="رقم الإسناد"
+                                :value="$assignment->assignment_number" required col="col-md-6"
+                                class="font-monospace text-uppercase" />
 
                             <x-form.controls.input name="name" label="اسم الإسناد" :value="$assignment->name" required
                                 col="col-md-6" />

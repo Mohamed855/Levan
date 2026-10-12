@@ -23,6 +23,6 @@
     width="{{ $size }}"
     height="{{ $size }}"
     loading="lazy"
-    class="rounded border bg-white object-fit-cover"
+    class="rounded-circle border bg-white object-fit-cover"
     onerror="this.onerror=null;this.src='{{ $fallback }}';"
 >

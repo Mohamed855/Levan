@@ -5,11 +5,16 @@
 // Button stability: avoid transform jumps on hover/active
 .btn {
     transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    transform: none !important;
 
     &:hover,
     &:focus,
     &:active {
-        transform: none;
+        transform: none !important;
+    }
+
+    > * {
+        transform: none !important;
     }
 
     &:disabled,

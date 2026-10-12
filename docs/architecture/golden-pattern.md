@@ -515,6 +515,7 @@ control/details → hidden id → checkbox → business columns → الحالة
 
 - إذا كان للنموذج صورة واحدة أو صورة رئيسية، يجب أن يكون لها column مستقل في DataTable، ولا تدمج داخل عمود الاسم أو الإجراءات.
 - الصورة تستخدم component عرض مشترك يثبت الأبعاد و`object-fit` وalt text وlazy loading.
+- كل صور الصفوف داخل جداول الـIndex وDataTables تعرض بشكل دائري موحد باستخدام `rounded-circle`؛ ويمنع عرضها بشكل مربع أو مستطيل داخل عمود الصورة.
 - عند غياب الصورة تستخدم fallback تلقائيًا: شعار المنصة في إدارة Central/SuperAdmin، وشعار الـTenant الحالي في إدارة Tenant، ثم شعار المنصة إذا لم يكن للـTenant شعار.
 - لا تكرر منطق بناء URL أو fallback داخل DataTables؛ يمر عبر component/presenter مشترك.
 

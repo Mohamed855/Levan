@@ -1,6 +1,6 @@
 @props([
     'text' => 'التالي',
-    'icon' => 'ti ti-arrow-right ms-2',
+    'icon' => 'ti ti-arrow-left ms-2',
     'iconPosition' => 'end',
     'disabled' => true,
     'type' => 'button',

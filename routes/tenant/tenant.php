@@ -443,17 +443,12 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         |--------------------------------------------------------------------------
         */
         Route::prefix('assignments')->name('assignments.')->group(function () {
-            Route::name('index')->get('/', [AssignmentsController::class, 'index']);
-            Route::name('create')->get('create', [AssignmentsController::class, 'create']);
-            Route::name('store')->post('/', [AssignmentsController::class, 'store']);
             Route::name('selected-properties')->get('selected-properties', [AssignmentsController::class, 'selectedProperties']);
             Route::name('properties')->get('{assignment}/properties', [AssignmentsController::class, 'getProperties']);
-            Route::name('show')->get('{assignment}', [AssignmentsController::class, 'show']);
-            Route::name('edit')->get('{assignment}/edit', [AssignmentsController::class, 'edit']);
-            Route::name('update')->put('{assignment}', [AssignmentsController::class, 'update']);
-            Route::name('destroy')->delete('{assignment}', [AssignmentsController::class, 'destroy']);
             Route::name('toggle-status')->patch('{assignment}/toggle-status', [AssignmentsController::class, 'toggleStatus']);
         });
+        Route::resource('assignments', AssignmentsController::class)
+            ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
 
         /*
         |--------------------------------------------------------------------------

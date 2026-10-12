@@ -1,6 +1,6 @@
 @props([
     'text' => 'السابق',
-    'icon' => 'ti ti-arrow-left me-1',
+    'icon' => 'ti ti-arrow-right me-1',
     'disabled' => false,
     'href' => null,
     'type' => 'button',
