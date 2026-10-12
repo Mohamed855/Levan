@@ -1,5 +1,6 @@
 'use strict';
 
+const INPUT_VALIDATION_DEBOUNCE_MS = 250;
 const formStates = new WeakMap();
 
 function getFormState(form) {
@@ -10,6 +11,7 @@ function getFormState(form) {
       successfulValidations: new Map(),
       isSubmitting: false,
       isNavigating: false,
+      isValidatingStep: false,
       stepper: null
     });
   }
@@ -772,15 +774,7 @@ function isStepValid(form, step) {
 function updateStepNextButton(form, step) {
   if (!step) return;
   const nextButtons = step.querySelectorAll('[data-wizard-next], .btn-next:not(.btn-submit)');
-  const state = getFormState(form);
-  const stepFields = validationFieldsFromStep(step).map(normalizeFieldName);
-  const hasSuccessfulServerValidation = stepFields.every((fieldName) =>
-    Array.from(state.successfulValidations.entries()).some(([key, signature]) => {
-      const validatedFields = key.split('|').filter(Boolean);
-      return validatedFields.includes(fieldName) && signature === validationSignature(form, validatedFields);
-    })
-  );
-  const valid = isStepValid(form, step) && hasSuccessfulServerValidation;
+  const valid = !getFormState(form).isValidatingStep && isStepValid(form, step);
 
   nextButtons.forEach((btn) => {
     btn.disabled = !valid;
@@ -964,7 +958,7 @@ function initStepper(form) {
 
   stepperElement.addEventListener(
     'click',
-    (event) => {
+    async (event) => {
       const trigger = event.target.closest('.step-trigger');
       const nextButton = event.target.closest('[data-wizard-next], .btn-next:not(.btn-submit)');
       const previousButton = event.target.closest('[data-wizard-prev], .btn-prev');
@@ -982,10 +976,29 @@ function initStepper(form) {
       }
 
       if (nextButton) {
-        if (nextButton.disabled || nextButton.classList.contains('disabled')) {
+        if (nextButton.disabled || nextButton.classList.contains('disabled') || state.isValidatingStep) {
           return;
         }
-        moveTo(getCurrentIndex() + 1);
+
+        const currentIndex = getCurrentIndex();
+        const currentStep = getSteps()[currentIndex];
+        const stepFields = validationFieldsFromStep(currentStep);
+
+        state.isValidatingStep = true;
+        nextButton.disabled = true;
+        nextButton.classList.add('disabled');
+        nextButton.setAttribute('aria-busy', 'true');
+
+        try {
+          const isValid = await validateFields(form, stepFields, { force: true });
+          if (isValid) {
+            moveTo(currentIndex + 1);
+          }
+        } finally {
+          state.isValidatingStep = false;
+          nextButton.removeAttribute('aria-busy');
+          updateStepNextButton(form, currentStep);
+        }
         return;
       }
 
@@ -1055,6 +1068,7 @@ function initForm(form) {
   const getStepForControl = (control) => control.closest('[data-form-step], .content');
   const validationFieldsForControl = (control) => [control.name, ...parseDependencies(control)];
   const activeControlValidations = new WeakMap();
+  const validationTimers = new WeakMap();
   const validateImmediately = (control, step, { force = false } = {}) => {
     if (!control.name || control.matches('[data-validation-skip], [data-datatable-filter]')) {
       return Promise.resolve(true);
@@ -1083,6 +1097,21 @@ function initForm(form) {
     activeControlValidations.set(control, { signature, pending: true, promise: validation });
     return validation;
   };
+  const clearScheduledValidation = (control) => {
+    const timer = validationTimers.get(control);
+    if (timer) {
+      clearTimeout(timer);
+      validationTimers.delete(control);
+    }
+  };
+  const scheduleValidation = (control, step) => {
+    clearScheduledValidation(control);
+    const timer = setTimeout(() => {
+      validationTimers.delete(control);
+      validateImmediately(control, step);
+    }, INPUT_VALIDATION_DEBOUNCE_MS);
+    validationTimers.set(control, timer);
+  };
 
   const formControls = Array.from(form.querySelectorAll('[data-form-control][name], input[name], select[name], textarea[name]'));
 
@@ -1100,10 +1129,11 @@ function initForm(form) {
       if (step) {
         updateStepNextButton(form, step);
       }
-      validateImmediately(control, step);
+      scheduleValidation(control, step);
     });
 
     control.addEventListener('change', () => {
+      clearScheduledValidation(control);
       validateControlClientSide(form, control);
       const step = getStepForControl(control);
       if (step) {
@@ -1113,6 +1143,7 @@ function initForm(form) {
     });
 
     control.addEventListener('blur', () => {
+      clearScheduledValidation(control);
       validateControlClientSide(form, control);
       const step = getStepForControl(control);
       if (step) {
