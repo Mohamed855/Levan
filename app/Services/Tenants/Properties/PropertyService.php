@@ -13,10 +13,12 @@ class PropertyService
     public function getStatistics(): array
     {
         return [
-            'total' => Property::count(),
+            'total'                => Property::count(),
+            'active'               => Property::where('is_active', true)->count(),
             'ready_for_assignment' => Property::where('data_status', PropertyDataStatus::COMPLETED->value)->whereNull('assignment_id')->count(),
-            'unlinked' => Property::whereNull('assignment_id')->count(),
-            'needs_review' => Property::where('data_status', '!=', PropertyDataStatus::COMPLETED->value)->count(),
+            'completed'            => Property::where('data_status', PropertyDataStatus::COMPLETED->value)->count(),
+            'unlinked'             => Property::whereNull('assignment_id')->count(),
+            'needs_review'         => Property::where('data_status', '!=', PropertyDataStatus::COMPLETED->value)->count(),
         ];
     }
 

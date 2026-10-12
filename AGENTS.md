@@ -97,3 +97,22 @@
 - Use a Modular Monolith with explicit `Central` and `Tenant` boundaries. Tenant code must not access Central models directly; cross-boundary work must use an explicit central service/gateway and tenant context.
 - Do not add a generic Repository layer around Eloquent models. Use Actions for single transactional business operations and Services for use-case orchestration.
 - The canonical pattern and its file-by-file implementation checklist are documented in `docs/architecture/golden-pattern.md`; administration compliance is tracked in `docs/baselines/golden-pattern-manifest.md`.
+
+## 7. Visual Layout, UX & Design Architecture Standards (Mandatory Reference)
+- **Assignments & Properties as Canonical References**: All multi-step wizard administrations and show/index views must strictly mirror the visual architecture, component contracts, and UX patterns established in `tenants/assignments` and `tenants/properties`.
+- **Index View Layout**:
+  - Statistics cards must use **5 uniform cards** with `col="col-sm-6 col-xl"` representing the entity lifecycle (Total `primary`, Active/Ready `success`, Completed/Under Review `info`, Unlinked/Pending `warning`, Needs Review/Suspended `danger`).
+  - Table image column must render as `rounded-circle` with fixed dimensions.
+  - Entity codes must use `.copyable-code-wrapper` with single-click clipboard copy and Toastr notification.
+- **Wizard Create & Edit Forms**:
+  - Stepper indicators must use clean, concise titles without subtitles (`['id' => '...', 'title' => '...']`).
+  - Form steps must use an open full-width grid (`<div class="row g-4">` with `col-md-6` / `col-12`). NEVER introduce artificial sidebar columns (e.g. `col-lg-4` percentage widgets or checklist cards) inside input steps.
+  - Dynamic subtables (boundaries, owners, units, child items) must use `.assignment-properties-table-card` with an explicit card-header, title, dynamic count, primary add button (`btn-sm btn-primary`), and uniform row delete buttons (`btn-icon btn-sm btn-label-danger`).
+  - The final review step MUST use the canonical split layout:
+    - **Right column (`col-lg-9`)**: Review cards using `<x-form.wizard.review-card>` with quick edit buttons (`data-edit-step`) jumping directly to the corresponding step via `bsStepper.to(step)`.
+    - **Left column (`col-lg-3`)**: Live entity preview card `<article class="card assignment-preview h-100">` with top image (`.assignment-preview__image` aspect-ratio 4:3), entity name, and description.
+- **Show View Layout**:
+  - Must use the **Two-Column Asymmetric Layout**:
+    - **Left column (`col-xl-4 col-lg-5 col-md-5 mb-4`)**: Profile card (centered 100x100px rounded image, name, category badge, horizontal stat counters, key-value info list) + Attachments card underneath rendering a clean file list with `ti ti-download` action buttons.
+    - **Right column (`col-xl-8 col-lg-7 col-md-7`)**: Dedicated strictly to child subtables and related records (1:M tables, auctions, history) using clean `<div class="card mb-4"><div class="table-responsive"><table class="table table-hover">...</table></div></div>`.
+

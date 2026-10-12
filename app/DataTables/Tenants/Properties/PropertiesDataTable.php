@@ -166,6 +166,10 @@ class PropertiesDataTable extends AbstractDataTable
             $query->where('status', $request->status);
         }
 
+        if ($request->filled('filter_deed_number')) {
+            $query->where('deed_number', 'like', '%'.$request->filter_deed_number.'%');
+        }
+
         return $query;
     }
 

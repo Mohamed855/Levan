@@ -1,6 +1,7 @@
 # Golden Pattern Manifest — سجل مطابقة الإدارات
 
 - **تاريخ خط الأساس:** 8 أكتوبر 2026
+- **آخر مراجعة لعقد السجل:** 12 أكتوبر 2026
 - **النطاق:** كل route نشط في `Admin` و`Tenant` فقط. لا يشمل Website أو التعريفات غير المحمّلة في runtime والمثبت عدم نشاطها.
 - **المالك التقني:** فريق Levan Backend.
 - **مرجع العقد:** [golden-pattern.md](../architecture/golden-pattern.md).
@@ -18,6 +19,42 @@
 | Request/Policy | `موجود` يعني أن العقد مثبت في الكود أو الاختبار؛ `Gap` يعني أن الإدارة ما زالت مطالبة بإكماله، وليس إقراراً بصحته. |
 | UI | `DT` = DataTable، `View` = Blade، `API` = JSON/endpoint، `Dashboard/Report` = عقد خدمة view-data/report. |
 | Tests | أدنى الدليل المطلوب: `F` Feature، `U` Unit، `I` tenant isolation، `S` smoke. |
+
+### بطاقة التنفيذ التفصيلية لكل إدارة
+
+الجدول العام أدناه هو فهرس حالة، وليس بديلًا عن تفاصيل الملفات. قبل بدء إدارة جديدة أو تعديل إدارة قائمة، يضاف تحت صفها أو في PR/issue المرتبط بها manifest تنفيذي بهذه الحقول، ولا يجوز نقل الحالة إلى **Compliant** قبل اكتمالها:
+
+```text
+Administration:
+Boundary: central | tenant
+Scope / aggregate root:
+Routes + middleware + guard:
+Controller:
+FormRequests (store/update/specialized):
+Policy registration + abilities:
+Actions / Services / Gateways:
+Models / Enums / Events / Jobs:
+DataTable / index / filters / buttons:
+Create UI + draft resource key + restore/purge evidence:
+Edit UI:
+Review step (when multi-step):
+Show UI + child tables + attachments:
+Archive controller / DataTable / views:
+Shared components and JavaScript contracts:
+Files and storage lifecycle:
+Tests (Feature / Unit / Isolation / Contract):
+Verification commands and passing evidence:
+Not applicable items + reason:
+Remaining gaps + owner:
+Status: Gap | Partial | Compliant
+```
+
+قواعد الانتقال:
+
+- **Gap:** طبقة إلزامية مفقودة أو لا يوجد دليل اختبار عليها.
+- **Partial:** التدفق الأساسي يعمل لكن بطاقة التنفيذ تحتوي فجوة مسماة ومالكًا واضحًا.
+- **Compliant:** كل بند إما مثبت بمسار ملف واختبار ناجح، أو `not_applicable` بسبب وظيفي محدد؛ وجود الملفات وحده لا يكفي.
+- عند تعديل إدارة Compliant، يعاد فتح البنود المتأثرة في البطاقة وتشغيل اختبارات الإدارة والعقود الأفقية المتأثرة قبل إبقاء الحالة.
 
 ## 2. Central / Super Admin
 

@@ -36,7 +36,7 @@ Route
 | Namespace | `Admin` | `Tenants` |
 | Routes | `routes/admin/admin.php` | `routes/tenant/tenant.php` |
 | Views | `resources/views/admin/{module}` | `resources/views/tenants/{module}` |
-| Drafts | جدول `drafts` المركزي | جدول `drafts` داخل قاعدة كل مستأجر |
+| Drafts | جدول `wizard_drafts` المركزي | جدول `wizard_drafts` داخل قاعدة كل مستأجر |
 | اختبار العزل | صلاحية وسجل مركزي | Tenant A لا يرى أو يعدل بيانات Tenant B |
 
 كود Tenant ممنوع أن يستدعي Model مركزيًا مباشرة. أي عبور للحدود يمر عبر Gateway/Service صريح يستقبل tenant context، مثل نمط `CentralCityOptionsGateway`.
@@ -77,36 +77,44 @@ Route
 
 ## 3. خريطة الملفات الإلزامية لكل إدارة
 
-استبدل `{Boundary}` بـ`Admin` أو`Tenants`، و`{Module}` و`{Entity}` باسم الإدارة والنموذج.
+استخدم placeholders حسب نوع المسار، ولا تحولها آليًا بصيغة واحدة:
+
+- `{PhpBoundary}` = `Admin` أو `Tenants` داخل `app/` و`tests/`.
+- `{route-boundary}` = `admin` أو `tenant` داخل `routes/`.
+- `{view-boundary}` = `admin` أو `tenants` داخل `resources/views/`.
+- `{asset-boundary}` = `admin` أو `tenant` داخل `resources/assets/`.
+- `{migration-boundary}` = `admin` أو `tenant` حسب قاعدة البيانات.
+- `{Module}` و`{Entity}` يطابقان namespace واسم النموذج الفعليين، ولا يفترضان جمعًا آليًا غير صحيح.
 
 ```text
-routes/{boundary}/{boundary}.php
-app/Models/{Boundary}/{Module}/{Entity}.php
-app/Enums/{Boundary}/{Module}/{StateEnum}.php                 # عند وجود حالات محددة
-app/Http/Controllers/{Boundary}/{Module}/{Entity}Controller.php
-app/Http/Requests/{Boundary}/{Module}/Store{Entity}Request.php
-app/Http/Requests/{Boundary}/{Module}/Update{Entity}Request.php
-app/Http/Requests/{Boundary}/{Module}/Update{Entity}StatusRequest.php # عند وجود activity toggle
-app/Policies/{Boundary}/{Module}/{Entity}Policy.php
-app/Actions/{Boundary}/{Module}/Create{Entity}Action.php       # عند وجود transaction/relations/files
-app/Actions/{Boundary}/{Module}/Update{Entity}Action.php       # عند تعقيد التحديث
-app/Services/{Boundary}/{Module}/{Entity}Service.php
-app/DataTables/{Boundary}/{Module}/{Entity}DataTable.php       # للقوائم server-side
-app/Http/Controllers/{Boundary}/Archive/{Module}/{Entity}ArchiveController.php
-app/DataTables/{Boundary}/Archive/{Module}/Archived{Entity}DataTable.php
-resources/views/{boundary}/{module}/index.blade.php
-resources/views/{boundary}/{module}/create.blade.php
-resources/views/{boundary}/{module}/edit.blade.php
-resources/views/{boundary}/{module}/show.blade.php             # إن كان العرض مطلوبًا
-resources/views/{boundary}/{module}/action.blade.php
-resources/views/{boundary}/{module}/archive.blade.php
-resources/assets/js/{boundary}/{module}/form.js                # فقط orchestration؛ لا قواعد validation
-database/migrations/{tenant-or-central}/...                    # حسب boundary
+routes/{route-boundary}/{route-boundary}.php
+app/Models/{PhpBoundary}/{Module}/{Entity}.php
+app/Enums/{PhpBoundary}/{Module}/{StateEnum}.php                 # عند وجود حالات محددة
+app/Http/Controllers/{PhpBoundary}/{Module}/{Entity}Controller.php
+app/Http/Requests/{PhpBoundary}/{Module}/Store{Entity}Request.php
+app/Http/Requests/{PhpBoundary}/{Module}/Update{Entity}Request.php
+app/Http/Requests/{PhpBoundary}/{Module}/Update{Entity}StatusRequest.php # عند وجود activity toggle
+app/Policies/{PhpBoundary}/{Module}/{Entity}Policy.php
+app/Actions/{PhpBoundary}/{Module}/Create{Entity}Action.php       # عند وجود transaction/relations/files
+app/Actions/{PhpBoundary}/{Module}/Update{Entity}Action.php       # عند تعقيد التحديث
+app/Services/{PhpBoundary}/{Module}/{Entity}Service.php
+app/DataTables/{PhpBoundary}/{Module}/{Entity}DataTable.php       # للقوائم server-side
+app/Http/Controllers/{PhpBoundary}/Archive/{Module}/{Entity}ArchiveController.php
+app/DataTables/{PhpBoundary}/Archive/{Module}/Archived{Entity}DataTable.php # أو الاسم القائم المكافئ داخل الإدارة
+resources/views/{view-boundary}/{module}/index.blade.php
+resources/views/{view-boundary}/{module}/create.blade.php
+resources/views/{view-boundary}/{module}/edit.blade.php
+resources/views/{view-boundary}/{module}/show.blade.php             # إن كان العرض مطلوبًا
+resources/views/{view-boundary}/{module}/action.blade.php
+resources/views/{view-boundary}/archive/{module}/index.blade.php
+resources/views/{view-boundary}/archive/{module}/action.blade.php
+resources/assets/js/{asset-boundary}/{module}/form.js                # فقط orchestration؛ لا قواعد validation
+database/migrations/{migration-boundary}/...                         # حسب boundary
 database/factories/.../{Entity}Factory.php
 database/seeders/...                                           # إذا احتاجت الإدارة بيانات مرجعية
-tests/Feature/{Boundary}/{Module}/{Entity}CrudTest.php
-tests/Unit/{Boundary}/{Module}/{Entity}PolicyTest.php
-tests/Feature/{Boundary}/{Module}/{Entity}IsolationTest.php     # Tenant فقط
+tests/Feature/{PhpBoundary}/{Module}/{Entity}CrudTest.php
+tests/Unit/{PhpBoundary}/{Module}/{Entity}PolicyTest.php
+tests/Feature/{PhpBoundary}/{Module}/{Entity}IsolationTest.php     # Tenant فقط
 ```
 
 ليس المطلوب إنشاء ملفات فارغة. الملف غير اللازم يوضع `not_applicable` في Manifest بسبب محدد. الملف المطلوب لا يدمج داخل Controller لمجرد تقليل عدد الملفات.
@@ -127,9 +135,8 @@ tests/Feature/{Boundary}/{Module}/{Entity}IsolationTest.php     # Tenant فقط
 Route::prefix('entities')->name('entities.')->group(function () {
     Route::patch('{entity}/toggle-status', [EntityController::class, 'toggleStatus'])
         ->name('toggle-status');
-    Route::resource('/', EntityController::class)
-        ->parameters(['' => 'entity']);
 });
+Route::resource('entities', EntityController::class);
 ```
 
 `Route::resource()` هو الأصل لكل CRUD. ممنوع كتابة routes منفصلة لـ`index/create/store/show/edit/update/destroy` عندما يستطيع resource التعبير عنها. استخدم `only()` أو `except()` عندما لا تدعم الإدارة كل العمليات، ثم أضف فقط العمليات غير القياسية بجوار resource:
@@ -138,11 +145,9 @@ Route::prefix('entities')->name('entities.')->group(function () {
 Route::prefix('entities')->name('entities.')->group(function () {
     Route::patch('{entity}/toggle-status', [EntityController::class, 'toggleStatus'])
         ->name('toggle-status');
-
-    Route::resource('/', EntityController::class)
-        ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
-        ->parameters(['' => 'entity']);
 });
+Route::resource('entities', EntityController::class)
+    ->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
 ```
 
 ### قواعد إلزامية
@@ -550,32 +555,110 @@ protected function buttons(): array
 
 ### `index.blade.php`
 
-الترتيب الإلزامي:
+التوزيع والترتيب الإلزامي:
 
-1. statistics cards مباشرة؛ لا page heading banner فوقها.
-2. filters عبر `<x-data-table.filters>` إن وجدت.
-3. card يحتوي DataTable.
-4. scripts/routes config اللازمة، مع event delegation على wrapper.
+1. **كروت الإحصائيات (Stat Cards)** مباشرة في البداية؛ لا page heading banner أو عناصر إضافية فوقها.
+   - التوزيع القياسي: **5 كروت متساوية ومتناسقة تمامًا باستخدام `col-sm-6 col-xl`** لتغطية دورة حياة البيانات:
+     1. الإجمالي العام (`primary`).
+     2. الحالات النشطة أو الجاهزة (`success`).
+     3. الحالات المكتملة أو قيد المراجعة (`info`).
+     4. الحالات غير المرتبطة أو المعلقة (`warning`).
+     5. الحالات المتوقفة أو التي تحتاج لمراجعة (`danger`).
+   - تعتمد الكروت على مكون `<x-ui.stat-card>` مع أيقونات Tabler متناسقة وعناوين واضحة.
+   - إذا لم يملك المجال خمس حالات فعلية، تبقى الكروت الخمسة مطلوبة لكن تعرض مؤشرات حقيقية مفيدة مشتقة من المجال (مثل المرتبط/غير المرتبط أو المكتمل/الناقص). ممنوع اختراع status مخزن أو تسمية مضللة فقط لإكمال العدد.
+2. **شريط الفلاتر** عبر `<x-data-table.filters table="#table-id">`:
+   - عناصر تحكم متساوية الارتفاع وموزعة بشكل شبكي متناسق.
+   - الفصل التام بين `x-filter.select` المخصص للـDataTable وبين حقول النماذج العادية.
+3. **بطاقة الجدول (DataTable Card)**:
+   - الجدول يملأ البطاقة بالكامل مع شريط أدوات DataTable الموحد.
+   - عمود الصورة: صورة دائرية `rounded-circle` بأبعاد ثابتة.
+   - عمود الكود: كود قابل للنسخ بنقرة واحدة عبر `.copyable-code-wrapper` مع Toastr إشعار بالنسخ.
+   - عمود الحالة: سويتش تفاعلي `js-table-status-toggle` قبل عمود الإجراءات مباشرة.
+   - زر الإضافة لا يوضع منفردًا في الصفحة إطلاقًا؛ مكانه الحصري داخل شريط أدوات الـDataTable عبر `buttons()`.
+4. scripts/routes config اللازمة، مع event delegation على wrapper للحذف الجماعي والتحديد.
 
-زر الإضافة لا يوضع منفردًا في الصفحة؛ مكانه DataTable header عبر `buttons()`.
+### العقد العام لـ`create.blade.php` و`edit.blade.php`
 
-### `create.blade.php`
+- كل الحقول تستخدم shared form controls بعقد validation وaccessibility الكامل؛ لا raw controls محلية.
+- Create، سواء كان single-card أو wizard، يعلن FormRequest الحقيقي وdraft resource key ويرتبط بعقد `wizard_drafts` كاملًا.
+- Create الذي يحتوي ملفات يستخدم `multipart/form-data`، ويحافظ على old input والمسودة والملفات المؤرشفة وفق precedence واضح ومختبر.
+- Edit يستخدم `PUT/PATCH` ويعرض قرار الاحتفاظ بالملف الحالي أو استبداله أو حذفه صراحةً حسب المجال.
+- Edit لا يرث مسودة Create تلقائيًا، ولا يستخدم resource key نفسه.
+- النموذج أحادي الخطوة يبقى single-card منظمًا، مع «حفظ كمسودة» بجوار زر الإنشاء في Create؛ ولا يضاف له stepper أو review step صوريان.
 
-- يستخدم reusable form controls بعقد `data-form-field`, `data-field-name`, `data-form-control` وerror output accessible.
-- كل create form يحتوي «حفظ كمسودة» بجوار زر الإنشاء.
-- form يعلن resource key وFormRequest الحقيقي للـshared validation endpoint.
-- `multipart/form-data` عند وجود files.
-- old input والدraft restore لهما precedence واضح، ولا تفقد الملفات المؤقتة.
-- wizard buttons موحدة: السابق، التالي/تحقق، حفظ كمسودة، إنشاء نهائي.
-- إذا احتوى create flow على خطوتين أو أكثر، تصبح آخر خطوة دائمًا «المراجعة» ولا تنفذ submit قبلها.
-- كروت المراجعة تطابق تصميم إدارة الإسنادات وتستخرج إلى Blade components مشتركة بدل نسخ markup.
-- بداية كل review card تحتوي زر انتقال مباشر إلى الخطوة المالكة للبيانات؛ الزر icon-only من نوع edit مع `aria-label` وtooltip، وليس نص «تعديل».
+| نوع النموذج | مسودة إلزامية | Stepper | Review أخيرة |
+|---|---:|---:|---:|
+| Create أحادي الخطوة | نعم | لا | لا |
+| Create متعدد الخطوات | نعم | نعم | نعم |
+| Edit أحادي الخطوة | لا، إلا بعقد مستقل | لا | لا |
+| Edit متعدد الخطوات | لا، إلا بعقد مستقل | نعم | نعم |
 
-### `edit.blade.php`
+### `create.blade.php` و`edit.blade.php` متعددا الخطوات (معمارية وتجربة الـWizard)
 
-- نفس shared controls والعرض، لكن لا يعامل edit كcreate draft تلقائيًا إلا إذا اعتمد Manifest ذلك.
-- method spoofing إلى PUT/PATCH.
-- يعرض الملف الحالي وقرار الاحتفاظ/الاستبدال/الحذف صراحةً.
+القواعد البصرية وقواعد المكونات التالية مشتركة بين Create وEdit. عقد المسودات إلزامي لـCreate فقط؛ لا يضاف إلى Edit إلا إذا عرّف المجال صراحةً ميزة edit drafts مستقلة بعقد واختبارات خاصين بها. كل Create أو Edit متعدد الخطوات (خطوتان فأكثر) ينتهي بخطوة مراجعة أخيرة، أما النموذج أحادي الخطوة فلا يحول إلى wizard مصطنع.
+
+- **مرجعية التصميم المعتمدة**: إدارة الإسنادات (Assignments) والعقارات (Properties) هما المرجع المعماري الموحد لجميع المعالجات متعددة الخطوات في النظام.
+- **شريط مؤشر الخطوات (Stepper Header)**:
+  - يحتوي على عناوين واضحة ومقتضبة للخطوات (`['id' => '...', 'title' => '...']`).
+  - **يمنع تمامًا** إقحام نصوص فرعية مشوشة (`subtitles`) داخل مؤشرات الخطوات العلوية.
+- **تخطيط خطوات الإدخال (Step Grid Layout)**:
+  - تعتمد الخطوة على شبكة مدخلات مفتوحة ونظيفة بعرض الصفحة الكامل `<div class="row g-4">` باستخدام `col-md-6` و `col-12`.
+  - **يمنع تمامًا** بناء أعمدة جانبية اصطناعية (`col-lg-4` تحتوي نسب مئوية أو صناديق إرشادات استعراضية) داخل خطوات إدخال البيانات؛ لأنها تضيق مساحة الإدخال وتكسر التناسق.
+- **عقد الجداول الفرعية الديناميكية (Dynamic Subtables)**:
+  - عند احتواء الخطوة على كيانات فرعية متعددة (مثل حدود العقار، الملاك، الوحدات، البنود الفرعية):
+    1. توضع داخل بطاقة فرعية قياسية بنمط `.assignment-properties-table-card` داخل الخطوة.
+    2. رأس البطاقة يحتوي على عنوان واضح، ووصف صغير، وزر إضافة أزرق في أقصى اليسار (`btn-sm btn-primary`).
+    3. الجدول يعتمد تنسيق `table table-bordered table-sm align-middle`.
+    4. زر الحذف لكل صف يكون أيقونة سلة مهملات حمراء موحدة `btn-icon btn-sm btn-label-danger`.
+    5. ترقيم وتسمية المدخلات المصفوفية (`items[idx][field]`) يعاد فهرستها برمجيًا عند الإضافة والحذف مع إطلاق حدث `change`.
+- **خطوة الملفات والمستندات**:
+  - توزيع متوازن لحقول الرفع (`col-md-4` للحقول الفردية، و `col-md-6` أو `col-12` للمرفقات المتعددة).
+  - شبكة عرض بطاقات الملفات تعتمد `.assignment-file-list` و `.assignment-file-card` الموحدة.
+- **خطوة المراجعة والاعتماد (Review Step Architecture)**:
+  - **تقسيم الشاشة إلزامي**:
+    - **عمود كروت المراجعة الأيمن (`col-lg-9`)**: يحتوي على كروت المراجعة الموحدة `<x-form.wizard.review-card title="..." step="1" body-id="...">`.
+    - **عمود المعاينة الحية الأيسر (`col-lg-3`)**: يحتوي على بطاقة المعاينة البصرية الحية `<article class="card assignment-preview h-100">` متضمنة الصورة الرئيسية بالأعلى (`.assignment-preview__image` بأبعاد متناسقة `aspect-ratio: 4 / 3`) وأسفلها اسم الكيان ووصفه.
+  - **أزرار التعديل السريع**: بداية كل كارت مراجعة تحتوي زر تعديل مباشر ذكي ينقل المستخدم فورًا إلى رقم الخطوة المعنية عبر `wizard.bsStepper.to(step)`.
+  - زر التعديل السريع يستخدم أيقونة `ti ti-edit` فقط مع `aria-label` وtooltip واضحين، ولا يعرض كلمة «تعديل».
+  - لا تنفذ عملية submit نهائية إلا من داخل خطوة المراجعة الأخيرة.
+- **عقد أزرار التنقل (Wizard Actions)**:
+  - Create — الخطوة الأولى: زر «العودة» إلى الفهرس + زران في اليسار: «حفظ كمسودة» و«التالي».
+  - Create — الخطوات الوسطى: زر «السابق» + «حفظ كمسودة» و«التالي».
+  - Create — خطوة ما قبل المراجعة: زر «السابق» + «حفظ كمسودة» و«المراجعة».
+  - Create — خطوة المراجعة الأخيرة: زر «السابق» + «حفظ كمسودة» وزر «إنشاء الكيان».
+  - Edit — نفس اتجاهات «السابق/التالي/المراجعة»، لكن بلا زر مسودة افتراضيًا، ويظهر زر «تحديث الكيان» فقط في خطوة المراجعة الأخيرة.
+  - الأسهم تأتي حصريًا من مكونات `next-button` و`previous-button`: في RTL «التالي» بسهم لليسار و«السابق/العودة» بسهم لليمين؛ لا تمرر الصفحة أيقونات معكوسة محليًا.
+
+### `show.blade.php` (هندسة صفحة العرض والتفاصيل)
+
+تعتمد صفحة العرض على نظام **العمودين غير المتناظرين (Two-Column Asymmetric Layout)** الموحد:
+
+1. **شريط العنوان والإجراءات (Page Header Toolbar)**:
+   - عنوان الكيان في اليمين مع أيقونة معبرة.
+   - كود/رقم السجل بخط مميز `code.copyable-code` قابل للنسخ بالنقر مع Toastr إشعار.
+   - شارات (Badges) الحالة التشغيلية وحالة الارتباط بالكيانات الأبوية.
+   - أزرار الإجراءات في اليسار: زر «تعديل» رئيسي (`btn-primary`) وزر «العودة» للقائمة (`btn-secondary` مع أيقونة `ti ti-arrow-right`).
+2. **العمود التعريفي الأيسر (`col-xl-4 col-lg-5 col-md-5 mb-4`)**:
+   - **كارت الهوية والملخص (Entity Profile Card)**:
+     - صورة الكيان الرئيسية في المنتصف بحجم موحد (`width: 100px; height: 100px; object-fit: cover`) وبالشكل الدائري `rounded-circle`.
+     - اسم الكيان وشارة التصنيف/النوع.
+     - شريط إحصائي سريع مقسم أفقيًا بخطين حدوديين (`d-flex justify-content-around py-2 border-top border-bottom`) يعرض الأرقام المفتاحية (مثل المساحة والعدادات التابعة).
+     - قائمة البيانات الوصفية المنظمة (`info-container text-start` مع `list-unstyled`) لعرض الخصائص والمحددات الرسمية والتواريخ.
+   - **كارت المستندات والمرفقات (Documents & Attachments Card)**:
+     - يوضع إلزاميًا في العمود الأيسر أسفل كارت الهوية.
+     - يعرض قائمة المرفقات بتنسيق سطور أنيقة مع أيقونة الملف وزر تحميل مباشر في أقصى اليسار (`btn-icon btn-sm btn-label-primary` مع أيقونة `ti ti-download`).
+3. **العمود الرئيسي الأيمن (`col-xl-8 col-lg-7 col-md-7`)**:
+   - مخصص حصريًا لعرض **الجداول الفرعية والعلاقات التشغيلية التابعة (Child Subtables & Related Records)**.
+   - كل علاقة تابعة (مثل الحدود، الملاك، الوحدات الفرعية، المزادات، العمليات، إلخ) توضع في بطاقة كلاسيكية مستقلة:
+     - رأس البطاقة: `<h5 class="card-title mb-0">اسم القسم (العدد)</h5>` مع إمكانية إضافة زر إجراء سريع مشروط بالصلاحية (مثل زر «إضافة عقار» أو «إضافة مزاد»).
+     - جسم البطاقة: جدول تفاعلي نظيف من نوع `table table-hover` داخل حاوية متجاوبة `table-responsive`، مع رسالة واضحة في حال خلو السجلات (`empty state`).
+
+قواعد الأمان والأداء في Show:
+
+- الصفحة read-only؛ لا mutation عبر GET أو رابط عادي.
+- ظهور كل إجراء والبيانات الحساسة يمر عبر Policy/permissions المناسبة.
+- العلاقات الكبيرة تستخدم pagination أو DataTable ولا تحمل بلا حد.
+- الصورة والمرفقات تستخدم URL/fallback/download contracts المشتركة، ولا تبني مسارات التخزين داخل Blade.
 
 ### مكونات حقول النماذج
 
@@ -590,12 +673,7 @@ protected function buttons(): array
 - ابدأ دائمًا من component مشترك بين Admin وTenant. لا تنشئ نسخة Admin ونسخة Tenant إلا عندما يوجد اختلاف وظيفي حقيقي، لا مجرد اختلاف بيانات أو route أو permission.
 - لوحتا Admin وTenant تستخدمان غالبية نفس مكونات cards، metrics، loading، empty/error states، filters والـlayout؛ المكونات الخاصة بواحدة منهما يجب أن تبقى استثناءً محدودًا ومبررًا.
 - الاختلافات في logo، route، permission، labels أو values تمر كـprops/slots، ولا تبرر نسخ component.
-
-### `show.blade.php`
-
-- read-only، لا mutation عبر links من نوع GET.
-- كل بيانات حساسة تمر بالـPolicy.
-- العلاقات الكبيرة تستخدم pagination/DataTable ولا تحمل بلا حد.
+- الأسماء الحالية مثل `.assignment-properties-table-card` و`.assignment-preview` تعد عقد styling مشتركًا موروثًا من المرجع البصري؛ تستخدم من المصدر المشترك نفسه ولا تنسخ SCSS لكل إدارة. عند استخراجها إلى component عام يحافظ component على هذه classes للتوافق حتى migration مقصودة ومختبرة.
 
 ### `action.blade.php`
 
@@ -604,7 +682,7 @@ protected function buttons(): array
 - الحذف الفردي يستخدم hidden form `#delete-form-{id}` و`window.confirmDelete(id)`.
 - لا يكرر modal/AJAX implementation خاصًا بالإدارة.
 
-### `archive.blade.php`
+### `archive/{module}/index.blade.php`
 
 يتكون فقط من: optional errors، optional filters، table card. ممنوع العنوان والبreadcrumbs والإحصائيات. restore وforce-delete بصلاحيات مستقلة.
 
@@ -643,7 +721,7 @@ protected function buttons(): array
 - `app/Http/Controllers/Shared/Wizard/WizardDraftController.php`
 - `app/Services/Shared/Wizard/WizardDraftService.php`
 - routes `wizard-drafts.show/store/destroy/file.destroy/validate-step`
-- جدول drafts في boundary الصحيح.
+- جدول `wizard_drafts` في boundary الصحيح: migration مركزي لـCentral ومثيله داخل `database/migrations/tenant` لقواعد المستأجرين.
 
 ### lifecycle
 
@@ -721,7 +799,7 @@ Toastr يعتمد flash messages في browser flow. لا ترجع JSON خامً�
 - DB writes والعلاقات والملفات.
 - destroy browser redirect وAJAX JSON.
 - status toggle وعقد response.
-- draft save/restore/purge.
+- draft save/restore/purge لكل Create form، ولا يطلب من Edit إلا إذا كانت edit drafts capability معلنة.
 - archive restore/force delete.
 - DataTable filters/buttons/column contracts عند الحاجة.
 
@@ -775,6 +853,18 @@ Toastr يعتمد flash messages في browser flow. لا ترجع JSON خامً�
 19. إذا تغيرت assets شغّل `npm run build`.
 20. حدّث Manifest إلى `compliant` مع روابط أدلة الاختبار، لا بمجرد وجود الملفات.
 
+### تعديل إدارة قائمة
+
+لا يعاد بناء الإدارة من الصفر ولا تفترض أن حالتها السابقة ما زالت صالحة. اتبع هذا التسلسل:
+
+1. افتح بطاقة الإدارة في الـManifest وحدد العمليات والملفات المتأثرة فقط.
+2. تتبع التدفق من route إلى الاختبار، وسجل أي طبقة يتغير عقدها: Request، Policy، Action/Service، UI، files أو side effects.
+3. إذا تغير schema أضف migration جديدة قابلة للعكس؛ لا تعدل migration منشورة.
+4. إذا تغير input أو response حدّث FormRequest والاختبارات أولًا، ثم الطبقة التطبيقية والواجهة دون نسخ validation إلى JavaScript.
+5. حافظ على route names وDB keys والعقود العامة، أو وثق migration/compatibility window صريحة إن كان التغيير الكاسر مطلوبًا.
+6. أعد فتح حالة كل بند متأثر إلى `partial` أثناء العمل، ثم أعدها إلى `compliant` فقط بعد أدلة الاختبار والبناء المطلوبة.
+7. شغّل الاختبار المركز للإدارة والعقود الأفقية التي تمسها، و`npm run build` عند أي تغيير `.js/.css/.scss`.
+
 ---
 
 ## 22. قالب مراجعة كل ملف قبل الدمج
@@ -796,6 +886,7 @@ Toastr يعتمد flash messages في browser flow. لا ترجع JSON خامً�
 [ ] Index: stats first + filters + table؛ لا banner/add button خارجي
 [ ] Create: shared controls فقط + draft modal + full data/files restore + discard purge + final validation
 [ ] Multi-step create: final review step + reusable assignment-style cards + icon-only edit navigation
+[ ] Multi-step edit: final review step + reusable review cards + icon-only edit navigation؛ بلا drafts إلا بعقد صريح
 [ ] Components: كل UI قابل لإعادة الاستخدام مشترك بين Admin/Tenant ما لم يوجد اختلاف وظيفي حقيقي
 [ ] Edit/Show/Action: authorization + no GET mutation
 [ ] Archive: strict layout + restore/force-delete policies

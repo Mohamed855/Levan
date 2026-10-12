@@ -393,48 +393,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Review Documents
-    const reviewDocs = document.getElementById('review-documents');
+    const reviewDocs = document.getElementById('review-files');
     if (reviewDocs) {
       const files = [];
-      if (form.elements.namedItem('deed_document')?.files?.[0]) files.push('صك الملكية: ' + form.elements.namedItem('deed_document').files[0].name);
-      if (form.elements.namedItem('cadastral_plan')?.files?.[0]) files.push('مخطط العقار: ' + form.elements.namedItem('cadastral_plan').files[0].name);
-      if (form.elements.namedItem('coordinates_statement')?.files?.[0]) files.push('كشف الإحداثيات: ' + form.elements.namedItem('coordinates_statement').files[0].name);
-      if (form.elements.namedItem('building_permit')?.files?.[0]) files.push('رخصة البناء: ' + form.elements.namedItem('building_permit').files[0].name);
-      if (form.elements.namedItem('main_image')?.files?.[0]) files.push('الصورة الرئيسية: ' + form.elements.namedItem('main_image').files[0].name);
+      if (form.elements.namedItem('main_image')?.files?.[0]) files.push(form.elements.namedItem('main_image').files[0].name);
+      if (form.elements.namedItem('deed_document')?.files?.[0]) files.push(form.elements.namedItem('deed_document').files[0].name);
+      if (form.elements.namedItem('cadastral_plan')?.files?.[0]) files.push(form.elements.namedItem('cadastral_plan').files[0].name);
+      if (form.elements.namedItem('coordinates_statement')?.files?.[0]) files.push(form.elements.namedItem('coordinates_statement').files[0].name);
+      if (form.elements.namedItem('building_permit')?.files?.[0]) files.push(form.elements.namedItem('building_permit').files[0].name);
+      if (form.elements.namedItem('assignment_letter_image')?.files?.[0]) files.push(form.elements.namedItem('assignment_letter_image').files[0].name);
 
       const addDocs = form.elements.namedItem('additional_documents[]')?.files;
-      if (addDocs && addDocs.length) files.push(`مستندات إضافية (${addDocs.length} ملفات)`);
+      if (addDocs) {
+        for (let i = 0; i < addDocs.length; i++) files.push(addDocs[i].name);
+      }
 
       const propImages = form.elements.namedItem('property_images[]')?.files;
-      if (propImages && propImages.length) files.push(`صور إضافية (${propImages.length} صور)`);
+      if (propImages) {
+        for (let i = 0; i < propImages.length; i++) files.push(propImages[i].name);
+      }
 
       if (files.length) {
-        reviewDocs.innerHTML = `<ul class="list-unstyled mb-0">${files.map(f => `
-          <li class="mb-1 text-success"><i class="ti ti-check me-1"></i> ${escapeHtml(f)}</li>
-        `).join('')}</ul>`;
+        reviewDocs.innerHTML = files.map(name => `
+          <article class="assignment-file-card">
+            <i class="ti ti-file text-primary fs-4"></i>
+            <span class="assignment-file-card__name" title="${escapeHtml(name)}">${escapeHtml(name)}</span>
+          </article>
+        `).join('');
       } else {
         reviewDocs.innerHTML = '<p class="text-muted mb-0">لم يتم اختيار ملفات بعد.</p>';
       }
     }
 
-    // Checklist status
-    const isStep1Ok = getVal('name') !== '-' && getVal('area') !== '-';
-    const isStep2Ok = getVal('city') !== '-' && getVal('plan_number') !== '-';
-    const isStep3Ok = getVal('deed_number') !== '-' && getVal('issuing_authority') !== '-';
-    const isStep4Ok = !!(form.elements.namedItem('deed_document')?.files?.[0] || form.elements.namedItem('main_image')?.files?.[0]);
+    const reviewName = document.getElementById('review-name');
+    if (reviewName) reviewName.textContent = getVal('name') || 'اسم العقار';
 
-    updateChecklistItem('check-step-1', isStep1Ok);
-    updateChecklistItem('check-step-2', isStep2Ok);
-    updateChecklistItem('check-step-3', isStep3Ok);
-    updateChecklistItem('check-step-4', isStep4Ok);
-  }
-
-  function updateChecklistItem(id, isOk) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.innerHTML = isOk
-      ? '<span class="badge bg-label-success"><i class="ti ti-check me-1"></i> مكتمل</span>'
-      : '<span class="badge bg-label-warning"><i class="ti ti-clock me-1"></i> قيد الإدخال</span>';
+    const reviewDesc = document.getElementById('review-description');
+    if (reviewDesc) reviewDesc.textContent = getVal('short_description') || 'وصف العقار';
   }
 
   form.addEventListener('change', buildReview);
@@ -455,10 +450,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (mainImageInput) {
     mainImageInput.addEventListener('change', () => {
       const file = mainImageInput.files?.[0];
-      const previewImg = document.getElementById('review-main-image-preview');
+      const previewImg = document.getElementById('review-image');
       if (file && previewImg) {
         previewImg.src = URL.createObjectURL(file);
-        previewImg.style.display = 'block';
       }
     });
   }

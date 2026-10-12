@@ -102,14 +102,16 @@
 
     <x-data-table.page table-id="properties-table">
         <x-slot:stats>
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="إجمالي العقارات" :value="$totalProperties" subtitle="كافة العقارات المسجلة"
+            <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي العقارات" :value="$totalProperties" subtitle="جميع الحالات"
                 icon="ti-building" color="primary" />
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="مكتملة البيانات" :value="$readyForAssignmentProperties" subtitle="جاهزة للربط بإسناد"
-                icon="ti-file-check" color="success" />
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="غير مرتبطة بإسناد" :value="$unlinkedProperties" subtitle="متاحة للإسنادات الجديدة"
-                icon="ti-link-off" color="info" />
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="تحتاج للمراجعة" :value="$needsReviewProperties" subtitle="بيانات أو مستندات غير مكتملة"
-                icon="ti-alert-triangle" color="warning" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="عقار نشط" :value="$activeProperties" subtitle="العقارات النشطة"
+                icon="ti-circle-check" color="success" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="مكتملة البيانات" :value="$completedProperties" subtitle="جاهز للإسناد"
+                icon="ti-file-check" color="info" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="غير مرتبطة بإسناد" :value="$unlinkedProperties" subtitle="غير مسند"
+                icon="ti-link-off" color="warning" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="تحتاج للمراجعة" :value="$needsReviewProperties" subtitle="بيانات غير مكتملة"
+                icon="ti-alert-triangle" color="danger" />
         </x-slot:stats>
 
         <x-slot:filters>
@@ -124,6 +126,8 @@
                     :enum="\App\Enums\Tenants\Properties\PropertyDataStatus::class" />
                 <x-filter.select id="filter-city" filterKey="city" label="المدينة" placeholder="جميع المدن"
                     :options="$cityOptions" />
+                <x-form.controls.input name="filter_deed_number" id="filter-deed" label="رقم الصك"
+                    placeholder="بحث برقم الصك..." />
             </x-data-table.filters>
         </x-slot:filters>
 

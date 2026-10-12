@@ -40,12 +40,13 @@ class PropertiesController extends Controller
         $assignments = Assignment::select(['id', 'name', 'assignment_number'])->get();
 
         return $dataTable->render('tenants.properties.index', [
-            'totalProperties'              => $statistics['total'],
-            'readyForAssignmentProperties' => $statistics['ready_for_assignment'],
-            'unlinkedProperties'           => $statistics['unlinked'],
-            'needsReviewProperties'        => $statistics['needs_review'],
-            'assignments'                  => $assignments,
-            'cityOptions'                  => $this->cityOptionsGateway->optionsByName(),
+            'totalProperties'       => $statistics['total'],
+            'activeProperties'      => $statistics['active'],
+            'completedProperties'   => $statistics['completed'],
+            'unlinkedProperties'    => $statistics['unlinked'],
+            'needsReviewProperties' => $statistics['needs_review'],
+            'assignments'           => $assignments,
+            'cityOptions'           => $this->cityOptionsGateway->optionsByName(),
         ]);
     }
 
