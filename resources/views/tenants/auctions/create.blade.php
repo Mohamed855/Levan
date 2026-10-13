@@ -15,152 +15,7 @@
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/shared/form-validation.js'])
-    <script>
-        $(document).ready(function() {
-            let restoredPropertyIds = [];
-
-            $('#wizard-validation-form').on('wizardDraftRestored', function(event) {
-                restoredPropertyIds = (event.originalEvent?.detail?.data?.property_ids || []).map(String);
-            });
-
-            // Live Preview in Step 1
-            $('#name').on('input', function() {
-                $('#preview-auction-name').text($(this).val() || 'اسم المزاد الافتراضي');
-                $('#review-name').text($(this).val() || '-');
-            });
-            $('#city').on('change', function() {
-                $('#preview-auction-city').text($(this).val() || 'المدينة');
-                $('#review-city').text($(this).val() || '-');
-            });
-            $('#category').on('change', function() {
-                $('#preview-auction-category').text($('#category option:selected').text() || 'التصنيف');
-                $('#review-category').text($('#category option:selected').text() || '-');
-            });
-            $('#start_date').on('change', function() {
-                $('#preview-auction-date').text($(this).val() || 'تاريخ الانطلاق');
-                $('#review-dates').text($(this).val() + ' إلى ' + ($('#end_date').val() || ''));
-            });
-            $('#end_date').on('change', function() {
-                $('#review-dates').text(($('#start_date').val() || '') + ' إلى ' + $(this).val());
-            });
-            $('#type').on('change', function() {
-                $('#review-type').text($('#type option:selected').text());
-            });
-
-            // Dynamic Assignment Handling in Step 2 -> Loading Properties in Step 3
-            $('#assignment_id').on('change', function() {
-                const assignmentId = $(this).val();
-                if (!assignmentId) {
-                    $('#selected-assignment-card').addClass('d-none');
-                    $('#properties-container').html(
-                        '<tr><td colspan="6" class="text-center py-4 text-muted">يرجى اختيار الإسناد في الخطوة السابقة لعرض العقارات التابعة له</td></tr>'
-                        );
-                    return;
-                }
-
-                const url = "{{ tenant_route_name('assignments.properties', ':id') }}".replace(':id',
-                    assignmentId);
-
-                $.ajax({
-                    url: url,
-                    type: 'GET',
-                    success: function(res) {
-                        if (res.success) {
-                            // Populate Assignment Summary Card
-                            $('#asg-summary-num').text(res.assignment.assignment_number);
-                            $('#asg-summary-entity').text(res.assignment.issuing_entity);
-                            $('#asg-summary-status').text(res.assignment.status_label);
-                            $('#selected-assignment-card').removeClass('d-none');
-
-                            // Set supervising entity default if empty
-                            if (!$('#supervising_entity').val()) {
-                                $('#supervising_entity').val(res.assignment.issuing_entity)
-                                    .trigger('input');
-                            }
-
-                            // Review Card in Step 5
-                            $('#review-assignment-name').text(res.assignment.name + ' (' + res
-                                .assignment.assignment_number + ')');
-                            $('#review-supervising').text(res.assignment.issuing_entity);
-
-                            // Populate Properties Table in Step 3
-                            let html = '';
-                            if (res.properties && res.properties.length > 0) {
-                                res.properties.forEach(function(prop) {
-                                    const img = prop.main_image ? '/tenant-assets/' +
-                                        prop.main_image :
-                                        '/assets/img/illustrations/page-pricing-standard.png';
-                                    html += `
-                                        <tr>
-                                            <td>
-                                                <input type="checkbox" name="property_ids[]" value="${prop.id}" class="form-check-input property-select-check" data-form-control
-                                                    data-area="${prop.area || 0}" data-val="${prop.estimated_value || 0}">
-                                            </td>
-                                            <td><code>${prop.property_number}</code></td>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <img src="${img}" class="rounded me-2" style="width:28px;height:28px;object-fit:cover" />
-                                                    <span class="fw-medium">${prop.name}</span>
-                                                </div>
-                                            </td>
-                                            <td>${prop.city} ${prop.district ? ' - ' + prop.district : ''}</td>
-                                            <td>${Number(prop.area).toLocaleString()} م²</td>
-                                            <td>${Number(prop.estimated_value).toLocaleString()} ر.س</td>
-                                        </tr>
-                                    `;
-                                });
-                            } else {
-                                html =
-                                    '<tr><td colspan="6" class="text-center py-4 text-muted">لا توجد عقارات مسجلة لهذا الإسناد حالياً.</td></tr>';
-                            }
-                            $('#properties-container').html(html);
-                            restoredPropertyIds.forEach(function(propertyId) {
-                                $('.property-select-check[value="' + propertyId + '"]').prop('checked', true);
-                            });
-                            calculateSelectedProperties();
-                        }
-                    }
-                });
-            });
-
-            // Select all properties checkbox
-            $(document).on('change', '#select-all-properties', function() {
-                $('.property-select-check').prop('checked', $(this).prop('checked'));
-                calculateSelectedProperties();
-            });
-
-            $(document).on('change', '.property-select-check', function() {
-                calculateSelectedProperties();
-            });
-
-            function calculateSelectedProperties() {
-                let count = 0;
-                let totalArea = 0;
-                let totalVal = 0;
-
-                $('.property-select-check:checked').each(function() {
-                    count++;
-                    totalArea += parseFloat($(this).data('area')) || 0;
-                    totalVal += parseFloat($(this).data('val')) || 0;
-                });
-
-                $('#selected-props-count').text(count);
-                $('#selected-props-area').text(totalArea.toLocaleString() + ' م²');
-                $('#selected-props-val').text(totalVal.toLocaleString() + ' ر.س');
-                $('#review-selected-props-count').text(count + ' عقارات');
-            }
-
-            // Jump to step button in Step 5
-            $('.btn-jump-step').on('click', function() {
-                const targetStep = $(this).data('step');
-                const stepperEl = document.querySelector('#wizard-validation');
-                if (window.stepper) {
-                    window.stepper.to(targetStep);
-                }
-            });
-        });
-    </script>
+    @vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/tenant/auctions/create.js'])
 @endsection
 
 @section('content')
@@ -174,21 +29,11 @@
         ];
     @endphp
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="fw-bold mb-1"><i class="ti ti-gavel me-2 text-primary"></i>إنشاء مزاد جديد</h4>
-            <p class="text-muted mb-0">حدد تفاصيل المزاد، الإسناد، العقارات المشمولة، والقوالب المعتمدة للمخرجات.</p>
-        </div>
-        <a href="{{ tenant_route_name('auctions.index') }}" class="btn btn-secondary">
-            <i class="ti ti-arrow-right me-1"></i> العودة للمزادات
-        </a>
-    </div>
-
     <div class="row">
         <div class="col-12 mb-6">
             <x-form.wizard.stepper id="wizard-validation" class="mt-2" :steps="$steps">
                 @if ($errors->any())
-                    <div class="alert alert-danger">
+                    <div class="alert alert-danger" role="alert">
                         <ul class="mb-0">
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
@@ -202,6 +47,7 @@
                     data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}"
                     data-draft-url="{{ tenant_route_name('wizard-drafts.store') }}"
                     data-draft-file-url="{{ tenant_route_name('wizard-drafts.file.destroy') }}"
+                    data-assignment-properties-url="{{ tenant_route_name('assignments.properties', ':id') }}"
                     data-draft-resource-key="tenant.auction-create">
                     @csrf
 

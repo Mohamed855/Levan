@@ -163,7 +163,7 @@ class PropertiesDataTable extends AbstractDataTable
         }
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $query->where('is_active', $request->status === 'active');
         }
 
         if ($request->filled('filter_deed_number')) {

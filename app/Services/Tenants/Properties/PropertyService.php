@@ -41,11 +41,19 @@ class PropertyService
 
     public function deleteProperty(Property $property): bool
     {
+        if ($property->auctions()->whereNull('auctions.deleted_at')->exists()) {
+            throw new \LogicException('لا يمكن نقل العقار إلى المحذوفات قبل فك ارتباطه بالمزادات النشطة.');
+        }
+
         return (bool) $property->delete();
     }
 
     public function forceDeleteProperty(Property $property): bool
     {
+        if ($property->auctions()->withTrashed()->exists()) {
+            throw new \LogicException('لا يمكن حذف العقار نهائياً قبل معالجة المزادات المرتبطة به نهائياً.');
+        }
+
         $attachmentPaths = $property->attachments()
             ->get(['disk', 'file_path'])
             ->map(fn ($attachment): array => [

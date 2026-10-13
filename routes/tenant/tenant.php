@@ -456,16 +456,11 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         |--------------------------------------------------------------------------
         */
         Route::prefix('properties')->name('properties.')->group(function () {
-            Route::name('index')->get('/', [PropertiesController::class, 'index']);
-            Route::name('create')->get('create', [PropertiesController::class, 'create']);
-            Route::name('store')->post('/', [PropertiesController::class, 'store']);
             Route::name('search-location')->post('search-location', [PropertiesController::class, 'searchLocation']);
-            Route::name('show')->get('{property}', [PropertiesController::class, 'show']);
-            Route::name('edit')->get('{property}/edit', [PropertiesController::class, 'edit']);
-            Route::name('update')->put('{property}', [PropertiesController::class, 'update']);
-            Route::name('destroy')->delete('{property}', [PropertiesController::class, 'destroy']);
             Route::name('toggle-status')->patch('{property}/toggle-status', [PropertiesController::class, 'toggleStatus']);
         });
+        Route::resource('properties', PropertiesController::class)
+            ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
 
         /*
         |--------------------------------------------------------------------------
@@ -473,15 +468,10 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         |--------------------------------------------------------------------------
         */
         Route::prefix('auctions')->name('auctions.')->group(function () {
-            Route::name('index')->get('/', [AuctionsController::class, 'index']);
-            Route::name('create')->get('create', [AuctionsController::class, 'create']);
-            Route::name('store')->post('/', [AuctionsController::class, 'store']);
-            Route::name('show')->get('{auction}', [AuctionsController::class, 'show']);
-            Route::name('edit')->get('{auction}/edit', [AuctionsController::class, 'edit']);
-            Route::name('update')->put('{auction}', [AuctionsController::class, 'update']);
-            Route::name('destroy')->delete('{auction}', [AuctionsController::class, 'destroy']);
             Route::name('toggle-status')->patch('{auction}/toggle-status', [AuctionsController::class, 'toggleStatus']);
         });
+        Route::resource('auctions', AuctionsController::class)
+            ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
 
         /*
         |--------------------------------------------------------------------------

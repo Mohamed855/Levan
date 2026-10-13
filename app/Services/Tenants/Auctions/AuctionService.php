@@ -25,94 +25,22 @@ class AuctionService
 
     public function createAuction(array $data, ?UploadedFile $coverImage = null, array $attachments = []): Auction
     {
-        return DB::transaction(function () use ($data, $coverImage, $attachments) {
-            if ($coverImage) {
-                $data['cover_image'] = $coverImage->store('auctions/covers', 'tenant_public');
-            }
-
-            $propertyIds = $data['property_ids'] ?? [];
-            unset($data['property_ids'], $data['attachments']);
-
-            $this->assertPropertiesBelongToAssignment($propertyIds, (int) $data['assignment_id']);
-
-            $data['created_by'] = auth('tenant')->id();
-            if (empty($data['status'])) {
-                $data['status'] = 'draft';
-            }
-
-            $auction = Auction::create($data);
-
-            if (! empty($propertyIds)) {
-                $syncData = [];
-                foreach ($propertyIds as $index => $propId) {
-                    $syncData[$propId] = ['sort_order' => $index + 1];
-                }
-                $auction->properties()->sync($syncData);
-            }
-
-            foreach ($attachments as $file) {
-                if ($file instanceof UploadedFile) {
-                    $path = $file->store('auctions/attachments', 'tenant_public');
-                    AuctionAttachment::create([
-                        'auction_id' => $auction->id,
-                        'file_path' => $path,
-                        'file_name' => $file->getClientOriginalName(),
-                        'file_type' => $file->getClientOriginalExtension(),
-                        'file_size' => $file->getSize(),
-                        'category' => 'auction_doc',
-                        'channels' => ['internal'],
-                    ]);
-                }
-            }
-
-            return $auction;
-        });
+        return app(\App\Actions\Tenants\Auctions\CreateAuctionAction::class)->execute(
+            $data,
+            auth('tenant')->id() ? (int) auth('tenant')->id() : null,
+            $coverImage,
+            $attachments
+        );
     }
 
     public function updateAuction(Auction $auction, array $data, ?UploadedFile $coverImage = null, array $attachments = []): Auction
     {
-        return DB::transaction(function () use ($auction, $data, $coverImage, $attachments) {
-            if ($coverImage) {
-                if ($auction->cover_image && Storage::disk('tenant_public')->exists($auction->cover_image)) {
-                    Storage::disk('tenant_public')->delete($auction->cover_image);
-                }
-                $data['cover_image'] = $coverImage->store('auctions/covers', 'tenant_public');
-            }
-
-            $propertyIds = $data['property_ids'] ?? null;
-            unset($data['property_ids'], $data['attachments']);
-
-            if ($propertyIds !== null) {
-                $this->assertPropertiesBelongToAssignment($propertyIds, (int) $data['assignment_id']);
-            }
-
-            $auction->update($data);
-
-            if ($propertyIds !== null) {
-                $syncData = [];
-                foreach ($propertyIds as $index => $propId) {
-                    $syncData[$propId] = ['sort_order' => $index + 1];
-                }
-                $auction->properties()->sync($syncData);
-            }
-
-            foreach ($attachments as $file) {
-                if ($file instanceof UploadedFile) {
-                    $path = $file->store('auctions/attachments', 'tenant_public');
-                    AuctionAttachment::create([
-                        'auction_id' => $auction->id,
-                        'file_path' => $path,
-                        'file_name' => $file->getClientOriginalName(),
-                        'file_type' => $file->getClientOriginalExtension(),
-                        'file_size' => $file->getSize(),
-                        'category' => 'auction_doc',
-                        'channels' => ['internal'],
-                    ]);
-                }
-            }
-
-            return $auction;
-        });
+        return app(\App\Actions\Tenants\Auctions\UpdateAuctionAction::class)->execute(
+            $auction,
+            $data,
+            $coverImage,
+            $attachments
+        );
     }
 
     public function toggleStatus(Auction $auction, ?bool $isActive = null): bool

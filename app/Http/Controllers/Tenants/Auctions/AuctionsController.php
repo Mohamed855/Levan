@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Tenants\Auctions;
 
 use App\Actions\Tenants\Auctions\CreateAuctionAction;
@@ -63,6 +65,7 @@ class AuctionsController extends Controller
         try {
             $action->execute(
                 $request->validated(),
+                (int) $request->user('tenant')?->getAuthIdentifier(),
                 $request->file('cover_image'),
                 $request->file('attachments', [])
             );

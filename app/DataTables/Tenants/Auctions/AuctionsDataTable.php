@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\DataTables\Tenants\Auctions;
 
 use App\DataTables\Abstract\AbstractDataTable;

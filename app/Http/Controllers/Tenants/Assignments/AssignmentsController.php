@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Tenants\Assignments;
 
 use App\Actions\Tenants\Assignments\CreateAssignmentAction;

@@ -462,6 +462,185 @@ class TenantAssetModulesFeatureTest extends TestCase
         $this->assertDatabaseMissing('properties', ['id' => $property->id]);
     }
 
+    public function test_auction_creation_records_pivot_sort_order(): void
+    {
+        [$assignment] = $this->assignments();
+        $prop1 = $this->createUnassignedProperty('SORT-1');
+        $prop2 = $this->createUnassignedProperty('SORT-2');
+        $prop1->update(['assignment_id' => $assignment->id]);
+        $prop2->update(['assignment_id' => $assignment->id]);
+
+        $auctionName = 'Sort Order Auction '.uniqid();
+        $this->actingAs($this->owner, 'tenant')
+            ->post($this->tenantUrl('auctions'), [
+                'name' => $auctionName,
+                'start_date' => now()->addDay()->toDateString(),
+                'end_date' => now()->addDays(2)->toDateString(),
+                'type' => 'electronic',
+                'category' => 'lands',
+                'city' => 'Riyadh',
+                'assignment_id' => $assignment->id,
+                'property_ids' => [$prop2->id, $prop1->id],
+            ])
+            ->assertRedirect($this->tenantUrl('auctions'));
+
+        $auction = Auction::where('name', $auctionName)->firstOrFail();
+        $this->assertDatabaseHas('auction_properties', [
+            'auction_id' => $auction->id,
+            'property_id' => $prop2->id,
+            'sort_order' => 1,
+        ]);
+        $this->assertDatabaseHas('auction_properties', [
+            'auction_id' => $auction->id,
+            'property_id' => $prop1->id,
+            'sort_order' => 2,
+        ]);
+    }
+
+    public function test_auction_update_replaces_subset_and_detaches_on_assignment_change(): void
+    {
+        [$assignmentA, $assignmentB] = $this->assignments();
+        $propA1 = $this->createUnassignedProperty('A1');
+        $propA2 = $this->createUnassignedProperty('A2');
+        $propB1 = $this->createUnassignedProperty('B1');
+        $propA1->update(['assignment_id' => $assignmentA->id]);
+        $propA2->update(['assignment_id' => $assignmentA->id]);
+        $propB1->update(['assignment_id' => $assignmentB->id]);
+
+        $auction = Auction::create([
+            'assignment_id' => $assignmentA->id,
+            'name' => 'Update Auction '.uniqid(),
+            'start_date' => now()->addDay()->toDateString(),
+            'end_date' => now()->addDays(2)->toDateString(),
+            'type' => 'electronic',
+            'category' => 'lands',
+            'city' => 'Riyadh',
+            'status' => 'active',
+            'is_active' => true,
+            'created_by' => $this->owner->id,
+        ]);
+        $auction->properties()->sync([$propA1->id => ['sort_order' => 1]]);
+
+        // 1. Update subset within same assignment
+        $this->actingAs($this->owner, 'tenant')
+            ->put($this->tenantUrl("auctions/{$auction->id}"), [
+                'name' => $auction->name,
+                'start_date' => now()->addDay()->toDateString(),
+                'end_date' => now()->addDays(2)->toDateString(),
+                'type' => 'electronic',
+                'category' => 'lands',
+                'city' => 'Riyadh',
+                'assignment_id' => $assignmentA->id,
+                'property_ids' => [$propA2->id],
+            ])
+            ->assertRedirect($this->tenantUrl('auctions'));
+
+        $this->assertEquals([$propA2->id], $auction->fresh()->properties()->pluck('properties.id')->all());
+
+        // 2. Change assignment to assignmentB with property from assignmentB
+        $this->actingAs($this->owner, 'tenant')
+            ->put($this->tenantUrl("auctions/{$auction->id}"), [
+                'name' => $auction->name,
+                'start_date' => now()->addDay()->toDateString(),
+                'end_date' => now()->addDays(2)->toDateString(),
+                'type' => 'electronic',
+                'category' => 'lands',
+                'city' => 'Riyadh',
+                'assignment_id' => $assignmentB->id,
+                'property_ids' => [$propB1->id],
+            ])
+            ->assertRedirect($this->tenantUrl('auctions'));
+
+        $freshAuction = $auction->fresh();
+        $this->assertSame($assignmentB->id, $freshAuction->assignment_id);
+        $this->assertEquals([$propB1->id], $freshAuction->properties()->pluck('properties.id')->all());
+        $this->assertDatabaseMissing('auction_properties', [
+            'auction_id' => $auction->id,
+            'property_id' => $propA2->id,
+        ]);
+    }
+
+    public function test_property_linked_to_active_auction_cannot_be_deleted(): void
+    {
+        [$assignment] = $this->assignments();
+        $property = $this->createUnassignedProperty('LOCKED-PROP');
+        $property->update(['assignment_id' => $assignment->id]);
+
+        $auction = Auction::create([
+            'assignment_id' => $assignment->id,
+            'name' => 'Active Auction '.uniqid(),
+            'start_date' => now()->addDay()->toDateString(),
+            'end_date' => now()->addDays(2)->toDateString(),
+            'type' => 'electronic',
+            'category' => 'lands',
+            'city' => 'Riyadh',
+            'status' => 'active',
+            'is_active' => true,
+            'created_by' => $this->owner->id,
+        ]);
+        $auction->properties()->sync([$property->id => ['sort_order' => 1]]);
+
+        // Soft delete rejected
+        $this->actingAs($this->owner, 'tenant')
+            ->deleteJson($this->tenantUrl("properties/{$property->id}"))
+            ->assertStatus(422)
+            ->assertJson(['success' => false]);
+
+        $this->assertDatabaseHas('properties', ['id' => $property->id, 'deleted_at' => null]);
+    }
+
+    public function test_auction_draft_purged_on_successful_creation(): void
+    {
+        [$assignment] = $this->assignments();
+        $prop = $this->createUnassignedProperty('DRAFT-PURGE');
+        $prop->update(['assignment_id' => $assignment->id]);
+
+        $resourceKey = 'tenant.auction-create';
+        $draft = $this->actingAs($this->owner, 'tenant')
+            ->postJson($this->tenantUrl('wizard-drafts'), [
+                'resource_key' => $resourceKey,
+                'step' => 2,
+                'name' => 'Draft To Purge',
+                'assignment_id' => $assignment->id,
+                'property_ids' => [$prop->id],
+            ])
+            ->assertOk()
+            ->json();
+
+        $this->assertDatabaseHas('wizard_drafts', ['id' => $draft['draft_id']]);
+
+        $this->actingAs($this->owner, 'tenant')
+            ->post($this->tenantUrl('auctions'), [
+                '_wizard_draft_id' => $draft['draft_id'],
+                '_wizard_resource_key' => $resourceKey,
+                'name' => 'Final Auction From Draft',
+                'start_date' => now()->addDay()->toDateString(),
+                'end_date' => now()->addDays(2)->toDateString(),
+                'type' => 'electronic',
+                'category' => 'lands',
+                'city' => 'Riyadh',
+                'assignment_id' => $assignment->id,
+                'property_ids' => [$prop->id],
+            ])
+            ->assertRedirect($this->tenantUrl('auctions'));
+
+        $this->assertDatabaseMissing('wizard_drafts', ['id' => $draft['draft_id']]);
+    }
+
+    public function test_auction_create_view_dom_contracts(): void
+    {
+        $response = $this->actingAs($this->owner, 'tenant')
+            ->get($this->tenantUrl('auctions/create'))
+            ->assertOk();
+
+        $response->assertSee('data-form-validate', false);
+        $response->assertSee('data-draft-resource-key="tenant.auction-create"', false);
+        $response->assertSee('data-assignment-properties-url', false);
+        $response->assertSee('step-review', false);
+        $response->assertSee('assignment-review', false);
+        $response->assertSee('data-edit-step', false);
+    }
+
     /** @return array{0: Assignment, 1: Assignment} */
     private function assignments(): array
     {

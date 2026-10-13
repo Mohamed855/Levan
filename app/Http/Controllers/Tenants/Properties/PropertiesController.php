@@ -136,6 +136,12 @@ class PropertiesController extends Controller
             }
 
             return redirect()->back()->with('success', 'تم نقل العقار إلى المحذوفات بنجاح');
+        } catch (\LogicException $e) {
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+            }
+
+            return redirect()->back()->with('error', $e->getMessage());
         } catch (\Exception $e) {
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([

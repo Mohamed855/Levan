@@ -5,6 +5,9 @@ namespace App\Http\Requests\Tenants\Auctions;
 use App\Enums\Tenants\Auctions\AuctionCategory;
 use App\Enums\Tenants\Auctions\AuctionStatus;
 use App\Enums\Tenants\Auctions\AuctionType;
+use App\Enums\Tenants\Auctions\BillboardTemplate;
+use App\Enums\Tenants\Auctions\BrochureTemplate;
+use App\Enums\Tenants\Auctions\SocialTemplate;
 use App\Http\Requests\Concerns\WizardFormRequest;
 use Illuminate\Validation\Rule;
 
@@ -50,9 +53,9 @@ class UpdateAuctionRequest extends WizardFormRequest
             ],
 
             // Step 4: Marketing Templates & Attachments
-            'brochure_template_id' => ['nullable', 'string'],
-            'billboard_template_id' => ['nullable', 'string'],
-            'social_template_id' => ['nullable', 'string'],
+            'brochure_template_id' => ['nullable', Rule::enum(BrochureTemplate::class)],
+            'billboard_template_id' => ['nullable', Rule::enum(BillboardTemplate::class)],
+            'social_template_id' => ['nullable', Rule::enum(SocialTemplate::class)],
             'attachments' => ['nullable', 'array'],
             'attachments.*' => ['file', 'max:10240', 'mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx'],
 
