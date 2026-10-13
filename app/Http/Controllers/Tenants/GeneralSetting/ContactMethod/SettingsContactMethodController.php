@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Tenants\GeneralSetting\ContactMethod;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tenants\Traits\CommonSettingController;
-use App\Http\Requests\Tenants\GeneralSetting\SaveGeneralSettingRequest;
 use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
+use App\Http\Requests\Tenants\GeneralSetting\SaveGeneralSettingRequest;
 use App\Models\Tenants\GeneralSetting\ContactMethod\SettingsContactMethod;
 
 class SettingsContactMethodController extends Controller
@@ -70,6 +70,7 @@ class SettingsContactMethodController extends Controller
             // }
 
             $contactMethod->delete();
+
             return redirect()->back()->with('success', 'تم الحذف بنجاح.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());

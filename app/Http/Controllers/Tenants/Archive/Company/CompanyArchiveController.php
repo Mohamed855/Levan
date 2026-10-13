@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers\Tenants\Archive\Company;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Tenants\Archive\BulkArchiveActionRequest;
-use App\Http\Requests\Tenants\Archive\ArchiveItemIdRequest;
 use App\DataTables\Tenants\Archive\Company\ArchivedCompaniesDataTable;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Archive\ArchiveItemIdRequest;
+use App\Http\Requests\Tenants\Archive\BulkArchiveActionRequest;
 use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Services\Tenants\Archive\Company\CompanyArchiveService;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 
 class CompanyArchiveController extends Controller
 {
@@ -122,12 +120,12 @@ class CompanyArchiveController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "تم استرجاع {$restoredCount} شركة بنجاح"
+                'message' => "تم استرجاع {$restoredCount} شركة بنجاح",
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء الاستعادة الجماعية'
+                'message' => 'حدث خطأ أثناء الاستعادة الجماعية',
             ], 500);
         }
     }
@@ -147,12 +145,12 @@ class CompanyArchiveController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "تم حذف {$deletedCount} شركة نهائياً"
+                'message' => "تم حذف {$deletedCount} شركة نهائياً",
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء الحذف النهائي الجماعي'
+                'message' => 'حدث خطأ أثناء الحذف النهائي الجماعي',
             ], 500);
         }
     }

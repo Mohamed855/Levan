@@ -9,9 +9,9 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\Log;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,14 +24,21 @@ class ExportPerformanceReportJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 1800;
+
     public $tries = 3;
+
     public $maxExceptions = 1;
 
     protected $filters;
+
     protected $selectedFields;
+
     protected $userId;
+
     protected $reportType;
+
     protected $exportId;
+
     protected $fileName;
 
     /*
@@ -46,7 +53,7 @@ class ExportPerformanceReportJob implements ShouldQueue
         $this->userId = $userId;
         $this->reportType = $reportType;
         $this->exportId = uniqid('performance_export_', true);
-        $this->fileName = 'تقرير_أداء_الشركات_' . now()->format('Y_m_d_H_i_s') . '.xlsx';
+        $this->fileName = 'تقرير_أداء_الشركات_'.now()->format('Y_m_d_H_i_s').'.xlsx';
 
         $this->onQueue('exports');
     }
@@ -62,21 +69,21 @@ class ExportPerformanceReportJob implements ShouldQueue
             $this->updateProgress(0, 'بدء عملية تصدير تقرير الأداء...');
 
             // ✅ جلب البيانات حسب نوع التقرير
-            $service = app("App\\Services\\Tenants\\Reports\\Performance\\CompanyPerformanceService");
+            $service = app('App\\Services\\Tenants\\Reports\\Performance\\CompanyPerformanceService');
             $data = $service->getCompaniesPerformance($this->filters);
-            
+
             $totalCount = count($data);
 
             if ($totalCount === 0) {
                 $this->updateProgress(100, 'لا توجد بيانات للتصدير');
-                
+
                 Cache::put("performance_export_result_{$this->exportId}", [
                     'status' => 'completed',
                     'message' => 'لا توجد بيانات للتصدير',
                     'total_records' => 0,
-                    'created_at' => now()->toDateTimeString()
+                    'created_at' => now()->toDateTimeString(),
                 ], now()->addHours(24));
-                
+
                 return;
             }
 
@@ -87,11 +94,11 @@ class ExportPerformanceReportJob implements ShouldQueue
             // ✅ تصدير الملف
             Excel::store(
                 new PerformanceReportExport($data, $this->filters, $this->selectedFields, $this->reportType),
-                'exports/' . $this->fileName,
+                'exports/'.$this->fileName,
                 'tenant_public'
             );
 
-            $fileSize = Storage::disk('tenant_public')->size('exports/' . $this->fileName);
+            $fileSize = Storage::disk('tenant_public')->size('exports/'.$this->fileName);
 
             // ✅ حفظ النتيجة
             Cache::put("performance_export_result_{$this->exportId}", [
@@ -100,7 +107,7 @@ class ExportPerformanceReportJob implements ShouldQueue
                 'file_size' => $this->formatBytes($fileSize),
                 'total_records' => $totalCount,
                 'download_url' => tenant_route_name('reports.performance.download', ['file' => $this->fileName]),
-                'created_at' => now()->toDateTimeString()
+                'created_at' => now()->toDateTimeString(),
             ], now()->addHours(24));
 
             $this->updateProgress(100, 'تم التصدير بنجاح');
@@ -108,24 +115,24 @@ class ExportPerformanceReportJob implements ShouldQueue
             Log::info('Performance export completed', [
                 'export_id' => $this->exportId,
                 'records' => $totalCount,
-                'file_size' => $this->formatBytes($fileSize)
+                'file_size' => $this->formatBytes($fileSize),
             ]);
 
         } catch (\Exception $e) {
             Log::error('Performance export failed', [
                 'export_id' => $this->exportId,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             Cache::put("performance_export_result_{$this->exportId}", [
                 'status' => 'failed',
                 'error' => $e->getMessage(),
-                'created_at' => now()->toDateTimeString()
+                'created_at' => now()->toDateTimeString(),
             ], now()->addHours(24));
 
-            $this->updateProgress(-1, 'فشل في التصدير: ' . $e->getMessage());
-            
+            $this->updateProgress(-1, 'فشل في التصدير: '.$e->getMessage());
+
             throw $e;
         }
     }
@@ -140,7 +147,7 @@ class ExportPerformanceReportJob implements ShouldQueue
         Cache::put("performance_export_progress_{$this->exportId}", [
             'percentage' => $percentage,
             'message' => $message,
-            'updated_at' => now()->toDateTimeString()
+            'updated_at' => now()->toDateTimeString(),
         ], now()->addHours(2));
     }
 
@@ -163,7 +170,7 @@ class ExportPerformanceReportJob implements ShouldQueue
             $i++;
         }
 
-        return round($size, $precision) . ' ' . $units[$i];
+        return round($size, $precision).' '.$units[$i];
     }
 
     /*
@@ -176,13 +183,13 @@ class ExportPerformanceReportJob implements ShouldQueue
         Log::error('Performance export job failed', [
             'export_id' => $this->exportId,
             'error' => $exception->getMessage(),
-            'trace' => $exception->getTraceAsString()
+            'trace' => $exception->getTraceAsString(),
         ]);
 
         Cache::put("performance_export_result_{$this->exportId}", [
             'status' => 'failed',
             'error' => $exception->getMessage(),
-            'created_at' => now()->toDateTimeString()
+            'created_at' => now()->toDateTimeString(),
         ], now()->addHours(24));
     }
 

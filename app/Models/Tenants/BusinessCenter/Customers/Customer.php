@@ -25,16 +25,18 @@ use App\Models\Tenants\GeneralSetting\Country\SettingsCountry;
 use App\Models\Tenants\GeneralSetting\CustomerStatus\SettingsCustomerStatus;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Traits\Tenants\HasUserAccessScope;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\Support\LogOptions;
+use Illuminate\Support\Facades\Schema;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class Customer extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity, HasUserAccessScope;
+    use HasFactory, HasUserAccessScope, LogsActivity, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -68,8 +70,8 @@ class Customer extends Model
      */
     protected $casts = [
         'contract_date' => 'date',
-        'default_date'  => 'date',
-        'last_sms_at'   => 'datetime',
+        'default_date' => 'date',
+        'last_sms_at' => 'datetime',
         'commission_rate' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -89,7 +91,7 @@ class Customer extends Model
             ->logOnlyDirty()
             ->dontLogEmptyChanges()
             ->useLogName('customers')
-            ->setDescriptionForEvent(fn(string $eventName) => $this->getEventDescription($eventName))
+            ->setDescriptionForEvent(fn (string $eventName) => $this->getEventDescription($eventName))
             ->dontLogIfAttributesChangedOnly(['updated_at']);
     }
 
@@ -137,9 +139,13 @@ class Customer extends Model
         ];
 
         foreach ($this->getDirty() as $field => $newValue) {
-            if ($field === 'updated_at') continue;
+            if ($field === 'updated_at') {
+                continue;
+            }
 
-            if (!isset($fieldNames[$field])) continue;
+            if (! isset($fieldNames[$field])) {
+                continue;
+            }
 
             $fieldLabel = $fieldNames[$field];
             $oldValue = $this->getOriginal($field);
@@ -152,7 +158,7 @@ class Customer extends Model
             }
         }
 
-        return $changes ? ' (' . implode(' | ', $changes) . ')' : '';
+        return $changes ? ' ('.implode(' | ', $changes).')' : '';
     }
 
     private function formatValue(string $field, $value): string
@@ -167,34 +173,40 @@ class Customer extends Model
 
             case 'customer_status_id':
                 $status = SettingsCustomerStatus::find($value);
+
                 return $status?->name ?? "حالة #{$value}";
 
             case 'company_id':
                 $company = Company::find($value);
+
                 return $company?->name ?? "شركة #{$value}";
 
             case 'portfolio_id':
                 $portfolio = Portfolio::find($value);
+
                 return $portfolio?->name ?? "محفظة #{$value}";
 
             case 'relationship_manager_id':
                 $manager = User::find($value);
+
                 return $manager?->name ?? "مستخدم #{$value}";
 
             case 'nationality':
                 $country = SettingsCountry::find($value);
+
                 return $country?->name ?? "دولة #{$value}";
 
             case 'last_contact_result_id':
                 $result = ContactResult::find($value);
+
                 return $result?->name ?? "نتيجة #{$value}";
 
             case 'contract_date':
             case 'default_date':
-                return \Carbon\Carbon::parse($value)->format('Y-m-d');
+                return Carbon::parse($value)->format('Y-m-d');
 
             case 'commission_rate':
-                return $value . '%';
+                return $value.'%';
 
             default:
                 return (string) $value;
@@ -297,7 +309,7 @@ class Customer extends Model
      */
     public function getStatusClassAttribute(): string
     {
-        if (!$this->customerStatus) {
+        if (! $this->customerStatus) {
             return 'bg-secondary';
         }
 
@@ -310,7 +322,7 @@ class Customer extends Model
      */
     public function getFormattedCommissionRateAttribute(): ?string
     {
-        return $this->commission_rate ? $this->commission_rate . '%' : null;
+        return $this->commission_rate ? $this->commission_rate.'%' : null;
     }
 
     /**
@@ -375,8 +387,6 @@ class Customer extends Model
         return $query->where('portfolio_id', $portfolioId);
     }
 
-
-
     /*
     |--------------------------------------------------------------------------
     | المرفقات الخاصة بالعميل
@@ -425,8 +435,6 @@ class Customer extends Model
     |--------------------------------------------------------------------------
     */
 
-
-
     /*
     |--------------------------------------------------------------------------
     | خطة سداد الخاصة بالعميل
@@ -450,7 +458,6 @@ class Customer extends Model
     | خطة سداد الخاصة بالعميل
     |--------------------------------------------------------------------------
     */
-
 
     /*
     |--------------------------------------------------------------------------
@@ -476,7 +483,6 @@ class Customer extends Model
     |--------------------------------------------------------------------------
     */
 
-
     /*
     |--------------------------------------------------------------------------
     |  الرسائل النصية الخاصة بالعميل
@@ -500,7 +506,6 @@ class Customer extends Model
     |--------------------------------------------------------------------------
     */
 
-
     /*
     |--------------------------------------------------------------------------
     |  الحقول المتغيرة الخاصة بالعميل
@@ -521,11 +526,10 @@ class Customer extends Model
     public function getDynamicAttribute(): array
     {
         return $this->dynamicValues
-            ->mapWithKeys(fn($row) => [
-                $row->portfolio_field_id => $row->value
+            ->mapWithKeys(fn ($row) => [
+                $row->portfolio_field_id => $row->value,
             ])->toArray();
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -536,7 +540,6 @@ class Customer extends Model
     {
         return $this->hasMany(CustomerTransaction::class)->orderBy('transaction_date', 'asc');
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -553,7 +556,7 @@ class Customer extends Model
 
         $totalCredit = $this->transactions()->where('type', 'credit')->sum('amount');
 
-        $totalSettlement = \Illuminate\Support\Facades\Schema::hasTable('customer_settlements')
+        $totalSettlement = Schema::hasTable('customer_settlements')
             ? $this->settlements()->whereNull('deleted_at')->sum('settlement_amount')
             : 0;
 
@@ -562,14 +565,13 @@ class Customer extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | عرض الرصيد في الجدول الخاص بالعملاء 
+    | عرض الرصيد في الجدول الخاص بالعملاء
     |--------------------------------------------------------------------------
     */
     public function getFormattedRemainingDebtAttribute(): string
     {
-        return number_format($this->remaining_debt, 2) . ' ريال';
+        return number_format($this->remaining_debt, 2).' ريال';
     }
-
 
     /**
      * Get distribution history for this customer.
@@ -596,7 +598,7 @@ class Customer extends Model
      */
     public function isAssigned(): bool
     {
-        return !is_null($this->relationship_manager_id);
+        return ! is_null($this->relationship_manager_id);
     }
 
     /**
@@ -649,10 +651,9 @@ class Customer extends Model
         return $query->whereNotNull('relationship_manager_id');
     }
 
-
     /*
     |--------------------------------------------------------------------------
-    | طلبات  تحديث البيانات 
+    | طلبات  تحديث البيانات
     |--------------------------------------------------------------------------
     */
     public function updateRequests()
@@ -694,9 +695,10 @@ class Customer extends Model
 
     public function getPhoneRequestsAttribute()
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('customer_update_requests')) {
+        if (! Schema::hasTable('customer_update_requests')) {
             return collect();
         }
+
         return $this->getRelationValue('phoneRequests');
     }
 
@@ -710,7 +712,6 @@ class Customer extends Model
     {
         return $this->belongsTo(ContactResult::class, 'last_contact_result_id');
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -747,7 +748,6 @@ class Customer extends Model
         return $this->hasMany(CustomerComment::class);
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | Trait Methods - HasUserAccessScope
@@ -767,7 +767,7 @@ class Customer extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | User Relationship ---  
+    | User Relationship ---
     |--------------------------------------------------------------------------
     | علاقة المستخدم المسؤول للفلترة (مطلوبة للـ Scope)
     */
@@ -811,7 +811,6 @@ class Customer extends Model
     | Functions to get Customer Tasks
     |--------------------------------------------------------------------------
     */
-
 
     /*
     |--------------------------------------------------------------------------

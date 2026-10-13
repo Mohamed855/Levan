@@ -39,6 +39,7 @@ class AssignmentPropertySelectionDataTable extends AbstractDataTable
         $datatable
             ->addColumn('checkbox', function (Property $property): string {
                 $image = $property->main_image ? tasset($property->main_image) : asset('assets/img/illustrations/page-pricing-standard.png');
+
                 return '<input type="checkbox" class="row-checkbox property-selector" value="'.(int) $property->id.'" data-name="'.e($property->name).'" data-number="'.e($property->property_number).'" data-image="'.e($image).'" aria-label="اختيار '.e($property->name).'">';
             })
             ->addColumn('image', function (Property $property): string {

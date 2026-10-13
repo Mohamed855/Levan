@@ -26,13 +26,13 @@ use Stancl\Tenancy\Facades\Tenancy;
 class TenantSubscriptionController extends Controller
 {
     public function __construct(
-        private SubscriptionManager     $subscriptionManager,
-        private SubscriptionFormatter   $subscriptionFormatter,
-        private MoyasarCallbackHandler  $moyasarCallbackHandler,
+        private SubscriptionManager $subscriptionManager,
+        private SubscriptionFormatter $subscriptionFormatter,
+        private MoyasarCallbackHandler $moyasarCallbackHandler,
         private MoyasarFormConfiguration $moyasarFormConfiguration,
-        private CouponService           $couponService,
-        private BillService             $billService,
-        private SubscriptionService     $subscriptionService,
+        private CouponService $couponService,
+        private BillService $billService,
+        private SubscriptionService $subscriptionService,
     ) {
         $this->middleware('can:subscriptions.view')->only(['index']);
         $this->middleware('can:subscriptions.renew')->only(['renewCheckout', 'processRenew', 'renewCallback']);
@@ -41,16 +41,16 @@ class TenantSubscriptionController extends Controller
 
     public function index()
     {
-        $tenant        = tenant();
-        $subscription  = $this->subscriptionManager->getTenantSubscription($tenant->id);
-        $formatted     = $this->subscriptionFormatter->format($subscription);
-        $plans         = Plan::where('is_active', true)->get();
+        $tenant = tenant();
+        $subscription = $this->subscriptionManager->getTenantSubscription($tenant->id);
+        $formatted = $this->subscriptionFormatter->format($subscription);
+        $plans = Plan::where('is_active', true)->get();
 
         //
         return view('tenants.subscription.index', [
-            'subscription_data'      => $subscription,
+            'subscription_data' => $subscription,
             'subscription_formatted' => $formatted,
-            'plans'                  => $plans
+            'plans' => $plans,
         ]);
     }
 
@@ -64,15 +64,16 @@ class TenantSubscriptionController extends Controller
     public function renewCheckout()
     {
         try {
-            $plan            = $this->getCentralPlan();
-            $taxRate         = 0.15;
-            $taxAmount       = round($plan->yearly_renewal_price * $taxRate, 2);
+            $plan = $this->getCentralPlan();
+            $taxRate = 0.15;
+            $taxAmount = round($plan->yearly_renewal_price * $taxRate, 2);
             $priceWithoutTax = round($plan->yearly_renewal_price - $taxAmount, 2);
 
             return view('tenants.subscription.renew.checkout', compact('plan', 'priceWithoutTax', 'taxAmount'));
             //
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->to(tenant_route_name('subscriptions.index'))->with('error', 'حدث خطأ أثناء تحميل صفحة التجديد');
         }
     }
@@ -95,7 +96,7 @@ class TenantSubscriptionController extends Controller
 
             return $this->showMoyasarCheckout(
                 $pendingBill,
-                'تجديد الاشتراك في ' . $plan->name,
+                'تجديد الاشتراك في '.$plan->name,
                 tenant_route_name('subscriptions.renew.callback', ['bill' => $pendingBill->bill_number]),
                 tenant_route_name('subscriptions.renew.checkout'),
             );
@@ -103,6 +104,7 @@ class TenantSubscriptionController extends Controller
             return redirect()->back()->with('error', $e->getMessage());
         } catch (\Throwable $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء معالجة التجديد');
         }
     }
@@ -125,6 +127,7 @@ class TenantSubscriptionController extends Controller
         } catch (\Throwable $e) {
             //
             report($e);
+
             return redirect()->route('site.index')->with('error', 'حدث خطأ أثناء معالجة نتيجة الدفع');
         }
     }
@@ -141,16 +144,17 @@ class TenantSubscriptionController extends Controller
         try {
             $newLicensesCount = (int) $request->validated('new_licenses_count');
 
-            $plan            = $this->getCentralPlan();
-            $total           = $plan->extra_user_license_price * $newLicensesCount;
-            $taxRate         = 0.15;
-            $taxAmount       = round($total * $taxRate, 2);
+            $plan = $this->getCentralPlan();
+            $total = $plan->extra_user_license_price * $newLicensesCount;
+            $taxRate = 0.15;
+            $taxAmount = round($total * $taxRate, 2);
             $priceWithoutTax = round($total - $taxAmount, 2);
 
             return view('tenants.subscription.upgrade.checkout', compact('newLicensesCount', 'plan', 'total', 'priceWithoutTax', 'taxAmount'));
             //
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->to(tenant_route_name('subscriptions.index'))->with('error', 'حدث خطأ أثناء تحميل صفحة شراء تراخيص اضافية ');
         }
     }
@@ -161,8 +165,8 @@ class TenantSubscriptionController extends Controller
             $validated = $request->validated();
             $newLicensesCount = (int) $validated['new_licenses_count'];
 
-            $plan   =  $this->getCentralPlan();
-            $total  = $plan->extra_user_license_price * $newLicensesCount;
+            $plan = $this->getCentralPlan();
+            $total = $plan->extra_user_license_price * $newLicensesCount;
 
             $couponData = $this->couponService->processCoupon($validated['coupon_code'] ?? null, $total);
 
@@ -183,6 +187,7 @@ class TenantSubscriptionController extends Controller
                     'license_unit_price' => $plan->extra_user_license_price,
                 ]
             );
+
             return $this->showMoyasarCheckout(
                 $pendingBill,
                 'شراء تراخيص إضافية',
@@ -193,6 +198,7 @@ class TenantSubscriptionController extends Controller
             return redirect()->back()->with('error', $e->getMessage());
         } catch (\Throwable $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء معالجة شراء التراخيص الإضافية ');
         }
     }
@@ -214,6 +220,7 @@ class TenantSubscriptionController extends Controller
         } catch (\Throwable $e) {
             //
             report($e);
+
             return redirect()->to(tenant_route_name('subscriptions.index'))->with('error', 'حدث خطأ أثناء معالجة نتيجة الدفع');
         }
     }
@@ -234,11 +241,11 @@ class TenantSubscriptionController extends Controller
             type: $type,
             couponData: $couponData,
             metadata: array_merge([
-                'tenant_id'                 => tenant()->id,
-                'billing_name'              => auth()->user()->name,
-                'billing_email'             => auth()->user()->email,
-                'billing_phone'             => auth()->user()->phone ?? null,
-                'billing_company_name'      => tenant()->company_name,
+                'tenant_id' => tenant()->id,
+                'billing_name' => auth()->user()->name,
+                'billing_email' => auth()->user()->email,
+                'billing_phone' => auth()->user()->phone ?? null,
+                'billing_company_name' => tenant()->company_name,
                 'billing_commercial_number' => tenant()->commercial_number,
             ], $extraMetadata),
         );
@@ -260,9 +267,9 @@ class TenantSubscriptionController extends Controller
     private function getCentralPlan()
     {
         $tenant = tenant();
-        $plan   = Tenancy::central(fn() => Plan::find($tenant->lastSubscription->plan?->id));
+        $plan = Tenancy::central(fn () => Plan::find($tenant->lastSubscription->plan?->id));
 
-        if (!$plan) {
+        if (! $plan) {
             return redirect()->to(tenant_route_name('subscriptions.index'))->with('error', 'لا يوجد اشتراك .');
         }
 

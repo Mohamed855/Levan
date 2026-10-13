@@ -3,24 +3,28 @@
 namespace App\Exports\Tenants\Reports\Performance;
 
 use App\Support\ReportNumberFormatter;
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\WithColumnWidths;
-use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class EmployeePerformanceExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle, WithColumnWidths, WithEvents
+class EmployeePerformanceExport implements FromCollection, WithColumnWidths, WithEvents, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     protected $employeesPerformance;
+
     protected $filters;
+
     protected $selectedFields;
+
     protected $rowCount = 0;
 
     /*
@@ -53,7 +57,7 @@ class EmployeePerformanceExport implements FromCollection, WithHeadings, WithMap
             'promises_count',
             'promises_amount',
             'promise_achievement_rate',
-            'target_achievement_rate'
+            'target_achievement_rate',
         ];
     }
 
@@ -62,7 +66,7 @@ class EmployeePerformanceExport implements FromCollection, WithHeadings, WithMap
     | Collection
     |--------------------------------------------------------------------------
     */
-    public function collection(): \Illuminate\Support\Enumerable
+    public function collection(): Enumerable
     {
         return $this->employeesPerformance;
     }
@@ -145,10 +149,10 @@ class EmployeePerformanceExport implements FromCollection, WithHeadings, WithMap
                     $row[] = ReportNumberFormatter::format($employee['promises_amount'] ?? 0);
                     break;
                 case 'promise_achievement_rate':
-                    $row[] = ReportNumberFormatter::format($employee['promise_achievement_rate'] ?? 0) . '%';
+                    $row[] = ReportNumberFormatter::format($employee['promise_achievement_rate'] ?? 0).'%';
                     break;
                 case 'target_achievement_rate':
-                    $row[] = ReportNumberFormatter::format($employee['target_achievement_rate'] ?? 0) . '%';
+                    $row[] = ReportNumberFormatter::format($employee['target_achievement_rate'] ?? 0).'%';
                     break;
                 default:
                     $row[] = '';
@@ -157,6 +161,7 @@ class EmployeePerformanceExport implements FromCollection, WithHeadings, WithMap
         }
 
         $this->rowCount++;
+
         return $row;
     }
 
@@ -253,9 +258,9 @@ class EmployeePerformanceExport implements FromCollection, WithHeadings, WithMap
                 $totalCustomers = $this->employeesPerformance->sum('customers_count');
                 $totalPortfolio = $this->employeesPerformance->sum('total_portfolio');
 
-                $summaryText = "إجمالي الموظفين: " . ReportNumberFormatter::format($totalEmployees) .
-                    " | إجمالي العملاء: " . ReportNumberFormatter::format($totalCustomers) .
-                    " | إجمالي المحفظة: " . ReportNumberFormatter::format($totalPortfolio) . " ريال";
+                $summaryText = 'إجمالي الموظفين: '.ReportNumberFormatter::format($totalEmployees).
+                    ' | إجمالي العملاء: '.ReportNumberFormatter::format($totalCustomers).
+                    ' | إجمالي المحفظة: '.ReportNumberFormatter::format($totalPortfolio).' ريال';
 
                 $sheet->setCellValue("A{$summaryRow}", $summaryText);
                 $sheet->mergeCells("A{$summaryRow}:{$lastColumnLetter}{$summaryRow}");
@@ -317,9 +322,10 @@ class EmployeePerformanceExport implements FromCollection, WithHeadings, WithMap
         $letter = '';
         while ($columnNumber > 0) {
             $columnNumber--;
-            $letter = chr(65 + ($columnNumber % 26)) . $letter;
+            $letter = chr(65 + ($columnNumber % 26)).$letter;
             $columnNumber = intval($columnNumber / 26);
         }
+
         return $letter;
     }
 }

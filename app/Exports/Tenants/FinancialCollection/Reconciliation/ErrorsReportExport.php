@@ -2,20 +2,21 @@
 
 namespace App\Exports\Tenants\FinancialCollection\Reconciliation;
 
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\WithColumnWidths;
-use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class ErrorsReportExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle, WithColumnWidths, WithEvents
+class ErrorsReportExport implements FromCollection, WithColumnWidths, WithEvents, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     protected $items;
 
@@ -24,7 +25,7 @@ class ErrorsReportExport implements FromCollection, WithHeadings, WithMapping, W
         $this->items = $items;
     }
 
-    public function collection(): \Illuminate\Support\Enumerable
+    public function collection(): Enumerable
     {
         return $this->items;
     }
@@ -41,7 +42,7 @@ class ErrorsReportExport implements FromCollection, WithHeadings, WithMapping, W
             $item->account_number,
             number_format($item->file_amount, 2),
             $item->file_date->format('Y-m-d'),
-            $item->error_message ?? 'خطأ غير محدد'
+            $item->error_message ?? 'خطأ غير محدد',
         ];
     }
 
@@ -73,7 +74,7 @@ class ErrorsReportExport implements FromCollection, WithHeadings, WithMapping, W
                 $sheet = $event->sheet->getDelegate();
                 $sheet->setRightToLeft(true);
                 $lastRow = $this->items->count() + 1;
-                $sheet->getStyle('A1:E' . $lastRow)->applyFromArray([
+                $sheet->getStyle('A1:E'.$lastRow)->applyFromArray([
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => '000000']]],
                 ]);
             },

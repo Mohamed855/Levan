@@ -30,7 +30,7 @@ class UpdateUserRoleRequest extends FormRequest
             'role' => ['required', Rule::exists('roles', 'id')->where('guard_name', 'tenant')],
             'status' => [
                 'required',
-                'in:active,inactive'
+                'in:active,inactive',
             ],
         ];
     }

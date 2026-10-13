@@ -18,8 +18,11 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected string $sessionId;
+
     protected string $tempPath;
+
     protected Portfolio $portfolio;
+
     protected int $userId;
 
     /**
@@ -80,19 +83,19 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
                 'status' => 'processing',
                 'progress_percentage' => 5,
                 'current_step' => 'reading_file',
-                'processing_started_at' => now()->toISOString()
+                'processing_started_at' => now()->toISOString(),
             ]);
 
             // قراءة الملف
-            $fullPath = storage_path('app/public/' . $this->tempPath);
-            if (!file_exists($fullPath)) {
+            $fullPath = storage_path('app/public/'.$this->tempPath);
+            if (! file_exists($fullPath)) {
                 throw new \Exception('الملف المؤقت غير موجود');
             }
 
             // تحديث التقدم: قراءة البيانات
             $analysisService->updateAnalysisProgress($this->sessionId, [
                 'progress_percentage' => 15,
-                'current_step' => 'loading_data'
+                'current_step' => 'loading_data',
             ]);
 
             // قراءة الملف
@@ -106,20 +109,20 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
             // تحديث التقدم: تحليل البنية
             $analysisService->updateAnalysisProgress($this->sessionId, [
                 'progress_percentage' => 30,
-                'current_step' => 'analyzing_structure'
+                'current_step' => 'analyzing_structure',
             ]);
 
             // البحث عن رؤوس الأعمدة
             $headersDetection = $this->smartDetectHeaders($rawData, $analysisService);
 
-            if (!$headersDetection['found']) {
+            if (! $headersDetection['found']) {
                 throw new \Exception('لم يتم العثور على رؤوس أعمدة صالحة في الملف');
             }
 
             // تحديث التقدم: معالجة الرؤوس
             $analysisService->updateAnalysisProgress($this->sessionId, [
                 'progress_percentage' => 50,
-                'current_step' => 'processing_headers'
+                'current_step' => 'processing_headers',
             ]);
 
             $headers = $this->sanitizeHeaders($headersDetection['headers']);
@@ -129,7 +132,7 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
             // تحديث التقدم: تحليل الحقول
             $analysisService->updateAnalysisProgress($this->sessionId, [
                 'progress_percentage' => 70,
-                'current_step' => 'analyzing_fields'
+                'current_step' => 'analyzing_fields',
             ]);
 
             // تحليل الرؤوس مقابل حقول المحفظة
@@ -138,7 +141,7 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
             // تحديث التقدم: تحليل البيانات
             $analysisService->updateAnalysisProgress($this->sessionId, [
                 'progress_percentage' => 85,
-                'current_step' => 'analyzing_data_quality'
+                'current_step' => 'analyzing_data_quality',
             ]);
 
             // تحليل جودة البيانات
@@ -151,7 +154,7 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
             $analysisService->updateAnalysisProgress($this->sessionId, [
                 'progress_percentage' => 100,
                 'current_step' => 'completed',
-                'status' => 'completed'
+                'status' => 'completed',
             ]);
 
             $duration = microtime(true) - $startTime;
@@ -168,22 +171,22 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
                     'headers_row' => $headersDetection['headers_row'],
                     'data_start_row' => $dataStartRow,
                     'skipped_rows' => $dataStartRow,
-                    'original_rows' => count($actualData) + $dataStartRow
+                    'original_rows' => count($actualData) + $dataStartRow,
                 ],
                 'portfolio_info' => [
                     'name' => $this->portfolio->name,
                     'company' => $this->portfolio->company->name ?? '',
-                    'existing_fields' => $this->portfolio->portfolioFields->count()
+                    'existing_fields' => $this->portfolio->portfolioFields->count(),
                 ],
                 'analysis_duration_seconds' => round($duration, 2),
-                'raw_data_path' => $this->saveRawDataForImport($actualData, $headers)
+                'raw_data_path' => $this->saveRawDataForImport($actualData, $headers),
 
             ];
 
             // حفظ النتيجة النهائية
             $analysisService->updateAnalysisProgress($this->sessionId, [
                 'analysis_result' => $analysisResult,
-                'completed_at' => now()->toISOString()
+                'completed_at' => now()->toISOString(),
             ]);
 
             // Log::info('File analysis completed successfully', [
@@ -206,27 +209,26 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
             $analysisService->updateAnalysisProgress($this->sessionId, [
                 'status' => 'failed',
                 'error_message' => $e->getMessage(),
-                'failed_at' => now()->toISOString()
+                'failed_at' => now()->toISOString(),
             ]);
 
             throw $e;
         } finally {
             // تنظيف الملف المؤقت
-            if (file_exists(storage_path('app/public/' . $this->tempPath))) {
-                unlink(storage_path('app/public/' . $this->tempPath));
+            if (file_exists(storage_path('app/public/'.$this->tempPath))) {
+                unlink(storage_path('app/public/'.$this->tempPath));
             }
         }
     }
 
-
     private function saveRawDataForImport(array $data, array $headers): string
     {
         $tempData = array_merge([$headers], $data);
-        $tempFile = 'temp/analysis_data_' . $this->sessionId . '.json';
+        $tempFile = 'temp/analysis_data_'.$this->sessionId.'.json';
         Storage::put($tempFile, json_encode($tempData));
+
         return $tempFile;
     }
-
 
     /**
      * فحص إلغاء الجلسة
@@ -234,6 +236,7 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
     private function isSessionCancelled($analysisService): bool
     {
         $status = $analysisService->getAnalysisStatus($this->sessionId);
+
         return $status['found'] && isset($status['data']['status']) && $status['data']['status'] === 'cancelled';
     }
 
@@ -244,40 +247,50 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
     {
         $analysisService->updateAnalysisProgress($this->sessionId, [
             'progress_percentage' => 20,
-            'current_step' => 'selecting_best_sheet'
+            'current_step' => 'selecting_best_sheet',
         ]);
 
         $best = ['score' => -INF, 'index' => null, 'data' => []];
 
         foreach ($allSheets as $i => $sheetData) {
-            if (empty($sheetData)) continue;
+            if (empty($sheetData)) {
+                continue;
+            }
 
             $detect = $this->smartDetectHeaders($sheetData, $analysisService);
-            if (!$detect['found'] || empty($detect['headers'])) continue;
+            if (! $detect['found'] || empty($detect['headers'])) {
+                continue;
+            }
 
             $headers = $this->sanitizeHeaders($detect['headers']);
-            $cols = count(array_filter($headers, fn($h) => trim((string)$h) !== ''));
+            $cols = count(array_filter($headers, fn ($h) => trim((string) $h) !== ''));
 
             $pivotPenalty = $this->countPivotTokens($headers) * 12;
             $validNames = 0;
             foreach ($headers as $h) {
-                if ($this->isValidHeaderName($h)) $validNames++;
+                if ($this->isValidHeaderName($h)) {
+                    $validNames++;
+                }
             }
 
             $score = ($detect['quality_score'] ?? 0) + ($cols * 3) + ($validNames * 2) - $pivotPenalty;
 
-            if ($cols >= 6) $score += 10;
-            if ($validNames >= 2) $score += 5;
+            if ($cols >= 6) {
+                $score += 10;
+            }
+            if ($validNames >= 2) {
+                $score += 5;
+            }
 
             if ($score > $best['score']) {
                 $best = ['score' => $score, 'index' => $i, 'data' => $sheetData];
             }
         }
 
-        if (!empty($best['data'])) {
+        if (! empty($best['data'])) {
             $detect = $this->smartDetectHeaders($best['data'], $analysisService);
             $headers = $this->sanitizeHeaders($detect['headers'] ?? []);
-            $cols = count(array_filter($headers, fn($h) => trim((string)$h) !== ''));
+            $cols = count(array_filter($headers, fn ($h) => trim((string) $h) !== ''));
             $pivotLike = $this->looksLikePivotHeaders($headers);
 
             if ($pivotLike && $cols <= 4) {
@@ -304,13 +317,13 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
                 'non_empty_cells' => 0,
                 'valid_header_names' => 0,
                 'total_cells' => count($row),
-                'suspicious_patterns' => []
+                'suspicious_patterns' => [],
             ];
 
             foreach ($row as $cellIndex => $cell) {
                 $cellValue = trim($cell ?? '');
 
-                if (!empty($cellValue)) {
+                if (! empty($cellValue)) {
                     $rowAnalysis['non_empty_cells']++;
 
                     if ($this->isValidHeaderName($cellValue)) {
@@ -335,7 +348,7 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
                     'data_start_row' => $rowIndex + 1,
                     'headers' => $row,
                     'quality_score' => $qualityScore,
-                    'attempts' => $attempts
+                    'attempts' => $attempts,
                 ];
             }
         }
@@ -358,20 +371,20 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
                 'headers' => $rawData[$bestRow['row_index']],
                 'quality_score' => $bestScore,
                 'attempts' => $attempts,
-                'low_confidence' => true
+                'low_confidence' => true,
             ];
         }
 
         return [
             'found' => false,
-            'attempts' => $attempts
+            'attempts' => $attempts,
         ];
     }
 
     // الدوال المساعدة (مختصرة لتوفير المساحة)
     private function sanitizeHeaders(array $headers): array
     {
-        return array_map(fn($h) => $this->stripAggregationPrefix((string)$h), $headers);
+        return array_map(fn ($h) => $this->stripAggregationPrefix((string) $h), $headers);
     }
 
     private function stripAggregationPrefix(string $header): string
@@ -379,6 +392,7 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
         $h = trim($header);
         $h = preg_replace('/^(distinct\s+count\s+of|count\s+of|sum\s+of|average\s+of|avg\s+of|min\s+of|max\s+of)\s+/i', '', $h);
         $h = preg_replace('/^(إجمالي|المجموع|مجموع|عدد|متوسط|الحد\s+الأدنى|الحد\s+الأقصى)\s+/u', '', $h);
+
         return trim($h);
     }
 
@@ -387,7 +401,7 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
         $tokens = ['row labels', 'column labels', 'grand total', 'values', 'sum of', 'count of'];
         $c = 0;
         foreach ($headers as $h) {
-            $x = mb_strtolower((string)$h);
+            $x = mb_strtolower((string) $h);
             foreach ($tokens as $t) {
                 if (mb_strpos($x, $t) !== false) {
                     $c++;
@@ -395,6 +409,7 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
                 }
             }
         }
+
         return $c;
     }
 
@@ -406,11 +421,15 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
     private function isValidHeaderName(string $value): bool
     {
         $value = trim($value);
-        if (empty($value) || is_numeric($value)) return false;
+        if (empty($value) || is_numeric($value)) {
+            return false;
+        }
 
         $validPatterns = ['اسم', 'نوع', 'رقم', 'هوية', 'هاتف', 'name', 'type', 'phone', 'email'];
         foreach ($validPatterns as $pattern) {
-            if (stripos($value, $pattern) !== false) return true;
+            if (stripos($value, $pattern) !== false) {
+                return true;
+            }
         }
 
         return strlen($value) >= 3 && strlen($value) <= 30;
@@ -431,7 +450,9 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
             $score += ($rowAnalysis['valid_header_names'] / $rowAnalysis['non_empty_cells']) * 50;
         }
         $score -= count($rowAnalysis['suspicious_patterns']) * 10;
-        if ($rowAnalysis['valid_header_names'] >= 3) $score += 20;
+        if ($rowAnalysis['valid_header_names'] >= 3) {
+            $score += 20;
+        }
 
         return max(0, min(100, $score));
     }
@@ -511,13 +532,14 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
 
             // 1. فحص حقول الهواتف الإضافية أولاً
             if (preg_match('/(هاتف|جوال|رقم\s*هاتف)\s*(اضافي|إضافي|ثاني|ثالث)?\s*(\d+)?/u', $normalizedHeader, $matches)) {
-                $phoneIndex = isset($matches[3]) ? (int)$matches[3] : 2;
+                $phoneIndex = isset($matches[3]) ? (int) $matches[3] : 2;
                 $analysis['phone_fields'][] = [
                     'index' => $index,
                     'name' => $header,
                     'type' => 'phone',
-                    'field' => ['index' => $phoneIndex, 'type' => 'phone']
+                    'field' => ['index' => $phoneIndex, 'type' => 'phone'],
                 ];
+
                 continue;
             }
 
@@ -528,8 +550,9 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
                     'index' => $index,
                     'name' => $header,
                     'type' => 'static',
-                    'field' => $staticField
+                    'field' => $staticField,
                 ];
+
                 continue;
             }
 
@@ -544,8 +567,9 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
                         'index' => $index,
                         'name' => $header,
                         'type' => 'existing_dynamic',
-                        'field' => $existingField
+                        'field' => $existingField,
                     ];
+
                     continue;
                 }
             }
@@ -558,7 +582,7 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
                     'name' => $header,
                     'type' => 'new_dynamic',
                     'field' => $cleanHeader,
-                    'detected_type' => $detectedType
+                    'detected_type' => $detectedType,
                 ];
             }
         }
@@ -588,10 +612,14 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
         $invalidPatterns = ['—', '-', '', 'فارغ', 'empty', 'null', '###', 'sum of', 'count of'];
         $cleanHeader = strtolower(trim($header));
 
-        if (strlen($cleanHeader) < 2) return true;
+        if (strlen($cleanHeader) < 2) {
+            return true;
+        }
 
         foreach ($invalidPatterns as $pattern) {
-            if (stripos($cleanHeader, $pattern) !== false) return true;
+            if (stripos($cleanHeader, $pattern) !== false) {
+                return true;
+            }
         }
 
         return false;
@@ -602,12 +630,13 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
         $clean = trim($str);
         $clean = preg_replace('/\s+/', ' ', $clean);
         $clean = str_replace(['*', '(مطلوب)', '(إجباري)'], '', $clean);
+
         return mb_strtolower(trim($clean), 'UTF-8');
     }
 
     private function shouldCreateNewField(string $header): bool
     {
-        return strlen(trim($header)) >= 2 && !is_numeric(trim($header));
+        return strlen(trim($header)) >= 2 && ! is_numeric(trim($header));
     }
 
     private function analyzeSampleData(array $sampleData, array $headers): array
@@ -637,13 +666,13 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
         foreach ($headers as $colIndex => $header) {
             $columnData = array_column($data, $colIndex);
             $nonEmptyValues = array_filter($columnData, function ($value) {
-                return !empty(trim($value));
+                return ! empty(trim($value));
             });
 
             $columnAnalysis[$header] = [
                 'total_values' => count($columnData),
                 'non_empty_values' => count($nonEmptyValues),
-                'empty_percentage' => round((1 - count($nonEmptyValues) / count($columnData)) * 100, 2)
+                'empty_percentage' => round((1 - count($nonEmptyValues) / count($columnData)) * 100, 2),
             ];
         }
 
@@ -665,9 +694,9 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
             'indicators' => [
                 'empty_cells_percentage' => $emptyCellsPercentage,
                 'valid_cells_count' => $validCells,
-                'total_cells' => $totalCells
+                'total_cells' => $totalCells,
             ],
-            'column_analysis' => $columnAnalysis
+            'column_analysis' => $columnAnalysis,
         ];
     }
 
@@ -687,7 +716,7 @@ class ProcessCustomerAnalysisJob implements ShouldQueue
         $analysisService->updateAnalysisProgress($this->sessionId, [
             'status' => 'failed',
             'error_message' => $exception->getMessage(),
-            'failed_at' => now()->toISOString()
+            'failed_at' => now()->toISOString(),
         ]);
     }
 }

@@ -51,7 +51,7 @@ class StoreCustomerNoteRequest extends FormRequest
 
         // إزالة الملاحظات الفارغة وتنظيفها
         $cleanedNotes = array_filter($notes, function ($note) {
-            return !empty(trim($note));
+            return ! empty(trim($note));
         });
 
         // تنظيف المحتوى
@@ -61,7 +61,7 @@ class StoreCustomerNoteRequest extends FormRequest
 
         // إعادة ترتيب المفاتيح
         $this->merge([
-            'notes' => array_values($cleanedNotes)
+            'notes' => array_values($cleanedNotes),
         ]);
     }
 }

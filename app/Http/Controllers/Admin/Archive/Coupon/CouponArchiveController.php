@@ -25,6 +25,7 @@ class CouponArchiveController extends Controller
 
         return $dataTable->render('admin.archive.coupon.index', compact('filterOptions'));
     }
+
     public function restore(AdminAuthenticatedRequest $request, int $id)
     {
         try {
@@ -34,7 +35,7 @@ class CouponArchiveController extends Controller
             return redirect()->route('admin.archives.coupons.index')
                 ->with('success', 'تم استرجاع الكوبون بنجاح.');
         } catch (\Exception $e) {
-            Log::error('Error restoring plan: ' . $e->getMessage());
+            Log::error('Error restoring plan: '.$e->getMessage());
 
             return redirect()->route('admin.archives.coupons.index')
                 ->with('error', 'حدث خطأ أثناء استرجاع الكوبون .');
@@ -50,7 +51,7 @@ class CouponArchiveController extends Controller
             return redirect()->route('admin.archives.coupons.index')
                 ->with('success', 'تم حذف الكوبون نهائيًا بنجاح.');
         } catch (\Exception $e) {
-            Log::error('Error force deleting plan: ' . $e->getMessage());
+            Log::error('Error force deleting plan: '.$e->getMessage());
 
             return redirect()->route('admin.archives.coupons.index')
                 ->with('error', 'حدث خطأ أثناء الحذف النهائي للباقة .');

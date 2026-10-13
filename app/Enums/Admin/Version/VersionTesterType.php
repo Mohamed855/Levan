@@ -5,13 +5,13 @@ namespace App\Enums\Admin\Version;
 enum VersionTesterType: string
 {
     case DEVELOPER = 'developer';
-    case TESTER    = 'tester';
+    case TESTER = 'tester';
 
     public function label(): string
     {
         return match ($this) {
             self::DEVELOPER => 'مطور',
-            self::TESTER    => 'مختبر',
+            self::TESTER => 'مختبر',
         };
     }
 
@@ -19,16 +19,15 @@ enum VersionTesterType: string
     {
         return match ($this) {
             self::DEVELOPER => 'primary',
-            self::TESTER    => 'info',
+            self::TESTER => 'info',
         };
     }
-
 
     public function description(): string
     {
         return match ($this) {
             self::DEVELOPER => 'يمكنه رؤية جميع النسخ (تحت التطوير، تجريبية، ومستقرة)',
-            self::TESTER    => 'يمكنه رؤية النسخ التجريبية والمستقرة فقط',
+            self::TESTER => 'يمكنه رؤية النسخ التجريبية والمستقرة فقط',
         };
     }
 }

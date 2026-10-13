@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Data\Tenants\FinancialCollection\Collection;
 
 class CollectionUpdateDto

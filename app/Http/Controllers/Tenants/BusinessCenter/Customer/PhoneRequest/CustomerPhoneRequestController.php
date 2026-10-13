@@ -3,19 +3,15 @@
 namespace App\Http\Controllers\Tenants\BusinessCenter\Customer\PhoneRequest;
 
 use App\Http\Controllers\Controller;
-use App\Models\Tenants\BusinessCenter\Customers\Customer;
-use App\Models\Tenants\BusinessCenter\Customers\Phone\CustomerPhone;
-use App\Models\Tenants\BusinessCenter\Customers\UpdateRequest\CustomerUpdateRequest;
-use App\Services\Tenants\BusinessCenter\Customer\PhoneRequest\CustomerPhoneRequestService;
 use App\Http\Requests\Tenants\BusinessCenter\Customer\PhoneRequest\CustomerPhoneRequest;
+use App\Models\Tenants\BusinessCenter\Customers\Customer;
+use App\Services\Tenants\BusinessCenter\Customer\PhoneRequest\CustomerPhoneRequestService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
 
 class CustomerPhoneRequestController extends Controller
 {
     protected CustomerPhoneRequestService $phoneRequestService;
-
-
 
     /*
     |--------------------------------------------------------------------------
@@ -31,21 +27,20 @@ class CustomerPhoneRequestController extends Controller
             }, 'phoneRequests.requestedBy']);
 
             $html = view('tenants.business_center.customers.phone-requests.list', [
-                'customer' => $customer
+                'customer' => $customer,
             ])->render();
 
             return response()->json([
                 'success' => true,
-                'html' => $html
+                'html' => $html,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء جلب البيانات'
+                'message' => 'حدث خطأ أثناء جلب البيانات',
             ], 500);
         }
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -72,7 +67,7 @@ class CustomerPhoneRequestController extends Controller
         }, 'phoneRequests.requestedBy']);
 
         return view('tenants.business_center.customers.phone-requests.create', [
-            'customer' => $customer
+            'customer' => $customer,
         ]);
     }
 
@@ -90,33 +85,35 @@ class CustomerPhoneRequestController extends Controller
 
             if ($this->phoneRequestService->canUpdateDirectly()) {
                 $this->phoneRequestService->addPhoneDirectly($customer->id, $validated);
+
                 return response()->json([
                     'success' => true,
-                    'message' => 'تم إضافة رقم الهاتف بنجاح'
+                    'message' => 'تم إضافة رقم الهاتف بنجاح',
                 ]);
             } else {
                 try {
                     $this->phoneRequestService->createPhoneUpdateRequest($customer->id, $validated);
+
                     return response()->json([
                         'success' => true,
-                        'message' => 'تم إرسال طلب إضافة الهاتف للموافقة'
+                        'message' => 'تم إرسال طلب إضافة الهاتف للموافقة',
                     ]);
                 } catch (\InvalidArgumentException $e) {
                     return response()->json([
                         'success' => false,
-                        'message' => $e->getMessage()
+                        'message' => $e->getMessage(),
                     ], 422);
                 }
             }
         } catch (\InvalidArgumentException $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء إضافة رقم الهاتف'
+                'message' => 'حدث خطأ أثناء إضافة رقم الهاتف',
             ], 500);
         }
     }

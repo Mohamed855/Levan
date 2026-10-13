@@ -14,8 +14,9 @@ use Illuminate\Support\Facades\Log;
 
 class TicketController extends Controller
 {
-    private $page = "tenants.tickets";
-    private $route = "tickets";
+    private $page = 'tenants.tickets';
+
+    private $route = 'tickets';
 
     public function __construct(private EtmamTicketService $ticketService)
     {
@@ -29,11 +30,11 @@ class TicketController extends Controller
         ]);
         $this->middleware('can:tickets.create')->only(['create', 'store']);
         $this->middleware(function ($request, $next) {
-            if (!$this->ticketService->isServiceEnabled()) {
+            if (! $this->ticketService->isServiceEnabled()) {
                 if ($request->expectsJson()) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'خدمة التذاكر غير مفعلة'
+                        'message' => 'خدمة التذاكر غير مفعلة',
                     ], 503);
                 }
 
@@ -44,22 +45,21 @@ class TicketController extends Controller
         });
     }
 
-
     public function index(TicketsDataTable $dataTable)
     {
         try {
-            return $dataTable->render($this->page . '.index');
+            return $dataTable->render($this->page.'.index');
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }
 
-
     public function create()
     {
-        if (!$this->ticketService->isServiceEnabled()) {
-            return redirect()->to(tenant_route_name($this->route . '.index'))
+        if (! $this->ticketService->isServiceEnabled()) {
+            return redirect()->to(tenant_route_name($this->route.'.index'))
                 ->with('error', 'عذراً، خدمة فتح تذاكر جديدة متوقفة حالياً من قبل الإدارة.');
         }
 
@@ -68,52 +68,57 @@ class TicketController extends Controller
             ? ($sectionsResult['data']['data'] ?? [])
             : [];
 
-        return view($this->page . '.create', compact('sections'));
+        return view($this->page.'.create', compact('sections'));
     }
-
 
     public function store(TicketRequest $request)
     {
-        if (!$this->ticketService->isServiceEnabled()) {
-            return redirect()->to(tenant_route_name($this->route . '.index'))
+        if (! $this->ticketService->isServiceEnabled()) {
+            return redirect()->to(tenant_route_name($this->route.'.index'))
                 ->with('error', 'عذراً، خدمة فتح تذاكر جديدة متوقفة حالياً من قبل الإدارة.');
         }
 
         try {
             $validated = $request->validated();
-            $result    = $this->ticketService->create($validated, $request->file('attachments', []));
+            $result = $this->ticketService->create($validated, $request->file('attachments', []));
 
             if ($result['success']) {
-                return redirect()->to(tenant_route_name($this->route . '.index'))->with('success', 'تم إنشاء التذكرة بنجاح');
+                return redirect()->to(tenant_route_name($this->route.'.index'))->with('success', 'تم إنشاء التذكرة بنجاح');
             }
 
             return redirect()->back()->withInput()->with('error', $result['message']);
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->back()->withInput()->with('error', 'حدث خطأ أثناء إنشاء التذكرة');
         }
     }
-
 
     public function show(string $ticketNumber)
     {
         try {
             $result = $this->ticketService->get($ticketNumber);
 
-            if (!$result['success']) {
-                return redirect()->to(tenant_route_name($this->route . '.index'))->with('error', $result['message']);
+            if (! $result['success']) {
+                return redirect()->to(tenant_route_name($this->route.'.index'))->with('error', $result['message']);
             }
 
             $ticketData = $result['data']['data'] ?? null;
 
-            if (!$ticketData) {
-                return redirect()->to(tenant_route_name($this->route . '.index'))->with('error', 'لم يتم العثور على التذكرة');
+            if (! $ticketData) {
+                return redirect()->to(tenant_route_name($this->route.'.index'))->with('error', 'لم يتم العثور على التذكرة');
             }
 
             $ticket = (object) $ticketData;
-            if (!isset($ticket->resolved_at)) $ticket->resolved_at = null;
-            if (!isset($ticket->closed_at)) $ticket->closed_at = null;
-            if (!isset($ticket->attachments) || !is_array($ticket->attachments)) $ticket->attachments = [];
+            if (! isset($ticket->resolved_at)) {
+                $ticket->resolved_at = null;
+            }
+            if (! isset($ticket->closed_at)) {
+                $ticket->closed_at = null;
+            }
+            if (! isset($ticket->attachments) || ! is_array($ticket->attachments)) {
+                $ticket->attachments = [];
+            }
 
             $status = TicketStatus::toBadge($ticket->status);
 
@@ -135,30 +140,29 @@ class TicketController extends Controller
             $section = $sections->get($ticket->ticketing_sections_id) ?? ['name' => 'الدعم الفني'];
 
             $surveyQuestions = [
-                'agent_rating'      => 'ما تقييمك لأداء موظف  الدعم الفني ؟',
-                'system_rating'     => 'ما تقييمك للنظام ؟',
-                'solution_rating'   => 'ما تقييمك لجودة الحل المقدم ؟',
+                'agent_rating' => 'ما تقييمك لأداء موظف  الدعم الفني ؟',
+                'system_rating' => 'ما تقييمك للنظام ؟',
+                'solution_rating' => 'ما تقييمك لجودة الحل المقدم ؟',
             ];
 
-            return view($this->page . '.show', compact('ticket', 'replies', 'section', 'status', 'surveyQuestions'));
+            return view($this->page.'.show', compact('ticket', 'replies', 'section', 'status', 'surveyQuestions'));
         } catch (\Exception $e) {
             Log::error('Error loading ticket', [
                 'ticket_number' => $ticketNumber,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return redirect()
-                ->to(tenant_route_name($this->route . '.index'))
+                ->to(tenant_route_name($this->route.'.index'))
                 ->with('error', 'حدث خطأ أثناء تحميل التذكرة');
         }
     }
-
 
     public function reply(TicketReplyRequest $request, $ticket)
     {
         try {
             $validated = $request->validated();
-            $result    = $this->ticketService->addReply($ticket, $validated['message'], $request->file('attachments', []));
+            $result = $this->ticketService->addReply($ticket, $validated['message'], $request->file('attachments', []));
 
             if ($result['success']) {
                 return redirect()->back()->with('success', 'تم الرد على التذكرة بنجاح');
@@ -167,10 +171,10 @@ class TicketController extends Controller
             return redirect()->back()->withInput()->with('error', $result['message']);
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->back()->withInput()->with('error', 'حدث خطأ أثناء إنشاء التذكرة');
         }
     }
-
 
     public function rateReply(RateTicketReplyRequest $request, string $ticketNumber, int $replyId)
     {
@@ -184,7 +188,6 @@ class TicketController extends Controller
 
         return back()->with('error', $result['message'] ?? 'تعذر تقييم الرد حالياً');
     }
-
 
     public function submitSurvey(SubmitTicketSurveyRequest $request, string $ticketNumber)
     {

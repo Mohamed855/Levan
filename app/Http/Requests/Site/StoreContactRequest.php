@@ -16,22 +16,22 @@ class StoreContactRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'customer_name'         => ['required', 'string', 'min:3', 'max:100'],
-            'customer_email'        => ['required', 'email'],
-            'message'               => ['required', 'string', 'min:10'],
-            'g-recaptcha-response'  => ['required', 'string'],
+            'customer_name' => ['required', 'string', 'min:3', 'max:100'],
+            'customer_email' => ['required', 'email'],
+            'message' => ['required', 'string', 'min:10'],
+            'g-recaptcha-response' => ['required', 'string'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'customer_name.required'        => 'الاسم الكامل مطلوب',
-            'customer_name.min'             => 'الاسم الكامل يجب أن يكون 3 أحرف على الأقل',
-            'customer_email.required'       => 'البريد الإلكتروني مطلوب',
-            'customer_email.email'          => 'الرجاء إدخال بريد إلكتروني صحيح',
-            'message.required'              => 'الرسالة مطلوبة',
-            'message.min'                   => 'الرسالة يجب أن تكون 10 أحرف على الأقل',
+            'customer_name.required' => 'الاسم الكامل مطلوب',
+            'customer_name.min' => 'الاسم الكامل يجب أن يكون 3 أحرف على الأقل',
+            'customer_email.required' => 'البريد الإلكتروني مطلوب',
+            'customer_email.email' => 'الرجاء إدخال بريد إلكتروني صحيح',
+            'message.required' => 'الرسالة مطلوبة',
+            'message.min' => 'الرسالة يجب أن تكون 10 أحرف على الأقل',
             'g-recaptcha-response.required' => 'فشل التحقق من reCAPTCHA',
         ];
     }
@@ -39,17 +39,17 @@ class StoreContactRequest extends FormRequest
     protected function passedValidation(): void
     {
         $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-            'secret'    => config('services.recaptcha.secret_key'),
-            'response'  => $this->input('g-recaptcha-response'),
-            'remoteip'  => $this->ip(),
+            'secret' => config('services.recaptcha.secret_key'),
+            'response' => $this->input('g-recaptcha-response'),
+            'remoteip' => $this->ip(),
         ]);
 
-        $result  = $response->json();
+        $result = $response->json();
         $success = $result['success'] ?? false;
-        $score   = $result['score'] ?? 0;
-        $action  = $result['action'] ?? null;
+        $score = $result['score'] ?? 0;
+        $action = $result['action'] ?? null;
 
-        if (!$success || $action !== 'contact_form' || $score < 0.5) {
+        if (! $success || $action !== 'contact_form' || $score < 0.5) {
             throw ValidationException::withMessages([
                 'recaptcha' => 'فشل التحقق من reCAPTCHA، الرجاء المحاولة مرة أخرى.',
             ]);

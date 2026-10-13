@@ -5,34 +5,34 @@ namespace App\Enums\Tenants\CustomerImport;
 enum CustomerImportFields: string
 {
     // حقول الاسم المنقسمة
-    case FIRST_NAME         = 'الاسم الأول';
-    case FATHER_NAME        = 'اسم الأب';
-    case GRANDFATHER_NAME   = 'اسم الجد';
-    case FAMILY_NAME        = 'اسم العائلة';
+    case FIRST_NAME = 'الاسم الأول';
+    case FATHER_NAME = 'اسم الأب';
+    case GRANDFATHER_NAME = 'اسم الجد';
+    case FAMILY_NAME = 'اسم العائلة';
 
-        // حقول الاسم الواحد
-    case CUSTOMER_NAME      = 'اسم العميل';
+    // حقول الاسم الواحد
+    case CUSTOMER_NAME = 'اسم العميل';
 
-        // الحقول الثابتة الإجبارية
-    case CUSTOMER_TYPE      = 'نوع العميل (individual/company)';
-    case IDENTITY_NUMBER    = 'رقم الهوية/رقم الجواز';
+    // الحقول الثابتة الإجبارية
+    case CUSTOMER_TYPE = 'نوع العميل (individual/company)';
+    case IDENTITY_NUMBER = 'رقم الهوية/رقم الجواز';
 
-        // الحقول الثابتة الاختيارية
-    case NATIONALITY        = 'الجنسية (رقم البلد)';
-    case PHONE              = 'الهاتف الرئيسي';
-    case INITIAL_DEBT       = 'المديونية';
-    case CUSTOMER_STATUS    = 'حالة العميل (رقم الحالة)';
-    case EMPLOYEE_NUMBER    = 'الرقم الوظيفي';
+    // الحقول الثابتة الاختيارية
+    case NATIONALITY = 'الجنسية (رقم البلد)';
+    case PHONE = 'الهاتف الرئيسي';
+    case INITIAL_DEBT = 'المديونية';
+    case CUSTOMER_STATUS = 'حالة العميل (رقم الحالة)';
+    case EMPLOYEE_NUMBER = 'الرقم الوظيفي';
     case RELATIONSHIP_MANAGER = 'مسؤول العلاقة (الرقم الوظيفي)';
-    case ACCOUNT_NUMBER     = 'رقم الحساب';
-    case CONTRACT_DATE      = 'تاريخ العقد';
-    case COMMISSION_RATE    = 'معدل العمولة';
-    case DEFAULT_DATE       = 'تاريخ التعثر';
+    case ACCOUNT_NUMBER = 'رقم الحساب';
+    case CONTRACT_DATE = 'تاريخ العقد';
+    case COMMISSION_RATE = 'معدل العمولة';
+    case DEFAULT_DATE = 'تاريخ التعثر';
     case LAST_CONTACT_RESULT = 'آخر نتيجة اتصال';
 
     public static function values(): array
     {
-        return array_map(fn($case) => $case->value, self::cases());
+        return array_map(fn ($case) => $case->value, self::cases());
     }
 
     /*

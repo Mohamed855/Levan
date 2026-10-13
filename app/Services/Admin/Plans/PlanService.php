@@ -25,9 +25,9 @@ class PlanService
     {
         return DB::transaction(function () use ($data) {
             $features = [];
-            if (!empty($data['features'])) {
+            if (! empty($data['features'])) {
                 foreach ($data['features'] as $feature) {
-                    if (!empty(trim((string) $feature))) {
+                    if (! empty(trim((string) $feature))) {
                         $features[] = trim((string) $feature);
                     }
                 }
@@ -40,14 +40,14 @@ class PlanService
 
             $plan = Plan::create([
                 ...$data,
-                'code'                      => $code,
-                'limits_mode'               => $limitsMode,
-                'included_users'            => $isUnlimited ? null : ($data['included_users'] ?? 1),
-                'properties_limit'          => $isUnlimited ? null : ($data['properties_limit'] ?? null),
-                'storage_quota_gb'          => $isUnlimited ? null : ($data['storage_quota_gb'] ?? null),
-                'active_auctions_limit'     => $isUnlimited ? null : ($data['active_auctions_limit'] ?? null),
-                'features'                  => $features,
-                'created_by'                => auth()->id(),
+                'code' => $code,
+                'limits_mode' => $limitsMode,
+                'included_users' => $isUnlimited ? null : ($data['included_users'] ?? 1),
+                'properties_limit' => $isUnlimited ? null : ($data['properties_limit'] ?? null),
+                'storage_quota_gb' => $isUnlimited ? null : ($data['storage_quota_gb'] ?? null),
+                'active_auctions_limit' => $isUnlimited ? null : ($data['active_auctions_limit'] ?? null),
+                'features' => $features,
+                'created_by' => auth()->id(),
             ]);
 
             $this->clearMostRequestedCache();
@@ -65,9 +65,9 @@ class PlanService
             $hasSubscriptions = $this->hasSubscriptions($plan);
 
             $features = [];
-            if (!empty($data['features'])) {
+            if (! empty($data['features'])) {
                 foreach ($data['features'] as $feature) {
-                    if (!empty(trim((string) $feature))) {
+                    if (! empty(trim((string) $feature))) {
                         $features[] = trim((string) $feature);
                     }
                 }
@@ -88,14 +88,14 @@ class PlanService
 
             $updateData = [
                 ...$data,
-                'features'   => !empty($features) ? $features : $plan->features,
+                'features' => ! empty($features) ? $features : $plan->features,
                 'updated_by' => auth()->id(),
             ];
 
             if ($isUnlimited) {
-                $updateData['included_users']        = null;
-                $updateData['properties_limit']      = null;
-                $updateData['storage_quota_gb']      = null;
+                $updateData['included_users'] = null;
+                $updateData['properties_limit'] = null;
+                $updateData['storage_quota_gb'] = null;
                 $updateData['active_auctions_limit'] = null;
             }
 
@@ -129,6 +129,7 @@ class PlanService
         return DB::transaction(function () use ($plan) {
             $deleted = (bool) $plan->delete();
             $this->clearMostRequestedCache();
+
             return $deleted;
         });
     }
@@ -147,6 +148,7 @@ class PlanService
         return DB::transaction(function () use ($plan) {
             $deleted = (bool) $plan->forceDelete();
             $this->clearMostRequestedCache();
+
             return $deleted;
         });
     }
@@ -157,7 +159,7 @@ class PlanService
     public function toggleActive(Plan $plan): Plan
     {
         $plan->update([
-            'is_active'  => !$plan->is_active,
+            'is_active' => ! $plan->is_active,
             'updated_by' => auth()->id(),
         ]);
 
@@ -171,8 +173,8 @@ class PlanService
      */
     public function getPlanStatistics(): array
     {
-        $totalPlans    = Plan::count();
-        $activePlans   = Plan::where('is_active', true)->count();
+        $totalPlans = Plan::count();
+        $activePlans = Plan::where('is_active', true)->count();
         $inactivePlans = Plan::where('is_active', false)->count();
 
         $activeSubscriptions = Subscription::where('status', SubscriptionStatus::ACTIVE->value)->count();
@@ -183,7 +185,7 @@ class PlanService
 
         // Monthly revenue: paid bills in the current month for new subscriptions or renewals only
         $startOfMonth = now()->startOfMonth();
-        $endOfMonth   = now()->endOfMonth();
+        $endOfMonth = now()->endOfMonth();
 
         $monthlyRevenue = (float) Bill::query()
             ->where('status', BillStatus::PAID->value)
@@ -195,12 +197,12 @@ class PlanService
             ->sum('amount');
 
         return [
-            'total'                 => $totalPlans,
-            'active'                => $activePlans,
-            'inactive'              => $inactivePlans,
-            'active_subscriptions'  => $activeSubscriptions,
+            'total' => $totalPlans,
+            'active' => $activePlans,
+            'inactive' => $inactivePlans,
+            'active_subscriptions' => $activeSubscriptions,
             'expired_subscriptions' => $expiredSubscriptions,
-            'monthly_revenue'       => $monthlyRevenue,
+            'monthly_revenue' => $monthlyRevenue,
         ];
     }
 
@@ -244,21 +246,21 @@ class PlanService
         $mostRequestedPlanId = $this->getMostRequestedPlanId();
 
         $statistics = [
-            'total_subscriptions'   => $subscriptions->count(),
-            'unique_companies'      => $subscriptions->pluck('tenant_id')->unique()->count(),
-            'active_subscriptions'  => $subscriptions->where('status', SubscriptionStatus::ACTIVE)->count(),
+            'total_subscriptions' => $subscriptions->count(),
+            'unique_companies' => $subscriptions->pluck('tenant_id')->unique()->count(),
+            'active_subscriptions' => $subscriptions->where('status', SubscriptionStatus::ACTIVE)->count(),
             'expired_subscriptions' => $subscriptions->whereIn('status', [
                 SubscriptionStatus::EXPIRED,
                 SubscriptionStatus::CANCELLED,
             ])->count(),
-            'total_revenue'         => (float) $subscriptions->sum('price'),
-            'is_most_requested'     => $mostRequestedPlanId !== null && (int) $plan->id === (int) $mostRequestedPlanId,
+            'total_revenue' => (float) $subscriptions->sum('price'),
+            'is_most_requested' => $mostRequestedPlanId !== null && (int) $plan->id === (int) $mostRequestedPlanId,
         ];
 
         return [
-            'plan'                => $plan,
-            'subscriptions'       => $subscriptions,
-            'statistics'          => $statistics,
+            'plan' => $plan,
+            'subscriptions' => $subscriptions,
+            'statistics' => $statistics,
             'mostRequestedPlanId' => $mostRequestedPlanId,
         ];
     }

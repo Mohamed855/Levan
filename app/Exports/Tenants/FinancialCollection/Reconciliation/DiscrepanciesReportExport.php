@@ -2,20 +2,21 @@
 
 namespace App\Exports\Tenants\FinancialCollection\Reconciliation;
 
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\WithColumnWidths;
-use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class DiscrepanciesReportExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle, WithColumnWidths, WithEvents
+class DiscrepanciesReportExport implements FromCollection, WithColumnWidths, WithEvents, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     protected $items;
 
@@ -24,7 +25,7 @@ class DiscrepanciesReportExport implements FromCollection, WithHeadings, WithMap
         $this->items = $items;
     }
 
-    public function collection(): \Illuminate\Support\Enumerable
+    public function collection(): Enumerable
     {
         return $this->items;
     }
@@ -37,6 +38,7 @@ class DiscrepanciesReportExport implements FromCollection, WithHeadings, WithMap
     public function map($item): array
     {
         static $counter = 1;
+
         return [
             $counter++,
             $item->account_number,
@@ -45,7 +47,7 @@ class DiscrepanciesReportExport implements FromCollection, WithHeadings, WithMap
             number_format($item->system_amount, 2),
             number_format($item->amount_difference, 2),
             $item->file_date->format('Y-m-d'),
-            $item->system_date?->format('Y-m-d') ?? '-'
+            $item->system_date?->format('Y-m-d') ?? '-',
         ];
     }
 
@@ -77,7 +79,7 @@ class DiscrepanciesReportExport implements FromCollection, WithHeadings, WithMap
                 $sheet = $event->sheet->getDelegate();
                 $sheet->setRightToLeft(true);
                 $lastRow = $this->items->count() + 1;
-                $sheet->getStyle('A1:H' . $lastRow)->applyFromArray([
+                $sheet->getStyle('A1:H'.$lastRow)->applyFromArray([
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => '000000']]],
                 ]);
             },

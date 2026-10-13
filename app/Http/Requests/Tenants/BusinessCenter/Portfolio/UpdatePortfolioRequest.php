@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Tenants\BusinessCenter\Portfolio;
 
 use App\Data\Tenants\BusinessCenter\Portfolio\PortfolioUpdateDTO;
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdatePortfolioRequest extends FormRequest
@@ -23,8 +24,8 @@ class UpdatePortfolioRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'company_id' => ['required', 'exists:companies,id'],
             'assignment_date' => ['nullable', 'date'],
-            'call_start_time' => ['nullable', 'date_format:H:i'],                    
-            'call_end_time' => ['nullable', 'date_format:H:i', 'after:call_start_time'], 
+            'call_start_time' => ['nullable', 'date_format:H:i'],
+            'call_end_time' => ['nullable', 'date_format:H:i', 'after:call_start_time'],
             'has_split_names' => ['sometimes', 'boolean'],
             'status' => ['sometimes', 'in:active,inactive'],
 
@@ -88,7 +89,7 @@ class UpdatePortfolioRequest extends FormRequest
     {
         $fieldNames = [];
         if ($this->has('field_names') && is_array($this->input('field_names'))) {
-            $fieldNames = array_values(array_filter($this->input('field_names'), fn($name) => trim((string)$name) !== ''));
+            $fieldNames = array_values(array_filter($this->input('field_names'), fn ($name) => trim((string) $name) !== ''));
             $this->merge(['field_names' => $fieldNames]);
         }
 
@@ -102,7 +103,7 @@ class UpdatePortfolioRequest extends FormRequest
         $flags = [];
         $all = $this->input('field_required_flags', []);
         for ($i = 0; $i < $count; $i++) {
-            $flags[] = isset($all[$i]) && (string)$all[$i] === '1' ? '1' : '0';
+            $flags[] = isset($all[$i]) && (string) $all[$i] === '1' ? '1' : '0';
         }
         $this->merge(['field_required_flags' => $flags]);
 
@@ -123,7 +124,7 @@ class UpdatePortfolioRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $this->validateFieldConsistency($validator);
-            $this->validateCallTimeRange($validator);  
+            $this->validateCallTimeRange($validator);
         });
     }
 
@@ -136,14 +137,14 @@ class UpdatePortfolioRequest extends FormRequest
     {
         $names = $this->input('field_names', []);
         $types = $this->input('field_types', []);
-        $reqs  = $this->input('field_required_flags', []);
+        $reqs = $this->input('field_required_flags', []);
 
         if (count($names) !== count($types) || count($names) !== count($reqs)) {
             $validator->errors()->add('field_names', 'يجب مطابقة عدد الأنواع وعدد حقول "مطلوب" مع أسماء الحقول');
         }
 
         $dupNames = array_diff_assoc($names, array_unique($names));
-        if (!empty($dupNames)) {
+        if (! empty($dupNames)) {
             $validator->errors()->add('field_names', 'لا يمكن تكرار أسماء الحقول');
         }
     }
@@ -158,14 +159,14 @@ class UpdatePortfolioRequest extends FormRequest
         $startTime = $this->input('call_start_time');
         $endTime = $this->input('call_end_time');
 
-        if (($startTime && !$endTime) || (!$startTime && $endTime)) {
+        if (($startTime && ! $endTime) || (! $startTime && $endTime)) {
             $validator->errors()->add('call_time', 'يجب إدخال وقت البدء والنهاية معاً أو تركهما فارغين');
         }
 
         if ($startTime && $endTime) {
             try {
-                $start = \Carbon\Carbon::createFromFormat('H:i', $startTime);
-                $end = \Carbon\Carbon::createFromFormat('H:i', $endTime);
+                $start = Carbon::createFromFormat('H:i', $startTime);
+                $end = Carbon::createFromFormat('H:i', $endTime);
 
                 if ($end->lessThanOrEqualTo($start)) {
                     $validator->errors()->add('call_end_time', 'وقت نهاية الاتصال يجب أن يكون بعد وقت البدء');
@@ -185,6 +186,7 @@ class UpdatePortfolioRequest extends FormRequest
     {
         $validated = $this->validated();
         $validated['user_id'] = auth()->id();
+
         return PortfolioUpdateDTO::fromArray($validated);
     }
 }

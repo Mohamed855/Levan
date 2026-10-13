@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenants\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Auth\LoginRequest;
 use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
+use App\Models\Tenants\UserMangment\User\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,7 +34,7 @@ class AuthenticatedSessionController extends Controller
         // لو مفعّل عنده 2FA ومؤكد، نوقف الجلسة مؤقتًا وننتقل لصفحة التحقق
         if ($user->two_factor_secret && ! is_null($user->two_factor_confirmed_at)) {
             $request->session()->put([
-                'login.id'       => $user->getKey(),
+                'login.id' => $user->getKey(),
                 'login.remember' => $request->boolean('remember'),
             ]);
 
@@ -45,8 +46,8 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user->update([
-            'last_login_at'      => now(),
-            'last_login_ip'      => $request->ip(),
+            'last_login_at' => now(),
+            'last_login_ip' => $request->ip(),
             'current_session_id' => session()->getId(),
         ]);
 
@@ -69,7 +70,7 @@ class AuthenticatedSessionController extends Controller
             403
         );
 
-        $user = \App\Models\Tenants\UserMangment\User\User::findOrFail($payload['user_id']);
+        $user = User::findOrFail($payload['user_id']);
 
         Auth::guard('tenant')->login($user);
         $request->session()->regenerate();
@@ -112,7 +113,7 @@ class AuthenticatedSessionController extends Controller
     */
     protected function redirectAfterLogout(Request $request): RedirectResponse
     {
-        if (!tenant()) {
+        if (! tenant()) {
             return redirect('/login');
         }
 
@@ -121,7 +122,7 @@ class AuthenticatedSessionController extends Controller
         $isCentralDomain = in_array($currentHost, $centralDomains);
 
         if ($isCentralDomain) {
-            return redirect('/' . tenant('id') . '/login');
+            return redirect('/'.tenant('id').'/login');
         }
 
         return redirect('/login');

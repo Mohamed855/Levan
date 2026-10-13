@@ -2,9 +2,10 @@
 
 namespace App\Actions\Auth;
 
-use Illuminate\Http\Request;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\TwoFactorAuthenticationProvider;
 
 class ResolveTwoFactorLogin
@@ -23,14 +24,14 @@ class ResolveTwoFactorLogin
 
         if (! empty($credentials['code'])) {
             if (! $this->provider->verify(decrypt($user->two_factor_secret), $credentials['code'])) {
-                throw \Illuminate\Validation\ValidationException::withMessages([
+                throw ValidationException::withMessages([
                     'code' => 'الكود غير صحيح.',
                 ]);
             }
         } elseif (! empty($credentials['recovery_code'])) {
             $this->consumeRecoveryCode($user, $credentials['recovery_code']);
         } else {
-            throw \Illuminate\Validation\ValidationException::withMessages([
+            throw ValidationException::withMessages([
                 'code' => 'الرجاء إدخال الكود أو كود الاسترجاع.',
             ]);
         }
@@ -50,14 +51,14 @@ class ResolveTwoFactorLogin
         $recoveryCodes = collect(json_decode(decrypt($user->two_factor_recovery_codes), true));
 
         if (! $recoveryCodes->contains($code)) {
-            throw \Illuminate\Validation\ValidationException::withMessages([
+            throw ValidationException::withMessages([
                 'recovery_code' => 'كود الاسترجاع غير صحيح.',
             ]);
         }
 
         $user->forceFill([
             'two_factor_recovery_codes' => encrypt(
-                $recoveryCodes->reject(fn($c) => $c === $code)->values()->toJson()
+                $recoveryCodes->reject(fn ($c) => $c === $code)->values()->toJson()
             ),
         ])->save();
     }

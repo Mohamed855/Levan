@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Admin\APILayer;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Tenants\Domain;
 use App\Services\shared\APILayer\apiLayerService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class APILayerController extends Controller
 {
@@ -21,6 +19,7 @@ class APILayerController extends Controller
     {
         return $this->apiLayerService->checkDomainNamecheap($domain);
     }
+
     public function checkExistTransferDomain($domain)
     {
 
@@ -31,14 +30,12 @@ class APILayerController extends Controller
         if ($transfered) {
             return response()->json([
                 'status' => 'exists',
-                'message' => 'هذا الدومين منقول بالفعل'
+                'message' => 'هذا الدومين منقول بالفعل',
             ], 200);
         }
 
         return $this->apiLayerService->checkDomainNamecheap($domain);
     }
-
-
 
     public function apiLayer2($domain)
     {
@@ -51,7 +48,7 @@ class APILayerController extends Controller
 
         $baseDomain = $domain;
         if ($isSubdomain) {
-            $baseDomain = $domainParts[count($domainParts) - 2] . '.' . $domainParts[count($domainParts) - 1];
+            $baseDomain = $domainParts[count($domainParts) - 2].'.'.$domainParts[count($domainParts) - 1];
         }
 
         $dnsInfo = [
@@ -59,7 +56,7 @@ class APILayerController extends Controller
             'a_records' => [],
             'domain_type' => $isSubdomain ? 'subdomain' : 'domain',
             'checked_domain' => $domain,
-            'base_domain' => $baseDomain
+            'base_domain' => $baseDomain,
         ];
 
         // الحصول على A Records
@@ -93,12 +90,12 @@ class APILayerController extends Controller
         $serverIp = env('SERVER_IP', '135.181.215.105');
         $serverNameServers = [
             'ns1.levan.com',
-            'ns2.levan.com'
+            'ns2.levan.com',
         ];
 
         // التحقق من A Record
         $isPointingToServer = false;
-        if (!empty($dnsInfo['a_records'])) {
+        if (! empty($dnsInfo['a_records'])) {
             foreach ($dnsInfo['a_records'] as $ip) {
                 if ($ip === $serverIp) {
                     $isPointingToServer = true;
@@ -110,7 +107,7 @@ class APILayerController extends Controller
         // التحقق من Name Servers
         $nsPointingToServer = false;
         $matchingNameServers = [];
-        if (!empty($dnsInfo['name_servers'])) {
+        if (! empty($dnsInfo['name_servers'])) {
             foreach ($dnsInfo['name_servers'] as $ns) {
                 foreach ($serverNameServers as $serverNs) {
                     $cleanNs = rtrim($ns, '.');
@@ -131,7 +128,7 @@ class APILayerController extends Controller
             'server_ip' => $serverIp,
             'server_ns' => $serverNameServers,
             'message' => '',
-            'domain_type' => $isSubdomain ? 'subdomain' : 'domain'
+            'domain_type' => $isSubdomain ? 'subdomain' : 'domain',
         ];
 
         // رسالة الحالة
@@ -165,18 +162,15 @@ class APILayerController extends Controller
         ]);
     }
 
-
-
-
     public function checkSubDomain($subdomain)
     {
         if (checkdnsrr($subdomain, 'A') || checkdnsrr($subdomain, 'CNAME')) {
             return response()->json([
-                'result' => 'registered'
+                'result' => 'registered',
             ]);
         } else {
             return response()->json([
-                'result' => 'available'
+                'result' => 'available',
             ]);
         }
     }

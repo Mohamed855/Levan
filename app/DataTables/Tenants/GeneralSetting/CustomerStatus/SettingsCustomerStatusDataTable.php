@@ -11,7 +11,7 @@ class SettingsCustomerStatusDataTable extends AbstractDataTable
     /**
      * @var string The route name for actions (edit, delete).
      */
-    private $route = "general-settings.settings-customer-status";
+    private $route = 'general-settings.settings-customer-status';
 
     /*
     |--------------------------------------------------------------------------
@@ -24,6 +24,7 @@ class SettingsCustomerStatusDataTable extends AbstractDataTable
     {
         $datatable = datatables()->eloquent($query)->addIndexColumn();
         $this->addCustomColumns($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
@@ -35,7 +36,7 @@ class SettingsCustomerStatusDataTable extends AbstractDataTable
     */
     protected function getTableId()
     {
-        return "customer-status-table";
+        return 'customer-status-table';
     }
 
     /*
@@ -52,7 +53,7 @@ class SettingsCustomerStatusDataTable extends AbstractDataTable
             "{$tableName}.id",
             "{$tableName}.name",
             "{$tableName}.status",
-            "{$tableName}.created_at"
+            "{$tableName}.created_at",
         ]);
 
         return $this->applyCustomFilters($query);
@@ -70,10 +71,10 @@ class SettingsCustomerStatusDataTable extends AbstractDataTable
             ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             [
-                'data'       => 'checkbox',
-                'name'       => 'checkbox',
-                'title'      => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
-                'orderable'  => false,
+                'data' => 'checkbox',
+                'name' => 'checkbox',
+                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
+                'orderable' => false,
                 'searchable' => false,
                 'width' => '10px',
                 'className' => 'custom-checkbox',
@@ -96,16 +97,16 @@ class SettingsCustomerStatusDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
             ->editColumn('name', function ($row) {
-                return '<span class="text-body fw-medium">' . $row->name . '</span>';
+                return '<span class="text-body fw-medium">'.$row->name.'</span>';
             })
             ->editColumn('status', function ($row) {
                 $checked = $row->status === 'active' ? 'checked' : '';
                 $url = tenant_route_name('general-settings.settings-customer-status.toggleStatus', $row->id);
 
-                return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_' . $row->id . '" data-url="' . e($url) . '" ' . $checked . ' aria-label="تبديل حالة العميل"></div></div>';
+                return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_'.$row->id.'" data-url="'.e($url).'" '.$checked.' aria-label="تبديل حالة العميل"></div></div>';
             })
             ->editColumn('created_at', function ($row) {
                 return $row->created_at ? Carbon::parse($row->created_at)->format('Y-m-d') : '';
@@ -115,13 +116,10 @@ class SettingsCustomerStatusDataTable extends AbstractDataTable
                     'id' => $row->id,
                     'route' => $this->route,
                     'name' => $row->name,
-                    'status' => $row->status
+                    'status' => $row->status,
                 ])->render();
             });
     }
-
-
-
 
     /*
     |--------------------------------------------------------------------------
@@ -157,21 +155,20 @@ class SettingsCustomerStatusDataTable extends AbstractDataTable
     private function getActionsDropdownButton(): array
     {
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => [
+            'text' => 'الإجراءات',
+            'buttons' => [
                 ['extend' => 'copy', 'text' => 'نسخ'],
                 ['extend' => 'excel', 'text' => 'إكسل'],
                 [
-                    'text'      => 'حذف المحدد',
+                    'text' => 'حذف المحدد',
                     'className' => 'btn btn-default btn-delete-selected',
-                    'action'    => "function() { handleMassDelete(); }",
-                ]
+                    'action' => 'function() { handleMassDelete(); }',
+                ],
             ],
         ];
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -182,9 +179,9 @@ class SettingsCustomerStatusDataTable extends AbstractDataTable
     private function getAddButton(): array
     {
         return [
-            'text'      => '<i class="fas fa-plus-circle me-1"></i> إضافة حالة جديدة',
+            'text' => '<i class="fas fa-plus-circle me-1"></i> إضافة حالة جديدة',
             'className' => 'btn btn-primary btn-add',
-            'action'    => "function(){ $('#addModal').modal('show'); }",
+            'action' => "function(){ $('#addModal').modal('show'); }",
         ];
     }
 }

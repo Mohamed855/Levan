@@ -3,30 +3,26 @@
 namespace App\Exports\Tenants\Dashboard;
 
 use App\Services\Tenants\Dashboard\DashboardService;
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\WithColumnWidths;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class OverdueTasksExport implements
-    FromCollection,
-    WithHeadings,
-    WithMapping,
-    WithStyles,
-    WithColumnWidths,
-    ShouldAutoSize,
-    WithEvents
+class OverdueTasksExport implements FromCollection, ShouldAutoSize, WithColumnWidths, WithEvents, WithHeadings, WithMapping, WithStyles
 {
     protected $userId;
+
     protected $filters;
+
     protected $dashboardService;
 
     public function __construct(?int $userId, array $filters)
@@ -36,7 +32,7 @@ class OverdueTasksExport implements
         $this->dashboardService = app(DashboardService::class);
     }
 
-    public function collection(): \Illuminate\Support\Enumerable
+    public function collection(): Enumerable
     {
         return $this->dashboardService
             ->getOverdueTasksQuery($this->userId, $this->filters)
@@ -95,8 +91,8 @@ class OverdueTasksExport implements
 
         $data[] = $taskTypes[$row->last_result_id] ?? 'غير محدد';
         $data[] = $row->scheduled_date ?: '-';
-        $data[] = (int)$row->overdue_days;
-        $data[] = number_format((float)$row->remaining_debt, 2);
+        $data[] = (int) $row->overdue_days;
+        $data[] = number_format((float) $row->remaining_debt, 2);
 
         if ($this->userId === null) {
             $data[] = $row->rm_name ?: 'غير محدد';
@@ -111,7 +107,7 @@ class OverdueTasksExport implements
         $highestColumn = $sheet->getHighestColumn();
         $lastRow = $sheet->getHighestRow();
 
-        $sheet->getStyle('A1:' . $highestColumn . '1')->applyFromArray([
+        $sheet->getStyle('A1:'.$highestColumn.'1')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'size' => 12,
@@ -127,14 +123,14 @@ class OverdueTasksExport implements
             ],
         ]);
 
-        $sheet->getStyle('A2:' . $highestColumn . $lastRow)->applyFromArray([
+        $sheet->getStyle('A2:'.$highestColumn.$lastRow)->applyFromArray([
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
                 'vertical' => Alignment::VERTICAL_CENTER,
             ],
         ]);
 
-        $sheet->getStyle('A1:' . $highestColumn . $lastRow)->applyFromArray([
+        $sheet->getStyle('A1:'.$highestColumn.$lastRow)->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,
@@ -146,7 +142,7 @@ class OverdueTasksExport implements
         $overdueDaysColumn = $this->userId === null ? 'I' : 'G';
 
         for ($row = 2; $row <= $lastRow; $row++) {
-            $days = (int)$sheet->getCell($overdueDaysColumn . $row)->getValue();
+            $days = (int) $sheet->getCell($overdueDaysColumn.$row)->getValue();
 
             if ($days <= 3) {
                 $color = 'FFF3CD';
@@ -159,7 +155,7 @@ class OverdueTasksExport implements
                 $fontColor = '721C24';
             }
 
-            $sheet->getStyle($overdueDaysColumn . $row)->applyFromArray([
+            $sheet->getStyle($overdueDaysColumn.$row)->applyFromArray([
                 'font' => [
                     'color' => ['rgb' => $fontColor],
                     'bold' => true,
@@ -174,7 +170,7 @@ class OverdueTasksExport implements
         $taskTypeColumn = $this->userId === null ? 'G' : 'E';
 
         for ($row = 2; $row <= $lastRow; $row++) {
-            $taskType = $sheet->getCell($taskTypeColumn . $row)->getValue();
+            $taskType = $sheet->getCell($taskTypeColumn.$row)->getValue();
 
             switch ($taskType) {
                 case 'وعد بالسداد':
@@ -194,7 +190,7 @@ class OverdueTasksExport implements
                     $fontColor = '999999';
             }
 
-            $sheet->getStyle($taskTypeColumn . $row)->applyFromArray([
+            $sheet->getStyle($taskTypeColumn.$row)->applyFromArray([
                 'font' => [
                     'color' => ['rgb' => $fontColor],
                     'bold' => true,

@@ -48,7 +48,7 @@ class Bill extends Model
         'paid_at',
         'cancelled_at',
         'invoice_url',
-        'settlement_amount', //مبلغ التسوية
+        'settlement_amount', // مبلغ التسوية
 
         'bank_id',
         'transfer_date',
@@ -57,14 +57,14 @@ class Bill extends Model
         'verified_at',
 
         'reject_reason',
-        'metadata'
+        'metadata',
     ];
 
     protected $casts = [
-        'type'           => BillType::class,
+        'type' => BillType::class,
         'payment_method' => PaymentMethod::class,
-        'status'         => BillStatus::class,
-        'metadata'       => 'array',
+        'status' => BillStatus::class,
+        'metadata' => 'array',
     ];
 
     /*
@@ -100,6 +100,7 @@ class Bill extends Model
         //  INV-202511-0001-A7F3
         return sprintf('%s-%s-%04d-%s', $prefix, $yearMonth, $sequence, $random);
     }
+
     /*
     |============================================================================
     |============================================================================

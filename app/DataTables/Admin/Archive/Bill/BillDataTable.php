@@ -1,4 +1,5 @@
 <?php
+
 namespace App\DataTables\Admin\Archive\Bill;
 
 use App\DataTables\Abstract\AbstractDataTable;
@@ -6,11 +7,11 @@ use App\Models\Admin\Bills\Bill;
 
 class BillDataTable extends AbstractDataTable
 {
-     private $route  = "admin.archives.bills";
+    private $route = 'admin.archives.bills';
 
     protected function getTableId()
     {
-        return "bill-archive-table";
+        return 'bill-archive-table';
     }
 
     protected function resource()
@@ -50,7 +51,7 @@ class BillDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
 
             ->editColumn('tenant_name', function ($row) {
@@ -62,7 +63,7 @@ class BillDataTable extends AbstractDataTable
             })
 
             ->editColumn('bill_number', function ($row) {
-                return $this->routeName(tenant_route_name($this->route . '.show', $row->id), $row->bill_number);
+                return $this->routeName(tenant_route_name($this->route.'.show', $row->id), $row->bill_number);
             })
 
             ->editColumn('amount', function ($row) {
@@ -85,7 +86,7 @@ class BillDataTable extends AbstractDataTable
                 return $row->created_at?->format('Y-m-d');
             })
 
-            ->addColumn('actions', function ($row){
+            ->addColumn('actions', function ($row) {
                 return view('admin.archive.bill.action', ['id' => $row->id, 'route' => $this->route])->render();
             });
     }
@@ -95,7 +96,7 @@ class BillDataTable extends AbstractDataTable
         $request = request();
 
         if ($request->filled('type')) {
-            $query->where('type',  $request->type);
+            $query->where('type', $request->type);
         }
 
         if ($request->filled('status')) {
@@ -135,19 +136,18 @@ class BillDataTable extends AbstractDataTable
     {
         $buttons = [
             ['extend' => 'copy', 'text' => 'نسخ'],
-            ['extend' => 'excel', 'text' => 'إكسل' , 'exportOptions' => [
-                    'columns' => [ 11,10,9, 8, 7, 6, 5, 4 , 3]
-                ] ],
+            ['extend' => 'excel', 'text' => 'إكسل', 'exportOptions' => [
+                'columns' => [11, 10, 9, 8, 7, 6, 5, 4, 3],
+            ]],
         ];
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
-
 
     private function TypeBadge($row): string
     {

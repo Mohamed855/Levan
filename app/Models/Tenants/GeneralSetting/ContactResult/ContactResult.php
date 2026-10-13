@@ -3,8 +3,8 @@
 namespace App\Models\Tenants\GeneralSetting\ContactResult;
 
 use App\Models\Tenants\UserMangment\User\User;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class ContactResult extends Model
 {

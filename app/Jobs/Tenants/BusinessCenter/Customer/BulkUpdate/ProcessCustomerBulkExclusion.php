@@ -22,10 +22,15 @@ class ProcessCustomerBulkExclusion implements ShouldQueue
     protected array $data;
 
     public int $timeout = 14400;
+
     public int $tries = 3;
+
     private const BATCH_SIZE = 200;
+
     private const MEMORY_LIMIT = '4096M';
+
     private const READ_CHUNK_SIZE = 1000;
+
     private const MAX_ALLOWED_ROWS = 50000;
 
     public function __construct(array $data)
@@ -38,20 +43,21 @@ class ProcessCustomerBulkExclusion implements ShouldQueue
     {
         $jobId = $this->data['job_id'];
         $tempPath = $this->data['temp_file_path'];
-        $fullPath = storage_path('app/' . $tempPath);
+        $fullPath = storage_path('app/'.$tempPath);
 
         ini_set('memory_limit', self::MEMORY_LIMIT);
         set_time_limit(0);
 
-        if (!file_exists($fullPath)) {
+        if (! file_exists($fullPath)) {
             $this->updateProgress($jobId, 'failed', 0, 0, 0, 0, 'الملف المؤقت غير موجود');
+
             return;
         }
 
         try {
             $this->updateProgress($jobId, 'processing', 0, 0, 0, 0);
 
-            $reader = new XlsxReader();
+            $reader = new XlsxReader;
             $reader->setReadDataOnly(true);
             $reader->setReadEmptyCells(false);
 
@@ -63,6 +69,7 @@ class ProcessCustomerBulkExclusion implements ShouldQueue
                 $this->updateProgress($jobId, 'completed', 0, 0, 0, 0);
                 Storage::delete($tempPath);
                 $spreadsheet->disconnectWorksheets();
+
                 return;
             }
 
@@ -77,6 +84,7 @@ class ProcessCustomerBulkExclusion implements ShouldQueue
                 $this->updateProgress($jobId, 'failed', 0, $totalRows, 0, 0, $errorMessage);
                 Storage::delete($tempPath);
                 $spreadsheet->disconnectWorksheets();
+
                 return;
             }
 
@@ -94,7 +102,7 @@ class ProcessCustomerBulkExclusion implements ShouldQueue
             gc_collect_cycles();
 
             $errorReportPath = null;
-            if ($result['failed'] > 0 && !empty($result['errors'])) {
+            if ($result['failed'] > 0 && ! empty($result['errors'])) {
                 $errorReportPath = $service->generateErrorReport($result['errors']);
                 $service->rememberErrorReportOwner($errorReportPath, (int) $this->data['user_id']);
             }
@@ -119,7 +127,7 @@ class ProcessCustomerBulkExclusion implements ShouldQueue
                 0,
                 0,
                 0,
-                'حدث خطأ غير متوقع: ' . $e->getMessage()
+                'حدث خطأ غير متوقع: '.$e->getMessage()
             );
             Storage::delete($tempPath);
             throw $e;
@@ -144,9 +152,9 @@ class ProcessCustomerBulkExclusion implements ShouldQueue
 
             for ($row = $startRow; $row <= $endRow; $row++) {
                 try {
-                    $rowData = $sheet->rangeToArray('A' . $row . ':A' . $row, null, true, false)[0];
-                    
-                    if (!empty($rowData[0]) && trim($rowData[0]) !== '') {
+                    $rowData = $sheet->rangeToArray('A'.$row.':A'.$row, null, true, false)[0];
+
+                    if (! empty($rowData[0]) && trim($rowData[0]) !== '') {
                         $chunkData[$row] = trim($rowData[0]);
                     }
                 } catch (\Exception $e) {
@@ -155,12 +163,12 @@ class ProcessCustomerBulkExclusion implements ShouldQueue
                     $errors[] = [
                         'row' => $row,
                         'match_value' => '',
-                        'message' => 'خطأ في قراءة الصف: ' . $e->getMessage()
+                        'message' => 'خطأ في قراءة الصف: '.$e->getMessage(),
                     ];
                 }
             }
 
-            if (!empty($chunkData)) {
+            if (! empty($chunkData)) {
                 $batchResult = $this->processExclusionBatch(
                     $chunkData,
                     $jobId,
@@ -187,7 +195,7 @@ class ProcessCustomerBulkExclusion implements ShouldQueue
             'processed' => $processed,
             'excluded' => $excluded,
             'failed' => $failed,
-            'errors' => $errors
+            'errors' => $errors,
         ];
     }
 
@@ -220,7 +228,7 @@ class ProcessCustomerBulkExclusion implements ShouldQueue
                         $errors[] = [
                             'row' => $rowIndex,
                             'match_value' => $value,
-                            'message' => 'لا يوجد عميل بهذا ' . ($this->data['exclusion_key'] === 'account_number' ? 'رقم الحساب' : 'رقم الهوية')
+                            'message' => 'لا يوجد عميل بهذا '.($this->data['exclusion_key'] === 'account_number' ? 'رقم الحساب' : 'رقم الهوية'),
                         ];
                     } else {
                         foreach ($customers as $customer) {
@@ -265,7 +273,7 @@ class ProcessCustomerBulkExclusion implements ShouldQueue
                     $errors[] = [
                         'row' => $rowIndex,
                         'match_value' => $value,
-                        'message' => 'خطأ في معالجة الدفعة: ' . $e->getMessage()
+                        'message' => 'خطأ في معالجة الدفعة: '.$e->getMessage(),
                     ];
                 }
             }
@@ -277,7 +285,7 @@ class ProcessCustomerBulkExclusion implements ShouldQueue
             'processed' => $localProcessed,
             'excluded' => $localExcluded,
             'failed' => $localFailed,
-            'errors' => $errors
+            'errors' => $errors,
         ];
     }
 
@@ -324,7 +332,7 @@ class ProcessCustomerBulkExclusion implements ShouldQueue
                 0,
                 0,
                 0,
-                'فشل في تنفيذ المهمة: ' . $exception->getMessage()
+                'فشل في تنفيذ المهمة: '.$exception->getMessage()
             );
         }
 

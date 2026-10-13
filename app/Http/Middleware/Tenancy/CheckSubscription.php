@@ -13,7 +13,7 @@ class CheckSubscription
 {
     public function handle(Request $request, Closure $next)
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return $next($request);
         }
 
@@ -43,12 +43,11 @@ class CheckSubscription
         $subscription = cache()->remember(
             "tenant:{$tenant->id}:subscription",
             now()->addMinutes(5),
-            fn() => Tenancy::central(fn() => $tenant->lastSubscription)
+            fn () => Tenancy::central(fn () => $tenant->lastSubscription)
         );
 
-
         // لا يوجد اشتراك
-        if (!$subscription) {
+        if (! $subscription) {
             $terminateSession();
 
             return redirect()->to(tenant_route_name('login'))->withErrors([
@@ -68,7 +67,6 @@ class CheckSubscription
                 'email' => 'انتهت فترة التجربة. يرجى التواصل مع الإدارة لتفعيل الاشتراك.',
             ]);
         }
-
 
         // الاشتراك معلق بانتظار دفع الفاتورة
         if ($subscription->is_suspended) {
@@ -99,7 +97,6 @@ class CheckSubscription
                 'email' => 'تم تعليق الوصول بسبب انتهاء صلاحية الاشتراك. يرجى التواصل مع الإدارة.',
             ]);
         }
-
 
         if ($subscription->is_canceled) {
             $terminateSession();

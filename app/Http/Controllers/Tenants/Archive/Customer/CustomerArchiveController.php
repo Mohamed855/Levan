@@ -2,20 +2,19 @@
 
 namespace App\Http\Controllers\Tenants\Archive\Customer;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Tenants\Archive\BulkArchiveActionRequest;
-use App\Http\Requests\Tenants\Archive\ArchiveItemIdRequest;
 use App\DataTables\Tenants\Archive\Customer\ArchivedCustomersDataTable;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Archive\ArchiveItemIdRequest;
+use App\Http\Requests\Tenants\Archive\BulkArchiveActionRequest;
 use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Models\Tenants\GeneralSetting\ContactResult\ContactResult;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\Archive\Customer\CustomerArchiveService;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 class CustomerArchiveController extends Controller
 {
@@ -63,15 +62,16 @@ class CustomerArchiveController extends Controller
                 ->get();
 
             return $dataTable->render('tenants.archive.customers.index', [
-                'companies'                   => $companies,
-                'portfolios'                  => $portfolios,
-                'users'                       => $users,
-                'contactResults'              => $contactResults,
+                'companies' => $companies,
+                'portfolios' => $portfolios,
+                'users' => $users,
+                'contactResults' => $contactResults,
             ]);
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }
+
     /*
     |--------------------------------------------------------------------------
     | استرجاع عميل من الأرشيف
@@ -144,12 +144,12 @@ class CustomerArchiveController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "تم استرجاع {$restoredCount} عميل بنجاح"
+                'message' => "تم استرجاع {$restoredCount} عميل بنجاح",
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء الاستعادة الجماعية'
+                'message' => 'حدث خطأ أثناء الاستعادة الجماعية',
             ], 500);
         }
     }
@@ -168,12 +168,12 @@ class CustomerArchiveController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "تم حذف {$deletedCount} عميل نهائياً"
+                'message' => "تم حذف {$deletedCount} عميل نهائياً",
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء الحذف النهائي الجماعي'
+                'message' => 'حدث خطأ أثناء الحذف النهائي الجماعي',
             ], 500);
         }
     }
@@ -194,7 +194,7 @@ class CustomerArchiveController extends Controller
                 'portfolio_id',
                 'relationship_manager_id',
                 'last_contact_result_id',
-                'search'
+                'search',
             ]);
 
             $query = $this->customerArchiveService->filterArchivedCustomersQuery($query, $filters);
@@ -203,12 +203,12 @@ class CustomerArchiveController extends Controller
             return response()->json([
                 'success' => true,
                 'customer_ids' => $ids,
-                'count' => $ids->count()
+                'count' => $ids->count(),
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'فشل في جلب البيانات'
+                'message' => 'فشل في جلب البيانات',
             ], 500);
         }
     }

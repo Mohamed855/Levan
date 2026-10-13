@@ -18,13 +18,19 @@ class ExportCompanyReportJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 1800;
+
     public $tries = 3;
+
     public $maxExceptions = 1;
 
     protected $filters;
+
     protected $selectedFields;
+
     protected $userId;
+
     protected $exportId;
+
     protected $fileName;
 
     public function __construct($filters, $selectedFields, $userId)
@@ -33,7 +39,7 @@ class ExportCompanyReportJob implements ShouldQueue
         $this->selectedFields = $selectedFields;
         $this->userId = $userId;
         $this->exportId = uniqid('company_report_export_', true);
-        $this->fileName = 'تقرير_الشركات_' . now()->format('Y_m_d_H_i_s') . '_' . $this->exportId . '.xlsx';
+        $this->fileName = 'تقرير_الشركات_'.now()->format('Y_m_d_H_i_s').'_'.$this->exportId.'.xlsx';
         $this->onQueue('exports');
     }
 
@@ -54,6 +60,7 @@ class ExportCompanyReportJob implements ShouldQueue
                 ], now()->addHours(24));
 
                 $this->updateProgress(100, 'لا توجد بيانات للتصدير');
+
                 return;
             }
 
@@ -62,11 +69,11 @@ class ExportCompanyReportJob implements ShouldQueue
 
             Excel::store(
                 new CompanyReportExport($rows, $this->filters, $this->selectedFields),
-                'exports/' . $this->fileName,
+                'exports/'.$this->fileName,
                 'tenant_public'
             );
 
-            $fileSize = Storage::disk('tenant_public')->size('exports/' . $this->fileName);
+            $fileSize = Storage::disk('tenant_public')->size('exports/'.$this->fileName);
 
             Cache::put("company_report_export_result_{$this->exportId}", [
                 'status' => 'completed',
@@ -84,7 +91,7 @@ class ExportCompanyReportJob implements ShouldQueue
                 'created_at' => now()->toDateTimeString(),
             ], now()->addHours(24));
 
-            $this->updateProgress(-1, 'فشل في التصدير: ' . $e->getMessage());
+            $this->updateProgress(-1, 'فشل في التصدير: '.$e->getMessage());
             throw $e;
         }
     }
@@ -126,6 +133,6 @@ class ExportCompanyReportJob implements ShouldQueue
             $index++;
         }
 
-        return round($size, $precision) . ' ' . $units[$index];
+        return round($size, $precision).' '.$units[$index];
     }
 }

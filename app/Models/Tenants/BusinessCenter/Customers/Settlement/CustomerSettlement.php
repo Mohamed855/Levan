@@ -6,15 +6,15 @@ use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
 class CustomerSettlement extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'customer_id',
@@ -49,7 +49,7 @@ class CustomerSettlement extends Model
             ->logOnlyDirty()
             ->dontLogEmptyChanges()
             ->useLogName('customer_settlement')
-            ->setDescriptionForEvent(fn(string $eventName) => $this->getEventDescription($eventName));
+            ->setDescriptionForEvent(fn (string $eventName) => $this->getEventDescription($eventName));
     }
 
     /*
@@ -61,16 +61,16 @@ class CustomerSettlement extends Model
     {
         $customerName = $this->customer->name ?? "عميل #{$this->customer_id}";
 
-        $amount   = number_format($this->settlement_amount, 2) . ' ر.س';
-        $date     = $this->settlement_date ? $this->settlement_date->format('Y-m-d') : '-';
-        $number   = $this->settlement_number ?: 'غير محدد';
+        $amount = number_format($this->settlement_amount, 2).' ر.س';
+        $date = $this->settlement_date ? $this->settlement_date->format('Y-m-d') : '-';
+        $number = $this->settlement_number ?: 'غير محدد';
 
         $type = match ($this->settlement_type) {
-            'cash_with_update'          => 'كاش بتحديث',
-            'cash_without_update'       => 'كاش بدون تحديث',
+            'cash_with_update' => 'كاش بتحديث',
+            'cash_without_update' => 'كاش بدون تحديث',
             'purchase_debt_with_update' => 'شراء مديونية بتحديث',
             'purchase_debt_without_update' => 'شراء مديونية بدون تحديث',
-            default                      => 'غير محدد'
+            default => 'غير محدد'
         };
         $hasFile = $this->file_path ? 'نعم' : 'لا';
         $details = " (المبلغ: {$amount} – التاريخ: {$date} – النوع: {$type} – رقم التسوية: {$number} – يوجد ملف مرفق؟ {$hasFile})";
@@ -79,10 +79,9 @@ class CustomerSettlement extends Model
             'created' => "تم إنشاء طلب تسوية جديد للعميل {$customerName}{$details}",
             'updated' => "تم تعديل طلب تسوية للعميل {$customerName}{$details}",
             'deleted' => "تم حذف طلب تسوية للعميل {$customerName} (المبلغ: {$amount})",
-            default   => "نشاط على تسوية العميل {$customerName}{$details}",
+            default => "نشاط على تسوية العميل {$customerName}{$details}",
         };
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -91,7 +90,7 @@ class CustomerSettlement extends Model
     */
     private function getChangesSummary(): string
     {
-        if (!$this->isDirty()) {
+        if (! $this->isDirty()) {
             return '';
         }
 
@@ -115,7 +114,7 @@ class CustomerSettlement extends Model
             $changes[] = "التاريخ: {$newDate} ← {$oldDate}";
         }
 
-        return empty($changes) ? '' : ' (' . implode(' | ', $changes) . ')';
+        return empty($changes) ? '' : ' ('.implode(' | ', $changes).')';
     }
 
     /*
@@ -148,7 +147,7 @@ class CustomerSettlement extends Model
     // Accessors
     public function getSettlementAmountFormattedAttribute(): string
     {
-        return number_format($this->settlement_amount, 2) . ' ر.س';
+        return number_format($this->settlement_amount, 2).' ر.س';
     }
 
     public function getSettlementDateFormattedAttribute(): string
@@ -169,15 +168,17 @@ class CustomerSettlement extends Model
 
     public function getFileSizeFormattedAttribute(): string
     {
-        if (!$this->file_size) return '';
+        if (! $this->file_size) {
+            return '';
+        }
 
         $bytes = $this->file_size;
         if ($bytes >= 1048576) {
-            return number_format($bytes / 1048576, 2) . ' MB';
+            return number_format($bytes / 1048576, 2).' MB';
         } elseif ($bytes >= 1024) {
-            return number_format($bytes / 1024, 2) . ' KB';
+            return number_format($bytes / 1024, 2).' KB';
         } else {
-            return $bytes . ' B';
+            return $bytes.' B';
         }
     }
 
@@ -188,7 +189,7 @@ class CustomerSettlement extends Model
 
     public function getHasFileAttribute(): bool
     {
-        return !empty($this->file_path);
+        return ! empty($this->file_path);
     }
 
     // Scopes
@@ -226,7 +227,7 @@ class CustomerSettlement extends Model
 
         // تسجيل المستخدم الذي أنشأ التسوية تلقائياً
         static::creating(function ($settlement) {
-            if (!$settlement->created_by && auth()->check()) {
+            if (! $settlement->created_by && auth()->check()) {
                 $settlement->created_by = auth()->id();
             }
         });

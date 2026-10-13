@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Tenants\GeneralSetting\DocumentRequest;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tenants\Traits\CommonSettingController;
-use App\Http\Requests\Tenants\GeneralSetting\SaveDocumentRequestReasonRequest;
 use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
+use App\Http\Requests\Tenants\GeneralSetting\SaveDocumentRequestReasonRequest;
 use App\Models\Tenants\GeneralSetting\DocumentRequest\SettingsDocumentRequestReason;
 
 class SettingsDocumentRequestReasonController extends Controller
@@ -69,6 +69,7 @@ class SettingsDocumentRequestReasonController extends Controller
             // }
 
             $documentRequestReason->delete();
+
             return redirect()->back()->with('success', 'تم الحذف بنجاح.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());

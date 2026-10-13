@@ -9,11 +9,11 @@ use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Models\Tenants\Communication\MessageLog\MessageIndividualLog;
 use App\Services\Tenants\Communication\MessageLog\MessageIndividualLogService;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -35,7 +35,7 @@ class MessageIndividualLogController extends Controller
         $this->middleware('can:message_logs.view')->except(['show', 'destroy', 'export']);
         $this->middleware('can:message_logs.show')->only(['show']);
         $this->middleware('can:message_logs.delete')->only(['destroy']);
-        $this->middleware('can:export,' . MessageIndividualLog::class)->only(['export']);
+        $this->middleware('can:export,'.MessageIndividualLog::class)->only(['export']);
     }
 
     /*
@@ -53,7 +53,7 @@ class MessageIndividualLogController extends Controller
             'portfolio_id',
             'template_id',
             'date_from',
-            'date_to'
+            'date_to',
         ]);
 
         $statistics = $this->messageLogService->getStatistics($filters);
@@ -62,7 +62,7 @@ class MessageIndividualLogController extends Controller
         return $dataTable->render('tenants.communication.message_individual_logs.index', [
             'statistics' => $statistics,
             'formData' => $formData,
-            'filters' => $filters
+            'filters' => $filters,
         ]);
     }
 
@@ -77,7 +77,7 @@ class MessageIndividualLogController extends Controller
         $log = $this->messageLogService->getLogWithDetails($messageIndividualLog->id);
 
         return view('tenants.communication.message_individual_logs.show', [
-            'log' => $log
+            'log' => $log,
         ]);
     }
 
@@ -117,19 +117,19 @@ class MessageIndividualLogController extends Controller
                 'company_id',
                 'portfolio_id',
                 'date_from',
-                'date_to'
+                'date_to',
             ]);
 
             $statistics = $this->messageLogService->getStatistics($filters);
 
             return response()->json([
                 'success' => true,
-                'data' => $statistics
+                'data' => $statistics,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء جلب الإحصائيات'
+                'message' => 'حدث خطأ أثناء جلب الإحصائيات',
             ], 500);
         }
     }
@@ -149,19 +149,19 @@ class MessageIndividualLogController extends Controller
                 'company_id',
                 'portfolio_id',
                 'date_from',
-                'date_to'
+                'date_to',
             ]);
 
             $chartData = $this->messageLogService->getChartData($filters);
 
             return response()->json([
                 'success' => true,
-                'data' => $chartData
+                'data' => $chartData,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء جلب بيانات الرسوم البيانية'
+                'message' => 'حدث خطأ أثناء جلب بيانات الرسوم البيانية',
             ], 500);
         }
     }
@@ -184,20 +184,20 @@ class MessageIndividualLogController extends Controller
                 'customer_id',
                 'date_from',
                 'date_to',
-                'search'
+                'search',
             ]);
 
-            $hasFilters = !empty($filters['status']) ||
-                !empty($filters['message_type']) ||
-                !empty($filters['company_id']) ||
-                !empty($filters['portfolio_id']) ||
-                !empty($filters['template_id']) ||
-                !empty($filters['customer_id']) ||
-                !empty($filters['date_from']) ||
-                !empty($filters['date_to']) ||
-                !empty($filters['search']);
+            $hasFilters = ! empty($filters['status']) ||
+                ! empty($filters['message_type']) ||
+                ! empty($filters['company_id']) ||
+                ! empty($filters['portfolio_id']) ||
+                ! empty($filters['template_id']) ||
+                ! empty($filters['customer_id']) ||
+                ! empty($filters['date_from']) ||
+                ! empty($filters['date_to']) ||
+                ! empty($filters['search']);
 
-            if (!$hasFilters) {
+            if (! $hasFilters) {
                 return redirect()
                     ->back()
                     ->with('warning', 'يرجى تطبيق فلتر واحد على الأقل قبل التصدير');
@@ -230,12 +230,12 @@ class MessageIndividualLogController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $portfolios
+                'data' => $portfolios,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء جلب المحافظ'
+                'message' => 'حدث خطأ أثناء جلب المحافظ',
             ], 500);
         }
     }
@@ -258,12 +258,12 @@ class MessageIndividualLogController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $customers
+                'data' => $customers,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء جلب العملاء'
+                'message' => 'حدث خطأ أثناء جلب العملاء',
             ], 500);
         }
     }
@@ -320,10 +320,10 @@ class MessageIndividualLogController extends Controller
     */
     public function downloadFile($file): StreamedResponse
     {
-        $filePath = 'message-logs/' . $file;
+        $filePath = 'message-logs/'.$file;
         $disk = Storage::disk('tenant_public');
 
-        if (!$disk->exists($filePath)) {
+        if (! $disk->exists($filePath)) {
             abort(404, 'الملف غير موجود');
         }
 
@@ -343,6 +343,6 @@ class MessageIndividualLogController extends Controller
             $bytes /= 1024;
         }
 
-        return round($bytes, $precision) . ' ' . $units[$i];
+        return round($bytes, $precision).' '.$units[$i];
     }
 }

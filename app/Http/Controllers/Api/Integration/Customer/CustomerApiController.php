@@ -60,12 +60,12 @@ class CustomerApiController extends Controller
 
         return response()->json([
             'success' => true,
-            'data'    => CustomerResource::collection($customers),
-            'meta'    => [
+            'data' => CustomerResource::collection($customers),
+            'meta' => [
                 'current_page' => $customers->currentPage(),
-                'last_page'    => $customers->lastPage(),
-                'per_page'     => $customers->perPage(),
-                'total'        => $customers->total(),
+                'last_page' => $customers->lastPage(),
+                'per_page' => $customers->perPage(),
+                'total' => $customers->total(),
             ],
         ]);
     }
@@ -80,7 +80,7 @@ class CustomerApiController extends Controller
             'nationalityCountry',
         ])->find($id);
 
-        if (!$customer) {
+        if (! $customer) {
             return response()->json([
                 'success' => false,
                 'message' => 'العميل غير موجود',
@@ -89,7 +89,7 @@ class CustomerApiController extends Controller
 
         return response()->json([
             'success' => true,
-            'data'    => new CustomerResource($customer),
+            'data' => new CustomerResource($customer),
         ]);
     }
 }

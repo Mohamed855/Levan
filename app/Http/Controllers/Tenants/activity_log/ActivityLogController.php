@@ -4,16 +4,16 @@ namespace App\Http\Controllers\Tenants\activity_log;
 
 use App\Exports\Tenants\ActivityLog\ActivityLogsExport;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Tenants\ActivityLog\ExportActivityLogsRequest;
 use App\Http\Requests\Tenants\ActivityLog\DownloadActivityLogExportRequest;
+use App\Http\Requests\Tenants\ActivityLog\ExportActivityLogsRequest;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Traits\ActivityLogPresenterTrait;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 use Spatie\Activitylog\Models\Activity;
@@ -37,7 +37,6 @@ class ActivityLogController extends Controller
         $this->middleware('can:activity_log.view');
     }
 
-
     public function index(Request $request): View|JsonResponse
     {
         if ($request->ajax()) {
@@ -51,7 +50,7 @@ class ActivityLogController extends Controller
                     'causer_id',
                     'causer_type',
                     'properties',
-                    'created_at'
+                    'created_at',
                 ]);
 
             // تطبيق الفلاتر
@@ -60,10 +59,10 @@ class ActivityLogController extends Controller
             return DataTables::of($query)
                 ->addIndexColumn()
                 ->addColumn('checkbox', function ($activity) {
-                    return '<input type="checkbox" class="row-checkbox" value="' . $activity->id . '">';
+                    return '<input type="checkbox" class="row-checkbox" value="'.$activity->id.'">';
                 })
                 ->addColumn('log_name_formatted', function ($activity) {
-                    return '<span class="badge bg-primary">' . $this->activityLogNameLabel($activity->log_name) . '</span>';
+                    return '<span class="badge bg-primary">'.$this->activityLogNameLabel($activity->log_name).'</span>';
                 })
                 ->addColumn('causer_name', function ($activity) {
                     return $activity->causer ? $activity->causer->name : 'النظام';
@@ -73,31 +72,30 @@ class ActivityLogController extends Controller
                         $identifier = e(data_get($activity->properties, 'identifier', 'غير معروف'));
 
                         if ($activity->subject) {
-                            return '<span class="badge bg-label-warning me-1">محاولة دخول</span><span class="text-info">' . e($activity->subject->name) . ' (' . $identifier . ')</span>';
+                            return '<span class="badge bg-label-warning me-1">محاولة دخول</span><span class="text-info">'.e($activity->subject->name).' ('.$identifier.')</span>';
                         }
 
-                        return '<span class="badge bg-label-warning me-1">محاولة دخول</span><span class="text-muted">' . $identifier . '</span>';
+                        return '<span class="badge bg-label-warning me-1">محاولة دخول</span><span class="text-muted">'.$identifier.'</span>';
                     }
 
-                    if (!$activity->subject) {
+                    if (! $activity->subject) {
                         return '<span class="text-muted">محذوف</span>';
                     }
 
                     $subjectType = class_basename($activity->subject_type);
                     $arabicType = $this->activitySubjectTypeMap()[$subjectType] ?? $subjectType;
 
-                    return '<span class="text-info">' . $arabicType . ' #' . $activity->subject_id . '</span>';
+                    return '<span class="text-info">'.$arabicType.' #'.$activity->subject_id.'</span>';
                 })
 
                 ->editColumn('created_at', function ($row) {
                     return Carbon::parse($row->created_at)->locale('ar')->diffForHumans();
                 })
 
-
                 ->addColumn('action', function ($activity) {
                     return $this->getActionsColumn($activity);
                 })
-                ->orderColumn('created_at', fn($query, $order) => $query->orderBy('created_at', $order))
+                ->orderColumn('created_at', fn ($query, $order) => $query->orderBy('created_at', $order))
                 ->rawColumns(['checkbox', 'log_name_formatted', 'subject_info', 'created_at', 'action'])
                 ->make(true);
         }
@@ -108,7 +106,7 @@ class ActivityLogController extends Controller
 
         return view('tenants.activity_logs.index', [
             'users' => $users,
-            'statistics' => $statistics
+            'statistics' => $statistics,
         ]);
     }
 
@@ -127,7 +125,7 @@ class ActivityLogController extends Controller
 
         return view('tenants.activity_logs.show', [
             'activity' => $activity,
-            'activityData' => $activityData
+            'activityData' => $activityData,
         ]);
     }
 
@@ -145,7 +143,7 @@ class ActivityLogController extends Controller
             'created' => 'إنشاء',
             'updated' => 'تحديث',
             'deleted' => 'حذف',
-            'restored' => 'استعادة'
+            'restored' => 'استعادة',
         ];
         $arabicEvent = $eventMap[$activity->event] ?? ($activity->event ?? 'غير محدد');
 
@@ -166,18 +164,18 @@ class ActivityLogController extends Controller
             'notes' => 'الملاحظات',
             'created_at' => 'تاريخ الإنشاء',
             'updated_at' => 'تاريخ التحديث',
-            'due_date'             => 'تاريخ الاستحقاق',
-            'due_amount'           => 'مبلغ الاستحقاق',
-            'contact_method_id'    => 'طريقة التواصل',
-            'contact_result_id'    => 'نتيجة الاتصال',
-            'customer_status_id'   => 'حالة العميل',
+            'due_date' => 'تاريخ الاستحقاق',
+            'due_amount' => 'مبلغ الاستحقاق',
+            'contact_method_id' => 'طريقة التواصل',
+            'contact_result_id' => 'نتيجة الاتصال',
+            'customer_status_id' => 'حالة العميل',
             'next_contact_datetime' => 'موعد التواصل القادم',
-            'contacted_person'     => 'الشخص الذي تم التواصل معه',
-            'settlement_amount'    => 'مبلغ التسوية',
-            'settlement_type'      => 'نوع التسوية',
-            'settlement_date'      => 'تاريخ التسوية',
-            'phone'                => 'رقم الهاتف',
-            'is_primary'           => 'رقم أساسي؟',
+            'contacted_person' => 'الشخص الذي تم التواصل معه',
+            'settlement_amount' => 'مبلغ التسوية',
+            'settlement_type' => 'نوع التسوية',
+            'settlement_date' => 'تاريخ التسوية',
+            'phone' => 'رقم الهاتف',
+            'is_primary' => 'رقم أساسي؟',
 
         ];
 
@@ -217,7 +215,7 @@ class ActivityLogController extends Controller
         }
 
         $search = $request->input('search.value', $request->input('search'));
-        if (!empty($search)) {
+        if (! empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('description', 'like', "%{$search}%")
                     ->orWhere('log_name', 'like', "%{$search}%");
@@ -237,7 +235,7 @@ class ActivityLogController extends Controller
             'today' => Activity::whereDate('created_at', today())->count(),
             'this_week' => Activity::whereBetween('created_at', [
                 now()->startOfWeek(),
-                now()->endOfWeek()
+                now()->endOfWeek(),
             ])->count(),
             'this_month' => Activity::whereMonth('created_at', now()->month)->count(),
         ];
@@ -252,7 +250,7 @@ class ActivityLogController extends Controller
     {
         $showUrl = tenant_route_name('activity-logs.show', $activity->id);
 
-        return '<a href="' . $showUrl . '" title="عرض التفاصيل" class="btn btn-icon btn-label-primary">
+        return '<a href="'.$showUrl.'" title="عرض التفاصيل" class="btn btn-icon btn-label-primary">
                 <i class="ti ti-logs"></i>
             </a>';
     }
@@ -302,9 +300,9 @@ class ActivityLogController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        $fileName = 'activity-logs-' . now()->format('Ymd-His') . '.xlsx';
+        $fileName = 'activity-logs-'.now()->format('Ymd-His').'.xlsx';
 
-        Excel::store(new ActivityLogsExport($activities), 'exports/' . $fileName, 'tenant_public');
+        Excel::store(new ActivityLogsExport($activities), 'exports/'.$fileName, 'tenant_public');
         Cache::put(
             DownloadActivityLogExportRequest::ownerKey($fileName),
             $request->user('tenant')->getKey(),
@@ -326,9 +324,9 @@ class ActivityLogController extends Controller
     public function downloadExportFile(DownloadActivityLogExportRequest $request, string $file): BinaryFileResponse|RedirectResponse
     {
         $disk = Storage::disk('tenant_public');
-        $relative = 'exports/' . basename($file);
+        $relative = 'exports/'.basename($file);
 
-        if (!$disk->exists($relative)) {
+        if (! $disk->exists($relative)) {
             return redirect()->back()->with('error', 'الملف غير موجود أو تم حذفه.');
         }
 
@@ -367,10 +365,10 @@ class ActivityLogController extends Controller
     */
     public function downloadFile($file): StreamedResponse
     {
-        $filePath = 'activity-logs/' . $file;
+        $filePath = 'activity-logs/'.$file;
         $disk = Storage::disk('tenant_public');
 
-        if (!$disk->exists($filePath)) {
+        if (! $disk->exists($filePath)) {
             abort(404, 'الملف غير موجود');
         }
 
@@ -390,6 +388,6 @@ class ActivityLogController extends Controller
             $bytes /= 1024;
         }
 
-        return round($bytes, $precision) . ' ' . $units[$i];
+        return round($bytes, $precision).' '.$units[$i];
     }
 }

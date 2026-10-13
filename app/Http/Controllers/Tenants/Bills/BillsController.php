@@ -19,20 +19,18 @@ use App\Services\shared\Payment\Moyasar\MoyasarFormConfiguration;
 use App\Services\shared\Subscription\SubscriptionService;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Stancl\Tenancy\Facades\Tenancy;
 
 class BillsController extends Controller
 {
-    protected const VIEW_PATH  =  "tenants.bills";
+    protected const VIEW_PATH = 'tenants.bills';
     // protected const ROUTE_NAME =  "admin.subscriptionManage";
-
 
     public function __construct(
         private MoyasarCallbackHandler $moyasarCallbackHandler,
         private MoyasarFormConfiguration $moyasarFormConfiguration,
-        private BillService            $billService,
-        private SubscriptionService    $subscriptionService,
+        private BillService $billService,
+        private SubscriptionService $subscriptionService,
     ) {
         $this->middleware('can:bills.view');
 
@@ -43,7 +41,7 @@ class BillsController extends Controller
                 ->where('tenant_id', tenant()->id)
                 ->first();
 
-            if (!$bill) {
+            if (! $bill) {
                 return redirect()->to(tenant_route_name('bills.index'))->with('error', 'الفاتورة غير موجودة.');
             }
 
@@ -55,35 +53,34 @@ class BillsController extends Controller
         })->only(['checkout', 'processCheckout', 'bankTransfer', 'uploadReceipt']);
     }
 
-
     public function index(BillsDataTable $dataTable)
     {
         try {
             // $statistics = $this->couponService->getCouponStatistics();
 
-            return $dataTable->render(self::VIEW_PATH . '.index', [
+            return $dataTable->render(self::VIEW_PATH.'.index', [
                 // 'totalPlans'       => $statistics['total'],
                 // 'activePlans'      => $statistics['active'],
                 // 'inactivePlans'    => $statistics['inactive'],
             ]);
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }
 
     public function show($id)
     {
-        $bill      = $this->tenantBillOrFail($id);
-        $settings  = Settings::firstOrFail();
+        $bill = $this->tenantBillOrFail($id);
+        $settings = Settings::firstOrFail();
 
+        $vatRate = 0.15;
+        $vatAmount = round($bill->original_amount * $vatRate, 2);
+        $priceWithoutTax = round($bill->original_amount - $vatAmount, 2);
+        $discount = max(0.0, (float) $bill->discount_amount);
 
-        $vatRate                = 0.15;
-        $vatAmount              = round($bill->original_amount * $vatRate, 2);
-        $priceWithoutTax        = round($bill->original_amount - $vatAmount, 2);
-        $discount               = max(0.0, (float) $bill->discount_amount);
-
-        return view(self::VIEW_PATH . '.show', compact(
+        return view(self::VIEW_PATH.'.show', compact(
             'settings',
             'bill',
 
@@ -97,17 +94,17 @@ class BillsController extends Controller
     public function checkout($id)
     {
         try {
-            $bill  = $this->tenantBillOrFail($id);
+            $bill = $this->tenantBillOrFail($id);
 
             if ($bill->status != BillStatus::UNPAID) {
-                return redirect()->to(tenant_route_name('bills.index'))->with('error', "لا يمكن دفع هذه الفاتورة  ");
+                return redirect()->to(tenant_route_name('bills.index'))->with('error', 'لا يمكن دفع هذه الفاتورة  ');
             }
 
-            $vatRate                = 0.15;
-            $vatAmount              = round($bill->original_amount * $vatRate, 2);
-            $priceWithoutTax        = round($bill->original_amount - $vatAmount, 2);
+            $vatRate = 0.15;
+            $vatAmount = round($bill->original_amount * $vatRate, 2);
+            $priceWithoutTax = round($bill->original_amount - $vatAmount, 2);
 
-            return view(self::VIEW_PATH . '.checkout', compact(
+            return view(self::VIEW_PATH.'.checkout', compact(
                 'bill',
                 'vatRate',
                 'vatAmount',
@@ -116,6 +113,7 @@ class BillsController extends Controller
             //
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء تحميل الصفحة ');
         }
     }
@@ -134,7 +132,7 @@ class BillsController extends Controller
                 'backUrl' => tenant_route_name('bills.show', $bill->id),
                 'bill' => $bill,
                 'callbackUrl' => tenant_route_name('bills.callback', ['bill' => $bill->bill_number]),
-                'description' => 'دفع فاتورة ' . $bill->bill_number,
+                'description' => 'دفع فاتورة '.$bill->bill_number,
                 'mode' => $this->moyasarFormConfiguration->getMode(),
                 'publishableKey' => $this->moyasarFormConfiguration->getPublishableKey(),
             ]);
@@ -142,6 +140,7 @@ class BillsController extends Controller
             return redirect()->back()->with('error', $e->getMessage());
         } catch (\Throwable $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء معالجة الدفع');
         }
     }
@@ -160,6 +159,7 @@ class BillsController extends Controller
             return redirect()->to(tenant_route_name('bills.index'))->with('error', $e->getMessage());
         } catch (\Throwable $e) {
             report($e);
+
             return redirect()->to(tenant_route_name('bills.index'))->with('error', 'حدث خطأ أثناء معالجة نتيجة الدفع');
         }
     }
@@ -167,14 +167,15 @@ class BillsController extends Controller
     public function bankTransfer($id)
     {
         try {
-            $bill  = $this->tenantBillOrFail($id);
+            $bill = $this->tenantBillOrFail($id);
             $banks = Bank::where('is_active', 1)->get();
 
             $amount = $bill->amount;
 
-            return view(self::VIEW_PATH . '.bank_transfer', compact('bill', 'banks', 'amount'));
+            return view(self::VIEW_PATH.'.bank_transfer', compact('bill', 'banks', 'amount'));
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء تحميل صفحة التحويل البنكي');
         }
     }
@@ -185,36 +186,37 @@ class BillsController extends Controller
             $receiptPath = $request->file('receipt')->store('receipts', 'public');
 
             $this->tenantBillOrFail($id)->update([
-                'invoice_url'    => $receiptPath,
-                'bank_id'        => $request->bank_id,
+                'invoice_url' => $receiptPath,
+                'bank_id' => $request->bank_id,
                 'payment_method' => PaymentMethod::BANK_TRANSFER,
-                'status'         => BillStatus::PENDING_VERIFICATION,
+                'status' => BillStatus::PENDING_VERIFICATION,
             ]);
 
             return redirect(tenant_route_name('bills.show', $id))->with('success', 'تم رفع الإيصال بنجاح. سيتم التحقق منه قريباً.');
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء رفع الإيصال');
         }
     }
-
 
     public function __bankTransfer__($id)
     {
         try {
 
             [$bill, $amount, $banks] = Tenancy::central(function () use ($id) {
-                $bill    = Bill::where('id', $id)->firstOrFail();
-                $amount  = $bill->amount - $bill->settlement_amount;
-                $banks   = Bank::where('is_active', 1)->get();
+                $bill = Bill::where('id', $id)->firstOrFail();
+                $amount = $bill->amount - $bill->settlement_amount;
+                $banks = Bank::where('is_active', 1)->get();
 
                 return [$bill, $amount, $banks];
             });
 
-            return view(self::VIEW_PATH . '.bank_transfer', compact('bill', 'banks', 'amount'));
+            return view(self::VIEW_PATH.'.bank_transfer', compact('bill', 'banks', 'amount'));
             //
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء تحميل صفحة التحويل البنكي');
         }
     }
@@ -222,24 +224,25 @@ class BillsController extends Controller
     public function __uploadReceipt__(BankTransferReceiptRequest $request, $id)
     {
         try {
-            if (!$request->hasFile('receipt')) {
+            if (! $request->hasFile('receipt')) {
                 return redirect()->back()->with('error', 'لم يتم رفع الإيصال، يرجى اختيار ملف.');
             }
 
             $receiptPath = $request->file('receipt')->store('receipts', 'tenant_public');
 
             $this->tenantBillOrFail($id)->update([
-                'invoice_url'    => $receiptPath,
-                'bank_id'        => $request->bank_id,
-                'transfer_date'  => $request->transfer_date,
+                'invoice_url' => $receiptPath,
+                'bank_id' => $request->bank_id,
+                'transfer_date' => $request->transfer_date,
                 'transfer_notes' => $request->notes,
                 'payment_method' => PaymentMethod::BANK_TRANSFER,
-                'status'         => BillStatus::PENDING_VERIFICATION,
+                'status' => BillStatus::PENDING_VERIFICATION,
             ]);
 
             return redirect(tenant_route_name('bills.show', $id))->with('success', 'تم رفع إيصال التحويل بنجاح. سيتم التحقق منه قريباً.');
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء رفع الإيصال. يرجى المحاولة مرة أخرى.');
         }
     }

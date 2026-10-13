@@ -3,27 +3,21 @@
 namespace App\Exports\Tenants\ActivityLog;
 
 use App\Traits\ActivityLogPresenterTrait;
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\WithColumnWidths;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class ActivityLogsExport implements
-    FromCollection,
-    WithHeadings,
-    WithMapping,
-    WithStyles,
-    WithColumnWidths,
-    ShouldAutoSize,
-    WithEvents
+class ActivityLogsExport implements FromCollection, ShouldAutoSize, WithColumnWidths, WithEvents, WithHeadings, WithMapping, WithStyles
 {
     use ActivityLogPresenterTrait;
 
@@ -39,7 +33,7 @@ class ActivityLogsExport implements
     | Collection
     |--------------------------------------------------------------------------
     */
-    public function collection(): \Illuminate\Support\Enumerable
+    public function collection(): Enumerable
     {
         return $this->activities;
     }
@@ -115,14 +109,14 @@ class ActivityLogsExport implements
         ]);
 
         $lastRow = $sheet->getHighestRow();
-        $sheet->getStyle('A2:J' . $lastRow)->applyFromArray([
+        $sheet->getStyle('A2:J'.$lastRow)->applyFromArray([
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
                 'vertical' => Alignment::VERTICAL_CENTER,
             ],
         ]);
 
-        $sheet->getStyle('A1:J' . $lastRow)->applyFromArray([
+        $sheet->getStyle('A1:J'.$lastRow)->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,

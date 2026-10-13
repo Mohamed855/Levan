@@ -98,24 +98,24 @@ class BillingService
 
             return Bill::create([
                 'gateway_payment_id' => data_get($payment, 'id'),
-                'tenant_id'          => $tenant_id,
-                'subscription_id'    => $subscription->id,
-                'period_id'          => $period->id,
-                'amount'             => $paidAmount / 100,
+                'tenant_id' => $tenant_id,
+                'subscription_id' => $subscription->id,
+                'period_id' => $period->id,
+                'amount' => $paidAmount / 100,
 
-                'original_amount'    => $paidAmount / 100,
-                'discount_amount'    =>  0,
+                'original_amount' => $paidAmount / 100,
+                'discount_amount' => 0,
 
                 // الكوبون
-                'coupon_id'          => $sessionData['coupon_id'] ?? null,
-                'coupon_code'        => $sessionData['coupon_code'] ?? null,
-                'coupon_value'       => $sessionData['coupon_value'] ?? null,
-                'coupon_type'        => $sessionData['coupon_type'] ?? null,
+                'coupon_id' => $sessionData['coupon_id'] ?? null,
+                'coupon_code' => $sessionData['coupon_code'] ?? null,
+                'coupon_value' => $sessionData['coupon_value'] ?? null,
+                'coupon_type' => $sessionData['coupon_type'] ?? null,
 
-                'payment_method'     => $paymentMethod,
-                'status'             => $status,
-                'paid_at'            => now(),
-                'type'               => BillType::RENEWAL_DOMAIN,
+                'payment_method' => $paymentMethod,
+                'status' => $status,
+                'paid_at' => now(),
+                'type' => BillType::RENEWAL_DOMAIN,
             ]);
         });
     }
@@ -127,24 +127,24 @@ class BillingService
 
             return Bill::create([
                 'gateway_payment_id' => data_get($payment, 'id'),
-                'tenant_id'          => $tenant_id,
-                'subscription_id'    => $subscription->id,
-                'period_id'          => $period->id,
-                'amount'             => $paidAmount / 100,
+                'tenant_id' => $tenant_id,
+                'subscription_id' => $subscription->id,
+                'period_id' => $period->id,
+                'amount' => $paidAmount / 100,
 
-                'original_amount'    => $paidAmount / 100,
-                'discount_amount'    =>  0,
+                'original_amount' => $paidAmount / 100,
+                'discount_amount' => 0,
 
                 // الكوبون
-                'coupon_id'          => $sessionData['coupon_id'] ?? null,
-                'coupon_code'        => $sessionData['coupon_code'] ?? null,
-                'coupon_value'       => $sessionData['coupon_value'] ?? null,
-                'coupon_type'        => $sessionData['coupon_type'] ?? null,
+                'coupon_id' => $sessionData['coupon_id'] ?? null,
+                'coupon_code' => $sessionData['coupon_code'] ?? null,
+                'coupon_value' => $sessionData['coupon_value'] ?? null,
+                'coupon_type' => $sessionData['coupon_type'] ?? null,
 
-                'payment_method'     => $paymentMethod,
-                'status'             => $status,
-                'paid_at'            => now(),
-                'type'               => BillType::NEW_DOMAIN,
+                'payment_method' => $paymentMethod,
+                'status' => $status,
+                'paid_at' => now(),
+                'type' => BillType::NEW_DOMAIN,
             ]);
         });
     }

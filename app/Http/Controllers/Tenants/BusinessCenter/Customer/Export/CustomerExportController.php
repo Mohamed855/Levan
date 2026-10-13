@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Tenants\BusinessCenter\Customer\Export;
 
 use App\Http\Controllers\Controller;
 use App\Services\Tenants\BusinessCenter\Customer\Export\CustomerExportService;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -26,21 +26,22 @@ class CustomerExportController extends Controller
             if (empty($customerIds)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'يرجى تحديد عميل واحد على الأقل للتصدير'
+                    'message' => 'يرجى تحديد عميل واحد على الأقل للتصدير',
                 ], 422);
             }
 
             $selectedFields = (array) $request->input('selected_fields', []);
-            $truncateBy     = $request->input('truncate_by');
+            $truncateBy = $request->input('truncate_by');
 
             $result = $this->service->exportCustomers($customerIds, $selectedFields, $truncateBy);
 
             return response()->json($result);
         } catch (\Exception $e) {
             report($e);
+
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تصدير البيانات'
+                'message' => 'حدث خطأ أثناء تصدير البيانات',
             ], 500);
         }
     }
@@ -50,28 +51,28 @@ class CustomerExportController extends Controller
     {
         $exportId = $request->input('export_id');
 
-        if (!$exportId) {
+        if (! $exportId) {
             Log::error($exportId);
 
             return response()->json([
                 'success' => false,
-                'message' => 'معرف التصدير مطلوب'
+                'message' => 'معرف التصدير مطلوب',
             ], 400);
         }
 
         return response()->json([
             'success' => true,
-            'data'    => $this->service->getExportProgress($exportId)
+            'data' => $this->service->getExportProgress($exportId),
         ]);
     }
 
-    //Download Export File
+    // Download Export File
     public function downloadExportFile(string $file): BinaryFileResponse|RedirectResponse
     {
-        $disk       = Storage::disk('tenant_public');
-        $relative   = 'exports/' . basename($file);
+        $disk = Storage::disk('tenant_public');
+        $relative = 'exports/'.basename($file);
 
-        if (!$disk->exists($relative)) {
+        if (! $disk->exists($relative)) {
             return redirect()->back()->with('error', 'الملف غير موجود أو تم حذفه.');
         }
 
@@ -93,6 +94,7 @@ class CustomerExportController extends Controller
 
         if (is_string($raw)) {
             $decoded = json_decode($raw, true);
+
             return is_array($decoded) ? $decoded : [];
         }
 

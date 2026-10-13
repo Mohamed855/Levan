@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers\Tenants\Archive\User;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Tenants\Archive\BulkArchiveActionRequest;
-use App\Http\Requests\Tenants\Archive\ArchiveItemIdRequest;
 use App\DataTables\Tenants\Archive\User\ArchivedUsersDataTable;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Archive\ArchiveItemIdRequest;
+use App\Http\Requests\Tenants\Archive\BulkArchiveActionRequest;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\Archive\User\UserArchiveService;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Spatie\Permission\Models\Role;
 
 class UserArchiveController extends Controller
@@ -129,12 +127,12 @@ class UserArchiveController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "تم استرجاع {$restoredCount} مستخدم بنجاح"
+                'message' => "تم استرجاع {$restoredCount} مستخدم بنجاح",
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء الاستعادة الجماعية'
+                'message' => 'حدث خطأ أثناء الاستعادة الجماعية',
             ], 500);
         }
     }
@@ -154,12 +152,12 @@ class UserArchiveController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "تم حذف {$deletedCount} مستخدم نهائياً"
+                'message' => "تم حذف {$deletedCount} مستخدم نهائياً",
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء الحذف النهائي الجماعي'
+                'message' => 'حدث خطأ أثناء الحذف النهائي الجماعي',
             ], 500);
         }
     }

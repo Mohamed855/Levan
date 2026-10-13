@@ -21,7 +21,7 @@ class AuctionAttachment extends Model
     ];
 
     protected $casts = [
-        'channels'  => 'array',
+        'channels' => 'array',
         'file_size' => 'integer',
     ];
 
@@ -33,12 +33,12 @@ class AuctionAttachment extends Model
     public function getCategoryLabelAttribute(): string
     {
         return match ($this->category) {
-            'auction_doc'     => 'وثيقة المزاد',
-            'marketing'       => 'مواد تسويقية',
+            'auction_doc' => 'وثيقة المزاد',
+            'marketing' => 'مواد تسويقية',
             'property_images' => 'صور العقارات',
-            'approval_doc'    => 'وثيقة اعتماد',
-            'internal_only'   => 'ملف داخلي',
-            default           => 'ملف مرفق',
+            'approval_doc' => 'وثيقة اعتماد',
+            'internal_only' => 'ملف داخلي',
+            default => 'ملف مرفق',
         };
     }
 }

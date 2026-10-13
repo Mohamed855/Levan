@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Tenants\Auth;
 
 use Illuminate\Auth\Events\Lockout;
+use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -22,7 +24,7 @@ class LoginRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
+     * @return array<string, Rule|array|string>
      */
     public function rules(): array
     {
@@ -51,7 +53,7 @@ class LoginRequest extends FormRequest
     /**
      * Attempt to authenticate the request's credentials.
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function authenticate(): void
     {
@@ -63,7 +65,7 @@ class LoginRequest extends FormRequest
 
         // التحقق من صحة بيانات الدخول دون تسجيل الدخول فعليًا
         // (يسمح للـ Controller بالتحقق من المصادقة الثنائية قبل إنشاء الجلسة)
-        if (!Auth::guard('tenant')->validate($credentials)) {
+        if (! Auth::guard('tenant')->validate($credentials)) {
             RateLimiter::hit($this->throttleKey());
 
             $this->logFailedLogin(Auth::guard('tenant')->getLastAttempted(), 'بيانات الدخول غير صحيحة');
@@ -89,31 +91,31 @@ class LoginRequest extends FormRequest
     /**
      * تسجيل محاولة الدخول الفاشلة في سجل النشاطات.
      */
-    protected function logFailedLogin(?\Illuminate\Database\Eloquent\Model $targetUser, string $reason): void
+    protected function logFailedLogin(?Model $targetUser, string $reason): void
     {
         $log = activity('auth')
             ->withProperties([
                 'identifier' => $this->input('email'),
-                'ip'         => $this->ip(),
+                'ip' => $this->ip(),
                 'user_agent' => $this->userAgent(),
-                'reason'     => $reason,
+                'reason' => $reason,
             ]);
 
         if ($targetUser) {
             $log->performedOn($targetUser);
         }
 
-        $log->log('محاولة تسجيل دخول فاشلة: ' . $this->input('email') . ' (' . $reason . ')');
+        $log->log('محاولة تسجيل دخول فاشلة: '.$this->input('email').' ('.$reason.')');
     }
 
     /**
      * Ensure the login request is not rate limited.
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 
@@ -122,7 +124,7 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'email' => 'لقد قمت بمحاولات كثيرة. يرجى المحاولة بعد ' . ceil($seconds / 60) . ' دقيقة.',
+            'email' => 'لقد قمت بمحاولات كثيرة. يرجى المحاولة بعد '.ceil($seconds / 60).' دقيقة.',
         ]);
     }
 

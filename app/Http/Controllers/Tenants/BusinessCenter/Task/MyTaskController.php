@@ -6,10 +6,7 @@ use App\DataTables\Tenants\BusinessCenter\Tasks\MyTasksDataTable;
 use App\Exports\Tenants\BusinessCenter\Task\MyTasksExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\BusinessCenter\Task\ExportTasksRequest;
-use App\Models\Tenants\BusinessCenter\Customers\Task\Task;
 use App\Services\Tenants\BusinessCenter\Task\TaskService;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 
 class MyTaskController extends Controller
@@ -68,7 +65,8 @@ class MyTaskController extends Controller
             ->orderBy('tasks.created_at', 'desc')
             ->orderBy('tasks.id', 'desc');
         $tasks = $query->get();
-        $fileName = 'my_tasks_report_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
+        $fileName = 'my_tasks_report_'.now()->format('Y-m-d_H-i-s').'.xlsx';
+
         return Excel::download(new MyTasksExport($tasks), $fileName);
     }
 }

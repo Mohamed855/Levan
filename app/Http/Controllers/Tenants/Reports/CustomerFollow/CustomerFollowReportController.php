@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\Tenants\Reports\CustomerFollow;
 
-use App\Http\Controllers\Controller;
 use App\DataTables\Tenants\Reports\CustomerFollow\CustomerFollowReportsDataTable;
+use App\Http\Controllers\Controller;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Services\Tenants\Reports\CustomerFollow\CustomerFollowReportService;
-use Illuminate\Http\Request;
-use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -58,7 +57,7 @@ class CustomerFollowReportController extends Controller
             'customer_status_id',
             'contact_result_id',
             'created_by',
-            'has_upcoming'
+            'has_upcoming',
         ]);
 
         return $this->customerFollowReportService->exportFollowsReport($filters);
@@ -83,7 +82,7 @@ class CustomerFollowReportController extends Controller
             'customer_status_id',
             'contact_result_id',
             'created_by',
-            'has_upcoming'
+            'has_upcoming',
         ]);
 
         return $this->customerFollowReportService->exportFollowsReportToPDF($filters);
@@ -108,7 +107,7 @@ class CustomerFollowReportController extends Controller
             'customer_status_id',
             'contact_result_id',
             'created_by',
-            'has_upcoming'
+            'has_upcoming',
         ]);
 
         $count = $this->customerFollowReportService->getFollowsCount($filters);
@@ -118,10 +117,9 @@ class CustomerFollowReportController extends Controller
             'success' => true,
             'count' => $count,
             'fields' => $fields,
-            'is_large_export' => $count > 5000
+            'is_large_export' => $count > 5000,
         ]);
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -142,7 +140,7 @@ class CustomerFollowReportController extends Controller
             'customer_status_id',
             'contact_result_id',
             'created_by',
-            'has_upcoming'
+            'has_upcoming',
         ]);
 
         $selectedFields = $request->input('selected_fields', []);
@@ -157,12 +155,12 @@ class CustomerFollowReportController extends Controller
                 );
 
                 return response()->json([
-                    'success'     => $result['success'],
-                    'message'     => $result['message'],
-                    'export_id'   => $result['export_id'] ?? null,
+                    'success' => $result['success'],
+                    'message' => $result['message'],
+                    'export_id' => $result['export_id'] ?? null,
                     'total_parts' => $result['total_parts'] ?? 1,
-                    'is_async'    => true,
-                    'count'       => $result['count'],
+                    'is_async' => true,
+                    'count' => $result['count'],
                 ]);
             } else {
                 $fileName = $this->customerFollowReportService->exportFilteredFollowsToExcel($filters, $selectedFields);
@@ -171,13 +169,13 @@ class CustomerFollowReportController extends Controller
                     'success' => true,
                     'download_url' => tenant_route_name('reports.customer_follows.download', ['file' => $fileName]),
                     'message' => 'تم إنشاء الملف بنجاح',
-                    'is_async' => false
+                    'is_async' => false,
                 ]);
             }
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء إنشاء الملف: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء إنشاء الملف: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -191,10 +189,10 @@ class CustomerFollowReportController extends Controller
     {
         $exportId = $request->input('export_id');
 
-        if (!$exportId) {
+        if (! $exportId) {
             return response()->json([
                 'success' => false,
-                'message' => 'معرف التصدير مطلوب'
+                'message' => 'معرف التصدير مطلوب',
             ], 400);
         }
 
@@ -202,7 +200,7 @@ class CustomerFollowReportController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $progress
+            'data' => $progress,
         ]);
     }
 
@@ -224,7 +222,7 @@ class CustomerFollowReportController extends Controller
                 'customer_status_id',
                 'contact_result_id',
                 'created_by',
-                'has_upcoming'
+                'has_upcoming',
             ]);
 
             $count = $this->customerFollowReportService->getFollowsCount($filters);
@@ -232,12 +230,12 @@ class CustomerFollowReportController extends Controller
             return response()->json([
                 'success' => true,
                 'count' => $count,
-                'message' => "تم العثور على {$count} متابعة حسب الفلاتر المحددة"
+                'message' => "تم العثور على {$count} متابعة حسب الفلاتر المحددة",
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء جلب عدد السجلات'
+                'message' => 'حدث خطأ أثناء جلب عدد السجلات',
             ], 500);
         }
     }
@@ -251,7 +249,7 @@ class CustomerFollowReportController extends Controller
     {
         $exportId = $request->input('export_id');
 
-        if (!$exportId) {
+        if (! $exportId) {
             return response()->json(['success' => false, 'message' => 'معرف التصدير مطلوب'], 400);
         }
 
@@ -268,9 +266,9 @@ class CustomerFollowReportController extends Controller
     public function downloadFile($file)
     {
         $disk = Storage::disk('tenant_public');
-        $relativePath = 'exports/' . $file;
+        $relativePath = 'exports/'.$file;
 
-        if (!$disk->exists($relativePath)) {
+        if (! $disk->exists($relativePath)) {
             return redirect()->back()->with('error', 'الملف غير موجود أو تم حذفه.');
         }
 
@@ -278,7 +276,6 @@ class CustomerFollowReportController extends Controller
 
         return response()->download($absolutePath);
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -302,7 +299,7 @@ class CustomerFollowReportController extends Controller
     {
         $customerData = $this->customerFollowReportService->getCustomerById($customer->id);
 
-        if (!$customerData) {
+        if (! $customerData) {
             return response()->json(null, 404);
         }
 
@@ -318,7 +315,7 @@ class CustomerFollowReportController extends Controller
     {
         $companyId = $request->get('company_id');
 
-        if (!$companyId) {
+        if (! $companyId) {
             return response()->json([]);
         }
 

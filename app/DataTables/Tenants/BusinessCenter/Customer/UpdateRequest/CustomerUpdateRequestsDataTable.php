@@ -12,7 +12,7 @@ class CustomerUpdateRequestsDataTable extends AbstractDataTable
     | Route Configuration
     |--------------------------------------------------------------------------
     */
-    private $route = "customers.update-requests";
+    private $route = 'customers.update-requests';
 
     /*
     |--------------------------------------------------------------------------
@@ -23,6 +23,7 @@ class CustomerUpdateRequestsDataTable extends AbstractDataTable
     {
         $datatable = datatables()->eloquent($query)->addIndexColumn();
         $this->addCustomColumns($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
@@ -33,7 +34,7 @@ class CustomerUpdateRequestsDataTable extends AbstractDataTable
     */
     protected function getTableId()
     {
-        return "customer-update-requests-table";
+        return 'customer-update-requests-table';
     }
 
     /*
@@ -46,7 +47,7 @@ class CustomerUpdateRequestsDataTable extends AbstractDataTable
         return CustomerUpdateRequest::with([
             'customer:id,name,identity_number',
             'requestedBy:id,name',
-            'approvedBy:id,name'
+            'approvedBy:id,name',
         ])->select('customer_update_requests.*');
     }
 
@@ -61,14 +62,14 @@ class CustomerUpdateRequestsDataTable extends AbstractDataTable
             ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             [
-                'data'       => 'checkbox',
-                'name'       => 'checkbox',
-                'title'      => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all" class="form-check-input"></span>',
-                'orderable'  => false,
+                'data' => 'checkbox',
+                'name' => 'checkbox',
+                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all" class="form-check-input"></span>',
+                'orderable' => false,
                 'searchable' => false,
-                'width'      => '10px',
-                'className'  => 'custom-checkbox text-center',
-                'titleAttr'  => 'تحديد الكل',
+                'width' => '10px',
+                'className' => 'custom-checkbox text-center',
+                'titleAttr' => 'تحديد الكل',
             ],
             ['data' => 'id', 'name' => 'id', 'title' => 'رقم الطلب'],
             ['data' => 'customer.name', 'name' => 'customer.name', 'title' => 'اسم العميل'],
@@ -91,40 +92,39 @@ class CustomerUpdateRequestsDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
             ->editColumn('customer.name', function ($row) {
-                return '<a href="' . tenant_route_name('customers.show', $row->customer_id) . '" class="text-primary text-decoration-none d-inline-flex align-items-center">' .
-                    '<span class="fw-bold">' . ($row->customer?->name ?? 'غير محدد') . '</span>' .
+                return '<a href="'.tenant_route_name('customers.show', $row->customer_id).'" class="text-primary text-decoration-none d-inline-flex align-items-center">'.
+                    '<span class="fw-bold">'.($row->customer?->name ?? 'غير محدد').'</span>'.
                     '</a>';
             })
             ->editColumn('customer.identity_number', function ($row) {
-                return '<span class="fw-bold text-dark">' . ($row->customer?->identity_number ?? 'غير محدد') . '</span>';
+                return '<span class="fw-bold text-dark">'.($row->customer?->identity_number ?? 'غير محدد').'</span>';
             })
             ->editColumn('requestedBy.name', function ($row) {
-                return '<span class="fw-bold text-dark">' . ($row->requestedBy?->name ?? 'غير محدد') . '</span>';
+                return '<span class="fw-bold text-dark">'.($row->requestedBy?->name ?? 'غير محدد').'</span>';
             })
             ->editColumn('created_at', function ($row) {
-                return '<span class="text-muted">' . $row->created_at->format('Y-m-d H:i') . '</span>';
+                return '<span class="text-muted">'.$row->created_at->format('Y-m-d H:i').'</span>';
             })
             ->editColumn('status', function ($row) {
                 return $row->status_label;
             })
             ->editColumn('approvedBy.name', function ($row) {
                 return $row->approvedBy ?
-                    '<span class="fw-bold text-dark">' . $row->approvedBy->name . '</span>' :
+                    '<span class="fw-bold text-dark">'.$row->approvedBy->name.'</span>' :
                     '<span class="text-muted">لم تتم المعالجة</span>';
             })
             ->editColumn('approved_at', function ($row) {
                 return $row->approved_at ?
-                    '<span class="text-muted">' . $row->approved_at->format('Y-m-d H:i') . '</span>' :
+                    '<span class="text-muted">'.$row->approved_at->format('Y-m-d H:i').'</span>' :
                     '<span class="text-muted">-</span>';
             })
             ->addColumn('actions', function ($row) {
                 return view('tenants.business_center.customers.update-requests.action', ['row' => $row])->render();
             });
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -191,36 +191,36 @@ class CustomerUpdateRequestsDataTable extends AbstractDataTable
     {
         $buttons = [
             [
-                'extend'    => 'copy',
-                'text'      => 'نسخ',
-                'className' => 'dropdown-item'
+                'extend' => 'copy',
+                'text' => 'نسخ',
+                'className' => 'dropdown-item',
             ],
             [
-                'text'      => 'تصدير اكسل',
+                'text' => 'تصدير اكسل',
                 'className' => 'dropdown-item',
-                'action'    => "function() { exportUpdateRequests(); }",
-            ]
+                'action' => 'function() { exportUpdateRequests(); }',
+            ],
         ];
         if (auth()->user()?->can('customer_update_requests.approve')) {
             $buttons[] = [
-                'text'      => 'موافقة جماعية',
+                'text' => 'موافقة جماعية',
                 'className' => 'dropdown-item',
-                'action'    => "function() { approveSelectedRequests(); }",
+                'action' => 'function() { approveSelectedRequests(); }',
             ];
         }
         if (auth()->user()?->can('customer_update_requests.reject')) {
             $buttons[] = [
-                'text'      => 'رفض جماعي',
+                'text' => 'رفض جماعي',
                 'className' => 'dropdown-item',
-                'action'    => "function() { rejectSelectedRequests(); }",
+                'action' => 'function() { rejectSelectedRequests(); }',
             ];
         }
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export dropdown-toggle me-2',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
 }

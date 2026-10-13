@@ -36,17 +36,17 @@ class UpdateRoleRequest extends FormRequest
                 'max:255',
                 'min:2',
                 Rule::unique('roles', 'name')->where('guard_name', 'tenant')->ignore($roleId),
-                'regex:/^[A-Za-z][A-Za-z0-9_-]*$/'
+                'regex:/^[A-Za-z][A-Za-z0-9_-]*$/',
             ],
             'permissions' => [
                 'required_if:select_all,0',
-                'array'
+                'array',
             ],
             'permissions.*' => [Rule::exists('permissions', 'name')->where('guard_name', 'tenant')],
             'select_all' => [
                 'sometimes',
-                'boolean'
-            ]
+                'boolean',
+            ],
         ];
     }
 
@@ -70,7 +70,7 @@ class UpdateRoleRequest extends FormRequest
             'permissions.array' => 'الصلاحيات يجب أن تكون مصفوفة',
             'permissions.*.exists' => 'الصلاحية المحددة غير موجودة',
 
-            'select_all.boolean' => 'قيمة تحديد الكل يجب أن تكون صحيحة أو خاطئة'
+            'select_all.boolean' => 'قيمة تحديد الكل يجب أن تكون صحيحة أو خاطئة',
         ];
     }
 
@@ -85,7 +85,7 @@ class UpdateRoleRequest extends FormRequest
         return [
             'name' => 'اسم الدور',
             'permissions' => 'الصلاحيات',
-            'select_all' => 'تحديد الكل'
+            'select_all' => 'تحديد الكل',
         ];
     }
 

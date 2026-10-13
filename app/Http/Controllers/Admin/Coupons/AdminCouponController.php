@@ -12,13 +12,12 @@ use App\Models\Admin\Coupons\Coupon;
 use App\Models\Admin\Tenants\Tenant;
 use App\Services\Admin\Coupons\CouponService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 
 class AdminCouponController extends Controller
 {
-    private $page   = "admin.coupons";
-    private $route  = "admin.coupons";
+    private $page = 'admin.coupons';
 
+    private $route = 'admin.coupons';
 
     public function __construct(private CouponService $couponService)
     {
@@ -44,10 +43,10 @@ class AdminCouponController extends Controller
             $coupon = $this->couponService->toggleActive($coupon, $requestedStatus);
 
             return response()->json([
-                'success'     => true,
-                'message'     => $coupon->is_active ? 'تم تفعيل الكوبون بنجاح' : 'تم تعطيل الكوبون بنجاح',
-                'is_active'   => (bool) $coupon->is_active,
-                'status'      => (bool) $coupon->is_active,
+                'success' => true,
+                'message' => $coupon->is_active ? 'تم تفعيل الكوبون بنجاح' : 'تم تعطيل الكوبون بنجاح',
+                'is_active' => (bool) $coupon->is_active,
+                'status' => (bool) $coupon->is_active,
                 'status_text' => $coupon->is_active ? 'نشط' : 'غير نشط',
             ]);
         } catch (\Throwable $exception) {
@@ -59,7 +58,6 @@ class AdminCouponController extends Controller
             ], 500);
         }
     }
-
 
     public function index(CouponDataTable $dataTable)
     {
@@ -81,10 +79,10 @@ class AdminCouponController extends Controller
                 ],
             ];
 
-            return $dataTable->render($this->page . '.index', [
-                'totalPlans'       => $statistics['total'],
-                'activecoupons'      => $statistics['active'],
-                'inactivecoupons'    => $statistics['inactive'],
+            return $dataTable->render($this->page.'.index', [
+                'totalPlans' => $statistics['total'],
+                'activecoupons' => $statistics['active'],
+                'inactivecoupons' => $statistics['inactive'],
                 'couponCount' => $coupon,
                 'filterOptions' => $filterOptions,
                 // 'tenantUsedCouponCount' => $tenant->count()
@@ -92,46 +90,45 @@ class AdminCouponController extends Controller
             ]);
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }
-
 
     public function create()
     {
         $admin_users = AdminUser::get();
         $generatedCode = $this->couponService->generateUniqueCode();
-        return view($this->page . '.create', compact('admin_users', 'generatedCode'));
-    }
 
+        return view($this->page.'.create', compact('admin_users', 'generatedCode'));
+    }
 
     public function store(CouponRequest $request)
     {
         $this->couponService->create($request->validated());
-        return redirect()->route($this->route . '.index')->with('success', 'تم إضافة الكوبون بنجاح');
-    }
 
+        return redirect()->route($this->route.'.index')->with('success', 'تم إضافة الكوبون بنجاح');
+    }
 
     public function edit(Coupon $coupon)
     {
         $admin_users = AdminUser::get();
-        return view($this->page . '.edit', compact('coupon', 'admin_users'));
-    }
 
+        return view($this->page.'.edit', compact('coupon', 'admin_users'));
+    }
 
     public function update(CouponRequest $request, Coupon $coupon)
     {
         $this->couponService->update($coupon, $request->validated());
 
-        return redirect()->route($this->route . '.index')->with('success', 'تم تحديث الكوبون بنجاح');
+        return redirect()->route($this->route.'.index')->with('success', 'تم تحديث الكوبون بنجاح');
     }
-
 
     public function destroy(AdminAuthenticatedRequest $request, Coupon $coupon)
     {
         $coupon->delete();
 
-        return redirect()->route($this->route . '.index')->with('success', 'تم حذف الكوبون بنجاح');
+        return redirect()->route($this->route.'.index')->with('success', 'تم حذف الكوبون بنجاح');
     }
 
     public function getCouponDetails(Coupon $coupon)
@@ -150,6 +147,7 @@ class AdminCouponController extends Controller
             return view('admin.coupons.details', compact('couponDetails', 'tenants'));
         } catch (\Exception $e) {
             report($e);
+
             return response()->json([
                 'success' => false,
                 'message' => 'حدث خطأ أثناء جلب تفاصيل الكوبون',

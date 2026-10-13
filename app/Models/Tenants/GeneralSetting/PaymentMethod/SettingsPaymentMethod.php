@@ -2,9 +2,9 @@
 
 namespace App\Models\Tenants\GeneralSetting\PaymentMethod;
 
+use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SettingsPaymentMethod extends Model
@@ -33,6 +33,4 @@ class SettingsPaymentMethod extends Model
     {
         return $this->belongsTo(User::class);
     }
-
-    
 }

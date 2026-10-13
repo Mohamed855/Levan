@@ -10,10 +10,10 @@ use App\Http\Requests\Tenants\UpdateResourceStatusRequest;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Models\Tenants\BusinessCenter\Portfolio\PortfolioField;
 use App\Services\Tenants\BusinessCenter\Portfolio\PortfolioService;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class PortfolioController extends Controller
 {
@@ -47,12 +47,12 @@ class PortfolioController extends Controller
         $companies = $this->portfolioService->getActiveCompanies();
 
         return $dataTable->render('tenants.business_center.portfolios.index', [
-            'totalPortfolios'     => $statistics['total'],
-            'activePortfolios'    => $statistics['active'],
-            'inactivePortfolios'  => $statistics['inactive'],
-            'archivedPortfolios'  => $statistics['archived'],
-            'recentAssignments'   => $statistics['recent_assignments'],
-            'companies'           => $companies,
+            'totalPortfolios' => $statistics['total'],
+            'activePortfolios' => $statistics['active'],
+            'inactivePortfolios' => $statistics['inactive'],
+            'archivedPortfolios' => $statistics['archived'],
+            'recentAssignments' => $statistics['recent_assignments'],
+            'companies' => $companies,
         ]);
     }
 
@@ -64,7 +64,7 @@ class PortfolioController extends Controller
     public function create(): View
     {
         $companies = $this->portfolioService->getActiveCompanies();
-        $typeOptions   = PortfolioField::getTypeOptions();
+        $typeOptions = PortfolioField::getTypeOptions();
 
         return view('tenants.business_center.portfolios.create', compact('companies', 'typeOptions'));
     }
@@ -94,6 +94,7 @@ class PortfolioController extends Controller
     public function show(Portfolio $portfolio, PortfolioService $service): View
     {
         $data = $service->buildShowViewData($portfolio);
+
         return view('tenants.business_center.portfolios.show', $data);
     }
 
@@ -105,7 +106,7 @@ class PortfolioController extends Controller
     public function edit(Portfolio $portfolio): View
     {
         $companies = $this->portfolioService->getActiveCompanies();
-        $typeOptions   = PortfolioField::getTypeOptions();
+        $typeOptions = PortfolioField::getTypeOptions();
 
         $portfolio->load(['portfolioFields']);
 
@@ -122,6 +123,7 @@ class PortfolioController extends Controller
         try {
             $dto = $request->toUpdateDTO();
             $this->portfolioService->updatePortfolio($portfolio, $dto);
+
             return redirect()->to(tenant_route_name('portfolios.index'))->with('success', 'تم تحديث المحفظة بنجاح');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'حدث خطأ أثناء تحديث المحفظة.');
@@ -137,6 +139,7 @@ class PortfolioController extends Controller
     {
         try {
             $this->portfolioService->deletePortfolio($portfolio);
+
             return redirect()->back()->with('success', 'تم حذف المحفظة بنجاح');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
@@ -160,12 +163,12 @@ class PortfolioController extends Controller
                 'success' => true,
                 'message' => 'تم تبديل الحالة بنجاح',
                 'new_status' => $newStatus,
-                'status_text' => $statusText
+                'status_text' => $statusText,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تبديل الحالة'
+                'message' => 'حدث خطأ أثناء تبديل الحالة',
             ], 500);
         }
     }
@@ -177,13 +180,13 @@ class PortfolioController extends Controller
     */
     public function getRecentAssignments(Request $request): JsonResponse
     {
-        $days = (int)$request->get('days', 30);
+        $days = (int) $request->get('days', 30);
         $portfolios = $this->portfolioService->getRecentAssignments($days)->get();
 
         return response()->json([
             'success' => true,
             'data' => $portfolios,
-            'count' => $portfolios->count()
+            'count' => $portfolios->count(),
         ]);
     }
 }

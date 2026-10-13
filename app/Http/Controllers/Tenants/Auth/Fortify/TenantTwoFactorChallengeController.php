@@ -6,8 +6,8 @@ use App\Actions\Auth\ResolveTwoFactorLogin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Auth\TenantTwoFactorChallengeRequest;
 use App\Providers\RouteServiceProvider;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -34,8 +34,8 @@ class TenantTwoFactorChallengeController extends Controller
         $request->session()->regenerate();
 
         $user->update([
-            'last_login_at'      => now(),
-            'last_login_ip'      => $request->ip(),
+            'last_login_at' => now(),
+            'last_login_ip' => $request->ip(),
             'current_session_id' => session()->getId(),
         ]);
 

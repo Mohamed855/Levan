@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Tenants\Reports\Portfolio;
 
 use App\DataTables\Tenants\Reports\Portfolio\PortfolioReportDataTable;

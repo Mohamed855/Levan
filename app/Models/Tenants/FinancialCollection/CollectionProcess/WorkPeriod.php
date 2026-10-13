@@ -24,12 +24,12 @@ class WorkPeriod extends Model
     ];
 
     protected $casts = [
-        'entry_time'             => 'datetime',
-        'exit_time'              => 'datetime',
-        'duration_minutes'       => 'integer',
-        'activities_count'       => 'integer',
-        'follows_count'          => 'integer',
-        'full_payments_count'    => 'integer',
+        'entry_time' => 'datetime',
+        'exit_time' => 'datetime',
+        'duration_minutes' => 'integer',
+        'activities_count' => 'integer',
+        'follows_count' => 'integer',
+        'full_payments_count' => 'integer',
         'partial_payments_count' => 'integer',
     ];
 
@@ -119,8 +119,8 @@ class WorkPeriod extends Model
         $duration = $this->entry_time->diffInMinutes($exitTime);
 
         $this->update([
-            'exit_time'        => $exitTime,
-            'exit_type'        => $exitType,
+            'exit_time' => $exitTime,
+            'exit_type' => $exitType,
             'duration_minutes' => $duration,
         ]);
     }

@@ -43,7 +43,7 @@ class SingleSessionPerUser
     */
     protected function redirectToLogin(Request $request)
     {
-        if (!tenant()) {
+        if (! tenant()) {
             return redirect('/login');
         }
 
@@ -52,7 +52,7 @@ class SingleSessionPerUser
         $isCentralDomain = in_array($currentHost, $centralDomains);
 
         if ($isCentralDomain) {
-            return redirect('/' . tenant('id') . '/login');
+            return redirect('/'.tenant('id').'/login');
         }
 
         return redirect('/login');

@@ -10,16 +10,17 @@ use App\Models\Tenants\GeneralSetting\PaymentMethod\SettingsPaymentMethod;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Traits\Tenants\HasUserAccessScope;
 use App\Traits\Tenants\Scopes\UserAccessScope;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\Support\LogOptions;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class Collection extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity, HasUserAccessScope;
+    use HasFactory, HasUserAccessScope, LogsActivity, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -84,10 +85,9 @@ class Collection extends Model
             ->logOnlyDirty()
             ->dontLogEmptyChanges()
             ->useLogName('collections')
-            ->setDescriptionForEvent(fn($e) => $this->getEventDescription($e))
+            ->setDescriptionForEvent(fn ($e) => $this->getEventDescription($e))
             ->dontLogIfAttributesChangedOnly(['updated_at']);
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -101,8 +101,8 @@ class Collection extends Model
         $receiptNumber = $this->receipt_number ?? 'غير محدد';
 
         return match ($eventName) {
-            'created' => "أضاف تحصيل ({$amount} ر.س) للعميل: {$customerName}" . $this->getCollectionSummary(),
-            'updated' => "عدّل تحصيل للعميل: {$customerName}" . $this->getChangesSummary(),
+            'created' => "أضاف تحصيل ({$amount} ر.س) للعميل: {$customerName}".$this->getCollectionSummary(),
+            'updated' => "عدّل تحصيل للعميل: {$customerName}".$this->getChangesSummary(),
             'deleted' => "حذف تحصيل ({$amount} ر.س | سند: {$receiptNumber}) للعميل: {$customerName}",
             default => "نشاط على تحصيل للعميل: {$customerName}",
         };
@@ -142,7 +142,7 @@ class Collection extends Model
             $details[] = "طريقة: {$this->paymentMethod->name}";
         }
 
-        return ' (' . implode(' | ', $details) . ')';
+        return ' ('.implode(' | ', $details).')';
     }
 
     /*
@@ -168,9 +168,13 @@ class Collection extends Model
         ];
 
         foreach ($this->getDirty() as $field => $newValue) {
-            if ($field === 'updated_at') continue;
+            if ($field === 'updated_at') {
+                continue;
+            }
 
-            if (!isset($fieldNames[$field])) continue;
+            if (! isset($fieldNames[$field])) {
+                continue;
+            }
 
             $fieldLabel = $fieldNames[$field];
             $oldValue = $this->getOriginal($field);
@@ -183,7 +187,7 @@ class Collection extends Model
             }
         }
 
-        return $changes ? ' (' . implode(' | ', $changes) . ')' : '';
+        return $changes ? ' ('.implode(' | ', $changes).')' : '';
     }
 
     /*
@@ -221,21 +225,23 @@ class Collection extends Model
                 };
 
             case 'collected_amount':
-                return number_format((float)$value, 2) . ' ر.س';
+                return number_format((float) $value, 2).' ر.س';
 
             case 'customer_id':
                 $customer = Customer::find($value);
+
                 return $customer ? $customer->name : 'غير محدد';
 
             case 'payment_method_id':
                 $method = SettingsPaymentMethod::find($value);
+
                 return $method ? $method->name : 'غير محدد';
 
             case 'collection_date':
-                return \Carbon\Carbon::parse($value)->format('Y-m-d');
+                return Carbon::parse($value)->format('Y-m-d');
 
             case 'rejection_reason':
-                return strlen($value) > 50 ? substr($value, 0, 50) . '...' : $value;
+                return strlen($value) > 50 ? substr($value, 0, 50).'...' : $value;
 
             default:
                 return (string) $value;
@@ -299,7 +305,7 @@ class Collection extends Model
      */
     public function getFormattedCollectedAmountAttribute(): string
     {
-        return number_format($this->collected_amount, 2) . ' <span class="icon-saudi_riyal"></span>';
+        return number_format($this->collected_amount, 2).' <span class="icon-saudi_riyal"></span>';
     }
 
     /**
@@ -424,7 +430,6 @@ class Collection extends Model
         return $this->morphMany(CustomerTransaction::class, 'related');
     }
 
-
     /*
 |--------------------------------------------------------------------------
 | علاقة خطاب الشركة المرتبط بالتحصيل
@@ -434,8 +439,6 @@ class Collection extends Model
     {
         return $this->hasOne(CompanyLetter::class, 'collection_id');
     }
-
-
 
     /*
     |--------------------------------------------------------------------------

@@ -35,9 +35,9 @@
                 <div class="card-body">
                     <div class="mb-3 text-center">
                         <img src="{{ $auction->cover_image ? tasset($auction->cover_image) : asset('assets/img/illustrations/page-pricing-enterprise.png') }}"
-                            alt="Cover" class="rounded w-100" style="max-height: 220px; object-fit: cover;">
+                            alt="{{ $auction->name }}" class="rounded" style="width: 100px; height: 100px; object-fit: cover;">
                     </div>
-                    <h5>{{ $auction->name }}</h5>
+                    <h5 class="text-center">{{ $auction->name }}</h5>
                     <p class="text-muted small">{{ $auction->description ?? 'لا يوجد وصف مضاف.' }}</p>
 
                     <ul class="list-unstyled border-top pt-3">
@@ -68,9 +68,33 @@
                     </ul>
                 </div>
             </div>
+
+            @if ($auction->attachments->isNotEmpty())
+                <div class="card mb-4">
+                    <div class="card-header pb-2">
+                        <h6 class="card-title mb-0">وثائق ومرفقات المزاد</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            @foreach ($auction->attachments as $attachment)
+                                <li class="d-flex align-items-center justify-content-between gap-2 py-2 border-bottom">
+                                    <div class="d-flex align-items-center gap-2 text-truncate">
+                                        <i class="ti ti-file text-primary fs-5" aria-hidden="true"></i>
+                                        <span class="text-truncate" title="{{ $attachment->file_name }}">{{ $attachment->file_name }}</span>
+                                    </div>
+                                    <a href="{{ tasset($attachment->file_path) }}" target="_blank"
+                                        class="btn btn-sm btn-icon btn-label-primary" title="تنزيل {{ $attachment->file_name }}">
+                                        <i class="ti ti-download" aria-hidden="true"></i>
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            @endif
         </div>
 
-        {{-- تفاصيل العقارات المشمولة والمرفقات --}}
+        {{-- تفاصيل العقارات المشمولة --}}
         <div class="col-xl-8 col-lg-7 col-md-7">
             {{-- العقارات المدرجة --}}
             <div class="card mb-4">
@@ -106,45 +130,6 @@
                                 <tr>
                                     <td colspan="5" class="text-center py-4 text-muted">لم يتم إدراج عقارات في هذا المزاد
                                         بعد.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            {{-- المرفقات --}}
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">وثائق ومرفقات المزاد ({{ $auction->attachments->count() }})</h5>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>اسم الملف</th>
-                                <th>التصنيف</th>
-                                <th>الحجم</th>
-                                <th>الإجراء</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($auction->attachments as $att)
-                                <tr>
-                                    <td><i class="ti ti-file me-1"></i>{{ $att->file_name }}</td>
-                                    <td><span class="badge bg-label-primary">{{ $att->category_label }}</span></td>
-                                    <td>{{ number_format($att->file_size / 1024, 1) }} KB</td>
-                                    <td>
-                                        <a href="{{ tasset($att->file_path) }}" target="_blank"
-                                            class="btn btn-sm btn-icon btn-secondary">
-                                            <i class="ti ti-download"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="text-center py-4 text-muted">لا توجد ملفات مرفقة لهذا المزاد.
-                                    </td>
                                 </tr>
                             @endforelse
                         </tbody>

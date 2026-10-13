@@ -2,21 +2,20 @@
 
 namespace App\Http\Controllers\Tenants\FinancialCollection\Target;
 
-use App\DataTables\Tenants\FinancialCollection\Target\CollectionTargetsDataTable;
-use App\DataTables\Tenants\FinancialCollection\Target\UserTargetsDataTable;
 use App\Data\Tenants\FinancialCollection\Target\CreateCollectionTargetDTO;
 use App\Data\Tenants\FinancialCollection\Target\UpdateCollectionTargetDTO;
+use App\DataTables\Tenants\FinancialCollection\Target\CollectionTargetsDataTable;
+use App\DataTables\Tenants\FinancialCollection\Target\UserTargetsDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\FinancialCollection\CollectionTarget\StoreCollectionTargetRequest;
 use App\Http\Requests\Tenants\FinancialCollection\CollectionTarget\UpdateCollectionTargetRequest;
 use App\Models\Tenants\FinancialCollection\Target\CollectionTarget;
 use App\Models\Tenants\UserMangment\Team\Team;
 use App\Services\Tenants\FinancialCollection\Target\CollectionTargetService;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 class CollectionTargetController extends Controller
 {
@@ -57,7 +56,7 @@ class CollectionTargetController extends Controller
                 'users' => $this->collectionTargetService->getActiveUsers(),
             ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'حدث خطأ في تحميل البيانات: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'حدث خطأ في تحميل البيانات: '.$e->getMessage());
         }
     }
 
@@ -71,7 +70,7 @@ class CollectionTargetController extends Controller
         try {
             $details = $this->collectionTargetService->getUserTargetDetailsWithProgress($userId);
 
-            if (!$details['user']) {
+            if (! $details['user']) {
                 return redirect()
                     ->to(tenant_route_name('financial-collections.collection-targets.index'))
                     ->with('error', 'المستخدم غير موجود');
@@ -83,12 +82,12 @@ class CollectionTargetController extends Controller
             return $dataTable->render('tenants.financial_collection.collection_targets.show', [
                 'user' => $details['user'],
                 'currentTarget' => $details['current_target'],
-                'statistics' => $details['statistics']
+                'statistics' => $details['statistics'],
             ]);
         } catch (\Exception $e) {
             return redirect()
                 ->to(tenant_route_name('financial-collections.collection-targets.index'))
-                ->with('error', 'حدث خطأ في تحميل التفاصيل: ' . $e->getMessage());
+                ->with('error', 'حدث خطأ في تحميل التفاصيل: '.$e->getMessage());
         }
     }
 
@@ -104,6 +103,7 @@ class CollectionTargetController extends Controller
             $teams = Team::where('status', 'active')->orderBy('name')->get();
             $months = $this->collectionTargetService->getAvailableMonths();
             $years = $this->collectionTargetService->getAvailableYears();
+
             return view(
                 'tenants.financial_collection.collection_targets.create',
                 compact('users', 'teams', 'months', 'years')
@@ -151,7 +151,7 @@ class CollectionTargetController extends Controller
             $teams = Team::where('status', 'active')->orderBy('name')->get();
             $months = $this->collectionTargetService->getAvailableMonths();
             $years = $this->collectionTargetService->getAvailableYears();
-            
+
             return view(
                 'tenants.financial_collection.collection_targets.edit',
                 compact('collectionTarget', 'users', 'months', 'years', 'teams')
@@ -159,9 +159,10 @@ class CollectionTargetController extends Controller
         } catch (\Exception $e) {
             return redirect()
                 ->to(tenant_route_name('financial-collections.collection-targets.index'))
-                ->with('error', 'حدث خطأ أثناء تحميل صفحة التعديل: ' . $e->getMessage());
+                ->with('error', 'حدث خطأ أثناء تحميل صفحة التعديل: '.$e->getMessage());
         }
     }
+
     /*
     |--------------------------------------------------------------------------
     | Update Collection Target
@@ -202,7 +203,7 @@ class CollectionTargetController extends Controller
         try {
             $userId = $collectionTarget->user_id;
             $this->collectionTargetService->deleteCollectionTarget($collectionTarget);
-            
+
             return redirect()
                 ->to(tenant_route_name('financial-collections.collection-targets.user-details', $userId))
                 ->with('success', 'تم حذف هدف التحصيل بنجاح');
@@ -232,14 +233,13 @@ class CollectionTargetController extends Controller
                 'status' => $updatedTarget->status,
                 'new_status' => $updatedTarget->status,
                 'status_text' => $statusText,
-                'status_class' => $statusClass
+                'status_class' => $statusClass,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تبديل الحالة'
+                'message' => 'حدث خطأ أثناء تبديل الحالة',
             ], 500);
         }
     }
-
 }

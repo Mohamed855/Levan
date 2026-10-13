@@ -6,11 +6,11 @@ use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Models\Tenants\GeneralSetting\MessageTemplate\MessageTemplate;
+use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Models\Tenants\UserMangment\User\User;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class MessageIndividualLog extends Model
 {
@@ -93,7 +93,6 @@ class MessageIndividualLog extends Model
     {
         return $this->belongsTo(MessageLog::class, 'batch_log_id');
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -274,7 +273,7 @@ class MessageIndividualLog extends Model
     */
     public function getFormattedTotalCostAttribute(): string
     {
-        return number_format($this->total_cost, 4) . ' ريال';
+        return number_format($this->total_cost, 4).' ريال';
     }
 
     /*
@@ -284,7 +283,7 @@ class MessageIndividualLog extends Model
     */
     public function getFormattedPhonesAttribute(): string
     {
-        if (!$this->phone_numbers || !is_array($this->phone_numbers)) {
+        if (! $this->phone_numbers || ! is_array($this->phone_numbers)) {
             return '-';
         }
 
@@ -311,7 +310,6 @@ class MessageIndividualLog extends Model
         return $this->sent_at ? $this->sent_at->format('Y-m-d H:i:s') : null;
     }
 
-
     /*
     |--------------------------------------------------------------------------
     |  مدة الإرسال بالثواني
@@ -319,7 +317,7 @@ class MessageIndividualLog extends Model
     */
     public function getSendDurationAttribute(): ?int
     {
-        if (!$this->sent_at) {
+        if (! $this->sent_at) {
             return null;
         }
 
@@ -335,16 +333,16 @@ class MessageIndividualLog extends Model
     {
         $duration = $this->send_duration;
 
-        if (!$duration) {
+        if (! $duration) {
             return null;
         }
 
         if ($duration < 60) {
-            return $duration . ' ثانية';
+            return $duration.' ثانية';
         } elseif ($duration < 3600) {
-            return round($duration / 60) . ' دقيقة';
+            return round($duration / 60).' دقيقة';
         } else {
-            return round($duration / 3600, 1) . ' ساعة';
+            return round($duration / 3600, 1).' ساعة';
         }
     }
 
@@ -367,19 +365,19 @@ class MessageIndividualLog extends Model
             $updateData['failed_at'] = now();
         }
 
-        if (!empty($data['provider_job_id'])) {
+        if (! empty($data['provider_job_id'])) {
             $updateData['provider_job_id'] = $data['provider_job_id'];
         }
 
-        if (!empty($data['provider_response'])) {
+        if (! empty($data['provider_response'])) {
             $updateData['provider_response'] = $data['provider_response'];
         }
 
-        if (!empty($data['error_message'])) {
+        if (! empty($data['error_message'])) {
             $updateData['error_message'] = $data['error_message'];
         }
 
-        if (!empty($data['status_message'])) {
+        if (! empty($data['status_message'])) {
             $updateData['status_message'] = $data['status_message'];
         }
 

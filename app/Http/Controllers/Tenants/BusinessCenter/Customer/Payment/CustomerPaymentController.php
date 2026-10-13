@@ -3,15 +3,13 @@
 namespace App\Http\Controllers\Tenants\BusinessCenter\Customer\Payment;
 
 use App\Http\Controllers\Controller;
-use App\Models\Tenants\BusinessCenter\Customers\Customer;
-use App\Models\Tenants\FinancialCollection\Collection\Collection;
 use App\Http\Requests\Tenants\FinancialCollection\Collection\StoreCollectionRequest;
 use App\Http\Requests\Tenants\FinancialCollection\Collection\UpdateCollectionRequest;
+use App\Models\Tenants\BusinessCenter\Customers\Customer;
+use App\Models\Tenants\FinancialCollection\Collection\Collection;
 use App\Services\Tenants\FinancialCollection\Collection\CollectionService;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
 class CustomerPaymentController extends Controller
@@ -48,7 +46,7 @@ class CustomerPaymentController extends Controller
             'payment_type',
             'date_from',
             'date_to',
-            'search'
+            'search',
         ]);
         $query = $this->collectionService->filterCollectionsQuery($query, $filters);
 
@@ -56,59 +54,63 @@ class CustomerPaymentController extends Controller
             ->addIndexColumn()
             ->addColumn('receipt_info', function (Collection $payment) {
                 $html = '<div>';
-                $html .= '<div class="fw-medium">' . e($payment->receipt_number) . '</div>';
+                $html .= '<div class="fw-medium">'.e($payment->receipt_number).'</div>';
                 if ($payment->closing_code) {
-                    $html .= '<div class="text-muted small">كود: ' . e($payment->closing_code) . '</div>';
+                    $html .= '<div class="text-muted small">كود: '.e($payment->closing_code).'</div>';
                 }
                 $html .= '</div>';
+
                 return $html;
             })
             ->addColumn('amount', function (Collection $payment) {
-                return '<span class="fw-bold text-success">' . number_format($payment->collected_amount, 2) . ' ريال</span>';
+                return '<span class="fw-bold text-success">'.number_format($payment->collected_amount, 2).' ريال</span>';
             })
             ->addColumn('collection_type', function (Collection $payment) {
                 $class = $payment->collection_type === 'cash' ? 'bg-label-info' : 'bg-label-warning';
-                return '<span class="badge ' . $class . '">' . e($payment->collection_type_label) . '</span>';
+
+                return '<span class="badge '.$class.'">'.e($payment->collection_type_label).'</span>';
             })
             ->addColumn('payment_method', function (Collection $payment) {
-                return '<span>' . e($payment->paymentMethod->name ?? 'غير محدد') . '</span>';
+                return '<span>'.e($payment->paymentMethod->name ?? 'غير محدد').'</span>';
             })
             ->addColumn('payment_type', function (Collection $payment) {
                 $class = $payment->payment_type === 'settlement' ? 'bg-label-primary' : 'bg-secondary';
-                return '<span class="badge ' . $class . '">' . e($payment->payment_type_label) . '</span>';
+
+                return '<span class="badge '.$class.'">'.e($payment->payment_type_label).'</span>';
             })
             ->addColumn('collection_date', function (Collection $payment) {
                 return $payment->formatted_collection_date;
             })
             ->addColumn('status', function (Collection $payment) {
-                return '<span class="badge ' . $payment->status_class . '">' . e($payment->status_label) . '</span>';
+                return '<span class="badge '.$payment->status_class.'">'.e($payment->status_label).'</span>';
             })
             ->addColumn('added_by', function (Collection $payment) {
-                return '<span>' . e($payment->addedBy->name ?? 'غير محدد') . '</span>';
+                return '<span>'.e($payment->addedBy->name ?? 'غير محدد').'</span>';
             })
             ->addColumn('action', function ($row) {
                 $actions = '<div class="d-flex justify-content-center">';
-                
+
                 if ($row->status === 'pending') {
-                    $actions .= '<button type="button" title="تعديل التحصيل" onclick="editCustomerPayment(' . $row->id . ')" class="btn btn-icon btn-text-secondary me-1">
+                    $actions .= '<button type="button" title="تعديل التحصيل" onclick="editCustomerPayment('.$row->id.')" class="btn btn-icon btn-text-secondary me-1">
                             <i class="ti ti-edit"></i>
                         </button>
-                        <button type="button" title="حذف التحصيل" onclick="deleteCustomerPayment(' . $row->id . ')" class="btn btn-icon btn-text-secondary me-1">
+                        <button type="button" title="حذف التحصيل" onclick="deleteCustomerPayment('.$row->id.')" class="btn btn-icon btn-text-secondary me-1">
                             <i class="ti ti-trash"></i>
                         </button>';
                 }
-                
+
                 if ($row->attachment) {
-                    $actions .= '<a href="' . asset('storage/' . $row->attachment) . '" target="_blank" title="عرض المرفق" class="btn btn-icon btn-text-secondary">
+                    $actions .= '<a href="'.asset('storage/'.$row->attachment).'" target="_blank" title="عرض المرفق" class="btn btn-icon btn-text-secondary">
                             <i class="ti ti-paperclip"></i>
                         </a>';
                 }
-                
+
                 $actions .= '</div>';
+
                 return $actions;
             })
-            ->orderColumn('created_at', fn($query, $order) => $query->orderBy('created_at', $order))
-            ->filterColumn('receipt_info', fn($query, $keyword) => $query->where('receipt_number', 'like', "%{$keyword}%"))
+            ->orderColumn('created_at', fn ($query, $order) => $query->orderBy('created_at', $order))
+            ->filterColumn('receipt_info', fn ($query, $keyword) => $query->where('receipt_number', 'like', "%{$keyword}%"))
             ->rawColumns(['receipt_info', 'amount', 'collection_type', 'payment_method', 'payment_type', 'status', 'added_by', 'action'])
             ->make(true);
     }
@@ -128,23 +130,23 @@ class CustomerPaymentController extends Controller
             $formData = [
                 'customers' => collect([$customer]),
                 'paymentMethods' => $this->collectionService->getActivePaymentMethods(),
-                'receiptNumber' => $this->collectionService->generateReceiptNumber()
+                'receiptNumber' => $this->collectionService->generateReceiptNumber(),
             ];
 
             $html = view('tenants.business_center.customers.customer_payments.create', [
                 'customer' => $customer,
-                ...$formData
+                ...$formData,
             ])->render();
 
             return response()->json([
                 'success' => true,
                 'html' => $html,
-                'message' => 'تم تحميل النموذج بنجاح'
+                'message' => 'تم تحميل النموذج بنجاح',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تحميل النموذج: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء تحميل النموذج: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -159,30 +161,30 @@ class CustomerPaymentController extends Controller
             if ($collection->customer_id !== $customer->id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'التحصيل غير مرتبط بهذا العميل'
+                    'message' => 'التحصيل غير مرتبط بهذا العميل',
                 ], 403);
             }
 
             $formData = [
                 'customers' => collect([$customer]),
-                'paymentMethods' => $this->collectionService->getActivePaymentMethods()
+                'paymentMethods' => $this->collectionService->getActivePaymentMethods(),
             ];
 
             $html = view('tenants.business_center.customers.customer_payments.edit', [
                 'customer' => $customer,
                 'collection' => $collection,
-                ...$formData
+                ...$formData,
             ])->render();
 
             return response()->json([
                 'success' => true,
                 'html' => $html,
-                'message' => 'تم تحميل النموذج بنجاح'
+                'message' => 'تم تحميل النموذج بنجاح',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تحميل النموذج: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء تحميل النموذج: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -193,7 +195,7 @@ class CustomerPaymentController extends Controller
     public function store(StoreCollectionRequest $request, Customer $customer): JsonResponse
     {
         try {
-            
+
             $data = $request->validated();
             $data['customer_id'] = $customer->id;
 
@@ -202,17 +204,17 @@ class CustomerPaymentController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'تم إضافة التحصيل بنجاح',
-                'data' => $collection
+                'data' => $collection,
             ]);
         } catch (\Exception $e) {
-            \Log::error('Payment creation error: ' . $e->getMessage(), [
+            \Log::error('Payment creation error: '.$e->getMessage(), [
                 'customer_id' => $customer->id,
-                'request_data' => $request->validated()
+                'request_data' => $request->validated(),
             ]);
-            
+
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء إضافة التحصيل: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء إضافة التحصيل: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -227,7 +229,7 @@ class CustomerPaymentController extends Controller
             if ($collection->customer_id !== $customer->id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'التحصيل غير مرتبط بهذا العميل'
+                    'message' => 'التحصيل غير مرتبط بهذا العميل',
                 ], 403);
             }
 
@@ -237,18 +239,18 @@ class CustomerPaymentController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'تم تحديث التحصيل بنجاح',
-                'data' => $updatedCollection
+                'data' => $updatedCollection,
             ]);
         } catch (\Exception $e) {
-            \Log::error('Payment update error: ' . $e->getMessage(), [
+            \Log::error('Payment update error: '.$e->getMessage(), [
                 'customer_id' => $customer->id,
                 'collection_id' => $collection->id,
-                'request_data' => $request->validated()
+                'request_data' => $request->validated(),
             ]);
-            
+
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تحديث التحصيل: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء تحديث التحصيل: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -263,7 +265,7 @@ class CustomerPaymentController extends Controller
             if ($collection->customer_id !== $customer->id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'التحصيل غير مرتبط بهذا العميل'
+                    'message' => 'التحصيل غير مرتبط بهذا العميل',
                 ], 403);
             }
 
@@ -271,17 +273,17 @@ class CustomerPaymentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'تم حذف التحصيل بنجاح'
+                'message' => 'تم حذف التحصيل بنجاح',
             ]);
-        } catch (\Exception $e) {        
-            \Log::error('Payment deletion error: ' . $e->getMessage(), [
+        } catch (\Exception $e) {
+            \Log::error('Payment deletion error: '.$e->getMessage(), [
                 'customer_id' => $customer->id,
-                'collection_id' => $collection->id
+                'collection_id' => $collection->id,
             ]);
-            
+
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء حذف التحصيل: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء حذف التحصيل: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -293,15 +295,15 @@ class CustomerPaymentController extends Controller
     {
         try {
             $receiptNumber = $this->collectionService->generateReceiptNumber();
-            
+
             return response()->json([
                 'success' => true,
-                'receipt_number' => $receiptNumber
+                'receipt_number' => $receiptNumber,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء توليد رقم السند'
+                'message' => 'حدث خطأ أثناء توليد رقم السند',
             ], 500);
         }
     }
@@ -331,12 +333,12 @@ class CustomerPaymentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $statistics
+                'data' => $statistics,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء جلب الإحصائيات'
+                'message' => 'حدث خطأ أثناء جلب الإحصائيات',
             ], 500);
         }
     }
@@ -356,12 +358,12 @@ class CustomerPaymentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $recentPayments
+                'data' => $recentPayments,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء جلب التحصيلات الحديثة'
+                'message' => 'حدث خطأ أثناء جلب التحصيلات الحديثة',
             ], 500);
         }
     }

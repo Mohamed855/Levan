@@ -25,15 +25,15 @@ class CollectionProcessSession extends Model
     ];
 
     protected $casts = [
-        'date'                   => 'date',
-        'first_entry_time'       => 'datetime',
-        'last_exit_time'         => 'datetime',
-        'total_work_minutes'     => 'integer',
-        'total_activities'       => 'integer',
-        'total_follows'          => 'integer',
-        'total_full_payments'    => 'integer',
+        'date' => 'date',
+        'first_entry_time' => 'datetime',
+        'last_exit_time' => 'datetime',
+        'total_work_minutes' => 'integer',
+        'total_activities' => 'integer',
+        'total_follows' => 'integer',
+        'total_full_payments' => 'integer',
         'total_partial_payments' => 'integer',
-        'is_active'              => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     /*
@@ -51,7 +51,6 @@ class CollectionProcessSession extends Model
     {
         return $this->hasMany(WorkPeriod::class, 'session_id');
     }
-
 
     /*
     |============================================================================

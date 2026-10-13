@@ -11,24 +11,33 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class SendCustomerSMSJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 300;
+
     public $tries = 1;
+
     public $maxExceptions = 1;
+
     public $backoff = 0;
 
     protected string $message;
+
     protected array $customerIds;
+
     protected ?int $templateId;
+
     protected string $messageType;
+
     protected string $uniqueJobId;
+
     protected ?int $mainLogId;
+
     protected string $batchId;
 
     /*
@@ -52,12 +61,12 @@ class SendCustomerSMSJob implements ShouldQueue
         $this->batchId = $batchId;
 
         // إنشاء معرف فريد مضمون
-        $this->uniqueJobId = $batchId . '_' . md5(serialize([
+        $this->uniqueJobId = $batchId.'_'.md5(serialize([
             'message' => substr(md5($message), 0, 8),
             'customers' => $this->customerIds,
             'template' => $templateId,
             'type' => $messageType,
-            'timestamp' => microtime(true)
+            'timestamp' => microtime(true),
         ]));
     }
 
@@ -96,7 +105,7 @@ class SendCustomerSMSJob implements ShouldQueue
                 'result' => $result['success'],
                 'customers_count' => count($this->customerIds),
                 'batch_id' => $this->batchId,
-                'individual_logs_created' => true
+                'individual_logs_created' => true,
             ], now()->addDays(7));
 
             DB::commit();
@@ -120,14 +129,14 @@ class SendCustomerSMSJob implements ShouldQueue
             'started_jobs' => 0,
             'completed_jobs' => 0,
             'failed_jobs' => 0,
-            'jobs_status' => []
+            'jobs_status' => [],
         ]);
 
         $progress['started_jobs']++;
         $progress['jobs_status'][$this->uniqueJobId] = [
             'status' => 'started',
             'started_at' => now()->toISOString(),
-            'customers_count' => count($this->customerIds)
+            'customers_count' => count($this->customerIds),
         ];
 
         Cache::put($batchProgressKey, $progress, now()->addHours(24));
@@ -153,7 +162,7 @@ class SendCustomerSMSJob implements ShouldQueue
             'started_at' => $progress['jobs_status'][$this->uniqueJobId]['started_at'] ?? now()->toISOString(),
             'completed_at' => now()->toISOString(),
             'customers_count' => count($this->customerIds),
-            'success' => $success
+            'success' => $success,
         ];
 
         Cache::put($batchProgressKey, $progress, now()->addHours(24));
@@ -174,7 +183,7 @@ class SendCustomerSMSJob implements ShouldQueue
             'started_at' => $progress['jobs_status'][$this->uniqueJobId]['started_at'] ?? now()->toISOString(),
             'failed_at' => now()->toISOString(),
             'customers_count' => count($this->customerIds),
-            'error' => $error
+            'error' => $error,
         ];
 
         Cache::put($batchProgressKey, $progress, now()->addHours(24));
@@ -187,7 +196,7 @@ class SendCustomerSMSJob implements ShouldQueue
     */
     private function updateMainBatchLog($messageLogService, array $result, string $batchProgressKey): void
     {
-        if (!$this->mainLogId) {
+        if (! $this->mainLogId) {
             return;
         }
 
@@ -217,10 +226,10 @@ class SendCustomerSMSJob implements ShouldQueue
                             'total_jobs' => $totalJobs,
                             'successful_jobs' => $completedJobs,
                             'failed_jobs' => $failedJobs,
-                            'completion_rate' => round(($processedJobs / $totalJobs) * 100, 2) . '%'
+                            'completion_rate' => round(($processedJobs / $totalJobs) * 100, 2).'%',
                         ],
                         'completed_at' => now()->toISOString(),
-                        'jobs_details' => $progress['jobs_status'] ?? []
+                        'jobs_details' => $progress['jobs_status'] ?? [],
                     ]
                 );
 
@@ -236,7 +245,7 @@ class SendCustomerSMSJob implements ShouldQueue
                         'successful_jobs' => $completedJobs,
                         'failed_jobs' => $failedJobs,
                         'progress_percentage' => round(($processedJobs / $totalJobs) * 100, 2),
-                        'last_update' => now()->toISOString()
+                        'last_update' => now()->toISOString(),
                     ]
                 );
             }
@@ -251,7 +260,7 @@ class SendCustomerSMSJob implements ShouldQueue
     */
     private function updateMainBatchLogFailure($messageLogService, string $error): void
     {
-        if (!$this->mainLogId) {
+        if (! $this->mainLogId) {
             return;
         }
 
@@ -265,7 +274,7 @@ class SendCustomerSMSJob implements ShouldQueue
                     'failed_job_id' => $this->uniqueJobId,
                     'error_message' => $error,
                     'failed_customers' => $this->customerIds,
-                    'failed_at' => now()->toISOString()
+                    'failed_at' => now()->toISOString(),
                 ]
             );
         } catch (\Exception $e) {
@@ -281,6 +290,7 @@ class SendCustomerSMSJob implements ShouldQueue
     {
         try {
             $mainLog = MessageLog::find($this->mainLogId);
+
             return $mainLog ? ($mainLog->metadata['total_jobs'] ?? 1) : 1;
         } catch (\Exception $e) {
             return 1;
@@ -302,7 +312,7 @@ class SendCustomerSMSJob implements ShouldQueue
             'error' => $exception->getMessage(),
             'customers_affected' => count($this->customerIds),
             'batch_id' => $this->batchId,
-            'unique_job_id' => $this->uniqueJobId
+            'unique_job_id' => $this->uniqueJobId,
         ], now()->addDays(3));
 
         $this->markJobAsFailed($batchProgressKey, $exception->getMessage());

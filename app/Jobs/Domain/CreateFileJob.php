@@ -16,10 +16,13 @@ class CreateFileJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $username;
+
     public $token;
+
     public $domain;
-    
+
     public $tries = 1;
+
     public $backoff = 10;
 
     public function __construct($username, $domain, $token = null)
@@ -31,8 +34,8 @@ class CreateFileJob implements ShouldQueue
 
     public function handle(): void
     {
-        Log::info('📁 Starting file creation process for domain: ' . $this->domain);
-        
+        Log::info('📁 Starting file creation process for domain: '.$this->domain);
+
         try {
             // ✅ جيب البيانات من الـ Database (Central)
             $cpanelAccount = tenancy()->central(function () {
@@ -40,27 +43,27 @@ class CreateFileJob implements ShouldQueue
                     ->where('domain', $this->domain)
                     ->first();
             });
-            
-            if (!$cpanelAccount) {
+
+            if (! $cpanelAccount) {
                 Log::error("❌ cPanel account not found in database for domain: {$this->domain}");
-                throw new \Exception("❌ cPanel account not found. Previous job may have failed.");
+                throw new \Exception('❌ cPanel account not found. Previous job may have failed.');
             }
-            
+
             if (empty($cpanelAccount->cpanel_token)) {
                 Log::error("❌ cPanel token is empty in database for domain: {$this->domain}");
-                throw new \Exception("❌ cPanel token is empty. Token creation may have failed.");
+                throw new \Exception('❌ cPanel token is empty. Token creation may have failed.');
             }
-            
+
             // ✅ استخدم البيانات من الداتابيز
             $this->token = $cpanelAccount->cpanel_token;
             $this->username = $cpanelAccount->cpanel_username;
-            
-            Log::info("✅ cPanel credentials retrieved from database successfully");
+
+            Log::info('✅ cPanel credentials retrieved from database successfully');
             Log::info("✅ Username: {$this->username}, Domain: {$this->domain}");
-            Log::info("🔑 Using token: " . substr($this->token, 0, 20) . "...");
-            
+            Log::info('🔑 Using token: '.substr($this->token, 0, 20).'...');
+
             $host = '135.181.215.105';
-     
+
             // محتوى الملف
             $content = <<<HTML
 <!DOCTYPE html>
@@ -94,11 +97,11 @@ class CreateFileJob implements ShouldQueue
 </html>
 HTML;
 
-            $dir = 'public_html';   
+            $dir = 'public_html';
 
             $url = "https://{$host}:2083/execute/Fileman/upload_files";
 
-            Log::info("📤 Uploading index.php file to cPanel...");
+            Log::info('📤 Uploading index.php file to cPanel...');
 
             $response = Http::withoutVerifying()
                 ->timeout(30)
@@ -122,22 +125,22 @@ HTML;
                     ],
                 ]);
 
-            if (!$response->successful()) {
-                Log::error("❌ HTTP Error: " . $response->status());
-                Log::error("Response body: " . $response->body());
-                throw new \Exception("❌ HTTP Error: " . $response->status() . " - " . $response->body());
+            if (! $response->successful()) {
+                Log::error('❌ HTTP Error: '.$response->status());
+                Log::error('Response body: '.$response->body());
+                throw new \Exception('❌ HTTP Error: '.$response->status().' - '.$response->body());
             }
 
             $data = $response->json();
             Log::info('📄 cPanel upload_files Response:', $data);
-            
-            if (isset($data['errors']) && !empty($data['errors'])) {
+
+            if (isset($data['errors']) && ! empty($data['errors'])) {
                 Log::error('❌ File upload failed with errors:', $data['errors']);
-                throw new \Exception('File upload failed: ' . json_encode($data['errors']));
+                throw new \Exception('File upload failed: '.json_encode($data['errors']));
             }
-            
+
             Log::info("✅ File uploaded successfully to {$this->domain}");
-            
+
             // ✅ حدّث حالة السجل في الداتابيز (اختياري)
             tenancy()->central(function () {
                 DB::table('cpanel_accounts')
@@ -148,13 +151,13 @@ HTML;
                         'updated_at' => now(),
                     ]);
             });
-            
-            Log::info("✅ CreateFileJob completed successfully");
-            
+
+            Log::info('✅ CreateFileJob completed successfully');
+
         } catch (\Exception $e) {
-            Log::error('❌ CreateFileJob failed: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
-            
+            Log::error('❌ CreateFileJob failed: '.$e->getMessage());
+            Log::error('Stack trace: '.$e->getTraceAsString());
+
             throw $e;
         }
     }
@@ -162,8 +165,8 @@ HTML;
     public function failed(\Throwable $exception): void
     {
         Log::error('❌ CreateFileJob failed permanently after all retries');
-        Log::error('Domain: ' . $this->domain);
-        Log::error('Username: ' . $this->username);
-        Log::error('Error: ' . $exception->getMessage());
+        Log::error('Domain: '.$this->domain);
+        Log::error('Username: '.$this->username);
+        Log::error('Error: '.$exception->getMessage());
     }
 }

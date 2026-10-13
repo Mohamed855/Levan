@@ -2,7 +2,6 @@
 
 namespace App\Models\Admin\Subscription;
 
-use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionBillingCycle;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Models\Admin\Licenses\LicenseSeat;
@@ -11,7 +10,6 @@ use App\Models\Admin\Tenants\Tenant;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 
 class Subscription extends Model
 {
@@ -45,21 +43,21 @@ class Subscription extends Model
         'notes',
         'transfer_bank_attachment',
 
-        'trial_end_date'
+        'trial_end_date',
     ];
 
     protected $casts = [
-        'status'                   => SubscriptionStatus::class,
-        'billing_cycle'            => SubscriptionBillingCycle::class,
-        'price'                    => 'decimal:2',
-        'licenses_quota'           => 'integer',
-        'trial_ends_at'            => 'datetime',
-        'starts_at'                => 'datetime',
-        'ends_at'                  => 'datetime',
-        'cancelled_at'             => 'datetime',
-        'auto_renew'               => 'boolean',
-        'metadata'                 => 'array',
-        'next_payment_date'        => 'datetime',
+        'status' => SubscriptionStatus::class,
+        'billing_cycle' => SubscriptionBillingCycle::class,
+        'price' => 'decimal:2',
+        'licenses_quota' => 'integer',
+        'trial_ends_at' => 'datetime',
+        'starts_at' => 'datetime',
+        'ends_at' => 'datetime',
+        'cancelled_at' => 'datetime',
+        'auto_renew' => 'boolean',
+        'metadata' => 'array',
+        'next_payment_date' => 'datetime',
         'transfer_bank_attachment' => 'array',
     ];
 
@@ -88,7 +86,7 @@ class Subscription extends Model
 
         $number = $lastSubscription ? (int) substr($lastSubscription->subscription_number, -5) + 1 : 1;
 
-        return 'SUB-' . $year . '-' . str_pad($number, 5, '0', STR_PAD_LEFT);
+        return 'SUB-'.$year.'-'.str_pad($number, 5, '0', STR_PAD_LEFT);
     }
 
     /*
@@ -167,7 +165,7 @@ class Subscription extends Model
     // days_remaining
     public function getDaysRemainingAttribute()
     {
-        if (!$this->current_period_end) {
+        if (! $this->current_period_end) {
             return null;
         }
 
@@ -209,7 +207,7 @@ class Subscription extends Model
 
     public function isTrialExpired(): bool
     {
-        if (!$this->trial_ends_at) {
+        if (! $this->trial_ends_at) {
             return false;
         }
 

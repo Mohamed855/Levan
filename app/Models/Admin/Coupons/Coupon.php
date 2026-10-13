@@ -7,13 +7,11 @@ use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Traits\ActivityLogTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\Models\Concerns\LogsActivity;
 
 class Coupon extends Model
 {
-    use HasFactory, SoftDeletes, ActivityLogTrait;
+    use ActivityLogTrait, HasFactory, SoftDeletes;
 
     protected $connection = 'mysql';
 
@@ -33,12 +31,12 @@ class Coupon extends Model
     ];
 
     protected $casts = [
-        'discount_type'  => CouponDiscountType::class,
+        'discount_type' => CouponDiscountType::class,
 
-        'expiry_date'    => 'date',
-        'is_active'      => 'boolean',
+        'expiry_date' => 'date',
+        'is_active' => 'boolean',
         'discount_value' => 'decimal:2',
-        'max_discount'   => 'decimal:2'
+        'max_discount' => 'decimal:2',
     ];
 
     /*
@@ -61,17 +59,17 @@ class Coupon extends Model
     public static function getFieldTranslations(): array
     {
         return [
-            'code'           => 'كود الكوبون',
-            'name'           => 'اسم الكوبون',
-            'discount_type'  => 'نوع الخصم',
+            'code' => 'كود الكوبون',
+            'name' => 'اسم الكوبون',
+            'discount_type' => 'نوع الخصم',
             'discount_value' => 'قيمة الخصم',
-            'max_discount'   => 'الحد الأقصى للخصم',
-            'expiry_date'    => 'تاريخ الانتهاء',
-            'is_active'      => 'الحالة',
-            'usage_limit'    => 'حد الاستخدام',
-            'used_count'     => 'عدد مرات الاستخدام',
-            'created_by'     => 'أنشئ بواسطة',
-            'updated_by'     => 'تم التحديث بواسطة',
+            'max_discount' => 'الحد الأقصى للخصم',
+            'expiry_date' => 'تاريخ الانتهاء',
+            'is_active' => 'الحالة',
+            'usage_limit' => 'حد الاستخدام',
+            'used_count' => 'عدد مرات الاستخدام',
+            'created_by' => 'أنشئ بواسطة',
+            'updated_by' => 'تم التحديث بواسطة',
         ];
     }
 
@@ -86,12 +84,12 @@ class Coupon extends Model
     {
         return [
             'discount_type' => [
-                'fixed'      => 'خصم ثابت',
+                'fixed' => 'خصم ثابت',
                 'percentage' => 'نسبة مئوية',
             ],
             'is_active' => [
-                0  => 'غير نشط',
-                1  => 'نشط',
+                0 => 'غير نشط',
+                1 => 'نشط',
             ],
         ];
     }

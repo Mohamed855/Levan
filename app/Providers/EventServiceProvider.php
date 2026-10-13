@@ -12,9 +12,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use SocialiteProviders\Manager\SocialiteWasCalled;
 
-use SocialiteProviders\Microsoft\MicrosoftExtendSocialite;
-
-
 class EventServiceProvider extends ServiceProvider
 {
     /**
@@ -40,13 +37,12 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-          Queue::after(function (JobProcessed $event) {
-         if ($event->job->resolveName() === 'App\\Jobs\\Domain\\CreateDomainProceesJob') {
-            Log::info('✅ CreateloginAndTokenJob completed - Chain finished!');
-            
-            
-        }
-    });
+        Queue::after(function (JobProcessed $event) {
+            if ($event->job->resolveName() === 'App\\Jobs\\Domain\\CreateDomainProceesJob') {
+                Log::info('✅ CreateloginAndTokenJob completed - Chain finished!');
+
+            }
+        });
     }
 
     /**

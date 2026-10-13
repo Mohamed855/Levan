@@ -4,44 +4,47 @@ namespace App\DataTables\Tenants\BusinessCenter\Company;
 
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Models\Tenants\FinancialCollection\Collection\Collection;
+use Carbon\Carbon;
 
 class CompanyCollectionsDataTable extends AbstractDataTable
 {
     private $companyId;
-    private $route = "reports.companies";  
+
+    private $route = 'reports.companies';
 
     public function setCompanyId($companyId)
     {
         $this->companyId = $companyId;
+
         return $this;
     }
 
     protected function getTableId()
     {
-        return "company-collections-table";
+        return 'company-collections-table';
     }
- 
+
     // ✅ Resource Query
-  protected function resource()
-{
-    return Collection::query()
-        ->select([
-            'collections.id',
-            'collections.customer_id',
-            'collections.collected_amount',
-            'collections.collection_type',
-            'collections.payment_type',
-            'collections.receipt_number',
-            'collections.collection_date',
-            'collections.status',
-            'collections.payment_method_id',
-            'customers.name as customer_name'
-        ])
-        ->join('customers', 'collections.customer_id', '=', 'customers.id')
-        // ✅ بس ضيف paymentMethod، مش customers
-        ->with(['paymentMethod:id,name'])
-        ->where('customers.company_id', $this->companyId);
-}
+    protected function resource()
+    {
+        return Collection::query()
+            ->select([
+                'collections.id',
+                'collections.customer_id',
+                'collections.collected_amount',
+                'collections.collection_type',
+                'collections.payment_type',
+                'collections.receipt_number',
+                'collections.collection_date',
+                'collections.status',
+                'collections.payment_method_id',
+                'customers.name as customer_name',
+            ])
+            ->join('customers', 'collections.customer_id', '=', 'customers.id')
+            // ✅ بس ضيف paymentMethod، مش customers
+            ->with(['paymentMethod:id,name'])
+            ->where('customers.company_id', $this->companyId);
+    }
 
     // ✅ Columns
     protected function getColumns(): array
@@ -71,14 +74,14 @@ class CompanyCollectionsDataTable extends AbstractDataTable
             ->editColumn('customer_name', function ($collection) {
                 return '<div class="d-flex align-items-center">
                             <i class="ti ti-user text-success me-1"></i>
-                            <span class="fw-medium">' . e($collection->customer_name ?? '—') . '</span>
+                            <span class="fw-medium">'.e($collection->customer_name ?? '—').'</span>
                         </div>';
             })
 
             // Amount
             ->editColumn('collected_amount', function ($collection) {
-                return '<span class="fw-semibold text-primary">' . 
-                       number_format($collection->collected_amount, 2) . 
+                return '<span class="fw-semibold text-primary">'.
+                       number_format($collection->collected_amount, 2).
                        '</span>';
             })
 
@@ -89,22 +92,22 @@ class CompanyCollectionsDataTable extends AbstractDataTable
 
             // Payment method
             ->addColumn('payment_method', function ($collection) {
-                return '<span class="text-muted">' . 
-                       e($collection->paymentMethod?->name ?? '—') . 
+                return '<span class="text-muted">'.
+                       e($collection->paymentMethod?->name ?? '—').
                        '</span>';
             })
 
             // Receipt number
             ->editColumn('receipt_number', function ($collection) {
-                return '<code class="bg-light px-2 py-1 rounded">' . 
-                       e($collection->receipt_number ?? '—') . 
+                return '<code class="bg-light px-2 py-1 rounded">'.
+                       e($collection->receipt_number ?? '—').
                        '</code>';
             })
 
             // Collection date
             ->editColumn('collection_date', function ($collection) {
-                return $collection->collection_date 
-                    ? '<span class="text-muted">' . \Carbon\Carbon::parse($collection->collection_date)->format('Y-m-d') . '</span>'
+                return $collection->collection_date
+                    ? '<span class="text-muted">'.Carbon::parse($collection->collection_date)->format('Y-m-d').'</span>'
                     : '<span class="text-muted">—</span>';
             })
 
@@ -123,18 +126,18 @@ class CompanyCollectionsDataTable extends AbstractDataTable
     protected function rawColumns(): array
     {
         return [
-            'customer_name', 
-            'collected_amount', 
-            'collection_type', 
-            'payment_method', 
-            'receipt_number', 
-            'collection_date', 
-            'payment_type', 
-            'status'
+            'customer_name',
+            'collected_amount',
+            'collection_type',
+            'payment_method',
+            'receipt_number',
+            'collection_date',
+            'payment_type',
+            'status',
         ];
     }
 
-     protected function getSearchableColumns(): array
+    protected function getSearchableColumns(): array
     {
         return [
             'customer_name',
@@ -202,7 +205,7 @@ class CompanyCollectionsDataTable extends AbstractDataTable
     {
         $types = [
             'cash' => ['class' => 'success', 'label' => 'نقدي', 'icon' => 'cash'],
-            'scheduled' => ['class' => 'info', 'label' => 'مجدول', 'icon' => 'calendar-event']
+            'scheduled' => ['class' => 'info', 'label' => 'مجدول', 'icon' => 'calendar-event'],
         ];
 
         $config = $types[$collection->collection_type] ?? ['class' => 'secondary', 'label' => $collection->collection_type, 'icon' => 'help'];
@@ -219,7 +222,7 @@ class CompanyCollectionsDataTable extends AbstractDataTable
     {
         $types = [
             'settlement' => ['class' => 'primary', 'label' => 'تسوية'],
-            'without_settlement' => ['class' => 'secondary', 'label' => 'محول']
+            'without_settlement' => ['class' => 'secondary', 'label' => 'محول'],
         ];
 
         $config = $types[$collection->payment_type] ?? ['class' => 'secondary', 'label' => $collection->payment_type];
@@ -236,7 +239,7 @@ class CompanyCollectionsDataTable extends AbstractDataTable
         $statuses = [
             'approved' => ['class' => 'success', 'label' => 'معتمد'],
             'pending' => ['class' => 'warning', 'label' => 'معلق'],
-            'rejected' => ['class' => 'danger', 'label' => 'مرفوض']
+            'rejected' => ['class' => 'danger', 'label' => 'مرفوض'],
         ];
 
         $config = $statuses[$collection->status] ?? ['class' => 'secondary', 'label' => $collection->status];

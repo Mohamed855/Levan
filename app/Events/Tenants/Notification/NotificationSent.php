@@ -15,6 +15,7 @@ class NotificationSent implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $notification;
+
     public $userId;
 
     public function __construct($notification, $userId)
@@ -25,13 +26,13 @@ class NotificationSent implements ShouldBroadcast
         Log::info('NotificationSent event created', [
             'notification_id' => $notification->id,
             'user_id' => $userId,
-            'channel' => 'notifications.' . $userId
+            'channel' => 'notifications.'.$userId,
         ]);
     }
 
     public function broadcastOn()
     {
-        $channel = new PrivateChannel('notifications.' . $this->userId);
+        $channel = new PrivateChannel('notifications.'.$this->userId);
 
         // Log::info('Broadcasting on channel', [
         //     'channel_name' => $channel->name

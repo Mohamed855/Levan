@@ -4,19 +4,22 @@ namespace App\Services\Tenants\Auctions;
 
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Auctions\AuctionAttachment;
+use App\Models\Tenants\Properties\Property;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class AuctionService
 {
     public function getStatistics(): array
     {
         return [
-            'total'            => Auction::count(),
-            'active'           => Auction::where('status', 'active')->count(),
-            'in_preparation'   => Auction::where('status', 'in_preparation')->orWhere('status', 'draft')->count(),
+            'total' => Auction::count(),
+            'active' => Auction::where('status', 'active')->count(),
+            'in_preparation' => Auction::where('status', 'in_preparation')->orWhere('status', 'draft')->count(),
             'pending_approval' => Auction::where('status', 'pending_approval')->count(),
+            'needs_review' => Auction::where('status', 'suspended')->count(),
         ];
     }
 
@@ -29,6 +32,8 @@ class AuctionService
 
             $propertyIds = $data['property_ids'] ?? [];
             unset($data['property_ids'], $data['attachments']);
+
+            $this->assertPropertiesBelongToAssignment($propertyIds, (int) $data['assignment_id']);
 
             $data['created_by'] = auth('tenant')->id();
             if (empty($data['status'])) {
@@ -50,12 +55,12 @@ class AuctionService
                     $path = $file->store('auctions/attachments', 'tenant_public');
                     AuctionAttachment::create([
                         'auction_id' => $auction->id,
-                        'file_path'  => $path,
-                        'file_name'  => $file->getClientOriginalName(),
-                        'file_type'  => $file->getClientOriginalExtension(),
-                        'file_size'  => $file->getSize(),
-                        'category'   => 'auction_doc',
-                        'channels'   => ['internal'],
+                        'file_path' => $path,
+                        'file_name' => $file->getClientOriginalName(),
+                        'file_type' => $file->getClientOriginalExtension(),
+                        'file_size' => $file->getSize(),
+                        'category' => 'auction_doc',
+                        'channels' => ['internal'],
                     ]);
                 }
             }
@@ -77,6 +82,10 @@ class AuctionService
             $propertyIds = $data['property_ids'] ?? null;
             unset($data['property_ids'], $data['attachments']);
 
+            if ($propertyIds !== null) {
+                $this->assertPropertiesBelongToAssignment($propertyIds, (int) $data['assignment_id']);
+            }
+
             $auction->update($data);
 
             if ($propertyIds !== null) {
@@ -92,12 +101,12 @@ class AuctionService
                     $path = $file->store('auctions/attachments', 'tenant_public');
                     AuctionAttachment::create([
                         'auction_id' => $auction->id,
-                        'file_path'  => $path,
-                        'file_name'  => $file->getClientOriginalName(),
-                        'file_type'  => $file->getClientOriginalExtension(),
-                        'file_size'  => $file->getSize(),
-                        'category'   => 'auction_doc',
-                        'channels'   => ['internal'],
+                        'file_path' => $path,
+                        'file_name' => $file->getClientOriginalName(),
+                        'file_type' => $file->getClientOriginalExtension(),
+                        'file_size' => $file->getSize(),
+                        'category' => 'auction_doc',
+                        'channels' => ['internal'],
                     ]);
                 }
             }
@@ -111,7 +120,7 @@ class AuctionService
         $newStatus = $isActive ?? ! $auction->is_active;
         $auction->update([
             'is_active' => $newStatus,
-            'status'    => $newStatus ? 'active' : 'suspended',
+            'status' => $newStatus ? 'active' : 'suspended',
         ]);
 
         return $newStatus;
@@ -142,5 +151,27 @@ class AuctionService
         }
 
         return true;
+    }
+
+    /** @param array<int, int|string> $propertyIds */
+    private function assertPropertiesBelongToAssignment(array $propertyIds, int $assignmentId): void
+    {
+        $propertyIds = array_values(array_unique(array_map('intval', $propertyIds)));
+
+        if ($propertyIds === []) {
+            return;
+        }
+
+        $validPropertyCount = Property::query()
+            ->whereKey($propertyIds)
+            ->where('assignment_id', $assignmentId)
+            ->lockForUpdate()
+            ->count();
+
+        if ($validPropertyCount !== count($propertyIds)) {
+            throw ValidationException::withMessages([
+                'property_ids' => 'يجب أن تكون جميع العقارات المختارة تابعة للإسناد المختار.',
+            ]);
+        }
     }
 }

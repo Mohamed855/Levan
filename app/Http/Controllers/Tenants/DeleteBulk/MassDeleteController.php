@@ -35,7 +35,7 @@ class MassDeleteController extends Controller
         }
 
         $modelClass = config("models.$model");
-        if (!$modelClass || !class_exists($modelClass)) {
+        if (! $modelClass || ! class_exists($modelClass)) {
             return response()->json(['success' => false, 'message' => 'الموديل غير موجود.'], 400);
         }
 
@@ -51,9 +51,10 @@ class MassDeleteController extends Controller
     {
         try {
             $deleted = $modelClass::whereIn('id', $ids)->delete();
+
             return response()->json([
                 'success' => true,
-                'message' => "تم حذف {$deleted} عنصر بنجاح."
+                'message' => "تم حذف {$deleted} عنصر بنجاح.",
             ]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'حدث خطأ أثناء الحذف.'], 500);

@@ -1,11 +1,9 @@
 <?php
+
 namespace App\DataTables\Tenants\BusinessCenter\Company;
 
-
 use App\DataTables\Abstract\AbstractDataTable;
-use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class CompanyCustomersDataTable extends AbstractDataTable
@@ -22,43 +20,45 @@ class CompanyCustomersDataTable extends AbstractDataTable
     public function setCompanyId($companyId)
     {
         $this->companyId = $companyId;
+
         return $this;
     }
 
     protected function getTableId()
     {
-        return "company-customers-table";
+        return 'company-customers-table';
     }
 
     protected function resource()
     {
- 
+
         return Customer::query()
-           
+
             // ->join('customers', 'collections.customer_id', '=', 'customers.id')
             // ->with(['paymentMethod:id,name'])
             ->where('company_id', $this->companyId);
     }
-// protected function getBuilderParameters(): array
-// {
-//     return [
-//         'ajax' => [
-//             'url' => url()->current() . '?table=customers',
-//             'type' => 'GET',
-//         ],
-//     ];
-// }
+
+    // protected function getBuilderParameters(): array
+    // {
+    //     return [
+    //         'ajax' => [
+    //             'url' => url()->current() . '?table=customers',
+    //             'type' => 'GET',
+    //         ],
+    //     ];
+    // }
     protected function getColumns(): array
     {
         return [
             // ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
-        [
-            'data' => 'name',
-            'name' => 'name',
-            'title' => 'اسم العميل',
-            'className' => 'text-center',
-        ],
+            [
+                'data' => 'name',
+                'name' => 'name',
+                'title' => 'اسم العميل',
+                'className' => 'text-center',
+            ],
             // ['data' => 'identity_number', 'name' => 'identity_number', 'title' => 'رقم الهوية'],
             // ['data' => 'phone', 'name' => 'phone', 'title' => 'رقم الهاتف'],
             // ['data' => 'portfolio', 'name' => 'portfolio', 'title' => 'المحفظة', 'orderable' => false, 'searchable' => false],
@@ -69,19 +69,20 @@ class CompanyCustomersDataTable extends AbstractDataTable
 
     protected function addCustomColumns($datatable)
     {
-            $datatable
-                        ->addColumn('checkbox', fn($row): string => '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">')
+        $datatable
+            ->addColumn('checkbox', fn ($row): string => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
 
-                ->editColumn('name', function ($row) {
-                    Log::info('Customer Name: ' . $row->name);
-                    return $row->name;
-                });
+            ->editColumn('name', function ($row) {
+                Log::info('Customer Name: '.$row->name);
 
-            // ->editColumn('customer_identity_number', function ($customer) {
-            //     return '<code class="bg-light px-2 py-1 rounded">' .
-            //         e($customer->customer_identity_number ?? '—') .
-            //         '</code>';
-            // });
+                return $row->name;
+            });
+
+        // ->editColumn('customer_identity_number', function ($customer) {
+        //     return '<code class="bg-light px-2 py-1 rounded">' .
+        //         e($customer->customer_identity_number ?? '—') .
+        //         '</code>';
+        // });
 
         //     ->editColumn('phone', function ($customer) {
         //         return '<span class="text-muted">' . e($customer->phone ?? '—') . '</span>';
@@ -107,36 +108,35 @@ class CompanyCustomersDataTable extends AbstractDataTable
         //                 '</span>';
         //         }
         //         return '<span class="text-muted">—</span>';
-        //     }); 
+        //     });
 
-            // ->filterColumn('name', function ($query, $keyword) {
-            //     $query->where('name', 'like', "%{$keyword}%");
-            // })
+        // ->filterColumn('name', function ($query, $keyword) {
+        //     $query->where('name', 'like', "%{$keyword}%");
+        // })
 
-            // ->filterColumn('identity_number', function ($query, $keyword) {
-            //     $query->where('identity_number', 'like', "%{$keyword}%");
-            // })
+        // ->filterColumn('identity_number', function ($query, $keyword) {
+        //     $query->where('identity_number', 'like', "%{$keyword}%");
+        // })
 
-            // ->filterColumn('phone', function ($query, $keyword) {
-            //     $query->where('phone', 'like', "%{$keyword}%");
-            // })
+        // ->filterColumn('phone', function ($query, $keyword) {
+        //     $query->where('phone', 'like', "%{$keyword}%");
+        // })
 
-            // ->orderColumn('name', 'name $1')
-            // ->orderColumn('identity_number', 'identity_number $1')
-            // ->orderColumn('phone', 'phone $1')
-            // ->orderColumn('customer_type', 'customer_type $1')
-            // ->orderColumn('contract_date', 'contract_date $1');
+        // ->orderColumn('name', 'name $1')
+        // ->orderColumn('identity_number', 'identity_number $1')
+        // ->orderColumn('phone', 'phone $1')
+        // ->orderColumn('customer_type', 'customer_type $1')
+        // ->orderColumn('contract_date', 'contract_date $1');
     }
 
-  protected function rawColumns(): array
-{
-    return [
-        'checkbox',
-        'name',
-        // 'identity_number',
-    ];
-}
-
+    protected function rawColumns(): array
+    {
+        return [
+            'checkbox',
+            'name',
+            // 'identity_number',
+        ];
+    }
 
     // protected function applyCustomFilters($query)
     // {
@@ -188,17 +188,17 @@ class CompanyCustomersDataTable extends AbstractDataTable
     {
         $typeClasses = [
             'individual' => 'info',
-            'company' => 'primary'
+            'company' => 'primary',
         ];
 
         $typeLabels = [
             'individual' => 'فردي',
-            'company' => 'شركة'
+            'company' => 'شركة',
         ];
 
         $typeIcons = [
             'individual' => 'user',
-            'company' => 'building'
+            'company' => 'building',
         ];
 
         $type = $typeClasses[$customer->customer_type] ?? 'secondary';

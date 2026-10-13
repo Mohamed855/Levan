@@ -93,14 +93,16 @@
 
     <x-data-table.page table-id="auctions-table">
         <x-slot:stats>
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="إجمالي المزادات" :value="$totalAuctions" subtitle="مزاد في جميع الحالات"
+            <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي المزادات" :value="$totalAuctions" subtitle="مزاد في جميع الحالات"
                 icon="ti-gavel" color="primary" />
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="مزادات نشطة" :value="$activeAuctions" subtitle="قيد التنفيذ حالياً"
+            <x-ui.stat-card col="col-sm-6 col-xl" title="مزادات نشطة" :value="$activeAuctions" subtitle="قيد التنفيذ حالياً"
                 icon="ti-player-play" color="success" />
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="قيد الإعداد" :value="$inPreparationAuctions" subtitle="تحت التجهيز"
+            <x-ui.stat-card col="col-sm-6 col-xl" title="قيد الإعداد" :value="$inPreparationAuctions" subtitle="تحت التجهيز"
                 icon="ti-clock" color="warning" />
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="بانتظار الاعتماد" :value="$pendingAuctions" subtitle="في انتظار المراجعة"
+            <x-ui.stat-card col="col-sm-6 col-xl" title="بانتظار الاعتماد" :value="$pendingAuctions" subtitle="في انتظار المراجعة"
                 icon="ti-file-check" color="info" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="تحتاج مراجعة" :value="$needsReviewAuctions" subtitle="مزادات معلقة"
+                icon="ti-alert-triangle" color="danger" />
         </x-slot:stats>
 
         <x-slot:filters>

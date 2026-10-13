@@ -5,11 +5,10 @@ namespace App\Models\Admin\Bank;
 use App\Traits\ActivityLogTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\Models\Concerns\LogsActivity;
 
 class Bank extends Model
 {
-    use HasFactory, ActivityLogTrait;
+    use ActivityLogTrait, HasFactory;
 
     protected $connection = 'mysql';
 
@@ -42,12 +41,12 @@ class Bank extends Model
     public static function getFieldTranslations(): array
     {
         return [
-            'bank_name'      => 'اسم البنك',
-            'icon'           => 'الأيقونة',
-            'account_name'   => 'اسم الحساب',
-            'iban'           => 'رقم الآيبان',
+            'bank_name' => 'اسم البنك',
+            'icon' => 'الأيقونة',
+            'account_name' => 'اسم الحساب',
+            'iban' => 'رقم الآيبان',
             'account_number' => 'رقم الحساب',
-            'is_active'      => 'الحالة',
+            'is_active' => 'الحالة',
         ];
     }
 

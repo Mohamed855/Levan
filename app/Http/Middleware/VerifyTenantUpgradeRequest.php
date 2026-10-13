@@ -61,7 +61,7 @@ final class VerifyTenantUpgradeRequest
             return $this->reject($request, 'invalid_hmac_signature', 403, $tenantId, $requestId);
         }
 
-        $replayCacheKey = 'tenant-upgrade:request:' . hash('sha256', $tenantId . '|' . $requestId);
+        $replayCacheKey = 'tenant-upgrade:request:'.hash('sha256', $tenantId.'|'.$requestId);
 
         try {
             $claimed = Cache::add($replayCacheKey, true, now()->addSeconds($maxAge + 60));

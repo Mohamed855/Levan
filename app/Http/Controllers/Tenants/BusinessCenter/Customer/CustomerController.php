@@ -4,28 +4,28 @@ namespace App\Http\Controllers\Tenants\BusinessCenter\Customer;
 
 use App\DataTables\Tenants\BusinessCenter\Customer\CustomersDataTable;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Tenants\BusinessCenter\Customer\StoreCustomerRequest;
-use App\Http\Requests\Tenants\BusinessCenter\Customer\UpdateCustomerRequest;
 use App\Http\Requests\Tenants\BusinessCenter\Customer\PreviewCustomerSmsTemplateRequest;
 use App\Http\Requests\Tenants\BusinessCenter\Customer\SendBulkCustomerSmsRequest;
 use App\Http\Requests\Tenants\BusinessCenter\Customer\SetPrimaryCustomerPhoneRequest;
 use App\Http\Requests\Tenants\BusinessCenter\Customer\ShowCustomerSmsFormRequest;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\StoreCustomerRequest;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\UpdateCustomerRequest;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Customers\Phone\CustomerPhone;
 use App\Models\Tenants\FinancialCollection\Collection\CustomerTransaction;
 use App\Models\Tenants\GeneralSetting\ContactResult\ContactResult;
-use App\Models\Tenants\GeneralSetting\MessageTemplate\MessageTemplate;
 use App\Models\Tenants\GeneralSetting\CustomerStatus\SettingsCustomerStatus;
+use App\Models\Tenants\GeneralSetting\MessageTemplate\MessageTemplate;
 use App\Services\Tenants\BusinessCenter\Customer\CustomerService;
 use App\Services\Tenants\SMS\Customer\CustomerSMSService;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
 
 class CustomerController extends Controller
@@ -37,6 +37,7 @@ class CustomerController extends Controller
     | Initialize controller with required dependencies and middleware.
     */
     protected CustomerService $customerService;
+
     protected CustomerSMSService $customerSMSService;
 
     public function __construct(CustomerService $customerService, CustomerSMSService $customerSMSService)
@@ -53,14 +54,14 @@ class CustomerController extends Controller
             $hasMyCustomers = auth()->user()->can('customers.my_view');
 
             if (str_ends_with($currentRoute, 'customers.index')) {
-                if (!$hasAllCustomers) {
+                if (! $hasAllCustomers) {
                     if ($hasMyCustomers) {
                         return redirect(tenant_route_name('customers.my-customers'));
                     }
                     abort(403, 'ليس لديك صلاحية للوصول لهذه الصفحة');
                 }
             } elseif (str_ends_with($currentRoute, 'customers.my-customers')) {
-                if (!$hasMyCustomers) {
+                if (! $hasMyCustomers) {
                     abort(403, 'ليس لديك صلاحية لعرض عملائك');
                 }
             }
@@ -121,6 +122,7 @@ class CustomerController extends Controller
     public function create(): View
     {
         $formData = $this->customerService->getFormData();
+
         return view('tenants.business_center.customers.create', $formData);
     }
 
@@ -146,7 +148,6 @@ class CustomerController extends Controller
         }
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | Show Customer Details
@@ -168,7 +169,7 @@ class CustomerController extends Controller
             'createdBy:id,name',
             'customerStatus:id,name',
             'phones',
-            'dynamicValues.portfolioField'
+            'dynamicValues.portfolioField',
         ]);
 
         $customerStats = [
@@ -182,7 +183,7 @@ class CustomerController extends Controller
             'attachments' => 0,
         ];
 
-        $templates = \Illuminate\Support\Facades\Schema::hasTable('message_templates')
+        $templates = Schema::hasTable('message_templates')
             ? MessageTemplate::active()
                 ->where('category', 'customers')
                 ->select('id', 'name', 'content')
@@ -195,7 +196,7 @@ class CustomerController extends Controller
             'allAccounts' => $allAccounts,
             'comprehensiveStats' => $comprehensiveStats,
             'customerStats' => $customerStats,
-            'templates' => $templates
+            'templates' => $templates,
         ]);
     }
 
@@ -216,7 +217,7 @@ class CustomerController extends Controller
 
         return view('tenants.business_center.customers.edit', array_merge($formData, [
             'customer' => $customer,
-            'financialStats' => $financialStats
+            'financialStats' => $financialStats,
         ]));
     }
 
@@ -233,12 +234,14 @@ class CustomerController extends Controller
         try {
             if (auth()->user()->can('customers.update_directly')) {
                 $this->customerService->updateCustomer($customer, $request->validated());
+
                 return redirect()
                     ->to(tenant_route_name('customers.index'))
                     ->with('success', 'تم تحديث العميل بنجاح');
             } else {
                 try {
                     $this->customerService->createUpdateRequest($customer, $request->validated());
+
                     return redirect()
                         ->to(tenant_route_name('customers.index'))
                         ->with('success', 'تم إرسال طلب التحديث للموافقة');
@@ -256,7 +259,6 @@ class CustomerController extends Controller
                 ->with('error', 'حدث خطأ أثناء تحديث العميل');
         }
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -305,7 +307,7 @@ class CustomerController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $statuses
+            'data' => $statuses,
         ]);
     }
 
@@ -320,7 +322,7 @@ class CustomerController extends Controller
         Log::error(444);
         $companyId = $request->get('company_id');
 
-        if (!$companyId) {
+        if (! $companyId) {
             return response()->json(['success' => false, 'message' => 'معرف الشركة مطلوب']);
         }
 
@@ -328,11 +330,9 @@ class CustomerController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $portfolios
+            'data' => $portfolios,
         ]);
     }
-
-
 
     /*
     |--------------------------------------------------------------------------
@@ -347,16 +347,12 @@ class CustomerController extends Controller
 
         if (is_string($raw)) {
             $decoded = json_decode($raw, true);
+
             return is_array($decoded) ? $decoded : [];
         }
 
         return is_array($raw) ? $raw : [];
     }
-
-
-
-
-
 
     /*
     |--------------------------------------------------------------------------
@@ -405,7 +401,7 @@ class CustomerController extends Controller
 
                 if (is_array($managerIds) && count($managerIds) > 0) {
                     $query->whereIn('relationship_manager_id', $managerIds);
-                } elseif (!is_array($managerIds) && !empty($managerIds)) {
+                } elseif (! is_array($managerIds) && ! empty($managerIds)) {
                     $query->where('relationship_manager_id', $managerIds);
                 }
             }
@@ -429,11 +425,11 @@ class CustomerController extends Controller
             }
 
             if ($request->filled('sms_date_from')) {
-                $query->where('last_sms_at', '>=', $request->sms_date_from . ' 00:00:00');
+                $query->where('last_sms_at', '>=', $request->sms_date_from.' 00:00:00');
             }
 
             if ($request->filled('sms_date_to')) {
-                $query->where('last_sms_at', '<=', $request->sms_date_to . ' 23:59:59');
+                $query->where('last_sms_at', '<=', $request->sms_date_to.' 23:59:59');
             }
 
             // نفس منطق البحث العام المستخدم في CustomersDataTable حتى يتطابق
@@ -484,13 +480,13 @@ class CustomerController extends Controller
             return response()->json([
                 'success' => true,
                 'customer_ids' => $customerIds,
-                'count' => count($customerIds)
+                'count' => count($customerIds),
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'حدث خطأ أثناء جلب البيانات',
-                'customer_ids' => []
+                'customer_ids' => [],
             ], 500);
         }
     }
@@ -507,13 +503,12 @@ class CustomerController extends Controller
 
         $result = $this->customerSMSService->prepareCustomersForSMSForm($customerIds);
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return response()->json($result, 400);
         }
 
         return response()->json($result);
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -551,11 +546,10 @@ class CustomerController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء إرسال الرسائل'
+                'message' => 'حدث خطأ أثناء إرسال الرسائل',
             ], 500);
         }
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -575,7 +569,7 @@ class CustomerController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء معاينة الرسالة'
+                'message' => 'حدث خطأ أثناء معاينة الرسالة',
             ], 500);
         }
     }
@@ -601,7 +595,6 @@ class CustomerController extends Controller
         return [];
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | الحصول على إحصائيات الرسائل النصية للعملاء
@@ -617,17 +610,16 @@ class CustomerController extends Controller
                 'success' => true,
                 'data' => [
                     'statistics' => $statistics,
-                    'recent_messages' => $recentMessages
-                ]
+                    'recent_messages' => $recentMessages,
+                ],
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء جلب الإحصائيات'
+                'message' => 'حدث خطأ أثناء جلب الإحصائيات',
             ], 500);
         }
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -641,12 +633,12 @@ class CustomerController extends Controller
         ]);
 
         $fields = $this->customerService
-            ->getPortfolioFields((int)$request->portfolio_id);
+            ->getPortfolioFields((int) $request->portfolio_id);
 
         return response()->json(['success' => true, 'data' => $fields]);
     }
 
-    /////////////////////////////////////////////////////////////////////////////////
+    // ///////////////////////////////////////////////////////////////////////////////
     /*
     |--------------------------------------------------------------------------
     | الدالة الخاصة بالعملاء حسب الصلاحية جميع العملاء  - عملائي
@@ -674,7 +666,6 @@ class CustomerController extends Controller
         }
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | Set Primary Phone
@@ -687,17 +678,17 @@ class CustomerController extends Controller
 
             $phone = CustomerPhone::where('id', $phoneId)->where('customer_id', $customer->id)->first();
 
-            if (!$phone) {
+            if (! $phone) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'رقم الهاتف غير موجود أو لا ينتمي لهذا العميل'
+                    'message' => 'رقم الهاتف غير موجود أو لا ينتمي لهذا العميل',
                 ], 404);
             }
 
             if ($phone->is_primary) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'هذا الرقم افتراضي بالفعل'
+                    'message' => 'هذا الرقم افتراضي بالفعل',
                 ], 409);
             }
 
@@ -713,17 +704,16 @@ class CustomerController extends Controller
                 'data' => [
                     'phone_id' => $phone->id,
                     'phone_number' => $phone->phone,
-                    'customer_id' => $customer->id
-                ]
+                    'customer_id' => $customer->id,
+                ],
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تعيين الرقم الافتراضي: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء تعيين الرقم الافتراضي: '.$e->getMessage(),
             ], 500);
         }
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -741,7 +731,7 @@ class CustomerController extends Controller
                 $phones[] = [
                     'phone' => $customer->phone,
                     'type' => 'أساسي',
-                    'formatted' => $this->formatSaudiPhoneNumberForWhatsApp($customer->phone)
+                    'formatted' => $this->formatSaudiPhoneNumberForWhatsApp($customer->phone),
                 ];
             }
 
@@ -751,26 +741,26 @@ class CustomerController extends Controller
                 $phones[] = [
                     'phone' => $phone->phone,
                     'type' => $type,
-                    'formatted' => $this->formatSaudiPhoneNumberForWhatsApp($phone->phone)
+                    'formatted' => $this->formatSaudiPhoneNumberForWhatsApp($phone->phone),
                 ];
             }
 
-            if (!empty($phones)) {
+            if (! empty($phones)) {
                 return response()->json([
                     'success' => true,
                     'phones' => $phones,
-                    'primary_phone' => $customer->phone
+                    'primary_phone' => $customer->phone,
                 ]);
             }
 
             return response()->json([
                 'success' => false,
-                'message' => 'لا يوجد رقم هاتف لهذا العميل'
+                'message' => 'لا يوجد رقم هاتف لهذا العميل',
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء الحصول على رقم الهاتف: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء الحصول على رقم الهاتف: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -788,11 +778,11 @@ class CustomerController extends Controller
 
         // إذا كان الرقم يبدأ بـ 05 (الصيغة السعودية المحلية)
         if (strpos($phone, '05') === 0 && strlen($phone) === 10) {
-            return '966' . substr($phone, 1);
+            return '966'.substr($phone, 1);
         }
         // إذا كان الرقم يبدأ بـ 5 بدون صفر (الصيغة السعودية المختصرة)
         elseif (strpos($phone, '5') === 0 && strlen($phone) === 9) {
-            return '966' . $phone;
+            return '966'.$phone;
         }
         // إذا كان الرقم يبدأ بـ +966 (الصيغة السعودية الدولية مع +)
         elseif (strpos($phone, '+966') === 0) {
@@ -817,7 +807,7 @@ class CustomerController extends Controller
     {
         $request->validate([
             'template_id' => 'required|exists:message_templates,id',
-            'customer_id' => 'required|exists:customers,id'
+            'customer_id' => 'required|exists:customers,id',
         ]);
 
         try {
@@ -829,7 +819,7 @@ class CustomerController extends Controller
                 'company',
                 'portfolio',
                 'dynamicValues.portfolioField',
-                'phones'
+                'phones',
             ])->findOrFail($request->customer_id);
 
             // حساب المديونية الصحيحة
@@ -855,7 +845,7 @@ class CustomerController extends Controller
 
             $identityNumber = $customer->identity_number ?? '';
             if (strlen($identityNumber) > 4) {
-                $maskedIdentity = str_repeat('*', strlen($identityNumber) - 4) . substr($identityNumber, -4);
+                $maskedIdentity = str_repeat('*', strlen($identityNumber) - 4).substr($identityNumber, -4);
             } else {
                 $maskedIdentity = $identityNumber;
             }
@@ -864,12 +854,12 @@ class CustomerController extends Controller
             // تحضير أرقام الهواتف
             $phones = [];
             if ($customer->phone) {
-                $phones[] = $customer->phone . ' (أساسي)';
+                $phones[] = $customer->phone.' (أساسي)';
             }
 
             foreach ($customer->phones as $phone) {
                 $phoneLabel = $phone->is_primary ? ' (افتراضي)' : ' (إضافي)';
-                $phones[] = $phone->phone . $phoneLabel;
+                $phones[] = $phone->phone.$phoneLabel;
             }
 
             $phonesList = implode(' - ', $phones);
@@ -877,7 +867,7 @@ class CustomerController extends Controller
 
             $content = str_replace('{account_number}', $customer->account_number ?? '', $content);
             $content = str_replace('{formatted_debt_amount}', number_format($remainingDebt, 2), $content);
-            $content = str_replace('{formatted_commission_rate}', $customer->commission_rate ? $customer->commission_rate . '%' : '', $content);
+            $content = str_replace('{formatted_commission_rate}', $customer->commission_rate ? $customer->commission_rate.'%' : '', $content);
             $content = str_replace('{formatted_contract_date}', $customer->contract_date ?? '', $content);
             $content = str_replace('{formatted_default_date}', $customer->default_date ?? '', $content);
             $content = str_replace('{nationality}', $customer->nationalityCountry->name ?? '', $content);
@@ -899,12 +889,12 @@ class CustomerController extends Controller
                 'success' => true,
                 'preview' => $content,
                 'phones' => $customer->phones,
-                'primary_phone' => $customer->phone
+                'primary_phone' => $customer->phone,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء معالجة القالب: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء معالجة القالب: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -918,7 +908,7 @@ class CustomerController extends Controller
     private function getServiceNumber(Customer $customer): string
     {
         foreach ($customer->dynamicValues as $dynamicValue) {
-            if (!$dynamicValue->portfolioField) {
+            if (! $dynamicValue->portfolioField) {
                 continue;
             }
 
@@ -929,7 +919,7 @@ class CustomerController extends Controller
                 'رقم الخدمة',
                 'service_no',
                 'خدمة',
-                'رقم خدمة'
+                'رقم خدمة',
             ])) {
                 return $dynamicValue->value ?? '';
             }
@@ -937,7 +927,6 @@ class CustomerController extends Controller
 
         return '';
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -948,7 +937,7 @@ class CustomerController extends Controller
     private function getClaimNumber(Customer $customer): string
     {
         foreach ($customer->dynamicValues as $dynamicValue) {
-            if (!$dynamicValue->portfolioField) {
+            if (! $dynamicValue->portfolioField) {
                 continue;
             }
 
@@ -959,7 +948,7 @@ class CustomerController extends Controller
                 'رقم المطالبة',
                 'claim_no',
                 'مطالبة',
-                'رقم مطالبة'
+                'رقم مطالبة',
             ])) {
                 return $dynamicValue->value ?? '';
             }

@@ -16,7 +16,7 @@ use App\Models\Admin\Tenants\Tenant;
 use App\Services\Admin\Subscriptions\AdminSubscriptionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class SubscriptionController extends Controller
@@ -61,14 +61,14 @@ class SubscriptionController extends Controller
         ];
 
         return $dataTable->render('admin.subscriptions.index', [
-            'totalSubscriptions'     => $statistics['total'],
-            'activeSubscriptions'    => $statistics['active'],
-            'pendingSubscriptions'   => $statistics['pending'],
-            'expiredSubscriptions'   => $statistics['expired'],
-            'expiringSubscriptions'  => $statistics['expiring_soon'],
-            'plans'                  => $plans,
-            'cities'                 => $cities,
-            'filterOptions'          => $filterOptions,
+            'totalSubscriptions' => $statistics['total'],
+            'activeSubscriptions' => $statistics['active'],
+            'pendingSubscriptions' => $statistics['pending'],
+            'expiredSubscriptions' => $statistics['expired'],
+            'expiringSubscriptions' => $statistics['expiring_soon'],
+            'plans' => $plans,
+            'cities' => $cities,
+            'filterOptions' => $filterOptions,
         ]);
     }
 
@@ -89,7 +89,7 @@ class SubscriptionController extends Controller
 
         return view('admin.subscriptions.create', [
             'companies' => $companies,
-            'plans'     => $plans,
+            'plans' => $plans,
         ]);
     }
 
@@ -101,13 +101,14 @@ class SubscriptionController extends Controller
 
             return redirect()->route('admin.subscriptions.index')
                 ->with('success', "تم إنشاء الاشتراك رقم {$subscription->subscription_number} بنجاح.");
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             throw $e;
         } catch (\Throwable $e) {
             report($e);
+
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'حدث خطأ أثناء إنشاء الاشتراك: ' . $e->getMessage());
+                ->with('error', 'حدث خطأ أثناء إنشاء الاشتراك: '.$e->getMessage());
         }
     }
 
@@ -118,11 +119,11 @@ class SubscriptionController extends Controller
 
             if (request()->wantsJson() || request()->ajax()) {
                 return response()->json([
-                    'success'   => true,
-                    'status'    => $updated->status->value,
-                    'label'     => $updated->status->label(),
-                    'color'     => $updated->status->color(),
-                    'message'   => 'تم تغيير حالة الاشتراك بنجاح.',
+                    'success' => true,
+                    'status' => $updated->status->value,
+                    'label' => $updated->status->label(),
+                    'color' => $updated->status->color(),
+                    'message' => 'تم تغيير حالة الاشتراك بنجاح.',
                 ]);
             }
 
@@ -175,15 +176,15 @@ class SubscriptionController extends Controller
         return response()->json([
             'duration_type' => $plan->subscription_duration_type,
             'billing_cycle' => $plan->subscription_billing_cycle,
-            'price'         => $plan->price_after_discount,
-            'total_users'   => $plan->included_users,
-            'limits'        => [
-                'users'      => $plan->included_users,
+            'price' => $plan->price_after_discount,
+            'total_users' => $plan->included_users,
+            'limits' => [
+                'users' => $plan->included_users,
                 'properties' => $plan->properties_limit,
                 'storage_gb' => $plan->storage_quota_gb,
-                'auctions'   => $plan->active_auctions_limit,
+                'auctions' => $plan->active_auctions_limit,
             ],
-            'features'      => $plan->features ?? [],
+            'features' => $plan->features ?? [],
         ]);
     }
 
@@ -193,16 +194,16 @@ class SubscriptionController extends Controller
         $lastSub = $company->lastSubscription;
 
         return response()->json([
-            'id'                   => $company->id,
-            'company_name'         => $company->company_name,
-            'commercial_number'    => $company->commercial_number,
-            'tax_number'           => $company->tax_number,
-            'city_name'            => $company->city?->name ?: '-',
-            'address'              => $company->address ?: '-',
-            'last_subscription'    => $lastSub ? [
-                'number'  => $lastSub->subscription_number,
-                'plan'    => $lastSub->plan?->name ?: '-',
-                'status'  => $lastSub->status->label(),
+            'id' => $company->id,
+            'company_name' => $company->company_name,
+            'commercial_number' => $company->commercial_number,
+            'tax_number' => $company->tax_number,
+            'city_name' => $company->city?->name ?: '-',
+            'address' => $company->address ?: '-',
+            'last_subscription' => $lastSub ? [
+                'number' => $lastSub->subscription_number,
+                'plan' => $lastSub->plan?->name ?: '-',
+                'status' => $lastSub->status->label(),
                 'ends_at' => $lastSub->ends_at?->format('Y-m-d') ?: '-',
             ] : null,
         ]);

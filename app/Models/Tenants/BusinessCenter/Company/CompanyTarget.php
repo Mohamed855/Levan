@@ -3,9 +3,9 @@
 namespace App\Models\Tenants\BusinessCenter\Company;
 
 use App\Models\Tenants\UserMangment\User\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Carbon\Carbon;
 
 class CompanyTarget extends Model
 {
@@ -51,11 +51,11 @@ class CompanyTarget extends Model
     public function scopeForDate($query, $date)
     {
         $date = Carbon::parse($date);
-        
+
         return $query->where('effective_from', '<=', $date)
-            ->where(function($q) use ($date) {
+            ->where(function ($q) use ($date) {
                 $q->whereNull('effective_to')
-                  ->orWhere('effective_to', '>=', $date);
+                    ->orWhere('effective_to', '>=', $date);
             });
     }
 }

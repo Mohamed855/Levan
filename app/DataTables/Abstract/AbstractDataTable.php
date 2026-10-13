@@ -2,10 +2,10 @@
 
 namespace App\DataTables\Abstract;
 
-use Illuminate\Support\Collection;
-use Yajra\DataTables\Services\DataTable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use Yajra\DataTables\Services\DataTable;
 
 abstract class AbstractDataTable extends DataTable
 {
@@ -15,7 +15,9 @@ abstract class AbstractDataTable extends DataTable
     |============================================================================
     */
     abstract protected function getTableId();
+
     abstract protected function resource();
+
     abstract protected function getColumns(): array;
 
     /*
@@ -63,9 +65,9 @@ abstract class AbstractDataTable extends DataTable
     public function query()
     {
         $baseQuery = $this->resource();
+
         return $this->applyCustomFilters($baseQuery);
     }
-
 
     /*
     |============================================================================
@@ -101,26 +103,26 @@ abstract class AbstractDataTable extends DataTable
     protected function buildCollectionDataTable($query)
     {
         $rows = $this->formatRows($query);
+
         return datatables()
             ->collection($rows)
             ->addIndexColumn()
             ->rawColumns($this->rawColumns());
     }
 
-
     /*
     |============================================================================
     |                           Global Search
     |============================================================================
     */
-    //تطبيق البحث العام في جميع الأعمدة القابلة للبحث
+    // تطبيق البحث العام في جميع الأعمدة القابلة للبحث
     protected function applyGlobalSearch($instance)
     {
-        if (request()->has('search') && !empty(request('search.value'))) {
+        if (request()->has('search') && ! empty(request('search.value'))) {
             $searchValue = request('search.value');
             $searchableColumns = $this->getSearchableColumns();
 
-            if (!empty($searchableColumns)) {
+            if (! empty($searchableColumns)) {
                 $instance->where(function ($query) use ($searchableColumns, $searchValue) {
                     foreach ($searchableColumns as $column) {
                         $this->addSearchCondition($query, $column, $searchValue, 'or');
@@ -154,7 +156,6 @@ abstract class AbstractDataTable extends DataTable
         }
     }
 
-
     /*
     |============================================================================
     |                          Request Filters
@@ -179,7 +180,7 @@ abstract class AbstractDataTable extends DataTable
     |============================================================================
     */
     // للتعامل مع تعديلات الحقول و  الحقول الاضافية
-    
+
     protected function addCustomColumns($datatable) {}
 
     protected function formatRows(Collection $rows): Collection
@@ -222,6 +223,7 @@ abstract class AbstractDataTable extends DataTable
     {
         return [];
     }
+
     /*
     |============================================================================
     |                          Default Settings Methods
@@ -229,17 +231,16 @@ abstract class AbstractDataTable extends DataTable
     */
     protected function dom(): string
     {
-        return  '<"dt-toolbar"' .
-            '<"dt-toolbar-left d-flex flex-column flex-sm-row align-items-start align-items-sm-center" f l >' .
-            '<"dt-toolbar-right d-flex flex-column flex-sm-row align-items-end align-items-sm-center justify-content-between" B >' .
-            '>' .
-            'r<"table-responsive"t>' .
-            '<"row mt-3"' .
-            '<"d-flex flex-column flex-sm-row align-items-center justify-content-between w-100" i <"pagination-wrapper overflow-auto w-100" p >' .
-            '>' .
+        return '<"dt-toolbar"'.
+            '<"dt-toolbar-left d-flex flex-column flex-sm-row align-items-start align-items-sm-center" f l >'.
+            '<"dt-toolbar-right d-flex flex-column flex-sm-row align-items-end align-items-sm-center justify-content-between" B >'.
+            '>'.
+            'r<"table-responsive"t>'.
+            '<"row mt-3"'.
+            '<"d-flex flex-column flex-sm-row align-items-center justify-content-between w-100" i <"pagination-wrapper overflow-auto w-100" p >'.
+            '>'.
             '>';
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -253,13 +254,12 @@ abstract class AbstractDataTable extends DataTable
         return [];
     }
 
-
     protected function parameters(): array
     {
         $params = [
             'processing' => true,
             'serverSide' => true,
-            'language'   => [
+            'language' => [
                 'url' => asset('static/i18n/ar.json'),
                 'processing' => 'جارٍ تحميل البيانات…',
                 'emptyTable' => 'لا توجد بيانات لعرضها.',
@@ -285,14 +285,14 @@ abstract class AbstractDataTable extends DataTable
                             }
                         }
                         return data;
-                    }'
+                    }',
                 ],
                 [
                     'className' => 'control',
                     'orderable' => false,
                     'targets' => 0,
-                    'render' => 'function(data, type, full, meta) { return ""; }'
-                ]
+                    'render' => 'function(data, type, full, meta) { return ""; }',
+                ],
             ],
 
             'responsive' => [
@@ -323,13 +323,13 @@ abstract class AbstractDataTable extends DataTable
                             : "";
                     }).join("");
                     return data ? $(\'<table class="table"/><tbody />\').append(data) : false;
-                }'
-                ]
+                }',
+                ],
             ],
         ];
 
         $customOrder = $this->getCustomOrder();
-        if (!empty($customOrder)) {
+        if (! empty($customOrder)) {
             $params['order'] = [$customOrder];
         }
 
@@ -343,16 +343,16 @@ abstract class AbstractDataTable extends DataTable
     */
     protected function checkbox($row): string
     {
-        return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+        return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
     }
 
     protected function emptyDataMessage($message = '-'): string
     {
-        return '<span class="text-muted">' . ($message ?? '-') . '</span>';
+        return '<span class="text-muted">'.($message ?? '-').'</span>';
     }
 
-    protected function routeName($route, $name, $class = '', $target = ""): string
+    protected function routeName($route, $name, $class = '', $target = ''): string
     {
-        return '<a href="' . $route . '" class="' . $class . '" target="' . $target . '">' . $name . '</a>';
+        return '<a href="'.$route.'" class="'.$class.'" target="'.$target.'">'.$name.'</a>';
     }
 }

@@ -44,6 +44,6 @@ abstract class ReconciliationRequest extends FormRequest
 
     public static function temporaryFileOwnerKey(string $path): string
     {
-        return 'reconciliation_file_owner:' . hash('sha256', $path);
+        return 'reconciliation_file_owner:'.hash('sha256', $path);
     }
 }

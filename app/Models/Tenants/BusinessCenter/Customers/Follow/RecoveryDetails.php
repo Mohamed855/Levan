@@ -16,7 +16,7 @@ class RecoveryDetails extends Model
         'contact_result_id',
         'recovery_reason',
         'recovery_reason_other',
-        'recovery_document_path'
+        'recovery_document_path',
     ];
 
     public function customerFollow()

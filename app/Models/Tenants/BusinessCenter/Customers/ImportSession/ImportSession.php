@@ -19,16 +19,16 @@ class ImportSession extends Model
         'processed_rows',
         'successful_rows',
         'failed_rows',
-        'status', 
+        'status',
         'started_at',
         'completed_at',
         'temp_file_path',
-        'errors'
+        'errors',
     ];
 
     protected $casts = [
         'started_at' => 'datetime',
         'completed_at' => 'datetime',
-        'errors' => 'array' 
+        'errors' => 'array',
     ];
 }

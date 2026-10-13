@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 class ArchivedPortfoliosDataTable extends AbstractDataTable
 {
-    private $route = "archive.portfolios";
+    private $route = 'archive.portfolios';
 
     /*
     |--------------------------------------------------------------------------
@@ -21,6 +21,7 @@ class ArchivedPortfoliosDataTable extends AbstractDataTable
         $datatable = datatables()->eloquent($query)->addIndexColumn();
 
         $this->addCustomColumns($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
@@ -32,7 +33,7 @@ class ArchivedPortfoliosDataTable extends AbstractDataTable
     */
     protected function getTableId()
     {
-        return "archived-portfolios-table";
+        return 'archived-portfolios-table';
     }
 
     /*
@@ -52,7 +53,7 @@ class ArchivedPortfoliosDataTable extends AbstractDataTable
                 'portfolios.status',
                 'portfolios.deleted_at',
                 'portfolios.created_at',
-                'companies.name as company_name'
+                'companies.name as company_name',
             ])
             ->leftJoin('companies', 'portfolios.company_id', '=', 'companies.id');
     }
@@ -69,10 +70,10 @@ class ArchivedPortfoliosDataTable extends AbstractDataTable
             ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'portfolios.id', 'title' => 'ID', 'visible' => false],
             [
-                'data'       => 'checkbox',
-                'name'       => 'checkbox',
-                'title'      => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
-                'orderable'  => false,
+                'data' => 'checkbox',
+                'name' => 'checkbox',
+                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
+                'orderable' => false,
                 'searchable' => false,
                 'width' => '10px',
                 'className' => 'custom-checkbox',
@@ -87,7 +88,6 @@ class ArchivedPortfoliosDataTable extends AbstractDataTable
         ];
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | Custom Columns
@@ -98,13 +98,13 @@ class ArchivedPortfoliosDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
             ->editColumn('name', function ($row) {
-                return '<span class="text-body fw-medium">' . $row->name . '</span>';
+                return '<span class="text-body fw-medium">'.$row->name.'</span>';
             })
             ->editColumn('company_name', function ($row) {
-                return '<span class="text-primary">' . ($row->company_name ?? 'غير محدد') . '</span>';
+                return '<span class="text-primary">'.($row->company_name ?? 'غير محدد').'</span>';
             })
             ->editColumn('assignment_date', function ($row) {
                 return $row->assignment_date ? Carbon::parse($row->assignment_date)->format('Y-m-d') : 'غير محدد';
@@ -112,7 +112,8 @@ class ArchivedPortfoliosDataTable extends AbstractDataTable
             ->editColumn('status', function ($row) {
                 $statusClass = $row->status === 'active' ? 'bg-label-success' : 'bg-label-danger';
                 $statusText = $row->status === 'active' ? 'نشط' : 'غير نشط';
-                return '<span class="badge ' . $statusClass . '">' . $statusText . '</span>';
+
+                return '<span class="badge '.$statusClass.'">'.$statusText.'</span>';
             })
             ->editColumn('deleted_at', function ($row) {
                 return Carbon::parse($row->deleted_at)->format('Y-m-d');
@@ -181,10 +182,10 @@ class ArchivedPortfoliosDataTable extends AbstractDataTable
     private function getActionsDropdownButton(): array
     {
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => [
+            'text' => 'الإجراءات',
+            'buttons' => [
                 ['extend' => 'copy', 'text' => 'نسخ'],
                 ['extend' => 'excel', 'text' => 'إكسل'],
             ],

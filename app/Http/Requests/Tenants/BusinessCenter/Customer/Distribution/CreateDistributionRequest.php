@@ -111,13 +111,13 @@ class CreateDistributionRequest extends WizardFormRequest
         $validator->after(function ($validator) {
             if ($this->boolean('apply_targets')) {
                 $employeesCount = intval($this->input('calculator_employees_count', 0));
-                $collectorsCount = is_array($this->input('collector_ids')) 
-                    ? count($this->input('collector_ids')) 
+                $collectorsCount = is_array($this->input('collector_ids'))
+                    ? count($this->input('collector_ids'))
                     : 0;
 
                 if ($employeesCount > 0 && $employeesCount !== $collectorsCount) {
                     $validator->errors()->add(
-                        'collector_ids', 
+                        'collector_ids',
                         "عدد المحصلين المختارين ({$collectorsCount}) يجب أن يطابق عدد الموظفين في الحاسبة ({$employeesCount})"
                     );
                 }

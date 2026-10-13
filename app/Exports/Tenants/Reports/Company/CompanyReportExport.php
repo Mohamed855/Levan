@@ -3,6 +3,7 @@
 namespace App\Exports\Tenants\Reports\Company;
 
 use App\Support\ReportNumberFormatter;
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -16,11 +17,14 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class CompanyReportExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle, WithColumnWidths, WithEvents
+class CompanyReportExport implements FromCollection, WithColumnWidths, WithEvents, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     protected $companies;
+
     protected $filters;
+
     protected $selectedFields;
+
     protected $rowCount = 0;
 
     public function __construct($companies, $filters, $selectedFields = [])
@@ -45,7 +49,7 @@ class CompanyReportExport implements FromCollection, WithHeadings, WithMapping, 
         ];
     }
 
-    public function collection(): \Illuminate\Support\Enumerable
+    public function collection(): Enumerable
     {
         return $this->companies;
     }
@@ -107,13 +111,13 @@ class CompanyReportExport implements FromCollection, WithHeadings, WithMapping, 
                     $row[] = ReportNumberFormatter::format($company['total_credit'] ?? 0);
                     break;
                 case 'collection_rate':
-                    $row[] = ReportNumberFormatter::format($company['collection_rate'] ?? 0) . '%';
+                    $row[] = ReportNumberFormatter::format($company['collection_rate'] ?? 0).'%';
                     break;
                 case 'target_percentage':
                     $targetPercentage = $company['target_percentage'] ?? null;
                     $row[] = $targetPercentage === null
                         ? 'بدون هدف'
-                        : ReportNumberFormatter::format($targetPercentage) . '%';
+                        : ReportNumberFormatter::format($targetPercentage).'%';
                     break;
                 case 'created_at':
                     $row[] = $company['created_at'] ?? '';
@@ -125,6 +129,7 @@ class CompanyReportExport implements FromCollection, WithHeadings, WithMapping, 
         }
 
         $this->rowCount++;
+
         return $row;
     }
 
@@ -205,10 +210,10 @@ class CompanyReportExport implements FromCollection, WithHeadings, WithMapping, 
                 $totalDebt = $this->companies->sum('total_debt');
                 $totalCredit = $this->companies->sum('total_credit');
 
-                $summaryText = "إجمالي الشركات: " . ReportNumberFormatter::format($totalCompanies) .
-                    " | إجمالي العملاء: " . ReportNumberFormatter::format($totalCustomers) .
-                    " | إجمالي الديون: " . ReportNumberFormatter::format($totalDebt) . " ريال" .
-                    " | إجمالي التحصيل: " . ReportNumberFormatter::format($totalCredit) . " ريال";
+                $summaryText = 'إجمالي الشركات: '.ReportNumberFormatter::format($totalCompanies).
+                    ' | إجمالي العملاء: '.ReportNumberFormatter::format($totalCustomers).
+                    ' | إجمالي الديون: '.ReportNumberFormatter::format($totalDebt).' ريال'.
+                    ' | إجمالي التحصيل: '.ReportNumberFormatter::format($totalCredit).' ريال';
 
                 $sheet->setCellValue("A{$summaryRow}", $summaryText);
                 $sheet->mergeCells("A{$summaryRow}:{$lastColumnLetter}{$summaryRow}");
@@ -260,7 +265,7 @@ class CompanyReportExport implements FromCollection, WithHeadings, WithMapping, 
         $letter = '';
         while ($columnNumber > 0) {
             $columnNumber--;
-            $letter = chr(65 + ($columnNumber % 26)) . $letter;
+            $letter = chr(65 + ($columnNumber % 26)).$letter;
             $columnNumber = intval($columnNumber / 26);
         }
 

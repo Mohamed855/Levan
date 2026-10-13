@@ -18,6 +18,7 @@ class LicenseController extends Controller
 
         try {
             $result = $this->licenseService->assignLicenseToUser($request->user_id);
+
             return response()->json($result);
             //
         } catch (DomainException $e) {
@@ -39,6 +40,7 @@ class LicenseController extends Controller
 
         try {
             $result = $this->licenseService->releaseLicenseFromUser($request->user_id);
+
             return response()->json($result);
             //
         } catch (DomainException $e) {

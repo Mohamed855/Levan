@@ -12,8 +12,8 @@ use App\Http\Requests\Tenants\FinancialCollection\Reconciliation\StoreReconcilia
 use App\Models\Tenants\FinancialCollection\Reconciliation\PaymentReconciliation;
 use App\Services\Tenants\FinancialCollection\Reconciliation\PaymentReconciliationService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PaymentReconciliationController extends Controller
@@ -76,14 +76,14 @@ class PaymentReconciliationController extends Controller
                 'portfolios' => $portfolios->map(function ($portfolio) {
                     return [
                         'id' => $portfolio->id,
-                        'name' => $portfolio->name
+                        'name' => $portfolio->name,
                     ];
-                })
+                }),
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'فشل في تحميل المحافظ'
+                'message' => 'فشل في تحميل المحافظ',
             ], 500);
         }
     }
@@ -100,12 +100,12 @@ class PaymentReconciliationController extends Controller
 
             return response()->json([
                 'success' => true,
-                'headers' => $headers
+                'headers' => $headers,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'فشل في تحليل ملف Excel: ' . $e->getMessage()
+                'message' => 'فشل في تحليل ملف Excel: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -128,12 +128,12 @@ class PaymentReconciliationController extends Controller
             return response()->json([
                 'success' => true,
                 'temp_file_path' => $result['temp_file_path'],
-                'total_rows' => $result['total_rows']
+                'total_rows' => $result['total_rows'],
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'فشل في رفع الملف: ' . $e->getMessage()
+                'message' => 'فشل في رفع الملف: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -155,12 +155,12 @@ class PaymentReconciliationController extends Controller
             return response()->json([
                 'success' => true,
                 'job_id' => $jobId,
-                'message' => 'تم بدء عملية المطابقة'
+                'message' => 'تم بدء عملية المطابقة',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تنفيذ المطابقة: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء تنفيذ المطابقة: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -180,12 +180,12 @@ class PaymentReconciliationController extends Controller
 
             return response()->json([
                 'success' => true,
-                'progress' => $progress
+                'progress' => $progress,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'فشل في جلب حالة التقدم'
+                'message' => 'فشل في جلب حالة التقدم',
             ], 500);
         }
     }
@@ -202,16 +202,16 @@ class PaymentReconciliationController extends Controller
 
             $disk = Storage::disk('tenant_public');
 
-            if (!$disk->exists($filePath)) {
+            if (! $disk->exists($filePath)) {
                 abort(404, 'الملف غير موجود');
             }
 
             $fullPath = $disk->path($filePath);
-            $fileName = 'summary_report_' . $reconciliation->id . '_' . now()->format('YmdHis') . '.xlsx';
+            $fileName = 'summary_report_'.$reconciliation->id.'_'.now()->format('YmdHis').'.xlsx';
 
             return response()->download($fullPath, $fileName)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
-            abort(500, 'فشل في تحميل التقرير: ' . $e->getMessage());
+            abort(500, 'فشل في تحميل التقرير: '.$e->getMessage());
         }
     }
 
@@ -227,16 +227,16 @@ class PaymentReconciliationController extends Controller
 
             $disk = Storage::disk('tenant_public');
 
-            if (!$disk->exists($filePath)) {
+            if (! $disk->exists($filePath)) {
                 abort(404, 'الملف غير موجود');
             }
 
             $fullPath = $disk->path($filePath);
-            $fileName = 'unmatched_report_' . $reconciliation->id . '_' . now()->format('YmdHis') . '.xlsx';
+            $fileName = 'unmatched_report_'.$reconciliation->id.'_'.now()->format('YmdHis').'.xlsx';
 
             return response()->download($fullPath, $fileName)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
-            abort(500, 'فشل في تحميل التقرير: ' . $e->getMessage());
+            abort(500, 'فشل في تحميل التقرير: '.$e->getMessage());
         }
     }
 
@@ -252,16 +252,16 @@ class PaymentReconciliationController extends Controller
 
             $disk = Storage::disk('tenant_public');
 
-            if (!$disk->exists($filePath)) {
+            if (! $disk->exists($filePath)) {
                 abort(404, 'الملف غير موجود');
             }
 
             $fullPath = $disk->path($filePath);
-            $fileName = 'discrepancies_report_' . $reconciliation->id . '_' . now()->format('YmdHis') . '.xlsx';
+            $fileName = 'discrepancies_report_'.$reconciliation->id.'_'.now()->format('YmdHis').'.xlsx';
 
             return response()->download($fullPath, $fileName)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
-            abort(500, 'فشل في تحميل التقرير: ' . $e->getMessage());
+            abort(500, 'فشل في تحميل التقرير: '.$e->getMessage());
         }
     }
 
@@ -277,16 +277,16 @@ class PaymentReconciliationController extends Controller
 
             $disk = Storage::disk('tenant_public');
 
-            if (!$disk->exists($filePath)) {
+            if (! $disk->exists($filePath)) {
                 abort(404, 'الملف غير موجود');
             }
 
             $fullPath = $disk->path($filePath);
-            $fileName = 'system_only_report_' . $reconciliation->id . '_' . now()->format('YmdHis') . '.xlsx';
+            $fileName = 'system_only_report_'.$reconciliation->id.'_'.now()->format('YmdHis').'.xlsx';
 
             return response()->download($fullPath, $fileName)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
-            abort(500, 'فشل في تحميل التقرير: ' . $e->getMessage());
+            abort(500, 'فشل في تحميل التقرير: '.$e->getMessage());
         }
     }
 
@@ -302,16 +302,16 @@ class PaymentReconciliationController extends Controller
 
             $disk = Storage::disk('tenant_public');
 
-            if (!$disk->exists($filePath)) {
+            if (! $disk->exists($filePath)) {
                 abort(404, 'الملف غير موجود');
             }
 
             $fullPath = $disk->path($filePath);
-            $fileName = 'employee_performance_' . $reconciliation->id . '_' . now()->format('YmdHis') . '.xlsx';
+            $fileName = 'employee_performance_'.$reconciliation->id.'_'.now()->format('YmdHis').'.xlsx';
 
             return response()->download($fullPath, $fileName)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
-            abort(500, 'فشل في تحميل التقرير: ' . $e->getMessage());
+            abort(500, 'فشل في تحميل التقرير: '.$e->getMessage());
         }
     }
 
@@ -327,16 +327,16 @@ class PaymentReconciliationController extends Controller
 
             $disk = Storage::disk('tenant_public');
 
-            if (!$disk->exists($filePath)) {
+            if (! $disk->exists($filePath)) {
                 abort(404, 'الملف غير موجود');
             }
 
             $fullPath = $disk->path($filePath);
-            $fileName = 'errors_report_' . $reconciliation->id . '_' . now()->format('YmdHis') . '.xlsx';
+            $fileName = 'errors_report_'.$reconciliation->id.'_'.now()->format('YmdHis').'.xlsx';
 
             return response()->download($fullPath, $fileName)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
-            abort(500, 'فشل في تحميل التقرير: ' . $e->getMessage());
+            abort(500, 'فشل في تحميل التقرير: '.$e->getMessage());
         }
     }
 }

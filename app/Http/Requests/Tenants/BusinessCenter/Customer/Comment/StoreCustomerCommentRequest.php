@@ -6,7 +6,6 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreCustomerCommentRequest extends FormRequest
 {
-
     /*
     |--------------------------------------------------------------------------
     | Authorize
@@ -16,7 +15,6 @@ class StoreCustomerCommentRequest extends FormRequest
     {
         return $this->user('tenant')?->can('customers.edit') ?? false;
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -29,7 +27,6 @@ class StoreCustomerCommentRequest extends FormRequest
             'comment_text' => ['required', 'string', 'min:3', 'max:2000'],
         ];
     }
-
 
     /*
     |--------------------------------------------------------------------------

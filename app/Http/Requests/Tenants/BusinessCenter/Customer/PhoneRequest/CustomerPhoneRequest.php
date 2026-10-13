@@ -26,7 +26,7 @@ class CustomerPhoneRequest extends WizardFormRequest
     public function rules(): array
     {
         return [
-            'phone' => 'required|string|size:10|regex:/^05[0-9]{8}$/'
+            'phone' => 'required|string|size:10|regex:/^05[0-9]{8}$/',
         ];
     }
 
@@ -42,7 +42,7 @@ class CustomerPhoneRequest extends WizardFormRequest
             'phone.required' => 'حقل رقم الهاتف مطلوب',
             'phone.string' => 'يجب أن يكون رقم الهاتف نصاً',
             'phone.size' => 'يجب أن يحتوي رقم الهاتف على 10 أرقام',
-            'phone.regex' => 'يجب أن يبدأ رقم الهاتف بـ 05'
+            'phone.regex' => 'يجب أن يبدأ رقم الهاتف بـ 05',
         ];
     }
 
@@ -55,7 +55,7 @@ class CustomerPhoneRequest extends WizardFormRequest
     public function attributes(): array
     {
         return [
-            'phone' => 'رقم الهاتف'
+            'phone' => 'رقم الهاتف',
         ];
     }
 }

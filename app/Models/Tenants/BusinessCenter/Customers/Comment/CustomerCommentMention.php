@@ -9,9 +9,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CustomerCommentMention extends Model
 {
-
     use SoftDeletes;
-    
+
     protected $fillable = [
         'customer_comment_id',
         'mentioned_user_id',

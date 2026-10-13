@@ -13,12 +13,12 @@ class PropertyService
     public function getStatistics(): array
     {
         return [
-            'total'                => Property::count(),
-            'active'               => Property::where('is_active', true)->count(),
+            'total' => Property::count(),
+            'active' => Property::where('is_active', true)->count(),
             'ready_for_assignment' => Property::where('data_status', PropertyDataStatus::COMPLETED->value)->whereNull('assignment_id')->count(),
-            'completed'            => Property::where('data_status', PropertyDataStatus::COMPLETED->value)->count(),
-            'unlinked'             => Property::whereNull('assignment_id')->count(),
-            'needs_review'         => Property::where('data_status', '!=', PropertyDataStatus::COMPLETED->value)->count(),
+            'completed' => Property::where('data_status', PropertyDataStatus::COMPLETED->value)->count(),
+            'unlinked' => Property::whereNull('assignment_id')->count(),
+            'needs_review' => Property::where('data_status', '!=', PropertyDataStatus::COMPLETED->value)->count(),
         ];
     }
 
@@ -46,13 +46,27 @@ class PropertyService
 
     public function forceDeleteProperty(Property $property): bool
     {
+        $attachmentPaths = $property->attachments()
+            ->get(['disk', 'file_path'])
+            ->map(fn ($attachment): array => [
+                'disk' => $attachment->disk ?: 'tenant_public',
+                'path' => $attachment->file_path,
+            ]);
         $mainImage = $property->main_image;
         $deleted = (bool) $property->forceDelete();
 
-        if ($deleted && $mainImage) {
+        if (! $deleted) {
+            return false;
+        }
+
+        foreach ($attachmentPaths as $attachment) {
+            Storage::disk($attachment['disk'])->delete($attachment['path']);
+        }
+
+        if ($mainImage && ! $attachmentPaths->contains('path', $mainImage)) {
             Storage::disk('tenant_public')->delete($mainImage);
         }
 
-        return $deleted;
+        return true;
     }
 }

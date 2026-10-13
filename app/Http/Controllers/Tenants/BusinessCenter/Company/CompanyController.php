@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Tenants\BusinessCenter\Company;
 
-use App\Http\Controllers\Controller;
 use App\DataTables\Tenants\BusinessCenter\Company\CompaniesDataTable;
 use App\DataTables\Tenants\BusinessCenter\Company\CompanyCollectionsDataTable;
 use App\DataTables\Tenants\BusinessCenter\Company\CompanyCustomersDataTable;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\BusinessCenter\Company\StoreCompanyRequest;
 use App\Http\Requests\Tenants\BusinessCenter\Company\UpdateCompanyRequest;
 use App\Http\Requests\Tenants\UpdateResourceStatusRequest;
@@ -14,11 +14,11 @@ use App\Models\Tenants\BusinessCenter\Company\CompanyAuthorizedPerson;
 use App\Models\Tenants\BusinessCenter\Contract\Contract;
 use App\Models\Tenants\FinancialCollection\Collection\Collection;
 use App\Services\Tenants\BusinessCenter\Company\CompanyService;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
-use Yajra\DataTables\Services\DataTable;
+use Illuminate\View\View;
 
 class CompanyController extends Controller
 {
@@ -53,11 +53,11 @@ class CompanyController extends Controller
             $statistics = $this->companyService->getCompanyStatistics();
 
             return $dataTable->render('tenants.business_center.companies.index', [
-                'totalCompanies'       => $statistics['total'],
-                'activeCompanies'      => $statistics['active'],
-                'inactiveCompanies'    => $statistics['inactive'],
-                'archivedCompanies'    => $statistics['archived'],
-                'recentCompanies'      => $statistics['recent'],
+                'totalCompanies' => $statistics['total'],
+                'activeCompanies' => $statistics['active'],
+                'inactiveCompanies' => $statistics['inactive'],
+                'archivedCompanies' => $statistics['archived'],
+                'recentCompanies' => $statistics['recent'],
             ]);
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
@@ -109,93 +109,89 @@ class CompanyController extends Controller
     |--------------------------------------------------------------------------
     | Display full company details with portfolios and customers.
     */
-   public function show(
-    Company $company, 
-    CompanyCustomersDataTable $customerTable, 
-    CompanyCollectionsDataTable $collectionTable
-) {
-    // ✅ Set company IDs
-    $customerTable->setCompanyId($company->id);
-    $collectionTable->setCompanyId($company->id);
-    
+    public function show(
+        Company $company,
+        CompanyCustomersDataTable $customerTable,
+        CompanyCollectionsDataTable $collectionTable
+    ) {
+        // ✅ Set company IDs
+        $customerTable->setCompanyId($company->id);
+        $collectionTable->setCompanyId($company->id);
 
-    if (request()->ajax()) {
+        if (request()->ajax()) {
 
-    // if (request()->segment(3) === 'customers') {
-    //         return $customerTable->ajax();
-    //     }
-     
-        
-        return $collectionTable->ajax();
+            // if (request()->segment(3) === 'customers') {
+            //         return $customerTable->ajax();
+            //     }
+
+            return $collectionTable->ajax();
+        }
+
+        // Get company data
+        $data = $this->companyService->getCompanyDetails($company);
+
+        // Get portfolios
+        $portfolios = $company->portfolios()
+            ->withCount('customers')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Get customers
+        $customers = $company->customers()
+            ->with('portfolio:id,name')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Get contracts
+        $contracts = Schema::hasTable('contracts')
+            ? $company->hasMany(Contract::class, 'company_id')->orderBy('created_at', 'desc')->get()
+            : collect();
+
+        // Get authorized people
+        $authorized = CompanyAuthorizedPerson::where('company_id', $company->id)->get();
+
+        // Get collections
+        $collections = Collection::whereHas('customer', function ($query) use ($company) {
+            $query->where('company_id', $company->id);
+        })
+            ->with(['customer:id,name', 'paymentMethod:id,name'])
+            ->orderBy('collection_date', 'desc')
+            ->get();
+
+        // Calculate stats
+        $totalCollected = $collections->where('status', 'approved')->sum('collected_amount');
+        $pendingCollections = $collections->where('status', 'pending')->sum('collected_amount');
+        $approvedCollectionsCount = $collections->where('status', 'approved')->count();
+        $pendingCollectionsCount = $collections->where('status', 'pending')->count();
+
+        $portfoliosCount = $portfolios->count();
+        $customersCount = $customers->count();
+        $authorizedCount = $company->authorizedPeople()->count();
+        $contractsCount = $contracts->count();
+
+        return view('tenants.business_center.companies.show', array_merge($data, [
+            'company' => $company,
+            'portfolios' => $portfolios,
+            'customers' => $customers,
+            'contracts' => $contracts,
+            'collections' => $collections,
+            'authorized' => $authorized,
+
+            // ✅ DataTables HTML
+            'customerTable' => $customerTable->html(),
+            'collectionTable' => $collectionTable->html(),
+
+            // Stats
+            'portfoliosCount' => $portfoliosCount,
+            'customersCount' => $customersCount,
+            'authorizedCount' => $authorizedCount,
+            'contractsCount' => $contractsCount,
+            'totalCollected' => $totalCollected,
+            'pendingCollections' => $pendingCollections,
+            'approvedCollectionsCount' => $approvedCollectionsCount,
+            'pendingCollectionsCount' => $pendingCollectionsCount,
+        ]));
     }
-
-    // Get company data
-    $data = $this->companyService->getCompanyDetails($company);
-
-    // Get portfolios
-    $portfolios = $company->portfolios()
-        ->withCount('customers')
-        ->orderBy('created_at', 'desc')
-        ->get();
-
-    // Get customers
-    $customers = $company->customers()
-        ->with('portfolio:id,name')
-        ->orderBy('created_at', 'desc')
-        ->get();
-
-    // Get contracts
-    $contracts = \Illuminate\Support\Facades\Schema::hasTable('contracts')
-        ? $company->hasMany(Contract::class, 'company_id')->orderBy('created_at', 'desc')->get()
-        : collect();
-
-    // Get authorized people
-    $authorized = CompanyAuthorizedPerson::where('company_id', $company->id)->get();
-
-    // Get collections
-    $collections = Collection::whereHas('customer', function($query) use ($company) {
-        $query->where('company_id', $company->id);
-    })
-    ->with(['customer:id,name', 'paymentMethod:id,name'])
-    ->orderBy('collection_date', 'desc')
-    ->get();
-
-    // Calculate stats
-    $totalCollected = $collections->where('status', 'approved')->sum('collected_amount');
-    $pendingCollections = $collections->where('status', 'pending')->sum('collected_amount');
-    $approvedCollectionsCount = $collections->where('status', 'approved')->count();
-    $pendingCollectionsCount = $collections->where('status', 'pending')->count();
-
-    $portfoliosCount = $portfolios->count();
-    $customersCount = $customers->count();
-    $authorizedCount = $company->authorizedPeople()->count();
-    $contractsCount = $contracts->count();
-
-    return view('tenants.business_center.companies.show', array_merge($data, [
-        'company' => $company,
-        'portfolios' => $portfolios,
-        'customers' => $customers,
-        'contracts' => $contracts,
-        'collections' => $collections,
-        'authorized' => $authorized,
-        
-        // ✅ DataTables HTML
-        'customerTable' => $customerTable->html(),
-        'collectionTable' => $collectionTable->html(),
-        
-        // Stats
-        'portfoliosCount' => $portfoliosCount,
-        'customersCount' => $customersCount,
-        'authorizedCount' => $authorizedCount,
-        'contractsCount' => $contractsCount,
-        'totalCollected' => $totalCollected,
-        'pendingCollections' => $pendingCollections,
-        'approvedCollectionsCount' => $approvedCollectionsCount,
-        'pendingCollectionsCount' => $pendingCollectionsCount,
-    ]));
-}
-
-
 
     /*
     |--------------------------------------------------------------------------
@@ -249,6 +245,7 @@ class CompanyController extends Controller
     {
         try {
             $this->companyService->deleteCompany($company);
+
             return redirect()->back()->with('success', 'تم حذف الشركة بنجاح');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
@@ -273,12 +270,12 @@ class CompanyController extends Controller
                 'success' => true,
                 'message' => 'تم تبديل الحالة بنجاح',
                 'new_status' => $newStatus,
-                'status_text' => $statusText
+                'status_text' => $statusText,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تبديل الحالة'
+                'message' => 'حدث خطأ أثناء تبديل الحالة',
             ], 500);
         }
     }

@@ -113,8 +113,8 @@ class Task extends Model
      */
     public function getIsDueSoonAttribute()
     {
-        return $this->status === 'pending' && 
-               $this->due_date >= now()->toDateString() && 
+        return $this->status === 'pending' &&
+               $this->due_date >= now()->toDateString() &&
                $this->due_date <= now()->addDays(3)->toDateString();
     }
 
@@ -148,7 +148,7 @@ class Task extends Model
     public function scopeOverdue($query)
     {
         return $query->where('due_date', '<', now()->toDateString())
-                    ->where('status', 'pending');
+            ->where('status', 'pending');
     }
 
     /**

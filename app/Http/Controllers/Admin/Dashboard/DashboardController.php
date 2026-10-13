@@ -9,7 +9,7 @@ class DashboardController extends Controller
 {
     public function dashboard()
     {
-        $dashboardService = new DashboardService();
+        $dashboardService = new DashboardService;
         $data = $dashboardService->getDashboardData();
 
         return view('admin.dashboard.index', $data);
@@ -21,15 +21,15 @@ class DashboardController extends Controller
      */
     public function platformActivity()
     {
-        $range   = request()->input('range', '1month');
+        $range = request()->input('range', '1month');
         $allowed = ['1month', '3months', '6months', '1year'];
 
-        if (!in_array($range, $allowed)) {
+        if (! in_array($range, $allowed)) {
             $range = '1month';
         }
 
-        $service = new DashboardService();
-        $data    = $service->getPlatformActivityByRange($range);
+        $service = new DashboardService;
+        $data = $service->getPlatformActivityByRange($range);
 
         return response()->json(['data' => $data]);
     }

@@ -80,6 +80,7 @@ class RoleService
         return DB::transaction(function () use ($role) {
             $deleted = $role->delete();
             $this->clearPermissionsCache();
+
             return $deleted;
         });
     }
@@ -107,7 +108,7 @@ class RoleService
     */
     private function getPermissionsFromData(array $data): array
     {
-        if (!empty($data['select_all'])) {
+        if (! empty($data['select_all'])) {
             return Permission::where('guard_name', 'admin')->pluck('name')->toArray();
         }
 
@@ -125,7 +126,7 @@ class RoleService
         $permissions = Permission::all()->groupBy('section');
 
         foreach (self::ADMIN_PERMISSION_SECTIONS as $section) {
-            if (!$permissions->has($section)) {
+            if (! $permissions->has($section)) {
                 $permissions->put($section, collect());
             }
         }

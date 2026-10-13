@@ -42,13 +42,13 @@ class PropertiesController extends Controller
         $assignments = Assignment::select(['id', 'name', 'assignment_number'])->get();
 
         return $dataTable->render('tenants.properties.index', [
-            'totalProperties'       => $statistics['total'],
-            'activeProperties'      => $statistics['active'],
-            'completedProperties'   => $statistics['completed'],
-            'unlinkedProperties'    => $statistics['unlinked'],
+            'totalProperties' => $statistics['total'],
+            'activeProperties' => $statistics['active'],
+            'completedProperties' => $statistics['completed'],
+            'unlinkedProperties' => $statistics['unlinked'],
             'needsReviewProperties' => $statistics['needs_review'],
-            'assignments'           => $assignments,
-            'cityOptions'           => $this->cityOptionsGateway->optionsByName(),
+            'assignments' => $assignments,
+            'cityOptions' => $this->cityOptionsGateway->optionsByName(),
         ]);
     }
 
@@ -58,9 +58,9 @@ class PropertiesController extends Controller
         $generatedPropertyNumber = $this->propertyService->generatePropertyNumber();
 
         return view('tenants.properties.create', [
-            'assignments'             => $assignments,
+            'assignments' => $assignments,
             'generatedPropertyNumber' => $generatedPropertyNumber,
-            'cityOptions'             => $this->cityOptionsGateway->optionsByName(),
+            'cityOptions' => $this->cityOptionsGateway->optionsByName(),
         ]);
     }
 
@@ -79,7 +79,7 @@ class PropertiesController extends Controller
 
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'حدث خطأ أثناء إضافة العقار: ' . $e->getMessage());
+                ->with('error', 'حدث خطأ أثناء إضافة العقار: '.$e->getMessage());
         }
     }
 
@@ -98,7 +98,7 @@ class PropertiesController extends Controller
         $assignments = Assignment::select(['id', 'name', 'assignment_number'])->get();
 
         return view('tenants.properties.edit', [
-            'property'    => $property,
+            'property' => $property,
             'assignments' => $assignments,
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
         ]);
@@ -119,7 +119,7 @@ class PropertiesController extends Controller
 
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'حدث خطأ أثناء تحديث العقار: ' . $e->getMessage());
+                ->with('error', 'حدث خطأ أثناء تحديث العقار: '.$e->getMessage());
         }
     }
 
@@ -159,7 +159,7 @@ class PropertiesController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => $newStatus ? 'تم تفعيل العقار' : 'تم تعطيل العقار',
-                'status'  => $newStatus,
+                'status' => $newStatus,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -183,11 +183,11 @@ class PropertiesController extends Controller
                 'places' => $places,
             ]);
         } catch (\Throwable $e) {
-            Log::warning('Property location search failed: ' . $e->getMessage());
+            Log::warning('Property location search failed: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,
-                'message' => 'تعذر البحث عن الموقع حالياً: ' . $e->getMessage(),
+                'message' => 'تعذر البحث عن الموقع حالياً: '.$e->getMessage(),
                 'places' => [],
             ], 500);
         }

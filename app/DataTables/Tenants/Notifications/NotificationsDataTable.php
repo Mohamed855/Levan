@@ -3,12 +3,11 @@
 namespace App\DataTables\Tenants\Notifications;
 
 use App\DataTables\Abstract\AbstractDataTable;
-use App\Models\Tenants\User;
 use Carbon\Carbon;
 
 class NotificationsDataTable extends AbstractDataTable
 {
-    private $route = "notifications.all"; 
+    private $route = 'notifications.all';
 
     /*
     |--------------------------------------------------------------------------
@@ -21,6 +20,7 @@ class NotificationsDataTable extends AbstractDataTable
         $datatable = datatables()->eloquent($query)->addIndexColumn();
 
         $this->addCustomColumns($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
@@ -32,7 +32,7 @@ class NotificationsDataTable extends AbstractDataTable
     */
     protected function getTableId()
     {
-        return "notifications-table";
+        return 'notifications-table';
     }
 
     /*
@@ -44,6 +44,7 @@ class NotificationsDataTable extends AbstractDataTable
     protected function resource()
     {
         $user = auth('tenant')->user();
+
         return $user->notifications()->orderBy('created_at', 'desc');
     }
 
@@ -59,10 +60,10 @@ class NotificationsDataTable extends AbstractDataTable
             ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             [
-                'data'       => 'checkbox',
-                'name'       => 'checkbox',
-                'title'      => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
-                'orderable'  => false,
+                'data' => 'checkbox',
+                'name' => 'checkbox',
+                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
+                'orderable' => false,
                 'searchable' => false,
                 'width' => '10px',
                 'className' => 'custom-checkbox',
@@ -87,7 +88,7 @@ class NotificationsDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
             ->editColumn('title', function ($row) {
                 $icon = $row->data['icon'] ?? 'ti-bell';
@@ -100,16 +101,16 @@ class NotificationsDataTable extends AbstractDataTable
                     'secondary' => 'text-secondary',
                 ];
                 $colorClass = $iconColors[$row->data['type'] ?? 'info'] ?? 'text-info';
-                
+
                 return '<div class="d-flex align-items-center">
-                    <i class="' . e($icon) . ' ' . $colorClass . ' me-2"></i>
-                    <span>' . e($row->data['title'] ?? '') . '</span>
+                    <i class="'.e($icon).' '.$colorClass.' me-2"></i>
+                    <span>'.e($row->data['title'] ?? '').'</span>
                 </div>';
             })
             ->editColumn('message', function ($row) {
                 $message = e($row->data['message'] ?? '');
 
-                return '<span class="text-truncate d-block" style="max-width: 300px;" title="' . $message . '">' . $message . '</span>';
+                return '<span class="text-truncate d-block" style="max-width: 300px;" title="'.$message.'">'.$message.'</span>';
             })
             ->editColumn('type', function ($row) {
                 $type = $row->data['type'] ?? 'info';
@@ -122,7 +123,7 @@ class NotificationsDataTable extends AbstractDataTable
                     'secondary' => 'ثانوي',
                 ];
                 $typeText = $typeLabels[$type] ?? 'معلومات';
-                
+
                 $typeColors = [
                     'success' => 'bg-label-success',
                     'warning' => 'bg-label-warning',
@@ -132,8 +133,8 @@ class NotificationsDataTable extends AbstractDataTable
                     'secondary' => 'bg-secondary',
                 ];
                 $colorClass = $typeColors[$type] ?? 'bg-label-info';
-                
-                return '<span class="badge ' . $colorClass . '">' . $typeText . '</span>';
+
+                return '<span class="badge '.$colorClass.'">'.$typeText.'</span>';
             })
             ->editColumn('created_at', function ($row) {
                 return Carbon::parse($row->created_at)->format('Y-m-d');
@@ -142,14 +143,14 @@ class NotificationsDataTable extends AbstractDataTable
                 if ($row->read_at) {
                     return '<span class="badge bg-label-success">مقروء</span>';
                 } else {
-                    return '<span class="badge bg-label-danger cursor-pointer" onclick="markAsRead(' . $row->id . ')">غير مقروء</span>';
+                    return '<span class="badge bg-label-danger cursor-pointer" onclick="markAsRead('.$row->id.')">غير مقروء</span>';
                 }
             })
             ->addColumn('actions', function ($row) {
                 // استخدام ملف Blade منفصل للأزرار
                 return view('tenants.notifications.action', [
                     'id' => $row->id,
-                    'notification' => $row
+                    'notification' => $row,
                 ])->render();
             });
     }
@@ -225,22 +226,22 @@ class NotificationsDataTable extends AbstractDataTable
         ];
 
         $buttons[] = [
-            'text'      => 'تحديد الكل كمقروء',
+            'text' => 'تحديد الكل كمقروء',
             'className' => 'btn btn-default btn-mark-all-read',
-            'action'    => "function() { markAllAsRead(); }",
+            'action' => 'function() { markAllAsRead(); }',
         ];
 
         $buttons[] = [
-            'text'      => 'حذف المحدد',
+            'text' => 'حذف المحدد',
             'className' => 'btn btn-default btn-delete-selected',
-            'action'    => "function() { handleMassDelete(); }",
+            'action' => 'function() { handleMassDelete(); }',
         ];
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
 }

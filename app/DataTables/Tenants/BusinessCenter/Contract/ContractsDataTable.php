@@ -4,6 +4,8 @@ namespace App\DataTables\Tenants\BusinessCenter\Contract;
 
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Models\Tenants\BusinessCenter\Contract\Contract;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 
 class ContractsDataTable extends AbstractDataTable
 {
@@ -12,7 +14,7 @@ class ContractsDataTable extends AbstractDataTable
     | Route Configuration
     |--------------------------------------------------------------------------
     */
-    private $route = "contracts";
+    private $route = 'contracts';
 
     /*
     |--------------------------------------------------------------------------
@@ -21,12 +23,13 @@ class ContractsDataTable extends AbstractDataTable
     */
     public function dataTable($query)
     {
-        if ($query instanceof \Illuminate\Support\Collection) {
+        if ($query instanceof Collection) {
             return datatables()->collection($query)->addIndexColumn();
         }
 
         $datatable = datatables()->eloquent($query)->addIndexColumn();
         $this->addCustomColumns($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
@@ -37,7 +40,7 @@ class ContractsDataTable extends AbstractDataTable
     */
     protected function getTableId()
     {
-        return "contracts-table";
+        return 'contracts-table';
     }
 
     /*
@@ -47,7 +50,7 @@ class ContractsDataTable extends AbstractDataTable
     */
     protected function resource()
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('contracts')) {
+        if (! Schema::hasTable('contracts')) {
             return collect([]);
         }
 
@@ -65,14 +68,14 @@ class ContractsDataTable extends AbstractDataTable
             ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             [
-                'data'       => 'checkbox',
-                'name'       => 'checkbox',
-                'title'      => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all" class="form-check-input"></span>',
-                'orderable'  => false,
+                'data' => 'checkbox',
+                'name' => 'checkbox',
+                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all" class="form-check-input"></span>',
+                'orderable' => false,
                 'searchable' => false,
-                'width'      => '10px',
-                'className'  => 'custom-checkbox text-center',
-                'titleAttr'  => 'تحديد الكل',
+                'width' => '10px',
+                'className' => 'custom-checkbox text-center',
+                'titleAttr' => 'تحديد الكل',
             ],
             ['data' => 'contract_number', 'name' => 'contract_number', 'title' => 'رقم العقد'],
             ['data' => 'company.name', 'name' => 'company.name', 'title' => 'اسم الشركة'],
@@ -92,21 +95,21 @@ class ContractsDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
             ->editColumn('contract_number', function ($row) {
-                return '<a href="' . tenant_route_name('contracts.show', $row->id) . '" class="text-primary text-decoration-none d-inline-flex align-items-center">' .
-                    '<span class="fw-bold">' . $row->contract_number . '</span>' .
+                return '<a href="'.tenant_route_name('contracts.show', $row->id).'" class="text-primary text-decoration-none d-inline-flex align-items-center">'.
+                    '<span class="fw-bold">'.$row->contract_number.'</span>'.
                     '</a>';
             })
             ->editColumn('company.name', function ($row) {
-                return '<span class="fw-bold text-dark">' . ($row->company->name ?? 'غير محدد') . '</span>';
+                return '<span class="fw-bold text-dark">'.($row->company->name ?? 'غير محدد').'</span>';
             })
             ->editColumn('start_date', function ($row) {
-                return '<span class="text-muted">' . $row->formatted_start_date . '</span>';
+                return '<span class="text-muted">'.$row->formatted_start_date.'</span>';
             })
             ->editColumn('end_date', function ($row) {
-                return '<span class="text-muted">' . $row->formatted_end_date . '</span>';
+                return '<span class="text-muted">'.$row->formatted_end_date.'</span>';
             })
             ->editColumn('status', function ($row) {
                 $canEdit = auth()->user()?->can('contracts.edit');
@@ -115,10 +118,10 @@ class ContractsDataTable extends AbstractDataTable
                     $checked = $row->status === 'active' ? 'checked' : '';
                     $url = tenant_route_name('contracts.toggle-status', $row->id);
 
-                    return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_' . $row->id . '" data-url="' . e($url) . '" data-active-value="active" data-inactive-value="inactive" ' . $checked . ' aria-label="تبديل حالة العقد"></div></div>';
+                    return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_'.$row->id.'" data-url="'.e($url).'" data-active-value="active" data-inactive-value="inactive" '.$checked.' aria-label="تبديل حالة العقد"></div></div>';
                 }
 
-                return '<span class="badge ' . $row->status_class . '" title="للقراءة فقط">' . $row->status_label . '</span>';
+                return '<span class="badge '.$row->status_class.'" title="للقراءة فقط">'.$row->status_label.'</span>';
             })
             ->addColumn('actions', function ($row) {
                 return view('tenants.business_center.contracts.action', ['id' => $row->id, 'route' => $this->route])->render();
@@ -188,29 +191,29 @@ class ContractsDataTable extends AbstractDataTable
         $buttons = [
             [
                 'extend' => 'excel',
-                'text'   => 'إكسل',
-                'className' => 'dropdown-item'
+                'text' => 'إكسل',
+                'className' => 'dropdown-item',
             ],
             [
                 'extend' => 'copy',
-                'text'   => 'نسخ',
-                'className' => 'dropdown-item'
+                'text' => 'نسخ',
+                'className' => 'dropdown-item',
             ],
         ];
 
         if (auth()->user()?->can('contracts.delete')) {
             $buttons[] = [
-                'text'      => 'حذف المحدد',
+                'text' => 'حذف المحدد',
                 'className' => 'dropdown-item',
-                'action'    => "function() { handleMassDelete(); }",
+                'action' => 'function() { handleMassDelete(); }',
             ];
         }
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export dropdown-toggle me-2',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
 
@@ -221,14 +224,14 @@ class ContractsDataTable extends AbstractDataTable
     */
     private function getAddButton(): array
     {
-        if (!auth()->user()?->can('contracts.create')) {
+        if (! auth()->user()?->can('contracts.create')) {
             return [];
         }
 
         return [
-            'text'      => '<i class="fas fa-plus-circle me-1"></i> إضافة عقد',
+            'text' => '<i class="fas fa-plus-circle me-1"></i> إضافة عقد',
             'className' => 'btn btn-primary btn-add',
-            'action'    => "function(){ window.location.href='" . tenant_route_name($this->route . '.create') . "'; }",
+            'action' => "function(){ window.location.href='".tenant_route_name($this->route.'.create')."'; }",
         ];
     }
 }

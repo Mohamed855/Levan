@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Tenants\Reports\Contract;
 
 use App\DataTables\Tenants\Reports\Contract\ContractReportDataTable;
@@ -6,12 +7,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Tenants\BusinessCenter\Contract\Contract;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\FinancialCollection\Collection\Collection;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class ContractReportController extends Controller
 {
-
     public function index(ContractReportDataTable $dataTable)
     {
         return $dataTable->render('tenants.reports.contracts.index');
@@ -33,7 +31,7 @@ class ContractReportController extends Controller
     //             ->get();
 
     //         $totalCollectedAmount = $approvedCollections->sum('collected_amount');
-            
+
     //         // حساب نسبة الشركة من العمولات
     //         $commissions = $contract->commissions;
     //         $companyCommissionAmount = 0;
@@ -44,7 +42,7 @@ class ContractReportController extends Controller
     //             $activeCommissions = $commissions->where('is_active', 1);
     //             if ($activeCommissions->count() > 0) {
     //                 $averageCommissionRate = $activeCommissions->avg('commission_rate') ?? 0;
-                    
+
     //                 // حساب قيمة عمولة الشركة
     //                 $companyCommissionAmount = ($totalCollectedAmount * $averageCommissionRate) / 100;
     //             }
@@ -52,7 +50,6 @@ class ContractReportController extends Controller
 
     //         // صافي المبلغ بعد خصم عمولة الشركة
     //         $netAmount = $totalCollectedAmount - $companyCommissionAmount;
-            
 
     //         return [
     //             'contract' => $contract,
@@ -86,15 +83,15 @@ class ContractReportController extends Controller
 
         // جلب المبالغ المحصلة المعتمدة للعملاء التابعين لنفس الشركة
         $approvedCollections = Collection::whereHas('customer', function ($query) use ($contract) {
-                $query->where('company_id', $contract->company_id);
-            })
+            $query->where('company_id', $contract->company_id);
+        })
             ->where('status', 'approved')
             ->with(['customer', 'paymentMethod'])
             ->orderBy('collection_date', 'desc')
             ->get();
 
         $totalCollectedAmount = $approvedCollections->sum('collected_amount');
-        
+
         // حساب نسبة الشركة من العمولات
         $commissions = $contract->commissions;
         $companyCommissionAmount = 0;
@@ -110,7 +107,7 @@ class ContractReportController extends Controller
 
         $netAmount = $totalCollectedAmount - $companyCommissionAmount;
 
-        return view("tenants.reports.contracts.show", compact(
+        return view('tenants.reports.contracts.show', compact(
             'contract',
             'approvedCollections',
             'totalCollectedAmount',

@@ -20,7 +20,7 @@ class FullPaymentDetails extends Model
         'payment_type',
         'collection_type',
         'payment_method_id',
-        'payment_receipt_path'
+        'payment_receipt_path',
     ];
 
     protected $casts = [

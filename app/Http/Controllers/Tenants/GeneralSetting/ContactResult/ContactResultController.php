@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tenants\Traits\CommonSettingController;
 use App\Http\Requests\Tenants\GeneralSetting\SaveGeneralSettingRequest;
 use App\Models\Tenants\GeneralSetting\ContactResult\ContactResult;
-use Illuminate\View\View;
-use Yajra\DataTables\Facades\DataTables;
 
 class ContactResultController extends Controller
 {
@@ -46,6 +44,7 @@ class ContactResultController extends Controller
             $ContactResult = ContactResult::findOrFail($id);
 
             $ContactResult->delete();
+
             return redirect()->back()->with('success', 'تم الحذف بنجاح.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());

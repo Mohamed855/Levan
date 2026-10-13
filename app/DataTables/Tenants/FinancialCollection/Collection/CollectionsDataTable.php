@@ -4,11 +4,10 @@ namespace App\DataTables\Tenants\FinancialCollection\Collection;
 
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Models\Tenants\FinancialCollection\Collection\Collection;
-use Carbon\Carbon;
 
 class CollectionsDataTable extends AbstractDataTable
 {
-    private $route = "financial-collections.collections";
+    private $route = 'financial-collections.collections';
 
     /*
     |--------------------------------------------------------------------------
@@ -18,7 +17,6 @@ class CollectionsDataTable extends AbstractDataTable
     public function dataTable($query)
     {
         $datatable = datatables()->eloquent($query)->addIndexColumn();
-
 
         $datatable->filterColumn('customer_info', function ($query, $keyword) {
             $query->whereHas('customerForTable', function ($q) use ($keyword) {
@@ -33,12 +31,12 @@ class CollectionsDataTable extends AbstractDataTable
             });
         });
 
-
         $datatable->filterColumn('receipt_number', function ($query, $keyword) {
             $query->where('receipt_number', 'like', "%{$keyword}%");
         });
 
         $this->addCustomColumns($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
@@ -49,7 +47,7 @@ class CollectionsDataTable extends AbstractDataTable
     */
     protected function getTableId()
     {
-        return "collections-table";
+        return 'collections-table';
     }
 
     /*
@@ -76,13 +74,13 @@ class CollectionsDataTable extends AbstractDataTable
                 'collections.approved_by',
                 'collections.approved_at',
                 'collections.rejection_reason',
-                'collections.created_at'
+                'collections.created_at',
             ])
             ->with([
                 'customerForTable:id,name,phone,account_number,relationship_manager_id',
                 'paymentMethod:id,name',
                 'addedBy:id,name',
-                'approvedBy:id,name'
+                'approvedBy:id,name',
             ])
             ->where('added_by', auth()->id());
     }
@@ -99,7 +97,7 @@ class CollectionsDataTable extends AbstractDataTable
                 'data' => '',
                 'orderable' => false,
                 'searchable' => false,
-                'className' => 'control'
+                'className' => 'control',
             ],
             [
                 'data' => 'checkbox',
@@ -115,37 +113,37 @@ class CollectionsDataTable extends AbstractDataTable
                 'data' => 'customer_info',
                 'name' => 'customer_info',
                 'title' => 'العميل',
-                'className' => 'table-ellipsis'
+                'className' => 'table-ellipsis',
             ],
             [
                 'data' => 'account_number',
                 'name' => 'account_number',
                 'title' => 'رقم الحساب',
                 'className' => 'table-ellipsis',
-                'searchable' => true
+                'searchable' => true,
             ],
             [
                 'data' => 'amount_info',
                 'name' => 'amount_info',
                 'title' => 'المبلغ',
-                'className' => 'table-ellipsis'
+                'className' => 'table-ellipsis',
             ],
             [
                 'data' => 'collection_details',
                 'name' => 'collection_details',
                 'title' => 'تفاصيل التحصيل',
                 'orderable' => false,
-                'searchable' => false
+                'searchable' => false,
             ],
             [
                 'data' => 'collection_date_formatted',
                 'name' => 'collection_date',
-                'title' => 'تاريخ التحصيل'
+                'title' => 'تاريخ التحصيل',
             ],
             [
                 'data' => 'status',
                 'name' => 'status',
-                'title' => 'الحالة'
+                'title' => 'الحالة',
             ],
             // [
             //     'data' => 'added_by',
@@ -155,14 +153,14 @@ class CollectionsDataTable extends AbstractDataTable
             [
                 'data' => 'created_at_formatted',
                 'name' => 'created_at',
-                'title' => 'تاريخ الإضافة'
+                'title' => 'تاريخ الإضافة',
             ],
             [
                 'data' => 'attachment',
                 'name' => 'attachment',
                 'title' => 'المرفق',
                 'orderable' => false,
-                'searchable' => false
+                'searchable' => false,
             ],
             [
                 'data' => 'actions',
@@ -171,8 +169,8 @@ class CollectionsDataTable extends AbstractDataTable
                 'orderable' => false,
                 'searchable' => false,
                 'width' => '120px',
-                'className' => 'text-center'
-            ]
+                'className' => 'text-center',
+            ],
         ];
     }
 
@@ -185,12 +183,12 @@ class CollectionsDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
             ->addColumn('customer_info', function (Collection $collection) {
                 $customer = $collection->customerForTable;
 
-                if (!$customer) {
+                if (! $customer) {
                     return '<span class="text-danger">عميل غير موجود</span>';
                 }
 
@@ -201,42 +199,44 @@ class CollectionsDataTable extends AbstractDataTable
                 if ($canOpenCustomer) {
                     $customerUrl = tenant_route_name('customers.show', $customer->id);
 
-                    return '<a href="' . $customerUrl . '" class="text-primary text-decoration-none fw-medium">'
-                        . e($customer->name)
-                        . '</a>';
+                    return '<a href="'.$customerUrl.'" class="text-primary text-decoration-none fw-medium">'
+                        .e($customer->name)
+                        .'</a>';
                 }
 
                 // عرض الاسم فقط بدون رابط
-                return '<span class="fw-medium text-dark">' . e($customer->name) . '</span>';
+                return '<span class="fw-medium text-dark">'.e($customer->name).'</span>';
             })
 
             ->addColumn('account_number', function (Collection $collection) {
                 return '<span class="text-muted">'
-                    . e(optional($collection->customerForTable)->account_number ?? 'غير محدد')
-                    . '</span>';
+                    .e(optional($collection->customerForTable)->account_number ?? 'غير محدد')
+                    .'</span>';
             })
             ->addColumn('amount_info', function (Collection $collection) {
-                return '<div class="fw-medium text-primary">' . $collection->formatted_collected_amount . '</div>';
+                return '<div class="fw-medium text-primary">'.$collection->formatted_collected_amount.'</div>';
             })
             ->addColumn('collection_details', function (Collection $collection) {
                 $typeClass = $collection->collection_type === 'cash' ? 'bg-label-primary' : 'bg-label-info';
                 $paymentTypeClass = $collection->payment_type === 'settlement' ? 'bg-label-primary' : 'bg-secondary';
-                return '<div>' .
-                    '<span class="badge ' . $typeClass . '">' . $collection->collection_type_label . '</span> ' .
-                    '<span class="badge ' . $paymentTypeClass . '">' . $collection->payment_type_label . '</span> ' .
+
+                return '<div>'.
+                    '<span class="badge '.$typeClass.'">'.$collection->collection_type_label.'</span> '.
+                    '<span class="badge '.$paymentTypeClass.'">'.$collection->payment_type_label.'</span> '.
                     '</div>';
             })
             ->addColumn('collection_date_formatted', function (Collection $collection) {
-                return '<span class="text-primary">' . $collection->formatted_collection_date . '</span>';
+                return '<span class="text-primary">'.$collection->formatted_collection_date.'</span>';
             })
             ->addColumn('status', function (Collection $collection) {
-                $statusBadge = '<span class="badge ' . $collection->status_class . '">' . $collection->status_label . '</span>';
+                $statusBadge = '<span class="badge '.$collection->status_class.'">'.$collection->status_label.'</span>';
                 if ($collection->status === 'rejected' && $collection->rejection_reason) {
-                    $statusBadge .= ' <small class="text-muted" title="' .
-                        e($collection->rejection_reason) . '">
+                    $statusBadge .= ' <small class="text-muted" title="'.
+                        e($collection->rejection_reason).'">
                                        <i class="ti ti-info-circle"></i>
                                    </small>';
                 }
+
                 return $statusBadge;
             })
             // ->addColumn('added_by', function (Collection $collection) {
@@ -250,17 +250,19 @@ class CollectionsDataTable extends AbstractDataTable
             ->addColumn('attachment', function (Collection $collection) {
                 if ($collection->attachment) {
                     $url = tasset($collection->attachment);
-                    return '<a href="' . $url . '" target="_blank" class="btn btn-icon btn-label-primary" title="عرض المرفق">
+
+                    return '<a href="'.$url.'" target="_blank" class="btn btn-icon btn-label-primary" title="عرض المرفق">
                                 <i class="ti ti-paperclip"></i>
                             </a>';
                 }
+
                 return '<span class="text-muted">لا يوجد</span>';
             })
             ->addColumn('actions', function ($row) {
                 return view('tenants.financial_collection.collections.action', [
                     'id' => $row->id,
                     'route' => $this->route,
-                    'collection' => $row
+                    'collection' => $row,
                 ])->render();
             });
     }
@@ -282,7 +284,7 @@ class CollectionsDataTable extends AbstractDataTable
             'status',
             'added_by',
             'attachment',
-            'actions'
+            'actions',
         ];
     }
 
@@ -316,6 +318,7 @@ class CollectionsDataTable extends AbstractDataTable
         } elseif ($request->filled('date_to')) {
             $query->whereDate('collection_date', '<=', $request->date_to);
         }
+
         return $query;
     }
 
@@ -342,19 +345,19 @@ class CollectionsDataTable extends AbstractDataTable
         $actions = [];
         $actions[] = [
             'extend' => 'copy',
-            'text' => 'نسخ'
+            'text' => 'نسخ',
         ];
         $actions[] = [
             'extend' => 'excel',
             'text' => 'إكسل',
-            'title' => 'التحصيلات المالية'
+            'title' => 'التحصيلات المالية',
         ];
 
         if (auth()->user()?->can('collections.delete')) {
             $actions[] = [
                 'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
-                'action' => "function() { handleMassDelete(); }"
+                'action' => 'function() { handleMassDelete(); }',
             ];
         }
 
@@ -373,14 +376,14 @@ class CollectionsDataTable extends AbstractDataTable
     */
     private function getAddButton(): array
     {
-        if (!auth()->user()?->can('collections.create')) {
+        if (! auth()->user()?->can('collections.create')) {
             return [];
         }
 
         return [
             'text' => '<i class="fas fa-plus-circle me-1"></i> إضافة تحصيل',
             'className' => 'btn btn-primary btn-add',
-            'action' => "function(){ window.location.href='" . tenant_route_name($this->route . '.create') . "'; }",
+            'action' => "function(){ window.location.href='".tenant_route_name($this->route.'.create')."'; }",
         ];
     }
 }

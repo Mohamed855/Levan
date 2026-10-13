@@ -2,21 +2,19 @@
 
 namespace App\DataTables\Admin\Bill;
 
-
-
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Models\Admin\Bills\Bill;
 use Carbon\Carbon;
-use Illuminate\Support\Str;
 
 class AdminBillsDataTable extends AbstractDataTable
 {
-    private $page   = "admin.bills";
-    private $route  = "admin.bills";
+    private $page = 'admin.bills';
+
+    private $route = 'admin.bills';
 
     protected function getTableId()
     {
-        return "bill-table";
+        return 'bill-table';
     }
 
     protected function resource()
@@ -37,17 +35,17 @@ class AdminBillsDataTable extends AbstractDataTable
                 'className' => 'custom-checkbox',
                 'width' => '10px',
             ],
-            ['data' => 'bill_number',       'title' => 'رقم الفاتورة',],
+            ['data' => 'bill_number',       'title' => 'رقم الفاتورة'],
 
-            ['data' => 'tenant_name',       'title' => 'العميل',],
-            ['data' => 'tenant_id',         'title' => 'المعرف',],
-            ['data' => 'type',              'title' => 'نوع العملية',],
-            ['data' => 'amount',            'title' => 'المبلغ',],
-            ['data' => 'settlement_amount', 'title' => 'التسوية',],
-            ['data' => 'payment_method',    'title' => 'طريقة الدفع',],
-            ['data' => 'status',            'title' => 'حالة العملية',],
-            ['data' => 'created_at',        'title' => 'تاريخ العملية',],
-            ['data' => 'due_date',         'title' => 'اخر تاريخ للسداد',],
+            ['data' => 'tenant_name',       'title' => 'العميل'],
+            ['data' => 'tenant_id',         'title' => 'المعرف'],
+            ['data' => 'type',              'title' => 'نوع العملية'],
+            ['data' => 'amount',            'title' => 'المبلغ'],
+            ['data' => 'settlement_amount', 'title' => 'التسوية'],
+            ['data' => 'payment_method',    'title' => 'طريقة الدفع'],
+            ['data' => 'status',            'title' => 'حالة العملية'],
+            ['data' => 'created_at',        'title' => 'تاريخ العملية'],
+            ['data' => 'due_date',         'title' => 'اخر تاريخ للسداد'],
             ['data' => 'actions',           'name' => 'actions',            'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px'],
 
         ];
@@ -57,11 +55,11 @@ class AdminBillsDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
 
             ->editColumn('tenant_name', function ($row) {
-                return $row->tenant?->company_name ?? "-";
+                return $row->tenant?->company_name ?? '-';
             })
 
             ->editColumn('type', function ($row) {
@@ -69,7 +67,7 @@ class AdminBillsDataTable extends AbstractDataTable
             })
 
             ->editColumn('bill_number', function ($row) {
-                return $this->routeName(route($this->route . '.show', $row->id), $row->bill_number);
+                return $this->routeName(route($this->route.'.show', $row->id), $row->bill_number);
             })
 
             ->editColumn('amount', function ($row) {
@@ -93,7 +91,7 @@ class AdminBillsDataTable extends AbstractDataTable
             })
 
             ->editColumn('due_date', function ($row) {
-                if (!$row->due_date) {
+                if (! $row->due_date) {
                     return '-';
                 }
 
@@ -108,7 +106,7 @@ class AdminBillsDataTable extends AbstractDataTable
             })
 
             ->addColumn('actions', function ($row) {
-                return view($this->page . '.action', ['row' => $row, 'route' => $this->route])->render();
+                return view($this->page.'.action', ['row' => $row, 'route' => $this->route])->render();
             });
     }
 
@@ -117,7 +115,7 @@ class AdminBillsDataTable extends AbstractDataTable
         $request = request();
 
         if ($request->filled('type')) {
-            $query->where('type',  $request->type);
+            $query->where('type', $request->type);
         }
 
         if ($request->filled('status')) {
@@ -158,18 +156,17 @@ class AdminBillsDataTable extends AbstractDataTable
         $buttons = [
             ['extend' => 'copy', 'text' => 'نسخ'],
             ['extend' => 'excel', 'text' => 'إكسل', 'exportOptions' => [
-                'columns' => [11, 10, 9, 8, 7, 6, 5, 4, 3]
+                'columns' => [11, 10, 9, 8, 7, 6, 5, 4, 3],
             ]],
         ];
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
-
 
     private function TypeBadge($row): string
     {

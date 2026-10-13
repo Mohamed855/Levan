@@ -5,13 +5,15 @@ namespace App\Http\Controllers\Tenants\Auth\Fortify;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Auth\ConfirmTenantTwoFactorRequest;
 use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
-use Laravel\Fortify\Actions\EnableTwoFactorAuthentication;
 use Laravel\Fortify\Actions\ConfirmTwoFactorAuthentication;
 use Laravel\Fortify\Actions\DisableTwoFactorAuthentication;
+use Laravel\Fortify\Actions\EnableTwoFactorAuthentication;
+use Laravel\Fortify\RecoveryCode;
 
 class TenantTwoFactorSettingsController extends Controller
 {
@@ -57,9 +59,9 @@ class TenantTwoFactorSettingsController extends Controller
         $user = Auth::guard('tenant')->user();
 
         // توليد أكواد جديدة تمامًا وإلغاء القديمة
-        $newCodes = \Illuminate\Support\Collection::times(
+        $newCodes = Collection::times(
             8,
-            fn() => \Laravel\Fortify\RecoveryCode::generate()
+            fn () => RecoveryCode::generate()
         )->all();
 
         $user->forceFill([

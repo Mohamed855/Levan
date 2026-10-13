@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Controllers\Tenants\__LinkDomain;
+
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Domains\ProcessExternalDomainLinkRequest;
 use Illuminate\Http\Request;
@@ -9,15 +11,15 @@ use Illuminate\Support\Str;
 
 class LinkDomainController extends Controller
 {
-      public function linkExternalDomain()
+    public function linkExternalDomain()
     {
         return view('domain.link-external-domain');
     }
 
-
-    
     protected $whmToken;
+
     protected $whmUrl;
+
     protected $serverIp;
 
     public function __construct()
@@ -27,7 +29,6 @@ class LinkDomainController extends Controller
         $this->serverIp = env('SERVER_IP', '135.181.215.105');
     }
 
-  
     public function processLinkExternalDomain(ProcessExternalDomainLinkRequest $request)
     {
         $domainName = $request->validated('domain_name');
@@ -48,19 +49,20 @@ class LinkDomainController extends Controller
             // 2️⃣ إضافة Zone للدومين الخارجي
             // ============================
             $zoneResponse = Http::withHeaders([
-                'Authorization' => 'whm root:' . $this->whmToken,
-            ])->timeout(60)->get($this->whmUrl . '/addzone', [
-                'domain'      => $domainName,
-                'ip'          => $this->serverIp,
+                'Authorization' => 'whm root:'.$this->whmToken,
+            ])->timeout(60)->get($this->whmUrl.'/addzone', [
+                'domain' => $domainName,
+                'ip' => $this->serverIp,
                 'nameserver1' => $dns1,
                 'nameserver2' => $dns2,
             ]);
 
             $zoneJson = $zoneResponse->json();
 
-            if (!isset($zoneJson['metadata']['result']) || $zoneJson['metadata']['result'] != 1) {
+            if (! isset($zoneJson['metadata']['result']) || $zoneJson['metadata']['result'] != 1) {
                 $errorMsg = $zoneJson['metadata']['reason'] ?? 'خطأ في إضافة Zone';
                 Log::error('WHM Zone Addition Failed', ['error' => $errorMsg, 'domain' => $domainName]);
+
                 return $this->respondError('تعذر ربط الدومين حالياً. يرجى المحاولة لاحقاً.', $request);
             }
 
@@ -71,16 +73,15 @@ class LinkDomainController extends Controller
             ]);
 
             sleep(2);
- 
-            $this->addARecord($domainName, $domainName . '.', $this->serverIp);
+
+            $this->addARecord($domainName, $domainName.'.', $this->serverIp);
             sleep(1);
 
-             $this->addARecord($domainName, 'www.' . $domainName . '.', $this->serverIp);
+            $this->addARecord($domainName, 'www.'.$domainName.'.', $this->serverIp);
             sleep(1);
 
-           
             foreach ([$dns1, $dns2] as $ns) {
-                $this->addNSRecord($domainName, $domainName . '.', $ns);
+                $this->addNSRecord($domainName, $domainName.'.', $ns);
                 sleep(1);
             }
 
@@ -98,7 +99,7 @@ class LinkDomainController extends Controller
                 'ns1' => $dns1,
                 'ns2' => $dns2,
                 'ip' => $this->serverIp,
-                'type' => 'external'
+                'type' => 'external',
             ], $request);
 
         } catch (\Throwable $th) {
@@ -113,7 +114,6 @@ class LinkDomainController extends Controller
         }
     }
 
- 
     public function linkSubDomain()
     {
         return view('domain.link-subdomain');
@@ -140,36 +140,37 @@ class LinkDomainController extends Controller
             // 2️⃣ إنشاء حساب الاستضافة
             // ============================
             $prefix = 'sub';
-            $unique = substr(md5($subDomainName . microtime()), 0, 6);
-            $whmUser = strtolower($prefix . $unique);
-            $whmPass = Str::random(16) . '@1Aa';
+            $unique = substr(md5($subDomainName.microtime()), 0, 6);
+            $whmUser = strtolower($prefix.$unique);
+            $whmPass = Str::random(16).'@1Aa';
             $whmEmail = 'admin@example.com';
 
             // النطاق الكامل للصب دومين
-            $fullSubDomain = $subDomainName . '.' . $domainName;
+            $fullSubDomain = $subDomainName.'.'.$domainName;
 
             $whmResponse = Http::withHeaders([
-                'Authorization' => 'whm root:' . $this->whmToken,
-            ])->timeout(60)->get($this->whmUrl . '/createacct', [
-                'api.version'     => 1,
-                'username'        => $whmUser,
-                'domain'          => $fullSubDomain,
-                'plan'            => $plan,
-                'password'        => $whmPass,
-                'contactemail'    => $whmEmail,
-                'ip'              => $this->serverIp,
+                'Authorization' => 'whm root:'.$this->whmToken,
+            ])->timeout(60)->get($this->whmUrl.'/createacct', [
+                'api.version' => 1,
+                'username' => $whmUser,
+                'domain' => $fullSubDomain,
+                'plan' => $plan,
+                'password' => $whmPass,
+                'contactemail' => $whmEmail,
+                'ip' => $this->serverIp,
                 'skipdomaincheck' => 1,
             ]);
 
             $whmJson = $whmResponse->json();
 
-            if (!isset($whmJson['metadata']['result']) || $whmJson['metadata']['result'] != 1) {
+            if (! isset($whmJson['metadata']['result']) || $whmJson['metadata']['result'] != 1) {
                 $errorMsg = $whmJson['metadata']['reason'] ?? 'خطأ غير معروف';
                 Log::error('WHM Account Creation Failed for SubDomain', [
                     'error' => $errorMsg,
-                    'subdomain' => $fullSubDomain
+                    'subdomain' => $fullSubDomain,
                 ]);
-                return $this->respondError('❌ فشل إنشاء الحساب: ' . $errorMsg, $request);
+
+                return $this->respondError('❌ فشل إنشاء الحساب: '.$errorMsg, $request);
             }
 
             Log::info('WHM Account Created for SubDomain', [
@@ -183,11 +184,11 @@ class LinkDomainController extends Controller
             // 3️⃣ إضافة A Records للصب دومين
             // ============================
             // A Record للـ Subdomain
-            $this->addARecord($domainName, $fullSubDomain . '.', $this->serverIp);
+            $this->addARecord($domainName, $fullSubDomain.'.', $this->serverIp);
             sleep(1);
 
             // A Record للـ www.subdomain
-            $this->addARecord($domainName, 'www.' . $fullSubDomain . '.', $this->serverIp);
+            $this->addARecord($domainName, 'www.'.$fullSubDomain.'.', $this->serverIp);
 
             $successMessage = "🎉 تم إنشاء الصب دومين بنجاح!\n\n📋 بيانات الوصول:\n🔹 النطاق: {$fullSubDomain}\n🔹 اسم المستخدم: {$whmUser}\n🔹 لوحة التحكم: https://{$fullSubDomain}:2083";
 
@@ -201,7 +202,7 @@ class LinkDomainController extends Controller
                 'subdomain' => $fullSubDomain,
                 'username' => $whmUser,
                 'cpanel_url' => "https://{$fullSubDomain}:2083",
-                'type' => 'subdomain'
+                'type' => 'subdomain',
             ], $request);
 
         } catch (\Throwable $th) {
@@ -212,7 +213,7 @@ class LinkDomainController extends Controller
                 'line' => $th->getLine(),
             ]);
 
-            return $this->respondError('❌ حدث خطأ: ' . $th->getMessage(), $request);
+            return $this->respondError('❌ حدث خطأ: '.$th->getMessage(), $request);
         }
     }
 
@@ -224,26 +225,26 @@ class LinkDomainController extends Controller
     {
         try {
             $response = Http::withHeaders([
-                'Authorization' => 'whm root:' . $this->whmToken,
-            ])->timeout(30)->get($this->whmUrl . '/addzonerecord', [
-                'domain'  => $domain,
-                'name'    => $name,
-                'type'    => 'A',
+                'Authorization' => 'whm root:'.$this->whmToken,
+            ])->timeout(30)->get($this->whmUrl.'/addzonerecord', [
+                'domain' => $domain,
+                'name' => $name,
+                'type' => 'A',
                 'address' => $address,
-                'ttl'     => 14400,
+                'ttl' => 14400,
             ]);
 
-            Log::info("A Record Added", [
+            Log::info('A Record Added', [
                 'name' => $name,
                 'ip' => $address,
-                'response' => $response->json()
+                'response' => $response->json(),
             ]);
 
             return $response->json();
         } catch (\Throwable $th) {
-            Log::error("Failed to Add A Record", [
+            Log::error('Failed to Add A Record', [
                 'name' => $name,
-                'error' => $th->getMessage()
+                'error' => $th->getMessage(),
             ]);
             throw $th;
         }
@@ -253,25 +254,25 @@ class LinkDomainController extends Controller
     {
         try {
             $response = Http::withHeaders([
-                'Authorization' => 'whm root:' . $this->whmToken,
-            ])->timeout(30)->get($this->whmUrl . '/addzonerecord', [
-                'domain'  => $domain,
-                'name'    => $name,
-                'type'    => 'NS',
+                'Authorization' => 'whm root:'.$this->whmToken,
+            ])->timeout(30)->get($this->whmUrl.'/addzonerecord', [
+                'domain' => $domain,
+                'name' => $name,
+                'type' => 'NS',
                 'nsdname' => $nsdname,
-                'ttl'     => 86400,
+                'ttl' => 86400,
             ]);
 
-            Log::info("NS Record Added", [
+            Log::info('NS Record Added', [
                 'ns' => $nsdname,
-                'response' => $response->json()
+                'response' => $response->json(),
             ]);
 
             return $response->json();
         } catch (\Throwable $th) {
-            Log::error("Failed to Add NS Record", [
+            Log::error('Failed to Add NS Record', [
                 'ns' => $nsdname,
-                'error' => $th->getMessage()
+                'error' => $th->getMessage(),
             ]);
             throw $th;
         }
@@ -284,7 +285,7 @@ class LinkDomainController extends Controller
                 'success' => true,
                 'message' => $message,
                 'type' => 'success',
-                'data' => $data
+                'data' => $data,
             ]);
         }
 
@@ -297,7 +298,7 @@ class LinkDomainController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => $message,
-                'type' => 'error'
+                'type' => 'error',
             ], 400);
         }
 

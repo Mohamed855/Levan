@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Plan extends Model
 {
-    use HasFactory, SoftDeletes, ActivityLogTrait;
+    use ActivityLogTrait, HasFactory, SoftDeletes;
 
     protected $connection = 'mysql';
 
@@ -52,22 +52,22 @@ class Plan extends Model
     ];
 
     protected $casts = [
-        'price'                      => 'decimal:2',
-        'yearly_renewal_price'       => 'decimal:2',
-        'extra_user_license_price'   => 'decimal:2',
-        'discount_percentage'        => 'float',
-        'included_users'             => 'integer',
-        'properties_limit'           => 'integer',
-        'storage_quota_gb'           => 'integer',
-        'active_auctions_limit'      => 'integer',
-        'domain_management_enabled'  => 'boolean',
-        'is_active'                  => 'boolean',
-        'sort_order'                 => 'integer',
-        'features'                   => 'array',
-        'available_from'             => 'datetime',
-        'plan_type'                  => PlanType::class,
-        'limits_mode'                => PlanLimitsMode::class,
-        'color'                      => PlanColor::class,
+        'price' => 'decimal:2',
+        'yearly_renewal_price' => 'decimal:2',
+        'extra_user_license_price' => 'decimal:2',
+        'discount_percentage' => 'float',
+        'included_users' => 'integer',
+        'properties_limit' => 'integer',
+        'storage_quota_gb' => 'integer',
+        'active_auctions_limit' => 'integer',
+        'domain_management_enabled' => 'boolean',
+        'is_active' => 'boolean',
+        'sort_order' => 'integer',
+        'features' => 'array',
+        'available_from' => 'datetime',
+        'plan_type' => PlanType::class,
+        'limits_mode' => PlanLimitsMode::class,
+        'color' => PlanColor::class,
         'subscription_billing_cycle' => SubscriptionBillingCycle::class,
     ];
 
@@ -98,28 +98,28 @@ class Plan extends Model
     public static function getFieldTranslations(): array
     {
         return [
-            'name'                       => 'اسم الباقة',
-            'code'                       => 'كود الباقة',
-            'plan_type'                  => 'نوع الباقة',
-            'color'                      => 'اللون',
-            'description'                => 'الوصف',
-            'price'                      => 'السعر الأساسي',
-            'yearly_renewal_price'       => 'سعر العرض السنوي',
-            'extra_user_license_price'   => 'سعر ترخيص المستخدم الإضافي',
-            'discount_percentage'        => 'نسبة الخصم',
-            'limits_mode'                => 'وضع الحدود',
-            'included_users'             => 'عدد المستخدمين المشمولين',
-            'properties_limit'           => 'حد العقارات',
-            'storage_quota_gb'           => 'حصة التخزين (جيجابايت)',
-            'active_auctions_limit'      => 'حد المزادات النشطة',
-            'domain_management_enabled'  => 'إدارة الدومينات',
+            'name' => 'اسم الباقة',
+            'code' => 'كود الباقة',
+            'plan_type' => 'نوع الباقة',
+            'color' => 'اللون',
+            'description' => 'الوصف',
+            'price' => 'السعر الأساسي',
+            'yearly_renewal_price' => 'سعر العرض السنوي',
+            'extra_user_license_price' => 'سعر ترخيص المستخدم الإضافي',
+            'discount_percentage' => 'نسبة الخصم',
+            'limits_mode' => 'وضع الحدود',
+            'included_users' => 'عدد المستخدمين المشمولين',
+            'properties_limit' => 'حد العقارات',
+            'storage_quota_gb' => 'حصة التخزين (جيجابايت)',
+            'active_auctions_limit' => 'حد المزادات النشطة',
+            'domain_management_enabled' => 'إدارة الدومينات',
             'subscription_billing_cycle' => 'دورة الفوترة',
-            'available_from'             => 'تاريخ الإتاحة',
-            'admin_notes'                => 'ملاحظات إدارية',
-            'features'                   => 'المميزات',
-            'is_active'                  => 'الحالة',
-            'created_by'                 => 'أنشئ بواسطة',
-            'updated_by'                 => 'تم التحديث بواسطة',
+            'available_from' => 'تاريخ الإتاحة',
+            'admin_notes' => 'ملاحظات إدارية',
+            'features' => 'المميزات',
+            'is_active' => 'الحالة',
+            'created_by' => 'أنشئ بواسطة',
+            'updated_by' => 'تم التحديث بواسطة',
         ];
     }
 
@@ -180,6 +180,7 @@ class Plan extends Model
 
         if (is_string($value)) {
             $decoded = json_decode($value, true);
+
             return is_array($decoded) ? $decoded : [];
         }
 
@@ -197,7 +198,7 @@ class Plan extends Model
 
     public function isAvailable(): bool
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return false;
         }
 
@@ -232,7 +233,7 @@ class Plan extends Model
     {
         return $query->where(function (Builder $q) {
             $q->whereNull('available_from')
-              ->orWhere('available_from', '<=', now());
+                ->orWhere('available_from', '<=', now());
         });
     }
 
@@ -244,18 +245,21 @@ class Plan extends Model
     public function scopeByBillingCycle(Builder $query, string|SubscriptionBillingCycle $cycle): Builder
     {
         $value = $cycle instanceof SubscriptionBillingCycle ? $cycle->value : $cycle;
+
         return $query->where('subscription_billing_cycle', $value);
     }
 
     public function scopeByPlanType(Builder $query, string|PlanType $type): Builder
     {
         $value = $type instanceof PlanType ? $type->value : $type;
+
         return $query->where('plan_type', $value);
     }
 
     public function scopeByLimitsMode(Builder $query, string|PlanLimitsMode $mode): Builder
     {
         $value = $mode instanceof PlanLimitsMode ? $mode->value : $mode;
+
         return $query->where('limits_mode', $value);
     }
 }

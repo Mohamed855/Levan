@@ -23,15 +23,15 @@ use Stancl\Tenancy\Facades\Tenancy;
 
 class NewSubscriptionController extends Controller
 {
-    private $page = "tenants.subscription.new_subscription.";
+    private $page = 'tenants.subscription.new_subscription.';
 
     public function __construct(
-        private MoyasarCallbackHandler          $moyasarCallbackHandler,
-        private MoyasarFormConfiguration        $moyasarFormConfiguration,
-        private SessionManagerService           $sessionManagerService,
-        private CouponService                   $couponService,
-        private BillService                     $billService,
-        private SubscriptionService             $subscriptionService,
+        private MoyasarCallbackHandler $moyasarCallbackHandler,
+        private MoyasarFormConfiguration $moyasarFormConfiguration,
+        private SessionManagerService $sessionManagerService,
+        private CouponService $couponService,
+        private BillService $billService,
+        private SubscriptionService $subscriptionService,
     ) {
 
         // اذا كان هناك اشتراك
@@ -47,37 +47,35 @@ class NewSubscriptionController extends Controller
         });
     }
 
-
     // لا يوجد اشتراك
     public function index()
     {
-        $plans = Tenancy::central(fn() => Plan::where('is_active', true)->get());
-        return view($this->page . '.index', compact('plans'));
-    }
+        $plans = Tenancy::central(fn () => Plan::where('is_active', true)->get());
 
+        return view($this->page.'.index', compact('plans'));
+    }
 
     public function checkout(Plan $plan)
     {
         $this->sessionManagerService->storeSubscriptionData($plan);
 
-        $taxRate         = 0.15;
-        $taxAmount       = round($plan->price_after_discount * $taxRate, 2);
+        $taxRate = 0.15;
+        $taxAmount = round($plan->price_after_discount * $taxRate, 2);
         $priceWithoutTax = round($plan->price_after_discount - $taxAmount, 2);
 
-        return view($this->page . 'checkout', compact('plan', 'priceWithoutTax', 'taxAmount'));
+        return view($this->page.'checkout', compact('plan', 'priceWithoutTax', 'taxAmount'));
     }
-
 
     public function checkoutStore(PaymentRequest $request)
     {
         try {
             $sessionData = $this->sessionManagerService->validateSession('subscription_data');
 
-            if (!$sessionData) {
+            if (! $sessionData) {
                 return $this->redirectWithError('subscribe.index', 'انتهت صلاحية الجلسة، يرجى المحاولة مرة أخرى');
             }
 
-            $plan       = $this->getCentralPlan($sessionData['plan_id']);
+            $plan = $this->getCentralPlan($sessionData['plan_id']);
             $couponData = $this->couponService->processCoupon($request->input('coupon_code'), $plan->price_after_discount);
 
             if (isset($couponData['error'])) {
@@ -94,10 +92,10 @@ class NewSubscriptionController extends Controller
             return $this->redirectWithError('subscribe.index', $e->getMessage());
         } catch (\Throwable $e) {
             report($e);
+
             return $this->redirectWithError('subscribe.index', 'حدث خطأ أثناء المعالجة ');
         }
     }
-
 
     public function handleNewSubscriptionCallback(Request $request)
     {
@@ -111,6 +109,7 @@ class NewSubscriptionController extends Controller
             return redirect()->to(tenant_route_name('subscribe.index'))->with('error', $e->getMessage());
         } catch (\Throwable $e) {
             report($e);
+
             return redirect()->to(tenant_route_name('subscribe.index'))->with('error', 'حدث خطأ أثناء معالجة نتيجة الدفع');
         }
     }
@@ -152,18 +151,16 @@ class NewSubscriptionController extends Controller
             'backUrl' => tenant_route_name('subscribe.checkout', ['plan' => $plan->id]),
             'bill' => $bill,
             'callbackUrl' => tenant_route_name('subscribe.callback', ['bill' => $bill->bill_number]),
-            'description' => 'اشتراك في ' . $plan->name,
+            'description' => 'اشتراك في '.$plan->name,
             'mode' => $this->moyasarFormConfiguration->getMode(),
             'publishableKey' => $this->moyasarFormConfiguration->getPublishableKey(),
         ]);
     }
 
-
     private function getCentralPlan(int $planId): Plan
     {
-        return Tenancy::central(fn() => Plan::findOrFail($planId));
+        return Tenancy::central(fn () => Plan::findOrFail($planId));
     }
-
 
     private function redirectWithError(string $route, string $message)
     {

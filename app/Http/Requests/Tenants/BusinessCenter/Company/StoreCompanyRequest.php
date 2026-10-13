@@ -16,7 +16,7 @@ class StoreCompanyRequest extends WizardFormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255', 'unique:companies,name'],
-            'logo'  => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'logo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'status' => ['sometimes', 'in:active,inactive'],
             'target_percentage' => ['required', 'numeric', 'min:0', 'max:100'],
             'authorized_people' => ['nullable', 'array', 'max:50'],
@@ -35,9 +35,9 @@ class StoreCompanyRequest extends WizardFormRequest
             'name.unique' => 'اسم الشركة موجود مسبقاً',
             'name.max' => 'اسم الشركة يجب ألا يتجاوز 255 حرف',
             'logo.required' => 'شعار الشركة مطلوب',
-            'logo.image'    => 'الملف يجب أن يكون صورة صالحة',
-            'logo.mimes'    => 'نوع الشعار يجب أن يكون: JPG أو JPEG أو PNG أو WebP',
-            'logo.max'      => 'حجم الشعار يجب ألا يتجاوز 2 ميجابايت',
+            'logo.image' => 'الملف يجب أن يكون صورة صالحة',
+            'logo.mimes' => 'نوع الشعار يجب أن يكون: JPG أو JPEG أو PNG أو WebP',
+            'logo.max' => 'حجم الشعار يجب ألا يتجاوز 2 ميجابايت',
             'status.in' => 'حالة الشركة يجب أن تكون نشط أو غير نشط',
             'target_percentage.required' => 'نسبة المستهدف مطلوبة',
             'target_percentage.numeric' => 'نسبة المستهدف يجب أن تكون رقماً',

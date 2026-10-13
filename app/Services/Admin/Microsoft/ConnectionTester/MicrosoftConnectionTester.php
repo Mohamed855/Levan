@@ -2,7 +2,6 @@
 
 namespace App\Services\Admin\Microsoft\ConnectionTester;
 
-
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 
@@ -12,7 +11,7 @@ class MicrosoftConnectionTester
 
     public function __construct()
     {
-        $this->httpClient = new Client();
+        $this->httpClient = new Client;
     }
 
     public function validate(string $clientId, string $clientSecret, string $tenantId, string $mainEmail): array
@@ -22,18 +21,18 @@ class MicrosoftConnectionTester
                 "https://login.microsoftonline.com/{$tenantId}/oauth2/v2.0/token",
                 [
                     'form_params' => [
-                        'client_id'     => $clientId,
+                        'client_id' => $clientId,
                         'client_secret' => $clientSecret,
-                        'scope'         => 'https://graph.microsoft.com/.default',
-                        'grant_type'    => 'client_credentials',
+                        'scope' => 'https://graph.microsoft.com/.default',
+                        'grant_type' => 'client_credentials',
                     ],
                 ]
             );
 
-            $data  = json_decode($tokenResponse->getBody()->getContents(), true);
+            $data = json_decode($tokenResponse->getBody()->getContents(), true);
             $token = $data['access_token'] ?? null;
 
-            if (!$token) {
+            if (! $token) {
                 return [false, 'تعذر الحصول على رمز الوصول من Microsoft، تحقق من Client ID و Client Secret.'];
             }
 
@@ -42,7 +41,7 @@ class MicrosoftConnectionTester
                 [
                     'headers' => [
                         'Authorization' => "Bearer {$token}",
-                        'Accept'        => 'application/json',
+                        'Accept' => 'application/json',
                     ],
                 ]
             );

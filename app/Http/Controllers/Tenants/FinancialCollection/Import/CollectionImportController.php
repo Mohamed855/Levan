@@ -3,15 +3,16 @@
 namespace App\Http\Controllers\Tenants\FinancialCollection\Import;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\FinancialCollection\Import\CancelCollectionImportRequest;
 use App\Http\Requests\Tenants\FinancialCollection\Import\CollectionImportProgressRequest;
 use App\Http\Requests\Tenants\FinancialCollection\Import\CollectionImportRequest;
-use App\Http\Requests\Tenants\FinancialCollection\Import\CancelCollectionImportRequest;
 use App\Http\Requests\Tenants\FinancialCollection\Import\DownloadCollectionImportErrorReportRequest;
 use App\Http\Requests\Tenants\FinancialCollection\Import\ProcessCollectionImportRequest;
 use App\Http\Requests\Tenants\FinancialCollection\Import\UploadCollectionImportRequest;
 use App\Services\Tenants\FinancialCollection\Import\CollectionImportService;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class CollectionImportController extends Controller
@@ -37,6 +38,7 @@ class CollectionImportController extends Controller
     public function showImportForm()
     {
         $systemOptions = $this->importService->getSystemOptions();
+
         return view('tenants.financial_collection.import.index', compact('systemOptions'));
     }
 
@@ -45,7 +47,7 @@ class CollectionImportController extends Controller
     | Generate Excel Template
     |--------------------------------------------------------------------------
     */
-    public function generateTemplate(): BinaryFileResponse|\Illuminate\Http\JsonResponse
+    public function generateTemplate(): BinaryFileResponse|JsonResponse
     {
         $result = $this->importService->generateImportTemplate();
 
@@ -107,18 +109,18 @@ class CollectionImportController extends Controller
     */
     public function getImportProgress(CollectionImportProgressRequest $request)
     {
-        $progress = Cache::get('import_progress_' . $request->validated('job_id'));
+        $progress = Cache::get('import_progress_'.$request->validated('job_id'));
 
         if (! is_array($progress) || (int) ($progress['requested_by'] ?? 0) !== (int) $request->user('tenant')->getKey()) {
             return response()->json([
                 'success' => false,
-                'message' => 'لم يتم العثور على معلومات العملية'
+                'message' => 'لم يتم العثور على معلومات العملية',
             ], 404);
         }
 
         return response()->json([
             'success' => true,
-            'data' => $progress
+            'data' => $progress,
         ]);
     }
 
@@ -127,15 +129,15 @@ class CollectionImportController extends Controller
     | Download Error Report
     |--------------------------------------------------------------------------
     */
-    public function downloadErrorReport(DownloadCollectionImportErrorReportRequest $request): BinaryFileResponse|\Illuminate\Http\JsonResponse
+    public function downloadErrorReport(DownloadCollectionImportErrorReportRequest $request): BinaryFileResponse|JsonResponse
     {
         $reportPath = $request->validated('report_path');
 
-        if (!$reportPath || !Storage::disk('local')->exists($reportPath)) {
+        if (! $reportPath || ! Storage::disk('local')->exists($reportPath)) {
             return response()->json(['success' => false, 'message' => 'ملف التقرير غير موجود.'], 404);
         }
 
-        return response()->download(storage_path('app/' . $reportPath))->deleteFileAfterSend(true);
+        return response()->download(storage_path('app/'.$reportPath))->deleteFileAfterSend(true);
     }
 
     /*
@@ -147,6 +149,7 @@ class CollectionImportController extends Controller
     {
         $tempPath = $request->validated('temp_path');
         Storage::disk('tenant_public')->delete($tempPath);
+
         return response()->json(['success' => true]);
     }
 }

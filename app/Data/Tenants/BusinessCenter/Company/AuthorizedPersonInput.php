@@ -14,14 +14,14 @@ final class AuthorizedPersonInput
 
     public static function fromArray(array $input): self
     {
-        $n = fn(?string $v) => isset($v) ? (trim($v) === '' ? null : trim($v)) : null;
+        $n = fn (?string $v) => isset($v) ? (trim($v) === '' ? null : trim($v)) : null;
 
         return new self(
             name: $n($input['name'] ?? null),
             phone: $n($input['phone'] ?? null),
             email: $n($input['email'] ?? null),
             position: $n($input['position'] ?? null),
-            is_default: (bool)($input['is_default'] ?? false)
+            is_default: (bool) ($input['is_default'] ?? false)
         );
     }
 

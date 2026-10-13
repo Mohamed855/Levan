@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class NewPasswordController extends Controller
@@ -31,7 +32,7 @@ class NewPasswordController extends Controller
     /**
      * Handle an incoming new password request.
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function store(ResetTenantPasswordRequest $request): RedirectResponse
     {
@@ -57,9 +58,8 @@ class NewPasswordController extends Controller
         return $status == Password::PASSWORD_RESET
             ? redirect()->to(tenant_route_name('login'))->with('status', __($status))
             : back()->withInput($request->only('email'))
-            ->withErrors(['email' => __($status)]);
+                ->withErrors(['email' => __($status)]);
     }
-
 
     public function updatePassword(ResetTenantPasswordRequest $request)
     {

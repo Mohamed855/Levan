@@ -2,7 +2,7 @@
 
 namespace App\Services\Admin\AdminMangment\Users;
 
-
+use App\Enums\Admin\Users\AdminUserStatus;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Storage;
 
 class UserService
 {
-
     public function create(array $data): AdminUser
     {
         return DB::transaction(function () use ($data) {
@@ -22,16 +21,15 @@ class UserService
             }
 
             // Hash password
-            $data['password']   = Hash::make($data['password']);
+            $data['password'] = Hash::make($data['password']);
 
             // Set default status
-            $data['status']     = $data['status'] ?? 'active';
+            $data['status'] = $data['status'] ?? 'active';
 
             // Create user
             return AdminUser::create($data);
         });
     }
-
 
     public function update(AdminUser $user, array $data): AdminUser
     {
@@ -46,7 +44,7 @@ class UserService
             }
 
             // Hash password if provided
-            if (isset($data['password']) && !empty($data['password'])) {
+            if (isset($data['password']) && ! empty($data['password'])) {
                 $data['password'] = Hash::make($data['password']);
             } else {
                 unset($data['password']);
@@ -58,7 +56,6 @@ class UserService
             return $user->fresh();
         });
     }
-
 
     public function deleteUser(AdminUser $user): bool
     {
@@ -83,6 +80,7 @@ class UserService
                     $deletedCount++;
                 }
             }
+
             return $deletedCount;
         });
     }
@@ -101,9 +99,9 @@ class UserService
     public function getUserStatistics(): array
     {
         return [
-            'total'    => AdminUser::count(),
-            'active'   => AdminUser::where('status', \App\Enums\Admin\Users\AdminUserStatus::ACTIVE)->count(),
-            'inactive' => AdminUser::where('status', \App\Enums\Admin\Users\AdminUserStatus::INACTIVE)->count(),
+            'total' => AdminUser::count(),
+            'active' => AdminUser::where('status', AdminUserStatus::ACTIVE)->count(),
+            'inactive' => AdminUser::where('status', AdminUserStatus::INACTIVE)->count(),
             'archived' => AdminUser::onlyTrashed()->count(),
         ];
     }
@@ -118,7 +116,7 @@ class UserService
     private function handleImageUpload(UploadedFile $image): string
     {
         // Generate unique filename
-        $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+        $filename = time().'_'.uniqid().'.'.$image->getClientOriginalExtension();
 
         // Store image
         return $image->storeAs('admin_users', $filename, 'public');
@@ -126,7 +124,7 @@ class UserService
 
     public function deleteImage(?string $imagePath): bool
     {
-        if (!$imagePath) {
+        if (! $imagePath) {
             return false;
         }
 
@@ -147,7 +145,7 @@ class UserService
             'status',
             'image',
             'created_at',
-            'last_login_at'
+            'last_login_at',
         ]);
         // ])->with(['roles:id,name']);
     }

@@ -10,24 +10,27 @@ use Illuminate\Support\Facades\Log;
 class MicrosoftGraphService
 {
     protected string $clientId;
+
     protected string $clientSecret;
+
     protected string $tenantId;
+
     protected Client $httpClient;
 
-    protected string $graphBaseUrl       = 'https://graph.microsoft.com/v1.0';
-    protected string $tokenUrlTemplate   = 'https://login.microsoftonline.com/%s/oauth2/v2.0/token';
+    protected string $graphBaseUrl = 'https://graph.microsoft.com/v1.0';
+
+    protected string $tokenUrlTemplate = 'https://login.microsoftonline.com/%s/oauth2/v2.0/token';
 
     public function __construct(MicrosoftSettingsService $settingsService)
     {
         $config = $settingsService->get();
 
-        $this->clientId     = $config['client_id'];
+        $this->clientId = $config['client_id'];
         $this->clientSecret = $config['client_secret'];
-        $this->tenantId     = $config['tenant_id'];
+        $this->tenantId = $config['tenant_id'];
 
-        $this->httpClient = new Client();
+        $this->httpClient = new Client;
     }
-
 
     public function getAccessToken(): ?string
     {
@@ -37,10 +40,10 @@ class MicrosoftGraphService
                     sprintf($this->tokenUrlTemplate, $this->tenantId),
                     [
                         'form_params' => [
-                            'client_id'     => $this->clientId,
+                            'client_id' => $this->clientId,
                             'client_secret' => $this->clientSecret,
-                            'scope'         => 'https://graph.microsoft.com/.default',
-                            'grant_type'    => 'client_credentials',
+                            'scope' => 'https://graph.microsoft.com/.default',
+                            'grant_type' => 'client_credentials',
                         ],
                     ]
                 );
@@ -49,27 +52,27 @@ class MicrosoftGraphService
 
                 return $data['access_token'] ?? null;
             } catch (\Throwable $e) {
-                Log::error('MicrosoftGraphService::getAccessToken error: ' . $e->getMessage());
+                Log::error('MicrosoftGraphService::getAccessToken error: '.$e->getMessage());
+
                 return null;
             }
         });
     }
 
-
     public function request(string $method, string $uri, array $options = [])
     {
         $token = $this->getAccessToken();
 
-        if (!$token) {
+        if (! $token) {
             throw new \RuntimeException('Cannot obtain Microsoft Graph access token');
         }
 
-        $url = $this->graphBaseUrl . '/' . ltrim($uri, '/');
+        $url = $this->graphBaseUrl.'/'.ltrim($uri, '/');
 
         $options['headers'] = array_merge(
             [
                 'Authorization' => "Bearer {$token}",
-                'Accept'        => 'application/json',
+                'Accept' => 'application/json',
             ],
             $options['headers'] ?? []
         );
@@ -81,7 +84,7 @@ class MicrosoftGraphService
 
             return json_decode($content, true) ?: $content;
         } catch (\Throwable $e) {
-            Log::error("MicrosoftGraphService::request error [{$method} {$uri}]: " . $e->getMessage());
+            Log::error("MicrosoftGraphService::request error [{$method} {$uri}]: ".$e->getMessage());
             throw $e;
         }
     }

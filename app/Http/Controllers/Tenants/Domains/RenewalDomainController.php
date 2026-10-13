@@ -27,7 +27,6 @@ class RenewalDomainController extends Controller
         ]);
     }
 
-
     public function renewalDomain($domain)
     {
         return $this->renewal_domain_service->renewDomain($domain);

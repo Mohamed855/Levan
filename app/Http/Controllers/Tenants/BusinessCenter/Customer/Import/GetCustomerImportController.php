@@ -7,8 +7,8 @@ use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Models\Tenants\GeneralSetting\Country\SettingsCountry;
 use App\Models\Tenants\GeneralSetting\CustomerStatus\SettingsCustomerStatus;
 use App\Models\Tenants\UserMangment\User\User;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class GetCustomerImportController extends Controller
 {
@@ -25,14 +25,14 @@ class GetCustomerImportController extends Controller
 
     public function getImportMetadata()
     {
-        $nationalities  = SettingsCountry::where('status', 'active')->select('id', 'name')->orderBy('id')->get();
-        $statuses       = SettingsCustomerStatus::where('status', 'active')->select('id', 'name')->orderBy('id')->get();
-        $managers       = User::where('status', 'active')->select('id', 'name', 'employee_number')->orderBy('id')->get();
+        $nationalities = SettingsCountry::where('status', 'active')->select('id', 'name')->orderBy('id')->get();
+        $statuses = SettingsCustomerStatus::where('status', 'active')->select('id', 'name')->orderBy('id')->get();
+        $managers = User::where('status', 'active')->select('id', 'name', 'employee_number')->orderBy('id')->get();
 
         return response()->json([
             'nationalities' => $nationalities,
             'statuses' => $statuses,
-            'managers' => $managers
+            'managers' => $managers,
         ]);
     }
 }

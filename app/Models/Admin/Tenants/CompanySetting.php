@@ -24,8 +24,8 @@ class CompanySetting extends Model
     ];
 
     protected $casts = [
-        'email_notifications_enabled'   => 'boolean',
-        'two_factor_enabled'            => 'boolean',
+        'email_notifications_enabled' => 'boolean',
+        'two_factor_enabled' => 'boolean',
         'external_integrations_enabled' => 'boolean',
     ];
 

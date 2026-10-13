@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Tenants\GeneralSetting\CustomerStatus;
 
-use App\Models\Tenants\GeneralSetting\CustomerStatus\SettingsCustomerStatus;
 use Illuminate\Foundation\Http\FormRequest;
 
 class SaveSettingsCustomerStatusRequest extends FormRequest
@@ -26,7 +25,6 @@ class SaveSettingsCustomerStatusRequest extends FormRequest
     */
     public function rules(): array
     {
-
 
         return [
             'name' => 'required|string|max:255',

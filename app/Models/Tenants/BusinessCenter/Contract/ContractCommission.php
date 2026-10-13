@@ -56,7 +56,9 @@ class ContractCommission extends Model
 
     public function getProcedureTypeLabelAttribute(): ?string
     {
-        if (!$this->procedure_type) return null;
+        if (! $this->procedure_type) {
+            return null;
+        }
 
         $labels = [
             'friendly' => 'ودي',
@@ -68,7 +70,9 @@ class ContractCommission extends Model
 
     public function getDurationRangeAttribute(): ?string
     {
-        if ($this->commission_type !== 'duration') return null;
+        if ($this->commission_type !== 'duration') {
+            return null;
+        }
 
         return "{$this->duration_from} - {$this->duration_to} يوم";
     }

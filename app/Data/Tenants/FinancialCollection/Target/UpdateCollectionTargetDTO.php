@@ -5,16 +5,21 @@ namespace App\Data\Tenants\FinancialCollection\Target;
 class UpdateCollectionTargetDTO
 {
     public int $user_id;
+
     public string $target_type;
+
     public float $target_amount;
+
     public ?string $status;
 
     // Fields for monthly targets
     public ?int $target_month;
+
     public ?int $target_year;
 
     // Fields for custom targets
     public ?string $custom_start_date;
+
     public ?string $custom_end_date;
 
     public function __construct(

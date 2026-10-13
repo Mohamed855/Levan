@@ -20,7 +20,8 @@ use Illuminate\View\View;
 
 class PlanController extends Controller
 {
-    private string $page  = 'admin.plans';
+    private string $page = 'admin.plans';
+
     private string $route = 'admin.plans';
 
     public function __construct(private readonly PlanService $planService)
@@ -44,15 +45,15 @@ class PlanController extends Controller
                     ['value' => 'active',   'label' => 'نشط'],
                     ['value' => 'inactive', 'label' => 'غير نشط'],
                 ],
-                'plan_types' => array_map(fn($case) => [
+                'plan_types' => array_map(fn ($case) => [
                     'value' => $case->value,
                     'label' => $case->label(),
                 ], PlanType::cases()),
-                'billing_cycles' => array_map(fn($case) => [
+                'billing_cycles' => array_map(fn ($case) => [
                     'value' => $case->value,
                     'label' => $case->label(),
                 ], SubscriptionBillingCycle::cases()),
-                'limits_modes' => array_map(fn($case) => [
+                'limits_modes' => array_map(fn ($case) => [
                     'value' => $case->value,
                     'label' => $case->label(),
                 ], PlanLimitsMode::cases()),
@@ -73,17 +74,18 @@ class PlanController extends Controller
                 ],
             ];
 
-            return $dataTable->render($this->page . '.index', [
-                'totalPlans'           => $statistics['total'],
-                'activePlans'          => $statistics['active'],
-                'inactivePlans'        => $statistics['inactive'],
-                'activeSubscriptions'  => $statistics['active_subscriptions'],
+            return $dataTable->render($this->page.'.index', [
+                'totalPlans' => $statistics['total'],
+                'activePlans' => $statistics['active'],
+                'inactivePlans' => $statistics['inactive'],
+                'activeSubscriptions' => $statistics['active_subscriptions'],
                 'expiredSubscriptions' => $statistics['expired_subscriptions'],
-                'monthlyRevenue'       => $statistics['monthly_revenue'],
-                'filterOptions'        => $filterOptions,
+                'monthlyRevenue' => $statistics['monthly_revenue'],
+                'filterOptions' => $filterOptions,
             ]);
         } catch (\Throwable $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب بيانات الباقات.');
         }
     }
@@ -93,42 +95,43 @@ class PlanController extends Controller
         try {
             $data = $this->planService->getPlanDetails($plan);
 
-            return view($this->page . '.show', [
-                'plan'                => $data['plan'],
-                'subscriptions'       => $data['subscriptions'],
-                'statistics'          => $data['statistics'],
+            return view($this->page.'.show', [
+                'plan' => $data['plan'],
+                'subscriptions' => $data['subscriptions'],
+                'statistics' => $data['statistics'],
                 'mostRequestedPlanId' => $data['mostRequestedPlanId'],
             ]);
         } catch (\Throwable $e) {
             report($e);
-            return redirect()->route($this->route . '.index')->with('error', 'حدث خطأ أثناء جلب تفاصيل الباقة.');
+
+            return redirect()->route($this->route.'.index')->with('error', 'حدث خطأ أثناء جلب تفاصيل الباقة.');
         }
     }
 
     public function create(): View
     {
-        return view($this->page . '.create');
+        return view($this->page.'.create');
     }
 
     public function store(PlanRequest $request): RedirectResponse
     {
         $this->planService->create($request->validated());
 
-        return redirect()->route($this->route . '.index')->with('success', __('plans.success.created'));
+        return redirect()->route($this->route.'.index')->with('success', __('plans.success.created'));
     }
 
     public function edit(Plan $plan): View
     {
         $hasSubscriptions = $this->planService->hasSubscriptions($plan);
 
-        return view($this->page . '.edit', compact('plan', 'hasSubscriptions'));
+        return view($this->page.'.edit', compact('plan', 'hasSubscriptions'));
     }
 
     public function update(PlanRequest $request, Plan $plan): RedirectResponse
     {
         $this->planService->update($plan, $request->validated());
 
-        return redirect()->route($this->route . '.index')->with('success', __('plans.success.updated'));
+        return redirect()->route($this->route.'.index')->with('success', __('plans.success.updated'));
     }
 
     public function destroy(AdminAuthenticatedRequest $request, Plan $plan): RedirectResponse
@@ -136,12 +139,13 @@ class PlanController extends Controller
         try {
             $this->planService->delete($plan);
 
-            return redirect()->route($this->route . '.index')->with('success', __('plans.success.deleted'));
+            return redirect()->route($this->route.'.index')->with('success', __('plans.success.deleted'));
         } catch (\DomainException $e) {
-            return redirect()->route($this->route . '.index')->with('error', $e->getMessage());
+            return redirect()->route($this->route.'.index')->with('error', $e->getMessage());
         } catch (\Throwable $e) {
             report($e);
-            return redirect()->route($this->route . '.index')->with('error', 'حدث خطأ غير متوقع أثناء حذف الباقة.');
+
+            return redirect()->route($this->route.'.index')->with('error', 'حدث خطأ غير متوقع أثناء حذف الباقة.');
         }
     }
 
@@ -151,8 +155,8 @@ class PlanController extends Controller
             $plan = $this->planService->toggleActive($plan);
 
             return response()->json([
-                'success'   => true,
-                'message'   => $plan->is_active ? 'تم تفعيل الباقة بنجاح' : 'تم تعطيل الباقة بنجاح',
+                'success' => true,
+                'message' => $plan->is_active ? 'تم تفعيل الباقة بنجاح' : 'تم تعطيل الباقة بنجاح',
                 'is_active' => $plan->is_active,
             ]);
         } catch (\Throwable $exception) {
@@ -182,6 +186,7 @@ class PlanController extends Controller
             ]);
         } catch (\Throwable $e) {
             report($e);
+
             return response()->json([
                 'success' => false,
                 'message' => 'حدث خطأ أثناء تحديث الترتيب',

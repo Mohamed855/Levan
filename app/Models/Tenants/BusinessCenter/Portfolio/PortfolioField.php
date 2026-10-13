@@ -55,9 +55,9 @@ class PortfolioField extends Model
     public static function getTypeOptions(): array
     {
         return [
-            'text'    => 'نصي',
+            'text' => 'نصي',
             'numeric' => 'رقمي',
-            'date'    => 'تاريخ',
+            'date' => 'تاريخ',
         ];
     }
 }

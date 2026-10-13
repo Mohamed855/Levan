@@ -17,6 +17,7 @@ use App\Http\Requests\Admin\Companies\UpdateCompanyRequest;
 use App\Models\Admin\City;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Tenants\Tenant;
+use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Admin\Companies\CompanyService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -34,9 +35,10 @@ class CompanyController extends Controller
         $this->middleware('can:companies.edit')->only(['edit', 'update']);
         $this->middleware('can:companies.delete')->only(['destroy']);
         $this->middleware(function ($request, $next) {
-            if (!auth()->user()?->can('companies.create') && !auth()->user()?->can('companies.edit')) {
+            if (! auth()->user()?->can('companies.create') && ! auth()->user()?->can('companies.edit')) {
                 abort(403);
             }
+
             return $next($request);
         })->only([
             'checkCommercialNumberUnique',
@@ -81,13 +83,13 @@ class CompanyController extends Controller
         ];
 
         return $dataTable->render('admin.companies.index', [
-            'totalCompanies'     => $statistics['total'],
-            'activeCompanies'    => $statistics['active'],
+            'totalCompanies' => $statistics['total'],
+            'activeCompanies' => $statistics['active'],
             'suspendedCompanies' => $statistics['suspended'],
-            'pendingCompanies'   => $statistics['pending'],
-            'cities'             => $cities,
-            'plans'              => $plans,
-            'filterOptions'      => $filterOptions,
+            'pendingCompanies' => $statistics['pending'],
+            'cities' => $cities,
+            'plans' => $plans,
+            'filterOptions' => $filterOptions,
         ]);
     }
 
@@ -98,7 +100,7 @@ class CompanyController extends Controller
 
         return view('admin.companies.create', [
             'cities' => $cities,
-            'plans'  => $plans,
+            'plans' => $plans,
         ]);
     }
 
@@ -111,6 +113,7 @@ class CompanyController extends Controller
                 ->with('success', "تم إنشاء الشركة {$company->company_name} بنجاح.");
         } catch (\Throwable $e) {
             report($e);
+
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'حدث خطأ أثناء إنشاء الشركة. يرجى المحاولة مرة أخرى.');
@@ -130,9 +133,9 @@ class CompanyController extends Controller
         $company->load(['companySettings', 'city']);
 
         return view('admin.companies.edit', [
-            'company'  => $company,
+            'company' => $company,
             'settings' => $company->companySettings,
-            'cities'   => $cities,
+            'cities' => $cities,
         ]);
     }
 
@@ -145,6 +148,7 @@ class CompanyController extends Controller
                 ->with('success', "تم تحديث بيانات الشركة {$company->company_name} بنجاح.");
         } catch (\Throwable $e) {
             report($e);
+
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'حدث خطأ أثناء تحديث بيانات الشركة.');
@@ -184,15 +188,15 @@ class CompanyController extends Controller
         return response()->json([
             'duration_type' => $plan->subscription_duration_type,
             'billing_cycle' => $plan->subscription_billing_cycle,
-            'price'         => $plan->price_after_discount,
-            'total_users'   => $plan->included_users,
-            'limits'        => [
-                'users'      => $plan->included_users,
+            'price' => $plan->price_after_discount,
+            'total_users' => $plan->included_users,
+            'limits' => [
+                'users' => $plan->included_users,
                 'properties' => $plan->properties_limit,
                 'storage_gb' => $plan->storage_quota_gb,
-                'auctions'   => $plan->active_auctions_limit,
+                'auctions' => $plan->active_auctions_limit,
             ],
-            'features'      => $plan->features ?? [],
+            'features' => $plan->features ?? [],
         ]);
     }
 
@@ -212,7 +216,7 @@ class CompanyController extends Controller
 
         return response()->json([
             'available' => ! $exists,
-            'message'   => $exists ? 'رقم السجل التجاري مسجل بالفعل' : 'رقم السجل التجاري متاح',
+            'message' => $exists ? 'رقم السجل التجاري مسجل بالفعل' : 'رقم السجل التجاري متاح',
         ]);
     }
 
@@ -232,7 +236,7 @@ class CompanyController extends Controller
 
         return response()->json([
             'available' => ! $exists,
-            'message'   => $exists ? 'اسم الشركة مسجل بالفعل' : 'اسم الشركة متاح',
+            'message' => $exists ? 'اسم الشركة مسجل بالفعل' : 'اسم الشركة متاح',
         ]);
     }
 
@@ -252,7 +256,7 @@ class CompanyController extends Controller
 
         return response()->json([
             'available' => ! $exists,
-            'message'   => $exists ? 'الرقم الضريبي مسجل بالفعل' : 'الرقم الضريبي متاح',
+            'message' => $exists ? 'الرقم الضريبي مسجل بالفعل' : 'الرقم الضريبي متاح',
         ]);
     }
 
@@ -264,13 +268,13 @@ class CompanyController extends Controller
         $email = $request->validated('email');
 
         $existsInTenants = Tenant::where('primary_contact_email', $email)->exists();
-        $existsInUsers = \App\Models\Tenants\UserMangment\User\User::where('email', $email)->exists();
+        $existsInUsers = User::where('email', $email)->exists();
 
         $exists = $existsInTenants || $existsInUsers;
 
         return response()->json([
             'available' => ! $exists,
-            'message'   => $exists ? 'البريد الإلكتروني مستخدم من قبل' : 'البريد الإلكتروني متاح',
+            'message' => $exists ? 'البريد الإلكتروني مستخدم من قبل' : 'البريد الإلكتروني متاح',
         ]);
     }
 
@@ -282,13 +286,13 @@ class CompanyController extends Controller
         $phone = $request->validated('phone');
 
         $existsInTenants = Tenant::where('primary_contact_phone', $phone)->exists();
-        $existsInUsers = \App\Models\Tenants\UserMangment\User\User::where('phone', $phone)->exists();
+        $existsInUsers = User::where('phone', $phone)->exists();
 
         $exists = $existsInTenants || $existsInUsers;
 
         return response()->json([
             'available' => ! $exists,
-            'message'   => $exists ? 'رقم الهاتف مستخدم من قبل' : 'رقم الهاتف متاح',
+            'message' => $exists ? 'رقم الهاتف مستخدم من قبل' : 'رقم الهاتف متاح',
         ]);
     }
 }

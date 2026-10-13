@@ -76,5 +76,4 @@ class UpdateCustomerFollowRequest extends FormRequest
 
         return $messages;
     }
-
 }

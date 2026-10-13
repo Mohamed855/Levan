@@ -4,13 +4,11 @@ namespace App\Console;
 
 use App\Jobs\Admin\ProcessSubscriptionPeriods;
 use App\Jobs\Tenants\TransferDomain\TransferDomainJob;
-use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
-
     /*
     |--------------------------------------------------------------------------
     | Define the application's command schedule.
@@ -18,10 +16,10 @@ class Kernel extends ConsoleKernel
     */
     protected function schedule(Schedule $schedule): void
     {
-        //for delete File Report From Storage
+        // for delete File Report From Storage
         $schedule->command('reports:clean')->dailyAt('12:00');
 
-        //for clean open session import
+        // for clean open session import
         // $schedule->command('import:cleanup-sessions')->dailyAt('12:00');
 
         // اغلاق فترات العمل الغير نشطة بعد 10 دقائق من آخر نشاط
@@ -47,7 +45,7 @@ class Kernel extends ConsoleKernel
         // ============ SMS Credit Top-Up ============
         $schedule->command('payment-plan:reminders')->dailyAt('06:00');
 
-        $schedule->job(new TransferDomainJob())
+        $schedule->job(new TransferDomainJob)
             ->hourly()
             ->withoutOverlapping();
     }
@@ -59,7 +57,7 @@ class Kernel extends ConsoleKernel
     */
     protected function commands(): void
     {
-        $this->load(__DIR__ . '/Commands');
+        $this->load(__DIR__.'/Commands');
 
         require base_path('routes/console.php');
     }

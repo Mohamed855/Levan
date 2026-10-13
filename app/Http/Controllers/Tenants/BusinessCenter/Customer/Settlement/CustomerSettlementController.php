@@ -19,7 +19,6 @@ class CustomerSettlementController extends Controller
         $this->customerSettlementService = $customerSettlementService;
     }
 
-
     /**
      * جلب قائمة التسويات للعميل (لتحديثها عبر Ajax)
      */
@@ -29,23 +28,22 @@ class CustomerSettlementController extends Controller
             $customerSettlements = $customer->settlements()->with('createdBy:id,name')->latest()->get();
 
             $html = view('tenants.business_center.customers.customer_settlements.list', [
-                'customerSettlements' => $customerSettlements
+                'customerSettlements' => $customerSettlements,
             ])->render();
 
             return response()->json([
                 'success' => true,
-                'html' => $html
+                'html' => $html,
             ]);
         } catch (\Exception $e) {
-            \Log::error('خطأ في جلب قائمة التسويات: ' . $e->getMessage());
+            \Log::error('خطأ في جلب قائمة التسويات: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء جلب البيانات'
+                'message' => 'حدث خطأ أثناء جلب البيانات',
             ], 500);
         }
     }
-
 
     /**
      * عرض نموذج الإضافة
@@ -57,20 +55,20 @@ class CustomerSettlementController extends Controller
 
             $html = view('tenants.business_center.customers.customer_settlements.create', [
                 'customer' => $customer,
-                'settlementTypes' => $settlementTypes
+                'settlementTypes' => $settlementTypes,
             ])->render();
 
             return response()->json([
                 'success' => true,
                 'html' => $html,
-                'message' => 'تم تحميل النموذج بنجاح'
+                'message' => 'تم تحميل النموذج بنجاح',
             ]);
         } catch (\Exception $e) {
-            \Log::error('خطأ في تحميل نموذج إضافة التسوية: ' . $e->getMessage());
+            \Log::error('خطأ في تحميل نموذج إضافة التسوية: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تحميل النموذج: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء تحميل النموذج: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -89,14 +87,14 @@ class CustomerSettlementController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'تم حفظ التسويات بنجاح ',
-                'data' => $settlements
+                'data' => $settlements,
             ]);
         } catch (\Exception $e) {
-            \Log::error('خطأ في حفظ التسويات: ' . $e->getMessage());
+            \Log::error('خطأ في حفظ التسويات: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء حفظ التسويات: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء حفظ التسويات: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -111,7 +109,7 @@ class CustomerSettlementController extends Controller
             if ($customerSettlement->customer_id !== $customer->id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'غير مصرح لك بتعديل هذه التسوية'
+                    'message' => 'غير مصرح لك بتعديل هذه التسوية',
                 ], 403);
             }
 
@@ -120,20 +118,20 @@ class CustomerSettlementController extends Controller
             $html = view('tenants.business_center.customers.customer_settlements.edit', [
                 'customer' => $customer,
                 'settlement' => $customerSettlement,
-                'settlementTypes' => $settlementTypes
+                'settlementTypes' => $settlementTypes,
             ])->render();
 
             return response()->json([
                 'success' => true,
                 'html' => $html,
-                'message' => 'تم تحميل النموذج بنجاح'
+                'message' => 'تم تحميل النموذج بنجاح',
             ]);
         } catch (\Exception $e) {
-            \Log::error('خطأ في تحميل نموذج تعديل التسوية: ' . $e->getMessage());
+            \Log::error('خطأ في تحميل نموذج تعديل التسوية: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تحميل النموذج: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء تحميل النموذج: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -147,7 +145,7 @@ class CustomerSettlementController extends Controller
             if ($customerSettlement->customer_id !== $customer->id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'غير مصرح لك بتعديل هذه التسوية'
+                    'message' => 'غير مصرح لك بتعديل هذه التسوية',
                 ], 403);
             }
 
@@ -168,16 +166,16 @@ class CustomerSettlementController extends Controller
                     'settlement_amount_formatted' => $updatedSettlement->settlement_amount_formatted,
                     'settlement_number' => $updatedSettlement->settlement_number,
                     'settlement_type_text' => $updatedSettlement->settlement_type_text,
-                    'has_file' => !empty($updatedSettlement->file_path),
-                    'file_url' => !empty($updatedSettlement->file_path) ? asset('storage/' . $updatedSettlement->file_path) : null,
-                ]
+                    'has_file' => ! empty($updatedSettlement->file_path),
+                    'file_url' => ! empty($updatedSettlement->file_path) ? asset('storage/'.$updatedSettlement->file_path) : null,
+                ],
             ]);
         } catch (\Exception $e) {
-            \Log::error('خطأ في تحديث التسوية: ' . $e->getMessage());
+            \Log::error('خطأ في تحديث التسوية: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تحديث التسوية: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء تحديث التسوية: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -192,7 +190,7 @@ class CustomerSettlementController extends Controller
             if ($customerSettlement->customer_id !== $customer->id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'غير مصرح لك بحذف هذه التسوية'
+                    'message' => 'غير مصرح لك بحذف هذه التسوية',
                 ], 403);
             }
 
@@ -200,14 +198,14 @@ class CustomerSettlementController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'تم حذف التسوية بنجاح'
+                'message' => 'تم حذف التسوية بنجاح',
             ]);
         } catch (\Exception $e) {
-            \Log::error('خطأ في حذف التسوية: ' . $e->getMessage());
+            \Log::error('خطأ في حذف التسوية: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء حذف التسوية: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء حذف التسوية: '.$e->getMessage(),
             ], 500);
         }
     }

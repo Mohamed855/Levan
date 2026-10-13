@@ -7,7 +7,7 @@ use App\Models\Tenants\UserMangment\Team\Team;
 
 class TeamsDataTable extends AbstractDataTable
 {
-    private $route = "teams";
+    private $route = 'teams';
 
     /*
     |--------------------------------------------------------------------------
@@ -18,6 +18,7 @@ class TeamsDataTable extends AbstractDataTable
     {
         $datatable = datatables()->eloquent($query)->addIndexColumn();
         $this->addCustomColumns($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
@@ -34,7 +35,7 @@ class TeamsDataTable extends AbstractDataTable
                 'name',
                 'description',
                 'status',
-                'created_at'
+                'created_at',
             ]);
     }
 
@@ -45,7 +46,7 @@ class TeamsDataTable extends AbstractDataTable
     */
     protected function getTableId(): string
     {
-        return "teams-table";
+        return 'teams-table';
     }
 
     /*
@@ -75,43 +76,47 @@ class TeamsDataTable extends AbstractDataTable
     protected function addCustomColumns($datatable)
     {
         $datatable
-            ->editColumn('created_at', fn(Team $team) => $team->created_at->locale('ar')->translatedFormat('d F Y'))
-            ->addColumn('checkbox', fn($row) => '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">')
+            ->editColumn('created_at', fn (Team $team) => $team->created_at->locale('ar')->translatedFormat('d F Y'))
+            ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
             ->editColumn('name', function (Team $team) {
                 $url = tenant_route_name('teams.show', $team->id);
-                return '<a href="' . $url . '" class="text-primary fw-bold text-decoration-none">' . e($team->name) . '</a>';
+
+                return '<a href="'.$url.'" class="text-primary fw-bold text-decoration-none">'.e($team->name).'</a>';
             })
             ->addColumn('members_count', function (Team $team) {
                 $count = $team->members()->count();
                 $badgeClass = $count > 0 ? 'bg-label-info' : 'bg-secondary';
-                return '<span class="badge ' . $badgeClass . '">' . $count . ' عضو</span>';
+
+                return '<span class="badge '.$badgeClass.'">'.$count.' عضو</span>';
             })
             ->addColumn('leaders_count', function (Team $team) {
                 $count = $team->leaders()->count();
                 $badgeClass = $count > 0 ? 'bg-label-primary' : 'bg-secondary';
-                return '<span class="badge ' . $badgeClass . '">' . $count . ' قائد</span>';
+
+                return '<span class="badge '.$badgeClass.'">'.$count.' قائد</span>';
             })
             ->editColumn('status', function (Team $team) {
                 $checked = $team->status === 'active' ? 'checked' : '';
                 $url = tenant_route_name('teams.toggle-status', ['team' => $team->id]);
+
                 return '
                     <div class="d-flex justify-content-center">
                         <div class="form-check form-switch mb-0">
                             <input
                                 type="checkbox"
                                 class="form-check-input js-table-status-toggle"
-                                id="status_' . $team->id . '"
-                                data-url="' . e($url) . '"
+                                id="status_'.$team->id.'"
+                                data-url="'.e($url).'"
                                 data-active-value="active"
                                 data-inactive-value="inactive"
-                                ' . $checked . '
+                                '.$checked.'
                                 aria-label="تبديل حالة المجموعة"
                             >
                         </div>
                     </div>
                 ';
             })
-            ->addColumn('action', fn($row) => view('tenants.users_management.team.action', ['id' => $row->id, 'route' => $this->route])->render());
+            ->addColumn('action', fn ($row) => view('tenants.users_management.team.action', ['id' => $row->id, 'route' => $this->route])->render());
     }
 
     /*
@@ -162,7 +167,7 @@ class TeamsDataTable extends AbstractDataTable
             'buttons' => [
                 ['extend' => 'copy', 'text' => 'نسخ'],
                 ['extend' => 'excel', 'text' => 'إكسل'],
-                ['text' => 'حذف المحدد', 'action' => "function() { handleMassDelete(); }"]
+                ['text' => 'حذف المحدد', 'action' => 'function() { handleMassDelete(); }'],
             ],
         ];
     }
@@ -172,7 +177,7 @@ class TeamsDataTable extends AbstractDataTable
         return [
             'text' => '<i class="fas fa-plus-circle me-1"></i> إضافة مجموعة',
             'className' => 'btn btn-primary btn-add',
-            'action' => "function(){ window.location.href='" . tenant_route_name($this->route . '.create') . "'; }",
+            'action' => "function(){ window.location.href='".tenant_route_name($this->route.'.create')."'; }",
         ];
     }
 }

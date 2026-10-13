@@ -41,7 +41,7 @@ class Team extends Model
     public function leaders()
     {
         return $this->hasMany(User::class, 'team_id')
-                    ->where('is_team_leader', true);
+            ->where('is_team_leader', true);
     }
 
     /*
@@ -52,7 +52,7 @@ class Team extends Model
     public function employees()
     {
         return $this->hasMany(User::class, 'team_id')
-                    ->where('is_team_leader', false);
+            ->where('is_team_leader', false);
     }
 
     /*

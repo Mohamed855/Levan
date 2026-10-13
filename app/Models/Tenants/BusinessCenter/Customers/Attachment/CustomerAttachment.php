@@ -6,8 +6,8 @@ use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
 class CustomerAttachment extends Model
@@ -47,13 +47,13 @@ class CustomerAttachment extends Model
         $bytes = $this->file_size;
 
         if ($bytes >= 1073741824) {
-            return number_format($bytes / 1073741824, 2) . ' GB';
+            return number_format($bytes / 1073741824, 2).' GB';
         } elseif ($bytes >= 1048576) {
-            return number_format($bytes / 1048576, 2) . ' MB';
+            return number_format($bytes / 1048576, 2).' MB';
         } elseif ($bytes >= 1024) {
-            return number_format($bytes / 1024, 2) . ' KB';
+            return number_format($bytes / 1024, 2).' KB';
         } else {
-            return $bytes . ' B';
+            return $bytes.' B';
         }
     }
 
@@ -137,7 +137,7 @@ class CustomerAttachment extends Model
 
         // تسجيل المستخدم الذي أنشأ المرفق تلقائياً
         static::creating(function ($attachment) {
-            if (!$attachment->created_by && auth()->check()) {
+            if (! $attachment->created_by && auth()->check()) {
                 $attachment->created_by = auth()->id();
             }
         });

@@ -6,8 +6,8 @@ use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CustomerNote extends Model
 {
@@ -39,7 +39,7 @@ class CustomerNote extends Model
     // Accessors
     public function getNotePreviewAttribute(): string
     {
-        return strlen($this->note) > 100 ? substr($this->note, 0, 100) . '...' : $this->note;
+        return strlen($this->note) > 100 ? substr($this->note, 0, 100).'...' : $this->note;
     }
 
     // Scopes
@@ -65,7 +65,7 @@ class CustomerNote extends Model
 
         // تسجيل المستخدم الذي أنشأ الملاحظة تلقائياً
         static::creating(function ($note) {
-            if (!$note->created_by && auth()->check()) {
+            if (! $note->created_by && auth()->check()) {
                 $note->created_by = auth()->id();
             }
         });

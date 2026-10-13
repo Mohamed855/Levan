@@ -11,12 +11,12 @@ class CouponService
     {
         $result = [
             'discount_amount' => 0,
-            'final_total'     => $total,
+            'final_total' => $total,
 
-            'coupon_id'       => null,
-            'coupon_code'     => null,
-            'coupon_value'    => null,
-            'coupon_type'     => null,
+            'coupon_id' => null,
+            'coupon_code' => null,
+            'coupon_value' => null,
+            'coupon_type' => null,
         ];
 
         if (empty($couponCode)) {
@@ -26,18 +26,18 @@ class CouponService
         $couponResult = $this->validateAndCalculate($couponCode, $total);
 
         // في حالة فشل التحقق
-        if (!$couponResult['success']) {
+        if (! $couponResult['success']) {
             return ['error' => $couponResult['message']];
         }
 
         return [
             'discount_amount' => $couponResult['raw_discount'],
-            'final_total'     => $couponResult['raw_total_after_discount'],
+            'final_total' => $couponResult['raw_total_after_discount'],
 
-            'coupon_id'       => $couponResult['coupon']['id'],
-            'coupon_code'     => $couponCode,
-            'coupon_value'    => $couponResult['coupon']['discount_value'],
-            'coupon_type'     => $couponResult['coupon']['discount_type'],
+            'coupon_id' => $couponResult['coupon']['id'],
+            'coupon_code' => $couponCode,
+            'coupon_value' => $couponResult['coupon']['discount_value'],
+            'coupon_type' => $couponResult['coupon']['discount_type'],
         ];
     }
 
@@ -48,14 +48,14 @@ class CouponService
             // البحث عن الكوبون
             $coupon = $this->findActiveCoupon($couponCode);
 
-            if (!$coupon) {
+            if (! $coupon) {
                 return $this->errorResponse('كود الخصم غير صحيح ');
             }
 
             // التحقق من صلاحية الكوبون
             $validationResult = $this->validateCoupon($coupon);
 
-            if (!$validationResult['valid']) {
+            if (! $validationResult['valid']) {
                 return $this->errorResponse($validationResult['message']);
             }
 
@@ -70,6 +70,7 @@ class CouponService
             //
         } catch (\Exception $e) {
             Log::info($e);
+
             return $this->errorResponse('حدث خطأ أثناء التحقق من الكوبون');
         }
     }
@@ -106,22 +107,22 @@ class CouponService
         // التحقق من تاريخ الانتهاء
         if ($coupon->isExpired()) {
             return [
-                'valid'   => false,
-                'message' => 'انتهت صلاحية كود الخصم في تاريخ ' . $coupon->expiry_date->format('Y/m/d')
+                'valid' => false,
+                'message' => 'انتهت صلاحية كود الخصم في تاريخ '.$coupon->expiry_date->format('Y/m/d'),
             ];
         }
 
         // التحقق من حد الاستخدام
         if ($coupon->hasReachedLimit()) {
             return [
-                'valid'   => false,
-                'message' => 'تم استنفاذ عدد مرات استخدام هذا الكود'
+                'valid' => false,
+                'message' => 'تم استنفاذ عدد مرات استخدام هذا الكود',
             ];
         }
 
         return [
-            'valid'   => true,
-            'message' => 'الكوبون صالح'
+            'valid' => true,
+            'message' => 'الكوبون صالح',
         ];
     }
 
@@ -131,10 +132,10 @@ class CouponService
         $discount = $coupon->calculateDiscount($total);
 
         // حساب المبالغ النهائية
-        $totalAfterDiscount    = $total - $discount;
+        $totalAfterDiscount = $total - $discount;
 
         return [
-            'discount'             => $discount,
+            'discount' => $discount,
             'total_after_discount' => $totalAfterDiscount,
 
         ];
@@ -148,13 +149,13 @@ class CouponService
             'message' => 'تم تطبيق كود الخصم بنجاح',
 
             'coupon' => [
-                'id'             => $coupon->id,
-                'code'           => $coupon->code,
-                'discount_type'  => $coupon->discount_type->value,
+                'id' => $coupon->id,
+                'code' => $coupon->code,
+                'discount_type' => $coupon->discount_type->value,
                 'discount_value' => (float) $coupon->discount_value,
             ],
 
-            'raw_discount'             => number_format($calculation['discount'], 2, '.', ''),
+            'raw_discount' => number_format($calculation['discount'], 2, '.', ''),
             'raw_total_after_discount' => number_format($calculation['total_after_discount'], 2, '.', ''),
         ];
     }
@@ -163,7 +164,7 @@ class CouponService
     {
         return [
             'success' => false,
-            'message' => $message
+            'message' => $message,
         ];
     }
 }

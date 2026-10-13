@@ -10,10 +10,10 @@ use App\Http\Requests\Tenants\UserManagement\User\UpdateUserStatusRequest;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\UserManagement\Role\RoleService;
 use App\Services\Tenants\UserManagement\User\UserService;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 use Spatie\Permission\Models\Role;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -27,6 +27,7 @@ class RoleController extends Controller
     */
 
     protected UserService $userService;
+
     protected RoleService $roleService;
 
     public function __construct(UserService $userService, RoleService $roleService)
@@ -41,7 +42,7 @@ class RoleController extends Controller
         $this->middleware('can:roles.assign')->only([
             'getUserRoles',
             'updateUserRoles',
-            'updateStatus'
+            'updateStatus',
         ]);
     }
 
@@ -73,26 +74,26 @@ class RoleController extends Controller
                 return DataTables::of($query)
                     ->addIndexColumn()
                     ->addColumn('checkbox', function ($row) {
-                        return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                        return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
                     })
                     ->addColumn('image', function (User $user) {
                         $profilePicture = $user->image
                             ? tasset($user->image)
                             : asset('static/brand/logos/logo.svg');
 
-                        return '<img src="' . $profilePicture . '" alt="' . $user->name . '"
+                        return '<img src="'.$profilePicture.'" alt="'.$user->name.'"
                              class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">';
                     })
                     ->addColumn('name', function (User $user) {
-                        return '<span>' . $user->name . '</span>';
+                        return '<span>'.$user->name.'</span>';
                     })
                     ->addColumn('email', function (User $user) {
-                        return '<a href="mailto:' . $user->email . '">' . $user->email . '</a>';
+                        return '<a href="mailto:'.$user->email.'">'.$user->email.'</a>';
                     })
                     ->addColumn('role', function (User $user) {
                         $roleName = $user->roles->first()?->name ?? 'غير محدد';
 
-                        return '<span class="badge bg-label-primary">' . e($roleName) . '</span>';
+                        return '<span class="badge bg-label-primary">'.e($roleName).'</span>';
                     })
                     ->addColumn('status', function (User $user) {
                         if (auth()->user()->can('roles.assign')) {
@@ -105,11 +106,11 @@ class RoleController extends Controller
                                         <input
                                             type="checkbox"
                                             class="form-check-input js-table-status-toggle"
-                                            id="status_' . $user->id . '"
-                                            data-url="' . e($url) . '"
+                                            id="status_'.$user->id.'"
+                                            data-url="'.e($url).'"
                                             data-active-value="active"
                                             data-inactive-value="inactive"
-                                            ' . $checked . '
+                                            '.$checked.'
                                             aria-label="تبديل حالة المستخدم"
                                         >
                                     </div>
@@ -118,7 +119,8 @@ class RoleController extends Controller
                         } else {
                             $statusClass = $user->status === 'active' ? 'bg-label-success' : 'bg-label-danger';
                             $statusText = $user->status === 'active' ? 'نشط' : 'غير نشط';
-                            return '<div class="d-flex justify-content-center"><span class="badge ' . $statusClass . '">' . $statusText . '</span></div>';
+
+                            return '<div class="d-flex justify-content-center"><span class="badge '.$statusClass.'">'.$statusText.'</span></div>';
                         }
                     })
                     ->addColumn('created_at_formatted', function (User $user) {
@@ -129,15 +131,15 @@ class RoleController extends Controller
                             return '-';
                         }
 
-                        return '<button type="button" class="btn btn-icon btn-label-primary edit-role-link" data-user-id="' . e((string) $user->id) . '" aria-label="تعديل دور المستخدم"><i class="ti ti-shield-check" aria-hidden="true"></i></button>';
+                        return '<button type="button" class="btn btn-icon btn-label-primary edit-role-link" data-user-id="'.e((string) $user->id).'" aria-label="تعديل دور المستخدم"><i class="ti ti-shield-check" aria-hidden="true"></i></button>';
                     })
-                    ->orderColumn('name', fn($query, $order) => $query->orderBy('name', $order))
-                    ->orderColumn('email', fn($query, $order) => $query->orderBy('email', $order))
-                    ->orderColumn('status', fn($query, $order) => $query->orderBy('status', $order))
-                    ->orderColumn('created_at', fn($query, $order) => $query->orderBy('created_at', $order))
-                    ->filterColumn('name', fn($query, $keyword) => $query->where('name', 'like', "%{$keyword}%"))
-                    ->filterColumn('email', fn($query, $keyword) => $query->where('email', 'like', "%{$keyword}%"))
-                    ->filterColumn('phone', fn($query, $keyword) => $query->where('phone', 'like', "%{$keyword}%"))
+                    ->orderColumn('name', fn ($query, $order) => $query->orderBy('name', $order))
+                    ->orderColumn('email', fn ($query, $order) => $query->orderBy('email', $order))
+                    ->orderColumn('status', fn ($query, $order) => $query->orderBy('status', $order))
+                    ->orderColumn('created_at', fn ($query, $order) => $query->orderBy('created_at', $order))
+                    ->filterColumn('name', fn ($query, $keyword) => $query->where('name', 'like', "%{$keyword}%"))
+                    ->filterColumn('email', fn ($query, $keyword) => $query->where('email', 'like', "%{$keyword}%"))
+                    ->filterColumn('phone', fn ($query, $keyword) => $query->where('phone', 'like', "%{$keyword}%"))
                     ->rawColumns(['checkbox', 'image', 'name', 'email', 'role', 'status', 'actions'])
                     ->make(true);
             }
@@ -151,7 +153,6 @@ class RoleController extends Controller
         }
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | Show Create Form
@@ -162,6 +163,7 @@ class RoleController extends Controller
     {
         try {
             $permissions = $this->roleService->getGroupedPermissions();
+
             return view('tenants.users_management.roles.create', compact('permissions'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'حدث خطأ أثناء تحضير النموذج.');
@@ -216,11 +218,13 @@ class RoleController extends Controller
     {
         try {
             $permissions = $this->roleService->getGroupedPermissions();
+
             return view('tenants.users_management.roles.edit', compact('role', 'permissions'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'حدث خطأ أثناء تحضير النموذج.');
         }
     }
+
     /*
     |--------------------------------------------------------------------------
     | Update Role
@@ -276,11 +280,10 @@ class RoleController extends Controller
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json([
-                'error' => 'فشل في جلب الأدوار.'
+                'error' => 'فشل في جلب الأدوار.',
             ], 500);
         }
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -296,12 +299,12 @@ class RoleController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'تم تحديث الدور بنجاح.'
+                'message' => 'تم تحديث الدور بنجاح.',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'فشل في تحديث الدور.'
+                'message' => 'فشل في تحديث الدور.',
             ], 500);
         }
     }
@@ -320,12 +323,12 @@ class RoleController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'تم تحديث الحالة بنجاح.'
+                'message' => 'تم تحديث الحالة بنجاح.',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'فشل في تحديث الحالة.'
+                'message' => 'فشل في تحديث الحالة.',
             ], 500);
         }
     }

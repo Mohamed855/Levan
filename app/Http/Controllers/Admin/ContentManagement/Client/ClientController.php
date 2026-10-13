@@ -8,7 +8,6 @@ use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\ContentManagement\StoreClientRequest;
 use App\Http\Requests\Admin\ContentManagement\UpdateClientRequest;
 use App\Models\Admin\ContentManagement\Client;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class ClientController extends Controller
@@ -35,6 +34,7 @@ class ClientController extends Controller
                 ['value' => 'inactive', 'label' => 'غير نشط'],
             ],
         ];
+
         return $datatable->render('admin.content_management.client.index', compact('stats', 'filterOptions'));
     }
 
@@ -57,7 +57,7 @@ class ClientController extends Controller
             return redirect()->route('admin.content_management.client.index')
                 ->with('success', 'تم إضافة العميل بنجاح');
         } catch (\Exception $e) {
-            return back()->withInput()->with('error', 'حدث خطأ: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'حدث خطأ: '.$e->getMessage());
         }
     }
 
@@ -89,7 +89,7 @@ class ClientController extends Controller
             return redirect()->route('admin.content_management.client.index')
                 ->with('success', 'تم تحديث العميل بنجاح');
         } catch (\Exception $e) {
-            return back()->withInput()->with('error', 'حدث خطأ: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'حدث خطأ: '.$e->getMessage());
         }
     }
 
@@ -104,25 +104,25 @@ class ClientController extends Controller
             return redirect()->route('admin.content_management.client.index')
                 ->with('success', 'تم حذف العميل بنجاح');
         } catch (\Exception $e) {
-            return back()->with('error', 'حدث خطأ: ' . $e->getMessage());
+            return back()->with('error', 'حدث خطأ: '.$e->getMessage());
         }
     }
 
     public function toggleStatus(AdminAuthenticatedRequest $request, Client $client)
     {
         try {
-            $newStatus = !$client->status;
+            $newStatus = ! $client->status;
             $client->update(['status' => $newStatus]);
 
             return response()->json([
                 'success' => true,
-                'message' => $newStatus 
+                'message' => $newStatus
                     ? 'تم تفعيل العميل بنجاح'
                     : 'تم إيقاف العميل بنجاح',
                 'status' => $newStatus,
-                'badge' => $newStatus 
+                'badge' => $newStatus
                     ? '<span class="status-badge badge bg-success">نشط</span>'
-                    : '<span class="status-badge badge bg-danger">غير نشط</span>'
+                    : '<span class="status-badge badge bg-danger">غير نشط</span>',
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -131,5 +131,4 @@ class ClientController extends Controller
             ], 500);
         }
     }
-
 }

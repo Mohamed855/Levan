@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class PortfoliosDataTable extends AbstractDataTable
 {
-    private $route = "portfolios";
+    private $route = 'portfolios';
 
     /*
     |--------------------------------------------------------------------------
@@ -22,6 +22,7 @@ class PortfoliosDataTable extends AbstractDataTable
     {
         $datatable = datatables()->eloquent($query)->addIndexColumn();
         $this->addCustomColumns($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
@@ -32,7 +33,7 @@ class PortfoliosDataTable extends AbstractDataTable
     */
     protected function getTableId()
     {
-        return "portfolios-table";
+        return 'portfolios-table';
     }
 
     /*
@@ -59,10 +60,10 @@ class PortfoliosDataTable extends AbstractDataTable
         return [
             ['data' => '', 'orderable' => false, 'searchable' => false],
             [
-                'data'       => 'checkbox',
-                'name'       => 'checkbox',
-                'title'      => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
-                'orderable'  => false,
+                'data' => 'checkbox',
+                'name' => 'checkbox',
+                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
+                'orderable' => false,
                 'searchable' => false,
                 'width' => '10px',
                 'className' => 'custom-checkbox',
@@ -86,16 +87,18 @@ class PortfoliosDataTable extends AbstractDataTable
     protected function addCustomColumns($datatable)
     {
         $datatable
-            ->addColumn('checkbox', fn($row) => '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">')
+            ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
             ->addColumn('company_name', function (Portfolio $portfolio) {
                 $companyName = $portfolio->company->name ?? 'غير محدد';
-                return '<span class="text-primary">' . e($companyName) . '</span>';
+
+                return '<span class="text-primary">'.e($companyName).'</span>';
             })
             ->editColumn('name', function (Portfolio $portfolio) {
                 $url = tenant_route_name('portfolios.show', $portfolio->id);
-                return '<a href="' . $url . '" class="text-body fw-medium">' . e($portfolio->name) . '</a>';
+
+                return '<a href="'.$url.'" class="text-body fw-medium">'.e($portfolio->name).'</a>';
             })
-            ->editColumn('assignment_date', fn($row) => $row->assignment_date ? Carbon::parse($row->assignment_date)->format('Y-m-d') : '<span class="text-muted">لم يتم الإسناد	</span>')
+            ->editColumn('assignment_date', fn ($row) => $row->assignment_date ? Carbon::parse($row->assignment_date)->format('Y-m-d') : '<span class="text-muted">لم يتم الإسناد	</span>')
             ->editColumn('status', function (Portfolio $portfolio) {
                 $canEdit = auth()->user()?->can('portfolios.edit');
 
@@ -103,13 +106,13 @@ class PortfoliosDataTable extends AbstractDataTable
                     $checked = $portfolio->status === 'active' ? 'checked' : '';
                     $url = tenant_route_name('portfolios.toggle-status', $portfolio->id);
 
-                    return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_' . $portfolio->id . '" data-url="' . e($url) . '" data-active-value="active" data-inactive-value="inactive" ' . $checked . ' aria-label="تبديل حالة المحفظة"></div></div>';
+                    return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_'.$portfolio->id.'" data-url="'.e($url).'" data-active-value="active" data-inactive-value="inactive" '.$checked.' aria-label="تبديل حالة المحفظة"></div></div>';
                 }
 
-                return '<span class="badge ' . $portfolio->status_class . '" title="للقراءة فقط">' . $portfolio->status_label . '</span>';
+                return '<span class="badge '.$portfolio->status_class.'" title="للقراءة فقط">'.$portfolio->status_label.'</span>';
             })
-            ->editColumn('created_at', fn($row) => Carbon::parse($row->created_at)->format('Y-m-d'))
-            ->addColumn('action', fn($row) => view('tenants.business_center.portfolios.action', ['id' => $row->id, 'route' => $this->route])->render());
+            ->editColumn('created_at', fn ($row) => Carbon::parse($row->created_at)->format('Y-m-d'))
+            ->addColumn('action', fn ($row) => view('tenants.business_center.portfolios.action', ['id' => $row->id, 'route' => $this->route])->render());
     }
 
     /*
@@ -138,6 +141,7 @@ class PortfoliosDataTable extends AbstractDataTable
         if ($request->filled('company_id')) {
             $query->where('company_id', $request->company_id);
         }
+
         return $query;
     }
 
@@ -164,29 +168,28 @@ class PortfoliosDataTable extends AbstractDataTable
         if (auth()->user()?->can('portfolios.delete')) {
             $buttons[] = [
                 'text' => 'حذف المحدد',
-                'action' => "function() { handleMassDelete(); }"
+                'action' => 'function() { handleMassDelete(); }',
             ];
         }
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export btn',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
 
-
     private function getAddButton(): array
     {
-        if (!auth()->user()?->can('portfolios.create')) {
+        if (! auth()->user()?->can('portfolios.create')) {
             return [];
         }
 
         return [
-            'text'      => '<i class="fas fa-plus-circle me-1"></i> إضافة محفظة',
+            'text' => '<i class="fas fa-plus-circle me-1"></i> إضافة محفظة',
             'className' => 'btn btn-primary btn-add',
-            'action'    => "function(){ window.location.href='" . tenant_route_name($this->route . '.create') . "'; }",
+            'action' => "function(){ window.location.href='".tenant_route_name($this->route.'.create')."'; }",
         ];
     }
 }

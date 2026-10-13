@@ -68,7 +68,7 @@ class Handler extends ExceptionHandler
                 return response()->json([
                     'success' => false,
                     'message' => 'فشل التحقق من البيانات',
-                    'errors'  => $exception->errors(),
+                    'errors' => $exception->errors(),
                 ], 422);
             }
 

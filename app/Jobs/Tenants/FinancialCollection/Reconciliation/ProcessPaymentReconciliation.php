@@ -6,6 +6,7 @@ use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\FinancialCollection\Collection\Collection;
 use App\Models\Tenants\FinancialCollection\Reconciliation\PaymentReconciliation;
 use App\Models\Tenants\FinancialCollection\Reconciliation\PaymentReconciliationItem;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -14,7 +15,9 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Carbon\Carbon;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 class ProcessPaymentReconciliation implements ShouldQueue
 {
@@ -26,7 +29,9 @@ class ProcessPaymentReconciliation implements ShouldQueue
     |--------------------------------------------------------------------------
     */
     protected array $data;
+
     protected string $jobId;
+
     protected ?PaymentReconciliation $reconciliation = null;
 
     /*
@@ -60,7 +65,7 @@ class ProcessPaymentReconciliation implements ShouldQueue
 
             $this->reconciliation->update([
                 'status' => 'completed',
-                'processed_at' => now()
+                'processed_at' => now(),
             ]);
 
             $this->updateProgress('completed', $fileData['total_rows'], $fileData['total_rows']);
@@ -79,64 +84,64 @@ class ProcessPaymentReconciliation implements ShouldQueue
     */
     protected function readExcelFile(): array
     {
-        $filePath = storage_path('app/' . $this->data['temp_file_path']);
-        
-        $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
+        $filePath = storage_path('app/'.$this->data['temp_file_path']);
+
+        $reader = new Xlsx;
         $reader->setReadDataOnly(true);
-        
+
         $spreadsheet = $reader->load($filePath);
         $sheet = $spreadsheet->getActiveSheet();
-        
+
         $highestRow = $sheet->getHighestRow();
         $mappings = $this->data['field_mappings'];
-        
+
         // قراءة Headers من الصف الأول
         $headers = [];
         $highestColumn = $sheet->getHighestColumn();
-        $highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn);
-        
+        $highestColumnIndex = Coordinate::columnIndexFromString($highestColumn);
+
         for ($col = 1; $col <= $highestColumnIndex; $col++) {
             $headerValue = $sheet->getCellByColumnAndRow($col, 1)->getValue();
-            $headers[$col] = trim((string)$headerValue);
+            $headers[$col] = trim((string) $headerValue);
         }
-        
+
         // البحث عن أرقام الأعمدة
         $accountCol = $this->findColumnIndex($headers, $mappings['account_number']['column']);
         $amountCol = $this->findColumnIndex($headers, $mappings['collected_amount']['column']);
         $dateCol = $this->findColumnIndex($headers, $mappings['collection_date']['column']);
-        
-        if (!$accountCol || !$amountCol || !$dateCol) {
+
+        if (! $accountCol || ! $amountCol || ! $dateCol) {
             throw new \Exception('لم يتم العثور على الأعمدة المطلوبة في الملف');
         }
-        
+
         // قراءة البيانات
         $rows = [];
         for ($row = 2; $row <= $highestRow; $row++) {
-            $accountNumber = trim((string)$sheet->getCellByColumnAndRow($accountCol, $row)->getValue());
-            
+            $accountNumber = trim((string) $sheet->getCellByColumnAndRow($accountCol, $row)->getValue());
+
             if (empty($accountNumber)) {
                 continue;
             }
-            
+
             $amount = $sheet->getCellByColumnAndRow($amountCol, $row)->getValue();
             $dateValue = $sheet->getCellByColumnAndRow($dateCol, $row)->getValue();
             $date = $this->parseDate($dateValue);
-            
+
             $rows[] = [
                 'row_number' => $row,
                 'account_number' => $accountNumber,
-                'amount' => (float)$amount,
+                'amount' => (float) $amount,
                 'date' => $date,
             ];
         }
-        
+
         $spreadsheet->disconnectWorksheets();
         unset($spreadsheet, $sheet, $reader);
         gc_collect_cycles();
-        
+
         return [
             'total_rows' => count($rows),
-            'rows' => $rows
+            'rows' => $rows,
         ];
     }
 
@@ -148,13 +153,13 @@ class ProcessPaymentReconciliation implements ShouldQueue
     protected function findColumnIndex(array $headers, string $searchHeader): ?int
     {
         $searchHeader = trim($searchHeader);
-        
+
         foreach ($headers as $colIndex => $headerName) {
             if (trim($headerName) === $searchHeader) {
                 return $colIndex;
             }
         }
-        
+
         return null;
     }
 
@@ -171,7 +176,7 @@ class ProcessPaymentReconciliation implements ShouldQueue
 
         if (is_numeric($value)) {
             try {
-                return Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value));
+                return Carbon::instance(Date::excelToDateTimeObject($value));
             } catch (\Exception $e) {
                 return null;
             }
@@ -210,11 +215,11 @@ class ProcessPaymentReconciliation implements ShouldQueue
     protected function processRows(array $rows, int $totalRows): void
     {
         $processed = 0;
-        
+
         foreach ($rows as $rowData) {
             $this->processRow($rowData);
             $processed++;
-            
+
             if ($processed % 10 === 0) {
                 $this->updateProgress('processing', $processed, $totalRows);
             }
@@ -229,21 +234,23 @@ class ProcessPaymentReconciliation implements ShouldQueue
     protected function processRow(array $rowData): void
     {
         DB::beginTransaction();
-        
+
         try {
             $customer = Customer::where('account_number', $rowData['account_number'])
                 ->where('portfolio_id', $this->data['portfolio_id'])
                 ->first();
 
-            if (!$customer) {
+            if (! $customer) {
                 $this->createErrorItem($rowData, 'العميل غير موجود في النظام');
                 DB::commit();
+
                 return;
             }
 
-            if (!$rowData['date']) {
+            if (! $rowData['date']) {
                 $this->createErrorItem($rowData, 'تاريخ غير صحيح', $customer->id);
                 DB::commit();
+
                 return;
             }
 
@@ -259,10 +266,10 @@ class ProcessPaymentReconciliation implements ShouldQueue
             }
 
             DB::commit();
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->createErrorItem($rowData, 'خطأ في المعالجة: ' . $e->getMessage(), $customer->id ?? null);
+            $this->createErrorItem($rowData, 'خطأ في المعالجة: '.$e->getMessage(), $customer->id ?? null);
         }
     }
 
@@ -288,7 +295,7 @@ class ProcessPaymentReconciliation implements ShouldQueue
             ->where('status', 'approved')
             ->where(function ($query) use ($amount, $date) {
                 $query->whereBetween('collected_amount', [$amount - 100, $amount + 100])
-                      ->orWhereBetween('collection_date', [$date->copy()->subDays(7), $date->copy()->addDays(7)]);
+                    ->orWhereBetween('collection_date', [$date->copy()->subDays(7), $date->copy()->addDays(7)]);
             })
             ->whereNull('reconciliation_item_id')
             ->first();
@@ -351,8 +358,8 @@ class ProcessPaymentReconciliation implements ShouldQueue
             'system_date' => $collection->collection_date,
             'amount_difference' => $rowData['amount'] - $collection->collected_amount,
             'date_difference_days' => $rowData['date']->diffInDays($collection->collection_date),
-            'notes' => 'اختلاف في ' . 
-                      (abs($rowData['amount'] - $collection->collected_amount) > 0.01 ? 'المبلغ' : '') .
+            'notes' => 'اختلاف في '.
+                      (abs($rowData['amount'] - $collection->collected_amount) > 0.01 ? 'المبلغ' : '').
                       (abs($rowData['date']->diffInDays($collection->collection_date)) > 2 ? ' والتاريخ' : ''),
         ]);
 
@@ -446,10 +453,10 @@ class ProcessPaymentReconciliation implements ShouldQueue
             ->orderBy('id', 'desc')
             ->first();
 
-        $sequence = $lastCollection ? 
-            (int)substr($lastCollection->receipt_number, -4) + 1 : 1;
+        $sequence = $lastCollection ?
+            (int) substr($lastCollection->receipt_number, -4) + 1 : 1;
 
-        return $prefix . $date . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+        return $prefix.$date.str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 
     /*
@@ -459,9 +466,9 @@ class ProcessPaymentReconciliation implements ShouldQueue
     */
     protected function calculateSystemOnlyCollections(): void
     {
-        $systemOnlyCount = Collection::whereHas('customer', function($q) {
-                $q->where('portfolio_id', $this->data['portfolio_id']);
-            })
+        $systemOnlyCount = Collection::whereHas('customer', function ($q) {
+            $q->where('portfolio_id', $this->data['portfolio_id']);
+        })
             ->whereYear('collection_date', Carbon::parse($this->data['reconciliation_month'])->year)
             ->whereMonth('collection_date', Carbon::parse($this->data['reconciliation_month'])->month)
             ->where('is_verified', false)
@@ -469,7 +476,7 @@ class ProcessPaymentReconciliation implements ShouldQueue
             ->count();
 
         $this->reconciliation->update([
-            'system_only_count' => $systemOnlyCount
+            'system_only_count' => $systemOnlyCount,
         ]);
     }
 
@@ -508,7 +515,7 @@ class ProcessPaymentReconciliation implements ShouldQueue
         if ($this->reconciliation) {
             $this->reconciliation->update([
                 'status' => 'failed',
-                'processed_at' => now()
+                'processed_at' => now(),
             ]);
         }
 

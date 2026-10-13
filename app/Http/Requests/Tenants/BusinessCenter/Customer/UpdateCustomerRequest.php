@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Tenants\BusinessCenter\Customer;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class UpdateCustomerRequest extends FormRequest
@@ -28,13 +28,13 @@ class UpdateCustomerRequest extends FormRequest
                 'required_without_all:first_name,father_name,grandfather_name,family_name',
                 'nullable',
                 'string',
-                'max:255'
+                'max:255',
             ],
             'first_name' => [
                 'required_without:name',
                 'nullable',
                 'string',
-                'max:100'
+                'max:100',
             ],
             'father_name' => ['nullable', 'string', 'max:100'],
             'grandfather_name' => ['nullable', 'string', 'max:100'],
@@ -59,8 +59,8 @@ class UpdateCustomerRequest extends FormRequest
             'phones.*.notes' => ['nullable', 'string', 'max:255'],
 
             // خاصة بالحقول المتجددة
-            'dynamic'     => ['nullable', 'array'],
-            'dynamic.*'   => ['nullable'],
+            'dynamic' => ['nullable', 'array'],
+            'dynamic.*' => ['nullable'],
         ];
     }
 
@@ -180,7 +180,7 @@ class UpdateCustomerRequest extends FormRequest
             'account_number',
             'contract_date',
             'commission_rate',
-            'default_date'
+            'default_date',
         ];
 
         foreach ($optionalFields as $field) {

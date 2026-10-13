@@ -7,21 +7,19 @@ use App\Models\Admin\Coupons\Coupon;
 
 class CouponDataTable extends AbstractDataTable
 {
-    private $page  = "admin.archive.coupon";
-    private $route = "admin.archives.coupons";
+    private $page = 'admin.archive.coupon';
+
+    private $route = 'admin.archives.coupons';
 
     protected function getTableId()
     {
-        return "coupon-archive-table";
+        return 'coupon-archive-table';
     }
-
 
     protected function resource()
     {
         return Coupon::onlyTrashed();
     }
-
-
 
     protected function getColumns(): array
     {
@@ -29,10 +27,10 @@ class CouponDataTable extends AbstractDataTable
             ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             [
-                'data'       => 'checkbox',
-                'name'       => 'checkbox',
-                'title'      => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
-                'orderable'  => false,
+                'data' => 'checkbox',
+                'name' => 'checkbox',
+                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
+                'orderable' => false,
                 'searchable' => false,
                 'width' => '10px',
                 'className' => 'custom-checkbox',
@@ -41,32 +39,28 @@ class CouponDataTable extends AbstractDataTable
             ['data' => 'name',     'name' => 'name',   'title' => 'اسم الكوبون',   'className' => 'text-start'],
             ['data' => 'code',     'name' => 'code',   'title' => 'الكود',          'className' => 'text-start'],
 
-            ['data' => 'discount_type',    'name' => 'discount_type',       'title' => 'نوع الخصم',],
-            ['data' => 'discount_value',   'name' => 'discount_value',      'title' => 'قيمة الخصم',],
-            ['data' => 'max_discount',     'name' => 'max_discount',        'title' => 'الحد الأقصى للخصم',],
-            ['data' => 'expiry_date',      'name' => 'expiry_date',         'title' => 'تاريخ الانتهاء',],
-            ['data' => 'usage_limit',      'name' => 'usage_limit',         'title' => 'حد الاستخدام',],
-            ['data' => 'used_count',      'name' => 'used_count',         'title' => 'مرات الاستخدام',],
+            ['data' => 'discount_type',    'name' => 'discount_type',       'title' => 'نوع الخصم'],
+            ['data' => 'discount_value',   'name' => 'discount_value',      'title' => 'قيمة الخصم'],
+            ['data' => 'max_discount',     'name' => 'max_discount',        'title' => 'الحد الأقصى للخصم'],
+            ['data' => 'expiry_date',      'name' => 'expiry_date',         'title' => 'تاريخ الانتهاء'],
+            ['data' => 'usage_limit',      'name' => 'usage_limit',         'title' => 'حد الاستخدام'],
+            ['data' => 'used_count',      'name' => 'used_count',         'title' => 'مرات الاستخدام'],
 
-            ['data' => 'is_active',         'name' => 'is_active',          'title' => 'الحالة',],
+            ['data' => 'is_active',         'name' => 'is_active',          'title' => 'الحالة'],
             ['data' => 'actions',           'name' => 'actions',            'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
-
-
-
 
     protected function addCustomColumns($datatable)
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
 
             ->editColumn('code', function ($row) {
                 return $this->copyableCode($row);
             })
-
 
             ->editColumn('discount_type', function ($row) {
                 return $this->DiscountTypeBadge($row);
@@ -110,9 +104,9 @@ class CouponDataTable extends AbstractDataTable
         if ($request->filled('discount_type')) {
             $query->where('discount_type', $request->discount_type);
         }
+
         return $query;
     }
-
 
     // الحقول المسموح البحث فيها
     protected function getSearchableColumns(): array
@@ -122,12 +116,10 @@ class CouponDataTable extends AbstractDataTable
         ];
     }
 
-
     protected function getCustomOrder(): array
     {
         return [1, 'desc'];
     }
-
 
     // Buttons
     protected function buttons(): array
@@ -143,23 +135,23 @@ class CouponDataTable extends AbstractDataTable
         $buttons = [
             ['extend' => 'copy', 'text' => 'نسخ'],
             ['extend' => 'excel', 'text' => 'إكسل', 'exportOptions' => [
-                'columns' => [11, 10, 9, 8, 7, 6, 5, 4, 3]
+                'columns' => [11, 10, 9, 8, 7, 6, 5, 4, 3],
             ]],
         ];
 
         if (auth()->user()?->can('coupons.delete')) {
             $buttons[] = [
-                'text'      => 'حذف المحدد',
+                'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
-                'action'    => "function() { handleMassDelete(); }",
+                'action' => 'function() { handleMassDelete(); }',
             ];
         }
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
 
@@ -167,7 +159,6 @@ class CouponDataTable extends AbstractDataTable
     {
         return [];
     }
-
 
     /*
     |============================================================================
@@ -190,7 +181,6 @@ class CouponDataTable extends AbstractDataTable
             $row->code
         );
     }
-
 
     private function DiscountTypeBadge($row): string
     {

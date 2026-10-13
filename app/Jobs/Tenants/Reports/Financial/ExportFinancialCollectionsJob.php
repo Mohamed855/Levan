@@ -25,13 +25,19 @@ class ExportFinancialCollectionsJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 1800;
+
     public $tries = 3;
+
     public $maxExceptions = 1;
 
     protected $filters;
+
     protected $selectedFields;
+
     protected $userId;
+
     protected $exportId;
+
     protected $fileName;
 
     /*
@@ -45,7 +51,7 @@ class ExportFinancialCollectionsJob implements ShouldQueue
         $this->selectedFields = $selectedFields;
         $this->userId = $userId;
         $this->exportId = uniqid('financial_export_', true);
-        $this->fileName = 'financial_collections_export_' . now()->format('Y_m_d_H_i_s') . '_' . $this->exportId . '.xlsx';
+        $this->fileName = 'financial_collections_export_'.now()->format('Y_m_d_H_i_s').'_'.$this->exportId.'.xlsx';
 
         // تحديد الطابور المخصص
         $this->onQueue('exports');
@@ -66,6 +72,7 @@ class ExportFinancialCollectionsJob implements ShouldQueue
 
             if ($totalCount === 0) {
                 $this->updateProgress(100, 'لا توجد بيانات للتصدير');
+
                 return;
             }
 
@@ -87,18 +94,18 @@ class ExportFinancialCollectionsJob implements ShouldQueue
 
             Excel::store(
                 new FinancialReportExport($collections, $this->filters, $this->selectedFields),
-                'exports/' . $this->fileName,
+                'exports/'.$this->fileName,
                 'tenant_public'
             );
 
-            $fileSize = Storage::disk('tenant_public')->size('exports/' . $this->fileName);
+            $fileSize = Storage::disk('tenant_public')->size('exports/'.$this->fileName);
 
             Cache::put("financial_export_result_{$this->exportId}", [
-                'status'        => 'completed',
-                'file_name'     => $this->fileName, // فقط الاسم
-                'file_size'     => $this->formatBytes($fileSize),
+                'status' => 'completed',
+                'file_name' => $this->fileName, // فقط الاسم
+                'file_size' => $this->formatBytes($fileSize),
                 'total_records' => $totalCount,
-                'created_at'    => now()->toDateTimeString()
+                'created_at' => now()->toDateTimeString(),
             ], now()->addHours(24));
 
             $this->updateProgress(100, 'تم التصدير بنجاح');
@@ -106,10 +113,10 @@ class ExportFinancialCollectionsJob implements ShouldQueue
             Cache::put("financial_export_result_{$this->exportId}", [
                 'status' => 'failed',
                 'error' => $e->getMessage(),
-                'created_at' => now()->toDateTimeString()
+                'created_at' => now()->toDateTimeString(),
             ], now()->addHours(24));
 
-            $this->updateProgress(-1, 'فشل في التصدير: ' . $e->getMessage());
+            $this->updateProgress(-1, 'فشل في التصدير: '.$e->getMessage());
             throw $e;
         }
     }
@@ -126,11 +133,13 @@ class ExportFinancialCollectionsJob implements ShouldQueue
             'customer.company',
             'customer.portfolio',
             'paymentMethod',
-            'addedBy'
+            'addedBy',
         ]);
 
         foreach ($this->filters as $key => $value) {
-            if (empty($value)) continue;
+            if (empty($value)) {
+                continue;
+            }
 
             switch ($key) {
                 case 'date_from':
@@ -186,7 +195,7 @@ class ExportFinancialCollectionsJob implements ShouldQueue
         Cache::put("financial_export_progress_{$this->exportId}", [
             'percentage' => $percentage,
             'message' => $message,
-            'updated_at' => now()->toDateTimeString()
+            'updated_at' => now()->toDateTimeString(),
         ], now()->addHours(2));
     }
 
@@ -203,7 +212,7 @@ class ExportFinancialCollectionsJob implements ShouldQueue
             $size /= 1024;
         }
 
-        return round($size, $precision) . ' ' . $units[$i];
+        return round($size, $precision).' '.$units[$i];
     }
 
     /*
@@ -216,7 +225,7 @@ class ExportFinancialCollectionsJob implements ShouldQueue
         Cache::put("financial_export_result_{$this->exportId}", [
             'status' => 'failed',
             'error' => $exception->getMessage(),
-            'created_at' => now()->toDateTimeString()
+            'created_at' => now()->toDateTimeString(),
         ], now()->addHours(24));
     }
 

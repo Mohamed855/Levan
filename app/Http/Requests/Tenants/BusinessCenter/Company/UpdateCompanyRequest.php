@@ -20,7 +20,7 @@ class UpdateCompanyRequest extends FormRequest
 
         return [
             'name' => ['required', 'string', 'max:255', Rule::unique('companies', 'name')->ignore($companyId)],
-            'logo'  => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'status' => ['sometimes', 'in:active,inactive'],
             'target_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'authorized_people' => ['nullable', 'array', 'max:50'],
@@ -40,7 +40,7 @@ class UpdateCompanyRequest extends FormRequest
             'name.max' => 'اسم الشركة يجب ألا يتجاوز 255 حرف',
             'logo.image' => 'الملف يجب أن يكون صورة صالحة',
             'logo.mimes' => 'نوع الشعار يجب أن يكون: JPG أو JPEG أو PNG أو WebP',
-            'logo.max'   => 'حجم الشعار يجب ألا يتجاوز 2 ميجابايت',
+            'logo.max' => 'حجم الشعار يجب ألا يتجاوز 2 ميجابايت',
             'status.in' => 'حالة الشركة يجب أن تكون نشط أو غير نشط',
             'target_percentage.numeric' => 'نسبة المستهدف يجب أن تكون رقماً',
             'target_percentage.min' => 'نسبة المستهدف يجب أن تكون أكبر من أو تساوي 0',

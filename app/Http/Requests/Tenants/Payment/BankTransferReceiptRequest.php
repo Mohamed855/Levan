@@ -23,12 +23,12 @@ class BankTransferReceiptRequest extends FormRequest
     {
         return [
             'bank_id.required' => 'يجب اختيار البنك المحول إليه.',
-            'bank_id.exists'   => 'البنك المحدد غير صالح. يرجى اختيار بنك من القائمة.',
+            'bank_id.exists' => 'البنك المحدد غير صالح. يرجى اختيار بنك من القائمة.',
 
             'receipt.required' => 'يجب رفع صورة الإيصال.',
-            'receipt.image'    => 'الملف المرفوع يجب أن يكون صورة.',
-            'receipt.mimes'    => 'صيغة الملف المسموح بها هي: jpeg, png, jpg, gif.',
-            'receipt.max'      => 'حجم الصورة يجب ألا يتجاوز 2 ميجابايت.',
+            'receipt.image' => 'الملف المرفوع يجب أن يكون صورة.',
+            'receipt.mimes' => 'صيغة الملف المسموح بها هي: jpeg, png, jpg, gif.',
+            'receipt.max' => 'حجم الصورة يجب ألا يتجاوز 2 ميجابايت.',
         ];
     }
 }

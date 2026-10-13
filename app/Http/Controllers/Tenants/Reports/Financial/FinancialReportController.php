@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers\Tenants\Reports\Financial;
 
-use App\Http\Controllers\Controller;
 use App\DataTables\Tenants\Reports\Financial\FinancialReportsDataTable;
-use App\Services\Tenants\Reports\Financial\FinancialReportService;
+use App\Http\Controllers\Controller;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
-use Illuminate\Http\Request;
-use Illuminate\View\View;
+use App\Services\Tenants\Reports\Financial\FinancialReportService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -58,7 +57,7 @@ class FinancialReportController extends Controller
             'portfolio_id',
             'created_by',
             'amount_from',
-            'amount_to'
+            'amount_to',
         ]);
 
         return $this->financialReportService->exportFinancialReport($filters);
@@ -81,7 +80,7 @@ class FinancialReportController extends Controller
             'created_by',
             'amount_from',
             'amount_to',
-            'related_type'
+            'related_type',
         ]);
 
         return $this->financialReportService->exportFinancialReportToPDF($filters);
@@ -105,7 +104,7 @@ class FinancialReportController extends Controller
             'amount_from',
             'amount_to',
             'company_id',
-            'portfolio_id'
+            'portfolio_id',
         ]);
 
         $count = $this->financialReportService->getTransactionsCount($filters);
@@ -115,7 +114,7 @@ class FinancialReportController extends Controller
             'success' => true,
             'count' => $count,
             'fields' => $fields,
-            'is_large_export' => $count > 5000
+            'is_large_export' => $count > 5000,
         ]);
     }
 
@@ -137,7 +136,7 @@ class FinancialReportController extends Controller
             'amount_from',
             'amount_to',
             'company_id',
-            'portfolio_id'
+            'portfolio_id',
         ]);
 
         $selectedFields = $request->input('selected_fields', []);
@@ -156,7 +155,7 @@ class FinancialReportController extends Controller
                     'message' => $result['message'],
                     'export_id' => $result['export_id'] ?? null,
                     'is_async' => true,
-                    'count' => $result['count']
+                    'count' => $result['count'],
                 ]);
             } else {
                 $fileName = $this->financialReportService->exportFilteredFinancialToExcel(
@@ -168,19 +167,17 @@ class FinancialReportController extends Controller
                     'success' => true,
                     'download_url' => tenant_route_name('reports.financial.download', ['file' => $fileName]),
                     'message' => 'تم إنشاء الملف بنجاح',
-                    'is_async' => false
+                    'is_async' => false,
                 ]);
             }
         } catch (\Exception $e) {
 
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء إنشاء الملف: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء إنشاء الملف: '.$e->getMessage(),
             ], 500);
         }
     }
-
-
 
     /*
     |--------------------------------------------------------------------------
@@ -191,10 +188,10 @@ class FinancialReportController extends Controller
     {
         $exportId = $request->input('export_id');
 
-        if (!$exportId) {
+        if (! $exportId) {
             return response()->json([
                 'success' => false,
-                'message' => 'معرف التصدير مطلوب'
+                'message' => 'معرف التصدير مطلوب',
             ], 400);
         }
 
@@ -202,7 +199,7 @@ class FinancialReportController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $progress
+            'data' => $progress,
         ]);
     }
 
@@ -224,7 +221,7 @@ class FinancialReportController extends Controller
                 'created_by',
                 'amount_from',
                 'amount_to',
-                'related_type'
+                'related_type',
             ]);
 
             $count = $this->financialReportService->getTransactionsCount($filters);
@@ -232,12 +229,12 @@ class FinancialReportController extends Controller
             return response()->json([
                 'success' => true,
                 'count' => $count,
-                'message' => "تم العثور على {$count} معاملة حسب الفلاتر المحددة"
+                'message' => "تم العثور على {$count} معاملة حسب الفلاتر المحددة",
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء جلب عدد السجلات'
+                'message' => 'حدث خطأ أثناء جلب عدد السجلات',
             ], 500);
         }
     }
@@ -250,9 +247,9 @@ class FinancialReportController extends Controller
     public function downloadFile($file)
     {
         $disk = Storage::disk('tenant_public');
-        $relativePath = 'exports/' . $file;
+        $relativePath = 'exports/'.$file;
 
-        if (!$disk->exists($relativePath)) {
+        if (! $disk->exists($relativePath)) {
             return redirect()->back()->with('error', 'الملف غير موجود أو تم حذفه.');
         }
 
@@ -262,7 +259,6 @@ class FinancialReportController extends Controller
             ->download($absolutePath, $file)
             ->deleteFileAfterSend(true);
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -286,13 +282,12 @@ class FinancialReportController extends Controller
     {
         $customerData = $this->financialReportService->getCustomerById($customer->id);
 
-        if (!$customerData) {
+        if (! $customerData) {
             return response()->json(null, 404);
         }
 
         return response()->json($customerData);
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -304,7 +299,7 @@ class FinancialReportController extends Controller
     {
         $companyId = $request->get('company_id');
 
-        if (!$companyId) {
+        if (! $companyId) {
             return response()->json([]);
         }
 
@@ -315,7 +310,7 @@ class FinancialReportController extends Controller
             ->map(function ($portfolio) {
                 return [
                     'id' => $portfolio->id,
-                    'name' => $portfolio->name
+                    'name' => $portfolio->name,
                 ];
             });
 

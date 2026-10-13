@@ -13,12 +13,10 @@ use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\Settings\Settings;
 use App\Services\shared\Bills\BillService;
 use App\Services\shared\Subscription\SubscriptionService;
-use Illuminate\Support\Facades\Log;
-use Yajra\DataTables\Facades\DataTables;
 
 class AdminBillsController extends Controller
 {
-    protected const VIEW_PATH  = "admin.bills";
+    protected const VIEW_PATH = 'admin.bills';
 
     public function __construct(
         private BillService $billService,
@@ -63,44 +61,44 @@ class AdminBillsController extends Controller
                 ],
             ];
 
-            return $dataTable->render(self::VIEW_PATH . '.index', [
-                'billcounts'    => $stats->sum(),
-                'paidbills'     => $stats->get(BillStatus::PAID->value, 0),
-                'unpaidbills'   => $stats->get(BillStatus::UNPAID->value, 0),
-                'pendingbills'  => $stats->get(BillStatus::PENDING->value, 0),
+            return $dataTable->render(self::VIEW_PATH.'.index', [
+                'billcounts' => $stats->sum(),
+                'paidbills' => $stats->get(BillStatus::PAID->value, 0),
+                'unpaidbills' => $stats->get(BillStatus::UNPAID->value, 0),
+                'pendingbills' => $stats->get(BillStatus::PENDING->value, 0),
                 'filterOptions' => $filterOptions,
             ]);
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }
 
     public function show(Bill $bill)
     {
-        $settings               = Settings::firstOrFail();
-        $vatRate                = 0.15; // قيمة الضريبة
-        $vatAmount              = round($bill->original_amount * $vatRate, 2); // استخراج سعر الضريبة
-        $priceWithoutTax        = round($bill->original_amount - $vatAmount, 2); // قبل الضريبة
-        $discount               = max(0.0, (float) $bill->discount_amount); // الخصم
+        $settings = Settings::firstOrFail();
+        $vatRate = 0.15; // قيمة الضريبة
+        $vatAmount = round($bill->original_amount * $vatRate, 2); // استخراج سعر الضريبة
+        $priceWithoutTax = round($bill->original_amount - $vatAmount, 2); // قبل الضريبة
+        $discount = max(0.0, (float) $bill->discount_amount); // الخصم
 
-        return view(self::VIEW_PATH . '.show', [
-            'settings'        => $settings,
-            'bill'            => $bill,
+        return view(self::VIEW_PATH.'.show', [
+            'settings' => $settings,
+            'bill' => $bill,
 
-            'vatRate'         => $vatRate,
+            'vatRate' => $vatRate,
             'priceWithoutTax' => $priceWithoutTax,
-            'vatAmount'       => $vatAmount,
+            'vatAmount' => $vatAmount,
 
-            'discount'        => $discount,
+            'discount' => $discount,
         ]);
     }
 
     public function print(Bill $bill)
     {
-        return $this->renderPrint(self::VIEW_PATH . '.print', $this->billService->getPrintData($bill));
+        return $this->renderPrint(self::VIEW_PATH.'.print', $this->billService->getPrintData($bill));
     }
-
 
     public function verify(AdminAuthenticatedRequest $request, Bill $bill)
     {
@@ -121,13 +119,13 @@ class AdminBillsController extends Controller
                 // BillType::LICENSE_PURCHASE => $this->subscriptionService->completeLicensePurchaseByBankTransfer($bill),
             };
 
-
             return redirect()->route('admin.bills.index')->with('success', "تم التحقق من الفاتورة رقم {$bill->bill_number} بنجاح.");
             //
         } catch (SubscriptionCreationException $e) {
             return redirect()->back()->with('error', $e->getMessage());
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء التحقق من الفاتورة.');
         }
     }
@@ -140,7 +138,7 @@ class AdminBillsController extends Controller
             }
 
             match ($bill->type) {
-                BillType::NEW_SUBSCRIPTION => !$bill->tenant_id
+                BillType::NEW_SUBSCRIPTION => ! $bill->tenant_id
                     ? $this->billService->cancelBill($bill)
                     : $this->billService->rejectBill($bill, $request->validated('reject_reason')),
 
@@ -151,10 +149,10 @@ class AdminBillsController extends Controller
             return redirect()->route('admin.bills.index')->with('success', "تم رفض الفاتورة رقم {$bill->bill_number}.");
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء رفض الفاتورة.');
         }
     }
-
 
     public function reactivate(AdminAuthenticatedRequest $request, Bill $bill)
     {
@@ -164,13 +162,14 @@ class AdminBillsController extends Controller
             }
 
             $bill->update([
-                'status'    => BillStatus::UNPAID,
-                'due_date'  => now()->addDays(7),
+                'status' => BillStatus::UNPAID,
+                'due_date' => now()->addDays(7),
             ]);
 
             return redirect()->route('admin.bills.show', $bill->id)->with('success', 'تم إعادة تفعيل الفاتورة بنجاح.');
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء إعادة التفعيل.');
         }
     }

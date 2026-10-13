@@ -16,13 +16,12 @@ use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Subscription\SubscriptionPeriod;
 use App\Models\Admin\Tenants\Tenant;
 use App\Services\shared\Bills\BillService;
+use App\Services\shared\Subscription\SubscriptionPeriod\SubscriptionPeriodService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-
-use App\Services\shared\Subscription\SubscriptionPeriod\SubscriptionPeriodService;
 
 class AdminSubscriptionService
 {
@@ -37,9 +36,9 @@ class AdminSubscriptionService
         $now = now();
 
         return [
-            'total'         => (clone $baseQuery)->count(),
-            'pending'       => (clone $baseQuery)->where('status', SubscriptionStatus::PENDING)->count(),
-            'active'        => (clone $baseQuery)
+            'total' => (clone $baseQuery)->count(),
+            'pending' => (clone $baseQuery)->where('status', SubscriptionStatus::PENDING)->count(),
+            'active' => (clone $baseQuery)
                 ->where('status', SubscriptionStatus::ACTIVE)
                 ->where(function ($query) use ($now) {
                     $query->whereHas('currentPeriod', function ($q) use ($now) {
@@ -49,10 +48,10 @@ class AdminSubscriptionService
                     })->orWhereDoesntHave('periods');
                 })
                 ->count(),
-            'expired'       => (clone $baseQuery)
+            'expired' => (clone $baseQuery)
                 ->whereIn('status', [SubscriptionStatus::EXPIRED, SubscriptionStatus::CANCELLED])
                 ->count(),
-            'suspended'     => (clone $baseQuery)->where('status', SubscriptionStatus::SUSPENDED)->count(),
+            'suspended' => (clone $baseQuery)->where('status', SubscriptionStatus::SUSPENDED)->count(),
             'expiring_soon' => $this->getExpiringSoonCount(),
         ];
     }
@@ -113,18 +112,18 @@ class AdminSubscriptionService
             $amount = $paymentType === 'trial' ? 0.00 : max(0.00, $basePrice - $discount);
 
             $subscription = Subscription::create([
-                'tenant_id'         => $company->id,
-                'plan_id'           => $plan->id,
-                'billing_cycle'     => $billingCycle,
-                'price'             => $amount,
-                'status'            => $subStatus,
-                'total_users'       => $plan->included_users,
-                'used_users'        => 0,
-                'starts_at'         => $startDate,
-                'ends_at'           => $endDate,
+                'tenant_id' => $company->id,
+                'plan_id' => $plan->id,
+                'billing_cycle' => $billingCycle,
+                'price' => $amount,
+                'status' => $subStatus,
+                'total_users' => $plan->included_users,
+                'used_users' => 0,
+                'starts_at' => $startDate,
+                'ends_at' => $endDate,
                 'next_payment_date' => $endDate,
-                'auto_renew'        => false,
-                'trial_end_date'    => ! empty($data['trial_end_date']) ? $data['trial_end_date'] : null,
+                'auto_renew' => false,
+                'trial_end_date' => ! empty($data['trial_end_date']) ? $data['trial_end_date'] : null,
             ]);
 
             // Create subscription period with full snapshots
@@ -143,24 +142,24 @@ class AdminSubscriptionService
                 type: BillType::NEW_SUBSCRIPTION,
                 couponData: [
                     'discount_amount' => $discount,
-                    'coupon_id'       => null,
-                    'coupon_code'     => null,
-                    'coupon_value'    => null,
-                    'coupon_type'     => null,
+                    'coupon_id' => null,
+                    'coupon_code' => null,
+                    'coupon_value' => null,
+                    'coupon_type' => null,
                 ],
                 metadata: [
-                    'tenant_id'       => $company->id,
+                    'tenant_id' => $company->id,
                     'subscription_id' => $subscription->id,
-                    'plan_id'         => $plan->id,
+                    'plan_id' => $plan->id,
                 ]
             );
 
             if ($bill) {
                 $bill->update([
-                    'tenant_id'       => $company->id,
+                    'tenant_id' => $company->id,
                     'subscription_id' => $subscription->id,
-                    'status'          => ($activateImmediately || $paymentType === 'paid') ? BillStatus::PAID : BillStatus::UNPAID,
-                    'paid_at'         => ($activateImmediately || $paymentType === 'paid') ? now() : null,
+                    'status' => ($activateImmediately || $paymentType === 'paid') ? BillStatus::PAID : BillStatus::UNPAID,
+                    'paid_at' => ($activateImmediately || $paymentType === 'paid') ? now() : null,
                 ]);
             }
 
@@ -168,11 +167,11 @@ class AdminSubscriptionService
             $totalSeats = (int) ($subscription->total_users ?: $plan->included_users ?: 1);
             for ($i = 0; $i < $totalSeats; $i++) {
                 LicenseSeat::create([
-                    'id'              => (string) Str::uuid(),
-                    'tenant_id'       => $company->id,
+                    'id' => (string) Str::uuid(),
+                    'tenant_id' => $company->id,
                     'subscription_id' => $subscription->id,
-                    'status'          => 'free',
-                    'is_core'         => $i === 0,
+                    'status' => 'free',
+                    'is_core' => $i === 0,
                 ]);
             }
 
@@ -191,7 +190,7 @@ class AdminSubscriptionService
     {
         $newStatus = match ($subscription->status) {
             SubscriptionStatus::ACTIVE => SubscriptionStatus::SUSPENDED,
-            default                    => SubscriptionStatus::ACTIVE,
+            default => SubscriptionStatus::ACTIVE,
         };
 
         $subscription->update(['status' => $newStatus]);
@@ -201,8 +200,8 @@ class AdminSubscriptionService
         if ($company && $company->lastSubscription?->id === $subscription->id) {
             $companyStatus = match ($newStatus) {
                 SubscriptionStatus::SUSPENDED => 'suspended',
-                SubscriptionStatus::ACTIVE    => 'active',
-                default                       => $company->status,
+                SubscriptionStatus::ACTIVE => 'active',
+                default => $company->status,
             };
             $company->update(['status' => $companyStatus]);
         }

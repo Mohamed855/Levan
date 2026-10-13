@@ -35,6 +35,6 @@ class DownloadActivityLogExportRequest extends ExportActivityLogsRequest
 
     public static function ownerKey(string $file): string
     {
-        return 'activity_log_export_owner:' . hash('sha256', $file);
+        return 'activity_log_export_owner:'.hash('sha256', $file);
     }
 }

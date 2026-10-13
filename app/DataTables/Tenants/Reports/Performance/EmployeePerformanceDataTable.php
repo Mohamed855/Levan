@@ -5,11 +5,11 @@ namespace App\DataTables\Tenants\Reports\Performance;
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Services\Tenants\Reports\Performance\EmployeePerformanceService;
 use App\Support\ReportNumberFormatter;
-use Yajra\DataTables\Html\Column;
 
 class EmployeePerformanceDataTable extends AbstractDataTable
 {
-    private $route = "reports.employees";
+    private $route = 'reports.employees';
+
     protected EmployeePerformanceService $employeePerformanceService;
 
     public function __construct(EmployeePerformanceService $employeePerformanceService)
@@ -27,6 +27,7 @@ class EmployeePerformanceDataTable extends AbstractDataTable
         $datatable = datatables()->collection($query)->addIndexColumn();
 
         $this->addCustomColumns($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
@@ -37,7 +38,7 @@ class EmployeePerformanceDataTable extends AbstractDataTable
     */
     protected function getTableId()
     {
-        return "employee-performance-table";
+        return 'employee-performance-table';
     }
 
     /*
@@ -52,7 +53,7 @@ class EmployeePerformanceDataTable extends AbstractDataTable
         $dateFrom = request('date_from');
         $dateTo = request('date_to');
 
-        if (!$dateFrom && $year && $month) {
+        if (! $dateFrom && $year && $month) {
             $paddedMonth = str_pad($month, 2, '0', STR_PAD_LEFT);
             $lastDay = date('t', strtotime("$year-$paddedMonth-01"));
             $dateFrom = "$year-$paddedMonth-01";
@@ -82,18 +83,18 @@ class EmployeePerformanceDataTable extends AbstractDataTable
     {
         return [
             ['data' => '', 'orderable' => false, 'searchable' => false],
-            ['data' => 'employee_name',             'name' => 'employee_name',              'title' => 'اسم الموظف',],
-            ['data' => 'customers_count',           'name' => 'customers_count',            'title' => 'عدد العملاء',],
-            ['data' => 'total_portfolio',           'name' => 'total_portfolio',            'title' => 'إجمالي المحفظة',],
-            ['data' => 'avg_payment',               'name' => 'avg_payment',                'title' => 'متوسط السداد',],
-            ['data' => 'paid_customers',            'name' => 'paid_customers',             'title' => 'عدد العملاء المسددين',],
-            ['data' => 'avg_calls',                 'name' => 'avg_calls',                  'title' => 'متوسط المكالمات',],
-            ['data' => 'not_contacted',             'name' => 'not_contacted',              'title' => 'لم يتم التواصل',],
-            ['data' => 'overdue_tasks',             'name' => 'overdue_tasks',              'title' => 'المهام المتأخرة',],
-            ['data' => 'promises_count',            'name' => 'promises_count',             'title' => 'وعد بالسداد',],
-            ['data' => 'promises_amount',           'name' => 'promises_amount',            'title' => 'مبلغ الوعد بالسداد',],
-            ['data' => 'promise_achievement_rate',  'name' => 'promise_achievement_rate',   'title' => 'نسبة تحقيق الوعد',],
-            ['data' => 'target_achievement_rate',   'name' => 'target_achievement_rate',    'title' => 'نسبة تحقيق المستهدف',],
+            ['data' => 'employee_name',             'name' => 'employee_name',              'title' => 'اسم الموظف'],
+            ['data' => 'customers_count',           'name' => 'customers_count',            'title' => 'عدد العملاء'],
+            ['data' => 'total_portfolio',           'name' => 'total_portfolio',            'title' => 'إجمالي المحفظة'],
+            ['data' => 'avg_payment',               'name' => 'avg_payment',                'title' => 'متوسط السداد'],
+            ['data' => 'paid_customers',            'name' => 'paid_customers',             'title' => 'عدد العملاء المسددين'],
+            ['data' => 'avg_calls',                 'name' => 'avg_calls',                  'title' => 'متوسط المكالمات'],
+            ['data' => 'not_contacted',             'name' => 'not_contacted',              'title' => 'لم يتم التواصل'],
+            ['data' => 'overdue_tasks',             'name' => 'overdue_tasks',              'title' => 'المهام المتأخرة'],
+            ['data' => 'promises_count',            'name' => 'promises_count',             'title' => 'وعد بالسداد'],
+            ['data' => 'promises_amount',           'name' => 'promises_amount',            'title' => 'مبلغ الوعد بالسداد'],
+            ['data' => 'promise_achievement_rate',  'name' => 'promise_achievement_rate',   'title' => 'نسبة تحقيق الوعد'],
+            ['data' => 'target_achievement_rate',   'name' => 'target_achievement_rate',    'title' => 'نسبة تحقيق المستهدف'],
         ];
     }
 
@@ -106,61 +107,61 @@ class EmployeePerformanceDataTable extends AbstractDataTable
     {
         $datatable
             ->editColumn('company_name', function ($row) {
-                return '<div class="fw-semibold">' . e($row['company_name']) . '</div>';
+                return '<div class="fw-semibold">'.e($row['company_name']).'</div>';
             })
 
             ->editColumn('employee_name', function ($row) {
-                return '<div class="fw-semibold text-primary">' . e($row['employee_name']) . '</div>';
+                return '<div class="fw-semibold text-primary">'.e($row['employee_name']).'</div>';
             })
 
             ->editColumn('customers_count', function ($row) {
-                return '<span class="badge bg-label-info">' . $this->formatNumber($row['customers_count']) . '</span>';
+                return '<span class="badge bg-label-info">'.$this->formatNumber($row['customers_count']).'</span>';
             })
 
             ->editColumn('total_portfolio', function ($row) {
-                return '<span class="text-primary fw-bold">' . number_format($this->formatNumber($row['total_portfolio'])) . '</span>';
+                return '<span class="text-primary fw-bold">'.number_format($this->formatNumber($row['total_portfolio'])).'</span>';
             })
 
             ->editColumn('avg_payment', function ($row) {
-                return '<span class="text-success">' . number_format($this->formatNumber($row['avg_payment'])) . '</span>';
+                return '<span class="text-success">'.number_format($this->formatNumber($row['avg_payment'])).'</span>';
             })
 
             ->editColumn('paid_customers', function ($row) {
-                return '<span class="badge bg-label-success">' . number_format($this->formatNumber($row['paid_customers'])) . '</span>';
+                return '<span class="badge bg-label-success">'.number_format($this->formatNumber($row['paid_customers'])).'</span>';
             })
 
             ->editColumn('avg_calls', function ($row) {
-                return '<span class="badge bg-secondary">' . number_format($this->formatNumber($row['avg_calls'])) . '</span>';
+                return '<span class="badge bg-secondary">'.number_format($this->formatNumber($row['avg_calls'])).'</span>';
             })
 
             ->editColumn('not_contacted', function ($row) {
-                return '<span class="badge bg-label-warning">' . number_format($this->formatNumber($row['not_contacted'])) . '</span>';
+                return '<span class="badge bg-label-warning">'.number_format($this->formatNumber($row['not_contacted'])).'</span>';
             })
 
             ->editColumn('overdue_tasks', function ($row) {
-                return '<span class="badge bg-label-danger">' . number_format($this->formatNumber($row['overdue_tasks'] ?? 0)) . '</span>';
+                return '<span class="badge bg-label-danger">'.number_format($this->formatNumber($row['overdue_tasks'] ?? 0)).'</span>';
             })
 
             ->editColumn('promises_count', function ($row) {
-                return '<span class="badge bg-label-info">' . number_format($this->formatNumber($row['promises_count'])) . '</span>';
+                return '<span class="badge bg-label-info">'.number_format($this->formatNumber($row['promises_count'])).'</span>';
             })
 
             ->editColumn('promises_amount', function ($row) {
-                return '<span class="text-warning fw-bold">' . number_format($this->formatNumber($row['promises_amount'])) . '</span>';
+                return '<span class="text-warning fw-bold">'.number_format($this->formatNumber($row['promises_amount'])).'</span>';
             })
 
             ->editColumn('promise_achievement_rate', function ($row) {
                 $rate = (float) $row['promise_achievement_rate'];
                 $badgeClass = $rate >= 80 ? 'bg-label-success' : ($rate >= 50 ? 'bg-label-warning' : 'bg-label-danger');
-                return '<span class="badge ' . $badgeClass . '">' . $this->formatNumber($rate) . '%</span>';
+
+                return '<span class="badge '.$badgeClass.'">'.$this->formatNumber($rate).'%</span>';
             })
 
             ->editColumn('target_achievement_rate', function ($row) {
                 $rate = (float) $row['target_achievement_rate'];
                 $badgeClass = $rate >= 100 ? 'bg-label-success' : ($rate >= 50 ? 'bg-label-warning' : 'bg-label-danger');
 
-
-                return '<span class="badge ' . $badgeClass . '">' . $this->formatNumber($rate) . '%</span>';
+                return '<span class="badge '.$badgeClass.'">'.$this->formatNumber($rate).'%</span>';
             });
     }
 
@@ -194,7 +195,7 @@ class EmployeePerformanceDataTable extends AbstractDataTable
             'promises_count',
             'promises_amount',
             'promise_achievement_rate',
-            'target_achievement_rate'
+            'target_achievement_rate',
         ];
     }
 
@@ -233,8 +234,8 @@ class EmployeePerformanceDataTable extends AbstractDataTable
             [
                 'text' => 'تصدير Excel',
                 'className' => 'btn-export-excel',
-                'action' => "function() { exportEmployeesToExcel(); }",
-            ]
+                'action' => 'function() { exportEmployeesToExcel(); }',
+            ],
         ];
 
         return [

@@ -7,16 +7,16 @@ use App\Models\Admin\Tenants\Domain;
 use App\Services\shared\NameCheap\GetDomainInfoService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
 class DomainDataTable extends AbstractDataTable
 {
-    private $page   = "tenants.domain_setting";
-    private $route  = "domains.setting";
+    private $page = 'tenants.domain_setting';
+
+    private $route = 'domains.setting';
 
     protected function getTableId()
     {
-        return "domain-table";
+        return 'domain-table';
     }
 
     protected function resource()
@@ -41,12 +41,12 @@ class DomainDataTable extends AbstractDataTable
                 'className' => 'custom-checkbox',
                 'width' => '10px',
             ],
-            ['data' => 'domain',          'title' => 'النطاق',],
-            ['data' => 'type',            'title' => 'النوع',],
+            ['data' => 'domain',          'title' => 'النطاق'],
+            ['data' => 'type',            'title' => 'النوع'],
             ['data' => 'is_active',       'title' => 'الحالة',          'orderable' => false],
             ['data' => 'expires_at',      'title' => 'تاريخ الانتهاء',  'orderable' => false],
             ['data' => 'remaining_days',  'title' => 'الأيام المتبقية', 'orderable' => false],
-            ['data' => 'trasnfer_status', 'title' => 'حالة النقل',],
+            ['data' => 'trasnfer_status', 'title' => 'حالة النقل'],
             ['data' => 'actions',         'name' => 'actions',          'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
@@ -55,7 +55,7 @@ class DomainDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
 
             ->editColumn('type', function ($row) {
@@ -68,13 +68,13 @@ class DomainDataTable extends AbstractDataTable
 
             ->editColumn('expires_at', function ($row) {
                 // بس للدومينات المحجوزة أو المنقولة
-                if (!in_array($row->type, ['registered', 'transferred'])) {
+                if (! in_array($row->type, ['registered', 'transferred'])) {
                     return '<span class="text-muted">غير متاح</span>';
                 }
 
                 $info = $this->getDomainInfo($row->domain);
 
-                if (!$info || !$info['success']) {
+                if (! $info || ! $info['success']) {
                     return '<span class="text-muted">غير متاح</span>';
                 }
 
@@ -83,23 +83,24 @@ class DomainDataTable extends AbstractDataTable
 
             ->editColumn('remaining_days', function ($row) {
                 // بس للدومينات المحجوزة أو المنقولة
-                if (!in_array($row->type, ['registered', 'transferred'])) {
+                if (! in_array($row->type, ['registered', 'transferred'])) {
                     return '<span class="text-muted">غير متاح</span>';
                 }
 
                 $info = $this->getDomainInfo($row->domain);
+
                 return $this->RemainingDaysBadge($info);
             })
 
             ->editColumn('transfer_code', function ($row) {
                 return $row->transfer_code
-                    ? '<span class="text-dark">' . $row->transfer_code . '</span>'
+                    ? '<span class="text-dark">'.$row->transfer_code.'</span>'
                     : '<span class="text-muted">-</span>';
             })
 
             ->editColumn('transfer_status', function ($row) {
                 return $row->transfer_status
-                    ? '<span class="text-dark">' . ($row->transfer_status ?: '-') . '</span>'
+                    ? '<span class="text-dark">'.($row->transfer_status ?: '-').'</span>'
                     : '<span class="text-muted">-</span>';
             })
 
@@ -112,7 +113,7 @@ class DomainDataTable extends AbstractDataTable
             })
 
             ->addColumn('actions', function ($row) {
-                return view($this->page . '.action', ['row' => $row, 'route' => $this->route])->render();
+                return view($this->page.'.action', ['row' => $row, 'route' => $this->route])->render();
             });
     }
 
@@ -139,17 +140,16 @@ class DomainDataTable extends AbstractDataTable
         ];
     }
 
-
     private function getAddButton(): array
     {
         return [
             [
-                'text'      => '<i class="ti ti-world-plus me-1"></i> حجز نطاق جديد (قريبا)',
+                'text' => '<i class="ti ti-world-plus me-1"></i> حجز نطاق جديد (قريبا)',
                 'className' => 'btn btn-primary btn-add disabled',
                 // 'action'    => "function(){ window.location.href='" . tenant_route_name('domains.newdomain') . "'; }",
             ],
             [
-                'text'      => '<i class="ti ti-link me-1"></i> ربط نطاق خارجي (قريبا)',
+                'text' => '<i class="ti ti-link me-1"></i> ربط نطاق خارجي (قريبا)',
                 'className' => 'btn btn-primary btn-add disabled',
                 // 'action'    => "function(){ window.location.href='" . tenant_route_name('domains.link-domain') . "'; }",
             ],
@@ -169,9 +169,11 @@ class DomainDataTable extends AbstractDataTable
     {
         try {
             $service = app(GetDomainInfoService::class);
+
             return $service->getDomainInfo($domain);
         } catch (\Exception $e) {
-            Log::error("Failed to fetch domain info for {$domain}: " . $e->getMessage());
+            Log::error("Failed to fetch domain info for {$domain}: ".$e->getMessage());
+
             return ['success' => false, 'message' => $e->getMessage()];
         }
     }
@@ -179,17 +181,17 @@ class DomainDataTable extends AbstractDataTable
     private function TypeBadge($row): string
     {
         $colors = [
-            'registered'  => 'success',
+            'registered' => 'success',
             'transferred' => 'info',
-            'pending'     => 'warning',
-            'connected'   => 'primary',
+            'pending' => 'warning',
+            'connected' => 'primary',
         ];
 
         $translations = [
-            'registered'  => 'دومين محجوز',
+            'registered' => 'دومين محجوز',
             'transferred' => 'دومين منقول',
-            'pending'     => 'قيد الانتظار',
-            'connected'   => 'دومين مربوط',
+            'pending' => 'قيد الانتظار',
+            'connected' => 'دومين مربوط',
         ];
 
         $color = $colors[$row->type] ?? 'secondary';
@@ -216,7 +218,7 @@ class DomainDataTable extends AbstractDataTable
 
     private function RemainingDaysBadge($info): string
     {
-        if (!$info || !$info['success'] || !isset($info['remaining_days'])) {
+        if (! $info || ! $info['success'] || ! isset($info['remaining_days'])) {
             return '<span class="text-muted">غير متاح</span>';
         }
 
@@ -227,13 +229,13 @@ class DomainDataTable extends AbstractDataTable
             $text = 'منتهي';
         } elseif ($days <= 30) {
             $color = 'danger';
-            $text = $days . ' يوم';
+            $text = $days.' يوم';
         } elseif ($days <= 60) {
             $color = 'warning';
-            $text = $days . ' يوم';
+            $text = $days.' يوم';
         } else {
             $color = 'primary';
-            $text = $days . ' يوم';
+            $text = $days.' يوم';
         }
 
         return sprintf(

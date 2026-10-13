@@ -2,8 +2,7 @@
 
 namespace App\Jobs\Domain;
 
-use App\Models\Admin\Cpanel\CpanelAccount;
-use App\Models\Admin\Tenants\Tenant;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -12,27 +11,37 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Exception;
-use Illuminate\Support\Facades\DB;
 
 class CreateDomainProceesJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 600;
+
     public $tries = 1;
 
     protected $domainName;
+
     protected $plan;
+
     protected $apiUser;
+
     protected $apiKey;
+
     protected $clientIp;
+
     protected $baseUrl;
+
     protected $whmUrl;
+
     protected $whmToken;
+
     protected $serverIp;
+
     protected $tenantId;
+
     protected $cpanelUsername;
+
     protected $cpanelPassword;
 
     public function __construct($domainName, $plan = 'default_levan', $tenantId = null)
@@ -52,46 +61,46 @@ class CreateDomainProceesJob implements ShouldQueue
 
     public function handle()
     {
-        Log::info("🚀 Starting domain registration", [
+        Log::info('🚀 Starting domain registration', [
             'domain' => $this->domainName,
-            'tenant_id' => $this->tenantId
+            'tenant_id' => $this->tenantId,
         ]);
 
         $ns1 = 'ns1.levan.com';
         $ns2 = 'ns2.levan.com';
 
         try {
-             [$sld, $tld] = explode('.', $this->domainName);
+            [$sld, $tld] = explode('.', $this->domainName);
 
-             $this->cpanelUsername = $sld;
+            $this->cpanelUsername = $sld;
 
-            Log::info("📝 Using cPanel username", ['username' => $this->cpanelUsername]);
+            Log::info('📝 Using cPanel username', ['username' => $this->cpanelUsername]);
 
             $this->createDomainOnNamecheap($sld, $tld);
             sleep(5);
 
-             $this->createGlueRecords($sld, $tld, $ns1, $ns2);
+            $this->createGlueRecords($sld, $tld, $ns1, $ns2);
             sleep(5);
 
-             $this->setNameservers($sld, $tld, $ns1, $ns2);
+            $this->setNameservers($sld, $tld, $ns1, $ns2);
             sleep(7);
-             $tenantId = $this->tenantId;
-            
-            
+            $tenantId = $this->tenantId;
+
         } catch (Exception $e) {
-            Log::error("❌ Registration failed", [
+            Log::error('❌ Registration failed', [
                 'domain' => $this->domainName,
                 'tenant_id' => $this->tenantId,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             if ($this->attempts() < $this->tries) {
-                Log::info("🔄 Retrying job in 2 minutes", [
+                Log::info('🔄 Retrying job in 2 minutes', [
                     'attempt' => $this->attempts(),
-                    'domain' => $this->domainName
+                    'domain' => $this->domainName,
                 ]);
                 $this->release(120);
+
                 return;
             }
 
@@ -99,7 +108,6 @@ class CreateDomainProceesJob implements ShouldQueue
         }
     }
 
-   
     protected function sanitizeUsername($sld)
     {
         // إزالة الرموز والشرطات
@@ -113,7 +121,7 @@ class CreateDomainProceesJob implements ShouldQueue
 
         // لو الاسم فاضي، استخدم random string
         if (empty($clean)) {
-            $clean = 'usr' . strtolower(Str::random(6));
+            $clean = 'usr'.strtolower(Str::random(6));
         }
 
         return $clean;
@@ -124,7 +132,7 @@ class CreateDomainProceesJob implements ShouldQueue
      */
     protected function createDomainOnNamecheap($sld, $tld)
     {
-        Log::info("📝 Creating domain on Namecheap", ['domain' => $this->domainName]);
+        Log::info('📝 Creating domain on Namecheap', ['domain' => $this->domainName]);
 
         $createParams = [
             'ApiUser' => $this->apiUser,
@@ -174,8 +182,8 @@ class CreateDomainProceesJob implements ShouldQueue
 
         $createResponse = Http::timeout(60)->get($this->baseUrl, $createParams);
 
-        if (!$createResponse->successful()) {
-            throw new Exception("Failed to connect to Namecheap API: " . $createResponse->status());
+        if (! $createResponse->successful()) {
+            throw new Exception('Failed to connect to Namecheap API: '.$createResponse->status());
         }
 
         $createXml = simplexml_load_string($createResponse->body());
@@ -183,10 +191,10 @@ class CreateDomainProceesJob implements ShouldQueue
 
         if (($createJson['@attributes']['Status'] ?? '') !== 'OK') {
             $errorMsg = $createJson['Errors']['Error'] ?? 'Unknown error';
-            throw new Exception("Failed to create domain on Namecheap: " . $errorMsg);
+            throw new Exception('Failed to create domain on Namecheap: '.$errorMsg);
         }
 
-        Log::info("✅ Domain created on Namecheap successfully");
+        Log::info('✅ Domain created on Namecheap successfully');
     }
 
     /**
@@ -194,11 +202,11 @@ class CreateDomainProceesJob implements ShouldQueue
      */
     protected function createGlueRecords($sld, $tld, $ns1, $ns2)
     {
-        Log::info("📝 Creating Glue Records", ['domain' => $this->domainName]);
+        Log::info('📝 Creating Glue Records', ['domain' => $this->domainName]);
 
         // ✅ إنشاء Glue Records بناءً على الدومين نفسه
-        $glueNs1 = 'ns1.' . $this->domainName;  // مثال: ns1.klniosg.com
-        $glueNs2 = 'ns2.' . $this->domainName;  // مثال: ns2.klniosg.com
+        $glueNs1 = 'ns1.'.$this->domainName;  // مثال: ns1.klniosg.com
+        $glueNs2 = 'ns2.'.$this->domainName;  // مثال: ns2.klniosg.com
 
         // إنشاء Glue Record الأول
         $glue1Response = Http::timeout(30)->get($this->baseUrl, [
@@ -213,7 +221,7 @@ class CreateDomainProceesJob implements ShouldQueue
             'IP' => $this->serverIp,
         ]);
 
-        $this->validateResponse($glue1Response, "Glue Record 1");
+        $this->validateResponse($glue1Response, 'Glue Record 1');
 
         sleep(2);
 
@@ -230,12 +238,12 @@ class CreateDomainProceesJob implements ShouldQueue
             'IP' => $this->serverIp,
         ]);
 
-        $this->validateResponse($glue2Response, "Glue Record 2");
+        $this->validateResponse($glue2Response, 'Glue Record 2');
 
-        Log::info("✅ Glue records created successfully", [
+        Log::info('✅ Glue records created successfully', [
             'ns1' => $glueNs1,
             'ns2' => $glueNs2,
-            'ip' => $this->serverIp
+            'ip' => $this->serverIp,
         ]);
     }
 
@@ -244,11 +252,11 @@ class CreateDomainProceesJob implements ShouldQueue
      */
     protected function setNameservers($sld, $tld, $ns1, $ns2)
     {
-        Log::info("📝 Setting nameservers", ['domain' => $this->domainName]);
+        Log::info('📝 Setting nameservers', ['domain' => $this->domainName]);
 
         // ✅ استخدام نفس الـ nameservers اللي عملناها في Glue Records
-        $glueNs1 = 'ns1.' . $this->domainName;
-        $glueNs2 = 'ns2.' . $this->domainName;
+        $glueNs1 = 'ns1.'.$this->domainName;
+        $glueNs2 = 'ns2.'.$this->domainName;
 
         $nsResponse = Http::timeout(30)->get($this->baseUrl, [
             'ApiUser' => $this->apiUser,
@@ -258,22 +266,21 @@ class CreateDomainProceesJob implements ShouldQueue
             'Command' => 'namecheap.domains.dns.setCustom',
             'SLD' => $sld,
             'TLD' => $tld,
-            'Nameservers' => $glueNs1 . ',' . $glueNs2,  // ✅ استخدام الـ NS الصحيحة
+            'Nameservers' => $glueNs1.','.$glueNs2,  // ✅ استخدام الـ NS الصحيحة
         ]);
 
-        $this->validateResponse($nsResponse, "Nameservers");
+        $this->validateResponse($nsResponse, 'Nameservers');
 
-        Log::info("✅ Nameservers configured successfully", [
+        Log::info('✅ Nameservers configured successfully', [
             'ns1' => $glueNs1,
-            'ns2' => $glueNs2
+            'ns2' => $glueNs2,
         ]);
     }
 
-   
     protected function validateResponse($response, $operationName)
     {
-        if (!$response->successful()) {
-            throw new Exception("$operationName failed: HTTP " . $response->status());
+        if (! $response->successful()) {
+            throw new Exception("$operationName failed: HTTP ".$response->status());
         }
 
         $xml = simplexml_load_string($response->body());
@@ -281,21 +288,20 @@ class CreateDomainProceesJob implements ShouldQueue
 
         if (($json['@attributes']['Status'] ?? '') !== 'OK') {
             $errorMsg = $json['Errors']['Error'] ?? 'Unknown error';
-            throw new Exception("$operationName failed: " . $errorMsg);
+            throw new Exception("$operationName failed: ".$errorMsg);
         }
 
         Log::info("✅ $operationName completed successfully");
     }
 
-    
     public function failed(\Throwable $exception)
     {
-        Log::error("❌ Job failed completely after all retries", [
+        Log::error('❌ Job failed completely after all retries', [
             'domain' => $this->domainName,
             'tenant_id' => $this->tenantId,
             'cpanel_username' => $this->cpanelUsername ?? null,
             'error' => $exception->getMessage(),
-            'attempts' => $this->attempts()
+            'attempts' => $this->attempts(),
         ]);
     }
 }

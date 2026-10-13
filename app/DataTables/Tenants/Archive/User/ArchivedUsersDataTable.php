@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 class ArchivedUsersDataTable extends AbstractDataTable
 {
-    private $route = "archive.users";
+    private $route = 'archive.users';
 
     /*
     |--------------------------------------------------------------------------
@@ -21,6 +21,7 @@ class ArchivedUsersDataTable extends AbstractDataTable
         $datatable = datatables()->eloquent($query)->addIndexColumn();
 
         $this->addCustomColumns($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
@@ -32,7 +33,7 @@ class ArchivedUsersDataTable extends AbstractDataTable
     */
     protected function getTableId()
     {
-        return "archived-users-table";
+        return 'archived-users-table';
     }
 
     /*
@@ -60,10 +61,10 @@ class ArchivedUsersDataTable extends AbstractDataTable
             ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             [
-                'data'       => 'checkbox',
-                'name'       => 'checkbox',
-                'title'      => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
-                'orderable'  => false,
+                'data' => 'checkbox',
+                'name' => 'checkbox',
+                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
+                'orderable' => false,
                 'searchable' => false,
                 'width' => '10px',
                 'className' => 'custom-checkbox',
@@ -90,39 +91,43 @@ class ArchivedUsersDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
             ->editColumn('user_info', function ($row) {
                 $avatar = $row->profile_photo_url;
+
                 return '<div class="d-flex align-items-center">
                     <div class="avatar-wrapper me-2">
                         <div class="avatar avatar-sm">
-                            <img src="' . $avatar . '" alt="Avatar" class="rounded-circle">
+                            <img src="'.$avatar.'" alt="Avatar" class="rounded-circle">
                         </div>
                     </div>
-                    <span class="text-body fw-medium">' . $row->name . '</span>
+                    <span class="text-body fw-medium">'.$row->name.'</span>
                 </div>';
             })
             ->editColumn('employee_number', function ($row) {
-                return '<span class="badge bg-label-primary">' . ($row->employee_number ?? '-') . '</span>';
+                return '<span class="badge bg-label-primary">'.($row->employee_number ?? '-').'</span>';
             })
             ->editColumn('email', function ($row) {
-                return '<span class="text-primary">' . ($row->email ?? '-') . '</span>';
+                return '<span class="text-primary">'.($row->email ?? '-').'</span>';
             })
             ->editColumn('phone', function ($row) {
-                return '<span class="text-body">' . ($row->phone ?? '-') . '</span>';
+                return '<span class="text-body">'.($row->phone ?? '-').'</span>';
             })
             ->editColumn('roles', function ($row) {
                 if ($row->roles && $row->roles->count() > 0) {
                     $roleNames = $row->roles->pluck('name')->toArray();
-                    return '<span class="text-info">' . implode(', ', $roleNames) . '</span>';
+
+                    return '<span class="text-info">'.implode(', ', $roleNames).'</span>';
                 }
+
                 return '<span class="text-muted">-</span>';
             })
             ->editColumn('status', function ($row) {
                 $statusClass = $row->status === 'active' ? 'bg-label-success' : 'bg-label-danger';
                 $statusText = $row->status === 'active' ? 'نشط' : 'غير نشط';
-                return '<span class="badge ' . $statusClass . '">' . $statusText . '</span>';
+
+                return '<span class="badge '.$statusClass.'">'.$statusText.'</span>';
             })
             ->editColumn('deleted_at', function ($row) {
                 return Carbon::parse($row->deleted_at)->format('Y-m-d');
@@ -188,10 +193,10 @@ class ArchivedUsersDataTable extends AbstractDataTable
     private function getActionsDropdownButton(): array
     {
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => [
+            'text' => 'الإجراءات',
+            'buttons' => [
                 ['extend' => 'copy', 'text' => 'نسخ'],
                 ['extend' => 'excel', 'text' => 'إكسل'],
             ],

@@ -8,18 +8,19 @@ use Carbon\Carbon;
 
 class AssignmentArchiveDataTable extends AbstractDataTable
 {
-    private string $route = "archive.assignments";
+    private string $route = 'archive.assignments';
 
     public function dataTable($query)
     {
         $datatable = datatables()->eloquent($query)->addIndexColumn();
         $this->addCustomColumns($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
     protected function getTableId(): string
     {
-        return "assignments-archive-table";
+        return 'assignments-archive-table';
     }
 
     protected function resource()
@@ -73,10 +74,10 @@ class AssignmentArchiveDataTable extends AbstractDataTable
         ];
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
 

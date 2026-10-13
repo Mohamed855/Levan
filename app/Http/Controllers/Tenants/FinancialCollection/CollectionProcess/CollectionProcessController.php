@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Tenants\FinancialCollection\CollectionProcess;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Tenants\FinancialCollection\CollectionProcess\SearchCollectionCustomerRequest;
 use App\Http\Requests\Tenants\BusinessCenter\Customer\CustomerFollow\StoreCustomerFollowRequest;
+use App\Http\Requests\Tenants\FinancialCollection\CollectionProcess\SearchCollectionCustomerRequest;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Customers\Phone\CustomerPhone;
 use App\Models\Tenants\FinancialCollection\Collection\Collection;
@@ -14,13 +14,13 @@ use App\Services\Tenants\BusinessCenter\Customer\Follow\ContactResultService;
 use App\Services\Tenants\BusinessCenter\Customer\Follow\CustomerFollowService;
 use App\Services\Tenants\FinancialCollection\CollectionProcess\CollectionProcessService;
 use App\Services\Tenants\FinancialCollection\CollectionProcess\CollectionSessionService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\View\View;
 
 class CollectionProcessController extends Controller
 {
@@ -47,9 +47,9 @@ class CollectionProcessController extends Controller
     {
         $this->collectionSessionService->ensureActiveSession();
 
-        $currentCustomerId      = $request->input('customer_id');
-        $currentCustomer        = null;
-        $customerData           = null;
+        $currentCustomerId = $request->input('customer_id');
+        $currentCustomer = null;
+        $customerData = null;
 
         $remainingCustomersCount = $this->collectionProcessService->getRemainingCustomersCount();  // عدد العملاء لدي المستخدم
 
@@ -62,7 +62,7 @@ class CollectionProcessController extends Controller
             }
         }
 
-        if (!$currentCustomer) {
+        if (! $currentCustomer) {
             $currentCustomer = $this->collectionProcessService->getNextCustomerForUser();
             if ($currentCustomer) {
                 $customerData = $this->collectionProcessService->getCustomerDetails($currentCustomer);
@@ -92,20 +92,20 @@ class CollectionProcessController extends Controller
         $currentCustomerId = $request->input('current_customer_id');
         $customer = $this->collectionProcessService->navigateToCustomer('next', $currentCustomerId);
 
-        if (!$customer) {
+        if (! $customer) {
             return redirect()->to(tenant_route_name('customers.my-customers'))
                 ->with('toastr', [
                     'type' => 'info',
-                    'message' => 'تم الانتهاء من جميع عملاء التحصيل'
+                    'message' => 'تم الانتهاء من جميع عملاء التحصيل',
                 ]);
         }
 
         // تحقق مرة أخرى من وجود مديونية للعميل
-        if (!$this->collectionProcessService->hasRemainingDebt($customer->id)) {
+        if (! $this->collectionProcessService->hasRemainingDebt($customer->id)) {
             return redirect()->to(tenant_route_name('customers.my-customers'))
                 ->with('toastr', [
                     'type' => 'info',
-                    'message' => 'تم الانتهاء من جميع عملاء التحصيل'
+                    'message' => 'تم الانتهاء من جميع عملاء التحصيل',
                 ]);
         }
 
@@ -122,7 +122,7 @@ class CollectionProcessController extends Controller
         $currentCustomerId = $request->input('current_customer_id');
         $customer = $this->collectionProcessService->navigateToCustomer('prev', $currentCustomerId);
 
-        if (!$customer) {
+        if (! $customer) {
             return redirect()->to(tenant_route_name('collection-process.index'))
                 ->with('warning', 'لا يوجد عملاء أخرين');
         }
@@ -139,21 +139,21 @@ class CollectionProcessController extends Controller
     {
         $currentCustomerId = $request->input('current_customer_id');
 
-        if (!$currentCustomerId) {
+        if (! $currentCustomerId) {
             return redirect()->to(tenant_route_name('collection-process.index'))
                 ->with('error', 'لا يوجد عميل محدد');
         }
 
         $customer = $this->collectionProcessService->findCustomerForCurrentUser((int) $currentCustomerId);
 
-        if (!$customer) {
+        if (! $customer) {
             return redirect()->to(tenant_route_name('collection-process.index'))
                 ->with('error', 'العميل غير موجود');
         }
 
         $nextCustomer = $this->collectionProcessService->skipCustomer($customer);
 
-        if (!$nextCustomer) {
+        if (! $nextCustomer) {
             return redirect()->to(tenant_route_name('collection-process.index'))
                 ->with('warning', 'لا يوجد عملاء أخرين');
         }
@@ -180,11 +180,11 @@ class CollectionProcessController extends Controller
             if ($hasPendingCollection) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'يوجد سند سابق بانتظار الاعتماد. يرجى اعتماده أولاً.'
+                    'message' => 'يوجد سند سابق بانتظار الاعتماد. يرجى اعتماده أولاً.',
                 ], 400);
             }
 
-            //------- التحقق من المديونية المتبقية للعميل  -------\\
+            // ------- التحقق من المديونية المتبقية للعميل  -------\\
 
             $totalDebit = CustomerTransaction::where('customer_id', $customer->id)
                 ->where('type', 'debit')
@@ -199,11 +199,11 @@ class CollectionProcessController extends Controller
             if ($remainingDebt <= 0) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'العميل قام بالسداد الكامل. لا يمكن إضافة متابعة جديدة.'
+                    'message' => 'العميل قام بالسداد الكامل. لا يمكن إضافة متابعة جديدة.',
                 ], 400);
             }
 
-            //------- التحقق من المديونية المتبقية للعميل  -------\\
+            // ------- التحقق من المديونية المتبقية للعميل  -------\\
 
             $data = $request->validated();
 
@@ -218,7 +218,7 @@ class CollectionProcessController extends Controller
 
             $this->collectionSessionService->recordActivity('follow', $request->contact_result_id);
 
-            if (!$this->collectionProcessService->hasRemainingDebt($customer->id)) {
+            if (! $this->collectionProcessService->hasRemainingDebt($customer->id)) {
                 $nextCustomer = $this->collectionProcessService->getNextCustomerForUser();
 
                 if ($nextCustomer) {
@@ -226,15 +226,15 @@ class CollectionProcessController extends Controller
                         'success' => true,
                         'message' => 'تم حفظ المتابعة بنجاح',
                         'data' => $follow,
-                        'redirect_url' => tenant_route_name('collection-process.index', ['customer_id' => $nextCustomer->id])
+                        'redirect_url' => tenant_route_name('collection-process.index', ['customer_id' => $nextCustomer->id]),
                     ]);
                 }
 
                 return response()->json([
-                    'success'       => true,
-                    'message'       => 'تم حفظ المتابعة بنجاح - لا يوجد عملاء أخرين',
-                    'data'          => $follow,
-                    'redirect_url'  => tenant_route_name('collection-process.index'),
+                    'success' => true,
+                    'message' => 'تم حفظ المتابعة بنجاح - لا يوجد عملاء أخرين',
+                    'data' => $follow,
+                    'redirect_url' => tenant_route_name('collection-process.index'),
                     // 'toastr'        => [
                     //     'type'     => 'info',
                     //     'message'  => 'تم الانتهاء من جميع عملاء التحصيل'
@@ -249,7 +249,7 @@ class CollectionProcessController extends Controller
                     'success' => true,
                     'message' => 'تم حفظ المتابعة بنجاح',
                     'data' => $follow,
-                    'redirect_url' => tenant_route_name('collection-process.index', ['customer_id' => $nextCustomer->id])
+                    'redirect_url' => tenant_route_name('collection-process.index', ['customer_id' => $nextCustomer->id]),
                 ]);
             }
 
@@ -266,7 +266,7 @@ class CollectionProcessController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء حفظ المتابعة: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء حفظ المتابعة: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -280,10 +280,10 @@ class CollectionProcessController extends Controller
     {
         $contactResultId = $request->input('contact_result_id');
 
-        if (!$contactResultId) {
+        if (! $contactResultId) {
             return response()->json([
                 'success' => false,
-                'message' => 'نتيجة الاتصال مطلوبة'
+                'message' => 'نتيجة الاتصال مطلوبة',
             ]);
         }
 
@@ -292,7 +292,7 @@ class CollectionProcessController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $fields
+            'data' => $fields,
         ]);
     }
 
@@ -315,7 +315,7 @@ class CollectionProcessController extends Controller
 
         return response()->json([
             'success' => true,
-            'remaining_debt' => $remainingDebt
+            'remaining_debt' => $remainingDebt,
         ]);
     }
 
@@ -331,12 +331,12 @@ class CollectionProcessController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'تم تسجيل الخروج بنجاح'
+                'message' => 'تم تسجيل الخروج بنجاح',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تسجيل الخروج'
+                'message' => 'حدث خطأ أثناء تسجيل الخروج',
             ], 500);
         }
     }
@@ -379,7 +379,7 @@ class CollectionProcessController extends Controller
 
             $identityNumber = $customer->identity_number ?? '';
             if (strlen($identityNumber) > 4) {
-                $maskedIdentity = str_repeat('*', strlen($identityNumber) - 4) . substr($identityNumber, -4);
+                $maskedIdentity = str_repeat('*', strlen($identityNumber) - 4).substr($identityNumber, -4);
             } else {
                 $maskedIdentity = $identityNumber;
             }
@@ -388,12 +388,12 @@ class CollectionProcessController extends Controller
             // تحضير أرقام الهواتف
             $phones = [];
             if ($customer->phone) {
-                $phones[] = $customer->phone . ' (أساسي)';
+                $phones[] = $customer->phone.' (أساسي)';
             }
 
             foreach ($customer->phones as $phone) {
                 $phoneLabel = $phone->is_primary ? ' (افتراضي)' : ' (إضافي)';
-                $phones[] = $phone->phone . $phoneLabel;
+                $phones[] = $phone->phone.$phoneLabel;
             }
 
             $phonesList = implode(' - ', $phones);
@@ -401,7 +401,7 @@ class CollectionProcessController extends Controller
 
             $content = str_replace('{account_number}', $customer->account_number ?? '', $content);
             $content = str_replace('{formatted_debt_amount}', number_format($remainingDebt, 2), $content);
-            $content = str_replace('{formatted_commission_rate}', $customer->commission_rate ? $customer->commission_rate . '%' : '', $content);
+            $content = str_replace('{formatted_commission_rate}', $customer->commission_rate ? $customer->commission_rate.'%' : '', $content);
             $content = str_replace('{formatted_contract_date}', $customer->contract_date ?? '', $content);
             $content = str_replace('{formatted_default_date}', $customer->default_date ?? '', $content);
             $content = str_replace('{nationality}', $customer->nationalityCountry->name ?? '', $content);
@@ -422,12 +422,12 @@ class CollectionProcessController extends Controller
                 'success' => true,
                 'preview' => $content,
                 'phones' => $customer->phones,
-                'primary_phone' => $customer->phone
+                'primary_phone' => $customer->phone,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء معالجة القالب: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء معالجة القالب: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -450,7 +450,7 @@ class CollectionProcessController extends Controller
                 $phones[] = [
                     'phone' => $customer->phone,
                     'type' => 'أساسي',
-                    'formatted' => $this->formatSaudiPhoneNumberForWhatsApp($customer->phone)
+                    'formatted' => $this->formatSaudiPhoneNumberForWhatsApp($customer->phone),
                 ];
             }
 
@@ -460,26 +460,26 @@ class CollectionProcessController extends Controller
                 $phones[] = [
                     'phone' => $phone->phone,
                     'type' => $type,
-                    'formatted' => $this->formatSaudiPhoneNumberForWhatsApp($phone->phone)
+                    'formatted' => $this->formatSaudiPhoneNumberForWhatsApp($phone->phone),
                 ];
             }
 
-            if (!empty($phones)) {
+            if (! empty($phones)) {
                 return response()->json([
                     'success' => true,
                     'phones' => $phones,
-                    'primary_phone' => $customer->phone
+                    'primary_phone' => $customer->phone,
                 ]);
             }
 
             return response()->json([
                 'success' => false,
-                'message' => 'لا يوجد رقم هاتف لهذا العميل'
+                'message' => 'لا يوجد رقم هاتف لهذا العميل',
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء الحصول على رقم الهاتف: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء الحصول على رقم الهاتف: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -493,14 +493,15 @@ class CollectionProcessController extends Controller
     {
         $phone = preg_replace('/[\s\-()]/', '', $phone);
         if (strpos($phone, '05') === 0 && strlen($phone) === 10) {
-            return '966' . substr($phone, 1);
+            return '966'.substr($phone, 1);
         } elseif (strpos($phone, '5') === 0 && strlen($phone) === 9) {
-            return '966' . $phone;
+            return '966'.$phone;
         } elseif (strpos($phone, '+966') === 0) {
             return substr($phone, 1);
         } elseif (strpos($phone, '966') === 0) {
             return $phone;
         }
+
         return $phone;
     }
 
@@ -512,7 +513,7 @@ class CollectionProcessController extends Controller
     private function getServiceNumber(Customer $customer): string
     {
         foreach ($customer->dynamicValues as $dynamicValue) {
-            if (!$dynamicValue->portfolioField) {
+            if (! $dynamicValue->portfolioField) {
                 continue;
             }
 
@@ -523,7 +524,7 @@ class CollectionProcessController extends Controller
                 'رقم الخدمة',
                 'service_no',
                 'خدمة',
-                'رقم خدمة'
+                'رقم خدمة',
             ])) {
                 return $dynamicValue->value ?? '';
             }
@@ -540,7 +541,7 @@ class CollectionProcessController extends Controller
     private function getClaimNumber(Customer $customer): string
     {
         foreach ($customer->dynamicValues as $dynamicValue) {
-            if (!$dynamicValue->portfolioField) {
+            if (! $dynamicValue->portfolioField) {
                 continue;
             }
 
@@ -551,7 +552,7 @@ class CollectionProcessController extends Controller
                 'رقم المطالبة',
                 'claim_no',
                 'مطالبة',
-                'رقم مطالبة'
+                'رقم مطالبة',
             ])) {
                 return $dynamicValue->value ?? '';
             }
@@ -568,12 +569,12 @@ class CollectionProcessController extends Controller
     public function addCustomerPhone(Request $request, Customer $customer): JsonResponse
     {
         if (
-            !auth()->user()->can('customers.edit_all') &&
-            !(auth()->user()->can('customers.edit') && $customer->relationship_manager_id === auth()->id())
+            ! auth()->user()->can('customers.edit_all') &&
+            ! (auth()->user()->can('customers.edit') && $customer->relationship_manager_id === auth()->id())
         ) {
             return response()->json([
                 'success' => false,
-                'message' => 'ليس لديك صلاحية لتعديل هذا العميل'
+                'message' => 'ليس لديك صلاحية لتعديل هذا العميل',
             ], 403);
         }
 
@@ -591,7 +592,7 @@ class CollectionProcessController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => $validator->errors()->first(),
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -610,13 +611,13 @@ class CollectionProcessController extends Controller
                 'data' => [
                     'phone_id' => $phone->id,
                     'phone_number' => $phone->phone,
-                    'customer_id' => $customer->id
-                ]
+                    'customer_id' => $customer->id,
+                ],
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء إضافة رقم الهاتف: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء إضافة رقم الهاتف: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -629,28 +630,28 @@ class CollectionProcessController extends Controller
     public function setPrimaryPhone(Request $request, Customer $customer): JsonResponse
     {
         if (
-            !auth()->user()->can('customers.edit_all') &&
-            !(auth()->user()->can('customers.edit') && $customer->relationship_manager_id === auth()->id())
+            ! auth()->user()->can('customers.edit_all') &&
+            ! (auth()->user()->can('customers.edit') && $customer->relationship_manager_id === auth()->id())
         ) {
             return response()->json([
                 'success' => false,
-                'message' => 'ليس لديك صلاحية لتعديل هذا العميل'
+                'message' => 'ليس لديك صلاحية لتعديل هذا العميل',
             ], 403);
         }
 
         $validator = Validator::make($request->all(), [
-            'phone_id' => 'required|integer|exists:customer_phones,id'
+            'phone_id' => 'required|integer|exists:customer_phones,id',
         ], [
             'phone_id.required' => 'معرف رقم الهاتف مطلوب',
             'phone_id.integer' => 'معرف رقم الهاتف يجب أن يكون رقمًا صحيحًا',
-            'phone_id.exists' => 'رقم الهاتف المحدد غير موجود'
+            'phone_id.exists' => 'رقم الهاتف المحدد غير موجود',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
                 'message' => $validator->errors()->first(),
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -661,17 +662,17 @@ class CollectionProcessController extends Controller
                 ->where('customer_id', $customer->id)
                 ->first();
 
-            if (!$phone) {
+            if (! $phone) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'رقم الهاتف غير موجود أو لا ينتمي لهذا العميل'
+                    'message' => 'رقم الهاتف غير موجود أو لا ينتمي لهذا العميل',
                 ], 404);
             }
 
             if ($phone->is_primary) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'هذا الرقم افتراضي بالفعل'
+                    'message' => 'هذا الرقم افتراضي بالفعل',
                 ], 409);
             }
 
@@ -687,13 +688,13 @@ class CollectionProcessController extends Controller
                 'data' => [
                     'phone_id' => $phone->id,
                     'phone_number' => $phone->phone,
-                    'customer_id' => $customer->id
-                ]
+                    'customer_id' => $customer->id,
+                ],
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تعيين الرقم الافتراضي: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء تعيين الرقم الافتراضي: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -706,10 +707,10 @@ class CollectionProcessController extends Controller
     public function getRelatedAccounts(Customer $customer): JsonResponse
     {
         try {
-            if (!$customer->identity_number) {
+            if (! $customer->identity_number) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'رقم الهوية غير موجود'
+                    'message' => 'رقم الهوية غير موجود',
                 ], 404);
             }
 
@@ -725,7 +726,7 @@ class CollectionProcessController extends Controller
                     'company:id,name,logo_path',
                     'portfolio:id,name',
                     'customerStatus:id,name,color',
-                    'lastContactResult:id,name'
+                    'lastContactResult:id,name',
                 ])
                 ->get()
                 ->map(function ($account) {
@@ -748,19 +749,19 @@ class CollectionProcessController extends Controller
                         'last_contact_result' => $account->lastContactResult->name ?? null,
                         'status' => $account->customerStatus ? [
                             'name' => $account->customerStatus->name,
-                            'color' => $account->customerStatus->color
-                        ] : null
+                            'color' => $account->customerStatus->color,
+                        ] : null,
                     ];
                 });
 
             return response()->json([
                 'success' => true,
-                'data' => $relatedAccounts
+                'data' => $relatedAccounts,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ في جلب الحسابات المرتبطة: ' . $e->getMessage()
+                'message' => 'حدث خطأ في جلب الحسابات المرتبطة: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -778,8 +779,8 @@ class CollectionProcessController extends Controller
             ->get();
 
         return response()->json([
-            'success'   => true,
-            'data'      => $customers
+            'success' => true,
+            'data' => $customers,
         ]);
     }
 }

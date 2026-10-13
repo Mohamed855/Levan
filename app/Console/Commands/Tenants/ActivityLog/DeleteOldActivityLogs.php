@@ -2,14 +2,15 @@
 
 namespace App\Console\Commands\Tenants\ActivityLog;
 
-use Stancl\Tenancy\Database\Models\Tenant;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
-use Carbon\Carbon;
+use Stancl\Tenancy\Database\Models\Tenant;
 
 class DeleteOldActivityLogs extends Command
 {
     protected $signature = 'activity-logs:delete-old';
+
     protected $description = 'Delete activity log files older than 6 months';
 
     public function handle()

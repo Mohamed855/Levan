@@ -1,7 +1,7 @@
 # Golden Pattern Manifest — سجل مطابقة الإدارات
 
 - **تاريخ خط الأساس:** 8 أكتوبر 2026
-- **آخر مراجعة لعقد السجل:** 12 أكتوبر 2026
+- **آخر مراجعة لعقد السجل:** 13 أكتوبر 2026
 - **النطاق:** كل route نشط في `Admin` و`Tenant` فقط. لا يشمل Website أو التعريفات غير المحمّلة في runtime والمثبت عدم نشاطها.
 - **المالك التقني:** فريق Levan Backend.
 - **مرجع العقد:** [golden-pattern.md](../architecture/golden-pattern.md).
@@ -112,9 +112,9 @@ Status: Gap | Partial | Compliant
 
 | الإدارة (owner) | routes/controllers | البيانات والتبعيات | Request/Policy | UI | Tests | الحالة الأولية |
 |---|---|---|---|---|---|---|
-| Assignments | `assignments.*` + archive · `AssignmentsController`, archive controller | assignment → property → auction lifecycle | wizard requests + relation validation + registered resource Policy؛ archive lifecycle Policy/Action: Gap | DT + wizard/archive | F,U,I,S | Partial |
-| Properties | `properties.*` + archive · `PropertiesController`, archive controller | property/assignment/files/status | wizard requests + isolation baseline + registered resource Policy؛ archive/files: Gap | DT + wizard/archive | F,U,I,S | Partial |
-| Auctions | `auctions.*` + archive · `AuctionsController`, archive controller | auction/properties/attachments | wizard requests + ownership baseline + registered resource Policy؛ archive/files: Gap | DT + wizard/archive | F,U,I,S | Partial |
+| Assignments | `assignments.*` + archive · `AssignmentsController`, archive controller | assignment → property → auction lifecycle | wizard requests + safe unassigned-property validation/action lock + registered resource Policy؛ archive lifecycle Policy/Action: Gap | DT + wizard/archive | F,U,I,S | Partial |
+| Properties | `properties.*` + archive · `PropertiesController`, archive controller | property/assignment/files/status | wizard requests + isolation baseline + lifecycle flow coverage + registered resource Policy؛ archive/files: Gap | DT + wizard/archive | F,U,I,S | Partial |
+| Auctions | `auctions.*` + archive · `AuctionsController`, archive controller | auction/properties/attachments | wizard requests + Create/Update Actions + assignment-property invariant in request/service + registered resource Policy؛ archive/files: Gap | DT + wizard/drafts/archive | F,U,I,S | Partial |
 | Collections | `collections.*`, `collection-process.*`, `collection-targets.*`, `collection-import.*`, `payment-reconciliation.*` · five FinancialCollection controllers | collection workflow, targets, imports, reconciliation/cache | collections/targets Policies + import ownership + collection-process manager scope; Action and transaction coverage: Gap | DT + forms/API | F,U,I,S | Partial |
 | Communication logs | `communication.*` · `MessageLogController`, `MessageIndividualLogController` | message log/recipients | registered record Policies and permissioned export; exported-file ownership: Gap | DT + View | F,U,I,S | Partial |
 | Reports | `reports.{company,customer,customer-follow,executive,financial,performance}.*` · six report controllers | filters/export files/jobs/progress | filter request/authorization/export owner: Gap | Reports/API | F,U,I,S | Gap |

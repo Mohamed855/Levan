@@ -31,7 +31,7 @@ class ExecutiveReportController extends Controller
 
     public function exportExcel(Request $request)
     {
-        $filters  = $this->parseFilters($request);
+        $filters = $this->parseFilters($request);
         $sections = $request->filled('sections')
             ? array_filter(explode(',', $request->sections))
             : [];
@@ -40,8 +40,8 @@ class ExecutiveReportController extends Controller
             $filters['export_limit'] = (int) $request->export_limit;
         }
 
-        $data     = $this->service->getDashboardData($filters);
-        $filename = 'التقارير_التنفيذية_' . now()->format('Y-m-d') . '.xlsx';
+        $data = $this->service->getDashboardData($filters);
+        $filename = 'التقارير_التنفيذية_'.now()->format('Y-m-d').'.xlsx';
 
         return Excel::download(new ExecutiveReportExport($data, $filters, $sections), $filename);
     }

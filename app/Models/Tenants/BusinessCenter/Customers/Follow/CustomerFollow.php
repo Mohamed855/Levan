@@ -5,19 +5,20 @@ namespace App\Models\Tenants\BusinessCenter\Customers\Follow;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Customers\Letter\CompanyLetter;
 use App\Models\Tenants\FinancialCollection\Collection\Collection;
-use App\Models\Tenants\GeneralSetting\ContactResult\ContactResult;
 use App\Models\Tenants\GeneralSetting\ContactMethod\SettingsContactMethod;
+use App\Models\Tenants\GeneralSetting\ContactResult\ContactResult;
 use App\Models\Tenants\GeneralSetting\CustomerStatus\SettingsCustomerStatus;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Schema;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
-class CustomerFollow extends Model 
+class CustomerFollow extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, LogsActivity, SoftDeletes;
 
     protected $table = 'customer_follows';
 
@@ -42,7 +43,6 @@ class CustomerFollow extends Model
         'deleted_at' => 'datetime',
     ];
 
-
     /*
     |--------------------------------------------------------------------------
     | Activity Log Options
@@ -61,7 +61,7 @@ class CustomerFollow extends Model
             ->logOnlyDirty()
             ->dontLogEmptyChanges()
             ->useLogName('customer_follow')
-            ->setDescriptionForEvent(fn(string $eventName) => $this->getEventDescription($eventName));
+            ->setDescriptionForEvent(fn (string $eventName) => $this->getEventDescription($eventName));
     }
 
     /*
@@ -73,9 +73,9 @@ class CustomerFollow extends Model
     {
         $customerName = $this->customer->name ?? "عميل #{$this->customer_id}";
 
-        $method   = $this->contactMethod?->name ?? '-';
-        $result   = $this->contactResult?->name ?? '-';
-        $status   = $this->customerStatus?->name ?? '-';
+        $method = $this->contactMethod?->name ?? '-';
+        $result = $this->contactResult?->name ?? '-';
+        $status = $this->customerStatus?->name ?? '-';
         $nextDate = $this->next_contact_datetime ? $this->next_contact_datetime->format('Y-m-d') : '-';
 
         $person = match ($this->contacted_person) {
@@ -92,7 +92,7 @@ class CustomerFollow extends Model
             'created' => "تم إنشاء متابعة جديدة للعميل {$customerName}{$details}",
             'updated' => "تم تعديل متابعة العميل {$customerName}{$details}",
             'deleted' => "تم حذف متابعة العميل {$customerName}",
-            default   => "نشاط على متابعة العميل {$customerName}{$details}",
+            default => "نشاط على متابعة العميل {$customerName}{$details}",
         };
     }
 
@@ -103,44 +103,42 @@ class CustomerFollow extends Model
     */
     private function getChangesSummary(): string
     {
-        if (!$this->isDirty()) {
+        if (! $this->isDirty()) {
             return '';
         }
 
         $changes = [];
 
         if ($this->isDirty('contact_method_id')) {
-            $oldName = SettingsContactMethod::find($this->getOriginal('contact_method_id'))?->name ?? "---";
-            $newName = $this->contactMethod?->name ?? "---";
+            $oldName = SettingsContactMethod::find($this->getOriginal('contact_method_id'))?->name ?? '---';
+            $newName = $this->contactMethod?->name ?? '---';
             $changes[] = "طريقة التواصل: {$newName} ← {$oldName}";
         }
 
         if ($this->isDirty('contact_result_id')) {
-            $oldName = ContactResult::find($this->getOriginal('contact_result_id'))?->name ?? "---";
-            $newName = $this->contactResult?->name ?? "---";
+            $oldName = ContactResult::find($this->getOriginal('contact_result_id'))?->name ?? '---';
+            $newName = $this->contactResult?->name ?? '---';
             $changes[] = "نتيجة الاتصال: {$newName} ← {$oldName}";
         }
 
         if ($this->isDirty('customer_status_id')) {
-            $oldName = SettingsCustomerStatus::find($this->getOriginal('customer_status_id'))?->name ?? "---";
-            $newName = $this->customerStatus?->name ?? "---";
+            $oldName = SettingsCustomerStatus::find($this->getOriginal('customer_status_id'))?->name ?? '---';
+            $newName = $this->customerStatus?->name ?? '---';
             $changes[] = "حالة العميل: {$newName} ← {$oldName}";
         }
 
         if ($this->isDirty('next_contact_datetime')) {
             $oldDate = $this->getOriginal('next_contact_datetime')
                 ? date('Y-m-d', strtotime($this->getOriginal('next_contact_datetime')))
-                : "---";
+                : '---';
             $newDate = $this->next_contact_datetime
                 ? $this->next_contact_datetime->format('Y-m-d')
-                : "---";
+                : '---';
             $changes[] = "موعد الاتصال القادم: {$newDate} ← {$oldDate}";
         }
 
-        return empty($changes) ? '' : ' (' . implode(' | ', $changes) . ')';
+        return empty($changes) ? '' : ' ('.implode(' | ', $changes).')';
     }
-
-
 
     public function customer()
     {
@@ -204,57 +202,64 @@ class CustomerFollow extends Model
 
     public function getFullPaymentDetailsAttribute()
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('full_payment_details')) {
+        if (! Schema::hasTable('full_payment_details')) {
             return null;
         }
+
         return $this->getRelationValue('fullPaymentDetails');
     }
 
     public function getPartialPaymentDetailsAttribute()
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('partial_payment_details')) {
+        if (! Schema::hasTable('partial_payment_details')) {
             return null;
         }
+
         return $this->getRelationValue('partialPaymentDetails');
     }
 
     public function getPromisePaymentDetailsAttribute()
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('promise_payment_details')) {
+        if (! Schema::hasTable('promise_payment_details')) {
             return null;
         }
+
         return $this->getRelationValue('promisePaymentDetails');
     }
 
     public function getCallbackDetailsAttribute()
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('callback_details')) {
+        if (! Schema::hasTable('callback_details')) {
             return null;
         }
+
         return $this->getRelationValue('callbackDetails');
     }
 
     public function getDocumentRequestDetailsAttribute()
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('document_request_details')) {
+        if (! Schema::hasTable('document_request_details')) {
             return null;
         }
+
         return $this->getRelationValue('documentRequestDetails');
     }
 
     public function getObjectionDetailsAttribute()
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('objection_details')) {
+        if (! Schema::hasTable('objection_details')) {
             return null;
         }
+
         return $this->getRelationValue('objectionDetails');
     }
 
     public function getRecoveryDetailsAttribute()
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('recovery_details')) {
+        if (! Schema::hasTable('recovery_details')) {
             return null;
         }
+
         return $this->getRelationValue('recoveryDetails');
     }
 

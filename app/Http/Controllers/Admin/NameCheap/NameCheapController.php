@@ -2,26 +2,28 @@
 
 namespace App\Http\Controllers\Admin\NameCheap;
 
-
-
 use App\Http\Controllers\Controller;
 use App\Services\shared\NameCheap\NameCheapService;
-use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
 class NameCheapController extends Controller
 {
     private $apiUser;
+
     private $apiKey;
+
     private $clientIp;
+
     private $baseUrl;
+
     private $whmUrl;
+
     private $whmToken;
+
     private $serverIp;
+
     private $nameCheapService;
+
     public function __construct(NameCheapService $nameCheapService)
     {
         $this->nameCheapService = $nameCheapService;
@@ -34,15 +36,13 @@ class NameCheapController extends Controller
         $this->serverIp = '135.181.215.105';
     }
 
-
     public function getBalances()
     {
-       return $this->nameCheapService->getBalances();
+        return $this->nameCheapService->getBalances();
     }
 
     public function modifyAccount(Request $request)
     {
-       return $this->nameCheapService->modifyAccount($request);
+        return $this->nameCheapService->modifyAccount($request);
     }
-
 }

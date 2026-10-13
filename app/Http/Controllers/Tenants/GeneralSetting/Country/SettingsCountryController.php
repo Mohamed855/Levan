@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Tenants\GeneralSetting\Country;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tenants\Traits\CommonSettingController;
-use App\Http\Requests\Tenants\GeneralSetting\SaveGeneralSettingRequest;
 use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
+use App\Http\Requests\Tenants\GeneralSetting\SaveGeneralSettingRequest;
 use App\Models\Tenants\GeneralSetting\Country\SettingsCountry;
 
 class SettingsCountryController extends Controller
@@ -71,6 +71,7 @@ class SettingsCountryController extends Controller
             }
 
             $country->delete();
+
             return redirect()->back()->with('success', 'تم الحذف بنجاح.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());

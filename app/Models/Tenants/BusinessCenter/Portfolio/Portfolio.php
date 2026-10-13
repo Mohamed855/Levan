@@ -4,15 +4,16 @@ namespace App\Models\Tenants\BusinessCenter\Portfolio;
 
 use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\Support\LogOptions;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class Portfolio extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, LogsActivity, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -56,7 +57,7 @@ class Portfolio extends Model
             ->logOnlyDirty()
             ->dontLogEmptyChanges()
             ->useLogName('portfolios')
-            ->setDescriptionForEvent(fn(string $eventName) => $this->getEventDescription($eventName))
+            ->setDescriptionForEvent(fn (string $eventName) => $this->getEventDescription($eventName))
             ->dontLogIfAttributesChangedOnly(['updated_at']);
     }
 
@@ -90,9 +91,13 @@ class Portfolio extends Model
         ];
 
         foreach ($this->getDirty() as $field => $newValue) {
-            if ($field === 'updated_at') continue;
+            if ($field === 'updated_at') {
+                continue;
+            }
 
-            if (!isset($fieldNames[$field])) continue;
+            if (! isset($fieldNames[$field])) {
+                continue;
+            }
 
             $fieldLabel = $fieldNames[$field];
             $oldValue = $this->getOriginal($field);
@@ -105,7 +110,7 @@ class Portfolio extends Model
             }
         }
 
-        return $changes ? ' (' . implode(' | ', $changes) . ')' : '';
+        return $changes ? ' ('.implode(' | ', $changes).')' : '';
     }
 
     /*
@@ -127,14 +132,15 @@ class Portfolio extends Model
                 return $value ? 'نعم' : 'لا';
 
             case 'assignment_date':
-                return \Carbon\Carbon::parse($value)->format('Y-m-d');
+                return Carbon::parse($value)->format('Y-m-d');
 
             case 'call_start_time':
             case 'call_end_time':
-                return \Carbon\Carbon::parse($value)->format('h:i A');
+                return Carbon::parse($value)->format('h:i A');
 
             case 'company_id':
                 $company = Company::find($value);
+
                 return $company?->name ?? "شركة #{$value}";
 
             default:
@@ -155,7 +161,6 @@ class Portfolio extends Model
     {
         return $this->belongsTo(Company::class);
     }
-
 
     /**
      * Get the category that owns the customers.
@@ -200,7 +205,7 @@ class Portfolio extends Model
      */
     public function getFormattedCallStartTimeAttribute(): ?string
     {
-        return $this->call_start_time ? \Carbon\Carbon::parse($this->call_start_time)->format('h:i A') : null;
+        return $this->call_start_time ? Carbon::parse($this->call_start_time)->format('h:i A') : null;
     }
 
     /**
@@ -208,7 +213,7 @@ class Portfolio extends Model
      */
     public function getFormattedCallEndTimeAttribute(): ?string
     {
-        return $this->call_end_time ? \Carbon\Carbon::parse($this->call_end_time)->format('h:i A') : null;
+        return $this->call_end_time ? Carbon::parse($this->call_end_time)->format('h:i A') : null;
     }
 
     /**
@@ -216,9 +221,10 @@ class Portfolio extends Model
      */
     public function getCallTimeRangeAttribute(): ?string
     {
-        if (!$this->call_start_time || !$this->call_end_time) {
+        if (! $this->call_start_time || ! $this->call_end_time) {
             return null;
         }
+
         return "{$this->formatted_call_start_time} - {$this->formatted_call_end_time}";
     }
 
@@ -259,7 +265,6 @@ class Portfolio extends Model
     {
         return $this->hasMany(PortfolioField::class);
     }
-
 
     public function fields()
     {

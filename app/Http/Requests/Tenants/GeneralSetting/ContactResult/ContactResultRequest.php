@@ -27,7 +27,7 @@ class ContactResultRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255|unique:contact_results,name' . ($this->isMethod('PUT') ? ',' . $this->route('contactResult')->id : ''),
+            'name' => 'required|string|max:255|unique:contact_results,name'.($this->isMethod('PUT') ? ','.$this->route('contactResult')->id : ''),
             // 'category' => 'required|string|in:' . implode(',', array_keys(ContactResult::getCategories())),
             'status' => 'sometimes|boolean',
         ];

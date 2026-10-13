@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Tenants\UserManagement\Team;
 
-use App\Models\Tenants\UserMangment\User\User;
 use App\Http\Requests\Concerns\WizardFormRequest;
+use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Validation\Validator;
 
 class UpdateTeamRequest extends WizardFormRequest
@@ -78,7 +78,7 @@ class UpdateTeamRequest extends WizardFormRequest
             $members = $this->members ?? [];
 
             $this->merge([
-                'members' => array_unique(array_merge($members, $leaders))
+                'members' => array_unique(array_merge($members, $leaders)),
             ]);
         }
     }
@@ -106,10 +106,10 @@ class UpdateTeamRequest extends WizardFormRequest
                     ->pluck('name')
                     ->toArray();
 
-                if (!empty($usersWithTeams)) {
+                if (! empty($usersWithTeams)) {
                     $validator->errors()->add(
                         'members',
-                        'بعض المستخدمين مرتبطون بالفعل بفرق أخرى: ' . implode(', ', $usersWithTeams)
+                        'بعض المستخدمين مرتبطون بالفعل بفرق أخرى: '.implode(', ', $usersWithTeams)
                     );
                 }
             }

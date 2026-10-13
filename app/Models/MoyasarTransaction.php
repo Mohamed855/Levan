@@ -33,14 +33,14 @@ class MoyasarTransaction extends Model
     ];
 
     protected $casts = [
-        'amount'            => 'decimal:2',
-        'fee'               => 'decimal:2',
-        'metadata'          => 'array',
-        'moyasar_response'  => 'array',
-        'paid_at'           => 'datetime',
-        'refunded_at'       => 'datetime',
-        'captured_at'       => 'datetime',
-        'voided_at'         => 'datetime',
+        'amount' => 'decimal:2',
+        'fee' => 'decimal:2',
+        'metadata' => 'array',
+        'moyasar_response' => 'array',
+        'paid_at' => 'datetime',
+        'refunded_at' => 'datetime',
+        'captured_at' => 'datetime',
+        'voided_at' => 'datetime',
     ];
 
     public function scopePaid($query)
@@ -86,13 +86,13 @@ class MoyasarTransaction extends Model
     public function canBeRefunded()
     {
         return in_array($this->status, ['paid', 'captured'])
-            && !$this->refunded_at;
+            && ! $this->refunded_at;
     }
 
     public function canBeVoided()
     {
         return $this->status === 'authorized'
-            && !$this->voided_at;
+            && ! $this->voided_at;
     }
 
     public function getAmountInHalalaAttribute()
@@ -109,42 +109,39 @@ class MoyasarTransaction extends Model
             default => $this->currency
         };
 
-        return number_format($this->amount, 2) . ' ' . $symbol;
+        return number_format($this->amount, 2).' '.$symbol;
     }
-
 
     public function getPaymentMethodNameAttribute()
     {
         return match ($this->payment_method) {
-            'creditcard'        => 'بطاقة ائتمانية',
-            'mada'              => 'مدى',
-            'stcpay'            => 'STC Pay',
-            'samsungpay'        => 'Samsung Pay',
+            'creditcard' => 'بطاقة ائتمانية',
+            'mada' => 'مدى',
+            'stcpay' => 'STC Pay',
+            'samsungpay' => 'Samsung Pay',
             default => $this->payment_method
         };
     }
 
-
     public function getStatusNameAttribute()
     {
         return match ($this->status) {
-            'initiated'         => 'قيد المعالجة',
-            'authorized'        => 'معتمد',
-            'paid'              => 'مدفوع',
-            'failed'            => 'فاشل',
-            'refunded'          => 'مسترجع',
-            'voided'            => 'ملغي',
-            'captured'          => 'محصّل',
+            'initiated' => 'قيد المعالجة',
+            'authorized' => 'معتمد',
+            'paid' => 'مدفوع',
+            'failed' => 'فاشل',
+            'refunded' => 'مسترجع',
+            'voided' => 'ملغي',
+            'captured' => 'محصّل',
             default => $this->status
         };
     }
 
-
     public function updateFromMoyasarResponse(array $response)
     {
         $data = [
-            'status'            => $response['status'],
-            'moyasar_response'  => $response,
+            'status' => $response['status'],
+            'moyasar_response' => $response,
         ];
 
         // تحديث طريقة الدفع إذا كانت موجودة
@@ -166,7 +163,7 @@ class MoyasarTransaction extends Model
         }
 
         // التواريخ حسب الحالة
-        if ($response['status'] === 'paid' && !$this->paid_at) {
+        if ($response['status'] === 'paid' && ! $this->paid_at) {
             $data['paid_at'] = now();
         }
 
@@ -178,7 +175,6 @@ class MoyasarTransaction extends Model
 
         return $this->update($data);
     }
-
 
     public static function createFromMoyasarResponse(array $response, $transactionable = null)
     {

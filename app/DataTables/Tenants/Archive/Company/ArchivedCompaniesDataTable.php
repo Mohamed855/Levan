@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 class ArchivedCompaniesDataTable extends AbstractDataTable
 {
-    private $route = "archive.companies";
+    private $route = 'archive.companies';
 
     /*
     |--------------------------------------------------------------------------
@@ -29,6 +29,7 @@ class ArchivedCompaniesDataTable extends AbstractDataTable
         });
 
         $this->addCustomColumns($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
@@ -40,7 +41,7 @@ class ArchivedCompaniesDataTable extends AbstractDataTable
     */
     protected function getTableId()
     {
-        return "archived-companies-table";
+        return 'archived-companies-table';
     }
 
     /*
@@ -68,10 +69,10 @@ class ArchivedCompaniesDataTable extends AbstractDataTable
             ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             [
-                'data'       => 'checkbox',
-                'name'       => 'checkbox',
-                'title'      => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
-                'orderable'  => false,
+                'data' => 'checkbox',
+                'name' => 'checkbox',
+                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
+                'orderable' => false,
                 'searchable' => false,
                 'width' => '10px',
                 'className' => 'custom-checkbox',
@@ -96,7 +97,7 @@ class ArchivedCompaniesDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
             ->editColumn('name', function ($row) {
                 $img = $row->logo_path
@@ -104,18 +105,19 @@ class ArchivedCompaniesDataTable extends AbstractDataTable
                     : asset('static/brand/logos/logo.svg');
 
                 return '<div class="d-flex align-items-center">
-                    <img src="' . $img . '" alt="logo" class="rounded me-2"
+                    <img src="'.$img.'" alt="logo" class="rounded me-2"
                          style="width:28px;height:28px;object-fit:cover" />
-                    <span class="text-body fw-medium">' . $row->name . '</span>
+                    <span class="text-body fw-medium">'.$row->name.'</span>
                 </div>';
             })
             ->editColumn('authorized_people_count', function ($row) {
-                return '<span class="badge bg-label-info">' . ($row->authorized_people_count ?? 0) . '</span>';
+                return '<span class="badge bg-label-info">'.($row->authorized_people_count ?? 0).'</span>';
             })
             ->editColumn('status', function ($row) {
                 $statusClass = $row->status === 'active' ? 'bg-label-success' : 'bg-label-danger';
                 $statusText = $row->status === 'active' ? 'نشط' : 'غير نشط';
-                return '<span class="badge ' . $statusClass . '">' . $statusText . '</span>';
+
+                return '<span class="badge '.$statusClass.'">'.$statusText.'</span>';
             })
             ->editColumn('deleted_at', function ($row) {
                 return Carbon::parse($row->deleted_at)->format('Y-m-d');
@@ -209,10 +211,10 @@ class ArchivedCompaniesDataTable extends AbstractDataTable
     private function getActionsDropdownButton(): array
     {
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => [
+            'text' => 'الإجراءات',
+            'buttons' => [
                 ['extend' => 'copy', 'text' => 'نسخ'],
                 ['extend' => 'excel', 'text' => 'إكسل'],
             ],

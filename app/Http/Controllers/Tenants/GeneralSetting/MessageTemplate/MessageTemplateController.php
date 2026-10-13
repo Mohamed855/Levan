@@ -7,10 +7,10 @@ use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
 use App\Http\Requests\Tenants\GeneralSetting\MessageTemplate\StoreMessageTemplateRequest;
 use App\Http\Requests\Tenants\GeneralSetting\MessageTemplate\UpdateMessageTemplateRequest;
 use App\Models\Tenants\GeneralSetting\MessageTemplate\MessageTemplate;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
 
 class MessageTemplateController extends Controller
@@ -42,7 +42,7 @@ class MessageTemplateController extends Controller
                     'channel',
                     'is_active',
                     'created_by',
-                    'created_at'
+                    'created_at',
                 ]);
 
             if ($request->filled('category')) {
@@ -75,21 +75,22 @@ class MessageTemplateController extends Controller
             return DataTables::of($query)
                 ->addIndexColumn()
                 ->addColumn('content_preview', function ($template) {
-                    return '<div class="text-truncate" style="max-width:250px;" title="' . e($template->content) . '">'
-                        . e(\Str::limit(strip_tags($template->content), 60)) . '</div>';
+                    return '<div class="text-truncate" style="max-width:250px;" title="'.e($template->content).'">'
+                        .e(\Str::limit(strip_tags($template->content), 60)).'</div>';
                 })
                 ->addColumn('category_label', function ($template) {
-                    return '<span class="badge bg-secondary">' . e($template->category_name) . '</span>';
+                    return '<span class="badge bg-secondary">'.e($template->category_name).'</span>';
                 })
                 ->addColumn('channel_label', function ($template) {
-                    $label = $template->channel_name ?? strtoupper((string)$template->channel);
-                    return '<span class="badge bg-label-info">' . e($label) . '</span>';
+                    $label = $template->channel_name ?? strtoupper((string) $template->channel);
+
+                    return '<span class="badge bg-label-info">'.e($label).'</span>';
                 })
                 ->addColumn('status', function ($template) {
                     $checked = $template->is_active ? 'checked' : '';
                     $url = tenant_route_name('general-settings.message-templates.toggle-status', $template->id);
 
-                    return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_' . $template->id . '" data-url="' . e($url) . '" ' . $checked . ' aria-label="تبديل حالة قالب الرسالة"></div></div>';
+                    return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_'.$template->id.'" data-url="'.e($url).'" '.$checked.' aria-label="تبديل حالة قالب الرسالة"></div></div>';
                 })
                 ->addColumn('creator_name', function ($template) {
                     return e($template->creator->name ?? 'غير محدد');
@@ -101,29 +102,29 @@ class MessageTemplateController extends Controller
                     return $template->created_at?->format('Y-m-d H:i');
                 })
 
-                ->orderColumn('name', fn($q, $order) => $q->orderBy('name', $order))
-                ->orderColumn('category', fn($q, $order) => $q->orderBy('category', $order))
-                ->orderColumn('channel', fn($q, $order) => $q->orderBy('channel', $order))
-                ->orderColumn('is_active', fn($q, $order) => $q->orderBy('is_active', $order))
-                ->orderColumn('created_at', fn($q, $order) => $q->orderBy('created_at', $order))
+                ->orderColumn('name', fn ($q, $order) => $q->orderBy('name', $order))
+                ->orderColumn('category', fn ($q, $order) => $q->orderBy('category', $order))
+                ->orderColumn('channel', fn ($q, $order) => $q->orderBy('channel', $order))
+                ->orderColumn('is_active', fn ($q, $order) => $q->orderBy('is_active', $order))
+                ->orderColumn('created_at', fn ($q, $order) => $q->orderBy('created_at', $order))
 
-                ->filterColumn('name', fn($q, $keyword) => $q->where('name', 'like', "%{$keyword}%"))
-                ->filterColumn('content', fn($q, $keyword) => $q->where('content', 'like', "%{$keyword}%"))
-                ->filterColumn('channel', fn($q, $keyword) => $q->where('channel', 'like', "%{$keyword}%"))
+                ->filterColumn('name', fn ($q, $keyword) => $q->where('name', 'like', "%{$keyword}%"))
+                ->filterColumn('content', fn ($q, $keyword) => $q->where('content', 'like', "%{$keyword}%"))
+                ->filterColumn('channel', fn ($q, $keyword) => $q->where('channel', 'like', "%{$keyword}%"))
 
                 ->rawColumns(['content_preview', 'category_label', 'channel_label', 'status', 'actions'])
                 ->make(true);
         }
 
         $statistics = [
-            'total'     => MessageTemplate::count(),
+            'total' => MessageTemplate::count(),
             'companies' => MessageTemplate::where('category', 'company')->count(),
             'customers' => MessageTemplate::where('category', 'customers')->count(),
-            'users'     => MessageTemplate::where('category', 'users')->count(),
+            'users' => MessageTemplate::where('category', 'users')->count(),
         ];
 
         $categories = MessageTemplate::getCategories();
-        $channels   = MessageTemplate::getChannels();
+        $channels = MessageTemplate::getChannels();
 
         return view('tenants.general_setting.message_templates.index', compact('categories', 'channels', 'statistics'));
     }
@@ -154,11 +155,11 @@ class MessageTemplateController extends Controller
 
         try {
             MessageTemplate::create([
-                'name'       => $data['name'],
-                'content'    => $data['content'],
-                'category'   => $data['category'],
-                'channel'    => $data['channel'],
-                'is_active'  => $request->boolean('is_active', true),
+                'name' => $data['name'],
+                'content' => $data['content'],
+                'category' => $data['category'],
+                'channel' => $data['channel'],
+                'is_active' => $request->boolean('is_active', true),
                 'created_by' => $request->user('tenant')->getKey(),
             ]);
 
@@ -181,6 +182,7 @@ class MessageTemplateController extends Controller
     public function show(MessageTemplate $messageTemplate): View
     {
         $messageTemplate->load('creator');
+
         return view('tenants.general_setting.message_templates.show', compact('messageTemplate'));
     }
 
@@ -210,10 +212,10 @@ class MessageTemplateController extends Controller
 
         try {
             $messageTemplate->update([
-                'name'     => $data['name'],
-                'content'  => $data['content'],
+                'name' => $data['name'],
+                'content' => $data['content'],
                 'category' => $data['category'],
-                'channel'  => $data['channel'],
+                'channel' => $data['channel'],
             ]);
 
             return redirect()
@@ -226,7 +228,6 @@ class MessageTemplateController extends Controller
                 ->with('error', 'حدث خطأ أثناء تحديث القالب');
         }
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -256,19 +257,19 @@ class MessageTemplateController extends Controller
     public function toggleStatus(MessageTemplate $messageTemplate): JsonResponse
     {
         try {
-            $newStatus = !$messageTemplate->is_active;
+            $newStatus = ! $messageTemplate->is_active;
             $messageTemplate->update(['is_active' => $newStatus]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'تم تحديث حالة القالب بنجاح',
                 'new_status' => $newStatus,
-                'status_text' => $newStatus ? 'نشط' : 'غير نشط'
+                'status_text' => $newStatus ? 'نشط' : 'غير نشط',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تحديث الحالة'
+                'message' => 'حدث خطأ أثناء تحديث الحالة',
             ], 500);
         }
     }
@@ -283,14 +284,14 @@ class MessageTemplateController extends Controller
         $request->validate([
             'content' => 'required|string',
             'category' => 'nullable|string',
-            'sample_data' => 'nullable|array'
+            'sample_data' => 'nullable|array',
         ]);
 
         try {
             // إنشاء قالب مؤقت للمعاينة
             $tempTemplate = new MessageTemplate([
                 'content' => $request->content,
-                'category' => $request->category ?? 'general'
+                'category' => $request->category ?? 'general',
             ]);
 
             $sampleData = $request->sample_data ?? [];
@@ -300,12 +301,12 @@ class MessageTemplateController extends Controller
                 'success' => true,
                 'preview' => $previewContent,
                 'length' => mb_strlen(strip_tags($previewContent)),
-                'available_variables' => MessageTemplate::getVariablesByCategory($request->category)
+                'available_variables' => MessageTemplate::getVariablesByCategory($request->category),
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء معاينة القالب'
+                'message' => 'حدث خطأ أثناء معاينة القالب',
             ], 500);
         }
     }
@@ -326,12 +327,12 @@ class MessageTemplateController extends Controller
             return response()->json([
                 'success' => true,
                 'variables' => $variables,
-                'grouped_variables' => $groupedVariables
+                'grouped_variables' => $groupedVariables,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء جلب المتغيرات'
+                'message' => 'حدث خطأ أثناء جلب المتغيرات',
             ], 500);
         }
     }
@@ -384,21 +385,21 @@ class MessageTemplateController extends Controller
         $showUrl = tenant_route_name('general-settings.message-templates.show', $template->id);
         $editUrl = tenant_route_name('general-settings.message-templates.edit', $template->id);
         $deleteUrl = tenant_route_name('general-settings.message-templates.destroy', $template->id);
-        $formId = 'delete-form-' . $template->id;
+        $formId = 'delete-form-'.$template->id;
 
         return '<div class="d-flex justify-content-center">
-                    <a title="عرض القالب" href="' . $showUrl . '" class="btn btn-icon btn-label-primary me-1">
+                    <a title="عرض القالب" href="'.$showUrl.'" class="btn btn-icon btn-label-primary me-1">
                         <i class="ti ti-eye"></i>
                     </a>
-                    <a title="تعديل القالب" href="' . $editUrl . '" class="btn btn-icon btn-label-primary me-1">
+                    <a title="تعديل القالب" href="'.$editUrl.'" class="btn btn-icon btn-label-primary me-1">
                         <i class="ti ti-edit"></i>
                     </a>
-                    <button title="حذف القالب" type="button" onclick="confirmDelete(' . $template->id . ')" class="btn btn-icon btn-label-primary">
+                    <button title="حذف القالب" type="button" onclick="confirmDelete('.$template->id.')" class="btn btn-icon btn-label-primary">
                         <i class="ti ti-trash"></i>
                     </button>
-                    <form id="' . $formId . '" action="' . $deleteUrl . '" method="POST" style="display: none;">
-                        ' . csrf_field() . '
-                        ' . method_field('DELETE') . '
+                    <form id="'.$formId.'" action="'.$deleteUrl.'" method="POST" style="display: none;">
+                        '.csrf_field().'
+                        '.method_field('DELETE').'
                     </form>
                 </div>';
     }

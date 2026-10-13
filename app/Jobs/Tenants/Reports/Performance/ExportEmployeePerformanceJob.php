@@ -18,13 +18,19 @@ class ExportEmployeePerformanceJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 1800;
+
     public $tries = 3;
+
     public $maxExceptions = 1;
 
     protected $filters;
+
     protected $selectedFields;
+
     protected $userId;
+
     protected $exportId;
+
     protected $fileName;
 
     /*
@@ -38,7 +44,7 @@ class ExportEmployeePerformanceJob implements ShouldQueue
         $this->selectedFields = $selectedFields;
         $this->userId = $userId;
         $this->exportId = uniqid('employee_performance_export_', true);
-        $this->fileName = 'employee_performance_report_export_' . now()->format('Y_m_d_H_i_s') . '_' . $this->exportId . '.xlsx';
+        $this->fileName = 'employee_performance_report_export_'.now()->format('Y_m_d_H_i_s').'_'.$this->exportId.'.xlsx';
         $this->onQueue('exports');
     }
 
@@ -57,6 +63,7 @@ class ExportEmployeePerformanceJob implements ShouldQueue
 
             if ($totalCount === 0) {
                 $this->updateProgress(100, 'لا توجد بيانات للتصدير');
+
                 return;
             }
 
@@ -65,18 +72,18 @@ class ExportEmployeePerformanceJob implements ShouldQueue
 
             Excel::store(
                 new EmployeePerformanceExport($employeesPerformance, $this->filters, $this->selectedFields),
-                'exports/' . $this->fileName,
+                'exports/'.$this->fileName,
                 'tenant_public'
             );
 
-            $fileSize = Storage::disk('tenant_public')->size('exports/' . $this->fileName);
+            $fileSize = Storage::disk('tenant_public')->size('exports/'.$this->fileName);
 
             Cache::put("employee_performance_export_result_{$this->exportId}", [
-                'status'        => 'completed',
-                'file_name'     => $this->fileName,
-                'file_size'     => $this->formatBytes($fileSize),
+                'status' => 'completed',
+                'file_name' => $this->fileName,
+                'file_size' => $this->formatBytes($fileSize),
                 'total_records' => $totalCount,
-                'created_at'    => now()->toDateTimeString()
+                'created_at' => now()->toDateTimeString(),
             ], now()->addHours(24));
 
             $this->updateProgress(100, 'تم التصدير بنجاح');
@@ -84,10 +91,10 @@ class ExportEmployeePerformanceJob implements ShouldQueue
             Cache::put("employee_performance_export_result_{$this->exportId}", [
                 'status' => 'failed',
                 'error' => $e->getMessage(),
-                'created_at' => now()->toDateTimeString()
+                'created_at' => now()->toDateTimeString(),
             ], now()->addHours(24));
 
-            $this->updateProgress(-1, 'فشل في التصدير: ' . $e->getMessage());
+            $this->updateProgress(-1, 'فشل في التصدير: '.$e->getMessage());
             throw $e;
         }
     }
@@ -102,7 +109,7 @@ class ExportEmployeePerformanceJob implements ShouldQueue
         Cache::put("employee_performance_export_progress_{$this->exportId}", [
             'percentage' => $percentage,
             'message' => $message,
-            'updated_at' => now()->toDateTimeString()
+            'updated_at' => now()->toDateTimeString(),
         ], now()->addHours(2));
     }
 
@@ -119,7 +126,7 @@ class ExportEmployeePerformanceJob implements ShouldQueue
             $size /= 1024;
         }
 
-        return round($size, $precision) . ' ' . $units[$i];
+        return round($size, $precision).' '.$units[$i];
     }
 
     /*
@@ -132,7 +139,7 @@ class ExportEmployeePerformanceJob implements ShouldQueue
         Cache::put("employee_performance_export_result_{$this->exportId}", [
             'status' => 'failed',
             'error' => $exception->getMessage(),
-            'created_at' => now()->toDateTimeString()
+            'created_at' => now()->toDateTimeString(),
         ], now()->addHours(24));
     }
 

@@ -11,7 +11,8 @@ class GetDomainInfoController extends Controller
         private GetDomainInfoService $get_domain_info_service
     ) {}
 
-    public function getDomainInfo($domain){
+    public function getDomainInfo($domain)
+    {
         return $this->get_domain_info_service->getDomainInfo($domain);
     }
 }

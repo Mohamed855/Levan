@@ -6,12 +6,12 @@ use App\DataTables\Tenants\UserManagement\Team\TeamsDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
 use App\Http\Requests\Tenants\UserManagement\Team\StoreTeamRequest;
-use App\Http\Requests\Tenants\UserManagement\Team\UpdateTeamStatusRequest;
 use App\Http\Requests\Tenants\UserManagement\Team\UpdateTeamRequest;
+use App\Http\Requests\Tenants\UserManagement\Team\UpdateTeamStatusRequest;
 use App\Models\Tenants\UserMangment\Team\Team;
 use App\Services\Tenants\UserManagement\Team\TeamService;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class TeamController extends Controller
@@ -55,6 +55,7 @@ class TeamController extends Controller
     public function create(): View
     {
         $users = $this->teamService->getAvailableUsers();
+
         return view('tenants.users_management.team.create', compact('users'));
     }
 
@@ -122,6 +123,7 @@ class TeamController extends Controller
     public function show(Team $team): View
     {
         $team->load(['members', 'leaders']);
+
         return view('tenants.users_management.team.show', compact('team'));
     }
 
@@ -162,12 +164,12 @@ class TeamController extends Controller
                 'success' => true,
                 'message' => 'تم تبديل الحالة بنجاح',
                 'new_status' => $newStatus,
-                'status_text' => $statusText
+                'status_text' => $statusText,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تبديل الحالة'
+                'message' => 'حدث خطأ أثناء تبديل الحالة',
             ], 500);
         }
     }

@@ -24,12 +24,10 @@
             [
                 'id' => 'assignment-info-validation',
                 'title' => 'البيانات الأساسية',
-                'subtitle' => 'معلومات الإسناد والجهة',
             ],
             [
                 'id' => 'assignment-period-validation',
                 'title' => 'المدة والملاحظات',
-                'subtitle' => 'الفترة الزمنية والملاحظات',
             ],
         ];
     @endphp

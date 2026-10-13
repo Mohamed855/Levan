@@ -15,7 +15,7 @@ class TemporaryContactLossDetails extends Model
     protected $fillable = [
         'contact_result_id',
         'temporary_contact_reason',
-        'temporary_contact_reason_other'
+        'temporary_contact_reason_other',
     ];
 
     public function customerFollow()
@@ -30,7 +30,7 @@ class TemporaryContactLossDetails extends Model
             'debt_amount_objection' => 'اعتراض على مبلغ المديونية',
             'fraud_operation' => 'عملية احتيال',
             'previous_complaint' => 'شكوى سابقة',
-            'other' => 'أخرى'
+            'other' => 'أخرى',
         ];
     }
 }

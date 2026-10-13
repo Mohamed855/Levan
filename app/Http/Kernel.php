@@ -2,8 +2,44 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\changeEnvAttributes;
+use App\Http\Middleware\CheckDomainBalance;
+use App\Http\Middleware\EncryptCookies;
+use App\Http\Middleware\EnsureAdminTwoFactorIsEnforced;
+use App\Http\Middleware\EnsureAuthenticatedAndActiveAdmin;
+use App\Http\Middleware\PreventRequestsDuringMaintenance;
+use App\Http\Middleware\RedirectIfAuthenticated;
+use App\Http\Middleware\SecurityHeadersMiddleware;
+use App\Http\Middleware\Tenancy\CheckLimits\CheckDomainManagement;
+use App\Http\Middleware\Tenancy\CheckSubscription;
+use App\Http\Middleware\Tenancy\EnsureTenantTwoFactorIsEnforced;
+use App\Http\Middleware\Tenancy\EnsureUserHasActiveLicense;
+use App\Http\Middleware\Tenancy\TenantDomainRedirect;
+use App\Http\Middleware\Tenancy\TenantMaintenance;
+use App\Http\Middleware\Tenancy\VerifyTenantToken;
+use App\Http\Middleware\TrimStrings;
+use App\Http\Middleware\TrustProxies;
+use App\Http\Middleware\ValidateSignature;
+use App\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
+use Illuminate\Auth\Middleware\Authorize;
+use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
+use Illuminate\Auth\Middleware\RequirePassword;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
+use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
+use Illuminate\Foundation\Http\Middleware\ValidatePostSize;
+use Illuminate\Http\Middleware\HandleCors;
+use Illuminate\Http\Middleware\SetCacheHeaders;
+use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Session\Middleware\AuthenticateSession;
+use Illuminate\Session\Middleware\StartSession;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
+use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
+use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
 class Kernel extends HttpKernel
 {
@@ -16,15 +52,15 @@ class Kernel extends HttpKernel
      */
     protected $middleware = [
         // \App\Http\Middleware\TrustHosts::class,
-        \App\Http\Middleware\TrustProxies::class,
-        \Illuminate\Http\Middleware\HandleCors::class,
-        \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
-        \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
-        \App\Http\Middleware\TrimStrings::class,
-        \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+        TrustProxies::class,
+        HandleCors::class,
+        PreventRequestsDuringMaintenance::class,
+        ValidatePostSize::class,
+        TrimStrings::class,
+        ConvertEmptyStringsToNull::class,
         // \Bepsvpt\SecureHeaders\SecureHeadersMiddleware::class,
 
-        \App\Http\Middleware\SecurityHeadersMiddleware::class, /// شغله بعد الانتهاء من التعديلات
+        SecurityHeadersMiddleware::class, // / شغله بعد الانتهاء من التعديلات
 
         changeEnvAttributes::class,
 
@@ -37,15 +73,14 @@ class Kernel extends HttpKernel
      */
     protected $middlewareGroups = [
         'web' => [
-            \App\Http\Middleware\EncryptCookies::class,
-            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-            \Illuminate\Session\Middleware\StartSession::class,
-            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-            \App\Http\Middleware\VerifyCsrfToken::class,
-            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            VerifyCsrfToken::class,
+            SubstituteBindings::class,
 
         ],
-
 
         'admin' => [
             'web',
@@ -53,8 +88,8 @@ class Kernel extends HttpKernel
 
         'api' => [
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-            \Illuminate\Routing\Middleware\ThrottleRequests::class . ':api',
-            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            ThrottleRequests::class.':api',
+            SubstituteBindings::class,
         ],
     ];
 
@@ -67,41 +102,37 @@ class Kernel extends HttpKernel
      */
     protected $middlewareAliases = [
         // Laravel Core Middleware
-        'auth'              => \App\Http\Middleware\Authenticate::class,
-        'auth.basic'        => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
-        'auth.session'      => \Illuminate\Session\Middleware\AuthenticateSession::class,
-        'cache.headers'     => \Illuminate\Http\Middleware\SetCacheHeaders::class,
-        'can'               => \Illuminate\Auth\Middleware\Authorize::class,
-        'guest'             => \App\Http\Middleware\RedirectIfAuthenticated::class,
-        'password.confirm'  => \Illuminate\Auth\Middleware\RequirePassword::class,
-        'signed'            => \App\Http\Middleware\ValidateSignature::class,
-        'throttle'          => \Illuminate\Routing\Middleware\ThrottleRequests::class,
-        'verified'          => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        'auth' => Authenticate::class,
+        'auth.basic' => AuthenticateWithBasicAuth::class,
+        'auth.session' => AuthenticateSession::class,
+        'cache.headers' => SetCacheHeaders::class,
+        'can' => Authorize::class,
+        'guest' => RedirectIfAuthenticated::class,
+        'password.confirm' => RequirePassword::class,
+        'signed' => ValidateSignature::class,
+        'throttle' => ThrottleRequests::class,
+        'verified' => EnsureEmailIsVerified::class,
 
         // ADMIN MIDDLEWARE
-        'admin.active'     => \App\Http\Middleware\EnsureAuthenticatedAndActiveAdmin::class,  // هل المستخدم نشط ام لا
-        'admin.2fa.force'  => \App\Http\Middleware\EnsureAdminTwoFactorIsEnforced::class, // فرض المصادقة الثنائية على السوبر أدمن
-
+        'admin.active' => EnsureAuthenticatedAndActiveAdmin::class,  // هل المستخدم نشط ام لا
+        'admin.2fa.force' => EnsureAdminTwoFactorIsEnforced::class, // فرض المصادقة الثنائية على السوبر أدمن
 
         // TENANT MIDDLEWARE
-        'tenant.path'           => \Stancl\Tenancy\Middleware\InitializeTenancyByPath::class, // عبر الـ path-based
-        'tenant.domain'         => \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,  // للـ subdomain-based
+        'tenant.path' => InitializeTenancyByPath::class, // عبر الـ path-based
+        'tenant.domain' => InitializeTenancyByDomain::class,  // للـ subdomain-based
 
-        'tenant.subscription'   => \App\Http\Middleware\Tenancy\CheckSubscription::class, // لتاكد من الاشتراك
-        'tenant.license'        => \App\Http\Middleware\Tenancy\EnsureUserHasActiveLicense::class, // للتأكد من وجود ترخيص نشط
-        'tenant.maintenance'    => \App\Http\Middleware\Tenancy\TenantMaintenance::class, // وضع الصيانة للtenant
-        'tenant.redirect'       => \App\Http\Middleware\Tenancy\TenantDomainRedirect::class, // إعادة التوجيه من Path إلى Domain إذا كان Domain مفعّل
-        'tenant.2fa.force'      => \App\Http\Middleware\Tenancy\EnsureTenantTwoFactorIsEnforced::class, // فرض المصادقة الثنائية على مستخدمي المستأجر
-        'prevent.central'       => \Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains::class, // منع الوصول من الدومينات المركزية
+        'tenant.subscription' => CheckSubscription::class, // لتاكد من الاشتراك
+        'tenant.license' => EnsureUserHasActiveLicense::class, // للتأكد من وجود ترخيص نشط
+        'tenant.maintenance' => TenantMaintenance::class, // وضع الصيانة للtenant
+        'tenant.redirect' => TenantDomainRedirect::class, // إعادة التوجيه من Path إلى Domain إذا كان Domain مفعّل
+        'tenant.2fa.force' => EnsureTenantTwoFactorIsEnforced::class, // فرض المصادقة الثنائية على مستخدمي المستأجر
+        'prevent.central' => PreventAccessFromCentralDomains::class, // منع الوصول من الدومينات المركزية
 
-        'check.domain.management' => \App\Http\Middleware\Tenancy\CheckLimits\CheckDomainManagement::class,
-        'check.domain.balance'    => \App\Http\Middleware\CheckDomainBalance::class, // للتأكد من وجود رصيد كافي لتسجيل الدومين
-
-
+        'check.domain.management' => CheckDomainManagement::class,
+        'check.domain.balance' => CheckDomainBalance::class, // للتأكد من وجود رصيد كافي لتسجيل الدومين
 
         // TENANT API MIDDLEWARE
-        'tenant.token'          => \App\Http\Middleware\Tenancy\VerifyTenantToken::class,  // انشاء توكن للtenant
-
+        'tenant.token' => VerifyTenantToken::class,  // انشاء توكن للtenant
 
     ];
 

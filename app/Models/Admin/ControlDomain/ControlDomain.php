@@ -5,13 +5,12 @@ namespace App\Models\Admin\ControlDomain;
 use App\Traits\ActivityLogTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\Models\Concerns\LogsActivity;
 
 class ControlDomain extends Model
 {
-    use HasFactory, ActivityLogTrait;
+    use ActivityLogTrait, HasFactory;
 
-    protected $guarded = []; 
+    protected $guarded = [];
 
     /*
     |============================================================================
@@ -34,8 +33,8 @@ class ControlDomain extends Model
     {
         return [
             'domain_extension' => 'امتداد النطاق',
-            'price'            => 'السعر',
-            'is_active'        => 'الحالة',
+            'price' => 'السعر',
+            'is_active' => 'الحالة',
         ];
     }
 

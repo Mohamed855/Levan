@@ -10,9 +10,11 @@ use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Auctions\AuctionAttachment;
 use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\UserMangment\User\User;
+use App\Services\Tenants\Auctions\AuctionService;
 use App\Services\Tenants\Properties\PropertyService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 class TenantAssetModulesFeatureTest extends TestCase
@@ -68,6 +70,37 @@ class TenantAssetModulesFeatureTest extends TestCase
             ])
             ->assertUnprocessable()
             ->assertJsonValidationErrors('property_ids.0');
+    }
+
+    public function test_auction_service_defends_the_assignment_property_invariant(): void
+    {
+        [$selectedAssignment, $otherAssignment] = $this->assignments();
+        $otherProperty = Property::create([
+            'assignment_id' => $otherAssignment->id,
+            'property_number' => 'SERVICE-'.uniqid(),
+            'name' => 'Service invariant property',
+            'type' => 'residential_land',
+            'city' => 'Riyadh',
+            'area' => 100,
+            'data_status' => 'completed',
+            'status' => 'available',
+            'is_active' => true,
+            'created_by' => $this->owner->id,
+        ]);
+
+        $this->actingAs($this->owner, 'tenant');
+        $this->expectException(ValidationException::class);
+
+        app(AuctionService::class)->createAuction([
+            'name' => 'Invalid service auction',
+            'start_date' => now()->addDay()->toDateString(),
+            'end_date' => now()->addDays(2)->toDateString(),
+            'type' => 'electronic',
+            'category' => 'lands',
+            'city' => 'Riyadh',
+            'assignment_id' => $selectedAssignment->id,
+            'property_ids' => [$otherProperty->id],
+        ]);
     }
 
     public function test_assignment_creation_links_properties_and_stores_polymorphic_files(): void
@@ -132,7 +165,7 @@ class TenantAssetModulesFeatureTest extends TestCase
         $this->assertStringContainsString($imageUrl, $assignmentRow['image']);
     }
 
-    public function test_assignment_creation_accepts_a_property_already_linked_to_an_assignment(): void
+    public function test_assignment_creation_rejects_a_property_already_linked_to_an_assignment(): void
     {
         [$existingAssignment] = $this->assignments();
         $property = Property::create([
@@ -155,8 +188,61 @@ class TenantAssetModulesFeatureTest extends TestCase
                 'fields' => ['property_ids'],
                 'property_ids' => [$property->id],
             ])
-            ->assertOk()
-            ->assertJson(['success' => true]);
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('property_ids.0');
+    }
+
+    public function test_property_assignment_auction_flow_links_only_the_selected_assignment_properties(): void
+    {
+        Storage::fake('tenant_public');
+        $firstProperty = $this->createUnassignedProperty('FLOW-A');
+        $secondProperty = $this->createUnassignedProperty('FLOW-B');
+        $assignmentNumber = 'FLOW-'.strtoupper(uniqid());
+
+        $this->actingAs($this->owner, 'tenant')
+            ->post($this->tenantUrl('assignments'), [
+                'assignment_number' => $assignmentNumber,
+                'name' => 'Lifecycle assignment',
+                'issuing_entity' => 'Lifecycle authority',
+                'city' => 'Riyadh',
+                'district' => 'North',
+                'category' => 'lands',
+                'status' => 'active',
+                'start_date' => now()->toDateString(),
+                'end_date' => now()->addMonth()->toDateString(),
+                'notes' => 'End-to-end lifecycle verification.',
+                'property_ids' => [$firstProperty->id, $secondProperty->id],
+                'assignment_image' => UploadedFile::fake()->image('assignment.jpg'),
+                'assignment_letter' => UploadedFile::fake()->create('letter.pdf', 100, 'application/pdf'),
+                'general_documents' => [UploadedFile::fake()->create('general.pdf', 100, 'application/pdf')],
+                'additional_attachments' => [UploadedFile::fake()->create('extra.pdf', 100, 'application/pdf')],
+            ])
+            ->assertRedirect($this->tenantUrl('assignments'));
+
+        $assignment = Assignment::where('assignment_number', $assignmentNumber)->firstOrFail();
+        $this->assertSame($assignment->id, $firstProperty->fresh()->assignment_id);
+        $this->assertSame($assignment->id, $secondProperty->fresh()->assignment_id);
+
+        $auctionName = 'Lifecycle auction '.uniqid();
+        $this->post($this->tenantUrl('auctions'), [
+            'name' => $auctionName,
+            'start_date' => now()->addDay()->toDateString(),
+            'end_date' => now()->addDays(2)->toDateString(),
+            'type' => 'electronic',
+            'category' => 'lands',
+            'city' => 'Riyadh',
+            'assignment_id' => $assignment->id,
+            'property_ids' => [$firstProperty->id],
+            'status' => 'draft',
+        ])->assertRedirect($this->tenantUrl('auctions'));
+
+        $auction = Auction::where('name', $auctionName)->firstOrFail();
+        $this->assertSame($assignment->id, $auction->assignment_id);
+        $this->assertEquals([$firstProperty->id], $auction->properties()->pluck('properties.id')->all());
+        $this->assertDatabaseMissing('auction_properties', [
+            'auction_id' => $auction->id,
+            'property_id' => $secondProperty->id,
+        ]);
     }
 
     public function test_property_activity_toggle_does_not_mark_the_property_as_sold(): void
@@ -210,6 +296,35 @@ class TenantAssetModulesFeatureTest extends TestCase
             ])
             ->assertUnprocessable()
             ->assertJsonValidationErrors('property_ids.0');
+    }
+
+    public function test_tenant_auction_draft_can_be_saved_restored_and_discarded(): void
+    {
+        $resourceKey = 'tenant.auction-create';
+
+        $this->actingAs($this->owner, 'tenant')
+            ->postJson($this->tenantUrl('wizard-drafts'), [
+                'resource_key' => $resourceKey,
+                'step' => 3,
+                'name' => 'Draft auction',
+                'property_ids' => [11, 12],
+            ])
+            ->assertOk()
+            ->assertJson(['success' => true]);
+
+        $this->getJson($this->tenantUrl('wizard-drafts').'?resource_key='.urlencode($resourceKey))
+            ->assertOk()
+            ->assertJsonPath('step', 3)
+            ->assertJsonPath('data.name', 'Draft auction')
+            ->assertJsonPath('data.property_ids.0', 11);
+
+        $this->deleteJson($this->tenantUrl('wizard-drafts').'?resource_key='.urlencode($resourceKey))
+            ->assertOk()
+            ->assertJson(['success' => true]);
+
+        $this->getJson($this->tenantUrl('wizard-drafts').'?resource_key='.urlencode($resourceKey))
+            ->assertOk()
+            ->assertJsonPath('draft_id', null);
     }
 
     public function test_user_without_module_delete_permission_cannot_mass_delete_assignments(): void
@@ -318,6 +433,35 @@ class TenantAssetModulesFeatureTest extends TestCase
         $this->assertDatabaseMissing('auction_attachments', ['id' => $attachment->id]);
     }
 
+    public function test_force_deleting_a_property_removes_all_of_its_stored_files(): void
+    {
+        Storage::fake('tenant_public');
+        $property = $this->createUnassignedProperty('DELETE-FILES');
+        $mainImagePath = 'properties/main/test-main.webp';
+        $documentPath = 'properties/attachments/test-deed.pdf';
+        Storage::disk('tenant_public')->put($mainImagePath, 'image');
+        Storage::disk('tenant_public')->put($documentPath, 'document');
+        $property->update(['main_image' => $mainImagePath]);
+        $property->attachments()->create([
+            'disk' => 'tenant_public',
+            'file_path' => $documentPath,
+            'original_name' => 'test-deed.pdf',
+            'mime_type' => 'application/pdf',
+            'extension' => 'pdf',
+            'file_size' => 8,
+            'category' => 'deed_document',
+        ]);
+        $property->delete();
+
+        $this->actingAs($this->owner, 'tenant')
+            ->deleteJson($this->tenantUrl("archive/properties/{$property->id}/force-delete"))
+            ->assertOk()
+            ->assertJson(['success' => true]);
+
+        Storage::disk('tenant_public')->assertMissing([$mainImagePath, $documentPath]);
+        $this->assertDatabaseMissing('properties', ['id' => $property->id]);
+    }
+
     /** @return array{0: Assignment, 1: Assignment} */
     private function assignments(): array
     {
@@ -343,6 +487,21 @@ class TenantAssetModulesFeatureTest extends TestCase
                 'created_by' => $this->owner->id,
             ]),
         ];
+    }
+
+    private function createUnassignedProperty(string $suffix): Property
+    {
+        return Property::create([
+            'property_number' => $suffix.'-'.uniqid(),
+            'name' => 'Lifecycle property '.$suffix,
+            'type' => 'residential_land',
+            'city' => 'Riyadh',
+            'area' => 100,
+            'data_status' => 'completed',
+            'status' => 'available',
+            'is_active' => true,
+            'created_by' => $this->owner->id,
+        ]);
     }
 
     private function tenantUrl(string $path): string

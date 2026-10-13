@@ -25,8 +25,6 @@ class SubscriptionLicenseAdjustment extends Model
         'extra_user_license_price_snapshot',
     ];
 
-
-
     /*
     |============================================================================
     |============================================================================
@@ -38,7 +36,6 @@ class SubscriptionLicenseAdjustment extends Model
     {
         return $this->belongsTo(SubscriptionPeriod::class, 'period_id');
     }
-
 
     public function bill()
     {

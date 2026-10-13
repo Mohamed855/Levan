@@ -15,7 +15,7 @@ class ChartSettingController extends Controller
     public function updateChartVisibility(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'key'   => ['required', 'string', Rule::in(self::ALLOWED_KEYS)],
+            'key' => ['required', 'string', Rule::in(self::ALLOWED_KEYS)],
             'value' => ['required', 'boolean'],
         ]);
 
@@ -25,10 +25,10 @@ class ChartSettingController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'تم التحديث بنجاح',
-            'data'    => [
-                'key'   => $data['key'],
+            'data' => [
+                'key' => $data['key'],
                 'value' => $data['value'],
-            ]
+            ],
         ]);
     }
 }

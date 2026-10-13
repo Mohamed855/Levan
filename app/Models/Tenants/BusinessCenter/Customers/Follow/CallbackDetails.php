@@ -16,7 +16,7 @@ class CallbackDetails extends Model
         'contact_result_id',
         'callback_date',
         'callback_reason',
-        'callback_reason_other'
+        'callback_reason_other',
     ];
 
     protected $casts = [

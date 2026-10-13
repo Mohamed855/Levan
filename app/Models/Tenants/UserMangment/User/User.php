@@ -9,20 +9,20 @@ use App\Models\Tenants\BusinessCenter\Customers\Distribution\CustomerDistributio
 use App\Models\Tenants\FinancialCollection\CollectionProcess\CollectionProcessSession;
 use App\Models\Tenants\UserMangment\Team\Team;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Traits\HasRoles;
-use Spatie\Activitylog\Support\LogOptions;
-use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Laravel\Sanctum\HasApiTokens;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
+    use HasApiTokens, HasFactory, LogsActivity, Notifiable, SoftDeletes;
     /*
     |============================================================================
     |============================================================================
@@ -33,19 +33,14 @@ class User extends Authenticatable
     use HasRoles {
         hasPermissionTo as protected traitHasPermissionTo;
     }
-
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, LogsActivity;
-
     use TwoFactorAuthenticatable;
 
     // for guard
     protected $connection = 'tenant';
 
-
     protected string $guard_name = 'tenant';
 
     protected $dates = ['deleted_at'];
-
 
     protected $fillable = [
         'name',
@@ -66,12 +61,10 @@ class User extends Authenticatable
         'background_image',
     ];
 
-
     protected $hidden = [
         'password',
         'remember_token',
     ];
-
 
     protected $casts = [
         'last_login_at' => 'datetime',
@@ -97,7 +90,6 @@ class User extends Authenticatable
         });
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | Activity Log Configuration
@@ -111,7 +103,7 @@ class User extends Authenticatable
             ->logOnlyDirty()
             ->dontLogEmptyChanges()
             ->useLogName('users')
-            ->setDescriptionForEvent(fn(string $eventName) => $this->getEventDescription($eventName))
+            ->setDescriptionForEvent(fn (string $eventName) => $this->getEventDescription($eventName))
             ->dontLogIfAttributesChangedOnly(['updated_at', 'email_verified_at', 'remember_token']);
     }
 
@@ -186,9 +178,9 @@ class User extends Authenticatable
                 }
             }
 
-            return !empty($changes) ? " - التغييرات: " . implode(' | ', $changes) : "";
+            return ! empty($changes) ? ' - التغييرات: '.implode(' | ', $changes) : '';
         } catch (\Exception $e) {
-            return "";
+            return '';
         }
     }
 
@@ -207,6 +199,7 @@ class User extends Authenticatable
             switch ($field) {
                 case 'team_id':
                     $team = Team::find($value);
+
                     return $team ? $team->name : 'غير محدد';
 
                 case 'is_team_leader':
@@ -233,7 +226,6 @@ class User extends Authenticatable
         }
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | Accessors
@@ -242,11 +234,11 @@ class User extends Authenticatable
     public function getProfilePhotoUrlAttribute(): string
     {
         return $this->image
-            ? asset('storage/' . $this->image)
+            ? asset('storage/'.$this->image)
             : asset('static/brand/logos/logo.svg');
     }
 
-    /////////////////////////////////////////////////////////////////////////
+    // ///////////////////////////////////////////////////////////////////////
 
     /**
      * Get the customers managed by this user (as relationship manager).
@@ -272,7 +264,6 @@ class User extends Authenticatable
         return $this->hasMany(CustomerDistribution::class, 'created_by');
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | العلاقات
@@ -288,7 +279,7 @@ class User extends Authenticatable
      */
     public function getCollectorWorkloadAttribute(): array
     {
-        if (!$this->hasRole('collector')) {
+        if (! $this->hasRole('collector')) {
             return [
                 'customers_count' => 0,
                 'total_debt' => 0,
@@ -303,7 +294,7 @@ class User extends Authenticatable
             'last_distribution' => $this->distributionHistory()->latest()->first(),
         ];
     }
-    ///////////////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////////////
 
     /*
     |--------------------------------------------------------------------------
@@ -355,7 +346,6 @@ class User extends Authenticatable
         return $query->where('status', 'active');
     }
 
-
     /*
 
 
@@ -365,8 +355,6 @@ class User extends Authenticatable
     |--------------------------------------------------------------------------
     | Description of this section.
     */
-
-
 
     /*
     |--------------------------------------------------------------------------
@@ -405,7 +393,7 @@ class User extends Authenticatable
     */
     public function canManageTeam(): bool
     {
-        if (!$this->isTeamLeader() || !$this->hasTeam()) {
+        if (! $this->isTeamLeader() || ! $this->hasTeam()) {
             return false;
         }
 
@@ -423,7 +411,7 @@ class User extends Authenticatable
     */
     public function teamMemberIds(): array
     {
-        if (!$this->hasTeam()) {
+        if (! $this->hasTeam()) {
             return [];
         }
 
@@ -441,7 +429,7 @@ class User extends Authenticatable
     {
         $user = auth()->user();
 
-        if (!$user) {
+        if (! $user) {
             return $query;
         }
 

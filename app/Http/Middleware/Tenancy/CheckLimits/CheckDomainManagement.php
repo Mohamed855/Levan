@@ -2,10 +2,11 @@
 
 namespace App\Http\Middleware\Tenancy\CheckLimits;
 
+use App\Enums\Admin\Subscriptions\SubscriptionStatus;
+use App\Models\Admin\Subscription\Subscription;
 use Closure;
 use Illuminate\Http\Request;
 use Stancl\Tenancy\Facades\Tenancy;
-use App\Models\Admin\Subscription\Subscription;
 
 class CheckDomainManagement
 {
@@ -16,7 +17,7 @@ class CheckDomainManagement
         $subscriptionData = Tenancy::central(function () use ($tenantId) {
 
             $subscription = Subscription::where('tenant_id', $tenantId)
-                ->where('status', \App\Enums\Admin\Subscriptions\SubscriptionStatus::ACTIVE)
+                ->where('status', SubscriptionStatus::ACTIVE)
                 ->with('plan')
                 ->latest('id')
                 ->first()
@@ -25,29 +26,29 @@ class CheckDomainManagement
                     ->latest('id')
                     ->first();
 
-            if (!$subscription || !$subscription->plan) {
+            if (! $subscription || ! $subscription->plan) {
                 return null;
             }
 
             return [
                 'domain_management_enabled' => $subscription->plan->domain_management_enabled,
-                'plan_name'                 => $subscription->plan->name,
+                'plan_name' => $subscription->plan->name,
             ];
         });
 
         // التحقق من وجود اشتراك نشط
-        if (!$subscriptionData) {
+        if (! $subscriptionData) {
             return redirect()->to(tenant_route_name('dashboard'))->with('error', 'لا يوجد اشتراك نشط');
         }
 
         // التحقق من تفعيل ميزة إدارة النطاقات في الباقة
-        if (!$subscriptionData['domain_management_enabled']) {
+        if (! $subscriptionData['domain_management_enabled']) {
             return redirect()->to(tenant_route_name('dashboard'))->with('error', "ميزة إعدادات الدومين غير متاحة في باقتك ({$subscriptionData['plan_name']}). يرجى ترقية الباقة للاستفادة من هذه الميزة.");
         }
 
         $request->merge([
             'domain_management_enabled' => true,
-            'plan_name'                 => $subscriptionData['plan_name'],
+            'plan_name' => $subscriptionData['plan_name'],
         ]);
 
         return $next($request);

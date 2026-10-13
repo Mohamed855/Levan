@@ -2,18 +2,11 @@
 
 namespace App\Services\Admin\Coupons;
 
-
-
-
-use App\Enums\Admin\Coupons\CouponApplicableTo;
 use App\Models\Admin\Coupons\Coupon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Stancl\Tenancy\Facades\Tenancy;
 
 class CouponService
 {
-
     // Create Coupon
     public function create(array $data): Coupon
     {
@@ -21,11 +14,10 @@ class CouponService
 
             return Coupon::create([
                 ...$data,
-                'created_by'    => auth()->id(),
+                'created_by' => auth()->id(),
             ]);
         });
     }
-
 
     // Update coupon
     public function update(Coupon $coupon, array $data): Coupon
@@ -34,13 +26,12 @@ class CouponService
             // تحديث الكوبون
             $coupon->update([
                 ...$data,
-                'updated_by'    => auth()->id(),
+                'updated_by' => auth()->id(),
             ]);
 
             return $coupon;
         });
     }
-
 
     // Delete coupon
     public function delete(Coupon $coupon): bool
@@ -50,7 +41,6 @@ class CouponService
         });
     }
 
-
     // Toggle active status
     public function toggleActive(Coupon $coupon, ?bool $status = null): Coupon
     {
@@ -58,7 +48,7 @@ class CouponService
             $newStatus = $status !== null ? $status : ! $coupon->is_active;
 
             $coupon->update([
-                'is_active'  => $newStatus,
+                'is_active' => $newStatus,
                 'updated_by' => auth('admin')->id() ?? auth()->id(),
             ]);
 
@@ -72,8 +62,8 @@ class CouponService
         $baseQuery = Coupon::query();
 
         return [
-            'total'    => (clone $baseQuery)->count(),
-            'active'   => (clone $baseQuery)->where('is_active', 1)->count(),
+            'total' => (clone $baseQuery)->count(),
+            'active' => (clone $baseQuery)->where('is_active', 1)->count(),
             'inactive' => (clone $baseQuery)->where('is_active', 0)->count(),
         ];
     }

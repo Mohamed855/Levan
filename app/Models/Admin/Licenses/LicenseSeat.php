@@ -8,15 +8,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-
 class LicenseSeat extends Model
 {
     use HasFactory;
 
-    protected   $primaryKey     = 'id';
-    public      $incrementing   = false;
-    protected   $keyType        = 'string';
+    protected $primaryKey = 'id';
 
+    public $incrementing = false;
+
+    protected $keyType = 'string';
 
     protected $connection = 'mysql';
 
@@ -28,9 +28,8 @@ class LicenseSeat extends Model
         'status',
         'assigned_at',
         'meta',
-        'is_core'
+        'is_core',
     ];
-
 
     protected $casts = ['assigned_at' => 'datetime', 'meta' => 'array'];
 
@@ -50,7 +49,6 @@ class LicenseSeat extends Model
         });
     }
 
-
     /*
     |============================================================================
     |============================================================================
@@ -62,11 +60,11 @@ class LicenseSeat extends Model
     {
         return $this->belongsTo(Tenant::class, 'tenant_id', 'id');
     }
+
     public function subscription()
     {
         return $this->belongsTo(Subscription::class, 'subscription_id');
     }
-
 
     /*
     |============================================================================
@@ -90,7 +88,6 @@ class LicenseSeat extends Model
         return $query->where('assigned_user_uid', $userUid);
     }
 
-
     /*
     |============================================================================
     |============================================================================
@@ -106,7 +103,7 @@ class LicenseSeat extends Model
         }
 
         //  إذا لم يكن مخصصاً أو لا يوجد تاريخ إسناد
-        if ($this->status !== 'assigned' || !$this->assigned_at) {
+        if ($this->status !== 'assigned' || ! $this->assigned_at) {
             return true;
         }
 
@@ -117,7 +114,7 @@ class LicenseSeat extends Model
     //  دالة لحساب الأيام المتبقية
     public function daysUntilReleasable(): ?int
     {
-        if ($this->is_core || $this->status !== 'assigned' || !$this->assigned_at) {
+        if ($this->is_core || $this->status !== 'assigned' || ! $this->assigned_at) {
             return null;
         }
 
@@ -133,7 +130,7 @@ class LicenseSeat extends Model
     //  تاريخ السماح بالتحرير
     public function getReleasableDateAttribute()
     {
-        if (!$this->assigned_at) {
+        if (! $this->assigned_at) {
             return null;
         }
 

@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers\Tenants\Archive\Property;
 
+use App\Actions\Tenants\Properties\ForceDeletePropertyAction;
+use App\Actions\Tenants\Properties\RestorePropertyAction;
 use App\DataTables\Tenants\Properties\PropertyArchiveDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Archive\ArchiveItemIdRequest;
 use App\Models\Tenants\Properties\Property;
-use App\Services\Tenants\Properties\PropertyService;
 
 class PropertyArchiveController extends Controller
 {
-    public function __construct(private readonly PropertyService $propertyService)
+    public function __construct()
     {
         $this->middleware('auth:tenant');
         $this->middleware('can:properties_archive.view')->only(['index']);
@@ -22,11 +24,13 @@ class PropertyArchiveController extends Controller
         return $dataTable->render('tenants.archive.properties.index');
     }
 
-    public function restore(int $id)
+    public function restore(ArchiveItemIdRequest $request, RestorePropertyAction $action)
     {
+        $property = Property::onlyTrashed()->findOrFail($request->validated('id'));
+        $this->authorize('restore', $property);
+
         try {
-            $property = Property::onlyTrashed()->findOrFail($id);
-            $property->restore();
+            $action->execute($property);
 
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json(['success' => true, 'message' => 'تم استعادة العقار بنجاح']);
@@ -42,11 +46,13 @@ class PropertyArchiveController extends Controller
         }
     }
 
-    public function forceDelete(int $id)
+    public function forceDelete(ArchiveItemIdRequest $request, ForceDeletePropertyAction $action)
     {
+        $property = Property::onlyTrashed()->findOrFail($request->validated('id'));
+        $this->authorize('forceDelete', $property);
+
         try {
-            $property = Property::onlyTrashed()->findOrFail($id);
-            $this->propertyService->forceDeleteProperty($property);
+            $action->execute($property);
 
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([

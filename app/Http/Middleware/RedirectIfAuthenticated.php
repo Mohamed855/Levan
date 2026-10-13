@@ -23,10 +23,10 @@ class RedirectIfAuthenticated
                     }, config('tenancy.central_domains', []));
 
                     $isCentralDomain = in_array($currentHost, $centralDomains) ||
-                        in_array('www.' . $currentHost, $centralDomains);
+                        in_array('www.'.$currentHost, $centralDomains);
 
                     if ($isCentralDomain) {
-                        return redirect('/' . tenant('id') . '/dashboard');
+                        return redirect('/'.tenant('id').'/dashboard');
                     } else {
                         return redirect('/dashboard');
                     }

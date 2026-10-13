@@ -43,8 +43,8 @@ class Auction extends Model
 
     protected $casts = [
         'start_date' => 'date',
-        'end_date'   => 'date',
-        'is_active'  => 'boolean',
+        'end_date' => 'date',
+        'is_active' => 'boolean',
         'expected_properties_count' => 'integer',
     ];
 
@@ -74,9 +74,9 @@ class Auction extends Model
     {
         return match ($this->type) {
             'electronic' => 'إلكتروني',
-            'in_person'  => 'حضوري',
-            'hybrid'     => 'هجين',
-            default      => 'إلكتروني',
+            'in_person' => 'حضوري',
+            'hybrid' => 'هجين',
+            default => 'إلكتروني',
         };
     }
 
@@ -84,38 +84,38 @@ class Auction extends Model
     {
         return match ($this->category) {
             'residential' => 'سكني',
-            'commercial'  => 'تجاري',
-            'investment'  => 'استثماري',
+            'commercial' => 'تجاري',
+            'investment' => 'استثماري',
             'educational' => 'تعليمي',
-            'lands'       => 'أراضي',
-            'mixed_use'   => 'متعدد الاستخدام',
-            default       => $this->category ?? 'أراضي',
+            'lands' => 'أراضي',
+            'mixed_use' => 'متعدد الاستخدام',
+            default => $this->category ?? 'أراضي',
         };
     }
 
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
-            'draft'             => 'مسودة',
-            'in_preparation'    => 'قيد الإعداد',
-            'pending_approval'  => 'بانتظار الاعتماد',
-            'active'            => 'نشط',
-            'completed'         => 'منتهي',
-            'suspended'         => 'معلق',
-            default             => 'قيد الإعداد',
+            'draft' => 'مسودة',
+            'in_preparation' => 'قيد الإعداد',
+            'pending_approval' => 'بانتظار الاعتماد',
+            'active' => 'نشط',
+            'completed' => 'منتهي',
+            'suspended' => 'معلق',
+            default => 'قيد الإعداد',
         };
     }
 
     public function getStatusBadgeClassAttribute(): string
     {
         return match ($this->status) {
-            'draft'            => 'bg-secondary',
-            'in_preparation'   => 'bg-label-warning',
+            'draft' => 'bg-secondary',
+            'in_preparation' => 'bg-label-warning',
             'pending_approval' => 'bg-label-info',
-            'active'           => 'bg-label-success',
-            'completed'        => 'bg-label-dark',
-            'suspended'        => 'bg-label-danger',
-            default            => 'bg-label-primary',
+            'active' => 'bg-label-success',
+            'completed' => 'bg-label-dark',
+            'suspended' => 'bg-label-danger',
+            default => 'bg-label-primary',
         };
     }
 }

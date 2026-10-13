@@ -3,22 +3,24 @@
 namespace App\Exports\Tenants\Communication;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class MessageIndividualLogsExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle, WithColumnWidths, WithEvents
+class MessageIndividualLogsExport implements FromCollection, WithColumnWidths, WithEvents, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     protected Collection $logs;
+
     protected $rowCount = 0;
 
     /*
@@ -38,7 +40,7 @@ class MessageIndividualLogsExport implements FromCollection, WithHeadings, WithM
     |--------------------------------------------------------------------------
     | Return the collection to be exported.
     */
-    public function collection(): \Illuminate\Support\Enumerable
+    public function collection(): Enumerable
     {
         return $this->logs;
     }
@@ -66,7 +68,7 @@ class MessageIndividualLogsExport implements FromCollection, WithHeadings, WithM
             'محتوى الرسالة',
             'الحالة',
             'تاريخ الإرسال',
-            'أرسل بواسطة'
+            'أرسل بواسطة',
         ];
     }
 
@@ -95,10 +97,11 @@ class MessageIndividualLogsExport implements FromCollection, WithHeadings, WithM
             $this->formatMessageContent($log->message_content),
             $this->getStatusLabel($log->status),
             $log->sent_at ? $log->sent_at->format('Y-m-d H:i:s') : '-',
-            $log->sentBy ? $log->sentBy->name : 'غير محدد'
+            $log->sentBy ? $log->sentBy->name : 'غير محدد',
         ];
 
         $this->rowCount++;
+
         return $row;
     }
 
@@ -111,7 +114,7 @@ class MessageIndividualLogsExport implements FromCollection, WithHeadings, WithM
     private function formatPhoneNumbers($phoneNumbers): string
     {
         // التحقق إذا كانت القيمة فارغة
-        if (!$phoneNumbers) {
+        if (! $phoneNumbers) {
             return 'لا يوجد';
         }
 
@@ -128,7 +131,7 @@ class MessageIndividualLogsExport implements FromCollection, WithHeadings, WithM
         }
 
         // التحقق من أن المصفوفة ليست فارغة بعد المعالجة
-        if (!is_array($phones) || empty($phones)) {
+        if (! is_array($phones) || empty($phones)) {
             return 'لا يوجد';
         }
 
@@ -143,14 +146,14 @@ class MessageIndividualLogsExport implements FromCollection, WithHeadings, WithM
     */
     private function formatMessageContent($content): string
     {
-        if (!$content) {
+        if (! $content) {
             return '-';
         }
 
         // Limit content length for Excel display
         $maxLength = 100;
         if (mb_strlen($content) > $maxLength) {
-            return mb_substr($content, 0, $maxLength) . '...';
+            return mb_substr($content, 0, $maxLength).'...';
         }
 
         return $content;
@@ -217,7 +220,6 @@ class MessageIndividualLogsExport implements FromCollection, WithHeadings, WithM
         ];
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | Sheet Styles
@@ -283,13 +285,13 @@ class MessageIndividualLogsExport implements FromCollection, WithHeadings, WithM
                 $cancelledMessages = $this->logs->where('status', 'cancelled')->count();
                 $totalPhones = $this->logs->sum('phone_numbers_count');
 
-                $summaryText = "إجمالي الرسائل: " . number_format($totalMessages) .
-                    " | المرسلة: " . number_format($sentMessages) .
-                    " | الفاشلة: " . number_format($failedMessages) .
-                    " | المعلقة: " . number_format($pendingMessages) .
-                    " | قيد المعالجة: " . number_format($processingMessages) .
-                    " | الملغية: " . number_format($cancelledMessages) .
-                    " | إجمالي أرقام الهواتف: " . number_format($totalPhones);
+                $summaryText = 'إجمالي الرسائل: '.number_format($totalMessages).
+                    ' | المرسلة: '.number_format($sentMessages).
+                    ' | الفاشلة: '.number_format($failedMessages).
+                    ' | المعلقة: '.number_format($pendingMessages).
+                    ' | قيد المعالجة: '.number_format($processingMessages).
+                    ' | الملغية: '.number_format($cancelledMessages).
+                    ' | إجمالي أرقام الهواتف: '.number_format($totalPhones);
 
                 $sheet->setCellValue("A{$summaryRow}", $summaryText);
                 $sheet->mergeCells("A{$summaryRow}:{$lastColumn}{$summaryRow}");

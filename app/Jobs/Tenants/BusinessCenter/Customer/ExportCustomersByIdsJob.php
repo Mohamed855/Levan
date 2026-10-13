@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
@@ -18,33 +19,38 @@ class ExportCustomersByIdsJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $timeout         = 1800;
-    public $tries           = 3;
-    public $maxExceptions   = 1;
+    public $timeout = 1800;
+
+    public $tries = 3;
+
+    public $maxExceptions = 1;
 
     protected array $customerIds;
+
     protected array $selectedFields;
+
     protected ?string $sortBy;
+
     protected string $exportId;
+
     protected string $fileName;
 
-    public function __construct(array $customerIds,  array $selectedFields = [], ?string $sortBy = null)
+    public function __construct(array $customerIds, array $selectedFields = [], ?string $sortBy = null)
     {
-        $this->customerIds      = $customerIds;
-        $this->selectedFields   = $selectedFields;
-        $this->sortBy           = $sortBy;
-        $this->exportId         = uniqid('customers_export_', true);
-        $this->fileName         = 'customers_export_' . now()->format('Y_m_d_H_i_s') . '_' . $this->exportId . '.xlsx';
+        $this->customerIds = $customerIds;
+        $this->selectedFields = $selectedFields;
+        $this->sortBy = $sortBy;
+        $this->exportId = uniqid('customers_export_', true);
+        $this->fileName = 'customers_export_'.now()->format('Y_m_d_H_i_s').'_'.$this->exportId.'.xlsx';
     }
-
 
     public function handle(): void
     {
         try {
             $this->updateProgress(0, 'بدء عملية التصدير...');
 
-            $totalCount     = count($this->customerIds);
-            $customers      = collect();
+            $totalCount = count($this->customerIds);
+            $customers = collect();
             $processedCount = 0;
 
             foreach (array_chunk($this->customerIds, 1000) as $chunkIds) {
@@ -56,7 +62,7 @@ class ExportCustomersByIdsJob implements ShouldQueue
                         'relationshipManager:id,name',
                         'createdBy:id,name',
                         'customerStatus:id,name',
-                        'phones'
+                        'phones',
                     ])
                     ->addSelect([
                         '*',
@@ -64,7 +70,7 @@ class ExportCustomersByIdsJob implements ShouldQueue
                         'total_credit' => CustomerTransaction::selectRaw('COALESCE(sum(amount), 0)')->whereColumn('customer_id', 'customers.id')->where('type', 'credit'),
                     ])->get();
 
-                $customers       = $customers->merge($chunk);
+                $customers = $customers->merge($chunk);
                 $processedCount += count($chunkIds);
 
                 $progress = 5 + (($processedCount / $totalCount) * 75);
@@ -75,7 +81,7 @@ class ExportCustomersByIdsJob implements ShouldQueue
 
             $this->updateProgress(85, 'إنشاء ملف Excel...');
 
-            $relative = 'exports/' . $this->fileName;
+            $relative = 'exports/'.$this->fileName;
             Excel::store(new CustomersExport($customers, $this->selectedFields), $relative, 'tenant_public');
 
             $fileSize = Storage::disk('tenant_public')->size($relative);
@@ -96,11 +102,10 @@ class ExportCustomersByIdsJob implements ShouldQueue
                 'created_at' => now()->toDateTimeString(),
             ], now()->addHours(24));
 
-            $this->updateProgress(-1, 'فشل في التصدير: ' . $e->getMessage());
+            $this->updateProgress(-1, 'فشل في التصدير: '.$e->getMessage());
             throw $e;
         }
     }
-
 
     /*
     |============================================================================
@@ -109,9 +114,9 @@ class ExportCustomersByIdsJob implements ShouldQueue
     |============================================================================
     |============================================================================
     */
-    private function __sortCustomers(\Illuminate\Support\Collection $customers): \Illuminate\Support\Collection
+    private function __sortCustomers(Collection $customers): Collection
     {
-        $remainingDebt = fn($customer) => (float) ($customer->total_debit ?? 0) - (float) ($customer->total_credit ?? 0);
+        $remainingDebt = fn ($customer) => (float) ($customer->total_debit ?? 0) - (float) ($customer->total_credit ?? 0);
 
         switch ($this->sortBy) {
             case 'created_asc':
@@ -123,25 +128,24 @@ class ExportCustomersByIdsJob implements ShouldQueue
             case 'debt_asc':
                 return $customers->sortBy($remainingDebt)->values();
             case 'paid_desc':
-                return $customers->sortByDesc(fn($c) => (float) ($c->total_credit ?? 0))->values();
+                return $customers->sortByDesc(fn ($c) => (float) ($c->total_credit ?? 0))->values();
             case 'paid_asc':
-                return $customers->sortBy(fn($c) => (float) ($c->total_credit ?? 0))->values();
+                return $customers->sortBy(fn ($c) => (float) ($c->total_credit ?? 0))->values();
             default:
                 return $customers->sortBy('name')->values();
         }
     }
 
-
     private function sortCustomers($customers)
     {
         $sorted = match ($this->sortBy) {
-            'created_asc'  => $customers->sortBy(['created_at', 'id']),
+            'created_asc' => $customers->sortBy(['created_at', 'id']),
             'created_desc' => $customers->sortByDesc(['created_at', 'id']),
-            'debt_desc'    => $customers->sortByDesc(fn($c) => ($c->total_debit ?? 0) - ($c->total_credit ?? 0)),
-            'debt_asc'     => $customers->sortBy(fn($c) => ($c->total_debit ?? 0) - ($c->total_credit ?? 0)),
-            'paid_desc'    => $customers->sortByDesc('total_credit'),
-            'paid_asc'     => $customers->sortBy('total_credit'),
-            default        => $customers->sortBy('name'),
+            'debt_desc' => $customers->sortByDesc(fn ($c) => ($c->total_debit ?? 0) - ($c->total_credit ?? 0)),
+            'debt_asc' => $customers->sortBy(fn ($c) => ($c->total_debit ?? 0) - ($c->total_credit ?? 0)),
+            'paid_desc' => $customers->sortByDesc('total_credit'),
+            'paid_asc' => $customers->sortBy('total_credit'),
+            default => $customers->sortBy('name'),
         };
 
         return $sorted->values();
@@ -164,7 +168,7 @@ class ExportCustomersByIdsJob implements ShouldQueue
             $size /= 1024;
         }
 
-        return round($size, $precision) . ' ' . $units[$i];
+        return round($size, $precision).' '.$units[$i];
     }
 
     public function failed(\Throwable $exception): void

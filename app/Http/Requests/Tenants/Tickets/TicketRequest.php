@@ -14,22 +14,22 @@ class TicketRequest extends WizardFormRequest
     public function rules(): array
     {
         return [
-            'title'                 => 'required|string|max:255',
-            'description'           => 'required|string',
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
             'ticketing_sections_id' => 'required|integer',
-            'attachments'           => 'nullable|array',
-            'attachments.*'         => 'file|max:10240|mimes:jpg,jpeg,png,pdf,doc,docx',
+            'attachments' => 'nullable|array',
+            'attachments.*' => 'file|max:10240|mimes:jpg,jpeg,png,pdf,doc,docx',
         ];
     }
 
     public function messages(): array
     {
         return [
-            'title.required'                    => 'عنوان التذكرة مطلوب',
-            'description.required'              => 'وصف المشكلة مطلوب',
-            'ticketing_sections_id.required'    => 'القسم مطلوب',
-            'attachments.*.max'                 => 'حجم الملف يجب ألا يتجاوز 10 ميجابايت',
-            'attachments.*.mimes'               => 'نوع الملف غير مدعوم',
+            'title.required' => 'عنوان التذكرة مطلوب',
+            'description.required' => 'وصف المشكلة مطلوب',
+            'ticketing_sections_id.required' => 'القسم مطلوب',
+            'attachments.*.max' => 'حجم الملف يجب ألا يتجاوز 10 ميجابايت',
+            'attachments.*.mimes' => 'نوع الملف غير مدعوم',
         ];
     }
 
@@ -53,10 +53,10 @@ class TicketRequest extends WizardFormRequest
         }
 
         $this->merge([
-            'customer_name'     => $user->name,
-            'customer_email'    => $user->email,
-            'customer_phone'    => $user->phone,
-            'tenant_user_id'    => $user->id,
+            'customer_name' => $user->name,
+            'customer_email' => $user->email,
+            'customer_phone' => $user->phone,
+            'tenant_user_id' => $user->id,
         ]);
     }
 
@@ -65,10 +65,10 @@ class TicketRequest extends WizardFormRequest
         $validated = parent::validated($key, $default);
 
         return array_merge($validated, [
-            'customer_name'     => $this->customer_name,
-            'customer_email'    => $this->customer_email,
-            'customer_phone'    => $this->customer_phone,
-            'tenant_user_id'    => $this->tenant_user_id,
+            'customer_name' => $this->customer_name,
+            'customer_email' => $this->customer_email,
+            'customer_phone' => $this->customer_phone,
+            'tenant_user_id' => $this->tenant_user_id,
         ]);
     }
 }

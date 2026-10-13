@@ -21,7 +21,7 @@ class SetTenantUrlDefaults
 
             // التحقق من أن الـ host الحالي هو نطاق مركزي
             $isCentralDomain = in_array($currentHost, $centralDomains) ||
-                in_array('www.' . $currentHost, $centralDomains);
+                in_array('www.'.$currentHost, $centralDomains);
 
             if ($isCentralDomain) {
                 // Path-based: أضف tenant لكل الروابط

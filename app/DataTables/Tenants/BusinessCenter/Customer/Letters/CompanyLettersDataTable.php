@@ -12,7 +12,7 @@ class CompanyLettersDataTable extends AbstractDataTable
     | Route Configuration
     |--------------------------------------------------------------------------
     */
-    private $route = "company-letters";
+    private $route = 'company-letters';
 
     /*
     |--------------------------------------------------------------------------
@@ -23,6 +23,7 @@ class CompanyLettersDataTable extends AbstractDataTable
     {
         $datatable = datatables()->eloquent($query)->addIndexColumn();
         $this->addCustomColumns($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
@@ -33,7 +34,7 @@ class CompanyLettersDataTable extends AbstractDataTable
     */
     protected function getTableId()
     {
-        return "company-letters-table";
+        return 'company-letters-table';
     }
 
     /*
@@ -49,7 +50,7 @@ class CompanyLettersDataTable extends AbstractDataTable
             'customer.portfolio:id,name',
             'customerFollow:id,contact_result_id,created_by',
             'customerFollow.contactResult:id,name',
-            'customerFollow.createdBy:id,name'
+            'customerFollow.createdBy:id,name',
         ])->select('company_letters.*');
     }
 
@@ -84,39 +85,39 @@ class CompanyLettersDataTable extends AbstractDataTable
     {
         $datatable
             ->editColumn('customer_name', function ($row) {
-                return '<span class="fw-bold text-dark">' . e($row->customer->name ?? 'غير محدد') . '</span>';
+                return '<span class="fw-bold text-dark">'.e($row->customer->name ?? 'غير محدد').'</span>';
             })
             ->editColumn('account_number', function ($row) {
-                return '<span class="badge bg-secondary">' . e($row->customer->account_number ?? '-') . '</span>';
+                return '<span class="badge bg-secondary">'.e($row->customer->account_number ?? '-').'</span>';
             })
             ->editColumn('company_name', function ($row) {
-                return '<span class="text-muted">' . e($row->customer->company->name ?? 'غير محدد') . '</span>';
+                return '<span class="text-muted">'.e($row->customer->company->name ?? 'غير محدد').'</span>';
             })
             ->editColumn('portfolio_name', function ($row) {
-                return '<span class="text-muted">' . e($row->customer->portfolio->name ?? 'غير محدد') . '</span>';
+                return '<span class="text-muted">'.e($row->customer->portfolio->name ?? 'غير محدد').'</span>';
             })
             ->editColumn('contact_result', function ($row) {
-                return '<span class="badge bg-label-info">' . 
-                       e($row->customerFollow->contactResult->name ?? 'غير محدد') . 
+                return '<span class="badge bg-label-info">'.
+                       e($row->customerFollow->contactResult->name ?? 'غير محدد').
                        '</span>';
             })
             ->editColumn('created_at', function ($row) {
-                return '<span class="text-muted">' . $row->created_at->format('Y-m-d H:i') . '</span>';
+                return '<span class="text-muted">'.$row->created_at->format('Y-m-d H:i').'</span>';
             })
             ->editColumn('status', function ($row) {
-                return '<span class="badge ' . $row->status_class . '">' . 
-                       $row->status_label . 
+                return '<span class="badge '.$row->status_class.'">'.
+                       $row->status_label.
                        '</span>';
             })
             ->editColumn('user_name', function ($row) {
-                return '<span class="text-dark">' . 
-                       e($row->customerFollow->createdBy->name ?? 'غير محدد') . 
+                return '<span class="text-dark">'.
+                       e($row->customerFollow->createdBy->name ?? 'غير محدد').
                        '</span>';
             })
             ->addColumn('actions', function ($row) {
                 return view('tenants.business_center.customers.letters.action', [
                     'id' => $row->id,
-                    'route' => $this->route
+                    'route' => $this->route,
                 ])->render();
             });
     }
@@ -137,7 +138,7 @@ class CompanyLettersDataTable extends AbstractDataTable
             'created_at',
             'status',
             'user_name',
-            'actions'
+            'actions',
         ];
     }
 
@@ -155,13 +156,13 @@ class CompanyLettersDataTable extends AbstractDataTable
         }
 
         if ($request->filled('company_id')) {
-            $query->whereHas('customer', function($q) use ($request) {
+            $query->whereHas('customer', function ($q) use ($request) {
                 $q->where('company_id', $request->company_id);
             });
         }
 
         if ($request->filled('portfolio_id')) {
-            $query->whereHas('customer', function($q) use ($request) {
+            $query->whereHas('customer', function ($q) use ($request) {
                 $q->where('portfolio_id', $request->portfolio_id);
             });
         }
@@ -204,12 +205,12 @@ class CompanyLettersDataTable extends AbstractDataTable
                 [
                     'extend' => 'excel',
                     'text' => 'إكسل',
-                    'className' => 'dropdown-item'
+                    'className' => 'dropdown-item',
                 ],
                 [
                     'extend' => 'copy',
                     'text' => 'نسخ',
-                    'className' => 'dropdown-item'
+                    'className' => 'dropdown-item',
                 ],
             ],
         ];

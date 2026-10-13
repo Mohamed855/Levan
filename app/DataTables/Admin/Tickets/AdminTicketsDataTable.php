@@ -6,16 +6,16 @@ use App\DataTables\Abstract\AbstractDataTable;
 use App\Enums\Tenants\Tickets\TicketStatus;
 use App\Models\Admin\Settings\Settings;
 use App\Models\Admin\Tickets\Ticket;
-use Carbon\Carbon;
 
 class AdminTicketsDataTable extends AbstractDataTable
 {
-    private $page  = "admin.tickets";
-    private $route = "admin.tickets";
+    private $page = 'admin.tickets';
+
+    private $route = 'admin.tickets';
 
     protected function getTableId()
     {
-        return "admin-tickets-table";
+        return 'admin-tickets-table';
     }
 
     protected function resource()
@@ -29,14 +29,14 @@ class AdminTicketsDataTable extends AbstractDataTable
             ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'id', 'visible' => false],
             [
-                'data'       => 'checkbox',
-                'name'       => 'checkbox',
-                'title'      => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
-                'orderable'  => false,
+                'data' => 'checkbox',
+                'name' => 'checkbox',
+                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
+                'orderable' => false,
                 'searchable' => false,
-                'className'  => 'custom-checkbox',
-                'width'      => '10px',
-                'titleAttr'  => 'تحديد الكل',
+                'className' => 'custom-checkbox',
+                'width' => '10px',
+                'titleAttr' => 'تحديد الكل',
             ],
             ['data' => 'DT_RowIndex',   'name' => 'DT_RowIndex',   'title' => '#', 'orderable' => false, 'searchable' => false, 'width' => '30px'],
             ['data' => 'ticket_number', 'name' => 'ticket_number', 'title' => 'رقم التذكرة'],
@@ -54,21 +54,22 @@ class AdminTicketsDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
             ->editColumn('ticket_number', function ($row) {
-                return $this->routeName(route($this->route . '.show', $row->ticket_number), '#' . e($row->ticket_number));
+                return $this->routeName(route($this->route.'.show', $row->ticket_number), '#'.e($row->ticket_number));
             })
             ->addColumn('tenant_name', function ($row) {
                 $tenant = $row->tenant;
-                if (!$tenant) {
-                    return '<span class="badge bg-secondary">' . e($row->tenant_id ?? 'عام') . '</span>';
+                if (! $tenant) {
+                    return '<span class="badge bg-secondary">'.e($row->tenant_id ?? 'عام').'</span>';
                 }
-                return '<span class="badge bg-label-info">' . e($tenant->company_name ?? $tenant->id) . '</span>';
+
+                return '<span class="badge bg-label-info">'.e($tenant->company_name ?? $tenant->id).'</span>';
             })
             ->editColumn('customer_name', function ($row) {
-                return '<div><div class="fw-semibold">' . e($row->customer_name ?? '-') . '</div>' .
-                       ($row->customer_email ? '<small class="text-muted">' . e($row->customer_email) . '</small>' : '') .
+                return '<div><div class="fw-semibold">'.e($row->customer_name ?? '-').'</div>'.
+                       ($row->customer_email ? '<small class="text-muted">'.e($row->customer_email).'</small>' : '').
                        '</div>';
             })
             ->addColumn('section', function ($row) {
@@ -81,7 +82,7 @@ class AdminTicketsDataTable extends AbstractDataTable
                 return $row->created_at?->format('Y-m-d');
             })
             ->addColumn('actions', function ($row) {
-                return '<a href="' . route($this->route . '.show', $row->ticket_number) . '" class="btn btn-icon btn-label-primary" title="عرض التذكرة"><i class="ti ti-eye"></i></a>';
+                return '<a href="'.route($this->route.'.show', $row->ticket_number).'" class="btn btn-icon btn-label-primary" title="عرض التذكرة"><i class="ti ti-eye"></i></a>';
             });
     }
 
@@ -137,9 +138,9 @@ class AdminTicketsDataTable extends AbstractDataTable
         $btnClass = $ticketsEnabled ? 'btn-success' : 'btn-danger';
 
         return [
-            'text'      => '<i class="ti ' . $icon . ' me-1"></i> ' . $text,
-            'className' => 'btn ' . $btnClass . ' btn-add',
-            'action'    => "function() {
+            'text' => '<i class="ti '.$icon.' me-1"></i> '.$text,
+            'className' => 'btn '.$btnClass.' btn-add',
+            'action' => "function() {
                 var form = document.getElementById('toggle-service-form');
                 if (!form) return;
                 if (typeof Swal !== 'undefined') {
@@ -172,23 +173,23 @@ class AdminTicketsDataTable extends AbstractDataTable
         $buttons = [
             ['extend' => 'copy', 'text' => 'نسخ'],
             ['extend' => 'excel', 'text' => 'إكسل', 'exportOptions' => [
-                'columns' => [10, 9, 8, 7, 6, 5, 4, 3]
+                'columns' => [10, 9, 8, 7, 6, 5, 4, 3],
             ]],
         ];
 
         if (auth()->user()?->can('tickets.delete') || auth()->user()?->hasRole('Super Admin')) {
             $buttons[] = [
-                'text'      => 'حذف المحدد',
+                'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
-                'action'    => "function() { handleMassDelete(); }",
+                'action' => 'function() { handleMassDelete(); }',
             ];
         }
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Models\Admin\AdminMangment\Users;
 
-
 use App\Enums\Admin\Users\AdminUserStatus;
 use App\Models\Admin\Coupons\Coupon;
 use App\Traits\ActivityLogTrait;
@@ -13,30 +12,26 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
-use Spatie\Activitylog\Support\LogOptions;
-use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Permission\Traits\HasRoles;
 
 class AdminUser extends Authenticatable
 {
-    use HasFactory,
-        SoftDeletes,
+    use ActivityLogTrait,
+        HasFactory,
+        HasRoles,
         Notifiable,
-        ActivityLogTrait,
-        HasRoles {
-        hasPermissionTo as protected traitHasPermissionTo;
-    }
-
+        SoftDeletes {
+            hasPermissionTo as protected traitHasPermissionTo;
+        }
     use TwoFactorAuthenticatable;
-
 
     protected $dates = ['deleted_at'];
 
     protected string $guard_name = 'admin';
+
     protected $connection = 'mysql';
+
     protected $table = 'admin_users';
-
-
 
     protected $fillable = [
         'name',
@@ -49,9 +44,8 @@ class AdminUser extends Authenticatable
         'last_login_ip',
         'background_image',
         'profile_picture',
-        'is_super_admin'
+        'is_super_admin',
     ];
-
 
     protected $hidden = [
         'password',
@@ -59,14 +53,13 @@ class AdminUser extends Authenticatable
     ];
 
     protected $casts = [
-        'status'            => AdminUserStatus::class,
-        'last_login_at'     => 'datetime',
+        'status' => AdminUserStatus::class,
+        'last_login_at' => 'datetime',
         'email_verified_at' => 'datetime',
-        'password'          => 'hashed',
-        'is_super_admin'    => 'boolean',
+        'password' => 'hashed',
+        'is_super_admin' => 'boolean',
 
     ];
-
 
     /*
     |============================================================================
@@ -88,13 +81,13 @@ class AdminUser extends Authenticatable
     public static function getFieldTranslations(): array
     {
         return [
-            'name'              => 'الاسم',
-            'email'             => 'البريد الإلكتروني',
-            'phone'             => 'رقم الهاتف',
-            'status'            => 'الحالة',
-            'image'             => 'الصورة',
-            'profile_picture'   => 'صورة الملف الشخصي',
-            'background_image'  => 'صورة الخلفية',
+            'name' => 'الاسم',
+            'email' => 'البريد الإلكتروني',
+            'phone' => 'رقم الهاتف',
+            'status' => 'الحالة',
+            'image' => 'الصورة',
+            'profile_picture' => 'صورة الملف الشخصي',
+            'background_image' => 'صورة الخلفية',
         ];
     }
 
@@ -109,11 +102,12 @@ class AdminUser extends Authenticatable
     {
         return [
             'status' => [
-                'active'    => 'نشط',
-                'inactive'  => 'غير نشط',
+                'active' => 'نشط',
+                'inactive' => 'غير نشط',
             ],
         ];
     }
+
     /*
     |============================================================================
     |============================================================================

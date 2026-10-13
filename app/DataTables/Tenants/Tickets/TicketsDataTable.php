@@ -9,18 +9,19 @@ use Carbon\Carbon;
 
 class TicketsDataTable extends AbstractDataTable
 {
-    private $route = "tickets";
+    private $route = 'tickets';
+
     private EtmamTicketService $ticketService;
 
     public function __construct()
     {
         parent::__construct();
-        $this->ticketService = new EtmamTicketService();
+        $this->ticketService = new EtmamTicketService;
     }
 
     protected function getTableId()
     {
-        return "tickets-table";
+        return 'tickets-table';
     }
 
     protected function resource()
@@ -37,7 +38,7 @@ class TicketsDataTable extends AbstractDataTable
             filters: $filters
         );
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return collect([]);
         }
 
@@ -84,8 +85,8 @@ class TicketsDataTable extends AbstractDataTable
         $datatable
             ->editColumn('ticket_number', function ($row) {
                 return $this->routeName(
-                    tenant_route_name($this->route . '.show', $row->ticket_number),
-                    '#' . $row->ticket_number,
+                    tenant_route_name($this->route.'.show', $row->ticket_number),
+                    '#'.$row->ticket_number,
                     'fw-bold text-primary'
                 );
             })
@@ -108,7 +109,7 @@ class TicketsDataTable extends AbstractDataTable
 
             ->addColumn('actions', function ($row) {
                 return view('tenants.tickets.action', [
-                    'row'   => $row,
+                    'row' => $row,
                     'route' => $this->route,
                 ])->render();
             });
@@ -152,7 +153,7 @@ class TicketsDataTable extends AbstractDataTable
 
     private function getAddButton(): array
     {
-        if (!$this->ticketService->isServiceEnabled()) {
+        if (! $this->ticketService->isServiceEnabled()) {
             return [
                 'text' => '<i class="fas fa-ban me-1"></i> إضافة تذكرة (الخدمة متوقفة)',
                 'className' => 'btn btn-secondary btn-add disabled',
@@ -163,7 +164,7 @@ class TicketsDataTable extends AbstractDataTable
         return [
             'text' => '<i class="fas fa-plus-circle me-1"></i> إضافة تذكرة',
             'className' => 'btn btn-primary btn-add',
-            'action' => "function(){ window.location.href='" . tenant_route_name($this->route . '.create') . "'; }",
+            'action' => "function(){ window.location.href='".tenant_route_name($this->route.'.create')."'; }",
         ];
     }
 
@@ -179,6 +180,7 @@ class TicketsDataTable extends AbstractDataTable
         }
 
         $section = $sections->get($sectionId);
+
         return $section['name'] ?? "قسم #{$sectionId}";
     }
 }

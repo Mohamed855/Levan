@@ -6,12 +6,12 @@ use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\Support\LogOptions;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class CustomerUpdateRequest extends Model
 {
-    use SoftDeletes, LogsActivity;
+    use LogsActivity, SoftDeletes;
 
     protected $table = 'customer_update_requests';
 
@@ -23,7 +23,7 @@ class CustomerUpdateRequest extends Model
         'requested_data',
         'rejection_reason',
         'approved_at',
-        'request_type'
+        'request_type',
 
     ];
 
@@ -33,10 +33,13 @@ class CustomerUpdateRequest extends Model
     ];
 
     const STATUS_PENDING = 'pending';
+
     const STATUS_APPROVED = 'approved';
+
     const STATUS_REJECTED = 'rejected';
 
     const REQUEST_TYPE_UPDATE = 'update';
+
     const REQUEST_TYPE_ADD_PHONE = 'add_phone';
 
     /*
@@ -51,7 +54,7 @@ class CustomerUpdateRequest extends Model
             ->logOnlyDirty()
             ->dontLogEmptyChanges()
             ->useLogName('customer_update_requests')
-            ->setDescriptionForEvent(fn(string $eventName) => $this->getEventDescription($eventName));
+            ->setDescriptionForEvent(fn (string $eventName) => $this->getEventDescription($eventName));
     }
 
     private function getEventDescription(string $eventName): string
@@ -99,7 +102,7 @@ class CustomerUpdateRequest extends Model
             self::STATUS_REJECTED => '<span class="badge bg-label-danger">مرفوض</span>',
         ];
 
-        return $statuses[$this->status] ?? '<span class="badge bg-secondary">' . $this->status . '</span>';
+        return $statuses[$this->status] ?? '<span class="badge bg-secondary">'.$this->status.'</span>';
     }
 
     public function getStatusClassAttribute(): string

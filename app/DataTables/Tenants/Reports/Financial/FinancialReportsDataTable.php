@@ -4,12 +4,11 @@ namespace App\DataTables\Tenants\Reports\Financial;
 
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Models\Tenants\FinancialCollection\Collection\Collection;
-use App\Models\Tenants\FinancialCollection\Collection\CustomerTransaction;
 use Carbon\Carbon;
 
 class FinancialReportsDataTable extends AbstractDataTable
 {
-    private $route = "reports.financial";
+    private $route = 'reports.financial';
 
     /*
     |--------------------------------------------------------------------------
@@ -21,6 +20,7 @@ class FinancialReportsDataTable extends AbstractDataTable
         $datatable = datatables()->eloquent($query)->addIndexColumn();
 
         $this->addCustomColumns($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
@@ -31,7 +31,7 @@ class FinancialReportsDataTable extends AbstractDataTable
     */
     protected function getTableId()
     {
-        return "financial-reports-table";
+        return 'financial-reports-table';
     }
 
     /*
@@ -45,7 +45,7 @@ class FinancialReportsDataTable extends AbstractDataTable
             ->with([
                 'customer:id,name,account_number',
                 'paymentMethod:id,name',
-                'addedBy:id,name'
+                'addedBy:id,name',
             ])
             ->whereHas('customer')
             ->select('collections.*');
@@ -62,10 +62,10 @@ class FinancialReportsDataTable extends AbstractDataTable
             ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             [
-                'data'       => 'checkbox',
-                'name'       => 'checkbox',
-                'title'      => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
-                'orderable'  => false,
+                'data' => 'checkbox',
+                'name' => 'checkbox',
+                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
+                'orderable' => false,
                 'searchable' => false,
                 'width' => '10px',
                 'className' => 'custom-checkbox',
@@ -91,30 +91,32 @@ class FinancialReportsDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
 
             ->editColumn('customer_info', function ($row) {
                 $customerName = $row->customer->name ?? 'غير محدد';
+
                 return '<div class="customer-info">
-                <div><strong>' . e($customerName) . '</strong></div>
+                <div><strong>'.e($customerName).'</strong></div>
             </div>';
             })
 
             ->addColumn('customer_account', function ($row) {
                 $customerAccount = $row->customer->account_number ?? 'غير محدد';
+
                 return '<div class="customer-account">
-                <div>' . e($customerAccount) . '</div>
+                <div>'.e($customerAccount).'</div>
             </div>';
             })
 
             ->editColumn('amount_info', function ($row) {
-                return '<span class="fw-bold text-primary">' .
-                    number_format($row->collected_amount, 2) . ' ريال</span>';
+                return '<span class="fw-bold text-primary">'.
+                    number_format($row->collected_amount, 2).' ريال</span>';
             })
 
             ->editColumn('payment_method', function ($row) {
-                return '<div>' . e($row->paymentMethod->name ?? 'غير محدد') . '</div>';
+                return '<div>'.e($row->paymentMethod->name ?? 'غير محدد').'</div>';
             })
 
             ->editColumn('status_info', function ($row) {
@@ -130,24 +132,27 @@ class FinancialReportsDataTable extends AbstractDataTable
                     'rejected' => 'مرفوض',
                     default => $row->status
                 };
-                return '<span class="badge ' . $statusClass . '">' . $statusLabel . '</span>';
+
+                return '<span class="badge '.$statusClass.'">'.$statusLabel.'</span>';
             })
 
             ->editColumn('collection_date', function ($row) {
-                return '<div>' . Carbon::parse($row->collection_date)->format('Y-m-d') . '</div>';
+                return '<div>'.Carbon::parse($row->collection_date)->format('Y-m-d').'</div>';
             })
 
             ->editColumn('created_by', function ($row) {
                 $userName = $row->addedBy->name ?? 'غير محدد';
+
                 return '<div class="user-info">
-                <div>' . e($userName) . '</div>
+                <div>'.e($userName).'</div>
             </div>';
             })
 
             ->editColumn('created_at', function ($row) {
-                return '<div>' . Carbon::parse($row->created_at)->format('Y-m-d H:i') . '</div>';
+                return '<div>'.Carbon::parse($row->created_at)->format('Y-m-d H:i').'</div>';
             });
     }
+
     /*
     |--------------------------------------------------------------------------
     | Helper Methods
@@ -249,8 +254,8 @@ class FinancialReportsDataTable extends AbstractDataTable
             [
                 'text' => 'تصدير Excel',
                 'className' => 'btn-export-excel',
-                'action' => "function() { exportFilteredToExcel(); }",
-            ]
+                'action' => 'function() { exportFilteredToExcel(); }',
+            ],
             // ,
             // [
             //     'text' => 'تصدير PDF',

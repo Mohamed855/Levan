@@ -7,8 +7,8 @@ use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\Auth\AdminLoginRequest;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Providers\RouteServiceProvider;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -23,7 +23,7 @@ class AdminAuthController extends Controller
     {
         $credentials = $request->validated();
 
-        if (!Auth::guard('admin')->validate($credentials)) {
+        if (! Auth::guard('admin')->validate($credentials)) {
             $this->logFailedLogin($request, Auth::guard('admin')->getLastAttempted(), 'بيانات الدخول غير صحيحة');
 
             return back()->withErrors([
@@ -36,7 +36,7 @@ class AdminAuthController extends Controller
         // لو مفعّل عنده 2FA ومؤكد
         if ($admin->two_factor_secret && ! is_null($admin->two_factor_confirmed_at)) {
             $request->session()->put([
-                'login.id'       => $admin->getKey(),
+                'login.id' => $admin->getKey(),
                 'login.remember' => $request->boolean('remember'),
             ]);
 
@@ -71,15 +71,15 @@ class AdminAuthController extends Controller
         $log = activity('auth')
             ->withProperties([
                 'identifier' => $request->input('email'),
-                'ip'         => $request->ip(),
+                'ip' => $request->ip(),
                 'user_agent' => $request->userAgent(),
-                'reason'     => $reason,
+                'reason' => $reason,
             ]);
 
         if ($targetAdmin) {
             $log->performedOn($targetAdmin);
         }
 
-        $log->log('محاولة تسجيل دخول فاشلة: ' . $request->input('email') . ' (' . $reason . ')');
+        $log->log('محاولة تسجيل دخول فاشلة: '.$request->input('email').' ('.$reason.')');
     }
 }

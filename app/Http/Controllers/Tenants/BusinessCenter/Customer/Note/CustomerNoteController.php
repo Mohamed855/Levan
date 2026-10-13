@@ -18,7 +18,6 @@ class CustomerNoteController extends Controller
         $this->customerNoteService = $customerNoteService;
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | جلب قائمة الملاحظات للعميل (لتحديثها عبر Ajax)
@@ -30,17 +29,17 @@ class CustomerNoteController extends Controller
             $customerNotes = $customer->notes()->with('createdBy:id,name')->latest()->get();
 
             $html = view('tenants.business_center.customers.customer_notes.list', [
-                'customerNotes' => $customerNotes
+                'customerNotes' => $customerNotes,
             ])->render();
 
             return response()->json([
                 'success' => true,
-                'html' => $html
+                'html' => $html,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء جلب البيانات'
+                'message' => 'حدث خطأ أثناء جلب البيانات',
             ], 500);
         }
     }
@@ -61,12 +60,12 @@ class CustomerNoteController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'تم حفظ البيانات بنجاح',
-                'data' => $notes
+                'data' => $notes,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء حفظ الملاحظات: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء حفظ الملاحظات: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -82,7 +81,7 @@ class CustomerNoteController extends Controller
             if ($customerNote->customer_id !== $customer->id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'غير مصرح لك بحذف هذه الملاحظة'
+                    'message' => 'غير مصرح لك بحذف هذه الملاحظة',
                 ], 403);
             }
 
@@ -90,12 +89,12 @@ class CustomerNoteController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'تم حذف الملاحظة بنجاح'
+                'message' => 'تم حذف الملاحظة بنجاح',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء حذف الملاحظة: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء حذف الملاحظة: '.$e->getMessage(),
             ], 500);
         }
     }

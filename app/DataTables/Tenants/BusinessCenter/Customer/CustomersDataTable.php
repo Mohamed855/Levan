@@ -5,7 +5,6 @@ namespace App\DataTables\Tenants\BusinessCenter\Customer;
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Services\Tenants\BusinessCenter\Customer\CustomerService;
-use Illuminate\Support\Facades\Log;
 
 class CustomersDataTable extends AbstractDataTable
 {
@@ -13,7 +12,9 @@ class CustomersDataTable extends AbstractDataTable
      * @var CustomerService
      */
     protected $customerService;
-    private $route = "customers";
+
+    private $route = 'customers';
+
     private $viewType;
 
     /*
@@ -41,6 +42,7 @@ class CustomersDataTable extends AbstractDataTable
         $datatable = datatables()->eloquent($query)->addIndexColumn();
         $this->addCustomColumns($datatable);
         $datatable = $this->applyFilters($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
@@ -86,7 +88,7 @@ class CustomersDataTable extends AbstractDataTable
                     $query->whereIn('relationship_manager_id', $managerIds);
                 }
                 // إذا كان string واحد
-                elseif (!is_array($managerIds) && !empty($managerIds)) {
+                elseif (! is_array($managerIds) && ! empty($managerIds)) {
                     $query->where('relationship_manager_id', $managerIds);
                 }
             }
@@ -102,16 +104,16 @@ class CustomersDataTable extends AbstractDataTable
 
             // فلتر تاريخ الإرسال - من
             if (request()->filled('sms_date_from')) {
-                $query->where('last_sms_at', '>=', request('sms_date_from') . ' 00:00:00');
+                $query->where('last_sms_at', '>=', request('sms_date_from').' 00:00:00');
             }
 
             // فلتر تاريخ الإرسال - إلى
             if (request()->filled('sms_date_to')) {
-                $query->where('last_sms_at', '<=', request('sms_date_to') . ' 23:59:59');
+                $query->where('last_sms_at', '<=', request('sms_date_to').' 23:59:59');
             }
 
             $globalSearch = request()->input('search.value');
-            if (!empty($globalSearch)) {
+            if (! empty($globalSearch)) {
                 $cleanSearch = trim(preg_replace('/\s+/', ' ', $globalSearch));
                 $searchWords = explode(' ', $cleanSearch);
 
@@ -174,7 +176,7 @@ class CustomersDataTable extends AbstractDataTable
     */
     protected function getTableId(): string
     {
-        return "customers-table";
+        return 'customers-table';
     }
 
     /*
@@ -194,7 +196,7 @@ class CustomersDataTable extends AbstractDataTable
                 'orderable' => false,
                 'searchable' => false,
                 'className' => 'custom-checkbox',
-                'createdCell' => "function(td) { $(td).css('padding-left', '38px'); }"
+                'createdCell' => "function(td) { $(td).css('padding-left', '38px'); }",
             ],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم العميل', 'searchable' => true],
             ['data' => 'account_number', 'name' => 'account_number', 'title' => 'رقم الحساب', 'searchable' => true], // عمود جديد
@@ -207,7 +209,7 @@ class CustomersDataTable extends AbstractDataTable
             ['data' => 'last_contact_result', 'name' => 'last_contact_result', 'title' => 'نتيجة الاتصال', 'orderable' => false, 'searchable' => false],
             ['data' => 'created_at_formatted', 'name' => 'created_at', 'title' => 'تاريخ الإضافة', 'searchable' => false],
             ['data' => 'action', 'name' => 'action', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'className' => 'text-center'],
-            ['data' => 'status_color', 'name' => 'status_color', 'visible' => false, 'orderable' => false, 'searchable' => false]
+            ['data' => 'status_color', 'name' => 'status_color', 'visible' => false, 'orderable' => false, 'searchable' => false],
         ];
     }
 
@@ -247,20 +249,21 @@ class CustomersDataTable extends AbstractDataTable
     protected function addCustomColumns($datatable)
     {
         $datatable
-            ->addColumn('checkbox', fn($row) => '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">')
+            ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
             ->addColumn('name', function (Customer $customer) {
                 $showUrl = tenant_route_name('customers.show', $customer->id);
-                return '<div>' .
-                    '<a href="' . $showUrl . '" class=" text-decoration-none" style="color: #000;">' . e($customer->name) . '</a>' .
-                    '<div class="small">' . $customer->customer_type_label . '</div>' .
+
+                return '<div>'.
+                    '<a href="'.$showUrl.'" class=" text-decoration-none" style="color: #000;">'.e($customer->name).'</a>'.
+                    '<div class="small">'.$customer->customer_type_label.'</div>'.
                     '</div>';
             })
             ->addColumn('account_number', function (Customer $customer) {
-                return '<span class="text-muted">' . ($customer->account_number ?? 'غير محدد') . '</span>';
+                return '<span class="text-muted">'.($customer->account_number ?? 'غير محدد').'</span>';
             })
             ->addColumn('identity_info', function (Customer $customer) {
-                return '<div>' .
-                    '<span class="">' . e($customer->identity_number) . '</span>' .
+                return '<div>'.
+                    '<span class="">'.e($customer->identity_number).'</span>'.
                     '</div>';
             })
             ->addColumn('company_portfolio', function (Customer $customer) {
@@ -269,27 +272,28 @@ class CustomersDataTable extends AbstractDataTable
                 if ($customer->company) {
                     $img = tasset($customer->company->logo_path ?? null);
 
-                    $companyHtml = '<div class="d-flex align-items-center" style="min-height: 24px;">' .
-                        '<img src="' . $img . '" alt="' . e($customer->company->name) . '" class="rounded me-2" style="width:28px;height:28px;object-fit:cover" />' .
-                        '<span class=" ">' . e($customer->company->name) . '</span>' .
+                    $companyHtml = '<div class="d-flex align-items-center" style="min-height: 24px;">'.
+                        '<img src="'.$img.'" alt="'.e($customer->company->name).'" class="rounded me-2" style="width:28px;height:28px;object-fit:cover" />'.
+                        '<span class=" ">'.e($customer->company->name).'</span>'.
                         '</div>';
                 } else {
                     $companyHtml = '<div class="d-flex align-items-center" style="min-height: 24px;"><span class="">غير محدد</span></div>';
                 }
 
-                return '<div>' .
-                    $companyHtml .
-                    '<div class="">' . e($customer->portfolio->name ?? 'غير محدد') . '</div>' .
+                return '<div>'.
+                    $companyHtml.
+                    '<div class="">'.e($customer->portfolio->name ?? 'غير محدد').'</div>'.
                     '</div>';
             })
             ->addColumn('contact_info', function (Customer $customer) {
                 $html = '';
                 if ($customer->phone) {
-                    $html .= '<div class="small">' . e($customer->phone) . '</div>';
+                    $html .= '<div class="small">'.e($customer->phone).'</div>';
                 }
                 if ($customer->phones && $customer->phones->count() > 1) {
-                    $html .= '<div class="small">+' . ($customer->phones->count() - 1) . ' أرقام أخرى</div>';
+                    $html .= '<div class="small">+'.($customer->phones->count() - 1).' أرقام أخرى</div>';
                 }
+
                 return $html ?: '<span>لا يوجد</span>';
             })
             ->addColumn('customer_type_label', function (Customer $customer) {
@@ -298,13 +302,14 @@ class CustomersDataTable extends AbstractDataTable
             ->addColumn('status', function (Customer $customer) {
                 $name = e($customer->customerStatus->name ?? 'غير محدد');
                 $color = $customer->customerStatus->color ?? '#6c757d';
-                return '<span class="badge" style="background-color: ' . $color . '">' . $name . '</span>';
+
+                return '<span class="badge" style="background-color: '.$color.'">'.$name.'</span>';
             })
             ->addColumn('relationship_manager', function (Customer $customer) {
-                return '<span>' . e($customer->relationshipManager->name ?? 'غير محدد') . '</span>';
+                return '<span>'.e($customer->relationshipManager->name ?? 'غير محدد').'</span>';
             })
             ->addColumn('last_contact_result', function (Customer $customer) {
-                return '<span>' . e($customer->lastContactResult->name ?? 'غير محدد') . '</span>';
+                return '<span>'.e($customer->lastContactResult->name ?? 'غير محدد').'</span>';
             })
             // ->addColumn('status', function (Customer $customer) {
             //     return '<span>' . e($customer->customerStatus->name ?? 'غير محدد') . '</span>';
@@ -330,7 +335,7 @@ class CustomersDataTable extends AbstractDataTable
                 } elseif ($days == 2) {
                     return '2';
                 } else {
-                    return $days . ' ';
+                    return $days.' ';
                 }
             })
             ->addColumn('action', function ($row) {
@@ -339,12 +344,12 @@ class CustomersDataTable extends AbstractDataTable
             ->addColumn('status_color', function (Customer $customer) {
                 return $customer->customerStatus ? $customer->customerStatus->color : null;
             })
-            ->orderColumn('name', fn($query, $order) => $query->orderBy('name', $order))
-            ->orderColumn('status', fn($query, $order) => $query->orderBy('customer_status_id', $order))
-            ->orderColumn('created_at', fn($query, $order) => $query->orderBy('created_at', $order))
-            ->filterColumn('name', fn($query, $keyword) => $query->where('name', 'like', "%{$keyword}%"))
-            ->filterColumn('account_number', fn($query, $keyword) => $query->where('account_number', 'like', "%{$keyword}%"))
-            ->filterColumn('identity_info', fn($query, $keyword) => $query->where('identity_number', 'like', "%{$keyword}%"))
+            ->orderColumn('name', fn ($query, $order) => $query->orderBy('name', $order))
+            ->orderColumn('status', fn ($query, $order) => $query->orderBy('customer_status_id', $order))
+            ->orderColumn('created_at', fn ($query, $order) => $query->orderBy('created_at', $order))
+            ->filterColumn('name', fn ($query, $keyword) => $query->where('name', 'like', "%{$keyword}%"))
+            ->filterColumn('account_number', fn ($query, $keyword) => $query->where('account_number', 'like', "%{$keyword}%"))
+            ->filterColumn('identity_info', fn ($query, $keyword) => $query->where('identity_number', 'like', "%{$keyword}%"))
             ->filterColumn('contact_info', function ($query, $keyword) {
                 $query->where(function ($q) use ($keyword) {
                     $q->where('phone', 'like', "%{$keyword}%")
@@ -401,27 +406,27 @@ class CustomersDataTable extends AbstractDataTable
         $actionButtons = [];
 
         if (auth()->user()?->can('customers.send_message')) {
-            $actionButtons[] = ['text' => 'إرسال رسالة', 'action' => "function() { handleSendSMS(); }"];
+            $actionButtons[] = ['text' => 'إرسال رسالة', 'action' => 'function() { handleSendSMS(); }'];
         }
 
-        $actionButtons[] = ['text' => 'استيراد العملاء', 'action' => "function() { handleImportCustomers(); }"];
+        $actionButtons[] = ['text' => 'استيراد العملاء', 'action' => 'function() { handleImportCustomers(); }'];
 
         if (auth()->user()?->can('customers.export')) {
-            $actionButtons[] = ['text' => 'تصدير Excel', 'action' => "function() { handleExport(); }"];
+            $actionButtons[] = ['text' => 'تصدير Excel', 'action' => 'function() { handleExport(); }'];
         }
 
-        $actionButtons[] = ['text' => 'تحديث بيانات', 'action' => "function() { handleBulkUpdateCustomers(); }"];
+        $actionButtons[] = ['text' => 'تحديث بيانات', 'action' => 'function() { handleBulkUpdateCustomers(); }'];
 
         if (auth()->user()?->can('customers.delete_all')) {
-            $actionButtons[] = ['text' => 'حذف المحدد', 'action' => "function() { handleMassDelete(); }"];
+            $actionButtons[] = ['text' => 'حذف المحدد', 'action' => 'function() { handleMassDelete(); }'];
         }
 
-        if (!empty($actionButtons)) {
+        if (! empty($actionButtons)) {
             $buttons[] = [
                 'extend' => 'collection',
                 'className' => 'btn btn-export',
                 'text' => 'الإجراءات',
-                'buttons' => $actionButtons
+                'buttons' => $actionButtons,
             ];
         }
 
@@ -429,7 +434,7 @@ class CustomersDataTable extends AbstractDataTable
             $buttons[] = [
                 'text' => '<i class="fas fa-plus-circle me-1"></i> إضافة عميل',
                 'className' => 'btn btn-primary btn-add',
-                'action' => "function(){ window.location.href='" . tenant_route_name($this->route . '.create') . "'; }",
+                'action' => "function(){ window.location.href='".tenant_route_name($this->route.'.create')."'; }",
             ];
         }
 

@@ -2,18 +2,19 @@
 
 namespace App\Exports\Tenants\Reports\Performance;
 
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\WithColumnWidths;
-use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,12 +22,16 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 |--------------------------------------------------------------------------
 */
 
-class PerformanceReportExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle, WithColumnWidths, WithEvents
+class PerformanceReportExport implements FromCollection, WithColumnWidths, WithEvents, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     protected $data;
+
     protected $filters;
+
     protected $selectedFields;
+
     protected $reportType;
+
     protected $rowCount = 0;
 
     /*
@@ -54,7 +59,7 @@ class PerformanceReportExport implements FromCollection, WithHeadings, WithMappi
             'customers_count',
             'total_portfolio',
             'total_payment',
-            'achievement_rate'
+            'achievement_rate',
         ];
     }
 
@@ -63,7 +68,7 @@ class PerformanceReportExport implements FromCollection, WithHeadings, WithMappi
     | Collection
     |--------------------------------------------------------------------------
     */
-    public function collection(): \Illuminate\Support\Enumerable
+    public function collection(): Enumerable
     {
         return $this->data;
     }
@@ -110,33 +115,33 @@ class PerformanceReportExport implements FromCollection, WithHeadings, WithMappi
                 case 'company_name':
                     $mappedRow[] = $row['company_name'] ?? 'غير محدد';
                     break;
-                    
+
                 case 'customers_count':
                     $mappedRow[] = $row['customers_count'] ?? 0;
                     break;
-                    
+
                 case 'total_portfolio':
                     $mappedRow[] = number_format($row['total_portfolio'] ?? 0, 2);
                     break;
-                    
+
                 case 'customer_target':
                     $mappedRow[] = number_format($row['customer_target'] ?? 0, 2);
                     break;
-                    
+
                 case 'total_payment':
                     $mappedRow[] = number_format($row['total_payment'] ?? 0, 2);
                     break;
-                    
+
                 case 'total_settlements':
                     $mappedRow[] = number_format($row['total_settlements'] ?? 0, 2);
                     break;
-                    
-                // ✅ تم حذف total_collected
-                    
+
+                    // ✅ تم حذف total_collected
+
                 case 'achievement_rate':
-                    $mappedRow[] = number_format($row['achievement_rate'] ?? 0, 2) . '%';
+                    $mappedRow[] = number_format($row['achievement_rate'] ?? 0, 2).'%';
                     break;
-                    
+
                 default:
                     $mappedRow[] = '';
                     break;
@@ -144,6 +149,7 @@ class PerformanceReportExport implements FromCollection, WithHeadings, WithMappi
         }
 
         $this->rowCount++;
+
         return $mappedRow;
     }
 
@@ -236,7 +242,7 @@ class PerformanceReportExport implements FromCollection, WithHeadings, WithMappi
 
                 // ✅ صف الملخص
                 $summaryRow = $lastRow + 2;
-                
+
                 $totalCompanies = $this->data->count();
                 $totalCustomers = $this->data->sum('customers_count');
                 $totalPortfolio = $this->data->sum('total_portfolio');
@@ -244,13 +250,13 @@ class PerformanceReportExport implements FromCollection, WithHeadings, WithMappi
                 $totalSettlements = $this->data->sum('total_settlements');
                 $avgAchievement = $this->data->avg('achievement_rate');
 
-                $summaryText = "📊 الملخص الإجمالي: " .
-                    "الشركات: " . number_format($totalCompanies) . " | " .
-                    "العملاء: " . number_format($totalCustomers) . " | " .
-                    "المديونية: " . number_format($totalPortfolio, 0) . " ريال | " .
-                    "السداد: " . number_format($totalPayment, 0) . " ريال | " .
-                    "التسويات: " . number_format($totalSettlements, 0) . " ريال | " .
-                    "متوسط الإنجاز: " . number_format($avgAchievement, 1) . "%";
+                $summaryText = '📊 الملخص الإجمالي: '.
+                    'الشركات: '.number_format($totalCompanies).' | '.
+                    'العملاء: '.number_format($totalCustomers).' | '.
+                    'المديونية: '.number_format($totalPortfolio, 0).' ريال | '.
+                    'السداد: '.number_format($totalPayment, 0).' ريال | '.
+                    'التسويات: '.number_format($totalSettlements, 0).' ريال | '.
+                    'متوسط الإنجاز: '.number_format($avgAchievement, 1).'%';
 
                 $sheet->setCellValue("A{$summaryRow}", $summaryText);
                 $sheet->mergeCells("A{$summaryRow}:{$lastColumnLetter}{$summaryRow}");
@@ -290,7 +296,7 @@ class PerformanceReportExport implements FromCollection, WithHeadings, WithMappi
 
                 // ✅ فلترة تلقائية
                 $sheet->setAutoFilter("A1:{$lastColumnLetter}{$lastRow}");
-                
+
                 // ✅ اتجاه RTL
                 $sheet->setRightToLeft(true);
 
@@ -321,9 +327,10 @@ class PerformanceReportExport implements FromCollection, WithHeadings, WithMappi
         $letter = '';
         while ($columnNumber > 0) {
             $columnNumber--;
-            $letter = chr(65 + ($columnNumber % 26)) . $letter;
+            $letter = chr(65 + ($columnNumber % 26)).$letter;
             $columnNumber = intval($columnNumber / 26);
         }
+
         return $letter;
     }
 }

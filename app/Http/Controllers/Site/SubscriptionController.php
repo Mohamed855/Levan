@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Site\SubscriptionCheckoutRequest;
 use App\Models\Admin\Bank\Bank;
 use App\Models\Admin\Bills\Bill;
+use App\Models\Admin\City;
 use App\Models\Admin\Plans\Plan;
 use App\Services\shared\Bills\BillService;
 use App\Services\shared\Coupons\CouponService;
@@ -23,21 +24,23 @@ use Illuminate\Http\Request;
 class SubscriptionController extends Controller
 {
     public function __construct(
-        private CouponService          $couponService,
-        private BillService            $billingService,
+        private CouponService $couponService,
+        private BillService $billingService,
         private MoyasarCallbackHandler $moyasarCallbackHandler,
         private MoyasarFormConfiguration $moyasarFormConfiguration,
-        private SubscriptionService    $subscriptionService
+        private SubscriptionService $subscriptionService
     ) {}
 
     public function checkout(Plan $plan)
     {
-        if (!$plan->is_active) abort(404);
+        if (! $plan->is_active) {
+            abort(404);
+        }
 
-        $banks           = Bank::where('is_active', true)->get();
-        $cities          = \App\Models\Admin\City::all();
-        $taxRate         = 0.15;
-        $taxAmount       = round($plan->price_after_discount * $taxRate, 2);
+        $banks = Bank::where('is_active', true)->get();
+        $cities = City::all();
+        $taxRate = 0.15;
+        $taxAmount = round($plan->price_after_discount * $taxRate, 2);
         $priceWithoutTax = round($plan->price_after_discount - $taxAmount, 2);
 
         return view('site.checkout', compact('plan', 'priceWithoutTax', 'taxAmount', 'banks', 'cities'));
@@ -46,7 +49,9 @@ class SubscriptionController extends Controller
     //  Checkout store
     public function processCheckout(SubscriptionCheckoutRequest $request, Plan $plan)
     {
-        if (!$plan->is_active) abort(404);
+        if (! $plan->is_active) {
+            abort(404);
+        }
 
         try {
             $couponData = $this->couponService->processCoupon($request->input('coupon_code'), $plan->price_after_discount);
@@ -60,6 +65,7 @@ class SubscriptionController extends Controller
 
             if ($request->payment_method === 'bank_transfer') {
                 $this->handleBankTransfer($request, $pendingBill);
+
                 return redirect()->route('site.index')->with('success', 'تم استلام طلبك بنجاح. سيتم تفعيل اشتراكك خلال 24 ساعة بعد التحقق من التحويل.');
             }
 
@@ -70,6 +76,7 @@ class SubscriptionController extends Controller
         } catch (\Throwable $e) {
             //
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ غير متوقع.')->withInput();
         }
     }
@@ -78,10 +85,10 @@ class SubscriptionController extends Controller
     public function handlePaymentCallback(Request $request)
     {
         try {
-            $result  = $this->moyasarCallbackHandler->verify($request);
+            $result = $this->moyasarCallbackHandler->verify($request);
             $outcome = $this->subscriptionService->completeOnlineSubscription($result['bill'], $result['payment']);
 
-            return redirect()->to(config('app.url') . '/' . $outcome['tenant_id'] . '/login');
+            return redirect()->to(config('app.url').'/'.$outcome['tenant_id'].'/login');
             //
         } catch (PaymentVerificationException $e) {
             //
@@ -92,6 +99,7 @@ class SubscriptionController extends Controller
         } catch (\Throwable $e) {
             //
             report($e);
+
             return redirect()->route('site.index')->with('error', 'حدث خطأ أثناء معالجة نتيجة الدفع');
         }
     }
@@ -112,17 +120,17 @@ class SubscriptionController extends Controller
             type: BillType::NEW_SUBSCRIPTION,
             couponData: $couponData,
             metadata: [
-                'plan_id'                   => $plan->id,
-                'billing_name'              => $request->billing_name,
-                'billing_email'             => $request->billing_email,
-                'billing_phone'             => $request->billing_phone,
-                'billing_password'          => $request->billing_password,
+                'plan_id' => $plan->id,
+                'billing_name' => $request->billing_name,
+                'billing_email' => $request->billing_email,
+                'billing_phone' => $request->billing_phone,
+                'billing_password' => $request->billing_password,
 
-                'billing_company_name'      => $request->billing_company_name,
+                'billing_company_name' => $request->billing_company_name,
                 'billing_commercial_number' => $request->billing_commercial_number,
-                'billing_tax_number'        => $request->billing_tax_number,
-                'billing_city_id'           => $request->billing_city_id,
-                'billing_address'           => $request->billing_address,
+                'billing_tax_number' => $request->billing_tax_number,
+                'billing_city_id' => $request->billing_city_id,
+                'billing_address' => $request->billing_address,
             ]
         );
     }
@@ -132,8 +140,8 @@ class SubscriptionController extends Controller
         $path = $request->file('transfer_receipt')->store('bank_transfers', 'public');
 
         $bill->update([
-            'status'      => BillStatus::PENDING_VERIFICATION,
-            'bank_id'     => $request->bank_id,
+            'status' => BillStatus::PENDING_VERIFICATION,
+            'bank_id' => $request->bank_id,
             'invoice_url' => $path,
         ]);
     }
@@ -153,7 +161,7 @@ class SubscriptionController extends Controller
             'amountInHalala' => $amountInHalala,
             'bill' => $bill,
             'callbackUrl' => route('site.plans.checkout.callback', ['bill' => $bill->bill_number]),
-            'description' => 'اشتراك في ' . $plan->name,
+            'description' => 'اشتراك في '.$plan->name,
             'mode' => $mode,
             'plan' => $plan,
             'publishableKey' => $publishableKey,

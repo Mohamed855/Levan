@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Admin\AdminMangment\Role;
 
-
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Permission;
@@ -37,19 +36,19 @@ class AdminUpdateRoleRequest extends FormRequest
                 'max:255',
                 'min:2',
                 Rule::unique('roles', 'name')->ignore($roleId),
-                'regex:/^[\pL\s\-\.]+$/u'
+                'regex:/^[\pL\s\-\.]+$/u',
             ],
             'permissions' => [
                 'required_if:select_all,0',
-                'array'
+                'array',
             ],
             'permissions.*' => [
-                'exists:permissions,name'
+                'exists:permissions,name',
             ],
             'select_all' => [
                 'sometimes',
-                'boolean'
-            ]
+                'boolean',
+            ],
         ];
     }
 
@@ -73,7 +72,7 @@ class AdminUpdateRoleRequest extends FormRequest
             'permissions.array' => 'الصلاحيات يجب أن تكون مصفوفة',
             'permissions.*.exists' => 'الصلاحية المحددة غير موجودة',
 
-            'select_all.boolean' => 'قيمة تحديد الكل يجب أن تكون صحيحة أو خاطئة'
+            'select_all.boolean' => 'قيمة تحديد الكل يجب أن تكون صحيحة أو خاطئة',
         ];
     }
 
@@ -88,7 +87,7 @@ class AdminUpdateRoleRequest extends FormRequest
         return [
             'name' => 'اسم الدور',
             'permissions' => 'الصلاحيات',
-            'select_all' => 'تحديد الكل'
+            'select_all' => 'تحديد الكل',
         ];
     }
 

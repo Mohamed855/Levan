@@ -4,10 +4,10 @@ namespace App\Models\Tenants\FinancialCollection\Collection;
 
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\UserMangment\User\User;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CustomerTransaction extends Model
@@ -25,14 +25,12 @@ class CustomerTransaction extends Model
         'created_by',
     ];
 
-
     /*
     |--------------------------------------------------------------------------
     | Casts
     |--------------------------------------------------------------------------
     */
     protected $casts = ['amount' => 'decimal:2', 'transaction_date' => 'date'];
-
 
     /*
     |--------------------------------------------------------------------------

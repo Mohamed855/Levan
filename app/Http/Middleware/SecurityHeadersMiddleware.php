@@ -9,9 +9,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SecurityHeadersMiddleware
 {
-
     // public const SRI = [
-
 
     // public const SRI = [
 
@@ -111,9 +109,9 @@ class SecurityHeadersMiddleware
         | ✅ SRI                     — CDN files متحقق منها
         |----------------------------------------------------------------------
         */
-        $scriptCdn  = implode(' ', self::SCRIPT_CDN);
-        $styleCdn   = implode(' ', self::STYLE_CDN);
-        $fontCdn    = implode(' ', self::FONT_CDN);
+        $scriptCdn = implode(' ', self::SCRIPT_CDN);
+        $styleCdn = implode(' ', self::STYLE_CDN);
+        $fontCdn = implode(' ', self::FONT_CDN);
 
         /*
          * connect-src: حدّد domains API / WebSocket بتاعتك هنا صراحةً
@@ -124,29 +122,29 @@ class SecurityHeadersMiddleware
         $connectSrc = "'self' http://127.0.0.1:5173 ws://127.0.0.1:5173 https://cdn.jsdelivr.net https://www.google.com https://www.google.com/recaptcha/api.js https://api.moyasar.com https://payment.moyasar.com";
 
         $csp = implode('; ', array_filter([
-    // للسماح بإطارات reCAPTCHA
-    "frame-src 'self' https://www.google.com https://www.recaptcha.net https://www.google.com/recaptcha/api.js https://api.moyasar.com https://payment.moyasar.com",
+            // للسماح بإطارات reCAPTCHA
+            "frame-src 'self' https://www.google.com https://www.recaptcha.net https://www.google.com/recaptcha/api.js https://api.moyasar.com https://payment.moyasar.com",
 
-    "default-src 'none'",
+            "default-src 'none'",
 
-    // JavaScript: أضفنا 'unsafe-eval' لأن reCAPTCHA تعتمد عليها أحياناً لمعالجة الكود الديناميكي
-    "script-src 'self' 'unsafe-eval' 'nonce-{$nonce}' 'strict-dynamic' {$scriptCdn}",
+            // JavaScript: أضفنا 'unsafe-eval' لأن reCAPTCHA تعتمد عليها أحياناً لمعالجة الكود الديناميكي
+            "script-src 'self' 'unsafe-eval' 'nonce-{$nonce}' 'strict-dynamic' {$scriptCdn}",
 
-    "style-src 'self' 'unsafe-inline' {$styleCdn}",
+            "style-src 'self' 'unsafe-inline' {$styleCdn}",
 
-    "img-src 'self' data: blob: https://www.gstatic.com https://server.arcgisonline.com",
+            "img-src 'self' data: blob: https://www.gstatic.com https://server.arcgisonline.com",
 
-    "font-src 'self' data: {$fontCdn}",
+            "font-src 'self' data: {$fontCdn}",
 
-    // أضفنا gstatic هنا أيضاً لضمان جلب ملفات الدعم
-    "connect-src 'self' {$connectSrc} https://www.gstatic.com",
+            // أضفنا gstatic هنا أيضاً لضمان جلب ملفات الدعم
+            "connect-src 'self' {$connectSrc} https://www.gstatic.com",
 
-    "form-action 'self' https://api.moyasar.com https://payment.moyasar.com",
+            "form-action 'self' https://api.moyasar.com https://payment.moyasar.com",
 
-    "object-src 'none'",
-    "base-uri 'self'",
-    app()->isProduction() ? "upgrade-insecure-requests" : null,
-]));
+            "object-src 'none'",
+            "base-uri 'self'",
+            app()->isProduction() ? 'upgrade-insecure-requests' : null,
+        ]));
 
         $response->headers->set('Content-Security-Policy', $csp);
 
@@ -161,7 +159,7 @@ class SecurityHeadersMiddleware
 
             $content = preg_replace(
                 '/<script(?![^>]*nonce=)([^>]*)>/i',
-                '<script nonce="' . $nonce . '"$1>',
+                '<script nonce="'.$nonce.'"$1>',
                 $content
             );
 
@@ -183,7 +181,7 @@ class SecurityHeadersMiddleware
             'Cache-Control',
             'no-store, no-cache, must-revalidate, private, max-age=0'
         );
-        $response->headers->set('Pragma',  'no-cache');
+        $response->headers->set('Pragma', 'no-cache');
         $response->headers->set('Expires', '0');
 
         /*

@@ -12,9 +12,13 @@ class GeneralNotification extends Notification implements ShouldQueue
     use Queueable;
 
     protected $title;
+
     protected $message;
+
     protected $type;
+
     protected $icon;
+
     protected $url;
 
     public function __construct($title, $message, $type = 'info', $icon = 'ti-bell', $url = null)

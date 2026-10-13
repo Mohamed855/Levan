@@ -3,23 +3,26 @@
 namespace App\Exports\Tenants\BusinessCenter\Customer\UpdateRequest;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class CustomerUpdateRequestsExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle, WithColumnWidths, WithEvents
+class CustomerUpdateRequestsExport implements FromCollection, WithColumnWidths, WithEvents, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     protected Collection $requests;
+
     protected array $selectedFields;
+
     protected int $rowCount = 0;
 
     /*
@@ -38,7 +41,7 @@ class CustomerUpdateRequestsExport implements FromCollection, WithHeadings, With
     | Collection
     |--------------------------------------------------------------------------
     */
-    public function collection(): \Illuminate\Support\Enumerable
+    public function collection(): Enumerable
     {
         return $this->requests;
     }
@@ -62,7 +65,7 @@ class CustomerUpdateRequestsExport implements FromCollection, WithHeadings, With
             'approved_by_name' => 'معالج الطلب',
             'approved_at' => 'تاريخ المعالجة',
             'rejection_reason' => 'سبب الرفض',
-            'requested_data' => 'البيانات المطلوبة'
+            'requested_data' => 'البيانات المطلوبة',
         ];
 
         foreach ($this->selectedFields as $field) {
@@ -121,6 +124,7 @@ class CustomerUpdateRequestsExport implements FromCollection, WithHeadings, With
         }
 
         $this->rowCount++;
+
         return $row;
     }
 
@@ -134,7 +138,7 @@ class CustomerUpdateRequestsExport implements FromCollection, WithHeadings, With
         $statuses = [
             'pending' => 'معلق',
             'approved' => 'موافق عليه',
-            'rejected' => 'مرفوض'
+            'rejected' => 'مرفوض',
         ];
 
         return $statuses[$status] ?? $status;
@@ -147,7 +151,7 @@ class CustomerUpdateRequestsExport implements FromCollection, WithHeadings, With
     */
     private function formatRequestedData($data): string
     {
-        if (!$data || !is_array($data)) {
+        if (! $data || ! is_array($data)) {
             return '-';
         }
 
@@ -158,7 +162,7 @@ class CustomerUpdateRequestsExport implements FromCollection, WithHeadings, With
                 foreach ($value as $phone) {
                     $phones[] = $phone['phone'] ?? '';
                 }
-                $formattedData[] = 'أرقام الهواتف: ' . implode(', ', $phones);
+                $formattedData[] = 'أرقام الهواتف: '.implode(', ', $phones);
             } else {
                 $formattedData[] = "$key: $value";
             }
@@ -186,7 +190,7 @@ class CustomerUpdateRequestsExport implements FromCollection, WithHeadings, With
             'approved_by_name' => 20,
             'approved_at' => 20,
             'rejection_reason' => 30,
-            'requested_data' => 40
+            'requested_data' => 40,
         ];
 
         $columnIndex = 1;
@@ -257,10 +261,10 @@ class CustomerUpdateRequestsExport implements FromCollection, WithHeadings, With
                 $approvedRequests = $this->requests->where('status', 'approved')->count();
                 $rejectedRequests = $this->requests->where('status', 'rejected')->count();
 
-                $summaryText = "إجمالي الطلبات: " . number_format($totalRequests) .
-                    " | المعلقة: " . number_format($pendingRequests) .
-                    " | الموافق عليها: " . number_format($approvedRequests) .
-                    " | المرفوضة: " . number_format($rejectedRequests);
+                $summaryText = 'إجمالي الطلبات: '.number_format($totalRequests).
+                    ' | المعلقة: '.number_format($pendingRequests).
+                    ' | الموافق عليها: '.number_format($approvedRequests).
+                    ' | المرفوضة: '.number_format($rejectedRequests);
 
                 $sheet->setCellValue("A{$summaryRow}", $summaryText);
                 $sheet->mergeCells("A{$summaryRow}:{$lastColumn}{$summaryRow}");
@@ -325,9 +329,10 @@ class CustomerUpdateRequestsExport implements FromCollection, WithHeadings, With
         $letter = '';
         while ($columnNumber > 0) {
             $columnNumber--;
-            $letter = chr(65 + ($columnNumber % 26)) . $letter;
+            $letter = chr(65 + ($columnNumber % 26)).$letter;
             $columnNumber = intval($columnNumber / 26);
         }
+
         return $letter;
     }
 }

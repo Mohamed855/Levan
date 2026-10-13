@@ -3,10 +3,10 @@
 namespace App\Jobs\Tenants\BusinessCenter\Customer\BulkUpdate;
 
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
-use App\Models\Tenants\BusinessCenter\Customers\Phone\CustomerPhone;
 use App\Models\Tenants\BusinessCenter\Customers\FieldValue\CustomerFieldValue;
-use App\Models\Tenants\FinancialCollection\Collection\CustomerTransaction;
 use App\Models\Tenants\BusinessCenter\Customers\History\CustomerRelationshipHistory;
+use App\Models\Tenants\BusinessCenter\Customers\Phone\CustomerPhone;
+use App\Models\Tenants\FinancialCollection\Collection\CustomerTransaction;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\BusinessCenter\Customer\BulkUpdate\CustomerBulkUpdateService;
 use Illuminate\Bus\Queueable;
@@ -16,7 +16,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx as XlsxReader;
 
@@ -27,13 +26,21 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
     protected array $data;
 
     public int $timeout = 14400;
+
     public int $tries = 3;
+
     public int $maxExceptions = 3;
+
     private const BATCH_SIZE = 200;
+
     private const MEMORY_LIMIT = '4096M';
+
     private const READ_CHUNK_SIZE = 1000;
+
     private const PROGRESS_UPDATE_INTERVAL = 200;
+
     private const MAX_ALLOWED_ROWS = 50000;
+
     private const MEMORY_CLEANUP_INTERVAL = 500;
 
     /*
@@ -56,7 +63,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
     {
         $jobId = $this->data['job_id'];
         $tempPath = $this->data['temp_file_path'];
-        $fullPath = storage_path('app/' . $tempPath);
+        $fullPath = storage_path('app/'.$tempPath);
 
         ini_set('memory_limit', self::MEMORY_LIMIT);
         set_time_limit(0);
@@ -65,15 +72,16 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
         ini_set('max_execution_time', 0);
         ini_set('mysql.connect_timeout', 300);
 
-        if (!file_exists($fullPath)) {
+        if (! file_exists($fullPath)) {
             $this->updateProgress($jobId, 'failed', 0, 0, 0, 0, 'الملف المؤقت غير موجود');
+
             return;
         }
 
         try {
             $this->updateProgress($jobId, 'processing', 0, 0, 0, 0);
 
-            $reader = new XlsxReader();
+            $reader = new XlsxReader;
             $reader->setReadDataOnly(true);
             $reader->setReadEmptyCells(false);
 
@@ -82,12 +90,12 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
 
             $highestRow = $sheet->getHighestRow();
 
-
             if ($highestRow < 2) {
                 $this->updateProgress($jobId, 'completed', 0, 0, 0, 0);
                 Storage::delete($tempPath);
                 $spreadsheet->disconnectWorksheets();
                 unset($spreadsheet, $sheet, $reader);
+
                 return;
             }
 
@@ -106,19 +114,21 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
                 Storage::delete($tempPath);
                 $spreadsheet->disconnectWorksheets();
                 unset($spreadsheet, $sheet, $reader);
+
                 return;
             }
 
             $headers = $this->cleanHeaders(
-                array_values($sheet->rangeToArray('A1:' . $sheet->getHighestColumn() . '1')[0])
+                array_values($sheet->rangeToArray('A1:'.$sheet->getHighestColumn().'1')[0])
             );
 
             $matchKeyResult = $this->validateMatchKey($headers);
-            if (!$matchKeyResult['valid']) {
+            if (! $matchKeyResult['valid']) {
                 $this->updateProgress($jobId, 'failed', 0, $totalRows, 0, 0, $matchKeyResult['error']);
                 Storage::delete($tempPath);
                 $spreadsheet->disconnectWorksheets();
                 unset($spreadsheet, $sheet, $reader);
+
                 return;
             }
 
@@ -140,7 +150,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
             gc_collect_cycles();
 
             $errorReportPath = null;
-            if ($result['failed'] > 0 && !empty($result['errors'])) {
+            if ($result['failed'] > 0 && ! empty($result['errors'])) {
                 $errorReportPath = $service->generateErrorReport($result['errors']);
                 $service->rememberErrorReportOwner($errorReportPath, (int) $this->data['user_id']);
             }
@@ -164,7 +174,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
                 0,
                 0,
                 0,
-                'حدث خطأ غير متوقع: ' . $e->getMessage()
+                'حدث خطأ غير متوقع: '.$e->getMessage()
             );
 
             Storage::delete($tempPath);
@@ -201,7 +211,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
             for ($row = $startRow; $row <= $endRow; $row++) {
                 try {
                     $rowData = $sheet->rangeToArray(
-                        'A' . $row . ':' . $sheet->getHighestColumn() . $row,
+                        'A'.$row.':'.$sheet->getHighestColumn().$row,
                         null,
                         true,
                         false
@@ -226,13 +236,12 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
                     $errors[] = [
                         'row' => $row,
                         'match_value' => '',
-                        'message' => 'خطأ في قراءة الصف: ' . $e->getMessage()
+                        'message' => 'خطأ في قراءة الصف: '.$e->getMessage(),
                     ];
                 }
             }
 
-
-            if (!empty($chunkData)) {
+            if (! empty($chunkData)) {
                 $batchResult = $this->processBatchesSimple(
                     $chunkData,
                     $headers,
@@ -264,7 +273,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
             'processed' => $processed,
             'updated' => $updated,
             'failed' => $failed,
-            'errors' => $errors
+            'errors' => $errors,
         ];
     }
 
@@ -324,7 +333,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
                     $errors[] = [
                         'row' => $rowIndex,
                         'match_value' => $row[$matchKeyIndex] ?? '',
-                        'message' => 'خطأ في معالجة الدفعة: ' . $e->getMessage()
+                        'message' => 'خطأ في معالجة الدفعة: '.$e->getMessage(),
                     ];
                 }
                 $this->updateProgress($jobId, 'processing', $globalProcessed, $totalRows, $globalUpdated, $globalFailed);
@@ -337,7 +346,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
             'processed' => $localProcessed,
             'updated' => $localUpdated,
             'failed' => $localFailed,
-            'errors' => $errors
+            'errors' => $errors,
         ];
     }
 
@@ -358,6 +367,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
 
             if (empty(array_filter($rowData))) {
                 $processed++;
+
                 continue;
             }
 
@@ -367,9 +377,10 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
                 $errors[] = [
                     'row' => $rowIndex,
                     'match_value' => $matchValue,
-                    'message' => 'قيمة مفتاح المطابقة فارغة'
+                    'message' => 'قيمة مفتاح المطابقة فارغة',
                 ];
                 $processed++;
+
                 continue;
             }
 
@@ -382,9 +393,10 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
                 $errors[] = [
                     'row' => $rowIndex,
                     'match_value' => $matchValue,
-                    'message' => 'لا يوجد عملاء بهذا ' . ($this->data['match_key'] === 'account_number' ? 'رقم الحساب' : 'رقم الهوية') . ' في المحفظة المحددة'
+                    'message' => 'لا يوجد عملاء بهذا '.($this->data['match_key'] === 'account_number' ? 'رقم الحساب' : 'رقم الهوية').' في المحفظة المحددة',
                 ];
                 $processed++;
+
                 continue;
             }
 
@@ -393,11 +405,11 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
             foreach ($customers as $customer) {
                 $result = $this->processCustomerRow($customer, $rowData, $headers, $rowIndex, $matchValue);
 
-                if (!empty($result['errors'])) {
+                if (! empty($result['errors'])) {
                     $errors = array_merge($errors, $result['errors']);
                 }
 
-                if (!$result['success']) {
+                if (! $result['success']) {
                     $allSuccess = false;
                 }
             }
@@ -408,7 +420,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
                 $failed++;
             }
 
-            if (!empty($result['errors'])) {
+            if (! empty($result['errors'])) {
                 $errors = array_merge($errors, $result['errors']);
             }
 
@@ -425,7 +437,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
             'processed' => $processed,
             'updated' => $updated,
             'failed' => $failed,
-            'errors' => $errors
+            'errors' => $errors,
         ];
     }
 
@@ -448,49 +460,57 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
         foreach ($headers as $columnIndex => $header) {
             $fieldMapping = $this->getFieldMapping($header);
 
-            if (!$fieldMapping) continue;
+            if (! $fieldMapping) {
+                continue;
+            }
 
             $newValue = trim($rowData[$columnIndex] ?? '');
 
-            if ($newValue === '' && $newValue !== '0') continue;
+            if ($newValue === '' && $newValue !== '0') {
+                continue;
+            }
 
             $totalFieldsToProcess++;
 
             // ✅ معالجة الأرقام الإضافية
             if (preg_match('/^additional_phone_(\d+)$/', $fieldMapping['field'], $matches)) {
-                $phoneIndex = (int)$matches[1];
+                $phoneIndex = (int) $matches[1];
 
                 $validation = $this->validatePhoneNumber($newValue);
 
-                if (!$validation['valid']) {
+                if (! $validation['valid']) {
 
                     $errors[] = [
                         'row' => $rowIndex,
                         'match_value' => $matchValue,
-                        'message' => "فشل في تحديث الهاتف الإضافي {$phoneIndex}: " . $validation['message']
+                        'message' => "فشل في تحديث الهاتف الإضافي {$phoneIndex}: ".$validation['message'],
                     ];
+
                     continue;
                 }
 
                 $additionalPhones[$phoneIndex] = $validation['value'];
 
                 $fieldsProcessedSuccessfully++;
+
                 continue;
             }
 
             $validation = $this->validateFieldValue($fieldMapping['field'], $newValue, $customer);
-            if (!$validation['valid']) {
+            if (! $validation['valid']) {
                 $errors[] = [
                     'row' => $rowIndex,
                     'match_value' => $matchValue,
-                    'message' => "فشل في تحديث حقل ({$this->getFieldDisplayName($fieldMapping['field'])}): " . $validation['message']
+                    'message' => "فشل في تحديث حقل ({$this->getFieldDisplayName($fieldMapping['field'])}): ".$validation['message'],
                 ];
+
                 continue;
             }
 
             $currentValue = $this->getCurrentFieldValue($customer, $fieldMapping['field']);
             if ($validation['value'] == $currentValue) {
                 $fieldsProcessedSuccessfully++;
+
                 continue;
             }
 
@@ -513,7 +533,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
             return ['success' => true, 'errors' => $errors];
         }
 
-        if (!empty($errors) && ($fieldsProcessedSuccessfully === 0)) {
+        if (! empty($errors) && ($fieldsProcessedSuccessfully === 0)) {
             return ['success' => false, 'errors' => $errors];
         }
 
@@ -521,23 +541,24 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
             $errors[] = [
                 'row' => $rowIndex,
                 'match_value' => $matchValue,
-                'message' => 'لا توجد تغييرات للتحديث - جميع القيم مطابقة للقيم الحالية'
+                'message' => 'لا توجد تغييرات للتحديث - جميع القيم مطابقة للقيم الحالية',
             ];
+
             return ['success' => false, 'errors' => $errors];
         }
 
         try {
             $changedFields = [];
 
-            if (!empty($updateData)) {
+            if (! empty($updateData)) {
                 $oldManagerId = $customer->relationship_manager_id;
 
                 $customer->update($updateData);
                 if (isset($updateData['relationship_manager_id']) && $oldManagerId != $updateData['relationship_manager_id']) {
                     $newManagerId = $updateData['relationship_manager_id'];
-                    if (is_null($oldManagerId) && !is_null($newManagerId)) {
+                    if (is_null($oldManagerId) && ! is_null($newManagerId)) {
                         $changeType = 'assigned';
-                    } elseif (!is_null($oldManagerId) && is_null($newManagerId)) {
+                    } elseif (! is_null($oldManagerId) && is_null($newManagerId)) {
                         $changeType = 'unassigned';
                     } else {
                         $changeType = 'transfer';
@@ -557,7 +578,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
                 $hasAnySuccessfulUpdate = true;
             }
 
-            if (!empty($dynamicData)) {
+            if (! empty($dynamicData)) {
                 foreach ($dynamicData as $fieldId => $value) {
                     try {
                         CustomerFieldValue::updateOrCreate(
@@ -570,14 +591,14 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
                         $errors[] = [
                             'row' => $rowIndex,
                             'match_value' => $matchValue,
-                            'message' => 'فشل في تحديث الحقل المتغير: ' . $e->getMessage()
+                            'message' => 'فشل في تحديث الحقل المتغير: '.$e->getMessage(),
                         ];
                     }
                 }
             }
 
             // ✅ معالجة الأرقام الإضافية
-            if (!empty($additionalPhones)) {
+            if (! empty($additionalPhones)) {
 
                 $phoneResult = $this->updateAdditionalPhones($customer, $additionalPhones, $rowIndex, $matchValue);
 
@@ -585,13 +606,13 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
                     $changedFields = array_merge($changedFields, $phoneResult['changed_fields']);
                     $hasAnySuccessfulUpdate = true;
                 }
-                if (!empty($phoneResult['errors'])) {
+                if (! empty($phoneResult['errors'])) {
                     $errors = array_merge($errors, $phoneResult['errors']);
                 }
             } else {
             }
 
-            if (!is_null($debtAmount)) {
+            if (! is_null($debtAmount)) {
                 try {
                     $this->updateCustomerDebt($customer, $debtAmount);
                     $changedFields[] = 'debt_amount';
@@ -600,7 +621,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
                     $errors[] = [
                         'row' => $rowIndex,
                         'match_value' => $matchValue,
-                        'message' => 'فشل في تحديث المديونية: ' . $e->getMessage()
+                        'message' => 'فشل في تحديث المديونية: '.$e->getMessage(),
                     ];
                 }
             }
@@ -612,11 +633,11 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
                     ->withProperties([
                         'action' => 'bulk_update',
                         'updated_fields' => $changedFields,
-                        'debt_updated' => !is_null($debtAmount),
-                        'phones_updated' => !empty($additionalPhones),
+                        'debt_updated' => ! is_null($debtAmount),
+                        'phones_updated' => ! empty($additionalPhones),
                         'partial_errors' => count($errors) > 0,
                         'total_fields_processed' => $totalFieldsToProcess,
-                        'successful_fields' => $fieldsProcessedSuccessfully
+                        'successful_fields' => $fieldsProcessedSuccessfully,
                     ])
                     ->log('تم تحديث بيانات العميل عبر التحديث المجمع');
             }
@@ -627,13 +648,12 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
             $errors[] = [
                 'row' => $rowIndex,
                 'match_value' => $matchValue,
-                'message' => 'حدث خطأ عام أثناء التحديث: ' . $e->getMessage()
+                'message' => 'حدث خطأ عام أثناء التحديث: '.$e->getMessage(),
             ];
 
             return ['success' => false, 'errors' => $errors];
         }
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -655,7 +675,6 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
 
             ksort($additionalPhones);
 
-
             $phoneIndex = 0;
             foreach ($additionalPhones as $index => $phoneNumber) {
 
@@ -667,7 +686,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
                         if ($existingPhone->phone !== $phoneNumber) {
                             $existingPhone->update([
                                 'phone' => $phoneNumber,
-                                'type' => 'mobile'
+                                'type' => 'mobile',
                             ]);
 
                             $changedFields[] = "additional_phone_{$index}_updated";
@@ -681,7 +700,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
                             'phone' => $phoneNumber,
                             'type' => 'mobile',
                             'is_primary' => false,
-                            'notes' => "تمت الإضافة عبر التحديث المجمع"
+                            'notes' => 'تمت الإضافة عبر التحديث المجمع',
                         ]);
 
                         $changedFields[] = "additional_phone_{$index}_added";
@@ -694,7 +713,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
                     $errors[] = [
                         'row' => $rowIndex,
                         'match_value' => $matchValue,
-                        'message' => "فشل في تحديث الهاتف الإضافي {$index}: " . $e->getMessage()
+                        'message' => "فشل في تحديث الهاتف الإضافي {$index}: ".$e->getMessage(),
                     ];
                 }
             }
@@ -702,7 +721,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
             return [
                 'success' => $success,
                 'changed_fields' => $changedFields,
-                'errors' => $errors
+                'errors' => $errors,
             ];
         } catch (\Exception $e) {
 
@@ -712,8 +731,8 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
                 'errors' => [[
                     'row' => $rowIndex,
                     'match_value' => $matchValue,
-                    'message' => 'خطأ عام في معالجة الأرقام الإضافية: ' . $e->getMessage()
-                ]]
+                    'message' => 'خطأ عام في معالجة الأرقام الإضافية: '.$e->getMessage(),
+                ]],
             ];
         }
     }
@@ -766,10 +785,10 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
             $matchKeyField = trim($fieldMappings['match_key']['column']);
         }
 
-        if (!$matchKeyField) {
+        if (! $matchKeyField) {
             return [
                 'valid' => false,
-                'error' => 'لم يتم تحديد عمود مفتاح المطابقة في ربط الحقول'
+                'error' => 'لم يتم تحديد عمود مفتاح المطابقة في ربط الحقول',
             ];
         }
 
@@ -787,13 +806,13 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
         if ($matchKeyIndex === false) {
             return [
                 'valid' => false,
-                'error' => "لم يتم العثور على عمود مفتاح المطابقة '{$matchKeyField}' في رؤوس الملف"
+                'error' => "لم يتم العثور على عمود مفتاح المطابقة '{$matchKeyField}' في رؤوس الملف",
             ];
         }
 
         return [
             'valid' => true,
-            'index' => $matchKeyIndex
+            'index' => $matchKeyIndex,
         ];
     }
 
@@ -815,7 +834,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
             'grandfather_name' => 'اسم الجد',
             'family_name' => 'اسم العائلة',
             'identity_number' => 'رقم الهوية',
-            'account_number' => 'رقم الحساب'
+            'account_number' => 'رقم الحساب',
         ];
 
         return $displayNames[$fieldKey] ?? $fieldKey;
@@ -848,7 +867,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
                             'old_amount' => $debit->amount,
                             'customer_id' => $customer->id,
                             'action' => 'delete_old_debt',
-                            'reason' => 'bulk_update_replacement'
+                            'reason' => 'bulk_update_replacement',
                         ])
                         ->log('تم حذف المديونية الأولية السابقة قبل التحديث المجمع');
 
@@ -861,7 +880,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
                 'type' => 'debit',
                 'amount' => $newAmount,
                 'transaction_date' => now(),
-                'description' => 'المديونية الأولية المحدثة - التحديث المجمع في ' . now()->format('Y-m-d H:i:s'),
+                'description' => 'المديونية الأولية المحدثة - التحديث المجمع في '.now()->format('Y-m-d H:i:s'),
                 'created_by' => $this->data['user_id'],
             ]);
 
@@ -873,7 +892,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
                     'customer_id' => $customer->id,
                     'action' => 'create_new_debt',
                     'replaced_debits_count' => $existingDebits->count(),
-                    'bulk_update_job_id' => $this->data['job_id'] ?? null
+                    'bulk_update_job_id' => $this->data['job_id'] ?? null,
                 ])
                 ->log('تم إنشاء مديونية أولية جديدة عبر التحديث المجمع');
         });
@@ -907,7 +926,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
 
                     return [
                         'field' => $field,
-                        'type' => strpos($field, 'dynamic_') === 0 ? 'dynamic' : 'base'
+                        'type' => strpos($field, 'dynamic_') === 0 ? 'dynamic' : 'base',
                     ];
                 }
             }
@@ -937,34 +956,35 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
                 $cleanValue = str_replace(',', '', $stringValue);
                 $cleanValue = preg_replace('/[^\d\.\-]/', '', $cleanValue);
 
-                if (!is_numeric($cleanValue)) {
-                    return ['valid' => false, 'message' => 'مبلغ المديونية غير صحيح: ' . $originalValue];
+                if (! is_numeric($cleanValue)) {
+                    return ['valid' => false, 'message' => 'مبلغ المديونية غير صحيح: '.$originalValue];
                 }
 
                 $numericValue = (float) $cleanValue;
 
                 if ($numericValue < 0) {
-                    return ['valid' => false, 'message' => 'مبلغ المديونية لا يمكن أن يكون سالباً: ' . $originalValue];
+                    return ['valid' => false, 'message' => 'مبلغ المديونية لا يمكن أن يكون سالباً: '.$originalValue];
                 }
 
                 if ($numericValue > 999999999) {
-                    return ['valid' => false, 'message' => 'مبلغ المديونية كبير جداً: ' . $originalValue];
+                    return ['valid' => false, 'message' => 'مبلغ المديونية كبير جداً: '.$originalValue];
                 }
 
                 return ['valid' => true, 'value' => $numericValue];
 
             case 'employee_number':
                 $user = User::where('employee_number', strtoupper(trim($value)))->first();
-                if (!$user) {
-                    return ['valid' => false, 'message' => 'الرقم الوظيفي غير موجود: ' . $value];
+                if (! $user) {
+                    return ['valid' => false, 'message' => 'الرقم الوظيفي غير موجود: '.$value];
                 }
+
                 return ['valid' => true, 'value' => $user->id];
 
             case 'customer_type':
                 $typeMapping = $this->data['field_mappings'][$fieldKey]['type_mapping'] ?? [];
                 $normalizedValue = trim(strtolower($value));
 
-                if (!empty($typeMapping) && isset($typeMapping[$normalizedValue])) {
+                if (! empty($typeMapping) && isset($typeMapping[$normalizedValue])) {
                     return ['valid' => true, 'value' => $typeMapping[$normalizedValue]];
                 }
 
@@ -976,20 +996,21 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
                     'شركة' => 'company',
                     'company' => 'company',
                     'مؤسسة' => 'company',
-                    'شركة/مؤسسة' => 'company'
+                    'شركة/مؤسسة' => 'company',
                 ];
 
                 if (isset($defaultMapping[$normalizedValue])) {
                     return ['valid' => true, 'value' => $defaultMapping[$normalizedValue]];
                 }
 
-                return ['valid' => false, 'message' => 'نوع العميل غير صحيح: ' . $value];
+                return ['valid' => false, 'message' => 'نوع العميل غير صحيح: '.$value];
 
             case 'phone':
                 $cleanPhone = preg_replace('/[^\d+]/', '', $value);
                 if (strlen($cleanPhone) < 7 || strlen($cleanPhone) > 20) {
                     return ['valid' => false, 'message' => 'تنسيق رقم الهاتف غير صحيح'];
                 }
+
                 return ['valid' => true, 'value' => $value];
 
             case 'identity_number':
@@ -997,6 +1018,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
                 if (strlen($value) < 3) {
                     return ['valid' => false, 'message' => 'القيمة قصيرة جداً'];
                 }
+
                 return ['valid' => true, 'value' => $value];
 
             case 'name':
@@ -1007,6 +1029,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
                 if (strlen($value) < 2) {
                     return ['valid' => false, 'message' => 'الاسم يجب أن يكون على الأقل حرفين'];
                 }
+
                 return ['valid' => true, 'value' => $value];
 
             default:
@@ -1024,6 +1047,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
         if (strpos($fieldKey, 'dynamic_') === 0) {
             $fieldId = str_replace('dynamic_', '', $fieldKey);
             $value = $customer->dynamicValues()->where('portfolio_field_id', $fieldId)->first();
+
             return $value ? (string) $value->value : '';
         }
 
@@ -1032,6 +1056,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
         }
 
         $fieldValue = $customer->getAttribute($fieldKey);
+
         return $fieldValue !== null ? (string) $fieldValue : '';
     }
 
@@ -1088,7 +1113,7 @@ class ProcessCustomerBulkUpdate implements ShouldQueue
                 0,
                 0,
                 0,
-                'فشل في تنفيذ المهمة: ' . $exception->getMessage()
+                'فشل في تنفيذ المهمة: '.$exception->getMessage()
             );
         }
 

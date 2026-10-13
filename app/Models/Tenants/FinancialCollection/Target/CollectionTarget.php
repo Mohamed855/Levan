@@ -3,17 +3,17 @@
 namespace App\Models\Tenants\FinancialCollection\Target;
 
 use App\Models\Tenants\UserMangment\User\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\Support\LogOptions;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
-use Carbon\Carbon;
+use Spatie\Activitylog\Support\LogOptions;
 
 class CollectionTarget extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -25,7 +25,7 @@ class CollectionTarget extends Model
         'custom_end_date',
         'target_amount',
         'status',
-        'added_by'
+        'added_by',
     ];
 
     protected $casts = [
@@ -37,7 +37,7 @@ class CollectionTarget extends Model
         'custom_end_date' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'deleted_at' => 'datetime'
+        'deleted_at' => 'datetime',
     ];
 
     /*
@@ -52,7 +52,7 @@ class CollectionTarget extends Model
             ->logOnlyDirty()
             ->dontLogEmptyChanges()
             ->useLogName('collection_targets')
-            ->setDescriptionForEvent(fn(string $eventName) => $this->getEventDescription($eventName))
+            ->setDescriptionForEvent(fn (string $eventName) => $this->getEventDescription($eventName))
             ->dontLogIfAttributesChangedOnly(['updated_at']);
     }
 
@@ -107,9 +107,13 @@ class CollectionTarget extends Model
         ];
 
         foreach ($this->getDirty() as $field => $newValue) {
-            if ($field === 'updated_at') continue;
+            if ($field === 'updated_at') {
+                continue;
+            }
 
-            if (!isset($fieldNames[$field])) continue;
+            if (! isset($fieldNames[$field])) {
+                continue;
+            }
 
             $fieldLabel = $fieldNames[$field];
             $oldValue = $this->getOriginal($field);
@@ -122,7 +126,7 @@ class CollectionTarget extends Model
             }
         }
 
-        return $changes ? ' (' . implode(' | ', $changes) . ')' : '';
+        return $changes ? ' ('.implode(' | ', $changes).')' : '';
     }
 
     /*
@@ -149,13 +153,14 @@ class CollectionTarget extends Model
                 };
 
             case 'target_month':
-                return $this->getMonthName((int)$value);
+                return $this->getMonthName((int) $value);
 
             case 'target_amount':
-                return number_format((float)$value, 2) . ' ريال';
+                return number_format((float) $value, 2).' ريال';
 
             case 'user_id':
                 $user = User::find($value);
+
                 return $user ? $user->name : 'غير محدد';
 
             case 'custom_start_date':
@@ -176,11 +181,11 @@ class CollectionTarget extends Model
     {
         return match ($this->target_type) {
             'monthly' => $this->target_month && $this->target_year
-                ? $this->getMonthName($this->target_month) . ' ' . $this->target_year
+                ? $this->getMonthName($this->target_month).' '.$this->target_year
                 : 'غير محدد',
-            'yearly' => $this->target_year ? (string)$this->target_year : 'غير محدد',
+            'yearly' => $this->target_year ? (string) $this->target_year : 'غير محدد',
             'custom' => $this->custom_start_date && $this->custom_end_date
-                ? $this->custom_start_date->format('Y-m-d') . ' إلى ' . $this->custom_end_date->format('Y-m-d')
+                ? $this->custom_start_date->format('Y-m-d').' إلى '.$this->custom_end_date->format('Y-m-d')
                 : 'غير محدد',
             default => 'غير محدد'
         };
@@ -237,11 +242,11 @@ class CollectionTarget extends Model
     {
         return match ($this->target_type) {
             'monthly' => $this->target_month && $this->target_year
-                ? $this->getMonthName($this->target_month) . ' ' . $this->target_year
+                ? $this->getMonthName($this->target_month).' '.$this->target_year
                 : 'غير محدد',
-            'yearly' => $this->target_year ? (string)$this->target_year : 'غير محدد',
+            'yearly' => $this->target_year ? (string) $this->target_year : 'غير محدد',
             'custom' => $this->custom_start_date && $this->custom_end_date
-                ? $this->custom_start_date->format('d/m/Y') . ' - ' . $this->custom_end_date->format('d/m/Y')
+                ? $this->custom_start_date->format('d/m/Y').' - '.$this->custom_end_date->format('d/m/Y')
                 : 'غير محدد',
             default => 'غير محدد'
         };
@@ -249,7 +254,7 @@ class CollectionTarget extends Model
 
     public function getTargetPeriodDetailsAttribute(): string
     {
-        return $this->target_type_label . ' (' . $this->target_period_formatted . ')';
+        return $this->target_type_label.' ('.$this->target_period_formatted.')';
     }
 
     /*
@@ -272,7 +277,7 @@ class CollectionTarget extends Model
             9 => 'سبتمبر',
             10 => 'أكتوبر',
             11 => 'نوفمبر',
-            12 => 'ديسمبر'
+            12 => 'ديسمبر',
         ];
 
         return $months[$month] ?? 'غير محدد';

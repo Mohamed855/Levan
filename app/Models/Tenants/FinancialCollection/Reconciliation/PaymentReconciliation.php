@@ -8,12 +8,12 @@ use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\Support\LogOptions;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class PaymentReconciliation extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, LogsActivity, SoftDeletes;
 
     /*
     |--------------------------------------------------------------------------
@@ -86,7 +86,7 @@ class PaymentReconciliation extends Model
             ->logOnlyDirty()
             ->dontLogEmptyChanges()
             ->useLogName('payment_reconciliations')
-            ->setDescriptionForEvent(fn($e) => $this->getEventDescription($e))
+            ->setDescriptionForEvent(fn ($e) => $this->getEventDescription($e))
             ->dontLogIfAttributesChangedOnly(['updated_at']);
     }
 
@@ -103,7 +103,7 @@ class PaymentReconciliation extends Model
 
         return match ($eventName) {
             'created' => "أنشأ مطابقة سدادات للشركة: {$companyName} | المحفظة: {$portfolioName} | الشهر: {$month}",
-            'updated' => "عدّل مطابقة سدادات للشركة: {$companyName}" . $this->getChangesSummary(),
+            'updated' => "عدّل مطابقة سدادات للشركة: {$companyName}".$this->getChangesSummary(),
             'deleted' => "حذف مطابقة سدادات للشركة: {$companyName} | الشهر: {$month}",
             default => "نشاط على مطابقة سدادات للشركة: {$companyName}",
         };
@@ -127,9 +127,13 @@ class PaymentReconciliation extends Model
         ];
 
         foreach ($this->getDirty() as $field => $newValue) {
-            if ($field === 'updated_at') continue;
+            if ($field === 'updated_at') {
+                continue;
+            }
 
-            if (!isset($fieldNames[$field])) continue;
+            if (! isset($fieldNames[$field])) {
+                continue;
+            }
 
             $fieldLabel = $fieldNames[$field];
             $oldValue = $this->getOriginal($field);
@@ -142,7 +146,7 @@ class PaymentReconciliation extends Model
             }
         }
 
-        return $changes ? ' (' . implode(' | ', $changes) . ')' : '';
+        return $changes ? ' ('.implode(' | ', $changes).')' : '';
     }
 
     /*
@@ -346,6 +350,7 @@ class PaymentReconciliation extends Model
         }
 
         $successfulRows = $this->matched_count + $this->unmatched_count;
+
         return round(($successfulRows / $this->total_rows) * 100, 2);
     }
 }

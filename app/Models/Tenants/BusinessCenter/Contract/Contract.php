@@ -5,15 +5,16 @@ namespace App\Models\Tenants\BusinessCenter\Contract;
 use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Models\Tenants\GeneralSetting\DebtType\SettingsDebtType;
 use App\Models\Tenants\UserMangment\User\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\Support\LogOptions;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class Contract extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, LogsActivity, SoftDeletes;
 
     /*
     |--------------------------------------------------------------------------
@@ -57,7 +58,7 @@ class Contract extends Model
             ->logOnlyDirty()
             ->dontLogEmptyChanges()
             ->useLogName('contracts')
-            ->setDescriptionForEvent(fn(string $eventName) => $this->getEventDescription($eventName))
+            ->setDescriptionForEvent(fn (string $eventName) => $this->getEventDescription($eventName))
             ->dontLogIfAttributesChangedOnly(['updated_at']);
     }
 
@@ -113,9 +114,13 @@ class Contract extends Model
         ];
 
         foreach ($this->getDirty() as $field => $newValue) {
-            if (in_array($field, ['updated_at', 'updated_by'])) continue;
+            if (in_array($field, ['updated_at', 'updated_by'])) {
+                continue;
+            }
 
-            if (!isset($fieldNames[$field])) continue;
+            if (! isset($fieldNames[$field])) {
+                continue;
+            }
 
             $fieldLabel = $fieldNames[$field];
             $oldValue = $this->getOriginal($field);
@@ -128,7 +133,7 @@ class Contract extends Model
             }
         }
 
-        return $changes ? ' (' . implode(' | ', $changes) . ')' : '';
+        return $changes ? ' ('.implode(' | ', $changes).')' : '';
     }
 
     /*
@@ -150,6 +155,7 @@ class Contract extends Model
                     'expired' => 'منتهي',
                     'suspended' => 'معلق',
                 ];
+
                 return $statuses[$value] ?? $value;
 
             case 'auto_renewal':
@@ -161,14 +167,16 @@ class Contract extends Model
                     'duration' => 'حسب المدة',
                     'delinquency' => 'حسب مدة التعثر',
                 ];
+
                 return $types[$value] ?? $value;
 
             case 'start_date':
             case 'end_date':
-                return \Carbon\Carbon::parse($value)->format('Y-m-d');
+                return Carbon::parse($value)->format('Y-m-d');
 
             case 'company_id':
                 $company = Company::find($value);
+
                 return $company?->name ?? "شركة #{$value}";
 
             default:
@@ -307,7 +315,6 @@ class Contract extends Model
     {
         return $query->where('status', 'expired');
     }
-    
 
     public function scopeExpiringSoon($query, $days = 30)
     {

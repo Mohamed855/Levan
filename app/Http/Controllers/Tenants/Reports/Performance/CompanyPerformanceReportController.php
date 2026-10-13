@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Tenants\Reports\Performance;
 
-use App\Http\Controllers\Controller;
 use App\DataTables\Tenants\Reports\Performance\CompanyPerformanceDataTable;
+use App\Http\Controllers\Controller;
 use App\Services\Tenants\Reports\Performance\CompanyPerformanceService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -32,7 +32,7 @@ class CompanyPerformanceReportController extends Controller
             'company_id',
             'portfolio_id',
             'team_id',
-            'user_id'
+            'user_id',
         ]);
 
         // ✅ فقط الإحصائيات للكاردات (سريع جداً)
@@ -78,7 +78,7 @@ class CompanyPerformanceReportController extends Controller
             'company_id',
             'portfolio_id',
             'team_id',
-            'user_id'
+            'user_id',
         ]);
 
         return $this->companyPerformanceService->exportPerformanceReportToPDF($filters);
@@ -97,7 +97,7 @@ class CompanyPerformanceReportController extends Controller
             'company_id',
             'portfolio_id',
             'team_id',
-            'user_id'
+            'user_id',
         ]);
 
         $count = $this->companyPerformanceService->getRecordsCount($filters);
@@ -107,7 +107,7 @@ class CompanyPerformanceReportController extends Controller
             'success' => true,
             'count' => $count,
             'fields' => $fields,
-            'is_large_export' => $count > 5000
+            'is_large_export' => $count > 5000,
         ]);
     }
 
@@ -124,7 +124,7 @@ class CompanyPerformanceReportController extends Controller
             'company_id',
             'portfolio_id',
             'team_id',
-            'user_id'
+            'user_id',
         ]);
 
         $selectedFields = $request->input('selected_fields', []);
@@ -143,7 +143,7 @@ class CompanyPerformanceReportController extends Controller
                     'message' => $result['message'],
                     'export_id' => $result['export_id'] ?? null,
                     'is_async' => true,
-                    'count' => $result['count']
+                    'count' => $result['count'],
                 ]);
             } else {
                 $fileName = $this->companyPerformanceService->exportFilteredPerformanceToExcel(
@@ -155,13 +155,13 @@ class CompanyPerformanceReportController extends Controller
                     'success' => true,
                     'download_url' => tenant_route_name('reports.performance.download', ['file' => $fileName]),
                     'message' => 'تم إنشاء الملف بنجاح',
-                    'is_async' => false
+                    'is_async' => false,
                 ]);
             }
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء إنشاء الملف: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء إنشاء الملف: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -175,10 +175,10 @@ class CompanyPerformanceReportController extends Controller
     {
         $exportId = $request->input('export_id');
 
-        if (!$exportId) {
+        if (! $exportId) {
             return response()->json([
                 'success' => false,
-                'message' => 'معرف التصدير مطلوب'
+                'message' => 'معرف التصدير مطلوب',
             ], 400);
         }
 
@@ -186,7 +186,7 @@ class CompanyPerformanceReportController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $progress
+            'data' => $progress,
         ]);
     }
 
@@ -204,7 +204,7 @@ class CompanyPerformanceReportController extends Controller
                 'company_id',
                 'portfolio_id',
                 'team_id',
-                'user_id'
+                'user_id',
             ]);
 
             $count = $this->companyPerformanceService->getRecordsCount($filters);
@@ -212,12 +212,12 @@ class CompanyPerformanceReportController extends Controller
             return response()->json([
                 'success' => true,
                 'count' => $count,
-                'message' => "تم العثور على {$count} سجل حسب الفلاتر المحددة"
+                'message' => "تم العثور على {$count} سجل حسب الفلاتر المحددة",
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء جلب عدد السجلات'
+                'message' => 'حدث خطأ أثناء جلب عدد السجلات',
             ], 500);
         }
     }
@@ -230,9 +230,9 @@ class CompanyPerformanceReportController extends Controller
     public function downloadFile($file)
     {
         $disk = Storage::disk('tenant_public');
-        $relativePath = 'exports/' . $file;
+        $relativePath = 'exports/'.$file;
 
-        if (!$disk->exists($relativePath)) {
+        if (! $disk->exists($relativePath)) {
             return redirect()->back()->with('error', 'الملف غير موجود أو تم حذفه.');
         }
 

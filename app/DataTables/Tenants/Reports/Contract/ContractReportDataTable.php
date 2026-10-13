@@ -9,7 +9,7 @@ class ContractReportDataTable extends AbstractDataTable
 {
     protected function getTableId()
     {
-        return "contract-report-table";
+        return 'contract-report-table';
     }
 
     protected function resource()
@@ -26,6 +26,7 @@ class ContractReportDataTable extends AbstractDataTable
         if ($request->filled('date_to')) {
             $query->whereDate('end_date', '<=', $request->date_to);
         }
+
         return $query;
     }
 
@@ -62,7 +63,7 @@ class ContractReportDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
 
             ->editColumn('start_date', function ($row) {
@@ -75,11 +76,10 @@ class ContractReportDataTable extends AbstractDataTable
 
             ->editColumn('status', function ($row) {
                 $class = $row->status === 'active' ? 'success' : 'secondary';
-                $text  = $row->status === 'active' ? 'نشط' : 'غير نشط';
+                $text = $row->status === 'active' ? 'نشط' : 'غير نشط';
 
                 return $text;
             })
-
 
         // ->editColumn('amount', function ($row) {
         //     return number_format($row->amount, 2);
@@ -96,21 +96,19 @@ class ContractReportDataTable extends AbstractDataTable
         // ->editColumn('status', function ($row) {
         //     return $this->StatusBadge($row);
         // })
-
-        ->editColumn('created_at', function ($row) {
-            return $row->created_at?->format('Y-m-d');
-        })
-    
-        ->addColumn('actions', function ($row) {
-            return view('tenants.reports.contracts.action', ['row' => $row])->render();
-        });
+            ->editColumn('created_at', function ($row) {
+                return $row->created_at?->format('Y-m-d');
+            })
+            ->addColumn('actions', function ($row) {
+                return view('tenants.reports.contracts.action', ['row' => $row])->render();
+            });
     }
 
     protected function rawColumns(): array
     {
         return [
             'checkbox',
-             'actions'
+            'actions',
             //  'bill_number', 'type', 'payment_method', 'status'
         ];
     }
@@ -140,13 +138,12 @@ class ContractReportDataTable extends AbstractDataTable
         ];
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
-
 
     private function TypeBadge($row): string
     {

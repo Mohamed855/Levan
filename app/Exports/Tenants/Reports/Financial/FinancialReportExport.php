@@ -2,25 +2,29 @@
 
 namespace App\Exports\Tenants\Reports\Financial;
 
+use Carbon\Carbon;
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\WithColumnWidths;
-use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
-use Carbon\Carbon;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class FinancialReportExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle, WithColumnWidths, WithEvents
+class FinancialReportExport implements FromCollection, WithColumnWidths, WithEvents, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     protected $collections;
+
     protected $filters;
+
     protected $selectedFields;
+
     protected $rowCount = 0;
 
     /*
@@ -40,7 +44,7 @@ class FinancialReportExport implements FromCollection, WithHeadings, WithMapping
     | Collection
     |--------------------------------------------------------------------------
     */
-    public function collection(): \Illuminate\Support\Enumerable
+    public function collection(): Enumerable
     {
         return $this->collections;
     }
@@ -150,6 +154,7 @@ class FinancialReportExport implements FromCollection, WithHeadings, WithMapping
         }
 
         $this->rowCount++;
+
         return $row;
     }
 
@@ -251,11 +256,11 @@ class FinancialReportExport implements FromCollection, WithHeadings, WithMapping
                 $pendingCollections = $this->collections->where('status', 'pending')->count();
                 $rejectedCollections = $this->collections->where('status', 'rejected')->count();
 
-                $summaryText = "إجمالي التحصيلات: " . number_format($totalCollections) .
-                    " | المعتمدة: " . number_format($approvedCollections) .
-                    " | المعلقة: " . number_format($pendingCollections) .
-                    " | المرفوضة: " . number_format($rejectedCollections) .
-                    " | إجمالي المبلغ المعتمد: " . number_format($totalApprovedAmount, 2) . " ريال";
+                $summaryText = 'إجمالي التحصيلات: '.number_format($totalCollections).
+                    ' | المعتمدة: '.number_format($approvedCollections).
+                    ' | المعلقة: '.number_format($pendingCollections).
+                    ' | المرفوضة: '.number_format($rejectedCollections).
+                    ' | إجمالي المبلغ المعتمد: '.number_format($totalApprovedAmount, 2).' ريال';
 
                 $sheet->setCellValue("A{$summaryRow}", $summaryText);
                 $sheet->mergeCells("A{$summaryRow}:{$lastColumnLetter}{$summaryRow}");
@@ -320,9 +325,10 @@ class FinancialReportExport implements FromCollection, WithHeadings, WithMapping
         $letter = '';
         while ($columnNumber > 0) {
             $columnNumber--;
-            $letter = chr(65 + ($columnNumber % 26)) . $letter;
+            $letter = chr(65 + ($columnNumber % 26)).$letter;
             $columnNumber = intval($columnNumber / 26);
         }
+
         return $letter;
     }
 }

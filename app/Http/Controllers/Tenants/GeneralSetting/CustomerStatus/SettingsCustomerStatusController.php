@@ -9,7 +9,6 @@ use App\Http\Requests\Tenants\GeneralSetting\CustomerStatus\SaveSettingsCustomer
 use App\Models\Tenants\GeneralSetting\CustomerStatus\SettingsCustomerStatus;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class SettingsCustomerStatusController extends Controller
@@ -78,12 +77,12 @@ class SettingsCustomerStatusController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'تم إضافة الحالة بنجاح'
+                'message' => 'تم إضافة الحالة بنجاح',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء إضافة الحالة'
+                'message' => 'حدث خطأ أثناء إضافة الحالة',
             ], 500);
         }
     }
@@ -103,12 +102,12 @@ class SettingsCustomerStatusController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'تم تحديث الحالة بنجاح'
+                'message' => 'تم تحديث الحالة بنجاح',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تحديث الحالة'
+                'message' => 'حدث خطأ أثناء تحديث الحالة',
             ], 500);
         }
     }
@@ -147,12 +146,12 @@ class SettingsCustomerStatusController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'تم تحديث الحالة بنجاح',
-                'status' => $customerStatus->status
+                'status' => $customerStatus->status,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تغيير الحالة'
+                'message' => 'حدث خطأ أثناء تغيير الحالة',
             ], 500);
         }
     }

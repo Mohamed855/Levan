@@ -13,6 +13,7 @@ class CompanyLetterMail extends Mailable
     use Queueable, SerializesModels;
 
     public $emailSubject;
+
     public $emailBody;
 
     /*

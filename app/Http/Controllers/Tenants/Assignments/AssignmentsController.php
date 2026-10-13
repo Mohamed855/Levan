@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tenants\Assignments;
 
 use App\Actions\Tenants\Assignments\CreateAssignmentAction;
+use App\Actions\Tenants\Assignments\UpdateAssignmentAction;
 use App\DataTables\Tenants\Assignments\AssignmentPropertySelectionDataTable;
 use App\DataTables\Tenants\Assignments\AssignmentsDataTable;
 use App\Http\Controllers\Controller;
@@ -107,10 +108,13 @@ class AssignmentsController extends Controller
         ]);
     }
 
-    public function update(UpdateAssignmentRequest $request, Assignment $assignment): RedirectResponse
-    {
+    public function update(
+        UpdateAssignmentRequest $request,
+        Assignment $assignment,
+        UpdateAssignmentAction $action,
+    ): RedirectResponse {
         try {
-            $this->assignmentService->updateAssignment(
+            $action->execute(
                 $assignment,
                 $request->validated(),
                 $request->file('assignment_image')

@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers\Tenants\Archive\Auction;
 
+use App\Actions\Tenants\Auctions\ForceDeleteAuctionAction;
+use App\Actions\Tenants\Auctions\RestoreAuctionAction;
 use App\DataTables\Tenants\Auctions\AuctionArchiveDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Archive\ArchiveItemIdRequest;
 use App\Models\Tenants\Auctions\Auction;
-use App\Services\Tenants\Auctions\AuctionService;
 
 class AuctionArchiveController extends Controller
 {
-    public function __construct(private readonly AuctionService $auctionService)
+    public function __construct()
     {
         $this->middleware('auth:tenant');
         $this->middleware('can:auctions_archive.view')->only(['index']);
@@ -22,11 +24,13 @@ class AuctionArchiveController extends Controller
         return $dataTable->render('tenants.archive.auctions.index');
     }
 
-    public function restore(int $id)
+    public function restore(ArchiveItemIdRequest $request, RestoreAuctionAction $action)
     {
+        $auction = Auction::onlyTrashed()->findOrFail($request->validated('id'));
+        $this->authorize('restore', $auction);
+
         try {
-            $auction = Auction::onlyTrashed()->findOrFail($id);
-            $auction->restore();
+            $action->execute($auction);
 
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json(['success' => true, 'message' => 'تم استعادة المزاد بنجاح']);
@@ -42,11 +46,13 @@ class AuctionArchiveController extends Controller
         }
     }
 
-    public function forceDelete(int $id)
+    public function forceDelete(ArchiveItemIdRequest $request, ForceDeleteAuctionAction $action)
     {
+        $auction = Auction::onlyTrashed()->findOrFail($request->validated('id'));
+        $this->authorize('forceDelete', $auction);
+
         try {
-            $auction = Auction::onlyTrashed()->findOrFail($id);
-            $this->auctionService->forceDeleteAuction($auction);
+            $action->execute($auction);
 
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([

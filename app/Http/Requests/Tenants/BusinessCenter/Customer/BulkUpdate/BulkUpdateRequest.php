@@ -60,11 +60,11 @@ abstract class BulkUpdateRequest extends FormRequest
 
     public static function temporaryFileOwnerKey(string $path): string
     {
-        return 'bulk_update_file_owner:' . hash('sha256', $path);
+        return 'bulk_update_file_owner:'.hash('sha256', $path);
     }
 
     public static function errorReportOwnerKey(string $path): string
     {
-        return 'bulk_update_report_owner:' . hash('sha256', $path);
+        return 'bulk_update_report_owner:'.hash('sha256', $path);
     }
 }

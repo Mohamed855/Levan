@@ -3,21 +3,19 @@
 namespace App\Http\Controllers\Tenants\FinancialCollection\Collection;
 
 use App\DataTables\Tenants\FinancialCollection\Collection\CollectionsDataTable;
-use App\Data\Tenants\FinancialCollection\Collection\CollectionStoreDto;
-use App\Data\Tenants\FinancialCollection\Collection\CollectionUpdateDto;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Tenants\FinancialCollection\Collection\StoreCollectionRequest;
-use App\Http\Requests\Tenants\FinancialCollection\Collection\UpdateCollectionRequest;
 use App\Http\Requests\Tenants\FinancialCollection\Collection\DeleteSelectedCollectionsRequest;
 use App\Http\Requests\Tenants\FinancialCollection\Collection\RecentCollectionsRequest;
 use App\Http\Requests\Tenants\FinancialCollection\Collection\RejectCollectionRequest;
+use App\Http\Requests\Tenants\FinancialCollection\Collection\StoreCollectionRequest;
+use App\Http\Requests\Tenants\FinancialCollection\Collection\UpdateCollectionRequest;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\FinancialCollection\Collection\Collection;
 use App\Services\Tenants\FinancialCollection\Collection\CollectionService;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
 
 class CollectionController extends Controller
@@ -36,7 +34,7 @@ class CollectionController extends Controller
         $this->collectionService = $collectionService;
         $this->authorizeResource(Collection::class, 'collection');
 
-        $this->middleware('can:collections.view')->only(['index','show']);
+        $this->middleware('can:collections.view')->only(['index', 'show']);
         $this->middleware('can:collections.create')->only(['create', 'store']);
         $this->middleware('can:collections.edit')->only(['edit', 'update']);
         $this->middleware('can:collections.delete')->only(['destroy', 'deleteSelected']);
@@ -75,7 +73,8 @@ class CollectionController extends Controller
             if (request()->ajax()) {
                 return response()->json(['error' => 'حدث خطأ في تحميل البيانات'], 500);
             }
-            return redirect()->back()->with('error', 'حدث خطأ في تحميل البيانات: ' . $e->getMessage());
+
+            return redirect()->back()->with('error', 'حدث خطأ في تحميل البيانات: '.$e->getMessage());
         }
     }
 
@@ -117,12 +116,12 @@ class CollectionController extends Controller
                 ->to(tenant_route_name('financial-collections.collections.index'))
                 ->with('success', 'تم إضافة التحصيل بنجاح');
         } catch (\Exception $e) {
-            Log::error('Error storing collection: ' . $e->getMessage());
+            Log::error('Error storing collection: '.$e->getMessage());
 
             return redirect()
                 ->back()
                 ->withInput()
-                ->with('error', 'حدث خطأ أثناء إضافة التحصيل: ' . $e->getMessage());
+                ->with('error', 'حدث خطأ أثناء إضافة التحصيل: '.$e->getMessage());
         }
     }
 
@@ -135,7 +134,7 @@ class CollectionController extends Controller
     public function show(Collection $collection): View
     {
         // التأكد من أن التحصيل يخص المستخدم الحالي
-        if (!$this->collectionService->canUserViewCollection($collection, auth('tenant')->id())) {
+        if (! $this->collectionService->canUserViewCollection($collection, auth('tenant')->id())) {
             abort(403, 'غير مسموح لك بعرض هذا التحصيل');
         }
 
@@ -152,7 +151,7 @@ class CollectionController extends Controller
     */
     public function edit(Collection $collection): View
     {
-        if (!$this->collectionService->canUserEditCollection($collection, auth('tenant')->id())) {
+        if (! $this->collectionService->canUserEditCollection($collection, auth('tenant')->id())) {
             abort(403, 'غير مسموح لك بتعديل هذا التحصيل');
         }
         $customers = $this->collectionService->getActiveCustomers();
@@ -189,15 +188,14 @@ class CollectionController extends Controller
                 ->to(tenant_route_name('financial-collections.collections.index'))
                 ->with('success', 'تم تحديث التحصيل بنجاح');
         } catch (\Exception $e) {
-            Log::error('Error updating collection: ' . $e->getMessage());
+            Log::error('Error updating collection: '.$e->getMessage());
 
             return redirect()
                 ->back()
                 ->withInput()
-                ->with('error', 'حدث خطأ أثناء تحديث التحصيل: ' . $e->getMessage());
+                ->with('error', 'حدث خطأ أثناء تحديث التحصيل: '.$e->getMessage());
         }
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -209,6 +207,7 @@ class CollectionController extends Controller
     {
         try {
             $this->collectionService->deleteCollection($collection, auth('tenant')->id());
+
             return redirect()->back()->with('success', 'تم حذف التحصيل بنجاح');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
@@ -232,12 +231,12 @@ class CollectionController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => "تم حذف {$deletedCount} تحصيل بنجاح",
-                'deleted_count' => $deletedCount
+                'deleted_count' => $deletedCount,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 422);
         }
     }
@@ -257,12 +256,12 @@ class CollectionController extends Controller
                 'success' => true,
                 'message' => 'تم اعتماد التحصيل بنجاح',
                 'new_status' => 'approved',
-                'status_text' => 'معتمد'
+                'status_text' => 'معتمد',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -286,12 +285,12 @@ class CollectionController extends Controller
                 'success' => true,
                 'message' => 'تم رفض التحصيل بنجاح',
                 'new_status' => 'rejected',
-                'status_text' => 'مرفوض'
+                'status_text' => 'مرفوض',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -310,7 +309,7 @@ class CollectionController extends Controller
         return response()->json([
             'success' => true,
             'data' => $collections,
-            'count' => $collections->count()
+            'count' => $collections->count(),
         ]);
     }
 
@@ -327,12 +326,12 @@ class CollectionController extends Controller
 
             return response()->json([
                 'success' => true,
-                'receipt_number' => $receiptNumber
+                'receipt_number' => $receiptNumber,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ في توليد رقم السند'
+                'message' => 'حدث خطأ في توليد رقم السند',
             ], 500);
         }
     }
@@ -359,7 +358,7 @@ class CollectionController extends Controller
     {
         $customerData = $this->collectionService->getCustomerById($customer->id);
 
-        if (!$customerData) {
+        if (! $customerData) {
             return response()->json(null, 404);
         }
 

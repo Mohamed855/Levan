@@ -6,13 +6,13 @@ namespace App\Enums\Admin\Plans;
 
 enum PlanLimitsMode: string
 {
-    case LIMITED   = 'limited';
+    case LIMITED = 'limited';
     case UNLIMITED = 'unlimited';
 
     public function label(): string
     {
         return match ($this) {
-            self::LIMITED   => 'محدود',
+            self::LIMITED => 'محدود',
             self::UNLIMITED => 'غير محدود',
         };
     }
@@ -20,7 +20,7 @@ enum PlanLimitsMode: string
     public function color(): string
     {
         return match ($this) {
-            self::LIMITED   => 'info',
+            self::LIMITED => 'info',
             self::UNLIMITED => 'primary',
         };
     }
@@ -33,13 +33,13 @@ enum PlanLimitsMode: string
     public static function options(): array
     {
         return array_map(
-            fn(self $t) => ['value' => $t->value, 'label' => $t->label(), 'color' => $t->color()],
+            fn (self $t) => ['value' => $t->value, 'label' => $t->label(), 'color' => $t->color()],
             self::cases()
         );
     }
 
     public static function values(): array
     {
-        return array_map(fn(self $t) => $t->value, self::cases());
+        return array_map(fn (self $t) => $t->value, self::cases());
     }
 }

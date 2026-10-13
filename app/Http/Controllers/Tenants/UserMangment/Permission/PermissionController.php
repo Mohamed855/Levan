@@ -1,10 +1,11 @@
 <?php
 
 // PermissionController.php
+
 namespace App\Http\Controllers\Tenants\UserMangment\Permission;
 
-use Spatie\Permission\Models\Permission;
 use Illuminate\Http\Request;
+use Spatie\Permission\Models\Permission;
 
 class PermissionController extends Controller
 {
@@ -23,14 +24,12 @@ class PermissionController extends Controller
 
         if ($request->ajax()) {
             return response()->json([
-                'view' => view('permissions.index', compact('permissions'))->render()
+                'view' => view('permissions.index', compact('permissions'))->render(),
             ]);
         }
 
         return view('tenants.permissions.index', compact('permissions'));
     }
-
-
 
     public function store(Request $request)
     {
@@ -46,7 +45,7 @@ class PermissionController extends Controller
     public function update(Request $request, Permission $permission)
     {
         $request->validate([
-            'name' => 'required|unique:permissions,name,' . $permission->id,
+            'name' => 'required|unique:permissions,name,'.$permission->id,
         ]);
 
         $permission->update(['name' => $request->name]);
@@ -57,6 +56,7 @@ class PermissionController extends Controller
     public function destroy(Permission $permission)
     {
         $permission->delete();
+
         return redirect()->to(tenant_route_name('permissions.index'))->with('success', 'تم حذف الصلاحية بنجاح');
     }
 }

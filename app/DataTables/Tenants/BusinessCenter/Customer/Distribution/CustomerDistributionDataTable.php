@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class CustomerDistributionDataTable extends AbstractDataTable
 {
-    private $route = "customers.distribution";
+    private $route = 'customers.distribution';
 
     /*
     |--------------------------------------------------------------------------
@@ -21,6 +21,7 @@ class CustomerDistributionDataTable extends AbstractDataTable
     {
         $datatable = datatables()->eloquent($query)->addIndexColumn();
         $this->addCustomColumns($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
@@ -31,7 +32,7 @@ class CustomerDistributionDataTable extends AbstractDataTable
     */
     protected function getTableId()
     {
-        return "distributions-table";
+        return 'distributions-table';
     }
 
     /*
@@ -51,7 +52,7 @@ class CustomerDistributionDataTable extends AbstractDataTable
                 DB::raw('COUNT(*) as collectors_count'),
                 DB::raw('SUM(customer_distributions.customers_count) as total_customers'),
                 DB::raw('SUM(customer_distributions.total_debt) as total_debt_sum'),
-                DB::raw('MIN(customer_distributions.id) as first_id')
+                DB::raw('MIN(customer_distributions.id) as first_id'),
             ])
             ->groupBy(['customer_distributions.batch_id', 'customer_distributions.distribution_method', 'customer_distributions.created_by', 'customer_distributions.created_at'])
             ->orderBy('customer_distributions.created_at', 'desc');
@@ -73,7 +74,7 @@ class CustomerDistributionDataTable extends AbstractDataTable
                 'title' => '<input type="checkbox" id="select-all" class="form-check-input">',
                 'orderable' => false,
                 'searchable' => false,
-                'className' => 'custom-checkbox'
+                'className' => 'custom-checkbox',
             ],
             ['data' => 'distribution_date_formatted', 'name' => 'created_at', 'title' => 'تاريخ التوزيع', 'width' => '120px', 'searchable' => true],
             ['data' => 'distribution_method_badge', 'name' => 'distribution_method', 'title' => 'نوع التوزيع', 'width' => '140px', 'searchable' => true],
@@ -99,82 +100,85 @@ class CustomerDistributionDataTable extends AbstractDataTable
         $distributionMethods = [
             'balanced_amount' => ['label' => 'توزيع متوازن (مبلغ)', 'class' => 'primary'],
             'balanced_count' => ['label' => 'توزيع متوازن (عدد)', 'class' => 'info'],
-            'hybrid_balanced' => ['label' => 'توزيع مختلط', 'class' => 'success']
+            'hybrid_balanced' => ['label' => 'توزيع مختلط', 'class' => 'success'],
         ];
 
         $datatable
-            ->addColumn('checkbox', fn($row) => '<input type="checkbox" class="row-checkbox" value="' . $row->batch_id . '">')
+            ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->batch_id.'">')
 
             ->addColumn('distribution_date_formatted', function ($row) {
                 $date = Carbon::parse($row->created_at);
                 $showUrl = tenant_route_name('customers.distribution.show', $row->batch_id);
-                return '<div class="text-center">' .
-                    '<a href="' . $showUrl . '" class="text-decoration-none" style="color: inherit;">' .
-                    '<span>' . $date->format('Y-m-d') . '</span>' .
-                    '</a>' .
+
+                return '<div class="text-center">'.
+                    '<a href="'.$showUrl.'" class="text-decoration-none" style="color: inherit;">'.
+                    '<span>'.$date->format('Y-m-d').'</span>'.
+                    '</a>'.
                     '</div>';
             })
 
             ->addColumn('distribution_method_badge', function ($row) use ($distributionMethods) {
                 $method = $distributionMethods[$row->distribution_method] ?? ['label' => 'غير محدد', 'class' => 'secondary'];
                 $showUrl = tenant_route_name('customers.distribution.show', $row->batch_id);
-                return '<div class="text-center">' .
-                    '<a href="' . $showUrl . '" class="text-decoration-none">' .
-                    '<span class="badge bg-label-' . $method['class'] . '">' . e($method['label']) . '</span>' .
-                    '</a>' .
+
+                return '<div class="text-center">'.
+                    '<a href="'.$showUrl.'" class="text-decoration-none">'.
+                    '<span class="badge bg-label-'.$method['class'].'">'.e($method['label']).'</span>'.
+                    '</a>'.
                     '</div>';
             })
 
             ->addColumn('collectors_count_badge', function ($row) {
                 $showUrl = tenant_route_name('customers.distribution.show', $row->batch_id);
-                return '<div class="text-center">' .
-                    '<a href="' . $showUrl . '" class="text-decoration-none" style="color: inherit;">' .
-                    '<span>' . number_format($row->collectors_count) . '</span>' .
-                    '</a>' .
+
+                return '<div class="text-center">'.
+                    '<a href="'.$showUrl.'" class="text-decoration-none" style="color: inherit;">'.
+                    '<span>'.number_format($row->collectors_count).'</span>'.
+                    '</a>'.
                     '</div>';
             })
-
 
             ->addColumn('total_customers_badge', function ($row) {
                 $showUrl = tenant_route_name('customers.distribution.show', $row->batch_id);
-                return '<div class="text-center">' .
-                    '<a href="' . $showUrl . '" class="text-decoration-none" style="color: inherit;">' .
-                    '<span>' . number_format($row->total_customers) . '</span>' .
-                    '</a>' .
+
+                return '<div class="text-center">'.
+                    '<a href="'.$showUrl.'" class="text-decoration-none" style="color: inherit;">'.
+                    '<span>'.number_format($row->total_customers).'</span>'.
+                    '</a>'.
                     '</div>';
             })
 
-
-
             ->addColumn('total_debt_formatted', function ($row) {
                 $showUrl = tenant_route_name('customers.distribution.show', $row->batch_id);
-                return '<div class="text-center">' .
-                    '<a href="' . $showUrl . '" class="text-decoration-none">' .
-                    '<span class="text-primary">' . number_format($row->total_debt_sum, 2) . '</span>' .
-                    '</a>' .
+
+                return '<div class="text-center">'.
+                    '<a href="'.$showUrl.'" class="text-decoration-none">'.
+                    '<span class="text-primary">'.number_format($row->total_debt_sum, 2).'</span>'.
+                    '</a>'.
                     '</div>';
             })
 
             ->addColumn('created_by_name', function ($row) {
                 $createdBy = $row->createdBy->name ?? 'غير محدد';
                 $showUrl = tenant_route_name('customers.distribution.show', $row->batch_id);
-                return '<div class="text-center">' .
-                    '<a href="' . $showUrl . '" class="text-decoration-none" style="color: inherit;">' .
-                    '<span class="text-truncate">' . e($createdBy) . '</span>' .
-                    '</a>' .
+
+                return '<div class="text-center">'.
+                    '<a href="'.$showUrl.'" class="text-decoration-none" style="color: inherit;">'.
+                    '<span class="text-truncate">'.e($createdBy).'</span>'.
+                    '</a>'.
                     '</div>';
             })
 
-            ->orderColumn('created_at', fn($query, $order) => $query->orderBy('created_at', $order))
-            ->orderColumn('distribution_method', fn($query, $order) => $query->orderBy('distribution_method', $order))
+            ->orderColumn('created_at', fn ($query, $order) => $query->orderBy('created_at', $order))
+            ->orderColumn('distribution_method', fn ($query, $order) => $query->orderBy('distribution_method', $order))
             ->orderColumn('total_debt_sum', function ($query, $order) {
-                return $query->orderByRaw('SUM(total_debt) ' . $order);
+                return $query->orderByRaw('SUM(total_debt) '.$order);
             })
             ->orderColumn('collectors_count', function ($query, $order) {
-                return $query->orderByRaw('COUNT(*) ' . $order);
+                return $query->orderByRaw('COUNT(*) '.$order);
             })
             ->orderColumn('total_customers', function ($query, $order) {
-                return $query->orderByRaw('SUM(customers_count) ' . $order);
+                return $query->orderByRaw('SUM(customers_count) '.$order);
             })
 
             // فلاتر البحث
@@ -205,7 +209,7 @@ class CustomerDistributionDataTable extends AbstractDataTable
             'collectors_count_badge',
             'total_customers_badge',
             'total_debt_formatted',
-            'created_by_name'
+            'created_by_name',
         ];
     }
 
@@ -237,7 +241,6 @@ class CustomerDistributionDataTable extends AbstractDataTable
         return $query;
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | Define DataTable Buttons
@@ -261,27 +264,27 @@ class CustomerDistributionDataTable extends AbstractDataTable
         $buttons = [
             [
                 'extend' => 'copy',
-                'text'   => 'نسخ'
+                'text' => 'نسخ',
             ],
             [
                 'extend' => 'excel',
-                'text'   => 'إكسل'
+                'text' => 'إكسل',
             ],
         ];
 
         if (Auth::user()->can('customer_distributions.delete')) {
             $buttons[] = [
-                'text'      => 'حذف المحدد',
+                'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
-                'action'    => "function() { handleMassDelete(); }",
+                'action' => 'function() { handleMassDelete(); }',
             ];
         }
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
 
@@ -292,14 +295,14 @@ class CustomerDistributionDataTable extends AbstractDataTable
     */
     private function getAddButton(): array
     {
-        if (!auth()->user()?->can('customer_distributions.create')) {
+        if (! auth()->user()?->can('customer_distributions.create')) {
             return [];
         }
 
         return [
-            'text'      => '<i class="fas fa-plus-circle me-1"></i> توزيع جديد',
+            'text' => '<i class="fas fa-plus-circle me-1"></i> توزيع جديد',
             'className' => 'btn btn-primary btn-add',
-            'action'    => "function(){ window.location.href='" . tenant_route_name($this->route . '.create') . "'; }",
+            'action' => "function(){ window.location.href='".tenant_route_name($this->route.'.create')."'; }",
         ];
     }
 }

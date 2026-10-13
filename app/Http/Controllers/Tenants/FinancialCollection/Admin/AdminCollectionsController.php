@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Tenants\FinancialCollection\Admin;
 
-use App\Http\Controllers\Controller;
 use App\DataTables\Tenants\FinancialCollection\Admin\AdminCollectionsDataTable;
+use App\Http\Controllers\Controller;
 use App\Models\Tenants\FinancialCollection\Collection\Collection;
 use App\Services\Tenants\FinancialCollection\Collection\CollectionService;
-use Illuminate\Http\Request;
-use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 class AdminCollectionsController extends Controller
 {
@@ -67,10 +67,10 @@ class AdminCollectionsController extends Controller
             if (request()->ajax()) {
                 return response()->json(['error' => 'حدث خطأ في تحميل البيانات'], 500);
             }
-            return redirect()->back()->with('error', 'حدث خطأ في تحميل البيانات: ' . $e->getMessage());
+
+            return redirect()->back()->with('error', 'حدث خطأ في تحميل البيانات: '.$e->getMessage());
         }
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -95,6 +95,7 @@ class AdminCollectionsController extends Controller
     {
         try {
             $this->collectionService->deleteCollection($collection);
+
             return redirect()->back()->with('success', 'تم حذف التحصيل بنجاح');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
@@ -116,12 +117,12 @@ class AdminCollectionsController extends Controller
                 'success' => true,
                 'message' => 'تم اعتماد التحصيل بنجاح',
                 'new_status' => 'approved',
-                'status_text' => 'معتمد'
+                'status_text' => 'معتمد',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -135,10 +136,10 @@ class AdminCollectionsController extends Controller
     public function reject(Request $request, Collection $collection): JsonResponse
     {
         $request->validate([
-            'rejection_reason' => 'required|string|max:500'
+            'rejection_reason' => 'required|string|max:500',
         ], [
             'rejection_reason.required' => 'يرجى إدخال سبب الرفض',
-            'rejection_reason.max' => 'سبب الرفض طويل جداً'
+            'rejection_reason.max' => 'سبب الرفض طويل جداً',
         ]);
 
         try {
@@ -152,12 +153,12 @@ class AdminCollectionsController extends Controller
                 'success' => true,
                 'message' => 'تم رفض التحصيل بنجاح',
                 'new_status' => 'rejected',
-                'status_text' => 'مرفوض'
+                'status_text' => 'مرفوض',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -177,7 +178,7 @@ class AdminCollectionsController extends Controller
         try {
             $validated = $request->validate([
                 'ids' => 'required|array|min:1',
-                'ids.*' => 'required|numeric|exists:collections,id'
+                'ids.*' => 'required|numeric|exists:collections,id',
             ]);
 
             $result = $this->collectionService->approveSelectedCollections(
@@ -190,13 +191,13 @@ class AdminCollectionsController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'فشل التحقق من صحة البيانات.',
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
-                'errors' => ['general' => [$e->getMessage()]]
+                'errors' => ['general' => [$e->getMessage()]],
             ], 422);
         }
     }
@@ -212,11 +213,11 @@ class AdminCollectionsController extends Controller
         $request->validate([
             'ids' => 'required|array|min:1',
             'ids.*' => 'required|integer|exists:collections,id',
-            'rejection_reason' => 'required|string|max:500'
+            'rejection_reason' => 'required|string|max:500',
         ], [
             'ids.required' => 'يرجى تحديد تحصيل واحد على الأقل',
             'rejection_reason.required' => 'يرجى إدخال سبب الرفض',
-            'rejection_reason.max' => 'سبب الرفض طويل جداً'
+            'rejection_reason.max' => 'سبب الرفض طويل جداً',
         ]);
 
         try {
@@ -228,12 +229,12 @@ class AdminCollectionsController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "تم رفض {$rejectedCount} تحصيل بنجاح"
+                'message' => "تم رفض {$rejectedCount} تحصيل بنجاح",
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 422);
         }
     }
@@ -251,12 +252,12 @@ class AdminCollectionsController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $stats
+                'data' => $stats,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -271,12 +272,12 @@ class AdminCollectionsController extends Controller
     {
         $request->validate([
             'ids' => 'required|array|min:1',
-            'ids.*' => 'required|integer|exists:collections,id'
+            'ids.*' => 'required|integer|exists:collections,id',
         ], [
             'ids.required' => 'يرجى تحديد تحصيل واحد على الأقل',
             'ids.array' => 'البيانات المرسلة غير صحيحة',
             'ids.min' => 'يرجى تحديد تحصيل واحد على الأقل',
-            'ids.*.exists' => 'أحد التحصيلات المحددة غير موجود'
+            'ids.*.exists' => 'أحد التحصيلات المحددة غير موجود',
         ]);
 
         try {
@@ -285,16 +286,15 @@ class AdminCollectionsController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => "تم حذف {$deletedCount} تحصيل بنجاح",
-                'deleted_count' => $deletedCount
+                'deleted_count' => $deletedCount,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 422);
         }
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -306,6 +306,7 @@ class AdminCollectionsController extends Controller
     {
         $search = $request->get('q', '');
         $customers = $this->collectionService->searchCustomers($search);
+
         return response()->json($customers);
     }
 
@@ -326,7 +327,7 @@ class AdminCollectionsController extends Controller
                 'payment_type',
                 'added_by',
                 'date_from',
-                'date_to'
+                'date_to',
             ]);
 
             $query = $this->collectionService->getAllCollectionsQuery();
@@ -337,12 +338,12 @@ class AdminCollectionsController extends Controller
             return response()->json([
                 'success' => true,
                 'collection_ids' => $collectionIds,
-                'count' => count($collectionIds)
+                'count' => count($collectionIds),
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء جلب البيانات'
+                'message' => 'حدث خطأ أثناء جلب البيانات',
             ], 500);
         }
     }

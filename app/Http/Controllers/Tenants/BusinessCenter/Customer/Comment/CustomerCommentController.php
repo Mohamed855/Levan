@@ -10,8 +10,7 @@ use App\Services\Tenants\BusinessCenter\Customer\Comment\CustomerCommentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class 
-CustomerCommentController extends Controller
+class CustomerCommentController extends Controller
 {
     protected CustomerCommentService $customerCommentService;
 
@@ -63,12 +62,12 @@ CustomerCommentController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'تم إضافة التعليق بنجاح',
-                'comment' => $comment
+                'comment' => $comment,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء حفظ التعليق: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء حفظ التعليق: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -88,10 +87,10 @@ CustomerCommentController extends Controller
                 ->first();
 
             // التحقق من وجود التعليق
-            if (!$comment) {
+            if (! $comment) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'التعليق المطلوب غير موجود أو لا ينتمي لهذا العميل.'
+                    'message' => 'التعليق المطلوب غير موجود أو لا ينتمي لهذا العميل.',
                 ], 404);
             }
 
@@ -100,12 +99,12 @@ CustomerCommentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'تم حذف التعليق بنجاح.'
+                'message' => 'تم حذف التعليق بنجاح.',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء حذف التعليق.'
+                'message' => 'حدث خطأ أثناء حذف التعليق.',
             ], 500);
         }
     }
@@ -120,6 +119,7 @@ CustomerCommentController extends Controller
     {
         try {
             $users = $this->customerCommentService->getAllMentionableUsers();
+
             return response()->json(['success' => true, 'users' => $users]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'حدث خطأ أثناء جلب قائمة المستخدمين'], 500);

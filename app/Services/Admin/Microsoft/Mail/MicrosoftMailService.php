@@ -12,10 +12,9 @@ class MicrosoftMailService
 
     public function __construct(private MicrosoftGraphService $graph, private MicrosoftSettingsService $settingsService)
     {
-        $config                 = $this->settingsService->get();
+        $config = $this->settingsService->get();
         $this->defaultFromEmail = $config['main_email'];
     }
-
 
     public function sendEmail(string $to, string $subject, string $htmlBody, array $attachments = [], ?string $fromEmail = null): bool
     {
@@ -24,9 +23,9 @@ class MicrosoftMailService
         $payload = [
             'message' => [
                 'subject' => $subject,
-                'body'    => [
+                'body' => [
                     'contentType' => 'HTML',
-                    'content'     => $htmlBody,
+                    'content' => $htmlBody,
                 ],
                 'toRecipients' => [
                     [
@@ -53,11 +52,11 @@ class MicrosoftMailService
 
             return true;
         } catch (\Throwable $e) {
-            Log::error('MicrosoftMailService::sendEmail error: ' . $e->getMessage());
+            Log::error('MicrosoftMailService::sendEmail error: '.$e->getMessage());
+
             return false;
         }
     }
-
 
     // protected function prepareAttachments(array $files): array
     // {

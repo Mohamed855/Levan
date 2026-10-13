@@ -11,7 +11,7 @@ class ObjectionDetails extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'objection_details';
-    
+
     protected $fillable = [
         'contact_result_id',
         'objection_reason',

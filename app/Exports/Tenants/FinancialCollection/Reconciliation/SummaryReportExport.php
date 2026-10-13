@@ -2,18 +2,18 @@
 
 namespace App\Exports\Tenants\FinancialCollection\Reconciliation;
 
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\WithColumnWidths;
-use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class SummaryReportExport implements WithHeadings, WithStyles, WithTitle, WithColumnWidths, WithEvents
+class SummaryReportExport implements WithColumnWidths, WithEvents, WithHeadings, WithStyles, WithTitle
 {
     protected $reconciliation;
 
@@ -80,17 +80,17 @@ class SummaryReportExport implements WithHeadings, WithStyles, WithTitle, WithCo
 
                 $data = [
                     ['إجمالي الصفوف', $this->reconciliation->total_rows, number_format($this->reconciliation->total_amount, 2), '100%'],
-                    ['متطابق', $this->reconciliation->matched_count, number_format($this->reconciliation->matched_amount, 2), round(($this->reconciliation->matched_count / max($this->reconciliation->total_rows, 1)) * 100, 1) . '%'],
-                    ['غير مسجل', $this->reconciliation->unmatched_count, number_format($this->reconciliation->unmatched_amount, 2), round(($this->reconciliation->unmatched_count / max($this->reconciliation->total_rows, 1)) * 100, 1) . '%'],
-                    ['اختلافات', $this->reconciliation->discrepancy_count, number_format($this->reconciliation->discrepancy_amount, 2), round(($this->reconciliation->discrepancy_count / max($this->reconciliation->total_rows, 1)) * 100, 1) . '%'],
-                    ['أخطاء', $this->reconciliation->error_count, '-', round(($this->reconciliation->error_count / max($this->reconciliation->total_rows, 1)) * 100, 1) . '%'],
+                    ['متطابق', $this->reconciliation->matched_count, number_format($this->reconciliation->matched_amount, 2), round(($this->reconciliation->matched_count / max($this->reconciliation->total_rows, 1)) * 100, 1).'%'],
+                    ['غير مسجل', $this->reconciliation->unmatched_count, number_format($this->reconciliation->unmatched_amount, 2), round(($this->reconciliation->unmatched_count / max($this->reconciliation->total_rows, 1)) * 100, 1).'%'],
+                    ['اختلافات', $this->reconciliation->discrepancy_count, number_format($this->reconciliation->discrepancy_amount, 2), round(($this->reconciliation->discrepancy_count / max($this->reconciliation->total_rows, 1)) * 100, 1).'%'],
+                    ['أخطاء', $this->reconciliation->error_count, '-', round(($this->reconciliation->error_count / max($this->reconciliation->total_rows, 1)) * 100, 1).'%'],
                     ['سدادات النظام فقط', $this->reconciliation->system_only_count, '-', '-'],
                 ];
 
                 $sheet->fromArray($data, null, 'A11');
 
                 $lastRow = 10 + count($data);
-                $sheet->getStyle('A1:D' . $lastRow)->applyFromArray([
+                $sheet->getStyle('A1:D'.$lastRow)->applyFromArray([
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => '000000']]],
                 ]);
             },

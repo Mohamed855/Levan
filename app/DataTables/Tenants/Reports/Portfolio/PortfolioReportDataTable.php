@@ -1,21 +1,20 @@
 <?php
+
 namespace App\DataTables\Tenants\Reports\Portfolio;
 
-
 use App\DataTables\Abstract\AbstractDataTable;
-use App\Models\Admin\Bills\Bill;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use Carbon\Carbon;
-use Illuminate\Support\Str;
 
 class PortfolioReportDataTable extends AbstractDataTable
 {
-    private $page   = "tenants.portfolio";
-    private $route  = "portfolio";
+    private $page = 'tenants.portfolio';
+
+    private $route = 'portfolio';
 
     protected function getTableId()
     {
-        return "portfolio-table";
+        return 'portfolio-table';
     }
 
     protected function resource()
@@ -32,6 +31,7 @@ class PortfolioReportDataTable extends AbstractDataTable
         if ($request->filled('date_to')) {
             $query->whereDate('assignment_date', '<=', $request->date_to);
         }
+
         return $query;
     }
 
@@ -48,7 +48,7 @@ class PortfolioReportDataTable extends AbstractDataTable
                 'className' => 'custom-checkbox',
                 'width' => '10px',
             ],
-             ['data' => 'company_name', 'name' => 'company.name', 'title' => 'اسم الشركة', 'orderable' => false, 'searchable' => false],
+            ['data' => 'company_name', 'name' => 'company.name', 'title' => 'اسم الشركة', 'orderable' => false, 'searchable' => false],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم المحفظة'],
             ['data' => 'assignment_date', 'name' => 'assignment_date', 'title' => 'تاريخ الإسناد'],
             ['data' => 'status', 'name' => 'status', 'title' => 'الحالة'],
@@ -57,33 +57,34 @@ class PortfolioReportDataTable extends AbstractDataTable
         ];
     }
 
-     protected function addCustomColumns($datatable)
+    protected function addCustomColumns($datatable)
     {
         $datatable
-            ->addColumn('checkbox', fn($row) => '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">')
+            ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
             ->addColumn('company_name', function (Portfolio $portfolio) {
                 $companyName = $portfolio->company->name ?? 'غير محدد';
-                return '<span class="text-primary">' . e($companyName) . '</span>';
+
+                return '<span class="text-primary">'.e($companyName).'</span>';
             })
             // ->editColumn('name', function (Portfolio $portfolio) {
             //     $url = tenant_route_name('portfolios.show', $portfolio->id);
             //     return '<a href="' . $url . '" class="text-body fw-medium">' . e($portfolio->name) . '</a>';
             // })
-            ->editColumn('status', fn($row) => $row->status == 'active' ? '<span class="badge bg-success">نشطة</span>' : '<span class="badge bg-secondary">غير نشطة</span>') 
-            ->editColumn('assignment_date', fn($row) => $row->assignment_date ? Carbon::parse($row->assignment_date)->format('Y-m-d') : '<span class="text-muted">لم يتم الإسناد	</span>')
-            
-            ->editColumn('created_at', fn($row) => Carbon::parse($row->created_at)->format('Y-m-d'))
-            ->addColumn('action', fn($row) => view('tenants.reports.portfolios.action', ['id' => $row->id, 'route' => $this->route])->render());
+            ->editColumn('status', fn ($row) => $row->status == 'active' ? '<span class="badge bg-success">نشطة</span>' : '<span class="badge bg-secondary">غير نشطة</span>')
+            ->editColumn('assignment_date', fn ($row) => $row->assignment_date ? Carbon::parse($row->assignment_date)->format('Y-m-d') : '<span class="text-muted">لم يتم الإسناد	</span>')
+
+            ->editColumn('created_at', fn ($row) => Carbon::parse($row->created_at)->format('Y-m-d'))
+            ->addColumn('action', fn ($row) => view('tenants.reports.portfolios.action', ['id' => $row->id, 'route' => $this->route])->render());
     }
 
-   protected function rawColumns(): array
+    protected function rawColumns(): array
     {
         return ['checkbox', 'company_name', 'name', 'assignment_date', 'status', 'action'];
     }
 
     protected function getSearchableColumns(): array
     {
-        return [ 'name', 'company.name'];
+        return ['name', 'company.name'];
     }
 
     protected function getCustomOrder(): array
@@ -106,13 +107,12 @@ class PortfolioReportDataTable extends AbstractDataTable
         ];
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
-
 
     private function TypeBadge($row): string
     {

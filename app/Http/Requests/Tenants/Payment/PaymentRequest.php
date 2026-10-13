@@ -14,7 +14,7 @@ class PaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'coupon_code'               => ['nullable', 'string',],
+            'coupon_code' => ['nullable', 'string'],
         ];
     }
 

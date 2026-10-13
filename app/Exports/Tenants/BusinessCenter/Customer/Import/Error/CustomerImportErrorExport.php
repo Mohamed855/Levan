@@ -4,13 +4,14 @@ namespace App\Exports\Tenants\BusinessCenter\Customer\Import\Error;
 
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use Maatwebsite\Excel\Concerns\FromArray;
+use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\FromCollection;
 
-class CustomerImportErrorExport implements FromArray, WithHeadings, WithTitle, FromCollection
+class CustomerImportErrorExport implements FromArray, FromCollection, WithHeadings, WithTitle
 {
     protected array $errors;
+
     protected ?Portfolio $portfolio = null;
 
     /*
@@ -65,11 +66,11 @@ class CustomerImportErrorExport implements FromArray, WithHeadings, WithTitle, F
                 'تاريخ العقد',
                 'معدل العمولة',
                 'تاريخ التعثر',
-                'آخر نتيجة اتصال'
+                'آخر نتيجة اتصال',
             ];
 
             $dynamicFields = $this->portfolio->portfolioFields->map(function ($field) {
-                return $field->field_name . ($field->is_required ? ' *' : '');
+                return $field->field_name.($field->is_required ? ' *' : '');
             })->toArray();
 
             return array_merge($nameHeaders, $staticHeaders, $dynamicFields);
@@ -90,7 +91,7 @@ class CustomerImportErrorExport implements FromArray, WithHeadings, WithTitle, F
             return array_map(function ($error) {
                 return [
                     $error['row'],
-                    implode(' | ', $error['errors'])
+                    implode(' | ', $error['errors']),
                 ];
             }, $this->errors);
         }

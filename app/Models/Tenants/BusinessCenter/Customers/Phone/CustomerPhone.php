@@ -11,7 +11,7 @@ use Spatie\Activitylog\Support\LogOptions;
 
 class CustomerPhone extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, LogsActivity, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -45,7 +45,7 @@ class CustomerPhone extends Model
             ->logOnlyDirty()
             ->dontLogEmptyChanges()
             ->useLogName('customer_phone')
-            ->setDescriptionForEvent(fn(string $eventName) => $this->getEventDescription($eventName));
+            ->setDescriptionForEvent(fn (string $eventName) => $this->getEventDescription($eventName));
     }
 
     /*
@@ -56,14 +56,14 @@ class CustomerPhone extends Model
     private function getEventDescription(string $eventName): string
     {
         $customerName = $this->customer->name ?? "عميل #{$this->customer_id}";
-        $phone  = $this->phone ?? 'غير محدد';
+        $phone = $this->phone ?? 'غير محدد';
 
         $type = match ($this->type) {
             'mobile' => 'جوال',
-            'home'   => 'منزل',
-            'work'   => 'عمل',
-            'other'  => 'أخرى',
-            default  => 'غير محدد'
+            'home' => 'منزل',
+            'work' => 'عمل',
+            'other' => 'أخرى',
+            default => 'غير محدد'
         };
 
         $primary = $this->is_primary ? 'نعم' : 'لا';
@@ -76,7 +76,7 @@ class CustomerPhone extends Model
             'created' => "تم إضافة رقم هاتف جديد للعميل {$customerName}{$details}",
             'updated' => "تم تعديل رقم هاتف العميل {$customerName}{$details}",
             'deleted' => "تم حذف رقم هاتف العميل {$customerName} (الرقم: {$phone})",
-            default   => "نشاط على رقم هاتف العميل {$customerName}{$details}",
+            default => "نشاط على رقم هاتف العميل {$customerName}{$details}",
         };
     }
 
@@ -87,7 +87,7 @@ class CustomerPhone extends Model
     */
     private function getChangesSummary(): string
     {
-        if (!$this->isDirty()) {
+        if (! $this->isDirty()) {
             return '';
         }
 
@@ -95,13 +95,13 @@ class CustomerPhone extends Model
 
         if ($this->isDirty('is_primary')) {
             if ($this->is_primary) {
-                $changes[] = "تم تعيينه كرقم افتراضي";
+                $changes[] = 'تم تعيينه كرقم افتراضي';
             } else {
-                $changes[] = "تم إلغاء تعيينه كرقم افتراضي";
+                $changes[] = 'تم إلغاء تعيينه كرقم افتراضي';
             }
         }
 
-        return empty($changes) ? '' : ' (' . implode(' | ', $changes) . ')';
+        return empty($changes) ? '' : ' ('.implode(' | ', $changes).')';
     }
 
     /*
@@ -133,7 +133,7 @@ class CustomerPhone extends Model
             'mobile' => 'جوال',
             'home' => 'منزل',
             'work' => 'عمل',
-            'other' => 'أخرى'
+            'other' => 'أخرى',
         ];
 
         return $types[$this->type] ?? 'غير محدد';
@@ -148,7 +148,7 @@ class CustomerPhone extends Model
             'mobile' => 'bg-label-primary',
             'home' => 'bg-label-info',
             'work' => 'bg-label-warning',
-            'other' => 'bg-secondary'
+            'other' => 'bg-secondary',
         ];
 
         return $classes[$this->type] ?? 'bg-secondary';

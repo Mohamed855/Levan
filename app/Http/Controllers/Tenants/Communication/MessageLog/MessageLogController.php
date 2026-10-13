@@ -7,12 +7,11 @@ use App\Models\Tenants\Communication\MessageLog\MessageLog;
 use App\Models\Tenants\GeneralSetting\MessageTemplate\MessageTemplate;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\Communication\MessageLog\MessageLogService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
-use Carbon\Carbon;
-use Illuminate\Http\RedirectResponse;
 
 class MessageLogController extends Controller
 {
@@ -50,7 +49,7 @@ class MessageLogController extends Controller
                     'failed_count',
                     'created_at',
                     'sent_at',
-                    'failed_at'
+                    'failed_at',
                 ]);
 
             // تطبيق الفلاتر
@@ -59,32 +58,33 @@ class MessageLogController extends Controller
             return DataTables::of($query)
                 ->addIndexColumn()
                 ->addColumn('checkbox', function ($log) {
-                    return '<input type="checkbox" class="row-checkbox" value="' . $log->id . '">';
+                    return '<input type="checkbox" class="row-checkbox" value="'.$log->id.'">';
                 })
                 ->addColumn('sender_name', function ($log) {
                     return $log->sender->name ?? 'النظام';
                 })
                 ->addColumn('message_preview', function ($log) {
-                    return '<div class="text-truncate" style="max-width: 200px;" title="' . e($log->message_content) . '">'
-                        . e(\Str::limit(strip_tags($log->message_content), 50)) . '</div>';
+                    return '<div class="text-truncate" style="max-width: 200px;" title="'.e($log->message_content).'">'
+                        .e(\Str::limit(strip_tags($log->message_content), 50)).'</div>';
                 })
                 ->addColumn('recipients_info', function ($log) {
                     $html = '<div class="text-center">';
-                    $html .= '<span class="badge bg-primary">' . $log->recipients_count . '</span>';
+                    $html .= '<span class="badge bg-primary">'.$log->recipients_count.'</span>';
                     if ($log->target_model) {
                         $targetModels = [
                             'customers' => 'العملاء',
                             'users' => 'المستخدمين',
-                            'employees' => 'الموظفين'
+                            'employees' => 'الموظفين',
                         ];
                         $modelName = $targetModels[$log->target_model] ?? $log->target_model;
-                        $html .= '<br><small class="text-muted">' . $modelName . '</small>';
+                        $html .= '<br><small class="text-muted">'.$modelName.'</small>';
                     }
                     $html .= '</div>';
+
                     return $html;
                 })
                 ->addColumn('status_badge', function ($log) {
-                    return '<span class="badge bg-' . $log->status_color . '">' . $log->status_label . '</span>';
+                    return '<span class="badge bg-'.$log->status_color.'">'.$log->status_label.'</span>';
                 })
                 ->addColumn('success_stats', function ($log) {
                     if ($log->status === 'pending' || $log->status === 'processing') {
@@ -93,33 +93,34 @@ class MessageLogController extends Controller
 
                     $html = '<div class="text-center">';
                     if ($log->sent_count > 0) {
-                        $html .= '<div class="text-success"><i class="ti ti-check"></i> ' . $log->sent_count . '</div>';
+                        $html .= '<div class="text-success"><i class="ti ti-check"></i> '.$log->sent_count.'</div>';
                     }
                     if ($log->failed_count > 0) {
-                        $html .= '<div class="text-danger"><i class="ti ti-x"></i> ' . $log->failed_count . '</div>';
+                        $html .= '<div class="text-danger"><i class="ti ti-x"></i> '.$log->failed_count.'</div>';
                     }
                     $html .= '</div>';
+
                     return $html;
                 })
                 ->addColumn('timing_info', function ($log) {
                     $html = '<div class="small">';
-                    $html .= '<div class="text-muted">إنشاء: ' . $log->created_at->format('m-d H:i') . '</div>';
+                    $html .= '<div class="text-muted">إنشاء: '.$log->created_at->format('m-d H:i').'</div>';
                     if ($log->sent_at) {
-                        $html .= '<div class="text-success">إرسال: ' . $log->sent_at->format('m-d H:i') . '</div>';
+                        $html .= '<div class="text-success">إرسال: '.$log->sent_at->format('m-d H:i').'</div>';
                     }
                     if ($log->failed_at) {
-                        $html .= '<div class="text-danger">فشل: ' . $log->failed_at->format('m-d H:i') . '</div>';
+                        $html .= '<div class="text-danger">فشل: '.$log->failed_at->format('m-d H:i').'</div>';
                     }
                     $html .= '</div>';
+
                     return $html;
                 })
                 ->addColumn('action', function ($log) {
                     return $this->getActionsColumn($log);
                 })
-                ->orderColumn('created_at', fn($query, $order) => $query->orderBy('created_at', $order))
-                ->orderColumn('status', fn($query, $order) => $query->orderBy('status', $order))
-                ->filterColumn('message_content', fn($query, $keyword) =>
-                $query->where('message_content', 'like', "%{$keyword}%"))
+                ->orderColumn('created_at', fn ($query, $order) => $query->orderBy('created_at', $order))
+                ->orderColumn('status', fn ($query, $order) => $query->orderBy('status', $order))
+                ->filterColumn('message_content', fn ($query, $keyword) => $query->where('message_content', 'like', "%{$keyword}%"))
                 ->rawColumns(['checkbox', 'message_preview', 'recipients_info', 'status_badge', 'success_stats', 'timing_info', 'action'])
                 ->make(true);
         }
@@ -130,7 +131,7 @@ class MessageLogController extends Controller
 
         return view('tenants.communication.message_logs.index', [
             'statistics' => $statistics,
-            'filterData' => $filterData
+            'filterData' => $filterData,
         ]);
     }
 
@@ -142,7 +143,7 @@ class MessageLogController extends Controller
         $messageLog->load(['sender:id,name', 'template:id,name']);
 
         return view('tenants.communication.message_logs.show', [
-            'messageLog' => $messageLog
+            'messageLog' => $messageLog,
         ]);
     }
 
@@ -153,6 +154,7 @@ class MessageLogController extends Controller
     {
         try {
             $messageLog->delete();
+
             return redirect()->back()->with('success', 'تم حذف الرسالة من السجل بنجاح');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'حدث خطأ أثناء حذف الرسالة');
@@ -168,7 +170,7 @@ class MessageLogController extends Controller
 
         return response()->json([
             'success' => true,
-            'statistics' => $stats
+            'statistics' => $stats,
         ]);
     }
 
@@ -182,7 +184,7 @@ class MessageLogController extends Controller
 
         return response()->json([
             'success' => true,
-            'chart_data' => $chartData
+            'chart_data' => $chartData,
         ]);
     }
 
@@ -209,7 +211,7 @@ class MessageLogController extends Controller
 
         return response()->json([
             'success' => true,
-            'failed_messages' => $failedMessages
+            'failed_messages' => $failedMessages,
         ]);
     }
 
@@ -249,10 +251,10 @@ class MessageLogController extends Controller
         }
 
         $search = $request->input('search.value');
-        if (!empty($search)) {
+        if (! empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('message_content', 'like', "%{$search}%")
-                    ->orWhere('template_name',    'like', "%{$search}%")
+                    ->orWhere('template_name', 'like', "%{$search}%")
                     ->orWhere('reference_number', 'like', "%{$search}%");
             });
         }
@@ -272,7 +274,7 @@ class MessageLogController extends Controller
             'today' => MessageLog::whereDate('created_at', today())->count(),
             'this_week' => MessageLog::whereBetween('created_at', [
                 now()->startOfWeek(),
-                now()->endOfWeek()
+                now()->endOfWeek(),
             ])->count(),
             'success_rate' => $this->calculateSuccessRate(),
         ];
@@ -317,21 +319,21 @@ class MessageLogController extends Controller
         $actions = '';
 
         // زر العرض
-        $actions .= '<a href="' . tenant_route_name('communication.message-logs.show', $log->id) . '" title="عرض" class="btn btn-icon btn-label-primary me-1">
+        $actions .= '<a href="'.tenant_route_name('communication.message-logs.show', $log->id).'" title="عرض" class="btn btn-icon btn-label-primary me-1">
                     <i class="ti ti-eye"></i>
                  </a>';
 
         // زر الحذف - نفس طريقة الشركات
-        $formId = 'delete-form-' . $log->id;
+        $formId = 'delete-form-'.$log->id;
         $deleteUrl = tenant_route_name('communication.message-logs.destroy', $log->id);
 
         $actions .= '
-        <button title="حذف الرسالة" type="button" onclick="confirmDelete(' . $log->id . ')" class="btn btn-icon btn-label-primary">
+        <button title="حذف الرسالة" type="button" onclick="confirmDelete('.$log->id.')" class="btn btn-icon btn-label-primary">
             <i class="ti ti-trash"></i>
         </button>
-        <form id="' . $formId . '" action="' . $deleteUrl . '" method="POST" style="display: none;">
-            ' . csrf_field() . '
-            ' . method_field('DELETE') . '
+        <form id="'.$formId.'" action="'.$deleteUrl.'" method="POST" style="display: none;">
+            '.csrf_field().'
+            '.method_field('DELETE').'
         </form>
     ';
 

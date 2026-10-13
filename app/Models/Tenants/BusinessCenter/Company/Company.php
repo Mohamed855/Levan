@@ -7,13 +7,14 @@ use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
-use Spatie\Activitylog\Support\LogOptions;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class Company extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, LogsActivity, SoftDeletes;
 
     /*
     |--------------------------------------------------------------------------
@@ -46,7 +47,7 @@ class Company extends Model
             ->logOnlyDirty()
             ->dontLogEmptyChanges()
             ->useLogName('companies')
-            ->setDescriptionForEvent(fn(string $eventName) => $this->getEventDescription($eventName))
+            ->setDescriptionForEvent(fn (string $eventName) => $this->getEventDescription($eventName))
             ->dontLogIfAttributesChangedOnly(['updated_at']);
     }
 
@@ -92,9 +93,13 @@ class Company extends Model
         ];
 
         foreach ($this->getDirty() as $field => $newValue) {
-            if ($field === 'updated_at') continue;
+            if ($field === 'updated_at') {
+                continue;
+            }
 
-            if (!isset($fieldNames[$field])) continue;
+            if (! isset($fieldNames[$field])) {
+                continue;
+            }
 
             $fieldLabel = $fieldNames[$field];
             $oldValue = $this->getOriginal($field);
@@ -107,7 +112,7 @@ class Company extends Model
             }
         }
 
-        return $changes ? ' (' . implode(' | ', $changes) . ')' : '';
+        return $changes ? ' ('.implode(' | ', $changes).')' : '';
     }
 
     /*
@@ -220,9 +225,9 @@ class Company extends Model
     {
         $field = $field ?? $this->getRouteKeyName();
         $query = static::query();
+
         return $query->where($field, $value)->firstOrFail();
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -243,7 +248,7 @@ class Company extends Model
 
     public function getCurrentTargetAttribute()
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('company_targets')) {
+        if (! Schema::hasTable('company_targets')) {
             return null;
         }
 
@@ -252,7 +257,7 @@ class Company extends Model
 
     public function getTargetsAttribute()
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('company_targets')) {
+        if (! Schema::hasTable('company_targets')) {
             return collect();
         }
 
@@ -261,7 +266,7 @@ class Company extends Model
 
     public function getTargetForDate($date)
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('company_targets')) {
+        if (! Schema::hasTable('company_targets')) {
             return null;
         }
 
@@ -275,17 +280,19 @@ class Company extends Model
     */
     public function getCurrentTargetPercentageAttribute(): ?float
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('company_targets')) {
+        if (! Schema::hasTable('company_targets')) {
             return 0.0;
         }
+
         return $this->currentTarget?->target_percentage;
     }
 
     public function getTargetPercentageForDate($date): ?float
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('company_targets')) {
+        if (! Schema::hasTable('company_targets')) {
             return 0.0;
         }
+
         return $this->getTargetForDate($date)?->target_percentage;
     }
 }

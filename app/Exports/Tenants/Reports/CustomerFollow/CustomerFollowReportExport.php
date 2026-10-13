@@ -2,32 +2,43 @@
 
 namespace App\Exports\Tenants\Reports\CustomerFollow;
 
+use Carbon\Carbon;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Enumerable;
 use Illuminate\Support\LazyCollection;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\WithColumnWidths;
-use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
-use Carbon\Carbon;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class CustomerFollowReportExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle, WithColumnWidths, WithEvents
+class CustomerFollowReportExport implements FromCollection, WithColumnWidths, WithEvents, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     protected $query;
+
     protected $filters;
+
     protected $selectedFields;
+
     protected $totalCount;
-    protected $rowCount    = 0;
-    protected $counter     = 0;
+
+    protected $rowCount = 0;
+
+    protected $counter = 0;
+
     protected $progressCallback;
-    protected int $startAfterId  = 0;
-    protected int $maxRows       = 0;
+
+    protected int $startAfterId = 0;
+
+    protected int $maxRows = 0;
+
     protected int $lastExportedId = 0;
 
     /*
@@ -38,19 +49,19 @@ class CustomerFollowReportExport implements FromCollection, WithHeadings, WithMa
     public function __construct(
         $query,
         $filters,
-        $selectedFields    = [],
-        $totalCount        = 0,
-        $progressCallback  = null,
-        int $startAfterId  = 0,
-        int $maxRows       = 0
+        $selectedFields = [],
+        $totalCount = 0,
+        $progressCallback = null,
+        int $startAfterId = 0,
+        int $maxRows = 0
     ) {
-        $this->query            = $query;
-        $this->filters          = $filters;
-        $this->selectedFields   = $selectedFields;
-        $this->totalCount       = $totalCount;
+        $this->query = $query;
+        $this->filters = $filters;
+        $this->selectedFields = $selectedFields;
+        $this->totalCount = $totalCount;
         $this->progressCallback = $progressCallback;
-        $this->startAfterId     = $startAfterId;
-        $this->maxRows          = $maxRows;
+        $this->startAfterId = $startAfterId;
+        $this->maxRows = $maxRows;
     }
 
     /*
@@ -58,21 +69,21 @@ class CustomerFollowReportExport implements FromCollection, WithHeadings, WithMa
     | Collection
     |--------------------------------------------------------------------------
     */
-    public function collection(): \Illuminate\Support\Enumerable
+    public function collection(): Enumerable
     {
-        if ($this->query instanceof \Illuminate\Support\Collection) {
+        if ($this->query instanceof Collection) {
             return $this->query;
         }
 
-        $query        = $this->query;
-        $totalCount   = $this->totalCount;
-        $callback     = $this->progressCallback;
+        $query = $this->query;
+        $totalCount = $this->totalCount;
+        $callback = $this->progressCallback;
         $startAfterId = $this->startAfterId;
-        $maxRows      = $this->maxRows;
+        $maxRows = $this->maxRows;
 
         return LazyCollection::make(function () use ($query, $totalCount, $callback, $startAfterId, $maxRows) {
             $chunkSize = 500;
-            $lastId    = $startAfterId;
+            $lastId = $startAfterId;
             $processed = 0;
 
             while (true) {
@@ -94,7 +105,7 @@ class CustomerFollowReportExport implements FromCollection, WithHeadings, WithMa
                     break;
                 }
 
-                $lastId     = $chunk->last()->id;
+                $lastId = $chunk->last()->id;
                 $chunkCount = $chunk->count();
 
                 foreach ($chunk as $item) {
@@ -143,34 +154,34 @@ class CustomerFollowReportExport implements FromCollection, WithHeadings, WithMa
         $headings = ['م'];
 
         $fieldLabels = [
-            'id'                        => 'رقم المتابعة',
-            'customer_name'             => 'اسم العميل',
-            'customer_account_number'   => 'رقم الحساب',
-            'customer_identity_number'  => 'رقم الهوية',
-            'company_name'              => 'الشركة',
-            'portfolio_name'            => 'المحفظة',
-            'contact_method'            => 'طريقة الاتصال',
-            'contact_location'          => 'موقع الاتصال',
-            'contacted_person'          => 'الشخص المتصل به',
-            'contacted_person_name'     => 'اسم الشخص المتصل به',
-            'customer_status'           => 'حالة العميل',
-            'contact_result'            => 'نتيجة الاتصال',
-            'notes'                     => 'ملاحظات',
-            'created_by'                => 'أنشأ بواسطة',
-            'created_at'                => 'تاريخ الإنشاء',
-            'payment_amount'            => 'المبلغ المسدد (تم السداد)',
-            'payment_date'              => 'تاريخ السداد (تم السداد)',
-            'payment_type'              => 'نوع السداد (تم السداد)',
-            'partial_payment_amount'    => 'المبلغ المسدد (سداد جزئي)',
-            'partial_payment_date'      => 'تاريخ السداد (سداد جزئي)',
-            'promise_amount'            => 'المبلغ الموعود به',
-            'promise_date'              => 'تاريخ السداد الموعود',
-            'callback_date'             => 'تاريخ المعاودة',
-            'callback_reason'           => 'سبب المعاودة',
-            'documents_date'            => 'تاريخ طلب المستندات',
-            'documents_reason'          => 'سبب طلب المستندات',
-            'objection_reason'          => 'سبب الاعتراض',
-            'recovery_reason'           => 'سبب الاسترداد',
+            'id' => 'رقم المتابعة',
+            'customer_name' => 'اسم العميل',
+            'customer_account_number' => 'رقم الحساب',
+            'customer_identity_number' => 'رقم الهوية',
+            'company_name' => 'الشركة',
+            'portfolio_name' => 'المحفظة',
+            'contact_method' => 'طريقة الاتصال',
+            'contact_location' => 'موقع الاتصال',
+            'contacted_person' => 'الشخص المتصل به',
+            'contacted_person_name' => 'اسم الشخص المتصل به',
+            'customer_status' => 'حالة العميل',
+            'contact_result' => 'نتيجة الاتصال',
+            'notes' => 'ملاحظات',
+            'created_by' => 'أنشأ بواسطة',
+            'created_at' => 'تاريخ الإنشاء',
+            'payment_amount' => 'المبلغ المسدد (تم السداد)',
+            'payment_date' => 'تاريخ السداد (تم السداد)',
+            'payment_type' => 'نوع السداد (تم السداد)',
+            'partial_payment_amount' => 'المبلغ المسدد (سداد جزئي)',
+            'partial_payment_date' => 'تاريخ السداد (سداد جزئي)',
+            'promise_amount' => 'المبلغ الموعود به',
+            'promise_date' => 'تاريخ السداد الموعود',
+            'callback_date' => 'تاريخ المعاودة',
+            'callback_reason' => 'سبب المعاودة',
+            'documents_date' => 'تاريخ طلب المستندات',
+            'documents_reason' => 'سبب طلب المستندات',
+            'objection_reason' => 'سبب الاعتراض',
+            'recovery_reason' => 'سبب الاسترداد',
         ];
 
         foreach ($this->selectedFields as $field) {
@@ -240,7 +251,7 @@ class CustomerFollowReportExport implements FromCollection, WithHeadings, WithMa
                     break;
                 case 'payment_amount':
                     $row[] = $follow->fullPaymentDetails
-                        ? number_format($follow->fullPaymentDetails->payment_amount, 2) . ' ريال'
+                        ? number_format($follow->fullPaymentDetails->payment_amount, 2).' ريال'
                         : 'غير محدد';
                     break;
                 case 'payment_date':
@@ -255,7 +266,7 @@ class CustomerFollowReportExport implements FromCollection, WithHeadings, WithMa
                     break;
                 case 'partial_payment_amount':
                     $row[] = $follow->partialPaymentDetails
-                        ? number_format($follow->partialPaymentDetails->partial_payment_amount, 2) . ' ريال'
+                        ? number_format($follow->partialPaymentDetails->partial_payment_amount, 2).' ريال'
                         : 'غير محدد';
                     break;
                 case 'partial_payment_date':
@@ -265,7 +276,7 @@ class CustomerFollowReportExport implements FromCollection, WithHeadings, WithMa
                     break;
                 case 'promise_amount':
                     $row[] = $follow->promisePaymentDetails
-                        ? number_format($follow->promisePaymentDetails->promise_amount, 2) . ' ريال'
+                        ? number_format($follow->promisePaymentDetails->promise_amount, 2).' ريال'
                         : 'غير محدد';
                     break;
                 case 'promise_date':
@@ -310,6 +321,7 @@ class CustomerFollowReportExport implements FromCollection, WithHeadings, WithMa
         }
 
         $this->rowCount++;
+
         return $row;
     }
 
@@ -320,30 +332,30 @@ class CustomerFollowReportExport implements FromCollection, WithHeadings, WithMa
     */
     public function styles(Worksheet $sheet): array
     {
-        $lastColumn       = count($this->selectedFields) + 1;
+        $lastColumn = count($this->selectedFields) + 1;
         $lastColumnLetter = $this->getColumnLetter($lastColumn);
-        $lastRow          = $this->rowCount + 1;
+        $lastRow = $this->rowCount + 1;
 
         return [
             1 => [
                 'font' => [
-                    'bold'  => true,
-                    'size'  => 12,
+                    'bold' => true,
+                    'size' => 12,
                     'color' => ['argb' => 'FFFFFF'],
                 ],
                 'fill' => [
-                    'fillType'   => Fill::FILL_SOLID,
+                    'fillType' => Fill::FILL_SOLID,
                     'startColor' => ['argb' => '1F4E78'],
                 ],
                 'alignment' => [
                     'horizontal' => Alignment::HORIZONTAL_CENTER,
-                    'vertical'   => Alignment::VERTICAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
                 ],
             ],
             "A2:{$lastColumnLetter}{$lastRow}" => [
                 'alignment' => [
                     'horizontal' => Alignment::HORIZONTAL_RIGHT,
-                    'vertical'   => Alignment::VERTICAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
                 ],
             ],
         ];
@@ -359,36 +371,36 @@ class CustomerFollowReportExport implements FromCollection, WithHeadings, WithMa
         $widths = ['A' => 8];
 
         $fieldWidths = [
-            'id'                     => 12,
-            'customer_name'          => 25,
-            'contact_method'         => 18,
-            'contact_location'       => 18,
-            'contacted_person'       => 18,
-            'contacted_person_name'  => 20,
-            'next_contact_datetime'  => 20,
-            'customer_status'        => 18,
-            'contact_result'         => 20,
-            'notes'                  => 25,
-            'created_by'             => 20,
-            'created_at'             => 18,
-            'payment_amount'         => 20,
-            'payment_date'           => 18,
-            'payment_type'           => 18,
+            'id' => 12,
+            'customer_name' => 25,
+            'contact_method' => 18,
+            'contact_location' => 18,
+            'contacted_person' => 18,
+            'contacted_person_name' => 20,
+            'next_contact_datetime' => 20,
+            'customer_status' => 18,
+            'contact_result' => 20,
+            'notes' => 25,
+            'created_by' => 20,
+            'created_at' => 18,
+            'payment_amount' => 20,
+            'payment_date' => 18,
+            'payment_type' => 18,
             'partial_payment_amount' => 20,
-            'partial_payment_date'   => 18,
-            'promise_amount'         => 20,
-            'promise_date'           => 18,
-            'callback_date'          => 20,
-            'callback_reason'        => 25,
-            'documents_date'         => 18,
-            'documents_reason'       => 25,
-            'objection_reason'       => 25,
-            'recovery_reason'        => 25,
+            'partial_payment_date' => 18,
+            'promise_amount' => 20,
+            'promise_date' => 18,
+            'callback_date' => 20,
+            'callback_reason' => 25,
+            'documents_date' => 18,
+            'documents_reason' => 25,
+            'objection_reason' => 25,
+            'recovery_reason' => 25,
         ];
 
         $columnIndex = 1;
         foreach ($this->selectedFields as $field) {
-            $columnLetter          = $this->getColumnLetter($columnIndex + 1);
+            $columnLetter = $this->getColumnLetter($columnIndex + 1);
             $widths[$columnLetter] = $fieldWidths[$field] ?? 15;
             $columnIndex++;
         }
@@ -409,15 +421,15 @@ class CustomerFollowReportExport implements FromCollection, WithHeadings, WithMa
 
                 $sheet->freezePane('A2');
 
-                $lastColumn       = count($this->selectedFields) + 1;
+                $lastColumn = count($this->selectedFields) + 1;
                 $lastColumnLetter = $this->getColumnLetter($lastColumn);
-                $lastRow          = $this->rowCount + 1;
+                $lastRow = $this->rowCount + 1;
 
                 $sheet->getStyle("A1:{$lastColumnLetter}1")->applyFromArray([
                     'borders' => [
                         'allBorders' => [
                             'borderStyle' => Border::BORDER_THIN,
-                            'color'       => ['argb' => '000000'],
+                            'color' => ['argb' => '000000'],
                         ],
                     ],
                 ]);
@@ -448,9 +460,10 @@ class CustomerFollowReportExport implements FromCollection, WithHeadings, WithMa
         $letter = '';
         while ($columnNumber > 0) {
             $columnNumber--;
-            $letter       = chr(65 + ($columnNumber % 26)) . $letter;
+            $letter = chr(65 + ($columnNumber % 26)).$letter;
             $columnNumber = intval($columnNumber / 26);
         }
+
         return $letter;
     }
 
@@ -458,17 +471,17 @@ class CustomerFollowReportExport implements FromCollection, WithHeadings, WithMa
     {
         return [
             'bank_transfer' => 'تحويل بنكي',
-            'branch'        => 'عن طريق الفرع',
-            'settlement'    => 'تسوية',
-            'receipt'       => 'إيصال',
+            'branch' => 'عن طريق الفرع',
+            'settlement' => 'تسوية',
+            'receipt' => 'إيصال',
         ][$type] ?? $type;
     }
 
     private function getCallbackReasonLabel(string $reason): string
     {
         return [
-            'client_busy'         => 'أفاد العميل بأنه مشغول حالياً',
-            'branch_review'       => 'مراجعة فرع الشركة للتأكد من المديونية',
+            'client_busy' => 'أفاد العميل بأنه مشغول حالياً',
+            'branch_review' => 'مراجعة فرع الشركة للتأكد من المديونية',
             'branch_verification' => 'مراجعة فرع الشركة للتحقق من الخصم',
         ][$reason] ?? $reason;
     }
@@ -476,11 +489,11 @@ class CustomerFollowReportExport implements FromCollection, WithHeadings, WithMa
     private function getRecoveryReasonLabel(string $reason): string
     {
         return [
-            'valid_print'      => 'برنت سارية',
-            'has_license'      => 'يملك رخصة',
-            'star_report'      => 'تقرير نجم بعد التعديل',
+            'valid_print' => 'برنت سارية',
+            'has_license' => 'يملك رخصة',
+            'star_report' => 'تقرير نجم بعد التعديل',
             'traffic_decision' => 'قرار لجنة مرورية',
-            'court_deed'       => 'صك محكمة',
+            'court_deed' => 'صك محكمة',
         ][$reason] ?? $reason;
     }
 }

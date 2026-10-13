@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Admin\SubscriptionManagement;
 
-use App\DataTables\Admin\SubscriptionMangment\subscriptionMangmentDataTable;
 use App\DataTables\Admin\Companies\CompanyDataTable;
+use App\DataTables\Admin\SubscriptionMangment\subscriptionMangmentDataTable;
 use App\Enums\Admin\Billing\BillStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
-use App\Models\Admin\City;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\SubscriptionManagement\FinalizeCompanySubscriptionRequest;
@@ -16,22 +15,23 @@ use App\Http\Requests\Admin\SubscriptionManagement\MassRejectSubscriptionsReques
 use App\Http\Requests\Admin\SubscriptionManagement\RejectSubscriptionRequest;
 use App\Http\Requests\Admin\SubscriptionManagement\UpdateCompanySubscriptionRequest;
 use App\Models\Admin\Bills\Bill;
+use App\Models\Admin\City;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Admin\SubscriptionManagement\SubscriptionManagementService;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
 
 class SubscriptionManagementController extends Controller
 {
-    protected const VIEW_PATH  = "admin.subscription_manage";
-    protected const ROUTE_NAME =  "admin.companies";
+    protected const VIEW_PATH = 'admin.subscription_manage';
+
+    protected const ROUTE_NAME = 'admin.companies';
 
     public function __construct(private SubscriptionManagementService $subscriptionManagementService) {}
 
@@ -70,24 +70,25 @@ class SubscriptionManagementController extends Controller
             ];
 
             return $dataTable->render('admin.companies.index', [
-                'totalSubscriptions'     => $statistics['total'],
-                'activeSubscriptions'    => $statistics['active'],
-                'expiredSubscriptions'   => $statistics['expired'],
-                'pendingSubscriptions'   => $statistics['pending'],
+                'totalSubscriptions' => $statistics['total'],
+                'activeSubscriptions' => $statistics['active'],
+                'expiredSubscriptions' => $statistics['expired'],
+                'pendingSubscriptions' => $statistics['pending'],
                 'suspendedSubscriptions' => $statistics['suspended'] ?? 0,
-                'expiringSubscriptions'  => $statistics['expiring_soon'] ?? 0,
-                'totalCompanies'         => $statistics['total'],
-                'activeCompanies'        => $statistics['active'],
-                'expiredCompanies'       => $statistics['expired'],
-                'pendingCompanies'       => $statistics['pending'],
-                'suspendedCompanies'     => $statistics['suspended'] ?? 0,
-                'statistics'             => $statistics,
-                'cities'                 => $cities,
-                'plans'                  => $plans,
-                'filterOptions'          => $filterOptions,
+                'expiringSubscriptions' => $statistics['expiring_soon'] ?? 0,
+                'totalCompanies' => $statistics['total'],
+                'activeCompanies' => $statistics['active'],
+                'expiredCompanies' => $statistics['expired'],
+                'pendingCompanies' => $statistics['pending'],
+                'suspendedCompanies' => $statistics['suspended'] ?? 0,
+                'statistics' => $statistics,
+                'cities' => $cities,
+                'plans' => $plans,
+                'filterOptions' => $filterOptions,
             ]);
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }
@@ -97,18 +98,19 @@ class SubscriptionManagementController extends Controller
         try {
             $statistics = $this->subscriptionManagementService->getSubscriptionStatistics();
 
-            return $dataTable->render(self::VIEW_PATH . '.index', [
-                'pageTitle'              => 'طلبات الاشتراك الجديدة',
-                'isExpiringPage'         => false,
-                'isPendingPage'          => true,
-                'totalSubscriptions'     => $statistics['total'],
-                'activeSubscriptions'    => $statistics['active'],
-                'expiredSubscriptions'   => $statistics['expired'],
-                'pendingSubscriptions'   => $statistics['pending'],
-                'expiringSubscriptions'  => $statistics['expiring_soon'],
+            return $dataTable->render(self::VIEW_PATH.'.index', [
+                'pageTitle' => 'طلبات الاشتراك الجديدة',
+                'isExpiringPage' => false,
+                'isPendingPage' => true,
+                'totalSubscriptions' => $statistics['total'],
+                'activeSubscriptions' => $statistics['active'],
+                'expiredSubscriptions' => $statistics['expired'],
+                'pendingSubscriptions' => $statistics['pending'],
+                'expiringSubscriptions' => $statistics['expiring_soon'],
             ]);
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }
@@ -118,17 +120,18 @@ class SubscriptionManagementController extends Controller
         try {
             $statistics = $this->subscriptionManagementService->getSubscriptionStatistics();
 
-            return $dataTable->render(self::VIEW_PATH . '.index', [
-                'pageTitle'              => 'اشتراكات تقارب على الانتهاء',
-                'isExpiringPage'         => true,
-                'totalSubscriptions'     => $statistics['total'],
-                'activeSubscriptions'    => $statistics['active'],
-                'expiredSubscriptions'   => $statistics['expired'],
-                'pendingSubscriptions'   => $statistics['pending'],
-                'expiringSubscriptions'  => $statistics['expiring_soon'],
+            return $dataTable->render(self::VIEW_PATH.'.index', [
+                'pageTitle' => 'اشتراكات تقارب على الانتهاء',
+                'isExpiringPage' => true,
+                'totalSubscriptions' => $statistics['total'],
+                'activeSubscriptions' => $statistics['active'],
+                'expiredSubscriptions' => $statistics['expired'],
+                'pendingSubscriptions' => $statistics['pending'],
+                'expiringSubscriptions' => $statistics['expiring_soon'],
             ]);
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }
@@ -138,17 +141,18 @@ class SubscriptionManagementController extends Controller
         try {
             $statistics = $this->subscriptionManagementService->getSubscriptionStatistics();
 
-            return $dataTable->render(self::VIEW_PATH . '.index', [
-                'pageTitle'              => 'الاشتراكات المنتهية',
-                'isExpiredPage'          => true,
-                'totalSubscriptions'     => $statistics['total'],
-                'activeSubscriptions'    => $statistics['active'],
-                'expiredSubscriptions'   => $statistics['expired'],
-                'pendingSubscriptions'   => $statistics['pending'],
-                'expiringSubscriptions'  => $statistics['expiring_soon'],
+            return $dataTable->render(self::VIEW_PATH.'.index', [
+                'pageTitle' => 'الاشتراكات المنتهية',
+                'isExpiredPage' => true,
+                'totalSubscriptions' => $statistics['total'],
+                'activeSubscriptions' => $statistics['active'],
+                'expiredSubscriptions' => $statistics['expired'],
+                'pendingSubscriptions' => $statistics['pending'],
+                'expiringSubscriptions' => $statistics['expiring_soon'],
             ]);
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }
@@ -157,9 +161,9 @@ class SubscriptionManagementController extends Controller
     {
         $cities = City::orderBy('name')->get(['id', 'name']);
         $plans = Plan::where('is_active', true)->orderBy('sort_order', 'asc')->get()
-            ->map(fn($plan) => [
-                'id'                   => $plan->id,
-                'name'                 => $plan->name,
+            ->map(fn ($plan) => [
+                'id' => $plan->id,
+                'name' => $plan->name,
                 'price_after_discount' => $plan->price_after_discount,
                 'included_users' => $plan->included_users,
                 'subscription_duration_type' => $plan->subscription_duration_type,
@@ -184,9 +188,11 @@ class SubscriptionManagementController extends Controller
             }
 
             $this->subscriptionManagementService->create($data);
-            return redirect()->route(self::ROUTE_NAME . '.index')->with('success', 'تم إضافة العميل والاشتراك بنجاح');
+
+            return redirect()->route(self::ROUTE_NAME.'.index')->with('success', 'تم إضافة العميل والاشتراك بنجاح');
         } catch (\Throwable $e) {
             report($e);
+
             return redirect()->back()->withInput()->with('error', 'حدث خطأ أثناء إضافة العميل');
         }
     }
@@ -198,7 +204,7 @@ class SubscriptionManagementController extends Controller
         try {
             $user = User::role('Admin')->orderBy('id')->first() ?? User::orderBy('id')->first();
 
-            abort_if(!$user, 404, 'لا يوجد مستخدم إداري لهذا العميل.');
+            abort_if(! $user, 404, 'لا يوجد مستخدم إداري لهذا العميل.');
         } finally {
             tenancy()->end();
         }
@@ -209,7 +215,7 @@ class SubscriptionManagementController extends Controller
             'expires_at' => now()->addMinute()->timestamp,
         ], JSON_THROW_ON_ERROR));
 
-        return redirect()->to(url($tenant->id . '/impersonate?token=' . urlencode($handoff)));
+        return redirect()->to(url($tenant->id.'/impersonate?token='.urlencode($handoff)));
     }
 
     public function edit(Subscription $subscription)
@@ -217,7 +223,8 @@ class SubscriptionManagementController extends Controller
         $plan = $subscription->plan;
         $plans = Plan::get();
         $cities = City::orderBy('name')->get(['id', 'name']);
-        $allStatus  = SubscriptionStatus::options();
+        $allStatus = SubscriptionStatus::options();
+
         return view('admin.companies.edit', compact('subscription', 'allStatus', 'plan', 'plans', 'cities'));
     }
 
@@ -248,21 +255,21 @@ class SubscriptionManagementController extends Controller
 
             $tenant->update([
                 'tax_number' => $validated['tax_number'],
-                'city_id'    => $validated['city_id'],
-                'address'    => $validated['address'],
-                'status'     => $validated['status'] === SubscriptionStatus::ACTIVE->value ? 'active' : 'pending',
+                'city_id' => $validated['city_id'],
+                'address' => $validated['address'],
+                'status' => $validated['status'] === SubscriptionStatus::ACTIVE->value ? 'active' : 'pending',
             ]);
 
             $subscription->update([
-                'plan_id'           => $validated['plan_id'],
-                'price'             => $validated['price'],
-                'status'            => $validated['status'],
-                'total_users'       => $validated['total_users'],
-                'used_users'        => $validated['licenses_quota'] ?? $subscription->used_users,
-                'starts_at'         => $validated['starts_at'],
-                'ends_at'           => $endsAt,
+                'plan_id' => $validated['plan_id'],
+                'price' => $validated['price'],
+                'status' => $validated['status'],
+                'total_users' => $validated['total_users'],
+                'used_users' => $validated['licenses_quota'] ?? $subscription->used_users,
+                'starts_at' => $validated['starts_at'],
+                'ends_at' => $endsAt,
                 'next_payment_date' => $validated['next_payment_date'] ?? $subscription->next_payment_date,
-                'auto_renew'        => $request->has('auto_renew'),
+                'auto_renew' => $request->has('auto_renew'),
             ]);
 
             // مزامنة فترة الاشتراك
@@ -270,27 +277,27 @@ class SubscriptionManagementController extends Controller
             if ($period) {
                 $period->update([
                     'period_start' => $validated['starts_at'],
-                    'period_end'   => $endsAt,
+                    'period_end' => $endsAt,
                 ]);
             }
 
             DB::commit();
 
             return redirect()
-                ->route(self::ROUTE_NAME . '.index')
+                ->route(self::ROUTE_NAME.'.index')
                 ->with('success', 'تم تحديث بيانات الاشتراك بنجاح');
         } catch (\Exception $e) {
             DB::rollBack();
 
-            Log::error('فشل تحديث الاشتراك: ' . $e->getMessage(), [
+            Log::error('فشل تحديث الاشتراك: '.$e->getMessage(), [
                 'subscription_id' => $subscription->id,
-                'request_data'    => $request->all()
+                'request_data' => $request->all(),
             ]);
 
             return redirect()
                 ->back()
                 ->withInput()
-                ->with('error', 'حدث خطأ أثناء تحديث الاشتراك: ' . $e->getMessage());
+                ->with('error', 'حدث خطأ أثناء تحديث الاشتراك: '.$e->getMessage());
         }
     }
 
@@ -311,8 +318,8 @@ class SubscriptionManagementController extends Controller
             Bill::where('subscription_id', $subscription->id)
                 ->whereIn('status', [BillStatus::PENDING, BillStatus::PENDING_VERIFICATION, BillStatus::UNPAID])
                 ->update([
-                    'status'      => BillStatus::PAID,
-                    'paid_at'     => now(),
+                    'status' => BillStatus::PAID,
+                    'paid_at' => now(),
                     'verified_by' => auth()->id(),
                     'verified_at' => now(),
                 ]);
@@ -336,7 +343,7 @@ class SubscriptionManagementController extends Controller
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'حدث خطأ أثناء قبول طلب الاشتراك: ' . $e->getMessage(),
+                    'message' => 'حدث خطأ أثناء قبول طلب الاشتراك: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -352,8 +359,8 @@ class SubscriptionManagementController extends Controller
             DB::beginTransaction();
 
             $subscription->update([
-                'status'              => SubscriptionStatus::CANCELLED,
-                'cancelled_at'        => now(),
+                'status' => SubscriptionStatus::CANCELLED,
+                'cancelled_at' => now(),
                 'cancellation_reason' => $validated['reject_reason'] ?? null,
             ]);
 
@@ -364,8 +371,8 @@ class SubscriptionManagementController extends Controller
             Bill::where('subscription_id', $subscription->id)
                 ->whereIn('status', [BillStatus::PENDING, BillStatus::PENDING_VERIFICATION, BillStatus::UNPAID])
                 ->update([
-                    'status'        => BillStatus::CANCELLED,
-                    'cancelled_at'  => now(),
+                    'status' => BillStatus::CANCELLED,
+                    'cancelled_at' => now(),
                     'reject_reason' => $validated['reject_reason'] ?? null,
                 ]);
 
@@ -388,7 +395,7 @@ class SubscriptionManagementController extends Controller
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'حدث خطأ أثناء رفض طلب الاشتراك: ' . $e->getMessage(),
+                    'message' => 'حدث خطأ أثناء رفض طلب الاشتراك: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -418,8 +425,8 @@ class SubscriptionManagementController extends Controller
                     Bill::where('subscription_id', $subscription->id)
                         ->whereIn('status', [BillStatus::PENDING, BillStatus::PENDING_VERIFICATION, BillStatus::UNPAID])
                         ->update([
-                            'status'      => BillStatus::PAID,
-                            'paid_at'     => now(),
+                            'status' => BillStatus::PAID,
+                            'paid_at' => now(),
                             'verified_by' => auth()->id(),
                             'verified_at' => now(),
                         ]);
@@ -440,7 +447,7 @@ class SubscriptionManagementController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء قبول الاشتراكات المحددة: ' . $e->getMessage(),
+                'message' => 'حدث خطأ أثناء قبول الاشتراكات المحددة: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -456,8 +463,8 @@ class SubscriptionManagementController extends Controller
                 $subscription = Subscription::find($id);
                 if ($subscription) {
                     $subscription->update([
-                        'status'              => SubscriptionStatus::CANCELLED,
-                        'cancelled_at'        => now(),
+                        'status' => SubscriptionStatus::CANCELLED,
+                        'cancelled_at' => now(),
                         'cancellation_reason' => $validated['reject_reason'] ?? null,
                     ]);
 
@@ -468,8 +475,8 @@ class SubscriptionManagementController extends Controller
                     Bill::where('subscription_id', $subscription->id)
                         ->whereIn('status', [BillStatus::PENDING, BillStatus::PENDING_VERIFICATION, BillStatus::UNPAID])
                         ->update([
-                            'status'        => BillStatus::CANCELLED,
-                            'cancelled_at'  => now(),
+                            'status' => BillStatus::CANCELLED,
+                            'cancelled_at' => now(),
                             'reject_reason' => $validated['reject_reason'] ?? null,
                         ]);
                 }
@@ -489,7 +496,7 @@ class SubscriptionManagementController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء رفض الاشتراكات المحددة: ' . $e->getMessage(),
+                'message' => 'حدث خطأ أثناء رفض الاشتراكات المحددة: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -502,26 +509,26 @@ class SubscriptionManagementController extends Controller
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'تم نقل الاشتراك إلى الأرشيف بنجاح'
+                    'message' => 'تم نقل الاشتراك إلى الأرشيف بنجاح',
                 ]);
             }
 
             return redirect()
-                ->route(self::ROUTE_NAME . '.index')
+                ->route(self::ROUTE_NAME.'.index')
                 ->with('success', 'تم نقل الاشتراك إلى الأرشيف بنجاح');
         } catch (\Exception $e) {
-            Log::error('فشل حذف الاشتراك: ' . $e->getMessage());
+            Log::error('فشل حذف الاشتراك: '.$e->getMessage());
 
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'حدث خطأ أثناء حذف الاشتراك: ' . $e->getMessage()
+                    'message' => 'حدث خطأ أثناء حذف الاشتراك: '.$e->getMessage(),
                 ], 500);
             }
 
             return redirect()
                 ->back()
-                ->with('error', 'حدث خطأ أثناء حذف الاشتراك: ' . $e->getMessage());
+                ->with('error', 'حدث خطأ أثناء حذف الاشتراك: '.$e->getMessage());
         }
     }
 }

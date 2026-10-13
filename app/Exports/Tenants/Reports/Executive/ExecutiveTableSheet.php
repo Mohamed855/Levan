@@ -13,14 +13,14 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class ExecutiveTableSheet implements FromArray, WithTitle, WithStyles, WithColumnWidths, WithEvents
+class ExecutiveTableSheet implements FromArray, WithColumnWidths, WithEvents, WithStyles, WithTitle
 {
     private int $rowCount = 0;
 
     public function __construct(
         private readonly string $title,
-        private readonly array  $head,
-        private readonly array  $rows,
+        private readonly array $head,
+        private readonly array $rows,
     ) {}
 
     public function array(): array
@@ -28,11 +28,11 @@ class ExecutiveTableSheet implements FromArray, WithTitle, WithStyles, WithColum
         $data = [];
 
         if ($this->head) {
-            $data[] = array_map(fn($h) => strip_tags($h), $this->head);
+            $data[] = array_map(fn ($h) => strip_tags($h), $this->head);
         }
 
         foreach ($this->rows as $row) {
-            $data[] = array_map(fn($cell) => strip_tags((string) $cell), $row);
+            $data[] = array_map(fn ($cell) => strip_tags((string) $cell), $row);
             $this->rowCount++;
         }
 
@@ -52,6 +52,7 @@ class ExecutiveTableSheet implements FromArray, WithTitle, WithStyles, WithColum
         foreach ($this->head as $i => $heading) {
             $widths[$letters[$i]] = max(18, mb_strlen(strip_tags($heading)) * 2);
         }
+
         return $widths;
     }
 
@@ -59,8 +60,8 @@ class ExecutiveTableSheet implements FromArray, WithTitle, WithStyles, WithColum
     {
         return [
             1 => [
-                'font'      => ['bold' => true, 'size' => 11, 'color' => ['argb' => 'FFFFFF']],
-                'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => '1F4E78']],
+                'font' => ['bold' => true, 'size' => 11, 'color' => ['argb' => 'FFFFFF']],
+                'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => '1F4E78']],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
             ],
         ];
@@ -70,9 +71,11 @@ class ExecutiveTableSheet implements FromArray, WithTitle, WithStyles, WithColum
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
-                $sheet   = $event->sheet->getDelegate();
+                $sheet = $event->sheet->getDelegate();
                 $colCount = count($this->head);
-                if ($colCount === 0) return;
+                if ($colCount === 0) {
+                    return;
+                }
 
                 $lastCol = $this->numToLetter($colCount);
                 $lastRow = $this->rowCount + 1;
@@ -108,9 +111,10 @@ class ExecutiveTableSheet implements FromArray, WithTitle, WithStyles, WithColum
         $letter = '';
         while ($n > 0) {
             $n--;
-            $letter = chr(65 + ($n % 26)) . $letter;
-            $n      = intdiv($n, 26);
+            $letter = chr(65 + ($n % 26)).$letter;
+            $n = intdiv($n, 26);
         }
+
         return $letter;
     }
 }

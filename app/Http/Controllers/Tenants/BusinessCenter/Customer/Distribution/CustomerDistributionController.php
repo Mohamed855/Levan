@@ -4,19 +4,17 @@ namespace App\Http\Controllers\Tenants\BusinessCenter\Customer\Distribution;
 
 use App\DataTables\Tenants\BusinessCenter\Customer\Distribution\CustomerDistributionDataTable;
 use App\Http\Controllers\Controller;
-use App\Models\Tenants\BusinessCenter\Customers\Customer;
-use App\Models\Tenants\BusinessCenter\Customers\Distribution\CustomerDistribution;
 use App\Http\Requests\Tenants\BusinessCenter\Customer\Distribution\CreateDistributionRequest;
+use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Models\Tenants\UserMangment\Team\Team;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\BusinessCenter\Customer\Distribution\CustomerDistributionService;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 class CustomerDistributionController extends Controller
 {
@@ -50,7 +48,6 @@ class CustomerDistributionController extends Controller
         try {
             $statistics = $this->distributionService->getSimpleDistributionStatistics();
 
-
             return $dataTable->render('tenants.business_center.customers.distribution.index', [
                 'totalCustomers' => $statistics['total_customers'],
                 'unassignedCustomers' => $statistics['unassigned_customers'],
@@ -60,6 +57,7 @@ class CustomerDistributionController extends Controller
             ]);
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }
@@ -72,12 +70,12 @@ class CustomerDistributionController extends Controller
     public function create(): View
     {
         $formData = $this->distributionService->getCompaniesAndPortfoliosWithUnassignedCustomers();
-         
+
         return view('tenants.business_center.customers.distribution.create', [
             'companies' => $formData['companies'],
             'portfolios' => $formData['portfolios'],
             'collectors' => User::role('collector')->select('id', 'name')->orderBy('name')->get(),
-            'teams' => Team::pluck('name','id')->all(),
+            'teams' => Team::pluck('name', 'id')->all(),
             'distributionMethods' => $this->distributionService->getDistributionMethods(),
         ]);
     }
@@ -101,13 +99,14 @@ class CustomerDistributionController extends Controller
                     if (isset($detail['customer_ids'])) {
                         return json_decode($detail['customer_ids'], true) ?? [];
                     }
+
                     return [];
                 })
                 ->unique()
                 ->toArray();
 
             $customers = collect();
-            if (!empty($allCustomerIds)) {
+            if (! empty($allCustomerIds)) {
                 $customers = Customer::whereIn('id', $allCustomerIds)
                     ->with(['company:id,name'])
                     ->get();
@@ -135,12 +134,12 @@ class CustomerDistributionController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $result
+                'data' => $result,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400);
         }
     }
@@ -187,10 +186,9 @@ class CustomerDistributionController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'حدث خطأ: ' . $e->getMessage());
+                ->with('error', 'حدث خطأ: '.$e->getMessage());
         }
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -210,12 +208,12 @@ class CustomerDistributionController extends Controller
                 'summary' => [
                     'total_customers' => $customers->count(),
                     'total_debt' => $customers->sum('debt_amount'),
-                ]
+                ],
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -232,16 +230,15 @@ class CustomerDistributionController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $collectors
+                'data' => $collectors,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'فشل في تحميل المحصلين'
+                'message' => 'فشل في تحميل المحصلين',
             ], 500);
         }
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -251,7 +248,7 @@ class CustomerDistributionController extends Controller
     public function getPortfoliosWithUnassignedCustomers(Request $request): JsonResponse
     {
         $request->validate([
-            'company_id' => 'required|exists:companies,id'
+            'company_id' => 'required|exists:companies,id',
         ]);
 
         $company_id = $request->company_id;
@@ -267,7 +264,7 @@ class CustomerDistributionController extends Controller
 
             return response()->json([
                 'success' => true,
-                'total_debt' => $totalDebt
+                'total_debt' => $totalDebt,
             ]);
         }
 
@@ -282,10 +279,9 @@ class CustomerDistributionController extends Controller
 
         return response()->json([
             'success' => true,
-            'portfolios' => $portfolios
+            'portfolios' => $portfolios,
         ]);
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -300,7 +296,7 @@ class CustomerDistributionController extends Controller
                 'distribution_result' => 'required|array',
                 'duration' => 'required|integer|min:1|max:12',
                 'start_month' => 'required|integer|min:1|max:12',
-                'start_year' => 'required|integer|min:2024'
+                'start_year' => 'required|integer|min:2024',
             ]);
 
             $monthlyTargets = $this->distributionService->calculateMonthlyTargets(
@@ -309,24 +305,24 @@ class CustomerDistributionController extends Controller
                 $request->input('start_month'),
                 $request->input('start_year')
             );
+
             return response()->json([
                 'success' => true,
-                'data' => $monthlyTargets
+                'data' => $monthlyTargets,
             ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'خطأ في البيانات المدخلة',
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ: ' . $e->getMessage()
+                'message' => 'حدث خطأ: '.$e->getMessage(),
             ], 500);
         }
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -366,7 +362,7 @@ class CustomerDistributionController extends Controller
                         'month' => $currentMonth,
                         'year' => $currentYear,
                         'amount' => $amount,
-                        'month_name' => $this->getMonthName($currentMonth)
+                        'month_name' => $this->getMonthName($currentMonth),
                     ];
                 }
 
@@ -375,7 +371,7 @@ class CustomerDistributionController extends Controller
                     'collector_name' => $collectorName,
                     'total_amount' => $totalAmount,
                     'monthly_amount' => $monthlyAmount,
-                    'months' => $months
+                    'months' => $months,
                 ];
             } catch (\Exception $e) {
                 throw $e;
@@ -389,10 +385,10 @@ class CustomerDistributionController extends Controller
     {
         $teamIds = $request->team_ids;
 
-        if (!$teamIds || !is_array($teamIds)) {
+        if (! $teamIds || ! is_array($teamIds)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Team IDs are required'
+                'message' => 'Team IDs are required',
             ], 400);
         }
 
@@ -405,7 +401,7 @@ class CustomerDistributionController extends Controller
 
         return response()->json([
             'success' => true,
-            'collectors' => $collectors
+            'collectors' => $collectors,
         ]);
     }
 }

@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Tenants\Reports\User;
 
 use App\Http\Controllers\Controller;
 use App\Services\Tenants\Reports\User\UserReportService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class UserReportController extends Controller
@@ -47,7 +47,7 @@ class UserReportController extends Controller
         $filters = $request->only([
             'status',
             'date_from',
-            'date_to'
+            'date_to',
         ]);
 
         return $this->userReportService->exportUsersReportToPDF($filters);

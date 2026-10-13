@@ -2,9 +2,9 @@
 
 namespace App\Models\Tenants\GeneralSetting\ContactMethod;
 
+use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SettingsContactMethod extends Model

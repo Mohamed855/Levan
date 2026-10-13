@@ -2,27 +2,22 @@
 
 namespace App\Services\Admin\SubscriptionManagement;
 
-use App\Enums\Admin\Billing\BillStatus;
 use App\Enums\Admin\Billing\BillType;
 use App\Enums\Admin\Billing\PaymentMethod;
 use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Jobs\Admin\Mail\SendSubscriptionMailJob;
-use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Tenants\Tenant;
 use App\Services\shared\Bills\BillService;
 use App\Services\shared\Subscription\SubscriptionService;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class SubscriptionManagementService
 {
     public function __construct(
         private SubscriptionService $subscriptionService,
-        private BillService         $billService,
+        private BillService $billService,
     ) {}
 
     // Get  statistics
@@ -32,9 +27,9 @@ class SubscriptionManagementService
         $now = now();
 
         return [
-            'total'         => (clone $baseQuery)->count(),
-            'pending'       => (clone $baseQuery)->where('status', SubscriptionStatus::PENDING)->count(),
-            'active'        => (clone $baseQuery)
+            'total' => (clone $baseQuery)->count(),
+            'pending' => (clone $baseQuery)->where('status', SubscriptionStatus::PENDING)->count(),
+            'active' => (clone $baseQuery)
                 ->where('status', SubscriptionStatus::ACTIVE)
                 ->where(function ($query) use ($now) {
                     $query->whereHas('currentPeriod', function ($q) use ($now) {
@@ -44,10 +39,10 @@ class SubscriptionManagementService
                     })->orWhereDoesntHave('periods');
                 })
                 ->count(),
-            'expired'       => (clone $baseQuery)
+            'expired' => (clone $baseQuery)
                 ->whereIn('status', [SubscriptionStatus::EXPIRED, SubscriptionStatus::CANCELLED])
                 ->count(),
-            'suspended'     => (clone $baseQuery)->where('status', SubscriptionStatus::SUSPENDED)->count(),
+            'suspended' => (clone $baseQuery)->where('status', SubscriptionStatus::SUSPENDED)->count(),
             'expiring_soon' => $this->getExpiringSoonCount(),
         ];
     }
@@ -66,16 +61,16 @@ class SubscriptionManagementService
     public function create(array $data): Tenant
     {
         $metadata = [
-            'plan_id'                   => $data['plan_id'],
-            'billing_name'              => $data['name'],
-            'billing_email'             => $data['email'],
-            'billing_phone'             => $data['phone'],
-            'billing_password'          => $data['password'],
+            'plan_id' => $data['plan_id'],
+            'billing_name' => $data['name'],
+            'billing_email' => $data['email'],
+            'billing_phone' => $data['phone'],
+            'billing_password' => $data['password'],
 
-            'billing_company_name'      => $data['company_name'],
-            'billing_tax_number'        => $data['tax_number'],
-            'billing_city_id'           => $data['city_id'],
-            'billing_address'           => $data['address'],
+            'billing_company_name' => $data['company_name'],
+            'billing_tax_number' => $data['tax_number'],
+            'billing_city_id' => $data['city_id'],
+            'billing_address' => $data['address'],
             'billing_commercial_number' => $data['commercial_number'],
             'start_date' => $data['start_date'],
             'end_date' => $data['end_date'] ?? null,
@@ -84,10 +79,10 @@ class SubscriptionManagementService
         ];
 
         //  إنشاء الفاتورة
-        $plan     = Plan::findOrFail($data['plan_id']);
-        $discount = ($data['has_discount'] ?? 'no') === 'yes' ? (float)($data['discount_value'] ?? 0) : 0;
+        $plan = Plan::findOrFail($data['plan_id']);
+        $discount = ($data['has_discount'] ?? 'no') === 'yes' ? (float) ($data['discount_value'] ?? 0) : 0;
 
-        $amount   = $data['payment_type'] === 'trial' ? 0 : max(0, (float)$plan->price_after_discount - $discount);
+        $amount = $data['payment_type'] === 'trial' ? 0 : max(0, (float) $plan->price_after_discount - $discount);
 
         $bill = $this->billService->createPendingBill(
             amount: $amount,
@@ -96,10 +91,10 @@ class SubscriptionManagementService
             type: BillType::NEW_SUBSCRIPTION,
             couponData: [
                 'discount_amount' => 0,
-                'coupon_id'       => null,
-                'coupon_code'     => null,
-                'coupon_value'    => null,
-                'coupon_type'     => null,
+                'coupon_id' => null,
+                'coupon_code' => null,
+                'coupon_value' => null,
+                'coupon_type' => null,
             ],
             metadata: $metadata,
         );
@@ -156,7 +151,6 @@ class SubscriptionManagementService
     |============================================================================
     |============================================================================
     */
-
 
     // public function createSubscriptionByAdmin($tenant, Request $request)
     // {

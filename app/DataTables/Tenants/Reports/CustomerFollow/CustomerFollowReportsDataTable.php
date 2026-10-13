@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 class CustomerFollowReportsDataTable extends AbstractDataTable
 {
-    private $route = "reports.customer_follows";
+    private $route = 'reports.customer_follows';
 
     /*
     |--------------------------------------------------------------------------
@@ -20,6 +20,7 @@ class CustomerFollowReportsDataTable extends AbstractDataTable
         $datatable = datatables()->eloquent($query)->addIndexColumn();
 
         $this->addCustomColumns($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
@@ -30,7 +31,7 @@ class CustomerFollowReportsDataTable extends AbstractDataTable
     */
     protected function getTableId()
     {
-        return "customer-follows-reports-table";
+        return 'customer-follows-reports-table';
     }
 
     /*
@@ -73,10 +74,10 @@ class CustomerFollowReportsDataTable extends AbstractDataTable
             ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             [
-                'data'       => 'checkbox',
-                'name'       => 'checkbox',
-                'title'      => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
-                'orderable'  => false,
+                'data' => 'checkbox',
+                'name' => 'checkbox',
+                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
+                'orderable' => false,
                 'searchable' => false,
                 'width' => '10px',
                 'className' => 'custom-checkbox',
@@ -101,37 +102,37 @@ class CustomerFollowReportsDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
 
             ->editColumn('customer_info', function ($row) {
                 return '<div class="customer-info">
-                <div class="fw-semibold">' . e($row->customer_name ?? 'غير محدد') . '</div>
-                <small class="text-muted">الشركة: ' . e($row->company_name ?? 'غير محدد') . '</small><br>
-                <small class="text-muted">المحفظة: ' . e($row->portfolio_name ?? 'غير محدد') . '</small>
+                <div class="fw-semibold">'.e($row->customer_name ?? 'غير محدد').'</div>
+                <small class="text-muted">الشركة: '.e($row->company_name ?? 'غير محدد').'</small><br>
+                <small class="text-muted">المحفظة: '.e($row->portfolio_name ?? 'غير محدد').'</small>
             </div>';
             })
 
             ->editColumn('contact_method', function ($row) {
-                return '<div>' . e($row->contact_method_name ?? 'غير محدد') . '</div>';
+                return '<div>'.e($row->contact_method_name ?? 'غير محدد').'</div>';
             })
 
             ->editColumn('contact_result', function ($row) {
-                return '<div>' . e($row->contact_result_name ?? 'غير محدد') . '</div>';
+                return '<div>'.e($row->contact_result_name ?? 'غير محدد').'</div>';
             })
 
             ->editColumn('customer_status', function ($row) {
-                return '<div>' . e($row->customer_status_name ?? 'غير محدد') . '</div>';
+                return '<div>'.e($row->customer_status_name ?? 'غير محدد').'</div>';
             })
 
             ->editColumn('created_by', function ($row) {
                 return '<div class="user-info">
-                <div>' . e($row->user_name ?? 'غير محدد') . '</div>
+                <div>'.e($row->user_name ?? 'غير محدد').'</div>
             </div>';
             })
 
             ->editColumn('created_at', function ($row) {
-                return '<div>' . Carbon::parse($row->created_at)->format('Y-m-d') . '</div>';
+                return '<div>'.Carbon::parse($row->created_at)->format('Y-m-d').'</div>';
             });
     }
 
@@ -257,7 +258,7 @@ class CustomerFollowReportsDataTable extends AbstractDataTable
             [
                 'text' => 'تصدير  <i class="fa-solid fa-file-excel mx-2"></i>',
                 'className' => 'btn btn-primary btn-export-excel',
-                'action' => "function() { exportFilteredToExcel(); }",
+                'action' => 'function() { exportFilteredToExcel(); }',
             ],
         ];
     }

@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Tenants\Reports\Performance;
 
-use App\Http\Controllers\Controller;
 use App\DataTables\Tenants\Reports\Performance\EmployeePerformanceDataTable;
+use App\Http\Controllers\Controller;
 use App\Services\Tenants\Reports\Performance\EmployeePerformanceService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -20,26 +19,25 @@ class EmployeePerformanceReportController extends Controller
 
     public function index(EmployeePerformanceDataTable $dataTable): mixed
     {
-        $filters     = $this->extractFilters();
+        $filters = $this->extractFilters();
         $performance = $this->service->getEmployeesPerformance($filters);
 
         return $dataTable->render('tenants.reports.performance.employees', [
             ...$this->service->getFormData(),
-            'employees_statistics'   => $this->service->getStatistics($performance),
+            'employees_statistics' => $this->service->getStatistics($performance),
             'employees_distribution' => $this->service->getDistribution($performance),
-            'top_performers'         => $this->service->getTopPerformers($performance, 10),
-            'chart_data'             => $this->service->getChartData($performance),
+            'top_performers' => $this->service->getTopPerformers($performance, 10),
+            'chart_data' => $this->service->getChartData($performance),
         ]);
     }
 
-
     public function getFilteredStats(Request $request): JsonResponse
     {
-        $filters     = $this->extractFilters($request);
+        $filters = $this->extractFilters($request);
         $performance = $this->service->getEmployeesPerformance($filters);
 
         return response()->json([
-            'success'    => true,
+            'success' => true,
             'statistics' => $this->service->getStatistics($performance),
             'chart_data' => $this->service->getChartData($performance),
         ]);
@@ -55,40 +53,41 @@ class EmployeePerformanceReportController extends Controller
     public function showExportFieldsModal(Request $request): JsonResponse
     {
         $filters = $this->extractFilters($request);
-        $count   = $this->service->getRecordsCount($filters);  // ← service
+        $count = $this->service->getRecordsCount($filters);  // ← service
 
         return response()->json([
-            'success'         => true,
-            'count'           => $count,
-            'fields'          => $this->service->getAvailableExportFields(),
+            'success' => true,
+            'count' => $count,
+            'fields' => $this->service->getAvailableExportFields(),
             'is_large_export' => $count > 5000,
         ]);
     }
 
     public function exportExcel(Request $request): JsonResponse
     {
-        $filters        = $this->extractFilters($request);
+        $filters = $this->extractFilters($request);
         $selectedFields = $request->input('selected_fields', []);
-        $count          = $this->service->getRecordsCount($filters);  // ← service
+        $count = $this->service->getRecordsCount($filters);  // ← service
 
         try {
             if ($count > 5000) {
                 $result = $this->service->startAsyncExport($filters, $selectedFields, auth()->id());
+
                 return response()->json([...$result, 'is_async' => true]);
             }
 
             $fileName = $this->service->exportFilteredPerformanceToExcel($filters, $selectedFields);
 
             return response()->json([
-                'success'      => true,
-                'is_async'     => false,
-                'message'      => 'تم إنشاء الملف بنجاح',
+                'success' => true,
+                'is_async' => false,
+                'message' => 'تم إنشاء الملف بنجاح',
                 'download_url' => tenant_route_name('reports.employees.download', ['file' => $fileName]),
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ: ' . $e->getMessage(),
+                'message' => 'حدث خطأ: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -97,13 +96,13 @@ class EmployeePerformanceReportController extends Controller
     {
         $exportId = $request->input('export_id');
 
-        if (!$exportId) {
+        if (! $exportId) {
             return response()->json(['success' => false, 'message' => 'معرف التصدير مطلوب'], 400);
         }
 
         return response()->json([
             'success' => true,
-            'data'    => $this->service->getExportProgress($exportId),  // ← service
+            'data' => $this->service->getExportProgress($exportId),  // ← service
         ]);
     }
 
@@ -113,7 +112,7 @@ class EmployeePerformanceReportController extends Controller
 
         return response()->json([
             'success' => true,
-            'count'   => $count,
+            'count' => $count,
             'message' => "تم العثور على {$count} سجل",
         ]);
     }
@@ -121,7 +120,7 @@ class EmployeePerformanceReportController extends Controller
     public function downloadFile(string $file): BinaryFileResponse
     {
         $disk = Storage::disk('tenant_public');
-        $path = 'exports/' . $file;
+        $path = 'exports/'.$file;
 
         abort_unless($disk->exists($path), 404, 'الملف غير موجود');
 
@@ -140,9 +139,9 @@ class EmployeePerformanceReportController extends Controller
                 'company_id',
                 'portfolio_id',
                 'team_id',
-                'user_id'
+                'user_id',
             ]),
-            fn($v) => $v !== null && $v !== ''
+            fn ($v) => $v !== null && $v !== ''
         );
     }
 }

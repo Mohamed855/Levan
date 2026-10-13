@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Tenants\BusinessCenter\Customer\Import;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\ValidationException;
 
 class ImportCustomersRequest extends FormRequest
 {
@@ -23,17 +25,17 @@ class ImportCustomersRequest extends FormRequest
             'portfolio_id' => [
                 'required',
                 'integer',
-                'exists:portfolios,id'
+                'exists:portfolios,id',
             ],
             'import_file' => [
                 'required',
                 'file',
                 'mimes:xlsx,xls',
-                'max:10240' // 10MB
+                'max:10240', // 10MB
             ],
             'confirm_new_fields' => [
-                'boolean'
-            ]
+                'boolean',
+            ],
         ];
     }
 
@@ -51,7 +53,7 @@ class ImportCustomersRequest extends FormRequest
             'import_file.mimes' => 'يجب أن يكون الملف من نوع Excel (.xlsx, .xls)',
             'import_file.max' => 'حجم الملف كبير جداً. الحد الأقصى 10 ميجابايت',
 
-            'confirm_new_fields.boolean' => 'قيمة تأكيد الحقول الجديدة غير صحيحة'
+            'confirm_new_fields.boolean' => 'قيمة تأكيد الحقول الجديدة غير صحيحة',
         ];
     }
 
@@ -63,23 +65,23 @@ class ImportCustomersRequest extends FormRequest
         return [
             'portfolio_id' => 'المحفظة',
             'import_file' => 'ملف الاستيراد',
-            'confirm_new_fields' => 'تأكيد الحقول الجديدة'
+            'confirm_new_fields' => 'تأكيد الحقول الجديدة',
         ];
     }
 
     /**
      * Handle a failed validation attempt.
      */
-    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    protected function failedValidation(Validator $validator)
     {
         if ($this->expectsJson()) {
             $response = response()->json([
                 'success' => false,
                 'message' => 'بيانات غير صحيحة',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
 
-            throw new \Illuminate\Validation\ValidationException($validator, $response);
+            throw new ValidationException($validator, $response);
         }
 
         parent::failedValidation($validator);

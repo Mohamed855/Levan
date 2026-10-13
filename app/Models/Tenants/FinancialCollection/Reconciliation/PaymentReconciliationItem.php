@@ -1,4 +1,5 @@
 <?php
+
 // app/Models/Tenants/FinancialCollection/Reconciliation/PaymentReconciliationItem.php
 
 namespace App\Models\Tenants\FinancialCollection\Reconciliation;
@@ -62,7 +63,6 @@ class PaymentReconciliationItem extends Model
     |--------------------------------------------------------------------------
     */
 
-
     /*
     |--------------------------------------------------------------------------
     | Reconciliation Relationship
@@ -72,7 +72,6 @@ class PaymentReconciliationItem extends Model
     {
         return $this->belongsTo(PaymentReconciliation::class, 'reconciliation_id');
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -209,7 +208,7 @@ class PaymentReconciliationItem extends Model
     */
     public function getFormattedFileAmountAttribute(): string
     {
-        return number_format($this->file_amount, 2) . ' ر.س';
+        return number_format($this->file_amount, 2).' ر.س';
     }
 
     /*
@@ -223,9 +222,8 @@ class PaymentReconciliationItem extends Model
             return '---';
         }
 
-        return number_format($this->system_amount, 2) . ' ر.س';
+        return number_format($this->system_amount, 2).' ر.س';
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -239,7 +237,8 @@ class PaymentReconciliationItem extends Model
         }
 
         $sign = $this->amount_difference >= 0 ? '+' : '';
-        return $sign . number_format($this->amount_difference, 2) . ' ر.س';
+
+        return $sign.number_format($this->amount_difference, 2).' ر.س';
     }
 
     /*
@@ -251,7 +250,7 @@ class PaymentReconciliationItem extends Model
     {
         return $this->file_date?->locale('ar')->translatedFormat('d F Y') ?? 'غير محدد';
     }
-    
+
     /*
     |--------------------------------------------------------------------------
     | Get Formatted System Date Attribute

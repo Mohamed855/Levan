@@ -14,18 +14,18 @@ class TicketReplyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'message'               => 'required|string|max:255',
-            'attachments'           => 'nullable|array',
-            'attachments.*'         => 'file|max:10240|mimes:jpg,jpeg,png,pdf,doc,docx',
+            'message' => 'required|string|max:255',
+            'attachments' => 'nullable|array',
+            'attachments.*' => 'file|max:10240|mimes:jpg,jpeg,png,pdf,doc,docx',
         ];
     }
 
     public function messages(): array
     {
         return [
-            'message.required'                  => ' الرد مطلوب',
-            'attachments.*.max'                 => 'حجم الملف يجب ألا يتجاوز 10 ميجابايت',
-            'attachments.*.mimes'               => 'نوع الملف غير مدعوم',
+            'message.required' => ' الرد مطلوب',
+            'attachments.*.max' => 'حجم الملف يجب ألا يتجاوز 10 ميجابايت',
+            'attachments.*.mimes' => 'نوع الملف غير مدعوم',
         ];
     }
 }

@@ -7,12 +7,13 @@ use App\Models\Admin\AdminMangment\Users\AdminUser;
 
 class AdminUserDataTable extends AbstractDataTable
 {
-    private $page   = "admin.archive.admin_user";
-    private $route  = "admin.archives";
+    private $page = 'admin.archive.admin_user';
+
+    private $route = 'admin.archives';
 
     protected function getTableId()
     {
-        return "admin-user-archive-table";
+        return 'admin-user-archive-table';
     }
 
     protected function resource()
@@ -38,14 +39,14 @@ class AdminUserDataTable extends AbstractDataTable
         ];
     }
 
-
     protected function addCustomColumns($datatable)
     {
         $datatable
-            ->addColumn('checkbox', fn($row) => '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">')
+            ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
 
             ->addColumn('image', function (AdminUser $user) {
-                $profilePicture = $user->image ? asset('storage/' . $user->image) : null;
+                $profilePicture = $user->image ? asset('storage/'.$user->image) : null;
+
                 return $this->renderTableImage($profilePicture, (string) $user->name, 40);
             })
             // ->editColumn('name', function (AdminUser $user) {
@@ -57,13 +58,15 @@ class AdminUserDataTable extends AbstractDataTable
                 if ($user->roles->isEmpty()) {
                     return '<span class="text-muted">-</span>';
                 }
-                return $user->roles->map(fn($role) => '<span class="badge bg-label-info me-1">' . $role->name . '</span>')->implode('');
+
+                return $user->roles->map(fn ($role) => '<span class="badge bg-label-info me-1">'.$role->name.'</span>')->implode('');
             })
 
             ->editColumn('status', function ($row) {
                 if ($row->isSuperAdmin()) {
                     return '<span class="badge bg-primary">سوبر أدمن</span>';
                 }
+
                 return $this->UserStatusBadge($row);
             })
 
@@ -100,7 +103,6 @@ class AdminUserDataTable extends AbstractDataTable
         return ['checkbox', 'image', 'name', 'email',  'roles', 'status', 'last_login_at', 'actions'];
     }
 
-
     // الحقول المسموح البحث فيها
     protected function getSearchableColumns(): array
     {
@@ -109,12 +111,10 @@ class AdminUserDataTable extends AbstractDataTable
         ];
     }
 
-
     protected function getCustomOrder(): array
     {
         return [1, 'desc'];
     }
-
 
     // Buttons
     protected function buttons(): array
@@ -128,29 +128,29 @@ class AdminUserDataTable extends AbstractDataTable
     private function getActionsDropdownButton(): array
     {
         $buttons = [
-            ['extend' => 'copy', 'text'     => 'نسخ'],
+            ['extend' => 'copy', 'text' => 'نسخ'],
             [
                 'extend' => 'excel',
                 'text' => 'إكسل',
                 'exportOptions' => [
-                    'columns' => [9, 8, 7, 6, 5, 4]
-                ]
+                    'columns' => [9, 8, 7, 6, 5, 4],
+                ],
             ],
         ];
 
         if (auth()->user()?->can('users.delete')) {
             $buttons[] = [
-                'text'      => 'حذف المحدد',
+                'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
-                'action'    => "function() { handleMassDelete(); }",
+                'action' => 'function() { handleMassDelete(); }',
             ];
         }
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
 
@@ -158,7 +158,6 @@ class AdminUserDataTable extends AbstractDataTable
     {
         return [];
     }
-
 
     /*
     |============================================================================
@@ -168,7 +167,7 @@ class AdminUserDataTable extends AbstractDataTable
     private function UserStatusBadge($row)
     {
         if (auth()->user()?->can('users.change_status')) {
-          
+
             return sprintf(
                 '<span class="badge bg-%s">%s</span>',
                 $row->status->color(),

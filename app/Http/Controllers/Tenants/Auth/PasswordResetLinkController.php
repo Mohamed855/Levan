@@ -16,6 +16,7 @@ class PasswordResetLinkController extends Controller
     {
         return view('tenants.auth.forgot-password');
     }
+
     public function store(SendPasswordResetLinkRequest $request)
     {
         // We will send the password reset link to this user. Once we have attempted
@@ -28,6 +29,6 @@ class PasswordResetLinkController extends Controller
         return $status == Password::RESET_LINK_SENT
                     ? back()->with('status', __($status))
                     : back()->withInput($request->only('email'))
-                            ->withErrors(['email' => __($status)]);
+                        ->withErrors(['email' => __($status)]);
     }
 }

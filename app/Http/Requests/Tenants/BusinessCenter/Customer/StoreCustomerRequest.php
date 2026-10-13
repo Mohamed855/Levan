@@ -25,13 +25,13 @@ class StoreCustomerRequest extends WizardFormRequest
                 'required_without_all:first_name,father_name,grandfather_name,family_name',
                 'nullable',
                 'string',
-                'max:255'
+                'max:255',
             ],
             'first_name' => [
                 'required_without:name',
                 'nullable',
                 'string',
-                'max:100'
+                'max:100',
             ],
             'father_name' => ['nullable', 'string', 'max:100'],
             'grandfather_name' => ['nullable', 'string', 'max:100'],
@@ -58,8 +58,8 @@ class StoreCustomerRequest extends WizardFormRequest
             'phones.*.notes' => ['nullable', 'string', 'max:255'],
 
             // خاصة بالحقول المتجددة
-            'dynamic'     => ['nullable', 'array'],
-            'dynamic.*'   => ['nullable'],
+            'dynamic' => ['nullable', 'array'],
+            'dynamic.*' => ['nullable'],
         ];
     }
 
@@ -179,7 +179,7 @@ class StoreCustomerRequest extends WizardFormRequest
             'account_number',
             'contract_date',
             'commission_rate',
-            'default_date'
+            'default_date',
         ];
 
         foreach ($optionalFields as $field) {

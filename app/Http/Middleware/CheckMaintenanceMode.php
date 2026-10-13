@@ -2,18 +2,15 @@
 
 namespace App\Http\Middleware;
 
+use App\Helpers\SettingsHelper;
 use Closure;
 use Illuminate\Http\Request;
-use App\Helpers\SettingsHelper;
-use Illuminate\Support\Facades\Route;
 
 class CheckMaintenanceMode
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
      * @return mixed
      */
     public function handle(Request $request, Closure $next)
@@ -29,7 +26,7 @@ class CheckMaintenanceMode
             // إذا كان المستخدم مصادق عليه
             if (auth()->check()) {
                 // وإذا لم يكن لديه دور 'Technecal_Support' أو 'Admin'
-                if (!auth()->user()->hasRole('Technecal_Support') && !auth()->user()->hasRole('Admin')) {
+                if (! auth()->user()->hasRole('Technecal_Support') && ! auth()->user()->hasRole('Admin')) {
                     // إذا لم يكن الطلب AJAX، قم بعرض صفحة الصيانة
                     return response()->view('maintenance');
                 }

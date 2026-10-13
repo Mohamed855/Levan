@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Tenants\Domains;
 
-use App\DataTables\Admin\Setting\SettingDomainDatatable;
-use App\DataTables\Tenants\Bills\DomainDataTable;
 use App\DataTables\Tenants\Domain\DomainDataTable as DomainDomainDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Domains\DomainDnsLookupRequest;
@@ -12,15 +10,12 @@ use App\Http\Requests\Tenants\Domains\ProcessDomainTransferRequest;
 use App\Models\Admin\Cpanel\CpanelAccount;
 use App\Models\Admin\Tenants\Domain;
 use App\Models\Admin\Tenants\Tenant;
-use App\Models\Tenants\Settings\TransferDomain;
 use App\Services\shared\Cpanel\CpanelService;
 use App\Services\shared\Domain\DomainService;
 use App\Services\shared\NameCheap\CheckAccountInfoService;
 use App\Services\shared\NameCheap\NameCheapService;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -31,24 +26,35 @@ use Illuminate\Support\Str;
 class DomainController extends Controller
 {
     protected $domainName;
+
     protected $plan;
+
     protected $apiUser;
+
     protected $apiKey;
+
     protected $clientIp;
+
     protected $baseUrl;
+
     protected $whmUrl;
+
     protected $whmToken;
+
     protected $serverIp;
+
     protected $tenantId;
+
     protected $domain_service;
+
     protected $cpanelService;
+
     public function __construct(
         private NameCheapService $namecheapService,
         private CheckAccountInfoService $accountInfoService,
         DomainService $domain_service,
         CpanelService $cpanelService,
-    )
-    {
+    ) {
         // لتحقق هل الباقة تحتوي على ميزة الدومينات ام لا
         $this->middleware('check.domain.management');
         $this->middleware('can:domain.view');
@@ -74,12 +80,13 @@ class DomainController extends Controller
             $statistics = $this->domain_service->getDomainStatistics();
 
             return $dataTable->render('tenants.domain_setting.setting', [
-                'totalDomains'       => $statistics['total'],
-                'activeDomains'      => $statistics['active'],
-                'inactiveDomains'    => $statistics['inactive'],
+                'totalDomains' => $statistics['total'],
+                'activeDomains' => $statistics['active'],
+                'inactiveDomains' => $statistics['inactive'],
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }
@@ -88,10 +95,12 @@ class DomainController extends Controller
     {
         return view('tenants.domain_setting.linkdomain');
     }
+
     public function linkSubDomain()
     {
         return view('tenants.domain_setting.linksubdomain');
     }
+
     public function transferDom(Request $request)
     {
         $step = $request->get('step', 1);
@@ -100,71 +109,76 @@ class DomainController extends Controller
 
         return view('tenants.domain_setting.transferdom', compact('step', 'domain', 'message'));
     }
+
     public function faq()
     {
         return view('tenants.domain_setting.faq');
     }
+
     public function explain()
     {
         return view('tenants.domain_setting.explain');
     }
+
     public function newdomain()
     {
         return view('tenants.domain_setting.index');
     }
+
     public function subdomainblade()
     {
         return view('tenants.domain_setting.explain-create-subdomain');
     }
 
-
-
     protected function getCpanelUserForTenant()
     {
         try {
             $tenant = Tenant::find(tenant('id'));
-            return  $tenant->update([
-                'cpanel_username' => "aewg"
+
+            return $tenant->update([
+                'cpanel_username' => 'aewg',
             ]);
 
             // التحقق من وجود username محفوظ
             if ($tenant) {
                 // التحقق من أن الحساب موجود فعلياً على WHM
                 $response = Http::withHeaders([
-                    'Authorization' => 'whm levan:' . $this->whmToken,
-                ])->timeout(30)->get($this->whmUrl . '/accountsummary', [
+                    'Authorization' => 'whm levan:'.$this->whmToken,
+                ])->timeout(30)->get($this->whmUrl.'/accountsummary', [
                     'api.version' => 1,
-                    'user' => "tn386a65"
+                    'user' => 'tn386a65',
                 ]);
 
                 $result = $response->json();
 
                 if (isset($result['data']['acct'])) {
-                    Log::info("✅ Found existing cPanel account", [
+                    Log::info('✅ Found existing cPanel account', [
                         'cpanel_user' => $tenant->cpanel_username,
-                        'tenant_id' => $this->tenantId
+                        'tenant_id' => $this->tenantId,
                     ]);
+
                     return true;
                 } else {
                     Log::warning("⚠️ cPanel username found in DB but account doesn't exist on WHM", [
                         'cpanel_user' => $tenant->cpanel_username,
-                        'tenant_id' => $this->tenantId
+                        'tenant_id' => $this->tenantId,
                     ]);
+
                     return 'no';
                 }
             }
-        } catch (\Exception $e) {
-            Log::warning("⚠️ Error checking cPanel user", [
+        } catch (Exception $e) {
+            Log::warning('⚠️ Error checking cPanel user', [
                 'tenant_id' => $this->tenantId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return null;
         }
     }
 
     protected function createCpanelAccount($domain)
     {
-
 
         $cpanelUsername = explode('.', $domain)[0];
 
@@ -174,12 +188,12 @@ class DomainController extends Controller
         // إضافة رقم عشوائي للتأكد من عدم التكرار
 
         // توليد باسورد قوي
-        $password = Str::random(16) . rand(10, 99) . '!@';
+        $password = Str::random(16).rand(10, 99).'!@';
 
         // إنشاء الحساب
         $response = Http::withHeaders([
-            'Authorization' => 'whm levan:' . $this->whmToken
-        ])->timeout(60)->get($this->whmUrl . '/createacct', [
+            'Authorization' => 'whm levan:'.$this->whmToken,
+        ])->timeout(60)->get($this->whmUrl.'/createacct', [
             'username' => $cpanelUsername,
             'domain' => $this->domainName,
             'password' => $password,
@@ -191,36 +205,32 @@ class DomainController extends Controller
             'ip' => 'n', // Use shared IP
         ]);
 
-        if (!$response->successful()) {
-            throw new Exception("Failed to create cPanel account: HTTP " . $response->status());
+        if (! $response->successful()) {
+            throw new Exception('Failed to create cPanel account: HTTP '.$response->status());
         }
 
-        return    $result = $response->json();
+        return $result = $response->json();
     }
-
-
-
-
 
     public function checkDomainExists(Request $request)
     {
         $request->validate([
-            'domain' => 'required|string|regex:/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'
+            'domain' => 'required|string|regex:/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
         ], [
             'domain.required' => 'الرجاء إدخال اسم الدومين',
-            'domain.regex' => 'صيغة الدومين غير صحيحة'
+            'domain.regex' => 'صيغة الدومين غير صحيحة',
         ]);
 
         try {
             $domain = $request->domain;
 
-            Log::info("Checking if domain exists: " . $domain);
+            Log::info('Checking if domain exists: '.$domain);
 
             $apiUser = env('NAMECHEAP_API_USER');
             $apiKey = env('NAMECHEAP_API_KEY');
             $clientIp = env('NAMECHEAP_CLIENT_IP');
 
-            if (!$apiUser || !$apiKey || !$clientIp) {
+            if (! $apiUser || ! $apiKey || ! $clientIp) {
                 return redirect()->back()
                     ->with('error', 'إعدادات Namecheap API غير مكتملة')
                     ->withInput();
@@ -234,13 +244,14 @@ class DomainController extends Controller
                 'UserName' => $apiUser,
                 'ClientIp' => $clientIp,
                 'Command' => 'namecheap.domains.check',
-                'DomainList' => $domain
+                'DomainList' => $domain,
             ];
 
             $response = Http::timeout(30)->get($url, $params);
 
             if ($response->failed()) {
-                Log::error("Namecheap API failed", ['status' => $response->status()]);
+                Log::error('Namecheap API failed', ['status' => $response->status()]);
+
                 return redirect()->back()
                     ->with('error', 'فشل الاتصال بخادم Namecheap')
                     ->withInput();
@@ -249,26 +260,27 @@ class DomainController extends Controller
             libxml_use_internal_errors(true);
             $xml = simplexml_load_string($response->body());
 
-            if (!$xml) {
+            if (! $xml) {
                 return redirect()->back()
                     ->with('error', 'خطأ في قراءة البيانات من Namecheap')
                     ->withInput();
             }
 
-            $status = (string)$xml['Status'];
+            $status = (string) $xml['Status'];
 
             if ($status !== 'OK') {
-                $errorMessage = isset($xml->Errors->Error) ? (string)$xml->Errors->Error : 'خطأ غير معروف';
-                Log::error("Namecheap API error: " . $errorMessage);
+                $errorMessage = isset($xml->Errors->Error) ? (string) $xml->Errors->Error : 'خطأ غير معروف';
+                Log::error('Namecheap API error: '.$errorMessage);
+
                 return redirect()->back()
                     ->with('error', $errorMessage)
                     ->withInput();
             }
 
             $domainResult = $xml->CommandResponse->DomainCheckResult;
-            $isAvailable = (string)$domainResult['Available'] === 'true';
+            $isAvailable = (string) $domainResult['Available'] === 'true';
 
-            Log::info("Domain check result", ['domain' => $domain, 'available' => $isAvailable]);
+            Log::info('Domain check result', ['domain' => $domain, 'available' => $isAvailable]);
 
             // Available = true يعني الدومين غير مسجل
             if ($isAvailable) {
@@ -278,17 +290,16 @@ class DomainController extends Controller
             }
 
             // Available = false يعني الدومين مسجل، ننتقل للخطوة 2
-            return redirect('/' . tenant('id') . '/transfer-dom-blade?step=2&domain=' . urlencode($domain))
+            return redirect('/'.tenant('id').'/transfer-dom-blade?step=2&domain='.urlencode($domain))
                 ->with('success', 'الدومين موجود! أدخل كود EPP للمتابعة');
-        } catch (\Exception $e) {
-            Log::error('Domain Check Exception: ' . $e->getMessage());
+        } catch (Exception $e) {
+            Log::error('Domain Check Exception: '.$e->getMessage());
 
             return redirect()->back()
-                ->with('error', 'حدث خطأ أثناء التحقق من الدومين: ' . $e->getMessage())
+                ->with('error', 'حدث خطأ أثناء التحقق من الدومين: '.$e->getMessage())
                 ->withInput();
         }
     }
-
 
     public function processTransfer(ProcessDomainTransferRequest $request)
     {
@@ -296,7 +307,7 @@ class DomainController extends Controller
             $domain = $request->validated('domain');
             $eppCode = $request->validated('epp_code');
 
-            Log::info("Processing transfer for: " . $domain);
+            Log::info('Processing transfer for: '.$domain);
 
             // تحقق إذا كان الدومين قيد النقل حالياً
             $existingTransfer = tenancy()->central(function () use ($domain) {
@@ -320,7 +331,7 @@ class DomainController extends Controller
                 'UserName' => $apiUser,
                 'ClientIp' => $clientIp,
                 'Command' => 'namecheap.domains.getRegistrarLock',
-                'DomainName' => $domain
+                'DomainName' => $domain,
             ];
 
             $lockResponse = Http::timeout(30)->get($url, $lockParams);
@@ -328,8 +339,8 @@ class DomainController extends Controller
             if ($lockResponse->ok()) {
                 $lockXml = simplexml_load_string($lockResponse->body());
 
-                if ($lockXml && (string)$lockXml['Status'] === 'OK') {
-                    $lockStatus = (string)$lockXml->CommandResponse->DomainGetRegistrarLockResult;
+                if ($lockXml && (string) $lockXml['Status'] === 'OK') {
+                    $lockStatus = (string) $lockXml->CommandResponse->DomainGetRegistrarLockResult;
 
                     if (strtolower($lockStatus) === 'true') {
                         return redirect()->back()
@@ -348,7 +359,7 @@ class DomainController extends Controller
                 'Command' => 'namecheap.domains.transfer.create',
                 'DomainName' => $domain,
                 'EPPCode' => $eppCode,
-                'Years' => 1
+                'Years' => 1,
             ];
 
             $response = Http::timeout(30)->get($url, $transferParams);
@@ -361,16 +372,16 @@ class DomainController extends Controller
 
             $xml = simplexml_load_string($response->body());
 
-            if (!$xml) {
+            if (! $xml) {
                 return redirect()->back()
                     ->with('error', 'خطأ في قراءة البيانات من Namecheap')
                     ->withInput();
             }
 
-            $status = (string)$xml['Status'];
+            $status = (string) $xml['Status'];
 
             if ($status !== 'OK') {
-                $errorMessage = isset($xml->Errors->Error) ? (string)$xml->Errors->Error : 'فشل في إرسال طلب النقل';
+                $errorMessage = isset($xml->Errors->Error) ? (string) $xml->Errors->Error : 'فشل في إرسال طلب النقل';
 
                 // أخطاء شائعة
                 if (stripos($errorMessage, 'EPP') !== false || stripos($errorMessage, 'Authorization') !== false) {
@@ -381,68 +392,57 @@ class DomainController extends Controller
                     $errorMessage = 'لم يمر 60 يوم على تسجيل/نقل الدومين';
                 }
 
-                Log::error("Transfer error: " . $errorMessage);
+                Log::error('Transfer error: '.$errorMessage);
+
                 return redirect()->back()
                     ->with('error', $errorMessage)
                     ->withInput();
             }
 
             $transferResult = $xml->CommandResponse->DomainTransferCreateResult;
-            $transferId = (string)$transferResult['Transfer'];
-            $orderId = (string)$transferResult['OrderID'];
+            $transferId = (string) $transferResult['Transfer'];
+            $orderId = (string) $transferResult['OrderID'];
             $tenantId = tenant('id');
-
-
 
             $selectedDomain = $request->domain;
 
-
-            Log::info("🔄 Switching active domain", [
+            Log::info('🔄 Switching active domain', [
                 'tenant_id' => $tenantId,
-                'selected_domain' => $selectedDomain
+                'selected_domain' => $selectedDomain,
             ]);
             Domain::create([
                 'domain' => $request->domain,
                 'tenant_id' => $tenantId,
-                'is_active' => "1",
+                'is_active' => '1',
                 'type' => 'transfered',
                 'transfer_code' => $orderId,
             ]);
 
             $mainDomain = Domain::where('tenant_id', $tenantId)->first();
 
-
-            if (!$mainDomain) {
+            if (! $mainDomain) {
                 return redirect()->back()->with('error', 'لم يتم العثور على دومينات مسجلة');
             }
 
-
-            return redirect('/' . tenant('id') . '/domains/transfer-dom-blade?step=3&domain=' . urlencode($domain) . '&transfer_id=' . $transferId . '&order_id=' . $orderId)
+            return redirect('/'.tenant('id').'/domains/transfer-dom-blade?step=3&domain='.urlencode($domain).'&transfer_id='.$transferId.'&order_id='.$orderId)
                 ->with('success', 'تم إرسال طلب النقل بنجاح!');
-        } catch (\Exception $e) {
-            Log::error('Transfer Exception: ' . $e->getMessage());
+        } catch (Exception $e) {
+            Log::error('Transfer Exception: '.$e->getMessage());
 
             return redirect()->back()
-                ->with('error', 'حدث خطأ أثناء معالجة طلب النقل: ' . $e->getMessage())
+                ->with('error', 'حدث خطأ أثناء معالجة طلب النقل: '.$e->getMessage())
                 ->withInput();
         }
     }
-
-
-
 
     public function switchActiveDomain(Request $request)
     {
         return $this->domain_service->switchActiveDomain($request);
     }
 
-
-
-
     // TODO islam
     // يجب ان ياتي من env or config  ليسهل تعديله و مراقبته
     const SERVER_IP = '135.181.215.105'; // IP الخاص بالسيرفر
-
 
     public function checkSubDomain($subdomain)
     {
@@ -451,21 +451,21 @@ class DomainController extends Controller
             $cleanDomain = $this->cleanDomain($subdomain);
 
             // التحقق من صحة الدومين
-            if (!$this->isValidDomain($cleanDomain)) {
+            if (! $this->isValidDomain($cleanDomain)) {
                 return response()->json([
                     'result' => 'invalid',
-                    'message' => 'اسم الدومين غير صالح'
+                    'message' => 'اسم الدومين غير صالح',
                 ], 400);
             }
 
             // التحقق من A Record
             $aRecord = $this->getARecord($cleanDomain);
 
-            if (!$aRecord) {
+            if (! $aRecord) {
                 return response()->json([
                     'result' => 'not_found',
                     'message' => 'لم يتم العثور على A Record لهذا الدومين',
-                    'domain' => $cleanDomain
+                    'domain' => $cleanDomain,
                 ]);
             }
 
@@ -480,12 +480,12 @@ class DomainController extends Controller
                 'domain' => $cleanDomain,
                 'current_ip' => $aRecord,
                 'required_ip' => self::SERVER_IP,
-                'is_configured' => $pointsToOurServer
+                'is_configured' => $pointsToOurServer,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'result' => 'error',
-                'message' => 'حدث خطأ أثناء التحقق: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء التحقق: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -494,7 +494,6 @@ class DomainController extends Controller
     {
         return (bool) preg_match('/^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/i', $domain);
     }
-
 
     public function transferDomainProcess(Request $request)
     {
@@ -507,9 +506,10 @@ class DomainController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => $validator->errors()->first(),
-                    'type' => 'error'
+                    'type' => 'error',
                 ], 422);
             }
+
             return back()->withErrors($validator)->withInput();
         }
 
@@ -558,24 +558,24 @@ class DomainController extends Controller
                     'message' => $message,
                     'type' => $type,
                     'result' => $result,
-                    'domain_type' => $domainType
+                    'domain_type' => $domainType,
                 ]);
             }
 
             return back()->with($type, $message);
-        } catch (\Exception $e) {
-            Log::error('Transfer Domain Error: ' . $e->getMessage(), [
+        } catch (Exception $e) {
+            Log::error('Transfer Domain Error: '.$e->getMessage(), [
                 'domain' => $domain,
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
-            $errorMessage = '❌ حدث خطأ أثناء الربط: ' . $e->getMessage();
+            $errorMessage = '❌ حدث خطأ أثناء الربط: '.$e->getMessage();
 
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
                     'message' => $errorMessage,
-                    'type' => 'error'
+                    'type' => 'error',
                 ], 500);
             }
 
@@ -586,9 +586,9 @@ class DomainController extends Controller
     private function getDomainType($domain)
     {
         $parts = explode('.', $domain);
+
         return count($parts) > 2 ? 'subdomain' : 'domain';
     }
-
 
     private function cleanDomain($domain)
     {
@@ -600,7 +600,6 @@ class DomainController extends Controller
 
         return $domain;
     }
-
 
     public function checkDomain($domain)
     {
@@ -616,7 +615,7 @@ class DomainController extends Controller
                     'result' => 'not_found',
                     'message' => 'لم يتم العثور على A Record لهذا الدومين',
                     'domain' => $domain,
-                    'required_ip' => $requiredIp
+                    'required_ip' => $requiredIp,
                 ]);
             }
 
@@ -629,7 +628,7 @@ class DomainController extends Controller
                     'message' => 'الدومين جاهز للربط',
                     'domain' => $domain,
                     'current_ip' => $currentIp,
-                    'required_ip' => $requiredIp
+                    'required_ip' => $requiredIp,
                 ]);
             } else {
                 return response()->json([
@@ -637,46 +636,45 @@ class DomainController extends Controller
                     'message' => 'A Record غير صحيح',
                     'domain' => $domain,
                     'current_ip' => $currentIp,
-                    'required_ip' => $requiredIp
+                    'required_ip' => $requiredIp,
                 ]);
             }
-        } catch (\Exception $e) {
-            Log::error("DNS Check Error: " . $e->getMessage(), ['domain' => $domain]);
+        } catch (Exception $e) {
+            Log::error('DNS Check Error: '.$e->getMessage(), ['domain' => $domain]);
 
             return response()->json([
                 'result' => 'error',
                 'message' => 'حدث خطأ أثناء التحقق من الدومين',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 
-
     public function checkTransferStatus($domain)
     {
         $transfer = tenancy()->central(function () use ($domain) {
-            return  Domain::where('domain', $domain)->first();
+            return Domain::where('domain', $domain)->first();
         });
 
-        if (!$transfer) {
+        if (! $transfer) {
             return response()->json([
-                'error' => 'لم يتم العثور على هذا الدومين في سجل النقل.'
+                'error' => 'لم يتم العثور على هذا الدومين في سجل النقل.',
             ], 404);
         }
 
         $transferId = $transfer->transfer_code;
 
-        $apiUser  = env('NAMECHEAP_API_USER');
-        $apiKey   = env('NAMECHEAP_API_KEY');
+        $apiUser = env('NAMECHEAP_API_USER');
+        $apiKey = env('NAMECHEAP_API_KEY');
         $clientIp = '154.180.114.3';
-        $baseUrl  = 'https://api.sandbox.namecheap.com/xml.response';
+        $baseUrl = 'https://api.sandbox.namecheap.com/xml.response';
 
         $params = [
-            'ApiUser'    => $apiUser,
-            'ApiKey'     => $apiKey,
-            'UserName'   => $apiUser,
-            'ClientIp'   => $clientIp,
-            'Command'    => 'namecheap.domains.transfer.getStatus',
+            'ApiUser' => $apiUser,
+            'ApiKey' => $apiKey,
+            'UserName' => $apiUser,
+            'ClientIp' => $clientIp,
+            'Command' => 'namecheap.domains.transfer.getStatus',
             'TransferID' => $transferId,
         ];
 
@@ -686,7 +684,7 @@ class DomainController extends Controller
             if ($response->failed()) {
                 return response()->json([
                     'error' => 'فشل الاتصال بـ Namecheap API',
-                    'details' => $response->body()
+                    'details' => $response->body(),
                 ], 500);
             }
 
@@ -694,12 +692,12 @@ class DomainController extends Controller
 
             if (isset($xml->Errors->Error)) {
                 return response()->json([
-                    'error' => (string)$xml->Errors->Error,
-                    'code' => (string)$xml->Errors->Error['Number'] ?? null
+                    'error' => (string) $xml->Errors->Error,
+                    'code' => (string) $xml->Errors->Error['Number'] ?? null,
                 ], 400);
             }
 
-            $status = (string)($xml->CommandResponse->DomainTransferStatusResult['Status'] ?? 'غير معروف');
+            $status = (string) ($xml->CommandResponse->DomainTransferStatusResult['Status'] ?? 'غير معروف');
 
             // تحديث الحالة في الجدول المركزي
             // tenancy()->central(function () use ($transfer, $status) {
@@ -710,41 +708,41 @@ class DomainController extends Controller
                 'domain' => $domain,
                 'status' => $status,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error' => 'حدث خطأ غير متوقع أثناء جلب الحالة',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
 
     private array $rdapServers = [
-        'com'    => 'https://rdap.verisign.com/com/v1/domain/',
-        'net'    => 'https://rdap.verisign.com/net/v1/domain/',
-        'org'    => 'https://rdap.publicinterestregistry.org/rdap/domain/',
-        'io'     => 'https://rdap.nic.io/domain/',
-        'co'     => 'https://rdap.nic.co/domain/',
-        'info'   => 'https://rdap.afilias.net/rdap/info/domain/',
-        'biz'    => 'https://rdap.afilias.net/rdap/biz/domain/',
-        'me'     => 'https://rdap.nic.me/domain/',
-        'tv'     => 'https://rdap.nic.tv/domain/',
-        'us'     => 'https://rdap.nic.us/domain/',
-        'uk'     => 'https://rdap.nominet.uk/uk/domain/',
-        'de'     => 'https://rdap.denic.de/domain/',
-        'fr'     => 'https://rdap.nic.fr/domain/',
-        'nl'     => 'https://rdap.sidn.nl/rdap/domain/',
-        'au'     => 'https://rdap.auda.org.au/domain/',
-        'ca'     => 'https://rdap.cira.ca/domain/',
-        'ru'     => 'https://rdap.tcinet.ru/domain/',
-        'eu'     => 'https://rdap.eu/domain/',
-        'app'    => 'https://rdap.nic.google/domain/',
-        'dev'    => 'https://rdap.nic.google/domain/',
-        'page'   => 'https://rdap.nic.google/domain/',
-        'shop'   => 'https://rdap.donuts.co/domain/',
+        'com' => 'https://rdap.verisign.com/com/v1/domain/',
+        'net' => 'https://rdap.verisign.com/net/v1/domain/',
+        'org' => 'https://rdap.publicinterestregistry.org/rdap/domain/',
+        'io' => 'https://rdap.nic.io/domain/',
+        'co' => 'https://rdap.nic.co/domain/',
+        'info' => 'https://rdap.afilias.net/rdap/info/domain/',
+        'biz' => 'https://rdap.afilias.net/rdap/biz/domain/',
+        'me' => 'https://rdap.nic.me/domain/',
+        'tv' => 'https://rdap.nic.tv/domain/',
+        'us' => 'https://rdap.nic.us/domain/',
+        'uk' => 'https://rdap.nominet.uk/uk/domain/',
+        'de' => 'https://rdap.denic.de/domain/',
+        'fr' => 'https://rdap.nic.fr/domain/',
+        'nl' => 'https://rdap.sidn.nl/rdap/domain/',
+        'au' => 'https://rdap.auda.org.au/domain/',
+        'ca' => 'https://rdap.cira.ca/domain/',
+        'ru' => 'https://rdap.tcinet.ru/domain/',
+        'eu' => 'https://rdap.eu/domain/',
+        'app' => 'https://rdap.nic.google/domain/',
+        'dev' => 'https://rdap.nic.google/domain/',
+        'page' => 'https://rdap.nic.google/domain/',
+        'shop' => 'https://rdap.donuts.co/domain/',
         'online' => 'https://rdap.centralnic.com/online/domain/',
-        'site'   => 'https://rdap.centralnic.com/site/domain/',
-        'store'  => 'https://rdap.centralnic.com/store/domain/',
-        'tech'   => 'https://rdap.centralnic.com/tech/domain/',
+        'site' => 'https://rdap.centralnic.com/site/domain/',
+        'store' => 'https://rdap.centralnic.com/store/domain/',
+        'tech' => 'https://rdap.centralnic.com/tech/domain/',
     ];
 
     // ============================================================
@@ -770,21 +768,21 @@ class DomainController extends Controller
 
                 if (empty($domainNS)) {
                     return response()->json([
-                        'success'     => false,
-                        'message'     => '❌ لا يمكن العثور على Name Servers للدومين. يرجى التحقق من إعدادات DNS.',
-                        'current_ns'  => [],
+                        'success' => false,
+                        'message' => '❌ لا يمكن العثور على Name Servers للدومين. يرجى التحقق من إعدادات DNS.',
+                        'current_ns' => [],
                         'required_ns' => $serverNS,
                     ]);
                 }
 
-                $domainNS = array_map(fn($ns) => strtolower(trim($ns, '.')), $domainNS);
-                $matched  = array_intersect($domainNS, $serverNS);
+                $domainNS = array_map(fn ($ns) => strtolower(trim($ns, '.')), $domainNS);
+                $matched = array_intersect($domainNS, $serverNS);
 
                 if (empty($matched)) {
                     return response()->json([
-                        'success'     => false,
-                        'message'     => '❌ Name Servers غير متطابقة. يرجى تحديث Name Servers.',
-                        'current_ns'  => array_values($domainNS),
+                        'success' => false,
+                        'message' => '❌ Name Servers غير متطابقة. يرجى تحديث Name Servers.',
+                        'current_ns' => array_values($domainNS),
                         'required_ns' => $serverNS,
                     ]);
                 }
@@ -792,27 +790,27 @@ class DomainController extends Controller
 
                 $cname = $this->checkDomainDNS($domain, 'CNAME');
 
-                if (!empty($cname)) {
+                if (! empty($cname)) {
 
-                    $target       = $cname[0] ?? '';
+                    $target = $cname[0] ?? '';
                     $serverDomain = env('SERVER_DOMAIN', 'levan.com');
 
-                    if (!str_contains($target, $serverDomain)) {
+                    if (! str_contains($target, $serverDomain)) {
                         return response()->json([
                             'success' => false,
-                            'message' => '❌ CNAME غير متطابق. يجب أن يشير إلى: ' . $serverDomain,
+                            'message' => '❌ CNAME غير متطابق. يجب أن يشير إلى: '.$serverDomain,
                         ]);
                     }
                 } else {
 
                     $a = $this->checkDomainDNS($domain, 'A');
 
-                    if (!empty($a)) {
+                    if (! empty($a)) {
 
                         if ($a[0] !== $serverIp) {
                             return response()->json([
                                 'success' => false,
-                                'message' => '❌ A Record غير متطابق. IP الحالي: ' . $a[0] . ' | IP المطلوب: ' . $serverIp,
+                                'message' => '❌ A Record غير متطابق. IP الحالي: '.$a[0].' | IP المطلوب: '.$serverIp,
                             ]);
                         }
                     } else {
@@ -828,16 +826,16 @@ class DomainController extends Controller
                 'success' => true,
                 'message' => '✅ الدومين متصل بنجاح! جاري إكمال عملية الربط...',
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
 
             Log::error('DNS Verification Error', [
                 'domain' => $domain,
-                'error'  => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => '❌ حدث خطأ في التحقق من الدومين: ' . $e->getMessage(),
+                'message' => '❌ حدث خطأ في التحقق من الدومين: '.$e->getMessage(),
             ]);
         }
     }
@@ -855,16 +853,20 @@ class DomainController extends Controller
         }
 
         $url = match ($type) {
-            'A'     => "https://dns.google/resolve?name={$domain}&type=A",
+            'A' => "https://dns.google/resolve?name={$domain}&type=A",
             'CNAME' => "https://dns.google/resolve?name={$domain}&type=CNAME",
             default => null,
         };
 
-        if (!$url) return [];
+        if (! $url) {
+            return [];
+        }
 
         $response = Http::timeout(10)->get($url);
 
-        if (!$response->successful()) return [];
+        if (! $response->successful()) {
+            return [];
+        }
 
         return collect($response->json('Answer', []))
             ->pluck('data')
@@ -873,24 +875,28 @@ class DomainController extends Controller
 
     private function getNSviaRDAP(string $domain): array
     {
-        $tld        = $this->extractTld($domain);
+        $tld = $this->extractTld($domain);
         $rdapServer = $this->rdapServers[$tld] ?? $this->getServerFromIANA($tld);
 
-        if (!$rdapServer) return [];
+        if (! $rdapServer) {
+            return [];
+        }
 
         $response = Http::timeout(10)
             ->withHeaders(['Accept' => 'application/rdap+json'])
             ->withOptions(['verify' => false])
-            ->get($rdapServer . urlencode($domain));
+            ->get($rdapServer.urlencode($domain));
 
-        if (!$response->successful()) return [];
+        if (! $response->successful()) {
+            return [];
+        }
 
         $nameservers = $response->json('nameservers', []);
 
         return collect($nameservers)
             ->pluck('ldhName')
             ->filter()
-            ->map(fn($ns) => strtolower(rtrim($ns, '.')))
+            ->map(fn ($ns) => strtolower(rtrim($ns, '.')))
             ->values()
             ->toArray();
     }
@@ -901,14 +907,16 @@ class DomainController extends Controller
             ->withOptions(['verify' => false])
             ->get('https://data.iana.org/rdap/dns.json');
 
-        if (!$response->successful()) return '';
+        if (! $response->successful()) {
+            return '';
+        }
 
         $services = $response->json('services', []);
 
         foreach ($services as $service) {
             [$tlds, $servers] = $service;
-            if (in_array($tld, $tlds) && !empty($servers[0])) {
-                return rtrim($servers[0], '/') . '/domain/';
+            if (in_array($tld, $tlds) && ! empty($servers[0])) {
+                return rtrim($servers[0], '/').'/domain/';
             }
         }
 
@@ -930,9 +938,9 @@ class DomainController extends Controller
     private function extractTld(string $domain): string
     {
         $parts = explode('.', $domain);
+
         return end($parts);
     }
-
 
     public function setupdnsForDomain(Request $request)
     {
@@ -953,24 +961,26 @@ class DomainController extends Controller
             return redirect()->back()->with('info', 'الدومين موجود بالفعل ');
         }
         $tenantId = tenant('id');
+
         // Domain is already verified by verifyDNS() before reaching here
-        return  $saved = tenancy()->central(function () use ($domainName, $tenantId, $request) {
+        return $saved = tenancy()->central(function () use ($domainName, $tenantId, $request) {
             $cpanel = CpanelAccount::where('tenant_id', $tenantId)->first();
 
             if ($cpanel) {
                 $this->namecheapService->createDomainRowWithActivation($request->domain, 'linked', $tenantId);
                 $this->namecheapService->modifyAccount($domainName, $tenantId);
+
                 return $this->cpanelService->createLoginAndToken($domainName, $cpanel->cpanel_username, $tenantId);
             }
 
             $prefix = 'tn';
-            $unique = substr(md5($domainName . microtime()), 0, 6);
-            $whmUser = strtolower($prefix . $unique);
-            $whmPass = Str::random(16) . '@1Aa';
+            $unique = substr(md5($domainName.microtime()), 0, 6);
+            $whmUser = strtolower($prefix.$unique);
+            $whmPass = Str::random(16).'@1Aa';
 
             $whmResponse = Http::withHeaders([
-                'Authorization' => 'whm levan:' . $this->whmToken,
-            ])->timeout(60)->get(rtrim($this->whmUrl, '/') . '/json-api/createacct', [
+                'Authorization' => 'whm levan:'.$this->whmToken,
+            ])->timeout(60)->get(rtrim($this->whmUrl, '/').'/json-api/createacct', [
                 'username' => $whmUser,
                 'domain' => $domainName,
                 'password' => $whmPass,
@@ -988,7 +998,7 @@ class DomainController extends Controller
                 return redirect()->back()->with('info', $whmJson['result'][0]['statusmsg']);
             }
 
-            $cpanelAcc =  CpanelAccount::create([
+            $cpanelAcc = CpanelAccount::create([
                 'cpanel_username' => $whmUser,
                 'cpanel_password' => $whmPass,
                 'tenant_id' => $tenantId,
@@ -1005,11 +1015,9 @@ class DomainController extends Controller
         });
     }
 
-
-
     public function modifyaccount(Request $request)
     {
-        return  $this->namecheapService->modifyAccount($request->domain, $request->tenant_id);
+        return $this->namecheapService->modifyAccount($request->domain, $request->tenant_id);
     }
 
     public function verifyDNSTest(DomainDnsLookupRequest $request)

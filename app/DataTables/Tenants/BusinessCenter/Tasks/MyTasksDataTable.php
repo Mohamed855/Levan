@@ -3,14 +3,14 @@
 namespace App\DataTables\Tenants\BusinessCenter\Tasks;
 
 use App\DataTables\Abstract\AbstractDataTable;
-use App\Models\Tenants\BusinessCenter\Customers\Task\Task;
 use App\Services\Tenants\BusinessCenter\Task\TaskService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 
 class MyTasksDataTable extends AbstractDataTable
 {
-    private $route = "my-tasks";
+    private $route = 'my-tasks';
+
     protected TaskService $taskService;
 
     public function __construct(TaskService $taskService)
@@ -27,6 +27,7 @@ class MyTasksDataTable extends AbstractDataTable
     {
         $datatable = datatables()->eloquent($query)->addIndexColumn();
         $this->addCustomColumns($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
@@ -37,7 +38,7 @@ class MyTasksDataTable extends AbstractDataTable
     */
     protected function getTableId()
     {
-        return "my-tasks-table";
+        return 'my-tasks-table';
     }
 
     /*
@@ -102,24 +103,25 @@ class MyTasksDataTable extends AbstractDataTable
     protected function addCustomColumns($datatable)
     {
         $datatable
-            ->addColumn('checkbox', fn($row) => '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">')
+            ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
 
             ->addColumn('customer_name', function ($row) {
                 $showUrl = tenant_route_name('customers.show', $row->customer_id);
                 $phone = $row->customer_phone ?: 'غير محدد';
+
                 return '<div class="d-flex align-items-center gap-2">'
-                    . '<div class="flex-grow-1 min-w-0">'
-                    . '<a href="' . $showUrl . '" class="text-decoration-none text-primary fw-semibold" data-bs-toggle="tooltip" title="انقر لعرض تفاصيل العميل">'
-                    . e($row->customer_name) . '</a>'
-                    . '<div class="small text-muted">' . e($phone) . '</div>'
-                    . '</div></div>';
+                    .'<div class="flex-grow-1 min-w-0">'
+                    .'<a href="'.$showUrl.'" class="text-decoration-none text-primary fw-semibold" data-bs-toggle="tooltip" title="انقر لعرض تفاصيل العميل">'
+                    .e($row->customer_name).'</a>'
+                    .'<div class="small text-muted">'.e($phone).'</div>'
+                    .'</div></div>';
             })
 
-            ->editColumn('account_number', fn($row) => e($row->account_number ?: 'غير محدد'))
-            ->editColumn('identity_number', fn($row) => e($row->identity_number ?: 'غير محدد'))
+            ->editColumn('account_number', fn ($row) => e($row->account_number ?: 'غير محدد'))
+            ->editColumn('identity_number', fn ($row) => e($row->identity_number ?: 'غير محدد'))
 
-            ->addColumn('company_name', fn($row) => '<span class="text-primary">' . e($row->company_name ?: 'غير محدد') . '</span>')
-            ->addColumn('portfolio_name', fn($row) => e($row->portfolio_name ?: 'غير محدد'))
+            ->addColumn('company_name', fn ($row) => '<span class="text-primary">'.e($row->company_name ?: 'غير محدد').'</span>')
+            ->addColumn('portfolio_name', fn ($row) => e($row->portfolio_name ?: 'غير محدد'))
 
             ->addColumn('task_type', function ($row) {
                 $badgeClasses = [
@@ -128,24 +130,25 @@ class MyTasksDataTable extends AbstractDataTable
                     'document_request' => ['label' => 'طلب مستندات', 'class' => 'bg-label-warning'],
                 ];
                 $badge = $badgeClasses[$row->task_type] ?? ['label' => 'غير محدد', 'class' => 'bg-secondary'];
-                return '<span class="badge ' . $badge['class'] . '">' . $badge['label'] . '</span>';
+
+                return '<span class="badge '.$badge['class'].'">'.$badge['label'].'</span>';
             })
 
-            ->addColumn('due_date', fn($row) => $row->due_date ? Carbon::parse($row->due_date)->format('Y-m-d') : '<span class="text-muted">غير محدد</span>')
+            ->addColumn('due_date', fn ($row) => $row->due_date ? Carbon::parse($row->due_date)->format('Y-m-d') : '<span class="text-muted">غير محدد</span>')
 
             ->addColumn('overdue_days', function ($row) {
-                $days = (int)$row->overdue_days;
+                $days = (int) $row->overdue_days;
 
                 if ($days < 0) {
-                    return '<span class="badge bg-label-info">متبقي ' . abs($days) . ' يوم</span>';
+                    return '<span class="badge bg-label-info">متبقي '.abs($days).' يوم</span>';
                 } elseif ($days == 0) {
                     return '<span class="badge bg-label-warning">اليوم</span>';
                 } elseif ($days <= 3) {
-                    return '<span class="badge bg-label-warning fw-bold">' . $days . ' يوم</span>';
+                    return '<span class="badge bg-label-warning fw-bold">'.$days.' يوم</span>';
                 } elseif ($days <= 7) {
-                    return '<span class="badge bg-label-danger fw-bold">' . $days . ' أيام</span>';
+                    return '<span class="badge bg-label-danger fw-bold">'.$days.' أيام</span>';
                 } else {
-                    return '<span class="badge bg-danger text-white fw-bold">' . $days . ' يوم</span>';
+                    return '<span class="badge bg-danger text-white fw-bold">'.$days.' يوم</span>';
                 }
             })
 
@@ -153,10 +156,11 @@ class MyTasksDataTable extends AbstractDataTable
                 if ($row->status === 'completed') {
                     return '<span class="badge bg-label-success">مكتملة</span>';
                 }
+
                 return '<span class="badge bg-label-warning">معلقة</span>';
             })
 
-            ->addColumn('remaining_debt', fn($row) => number_format((float)$row->remaining_debt, 2) . ' ريال');
+            ->addColumn('remaining_debt', fn ($row) => number_format((float) $row->remaining_debt, 2).' ريال');
     }
 
     /*
@@ -230,11 +234,11 @@ class MyTasksDataTable extends AbstractDataTable
                     }
                 }
                 
-                const exportUrl = '" . tenant_route_name('my-tasks.export') . "';
+                const exportUrl = '".tenant_route_name('my-tasks.export')."';
                 const finalUrl = params.toString() ? exportUrl + '?' + params.toString() : exportUrl;
                 
                 window.location.href = finalUrl;
-            }"
+            }",
             ],
         ];
 

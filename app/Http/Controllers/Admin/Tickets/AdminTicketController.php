@@ -11,14 +11,14 @@ use App\Http\Requests\Admin\Tickets\UpdateTicketStatusRequest;
 use App\Models\Admin\Settings\Settings;
 use App\Models\Admin\Tickets\TicketSection;
 use App\Services\Admin\Tickets\AdminTicketService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Stancl\Tenancy\Database\Models\Tenant;
 
 class AdminTicketController extends Controller
 {
-    private $page = "admin.tickets";
-    private $route = "admin.tickets";
+    private $page = 'admin.tickets';
+
+    private $route = 'admin.tickets';
 
     public function __construct(private AdminTicketService $ticketService)
     {
@@ -32,9 +32,9 @@ class AdminTicketController extends Controller
     public function index(AdminTicketsDataTable $dataTable)
     {
         try {
-            $stats    = $this->ticketService->getStats();
+            $stats = $this->ticketService->getStats();
             $sections = TicketSection::where('is_active', true)->get();
-            $tenants  = Tenant::select('id', 'company_name')->get();
+            $tenants = Tenant::select('id', 'company_name')->get();
             $ticketsEnabled = Settings::first()?->tickets_enabled ?? true;
 
             $filterOptions = [
@@ -56,10 +56,11 @@ class AdminTicketController extends Controller
                 ]),
             ];
 
-            return $dataTable->render($this->page . '.index', compact('stats', 'sections', 'tenants', 'ticketsEnabled', 'filterOptions'));
+            return $dataTable->render($this->page.'.index', compact('stats', 'sections', 'tenants', 'ticketsEnabled', 'filterOptions'));
         } catch (\Exception $e) {
             report($e);
-            return redirect()->back()->with('error', 'حدث خطأ أثناء جلب قائمة التذاكر: ' . $e->getMessage());
+
+            return redirect()->back()->with('error', 'حدث خطأ أثناء جلب قائمة التذاكر: '.$e->getMessage());
         }
     }
 
@@ -71,21 +72,21 @@ class AdminTicketController extends Controller
         try {
             $ticket = $this->ticketService->getTicket($ticketNumber);
 
-            if (!$ticket) {
-                return redirect()->route($this->route . '.index')->with('error', 'لم يتم العثور على التذكرة المطلوبة');
+            if (! $ticket) {
+                return redirect()->route($this->route.'.index')->with('error', 'لم يتم العثور على التذكرة المطلوبة');
             }
 
             $status = TicketStatus::toBadge($ticket->status);
             $replies = $ticket->replies;
 
-            return view($this->page . '.show', compact('ticket', 'status', 'replies'));
+            return view($this->page.'.show', compact('ticket', 'status', 'replies'));
         } catch (\Exception $e) {
             Log::error('Error loading admin ticket', [
                 'ticket_number' => $ticketNumber,
                 'error' => $e->getMessage(),
             ]);
 
-            return redirect()->route($this->route . '.index')->with('error', 'حدث خطأ أثناء تحميل التذكرة');
+            return redirect()->route($this->route.'.index')->with('error', 'حدث خطأ أثناء تحميل التذكرة');
         }
     }
 
@@ -108,6 +109,7 @@ class AdminTicketController extends Controller
             return redirect()->back()->withInput()->with('error', $result['message']);
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->back()->withInput()->with('error', 'حدث خطأ أثناء إرسال الرد');
         }
     }
@@ -127,6 +129,7 @@ class AdminTicketController extends Controller
             return redirect()->back()->with('error', $result['message']);
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء تحديث حالة التذكرة');
         }
     }
@@ -138,16 +141,18 @@ class AdminTicketController extends Controller
     {
         try {
             $settings = Settings::first();
-            if (!$settings) {
+            if (! $settings) {
                 return redirect()->back()->with('error', 'لم يتم العثور على الإعدادات');
             }
 
             $settings->update(['tickets_enabled' => $request->boolean('tickets_enabled')]);
 
             $statusText = $request->boolean('tickets_enabled') ? 'تم تفعيل' : 'تم إيقاف';
-            return redirect()->back()->with('success', $statusText . ' خدمة التذاكر بنجاح');
+
+            return redirect()->back()->with('success', $statusText.' خدمة التذاكر بنجاح');
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء تحديث حالة الخدمة');
         }
     }

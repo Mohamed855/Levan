@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models\Admin\Subscription;
 
-use App\Enums\Admin\Plans\PlanLimitsMode;
-use App\Enums\Admin\Plans\PlanType;
-use App\Enums\Admin\Subscriptions\SubscriptionBillingCycle;
 use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,7 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SubscriptionPeriod extends Model
 {
-    use SoftDeletes, HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $connection = 'mysql';
 
@@ -43,24 +40,24 @@ class SubscriptionPeriod extends Model
     ];
 
     protected $casts = [
-        'status'                 => SubscriptionPeriodStatus::class,
-        'period_start'           => 'datetime',
-        'period_end'             => 'datetime',
-        'amount'                 => 'decimal:2',
-        'is_current'             => 'boolean',
-        'price_snapshot'         => 'decimal:2',
-        'total_users_snapshot'   => 'integer',
-        'used_users_snapshot'    => 'integer',
-        'limits_snapshot'        => 'array',
-        'features_snapshot'      => 'array',
-        'reminded_at_30'         => 'datetime',
-        'reminded_at_7'          => 'datetime',
+        'status' => SubscriptionPeriodStatus::class,
+        'period_start' => 'datetime',
+        'period_end' => 'datetime',
+        'amount' => 'decimal:2',
+        'is_current' => 'boolean',
+        'price_snapshot' => 'decimal:2',
+        'total_users_snapshot' => 'integer',
+        'used_users_snapshot' => 'integer',
+        'limits_snapshot' => 'array',
+        'features_snapshot' => 'array',
+        'reminded_at_30' => 'datetime',
+        'reminded_at_7' => 'datetime',
     ];
 
     protected static function booted(): void
     {
         static::creating(function ($period) {
-            if (!$period->period_number) {
+            if (! $period->period_number) {
                 $max = self::where('subscription_id', $period->subscription_id)->max('period_number');
                 $period->period_number = (int) $max + 1;
             }
@@ -86,9 +83,9 @@ class SubscriptionPeriod extends Model
     {
         if ($this->isUnlimited()) {
             return [
-                'included_users'        => null,
-                'properties_limit'      => null,
-                'storage_quota_gb'      => null,
+                'included_users' => null,
+                'properties_limit' => null,
+                'storage_quota_gb' => null,
                 'active_auctions_limit' => null,
             ];
         }

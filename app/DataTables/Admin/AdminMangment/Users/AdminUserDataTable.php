@@ -2,20 +2,20 @@
 
 namespace App\DataTables\Admin\AdminMangment\Users;
 
-
 use App\DataTables\Abstract\AbstractDataTable;
+use App\Enums\Admin\Users\AdminUserStatus;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 
 class AdminUserDataTable extends AbstractDataTable
 {
-    private $page  = "admin.admin_mangment.users";
-    private $route = "admin.users";
+    private $page = 'admin.admin_mangment.users';
 
+    private $route = 'admin.users';
 
     // table id
     protected function getTableId()
     {
-        return "users-table";
+        return 'users-table';
     }
 
     protected function resource()
@@ -41,14 +41,14 @@ class AdminUserDataTable extends AbstractDataTable
         ];
     }
 
-
     protected function addCustomColumns($datatable)
     {
         $datatable
-            ->addColumn('checkbox', fn($row) => '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">')
+            ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
 
             ->addColumn('image', function (AdminUser $user) {
-                $profilePicture = $user->image ? asset('storage/' . $user->image) : null;
+                $profilePicture = $user->image ? asset('storage/'.$user->image) : null;
+
                 return $this->renderTableImage($profilePicture, (string) $user->name, 40);
             })
             // ->editColumn('name', function (AdminUser $user) {
@@ -60,13 +60,15 @@ class AdminUserDataTable extends AbstractDataTable
                 if ($user->roles->isEmpty()) {
                     return '<span class="text-muted">-</span>';
                 }
-                return $user->roles->map(fn($role) => '<span class="badge bg-label-info me-1">' . $role->name . '</span>')->implode('');
+
+                return $user->roles->map(fn ($role) => '<span class="badge bg-label-info me-1">'.$role->name.'</span>')->implode('');
             })
 
             ->editColumn('status', function ($row) {
                 if ($row->isSuperAdmin()) {
                     return '<div class="d-flex justify-content-center"><span class="badge bg-primary">سوبر أدمن</span></div>';
                 }
+
                 return $this->UserStatusBadge($row);
             })
 
@@ -80,7 +82,8 @@ class AdminUserDataTable extends AbstractDataTable
                 if ($row->isSuperAdmin()) {
                     return '<span class="text-muted">محمي</span>';
                 }
-                return view($this->page . '.action', ['row' => $row, 'route' => $this->route])->render();
+
+                return view($this->page.'.action', ['row' => $row, 'route' => $this->route])->render();
             });
     }
 
@@ -106,7 +109,6 @@ class AdminUserDataTable extends AbstractDataTable
         return ['checkbox', 'image', 'name', 'email',  'roles', 'status', 'last_login_at', 'actions'];
     }
 
-
     // الحقول المسموح البحث فيها
     protected function getSearchableColumns(): array
     {
@@ -115,12 +117,10 @@ class AdminUserDataTable extends AbstractDataTable
         ];
     }
 
-
     protected function getCustomOrder(): array
     {
         return [1, 'desc'];
     }
-
 
     // Buttons
     protected function buttons(): array
@@ -134,25 +134,25 @@ class AdminUserDataTable extends AbstractDataTable
     private function getActionsDropdownButton(): array
     {
         $buttons = [
-            ['extend' => 'copy', 'text'     => 'نسخ'],
-            ['extend' => 'excel', 'text'    => 'إكسل', 'exportOptions' => [
-                'columns' => [9, 8, 7, 6, 5, 4]
+            ['extend' => 'copy', 'text' => 'نسخ'],
+            ['extend' => 'excel', 'text' => 'إكسل', 'exportOptions' => [
+                'columns' => [9, 8, 7, 6, 5, 4],
             ]],
         ];
 
         if (auth()->user()?->can('users.delete')) {
             $buttons[] = [
-                'text'      => 'حذف المحدد',
+                'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
-                'action'    => "function() { handleMassDelete(); }",
+                'action' => 'function() { handleMassDelete(); }',
             ];
         }
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
 
@@ -160,15 +160,14 @@ class AdminUserDataTable extends AbstractDataTable
     {
         if (auth()->user()?->can('users.create')) {
             return [
-                'text'      => '<i class="fas fa-plus-circle me-1"></i> إضافة مستخدم',
+                'text' => '<i class="fas fa-plus-circle me-1"></i> إضافة مستخدم',
                 'className' => 'btn btn-primary btn-add',
-                'action'    => "function(){ window.location.href='" . route($this->route . '.create') . "'; }",
+                'action' => "function(){ window.location.href='".route($this->route.'.create')."'; }",
             ];
         } else {
             return [];
         }
     }
-
 
     /*
     |============================================================================
@@ -177,20 +176,21 @@ class AdminUserDataTable extends AbstractDataTable
     */
     private function UserStatusBadge($row): string
     {
-        $isActive = ($row->status === \App\Enums\Admin\Users\AdminUserStatus::ACTIVE || ($row->status?->value ?? $row->status) === 'active');
+        $isActive = ($row->status === AdminUserStatus::ACTIVE || ($row->status?->value ?? $row->status) === 'active');
         $checked = $isActive ? 'checked' : '';
 
         if (auth()->user()?->can('users.change_status')) {
             $url = route('admin.users.toggle-status', $row->id);
+
             return '
                 <div class="d-flex justify-content-center">
                     <div class="form-check form-switch mb-0">
                         <input
                             type="checkbox"
                             class="form-check-input js-table-status-toggle"
-                            id="status_' . $row->id . '"
-                            data-url="' . $url . '"
-                            ' . $checked . '
+                            id="status_'.$row->id.'"
+                            data-url="'.$url.'"
+                            '.$checked.'
                             aria-label="تبديل حالة المستخدم"
                         >
                     </div>

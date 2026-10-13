@@ -65,12 +65,11 @@ class MessageTemplate extends Model
     {
         return [
             'customers' => 'العملاء',
-            'company'   => 'الشركات',
-            'users'     => 'الموظفين',
-            'general'   => 'عام',
+            'company' => 'الشركات',
+            'users' => 'الموظفين',
+            'general' => 'عام',
         ];
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -81,10 +80,10 @@ class MessageTemplate extends Model
     public static function getChannels()
     {
         return [
-            'sms'       => 'إرسال عبر الرسائل النصية (SMS)',
-            'email'     => 'إرسال عبر البريد الإلكتروني',
-            'whatsapp'  => 'إرسال عبر تطبيق واتساب',
-            'multiple'  => 'إرسال عبر قنوات متعددة',
+            'sms' => 'إرسال عبر الرسائل النصية (SMS)',
+            'email' => 'إرسال عبر البريد الإلكتروني',
+            'whatsapp' => 'إرسال عبر تطبيق واتساب',
+            'multiple' => 'إرسال عبر قنوات متعددة',
         ];
     }
 
@@ -117,11 +116,10 @@ class MessageTemplate extends Model
             '{customer_name}' => 'اسم العميل',
 
             /* ── الأسماء المنفصلة ── */
-            '{first_name}'        => 'الاسم الأول',
-            '{father_name}'       => 'اسم الأب',
-            '{grandfather_name}'  => 'اسم الجد',
-            '{family_name}'       => 'اسم العائلة',
-
+            '{first_name}' => 'الاسم الأول',
+            '{father_name}' => 'اسم الأب',
+            '{grandfather_name}' => 'اسم الجد',
+            '{family_name}' => 'اسم العائلة',
 
             '{customer_type_label}' => 'نوع العميل',
             '{identity_number}' => 'رقم الهوية (اخر 4 أرقام)',
@@ -206,8 +204,6 @@ class MessageTemplate extends Model
         ];
     }
 
-
-
     /*
     |--------------------------------------------------------------------------
     | متغيرات الشركات (Company)
@@ -230,13 +226,13 @@ class MessageTemplate extends Model
     public static function getCompanyAuthorizedVariables()
     {
         return [
-            '{authorized_1_name}'     => 'اسم المفوض الأول',
-            '{authorized_1_phone}'    => 'هاتف المفوض الأول',
-            '{authorized_1_email}'    => 'بريد المفوض الأول',
+            '{authorized_1_name}' => 'اسم المفوض الأول',
+            '{authorized_1_phone}' => 'هاتف المفوض الأول',
+            '{authorized_1_email}' => 'بريد المفوض الأول',
             '{authorized_1_position}' => 'منصب المفوض الأول',
-            '{authorized_2_name}'     => 'اسم المفوض الثاني',
-            '{authorized_2_phone}'    => 'هاتف المفوض الثاني',
-            '{authorized_2_email}'    => 'بريد المفوض الثاني',
+            '{authorized_2_name}' => 'اسم المفوض الثاني',
+            '{authorized_2_phone}' => 'هاتف المفوض الثاني',
+            '{authorized_2_email}' => 'بريد المفوض الثاني',
             '{authorized_2_position}' => 'منصب المفوض الثاني',
         ];
     }
@@ -257,7 +253,6 @@ class MessageTemplate extends Model
             self::getCompanyAuthorizedVariables()
         );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -287,17 +282,16 @@ class MessageTemplate extends Model
     public static function getGroupedVariables($category = null)
     {
         return [
-            'عام'         => self::getGeneralVariables(),
-            'المستخدمين'  => self::getUserVariables(),
-            'العملاء'     => self::getCustomerVariables(),
-            'التحصيل'     => self::getCollectionVariables(),
-            'الشركات'     => array_merge(
+            'عام' => self::getGeneralVariables(),
+            'المستخدمين' => self::getUserVariables(),
+            'العملاء' => self::getCustomerVariables(),
+            'التحصيل' => self::getCollectionVariables(),
+            'الشركات' => array_merge(
                 self::getCompanyVariables(),
                 self::getCompanyAuthorizedVariables()
             ),
         ];
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -307,6 +301,7 @@ class MessageTemplate extends Model
     public function getCategoryNameAttribute()
     {
         $categories = self::getCategories();
+
         return $categories[$this->category] ?? $this->category;
     }
 
@@ -349,10 +344,10 @@ class MessageTemplate extends Model
 
             // متغيرات العملاء - بدون تكرار
             'customer_name' => 'أحمد محمد السعيد',
-            'first_name'       => 'أحمد',
-            'father_name'      => 'محمد',
+            'first_name' => 'أحمد',
+            'father_name' => 'محمد',
             'grandfather_name' => 'سعيد',
-            'family_name'      => 'الأنصارى',
+            'family_name' => 'الأنصارى',
 
             'customer_type_label' => 'فردي',
             'identity_number' => '******7890',
@@ -381,20 +376,19 @@ class MessageTemplate extends Model
             'user_email' => 'saad@company.com',
             'current_user_name' => auth()->user()->name ?? 'المستخدم الحالي',
 
-
             // شركات
             'company_name' => 'شركة المثال للتجارة',
 
             // المفوض الأول
-            'authorized_1_name'     => 'عبدالله السالم',
-            'authorized_1_phone'    => '966501111111',
-            'authorized_1_email'    => 'abdullah@example.com',
+            'authorized_1_name' => 'عبدالله السالم',
+            'authorized_1_phone' => '966501111111',
+            'authorized_1_email' => 'abdullah@example.com',
             'authorized_1_position' => 'مدير علاقات',
 
             // المفوض الثاني
-            'authorized_2_name'     => 'خالد العتيبي',
-            'authorized_2_phone'    => '966502222222',
-            'authorized_2_email'    => 'khaled@example.com',
+            'authorized_2_name' => 'خالد العتيبي',
+            'authorized_2_phone' => '966502222222',
+            'authorized_2_email' => 'khaled@example.com',
             'authorized_2_position' => 'نائب مدير',
 
         ];
@@ -403,7 +397,7 @@ class MessageTemplate extends Model
 
         // استبدال المتغيرات
         foreach ($mergedData as $key => $value) {
-            $content = str_replace('{' . $key . '}', $value, $content);
+            $content = str_replace('{'.$key.'}', $value, $content);
         }
 
         return $content;
@@ -418,6 +412,7 @@ class MessageTemplate extends Model
     public function getChannelNameAttribute()
     {
         $map = self::getChannels();
+
         return $map[$this->channel] ?? $this->channel;
     }
 }

@@ -53,7 +53,7 @@ class AdminUserController extends Controller
             return redirect()->route('admin.archives.index')
                 ->with('success', 'تم استرجاع المستخدم بنجاح.');
         } catch (\Exception $e) {
-            Log::error('Error restoring admin user: ' . $e->getMessage());
+            Log::error('Error restoring admin user: '.$e->getMessage());
 
             return redirect()->route('admin.archives.index')
                 ->with('error', 'حدث خطأ أثناء استرجاع المستخدم.');
@@ -75,7 +75,7 @@ class AdminUserController extends Controller
             return redirect()->route('admin.archives.index')
                 ->with('success', 'تم حذف المستخدم نهائيًا بنجاح.');
         } catch (\Exception $e) {
-            Log::error('Error force deleting admin user: ' . $e->getMessage());
+            Log::error('Error force deleting admin user: '.$e->getMessage());
 
             return redirect()->route('admin.archives.index')
                 ->with('error', 'حدث خطأ أثناء الحذف النهائي للمستخدم.');

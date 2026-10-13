@@ -9,7 +9,6 @@ use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Customers\PaymentPlan\CustomerPaymentPlan;
 use App\Services\Tenants\BusinessCenter\Customer\PaymentPlan\CustomerPaymentPlanService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 
 class CustomerPaymentPlanController extends Controller
 {
@@ -31,17 +30,17 @@ class CustomerPaymentPlanController extends Controller
             $customerPaymentPlans = $customer->paymentPlans()->latest()->get();
 
             $html = view('tenants.business_center.customers.customer_payment_plans.list', [
-                'customerPaymentPlans' => $customerPaymentPlans
+                'customerPaymentPlans' => $customerPaymentPlans,
             ])->render();
 
             return response()->json([
                 'success' => true,
-                'html' => $html
+                'html' => $html,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء جلب البيانات'
+                'message' => 'حدث خطأ أثناء جلب البيانات',
             ], 500);
         }
     }
@@ -55,18 +54,18 @@ class CustomerPaymentPlanController extends Controller
     {
         try {
             $html = view('tenants.business_center.customers.customer_payment_plans.create', [
-                'customer' => $customer
+                'customer' => $customer,
             ])->render();
 
             return response()->json([
                 'success' => true,
                 'html' => $html,
-                'message' => 'تم تحميل النموذج بنجاح'
+                'message' => 'تم تحميل النموذج بنجاح',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تحميل النموذج: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء تحميل النموذج: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -86,13 +85,13 @@ class CustomerPaymentPlanController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'تم حفظ خطط السداد بنجاح (' . count($plans) . ' خطة)',
-                'data' => $plans
+                'message' => 'تم حفظ خطط السداد بنجاح ('.count($plans).' خطة)',
+                'data' => $plans,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء حفظ خطط السداد: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء حفظ خطط السداد: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -105,18 +104,18 @@ class CustomerPaymentPlanController extends Controller
         try {
             $html = view('tenants.business_center.customers.customer_payment_plans.edit', [
                 'customer' => $customer,
-                'paymentPlan' => $customerPaymentPlan
+                'paymentPlan' => $customerPaymentPlan,
             ])->render();
 
             return response()->json([
                 'success' => true,
                 'html' => $html,
-                'message' => 'تم تحميل النموذج بنجاح'
+                'message' => 'تم تحميل النموذج بنجاح',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تحميل النموذج: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء تحميل النموذج: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -132,7 +131,7 @@ class CustomerPaymentPlanController extends Controller
             if ($customerPaymentPlan->customer_id !== $customer->id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'غير مصرح لك بتعديل هذه الخطة'
+                    'message' => 'غير مصرح لك بتعديل هذه الخطة',
                 ], 403);
             }
 
@@ -144,12 +143,12 @@ class CustomerPaymentPlanController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'تم تحديث خطة السداد بنجاح',
-                'data' => $updatedPlan
+                'data' => $updatedPlan,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تحديث خطة السداد: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء تحديث خطة السداد: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -165,7 +164,7 @@ class CustomerPaymentPlanController extends Controller
             if ($customerPaymentPlan->customer_id !== $customer->id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'غير مصرح لك بحذف هذه الخطة'
+                    'message' => 'غير مصرح لك بحذف هذه الخطة',
                 ], 403);
             }
 
@@ -173,12 +172,12 @@ class CustomerPaymentPlanController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'تم حذف خطة السداد بنجاح'
+                'message' => 'تم حذف خطة السداد بنجاح',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء حذف خطة السداد: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء حذف خطة السداد: '.$e->getMessage(),
             ], 500);
         }
     }

@@ -2,20 +2,18 @@
 
 namespace App\DataTables\Tenants\Bills;
 
-
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Models\Admin\Bills\Bill;
-use Carbon\Carbon;
-use Illuminate\Support\Str;
 
 class BillsDataTable extends AbstractDataTable
 {
-    private $page   = "tenants.bills";
-    private $route  = "bills";
+    private $page = 'tenants.bills';
+
+    private $route = 'bills';
 
     protected function getTableId()
     {
-        return "bill-table";
+        return 'bill-table';
     }
 
     protected function resource()
@@ -56,7 +54,7 @@ class BillsDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
 
             ->editColumn('type', function ($row) {
@@ -64,7 +62,7 @@ class BillsDataTable extends AbstractDataTable
             })
 
             ->editColumn('bill_number', function ($row) {
-                return $this->routeName(tenant_route_name($this->route . '.show', $row->id), $row->bill_number);
+                return $this->routeName(tenant_route_name($this->route.'.show', $row->id), $row->bill_number);
             })
 
             ->editColumn('amount', function ($row) {
@@ -88,7 +86,7 @@ class BillsDataTable extends AbstractDataTable
             })
 
             ->addColumn('actions', function ($row) {
-                return view($this->page . '.action', ['row' => $row, 'route' => $this->route])->render();
+                return view($this->page.'.action', ['row' => $row, 'route' => $this->route])->render();
             });
     }
 
@@ -121,7 +119,6 @@ class BillsDataTable extends AbstractDataTable
         return ['type', 'created_at'];
     }
 
-
     protected function getCustomOrder(): array
     {
         return [1, 'desc'];
@@ -142,13 +139,12 @@ class BillsDataTable extends AbstractDataTable
         ];
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
-
 
     private function TypeBadge($row): string
     {

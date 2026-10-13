@@ -49,6 +49,7 @@ class SettingsDebtTypeController extends Controller
             // }
 
             $debtType->delete();
+
             return redirect()->back()->with('success', 'تم الحذف بنجاح.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());

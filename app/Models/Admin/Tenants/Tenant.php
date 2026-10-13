@@ -6,19 +6,16 @@ use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\City;
 use App\Models\Admin\Licenses\LicenseSeat;
 use App\Models\Admin\Subscription\Subscription;
-use App\Models\Admin\Tenants\CompanySetting;
 use App\Models\Admin\Version\Version;
 use App\Models\Tenants\Settings\TransferDomain;
 use App\Models\Tenants\Ticket\Ticket;
 use App\Models\Tenants\UserMangment\User\User;
-use App\Traits\ActivityLogTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
+use Illuminate\Support\Str;
 use Stancl\Tenancy\Contracts\TenantWithDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDomains;
-use Illuminate\Support\Str;
-use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 
 class Tenant extends BaseTenant implements TenantWithDatabase
 {
@@ -90,7 +87,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'access_type',
             'custom_domain_active',
             'domain_activated_at',
-            'deleted_at'
+            'deleted_at',
         ];
     }
 
@@ -102,7 +99,6 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     protected $hidden = [
         'api_token',
     ];
-
 
     /*
     |============================================================================
@@ -184,7 +180,6 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     //     ];
     // }
 
-
     /*
     |============================================================================
     |============================================================================
@@ -251,16 +246,16 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     */
     public function getFirstUserAttribute()
     {
-        if (!tenancy()->initialized || tenancy()->tenant->id !== $this->id) {
+        if (! tenancy()->initialized || tenancy()->tenant->id !== $this->id) {
             tenancy()->initialize($this);
             $user = User::where('id', '1')->first();
             tenancy()->end();
+
             return $user;
         }
 
         return User::where('id', '1')->first();
     }
-
 
     /**
      * يولّد توكن API جديد، يخزّن فقط بصمة (hash) منه في قاعدة البيانات،

@@ -6,10 +6,9 @@ use App\Models\Tenants\GeneralSetting\MessageTemplate\MessageTemplate;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class MessageLog extends Model
 {
@@ -255,18 +254,18 @@ class MessageLog extends Model
      */
     public function getSendDurationAttribute(): ?string
     {
-        if (!$this->sent_at) {
+        if (! $this->sent_at) {
             return null;
         }
 
         $diff = $this->created_at->diffInSeconds($this->sent_at);
 
         if ($diff < 60) {
-            return $diff . ' ثانية';
+            return $diff.' ثانية';
         } elseif ($diff < 3600) {
-            return round($diff / 60) . ' دقيقة';
+            return round($diff / 60).' دقيقة';
         } else {
-            return round($diff / 3600, 1) . ' ساعة';
+            return round($diff / 3600, 1).' ساعة';
         }
     }
 
@@ -318,7 +317,6 @@ class MessageLog extends Model
         ];
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | العلاقة مع الرسائل الفردية
@@ -328,7 +326,6 @@ class MessageLog extends Model
     {
         return $this->hasMany(MessageIndividualLog::class, 'batch_log_id');
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -341,7 +338,6 @@ class MessageLog extends Model
             ->where('status', 'sent');
     }
 
-    
     /*
     |--------------------------------------------------------------------------
     | الرسائل الفردية الفاشلة

@@ -5,9 +5,13 @@ namespace App\Data\Tenants\BusinessCenter\Company;
 final class CompanyUpdateDTO
 {
     public ?string $name = null;
+
     public ?string $logo_path = null;
+
     public ?string $status = null;
+
     public ?float $target_percentage = null;
+
     /** @var AuthorizedPersonInput[]|null */
     public ?array $authorized_people = null;
 
@@ -35,8 +39,8 @@ final class CompanyUpdateDTO
     */
     public static function fromArray(array $validated): self
     {
-        $self = new self();
-        $n = fn(?string $v) => isset($v) ? (trim($v) === '' ? null : trim($v)) : null;
+        $self = new self;
+        $n = fn (?string $v) => isset($v) ? (trim($v) === '' ? null : trim($v)) : null;
 
         $set = function (string $key, $value) use ($self) {
             $self->provided[$key] = true;
@@ -64,8 +68,8 @@ final class CompanyUpdateDTO
         if (array_key_exists('authorized_people', $validated)) {
             $self->provided['authorized_people'] = true;
             $people = [];
-            foreach ((array)$validated['authorized_people'] as $item) {
-                $person = AuthorizedPersonInput::fromArray((array)$item);
+            foreach ((array) $validated['authorized_people'] as $item) {
+                $person = AuthorizedPersonInput::fromArray((array) $item);
                 if ($person->isMeaningful()) {
                     $people[] = $person;
                 }
@@ -118,6 +122,7 @@ final class CompanyUpdateDTO
     {
         $this->provided['logo_path'] = true;
         $this->logo_path = $path;
+
         return $this;
     }
 }

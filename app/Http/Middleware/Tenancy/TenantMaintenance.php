@@ -6,13 +6,12 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\View;
 
 class TenantMaintenance
 {
     public function handle(Request $request, Closure $next)
     {
-        if (!tenant()) {
+        if (! tenant()) {
             return $next($request);
         }
 
@@ -23,7 +22,7 @@ class TenantMaintenance
                 return response()->view('tenants.errors.maintenance_mode', [], 503);
             }
         } catch (\Throwable $e) {
-            Log::warning('TenantMaintenance error: ' . $e->getMessage());
+            Log::warning('TenantMaintenance error: '.$e->getMessage());
         }
 
         return $next($request);

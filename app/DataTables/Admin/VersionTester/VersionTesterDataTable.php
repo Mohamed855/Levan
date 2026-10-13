@@ -2,13 +2,13 @@
 
 namespace App\DataTables\Admin\VersionTester;
 
-
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Models\Admin\Version\VersionTester;
 
 class VersionTesterDataTable extends AbstractDataTable
 {
-    private $page  = 'admin.version_testers';
+    private $page = 'admin.version_testers';
+
     private $route = 'admin.version_testers';
 
     protected function getTableId()
@@ -27,14 +27,14 @@ class VersionTesterDataTable extends AbstractDataTable
             ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             [
-                'data'       => 'checkbox',
-                'name'       => 'checkbox',
-                'title'      => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
-                'orderable'  => false,
+                'data' => 'checkbox',
+                'name' => 'checkbox',
+                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
+                'orderable' => false,
                 'searchable' => false,
-                'width'      => '10px',
-                'className'  => 'custom-checkbox',
-                'titleAttr'  => 'تحديد الكل',
+                'width' => '10px',
+                'className' => 'custom-checkbox',
+                'titleAttr' => 'تحديد الكل',
             ],
             ['data' => 'tenant_name',   'name' => 'tenant.name',    'title' => 'اسم العميل',    'className' => 'text-start'],
             ['data' => 'type',          'name' => 'type',           'title' => 'نوع المختبر',   'className' => 'text-center'],
@@ -47,22 +47,22 @@ class VersionTesterDataTable extends AbstractDataTable
     protected function addCustomColumns($datatable)
     {
         $datatable
-            ->addColumn('checkbox', fn($row) => '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">')
+            ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
 
-            ->addColumn('tenant_name', fn($row) => $row->tenant->company_name ?? '-')
+            ->addColumn('tenant_name', fn ($row) => $row->tenant->company_name ?? '-')
 
-            ->editColumn('type', fn($row) => $this->typeBadge($row->type))
+            ->editColumn('type', fn ($row) => $this->typeBadge($row->type))
 
             ->editColumn('is_active', function ($row) {
                 $checked = $row->is_active ? 'checked' : '';
                 $url = route('admin.version_testers.toggle-status', $row->id);
 
-                return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_' . $row->id . '" data-url="' . e($url) . '" ' . $checked . ' aria-label="تبديل حالة المختبر"></div></div>';
+                return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_'.$row->id.'" data-url="'.e($url).'" '.$checked.' aria-label="تبديل حالة المختبر"></div></div>';
             })
 
-            ->editColumn('created_at', fn($row) => $row->created_at->format('Y-m-d H:i'))
+            ->editColumn('created_at', fn ($row) => $row->created_at->format('Y-m-d H:i'))
 
-            ->addColumn('actions', fn($row) => view($this->page . '.action', ['row' => $row, 'route' => $this->route])->render());
+            ->addColumn('actions', fn ($row) => view($this->page.'.action', ['row' => $row, 'route' => $this->route])->render());
     }
 
     protected function rawColumns(): array
@@ -119,17 +119,17 @@ class VersionTesterDataTable extends AbstractDataTable
 
         if (auth()->user()?->can('version_testers.delete')) {
             $buttons[] = [
-                'text'      => 'حذف المحدد',
+                'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
-                'action'    => "function() { handleMassDelete(); }",
+                'action' => 'function() { handleMassDelete(); }',
             ];
         }
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
 
@@ -137,9 +137,9 @@ class VersionTesterDataTable extends AbstractDataTable
     {
         if (auth()->user()?->can('version_testers.create')) {
             return [
-                'text'      => '<i class="fas fa-plus-circle me-1"></i> إضافة عضو',
+                'text' => '<i class="fas fa-plus-circle me-1"></i> إضافة عضو',
                 'className' => 'btn btn-primary btn-add',
-                'action'    => "function(){ window.location.href='" . route($this->route . '.create') . "'; }",
+                'action' => "function(){ window.location.href='".route($this->route.'.create')."'; }",
             ];
         } else {
             return [];

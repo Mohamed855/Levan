@@ -2,7 +2,6 @@
 
 namespace App\Helpers\Tenants\Settings;
 
-
 use App\Models\Tenants\Settings\Settings;
 use Illuminate\Support\Facades\Cache;
 
@@ -15,7 +14,7 @@ class SettingsHelper
     */
     public static function getSettings()
     {
-        return Cache::remember('app_settings_' . tenant('id'), 60, function () {
+        return Cache::remember('app_settings_'.tenant('id'), 60, function () {
             return Settings::first();
         });
     }

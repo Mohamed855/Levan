@@ -2,25 +2,29 @@
 
 namespace App\Exports\Tenants\Reports\Customer;
 
+use Carbon\Carbon;
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\WithColumnWidths;
-use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
-use Carbon\Carbon;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class CustomersReportExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle, WithColumnWidths, WithEvents
+class CustomersReportExport implements FromCollection, WithColumnWidths, WithEvents, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     protected $customers;
+
     protected $filters;
+
     protected $selectedFields;
+
     protected $rowCount = 0;
 
     /*
@@ -36,7 +40,7 @@ class CustomersReportExport implements FromCollection, WithHeadings, WithMapping
 
         $maxExtraPhones = $customers
             ->map(
-                fn($c) => is_iterable($c->extra_phones ?? null)
+                fn ($c) => is_iterable($c->extra_phones ?? null)
                     ? count($c->extra_phones)
                     : 0
             )
@@ -52,7 +56,7 @@ class CustomersReportExport implements FromCollection, WithHeadings, WithMapping
     | Collection
     |--------------------------------------------------------------------------
     */
-    public function collection(): \Illuminate\Support\Enumerable
+    public function collection(): Enumerable
     {
         return $this->customers;
     }
@@ -68,41 +72,42 @@ class CustomersReportExport implements FromCollection, WithHeadings, WithMapping
 
         $fieldLabels = [
             // الحقول الأساسية من جدول customers
-            'name'                  => 'اسم العميل الكامل',
-            'first_name'            => 'الاسم الأول',
-            'father_name'           => 'اسم الأب',
-            'grandfather_name'      => 'اسم الجد',
-            'family_name'           => 'اسم العائلة',
-            'customer_type'         => 'نوع العميل',
-            'identity_number'       => 'رقم الهوية',
-            'phone'                 => 'رقم الهاتف',
-            'account_number'        => 'رقم الحساب',
-            'commission_rate'       => 'نسبة العمولة',
-            'contract_date'         => 'تاريخ العقد',
-            'default_date'          => 'تاريخ التعثر',
-            'created_at'            => 'تاريخ الإضافة',
-            'updated_at'            => 'تاريخ آخر تحديث',
+            'name' => 'اسم العميل الكامل',
+            'first_name' => 'الاسم الأول',
+            'father_name' => 'اسم الأب',
+            'grandfather_name' => 'اسم الجد',
+            'family_name' => 'اسم العائلة',
+            'customer_type' => 'نوع العميل',
+            'identity_number' => 'رقم الهوية',
+            'phone' => 'رقم الهاتف',
+            'account_number' => 'رقم الحساب',
+            'commission_rate' => 'نسبة العمولة',
+            'contract_date' => 'تاريخ العقد',
+            'default_date' => 'تاريخ التعثر',
+            'created_at' => 'تاريخ الإضافة',
+            'updated_at' => 'تاريخ آخر تحديث',
 
             // الحقول من العلاقات
-            'company_name'          => 'اسم الشركة',
-            'portfolio_name'        => 'المحفظة',
-            'nationality'           => 'الجنسية',
-            'manager_name'          => 'مسؤول العلاقة',
-            'customer_status'       => 'حالة العميل',
-            'last_contact_result'   => 'نتيجة آخر اتصال',
-            'created_by'            => 'أنشأ بواسطة',
+            'company_name' => 'اسم الشركة',
+            'portfolio_name' => 'المحفظة',
+            'nationality' => 'الجنسية',
+            'manager_name' => 'مسؤول العلاقة',
+            'customer_status' => 'حالة العميل',
+            'last_contact_result' => 'نتيجة آخر اتصال',
+            'created_by' => 'أنشأ بواسطة',
 
             // الحقول المالية المحسوبة
-            'debt_amount'           => 'مبلغ المديونية',
-            'total_credit'          => 'المدفوع',
-            'remaining_debt'        => 'المتبقي',
-            'days_elapsed'          => 'أيام الاسناد',
+            'debt_amount' => 'مبلغ المديونية',
+            'total_credit' => 'المدفوع',
+            'remaining_debt' => 'المتبقي',
+            'days_elapsed' => 'أيام الاسناد',
         ];
 
         foreach ($this->selectedFields as $field) {
 
             if ($field === 'primary_phone') {
                 $headings[] = 'الرقم الافتراضي';
+
                 continue;
             }
 
@@ -110,12 +115,12 @@ class CustomersReportExport implements FromCollection, WithHeadings, WithMapping
                 for ($i = 1; $i <= $this->maxExtraPhones; $i++) {
                     $headings[] = "رقم إضافي {$i}";
                 }
+
                 continue;
             }
 
             $headings[] = $fieldLabels[$field] ?? $field;
         }
-
 
         return $headings;
     }
@@ -172,7 +177,7 @@ class CustomersReportExport implements FromCollection, WithHeadings, WithMapping
                     $row[] = $customer->account_number ?: 'غير محدد';
                     break;
                 case 'commission_rate':
-                    $row[] = $customer->commission_rate ? $customer->commission_rate . '%' : 'غير محدد';
+                    $row[] = $customer->commission_rate ? $customer->commission_rate.'%' : 'غير محدد';
                     break;
                 case 'contract_date':
                     $row[] = $customer->contract_date
@@ -191,7 +196,7 @@ class CustomersReportExport implements FromCollection, WithHeadings, WithMapping
                     $row[] = $customer->updated_at->format('Y-m-d H:i');
                     break;
 
-                // الحقول من العلاقات
+                    // الحقول من العلاقات
                 case 'company_name':
                     $row[] = $customer->company->name ?? 'غير محدد';
                     break;
@@ -213,15 +218,15 @@ class CustomersReportExport implements FromCollection, WithHeadings, WithMapping
                 case 'created_by':
                     $row[] = $customer->createdBy->name ?? 'النظام';
                     break;
-                // الحقول المالية المحسوبة
+                    // الحقول المالية المحسوبة
                 case 'debt_amount':
-                    $row[] = number_format($customer->original_debt ?? 0, 2) . ' ريال';
+                    $row[] = number_format($customer->original_debt ?? 0, 2).' ريال';
                     break;
                 case 'total_credit':
-                    $row[] = number_format($customer->total_credit ?? 0, 2) . ' ريال';
+                    $row[] = number_format($customer->total_credit ?? 0, 2).' ريال';
                     break;
                 case 'remaining_debt':
-                    $row[] = number_format($customer->remaining_debt ?? 0, 2) . ' ريال';
+                    $row[] = number_format($customer->remaining_debt ?? 0, 2).' ريال';
                     break;
                 case 'days_elapsed':
                     $row[] = $customer->days_elapsed ?? 0;
@@ -234,6 +239,7 @@ class CustomersReportExport implements FromCollection, WithHeadings, WithMapping
         }
 
         $this->rowCount++;
+
         return $row;
     }
 
@@ -321,6 +327,7 @@ class CustomersReportExport implements FromCollection, WithHeadings, WithMapping
             $columnLetter = $this->getColumnLetter($columnIndex + 1);
             if ($field === 'primary_phone') {
                 $widths[$columnLetter] = 18;
+
                 continue;
             }
 
@@ -329,6 +336,7 @@ class CustomersReportExport implements FromCollection, WithHeadings, WithMapping
                     $columnLetter = $this->getColumnLetter(++$columnIndex);
                     $widths[$columnLetter] = 18; // عرض موحد وواضح
                 }
+
                 continue;
             }
 
@@ -364,10 +372,9 @@ class CustomersReportExport implements FromCollection, WithHeadings, WithMapping
                     ],
                     'alignment' => [
                         'horizontal' => Alignment::HORIZONTAL_RIGHT,
-                        'vertical'   => Alignment::VERTICAL_CENTER,
+                        'vertical' => Alignment::VERTICAL_CENTER,
                     ],
                 ]);
-
 
                 $sheet->setAutoFilter("A1:{$lastColumnLetter}{$lastRow}");
 
@@ -396,9 +403,10 @@ class CustomersReportExport implements FromCollection, WithHeadings, WithMapping
         $letter = '';
         while ($columnNumber > 0) {
             $columnNumber--;
-            $letter = chr(65 + ($columnNumber % 26)) . $letter;
+            $letter = chr(65 + ($columnNumber % 26)).$letter;
             $columnNumber = intval($columnNumber / 26);
         }
+
         return $letter;
     }
 }

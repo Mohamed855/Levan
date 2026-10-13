@@ -7,7 +7,6 @@ use App\Models\Admin\Tenants\Tenant;
 use App\Traits\ActivityLogTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\Models\Concerns\LogsActivity;
 
 class VersionTester extends Model
 {
@@ -18,7 +17,7 @@ class VersionTester extends Model
     |============================================================================
     |============================================================================
     */
-    use HasFactory,  ActivityLogTrait;
+    use ActivityLogTrait,  HasFactory;
 
     protected $fillable = [
         'tenant_id',
@@ -28,10 +27,8 @@ class VersionTester extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
-        'type'      => VersionTesterType::class,
+        'type' => VersionTesterType::class,
     ];
-
-
 
     /*
     |============================================================================
@@ -54,7 +51,7 @@ class VersionTester extends Model
     {
         return [
             'tenant_id' => 'العميل',
-            'type'      => 'النوع',
+            'type' => 'النوع',
             'is_active' => 'الحالة',
         ];
     }
@@ -68,7 +65,7 @@ class VersionTester extends Model
     {
         return [
             'type' => [
-                'tester'    => VersionTesterType::TESTER->label(),
+                'tester' => VersionTesterType::TESTER->label(),
                 'developer' => VersionTesterType::DEVELOPER->label(),
             ],
             'is_active' => [
@@ -77,6 +74,7 @@ class VersionTester extends Model
             ],
         ];
     }
+
     /*
     |============================================================================
     |============================================================================

@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 class CompaniesDataTable extends AbstractDataTable
 {
-    private $route = "companies";
+    private $route = 'companies';
 
     /*
     |--------------------------------------------------------------------------
@@ -29,9 +29,9 @@ class CompaniesDataTable extends AbstractDataTable
         });
 
         $this->addCustomColumns($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -41,7 +41,7 @@ class CompaniesDataTable extends AbstractDataTable
     */
     protected function getTableId()
     {
-        return "companies-table";
+        return 'companies-table';
     }
 
     /*
@@ -69,10 +69,10 @@ class CompaniesDataTable extends AbstractDataTable
             ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             [
-                'data'       => 'checkbox',
-                'name'       => 'checkbox',
-                'title'      => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
-                'orderable'  => false,
+                'data' => 'checkbox',
+                'name' => 'checkbox',
+                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
+                'orderable' => false,
                 'searchable' => false,
                 'width' => '10px',
                 'className' => 'custom-checkbox',
@@ -97,20 +97,20 @@ class CompaniesDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
             ->editColumn('name', function ($row) {
                 $img = tasset($row->logo_path);
-                $showUrl = tenant_route_name($this->route . '.show', $row->id);
+                $showUrl = tenant_route_name($this->route.'.show', $row->id);
 
                 return '<div class="d-flex align-items-center">
-                    <img src="' . $img . '" alt="logo" class="rounded me-2"
+                    <img src="'.$img.'" alt="logo" class="rounded me-2"
                          style="width:28px;height:28px;object-fit:cover" />
-                    <a href="' . $showUrl . '" class="text-body fw-medium">' . e($row->name) . '</a>
-                </div>'; 
+                    <a href="'.$showUrl.'" class="text-body fw-medium">'.e($row->name).'</a>
+                </div>';
             })
             ->editColumn('authorized_people_count', function ($row) {
-                return '<span class="badge bg-label-info">' . ($row->authorized_people_count ?? 0) . '</span>';
+                return '<span class="badge bg-label-info">'.($row->authorized_people_count ?? 0).'</span>';
             })
             ->editColumn('status', function ($row) {
                 $canEdit = auth()->user()?->can('companies.edit');
@@ -118,16 +118,16 @@ class CompaniesDataTable extends AbstractDataTable
                     $checked = $row->status === 'active' ? 'checked' : '';
                     $url = tenant_route_name('companies.toggle-status', $row->id);
 
-                    return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_' . $row->id . '" data-url="' . e($url) . '" data-active-value="active" data-inactive-value="inactive" ' . $checked . ' aria-label="تبديل حالة الشركة"></div></div>';
+                    return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_'.$row->id.'" data-url="'.e($url).'" data-active-value="active" data-inactive-value="inactive" '.$checked.' aria-label="تبديل حالة الشركة"></div></div>';
                 }
 
                 $statusClass = $row->status === 'active' ? 'bg-label-success' : 'bg-label-danger';
                 $statusText = $row->status === 'active' ? 'نشط' : 'غير نشط';
 
-                return '<span class="badge ' . $statusClass . '" title="للقراءة فقط">' . $statusText . '</span>';
+                return '<span class="badge '.$statusClass.'" title="للقراءة فقط">'.$statusText.'</span>';
             })
             ->editColumn('current_target_percentage', function ($row) {
-                return $row->current_target_percentage !== null ? $row->current_target_percentage . '%' : 'غير محدد';
+                return $row->current_target_percentage !== null ? $row->current_target_percentage.'%' : 'غير محدد';
             })
             ->editColumn('created_at', function ($row) {
                 return Carbon::parse($row->created_at)->format('Y-m-d');
@@ -196,7 +196,6 @@ class CompaniesDataTable extends AbstractDataTable
         return $query;
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | Buttons
@@ -226,17 +225,17 @@ class CompaniesDataTable extends AbstractDataTable
 
         if (auth()->user()?->can('companies.delete')) {
             $buttons[] = [
-                'text'      => 'حذف المحدد',
+                'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
-                'action'    => "function() { handleMassDelete(); }",
+                'action' => 'function() { handleMassDelete(); }',
             ];
         }
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
 
@@ -248,14 +247,14 @@ class CompaniesDataTable extends AbstractDataTable
     */
     private function getAddButton(): array
     {
-        if (!auth()->user()?->can('companies.create')) {
+        if (! auth()->user()?->can('companies.create')) {
             return [];
         }
 
         return [
-            'text'      => '<i class="fas fa-plus-circle me-1"></i> إضافة شركة',
+            'text' => '<i class="fas fa-plus-circle me-1"></i> إضافة شركة',
             'className' => 'btn btn-primary btn-add',
-            'action'    => "function(){ window.location.href='" . tenant_route_name($this->route . '.create') . "'; }",
+            'action' => "function(){ window.location.href='".tenant_route_name($this->route.'.create')."'; }",
         ];
     }
 }

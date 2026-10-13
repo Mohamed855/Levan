@@ -18,6 +18,12 @@
     @vite(['resources/assets/js/shared/form-validation.js'])
     <script>
         $(document).ready(function() {
+            let restoredPropertyIds = [];
+
+            $('#wizard-validation-form').on('wizardDraftRestored', function(event) {
+                restoredPropertyIds = (event.originalEvent?.detail?.data?.property_ids || []).map(String);
+            });
+
             // Live Preview in Step 1
             $('#name').on('input', function() {
                 $('#preview-auction-name').text($(this).val() || 'اسم المزاد الافتراضي');
@@ -88,7 +94,7 @@
                                     html += `
                                         <tr>
                                             <td>
-                                                <input type="checkbox" name="property_ids[]" value="${prop.id}" class="form-check-input property-select-check"
+                                                <input type="checkbox" name="property_ids[]" value="${prop.id}" class="form-check-input property-select-check" data-form-control
                                                     data-area="${prop.area || 0}" data-val="${prop.estimated_value || 0}">
                                             </td>
                                             <td><code>${prop.property_number}</code></td>
@@ -109,6 +115,9 @@
                                     '<tr><td colspan="6" class="text-center py-4 text-muted">لا توجد عقارات مسجلة لهذا الإسناد حالياً.</td></tr>';
                             }
                             $('#properties-container').html(html);
+                            restoredPropertyIds.forEach(function(propertyId) {
+                                $('.property-select-check[value="' + propertyId + '"]').prop('checked', true);
+                            });
                             calculateSelectedProperties();
                         }
                     }
@@ -157,11 +166,11 @@
 @section('content')
     @php
         $steps = [
-            ['id' => 'step-basic-info', 'title' => 'البيانات الأساسية', 'subtitle' => 'المعلومات وتاريخ المزاد'],
-            ['id' => 'step-assignment', 'title' => 'الإسناد والمنصة', 'subtitle' => 'الجهة المشرفة والمنصة'],
-            ['id' => 'step-properties', 'title' => 'العقارات المرتبطة', 'subtitle' => 'تحديد عقارات المزاد'],
-            ['id' => 'step-settings', 'title' => 'الإعدادات والملفات', 'subtitle' => 'القوالب والمرفقات'],
-            ['id' => 'step-review', 'title' => 'المراجعة والإرسال', 'subtitle' => 'مراجعة كافة التفاصيل'],
+            ['id' => 'step-basic-info', 'title' => 'البيانات الأساسية'],
+            ['id' => 'step-assignment', 'title' => 'الإسناد والمنصة'],
+            ['id' => 'step-properties', 'title' => 'العقارات المرتبطة'],
+            ['id' => 'step-settings', 'title' => 'الإعدادات والملفات'],
+            ['id' => 'step-review', 'title' => 'المراجعة والإرسال'],
         ];
     @endphp
 
@@ -190,7 +199,10 @@
 
                 <form id="wizard-validation-form" action="{{ tenant_route_name('auctions.store') }}" method="POST"
                     enctype="multipart/form-data" autocomplete="off" data-form-validate
-                    data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
+                    data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}"
+                    data-draft-url="{{ tenant_route_name('wizard-drafts.store') }}"
+                    data-draft-file-url="{{ tenant_route_name('wizard-drafts.file.destroy') }}"
+                    data-draft-resource-key="tenant.auction-create">
                     @csrf
 
                     {{-- الخطوة 1: البيانات الأساسية --}}
@@ -207,9 +219,7 @@
                         'expected_properties_count',
                         'cover_image',
                     ]">
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <div class="row g-4">
+                        <div class="row g-4">
                                     <x-form.controls.input name="name" label="اسم المزاد"
                                         placeholder="مثال: مزاد جوار الحرم" required col="col-12" />
 
@@ -241,32 +251,11 @@
                                     <x-form.controls.image-upload name="cover_image" label="صورة الغلاف للمزاد"
                                         accept="image/jpeg,image/png,image/webp"
                                         hint="JPG، PNG أو WebP. الحد الأقصى 4MB" col="col-md-6" />
-                                </div>
-                            </div>
-
-                            {{-- كارت المعاينة الجانبي المتطابق مع Wireframe 17 --}}
-                            <div class="col-lg-4 mt-4 mt-lg-0">
-                                <div class="card bg-light border">
-                                    <div class="card-body text-center p-4">
-                                        <h6 class="text-muted mb-3"><i class="ti ti-eye me-1"></i>معاينة مباشرة للغلاف</h6>
-                                        <div class="p-3 bg-white rounded shadow-sm border">
-                                            <div class="bg-primary text-white p-4 rounded mb-3"
-                                                style="min-height: 120px; display: flex; flex-direction: column; justify-content: center;">
-                                                <h5 class="text-white mb-1" id="preview-auction-name">اسم المزاد</h5>
-                                                <small class="text-white-50" id="preview-auction-category">التصنيف</small>
-                                            </div>
-                                            <div class="d-flex justify-content-between text-muted small border-top pt-2">
-                                                <span id="preview-auction-city">المدينة</span>
-                                                <span id="preview-auction-date">تاريخ الانطلاق</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
                         <x-form.wizard.actions>
                             <x-form.wizard.previous-button />
+                            <x-form.wizard.draft-button />
                             <x-form.wizard.next-button />
                         </x-form.wizard.actions>
                     </x-form.wizard.step>
@@ -320,12 +309,14 @@
 
                         <x-form.wizard.actions>
                             <x-form.wizard.previous-button />
+                            <x-form.wizard.draft-button />
                             <x-form.wizard.next-button />
                         </x-form.wizard.actions>
                     </x-form.wizard.step>
 
                     {{-- الخطوة 3: العقارات المرتبطة --}}
                     <x-form.wizard.step id="step-properties" :fields="['property_ids']">
+                        <div data-form-field data-field-name="property_ids">
                         <div class="mb-3 d-flex justify-content-between align-items-center">
                             <div>
                                 <h5 class="mb-0">العقارات المرتبطة بالإسناد المختار</h5>
@@ -364,9 +355,12 @@
                                 </tbody>
                             </table>
                         </div>
+                        <div id="property_ids-error" class="invalid-feedback d-block" data-form-error role="alert" hidden></div>
+                        </div>
 
                         <x-form.wizard.actions>
                             <x-form.wizard.previous-button />
+                            <x-form.wizard.draft-button />
                             <x-form.wizard.next-button />
                         </x-form.wizard.actions>
                     </x-form.wizard.step>
@@ -399,78 +393,50 @@
 
                         <x-form.wizard.actions>
                             <x-form.wizard.previous-button />
+                            <x-form.wizard.draft-button />
                             <x-form.wizard.next-button />
                         </x-form.wizard.actions>
                     </x-form.wizard.step>
 
                     {{-- الخطوة 5: المراجعة والإرسال --}}
                     <x-form.wizard.step id="step-review" :fields="['status']">
-                        <div class="row g-4 mb-4">
-                            <div class="col-md-6">
-                                <div class="card border">
-                                    <div class="card-header d-flex justify-content-between align-items-center py-2">
-                                        <h6 class="mb-0 fw-bold">1. البيانات الأساسية</h6>
-                                        <button type="button" class="btn btn-sm btn-label-primary btn-jump-step"
-                                            data-step="1">تعديل</button>
-                                    </div>
-                                    <div class="card-body py-2 small">
-                                        <div><strong>اسم المزاد:</strong> <span id="review-name">-</span></div>
-                                        <div><strong>النوع والتصنيف:</strong> <span id="review-type">-</span> / <span
-                                                id="review-category">-</span></div>
-                                        <div><strong>المدينة:</strong> <span id="review-city">-</span></div>
-                                        <div><strong>الفترة:</strong> <span id="review-dates">-</span></div>
-                                    </div>
-                                </div>
+                        <div class="row g-4 mb-4 assignment-review">
+                            <div class="col-lg-9 d-flex flex-column gap-4">
+                                <x-form.wizard.review-card title="البيانات الأساسية" step="1" class="assignment-review__card">
+                                    <div><strong>اسم المزاد:</strong> <span id="review-name">-</span></div>
+                                    <div><strong>النوع والتصنيف:</strong> <span id="review-type">-</span> / <span id="review-category">-</span></div>
+                                    <div><strong>المدينة:</strong> <span id="review-city">-</span></div>
+                                    <div><strong>الفترة:</strong> <span id="review-dates">-</span></div>
+                                </x-form.wizard.review-card>
+                                <x-form.wizard.review-card title="الإسناد والمنصة" step="2" class="assignment-review__card">
+                                    <div><strong>الإسناد:</strong> <span id="review-assignment-name">-</span></div>
+                                    <div><strong>الجهة المشرفة:</strong> <span id="review-supervising">-</span></div>
+                                </x-form.wizard.review-card>
+                                <x-form.wizard.review-card title="العقارات المشمولة" step="3" class="assignment-review__card">
+                                    <div><strong>العقارات المحددة:</strong> <span id="review-selected-props-count">0 عقارات</span></div>
+                                </x-form.wizard.review-card>
+                                <x-form.wizard.review-card title="الإعدادات والملفات" step="4" class="assignment-review__card">
+                                    <div><strong>القوالب المعتمدة:</strong> تم التحديد</div>
+                                </x-form.wizard.review-card>
                             </div>
-
-                            <div class="col-md-6">
-                                <div class="card border">
-                                    <div class="card-header d-flex justify-content-between align-items-center py-2">
-                                        <h6 class="mb-0 fw-bold">2. الإسناد والمنصة</h6>
-                                        <button type="button" class="btn btn-sm btn-label-primary btn-jump-step"
-                                            data-step="2">تعديل</button>
+                            <div class="col-lg-3">
+                                <article class="card assignment-preview h-100">
+                                    <div class="assignment-preview__image bg-primary d-flex flex-column justify-content-center p-4 text-white">
+                                        <h5 class="text-white mb-1" id="preview-auction-name">اسم المزاد</h5>
+                                        <small class="text-white-50" id="preview-auction-category">التصنيف</small>
                                     </div>
-                                    <div class="card-body py-2 small">
-                                        <div><strong>الإسناد:</strong> <span id="review-assignment-name">-</span></div>
-                                        <div><strong>الجهة المشرفة:</strong> <span id="review-supervising">-</span></div>
+                                    <div class="card-body">
+                                        <p class="mb-1" id="preview-auction-city">المدينة</p>
+                                        <p class="text-muted mb-0" id="preview-auction-date">تاريخ الانطلاق</p>
                                     </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="card border">
-                                    <div class="card-header d-flex justify-content-between align-items-center py-2">
-                                        <h6 class="mb-0 fw-bold">3. العقارات المشمولة</h6>
-                                        <button type="button" class="btn btn-sm btn-label-primary btn-jump-step"
-                                            data-step="3">تعديل</button>
-                                    </div>
-                                    <div class="card-body py-2 small">
-                                        <div><strong>العقارات المحددة:</strong> <span id="review-selected-props-count">0
-                                                عقارات</span></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="card border">
-                                    <div class="card-header d-flex justify-content-between align-items-center py-2">
-                                        <h6 class="mb-0 fw-bold">4. الإعدادات والملفات</h6>
-                                        <button type="button" class="btn btn-sm btn-label-primary btn-jump-step"
-                                            data-step="4">تعديل</button>
-                                    </div>
-                                    <div class="card-body py-2 small">
-                                        <div><strong>القوالب المعتمدة:</strong> تم التحديد</div>
-                                    </div>
-                                </div>
+                                </article>
                             </div>
                         </div>
 
                         <div class="d-flex justify-content-between">
                             <x-form.wizard.previous-button />
                             <div class="d-flex gap-2">
-                                <button type="submit" name="status" value="draft" class="btn btn-secondary">
-                                    <i class="ti ti-device-floppy me-1"></i> حفظ كمسودة
-                                </button>
+                                <x-form.wizard.draft-button />
                                 <button type="submit" name="status" value="pending_approval" class="btn btn-primary">
                                     <i class="ti ti-send me-1"></i> إرسال للاعتماد
                                 </button>

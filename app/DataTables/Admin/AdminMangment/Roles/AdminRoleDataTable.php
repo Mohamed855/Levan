@@ -2,19 +2,18 @@
 
 namespace App\DataTables\Admin\AdminMangment\Roles;
 
-
-
 use App\DataTables\Abstract\AbstractDataTable;
+use App\Enums\Admin\Users\AdminUserStatus;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 
 class AdminRoleDataTable extends AbstractDataTable
 {
-    private $route = "admin.users";
+    private $route = 'admin.users';
 
     // table id
     protected function getTableId()
     {
-        return "users-table";
+        return 'users-table';
     }
 
     protected function resource()
@@ -41,14 +40,14 @@ class AdminRoleDataTable extends AbstractDataTable
         ];
     }
 
-
     protected function addCustomColumns($datatable)
     {
         $datatable
-            ->addColumn('checkbox', fn($row) => '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">')
+            ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
 
             ->addColumn('image', function (AdminUser $user) {
-                $profilePicture = $user->image ? asset('storage/' . $user->image) : null;
+                $profilePicture = $user->image ? asset('storage/'.$user->image) : null;
+
                 return $this->renderTableImage($profilePicture, (string) $user->name, 40);
             })
 
@@ -62,8 +61,8 @@ class AdminRoleDataTable extends AbstractDataTable
                     $colorClasses = ['bg-label-primary', 'bg-label-success', 'bg-label-warning', 'bg-label-info', 'bg-secondary'];
                     $randomColor = $colorClasses[array_rand($colorClasses)];
 
-                    return '<a href="javascript:void(0);" class="edit-role-link" data-user-id="' . htmlspecialchars($row->id, ENT_QUOTES, 'UTF-8') . '">
-                                        <span class="badge ' . htmlspecialchars($randomColor, ENT_QUOTES, 'UTF-8') . '">' . e($roleName) . '</span>
+                    return '<a href="javascript:void(0);" class="edit-role-link" data-user-id="'.htmlspecialchars($row->id, ENT_QUOTES, 'UTF-8').'">
+                                        <span class="badge '.htmlspecialchars($randomColor, ENT_QUOTES, 'UTF-8').'">'.e($roleName).'</span>
                                     </a>';
                 } else {
                     return $row->roles->count() > 0 ? $row->roles->first()->name : '-';
@@ -88,6 +87,7 @@ class AdminRoleDataTable extends AbstractDataTable
                 if ($row->isSuperAdmin()) {
                     return '<span class="text-muted">محمي</span>';
                 }
+
                 return view('admin.admin_mangment.users.action', ['row' => $row, 'route' => $this->route]);
             });
     }
@@ -96,7 +96,6 @@ class AdminRoleDataTable extends AbstractDataTable
     {
         return ['checkbox', 'image', 'name', 'email', 'roles', 'status', 'last_login_at', 'actions'];
     }
-
 
     protected function applyCustomFilters($query)
     {
@@ -115,7 +114,6 @@ class AdminRoleDataTable extends AbstractDataTable
         return $query;
     }
 
-
     // الحقول المسموح البحث فيها
     protected function getSearchableColumns(): array
     {
@@ -124,12 +122,10 @@ class AdminRoleDataTable extends AbstractDataTable
         ];
     }
 
-
     protected function getCustomOrder(): array
     {
         return [1, 'desc'];
     }
-
 
     // Buttons
     protected function buttons(): array
@@ -142,22 +138,17 @@ class AdminRoleDataTable extends AbstractDataTable
     private function getActionsDropdownButton(): array
     {
         $buttons = [
-            ['extend' => 'copy', 'text'     => 'نسخ'],
-            ['extend' => 'excel', 'text'    => 'إكسل'],
+            ['extend' => 'copy', 'text' => 'نسخ'],
+            ['extend' => 'excel', 'text' => 'إكسل'],
         ];
-
-
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
-
-
-
 
     /*
     |============================================================================
@@ -166,20 +157,21 @@ class AdminRoleDataTable extends AbstractDataTable
     */
     private function UserStatusBadge($row): string
     {
-        $isActive = ($row->status === \App\Enums\Admin\Users\AdminUserStatus::ACTIVE || ($row->status?->value ?? $row->status) === 'active');
+        $isActive = ($row->status === AdminUserStatus::ACTIVE || ($row->status?->value ?? $row->status) === 'active');
         $checked = $isActive ? 'checked' : '';
 
         if (auth()->user()?->can('users.change_status') || auth()->user()?->can('roles.edit')) {
             $url = route('admin.users.toggle-status', $row->id);
+
             return '
                 <div class="d-flex justify-content-center">
                     <div class="form-check form-switch mb-0">
                         <input
                             type="checkbox"
                             class="form-check-input js-table-status-toggle"
-                            id="status_' . $row->id . '"
-                            data-url="' . e($url) . '"
-                            ' . $checked . '
+                            id="status_'.$row->id.'"
+                            data-url="'.e($url).'"
+                            '.$checked.'
                             aria-label="تبديل حالة المستخدم"
                         >
                     </div>

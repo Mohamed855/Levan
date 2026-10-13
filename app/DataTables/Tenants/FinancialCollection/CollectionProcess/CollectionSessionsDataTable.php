@@ -31,7 +31,7 @@ class CollectionSessionsDataTable extends AbstractDataTable
                 'user:id,name,employee_number,image',
                 'workPeriods' => function ($q) {
                     $q->select('id', 'session_id', 'entry_time', 'exit_time', 'updated_at')->orderBy('entry_time', 'asc');
-                }
+                },
             ]);
     }
 
@@ -56,9 +56,10 @@ class CollectionSessionsDataTable extends AbstractDataTable
                 $name = $session->user->name ?? 'غير محدد';
                 $userId = $session->user_id;
                 $profileUrl = tenant_route_name('users.show', $userId);
-                return '<a href="' . $profileUrl . '" class="text-decoration-none text-dark fw-semibold">'
-                    . e($name)
-                    . '</a>';
+
+                return '<a href="'.$profileUrl.'" class="text-decoration-none text-dark fw-semibold">'
+                    .e($name)
+                    .'</a>';
             })
 
             ->addColumn('employee_number', function ($session) {
@@ -69,6 +70,7 @@ class CollectionSessionsDataTable extends AbstractDataTable
                 if ($session->is_active) {
                     return '<span class="badge bg-label-success">متواجد الآن</span>';
                 }
+
                 return '<span class="badge bg-secondary">غير متواجد</span>';
             })
 
@@ -84,13 +86,15 @@ class CollectionSessionsDataTable extends AbstractDataTable
                     if ($open) {
                         return Carbon::parse($open->updated_at)->format('H:i');
                     }
+
                     return '-';
                 }
 
                 $last = $session->workPeriods->sortByDesc('exit_time')->first();
                 if ($last && $last->exit_time) {
-                    return 'خروج ' . Carbon::parse($last->exit_time)->format('H:i');
+                    return 'خروج '.Carbon::parse($last->exit_time)->format('H:i');
                 }
+
                 return '-';
             })
 
@@ -103,24 +107,25 @@ class CollectionSessionsDataTable extends AbstractDataTable
                         $total += Carbon::parse($open->entry_time)->diffInMinutes(now());
                     }
                 }
-                $hours   = floor($total / 60);
+                $hours = floor($total / 60);
                 $minutes = $total % 60;
+
                 return sprintf('%02d:%02d', $hours, $minutes);
             })
 
-            ->editColumn('total_follows', fn($s) => (int) $s->total_follows)
+            ->editColumn('total_follows', fn ($s) => (int) $s->total_follows)
 
-            ->orderColumn('user_name', fn($q, $o) => $q->join('users as u', 'u.id', '=', 'collection_process_sessions.user_id')->orderBy('u.name', $o))
-            ->orderColumn('employee_number', fn($q, $o) => $q->join('users as u2', 'u2.id', '=', 'collection_process_sessions.user_id')->orderBy('u2.employee_number', $o))
-            ->orderColumn('first_entry', fn($q, $o) => $q->orderBy('collection_process_sessions.first_entry_time', $o))
-            ->orderColumn('working_hours', fn($q, $o) => $q->orderBy('collection_process_sessions.total_work_minutes', $o));
+            ->orderColumn('user_name', fn ($q, $o) => $q->join('users as u', 'u.id', '=', 'collection_process_sessions.user_id')->orderBy('u.name', $o))
+            ->orderColumn('employee_number', fn ($q, $o) => $q->join('users as u2', 'u2.id', '=', 'collection_process_sessions.user_id')->orderBy('u2.employee_number', $o))
+            ->orderColumn('first_entry', fn ($q, $o) => $q->orderBy('collection_process_sessions.first_entry_time', $o))
+            ->orderColumn('working_hours', fn ($q, $o) => $q->orderBy('collection_process_sessions.total_work_minutes', $o));
     }
 
     protected function applyCustomFilters($query)
     {
         $request = request();
-        $date    = $request->input('date', today()->toDateString());
-        $status  = $request->input('status');
+        $date = $request->input('date', today()->toDateString());
+        $status = $request->input('status');
 
         $query->whereDate('collection_process_sessions.date', $date);
 

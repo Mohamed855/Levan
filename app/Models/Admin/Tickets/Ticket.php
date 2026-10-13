@@ -11,11 +11,13 @@ class Ticket extends Model
     use HasFactory;
 
     protected $connection = 'mysql';
+
     protected $table = 'tickets';
+
     protected $guarded = [];
 
     protected $casts = [
-        'attachments'   => 'array',
+        'attachments' => 'array',
         'survey_result' => 'array',
     ];
 

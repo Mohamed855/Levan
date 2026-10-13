@@ -4,11 +4,10 @@ namespace App\Http\Controllers\Tenants\BusinessCenter\Customer\Attachment;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\BusinessCenter\Customer\Attachment\StoreCustomerAttachmentRequest;
-use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Customers\Attachment\CustomerAttachment;
+use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Services\Tenants\BusinessCenter\Customer\Attachment\CustomerAttachmentService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class CustomerAttachmentController extends Controller
@@ -32,17 +31,17 @@ class CustomerAttachmentController extends Controller
 
             $html = view('tenants.business_center.customers.customer_attachments.list', [
                 'customerAttachments' => $customerAttachments,
-                'customer' => $customer 
+                'customer' => $customer,
             ])->render();
 
             return response()->json([
                 'success' => true,
-                'html' => $html
+                'html' => $html,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء جلب البيانات'
+                'message' => 'حدث خطأ أثناء جلب البيانات',
             ], 500);
         }
     }
@@ -62,13 +61,13 @@ class CustomerAttachmentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'تم رفع المرفقات بنجاح (' . count($attachments) . ' مرفق)',
-                'data' => $attachments
+                'message' => 'تم رفع المرفقات بنجاح ('.count($attachments).' مرفق)',
+                'data' => $attachments,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء رفع المرفقات: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء رفع المرفقات: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -85,12 +84,12 @@ class CustomerAttachmentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'تم حذف المرفق بنجاح'
+                'message' => 'تم حذف المرفق بنجاح',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء حذف المرفق: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء حذف المرفق: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -107,7 +106,7 @@ class CustomerAttachmentController extends Controller
             if ($customerAttachment->customer_id !== $customer->id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'غير مصرح لك بتحميل هذا المرفق'
+                    'message' => 'غير مصرح لك بتحميل هذا المرفق',
                 ], 403);
             }
 
@@ -115,20 +114,20 @@ class CustomerAttachmentController extends Controller
             $filePath = $customerAttachment->file_path;
 
             // 1. التحقق الأساسي
-            if (!Storage::disk('tenant_public')->exists($filePath)) {
+            if (! Storage::disk('tenant_public')->exists($filePath)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'الملف غير موجود في التخزين'
+                    'message' => 'الملف غير موجود في التخزين',
                 ], 404);
             }
 
             // 2. الحصول على المسار الكامل والتحقق من وجوده فعلياً
             $fullPath = Storage::disk('tenant_public')->path($filePath);
 
-            if (!file_exists($fullPath)) {
+            if (! file_exists($fullPath)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'الملف غير موجود على الخادم'
+                    'message' => 'الملف غير موجود على الخادم',
                 ], 404);
             }
 
@@ -142,8 +141,8 @@ class CustomerAttachmentController extends Controller
                 $cleanDescription = str_replace(['/', '\\', ':', '*', '?', '"', '<', '>', '|'], '', $customerAttachment->description);
                 $cleanDescription = trim($cleanDescription);
 
-                if (!empty($cleanDescription)) {
-                    $downloadName = $cleanDescription . '.' . $extension;
+                if (! empty($cleanDescription)) {
+                    $downloadName = $cleanDescription.'.'.$extension;
                 } else {
                     $downloadName = $originalName;
                 }
@@ -156,7 +155,7 @@ class CustomerAttachmentController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تحميل الملف: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء تحميل الملف: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -208,12 +207,12 @@ class CustomerAttachmentController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'تم إنشاء مرفق اختبار',
-                'data' => $attachment->toArray()
+                'data' => $attachment->toArray(),
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'خطأ في إنشاء مرفق اختبار: ' . $e->getMessage()
+                'message' => 'خطأ في إنشاء مرفق اختبار: '.$e->getMessage(),
             ]);
         }
     }

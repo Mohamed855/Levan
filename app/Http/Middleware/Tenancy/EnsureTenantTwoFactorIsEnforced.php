@@ -2,8 +2,8 @@
 
 namespace App\Http\Middleware\Tenancy;
 
-use App\Models\Tenants\Settings\Settings;
 use App\Models\Admin\Tenants\Tenant;
+use App\Models\Tenants\Settings\Settings;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +15,7 @@ class EnsureTenantTwoFactorIsEnforced
     {
         $user = Auth::guard('tenant')->user();
 
-        if (!$user) {
+        if (! $user) {
             return $next($request);
         }
 

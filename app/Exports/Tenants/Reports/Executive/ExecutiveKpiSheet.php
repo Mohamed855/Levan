@@ -13,10 +13,10 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class ExecutiveKpiSheet implements FromArray, WithTitle, WithStyles, WithColumnWidths, WithEvents
+class ExecutiveKpiSheet implements FromArray, WithColumnWidths, WithEvents, WithStyles, WithTitle
 {
     public function __construct(
-        private readonly array  $kpis,
+        private readonly array $kpis,
         private readonly string $dateLabel,
     ) {}
 
@@ -45,8 +45,8 @@ class ExecutiveKpiSheet implements FromArray, WithTitle, WithStyles, WithColumnW
     {
         return [
             1 => [
-                'font'      => ['bold' => true, 'size' => 12, 'color' => ['argb' => 'FFFFFF']],
-                'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => '1F4E78']],
+                'font' => ['bold' => true, 'size' => 12, 'color' => ['argb' => 'FFFFFF']],
+                'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => '1F4E78']],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
             ],
         ];
@@ -56,8 +56,8 @@ class ExecutiveKpiSheet implements FromArray, WithTitle, WithStyles, WithColumnW
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
-                $sheet    = $event->sheet->getDelegate();
-                $lastRow  = count($this->kpis) + 1;
+                $sheet = $event->sheet->getDelegate();
+                $lastRow = count($this->kpis) + 1;
 
                 $sheet->getStyle("A1:B{$lastRow}")->applyFromArray([
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => 'CCCCCC']]],
@@ -78,7 +78,7 @@ class ExecutiveKpiSheet implements FromArray, WithTitle, WithStyles, WithColumnW
 
                 if ($this->dateLabel) {
                     $infoRow = $lastRow + 2;
-                    $sheet->setCellValue("A{$infoRow}", 'الفترة: ' . $this->dateLabel);
+                    $sheet->setCellValue("A{$infoRow}", 'الفترة: '.$this->dateLabel);
                     $sheet->mergeCells("A{$infoRow}:B{$infoRow}");
                     $sheet->getStyle("A{$infoRow}")->getFont()->setBold(true);
                 }

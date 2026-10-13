@@ -11,6 +11,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
@@ -26,14 +27,14 @@ class RegisteredUserController extends Controller
     /**
      * Handle an incoming registration request.
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function store(RegisterUserRequest $request): RedirectResponse
     {
         $user = User::create([
             'name' => $request->name,
             'phone' => $request->phone,
-            'employee_number' => 'REG-' . strtoupper(Str::random(8)),
+            'employee_number' => 'REG-'.strtoupper(Str::random(8)),
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'global_uid' => (string) Str::uuid(),

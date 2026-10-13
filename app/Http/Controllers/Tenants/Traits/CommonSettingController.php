@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Tenants\Traits;
 
-
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\JsonResponse;
@@ -12,7 +11,7 @@ trait CommonSettingController
 {
     public function create_trait(string $route): RedirectResponse
     {
-        return redirect(tenant_route_name($route . '.index'));
+        return redirect(tenant_route_name($route.'.index'));
     }
 
     public function show_trait(string $model, int|string $id): JsonResponse
@@ -39,32 +38,31 @@ trait CommonSettingController
                 return datatables()->of($setting)
                     ->addIndexColumn() // إضافة الترقيم التلقائي
                     ->addColumn('checkbox', function ($row) {
-                        return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                        return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
                     })
                     ->addColumn('status', function ($row) use ($route) {
                         $checked = $row->status === 'active' ? 'checked' : '';
-                        $url = tenant_route_name($route . '.toggle-status', $row->id);
+                        $url = tenant_route_name($route.'.toggle-status', $row->id);
 
-                        return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_' . $row->id . '" data-url="' . e($url) . '" ' . $checked . ' aria-label="تبديل الحالة"></div></div>';
+                        return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_'.$row->id.'" data-url="'.e($url).'" '.$checked.' aria-label="تبديل الحالة"></div></div>';
                     })
                     ->addColumn('action', function ($row) use ($route) {
 
                         $buttons = '<div class="d-flex justify-content-center">';
 
                         $buttons .= '
-                            <button type="button" class="btn btn-icon btn-label-primary btn-edit me-1" data-id="' . $row->id . '" data-name="' . htmlspecialchars($row->name, ENT_QUOTES, 'UTF-8') . '">
+                            <button type="button" class="btn btn-icon btn-label-primary btn-edit me-1" data-id="'.$row->id.'" data-name="'.htmlspecialchars($row->name, ENT_QUOTES, 'UTF-8').'">
                                 <i class="ti ti-edit"></i>
                             </button>';
 
-
                         $buttons .= '
-                            <button type="button" class="btn btn-icon btn-label-primary" onclick="confirmDelete(' . $row->id . ')">
+                            <button type="button" class="btn btn-icon btn-label-primary" onclick="confirmDelete('.$row->id.')">
                                 <i class="ti ti-trash"></i>
                             </button>
 
-                            <form id="delete-form-' . $row->id . '" action="' . tenant_route_name($route . '.destroy', $row->id) . '" method="POST" style="display: none;">
-                                ' . csrf_field() . '
-                                ' . method_field('DELETE') . '
+                            <form id="delete-form-'.$row->id.'" action="'.tenant_route_name($route.'.destroy', $row->id).'" method="POST" style="display: none;">
+                                '.csrf_field().'
+                                '.method_field('DELETE').'
                             </form>';
 
                         $buttons .= '</div>';
@@ -85,7 +83,6 @@ trait CommonSettingController
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات. يرجى المحاولة لاحقاً.');
         }
     }
-
 
     public function toggleStatus_trait($model, $id) // لتغيير حالة الاعدادات
     {

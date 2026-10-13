@@ -15,15 +15,18 @@ use Illuminate\Support\Str;
 class CpanelService
 {
     protected ?Client $client = null;
+
     protected ?string $cpanelUser = null;
+
     protected ?string $cpanelHost = null;
+
     protected ?string $cpanelToken = null;
 
     public function __construct()
     {
-        $this->cpanelUser   = config('cpanel.user');
-        $this->cpanelHost   = config('cpanel.shared_ip');
-        $this->cpanelToken  = config('cpanel.api_token');
+        $this->cpanelUser = config('cpanel.user');
+        $this->cpanelHost = config('cpanel.shared_ip');
+        $this->cpanelToken = config('cpanel.api_token');
     }
 
     protected function getClient(): Client
@@ -31,22 +34,27 @@ class CpanelService
         if ($this->client === null) {
             if (empty($this->cpanelUser) || empty($this->cpanelHost) || empty($this->cpanelToken)) {
                 $missing = [];
-                if (empty($this->cpanelUser)) $missing[] = 'CPANEL_USER';
-                if (empty($this->cpanelHost)) $missing[] = 'CPANEL_SHARED_IP';
-                if (empty($this->cpanelToken)) $missing[] = 'CPANEL_API_TOKEN';
+                if (empty($this->cpanelUser)) {
+                    $missing[] = 'CPANEL_USER';
+                }
+                if (empty($this->cpanelHost)) {
+                    $missing[] = 'CPANEL_SHARED_IP';
+                }
+                if (empty($this->cpanelToken)) {
+                    $missing[] = 'CPANEL_API_TOKEN';
+                }
 
-                Log::error(" Missing cPanel credentials", $missing);
+                Log::error(' Missing cPanel credentials', $missing);
                 throw new Exception(
-                    'Missing cPanel credentials in .env: ' . implode(', ', $missing)
+                    'Missing cPanel credentials in .env: '.implode(', ', $missing)
                 );
             }
 
-
             $this->client = new Client([
-                'base_uri'          => "https://{$this->cpanelHost}:2083/execute/",
-                'verify'            => config('cpanel.ssl_verify', false),
-                'timeout'           => 30,
-                'connect_timeout'   => 10,
+                'base_uri' => "https://{$this->cpanelHost}:2083/execute/",
+                'verify' => config('cpanel.ssl_verify', false),
+                'timeout' => 30,
+                'connect_timeout' => 10,
                 'headers' => [
                     'Authorization' => "cpanel {$this->cpanelUser}:{$this->cpanelToken}",
                     'Accept' => 'application/json',
@@ -66,7 +74,7 @@ class CpanelService
                 DB::statement("CREATE DATABASE IF NOT EXISTS `{$databaseName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
 
                 return [
-                    'host'     => env('DB_HOST', '127.0.0.1'),
+                    'host' => env('DB_HOST', '127.0.0.1'),
                     'database' => $databaseName,
                     'username' => env('DB_USERNAME', 'admin'),
                     'password' => env('DB_PASSWORD', 'admin'),
@@ -75,7 +83,7 @@ class CpanelService
         }
 
         $databaseName = "{$this->cpanelUser}_{$tenantName}";
-        $userName     = "{$this->cpanelUser}_{$username}";
+        $userName = "{$this->cpanelUser}_{$username}";
         $userPassword = $this->generateSecurePassword();
 
         try {
@@ -84,29 +92,27 @@ class CpanelService
             $this->setPrivileges($databaseName, $userName);
 
             return [
-                'host'     => $this->cpanelHost,
+                'host' => $this->cpanelHost,
                 'database' => $databaseName,
                 'username' => $userName,
                 'password' => $userPassword,
             ];
-        } catch (\GuzzleHttp\Exception\GuzzleException $e) {
+        } catch (GuzzleException $e) {
             Log::error('Connection error while provisioning cPanel DB', [
                 'tenant' => $tenantName,
-                'user'   => $username,
-                'error'  => $e->getMessage(),
+                'user' => $username,
+                'error' => $e->getMessage(),
             ]);
-            throw new \RuntimeException('Connection error: ' . $e->getMessage(), 0, $e);
+            throw new \RuntimeException('Connection error: '.$e->getMessage(), 0, $e);
         } catch (\Throwable $e) {
             Log::error('Provisioning failed', [
                 'tenant' => $tenantName,
-                'user'   => $username,
-                'error'  => $e->getMessage(),
+                'user' => $username,
+                'error' => $e->getMessage(),
             ]);
-            throw new \RuntimeException('Provisioning failed: ' . $e->getMessage(), 0, $e);
+            throw new \RuntimeException('Provisioning failed: '.$e->getMessage(), 0, $e);
         }
     }
-
-
 
     /*
     |============================================================================
@@ -117,59 +123,58 @@ class CpanelService
     */
     private function generateSecurePassword(): string
     {
-        $password = Str::random(16) . '1!Aa';
+        $password = Str::random(16).'1!Aa';
+
         return $password;
     }
 
     private function createDatabaseOnly(string $databaseName): array
     {
-        $response = $this->getClient()->get("Mysql/create_database", [
-            'query' => ['name' => $databaseName]
+        $response = $this->getClient()->get('Mysql/create_database', [
+            'query' => ['name' => $databaseName],
         ]);
         $database = json_decode($response->getBody(), true);
 
         if (empty($database['status']) || $database['status'] == 0) {
-            Log::error(" Failed to create database", $database);
-            throw new Exception("Failed to create database: " . ($database['errors'][0] ?? 'Unknown error'));
+            Log::error(' Failed to create database', $database);
+            throw new Exception('Failed to create database: '.($database['errors'][0] ?? 'Unknown error'));
         }
 
         return $database;
     }
 
-
     protected function createUser(string $userName, string $userPassword): void
     {
-        $response = $this->getClient()->get("Mysql/create_user", [
+        $response = $this->getClient()->get('Mysql/create_user', [
             'query' => [
                 'name' => $userName,
-                'password' => $userPassword
-            ]
+                'password' => $userPassword,
+            ],
         ]);
 
         $user = json_decode($response->getBody(), true);
 
         if (empty($user['status']) || $user['status'] == 0) {
-            Log::error(" Failed to create user", $user);
-            throw new Exception("Failed to create user: " . ($user['errors'][0] ?? 'Unknown error'));
+            Log::error(' Failed to create user', $user);
+            throw new Exception('Failed to create user: '.($user['errors'][0] ?? 'Unknown error'));
         }
     }
 
-
     private function setPrivileges(string $databaseName, string $userName): array
     {
-        $response = $this->getClient()->get("Mysql/set_privileges_on_database", [
+        $response = $this->getClient()->get('Mysql/set_privileges_on_database', [
             'query' => [
                 'user' => $userName,
                 'database' => $databaseName,
-                'privileges' => 'ALL PRIVILEGES'
-            ]
+                'privileges' => 'ALL PRIVILEGES',
+            ],
         ]);
 
         $privileges = json_decode($response->getBody(), true);
 
         if (empty($privileges['status']) || $privileges['status'] == 0) {
-            Log::error(" Failed to set privileges", $privileges);
-            throw new Exception("Failed to set privileges: " . ($privileges['errors'][0] ?? 'Unknown error'));
+            Log::error(' Failed to set privileges', $privileges);
+            throw new Exception('Failed to set privileges: '.($privileges['errors'][0] ?? 'Unknown error'));
         }
 
         return $privileges;
@@ -181,12 +186,12 @@ class CpanelService
     public function createLoginAndToken($domain, $cpanelUser, $tenantId)
     {
         // $cpanelUser = tenant('cpanel_username');
-        $cpanelHost = '135.181.215.105'; /// لا تستخدم قيم ثابته
+        $cpanelHost = '135.181.215.105'; // / لا تستخدم قيم ثابته
         // $cpanelPassword = 'H27dH_GEgfXL?3';
         // $tenantId = tenant('id');
 
-        $cpanel_account = tenancy()->central(function () use ($domain, $tenantId) {
-            return  DB::table('cpanel_accounts')->where('tenant_id', $tenantId)->first();
+        $cpanel_account = tenancy()->central(function () use ($tenantId) {
+            return DB::table('cpanel_accounts')->where('tenant_id', $tenantId)->first();
         });
 
         $loginUrl = "https://{$cpanelHost}:2083/login/?login_only=1";
@@ -201,8 +206,8 @@ class CpanelService
                 'pass' => $cpanel_account->cpanel_password,
             ]);
 
-        if (!$loginResponse->successful()) {
-            throw new \Exception("❌ Login HTTP request failed with status: " . $loginResponse->status());
+        if (! $loginResponse->successful()) {
+            throw new Exception('❌ Login HTTP request failed with status: '.$loginResponse->status());
         }
 
         $loginData = $loginResponse->json();
@@ -213,7 +218,7 @@ class CpanelService
         // }
 
         $securityToken = $loginData['security_token'];
-        Log::info("✅ Login successful, security token obtained");
+        Log::info('✅ Login successful, security token obtained');
 
         // ✅ حول الـ cookies لـ array
         $cookies = [];
@@ -231,10 +236,8 @@ class CpanelService
             ->withCookies($cookies, $cpanelHost)
             ->asForm()
             ->post($tokenUrl, [
-                'name' => $cpanelUser . '_token_' . time(),
+                'name' => $cpanelUser.'_token_'.time(),
             ]);
-
-
 
         $tokenData = $tokenResponse->json();
 
@@ -243,14 +246,13 @@ class CpanelService
         // ✅ تحقق من وجود التوكن
         if (empty($tokenData['data']['token'])) {
             Log::error('❌ Token creation failed - no token in response', $tokenData);
-            throw new \Exception("❌ Token creation failed - Invalid response");
+            throw new Exception('❌ Token creation failed - Invalid response');
         }
 
         $token = $tokenData['data']['token'];
         $saved = DB::table('cpanel_accounts')
             ->where('tenant_id', $tenantId)
             ->update(['cpanel_token' => $token]);
-
 
         // $saved = tenancy()->central(function () use ($cpanelUser, $cpanelPassword, $token, $tenantId, $domain) {
 
@@ -275,14 +277,11 @@ class CpanelService
             //         ->where('cpanel_token', $token)
             //         ->first();
 
-
-
             return $this->writeFileContentForUser($token, $domain, $tenantId);
 
             // });
         }
     }
-
 
     // TODO islam
 
@@ -293,13 +292,13 @@ class CpanelService
     {
 
         // $username = tenancy()->central(function () use ($domain) {
-        $username =  CpanelAccount::where('tenant_id', $tenantId)->first()->cpanel_username;
+        $username = CpanelAccount::where('tenant_id', $tenantId)->first()->cpanel_username;
         // });
         $host = '135.181.215.105';
         $domain = $domain;
 
         // ✅ محتوى ملف .htaccess
-        $htaccessContent = <<<HTACCESS
+        $htaccessContent = <<<'HTACCESS'
 # فعّل mod_rewrite
 RewriteEngine On
 RewriteBase /
@@ -440,15 +439,15 @@ PHP;
                 ],
             ]);
 
-        if (!$htaccessResponse->successful()) {
-            throw new \Exception("❌ HTTP Error uploading .htaccess: " . $htaccessResponse->status() . " - " . $htaccessResponse->body());
+        if (! $htaccessResponse->successful()) {
+            throw new Exception('❌ HTTP Error uploading .htaccess: '.$htaccessResponse->status().' - '.$htaccessResponse->body());
         }
 
         $htaccessData = $htaccessResponse->json();
         info('📄 cPanel .htaccess upload Response', $htaccessData);
 
-        if (!isset($htaccessData['status']) || $htaccessData['status'] != 1) {
-            throw new \Exception("⚠️ Could not create .htaccess: " . json_encode($htaccessData));
+        if (! isset($htaccessData['status']) || $htaccessData['status'] != 1) {
+            throw new Exception('⚠️ Could not create .htaccess: '.json_encode($htaccessData));
         }
 
         info("✅ File '.htaccess' created successfully inside {$dir}");
@@ -475,8 +474,8 @@ PHP;
                 ],
             ]);
 
-        if (!$indexResponse->successful()) {
-            throw new \Exception("❌ HTTP Error uploading index.php: " . $indexResponse->status() . " - " . $indexResponse->body());
+        if (! $indexResponse->successful()) {
+            throw new Exception('❌ HTTP Error uploading index.php: '.$indexResponse->status().' - '.$indexResponse->body());
         }
 
         $indexData = $indexResponse->json();
@@ -485,8 +484,8 @@ PHP;
         }
         info('📄 cPanel index.php upload Response', $indexData);
 
-        if (!isset($indexData['status']) || $indexData['status'] != 1) {
-            throw new \Exception("⚠️ Could not create index.php: " . json_encode($indexData));
+        if (! isset($indexData['status']) || $indexData['status'] != 1) {
+            throw new Exception('⚠️ Could not create index.php: '.json_encode($indexData));
         }
 
         info("✅ File 'index.php' created successfully inside {$dir}");
@@ -494,13 +493,12 @@ PHP;
         return true;
     }
 
-
     public function checkLimits()
     {
-        $host     = 'server.levan.com';  // بدون https:// ولا البورت
-        $port     = '2087';
+        $host = 'server.levan.com';  // بدون https:// ولا البورت
+        $port = '2087';
         $username = env('WHM_USER', 'levan');     // حط في .env
-        $token    = env('WHM_TOKEN');            // أفضل تستخدم Token مش باسورد
+        $token = env('WHM_TOKEN');            // أفضل تستخدم Token مش باسورد
 
         // لو بتستخدم باسورد بدل Token (مش موصى به للأمان)
         // $password = env('WHM_PASSWORD');
@@ -510,22 +508,21 @@ PHP;
         // طريقة 1: باستخدام API Token (موصى بها جداً)
         return $response = Http::withHeaders([
             'Authorization' => "whm {$username}:{$token}",
-            'Accept'        => 'application/json',
+            'Accept' => 'application/json',
         ])->get("{$baseUrl}/json-api/get_maximum_users", [
             'api.version' => 1,
         ]);
 
-
         if ($response->failed()) {
             Log::error('WHM API failed', [
                 'status' => $response->status(),
-                'body'   => $response->body(),
+                'body' => $response->body(),
             ]);
 
             return response()->json([
                 'success' => false,
                 'message' => 'فشل الاتصال بـ WHM API',
-                'error'   => $response->body(),
+                'error' => $response->body(),
             ], $response->status() ?: 500);
         }
 
@@ -537,7 +534,7 @@ PHP;
             return response()->json([
                 'success' => false,
                 'message' => $metadata['reason'] ?? 'خطأ غير معروف في الـ API',
-                'raw'     => $data,
+                'raw' => $data,
             ], 400);
         }
 
@@ -551,7 +548,7 @@ PHP;
 
         // تفسير القيمة
         $isUnlimited = ($maxUsers === 0);
-        $limitText   = $isUnlimited
+        $limitText = $isUnlimited
             ? 'غير محدود (Unlimited - يمكنك إنشاء أي عدد من الحسابات)'
             : "الحد الأقصى: {$maxUsers} حساب";
 
@@ -563,13 +560,13 @@ PHP;
             : max(0, $maxUsers - ($currentCount ?? 0));
 
         return response()->json([
-            'success'          => true,
-            'license_max_raw'  => $maxRaw,
-            'license_max'      => $limitText,
-            'is_unlimited'     => $isUnlimited,
+            'success' => true,
+            'license_max_raw' => $maxRaw,
+            'license_max' => $limitText,
+            'is_unlimited' => $isUnlimited,
             'current_accounts' => $currentCount ?? 'غير متاح',
-            'remaining_slots'  => $remaining,
-            'full_response'    => $data,  // للـ debug لو عايز
+            'remaining_slots' => $remaining,
+            'full_response' => $data,  // للـ debug لو عايز
         ]);
     }
 }

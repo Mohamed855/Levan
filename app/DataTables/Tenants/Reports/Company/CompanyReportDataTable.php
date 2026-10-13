@@ -73,13 +73,13 @@ class CompanyReportDataTable extends AbstractDataTable
                 DB::raw('COALESCE(customer_summary.customers_count, 0) as customers_count'),
                 DB::raw('COALESCE(financial_summary.total_debt, 0) as total_debt'),
                 DB::raw('COALESCE(financial_summary.total_credit, 0) as total_credit'),
-                DB::raw("
+                DB::raw('
                     CASE
                         WHEN COALESCE(financial_summary.total_debt, 0) > 0
                         THEN ROUND((COALESCE(financial_summary.total_credit, 0) / financial_summary.total_debt) * 100, 2)
                         ELSE 0
                     END as collection_rate
-                "),
+                '),
                 DB::raw('target_summary.target_percentage as target_percentage'),
             ]);
     }
@@ -117,44 +117,44 @@ class CompanyReportDataTable extends AbstractDataTable
                 $logo = $row->logo_path ? tasset($row->logo_path) : asset('static/brand/logos/logo.svg');
 
                 return '<div class="d-flex align-items-center gap-2">'
-                    . '<img src="' . e($logo) . '" alt="" class="rounded" style="width:30px;height:30px;object-fit:cover">'
-                    . '<span class="fw-medium text-body">' . e($row->name) . '</span>'
-                    . '</div>';
+                    .'<img src="'.e($logo).'" alt="" class="rounded" style="width:30px;height:30px;object-fit:cover">'
+                    .'<span class="fw-medium text-body">'.e($row->name).'</span>'
+                    .'</div>';
             })
             ->editColumn('status', function ($row): string {
                 $isActive = $row->status === 'active';
                 $class = $isActive ? 'bg-label-success' : 'bg-label-danger';
                 $label = $isActive ? 'نشط' : 'غير نشط';
 
-                return '<span class="badge ' . $class . '">' . $label . '</span>';
+                return '<span class="badge '.$class.'">'.$label.'</span>';
             })
             ->addColumn('portfolios_summary', function ($row): string {
                 return '<span class="badge bg-label-info">'
-                    . (int) $row->active_portfolios . ' / ' . (int) $row->total_portfolios
-                    . '</span>';
+                    .(int) $row->active_portfolios.' / '.(int) $row->total_portfolios
+                    .'</span>';
             })
-            ->editColumn('customers_count', fn($row): string => '<span class="badge bg-label-warning">' . number_format((int) $row->customers_count) . '</span>')
-            ->editColumn('total_debt', fn($row): string => $this->formatCurrency((float) $row->total_debt))
-            ->editColumn('total_credit', fn($row): string => $this->formatCurrency((float) $row->total_credit))
+            ->editColumn('customers_count', fn ($row): string => '<span class="badge bg-label-warning">'.number_format((int) $row->customers_count).'</span>')
+            ->editColumn('total_debt', fn ($row): string => $this->formatCurrency((float) $row->total_debt))
+            ->editColumn('total_credit', fn ($row): string => $this->formatCurrency((float) $row->total_credit))
             ->editColumn('collection_rate', function ($row): string {
                 $rate = min(max((float) $row->collection_rate, 0), 100);
                 $class = $rate >= 75 ? 'success' : ($rate >= 50 ? 'warning' : 'danger');
 
                 return '<div class="d-flex align-items-center gap-2">'
-                    . '<div class="progress flex-grow-1" style="height:6px;min-width:70px">'
-                    . '<div class="progress-bar bg-' . $class . '" role="progressbar" style="width:' . $rate . '%" aria-valuenow="' . $rate . '" aria-valuemin="0" aria-valuemax="100"></div>'
-                    . '</div>'
-                    . '<span class="small fw-medium">' . number_format((float) $row->collection_rate, 2) . '%</span>'
-                    . '</div>';
+                    .'<div class="progress flex-grow-1" style="height:6px;min-width:70px">'
+                    .'<div class="progress-bar bg-'.$class.'" role="progressbar" style="width:'.$rate.'%" aria-valuenow="'.$rate.'" aria-valuemin="0" aria-valuemax="100"></div>'
+                    .'</div>'
+                    .'<span class="small fw-medium">'.number_format((float) $row->collection_rate, 2).'%</span>'
+                    .'</div>';
             })
             ->editColumn('target_percentage', function ($row): string {
                 if ($row->target_percentage === null) {
                     return '<span class="text-muted">بدون هدف</span>';
                 }
 
-                return '<span class="badge bg-label-primary">' . number_format((float) $row->target_percentage, 2) . '%</span>';
+                return '<span class="badge bg-label-primary">'.number_format((float) $row->target_percentage, 2).'%</span>';
             })
-            ->editColumn('created_at', fn($row): string => Carbon::parse($row->created_at)->format('Y-m-d'));
+            ->editColumn('created_at', fn ($row): string => Carbon::parse($row->created_at)->format('Y-m-d'));
     }
 
     protected function rawColumns(): array
@@ -239,7 +239,7 @@ class CompanyReportDataTable extends AbstractDataTable
                     [
                         'text' => 'تصدير Excel',
                         'className' => 'btn-export-excel',
-                        'action' => "function() { exportCompaniesToExcel(); }",
+                        'action' => 'function() { exportCompaniesToExcel(); }',
                     ],
                 ],
             ],
@@ -248,6 +248,6 @@ class CompanyReportDataTable extends AbstractDataTable
 
     private function formatCurrency(float $amount): string
     {
-        return number_format($amount, 2) . ' ريال';
+        return number_format($amount, 2).' ريال';
     }
 }

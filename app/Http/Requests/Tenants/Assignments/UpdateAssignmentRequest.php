@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Tenants\Assignments;
 
+use App\Enums\Tenants\Assignments\AssignmentCategory;
+use App\Enums\Tenants\Assignments\AssignmentStatus;
 use App\Http\Requests\Concerns\WizardFormRequest;
 use Illuminate\Validation\Rule;
 
@@ -28,11 +30,11 @@ class UpdateAssignmentRequest extends WizardFormRequest
             'assignment_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
             'city' => ['required', 'string', 'max:100'],
             'district' => ['required', 'string', 'max:255'],
-            'category' => ['required', 'string', 'in:lands,villas,commercial_buildings,educational,industrial'],
+            'category' => ['required', Rule::enum(AssignmentCategory::class)],
             'start_date' => ['nullable', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
             'notes' => ['nullable', 'string', 'max:1000'],
-            'status' => ['nullable', 'string', 'in:active,under_review,suspended,auctioned'],
+            'status' => ['nullable', Rule::enum(AssignmentStatus::class)],
         ];
     }
 

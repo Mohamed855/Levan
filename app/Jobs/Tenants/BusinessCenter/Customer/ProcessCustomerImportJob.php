@@ -2,14 +2,13 @@
 
 namespace App\Jobs\Tenants\BusinessCenter\Customer;
 
-use App\Models\Tenants\BusinessCenter\Customers\ImportSession\ImportSession;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
-use App\Models\Tenants\BusinessCenter\Customers\Phone\CustomerPhone;
 use App\Models\Tenants\BusinessCenter\Customers\FieldValue\CustomerFieldValue;
+use App\Models\Tenants\BusinessCenter\Customers\ImportSession\ImportSession;
+use App\Models\Tenants\BusinessCenter\Customers\Phone\CustomerPhone;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Models\Tenants\BusinessCenter\Portfolio\PortfolioField;
 use App\Models\Tenants\FinancialCollection\Collection\CustomerTransaction;
-use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\BusinessCenter\Customer\Import\CustomerFieldMappingService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -23,8 +22,10 @@ class ProcessCustomerImportJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $tries               = 1;
-    public int $timeout             = 300; // 5 دقائق
+    public int $tries = 1;
+
+    public int $timeout = 300; // 5 دقائق
+
     // public $backoff                 = [30, 60, 120];
     public $deleteWhenMissingModels = true;
 
@@ -36,7 +37,7 @@ class ProcessCustomerImportJob implements ShouldQueue
     {
         $session = ImportSession::where('session_id', $this->sessionId)->first();
 
-        if (!$session) {
+        if (! $session) {
             throw new \Exception('جلسة الاستيراد غير موجودة');
         }
 
@@ -45,16 +46,15 @@ class ProcessCustomerImportJob implements ShouldQueue
         }
 
         $this->portfolio = Portfolio::find($this->portfolioId);
-        if (!$this->portfolio) {
+        if (! $this->portfolio) {
             throw new \Exception('المحفظة غير موجودة');
         }
 
-
         DB::beginTransaction();
         try {
-            $chunkErrors         = [];
-            $successfulInChunk   = 0;
-            $failedInChunk       = 0;
+            $chunkErrors = [];
+            $successfulInChunk = 0;
+            $failedInChunk = 0;
 
             foreach ($this->chunk as $rowIndex => $row) {
                 if ($rowIndex % 50 === 0) {
@@ -62,6 +62,7 @@ class ProcessCustomerImportJob implements ShouldQueue
                     if ($session->status === 'cancelled') {
 
                         DB::rollBack();
+
                         return;
                     }
                 }
@@ -77,14 +78,14 @@ class ProcessCustomerImportJob implements ShouldQueue
                         $failedInChunk++;
                         $chunkErrors[] = [
                             'row' => $globalRowNumber,
-                            'errors' => $result['errors']
+                            'errors' => $result['errors'],
                         ];
                     }
                 } catch (\Exception $e) {
                     $failedInChunk++;
                     $chunkErrors[] = [
                         'row' => $globalRowNumber,
-                        'errors' => ['خطأ عام: ' . $e->getMessage()]
+                        'errors' => ['خطأ عام: '.$e->getMessage()],
                     ];
                 }
             }
@@ -93,7 +94,7 @@ class ProcessCustomerImportJob implements ShouldQueue
             $session->increment('successful_rows', $successfulInChunk);
             $session->increment('failed_rows', $failedInChunk);
 
-            if (!empty($chunkErrors)) {
+            if (! empty($chunkErrors)) {
                 $currentErrors = json_decode($session->errors, true) ?? [];
                 $updatedErrors = array_merge($currentErrors, $chunkErrors);
                 $session->errors = json_encode($updatedErrors);
@@ -103,11 +104,10 @@ class ProcessCustomerImportJob implements ShouldQueue
 
             DB::commit();
 
-
             if ($this->chunkIndex + 1 === $this->totalChunks) {
                 $session->update([
                     'status' => 'completed',
-                    'completed_at' => now()
+                    'completed_at' => now(),
                 ]);
             }
         } catch (\Exception $e) {
@@ -115,7 +115,7 @@ class ProcessCustomerImportJob implements ShouldQueue
 
             $session->update([
                 'status' => 'failed',
-                'completed_at' => now()
+                'completed_at' => now(),
             ]);
 
             $this->fail($e);
@@ -129,21 +129,21 @@ class ProcessCustomerImportJob implements ShouldQueue
         $fieldMappingService = app(CustomerFieldMappingService::class);
 
         $customerData = [
-            'company_id'    => $this->portfolio->company_id,
-            'portfolio_id'  => $this->portfolio->id,
-            'created_by'    => $this->userId,
+            'company_id' => $this->portfolio->company_id,
+            'portfolio_id' => $this->portfolio->id,
+            'created_by' => $this->userId,
         ];
 
         $supportsSplitNames = (bool) ($this->portfolio->has_split_names ?? false);
         $splitKeys = ['first_name', 'father_name', 'grandfather_name', 'family_name'];
 
-        $nameParts      = [];
-        $phoneData      = [];
-        $dynamicFields  = [];
-        $errors         = [];
-        $mainPhoneSet   = false;
-        $initialDebt    = 0;
-        $debtFormatError  = false;
+        $nameParts = [];
+        $phoneData = [];
+        $dynamicFields = [];
+        $errors = [];
+        $mainPhoneSet = false;
+        $initialDebt = 0;
+        $debtFormatError = false;
 
         // معالجة كل عمود
         foreach ($this->fieldMapping as $index => $mapping) {
@@ -167,6 +167,7 @@ class ProcessCustomerImportJob implements ShouldQueue
                         $customerData[$field] = $value;
                     }
                     $nameParts[] = $value;
+
                     continue;
                 }
 
@@ -180,20 +181,20 @@ class ProcessCustomerImportJob implements ShouldQueue
                         break;
 
                     case 'phone':
-                        if (!$mainPhoneSet) {
+                        if (! $mainPhoneSet) {
                             $customerData['phone'] = $fieldMappingService->cleanPhoneNumber($value);
                             $mainPhoneSet = true;
                         } else {
                             $nextPhoneIndex = count($phoneData) + 2;
                             $phoneData[$nextPhoneIndex] = [
                                 'phone' => $fieldMappingService->cleanPhoneNumber($value),
-                                'type' => 'mobile'
+                                'type' => 'mobile',
                             ];
                         }
                         break;
 
                     case 'initial_debt':
-                        if (!$fieldMappingService->isValidDebtAmount((string) $value)) {
+                        if (! $fieldMappingService->isValidDebtAmount((string) $value)) {
                             $errors[] = "المديونية يجب أن تكون أرقاماً فقط، القيمة المدخلة: '{$value}'";
                             $debtFormatError = true;
                             break;
@@ -203,9 +204,9 @@ class ProcessCustomerImportJob implements ShouldQueue
                         break;
 
                     case 'relationship_manager_id':
-                        if (!empty($value)) {
+                        if (! empty($value)) {
                             $userNumber = $value;
-                            $managerId  = $fieldMappingService->getRelationshipManagerId($userNumber);
+                            $managerId = $fieldMappingService->getRelationshipManagerId($userNumber);
 
                             if ($managerId !== null) {
                                 $customerData['relationship_manager_id'] = $managerId;
@@ -215,10 +216,9 @@ class ProcessCustomerImportJob implements ShouldQueue
                         }
                         break;
 
-
                     case 'nationality':
-                        if (!empty($value)) {
-                            if (!is_numeric($value)) {
+                        if (! empty($value)) {
+                            if (! is_numeric($value)) {
                                 $errors[] = "الجنسية يجب أن تكون رقماً، القيمة المدخلة: '{$value}'";
                             } else {
                                 $nationalityId = (int) $value;
@@ -231,8 +231,8 @@ class ProcessCustomerImportJob implements ShouldQueue
                         }
                         break;
                     case 'customer_status_id':
-                        if (!empty($value)) {
-                            if (!is_numeric($value)) {
+                        if (! empty($value)) {
+                            if (! is_numeric($value)) {
                                 $errors[] = "حالة العميل يجب أن تكون رقماً، القيمة المدخلة: '{$value}'";
                             } else {
                                 $statusId = (int) $value;
@@ -262,7 +262,7 @@ class ProcessCustomerImportJob implements ShouldQueue
                     $fieldObject = $mapping['field'];
                 }
 
-                if (!$fieldObject || !is_object($fieldObject) || !isset($fieldObject->id)) {
+                if (! $fieldObject || ! is_object($fieldObject) || ! isset($fieldObject->id)) {
                     continue;
                 }
 
@@ -272,7 +272,7 @@ class ProcessCustomerImportJob implements ShouldQueue
         }
 
         // إنشاء الاسم الكامل
-        if (!isset($customerData['name']) && !empty($nameParts)) {
+        if (! isset($customerData['name']) && ! empty($nameParts)) {
             $customerData['name'] = implode(' ', array_filter($nameParts));
         }
 
@@ -294,12 +294,10 @@ class ProcessCustomerImportJob implements ShouldQueue
             }
         }
 
-
-
         // التحقق من رقم الهوية/الجواز
         if (empty($customerData['identity_number'])) {
             $errors[] = 'رقم الهوية/رقم الجواز مطلوب';
-        } elseif (!$fieldMappingService->isValidIdentityNumber($customerData['identity_number'])) {
+        } elseif (! $fieldMappingService->isValidIdentityNumber($customerData['identity_number'])) {
             $length = mb_strlen($customerData['identity_number'], 'UTF-8');
             $errors[] = "رقم الهوية/رقم الجواز غير صحيح. يجب أن يكون بين 5 و 15 حرف انجليزي/رقماً فقط (الطول الحالي: $length)";
         }
@@ -312,12 +310,12 @@ class ProcessCustomerImportJob implements ShouldQueue
         //     $errors[] = 'المديونية مطلوبة';
         // }
 
-        if (!$debtFormatError && (!isset($customerData['initial_debt']) || $customerData['initial_debt'] === '' || $customerData['initial_debt'] === null)) {
+        if (! $debtFormatError && (! isset($customerData['initial_debt']) || $customerData['initial_debt'] === '' || $customerData['initial_debt'] === null)) {
             $errors[] = 'المديونية مطلوبة';
         }
 
         // التحقق من عدم تكرار رقم الحساب
-        if (!empty($customerData['account_number'])) {
+        if (! empty($customerData['account_number'])) {
             $exists = Customer::where('account_number', $customerData['account_number'])->exists();
             if ($exists) {
                 $errors[] = "عميل برقم الحساب {$customerData['account_number']} موجود مسبقاً";
@@ -333,7 +331,7 @@ class ProcessCustomerImportJob implements ShouldQueue
 
             // حفظ الهواتف
             foreach ($phoneData as $pData) {
-                if (!empty($pData['phone'])) {
+                if (! empty($pData['phone'])) {
                     CustomerPhone::create([
                         'customer_id' => $customer->id,
                         'phone' => $pData['phone'],
@@ -354,9 +352,9 @@ class ProcessCustomerImportJob implements ShouldQueue
                             'value' => $val,
                         ]);
                     } catch (\Exception $e) {
-                        Log::warning("خطأ في حفظ الحقل الديناميكي", [
+                        Log::warning('خطأ في حفظ الحقل الديناميكي', [
                             'field_id' => $fieldId,
-                            'error' => $e->getMessage()
+                            'error' => $e->getMessage(),
                         ]);
                     }
                 }
@@ -365,14 +363,14 @@ class ProcessCustomerImportJob implements ShouldQueue
             // حفظ المديونية
             if ($initialDebt > 0) {
                 CustomerTransaction::create([
-                    'customer_id'           => $customer->id,
-                    'type'                  => 'debit',
-                    'amount'                => $initialDebt,
-                    'transaction_date'      => now()->toDateString(),
-                    'description'           => 'المديونية الأولية عند استيراد العميل من ملف Excel',
-                    'created_by'            => $this->userId,
-                    'source'                => 'import',
-                    'reference_number'      => 'IMP-' . now()->format('YmdHis') . '-' . $customer->id,
+                    'customer_id' => $customer->id,
+                    'type' => 'debit',
+                    'amount' => $initialDebt,
+                    'transaction_date' => now()->toDateString(),
+                    'description' => 'المديونية الأولية عند استيراد العميل من ملف Excel',
+                    'created_by' => $this->userId,
+                    'source' => 'import',
+                    'reference_number' => 'IMP-'.now()->format('YmdHis').'-'.$customer->id,
                 ]);
             }
 
@@ -384,7 +382,7 @@ class ProcessCustomerImportJob implements ShouldQueue
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'errors' => ['خطأ في إنشاء العميل: ' . $e->getMessage()]
+                'errors' => ['خطأ في إنشاء العميل: '.$e->getMessage()],
             ];
         }
     }
@@ -400,9 +398,9 @@ class ProcessCustomerImportJob implements ShouldQueue
     private function processPhoneField(array $fieldInfo, string $value, array &$phoneData): void
     {
         $phoneIndex = $fieldInfo['index'];
-        $fieldType  = $fieldInfo['type'];
+        $fieldType = $fieldInfo['type'];
 
-        if (!isset($phoneData[$phoneIndex])) {
+        if (! isset($phoneData[$phoneIndex])) {
             $phoneData[$phoneIndex] = [];
         }
 
@@ -413,13 +411,12 @@ class ProcessCustomerImportJob implements ShouldQueue
         }
     }
 
-
-
     public function failed(\Throwable $exception)
     {
         //  تأكد من وجود sessionId
         if (empty($this->sessionId)) {
             Log::error('Session ID is empty in failed()');
+
             return;
         }
 
@@ -432,24 +429,24 @@ class ProcessCustomerImportJob implements ShouldQueue
                 $session->update([
                     'status' => 'failed',
                     'errors' => json_encode([
-                        ['row' => 0, 'errors' => ['خطأ: ' . $exception->getMessage()]]
+                        ['row' => 0, 'errors' => ['خطأ: '.$exception->getMessage()]],
                     ]),
-                    'completed_at' => now()
+                    'completed_at' => now(),
                 ]);
 
                 Log::info('Session updated to failed', [
                     'session_id' => $this->sessionId,
-                    'error' => $exception->getMessage()
+                    'error' => $exception->getMessage(),
                 ]);
             } else {
                 Log::error('Session not found in failed()', [
-                    'session_id' => $this->sessionId
+                    'session_id' => $this->sessionId,
                 ]);
             }
         } catch (\Exception $e) {
             Log::error('Error in failed() method', [
                 'error' => $e->getMessage(),
-                'session_id' => $this->sessionId ?? 'unknown'
+                'session_id' => $this->sessionId ?? 'unknown',
             ]);
         }
     }

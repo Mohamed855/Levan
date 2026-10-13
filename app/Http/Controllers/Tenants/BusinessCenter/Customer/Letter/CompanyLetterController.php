@@ -8,8 +8,8 @@ use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Models\Tenants\BusinessCenter\Customers\Letter\CompanyLetter;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Services\Tenants\BusinessCenter\Customer\Letter\CompanyLetterService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class CompanyLetterController extends Controller
@@ -28,7 +28,6 @@ class CompanyLetterController extends Controller
         $this->middleware('can:company_letters.view')->only(['index', 'show', 'getStatistics']);
         $this->middleware('can:company_letters.send')->only(['previewTemplate', 'send']);
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -52,7 +51,7 @@ class CompanyLetterController extends Controller
         return $dataTable->render('tenants.business_center.customers.letters.index', [
             'statistics' => $statistics,
             'companies' => $companies,
-            'portfolios' => $portfolios
+            'portfolios' => $portfolios,
         ]);
     }
 
@@ -69,7 +68,7 @@ class CompanyLetterController extends Controller
 
         return view('tenants.business_center.customers.letters.show', [
             'letter' => $letter,
-            'templates' => $templates
+            'templates' => $templates,
         ]);
     }
 
@@ -81,7 +80,7 @@ class CompanyLetterController extends Controller
     public function previewTemplate(Request $request, int $id): JsonResponse
     {
         $request->validate([
-            'template_id' => 'required|exists:message_templates,id'
+            'template_id' => 'required|exists:message_templates,id',
         ]);
 
         try {
@@ -92,7 +91,7 @@ class CompanyLetterController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء معاينة القالب: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء معاينة القالب: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -106,11 +105,11 @@ class CompanyLetterController extends Controller
     {
         $request->validate([
             'template_id' => 'required|exists:message_templates,id',
-            'recipient_email' => 'required|email'
+            'recipient_email' => 'required|email',
         ], [
             'template_id.required' => 'يرجى اختيار قالب البريد',
             'recipient_email.required' => 'يرجى إدخال البريد الإلكتروني',
-            'recipient_email.email' => 'يرجى إدخال بريد إلكتروني صحيح'
+            'recipient_email.email' => 'يرجى إدخال بريد إلكتروني صحيح',
         ]);
 
         try {
@@ -119,7 +118,7 @@ class CompanyLetterController extends Controller
             if ($letter->status === 'sent') {
                 return response()->json([
                     'success' => false,
-                    'message' => 'تم إرسال هذا الخطاب مسبقاً'
+                    'message' => 'تم إرسال هذا الخطاب مسبقاً',
                 ], 400);
             }
 
@@ -129,7 +128,7 @@ class CompanyLetterController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء إرسال البريد: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء إرسال البريد: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -146,12 +145,12 @@ class CompanyLetterController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $statistics
+                'data' => $statistics,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء جلب الإحصائيات'
+                'message' => 'حدث خطأ أثناء جلب الإحصائيات',
             ], 500);
         }
     }

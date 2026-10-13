@@ -13,7 +13,7 @@ class VerifyTenantToken
     {
         $token = $request->bearerToken();
 
-        if (!$token) {
+        if (! $token) {
             return response()->json([
                 'success' => false,
                 'message' => 'Token مفقود',
@@ -22,7 +22,7 @@ class VerifyTenantToken
 
         $tenant = Tenant::where('api_token', hash('sha256', $token))->first();
 
-        if (!$tenant) {
+        if (! $tenant) {
             return response()->json([
                 'success' => false,
                 'message' => 'Token غير صالح',
@@ -35,11 +35,11 @@ class VerifyTenantToken
             $response = $next($request);
 
             ApiRequestLog::create([
-                'method'      => $request->method(),
-                'path'        => $request->path(),
+                'method' => $request->method(),
+                'path' => $request->path(),
                 'status_code' => $response->getStatusCode(),
-                'ip_address'  => $request->ip(),
-                'user_agent'  => substr((string) $request->userAgent(), 0, 255),
+                'ip_address' => $request->ip(),
+                'user_agent' => substr((string) $request->userAgent(), 0, 255),
             ]);
 
             return $response;

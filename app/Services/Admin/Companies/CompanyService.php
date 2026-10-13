@@ -4,19 +4,15 @@ declare(strict_types=1);
 
 namespace App\Services\Admin\Companies;
 
-use App\Enums\Admin\Billing\BillStatus;
 use App\Enums\Admin\Billing\BillType;
 use App\Enums\Admin\Billing\PaymentMethod;
-use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
-use App\Enums\Admin\Subscriptions\SubscriptionStatus;
-use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Tenants\CompanySetting;
 use App\Models\Admin\Tenants\Tenant;
+use App\Services\Admin\Subscriptions\AdminSubscriptionService;
 use App\Services\shared\Bills\BillService;
 use App\Services\shared\Subscription\SubscriptionService;
-use App\Services\Admin\Subscriptions\AdminSubscriptionService;
 use App\Services\shared\Tenant\TenantCreator;
 use App\Services\shared\Tenant\TenantInitializer;
 use Illuminate\Http\UploadedFile;
@@ -38,10 +34,10 @@ class CompanyService
     public function getCompanyStatistics(): array
     {
         return [
-            'total'     => Tenant::count(),
-            'active'    => Tenant::where('status', 'active')->count(),
+            'total' => Tenant::count(),
+            'active' => Tenant::where('status', 'active')->count(),
             'suspended' => Tenant::where('status', 'suspended')->count(),
-            'pending'   => Tenant::where('status', 'pending')->count(),
+            'pending' => Tenant::where('status', 'pending')->count(),
         ];
     }
 
@@ -56,22 +52,22 @@ class CompanyService
             }
 
             $metadata = [
-                'plan_id'                       => $data['plan_id'],
-                'billing_name'                  => $data['name'],
-                'billing_email'                 => $data['email'],
-                'billing_phone'                 => $data['phone'],
-                'billing_password'              => $data['password'],
-                'billing_company_name'          => $data['company_name'],
-                'billing_tax_number'            => $data['tax_number'] ?? null,
-                'billing_city_id'               => $data['city_id'] ?? null,
-                'billing_address'               => $data['address'] ?? null,
-                'billing_commercial_number'     => $data['commercial_number'],
-                'start_date'                    => $data['start_date'] ?? null,
-                'end_date'                      => $data['end_date'] ?? null,
-                'total_users'                   => $data['total_users'] ?? null,
-                'activate_immediately'          => ! empty($data['activate_immediately']),
-                'email_notifications_enabled'   => isset($data['email_notifications_enabled']) ? (bool) $data['email_notifications_enabled'] : true,
-                'two_factor_enabled'            => ! empty($data['two_factor_enabled']),
+                'plan_id' => $data['plan_id'],
+                'billing_name' => $data['name'],
+                'billing_email' => $data['email'],
+                'billing_phone' => $data['phone'],
+                'billing_password' => $data['password'],
+                'billing_company_name' => $data['company_name'],
+                'billing_tax_number' => $data['tax_number'] ?? null,
+                'billing_city_id' => $data['city_id'] ?? null,
+                'billing_address' => $data['address'] ?? null,
+                'billing_commercial_number' => $data['commercial_number'],
+                'start_date' => $data['start_date'] ?? null,
+                'end_date' => $data['end_date'] ?? null,
+                'total_users' => $data['total_users'] ?? null,
+                'activate_immediately' => ! empty($data['activate_immediately']),
+                'email_notifications_enabled' => isset($data['email_notifications_enabled']) ? (bool) $data['email_notifications_enabled'] : true,
+                'two_factor_enabled' => ! empty($data['two_factor_enabled']),
                 'external_integrations_enabled' => ! empty($data['external_integrations_enabled']),
             ];
 
@@ -91,10 +87,10 @@ class CompanyService
                 type: BillType::NEW_SUBSCRIPTION,
                 couponData: [
                     'discount_amount' => $discount,
-                    'coupon_id'       => null,
-                    'coupon_code'     => null,
-                    'coupon_value'    => null,
-                    'coupon_type'     => null,
+                    'coupon_id' => null,
+                    'coupon_code' => null,
+                    'coupon_value' => null,
+                    'coupon_type' => null,
                 ],
                 metadata: $metadata
             );
@@ -105,8 +101,8 @@ class CompanyService
             CompanySetting::updateOrCreate(
                 ['tenant_id' => $tenant->id],
                 [
-                    'email_notifications_enabled'   => (bool) ($metadata['email_notifications_enabled'] ?? true),
-                    'two_factor_enabled'            => (bool) ($metadata['two_factor_enabled'] ?? false),
+                    'email_notifications_enabled' => (bool) ($metadata['email_notifications_enabled'] ?? true),
+                    'two_factor_enabled' => (bool) ($metadata['two_factor_enabled'] ?? false),
                     'external_integrations_enabled' => (bool) ($metadata['external_integrations_enabled'] ?? false),
                 ]
             );
@@ -127,11 +123,11 @@ class CompanyService
     {
         return DB::connection('mysql')->transaction(function () use ($company, $data) {
             $updateData = [
-                'company_name'      => $data['company_name'],
+                'company_name' => $data['company_name'],
                 'commercial_number' => $data['commercial_number'],
-                'tax_number'        => $data['tax_number'] ?? null,
-                'city_id'           => $data['city_id'] ?? null,
-                'address'           => $data['address'] ?? null,
+                'tax_number' => $data['tax_number'] ?? null,
+                'city_id' => $data['city_id'] ?? null,
+                'address' => $data['address'] ?? null,
             ];
 
             if (array_key_exists('primary_contact_name', $data)) {
@@ -150,8 +146,8 @@ class CompanyService
             CompanySetting::updateOrCreate(
                 ['tenant_id' => $company->id],
                 [
-                    'email_notifications_enabled'   => ! empty($data['email_notifications_enabled']),
-                    'two_factor_enabled'            => ! empty($data['two_factor_enabled']),
+                    'email_notifications_enabled' => ! empty($data['email_notifications_enabled']),
+                    'two_factor_enabled' => ! empty($data['two_factor_enabled']),
                     'external_integrations_enabled' => ! empty($data['external_integrations_enabled']),
                 ]
             );
@@ -205,7 +201,7 @@ class CompanyService
             'city',
             'version',
             'companySettings',
-            'subscriptions' => fn($q) => $q->with(['plan', 'currentPeriod', 'periods'])->latest('id'),
+            'subscriptions' => fn ($q) => $q->with(['plan', 'currentPeriod', 'periods'])->latest('id'),
         ]);
 
         $activities = Activity::query()
@@ -221,11 +217,11 @@ class CompanyService
             ->get();
 
         return [
-            'company'    => $company,
-            'settings'   => $company->companySettings ?: new CompanySetting([
-                'tenant_id'                   => $company->id,
+            'company' => $company,
+            'settings' => $company->companySettings ?: new CompanySetting([
+                'tenant_id' => $company->id,
                 'email_notifications_enabled' => true,
-                'two_factor_enabled'          => false,
+                'two_factor_enabled' => false,
                 'external_integrations_enabled' => false,
             ]),
             'activities' => $activities,

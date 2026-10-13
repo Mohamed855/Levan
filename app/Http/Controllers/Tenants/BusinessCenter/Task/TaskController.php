@@ -6,10 +6,7 @@ use App\DataTables\Tenants\BusinessCenter\Tasks\TasksDataTable;
 use App\Exports\Tenants\BusinessCenter\Task\TasksExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\BusinessCenter\Task\ExportTasksRequest;
-use App\Models\Tenants\BusinessCenter\Customers\Task\Task;
 use App\Services\Tenants\BusinessCenter\Task\TaskService;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 
 class TaskController extends Controller
@@ -67,7 +64,7 @@ class TaskController extends Controller
             ->orderBy('rm.name', 'ASC')
             ->orderByRaw('(SELECT COALESCE(SUM(CASE WHEN type = "debit" THEN amount ELSE 0 END), 0) - COALESCE(SUM(CASE WHEN type = "credit" THEN amount ELSE 0 END), 0) FROM customer_transactions WHERE customer_id = tasks.customer_id) DESC');
         $tasks = $query->get();
-        $fileName = 'tasks_report_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
+        $fileName = 'tasks_report_'.now()->format('Y-m-d_H-i-s').'.xlsx';
 
         return Excel::download(new TasksExport($tasks), $fileName);
     }

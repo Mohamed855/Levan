@@ -26,11 +26,11 @@ class SendSubscriptionMailJob implements ShouldQueue
     {
         try {
             match ($this->type) {
-                'new'     => $mailService->NewSubscribtionMail($this->email, $this->subscription),
-                'renew'   => $mailService->RenewSubscriptionMail($this->email, $this->subscription),
+                'new' => $mailService->NewSubscribtionMail($this->email, $this->subscription),
+                'renew' => $mailService->RenewSubscriptionMail($this->email, $this->subscription),
                 'upgrade' => $mailService->UpgradeSubscriptionMail($this->email, $this->subscription),
                 'new_client' => $mailService->NewClientMail($this->email, $this->subscription),
-                default   => Log::warning("Unknown subscription email type: {$this->type} ")
+                default => Log::warning("Unknown subscription email type: {$this->type} ")
             };
         } catch (\Throwable $e) {
             throw $e;
@@ -40,9 +40,9 @@ class SendSubscriptionMailJob implements ShouldQueue
     public function failed(\Throwable $exception): void
     {
         Log::critical('SendSubscriptionEmail Job failed permanently', [
-            'email'        => $this->email,
-            'type'         => $this->type,
-            'error'        => $exception->getMessage(),
+            'email' => $this->email,
+            'type' => $this->type,
+            'error' => $exception->getMessage(),
             'subscription' => $this->subscription->id ?? null,
         ]);
     }

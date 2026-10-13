@@ -5,7 +5,7 @@ namespace App\Http\Requests\Tenants\BusinessCenter\Customer\CustomerFollow;
 use App\Services\Tenants\BusinessCenter\Customer\Follow\ContactResultService;
 use Illuminate\Foundation\Http\FormRequest;
 
-class  StoreCustomerFollowRequest extends FormRequest
+class StoreCustomerFollowRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -35,7 +35,6 @@ class  StoreCustomerFollowRequest extends FormRequest
 
         return $rules;
     }
-
 
     public function attributes(): array
     {

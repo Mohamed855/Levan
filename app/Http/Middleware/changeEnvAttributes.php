@@ -11,15 +11,15 @@ class changeEnvAttributes
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle($request, Closure $next)
     {
         if ($request->hasHeader('levan')) {
             config([
-                'logging.default' => 'errorlog'
+                'logging.default' => 'errorlog',
             ]);
-            config(['cache.default' , 'array']);
+            config(['cache.default', 'array']);
         }
 
         return $next($request);

@@ -9,15 +9,16 @@ use Stancl\Tenancy\Database\Models\Tenant;
 
 class CloseInactiveWorkPeriods extends Command
 {
-    protected $signature    = 'collection:close-inactive-periods';
-    protected $description  = 'إغلاق فترات العمل الغير نشطة بعد 10 دقائق من آخر نشاط';
+    protected $signature = 'collection:close-inactive-periods';
+
+    protected $description = 'إغلاق فترات العمل الغير نشطة بعد 10 دقائق من آخر نشاط';
 
     public function handle(CollectionSessionService $collectionSessionService)
     {
         $timeoutMinutes = 10;
 
         Tenant::all()->runForEach(function ($tenant) use ($collectionSessionService, $timeoutMinutes) {
-            $closedCount     = 0;
+            $closedCount = 0;
             $inactivePeriods = WorkPeriod::whereNull('exit_time')->where('updated_at', '<', now()->subMinutes($timeoutMinutes))->get();
 
             foreach ($inactivePeriods as $period) {

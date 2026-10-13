@@ -9,7 +9,7 @@ use Carbon\Carbon;
 
 class CustomerReportsDataTable extends AbstractDataTable
 {
-    private $route = "reports.customers";
+    private $route = 'reports.customers';
 
     /*
     |--------------------------------------------------------------------------
@@ -28,6 +28,7 @@ class CustomerReportsDataTable extends AbstractDataTable
         });
 
         $this->addCustomColumns($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
@@ -39,7 +40,7 @@ class CustomerReportsDataTable extends AbstractDataTable
     */
     protected function getTableId()
     {
-        return "customer-reports-table";
+        return 'customer-reports-table';
     }
 
     /*
@@ -55,14 +56,14 @@ class CustomerReportsDataTable extends AbstractDataTable
             'debt_amount' => CustomerTransaction::selectRaw('
             COALESCE(SUM(CASE WHEN type = "debit" THEN amount ELSE 0 END), 0) - 
             COALESCE(SUM(CASE WHEN type = "credit" THEN amount ELSE 0 END), 0)
-             ')->whereColumn('customer_id', 'customers.id')
+             ')->whereColumn('customer_id', 'customers.id'),
         ])
             ->with([
                 'company:id,name',
                 'portfolio:id,name',
                 'relationshipManager:id,name',
                 'customerStatus:id,name',
-                'lastContactResult:id,name'
+                'lastContactResult:id,name',
             ]);
     }
 
@@ -78,10 +79,10 @@ class CustomerReportsDataTable extends AbstractDataTable
             ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             [
-                'data'       => 'checkbox',
-                'name'       => 'checkbox',
-                'title'      => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
-                'orderable'  => false,
+                'data' => 'checkbox',
+                'name' => 'checkbox',
+                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
+                'orderable' => false,
                 'searchable' => false,
                 'width' => '10px',
                 'className' => 'custom-checkbox',
@@ -109,60 +110,67 @@ class CustomerReportsDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
 
             ->editColumn('customer_info', function ($row) {
                 return '<div class="customer-info">
-                    <div>' . e($row->name) . '</div>
+                    <div>'.e($row->name).'</div>
                 </div>';
             })
 
             ->editColumn('customer_type', function ($row) {
                 $typeText = $row->customer_type === 'individual' ? 'فردي' : 'شركة';
-                return '<div>' . $typeText . '</div>';
+
+                return '<div>'.$typeText.'</div>';
             })
 
             ->editColumn('contact_info', function ($row) {
                 $phone = $row->phone ?: 'لا يوجد';
+
                 return '<div class="contact-info">
-                <div>' . e($phone) . '</div>
+                <div>'.e($phone).'</div>
                    </div>';
             })
 
             ->editColumn('company_info', function ($row) {
                 $companyName = $row->company->name ?? 'غير محدد';
+
                 return '<div class="company-info">
-                    <div>' . e($companyName) . '</div>
+                    <div>'.e($companyName).'</div>
                 </div>';
             })
 
             ->editColumn('portfolio_info', function ($row) {
                 $portfolioName = $row->portfolio->name ?? 'غير محدد';
+
                 return '<div class="portfolio-info">
-                    <div>' . e($portfolioName) . '</div>
+                    <div>'.e($portfolioName).'</div>
                 </div>';
             })
 
             ->editColumn('debt_amount', function ($row) {
                 $debtAmount = $row->debt_amount ?? 0;
-                return '<div>' . number_format($debtAmount, 2) . ' ريال</div>';
+
+                return '<div>'.number_format($debtAmount, 2).' ريال</div>';
             })
 
             ->editColumn('manager_info', function ($row) {
                 $managerName = $row->relationshipManager->name ?? 'غير محدد';
+
                 return '<div class="manager-info">
-                    <div>' . e($managerName) . '</div>
+                    <div>'.e($managerName).'</div>
                 </div>';
             })
 
             ->editColumn('contact_result', function ($row) {
                 $resultName = $row->lastContactResult->name ?? 'غير  محدد';
-                return '<div>' . e($resultName) . '</div>';
+
+                return '<div>'.e($resultName).'</div>';
             })
 
             ->editColumn('created_at', function ($row) {
-                return '<div>' . Carbon::parse($row->created_at)->format('Y-m-d') . '</div>';
+                return '<div>'.Carbon::parse($row->created_at)->format('Y-m-d').'</div>';
             });
     }
 
@@ -222,10 +230,10 @@ class CustomerReportsDataTable extends AbstractDataTable
             }
 
             $managers = array_filter($managers, function ($value) {
-                return !empty($value);
+                return ! empty($value);
             });
 
-            if (!empty($managers)) {
+            if (! empty($managers)) {
                 $query->whereIn('relationship_manager_id', $managers);
             }
         }
@@ -238,10 +246,10 @@ class CustomerReportsDataTable extends AbstractDataTable
             }
 
             $results = array_filter($results, function ($value) {
-                return !empty($value);
+                return ! empty($value);
             });
 
-            if (!empty($results)) {
+            if (! empty($results)) {
                 $query->whereIn('last_contact_result_id', $results);
             }
         }
@@ -292,8 +300,8 @@ class CustomerReportsDataTable extends AbstractDataTable
             [
                 'text' => 'تصدير Excel',
                 'className' => 'btn-export-excel',
-                'action' => "function() { exportFilteredToExcel(); }",
-            ]
+                'action' => 'function() { exportFilteredToExcel(); }',
+            ],
             // ,
             // [
             //     'text' => 'تصدير PDF',

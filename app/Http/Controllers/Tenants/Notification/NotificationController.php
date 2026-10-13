@@ -11,7 +11,6 @@ use App\Http\Requests\Tenants\Notification\MassDeleteNotificationsRequest;
 
 class NotificationController extends Controller
 {
-    
     /*
     |--------------------------------------------------------------------------
     | Section Title
@@ -43,10 +42,10 @@ class NotificationController extends Controller
     public function unreadCount()
     {
         return response()->json([
-            'count' => auth('tenant')->user()->unreadNotifications()->count()
+            'count' => auth('tenant')->user()->unreadNotifications()->count(),
         ]);
     }
-    
+
     /*
     |--------------------------------------------------------------------------
     | Section Title

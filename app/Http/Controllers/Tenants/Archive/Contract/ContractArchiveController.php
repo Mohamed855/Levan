@@ -2,21 +2,19 @@
 
 namespace App\Http\Controllers\Tenants\Archive\Contract;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Tenants\Archive\BulkArchiveActionRequest;
-use App\Http\Requests\Tenants\Archive\ArchiveItemIdRequest;
 use App\DataTables\Tenants\Archive\Contract\ArchivedContractsDataTable;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Archive\ArchiveItemIdRequest;
+use App\Http\Requests\Tenants\Archive\BulkArchiveActionRequest;
 use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Models\Tenants\BusinessCenter\Contract\Contract;
 use App\Services\Tenants\Archive\Contract\ContractArchiveService;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 class ContractArchiveController extends Controller
 {
-
     /*
     |--------------------------------------------------------------------------
     | الإعدادات الأساسية والتحقق من الصلاحيات
@@ -44,7 +42,7 @@ class ContractArchiveController extends Controller
                 ->get();
 
             return $dataTable->render('tenants.archive.contracts.index', [
-                'companies'                 => $companies,
+                'companies' => $companies,
             ]);
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب بيانات العقود المؤرشفة');
@@ -123,12 +121,12 @@ class ContractArchiveController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "تم استرجاع {$restoredCount} عقد بنجاح"
+                'message' => "تم استرجاع {$restoredCount} عقد بنجاح",
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء الاستعادة الجماعية'
+                'message' => 'حدث خطأ أثناء الاستعادة الجماعية',
             ], 500);
         }
     }
@@ -147,12 +145,12 @@ class ContractArchiveController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "تم حذف {$deletedCount} عقد نهائياً"
+                'message' => "تم حذف {$deletedCount} عقد نهائياً",
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء الحذف النهائي الجماعي'
+                'message' => 'حدث خطأ أثناء الحذف النهائي الجماعي',
             ], 500);
         }
     }
@@ -172,7 +170,7 @@ class ContractArchiveController extends Controller
                 'company_id',
                 'commission_type',
                 'auto_renewal',
-                'search'
+                'search',
             ]);
 
             $query = $this->contractArchiveService->filterArchivedContractsQuery($query, $filters);
@@ -181,12 +179,12 @@ class ContractArchiveController extends Controller
             return response()->json([
                 'success' => true,
                 'contract_ids' => $ids,
-                'count' => $ids->count()
+                'count' => $ids->count(),
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'فشل في جلب البيانات'
+                'message' => 'فشل في جلب البيانات',
             ], 500);
         }
     }

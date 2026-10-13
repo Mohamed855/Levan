@@ -47,12 +47,12 @@ class Settings extends Model
      * The attributes that should be cast.
      */
     protected $casts = [
-        'whatsapp_enabled'           => 'boolean',
-        'sms_enabled'                => 'boolean',
+        'whatsapp_enabled' => 'boolean',
+        'sms_enabled' => 'boolean',
         'sms_auto_reminders_enabled' => 'boolean',
-        'maintenance_mode'           => 'boolean',
-        'breadcrumb_visibility'      => 'boolean',
-        'force_two_factor_auth'      => 'boolean',
-        'support_emails'             => 'array',
+        'maintenance_mode' => 'boolean',
+        'breadcrumb_visibility' => 'boolean',
+        'force_two_factor_auth' => 'boolean',
+        'support_emails' => 'array',
     ];
 }

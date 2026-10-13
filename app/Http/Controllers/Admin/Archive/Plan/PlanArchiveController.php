@@ -8,7 +8,6 @@ use App\DataTables\Admin\Archive\Plan\PlanDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Models\Admin\Plans\Plan;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class PlanArchiveController extends Controller
@@ -46,7 +45,7 @@ class PlanArchiveController extends Controller
             return redirect()->route('admin.archives.plans.index')
                 ->with('success', 'تم استرجاع الباقة بنجاح.');
         } catch (\Exception $e) {
-            Log::error('Error restoring plan: ' . $e->getMessage());
+            Log::error('Error restoring plan: '.$e->getMessage());
 
             return redirect()->route('admin.archives.plans.index')
                 ->with('error', 'حدث خطأ أثناء استرجاع الباقة.');
@@ -68,7 +67,7 @@ class PlanArchiveController extends Controller
             return redirect()->route('admin.archives.plans.index')
                 ->with('success', 'تم حذف الباقة نهائيًا بنجاح.');
         } catch (\Exception $e) {
-            Log::error('Error force deleting plan: ' . $e->getMessage());
+            Log::error('Error force deleting plan: '.$e->getMessage());
 
             return redirect()->route('admin.archives.plans.index')
                 ->with('error', 'حدث خطأ أثناء الحذف النهائي للباقة.');

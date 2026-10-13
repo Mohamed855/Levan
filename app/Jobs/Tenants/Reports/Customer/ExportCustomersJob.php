@@ -4,8 +4,6 @@ namespace App\Jobs\Tenants\Reports\Customer;
 
 use App\Exports\Tenants\Reports\Customer\CustomersReportExport;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
-use App\Models\Tenants\FinancialCollection\Collection\CustomerTransaction;
-use App\Notifications\ExportCompletedNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -14,20 +12,25 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\Log;
 
 class ExportCustomersJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 1800;
+
     public $tries = 3;
+
     public $maxExceptions = 1;
 
     protected $filters;
+
     protected $selectedFields;
+
     protected $userId;
+
     protected $exportId;
+
     protected $fileName;
 
     /*
@@ -41,7 +44,7 @@ class ExportCustomersJob implements ShouldQueue
         $this->selectedFields = $selectedFields;
         $this->userId = $userId;
         $this->exportId = uniqid('export_', true);
-        $this->fileName = 'customers_export_' . now()->format('Y_m_d_H_i_s') . '_' . $this->exportId . '.xlsx';
+        $this->fileName = 'customers_export_'.now()->format('Y_m_d_H_i_s').'_'.$this->exportId.'.xlsx';
     }
 
     /*
@@ -60,6 +63,7 @@ class ExportCustomersJob implements ShouldQueue
 
             if ($totalCount === 0) {
                 $this->updateProgress(100, 'لا توجد بيانات للتصدير');
+
                 return;
             }
 
@@ -106,7 +110,7 @@ class ExportCustomersJob implements ShouldQueue
 
             $this->updateProgress(85, 'إنشاء ملف Excel...');
 
-            $relative = 'exports/' . $this->fileName;
+            $relative = 'exports/'.$this->fileName;
             Excel::store(
                 new CustomersReportExport($customers, $this->filters, $this->selectedFields),
                 $relative,
@@ -116,12 +120,12 @@ class ExportCustomersJob implements ShouldQueue
             $fileSize = Storage::disk('tenant_public')->size($relative);
 
             Cache::put("export_result_{$this->exportId}", [
-                'status'        => 'completed',
-                'file_name'     => $this->fileName,
+                'status' => 'completed',
+                'file_name' => $this->fileName,
                 'relative_path' => $relative,
-                'file_size'     => $this->formatBytes($fileSize),
+                'file_size' => $this->formatBytes($fileSize),
                 'total_records' => $totalCount,
-                'created_at'    => now()->toDateTimeString()
+                'created_at' => now()->toDateTimeString(),
             ], now()->addHours(24));
 
             $this->updateProgress(100, 'تم التصدير بنجاح');
@@ -130,14 +134,13 @@ class ExportCustomersJob implements ShouldQueue
             Cache::put("export_result_{$this->exportId}", [
                 'status' => 'failed',
                 'error' => $e->getMessage(),
-                'created_at' => now()->toDateTimeString()
+                'created_at' => now()->toDateTimeString(),
             ], now()->addHours(24));
 
-            $this->updateProgress(-1, 'فشل في التصدير: ' . $e->getMessage());
+            $this->updateProgress(-1, 'فشل في التصدير: '.$e->getMessage());
             throw $e;
         }
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -149,12 +152,12 @@ class ExportCustomersJob implements ShouldQueue
         $query = Customer::withSum([
             'transactions as total_debit' => function ($query) {
                 $query->where('type', 'debit');
-            }
+            },
         ], 'amount')
             ->withSum([
                 'transactions as total_credit' => function ($query) {
                     $query->where('type', 'credit');
-                }
+                },
             ], 'amount')
             ->with([
                 'company:id,name',
@@ -163,11 +166,13 @@ class ExportCustomersJob implements ShouldQueue
                 'relationshipManager:id,name',
                 'customerStatus:id,name',
                 'lastContactResult:id,name',
-                'createdBy:id,name'
+                'createdBy:id,name',
             ]);
 
         foreach ($this->filters as $key => $value) {
-            if (empty($value)) continue;
+            if (empty($value)) {
+                continue;
+            }
 
             switch ($key) {
                 case 'date_from':
@@ -194,24 +199,24 @@ class ExportCustomersJob implements ShouldQueue
                 case 'relationship_manager_id':
                     if (is_array($value)) {
                         $cleanValues = array_filter($value, function ($v) {
-                            return !empty($v);
+                            return ! empty($v);
                         });
-                        if (!empty($cleanValues)) {
+                        if (! empty($cleanValues)) {
                             $query->whereIn('relationship_manager_id', $cleanValues);
                         }
-                    } elseif (!empty($value)) {
+                    } elseif (! empty($value)) {
                         $query->where('relationship_manager_id', $value);
                     }
                     break;
                 case 'contact_result_id':
                     if (is_array($value)) {
                         $cleanValues = array_filter($value, function ($v) {
-                            return !empty($v);
+                            return ! empty($v);
                         });
-                        if (!empty($cleanValues)) {
+                        if (! empty($cleanValues)) {
                             $query->whereIn('last_contact_result_id', $cleanValues);
                         }
-                    } elseif (!empty($value)) {
+                    } elseif (! empty($value)) {
                         $query->where('last_contact_result_id', $value);
                     }
                     break;
@@ -237,7 +242,7 @@ class ExportCustomersJob implements ShouldQueue
         Cache::put("export_progress_{$this->exportId}", [
             'percentage' => $percentage,
             'message' => $message,
-            'updated_at' => now()->toDateTimeString()
+            'updated_at' => now()->toDateTimeString(),
         ], now()->addHours(2));
     }
 
@@ -254,7 +259,7 @@ class ExportCustomersJob implements ShouldQueue
             $size /= 1024;
         }
 
-        return round($size, $precision) . ' ' . $units[$i];
+        return round($size, $precision).' '.$units[$i];
     }
 
     /*
@@ -267,7 +272,7 @@ class ExportCustomersJob implements ShouldQueue
         Cache::put("export_result_{$this->exportId}", [
             'status' => 'failed',
             'error' => $exception->getMessage(),
-            'created_at' => now()->toDateTimeString()
+            'created_at' => now()->toDateTimeString(),
         ], now()->addHours(24));
     }
 

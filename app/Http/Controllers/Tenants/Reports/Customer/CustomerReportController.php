@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Tenants\Reports\Customer;
 
-use App\Http\Controllers\Controller;
 use App\DataTables\Tenants\Reports\Customer\CustomerReportsDataTable;
+use App\Http\Controllers\Controller;
 use App\Services\Tenants\Reports\Customer\CustomerReportService;
-use Illuminate\Http\Request;
-use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -56,7 +55,7 @@ class CustomerReportController extends Controller
             'relationship_manager_id',
             'contact_result_id',
             'debt_from',
-            'debt_to'
+            'debt_to',
         ]);
 
         return $this->customerReportService->exportCustomersReport($filters);
@@ -80,7 +79,7 @@ class CustomerReportController extends Controller
             'relationship_manager_id',
             'contact_result_id',
             'debt_from',
-            'debt_to'
+            'debt_to',
         ]);
 
         return $this->customerReportService->exportCustomersReportToPDF($filters);
@@ -105,7 +104,7 @@ class CustomerReportController extends Controller
             'contact_result_id',
             'debt_from',
             'debt_to',
-            'has_debt'
+            'has_debt',
         ]);
 
         $count = $this->customerReportService->getCustomersCount($filters);
@@ -115,7 +114,7 @@ class CustomerReportController extends Controller
             'success' => true,
             'count' => $count,
             'fields' => $fields,
-            'is_large_export' => $count > 5000
+            'is_large_export' => $count > 5000,
         ]);
     }
 
@@ -138,7 +137,7 @@ class CustomerReportController extends Controller
             'contact_result_id',
             'debt_from',
             'debt_to',
-            'has_debt'
+            'has_debt',
         ]);
 
         $selectedFields = $request->input('selected_fields', []);
@@ -157,7 +156,7 @@ class CustomerReportController extends Controller
                     'message' => $result['message'],
                     'export_id' => $result['export_id'] ?? null,
                     'is_async' => true,
-                    'count' => $result['count']
+                    'count' => $result['count'],
                 ]);
             } else {
                 $fileName = $this->customerReportService->exportFilteredCustomersToExcel($filters, $selectedFields);
@@ -166,13 +165,13 @@ class CustomerReportController extends Controller
                     'success' => true,
                     'download_url' => tenant_route_name('reports.customers.download', ['file' => $fileName]),
                     'message' => 'تم إنشاء الملف بنجاح',
-                    'is_async' => false
+                    'is_async' => false,
                 ]);
             }
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء إنشاء الملف: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء إنشاء الملف: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -186,10 +185,10 @@ class CustomerReportController extends Controller
     {
         $exportId = $request->input('export_id');
 
-        if (!$exportId) {
+        if (! $exportId) {
             return response()->json([
                 'success' => false,
-                'message' => 'معرف التصدير مطلوب'
+                'message' => 'معرف التصدير مطلوب',
             ], 400);
         }
 
@@ -197,7 +196,7 @@ class CustomerReportController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $progress
+            'data' => $progress,
         ]);
     }
 
@@ -220,7 +219,7 @@ class CustomerReportController extends Controller
                 'relationship_manager_id',
                 'contact_result_id',
                 'debt_from',
-                'debt_to'
+                'debt_to',
             ]);
 
             $count = $this->customerReportService->getCustomersCount($filters);
@@ -229,12 +228,12 @@ class CustomerReportController extends Controller
                 'success' => true,
                 'count' => $count,
                 'message' => "تم العثور على {$count} عميل حسب الفلاتر المحددة",
-                'is_large_export' => $count > 5000
+                'is_large_export' => $count > 5000,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء جلب عدد السجلات'
+                'message' => 'حدث خطأ أثناء جلب عدد السجلات',
             ], 500);
         }
     }
@@ -247,9 +246,9 @@ class CustomerReportController extends Controller
     public function downloadFile($file)
     {
         $disk = Storage::disk('tenant_public');
-        $relative = 'exports/' . $file;
+        $relative = 'exports/'.$file;
 
-        if (!$disk->exists($relative)) {
+        if (! $disk->exists($relative)) {
             return redirect()->back()->with('error', 'الملف غير موجود أو تم حذفه.');
         }
 

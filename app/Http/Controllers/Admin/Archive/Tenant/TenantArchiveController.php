@@ -44,7 +44,7 @@ class TenantArchiveController extends Controller
             return redirect()->route('admin.archives.tenants.index')
                 ->with('success', "تم استرجاع الشركة {$company->company_name} بنجاح.");
         } catch (\Throwable $e) {
-            Log::error('Error restoring company: ' . $e->getMessage());
+            Log::error('Error restoring company: '.$e->getMessage());
 
             return redirect()->route('admin.archives.tenants.index')
                 ->with('error', 'حدث خطأ أثناء استرجاع الشركة.');
@@ -59,7 +59,7 @@ class TenantArchiveController extends Controller
             return redirect()->route('admin.archives.tenants.index')
                 ->with('success', 'تم حذف الشركة نهائيًا بنجاح.');
         } catch (\Throwable $e) {
-            Log::error('Error force deleting company: ' . $e->getMessage());
+            Log::error('Error force deleting company: '.$e->getMessage());
 
             return redirect()->route('admin.archives.tenants.index')
                 ->with('error', 'حدث خطأ أثناء الحذف النهائي للشركة.');

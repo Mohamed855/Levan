@@ -7,8 +7,8 @@ use App\Exports\Tenants\BusinessCenter\Customer\UpdateRequest\CustomerUpdateRequ
 use App\Http\Controllers\Controller;
 use App\Models\Tenants\BusinessCenter\Customers\UpdateRequest\CustomerUpdateRequest;
 use App\Services\Tenants\BusinessCenter\Customer\UpdateRequest\CustomerUpdateRequestService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -30,7 +30,6 @@ class CustomerUpdateRequestController extends Controller
         $this->middleware('can:customer_update_requests.approve')->only(['approve', 'bulkApprove']);
         $this->middleware('can:customer_update_requests.reject')->only(['reject', 'bulkReject']);
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -58,7 +57,7 @@ class CustomerUpdateRequestController extends Controller
     {
         $updateRequest = $this->updateRequestService->getRequestDetails($id);
 
-        if (!$updateRequest) {
+        if (! $updateRequest) {
             abort(404, 'طلب التحديث غير موجود');
         }
 
@@ -83,17 +82,17 @@ class CustomerUpdateRequestController extends Controller
         try {
             $updateRequest = CustomerUpdateRequest::find($id);
 
-            if (!$updateRequest) {
+            if (! $updateRequest) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'طلب التحديث غير موجود'
+                    'message' => 'طلب التحديث غير موجود',
                 ], 404);
             }
 
             if ($updateRequest->status !== CustomerUpdateRequest::STATUS_PENDING) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'الطلب ليس في حالة معلقة'
+                    'message' => 'الطلب ليس في حالة معلقة',
                 ], 400);
             }
 
@@ -101,12 +100,12 @@ class CustomerUpdateRequestController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'تمت الموافقة على طلب التحديث بنجاح'
+                'message' => 'تمت الموافقة على طلب التحديث بنجاح',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء الموافقة على الطلب: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء الموافقة على الطلب: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -121,17 +120,17 @@ class CustomerUpdateRequestController extends Controller
         try {
             $updateRequest = CustomerUpdateRequest::find($id);
 
-            if (!$updateRequest) {
+            if (! $updateRequest) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'طلب التحديث غير موجود'
+                    'message' => 'طلب التحديث غير موجود',
                 ], 404);
             }
 
             if ($updateRequest->status !== CustomerUpdateRequest::STATUS_PENDING) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'الطلب ليس في حالة معلقة'
+                    'message' => 'الطلب ليس في حالة معلقة',
                 ], 400);
             }
 
@@ -140,12 +139,12 @@ class CustomerUpdateRequestController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'تم رفض طلب التحديث بنجاح'
+                'message' => 'تم رفض طلب التحديث بنجاح',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء رفض الطلب: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء رفض الطلب: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -163,7 +162,7 @@ class CustomerUpdateRequestController extends Controller
             if (empty($requestIds)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'يرجى تحديد طلب واحد على الأقل'
+                    'message' => 'يرجى تحديد طلب واحد على الأقل',
                 ], 400);
             }
 
@@ -177,12 +176,12 @@ class CustomerUpdateRequestController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => $message,
-                'results' => $results
+                'results' => $results,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء الموافقة على الطلبات: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء الموافقة على الطلبات: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -201,7 +200,7 @@ class CustomerUpdateRequestController extends Controller
             if (empty($requestIds)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'يرجى تحديد طلب واحد على الأقل'
+                    'message' => 'يرجى تحديد طلب واحد على الأقل',
                 ], 400);
             }
 
@@ -215,12 +214,12 @@ class CustomerUpdateRequestController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => $message,
-                'results' => $results
+                'results' => $results,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء رفض الطلبات: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء رفض الطلبات: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -237,12 +236,12 @@ class CustomerUpdateRequestController extends Controller
 
             return response()->json([
                 'success' => true,
-                'count' => $count
+                'count' => $count,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء جلب عدد الطلبات المعلقة'
+                'message' => 'حدث خطأ أثناء جلب عدد الطلبات المعلقة',
             ], 500);
         }
     }
@@ -258,60 +257,60 @@ class CustomerUpdateRequestController extends Controller
             $filters = $request->only([
                 'status',
                 'requested_by',
-                'search_query'
+                'search_query',
             ]);
 
             $fields = [
                 [
                     'key' => 'id',
                     'label' => 'رقم الطلب',
-                    'selected' => true
+                    'selected' => true,
                 ],
                 [
                     'key' => 'customer_name',
                     'label' => 'اسم العميل',
-                    'selected' => true
+                    'selected' => true,
                 ],
                 [
                     'key' => 'customer_identity_number',
                     'label' => 'رقم الهوية',
-                    'selected' => true
+                    'selected' => true,
                 ],
                 [
                     'key' => 'requested_by_name',
                     'label' => 'مقدم الطلب',
-                    'selected' => true
+                    'selected' => true,
                 ],
                 [
                     'key' => 'created_at',
                     'label' => 'تاريخ الطلب',
-                    'selected' => true
+                    'selected' => true,
                 ],
                 [
                     'key' => 'status',
                     'label' => 'الحالة',
-                    'selected' => true
+                    'selected' => true,
                 ],
                 [
                     'key' => 'approved_by_name',
                     'label' => 'معالج الطلب',
-                    'selected' => false
+                    'selected' => false,
                 ],
                 [
                     'key' => 'approved_at',
                     'label' => 'تاريخ المعالجة',
-                    'selected' => false
+                    'selected' => false,
                 ],
                 [
                     'key' => 'rejection_reason',
                     'label' => 'سبب الرفض',
-                    'selected' => false
+                    'selected' => false,
                 ],
                 [
                     'key' => 'requested_data',
                     'label' => 'البيانات المطلوبة',
-                    'selected' => false
-                ]
+                    'selected' => false,
+                ],
             ];
 
             $query = $this->updateRequestService->getFilteredRequestsQuery($filters);
@@ -320,12 +319,12 @@ class CustomerUpdateRequestController extends Controller
             return response()->json([
                 'success' => true,
                 'fields' => $fields,
-                'count' => $count
+                'count' => $count,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء جلب بيانات التصدير'
+                'message' => 'حدث خطأ أثناء جلب بيانات التصدير',
             ], 500);
         }
     }
@@ -341,7 +340,7 @@ class CustomerUpdateRequestController extends Controller
             $filters = $request->only([
                 'status',
                 'requested_by',
-                'search_query'
+                'search_query',
             ]);
 
             $selectedFieldsInput = $request->input('selected_fields');
@@ -353,40 +352,40 @@ class CustomerUpdateRequestController extends Controller
                 if (json_last_error() !== JSON_ERROR_NONE) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'بيانات الحقول المحددة غير صالحة'
+                        'message' => 'بيانات الحقول المحددة غير صالحة',
                     ], 400);
                 }
             } else {
                 return response()->json([
                     'success' => false,
-                    'message' => 'بيانات الحقول المحددة غير صالحة'
+                    'message' => 'بيانات الحقول المحددة غير صالحة',
                 ], 400);
             }
 
-            if (!is_array($selectedFields)) {
+            if (! is_array($selectedFields)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'بيانات الحقول المحددة غير صالحة'
+                    'message' => 'بيانات الحقول المحددة غير صالحة',
                 ], 400);
             }
 
             if (empty($selectedFields)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'يرجى اختيار حقل واحد على الأقل'
+                    'message' => 'يرجى اختيار حقل واحد على الأقل',
                 ], 400);
             }
 
             $query = $this->updateRequestService->getFilteredRequestsQuery($filters);
             $requests = $query->get();
 
-            $fileName = 'customer_update_requests_' . now()->format('Y_m_d_H_i_s') . '.xlsx';
+            $fileName = 'customer_update_requests_'.now()->format('Y_m_d_H_i_s').'.xlsx';
 
             return Excel::download(new CustomerUpdateRequestsExport($requests, $selectedFields), $fileName);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تصدير البيانات: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء تصدير البيانات: '.$e->getMessage(),
             ], 500);
         }
     }

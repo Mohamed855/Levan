@@ -19,13 +19,13 @@ class RouteServiceProvider extends ServiceProvider
         $host = request()->getHost();
 
         $centralDomains = array_map(
-            fn($d) => str_replace(['http://', 'https://', 'www.'], '', trim($d)),
+            fn ($d) => str_replace(['http://', 'https://', 'www.'], '', trim($d)),
             config('tenancy.central_domains', [])
         );
 
-        $isCentralDomain = in_array($host, $centralDomains, true) || in_array('www.' . $host, $centralDomains, true);
+        $isCentralDomain = in_array($host, $centralDomains, true) || in_array('www.'.$host, $centralDomains, true);
 
-        return $isCentralDomain ? '/' . tenant('id') . '/dashboard' : '/dashboard';
+        return $isCentralDomain ? '/'.tenant('id').'/dashboard' : '/dashboard';
     }
 
     public const ADMIN = '/admin';
@@ -40,7 +40,7 @@ class RouteServiceProvider extends ServiceProvider
             $limit = min(max((int) config('app.upgrade_api_rate_limit', 5), 1), 60);
             $tenantId = (string) $request->route('tenantId');
 
-            return Limit::perMinute($limit)->by(hash('sha256', $tenantId . '|' . $request->ip()));
+            return Limit::perMinute($limit)->by(hash('sha256', $tenantId.'|'.$request->ip()));
         });
 
         $this->routes(function () {
@@ -89,7 +89,7 @@ class RouteServiceProvider extends ServiceProvider
 
             Route::middleware([
                 'web',
-                "tenant.path",
+                'tenant.path',
                 'tenant.redirect',
                 'tenant.maintenance',
             ])
@@ -102,8 +102,8 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::middleware([
             'web',
-            "prevent.central",
-            "tenant.domain",
+            'prevent.central',
+            'tenant.domain',
             'tenant.maintenance',
         ])->name('domain.')->group(base_path('routes/tenant/tenant.php'));
     }

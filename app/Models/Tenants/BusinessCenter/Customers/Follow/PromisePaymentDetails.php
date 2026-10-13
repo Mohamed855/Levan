@@ -11,7 +11,7 @@ class PromisePaymentDetails extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'promise_payment_details';
-    
+
     protected $fillable = [
         'contact_result_id',
         'promise_amount',

@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers\Tenants\Archive\Assignment;
 
+use App\Actions\Tenants\Assignments\ForceDeleteAssignmentAction;
+use App\Actions\Tenants\Assignments\RestoreAssignmentAction;
 use App\DataTables\Tenants\Assignments\AssignmentArchiveDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Archive\ArchiveItemIdRequest;
 use App\Models\Tenants\Assignments\Assignment;
-use App\Services\Tenants\Assignments\AssignmentService;
 
 class AssignmentArchiveController extends Controller
 {
-    public function __construct(private readonly AssignmentService $assignmentService)
+    public function __construct()
     {
         $this->middleware('auth:tenant');
         $this->middleware('can:assignments_archive.view')->only(['index']);
@@ -22,11 +24,13 @@ class AssignmentArchiveController extends Controller
         return $dataTable->render('tenants.archive.assignments.index');
     }
 
-    public function restore(int $id)
+    public function restore(ArchiveItemIdRequest $request, RestoreAssignmentAction $action)
     {
+        $assignment = Assignment::onlyTrashed()->findOrFail($request->validated('id'));
+        $this->authorize('restore', $assignment);
+
         try {
-            $assignment = Assignment::onlyTrashed()->findOrFail($id);
-            $assignment->restore();
+            $action->execute($assignment);
 
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json(['success' => true, 'message' => 'تم استعادة الإسناد بنجاح']);
@@ -42,11 +46,13 @@ class AssignmentArchiveController extends Controller
         }
     }
 
-    public function forceDelete(int $id)
+    public function forceDelete(ArchiveItemIdRequest $request, ForceDeleteAssignmentAction $action)
     {
+        $assignment = Assignment::onlyTrashed()->findOrFail($request->validated('id'));
+        $this->authorize('forceDelete', $assignment);
+
         try {
-            $assignment = Assignment::onlyTrashed()->findOrFail($id);
-            $this->assignmentService->forceDeleteAssignment($assignment);
+            $action->execute($assignment);
 
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json([

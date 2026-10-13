@@ -2,22 +2,20 @@
 
 namespace App\DataTables\Admin\Setting;
 
-
 use App\DataTables\Abstract\AbstractDataTable;
-use App\Models\Admin\Bills\Bill;
 use App\Models\MoyasarTransaction;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class SettingManagePaymentDataTable extends AbstractDataTable
 {
-    private $page  = "admin.paymenttransaction";
-    private $route = "admin.paymentTransaction";
+    private $page = 'admin.paymenttransaction';
+
+    private $route = 'admin.paymentTransaction';
 
     // table id
     protected function getTableId()
     {
-        return "manage-payment-table";
+        return 'manage-payment-table';
     }
 
     protected function resource()
@@ -27,7 +25,6 @@ class SettingManagePaymentDataTable extends AbstractDataTable
         });
     }
 
-
     protected function getColumns(): array
     {
         return [
@@ -35,14 +32,14 @@ class SettingManagePaymentDataTable extends AbstractDataTable
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
 
             [
-                'data'       => 'checkbox',
-                'name'       => 'checkbox',
-                'title'      => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
-                'orderable'  => false,
+                'data' => 'checkbox',
+                'name' => 'checkbox',
+                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
+                'orderable' => false,
                 'searchable' => false,
-                'width'      => '10px',
-                'className'  => 'custom-checkbox',
-                'titleAttr'  => 'تحديد الكل',
+                'width' => '10px',
+                'className' => 'custom-checkbox',
+                'titleAttr' => 'تحديد الكل',
             ],
 
             ['data' => 'customer_name', 'name' => 'customer_name', 'title' => 'اسم العميل', 'className' => 'text-start'],
@@ -58,7 +55,7 @@ class SettingManagePaymentDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
             ->editColumn('paid_at', function ($row) {
                 return $row->paid_at
@@ -95,17 +92,17 @@ class SettingManagePaymentDataTable extends AbstractDataTable
             ['extend' => 'copy', 'text' => 'نسخ'],
             ['extend' => 'excel', 'text' => 'إكسل'],
             [
-                'text'      => 'حذف المحدد',
+                'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
-                'action'    => "function() { handleMassDelete(); }",
+                'action' => 'function() { handleMassDelete(); }',
             ],
         ];
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
 }

@@ -3,9 +3,8 @@
 namespace App\Http\Requests\Tenants\FinancialCollection\CollectionTarget;
 
 use App\Data\Tenants\FinancialCollection\Target\UpdateCollectionTargetDTO;
-use Illuminate\Foundation\Http\FormRequest;
 use App\Models\Tenants\FinancialCollection\Target\CollectionTarget;
-use Illuminate\Validation\Rule;
+use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateCollectionTargetRequest extends FormRequest
 {
@@ -32,16 +31,16 @@ class UpdateCollectionTargetRequest extends FormRequest
             'user_id' => 'required|exists:users,id',
             'target_type' => 'required|in:monthly,yearly,custom',
             'target_amount' => 'required|numeric|min:0.01|max:999999999.99',
-            'status' => 'nullable|in:active,inactive'
+            'status' => 'nullable|in:active,inactive',
         ];
 
         switch ($this->target_type) {
             case 'monthly':
                 $rules['target_month'] = 'required|integer|min:1|max:12';
-                $rules['target_year'] = "required|integer|min:{$currentYear}|max:" . ($currentYear + 5);
+                $rules['target_year'] = "required|integer|min:{$currentYear}|max:".($currentYear + 5);
                 break;
             case 'yearly':
-                $rules['target_year'] = "required|integer|min:{$currentYear}|max:" . ($currentYear + 5);
+                $rules['target_year'] = "required|integer|min:{$currentYear}|max:".($currentYear + 5);
                 break;
             case 'custom':
                 $rules['custom_start_date'] = 'required|date';
@@ -60,6 +59,7 @@ class UpdateCollectionTargetRequest extends FormRequest
     public function messages(): array
     {
         $currentYear = date('Y');
+
         return [
             'user_id.required' => 'يرجى اختيار المستخدم',
             'user_id.exists' => 'المستخدم المختار غير صحيح',
@@ -76,13 +76,13 @@ class UpdateCollectionTargetRequest extends FormRequest
             'target_year.required' => 'يرجى اختيار السنة',
             'target_year.integer' => 'السنة يجب أن تكون رقماً صحيحاً',
             'target_year.min' => "السنة يجب أن تكون من {$currentYear} فما فوق",
-            'target_year.max' => "السنة يجب أن تكون حتى " . ($currentYear + 5),
+            'target_year.max' => 'السنة يجب أن تكون حتى '.($currentYear + 5),
             'custom_start_date.required' => 'يرجى اختيار تاريخ بداية الفترة',
             'custom_start_date.date' => 'تاريخ البداية غير صحيح',
             'custom_end_date.required' => 'يرجى اختيار تاريخ نهاية الفترة',
             'custom_end_date.date' => 'تاريخ النهاية غير صحيح',
             'custom_end_date.after' => 'تاريخ النهاية يجب أن يكون بعد تاريخ البداية',
-            'status.in' => 'حالة الهدف غير صحيحة'
+            'status.in' => 'حالة الهدف غير صحيحة',
         ];
     }
 
@@ -101,7 +101,7 @@ class UpdateCollectionTargetRequest extends FormRequest
             'custom_start_date' => 'تاريخ البداية',
             'custom_end_date' => 'تاريخ النهاية',
             'target_amount' => 'مبلغ الهدف',
-            'status' => 'الحالة'
+            'status' => 'الحالة',
         ];
     }
 
@@ -189,7 +189,7 @@ class UpdateCollectionTargetRequest extends FormRequest
                         9 => 'سبتمبر',
                         10 => 'أكتوبر',
                         11 => 'نوفمبر',
-                        12 => 'ديسمبر'
+                        12 => 'ديسمبر',
                     ];
                     $monthName = $monthNames[$this->target_month] ?? $this->target_month;
                     $errorMessage = "يوجد هدف مسبق لهذا المستخدم في شهر {$monthName} {$this->target_year}. يرجى اختيار فترة أخرى.";
@@ -223,7 +223,7 @@ class UpdateCollectionTargetRequest extends FormRequest
     */
     private function validateCustomPeriodOverlap($validator): void
     {
-        if (!$this->custom_start_date || !$this->custom_end_date) {
+        if (! $this->custom_start_date || ! $this->custom_end_date) {
             return;
         }
 

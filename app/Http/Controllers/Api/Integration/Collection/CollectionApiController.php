@@ -48,12 +48,12 @@ class CollectionApiController extends Controller
 
         return response()->json([
             'success' => true,
-            'data'    => CollectionResource::collection($collections),
-            'meta'    => [
+            'data' => CollectionResource::collection($collections),
+            'meta' => [
                 'current_page' => $collections->currentPage(),
-                'last_page'    => $collections->lastPage(),
-                'per_page'     => $collections->perPage(),
-                'total'        => $collections->total(),
+                'last_page' => $collections->lastPage(),
+                'per_page' => $collections->perPage(),
+                'total' => $collections->total(),
             ],
         ]);
     }
@@ -62,7 +62,7 @@ class CollectionApiController extends Controller
     {
         $collection = Collection::with(['customer', 'paymentMethod', 'addedBy', 'approvedBy'])->find($id);
 
-        if (!$collection) {
+        if (! $collection) {
             return response()->json([
                 'success' => false,
                 'message' => 'التحصيل غير موجود',
@@ -71,7 +71,7 @@ class CollectionApiController extends Controller
 
         return response()->json([
             'success' => true,
-            'data'    => new CollectionResource($collection),
+            'data' => new CollectionResource($collection),
         ]);
     }
 }

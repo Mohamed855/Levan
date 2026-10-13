@@ -3,13 +3,15 @@
 namespace App\DataTables\Tenants\Archive\Contract;
 
 use App\DataTables\Abstract\AbstractDataTable;
-use App\Models\Tenants\BusinessCenter\Contract\Contract;
 use App\Services\Tenants\Archive\Contract\ContractArchiveService;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 
 class ArchivedContractsDataTable extends AbstractDataTable
 {
-    private $route = "archive.contracts";
+    private $route = 'archive.contracts';
+
     private $contractArchiveService;
 
     public function __construct(ContractArchiveService $contractArchiveService)
@@ -24,13 +26,14 @@ class ArchivedContractsDataTable extends AbstractDataTable
     */
     public function dataTable($query)
     {
-        if ($query instanceof \Illuminate\Support\Collection) {
+        if ($query instanceof Collection) {
             return datatables()->collection($query)->addIndexColumn();
         }
 
         $datatable = datatables()->eloquent($query)->addIndexColumn();
         $this->addCustomColumns($datatable);
         $datatable = $this->applyFilters($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
@@ -41,7 +44,7 @@ class ArchivedContractsDataTable extends AbstractDataTable
     */
     protected function getTableId()
     {
-        return "archived-contracts-table";
+        return 'archived-contracts-table';
     }
 
     /*
@@ -51,7 +54,7 @@ class ArchivedContractsDataTable extends AbstractDataTable
     */
     protected function resource()
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('contracts')) {
+        if (! Schema::hasTable('contracts')) {
             return collect([]);
         }
 
@@ -69,10 +72,10 @@ class ArchivedContractsDataTable extends AbstractDataTable
             ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'contracts.id', 'title' => 'ID', 'visible' => false],
             [
-                'data'       => 'checkbox',
-                'name'       => 'checkbox',
-                'title'      => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
-                'orderable'  => false,
+                'data' => 'checkbox',
+                'name' => 'checkbox',
+                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
+                'orderable' => false,
                 'searchable' => false,
                 'width' => '10px',
                 'className' => 'custom-checkbox',
@@ -98,7 +101,7 @@ class ArchivedContractsDataTable extends AbstractDataTable
         $datatable->filter(function ($query) {
             $globalSearch = request()->input('search.value');
 
-            if (!empty($globalSearch)) {
+            if (! empty($globalSearch)) {
                 $cleanSearch = trim(preg_replace('/\s+/', ' ', $globalSearch));
                 $searchWords = explode(' ', $cleanSearch);
 
@@ -119,6 +122,7 @@ class ArchivedContractsDataTable extends AbstractDataTable
                         $companyQuery->where('name', 'like', "%{$cleanSearch}%");
                     });
                 });
+
                 return;
             }
 
@@ -151,11 +155,11 @@ class ArchivedContractsDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
             ->editColumn('contract_number', function ($row) {
                 return '<div>
-                    <span class="fw-medium text-primary">' . e($row->contract_number) . '</span>
+                    <span class="fw-medium text-primary">'.e($row->contract_number).'</span>
                 </div>';
             })
             ->editColumn('company_info', function ($row) {
@@ -163,13 +167,13 @@ class ArchivedContractsDataTable extends AbstractDataTable
                 if ($row->company) {
                     $logoHtml = '';
                     if ($row->company->logo_url) {
-                        $logoHtml = '<img src="' . $row->company->logo_url . '" 
-                             alt="' . e($row->company->name) . '" 
+                        $logoHtml = '<img src="'.$row->company->logo_url.'" 
+                             alt="'.e($row->company->name).'" 
                              style="width: 24px; height: 24px; object-fit: contain; border-radius: 4px; margin-right: 8px; vertical-align: middle;">';
                     }
-                    $companyHtml = '<div class="d-flex align-items-center justify-content-start" style="min-height: 24px;">' .
-                        $logoHtml .
-                        '<span class="small flex-grow-1">' . e($row->company->name) . '</span>' .
+                    $companyHtml = '<div class="d-flex align-items-center justify-content-start" style="min-height: 24px;">'.
+                        $logoHtml.
+                        '<span class="small flex-grow-1">'.e($row->company->name).'</span>'.
                         '</div>';
                 } else {
                     $companyHtml = '<div class="d-flex align-items-center" style="min-height: 24px;"><span class="small">غير محدد</span></div>';
@@ -180,10 +184,10 @@ class ArchivedContractsDataTable extends AbstractDataTable
             ->editColumn('contract_dates', function ($row) {
                 $startDate = $row->start_date ? Carbon::parse($row->start_date)->format('Y-m-d') : 'غير محدد';
                 $endDate = $row->end_date ? Carbon::parse($row->end_date)->format('Y-m-d') : 'غير محدد';
-                
+
                 return '<div>
-                    <div class="small text-success">من: ' . $startDate . '</div>
-                    <div class="small text-danger">إلى: ' . $endDate . '</div>
+                    <div class="small text-success">من: '.$startDate.'</div>
+                    <div class="small text-danger">إلى: '.$endDate.'</div>
                 </div>';
             })
             ->editColumn('status', function ($row) {
@@ -193,7 +197,7 @@ class ArchivedContractsDataTable extends AbstractDataTable
                     'expired' => 'منتهي',
                     'suspended' => 'معلق',
                 ];
-                
+
                 $classes = [
                     'active' => 'bg-label-success',
                     'inactive' => 'bg-secondary',
@@ -203,8 +207,8 @@ class ArchivedContractsDataTable extends AbstractDataTable
 
                 $statusLabel = $labels[$row->status] ?? 'غير محدد';
                 $statusClass = $classes[$row->status] ?? 'bg-secondary';
-                
-                return '<span class="badge ' . $statusClass . '">' . $statusLabel . '</span>';
+
+                return '<span class="badge '.$statusClass.'">'.$statusLabel.'</span>';
             })
             ->editColumn('commission_type', function ($row) {
                 $labels = [
@@ -212,12 +216,13 @@ class ArchivedContractsDataTable extends AbstractDataTable
                     'duration' => 'حسب المدة',
                     'delinquency' => 'حسب مدة التعثر',
                 ];
-                
+
                 $typeLabel = $labels[$row->commission_type] ?? 'غير محدد';
-                return '<span class="badge bg-label-info">' . $typeLabel . '</span>';
+
+                return '<span class="badge bg-label-info">'.$typeLabel.'</span>';
             })
             ->editColumn('auto_renewal', function ($row) {
-                return $row->auto_renewal 
+                return $row->auto_renewal
                     ? '<span class="badge bg-label-success">نعم</span>'
                     : '<span class="badge bg-secondary">لا</span>';
             })
@@ -227,7 +232,7 @@ class ArchivedContractsDataTable extends AbstractDataTable
             ->addColumn('actions', function ($row) {
                 return view('tenants.archive.contracts.action', ['id' => $row->id, 'route' => $this->route])->render();
             })
-            ->filterColumn('contract_number', fn($query, $keyword) => $query->where('contracts.contract_number', 'like', "%{$keyword}%"))
+            ->filterColumn('contract_number', fn ($query, $keyword) => $query->where('contracts.contract_number', 'like', "%{$keyword}%"))
             ->filterColumn('company_info', function ($query, $keyword) {
                 $query->whereHas('company', function ($companyQuery) use ($keyword) {
                     $companyQuery->where('name', 'like', "%{$keyword}%");
@@ -265,10 +270,10 @@ class ArchivedContractsDataTable extends AbstractDataTable
     private function getActionsDropdownButton(): array
     {
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => [
+            'text' => 'الإجراءات',
+            'buttons' => [
                 ['extend' => 'copy', 'text' => 'نسخ'],
                 ['extend' => 'excel', 'text' => 'إكسل'],
             ],

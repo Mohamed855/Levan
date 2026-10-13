@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Tenants\FinancialCollection\Collection;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -18,7 +19,7 @@ class UpdateCollectionRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -28,55 +29,55 @@ class UpdateCollectionRequest extends FormRequest
             'customer_id' => [
                 'required',
                 'integer',
-                'exists:customers,id'
+                'exists:customers,id',
             ],
             'collected_amount' => [
                 'required',
                 'numeric',
                 'min:0.01',
-                'max:999999999.99'
+                'max:999999999.99',
             ],
             'collection_type' => [
                 'required',
                 'string',
-                Rule::in(['cash', 'scheduled'])
+                Rule::in(['cash', 'scheduled']),
             ],
             'payment_method_id' => [
                 'required',
                 'integer',
-                'exists:settings_payment_methods,id'
+                'exists:settings_payment_methods,id',
             ],
             'receipt_number' => [
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('collections', 'receipt_number')->ignore($collectionId)->whereNull('deleted_at')
+                Rule::unique('collections', 'receipt_number')->ignore($collectionId)->whereNull('deleted_at'),
             ],
             'closing_code' => [
                 'nullable',
                 'string',
-                'max:255'
+                'max:255',
             ],
             'collection_date' => [
                 'required',
                 'date',
-                'before_or_equal:today'
+                'before_or_equal:today',
             ],
             'payment_type' => [
                 'required',
                 'string',
-                Rule::in(['settlement', 'without_settlement'])
+                Rule::in(['settlement', 'without_settlement']),
             ],
             'attachment' => [
                 'nullable',
                 'file',
                 'max:10240', // 10MB
-                'mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx'
+                'mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx',
             ],
             'remove_attachment' => [
                 'nullable',
-                'in:0,1,true,false,on,off' // قبول القيم المختلفة من HTML forms
-            ]
+                'in:0,1,true,false,on,off', // قبول القيم المختلفة من HTML forms
+            ],
         ];
     }
 
@@ -155,14 +156,14 @@ class UpdateCollectionRequest extends FormRequest
         if ($this->has('collected_amount')) {
             $amount = str_replace([',', ' ', 'ريال'], '', $this->collected_amount);
             $this->merge([
-                'collected_amount' => $amount
+                'collected_amount' => $amount,
             ]);
         }
 
         // تنظيف رقم السند
         if ($this->has('receipt_number')) {
             $this->merge([
-                'receipt_number' => trim($this->receipt_number)
+                'receipt_number' => trim($this->receipt_number),
             ]);
         }
 
@@ -174,7 +175,7 @@ class UpdateCollectionRequest extends FormRequest
             $booleanValue = in_array($removeAttachment, ['1', 'true', 'on', true, 1], true);
 
             $this->merge([
-                'remove_attachment' => $booleanValue
+                'remove_attachment' => $booleanValue,
             ]);
         }
     }

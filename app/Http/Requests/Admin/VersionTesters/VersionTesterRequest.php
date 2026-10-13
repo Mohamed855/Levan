@@ -2,9 +2,8 @@
 
 namespace App\Http\Requests\Admin\VersionTesters;
 
-
-use App\Http\Requests\Concerns\WizardFormRequest;
 use App\Enums\Admin\Version\VersionTesterType;
+use App\Http\Requests\Concerns\WizardFormRequest;
 use Illuminate\Validation\Rule;
 
 class VersionTesterRequest extends WizardFormRequest
@@ -19,9 +18,9 @@ class VersionTesterRequest extends WizardFormRequest
         $testerId = $this->route('version_tester') ? $this->route('version_tester')->id : null;
 
         return [
-            'tenant_id'  => ['required', 'exists:tenants,id', 'unique:version_testers,tenant_id,' . $testerId],
-            'type'       => ['required', Rule::in(array_column(VersionTesterType::cases(), 'value'))],
-            'is_active'  => ['required', 'boolean'],
+            'tenant_id' => ['required', 'exists:tenants,id', 'unique:version_testers,tenant_id,'.$testerId],
+            'type' => ['required', Rule::in(array_column(VersionTesterType::cases(), 'value'))],
+            'is_active' => ['required', 'boolean'],
         ];
     }
 
@@ -29,14 +28,14 @@ class VersionTesterRequest extends WizardFormRequest
     {
         return [
             'tenant_id.required' => 'يرجى اختيار العميل (التينانت)',
-            'tenant_id.exists'   => 'العميل المحدد غير موجود',
-            'tenant_id.unique'   => 'هذا العميل مسجل بالفعل ضمن فريق اختبار الإصدارات',
+            'tenant_id.exists' => 'العميل المحدد غير موجود',
+            'tenant_id.unique' => 'هذا العميل مسجل بالفعل ضمن فريق اختبار الإصدارات',
 
             'type.required' => 'يرجى تحديد نوع العميل',
-            'type.in'       => 'نوع العميل غير صحيح',
+            'type.in' => 'نوع العميل غير صحيح',
 
             'is_active.required' => 'يرجى تحديد حالة العميل',
-            'is_active.boolean'  => 'قيمة الحالة غير صالحة',
+            'is_active.boolean' => 'قيمة الحالة غير صالحة',
         ];
     }
 }

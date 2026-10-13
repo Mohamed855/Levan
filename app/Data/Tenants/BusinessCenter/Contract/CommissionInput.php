@@ -15,11 +15,11 @@ final class CommissionInput
     public static function fromArray(array $row): self
     {
         return new self(
-            commission_type: (string)($row['commission_type'] ?? ''),
+            commission_type: (string) ($row['commission_type'] ?? ''),
             procedure_type: $row['procedure_type'] ?? null,
-            duration_from: isset($row['duration_from']) ? (int)$row['duration_from'] : null,
-            duration_to: isset($row['duration_to']) ? (int)$row['duration_to'] : null,
-            commission_rate: (float)($row['commission_rate'] ?? 0)
+            duration_from: isset($row['duration_from']) ? (int) $row['duration_from'] : null,
+            duration_to: isset($row['duration_to']) ? (int) $row['duration_to'] : null,
+            commission_rate: (float) ($row['commission_rate'] ?? 0)
         );
     }
 
@@ -27,9 +27,9 @@ final class CommissionInput
     {
         return [
             'commission_type' => $this->commission_type,
-            'procedure_type'  => $this->procedure_type,
-            'duration_from'   => $this->duration_from,
-            'duration_to'     => $this->duration_to,
+            'procedure_type' => $this->procedure_type,
+            'duration_from' => $this->duration_from,
+            'duration_to' => $this->duration_to,
             'commission_rate' => $this->commission_rate,
         ];
     }

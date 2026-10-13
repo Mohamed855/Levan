@@ -9,7 +9,8 @@ use App\Services\Tenants\Communication\MessageLog\MessageIndividualLogService;
 class MessageIndividualLogsDataTable extends AbstractDataTable
 {
     protected MessageIndividualLogService $messageLogService;
-    private string $route = "communication.message-individual-logs";
+
+    private string $route = 'communication.message-individual-logs';
 
     /*
     |--------------------------------------------------------------------------
@@ -33,6 +34,7 @@ class MessageIndividualLogsDataTable extends AbstractDataTable
         $datatable = datatables()->eloquent($query)->addIndexColumn();
         $this->addCustomColumns($datatable);
         $datatable = $this->applyFilters($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
@@ -47,7 +49,7 @@ class MessageIndividualLogsDataTable extends AbstractDataTable
         $datatable->filter(function ($query) {
             $globalSearch = request()->input('search.value');
 
-            if (!empty($globalSearch)) {
+            if (! empty($globalSearch)) {
                 $cleanSearch = trim(preg_replace('/\s+/', ' ', $globalSearch));
 
                 $query->where(function ($q) use ($cleanSearch) {
@@ -64,6 +66,7 @@ class MessageIndividualLogsDataTable extends AbstractDataTable
                             $portfolioQuery->where('name', 'like', "%{$cleanSearch}%");
                         });
                 });
+
                 return;
             }
 
@@ -99,7 +102,6 @@ class MessageIndividualLogsDataTable extends AbstractDataTable
         return $datatable;
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | Query Resource
@@ -119,7 +121,7 @@ class MessageIndividualLogsDataTable extends AbstractDataTable
     */
     protected function getTableId(): string
     {
-        return "message-individual-logs-table";
+        return 'message-individual-logs-table';
     }
 
     /*
@@ -138,7 +140,7 @@ class MessageIndividualLogsDataTable extends AbstractDataTable
                 'title' => $this->getCheckboxHeader(),
                 'orderable' => false,
                 'searchable' => false,
-                'className' => 'custom-checkbox'
+                'className' => 'custom-checkbox',
             ],
             ['data' => 'customer_info', 'name' => 'customer_info', 'title' => 'العميل', 'orderable' => false, 'searchable' => true],
             ['data' => 'identity_number', 'name' => 'identity_number', 'title' => 'رقم الهوية', 'orderable' => false],
@@ -147,7 +149,7 @@ class MessageIndividualLogsDataTable extends AbstractDataTable
             ['data' => 'phone_numbers_count', 'name' => 'phone_numbers_count', 'title' => 'عدد الأرقام', 'searchable' => false],
             ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'searchable' => false],
             ['data' => 'sent_at_formatted', 'name' => 'sent_at', 'title' => 'تاريخ الإرسال', 'searchable' => false],
-            ['data' => 'action', 'name' => 'action', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'className' => 'text-center']
+            ['data' => 'action', 'name' => 'action', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'className' => 'text-center'],
         ];
     }
 
@@ -172,12 +174,12 @@ class MessageIndividualLogsDataTable extends AbstractDataTable
     protected function addCustomColumns($datatable)
     {
         $datatable
-            ->addColumn('checkbox', fn($row) => '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">')
+            ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
             ->addColumn('customer_info', function (MessageIndividualLog $log) {
                 $showUrl = tenant_route_name('communication.message-individual-logs.show', $log->id);
 
-                return '<div>' .
-                    '<a href="' . $showUrl . '" class="text-decoration-none text-primary" style="font-weight: 500;">' . e($log->customer_name) . '</a>' .
+                return '<div>'.
+                    '<a href="'.$showUrl.'" class="text-decoration-none text-primary" style="font-weight: 500;">'.e($log->customer_name).'</a>'.
                     '</div>';
             })
             ->addColumn('identity_number', function (MessageIndividualLog $log) {
@@ -192,13 +194,13 @@ class MessageIndividualLogsDataTable extends AbstractDataTable
                 $companyName = $log->company ? $log->company->name : '-';
                 $portfolioName = $log->portfolio ? $log->portfolio->name : '-';
 
-                return '<div>' .
-                    '<div class="small">' . e($companyName) . '</div>' .
-                    '<div class="small text-muted">' . e($portfolioName) . '</div>' .
+                return '<div>'.
+                    '<div class="small">'.e($companyName).'</div>'.
+                    '<div class="small text-muted">'.e($portfolioName).'</div>'.
                     '</div>';
             })
             ->editColumn('phone_numbers_count', function (MessageIndividualLog $log) {
-                return '<span class="badge bg-label-primary">' . $log->phone_numbers_count . '</span>';
+                return '<span class="badge bg-label-primary">'.$log->phone_numbers_count.'</span>';
             })
             ->addColumn('status', function (MessageIndividualLog $log) {
                 $statusConfig = [
@@ -206,28 +208,29 @@ class MessageIndividualLogsDataTable extends AbstractDataTable
                     'processing' => ['class' => 'bg-label-info', 'text' => 'قيد المعالجة'],
                     'sent' => ['class' => 'bg-label-success', 'text' => 'تم الإرسال'],
                     'failed' => ['class' => 'bg-label-danger', 'text' => 'فشل'],
-                    'cancelled' => ['class' => 'bg-secondary', 'text' => 'ملغي']
+                    'cancelled' => ['class' => 'bg-secondary', 'text' => 'ملغي'],
                 ];
 
                 $config = $statusConfig[$log->status] ?? ['class' => 'bg-secondary', 'text' => $log->status];
 
-                return '<span class="badge ' . $config['class'] . '">' . $config['text'] . '</span>';
+                return '<span class="badge '.$config['class'].'">'.$config['text'].'</span>';
             })
             ->editColumn('total_cost', function (MessageIndividualLog $log) {
-                return '<span class="fw-medium">' . number_format($log->total_cost, 2) . ' ريال</span>';
+                return '<span class="fw-medium">'.number_format($log->total_cost, 2).' ريال</span>';
             })
             ->editColumn('sent_at_formatted', function (MessageIndividualLog $log) {
                 if ($log->sent_at) {
                     return $log->sent_at->format('Y-m-d H:i');
                 }
+
                 return '<span class="text-muted">لم يتم الإرسال</span>';
             })
             ->addColumn('action', function ($row) {
                 return view('tenants.communication.message_individual_logs.partials.action', ['id' => $row->id, 'route' => $this->route])->render();
             })
-            ->orderColumn('phone_numbers_count', fn($query, $order) => $query->orderBy('phone_numbers_count', $order))
-            ->orderColumn('total_cost', fn($query, $order) => $query->orderBy('total_cost', $order))
-            ->orderColumn('sent_at', fn($query, $order) => $query->orderBy('sent_at', $order))
+            ->orderColumn('phone_numbers_count', fn ($query, $order) => $query->orderBy('phone_numbers_count', $order))
+            ->orderColumn('total_cost', fn ($query, $order) => $query->orderBy('total_cost', $order))
+            ->orderColumn('sent_at', fn ($query, $order) => $query->orderBy('sent_at', $order))
             ->filterColumn('customer_info', function ($query, $keyword) {
                 $query->where('customer_name', 'like', "%{$keyword}%")
                     ->orWhereHas('customer', function ($q) use ($keyword) {
@@ -261,7 +264,7 @@ class MessageIndividualLogsDataTable extends AbstractDataTable
             'sent_at_formatted',
             'identity_number',
             'account_number',
-            'action'
+            'action',
         ];
     }
 
@@ -287,29 +290,29 @@ class MessageIndividualLogsDataTable extends AbstractDataTable
     private function getActionsDropdownButton(): array
     {
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => [
+            'text' => 'الإجراءات',
+            'buttons' => [
                 [
                     'extend' => 'copy',
-                    'text'   => 'نسخ'
+                    'text' => 'نسخ',
                 ],
                 [
-                    'text'      => 'تصدير اكسل',
+                    'text' => 'تصدير اكسل',
                     'className' => 'btn btn-default btn-export-excel',
-                    'action'    => "function() { handleExport(); }",
+                    'action' => 'function() { handleExport(); }',
                 ],
                 [
-                    'text'      => 'عرض الأرشيف',
+                    'text' => 'عرض الأرشيف',
                     'className' => 'btn btn-default btn-view-archives',
-                    'action'    => "function() { window.location.href = window.routes.archives; }",
+                    'action' => 'function() { window.location.href = window.routes.archives; }',
                 ],
                 [
-                    'text'      => 'حذف المحدد',
+                    'text' => 'حذف المحدد',
                     'className' => 'btn btn-default btn-delete-selected',
-                    'action'    => "function() { handleMassDelete(); }",
-                ]
+                    'action' => 'function() { handleMassDelete(); }',
+                ],
             ],
         ];
     }

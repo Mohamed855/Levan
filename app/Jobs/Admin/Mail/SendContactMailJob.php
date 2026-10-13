@@ -2,7 +2,6 @@
 
 namespace App\Jobs\Admin\Mail;
 
-
 use App\Services\Admin\Microsoft\Mail\MailService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -27,9 +26,9 @@ class SendContactMailJob implements ShouldQueue
     {
         try {
             match ($this->type) {
-                'trial'     => $mailService->TrialRequestMail($this->email, $this->name),
-                'contact'   => $mailService->ContactRequestMail($this->email, $this->name),
-                default     => Log::warning("Unknown mail type: {$this->type}")
+                'trial' => $mailService->TrialRequestMail($this->email, $this->name),
+                'contact' => $mailService->ContactRequestMail($this->email, $this->name),
+                default => Log::warning("Unknown mail type: {$this->type}")
             };
         } catch (\Throwable $e) {
             //
@@ -37,12 +36,11 @@ class SendContactMailJob implements ShouldQueue
         }
     }
 
-
     public function failed(\Throwable $exception): void
     {
         Log::critical('SendSubscriptionEmail Job failed permanently', [
-            'email'        => $this->email,
-            'error'        => $exception->getMessage(),
+            'email' => $this->email,
+            'error' => $exception->getMessage(),
         ]);
     }
 }

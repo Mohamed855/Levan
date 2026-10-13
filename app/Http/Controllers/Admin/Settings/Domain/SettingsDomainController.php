@@ -12,8 +12,9 @@ use Illuminate\Http\JsonResponse;
 
 class SettingsDomainController extends Controller
 {
-    private $page  = "admin.settings.domains";
-    private $route = "admin.settings.domains";
+    private $page = 'admin.settings.domains';
+
+    private $route = 'admin.settings.domains';
 
     public function __construct()
     {
@@ -31,16 +32,17 @@ class SettingsDomainController extends Controller
                 ],
             ];
 
-            return $dataTable->render($this->page . '.index', compact('filterOptions'));
+            return $dataTable->render($this->page.'.index', compact('filterOptions'));
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }
 
     public function create()
     {
-        return view($this->page . '.create');
+        return view($this->page.'.create');
     }
 
     // Store extension
@@ -54,7 +56,7 @@ class SettingsDomainController extends Controller
     // Show edit form
     public function edit(ControlDomain $domain)
     {
-        return view($this->page . '.edit', compact('domain'));
+        return view($this->page.'.edit', compact('domain'));
     }
 
     // Update
@@ -79,6 +81,7 @@ class SettingsDomainController extends Controller
     public function destroy(AdminAuthenticatedRequest $request, ControlDomain $domain)
     {
         $domain->delete();
+
         return redirect()->route('admin.settings.domains.index')->with('success', 'تم حذف الامتداد بنجاح');
     }
 }

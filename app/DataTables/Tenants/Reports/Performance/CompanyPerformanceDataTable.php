@@ -4,11 +4,10 @@ namespace App\DataTables\Tenants\Reports\Performance;
 
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Services\Tenants\Reports\Performance\CompanyPerformanceService;
-use Yajra\DataTables\Html\Column;
 
 class CompanyPerformanceDataTable extends AbstractDataTable
 {
-    private $route = "reports.performance";
+    private $route = 'reports.performance';
 
     public function __construct(private CompanyPerformanceService $companyPerformanceService) {}
 
@@ -22,6 +21,7 @@ class CompanyPerformanceDataTable extends AbstractDataTable
         $datatable = datatables()->collection($query)->addIndexColumn();
 
         $this->addCustomColumns($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
@@ -32,7 +32,7 @@ class CompanyPerformanceDataTable extends AbstractDataTable
     */
     protected function getTableId()
     {
-        return "company-performance-table";
+        return 'company-performance-table';
     }
 
     /*
@@ -47,7 +47,7 @@ class CompanyPerformanceDataTable extends AbstractDataTable
         $dateFrom = request('date_from');
         $dateTo = request('date_to');
 
-        if (!$dateFrom && $year && $month) {
+        if (! $dateFrom && $year && $month) {
             $paddedMonth = str_pad($month, 2, '0', STR_PAD_LEFT);
             $lastDay = date('t', strtotime("$year-$paddedMonth-01"));
             $dateFrom = "$year-$paddedMonth-01";
@@ -97,27 +97,27 @@ class CompanyPerformanceDataTable extends AbstractDataTable
     {
         $datatable
             ->editColumn('company_name', function ($row) {
-                return '<div class="fw-semibold">' . e($row['company_name']) . '</div>';
+                return '<div class="fw-semibold">'.e($row['company_name']).'</div>';
             })
 
             ->editColumn('customers_count', function ($row) {
-                return '<span class="badge bg-label-info">' . number_format($row['customers_count']) . '</span>';
+                return '<span class="badge bg-label-info">'.number_format($row['customers_count']).'</span>';
             })
 
             ->editColumn('total_portfolio', function ($row) {
-                return '<span class="text-primary fw-bold">' . $this->formatCurrency($row['total_portfolio']) . '</span>';
+                return '<span class="text-primary fw-bold">'.$this->formatCurrency($row['total_portfolio']).'</span>';
             })
 
             ->editColumn('customer_target', function ($row) {
-                return '<span class="text-secondary">' . $this->formatCurrency($row['customer_target']) . '</span>';
+                return '<span class="text-secondary">'.$this->formatCurrency($row['customer_target']).'</span>';
             })
 
             ->editColumn('total_payment', function ($row) {
-                return '<span class="text-success fw-bold">' . $this->formatCurrency($row['total_payment']) . '</span>';
+                return '<span class="text-success fw-bold">'.$this->formatCurrency($row['total_payment']).'</span>';
             })
 
             ->editColumn('total_settlements', function ($row) {
-                return '<span class="text-warning">' . $this->formatCurrency($row['total_settlements']) . '</span>';
+                return '<span class="text-warning">'.$this->formatCurrency($row['total_settlements']).'</span>';
             })
 
             // ✅ حذف total_collected
@@ -125,7 +125,8 @@ class CompanyPerformanceDataTable extends AbstractDataTable
             ->editColumn('achievement_rate', function ($row) {
                 $percentage = number_format($row['achievement_rate'], 1);
                 $badgeClass = $percentage >= 100 ? 'bg-label-success' : ($percentage >= 50 ? 'bg-label-warning' : 'bg-label-danger');
-                return '<span class="badge ' . $badgeClass . '">' . $percentage . '%</span>';
+
+                return '<span class="badge '.$badgeClass.'">'.$percentage.'%</span>';
             });
     }
 
@@ -137,10 +138,11 @@ class CompanyPerformanceDataTable extends AbstractDataTable
     private function formatCurrency($amount): string
     {
         if ($amount >= 1000000) {
-            return number_format($amount / 1000000, 1) . 'M';
+            return number_format($amount / 1000000, 1).'M';
         } elseif ($amount >= 1000) {
-            return number_format($amount / 1000, 1) . 'K';
+            return number_format($amount / 1000, 1).'K';
         }
+
         return number_format($amount, 0);
     }
 
@@ -159,7 +161,7 @@ class CompanyPerformanceDataTable extends AbstractDataTable
             'total_payment',
             'total_settlements',
             // ✅ حذف total_collected
-            'achievement_rate'
+            'achievement_rate',
         ];
     }
 
@@ -198,13 +200,13 @@ class CompanyPerformanceDataTable extends AbstractDataTable
             [
                 'text' => 'تصدير Excel',
                 'className' => 'btn-export-excel',
-                'action' => "function() { exportFilteredToExcel(); }",
+                'action' => 'function() { exportFilteredToExcel(); }',
             ],
             [
                 'text' => 'تصدير PDF',
                 'className' => 'btn-export-pdf',
-                'action' => "function() { exportCustomReportToPDF(); }",
-            ]
+                'action' => 'function() { exportCustomReportToPDF(); }',
+            ],
         ];
 
         return [

@@ -13,9 +13,9 @@ use Illuminate\Support\Facades\Storage;
 
 class SettingsBankController extends Controller
 {
-    private $page  = "admin.settings.banks";
-    private $route = "admin.settings.banks";
+    private $page = 'admin.settings.banks';
 
+    private $route = 'admin.settings.banks';
 
     public function __construct()
     {
@@ -33,16 +33,17 @@ class SettingsBankController extends Controller
                 ],
             ];
 
-            return $dataTable->render($this->page . '.index', compact('filterOptions'));
+            return $dataTable->render($this->page.'.index', compact('filterOptions'));
         } catch (\Exception $e) {
             report($e);
+
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }
     }
 
     public function create()
     {
-        return view($this->page . '.create');
+        return view($this->page.'.create');
     }
 
     public function store(StoreBankRequest $request)
@@ -57,7 +58,7 @@ class SettingsBankController extends Controller
 
         Bank::create($validated);
 
-        return redirect()->route($this->route . '.index')
+        return redirect()->route($this->route.'.index')
             ->with('success', 'تم إضافة البنك بنجاح');
     }
 
@@ -66,7 +67,7 @@ class SettingsBankController extends Controller
      */
     public function edit(Bank $bank)
     {
-        return view($this->page . '.edit', compact('bank'));
+        return view($this->page.'.edit', compact('bank'));
     }
 
     /**
@@ -89,7 +90,7 @@ class SettingsBankController extends Controller
 
         $bank->update($validated);
 
-        return redirect()->route($this->route . '.index')
+        return redirect()->route($this->route.'.index')
             ->with('success', 'تم تحديث البنك بنجاح');
     }
 
@@ -116,11 +117,11 @@ class SettingsBankController extends Controller
 
             $bank->delete();
 
-            return redirect()->route($this->route . '.index')
+            return redirect()->route($this->route.'.index')
                 ->with('success', 'تم حذف البنك بنجاح');
         } catch (\Exception $e) {
-            return redirect()->route($this->route . '.index')
-                ->with('error', 'حدث خطأ أثناء الحذف: ' . $e->getMessage());
+            return redirect()->route($this->route.'.index')
+                ->with('error', 'حدث خطأ أثناء الحذف: '.$e->getMessage());
         }
     }
 }

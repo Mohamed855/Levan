@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Admin\Archive\Bill;
 
 use App\DataTables\Admin\Archive\Bill\BillDataTable;
@@ -32,6 +33,7 @@ class BillArchiveController extends Controller
 
         return $dataTable->render('admin.archive.bill.index', compact('filterOptions'));
     }
+
     public function restore(AdminAuthenticatedRequest $request, $id)
     {
         $bill = Bill::withTrashed()->findOrFail($id);
@@ -39,6 +41,7 @@ class BillArchiveController extends Controller
 
         return redirect()->route('admin.archives.bills.index')->with('success', 'تم استعادة الفاتورة بنجاح.');
     }
+
     public function forceDelete(AdminAuthenticatedRequest $request, $id)
     {
         $bill = Bill::withTrashed()->findOrFail($id);

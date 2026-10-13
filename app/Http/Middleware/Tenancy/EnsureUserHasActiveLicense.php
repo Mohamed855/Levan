@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware\Tenancy;
 
-
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,13 +10,13 @@ class EnsureUserHasActiveLicense
 {
     public function handle(Request $request, Closure $next)
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return $next($request);
         }
 
         $user = Auth::user();
 
-        if (!$user->license_seat_id) {
+        if (! $user->license_seat_id) {
 
             // تسجيل الخروج
             Auth::logout();

@@ -21,22 +21,22 @@ class StoreContractRequest extends WizardFormRequest
     public function rules(): array
     {
         return [
-            'company_id'       => ['required', 'integer', 'exists:companies,id'],
-            'contract_number'  => ['nullable', 'string', 'max:100', 'unique:contracts,contract_number'],
-            'start_date'       => ['required', 'date', 'after_or_equal:today'],
-            'end_date'         => ['required', 'date', 'after:start_date'],
-            'duration_months'  => ['required', 'integer', 'min:1', 'max:120'],
-            'auto_renewal'     => ['boolean'],
-            'commission_type'  => ['required', 'in:procedure,duration,delinquency'],
-            'status'           => ['in:active,inactive,suspended,expired'],
-            'notes'            => ['nullable', 'string', 'max:1000'],
+            'company_id' => ['required', 'integer', 'exists:companies,id'],
+            'contract_number' => ['nullable', 'string', 'max:100', 'unique:contracts,contract_number'],
+            'start_date' => ['required', 'date', 'after_or_equal:today'],
+            'end_date' => ['required', 'date', 'after:start_date'],
+            'duration_months' => ['required', 'integer', 'min:1', 'max:120'],
+            'auto_renewal' => ['boolean'],
+            'commission_type' => ['required', 'in:procedure,duration,delinquency'],
+            'status' => ['in:active,inactive,suspended,expired'],
+            'notes' => ['nullable', 'string', 'max:1000'],
 
-            'commissions'                           => ['required', 'array', 'min:1'],
-            'commissions.*.commission_type'         => ['required', 'in:procedure,duration,delinquency'],
-            'commissions.*.procedure_type'          => ['nullable', 'in:friendly,legal', 'required_if:commissions.*.commission_type,procedure'],
-            'commissions.*.duration_from'           => ['nullable', 'integer', 'min:1', 'required_if:commissions.*.commission_type,duration', 'required_if:commissions.*.commission_type,delinquency'],
-            'commissions.*.duration_to'             => ['nullable', 'integer', 'min:1', 'gte:commissions.*.duration_from', 'required_if:commissions.*.commission_type,duration', 'required_if:commissions.*.commission_type,delinquency'],
-            'commissions.*.commission_rate'         => ['required', 'numeric', 'min:0.01', 'max:100.00'],
+            'commissions' => ['required', 'array', 'min:1'],
+            'commissions.*.commission_type' => ['required', 'in:procedure,duration,delinquency'],
+            'commissions.*.procedure_type' => ['nullable', 'in:friendly,legal', 'required_if:commissions.*.commission_type,procedure'],
+            'commissions.*.duration_from' => ['nullable', 'integer', 'min:1', 'required_if:commissions.*.commission_type,duration', 'required_if:commissions.*.commission_type,delinquency'],
+            'commissions.*.duration_to' => ['nullable', 'integer', 'min:1', 'gte:commissions.*.duration_from', 'required_if:commissions.*.commission_type,duration', 'required_if:commissions.*.commission_type,delinquency'],
+            'commissions.*.commission_rate' => ['required', 'numeric', 'min:0.01', 'max:100.00'],
         ];
     }
 
@@ -105,7 +105,7 @@ class StoreContractRequest extends WizardFormRequest
     protected function prepareForValidation(): void
     {
         $start = $this->get('start_date');
-        $end   = $this->get('end_date');
+        $end = $this->get('end_date');
 
         if ($start && $end) {
             $months = max(1, Carbon::parse($start)->diffInMonths(Carbon::parse($end)));

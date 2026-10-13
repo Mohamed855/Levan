@@ -44,6 +44,7 @@ class CustomerBulkUpdateController extends Controller
     {
         try {
             $viewData = $this->bulkUpdateService->getInitialViewData();
+
             return view('tenants.business_center.customers.bulk-update.index', $viewData);
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'فشل في تحميل الصفحة');
@@ -65,14 +66,14 @@ class CustomerBulkUpdateController extends Controller
                 'portfolios' => $portfolios->map(function ($portfolio) {
                     return [
                         'id' => $portfolio->id,
-                        'name' => $portfolio->name
+                        'name' => $portfolio->name,
                     ];
-                })
+                }),
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'فشل في تحميل المحافظ'
+                'message' => 'فشل في تحميل المحافظ',
             ], 500);
         }
     }
@@ -89,12 +90,12 @@ class CustomerBulkUpdateController extends Controller
 
             return response()->json([
                 'success' => true,
-                'fields' => $fields
+                'fields' => $fields,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'فشل في تحميل الحقول المتاحة'
+                'message' => 'فشل في تحميل الحقول المتاحة',
             ], 500);
         }
     }
@@ -111,12 +112,12 @@ class CustomerBulkUpdateController extends Controller
 
             return response()->json([
                 'success' => true,
-                'headers' => $headers
+                'headers' => $headers,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'فشل في تحليل ملف Excel: ' . $e->getMessage()
+                'message' => 'فشل في تحليل ملف Excel: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -134,7 +135,7 @@ class CustomerBulkUpdateController extends Controller
             if (! Storage::exists($validated['temp_file_path'])) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'الملف المؤقت غير موجود أو انتهت صلاحيته'
+                    'message' => 'الملف المؤقت غير موجود أو انتهت صلاحيته',
                 ], 404);
             }
 
@@ -146,12 +147,12 @@ class CustomerBulkUpdateController extends Controller
             return response()->json([
                 'success' => true,
                 'job_id' => $jobId,
-                'message' => 'تم بدء عملية التحديث المجمع'
+                'message' => 'تم بدء عملية التحديث المجمع',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تنفيذ التحديث: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء تنفيذ التحديث: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -176,12 +177,12 @@ class CustomerBulkUpdateController extends Controller
 
             return response()->json([
                 'success' => true,
-                'progress' => $progress
+                'progress' => $progress,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'فشل في جلب حالة التقدم'
+                'message' => 'فشل في جلب حالة التقدم',
             ], 500);
         }
     }
@@ -199,7 +200,7 @@ class CustomerBulkUpdateController extends Controller
             return response()->download($file['path'], $file['name'])
                 ->deleteFileAfterSend(true);
         } catch (\Exception $e) {
-            return back()->with('error', 'فشل في إنشاء النموذج: ' . $e->getMessage());
+            return back()->with('error', 'فشل في إنشاء النموذج: '.$e->getMessage());
         }
     }
 
@@ -216,8 +217,8 @@ class CustomerBulkUpdateController extends Controller
             abort(404, 'ملف التقرير غير موجود أو انتهت صلاحيته');
         }
 
-        $fullPath = storage_path('app/' . $path);
-        $fileName = 'error_report_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
+        $fullPath = storage_path('app/'.$path);
+        $fileName = 'error_report_'.now()->format('Y-m-d_H-i-s').'.xlsx';
 
         return response()->download($fullPath, $fileName);
     }
@@ -232,10 +233,10 @@ class CustomerBulkUpdateController extends Controller
         try {
             $validation = $this->bulkUpdateService->validateFileRowCount($request->file('file'));
 
-            if (!$validation['valid']) {
+            if (! $validation['valid']) {
                 return response()->json([
                     'success' => false,
-                    'message' => $validation['message']
+                    'message' => $validation['message'],
                 ], 422);
             }
 
@@ -249,12 +250,12 @@ class CustomerBulkUpdateController extends Controller
             return response()->json([
                 'success' => true,
                 'temp_file_path' => $tempPath,
-                'total_rows' => $validation['total_rows']
+                'total_rows' => $validation['total_rows'],
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'فشل في رفع الملف: ' . $e->getMessage()
+                'message' => 'فشل في رفع الملف: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -272,7 +273,7 @@ class CustomerBulkUpdateController extends Controller
             if (! Storage::exists($validated['temp_file_path'])) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'الملف المؤقت غير موجود أو انتهت صلاحيته'
+                    'message' => 'الملف المؤقت غير موجود أو انتهت صلاحيته',
                 ], 404);
             }
 
@@ -283,12 +284,12 @@ class CustomerBulkUpdateController extends Controller
             return response()->json([
                 'success' => true,
                 'job_id' => $jobId,
-                'message' => 'تم بدء عملية استبعاد العملاء'
+                'message' => 'تم بدء عملية استبعاد العملاء',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء تنفيذ الاستبعاد: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء تنفيذ الاستبعاد: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -306,7 +307,7 @@ class CustomerBulkUpdateController extends Controller
             return response()->download($file['path'], $file['name'])
                 ->deleteFileAfterSend(true);
         } catch (\Exception $e) {
-            return back()->with('error', 'فشل في إنشاء النموذج: ' . $e->getMessage());
+            return back()->with('error', 'فشل في إنشاء النموذج: '.$e->getMessage());
         }
     }
 }

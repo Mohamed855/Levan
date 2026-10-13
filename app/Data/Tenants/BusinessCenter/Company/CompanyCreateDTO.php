@@ -24,7 +24,7 @@ final class CompanyCreateDTO
         $people = [];
         if (isset($input['authorized_people']) && is_array($input['authorized_people'])) {
             foreach ($input['authorized_people'] as $item) {
-                $person = AuthorizedPersonInput::fromArray((array)$item);
+                $person = AuthorizedPersonInput::fromArray((array) $item);
                 if ($person->isMeaningful()) {
                     $people[] = $person;
                 }
@@ -32,7 +32,7 @@ final class CompanyCreateDTO
         }
 
         return new self(
-            name: trim((string)$input['name']),
+            name: trim((string) $input['name']),
             status: $input['status'] ?? 'active',
             logo_path: null,
             target_percentage: isset($input['target_percentage']) ? (float) $input['target_percentage'] : null,
@@ -49,8 +49,8 @@ final class CompanyCreateDTO
     public function toModelArray(): array
     {
         return [
-            'name'      => $this->name,
-            'status'    => $this->status,
+            'name' => $this->name,
+            'status' => $this->status,
             'logo_path' => $this->logo_path,
         ];
     }
@@ -63,6 +63,7 @@ final class CompanyCreateDTO
     public function withLogoPath(string $path): self
     {
         $this->logo_path = $path;
+
         return $this;
     }
 }

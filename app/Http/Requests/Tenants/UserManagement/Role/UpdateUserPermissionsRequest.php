@@ -27,19 +27,19 @@ class UpdateUserPermissionsRequest extends FormRequest
     {
         return [
             'permissions' => [
-                'array'
+                'array',
             ],
             'permissions.*' => [
                 'string',
-                'exists:permissions,name'
+                'exists:permissions,name',
             ],
             'denied_permissions' => [
-                'array'
+                'array',
             ],
             'denied_permissions.*' => [
                 'string',
-                'exists:permissions,name'
-            ]
+                'exists:permissions,name',
+            ],
         ];
     }
 
@@ -58,7 +58,7 @@ class UpdateUserPermissionsRequest extends FormRequest
 
             'denied_permissions.array' => 'الصلاحيات المنزوعة يجب أن تكون مصفوفة',
             'denied_permissions.*.string' => 'كل صلاحية منزوعة يجب أن تكون نص',
-            'denied_permissions.*.exists' => 'الصلاحية المنزوعة المحددة غير موجودة'
+            'denied_permissions.*.exists' => 'الصلاحية المنزوعة المحددة غير موجودة',
         ];
     }
 
@@ -72,7 +72,7 @@ class UpdateUserPermissionsRequest extends FormRequest
     {
         return [
             'permissions' => 'الصلاحيات',
-            'denied_permissions' => 'الصلاحيات المنزوعة'
+            'denied_permissions' => 'الصلاحيات المنزوعة',
         ];
     }
 

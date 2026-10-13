@@ -1,14 +1,16 @@
 <?php
 
 namespace App\Console\Commands\Tenants\MessageLog;
-use Stancl\Tenancy\Database\Models\Tenant;
+
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
-use Carbon\Carbon;
+use Stancl\Tenancy\Database\Models\Tenant;
 
 class DeleteOldMessageLogs extends Command
 {
     protected $signature = 'message-logs:delete-old';
+
     protected $description = 'Delete message log files older than 12 months';
 
     /*

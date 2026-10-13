@@ -6,16 +6,14 @@ use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\Support\LogOptions;
-use Spatie\Activitylog\Models\Concerns\LogsActivity;
 
 class SettingsCountry extends Model
 {
     use HasFactory, SoftDeletes;
+
     protected $fillable = ['name', 'user_id', 'status'];
+
     protected $dates = ['deleted_at'];
-
-
 
     /*
     |--------------------------------------------------------------------------
@@ -26,5 +24,4 @@ class SettingsCountry extends Model
     {
         return $this->hasMany(Customer::class, 'nationality');
     }
-
 }

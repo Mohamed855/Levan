@@ -10,12 +10,14 @@ class TicketReply extends Model
     use HasFactory;
 
     protected $connection = 'mysql';
+
     protected $table = 'ticket_replies';
+
     protected $guarded = [];
 
     protected $casts = [
         'attachments' => 'array',
-        'rating'      => 'integer',
+        'rating' => 'integer',
     ];
 
     public function ticket()

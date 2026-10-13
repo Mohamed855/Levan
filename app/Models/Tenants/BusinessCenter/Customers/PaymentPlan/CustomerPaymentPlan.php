@@ -7,14 +7,14 @@ use App\Models\Tenants\BusinessCenter\Customers\Follow\CustomerFollow;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
 class CustomerPaymentPlan extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'customer_id',
@@ -44,7 +44,7 @@ class CustomerPaymentPlan extends Model
             ->logOnlyDirty()
             ->dontLogEmptyChanges()
             ->useLogName('customer_payment_plan')
-            ->setDescriptionForEvent(fn(string $eventName) => $this->getEventDescription($eventName));
+            ->setDescriptionForEvent(fn (string $eventName) => $this->getEventDescription($eventName));
     }
 
     /*
@@ -55,8 +55,8 @@ class CustomerPaymentPlan extends Model
     private function getEventDescription(string $eventName): string
     {
         $customerName = $this->customer->name ?? "عميل #{$this->customer_id}";
-        $amount = number_format($this->due_amount, 2) . ' ر.س';
-        $date   = $this->due_date ? $this->due_date->format('Y-m-d') : '-';
+        $amount = number_format($this->due_amount, 2).' ر.س';
+        $date = $this->due_date ? $this->due_date->format('Y-m-d') : '-';
 
         $status = $this->due_date
             ? ($this->due_date->isPast() ? 'متأخرة' : 'غير مستحقة بعد')
@@ -70,10 +70,9 @@ class CustomerPaymentPlan extends Model
             'created' => "تم إنشاء خطة سداد جديدة للعميل {$customerName}{$details}",
             'updated' => "تم تعديل خطة سداد للعميل {$customerName}{$details}",
             'deleted' => "تم حذف خطة سداد للعميل {$customerName}",
-            default   => "نشاط على خطة سداد للعميل {$customerName}{$details}",
+            default => "نشاط على خطة سداد للعميل {$customerName}{$details}",
         };
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -82,7 +81,7 @@ class CustomerPaymentPlan extends Model
     */
     private function getChangesSummary(): string
     {
-        if (!$this->isDirty()) {
+        if (! $this->isDirty()) {
             return '';
         }
 
@@ -100,7 +99,7 @@ class CustomerPaymentPlan extends Model
             $changes[] = "تاريخ الاستحقاق: {$newDate} ← {$oldDate}";
         }
 
-        return empty($changes) ? '' : ' (' . implode(' | ', $changes) . ')';
+        return empty($changes) ? '' : ' ('.implode(' | ', $changes).')';
     }
 
     // العلاقات
@@ -117,7 +116,7 @@ class CustomerPaymentPlan extends Model
     // Accessors
     public function getDueAmountFormattedAttribute(): string
     {
-        return number_format($this->due_amount, 2) . ' ر.س';
+        return number_format($this->due_amount, 2).' ر.س';
     }
 
     public function getDueDateFormattedAttribute(): string
@@ -155,7 +154,7 @@ class CustomerPaymentPlan extends Model
     {
         return $query->whereBetween('due_date', [
             now()->toDateString(),
-            now()->addDays($days)->toDateString()
+            now()->addDays($days)->toDateString(),
         ]);
     }
 
@@ -166,7 +165,7 @@ class CustomerPaymentPlan extends Model
 
         // تسجيل المستخدم الذي أنشأ خطة السداد تلقائياً
         static::creating(function ($plan) {
-            if (!$plan->created_by && auth()->check()) {
+            if (! $plan->created_by && auth()->check()) {
                 $plan->created_by = auth()->id();
             }
         });

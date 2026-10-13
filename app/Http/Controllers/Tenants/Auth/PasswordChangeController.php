@@ -24,8 +24,8 @@ class PasswordChangeController extends Controller
     public function changePassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'current_password'          => 'required',
-            'new_password'              => 'required|string|min:8|confirmed',
+            'current_password' => 'required',
+            'new_password' => 'required|string|min:8|confirmed',
         ]);
 
         if ($validator->fails()) {
@@ -37,7 +37,7 @@ class PasswordChangeController extends Controller
         $user = Auth::user();
 
         // التحقق من صحة كلمة المرور الحالية
-        if (!Hash::check($request->current_password, $user->password)) {
+        if (! Hash::check($request->current_password, $user->password)) {
             return redirect()->tenant_route_name('password.change')
                 ->withErrors(['current_password' => 'كلمة المرور الحالية غير صحيحة.'])
                 ->withInput();

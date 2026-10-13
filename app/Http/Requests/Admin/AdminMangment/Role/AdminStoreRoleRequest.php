@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Admin\AdminMangment\Role;
 
-
 use App\Http\Requests\Concerns\WizardFormRequest;
 
 class AdminStoreRoleRequest extends WizardFormRequest
@@ -33,19 +32,19 @@ class AdminStoreRoleRequest extends WizardFormRequest
                 'max:255',
                 'min:2',
                 'unique:roles,name',
-                'regex:/^[\pL\s\-\.]+$/u'
+                'regex:/^[\pL\s\-\.]+$/u',
             ],
             'permissions' => [
                 'required_if:select_all,0',
-                'array'
+                'array',
             ],
             'permissions.*' => [
-                'exists:permissions,name'
+                'exists:permissions,name',
             ],
             'select_all' => [
                 'sometimes',
-                'boolean'
-            ]
+                'boolean',
+            ],
         ];
     }
 
@@ -69,7 +68,7 @@ class AdminStoreRoleRequest extends WizardFormRequest
             'permissions.array' => 'الصلاحيات يجب أن تكون مصفوفة',
             'permissions.*.exists' => 'الصلاحية المحددة غير موجودة',
 
-            'select_all.boolean' => 'قيمة تحديد الكل يجب أن تكون صحيحة أو خاطئة'
+            'select_all.boolean' => 'قيمة تحديد الكل يجب أن تكون صحيحة أو خاطئة',
         ];
     }
 
@@ -84,7 +83,7 @@ class AdminStoreRoleRequest extends WizardFormRequest
         return [
             'name' => 'اسم الدور',
             'permissions' => 'الصلاحيات',
-            'select_all' => 'تحديد الكل'
+            'select_all' => 'تحديد الكل',
         ];
     }
 

@@ -25,13 +25,18 @@ class ExportCustomerFollowsJob implements ShouldQueue
      */
     public const MAX_ROWS_PER_EXPORT_FILE = 25000;
 
-    public $timeout       = 120;
-    public $tries         = 2;
+    public $timeout = 120;
+
+    public $tries = 2;
+
     public $maxExceptions = 1;
 
-    protected array  $filters;
-    protected array  $selectedFields;
-    protected int    $userId;
+    protected array $filters;
+
+    protected array $selectedFields;
+
+    protected int $userId;
+
     protected string $exportId;
 
     /*
@@ -41,10 +46,10 @@ class ExportCustomerFollowsJob implements ShouldQueue
     */
     public function __construct(array $filters, array $selectedFields, int $userId)
     {
-        $this->filters        = $filters;
+        $this->filters = $filters;
         $this->selectedFields = $selectedFields;
-        $this->userId         = $userId;
-        $this->exportId       = uniqid('export_', true);
+        $this->userId = $userId;
+        $this->exportId = uniqid('export_', true);
     }
 
     /*
@@ -61,21 +66,22 @@ class ExportCustomerFollowsJob implements ShouldQueue
 
             if ($totalCount === 0) {
                 Cache::put("export_result_{$this->exportId}", [
-                    'status'        => 'completed',
-                    'files'         => [],
-                    'file_sizes'    => [],
+                    'status' => 'completed',
+                    'files' => [],
+                    'file_sizes' => [],
                     'total_records' => 0,
-                    'total_parts'   => 0,
-                    'message'       => 'لا توجد بيانات للتصدير',
-                    'created_at'    => now()->toDateTimeString(),
+                    'total_parts' => 0,
+                    'message' => 'لا توجد بيانات للتصدير',
+                    'created_at' => now()->toDateTimeString(),
                 ], now()->addHours(24));
 
                 $this->updateProgress(100, 'لا توجد بيانات للتصدير');
+
                 return;
             }
 
             $totalParts = (int) ceil($totalCount / self::MAX_ROWS_PER_EXPORT_FILE);
-            $timestamp  = now()->format('Y_m_d_H_i_s');
+            $timestamp = now()->format('Y_m_d_H_i_s');
 
             $this->updateProgress(
                 3,
@@ -102,12 +108,12 @@ class ExportCustomerFollowsJob implements ShouldQueue
         } catch (\Throwable $e) {
             Log::error('ExportCustomerFollowsJob (coordinator) فشل', [
                 'export_id' => $this->exportId,
-                'message'   => $e->getMessage(),
+                'message' => $e->getMessage(),
             ]);
 
             Cache::put("export_result_{$this->exportId}", [
-                'status'     => 'failed',
-                'error'      => $e->getMessage(),
+                'status' => 'failed',
+                'error' => $e->getMessage(),
                 'created_at' => now()->toDateTimeString(),
             ], now()->addHours(24));
 
@@ -125,7 +131,9 @@ class ExportCustomerFollowsJob implements ShouldQueue
         $query = CustomerFollow::query();
 
         foreach ($this->filters as $key => $value) {
-            if (empty($value)) continue;
+            if (empty($value)) {
+                continue;
+            }
 
             switch ($key) {
                 case 'date_from':
@@ -158,10 +166,10 @@ class ExportCustomerFollowsJob implements ShouldQueue
                 case 'has_upcoming':
                     if ($value == '1') {
                         $query->whereNotNull('next_contact_datetime')
-                              ->where('next_contact_datetime', '>', now());
+                            ->where('next_contact_datetime', '>', now());
                     } else {
                         $query->whereNull('next_contact_datetime')
-                              ->orWhere('next_contact_datetime', '<=', now());
+                            ->orWhere('next_contact_datetime', '<=', now());
                     }
                     break;
             }
@@ -176,19 +184,19 @@ class ExportCustomerFollowsJob implements ShouldQueue
     |--------------------------------------------------------------------------
     */
     private function updateProgress(
-        int    $percentage,
+        int $percentage,
         string $message,
-        array  $completedFiles = [],
-        int    $currentPart    = 1,
-        int    $totalParts     = 1
+        array $completedFiles = [],
+        int $currentPart = 1,
+        int $totalParts = 1
     ): void {
         Cache::put("export_progress_{$this->exportId}", [
-            'percentage'      => $percentage,
-            'message'         => $message,
-            'current_part'    => $currentPart,
-            'total_parts'     => $totalParts,
+            'percentage' => $percentage,
+            'message' => $message,
+            'current_part' => $currentPart,
+            'total_parts' => $totalParts,
             'completed_files' => $completedFiles,
-            'updated_at'      => now()->toDateTimeString(),
+            'updated_at' => now()->toDateTimeString(),
         ], now()->addHours(2));
     }
 
@@ -200,8 +208,8 @@ class ExportCustomerFollowsJob implements ShouldQueue
     public function failed(\Throwable $exception): void
     {
         Cache::put("export_result_{$this->exportId}", [
-            'status'     => 'failed',
-            'error'      => $exception->getMessage(),
+            'status' => 'failed',
+            'error' => $exception->getMessage(),
             'created_at' => now()->toDateTimeString(),
         ], now()->addHours(24));
     }

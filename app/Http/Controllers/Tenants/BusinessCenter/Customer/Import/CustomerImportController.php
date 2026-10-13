@@ -11,12 +11,11 @@ use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Services\Tenants\BusinessCenter\Customer\Import\CustomerImportService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class CustomerImportController extends Controller
 {
-    protected const VIEW_PATH   = 'tenants.business_center.customers.import';
+    protected const VIEW_PATH = 'tenants.business_center.customers.import';
     // protected const ROUTE_NAME  = 'opponents';
 
     public function __construct(private CustomerImportService $importService)
@@ -28,7 +27,7 @@ class CustomerImportController extends Controller
     {
         $companies = Company::active()->select('id', 'name')->orderBy('name')->get();
 
-        return view(self::VIEW_PATH . '.index', compact('companies'));
+        return view(self::VIEW_PATH.'.index', compact('companies'));
     }
 
     // تحميل القالب بالعناوين حسب المحفظة
@@ -42,7 +41,7 @@ class CustomerImportController extends Controller
     {
         return response()->json([
             'success' => true,
-            'data'    => $this->importService->getTemplatePreview(Portfolio::findOrFail($request->validated('portfolio_id')))
+            'data' => $this->importService->getTemplatePreview(Portfolio::findOrFail($request->validated('portfolio_id'))),
         ]);
     }
 
@@ -70,24 +69,24 @@ class CustomerImportController extends Controller
                 return response()->json([
                     'success' => true,
                     'data' => [
-                        'session_id'   => $result['session_id'],
-                        'total_rows'   => $result['total_rows'],
+                        'session_id' => $result['session_id'],
+                        'total_rows' => $result['total_rows'],
                         'total_chunks' => $result['total_chunks'],
-                        'chunk_size'   => $result['chunk_size'],
-                        'use_polling'  => true
+                        'chunk_size' => $result['chunk_size'],
+                        'use_polling' => true,
                     ],
-                    'message' => 'تم بدء عملية الاستيراد بنجاح'
+                    'message' => 'تم بدء عملية الاستيراد بنجاح',
                 ]);
             } else {
                 return response()->json([
                     'success' => false,
-                    'message' => $result['message']
+                    'message' => $result['message'],
                 ], 400);
             }
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ داخلي في الخادم: ' . $e->getMessage()
+                'message' => 'حدث خطأ داخلي في الخادم: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -105,16 +104,16 @@ class CustomerImportController extends Controller
             (int) $request->user('tenant')->getKey(),
         );
 
-        if (!$result['found']) {
+        if (! $result['found']) {
             return response()->json([
                 'success' => false,
-                'message' => $result['message']
+                'message' => $result['message'],
             ], 404);
         }
 
         return response()->json([
             'success' => true,
-            'data'    => $result['data']
+            'data' => $result['data'],
         ]);
     }
 
@@ -130,6 +129,7 @@ class CustomerImportController extends Controller
             $request->validated('session_id'),
             (int) $request->user('tenant')->getKey(),
         );
+
         return response()->json($result);
     }
 

@@ -23,43 +23,54 @@ class ExportCustomerFollowsPartJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $timeout       = 1800;
-    public $tries         = 2;
+    public $timeout = 1800;
+
+    public $tries = 2;
+
     public $maxExceptions = 1;
 
     protected string $exportId;
-    protected int    $partNumber;
-    protected int    $totalParts;
-    protected int    $totalCount;
-    protected int    $startAfterId;
-    protected array  $completedFiles;
-    protected array  $fileSizes;
-    protected array  $filters;
-    protected array  $selectedFields;
+
+    protected int $partNumber;
+
+    protected int $totalParts;
+
+    protected int $totalCount;
+
+    protected int $startAfterId;
+
+    protected array $completedFiles;
+
+    protected array $fileSizes;
+
+    protected array $filters;
+
+    protected array $selectedFields;
+
     protected string $timestamp;
 
     public function __construct(
         string $exportId,
-        int    $partNumber,
-        int    $totalParts,
-        int    $totalCount,
-        int    $startAfterId,
-        array  $completedFiles,
-        array  $fileSizes,
-        array  $filters,
-        array  $selectedFields,
+        int $partNumber,
+        int $totalParts,
+        int $totalCount,
+        int $startAfterId,
+        array $completedFiles,
+        array $fileSizes,
+        array $filters,
+        array $selectedFields,
         string $timestamp
     ) {
-        $this->exportId       = $exportId;
-        $this->partNumber     = $partNumber;
-        $this->totalParts     = $totalParts;
-        $this->totalCount     = $totalCount;
-        $this->startAfterId   = $startAfterId;
+        $this->exportId = $exportId;
+        $this->partNumber = $partNumber;
+        $this->totalParts = $totalParts;
+        $this->totalCount = $totalCount;
+        $this->startAfterId = $startAfterId;
         $this->completedFiles = $completedFiles;
-        $this->fileSizes      = $fileSizes;
-        $this->filters        = $filters;
+        $this->fileSizes = $fileSizes;
+        $this->filters = $filters;
         $this->selectedFields = $selectedFields;
-        $this->timestamp      = $timestamp;
+        $this->timestamp = $timestamp;
     }
 
     /*
@@ -72,6 +83,7 @@ class ExportCustomerFollowsPartJob implements ShouldQueue
         // تحقق من طلب الإلغاء قبل البدء
         if (Cache::get("export_cancel_{$this->exportId}")) {
             $this->handleCancellation();
+
             return;
         }
 
@@ -87,8 +99,8 @@ class ExportCustomerFollowsPartJob implements ShouldQueue
                 $this->totalCount - (($this->partNumber - 1) * $maxRows)
             );
 
-            $progressBase   = (int) ((($this->partNumber - 1) / $this->totalParts) * 85);
-            $currentFiles   = $this->completedFiles;
+            $progressBase = (int) ((($this->partNumber - 1) / $this->totalParts) * 85);
+            $currentFiles = $this->completedFiles;
 
             $this->updateProgress(
                 $progressBase + 3,
@@ -110,13 +122,13 @@ class ExportCustomerFollowsPartJob implements ShouldQueue
                 $maxRows
             );
 
-            Excel::store($export, 'exports/' . $partFileName, 'tenant_public');
+            Excel::store($export, 'exports/'.$partFileName, 'tenant_public');
 
-            $lastId            = $export->getLastExportedId();
+            $lastId = $export->getLastExportedId();
             $newCompletedFiles = array_merge($this->completedFiles, [$partFileName]);
-            $newFileSizes      = array_merge($this->fileSizes, [
+            $newFileSizes = array_merge($this->fileSizes, [
                 $this->formatBytes(
-                    Storage::disk('tenant_public')->size('exports/' . $partFileName)
+                    Storage::disk('tenant_public')->size('exports/'.$partFileName)
                 ),
             ]);
 
@@ -153,13 +165,13 @@ class ExportCustomerFollowsPartJob implements ShouldQueue
                     : "تم التصدير بنجاح ({$this->totalCount} سجل).";
 
                 Cache::put("export_result_{$this->exportId}", [
-                    'status'        => 'completed',
-                    'files'         => $newCompletedFiles,
-                    'file_sizes'    => $newFileSizes,
+                    'status' => 'completed',
+                    'files' => $newCompletedFiles,
+                    'file_sizes' => $newFileSizes,
                     'total_records' => $this->totalCount,
-                    'total_parts'   => $this->totalParts,
-                    'message'       => $message,
-                    'created_at'    => now()->toDateTimeString(),
+                    'total_parts' => $this->totalParts,
+                    'message' => $message,
+                    'created_at' => now()->toDateTimeString(),
                 ], now()->addHours(24));
 
                 $this->updateProgress(100, $message, $newCompletedFiles, 100);
@@ -181,7 +193,9 @@ class ExportCustomerFollowsPartJob implements ShouldQueue
         $query = CustomerFollow::with($this->getRequiredRelations());
 
         foreach ($this->filters as $key => $value) {
-            if (empty($value)) continue;
+            if (empty($value)) {
+                continue;
+            }
 
             switch ($key) {
                 case 'date_from':
@@ -239,28 +253,28 @@ class ExportCustomerFollowsPartJob implements ShouldQueue
     private function getRequiredRelations(): array
     {
         $fieldRelationMap = [
-            'customer_name'            => ['customer'],
-            'customer_account_number'  => ['customer'],
+            'customer_name' => ['customer'],
+            'customer_account_number' => ['customer'],
             'customer_identity_number' => ['customer'],
-            'company_name'             => ['customer.company'],
-            'portfolio_name'           => ['customer.portfolio'],
-            'contact_method'           => ['contactMethod'],
-            'customer_status'          => ['customerStatus'],
-            'contact_result'           => ['contactResult'],
-            'created_by'               => ['createdBy'],
-            'payment_amount'           => ['fullPaymentDetails'],
-            'payment_date'             => ['fullPaymentDetails'],
-            'payment_type'             => ['fullPaymentDetails'],
-            'partial_payment_amount'   => ['partialPaymentDetails'],
-            'partial_payment_date'     => ['partialPaymentDetails'],
-            'promise_amount'           => ['promisePaymentDetails'],
-            'promise_date'             => ['promisePaymentDetails'],
-            'callback_date'            => ['callbackDetails'],
-            'callback_reason'          => ['callbackDetails'],
-            'documents_date'           => ['documentRequestDetails'],
-            'documents_reason'         => ['documentRequestDetails.documentReason'],
-            'objection_reason'         => ['objectionDetails'],
-            'recovery_reason'          => ['recoveryDetails'],
+            'company_name' => ['customer.company'],
+            'portfolio_name' => ['customer.portfolio'],
+            'contact_method' => ['contactMethod'],
+            'customer_status' => ['customerStatus'],
+            'contact_result' => ['contactResult'],
+            'created_by' => ['createdBy'],
+            'payment_amount' => ['fullPaymentDetails'],
+            'payment_date' => ['fullPaymentDetails'],
+            'payment_type' => ['fullPaymentDetails'],
+            'partial_payment_amount' => ['partialPaymentDetails'],
+            'partial_payment_date' => ['partialPaymentDetails'],
+            'promise_amount' => ['promisePaymentDetails'],
+            'promise_date' => ['promisePaymentDetails'],
+            'callback_date' => ['callbackDetails'],
+            'callback_reason' => ['callbackDetails'],
+            'documents_date' => ['documentRequestDetails'],
+            'documents_reason' => ['documentRequestDetails.documentReason'],
+            'objection_reason' => ['objectionDetails'],
+            'recovery_reason' => ['recoveryDetails'],
             // الحقول المباشرة (id, contact_location, contacted_person*, notes, created_at)
             // لا تحتاج علاقات
         ];
@@ -268,7 +282,7 @@ class ExportCustomerFollowsPartJob implements ShouldQueue
         $relations = ['customer'];  // customer دائماً ضروري
 
         foreach ($this->selectedFields as $field) {
-            if (!empty($fieldRelationMap[$field])) {
+            if (! empty($fieldRelationMap[$field])) {
                 foreach ($fieldRelationMap[$field] as $relation) {
                     $relations[] = $relation;
                 }
@@ -284,19 +298,19 @@ class ExportCustomerFollowsPartJob implements ShouldQueue
     |--------------------------------------------------------------------------
     */
     private function updateProgress(
-        int    $percentage,
+        int $percentage,
         string $message,
-        array  $completedFiles  = [],
-        int    $partPercentage  = 0
+        array $completedFiles = [],
+        int $partPercentage = 0
     ): void {
         Cache::put("export_progress_{$this->exportId}", [
-            'percentage'      => max(-1, min(100, $percentage)),
+            'percentage' => max(-1, min(100, $percentage)),
             'part_percentage' => max(0, min(100, $partPercentage)),
-            'message'         => $message,
-            'current_part'    => $this->partNumber,
-            'total_parts'     => $this->totalParts,
+            'message' => $message,
+            'current_part' => $this->partNumber,
+            'total_parts' => $this->totalParts,
             'completed_files' => $completedFiles,
-            'updated_at'      => now()->toDateTimeString(),
+            'updated_at' => now()->toDateTimeString(),
         ], now()->addHours(2));
     }
 
@@ -309,13 +323,14 @@ class ExportCustomerFollowsPartJob implements ShouldQueue
     {
         foreach ($this->completedFiles as $file) {
             try {
-                Storage::disk('tenant_public')->delete('exports/' . $file);
-            } catch (\Throwable $ignore) {}
+                Storage::disk('tenant_public')->delete('exports/'.$file);
+            } catch (\Throwable $ignore) {
+            }
         }
 
         Cache::put("export_result_{$this->exportId}", [
-            'status'     => 'cancelled',
-            'message'    => 'تم إلغاء التصدير من قبل المستخدم',
+            'status' => 'cancelled',
+            'message' => 'تم إلغاء التصدير من قبل المستخدم',
             'created_at' => now()->toDateTimeString(),
         ], now()->addHours(24));
 
@@ -331,23 +346,24 @@ class ExportCustomerFollowsPartJob implements ShouldQueue
     {
         foreach ($this->completedFiles as $file) {
             try {
-                Storage::disk('tenant_public')->delete('exports/' . $file);
-            } catch (\Throwable $ignore) {}
+                Storage::disk('tenant_public')->delete('exports/'.$file);
+            } catch (\Throwable $ignore) {
+            }
         }
 
         Log::error("ExportCustomerFollowsPartJob فشل (الجزء {$this->partNumber}/{$this->totalParts})", [
             'export_id' => $this->exportId,
-            'message'   => $e->getMessage(),
-            'trace'     => $e->getTraceAsString(),
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
         ]);
 
         Cache::put("export_result_{$this->exportId}", [
-            'status'     => 'failed',
-            'error'      => $e->getMessage(),
+            'status' => 'failed',
+            'error' => $e->getMessage(),
             'created_at' => now()->toDateTimeString(),
         ], now()->addHours(24));
 
-        $this->updateProgress(-1, 'فشل في التصدير: ' . $e->getMessage(), $this->completedFiles);
+        $this->updateProgress(-1, 'فشل في التصدير: '.$e->getMessage(), $this->completedFiles);
     }
 
     /*
@@ -358,14 +374,14 @@ class ExportCustomerFollowsPartJob implements ShouldQueue
     public function failed(\Throwable $exception): void
     {
         Cache::put("export_result_{$this->exportId}", [
-            'status'     => 'failed',
-            'error'      => $exception->getMessage(),
+            'status' => 'failed',
+            'error' => $exception->getMessage(),
             'created_at' => now()->toDateTimeString(),
         ], now()->addHours(24));
 
         Log::error("ExportCustomerFollowsPartJob فشل نهائياً (الجزء {$this->partNumber}/{$this->totalParts})", [
             'export_id' => $this->exportId,
-            'message'   => $exception->getMessage(),
+            'message' => $exception->getMessage(),
         ]);
     }
 
@@ -380,6 +396,7 @@ class ExportCustomerFollowsPartJob implements ShouldQueue
         for ($i = 0; $size > 1024 && $i < count($units) - 1; $i++) {
             $size /= 1024;
         }
-        return round($size, $precision) . ' ' . $units[$i];
+
+        return round($size, $precision).' '.$units[$i];
     }
 }

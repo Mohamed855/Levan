@@ -7,7 +7,7 @@ use App\Models\Tenants\UserMangment\User\User;
 
 class UsersDataTable extends AbstractDataTable
 {
-    private $route = "users";
+    private $route = 'users';
 
     /*
     |--------------------------------------------------------------------------
@@ -18,6 +18,7 @@ class UsersDataTable extends AbstractDataTable
     {
         $datatable = datatables()->eloquent($query)->addIndexColumn();
         $this->addCustomColumns($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
@@ -39,7 +40,7 @@ class UsersDataTable extends AbstractDataTable
                 'image',
                 'created_at',
                 'last_login_at',
-                'license_seat_id'
+                'license_seat_id',
             ])
             ->with(['roles:id,name'])
             ->accessible();
@@ -52,7 +53,7 @@ class UsersDataTable extends AbstractDataTable
     */
     protected function getTableId(): string
     {
-        return "users-table";
+        return 'users-table';
     }
 
     /*
@@ -86,38 +87,42 @@ class UsersDataTable extends AbstractDataTable
     protected function addCustomColumns($datatable)
     {
         $datatable
-            ->editColumn('created_at', fn(User $user) => $user->created_at->locale('ar')->translatedFormat('d F Y'))
-            ->addColumn('checkbox', fn($row) => '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">')
+            ->editColumn('created_at', fn (User $user) => $user->created_at->locale('ar')->translatedFormat('d F Y'))
+            ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
             ->addColumn('image', function (User $user) {
                 $profilePicture = $user->image ? tasset($user->image) : null;
+
                 return $this->renderTableImage($profilePicture, (string) $user->name, 40);
             })
             ->editColumn('name', function (User $user) {
                 $url = tenant_route_name('users.show', $user->id);
-                return '<a href="' . $url . '" class="text-primary fw-bold">' . e($user->name) . '</a>';
+
+                return '<a href="'.$url.'" class="text-primary fw-bold">'.e($user->name).'</a>';
             })
-            ->editColumn('employee_number', fn(User $user) => '<span class="badge bg-secondary">' . e($user->employee_number ?? '-') . '</span>')
-            ->editColumn('email', fn(User $user) => '<a href="mailto:' . $user->email . '">' . $user->email . '</a>')
+            ->editColumn('employee_number', fn (User $user) => '<span class="badge bg-secondary">'.e($user->employee_number ?? '-').'</span>')
+            ->editColumn('email', fn (User $user) => '<a href="mailto:'.$user->email.'">'.$user->email.'</a>')
             ->addColumn('roles', function (User $user) {
                 if ($user->roles->isEmpty()) {
                     return '<span class="text-muted">-</span>';
                 }
-                return $user->roles->map(fn($role) => '<span class="badge bg-label-info me-1">' . $role->name . '</span>')->implode('');
+
+                return $user->roles->map(fn ($role) => '<span class="badge bg-label-info me-1">'.$role->name.'</span>')->implode('');
             })
             ->editColumn('status', function (User $user) {
                 $checked = $user->status === 'active' ? 'checked' : '';
                 $url = tenant_route_name('users.toggle-status', ['user' => $user->id]);
+
                 return '
                     <div class="d-flex justify-content-center">
                         <div class="form-check form-switch mb-0">
                             <input
                                 type="checkbox"
                                 class="form-check-input js-table-status-toggle"
-                                id="status_' . $user->id . '"
-                                data-url="' . e($url) . '"
+                                id="status_'.$user->id.'"
+                                data-url="'.e($url).'"
                                 data-active-value="active"
                                 data-inactive-value="inactive"
-                                ' . $checked . '
+                                '.$checked.'
                                 aria-label="تبديل حالة المستخدم"
                             >
                         </div>
@@ -126,31 +131,32 @@ class UsersDataTable extends AbstractDataTable
             })
             ->addColumn('license_status', function (User $user) {
                 $checked = $user->license_seat_id != null ? 'checked' : '';
-                if ($user->id === 1)
+                if ($user->id === 1) {
                     return 'لا يمكن التعديل';
-                else
+                } else {
                     return
-                        '
+                            '
                     <div class="d-flex justify-content-center gap-3">
                         <div class="form-check form-switch mb-0">
                             <input
                                 type="checkbox"
                                 class="form-check-input license-toggle"
-                                id="license_' . $user->id . '"
-                                data-user-id="' . $user->id . '"
-                                ' . $checked . '
-                                onchange="toggleLicense(this, ' . $user->id . ')"
+                                id="license_'.$user->id.'"
+                                data-user-id="'.$user->id.'"
+                                '.$checked.'
+                                onchange="toggleLicense(this, '.$user->id.')"
                             >
                         </div>
                     </div>
                 ';
+                }
             })
             ->editColumn('last_login_at', function (User $user) {
                 return $user->last_login_at
                     ? $user->last_login_at->locale('ar')->diffForHumans()
                     : 'لم يسجل دخول';
             })
-            ->addColumn('action', fn($row) => view('tenants.users_management.users.action', ['id' => $row->id, 'route' => $this->route])->render());
+            ->addColumn('action', fn ($row) => view('tenants.users_management.users.action', ['id' => $row->id, 'route' => $this->route])->render());
     }
 
     /*
@@ -183,7 +189,7 @@ class UsersDataTable extends AbstractDataTable
         }
 
         if ($request->filled('employee_number')) {
-            $query->where('employee_number', 'like', '%' . $request->employee_number . '%');
+            $query->where('employee_number', 'like', '%'.$request->employee_number.'%');
         }
 
         return $query;
@@ -211,7 +217,7 @@ class UsersDataTable extends AbstractDataTable
             'buttons' => [
                 ['extend' => 'copy', 'text' => 'نسخ'],
                 ['extend' => 'excel', 'text' => 'إكسل'],
-                ['text' => 'حذف المحدد', 'action' => "function() { handleMassDelete(); }"]
+                ['text' => 'حذف المحدد', 'action' => 'function() { handleMassDelete(); }'],
             ],
         ];
     }
@@ -221,7 +227,7 @@ class UsersDataTable extends AbstractDataTable
         return [
             'text' => '<i class="fas fa-plus-circle me-1"></i> إضافة مستخدم',
             'className' => 'btn btn-primary btn-add',
-            'action' => "function(){ window.location.href='" . tenant_route_name($this->route . '.create') . "'; }",
+            'action' => "function(){ window.location.href='".tenant_route_name($this->route.'.create')."'; }",
         ];
     }
 }

@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands\Tenants\Migration;
 
+use App\Models\Admin\Tenants\Tenant;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
-use App\Models\Admin\Tenants\Tenant;
 
 class MigrateAllTenants extends Command
 {
@@ -26,6 +26,7 @@ class MigrateAllTenants extends Command
 
         if ($tenants->isEmpty()) {
             $this->error('لا يوجد أي Tenant نشط.');
+
             return;
         }
 
@@ -33,8 +34,8 @@ class MigrateAllTenants extends Command
 
         $success = [];
         $nothing = [];
-        $failed  = [];
-        $noDB    = [];
+        $failed = [];
+        $noDB = [];
 
         foreach ($tenants as $index => $tenant) {
 
@@ -47,12 +48,14 @@ class MigrateAllTenants extends Command
                 }
                 DB::purge('tenant');
                 DB::setDefaultConnection('mysql');
-            } catch (\Throwable $e) {}
+            } catch (\Throwable $e) {
+            }
 
             // STEP 2: التحقق من وجود قاعدة البيانات
             if (! $this->checkDatabaseExists($tenant)) {
-                $this->warn("  ⚠️ قاعدة البيانات غير موجودة — تم التخطي");
+                $this->warn('  ⚠️ قاعدة البيانات غير موجودة — تم التخطي');
                 $noDB[] = $tenant->id;
+
                 continue;
             }
 
@@ -60,13 +63,14 @@ class MigrateAllTenants extends Command
             try {
                 tenancy()->initialize($tenant);
             } catch (\Throwable $e) {
-                $this->error("  ❌ فشل initialize(): " . $e->getMessage());
+                $this->error('  ❌ فشل initialize(): '.$e->getMessage());
                 $failed[] = $tenant->id;
 
                 try {
                     DB::purge('tenant');
                     DB::setDefaultConnection('mysql');
-                } catch (\Throwable $ignored) {}
+                } catch (\Throwable $ignored) {
+                }
 
                 continue;
             }
@@ -76,7 +80,7 @@ class MigrateAllTenants extends Command
                 $options = ['--force' => true];
 
                 if ($this->option('path')) {
-                    $options['--path']     = $this->option('path');
+                    $options['--path'] = $this->option('path');
                     $options['--realpath'] = true;
                 }
 
@@ -84,16 +88,16 @@ class MigrateAllTenants extends Command
                 $output = trim(Artisan::output());
 
                 if (str_contains(strtolower($output), 'nothing')) {
-                    $this->line("  ⏭️  Nothing to migrate");
+                    $this->line('  ⏭️  Nothing to migrate');
                     $nothing[] = $tenant->id;
                 } else {
-                    $this->info("  ✅ تم التنفيذ بنجاح");
-                    $this->line("     " . $output);
+                    $this->info('  ✅ تم التنفيذ بنجاح');
+                    $this->line('     '.$output);
                     $success[] = $tenant->id;
                 }
 
             } catch (\Throwable $e) {
-                $this->error("  ❌ فشل: " . $e->getMessage());
+                $this->error('  ❌ فشل: '.$e->getMessage());
                 $failed[] = $tenant->id;
 
             } finally {
@@ -104,15 +108,16 @@ class MigrateAllTenants extends Command
                     }
                     DB::purge('tenant');
                     DB::setDefaultConnection('mysql');
-                } catch (\Throwable $e) {}
+                } catch (\Throwable $e) {
+                }
             }
         }
 
         $this->newLine();
-        $this->info("✅ نُفذ بنجاح : " . count($success) . " → " . implode(', ', $success ?: ['لا شيء']));
-        $this->line("⏭️  Nothing    : " . count($nothing) . " → " . implode(', ', $nothing ?: ['لا شيء']));
-        $this->warn("⚠️  بدون DB    : " . count($noDB)    . " → " . implode(', ', $noDB    ?: ['لا شيء']));
-        $this->error("❌ فشل        : " . count($failed)  . " → " . implode(', ', $failed  ?: ['لا شيء']));
+        $this->info('✅ نُفذ بنجاح : '.count($success).' → '.implode(', ', $success ?: ['لا شيء']));
+        $this->line('⏭️  Nothing    : '.count($nothing).' → '.implode(', ', $nothing ?: ['لا شيء']));
+        $this->warn('⚠️  بدون DB    : '.count($noDB).' → '.implode(', ', $noDB ?: ['لا شيء']));
+        $this->error('❌ فشل        : '.count($failed).' → '.implode(', ', $failed ?: ['لا شيء']));
     }
 
     /*
@@ -129,7 +134,7 @@ class MigrateAllTenants extends Command
             }
 
             $result = DB::connection('mysql')->select(
-                "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+                'SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?',
                 [$tenant->db_database]
             );
 

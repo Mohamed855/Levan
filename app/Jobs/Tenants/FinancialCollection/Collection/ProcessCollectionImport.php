@@ -2,16 +2,17 @@
 
 namespace App\Jobs\Tenants\FinancialCollection\Collection;
 
+use App\Http\Requests\Tenants\FinancialCollection\Import\CollectionImportRequest;
 use App\Models\Tenants\FinancialCollection\Collection\Collection;
-use App\Services\Tenants\FinancialCollection\Import\CollectionImportValidationService;
 use App\Services\Tenants\FinancialCollection\Import\CollectionImportReportService;
+use App\Services\Tenants\FinancialCollection\Import\CollectionImportValidationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ProcessCollectionImport implements ShouldQueue
@@ -19,11 +20,15 @@ class ProcessCollectionImport implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 3600;
+
     public $tries = 3;
+
     public $backoff = [30, 60, 120]; // تأخير متزايد بين المحاولات
 
     protected string $jobId;
+
     protected array $importConfig;
+
     protected array $dataRows;
 
     /*
@@ -55,7 +60,7 @@ class ProcessCollectionImport implements ShouldQueue
                 'successful' => 0,
                 'failed' => 0,
                 'errors' => [],
-                'new_collections' => []
+                'new_collections' => [],
             ];
 
             DB::beginTransaction();
@@ -67,7 +72,7 @@ class ProcessCollectionImport implements ShouldQueue
 
                 // إضافة التحسين الأول هنا
                 $totalRows = count($this->dataRows);
-                $this->safeUpdateJobProgress(10, "تم تحميل البيانات المرجعية - جاري معالجة " . number_format($totalRows) . " سجل");
+                $this->safeUpdateJobProgress(10, 'تم تحميل البيانات المرجعية - جاري معالجة '.number_format($totalRows).' سجل');
 
                 $batchSize = 50;
                 $processedRows = 0;
@@ -88,21 +93,21 @@ class ProcessCollectionImport implements ShouldQueue
                 }
 
                 // إضافة التحسين الثاني هنا
-                $this->safeUpdateJobProgress(90, "تم معالجة جميع السجلات - جاري إنشاء التقرير النهائي");
+                $this->safeUpdateJobProgress(90, 'تم معالجة جميع السجلات - جاري إنشاء التقرير النهائي');
 
                 if ($results['failed'] > 0) {
                     try {
                         $reportData = [
                             'errors' => $results['errors'],
                             'original_data' => $this->dataRows,
-                            'import_config' => $this->importConfig
+                            'import_config' => $this->importConfig,
                         ];
                         $errorReportPath = $reportService->generateImportErrorReport($reportData);
                         $results['error_report_path'] = $errorReportPath;
 
                         if ($errorReportPath !== '') {
                             Cache::put(
-                                \App\Http\Requests\Tenants\FinancialCollection\Import\CollectionImportRequest::errorReportOwnerKey($errorReportPath),
+                                CollectionImportRequest::errorReportOwnerKey($errorReportPath),
                                 $this->importConfig['current_user_id'],
                                 now()->addHours(24),
                             );
@@ -119,7 +124,7 @@ class ProcessCollectionImport implements ShouldQueue
                 DB::commit();
 
                 // إضافة التحسين الثالث هنا
-                $finalMessage = "اكتملت العملية - نجح: " . number_format($results['successful']) . " | فشل: " . number_format($results['failed']);
+                $finalMessage = 'اكتملت العملية - نجح: '.number_format($results['successful']).' | فشل: '.number_format($results['failed']);
                 $this->safeUpdateJobProgress(100, $finalMessage, $results);
             } catch (\Exception $e) {
                 DB::rollBack();
@@ -132,7 +137,7 @@ class ProcessCollectionImport implements ShouldQueue
             //     'trace' => $e->getTraceAsString()
             // ]);
 
-            $this->safeUpdateJobProgress(0, 'فشلت عملية الاستيراد: ' . $e->getMessage(), null, true);
+            $this->safeUpdateJobProgress(0, 'فشلت عملية الاستيراد: '.$e->getMessage(), null, true);
             throw $e;
         }
     }
@@ -148,11 +153,11 @@ class ProcessCollectionImport implements ShouldQueue
             try {
                 $validation = $validationService->validateRowData($row, $this->importConfig, $rowIndex + 2);
 
-                if (!$validation['success']) {
+                if (! $validation['success']) {
                     $results['failed']++;
                     $results['errors'][] = [
                         'row' => $rowIndex + 2,
-                        'errors' => $validation['errors']
+                        'errors' => $validation['errors'],
                     ];
                 } else {
                     try {
@@ -163,7 +168,7 @@ class ProcessCollectionImport implements ShouldQueue
                         $results['failed']++;
                         $results['errors'][] = [
                             'row' => $rowIndex + 2,
-                            'errors' => ["خطأ في إنشاء التحصيل: " . $e->getMessage()]
+                            'errors' => ['خطأ في إنشاء التحصيل: '.$e->getMessage()],
                         ];
 
                         // Log::error("خطأ في إنشاء التحصيل للصف {$rowIndex}: " . $e->getMessage(), [
@@ -178,7 +183,7 @@ class ProcessCollectionImport implements ShouldQueue
                 // إضافة التحسين هنا
                 if ($processedRows % 25 === 0) {
                     $progress = 10 + (($processedRows / $totalRows) * 80);
-                    $progressMessage = "تم معالجة " . number_format($processedRows) . " من " . number_format($totalRows) . " سجل";
+                    $progressMessage = 'تم معالجة '.number_format($processedRows).' من '.number_format($totalRows).' سجل';
 
                     $this->safeUpdateJobProgress(
                         (int) $progress,
@@ -194,7 +199,7 @@ class ProcessCollectionImport implements ShouldQueue
                 $results['failed']++;
                 $results['errors'][] = [
                     'row' => $rowIndex + 2,
-                    'errors' => ["خطأ في معالجة الصف: " . $e->getMessage()]
+                    'errors' => ['خطأ في معالجة الصف: '.$e->getMessage()],
                 ];
 
                 $processedRows++;
@@ -221,7 +226,7 @@ class ProcessCollectionImport implements ShouldQueue
                 $results['failed']++;
                 $results['errors'][] = [
                     'row' => $rowIndex + 2,
-                    'errors' => ["فشل كامل في معالجة الصف"]
+                    'errors' => ['فشل كامل في معالجة الصف'],
                 ];
                 $processedRows++;
             }
@@ -243,7 +248,7 @@ class ProcessCollectionImport implements ShouldQueue
                 'completed' => $progress === 100,
                 'failed' => $failed,
                 'updated_at' => now()->toISOString(),
-                'job_id' => $this->jobId // إضافة معرف الوظيفة للتتبع
+                'job_id' => $this->jobId, // إضافة معرف الوظيفة للتتبع
             ];
 
             if ($results !== null) {
@@ -289,7 +294,7 @@ class ProcessCollectionImport implements ShouldQueue
         //     'trace' => $exception->getTraceAsString()
         // ]);
 
-        $this->safeUpdateJobProgress(0, 'فشلت عملية الاستيراد نهائياً: ' . $exception->getMessage(), null, true);
+        $this->safeUpdateJobProgress(0, 'فشلت عملية الاستيراد نهائياً: '.$exception->getMessage(), null, true);
     }
 
     /*
@@ -326,8 +331,8 @@ class ProcessCollectionImport implements ShouldQueue
             ->first();
 
         $sequence = $lastCollection ?
-            (int)substr($lastCollection->receipt_number, -4) + 1 : 1;
+            (int) substr($lastCollection->receipt_number, -4) + 1 : 1;
 
-        return $prefix . $date . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+        return $prefix.$date.str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 }

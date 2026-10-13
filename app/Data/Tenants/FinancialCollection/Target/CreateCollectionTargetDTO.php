@@ -5,17 +5,23 @@ namespace App\Data\Tenants\FinancialCollection\Target;
 class CreateCollectionTargetDTO
 {
     public int $user_id;
+
     public string $target_type;
+
     public float $target_amount;
+
     public array $team_ids;
+
     public ?string $status;
 
     // Fields for monthly targets
     public ?int $target_month;
+
     public ?int $target_year;
 
     // Fields for custom targets
     public ?string $custom_start_date;
+
     public ?string $custom_end_date;
 
     public function __construct(
@@ -39,7 +45,6 @@ class CreateCollectionTargetDTO
         $this->custom_start_date = $custom_start_date;
         $this->custom_end_date = $custom_end_date;
     }
-
 
     /**
      * Create DTO from request array

@@ -2,67 +2,71 @@
 
 namespace App\Exports\Tenants\BusinessCenter;
 
+use Carbon\Carbon;
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\WithColumnWidths;
-use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
-use Carbon\Carbon;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class CustomersExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle, WithColumnWidths, WithEvents
+class CustomersExport implements FromCollection, WithColumnWidths, WithEvents, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     private const MANDATORY_FIELD = 'name'; // إلزامي دائمًا
-    private const FIELD_LABELS    = [
-        'name'             => 'اسم العميل',
-        'customer_type'    => 'نوع العميل',
-        'identity_number'  => 'رقم الهوية',
-        'phone'            => 'رقم الهاتف',
-        'account_number'   => 'رقم الحساب',
-        'company_name'     => 'الشركة',
-        'portfolio_name'   => 'المحفظة',
-        'nationality'      => 'الجنسية',
-        'customer_status'  => 'حالة العميل',
-        'manager_name'     => 'مسؤول العلاقة',
-        'commission_rate'  => 'نسبة العمولة',
-        'contract_date'    => 'تاريخ العقد',
-        'default_date'     => 'تاريخ التعثر',
-        'debt_amount'      => 'إجمالي المديونية',
-        'total_credit'     => 'إجمالي المدفوع',
-        'remaining_debt'   => 'المتبقي',
-        'created_by'       => 'أنشئ بواسطة',
-        'created_at'       => 'تاريخ الإضافة',
+
+    private const FIELD_LABELS = [
+        'name' => 'اسم العميل',
+        'customer_type' => 'نوع العميل',
+        'identity_number' => 'رقم الهوية',
+        'phone' => 'رقم الهاتف',
+        'account_number' => 'رقم الحساب',
+        'company_name' => 'الشركة',
+        'portfolio_name' => 'المحفظة',
+        'nationality' => 'الجنسية',
+        'customer_status' => 'حالة العميل',
+        'manager_name' => 'مسؤول العلاقة',
+        'commission_rate' => 'نسبة العمولة',
+        'contract_date' => 'تاريخ العقد',
+        'default_date' => 'تاريخ التعثر',
+        'debt_amount' => 'إجمالي المديونية',
+        'total_credit' => 'إجمالي المدفوع',
+        'remaining_debt' => 'المتبقي',
+        'created_by' => 'أنشئ بواسطة',
+        'created_at' => 'تاريخ الإضافة',
     ];
 
     private const COLUMN_WIDTHS = [
-        'name'             => 25,
-        'customer_type'    => 12,
-        'identity_number'  => 18,
-        'phone'            => 18,
-        'account_number'   => 18,
-        'company_name'     => 20,
-        'portfolio_name'   => 20,
-        'nationality'      => 15,
-        'customer_status'  => 15,
-        'manager_name'     => 20,
-        'commission_rate'  => 12,
-        'contract_date'    => 15,
-        'default_date'     => 15,
-        'debt_amount'      => 18,
-        'total_credit'     => 18,
-        'remaining_debt'   => 18,
-        'created_by'       => 20,
-        'created_at'       => 18,
+        'name' => 25,
+        'customer_type' => 12,
+        'identity_number' => 18,
+        'phone' => 18,
+        'account_number' => 18,
+        'company_name' => 20,
+        'portfolio_name' => 20,
+        'nationality' => 15,
+        'customer_status' => 15,
+        'manager_name' => 20,
+        'commission_rate' => 12,
+        'contract_date' => 15,
+        'default_date' => 15,
+        'debt_amount' => 18,
+        'total_credit' => 18,
+        'remaining_debt' => 18,
+        'created_by' => 20,
+        'created_at' => 18,
     ];
 
     protected $customers;
+
     protected array $selectedFields;
+
     protected $rowCount = 0;
 
     public function __construct($customers, array $selectedFields = [])
@@ -73,7 +77,7 @@ class CustomersExport implements FromCollection, WithHeadings, WithMapping, With
             $selectedFields = array_keys(self::FIELD_LABELS);
         }
 
-        if (!in_array(self::MANDATORY_FIELD, $selectedFields, true)) {
+        if (! in_array(self::MANDATORY_FIELD, $selectedFields, true)) {
             array_unshift($selectedFields, self::MANDATORY_FIELD);
         }
 
@@ -81,7 +85,7 @@ class CustomersExport implements FromCollection, WithHeadings, WithMapping, With
         $this->selectedFields = array_values(array_intersect(array_keys(self::FIELD_LABELS), $selectedFields));
     }
 
-    public function collection(): \Illuminate\Support\Enumerable
+    public function collection(): Enumerable
     {
         return $this->customers;
     }
@@ -108,6 +112,7 @@ class CustomersExport implements FromCollection, WithHeadings, WithMapping, With
         }
 
         $this->rowCount++;
+
         return $row;
     }
 
@@ -138,17 +143,17 @@ class CustomersExport implements FromCollection, WithHeadings, WithMapping, With
             case 'manager_name':
                 return $customer->relationshipManager->name ?? 'غير محدد';
             case 'commission_rate':
-                return $customer->commission_rate ? $customer->commission_rate . '%' : 'غير محدد';
+                return $customer->commission_rate ? $customer->commission_rate.'%' : 'غير محدد';
             case 'contract_date':
                 return $customer->contract_date ? Carbon::parse($customer->contract_date)->format('Y-m-d') : 'غير محدد';
             case 'default_date':
                 return $customer->default_date ? Carbon::parse($customer->default_date)->format('Y-m-d') : 'غير محدد';
             case 'debt_amount':
-                return number_format((float) ($customer->total_debit ?? 0), 2) . ' ريال';
+                return number_format((float) ($customer->total_debit ?? 0), 2).' ريال';
             case 'total_credit':
-                return number_format((float) ($customer->total_credit ?? 0), 2) . ' ريال';
+                return number_format((float) ($customer->total_credit ?? 0), 2).' ريال';
             case 'remaining_debt':
-                return number_format((float) ($customer->total_debit ?? 0) - (float) ($customer->total_credit ?? 0), 2) . ' ريال';
+                return number_format((float) ($customer->total_debit ?? 0) - (float) ($customer->total_credit ?? 0), 2).' ريال';
             case 'created_by':
                 return $customer->createdBy->name ?? 'النظام';
             case 'created_at':
@@ -239,9 +244,10 @@ class CustomersExport implements FromCollection, WithHeadings, WithMapping, With
         $letter = '';
         while ($columnNumber > 0) {
             $columnNumber--;
-            $letter = chr(65 + ($columnNumber % 26)) . $letter;
+            $letter = chr(65 + ($columnNumber % 26)).$letter;
             $columnNumber = intval($columnNumber / 26);
         }
+
         return $letter;
     }
 }

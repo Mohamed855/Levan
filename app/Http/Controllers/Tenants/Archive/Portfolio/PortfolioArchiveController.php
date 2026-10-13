@@ -2,17 +2,15 @@
 
 namespace App\Http\Controllers\Tenants\Archive\Portfolio;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Tenants\Archive\BulkArchiveActionRequest;
-use App\Http\Requests\Tenants\Archive\ArchiveItemIdRequest;
 use App\DataTables\Tenants\Archive\Portfolio\ArchivedPortfoliosDataTable;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Archive\ArchiveItemIdRequest;
+use App\Http\Requests\Tenants\Archive\BulkArchiveActionRequest;
 use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Services\Tenants\Archive\Portfolio\PortfolioArchiveService;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 
 class PortfolioArchiveController extends Controller
 {
@@ -43,6 +41,7 @@ class PortfolioArchiveController extends Controller
     {
         try {
             $companies = Company::select('id', 'name')->orderBy('name')->get();
+
             return $dataTable->render('tenants.archive.portfolios.index', [
                 'companies' => $companies,
             ]);
@@ -126,12 +125,12 @@ class PortfolioArchiveController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "تم استرجاع {$restoredCount} محفظة بنجاح"
+                'message' => "تم استرجاع {$restoredCount} محفظة بنجاح",
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء الاستعادة الجماعية'
+                'message' => 'حدث خطأ أثناء الاستعادة الجماعية',
             ], 500);
         }
     }
@@ -151,12 +150,12 @@ class PortfolioArchiveController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "تم حذف {$deletedCount} محفظة نهائياً"
+                'message' => "تم حذف {$deletedCount} محفظة نهائياً",
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء الحذف النهائي الجماعي'
+                'message' => 'حدث خطأ أثناء الحذف النهائي الجماعي',
             ], 500);
         }
     }

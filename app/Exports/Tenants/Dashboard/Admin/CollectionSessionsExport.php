@@ -3,29 +3,25 @@
 namespace App\Exports\Tenants\Dashboard\Admin;
 
 use App\Models\Tenants\FinancialCollection\CollectionProcess\CollectionProcessSession;
+use Carbon\Carbon;
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\WithColumnWidths;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
-use Carbon\Carbon;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class CollectionSessionsExport implements 
-    FromCollection, 
-    WithHeadings, 
-    WithMapping, 
-    WithStyles, 
-    WithColumnWidths, 
-    ShouldAutoSize,
-    WithEvents
+class CollectionSessionsExport implements FromCollection, ShouldAutoSize, WithColumnWidths, WithEvents, WithHeadings, WithMapping, WithStyles
 {
     protected $date;
+
     protected $status;
 
     public function __construct($date = null, $status = null)
@@ -39,13 +35,13 @@ class CollectionSessionsExport implements
     | Collection
     |--------------------------------------------------------------------------
     */
-    public function collection(): \Illuminate\Support\Enumerable
+    public function collection(): Enumerable
     {
         $query = CollectionProcessSession::with([
             'user:id,name,employee_number',
             'workPeriods' => function ($q) {
                 $q->orderBy('entry_time', 'asc');
-            }
+            },
         ])->whereDate('date', $this->date);
 
         if ($this->status === 'active') {
@@ -154,26 +150,26 @@ class CollectionSessionsExport implements
         ]);
 
         $lastRow = $sheet->getHighestRow();
-        $sheet->getStyle('A2:K' . $lastRow)->applyFromArray([
+        $sheet->getStyle('A2:K'.$lastRow)->applyFromArray([
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
                 'vertical' => Alignment::VERTICAL_CENTER,
             ],
         ]);
 
-        $sheet->getStyle('A1:K' . $lastRow)->applyFromArray([
+        $sheet->getStyle('A1:K'.$lastRow)->applyFromArray([
             'borders' => [
                 'allBorders' => [
-                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'borderStyle' => Border::BORDER_THIN,
                     'color' => ['rgb' => 'CCCCCC'],
                 ],
             ],
         ]);
 
         for ($row = 2; $row <= $lastRow; $row++) {
-            $statusValue = $sheet->getCell('D' . $row)->getValue();
+            $statusValue = $sheet->getCell('D'.$row)->getValue();
             if ($statusValue === 'متواجد الآن') {
-                $sheet->getStyle('D' . $row)->applyFromArray([
+                $sheet->getStyle('D'.$row)->applyFromArray([
                     'font' => ['color' => ['rgb' => '28B78D'], 'bold' => true],
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
@@ -181,7 +177,7 @@ class CollectionSessionsExport implements
                     ],
                 ]);
             } else {
-                $sheet->getStyle('D' . $row)->applyFromArray([
+                $sheet->getStyle('D'.$row)->applyFromArray([
                     'font' => ['color' => ['rgb' => '999999']],
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
@@ -224,7 +220,7 @@ class CollectionSessionsExport implements
     public function registerEvents(): array
     {
         return [
-            AfterSheet::class => function(AfterSheet $event) {
+            AfterSheet::class => function (AfterSheet $event) {
                 $event->sheet->getDelegate()->setRightToLeft(true);
                 $event->sheet->getDelegate()->getRowDimension(1)->setRowHeight(25);
                 $lastRow = $event->sheet->getDelegate()->getHighestRow();

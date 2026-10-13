@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
@@ -14,6 +15,8 @@ use Stancl\Tenancy\Events\TenancyEnded;
 use Stancl\Tenancy\Events\TenancyInitialized;
 use Stancl\Tenancy\Jobs;
 use Stancl\Tenancy\Listeners;
+use Stancl\Tenancy\Listeners\BootstrapTenancy;
+use Stancl\Tenancy\Listeners\RevertToCentralContext;
 use Stancl\Tenancy\Middleware;
 
 class TenancyServiceProvider extends ServiceProvider
@@ -71,17 +74,17 @@ class TenancyServiceProvider extends ServiceProvider
 
             // Tenancy events
             Events\InitializingTenancy::class => [],
-            Events\TenancyInitialized::class => [
-                \Stancl\Tenancy\Listeners\BootstrapTenancy::class,
+            TenancyInitialized::class => [
+                BootstrapTenancy::class,
             ],
-            Events\TenancyEnded::class => [
-                \Stancl\Tenancy\Listeners\RevertToCentralContext::class,
+            TenancyEnded::class => [
+                RevertToCentralContext::class,
             ],
 
             Events\BootstrappingTenancy::class => [],
             Events\TenancyBootstrapped::class => [],
             Events\RevertingToCentralContext::class => [],
-            Events\RevertedToCentralContext::class => [],
+            RevertedToCentralContext::class => [],
 
             // Resource syncing
             Events\SyncedResourceSaved::class => [
@@ -98,7 +101,6 @@ class TenancyServiceProvider extends ServiceProvider
         //
     }
 
-
     // الكود الجديد -- يحتاج اختبار بعد تفعيله ليتاكد ان الجلسات لا تتداخل ببعض
     public function boot()
     {
@@ -110,9 +112,9 @@ class TenancyServiceProvider extends ServiceProvider
             $tenantId = $event->tenancy->tenant->getTenantKey();
 
             // ← تأكد أن الطلب الحالي فعلاً داخل سياق التيننت
-            if (!app()->runningInConsole()) {
-                Config::set('session.cookie',  'tenant_' . $tenantId . '_session');
-                Config::set('session.path',    '/' . $tenantId);
+            if (! app()->runningInConsole()) {
+                Config::set('session.cookie', 'tenant_'.$tenantId.'_session');
+                Config::set('session.path', '/'.$tenantId);
             }
 
             Config::set(
@@ -126,9 +128,9 @@ class TenancyServiceProvider extends ServiceProvider
         });
 
         Event::listen(TenancyEnded::class, function () {
-            if (!app()->runningInConsole()) {
+            if (! app()->runningInConsole()) {
                 Config::set('session.cookie', config('session.cookie')); // ← من config الأصلي
-                Config::set('session.path',   '/');
+                Config::set('session.path', '/');
             }
         });
     }
@@ -166,10 +168,7 @@ class TenancyServiceProvider extends ServiceProvider
         }
     }
 
-
     protected function mapRoutes() {}
-
-
 
     protected function makeTenancyMiddlewareHighestPriority()
     {
@@ -186,7 +185,7 @@ class TenancyServiceProvider extends ServiceProvider
         ];
 
         foreach (array_reverse($tenancyMiddleware) as $middleware) {
-            $this->app[\Illuminate\Contracts\Http\Kernel::class]->prependToMiddlewarePriority($middleware);
+            $this->app[Kernel::class]->prependToMiddlewarePriority($middleware);
         }
     }
 }

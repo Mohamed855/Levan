@@ -2,21 +2,19 @@
 
 namespace App\DataTables\Admin\Setting;
 
-
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Models\Admin\ControlDomain\ControlDomain;
 
 class SettingDomainDataTable extends AbstractDataTable
 {
-    private $page  = "admin.settings.domains";
-    private $route = "admin.settings.domains";
+    private $page = 'admin.settings.domains';
 
+    private $route = 'admin.settings.domains';
 
     protected function getTableId()
     {
-        return "domain-setting-table";
+        return 'domain-setting-table';
     }
-
 
     protected function resource()
     {
@@ -29,10 +27,10 @@ class SettingDomainDataTable extends AbstractDataTable
             ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             [
-                'data'       => 'checkbox',
-                'name'       => 'checkbox',
-                'title'      => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
-                'orderable'  => false,
+                'data' => 'checkbox',
+                'name' => 'checkbox',
+                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
+                'orderable' => false,
                 'searchable' => false,
                 'width' => '10px',
                 'className' => 'custom-checkbox',
@@ -40,27 +38,24 @@ class SettingDomainDataTable extends AbstractDataTable
             ],
             ['data' => 'domain_extension',  'name' => 'domain_extension',   'title' => 'امتداد الدومين',   'className' => 'text-start'],
             ['data' => 'price',             'name' => 'price',              'title' => 'السعر',             'className' => 'text-start'],
-            ['data' => 'created_at',         'name' => 'created_at',          'title' => 'تاريخ الاضافة',],
+            ['data' => 'created_at',         'name' => 'created_at',          'title' => 'تاريخ الاضافة'],
             ['data' => 'is_active',         'name' => 'is_active',          'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'actions',           'name' => 'actions',            'title' => 'الإجراءات',         'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
 
-
-
-
     protected function addCustomColumns($datatable)
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
 
             ->editColumn('is_active', function ($row) {
                 $checked = $row->is_active ? 'checked' : '';
                 $url = route('admin.settings.domains.toggle-status', $row->id);
 
-                return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_' . $row->id . '" data-url="' . e($url) . '" ' . $checked . ' aria-label="تبديل حالة امتداد الدومين"></div></div>';
+                return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_'.$row->id.'" data-url="'.e($url).'" '.$checked.' aria-label="تبديل حالة امتداد الدومين"></div></div>';
             })
 
             ->editColumn('created_at', function ($row) {
@@ -68,7 +63,7 @@ class SettingDomainDataTable extends AbstractDataTable
             })
 
             ->addColumn('actions', function ($row) {
-                return view($this->page . '.action', ['row' => $row, 'route' => $this->route])->render();
+                return view($this->page.'.action', ['row' => $row, 'route' => $this->route])->render();
             });
     }
 
@@ -76,7 +71,6 @@ class SettingDomainDataTable extends AbstractDataTable
     {
         return ['checkbox', 'code', 'discount_type', 'is_active', 'status', 'actions'];
     }
-
 
     protected function applyCustomFilters($query)
     {
@@ -104,12 +98,10 @@ class SettingDomainDataTable extends AbstractDataTable
         ];
     }
 
-
     protected function getCustomOrder(): array
     {
         return [1, 'desc'];
     }
-
 
     // Buttons
     protected function buttons(): array
@@ -129,17 +121,17 @@ class SettingDomainDataTable extends AbstractDataTable
 
         // if (auth()->user()?->can('coupons.delete')) {
         $buttons[] = [
-            'text'      => 'حذف المحدد',
+            'text' => 'حذف المحدد',
             'className' => 'btn btn-default btn-delete-selected',
-            'action'    => "function() { handleMassDelete(); }",
+            'action' => 'function() { handleMassDelete(); }',
         ];
         // }
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
 
@@ -150,9 +142,9 @@ class SettingDomainDataTable extends AbstractDataTable
         // }
 
         return [
-            'text'      => '<i class="fas fa-plus-circle me-1"></i> إضافة امتداد',
+            'text' => '<i class="fas fa-plus-circle me-1"></i> إضافة امتداد',
             'className' => 'btn btn-primary btn-add',
-            'action'    => "function(){ window.location.href='" . route($this->route . '.create') . "'; }",
+            'action' => "function(){ window.location.href='".route($this->route.'.create')."'; }",
         ];
     }
 }

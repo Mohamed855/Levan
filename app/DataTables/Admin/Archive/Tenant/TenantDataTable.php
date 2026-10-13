@@ -8,14 +8,15 @@ use App\Models\Admin\Tenants\Tenant;
 class TenantDataTable extends AbstractDataTable
 {
     public $route = 'admin.archives.tenants';
+
     protected function getTableId()
     {
-        return "tenant-archive-table";
+        return 'tenant-archive-table';
     }
 
     protected function resource()
     {
-        return  Tenant::query()->onlyTrashed()->with('lastSubscription');
+        return Tenant::query()->onlyTrashed()->with('lastSubscription');
     }
 
     protected function getColumns(): array
@@ -24,21 +25,21 @@ class TenantDataTable extends AbstractDataTable
             ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             [
-                'data'       => 'checkbox',
-                'name'       => 'checkbox',
-                'title'      => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
-                'orderable'  => false,
+                'data' => 'checkbox',
+                'name' => 'checkbox',
+                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
+                'orderable' => false,
                 'searchable' => false,
                 'width' => '10px',
                 'className' => 'custom-checkbox',
                 'titleAttr' => 'تحديد الكل',
             ],
-            ['data'  => 'id',                   'name' => 'id',                 'title' => 'المعرف'],
-            ['data'  => 'company_name',         'name' => 'company_name',       'title' => 'اسم الشركة'],
-            ['data'  => 'commercial_number',    'name' => 'commercial_number',  'title' => 'السجل التجاري'],
-            ['data'  => 'deleted_at',           'name' => 'deleted_at',         'title' => 'حالة العميل', 'orderable' => false],
-            ['data'  => 'subscription_status',  'name' => 'subscription_status', 'title' => 'حالة الاشتراك', 'orderable' => false],
-            ['data'  => 'actions',              'name' => 'actions',            'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
+            ['data' => 'id',                   'name' => 'id',                 'title' => 'المعرف'],
+            ['data' => 'company_name',         'name' => 'company_name',       'title' => 'اسم الشركة'],
+            ['data' => 'commercial_number',    'name' => 'commercial_number',  'title' => 'السجل التجاري'],
+            ['data' => 'deleted_at',           'name' => 'deleted_at',         'title' => 'حالة العميل', 'orderable' => false],
+            ['data' => 'subscription_status',  'name' => 'subscription_status', 'title' => 'حالة الاشتراك', 'orderable' => false],
+            ['data' => 'actions',              'name' => 'actions',            'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
 
@@ -46,7 +47,7 @@ class TenantDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
 
             ->addColumn('deleted_at', function ($row) {
@@ -58,7 +59,7 @@ class TenantDataTable extends AbstractDataTable
             })
 
             ->addColumn('subscription_status', function ($row) {
-                if (!$row->lastSubscription) {
+                if (! $row->lastSubscription) {
                     return '<span class="badge bg-secondary">-</span>';
                 }
 
@@ -124,23 +125,23 @@ class TenantDataTable extends AbstractDataTable
         $buttons = [
             ['extend' => 'copy', 'text' => 'نسخ'],
             ['extend' => 'excel', 'text' => 'إكسل',  'exportOptions' => [
-                'columns' => [ 7, 6, 5, 4, 3]
+                'columns' => [7, 6, 5, 4, 3],
             ]],
         ];
 
         if (auth()->user()?->can('clients.delete')) {
             $buttons[] = [
-                'text'      => 'حذف المحدد',
+                'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
-                'action'    => "function() { handleMassDelete(); }",
+                'action' => 'function() { handleMassDelete(); }',
             ];
         }
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
 

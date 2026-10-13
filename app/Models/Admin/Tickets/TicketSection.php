@@ -10,7 +10,9 @@ class TicketSection extends Model
     use HasFactory;
 
     protected $connection = 'mysql';
+
     protected $table = 'ticket_sections';
+
     protected $guarded = [];
 
     protected $casts = [

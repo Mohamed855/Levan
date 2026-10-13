@@ -8,18 +8,19 @@ use Carbon\Carbon;
 
 class PropertyArchiveDataTable extends AbstractDataTable
 {
-    private string $route = "archive.properties";
+    private string $route = 'archive.properties';
 
     public function dataTable($query)
     {
         $datatable = datatables()->eloquent($query)->addIndexColumn();
         $this->addCustomColumns($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
     protected function getTableId(): string
     {
-        return "properties-archive-table";
+        return 'properties-archive-table';
     }
 
     protected function resource()
@@ -75,10 +76,10 @@ class PropertyArchiveDataTable extends AbstractDataTable
         ];
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
 

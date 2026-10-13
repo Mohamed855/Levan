@@ -20,7 +20,7 @@ class StoreCustomerAttachmentRequest extends FormRequest
                 'required',
                 'file',
                 'max:20480', // 20MB بدلاً من 10MB
-                'mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png,gif,zip,rar,txt,ppt,pptx'
+                'mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png,gif,zip,rar,txt,ppt,pptx',
             ],
         ];
     }
@@ -83,10 +83,10 @@ class StoreCustomerAttachmentRequest extends FormRequest
                             'image/gif',
                             'application/zip',
                             'application/x-rar-compressed',
-                            'text/plain'
+                            'text/plain',
                         ];
 
-                        if (!in_array($file->getMimeType(), $allowedMimes)) {
+                        if (! in_array($file->getMimeType(), $allowedMimes)) {
                             $validator->errors()->add(
                                 "attachments.{$index}.file",
                                 'نوع الملف غير مدعوم'

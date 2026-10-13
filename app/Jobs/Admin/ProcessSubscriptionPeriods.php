@@ -6,6 +6,7 @@ use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Subscription\SubscriptionPeriod;
+use App\Models\Tenants\UserMangment\User\User;
 use App\Notifications\Tenants\General\GeneralNotification;
 use App\Services\shared\Subscription\SubscriptionManager;
 use Carbon\Carbon;
@@ -54,7 +55,7 @@ class ProcessSubscriptionPeriods implements ShouldQueue
     {
         $queuedPeriods = SubscriptionPeriod::where('status', SubscriptionPeriodStatus::QUEUED)->where('period_start', '<=', $now)->with('subscription')->get();
 
-        Log::error("===============================");
+        Log::error('===============================');
         Log::error($queuedPeriods);
 
         foreach ($queuedPeriods as $period) {
@@ -82,12 +83,14 @@ class ProcessSubscriptionPeriods implements ShouldQueue
             DB::transaction(function () use ($subscription) {
                 $hasQueued = $subscription->periods()->where('status', SubscriptionPeriodStatus::QUEUED)->exists();
 
-                if ($hasQueued) return;
+                if ($hasQueued) {
+                    return;
+                }
 
                 // انهاء الفترة
                 SubscriptionPeriod::where('subscription_id', $subscription->id)->where('is_current', true)
                     ->update([
-                        'status'     => SubscriptionPeriodStatus::ENDED,
+                        'status' => SubscriptionPeriodStatus::ENDED,
                         'is_current' => false,
                     ]);
 
@@ -112,7 +115,7 @@ class ProcessSubscriptionPeriods implements ShouldQueue
         $subscriptions = Subscription::whereIn('id', $ids)->get(['id', 'tenant_id']);
 
         Subscription::whereIn('id', $ids)->update([
-            'status'     => SubscriptionStatus::EXPIRED,
+            'status' => SubscriptionStatus::EXPIRED,
             'updated_at' => now(),
         ]);
 
@@ -144,12 +147,12 @@ class ProcessSubscriptionPeriods implements ShouldQueue
             // انهي أي فترة حالية
             SubscriptionPeriod::where('subscription_id', $subscription->id)->where('is_current', true)
                 ->update([
-                    'status'     => SubscriptionPeriodStatus::ENDED,
+                    'status' => SubscriptionPeriodStatus::ENDED,
                     'is_current' => false,
                 ]);
 
             $newPeriod->update([
-                'status'     => SubscriptionPeriodStatus::ACTIVE,
+                'status' => SubscriptionPeriodStatus::ACTIVE,
                 'is_current' => true,
             ]);
         });
@@ -176,7 +179,9 @@ class ProcessSubscriptionPeriods implements ShouldQueue
 
         foreach ($periods30 as $period) {
             $subscription = $period->subscription;
-            if (!$subscription || !$subscription->tenant) continue;
+            if (! $subscription || ! $subscription->tenant) {
+                continue;
+            }
 
             $days = app(SubscriptionManager::class)->calculateDaysRemaining($period) ?? 0;
 
@@ -204,7 +209,9 @@ class ProcessSubscriptionPeriods implements ShouldQueue
 
         foreach ($periods7 as $period) {
             $subscription = $period->subscription;
-            if (!$subscription || !$subscription->tenant) continue;
+            if (! $subscription || ! $subscription->tenant) {
+                continue;
+            }
 
             $days = app(SubscriptionManager::class)->calculateDaysRemaining($period) ?? 0;
 
@@ -216,7 +223,7 @@ class ProcessSubscriptionPeriods implements ShouldQueue
             );
 
             $period->update([
-                'reminded_at_7'  => $now,
+                'reminded_at_7' => $now,
                 'reminded_at_30' => $period->reminded_at_30 ?? $now,
             ]);
         }
@@ -229,8 +236,10 @@ class ProcessSubscriptionPeriods implements ShouldQueue
     {
         try {
             $tenant->run(function () use ($days, $periodEnd, $level) {
-                $user = \App\Models\Tenants\UserMangment\User\User::find(1) ?? \App\Models\Tenants\UserMangment\User\User::first();
-                if (!$user) return;
+                $user = User::find(1) ?? User::first();
+                if (! $user) {
+                    return;
+                }
 
                 $formattedDate = Carbon::parse($periodEnd)->format('Y-m-d');
                 $isUrgent = ($level === 'danger');
@@ -247,7 +256,7 @@ class ProcessSubscriptionPeriods implements ShouldQueue
                 $user->notifyNow($notification);
             });
         } catch (\Throwable $e) {
-            Log::error('Failed to send subscription expiration reminder: ' . $e->getMessage());
+            Log::error('Failed to send subscription expiration reminder: '.$e->getMessage());
         }
     }
 }

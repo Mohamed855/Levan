@@ -3,14 +3,12 @@
 namespace App\Services\shared\Integration;
 
 use App\Models\Admin\Settings\Settings;
-
 use App\Models\Admin\Tickets\Ticket;
 use App\Models\Admin\Tickets\TicketReply;
 use App\Models\Admin\Tickets\TicketSection;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class EtmamTicketService
@@ -22,6 +20,7 @@ class EtmamTicketService
         if ($this->connector === null) {
             $this->connector = new EtmamConnector(tenant('id'));
         }
+
         return $this->connector;
     }
 
@@ -73,10 +72,10 @@ class EtmamTicketService
                 $query = array_merge(
                     $filters,
                     [
-                        'tenant_id'      => $this->getConnector()->getTenantId(),
+                        'tenant_id' => $this->getConnector()->getTenantId(),
                         'tenant_user_id' => auth()->id(),
-                        'page'           => $page,
-                        'per_page'       => $perPage,
+                        'page' => $page,
+                        'per_page' => $perPage,
                     ]
                 );
 
@@ -85,7 +84,7 @@ class EtmamTicketService
                     return $response;
                 }
             } catch (\Throwable $e) {
-                Log::warning('Etmam external API list failed, falling back to local: ' . $e->getMessage());
+                Log::warning('Etmam external API list failed, falling back to local: '.$e->getMessage());
             }
         }
 
@@ -93,11 +92,11 @@ class EtmamTicketService
         try {
             $query = $this->tenantTicketQuery();
 
-            if (!empty($filters['status'])) {
+            if (! empty($filters['status'])) {
                 $query->where('status', $filters['status']);
             }
 
-            if (!empty($filters['ticketing_sections_id'])) {
+            if (! empty($filters['ticketing_sections_id'])) {
                 $query->where('ticketing_sections_id', $filters['ticketing_sections_id']);
             }
 
@@ -105,14 +104,14 @@ class EtmamTicketService
 
             $formatted = collect($tickets->items())->map(function ($ticket) {
                 return [
-                    'id'                    => $ticket->id,
-                    'ticket_number'         => $ticket->ticket_number,
-                    'title'                 => $ticket->title,
+                    'id' => $ticket->id,
+                    'ticket_number' => $ticket->ticket_number,
+                    'title' => $ticket->title,
                     'ticketing_sections_id' => $ticket->ticketing_sections_id,
-                    'status'                => $ticket->status,
-                    'priority'              => $ticket->priority,
-                    'customer_name'         => $ticket->customer_name,
-                    'created_at'            => $ticket->created_at?->toIso8601String() ?? now()->toIso8601String(),
+                    'status' => $ticket->status,
+                    'priority' => $ticket->priority,
+                    'customer_name' => $ticket->customer_name,
+                    'created_at' => $ticket->created_at?->toIso8601String() ?? now()->toIso8601String(),
                 ];
             })->all();
 
@@ -124,15 +123,16 @@ class EtmamTicketService
                         'current_page' => $tickets->currentPage(),
                         'last_page' => $tickets->lastPage(),
                         'total' => $tickets->total(),
-                    ]
-                ]
+                    ],
+                ],
             ];
         } catch (\Throwable $e) {
-            Log::error('Local list tickets failed: ' . $e->getMessage());
+            Log::error('Local list tickets failed: '.$e->getMessage());
+
             return [
                 'success' => false,
                 'message' => 'تعذر جلب التذاكر',
-                'data' => ['data' => ['data' => []]]
+                'data' => ['data' => ['data' => []]],
             ];
         }
     }
@@ -154,7 +154,7 @@ class EtmamTicketService
                     return $response;
                 }
             } catch (\Throwable $e) {
-                Log::warning('Etmam external API create failed, falling back to local: ' . $e->getMessage());
+                Log::warning('Etmam external API create failed, falling back to local: '.$e->getMessage());
             }
         }
 
@@ -177,28 +177,28 @@ class EtmamTicketService
                     $path = $file->store('tickets/attachments', 'public');
                     $uploadedAttachments[] = [
                         'name' => $file->getClientOriginalName(),
-                        'url'  => $path,
+                        'url' => $path,
                         'size' => $file->getSize(),
                     ];
                 }
             }
 
             // Generate unique ticket number
-            $ticketNumber = 'TCK-' . date('Ymd') . '-' . strtoupper(Str::random(5));
+            $ticketNumber = 'TCK-'.date('Ymd').'-'.strtoupper(Str::random(5));
 
             $ticket = Ticket::create([
-                'ticket_number'         => $ticketNumber,
-                'tenant_id'             => $tenantId,
-                'tenant_user_id'        => $data['tenant_user_id'] ?? $user?->id,
-                'customer_name'         => $data['customer_name'] ?? $user?->name ?? 'مستأجر',
-                'customer_email'        => $data['customer_email'] ?? $user?->email,
-                'customer_phone'        => $data['customer_phone'] ?? $user?->phone,
+                'ticket_number' => $ticketNumber,
+                'tenant_id' => $tenantId,
+                'tenant_user_id' => $data['tenant_user_id'] ?? $user?->id,
+                'customer_name' => $data['customer_name'] ?? $user?->name ?? 'مستأجر',
+                'customer_email' => $data['customer_email'] ?? $user?->email,
+                'customer_phone' => $data['customer_phone'] ?? $user?->phone,
                 'ticketing_sections_id' => $data['ticketing_sections_id'] ?? 1,
-                'title'                 => $data['title'],
-                'description'           => $data['description'],
-                'status'                => 'open',
-                'priority'              => $data['priority'] ?? 'medium',
-                'attachments'           => $uploadedAttachments,
+                'title' => $data['title'],
+                'description' => $data['description'],
+                'status' => 'open',
+                'priority' => $data['priority'] ?? 'medium',
+                'attachments' => $uploadedAttachments,
             ]);
 
             return [
@@ -206,13 +206,14 @@ class EtmamTicketService
                 'message' => 'تم إنشاء التذكرة بنجاح',
                 'data' => [
                     'data' => $ticket->toArray(),
-                ]
+                ],
             ];
         } catch (\Throwable $e) {
-            Log::error('Local create ticket failed: ' . $e->getMessage());
+            Log::error('Local create ticket failed: '.$e->getMessage());
+
             return [
                 'success' => false,
-                'message' => 'حدث خطأ أثناء حفظ التذكرة محلياً: ' . $e->getMessage(),
+                'message' => 'حدث خطأ أثناء حفظ التذكرة محلياً: '.$e->getMessage(),
             ];
         }
     }
@@ -229,7 +230,7 @@ class EtmamTicketService
                     return $response;
                 }
             } catch (\Throwable $e) {
-                Log::warning('Etmam external API get ticket failed, falling back to local: ' . $e->getMessage());
+                Log::warning('Etmam external API get ticket failed, falling back to local: '.$e->getMessage());
             }
         }
 
@@ -239,7 +240,7 @@ class EtmamTicketService
                 ->where('ticket_number', $ticketNumber)
                 ->first();
 
-            if (!$ticket) {
+            if (! $ticket) {
                 return [
                     'success' => false,
                     'message' => 'لم يتم العثور على التذكرة',
@@ -250,27 +251,28 @@ class EtmamTicketService
                 'success' => true,
                 'data' => [
                     'data' => [
-                        'id'                    => $ticket->id,
-                        'ticket_number'         => $ticket->ticket_number,
-                        'title'                 => $ticket->title,
-                        'description'           => $ticket->description,
-                        'status'                => $ticket->status,
-                        'priority'              => $ticket->priority,
-                        'tenant_id'             => $ticket->tenant_id,
+                        'id' => $ticket->id,
+                        'ticket_number' => $ticket->ticket_number,
+                        'title' => $ticket->title,
+                        'description' => $ticket->description,
+                        'status' => $ticket->status,
+                        'priority' => $ticket->priority,
+                        'tenant_id' => $ticket->tenant_id,
                         'ticketing_sections_id' => $ticket->ticketing_sections_id,
-                        'customer_name'         => $ticket->customer_name,
-                        'customer_email'        => $ticket->customer_email,
-                        'customer_phone'        => $ticket->customer_phone,
-                        'attachments'           => is_array($ticket->attachments) ? $ticket->attachments : (json_decode($ticket->attachments, true) ?? []),
-                        'survey_result'         => $ticket->survey_result,
-                        'resolved_at'           => $ticket->resolved_at?->toIso8601String(),
-                        'closed_at'             => $ticket->closed_at?->toIso8601String(),
-                        'created_at'            => $ticket->created_at?->toIso8601String() ?? now()->toIso8601String(),
-                    ]
-                ]
+                        'customer_name' => $ticket->customer_name,
+                        'customer_email' => $ticket->customer_email,
+                        'customer_phone' => $ticket->customer_phone,
+                        'attachments' => is_array($ticket->attachments) ? $ticket->attachments : (json_decode($ticket->attachments, true) ?? []),
+                        'survey_result' => $ticket->survey_result,
+                        'resolved_at' => $ticket->resolved_at?->toIso8601String(),
+                        'closed_at' => $ticket->closed_at?->toIso8601String(),
+                        'created_at' => $ticket->created_at?->toIso8601String() ?? now()->toIso8601String(),
+                    ],
+                ],
             ];
         } catch (\Throwable $e) {
-            Log::error('Local get ticket failed: ' . $e->getMessage());
+            Log::error('Local get ticket failed: '.$e->getMessage());
+
             return [
                 'success' => false,
                 'message' => 'تعذر جلب تفاصيل التذكرة',
@@ -296,7 +298,7 @@ class EtmamTicketService
                     return $response;
                 }
             } catch (\Throwable $e) {
-                Log::warning('Etmam external API addReply failed, falling back to local: ' . $e->getMessage());
+                Log::warning('Etmam external API addReply failed, falling back to local: '.$e->getMessage());
             }
         }
 
@@ -306,7 +308,7 @@ class EtmamTicketService
                 ->where('ticket_number', $ticketNumber)
                 ->first();
 
-            if (!$ticket) {
+            if (! $ticket) {
                 return [
                     'success' => false,
                     'message' => 'لم يتم العثور على التذكرة',
@@ -320,19 +322,19 @@ class EtmamTicketService
                     $path = $file->store('tickets/replies', 'public');
                     $uploadedAttachments[] = [
                         'name' => $file->getClientOriginalName(),
-                        'url'  => $path,
+                        'url' => $path,
                     ];
                 }
             }
 
             TicketReply::create([
-                'ticket_id'     => $ticket->id,
+                'ticket_id' => $ticket->id,
                 'ticket_number' => $ticketNumber,
-                'sender_type'   => $senderType,
-                'user_id'       => $user?->id,
-                'user_name'     => $senderName ?? $user?->name ?? ($senderType === 'support_user' ? 'الدعم الفني' : 'المستأجر'),
-                'message'       => $message,
-                'attachments'   => $uploadedAttachments,
+                'sender_type' => $senderType,
+                'user_id' => $user?->id,
+                'user_name' => $senderName ?? $user?->name ?? ($senderType === 'support_user' ? 'الدعم الفني' : 'المستأجر'),
+                'message' => $message,
+                'attachments' => $uploadedAttachments,
             ]);
 
             // Update ticket status if replied by support
@@ -345,10 +347,11 @@ class EtmamTicketService
                 'message' => 'تم إضافة الرد بنجاح',
             ];
         } catch (\Throwable $e) {
-            Log::error('Local addReply failed: ' . $e->getMessage());
+            Log::error('Local addReply failed: '.$e->getMessage());
+
             return [
                 'success' => false,
-                'message' => 'تعذر إضافة الرد: ' . $e->getMessage(),
+                'message' => 'تعذر إضافة الرد: '.$e->getMessage(),
             ];
         }
     }
@@ -365,7 +368,7 @@ class EtmamTicketService
                     return $response;
                 }
             } catch (\Throwable $e) {
-                Log::warning('Etmam external API getReplies failed, falling back to local: ' . $e->getMessage());
+                Log::warning('Etmam external API getReplies failed, falling back to local: '.$e->getMessage());
             }
         }
 
@@ -375,10 +378,10 @@ class EtmamTicketService
                 ->where('ticket_number', $ticketNumber)
                 ->first();
 
-            if (!$ticket) {
+            if (! $ticket) {
                 return [
                     'success' => true,
-                    'data' => ['data' => []]
+                    'data' => ['data' => []],
                 ];
             }
 
@@ -387,13 +390,13 @@ class EtmamTicketService
                 ->get()
                 ->map(function ($reply) {
                     return [
-                        'id'                => $reply->id,
-                        'sender_type'       => $reply->sender_type,
+                        'id' => $reply->id,
+                        'sender_type' => $reply->sender_type,
                         'support_user_name' => $reply->user_name,
-                        'message'           => $reply->message,
-                        'attachments'       => $reply->attachments ?? [],
-                        'rating'            => ['rating' => $reply->rating],
-                        'created_at'        => $reply->created_at?->toIso8601String() ?? now()->toIso8601String(),
+                        'message' => $reply->message,
+                        'attachments' => $reply->attachments ?? [],
+                        'rating' => ['rating' => $reply->rating],
+                        'created_at' => $reply->created_at?->toIso8601String() ?? now()->toIso8601String(),
                     ];
                 })
                 ->all();
@@ -402,13 +405,14 @@ class EtmamTicketService
                 'success' => true,
                 'data' => [
                     'data' => $replies,
-                ]
+                ],
             ];
         } catch (\Throwable $e) {
-            Log::error('Local getReplies failed: ' . $e->getMessage());
+            Log::error('Local getReplies failed: '.$e->getMessage());
+
             return [
                 'success' => true,
-                'data' => ['data' => []]
+                'data' => ['data' => []],
             ];
         }
     }
@@ -425,7 +429,7 @@ class EtmamTicketService
                     return $response;
                 }
             } catch (\Throwable $e) {
-                Log::warning('Etmam external API rateReply failed: ' . $e->getMessage());
+                Log::warning('Etmam external API rateReply failed: '.$e->getMessage());
             }
         }
 
@@ -443,11 +447,13 @@ class EtmamTicketService
                 : null;
             if ($reply) {
                 $reply->update(['rating' => $rating]);
+
                 return [
                     'success' => true,
                     'message' => 'تم تقييم الرد بنجاح',
                 ];
             }
+
             return [
                 'success' => false,
                 'message' => 'تعذر العثور على الرد للتقييم',
@@ -472,7 +478,7 @@ class EtmamTicketService
                     return $response;
                 }
             } catch (\Throwable $e) {
-                Log::warning('Etmam external API answerSurvey failed: ' . $e->getMessage());
+                Log::warning('Etmam external API answerSurvey failed: '.$e->getMessage());
             }
         }
 
@@ -484,7 +490,7 @@ class EtmamTicketService
             if ($ticket) {
                 $status = ($data['solved'] ?? false) ? 'resolved' : 'reopened';
                 $ticket->update([
-                    'status'        => $status,
+                    'status' => $status,
                     'survey_result' => $data,
                 ]);
 
@@ -518,7 +524,7 @@ class EtmamTicketService
                     return $response;
                 }
             } catch (\Throwable $e) {
-                Log::warning('Etmam external API getSections failed, falling back to local: ' . $e->getMessage());
+                Log::warning('Etmam external API getSections failed, falling back to local: '.$e->getMessage());
             }
         }
 
@@ -526,8 +532,8 @@ class EtmamTicketService
         try {
             $sections = TicketSection::where('is_active', true)->get()->map(function ($section) {
                 return [
-                    'id'          => $section->id,
-                    'name'        => $section->name,
+                    'id' => $section->id,
+                    'name' => $section->name,
                     'description' => $section->description,
                 ];
             })->all();
@@ -544,7 +550,7 @@ class EtmamTicketService
                 'success' => true,
                 'data' => [
                     'data' => $sections,
-                ]
+                ],
             ];
         } catch (\Throwable $e) {
             return [
@@ -555,7 +561,7 @@ class EtmamTicketService
                         ['id' => 2, 'name' => 'الاشتراكات والفوترة', 'description' => 'الاستفسارات المالية وتجديد الاشتراكات'],
                         ['id' => 3, 'name' => 'الاستفسارات العامة', 'description' => 'الأسئلة العامة والمقترحات'],
                     ],
-                ]
+                ],
             ];
         }
     }

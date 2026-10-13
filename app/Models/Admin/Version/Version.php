@@ -8,7 +8,6 @@ use App\Models\Admin\Tenants\Tenant;
 use App\Traits\ActivityLogTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\Models\Concerns\LogsActivity;
 
 class Version extends Model
 {
@@ -19,7 +18,7 @@ class Version extends Model
     |============================================================================
     |============================================================================
     */
-    use HasFactory,  ActivityLogTrait;
+    use ActivityLogTrait,  HasFactory;
 
     protected $connection = 'mysql';
 
@@ -37,12 +36,11 @@ class Version extends Model
     ];
 
     protected $casts = [
-        'is_active'     => 'boolean',
-        'file_size'     => 'integer',
-        'released_at'   => 'datetime',
-        'stage'         =>  VersionStage::class,
+        'is_active' => 'boolean',
+        'file_size' => 'integer',
+        'released_at' => 'datetime',
+        'stage' => VersionStage::class,
     ];
-
 
     /*
     |============================================================================
@@ -64,14 +62,14 @@ class Version extends Model
     public static function getFieldTranslations(): array
     {
         return [
-            'version'     => 'رقم الإصدار',
-            'changelog'   => 'سجل التغييرات',
-            'file_path'   => 'مسار الملف',
-            'stage'       => 'المرحلة',
-            'is_active'   => 'الحالة',
+            'version' => 'رقم الإصدار',
+            'changelog' => 'سجل التغييرات',
+            'file_path' => 'مسار الملف',
+            'stage' => 'المرحلة',
+            'is_active' => 'الحالة',
             'released_at' => 'تاريخ الإصدار',
-            'created_by'  => 'أنشئ بواسطة',
-            'updated_by'  => 'تم التحديث بواسطة',
+            'created_by' => 'أنشئ بواسطة',
+            'updated_by' => 'تم التحديث بواسطة',
         ];
     }
 
@@ -84,9 +82,9 @@ class Version extends Model
     {
         return [
             'stage' => [
-                'alpha'  =>  VersionStage::ALPHA->label(),
-                'beta'   =>  VersionStage::BETA->label(),
-                'stable' =>  VersionStage::STABLE->label(),
+                'alpha' => VersionStage::ALPHA->label(),
+                'beta' => VersionStage::BETA->label(),
+                'stable' => VersionStage::STABLE->label(),
             ],
             'is_active' => [
                 0 => 'غير نشط',
@@ -94,7 +92,6 @@ class Version extends Model
             ],
         ];
     }
-
 
     /*
     |============================================================================
@@ -108,26 +105,20 @@ class Version extends Model
         return $this->belongsTo(AdminUser::class, 'created_by');
     }
 
-
     public function updater()
     {
         return $this->belongsTo(AdminUser::class, 'updated_by');
     }
-
 
     public function tenants()
     {
         return $this->hasMany(Tenant::class, 'version_id');
     }
 
-
-
-
     // public function tenantVersions()
     // {
     //     return $this->hasMany(TenantVersion::class);
     // }
-
 
     // public function tenants()
     // {

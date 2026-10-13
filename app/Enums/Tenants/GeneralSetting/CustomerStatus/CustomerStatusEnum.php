@@ -22,7 +22,7 @@ class CustomerStatusEnum
             'special_cases' => 'حالات خاصة',
             'system_related' => 'حالات النظام',
             'follow_up' => 'متابعة نشطة',
-            'other' => 'أخرى'
+            'other' => 'أخرى',
         ];
     }
 
@@ -37,7 +37,7 @@ class CustomerStatusEnum
     {
         return [
             'exclude' => 'استبعاد من الموظف',
-            'rotate' => 'تدوير'
+            'rotate' => 'تدوير',
         ];
     }
 
@@ -52,7 +52,7 @@ class CustomerStatusEnum
     {
         return [
             'days' => 'أيام',
-            'attempts' => 'محاولات'
+            'attempts' => 'محاولات',
         ];
     }
 
@@ -69,7 +69,7 @@ class CustomerStatusEnum
             'archive' => 'الأرشيف',
             'update_numbers' => 'تحديث الأرقام',
             'missing_documents' => 'النواقص',
-            'collector_assignment' => 'اسناد المحصل'
+            'collector_assignment' => 'اسناد المحصل',
         ];
     }
 
@@ -87,7 +87,7 @@ class CustomerStatusEnum
             2 => 'منخفضة',
             3 => 'متوسطة',
             4 => 'عالية',
-            5 => 'عالية جداً'
+            5 => 'عالية جداً',
         ];
     }
 }

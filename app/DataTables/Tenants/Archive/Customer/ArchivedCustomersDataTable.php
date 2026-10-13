@@ -9,7 +9,8 @@ use Carbon\Carbon;
 
 class ArchivedCustomersDataTable extends AbstractDataTable
 {
-    private $route = "archive.customers";
+    private $route = 'archive.customers';
+
     private $customerArchiveService;
 
     public function __construct(CustomerArchiveService $customerArchiveService)
@@ -27,6 +28,7 @@ class ArchivedCustomersDataTable extends AbstractDataTable
         $datatable = datatables()->eloquent($query)->addIndexColumn();
         $this->addCustomColumns($datatable);
         $datatable = $this->applyFilters($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
@@ -37,7 +39,7 @@ class ArchivedCustomersDataTable extends AbstractDataTable
     */
     protected function getTableId()
     {
-        return "archived-customers-table";
+        return 'archived-customers-table';
     }
 
     /*
@@ -63,14 +65,14 @@ class ArchivedCustomersDataTable extends AbstractDataTable
             ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'customers.id', 'title' => 'ID', 'visible' => false],
             [
-                'data'       => 'checkbox',
-                'name'       => 'checkbox',
-                'title'      => '<input type="checkbox" id="select-all">',
-                'orderable'  => false,
+                'data' => 'checkbox',
+                'name' => 'checkbox',
+                'title' => '<input type="checkbox" id="select-all">',
+                'orderable' => false,
                 'searchable' => false,
                 'width' => '10px',
                 'className' => 'custom-checkbox',
-                'createdCell' => "function(td) { $(td).css('padding-left', '38px'); }"
+                'createdCell' => "function(td) { $(td).css('padding-left', '38px'); }",
             ],
             ['data' => 'name', 'name' => 'customers.name', 'title' => 'اسم العميل', 'width' => '200px', 'className' => 'text-start'],
             ['data' => 'account_number', 'name' => 'customers.account_number', 'title' => 'رقم الحساب', 'width' => '120px'],
@@ -95,7 +97,7 @@ class ArchivedCustomersDataTable extends AbstractDataTable
         $datatable->filter(function ($query) {
             $globalSearch = request()->input('search.value');
 
-            if (!empty($globalSearch)) {
+            if (! empty($globalSearch)) {
                 $cleanSearch = trim(preg_replace('/\s+/', ' ', $globalSearch));
                 $searchWords = explode(' ', $cleanSearch);
 
@@ -126,6 +128,7 @@ class ArchivedCustomersDataTable extends AbstractDataTable
                             $resultQuery->where('name', 'like', "%{$cleanSearch}%");
                         });
                 });
+
                 return;
             }
 
@@ -164,20 +167,21 @@ class ArchivedCustomersDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
             ->editColumn('name', function ($row) {
                 return '<div>
-                    <span class="fw-medium">' . e($row->name) . '</span>
+                    <span class="fw-medium">'.e($row->name).'</span>
                 </div>';
             })
             ->editColumn('account_number', function ($row) {
-                return '<span class="fw-medium">' . e($row->account_number ?? 'غير محدد') . '</span>';
+                return '<span class="fw-medium">'.e($row->account_number ?? 'غير محدد').'</span>';
             })
             ->editColumn('customer_type', function ($row) {
                 $typeText = $row->customer_type === 'individual' ? 'فردي' : 'شركة';
                 $badgeClass = $row->customer_type === 'individual' ? 'bg-label-primary' : 'bg-label-info';
-                return '<span class="badge ' . $badgeClass . '">' . $typeText . '</span>';
+
+                return '<span class="badge '.$badgeClass.'">'.$typeText.'</span>';
             })
             ->addColumn('company_portfolio', function (Customer $customer) {
                 // ✅ استخدام العلاقة المحملة مسبقاً
@@ -185,47 +189,49 @@ class ArchivedCustomersDataTable extends AbstractDataTable
                 if ($customer->company) {
                     $logoHtml = '';
                     if ($customer->company->logo_url) {
-                        $logoHtml = '<img src="' . $customer->company->logo_url . '" 
-                             alt="' . e($customer->company->name) . '" 
+                        $logoHtml = '<img src="'.$customer->company->logo_url.'" 
+                             alt="'.e($customer->company->name).'" 
                              style="width: 24px; height: 24px; object-fit: contain; border-radius: 4px; margin-right: 8px; vertical-align: middle;">';
                     }
-                    $companyHtml = '<div class="d-flex align-items-center justify-content-start" style="min-height: 24px;">' .
-                        $logoHtml .
-                        '<span class="small flex-grow-1">' . e($customer->company->name) . '</span>' .
+                    $companyHtml = '<div class="d-flex align-items-center justify-content-start" style="min-height: 24px;">'.
+                        $logoHtml.
+                        '<span class="small flex-grow-1">'.e($customer->company->name).'</span>'.
                         '</div>';
                 } else {
                     $companyHtml = '<div class="d-flex align-items-center" style="min-height: 24px;"><span class="small">غير محدد</span></div>';
                 }
 
-                return '<div>' .
-                    $companyHtml .
-                    '<div class="small">' . e($customer->portfolio->name ?? 'غير محدد') . '</div>' .
+                return '<div>'.
+                    $companyHtml.
+                    '<div class="small">'.e($customer->portfolio->name ?? 'غير محدد').'</div>'.
                     '</div>';
             })
             ->editColumn('debt_amount', function ($row) {
                 // ✅ حساب المديونية لكل عميل في الجدول
                 $remainingDebt = $this->customerArchiveService->getCustomerDebt($row->id);
-                return '<span class="fw-medium">' . number_format($remainingDebt, 2) . ' ريال</span>';
+
+                return '<span class="fw-medium">'.number_format($remainingDebt, 2).' ريال</span>';
             })
             // ✅ تم حذف عمود debt_amount تماماً
             ->editColumn('relationship_manager', function ($row) {
                 // ✅ استخدام العلاقة المحملة مسبقاً
-                return '<span>' . e($row->relationshipManager->name ?? 'غير محدد') . '</span>';
+                return '<span>'.e($row->relationshipManager->name ?? 'غير محدد').'</span>';
             })
             ->editColumn('last_contact_result', function ($row) {
                 // ✅ استخدام العلاقة المحملة مسبقاً
                 $resultName = $row->lastContactResult ? $row->lastContactResult->name : 'غير محدد';
-                return '<span class="badge bg-secondary">' . e($resultName) . '</span>';
+
+                return '<span class="badge bg-secondary">'.e($resultName).'</span>';
             })
             ->editColumn('deleted_at', function ($row) {
-                return '<div>' . Carbon::parse($row->deleted_at)->format('Y-m-d') . '</div>';
+                return '<div>'.Carbon::parse($row->deleted_at)->format('Y-m-d').'</div>';
             })
             ->addColumn('actions', function ($row) {
                 return view('tenants.archive.customers.action', ['id' => $row->id, 'route' => $this->route])->render();
             })
-            ->filterColumn('name', fn($query, $keyword) => $query->where('customers.name', 'like', "%{$keyword}%"))
-            ->filterColumn('account_number', fn($query, $keyword) => $query->where('customers.account_number', 'like', "%{$keyword}%"))
-            ->filterColumn('customer_type', fn($query, $keyword) => $query->where('customers.customer_type', 'like', "%{$keyword}%"))
+            ->filterColumn('name', fn ($query, $keyword) => $query->where('customers.name', 'like', "%{$keyword}%"))
+            ->filterColumn('account_number', fn ($query, $keyword) => $query->where('customers.account_number', 'like', "%{$keyword}%"))
+            ->filterColumn('customer_type', fn ($query, $keyword) => $query->where('customers.customer_type', 'like', "%{$keyword}%"))
             ->filterColumn('company_portfolio', function ($query, $keyword) {
                 $query->where(function ($q) use ($keyword) {
                     $q->whereHas('company', function ($companyQuery) use ($keyword) {
@@ -277,14 +283,13 @@ class ArchivedCustomersDataTable extends AbstractDataTable
     private function getActionsDropdownButton(): array
     {
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => [
+            'text' => 'الإجراءات',
+            'buttons' => [
                 ['extend' => 'copy', 'text' => 'نسخ'],
                 ['extend' => 'excel', 'text' => 'إكسل'],
             ],
         ];
     }
-
 }

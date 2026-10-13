@@ -24,13 +24,13 @@ class CompanyReportController extends Controller
         $period = $this->validatedPeriod($request);
 
         return $dataTable->render('tenants.reports.companies.index', [
-            'globalStats'          => $this->reportService->getGlobalStatistics($period),
-            'topCompaniesByDebt'   => $this->reportService->getTopCompaniesByDebt(5, $period),
+            'globalStats' => $this->reportService->getGlobalStatistics($period),
+            'topCompaniesByDebt' => $this->reportService->getTopCompaniesByDebt(5, $period),
             'customerDistribution' => $this->reportService->getCustomerDistribution(),
-            'collectionRateTrend'  => $this->reportService->getCollectionRateTrend($period, 5),
-            'companiesList'        => Company::query()->orderBy('name')->get(['id', 'name']), // الشركات
-            'periods'              => $this->periodLabels(), // خيارات الفترات الزمنية
-            'period'               => $period,
+            'collectionRateTrend' => $this->reportService->getCollectionRateTrend($period, 5),
+            'companiesList' => Company::query()->orderBy('name')->get(['id', 'name']), // الشركات
+            'periods' => $this->periodLabels(), // خيارات الفترات الزمنية
+            'period' => $period,
         ]);
     }
 
@@ -42,9 +42,9 @@ class CompanyReportController extends Controller
             'success' => true,
             'data' => $this->reportService->getCompanyStatistics($company, $period),
             'meta' => [
-                'level'        => 'company',
-                'period'       => $period,
-                'company_id'   => (int) $company->id,
+                'level' => 'company',
+                'period' => $period,
+                'company_id' => (int) $company->id,
                 'company_name' => (string) $company->name,
                 'company_logo' => $company->logo_url,
             ],
@@ -57,8 +57,8 @@ class CompanyReportController extends Controller
             'success' => true,
             'data' => $this->reportService->getPortfolioListForCompany($company),
             'meta' => [
-                'level'        => 'company',
-                'company_id'   => (int) $company->id,
+                'level' => 'company',
+                'company_id' => (int) $company->id,
                 'company_name' => (string) $company->name,
             ],
         ]);
@@ -73,12 +73,12 @@ class CompanyReportController extends Controller
             'success' => true,
             'data' => $this->reportService->getPortfolioStatistics($portfolio, $period),
             'meta' => [
-                'level'          => 'portfolio',
-                'period'         => $period,
-                'portfolio_id'   => (int) $portfolio->id,
+                'level' => 'portfolio',
+                'period' => $period,
+                'portfolio_id' => (int) $portfolio->id,
                 'portfolio_name' => (string) $portfolio->name,
-                'company_id'     => (int) $portfolio->company_id,
-                'company_name'   => (string) ($portfolio->company?->name ?? ''),
+                'company_id' => (int) $portfolio->company_id,
+                'company_name' => (string) ($portfolio->company?->name ?? ''),
             ],
         ]);
     }
@@ -120,7 +120,7 @@ class CompanyReportController extends Controller
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء إنشاء الملف: ' . $e->getMessage(),
+                'message' => 'حدث خطأ أثناء إنشاء الملف: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -145,13 +145,12 @@ class CompanyReportController extends Controller
     public function downloadFile(string $file): BinaryFileResponse
     {
         $disk = Storage::disk('tenant_public');
-        $path = 'exports/' . $file;
+        $path = 'exports/'.$file;
 
         abort_unless($disk->exists($path), 404, 'الملف غير موجود');
 
         return response()->download($disk->path($path), $file)->deleteFileAfterSend();
     }
-
 
     /*
     |============================================================================
@@ -170,15 +169,15 @@ class CompanyReportController extends Controller
     private function periodLabels(): array
     {
         return [
-            'this_month'    => 'هذا الشهر',
-            'last_month'    => 'الشهر الماضي',
-            'this_quarter'  => 'هذا الربع',
-            'last_quarter'  => 'الربع الماضي',
-            'last_3months'  => 'آخر 3 أشهر',
-            'last_6months'  => 'آخر 6 أشهر',
+            'this_month' => 'هذا الشهر',
+            'last_month' => 'الشهر الماضي',
+            'this_quarter' => 'هذا الربع',
+            'last_quarter' => 'الربع الماضي',
+            'last_3months' => 'آخر 3 أشهر',
+            'last_6months' => 'آخر 6 أشهر',
             'last_12months' => 'آخر 12 شهرا',
-            'this_year'     => 'هذا العام',
-            'last_year'     => 'العام الماضي',
+            'this_year' => 'هذا العام',
+            'last_year' => 'العام الماضي',
         ];
     }
 
@@ -194,7 +193,7 @@ class CompanyReportController extends Controller
                 'date_to',
                 'search_query',
             ]),
-            fn($value) => $value !== null && $value !== ''
+            fn ($value) => $value !== null && $value !== ''
         );
 
         if (isset($filters['period'])) {

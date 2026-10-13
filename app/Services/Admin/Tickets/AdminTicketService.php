@@ -7,6 +7,7 @@ use App\Models\Admin\Tenants\Tenant;
 use App\Models\Admin\Tickets\Ticket;
 use App\Models\Admin\Tickets\TicketReply;
 use App\Models\Admin\Tickets\TicketSection;
+use App\Models\Tenants\UserMangment\User\User;
 use App\Notifications\Tenants\General\GeneralNotification;
 use App\Services\shared\Integration\EtmamTicketService;
 use Illuminate\Http\UploadedFile;
@@ -15,9 +16,7 @@ use Illuminate\Support\Str;
 
 class AdminTicketService
 {
-    public function __construct(private EtmamTicketService $etmamService)
-    {
-    }
+    public function __construct(private EtmamTicketService $etmamService) {}
 
     /**
      * Get ticket statistics / KPIs
@@ -25,11 +24,11 @@ class AdminTicketService
     public function getStats(): array
     {
         return [
-            'total'       => Ticket::count(),
-            'open'        => Ticket::where('status', 'open')->count(),
+            'total' => Ticket::count(),
+            'open' => Ticket::where('status', 'open')->count(),
             'in_progress' => Ticket::where('status', 'in_progress')->count(),
-            'resolved'    => Ticket::whereIn('status', ['resolved', 'resolved_pending_survey'])->count(),
-            'closed'      => Ticket::where('status', 'closed')->count(),
+            'resolved' => Ticket::whereIn('status', ['resolved', 'resolved_pending_survey'])->count(),
+            'closed' => Ticket::where('status', 'closed')->count(),
         ];
     }
 
@@ -40,15 +39,15 @@ class AdminTicketService
     {
         $query = Ticket::with(['tenant', 'section'])->select('tickets.*');
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        if (!empty($filters['ticketing_sections_id'])) {
+        if (! empty($filters['ticketing_sections_id'])) {
             $query->where('ticketing_sections_id', $filters['ticketing_sections_id']);
         }
 
-        if (!empty($filters['tenant_id'])) {
+        if (! empty($filters['tenant_id'])) {
             $query->where('tenant_id', $filters['tenant_id']);
         }
 
@@ -79,16 +78,17 @@ class AdminTicketService
                 $this->notifyTenant(
                     $ticket,
                     'رد جديد من الدعم الفني',
-                    "تمت إضافة رد جديد على التذكرة #{$ticketNumber}: " . Str::limit($message, 80),
+                    "تمت إضافة رد جديد على التذكرة #{$ticketNumber}: ".Str::limit($message, 80),
                     'info',
                     'ti ti-message-dots'
                 );
             }
+
             return $response;
         }
 
         $ticket = Ticket::where('ticket_number', $ticketNumber)->first();
-        if (!$ticket) {
+        if (! $ticket) {
             return ['success' => false, 'message' => 'لم يتم العثور على التذكرة'];
         }
 
@@ -98,19 +98,19 @@ class AdminTicketService
                 $path = $file->store('tickets/replies', 'public');
                 $uploadedAttachments[] = [
                     'name' => $file->getClientOriginalName(),
-                    'url'  => $path,
+                    'url' => $path,
                 ];
             }
         }
 
         TicketReply::create([
-            'ticket_id'     => $ticket->id,
+            'ticket_id' => $ticket->id,
             'ticket_number' => $ticketNumber,
-            'sender_type'   => 'support_user',
-            'user_id'       => $admin?->id,
-            'user_name'     => $senderName,
-            'message'       => $message,
-            'attachments'   => $uploadedAttachments,
+            'sender_type' => 'support_user',
+            'user_id' => $admin?->id,
+            'user_name' => $senderName,
+            'message' => $message,
+            'attachments' => $uploadedAttachments,
         ]);
 
         if ($ticket->status === 'open') {
@@ -121,7 +121,7 @@ class AdminTicketService
         $this->notifyTenant(
             $ticket,
             'رد جديد من الدعم الفني',
-            "تمت إضافة رد جديد على التذكرة #{$ticketNumber}: " . Str::limit($message, 80),
+            "تمت إضافة رد جديد على التذكرة #{$ticketNumber}: ".Str::limit($message, 80),
             'info',
             'ti ti-message-dots'
         );
@@ -135,7 +135,7 @@ class AdminTicketService
     public function updateStatus(string $ticketNumber, string $status): array
     {
         $ticket = Ticket::where('ticket_number', $ticketNumber)->first();
-        if (!$ticket) {
+        if (! $ticket) {
             return ['success' => false, 'message' => 'لم يتم العثور على التذكرة'];
         }
 
@@ -146,7 +146,7 @@ class AdminTicketService
         // Notify tenant about status change
         $this->notifyTenant(
             $ticket,
-            'تحديث حالة التذكرة #' . $ticketNumber,
+            'تحديث حالة التذكرة #'.$ticketNumber,
             "تم تغيير حالة تذكرتك ({$ticket->title}) إلى: {$statusLabel}",
             'warning',
             'ti ti-refresh'
@@ -161,12 +161,12 @@ class AdminTicketService
     private function notifyTenant(Ticket $ticket, string $title, string $message, string $type = 'info', string $icon = 'ti ti-ticket'): void
     {
         try {
-            if (!$ticket->tenant_id) {
+            if (! $ticket->tenant_id) {
                 return;
             }
 
             $tenant = Tenant::find($ticket->tenant_id);
-            if (!$tenant) {
+            if (! $tenant) {
                 return;
             }
 
@@ -174,11 +174,11 @@ class AdminTicketService
                 // Find target user in tenant DB
                 $user = null;
                 if ($ticket->tenant_user_id) {
-                    $user = \App\Models\Tenants\UserMangment\User\User::find($ticket->tenant_user_id);
+                    $user = User::find($ticket->tenant_user_id);
                 }
 
-                if (!$user) {
-                    $user = \App\Models\Tenants\UserMangment\User\User::first();
+                if (! $user) {
+                    $user = User::first();
                 }
 
                 if ($user) {
@@ -190,7 +190,7 @@ class AdminTicketService
         } catch (\Throwable $e) {
             Log::error('Failed to notify tenant about ticket update', [
                 'ticket_number' => $ticket->ticket_number,
-                'error'         => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
         }
     }

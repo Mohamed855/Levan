@@ -7,22 +7,20 @@ use App\Models\Admin\Plans\Plan;
 
 class PlanDataTable extends AbstractDataTable
 {
-    private $page  = "admin.archive.plan";
-    private $route = "admin.archive.plan";
+    private $page = 'admin.archive.plan';
 
+    private $route = 'admin.archive.plan';
 
     // table id
     protected function getTableId()
     {
-        return "paln-archive-table";
+        return 'paln-archive-table';
     }
-
 
     protected function resource()
     {
         return Plan::onlyTrashed();
     }
-
 
     protected function getColumns(): array
     {
@@ -32,28 +30,24 @@ class PlanDataTable extends AbstractDataTable
             ['data' => 'checkbox',  'name' => 'checkbox',   'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
 
             ['data' => 'name',               'name' => 'name',                      'title' => 'اسم الباقة',    'className' => 'text-start'],
-            ['data' => 'price',              'name' => 'price',                     'title' => 'السعر ',],
+            ['data' => 'price',              'name' => 'price',                     'title' => 'السعر '],
             ['data' => 'discount_percentage', 'name' => 'discount_percentage',       'title' => 'نسبة الخصم'],
             ['data' => 'price_after_discount', 'name' => 'price',                     'title' => 'السعر بعد الخصم'],
 
             ['data' => 'yearly_renewal_price', 'name' => 'yearly_renewal_price',                     'title' => 'سعر التجديد'],
 
-            ['data' => 'included_users',     'name' => 'included_users',            'title' => 'عدد المستخدمين',],
-            ['data' => 'extra_user_license_price',     'name' => 'extra_user_license_price',            'title' => 'سعر الترخيص الاضافي',],
+            ['data' => 'included_users',     'name' => 'included_users',            'title' => 'عدد المستخدمين'],
+            ['data' => 'extra_user_license_price',     'name' => 'extra_user_license_price',            'title' => 'سعر الترخيص الاضافي'],
             ['data' => 'domain_management',  'name' => 'domain_management_enabled', 'title' => 'إعدادات الدومينات'],
-            ['data' => 'is_active',          'name' => 'is_active',                 'title' => 'الحالة',],
+            ['data' => 'is_active',          'name' => 'is_active',                 'title' => 'الحالة'],
             ['data' => 'actions',            'name' => 'actions',                   'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
 
-
-
-
     protected function addCustomColumns($datatable)
     {
         $datatable
-            ->addColumn('checkbox', fn($row) => '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">')
-
+            ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
 
             ->editColumn('price', function ($row) {
                 return number_format($row->price);
@@ -64,7 +58,7 @@ class PlanDataTable extends AbstractDataTable
                     return '-';
                 }
 
-                return $row->discount_percentage . ' %';
+                return $row->discount_percentage.' %';
             })
 
             ->addColumn('price_after_discount', function ($row) {
@@ -92,7 +86,6 @@ class PlanDataTable extends AbstractDataTable
 
                 return '<span class="badge bg-secondary">غير مفعّلة</span>';
             })
-
 
             ->editColumn('is_active', function ($row) {
                 return $row->is_active
@@ -134,6 +127,7 @@ class PlanDataTable extends AbstractDataTable
                 $query->where('domain_management_enabled', $val);
             }
         }
+
         return $query;
     }
 
@@ -145,12 +139,10 @@ class PlanDataTable extends AbstractDataTable
         ];
     }
 
-
     protected function getCustomOrder(): array
     {
         return [1, 'desc'];
     }
-
 
     // Buttons
     protected function buttons(): array
@@ -166,23 +158,23 @@ class PlanDataTable extends AbstractDataTable
         $buttons = [
             ['extend' => 'copy', 'text' => 'نسخ'],
             ['extend' => 'excel', 'text' => 'إكسل', 'exportOptions' => [
-                'columns' => [12, 11, 10, 9, 8, 7, 6, 5, 4, 3]
+                'columns' => [12, 11, 10, 9, 8, 7, 6, 5, 4, 3],
             ]],
         ];
 
         if (auth()->user()?->can('plans.delete')) {
             $buttons[] = [
-                'text'      => 'حذف المحدد',
+                'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
-                'action'    => "function() { handleMassDelete(); }",
+                'action' => 'function() { handleMassDelete(); }',
             ];
         }
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
 

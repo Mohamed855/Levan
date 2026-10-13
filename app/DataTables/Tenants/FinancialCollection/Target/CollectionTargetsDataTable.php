@@ -13,7 +13,8 @@ class CollectionTargetsDataTable extends AbstractDataTable
     | Class Properties
     |--------------------------------------------------------------------------
     */
-    private $route = "financial-collections.collection-targets";
+    private $route = 'financial-collections.collection-targets';
+
     private $collectionTargetService;
 
     /*
@@ -43,6 +44,7 @@ class CollectionTargetsDataTable extends AbstractDataTable
 
         $datatable = datatables()->collection($query)->addIndexColumn();
         $this->addCustomColumns($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
 
@@ -53,7 +55,7 @@ class CollectionTargetsDataTable extends AbstractDataTable
     */
     protected function getTableId()
     {
-        return "collection-targets-table";
+        return 'collection-targets-table';
     }
 
     /*
@@ -78,7 +80,7 @@ class CollectionTargetsDataTable extends AbstractDataTable
                 'data' => '',
                 'orderable' => false,
                 'searchable' => false,
-                'className' => 'control'
+                'className' => 'control',
             ],
             [
                 'data' => 'checkbox',
@@ -142,8 +144,8 @@ class CollectionTargetsDataTable extends AbstractDataTable
                 'orderable' => false,
                 'searchable' => false,
                 'width' => '90px',
-                'className' => 'text-center'
-            ]
+                'className' => 'text-center',
+            ],
         ];
     }
 
@@ -156,16 +158,15 @@ class CollectionTargetsDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '" onclick="event.stopPropagation();">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'" onclick="event.stopPropagation();">';
             })
 
             ->addColumn('user_info', function ($row) {
-                if (!$row->user) {
+                if (! $row->user) {
                     return '<span class="badge bg-label-danger">محذوف</span>';
                 }
 
-
-                return $this->routeName(tenant_route_name($this->route . '.user-details', $row->user_id), $row->user->name);
+                return $this->routeName(tenant_route_name($this->route.'.user-details', $row->user_id), $row->user->name);
             })
 
             ->addColumn('target_type_badge', function ($row) {
@@ -177,7 +178,7 @@ class CollectionTargetsDataTable extends AbstractDataTable
                 };
 
                 return '<div class="clickable-cell" >
-                  <span class="badge ' . $typeClass . ' px-3 py-2">' . e($row->target_type_label) . '</span>
+                  <span class="badge '.$typeClass.' px-3 py-2">'.e($row->target_type_label).'</span>
                 </div>';
             })
 
@@ -185,7 +186,7 @@ class CollectionTargetsDataTable extends AbstractDataTable
                 $period = $this->getTargetPeriodLabel($row);
 
                 return '<div class="clickable-cell" >
-                      <span class="fw-medium">' . e($period) . '</span>
+                      <span class="fw-medium">'.e($period).'</span>
                  </div>';
             })
 
@@ -193,26 +194,26 @@ class CollectionTargetsDataTable extends AbstractDataTable
                 $amount = number_format($row->target_amount, 0);
 
                 return '<div class="clickable-cell" >
-                <span class="fw-bold">' . $amount . '</span>
+                <span class="fw-bold">'.$amount.'</span>
                 </div>';
             })
 
             ->addColumn('progress_text', function ($row) {
-                $progress   = $this->collectionTargetService->calculateTargetProgress($row);
+                $progress = $this->collectionTargetService->calculateTargetProgress($row);
                 $percentage = min((float) $progress['percentage'], 100);
-                $pct        = round($percentage, 1);
+                $pct = round($percentage, 1);
 
                 [$fillColor, $textColor, $bgColor] = match (true) {
                     $percentage >= 100 => ['#1D9E75', '#ffffff', '#E1F5EE'],
-                    $percentage >= 75  => ['#378ADD', '#ffffff', '#E6F1FB'],
-                    $percentage >= 50  => ['#EF9F27', '#4A2402', '#FAEEDA'],
-                    $percentage >= 25  => ['#E24B4A', '#ffffff', '#FCEBEB'],
-                    default            => ['#B4B2A9', '#2C2C2A', '#F1EFE8'],
+                    $percentage >= 75 => ['#378ADD', '#ffffff', '#E6F1FB'],
+                    $percentage >= 50 => ['#EF9F27', '#4A2402', '#FAEEDA'],
+                    $percentage >= 25 => ['#E24B4A', '#ffffff', '#FCEBEB'],
+                    default => ['#B4B2A9', '#2C2C2A', '#F1EFE8'],
                 };
 
                 $label = match (true) {
                     $percentage >= 100 => 'مكتمل ✓',
-                    default            => $pct . '%',
+                    default => $pct.'%',
                 };
 
                 return '
@@ -220,47 +221,46 @@ class CollectionTargetsDataTable extends AbstractDataTable
                             <div style="
                                 flex:1;
                                 height:22px;
-                                background:' . $bgColor . ';
+                                background:'.$bgColor.';
                                 border-radius:50px;
                                 overflow:hidden;
-                                border:1px solid ' . $fillColor . '22;
+                                border:1px solid '.$fillColor.'22;
                             ">
                                 <div style="
-                                    width:' . $percentage . '%;
+                                    width:'.$percentage.'%;
                                     height:100%;
-                                    background:' . $fillColor . ';
+                                    background:'.$fillColor.';
                                     border-radius:50px;
                                     display:flex;
                                     align-items:center;
                                     justify-content:center;
-                                    min-width: ' . (strlen($label) > 3 ? '60px' : '32px') . ';
+                                    min-width: '.(strlen($label) > 3 ? '60px' : '32px').';
                                     transition: width 0.6s ease;
                                 ">
                                     <span style="
                                         font-size:11px;
                                         font-weight:700;
-                                        color:' . $textColor . ';
+                                        color:'.$textColor.';
                                         white-space:nowrap;
                                         padding:0 6px;
-                                    ">' . $label . '</span>
+                                    ">'.$label.'</span>
                                 </div>
                             </div>
                             <span style="
                                 font-size:12px;
                                 font-weight:600;
-                                color:' . $fillColor . ';
+                                color:'.$fillColor.';
                                 min-width:38px;
                                 text-align:right;
-                            ">' . $pct . '%</span>
+                            ">'.$pct.'%</span>
                         </div>';
             })
-
 
             ->addColumn('status', function ($row) {
                 $checked = $row->status === 'active' ? 'checked' : '';
                 $url = tenant_route_name('financial-collections.collection-targets.toggle-status', $row->id);
 
-                return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_' . $row->id . '" data-url="' . e($url) . '" ' . $checked . ' aria-label="تبديل حالة هدف التحصيل"></div></div>';
+                return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_'.$row->id.'" data-url="'.e($url).'" '.$checked.' aria-label="تبديل حالة هدف التحصيل"></div></div>';
             })
 
             ->addColumn('actions', function ($row) {
@@ -268,11 +268,10 @@ class CollectionTargetsDataTable extends AbstractDataTable
                     'id' => $row->id,
                     'userId' => $row->user_id,
                     'route' => $this->route,
-                    'collectionTarget' => $row
+                    'collectionTarget' => $row,
                 ])->render();
             });
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -296,17 +295,19 @@ class CollectionTargetsDataTable extends AbstractDataTable
                     'سبتمبر',
                     'أكتوبر',
                     'نوفمبر',
-                    'ديسمبر'
+                    'ديسمبر',
                 ];
-                return $months[$target->target_month] . ' ' . $target->target_year;
+
+                return $months[$target->target_month].' '.$target->target_year;
 
             case 'yearly':
-                return 'سنة ' . $target->target_year;
+                return 'سنة '.$target->target_year;
 
             case 'custom':
                 $start = Carbon::parse($target->custom_start_date)->format('Y-m-d');
                 $end = Carbon::parse($target->custom_end_date)->format('Y-m-d');
-                return $start . ' - ' . $end;
+
+                return $start.' - '.$end;
 
             default:
                 return 'غير محدد';
@@ -328,7 +329,7 @@ class CollectionTargetsDataTable extends AbstractDataTable
             'target_amount_display',
             'progress_text',
             'status',
-            'actions'
+            'actions',
         ];
     }
 
@@ -359,18 +360,18 @@ class CollectionTargetsDataTable extends AbstractDataTable
             'buttons' => [
                 [
                     'extend' => 'copy',
-                    'text' => 'نسخ'
+                    'text' => 'نسخ',
                 ],
                 [
                     'extend' => 'excel',
                     'text' => 'إكسل',
-                    'title' => 'أهداف التحصيل'
+                    'title' => 'أهداف التحصيل',
                 ],
                 [
                     'text' => 'حذف المحدد',
                     'className' => 'btn btn-default btn-delete-selected',
-                    'action' => "function() { handleMassDelete(); }"
-                ]
+                    'action' => 'function() { handleMassDelete(); }',
+                ],
             ],
         ];
     }
@@ -382,14 +383,14 @@ class CollectionTargetsDataTable extends AbstractDataTable
     */
     private function getAddButton(): array
     {
-        if (!auth()->user()?->can('collection_targets.create')) {
+        if (! auth()->user()?->can('collection_targets.create')) {
             return [];
         }
 
         return [
-            'text'      => '<i class="fas fa-plus-circle me-1"></i> إضافة هدف',
+            'text' => '<i class="fas fa-plus-circle me-1"></i> إضافة هدف',
             'className' => 'btn btn-primary btn-add',
-            'action'    => "function(){ window.location.href='" . tenant_route_name($this->route . '.create') . "'; }",
+            'action' => "function(){ window.location.href='".tenant_route_name($this->route.'.create')."'; }",
         ];
     }
 }

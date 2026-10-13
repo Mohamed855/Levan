@@ -10,10 +10,11 @@ class EnsureAuthenticatedAndActiveAdmin
 {
     public function handle(Request $request, Closure $next)
     {
-        if (!Auth::guard('admin')->check()) {
+        if (! Auth::guard('admin')->check()) {
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'غير مصرح. يجب تسجيل الدخول.'], 401);
             }
+
             return redirect()->route('admin.login')->with('error', 'يجب تسجيل الدخول للوصول للنظام.');
         }
 
@@ -25,9 +26,9 @@ class EnsureAuthenticatedAndActiveAdmin
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'حسابك غير نشط.'], 403);
             }
+
             return redirect()->route('admin.login')->with('error', 'حسابك غير نشط. يرجى التواصل مع الإدارة.');
         }
-
 
         return $next($request);
     }

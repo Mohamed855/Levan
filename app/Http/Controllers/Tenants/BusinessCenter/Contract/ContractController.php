@@ -2,21 +2,20 @@
 
 namespace App\Http\Controllers\Tenants\BusinessCenter\Contract;
 
-use App\Http\Controllers\Controller;
 use App\DataTables\Tenants\BusinessCenter\Contract\ContractsDataTable;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\BusinessCenter\Contract\CheckContractNumberRequest;
 use App\Http\Requests\Tenants\BusinessCenter\Contract\StoreContractRequest;
 use App\Http\Requests\Tenants\BusinessCenter\Contract\UpdateContractRequest;
-use App\Http\Requests\Tenants\BusinessCenter\Contract\CheckContractNumberRequest;
 use App\Http\Requests\Tenants\UpdateResourceStatusRequest;
 use App\Models\Tenants\BusinessCenter\Contract\Contract;
 use App\Models\Tenants\BusinessCenter\Contract\ContractCommission;
 use App\Models\Tenants\FinancialCollection\Collection\Collection;
 use App\Services\Tenants\BusinessCenter\Contract\ContractService;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 
 class ContractController extends Controller
@@ -84,10 +83,10 @@ class ContractController extends Controller
                 'error_file' => $e->getFile(),
                 'error_line' => $e->getLine(),
                 'error_code' => $e->getCode(),
-                'stack_trace' => $e->getTraceAsString()
+                'stack_trace' => $e->getTraceAsString(),
             ]);
 
-            return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات: '.$e->getMessage());
         }
     }
 
@@ -120,6 +119,7 @@ class ContractController extends Controller
     {
         try {
             $contract = $this->contractService->createContract($request->toCreateDTO());
+
             return redirect()->to(tenant_route_name('contracts.index'))
                 ->with('success', 'تم إضافة العقد بنجاح');
         } catch (ValidationException $e) {
@@ -129,7 +129,6 @@ class ContractController extends Controller
                 ->with('error', 'حدث خطأ أثناء إضافة العقد. يرجى المحاولة مرة أخرى.');
         }
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -143,11 +142,11 @@ class ContractController extends Controller
                 'company:id,name',
                 'commissions',
                 'creator:id,name',
-                'updater:id,name'
+                'updater:id,name',
             ]);
 
             // جلب التحصيلات المعتمدة إن وجد جدول التحصيلات
-            $approvedCollections = \Illuminate\Support\Facades\Schema::hasTable('collections')
+            $approvedCollections = Schema::hasTable('collections')
                 ? Collection::whereHas('customer', function ($query) use ($contract) {
                     $query->where('company_id', $contract->company_id);
                 })
@@ -192,9 +191,10 @@ class ContractController extends Controller
 
             return view('tenants.business_center.contracts.show', compact('contract', 'financialReport'));
         } catch (\Exception $e) {
-            Log::error('Error in Contract Show: ' . $e->getMessage());
+            Log::error('Error in Contract Show: '.$e->getMessage());
+
             return redirect()->to(tenant_route_name('contracts.index'))
-                ->with('error', 'حدث خطأ أثناء تحميل تفاصيل العقد: ' . $e->getMessage());
+                ->with('error', 'حدث خطأ أثناء تحميل تفاصيل العقد: '.$e->getMessage());
         }
     }
 
@@ -222,7 +222,7 @@ class ContractController extends Controller
         // إذا كان العقد حسب المدة أو مدة التعثر
         if (in_array($contract->commission_type, ['duration', 'delinquency'])) {
             // التحقق من وجود العميل وتاريخ الإنشاء
-            if (!$collection->customer || !$collection->customer->created_at) {
+            if (! $collection->customer || ! $collection->customer->created_at) {
                 // إذا لم يكن هناك تاريخ، نستخدم أول شريحة
                 return $commissions->sortBy('duration_from')->first()->commission_rate ?? 0;
             }
@@ -234,7 +234,7 @@ class ContractController extends Controller
             $endDate = $collection->collection_date ?? now();
 
             // التحقق من أن التواريخ صحيحة
-            if (!$startDate || !$endDate) {
+            if (! $startDate || ! $endDate) {
                 return $commissions->sortBy('duration_from')->first()->commission_rate ?? 0;
             }
 
@@ -253,7 +253,7 @@ class ContractController extends Controller
                 ->first();
 
             // إذا لم توجد شريحة مناسبة، استخدم آخر شريحة (الأعلى)
-            if (!$commission) {
+            if (! $commission) {
                 $commission = $commissions->sortByDesc('duration_to')->first();
             }
 
@@ -264,7 +264,6 @@ class ContractController extends Controller
         return $commissions->first()->commission_rate ?? 0;
     }
 
-
     /**
      * تحديد نوع الإجراء بناءً على حالة الدين
      */
@@ -273,7 +272,7 @@ class ContractController extends Controller
         // يمكنك تعديل هذا المنطق بناءً على كيفية تحديد نوع الإجراء في نظامك
         // مثلاً من خلال حقل في جدول الديون أو من خلال حالة معينة
 
-        if (!$collection->customer->debt) {
+        if (! $collection->customer->debt) {
             return 'friendly'; // افتراضي
         }
 
@@ -329,7 +328,7 @@ class ContractController extends Controller
                 ->performedOn($updated)
                 ->causedBy(auth()->user())
                 ->withProperties(['old' => $old, 'new' => $updated->toArray()])
-                ->log('تم تحديث العقد رقم ' . $updated->contract_number);
+                ->log('تم تحديث العقد رقم '.$updated->contract_number);
 
             return redirect()->to(tenant_route_name('contracts.index'))
                 ->with('success', 'تم تحديث العقد بنجاح');
@@ -356,7 +355,7 @@ class ContractController extends Controller
             activity('contracts')
                 ->causedBy(auth()->user())
                 ->withProperties(['contract_number' => $num, 'company_name' => $company])
-                ->log('تم حذف العقد رقم ' . $num . ' للشركة ' . $company);
+                ->log('تم حذف العقد رقم '.$num.' للشركة '.$company);
 
             return redirect()->back()->with('success', 'تم حذف العقد بنجاح');
         } catch (\Exception $e) {
@@ -372,10 +371,10 @@ class ContractController extends Controller
     public function toggleStatus(UpdateResourceStatusRequest $request, Contract $contract): JsonResponse
     {
         try {
-            if (!auth()->user()->can('contracts.edit')) {
+            if (! auth()->user()->can('contracts.edit')) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'ليس لديك صلاحية لتعديل حالة العقد'
+                    'message' => 'ليس لديك صلاحية لتعديل حالة العقد',
                 ], 403);
             }
 
@@ -386,7 +385,7 @@ class ContractController extends Controller
                 'message' => 'تم تبديل الحالة بنجاح',
                 'new_status' => $updated->status,
                 'status_text' => $updated->status_label,
-                'status_class' => $updated->status_class
+                'status_class' => $updated->status_class,
             ]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'حدث خطأ أثناء تبديل الحالة'], 500);
@@ -402,6 +401,7 @@ class ContractController extends Controller
     {
         try {
             $num = $this->contractService->generateContractNumber();
+
             return response()->json(['success' => true, 'contract_number' => $num]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'حدث خطأ أثناء توليد رقم العقد'], 500);
@@ -426,7 +426,7 @@ class ContractController extends Controller
             return response()->json([
                 'success' => true,
                 'available' => $available,
-                'message' => $available ? 'رقم العقد متاح' : 'رقم العقد مستخدم مسبقاً'
+                'message' => $available ? 'رقم العقد متاح' : 'رقم العقد مستخدم مسبقاً',
             ]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'حدث خطأ أثناء التحقق من رقم العقد'], 500);

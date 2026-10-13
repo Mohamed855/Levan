@@ -3,12 +3,12 @@
 namespace App\Models\Tenants\BusinessCenter\Customers\Sms;
 
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
-use App\Models\Tenants\UserMangment\User\User;
 use App\Models\Tenants\GeneralSetting\MessageTemplate\MessageTemplate;
+use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CustomerSms extends Model
 {
@@ -55,7 +55,7 @@ class CustomerSms extends Model
     // Accessors
     public function getStatusLabelAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending' => 'في الانتظار',
             'sent' => 'تم الإرسال',
             'failed' => 'فشل الإرسال',
@@ -66,7 +66,7 @@ class CustomerSms extends Model
 
     public function getStatusClassAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending' => 'bg-label-warning',
             'sent' => 'bg-label-primary',
             'failed' => 'bg-label-danger',
@@ -77,7 +77,7 @@ class CustomerSms extends Model
 
     public function getPhoneTypeLabelAttribute(): string
     {
-        return match($this->phone_type) {
+        return match ($this->phone_type) {
             'primary' => 'الهاتف الأساسي',
             'mobile' => 'جوال',
             'home' => 'منزل',
@@ -100,7 +100,7 @@ class CustomerSms extends Model
     public function getMessagePreviewAttribute(): string
     {
         return strlen($this->message_content) > 100
-            ? substr($this->message_content, 0, 100) . '...'
+            ? substr($this->message_content, 0, 100).'...'
             : $this->message_content;
     }
 
@@ -126,7 +126,7 @@ class CustomerSms extends Model
         parent::boot();
 
         static::creating(function ($sms) {
-            if (!$sms->sent_by && auth()->check()) {
+            if (! $sms->sent_by && auth()->check()) {
                 $sms->sent_by = auth()->id();
             }
         });

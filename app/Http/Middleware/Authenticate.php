@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 
 class Authenticate extends Middleware
 {
-
     protected function redirectTo(Request $request): ?string
     {
         if ($request->expectsJson()) {
@@ -21,11 +20,11 @@ class Authenticate extends Middleware
             }, config('tenancy.central_domains', []));
 
             $isCentralDomain = in_array($currentHost, $centralDomains) ||
-                in_array('www.' . $currentHost, $centralDomains);
+                in_array('www.'.$currentHost, $centralDomains);
 
-            return $isCentralDomain ? '/' . tenant('id') . '/login' : '/login';
+            return $isCentralDomain ? '/'.tenant('id').'/login' : '/login';
         }
 
-        return "/";
+        return '/';
     }
 }

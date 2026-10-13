@@ -6,16 +6,15 @@ namespace App\DataTables\Admin\Plans;
 
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Enums\Admin\Plans\PlanColor;
-use App\Enums\Admin\Plans\PlanLimitsMode;
 use App\Enums\Admin\Plans\PlanType;
 use App\Enums\Admin\Subscriptions\SubscriptionBillingCycle;
 use App\Models\Admin\Plans\Plan;
 use App\Services\Admin\Plans\PlanService;
-use Carbon\Carbon;
 
 class PlanDataTable extends AbstractDataTable
 {
-    private string $page  = 'admin.plans';
+    private string $page = 'admin.plans';
+
     private string $route = 'admin.plans';
 
     protected function getTableId(): string
@@ -60,14 +59,14 @@ class PlanDataTable extends AbstractDataTable
         $mostRequestedPlanId = app(PlanService::class)->getMostRequestedPlanId();
 
         $datatable
-            ->addColumn('checkbox', fn($row) => '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">')
+            ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
 
             ->editColumn('sort_order', function ($row) {
-                return '<span class="badge bg-label-info cursor-move" title="اسحب لإعادة الترتيب"><i class="ti ti-arrows-sort"></i> ' . (int) $row->sort_order . '</span>';
+                return '<span class="badge bg-label-info cursor-move" title="اسحب لإعادة الترتيب"><i class="ti ti-arrows-sort"></i> '.(int) $row->sort_order.'</span>';
             })
 
             ->editColumn('code', function ($row) {
-                return '<span class="badge bg-label-dark font-monospace fw-bold">' . e($row->code ?? '-') . '</span>';
+                return '<span class="badge bg-label-dark font-monospace fw-bold">'.e($row->code ?? '-').'</span>';
             })
 
             ->editColumn('name', function ($row) use ($mostRequestedPlanId) {
@@ -78,9 +77,9 @@ class PlanDataTable extends AbstractDataTable
                     $badgeHtml = ' <span class="badge bg-gradient-danger text-white rounded-pill ms-1 fs-tiny shadow-sm"><i class="ti ti-flame me-1"></i>الأكثر طلباً</span>';
                 }
 
-                $colorDot = '<span class="badge rounded-circle p-1 me-1" style="background-color: ' . e($colorHex) . ';" title="' . e($row->color?->label() ?? '') . '">&nbsp;</span>';
+                $colorDot = '<span class="badge rounded-circle p-1 me-1" style="background-color: '.e($colorHex).';" title="'.e($row->color?->label() ?? '').'">&nbsp;</span>';
 
-                return '<div class="d-flex align-items-center">' . $colorDot . '<span class="fw-bold text-heading">' . e($row->name) . '</span>' . $badgeHtml . '</div>';
+                return '<div class="d-flex align-items-center">'.$colorDot.'<span class="fw-bold text-heading">'.e($row->name).'</span>'.$badgeHtml.'</div>';
             })
 
             ->editColumn('plan_type', function ($row) {
@@ -88,7 +87,7 @@ class PlanDataTable extends AbstractDataTable
                 $label = $type ? $type->label() : (string) $row->plan_type;
                 $color = $type ? $type->color() : 'secondary';
 
-                return '<span class="badge bg-label-' . e($color) . '">' . e($label) . '</span>';
+                return '<span class="badge bg-label-'.e($color).'">'.e($label).'</span>';
             })
 
             ->editColumn('subscription_billing_cycle', function ($row) {
@@ -99,11 +98,11 @@ class PlanDataTable extends AbstractDataTable
                 $label = $cycle ? $cycle->label() : (string) $row->subscription_billing_cycle;
                 $color = $cycle ? $cycle->color() : 'info';
 
-                return '<span class="badge bg-label-' . e($color) . '">' . e($label) . '</span>';
+                return '<span class="badge bg-label-'.e($color).'">'.e($label).'</span>';
             })
 
             ->editColumn('price', function ($row) {
-                return '<span class="fw-semibold">' . number_format((float) $row->price, 2) . ' ر.س</span>';
+                return '<span class="fw-semibold">'.number_format((float) $row->price, 2).' ر.س</span>';
             })
 
             ->editColumn('discount_percentage', function ($row) {
@@ -111,11 +110,11 @@ class PlanDataTable extends AbstractDataTable
                     return '<span class="text-muted">-</span>';
                 }
 
-                return '<span class="badge bg-label-success">' . (float) $row->discount_percentage . ' %</span>';
+                return '<span class="badge bg-label-success">'.(float) $row->discount_percentage.' %</span>';
             })
 
             ->addColumn('price_after_discount', function ($row) {
-                return '<span class="fw-bold text-success">' . number_format($row->price_after_discount, 2) . ' ر.س</span>';
+                return '<span class="fw-bold text-success">'.number_format($row->price_after_discount, 2).' ر.س</span>';
             })
 
             ->editColumn('yearly_renewal_price', function ($row) {
@@ -123,7 +122,7 @@ class PlanDataTable extends AbstractDataTable
                     return '<span class="text-muted">-</span>';
                 }
 
-                return '<span class="fw-semibold text-primary">' . number_format((float) $row->yearly_renewal_price, 2) . ' ر.س</span>';
+                return '<span class="fw-semibold text-primary">'.number_format((float) $row->yearly_renewal_price, 2).' ر.س</span>';
             })
 
             ->editColumn('limits_mode', function ($row) {
@@ -155,7 +154,7 @@ class PlanDataTable extends AbstractDataTable
                     return '<span class="text-primary fw-bold">∞</span>';
                 }
 
-                return $row->storage_quota_gb ? $row->storage_quota_gb . ' GB' : '-';
+                return $row->storage_quota_gb ? $row->storage_quota_gb.' GB' : '-';
             })
 
             ->editColumn('active_auctions_limit', function ($row) {
@@ -167,15 +166,15 @@ class PlanDataTable extends AbstractDataTable
             })
 
             ->editColumn('available_from', function ($row) {
-                if (!$row->available_from) {
+                if (! $row->available_from) {
                     return '<span class="badge bg-label-success">متاحة فوراً</span>';
                 }
 
                 if ($row->available_from->isFuture()) {
-                    return '<span class="badge bg-label-warning" title="' . e($row->available_from->format('Y-m-d H:i')) . '">مجدولة ' . e($row->available_from->format('Y-m-d')) . '</span>';
+                    return '<span class="badge bg-label-warning" title="'.e($row->available_from->format('Y-m-d H:i')).'">مجدولة '.e($row->available_from->format('Y-m-d')).'</span>';
                 }
 
-                return '<span class="badge bg-label-info">' . e($row->available_from->format('Y-m-d')) . '</span>';
+                return '<span class="badge bg-label-info">'.e($row->available_from->format('Y-m-d')).'</span>';
             })
 
             ->addColumn('domain_management', function ($row) {
@@ -187,7 +186,7 @@ class PlanDataTable extends AbstractDataTable
             })
 
             ->editColumn('is_active', function ($row) {
-                if (!auth()->user()?->can('plans.edit')) {
+                if (! auth()->user()?->can('plans.edit')) {
                     return $row->is_active
                         ? '<span class="badge bg-success">مفعل</span>'
                         : '<span class="badge bg-danger">غير مفعل</span>';
@@ -199,14 +198,14 @@ class PlanDataTable extends AbstractDataTable
                 return '
                     <div class="d-flex justify-content-center">
                         <div class="form-check form-switch mb-0">
-                            <input type="checkbox" class="form-check-input js-table-status-toggle" data-url="' . e($url) . '" ' . $checked . ' aria-label="تبديل حالة الباقة">
+                            <input type="checkbox" class="form-check-input js-table-status-toggle" data-url="'.e($url).'" '.$checked.' aria-label="تبديل حالة الباقة">
                         </div>
                     </div>';
             })
 
             ->addColumn('actions', function ($row) {
-                return view($this->page . '.action', [
-                    'row'   => $row,
+                return view($this->page.'.action', [
+                    'row' => $row,
                     'route' => $this->route,
                 ])->render();
             });
@@ -273,7 +272,7 @@ class PlanDataTable extends AbstractDataTable
 
         if ($request->filled('availability')) {
             if ($request->availability === 'available') {
-                $query->where(fn($q) => $q->whereNull('available_from')->orWhere('available_from', '<=', now()));
+                $query->where(fn ($q) => $q->whereNull('available_from')->orWhere('available_from', '<=', now()));
             } elseif ($request->availability === 'future') {
                 $query->where('available_from', '>', now());
             }
@@ -283,7 +282,7 @@ class PlanDataTable extends AbstractDataTable
             if ($request->discounts === 'with_discount') {
                 $query->where('discount_percentage', '>', 0);
             } elseif ($request->discounts === 'without_discount') {
-                $query->where(fn($q) => $q->whereNull('discount_percentage')->orWhere('discount_percentage', '<=', 0));
+                $query->where(fn ($q) => $q->whereNull('discount_percentage')->orWhere('discount_percentage', '<=', 0));
             }
         }
 
@@ -329,17 +328,17 @@ class PlanDataTable extends AbstractDataTable
 
         if (auth()->user()?->can('plans.delete')) {
             $buttons[] = [
-                'text'      => 'حذف المحدد',
+                'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
-                'action'    => 'function() { handleMassDelete(); }',
+                'action' => 'function() { handleMassDelete(); }',
             ];
         }
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
 
@@ -347,9 +346,9 @@ class PlanDataTable extends AbstractDataTable
     {
         if (auth()->user()?->can('plans.create')) {
             return [
-                'text'      => '<i class="ti ti-plus me-1"></i> إضافة باقة',
+                'text' => '<i class="ti ti-plus me-1"></i> إضافة باقة',
                 'className' => 'btn btn-primary btn-add',
-                'action'    => "function(){ window.location.href='" . route($this->route . '.create') . "'; }",
+                'action' => "function(){ window.location.href='".route($this->route.'.create')."'; }",
             ];
         }
 

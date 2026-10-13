@@ -5,8 +5,11 @@ namespace App\Data\Tenants\BusinessCenter\Portfolio;
 final class PortfolioFieldInput
 {
     public ?int $id = null;
+
     public string $name;
+
     public string $type;
+
     public bool $is_required;
 
     /*
@@ -31,12 +34,14 @@ final class PortfolioFieldInput
     */
     public static function fromArraysAt(int $i, array $names, array $types, array $requiredFlags, ?array $ids = null): ?self
     {
-        $name = trim((string)($names[$i] ?? ''));
-        if ($name === '') return null;
+        $name = trim((string) ($names[$i] ?? ''));
+        if ($name === '') {
+            return null;
+        }
 
-        $id = isset($ids[$i]) && $ids[$i] !== null && $ids[$i] !== '' ? (int)$ids[$i] : null;
-        $type = (string)($types[$i] ?? 'text');
-        $isRequired = isset($requiredFlags[$i]) && (string)$requiredFlags[$i] === '1';
+        $id = isset($ids[$i]) && $ids[$i] !== null && $ids[$i] !== '' ? (int) $ids[$i] : null;
+        $type = (string) ($types[$i] ?? 'text');
+        $isRequired = isset($requiredFlags[$i]) && (string) $requiredFlags[$i] === '1';
 
         return new self($id, $name, $type, $isRequired);
     }

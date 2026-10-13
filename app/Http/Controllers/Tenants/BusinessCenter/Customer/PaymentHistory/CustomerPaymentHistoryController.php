@@ -28,12 +28,12 @@ class CustomerPaymentHistoryController extends Controller
         try {
             // التحقق من الصلاحيات
             if (
-                !auth()->user()->can('customers.view') &&
+                ! auth()->user()->can('customers.view') &&
                 $customer->relationship_manager_id !== auth()->id()
             ) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'ليس لديك صلاحية لعرض سجل سدادات هذا العميل'
+                    'message' => 'ليس لديك صلاحية لعرض سجل سدادات هذا العميل',
                 ], 403);
             }
 
@@ -41,18 +41,18 @@ class CustomerPaymentHistoryController extends Controller
 
             $html = view('tenants.business_center.customers.payment_history.list', [
                 'payments' => $payments,
-                'customer' => $customer
+                'customer' => $customer,
             ])->render();
 
             return response()->json([
                 'success' => true,
                 'html' => $html,
-                'count' => $payments->count()
+                'count' => $payments->count(),
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء جلب البيانات: ' . $e->getMessage()
+                'message' => 'حدث خطأ أثناء جلب البيانات: '.$e->getMessage(),
             ], 500);
         }
     }

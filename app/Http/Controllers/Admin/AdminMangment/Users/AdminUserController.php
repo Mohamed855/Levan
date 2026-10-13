@@ -5,17 +5,16 @@ namespace App\Http\Controllers\Admin\AdminMangment\Users;
 use App\DataTables\Admin\AdminMangment\Users\AdminUserDataTable;
 use App\Enums\Admin\Users\AdminUserStatus;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
+use App\Http\Requests\Admin\AdminMangment\Users\AdminUserStoreRequest;
+use App\Http\Requests\Admin\AdminMangment\Users\AdminUserUpdateRequest;
+use App\Http\Requests\Admin\AdminMangment\Users\BulkDeleteAdminUsersRequest;
 use App\Http\Requests\Admin\AdminMangment\Users\CheckAdminUserEmailUniqueRequest;
 use App\Http\Requests\Admin\AdminMangment\Users\CheckAdminUserNameUniqueRequest;
 use App\Http\Requests\Admin\AdminMangment\Users\CheckAdminUserPhoneUniqueRequest;
-use App\Http\Requests\Admin\AdminMangment\Users\BulkDeleteAdminUsersRequest;
-use App\Http\Requests\Admin\AdminMangment\Users\AdminUserStoreRequest;
-use App\Http\Requests\Admin\AdminMangment\Users\AdminUserUpdateRequest;
+use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\Coupons\Coupon;
 use App\Services\Admin\AdminMangment\Users\UserService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Permission\Models\Role;
@@ -35,9 +34,10 @@ class AdminUserController extends Controller
         $this->middleware('can:users.delete')->only(['destroy', 'bulkDelete']);
         $this->middleware('can:users.change_status')->only(['toggleStatus']);
         $this->middleware(function ($request, $next) {
-            if (!auth()->user()?->can('users.create') && !auth()->user()?->can('users.edit')) {
+            if (! auth()->user()?->can('users.create') && ! auth()->user()?->can('users.edit')) {
                 abort(403);
             }
+
             return $next($request);
         })->only(['checkEmailUnique', 'checkNameUnique', 'checkPhoneUnique']);
     }
@@ -214,13 +214,13 @@ class AdminUserController extends Controller
         if ($exists) {
             return response()->json([
                 'available' => false,
-                'message'   => 'البريد الإلكتروني مستخدم من قبل',
+                'message' => 'البريد الإلكتروني مستخدم من قبل',
             ]);
         }
 
         return response()->json([
             'available' => true,
-            'message'   => 'البريد الإلكتروني متاح',
+            'message' => 'البريد الإلكتروني متاح',
         ]);
     }
 
@@ -241,13 +241,13 @@ class AdminUserController extends Controller
         if ($exists) {
             return response()->json([
                 'available' => false,
-                'message'   => 'الاسم مستخدم من قبل',
+                'message' => 'الاسم مستخدم من قبل',
             ]);
         }
 
         return response()->json([
             'available' => true,
-            'message'   => 'الاسم متاح',
+            'message' => 'الاسم متاح',
         ]);
     }
 
@@ -268,13 +268,13 @@ class AdminUserController extends Controller
         if ($exists) {
             return response()->json([
                 'available' => false,
-                'message'   => 'رقم الهاتف مستخدم من قبل',
+                'message' => 'رقم الهاتف مستخدم من قبل',
             ]);
         }
 
         return response()->json([
             'available' => true,
-            'message'   => 'رقم الهاتف متاح',
+            'message' => 'رقم الهاتف متاح',
         ]);
     }
 }

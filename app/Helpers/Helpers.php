@@ -2,12 +2,6 @@
 
 namespace App\Helpers;
 
-use App\Models\Item;
-use App\Models\crm\Contract;
-use App\Models\crm\Offers;
-use App\Models\crm\Project;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
@@ -73,20 +67,20 @@ class Helpers
         if (isset($pageConfigs)) {
             if (count($pageConfigs) > 0) {
                 foreach ($pageConfigs as $config => $val) {
-                    Config::set('custom.' . $demo . '.' . $config, $val);
+                    Config::set('custom.'.$demo.'.'.$config, $val);
                 }
             }
         }
     }
 
-    ////////////////////////////////////////////////////////////
-    ///////// New Helper Functions To Active Route /////////////
-    ////////////////////////////////////////////////////////////
+    // //////////////////////////////////////////////////////////
+    // /////// New Helper Functions To Active Route /////////////
+    // //////////////////////////////////////////////////////////
     /**
      * Check if current route is active
      * Works with multitenancy path-based routing
-     * 
-     * @param string|array $route Route name pattern
+     *
+     * @param  string|array  $route  Route name pattern
      * @return bool
      */
     public static function isActiveRoute($route)
@@ -104,6 +98,7 @@ class Helpers
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -133,7 +128,7 @@ class Helpers
 
         return false;
     }
-    ////////////////////////////////////////////////////////////
-    ///////// New Helper Functions To Active Route /////////////
-    ////////////////////////////////////////////////////////////
+    // //////////////////////////////////////////////////////////
+    // /////// New Helper Functions To Active Route /////////////
+    // //////////////////////////////////////////////////////////
 }

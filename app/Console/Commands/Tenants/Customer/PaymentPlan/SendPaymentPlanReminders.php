@@ -8,7 +8,6 @@ use Illuminate\Console\Command;
 
 class SendPaymentPlanReminders extends Command
 {
-
     /*
     |--------------------------------------------------------------------------
     | Signature
@@ -56,6 +55,7 @@ class SendPaymentPlanReminders extends Command
                 : now()->toDateString();
         } catch (\Throwable $e) {
             $this->error('تنسيق التاريخ غير صحيح. استخدم الصيغة: Y-m-d مثل 2025-11-22');
+
             return self::FAILURE;
         }
 
@@ -63,8 +63,9 @@ class SendPaymentPlanReminders extends Command
 
         $result = $this->reminderService->sendDueRemindersForDate($date);
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             $this->warn($result['message'] ?? 'لم يتم الإرسال.');
+
             return self::FAILURE;
         }
 

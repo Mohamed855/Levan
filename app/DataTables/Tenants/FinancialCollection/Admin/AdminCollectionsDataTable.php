@@ -4,12 +4,11 @@ namespace App\DataTables\Tenants\FinancialCollection\Admin;
 
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Models\Tenants\FinancialCollection\Collection\Collection;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class AdminCollectionsDataTable extends AbstractDataTable
 {
-    private $route = "financial-collections.admin-collections";
+    private $route = 'financial-collections.admin-collections';
 
     /*
     |--------------------------------------------------------------------------
@@ -51,9 +50,9 @@ class AdminCollectionsDataTable extends AbstractDataTable
         });
 
         $this->addCustomColumns($datatable);
+
         return $datatable->rawColumns($this->rawColumns());
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -63,7 +62,7 @@ class AdminCollectionsDataTable extends AbstractDataTable
     */
     protected function getTableId()
     {
-        return "admin-collections-table";
+        return 'admin-collections-table';
     }
 
     /*
@@ -90,12 +89,12 @@ class AdminCollectionsDataTable extends AbstractDataTable
             'approved_by',
             'approved_at',
             'rejection_reason',
-            'created_at'
+            'created_at',
         ])->with([
             'customer:id,name,phone,account_number',
             'paymentMethod:id,name',
             'addedBy:id,name',
-            'approvedBy:id,name'
+            'approvedBy:id,name',
         ]);
     }
 
@@ -112,7 +111,7 @@ class AdminCollectionsDataTable extends AbstractDataTable
                 'data' => '',
                 'orderable' => false,
                 'searchable' => false,
-                'className' => 'control'
+                'className' => 'control',
             ],
             ['data' => 'id', 'visible' => false],
             [
@@ -124,14 +123,14 @@ class AdminCollectionsDataTable extends AbstractDataTable
                 'width' => '10px',
                 'className' => 'custom-checkbox',
                 'createdCell' => "function(td) { $(td).css('padding-left', '38px'); }",
-                'defaultContent' => ''
+                'defaultContent' => '',
             ],
             [
                 'data' => 'customer_info',
                 'name' => 'customer_info',
                 'title' => 'العميل',
                 'className' => 'table-ellipsis',
-                'searchable' => true
+                'searchable' => true,
             ],
             [
                 'data' => 'account_number',
@@ -139,30 +138,30 @@ class AdminCollectionsDataTable extends AbstractDataTable
                 'title' => 'رقم الحساب',
                 'className' => 'table-ellipsis',
                 'searchable' => true,
-                'orderable' => true
+                'orderable' => true,
             ],
             [
                 'data' => 'amount_info',
                 'name' => 'amount_info',
                 'title' => 'المبلغ',
-                'className' => 'table-ellipsis'
+                'className' => 'table-ellipsis',
             ],
             [
                 'data' => 'collection_details',
                 'name' => 'collection_details',
                 'title' => 'تفاصيل التحصيل',
                 'orderable' => false,
-                'searchable' => false
+                'searchable' => false,
             ],
             [
                 'data' => 'collection_date_formatted',
                 'name' => 'collection_date',
-                'title' => 'تاريخ التحصيل'
+                'title' => 'تاريخ التحصيل',
             ],
             [
                 'data' => 'status',
                 'name' => 'status',
-                'title' => 'الحالة'
+                'title' => 'الحالة',
             ],
             [
                 'data' => 'processor_info',
@@ -170,24 +169,24 @@ class AdminCollectionsDataTable extends AbstractDataTable
                 'title' => 'معالجة الطلب',
                 'orderable' => false,
                 'searchable' => false,
-                'className' => 'table-ellipsis'
+                'className' => 'table-ellipsis',
             ],
             [
                 'data' => 'added_by',
                 'name' => 'added_by',
-                'title' => 'أُضيف بواسطة'
+                'title' => 'أُضيف بواسطة',
             ],
             [
                 'data' => 'created_at_formatted',
                 'name' => 'created_at',
-                'title' => 'تاريخ الإضافة'
+                'title' => 'تاريخ الإضافة',
             ],
             [
                 'data' => 'attachment',
                 'name' => 'attachment',
                 'title' => 'المرفق',
                 'orderable' => false,
-                'searchable' => false
+                'searchable' => false,
             ],
             [
                 'data' => 'actions',
@@ -196,11 +195,10 @@ class AdminCollectionsDataTable extends AbstractDataTable
                 'orderable' => false,
                 'searchable' => false,
                 'width' => '120px',
-                'className' => 'text-center'
-            ]
+                'className' => 'text-center',
+            ],
         ];
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -212,67 +210,69 @@ class AdminCollectionsDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
             ->addColumn('customer_info', function (Collection $collection) {
-                if (!$collection->customer || !$collection->customer->name) {
+                if (! $collection->customer || ! $collection->customer->name) {
                     return '<span class="text-muted">عميل غير محدد</span>';
                 }
 
                 $customerName = e($collection->customer->name);
                 $customerUrl = tenant_route_name('customers.show', $collection->customer->id);
 
-                return '<a href="' . $customerUrl . '" class="text-primary text-decoration-none fw-medium">' .
-                    $customerName .
+                return '<a href="'.$customerUrl.'" class="text-primary text-decoration-none fw-medium">'.
+                    $customerName.
                     '</a>';
             })
             ->addColumn('account_number', function (Collection $collection) {
-                return '<span class="text-muted">' .
-                    ($collection->customer->account_number ?? 'غير محدد') .
+                return '<span class="text-muted">'.
+                    ($collection->customer->account_number ?? 'غير محدد').
                     '</span>';
             })
             ->addColumn('amount_info', function (Collection $collection) {
-                return '<div class="fw-medium text-primary">' . $collection->formatted_collected_amount . '</div>';
+                return '<div class="fw-medium text-primary">'.$collection->formatted_collected_amount.'</div>';
             })
             ->addColumn('collection_details', function (Collection $collection) {
                 $typeClass = $collection->collection_type === 'cash' ? 'bg-label-primary' : 'bg-label-info';
                 $paymentTypeClass = $collection->payment_type === 'settlement' ? 'bg-label-primary' : 'bg-secondary';
 
-                return '<div>' .
-                    '<span class="badge ' . $typeClass . '">' . $collection->collection_type_label . '</span> ' .
-                    '<span class="badge ' . $paymentTypeClass . '">' . $collection->payment_type_label . '</span> ' .
+                return '<div>'.
+                    '<span class="badge '.$typeClass.'">'.$collection->collection_type_label.'</span> '.
+                    '<span class="badge '.$paymentTypeClass.'">'.$collection->payment_type_label.'</span> '.
                     '</div>';
             })
 
             ->addColumn('collection_date_formatted', function (Collection $collection) {
-                return '<span class="text-primary">' . $collection->formatted_collection_date . '</span>';
+                return '<span class="text-primary">'.$collection->formatted_collection_date.'</span>';
             })
             ->addColumn('status', function (Collection $collection) {
-                $statusBadge = '<span class="badge ' . $collection->status_class . '">' . $collection->status_label . '</span>';
+                $statusBadge = '<span class="badge '.$collection->status_class.'">'.$collection->status_label.'</span>';
 
                 if ($collection->status === 'rejected' && $collection->rejection_reason) {
-                    $statusBadge .= ' <small class="text-muted" title="' .
-                        e($collection->rejection_reason) . '">
+                    $statusBadge .= ' <small class="text-muted" title="'.
+                        e($collection->rejection_reason).'">
                                        <i class="ti ti-info-circle"></i>
                                    </small>';
                 }
+
                 return $statusBadge;
             })
             ->addColumn('processor_info', function (Collection $collection) {
                 if ($collection->status === 'pending') {
                     return '<span class="text-muted">في انتظار المعالجة</span>';
                 }
-                if (!$collection->approvedBy || !$collection->approvedBy->name) {
-                    return '<span class="text-muted">غير محدد</span>';
-                }
-                return '<span class="fw-medium text-primary">' . e($collection->approvedBy->name) . '</span>';
-            })
-            ->addColumn('added_by', function (Collection $collection) {
-                if (!$collection->addedBy || !$collection->addedBy->name) {
+                if (! $collection->approvedBy || ! $collection->approvedBy->name) {
                     return '<span class="text-muted">غير محدد</span>';
                 }
 
-                return '<span class="text-primary">' . e($collection->addedBy->name) . '</span>';
+                return '<span class="fw-medium text-primary">'.e($collection->approvedBy->name).'</span>';
+            })
+            ->addColumn('added_by', function (Collection $collection) {
+                if (! $collection->addedBy || ! $collection->addedBy->name) {
+                    return '<span class="text-muted">غير محدد</span>';
+                }
+
+                return '<span class="text-primary">'.e($collection->addedBy->name).'</span>';
             })
 
             ->addColumn('created_at_formatted', function (Collection $collection) {
@@ -281,17 +281,19 @@ class AdminCollectionsDataTable extends AbstractDataTable
             ->addColumn('attachment', function (Collection $collection) {
                 if ($collection->attachment) {
                     $url = tasset($collection->attachment);
-                    return '<a href="' . $url . '" target="_blank" class="btn btn-icon btn-label-primary" title="عرض المرفق">
+
+                    return '<a href="'.$url.'" target="_blank" class="btn btn-icon btn-label-primary" title="عرض المرفق">
                                 <i class="ti ti-paperclip"></i>
                             </a>';
                 }
+
                 return '<span class="text-muted">لا يوجد</span>';
             })
             ->addColumn('actions', function ($row) {
                 return view('tenants.financial_collection.admin_collections.action', [
                     'id' => $row->id,
                     'route' => $this->route,
-                    'collection' => $row
+                    'collection' => $row,
                 ])->render();
             });
     }
@@ -315,7 +317,7 @@ class AdminCollectionsDataTable extends AbstractDataTable
             'processor_info',
             'added_by',
             'attachment',
-            'actions'
+            'actions',
         ];
     }
 
@@ -395,39 +397,39 @@ class AdminCollectionsDataTable extends AbstractDataTable
                 'extend' => 'collection',
                 'className' => 'btn btn-export',
                 'text' => 'الإجراءات',
-                'buttons' => []
-            ]
+                'buttons' => [],
+            ],
         ];
 
         $buttons[0]['buttons'][] = [
             'extend' => 'copy',
-            'text' => 'نسخ'
+            'text' => 'نسخ',
         ];
 
         $buttons[0]['buttons'][] = [
             'extend' => 'excel',
             'text' => 'إكسل',
-            'title' => 'تحصيلات المستخدمين'
+            'title' => 'تحصيلات المستخدمين',
         ];
 
         // if (Auth::user()->can('استيراد التحصيلات')) {
         $buttons[0]['buttons'][] = [
             'text' => 'استيراد التحصيلات',
-            'action' => "function() { window.location.href = window.routes.collectionsImport; }"
+            'action' => 'function() { window.location.href = window.routes.collectionsImport; }',
         ];
         // }
 
         if (Auth::user()->can('admin_collections.approve_all')) {
             $buttons[0]['buttons'][] = [
                 'text' => 'اعتماد المحدد',
-                'action' => "function() { handleMassApprove(); }"
+                'action' => 'function() { handleMassApprove(); }',
             ];
         }
 
         if (Auth::user()->can('admin_collections.reject_all')) {
             $buttons[0]['buttons'][] = [
                 'text' => 'رفض المحدد',
-                'action' => "function() { handleMassReject(); }"
+                'action' => 'function() { handleMassReject(); }',
             ];
         }
 
@@ -435,7 +437,7 @@ class AdminCollectionsDataTable extends AbstractDataTable
             $buttons[0]['buttons'][] = [
                 'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
-                'action' => "function() { handleMassDelete(); }"
+                'action' => 'function() { handleMassDelete(); }',
             ];
         }
 

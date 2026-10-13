@@ -3,7 +3,6 @@
 namespace App\Jobs\Domain;
 
 use App\Models\Admin\Cpanel\CpanelAccount;
-use App\Models\Admin\Tenants\Tenant;
 use App\Services\shared\NameCheap\NameCheapService;
 use Exception;
 use Illuminate\Bus\Queueable;
@@ -11,7 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\DB;  
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -23,10 +22,14 @@ class CreateloginAndTokenJob implements ShouldQueue
     protected $domain;
 
     public $tries = 1;
+
     public $backoff = 10;
+
     public $tenantId;
+
     private NameCheapService $namecheapService;
-    public function __construct($domain , $tenantId)
+
+    public function __construct($domain, $tenantId)
     {
         $this->domain = $domain;
         $this->tenantId = $tenantId;
@@ -34,7 +37,7 @@ class CreateloginAndTokenJob implements ShouldQueue
 
     public function handle(): void
     {
-        Log::info('🔐 Starting login and token process for domain: ' . $this->domain);
+        Log::info('🔐 Starting login and token process for domain: '.$this->domain);
 
         try {
             $tenantId = tenant('id');
@@ -49,8 +52,8 @@ class CreateloginAndTokenJob implements ShouldQueue
             //     $cpanelPassword = $cpanel->cpanel_password;
             // }
             $this->createCpanelAccount();
-            $cpanel = tenancy()->central(function() use ($tenantId){
-                return  DB::table('cpanel_accounts')->where('tenant_id' , $tenantId)->first();
+            $cpanel = tenancy()->central(function () use ($tenantId) {
+                return DB::table('cpanel_accounts')->where('tenant_id', $tenantId)->first();
             });
 
             // ✅ تسجيل الدخول
@@ -66,8 +69,8 @@ class CreateloginAndTokenJob implements ShouldQueue
                     'pass' => $cpanel->cpanel_password,
                 ]);
 
-            if (!$loginResponse->successful()) {
-                throw new \Exception("❌ Login HTTP request failed with status: " . $loginResponse->status());
+            if (! $loginResponse->successful()) {
+                throw new Exception('❌ Login HTTP request failed with status: '.$loginResponse->status());
             }
 
             $loginData = $loginResponse->json();
@@ -78,7 +81,7 @@ class CreateloginAndTokenJob implements ShouldQueue
             // }
 
             $securityToken = $loginData['security_token'];
-            Log::info("✅ Login successful, security token obtained");
+            Log::info('✅ Login successful, security token obtained');
 
             // ✅ حول الـ cookies لـ array
             $cookies = [];
@@ -96,10 +99,8 @@ class CreateloginAndTokenJob implements ShouldQueue
                 ->withCookies($cookies, $cpanelHost)
                 ->asForm()
                 ->post($tokenUrl, [
-                    'name' => $cpanel->cpanel_username . '_token_' . time(),
+                    'name' => $cpanel->cpanel_username.'_token_'.time(),
                 ]);
-
-
 
             $tokenData = $tokenResponse->json();
 
@@ -108,25 +109,23 @@ class CreateloginAndTokenJob implements ShouldQueue
             // ✅ تحقق من وجود التوكن
             if (empty($tokenData['data']['token'])) {
                 Log::error('❌ Token creation failed - no token in response', $tokenData);
-                throw new \Exception("❌ Token creation failed - Invalid response");
+                throw new Exception('❌ Token creation failed - Invalid response');
             }
 
             $token = $tokenData['data']['token'];
             $cpanelUser = $cpanel->cpanel_username;
             $cpanelPassword = $cpanel->cpanel_password;
             // ✅ احفظ في الـ Database (Central)
-            $saved = tenancy()->central(function () use ($cpanelUser, $cpanelPassword, $token, $tenantId, $cpanel) {
+            $saved = tenancy()->central(function () use ($token, $tenantId) {
                 // ✅ امسح أي سجلات قديمة للدومين ده
                 // DB::table('cpanel_accounts')
                 //     ->where('domain', $this->domain)
                 //     ->delete();
-                        return DB::table('cpanel_accounts')
-                        ->where('tenant_id', $tenantId)
-                        ->update(['cpanel_token' => $token]);
-
+                return DB::table('cpanel_accounts')
+                    ->where('tenant_id', $tenantId)
+                    ->update(['cpanel_token' => $token]);
 
                 // ✅ احفظ السجل الجديد
-
 
             });
             if ($saved) {
@@ -135,35 +134,34 @@ class CreateloginAndTokenJob implements ShouldQueue
                 //         ->where('cpanel_token', $token)
                 //         ->first();
 
-
-
                 $this->writeFileContentForUser($token);
 
                 // });
             }
-        } catch (\Exception $e) {
-            Log::error('❌ CreateloginAndTokenJob failed: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
+        } catch (Exception $e) {
+            Log::error('❌ CreateloginAndTokenJob failed: '.$e->getMessage());
+            Log::error('Stack trace: '.$e->getTraceAsString());
 
             throw $e;
         }
     }
- protected function createCpanelAccount()
+
+    protected function createCpanelAccount()
     {
-         $cpanelUsername = explode('.', $this->domain)[0];
+        $cpanelUsername = explode('.', $this->domain)[0];
 
         // CpanelAccount::find($this->tenantId)->update([
         //     'domain' => $cpanelUsername,
         // ]);
 
         // توليد باسورد قوي
-        $password = Str::random(16) . rand(10, 99) . '!@';
+        $password = Str::random(16).rand(10, 99).'!@';
 
         // إنشاء الحساب
         $response = Http::withHeaders([
-            'Authorization' => 'whm levan:8EPSQ67GW3XWGGRBYN51EP105R6C31P5'
+            'Authorization' => 'whm levan:8EPSQ67GW3XWGGRBYN51EP105R6C31P5',
         ])->timeout(60)->get('https://server.levan.com:2087/json-api/createacct', [
-            'username' => $cpanelUsername, 
+            'username' => $cpanelUsername,
             'domain' => $this->domain,
             'password' => $password,
             'plan' => 'default_levan',
@@ -175,34 +173,36 @@ class CreateloginAndTokenJob implements ShouldQueue
         ]);
         $tenantId = $this->tenantId;
         $domain = $this->domain;
-       return $cpanel = tenancy()->central(function() use ($cpanelUsername , $password ,$tenantId , $domain){
-           return  DB::table('cpanel_accounts')->insert([
-                    'cpanel_username' => $cpanelUsername,
-                    'cpanel_password' => $password,
-                     'tenant_id' => $tenantId,
-                    'domain' => $domain,
-                    'created_at' => now(),
-                    // 'updated_at' => now(),
-                ]);
+
+        return $cpanel = tenancy()->central(function () use ($cpanelUsername, $password, $tenantId, $domain) {
+            return DB::table('cpanel_accounts')->insert([
+                'cpanel_username' => $cpanelUsername,
+                'cpanel_password' => $password,
+                'tenant_id' => $tenantId,
+                'domain' => $domain,
+                'created_at' => now(),
+                // 'updated_at' => now(),
+            ]);
         });
-        if($cpanel){
+        if ($cpanel) {
             Log::info('cpanel account created');
-        }else{
+        } else {
             Log::info('not created');
         }
 
-        if (!$response->successful()) {
-            throw new Exception("Failed to create cPanel account: HTTP " . $response->status());
+        if (! $response->successful()) {
+            throw new Exception('Failed to create cPanel account: HTTP '.$response->status());
         }
 
-         
     }
+
     public function failed(\Throwable $exception): void
     {
         Log::error('❌ CreateloginAndTokenJob failed permanently after all retries');
-        Log::error('Domain: ' . $this->domain);
-        Log::error('Error: ' . $exception->getMessage());
+        Log::error('Domain: '.$this->domain);
+        Log::error('Error: '.$exception->getMessage());
     }
+
     // شغال مع cpanel
     protected function writeFileContentForUser($token)
     {
@@ -211,7 +211,7 @@ class CreateloginAndTokenJob implements ShouldQueue
         $domain = $this->domain;
 
         // ✅ محتوى ملف .htaccess
-        $htaccessContent = <<<HTACCESS
+        $htaccessContent = <<<'HTACCESS'
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
@@ -345,15 +345,15 @@ PHP;
                 ],
             ]);
 
-        if (!$htaccessResponse->successful()) {
-            throw new \Exception("❌ HTTP Error uploading .htaccess: " . $htaccessResponse->status() . " - " . $htaccessResponse->body());
+        if (! $htaccessResponse->successful()) {
+            throw new Exception('❌ HTTP Error uploading .htaccess: '.$htaccessResponse->status().' - '.$htaccessResponse->body());
         }
 
         $htaccessData = $htaccessResponse->json();
         info('📄 cPanel .htaccess upload Response', $htaccessData);
 
-        if (!isset($htaccessData['status']) || $htaccessData['status'] != 1) {
-            throw new \Exception("⚠️ Could not create .htaccess: " . json_encode($htaccessData));
+        if (! isset($htaccessData['status']) || $htaccessData['status'] != 1) {
+            throw new Exception('⚠️ Could not create .htaccess: '.json_encode($htaccessData));
         }
 
         info("✅ File '.htaccess' created successfully inside {$dir}");
@@ -380,15 +380,15 @@ PHP;
                 ],
             ]);
 
-        if (!$indexResponse->successful()) {
-            throw new \Exception("❌ HTTP Error uploading index.php: " . $indexResponse->status() . " - " . $indexResponse->body());
+        if (! $indexResponse->successful()) {
+            throw new Exception('❌ HTTP Error uploading index.php: '.$indexResponse->status().' - '.$indexResponse->body());
         }
 
         $indexData = $indexResponse->json();
         info('📄 cPanel index.php upload Response', $indexData);
 
-        if (!isset($indexData['status']) || $indexData['status'] != 1) {
-            throw new \Exception("⚠️ Could not create index.php: " . json_encode($indexData));
+        if (! isset($indexData['status']) || $indexData['status'] != 1) {
+            throw new Exception('⚠️ Could not create index.php: '.json_encode($indexData));
         }
 
         info("✅ File 'index.php' created successfully inside {$dir}");

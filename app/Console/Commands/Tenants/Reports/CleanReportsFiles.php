@@ -4,7 +4,6 @@ namespace App\Console\Commands\Tenants\Reports;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
 
 class CleanReportsFiles extends Command
 {
@@ -33,8 +32,9 @@ class CleanReportsFiles extends Command
 
         $reportDirectory = storage_path('app/public/exports');
 
-        if (!File::exists($reportDirectory)) {
+        if (! File::exists($reportDirectory)) {
             $this->warn("المجلد غير موجود: {$reportDirectory}");
+
             return 0;
         }
 
@@ -43,7 +43,7 @@ class CleanReportsFiles extends Command
 
         $files = File::allFiles($reportDirectory);
 
-        $this->info("تم العثور على " . count($files) . " ملف للمعالجة");
+        $this->info('تم العثور على '.count($files).' ملف للمعالجة');
 
         foreach ($files as $file) {
             $fileSize = $file->getSize();
@@ -51,11 +51,11 @@ class CleanReportsFiles extends Command
 
             if (File::delete($file->getPathname())) {
                 $deletedCount++;
-                $this->line("تم حذف الملف: {$file->getFilename()} (" . $this->formatBytes($fileSize) . ")");
+                $this->line("تم حذف الملف: {$file->getFilename()} (".$this->formatBytes($fileSize).')');
             }
         }
 
-        $this->info("اكتملت عملية التنظيف. تم حذف {$deletedCount} ملف، بإجمالي حجم: " . $this->formatBytes($totalSize));
+        $this->info("اكتملت عملية التنظيف. تم حذف {$deletedCount} ملف، بإجمالي حجم: ".$this->formatBytes($totalSize));
 
         return 0;
     }
@@ -73,6 +73,6 @@ class CleanReportsFiles extends Command
             $size /= 1024;
         }
 
-        return round($size, $precision) . ' ' . $units[$i];
+        return round($size, $precision).' '.$units[$i];
     }
 }

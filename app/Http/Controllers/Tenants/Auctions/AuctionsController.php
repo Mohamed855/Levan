@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Tenants\Auctions;
 
+use App\Actions\Tenants\Auctions\CreateAuctionAction;
+use App\Actions\Tenants\Auctions\UpdateAuctionAction;
 use App\DataTables\Tenants\Auctions\AuctionsDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Auctions\StoreAuctionRequest;
@@ -35,11 +37,12 @@ class AuctionsController extends Controller
         $statistics = $this->auctionService->getStatistics();
 
         return $dataTable->render('tenants.auctions.index', [
-            'totalAuctions'         => $statistics['total'],
-            'activeAuctions'        => $statistics['active'],
+            'totalAuctions' => $statistics['total'],
+            'activeAuctions' => $statistics['active'],
             'inPreparationAuctions' => $statistics['in_preparation'],
-            'pendingAuctions'       => $statistics['pending_approval'],
-            'cityOptions'           => $this->cityOptionsGateway->optionsByName(),
+            'pendingAuctions' => $statistics['pending_approval'],
+            'needsReviewAuctions' => $statistics['needs_review'],
+            'cityOptions' => $this->cityOptionsGateway->optionsByName(),
         ]);
     }
 
@@ -55,10 +58,10 @@ class AuctionsController extends Controller
         ]);
     }
 
-    public function store(StoreAuctionRequest $request): RedirectResponse
+    public function store(StoreAuctionRequest $request, CreateAuctionAction $action): RedirectResponse
     {
         try {
-            $this->auctionService->createAuction(
+            $action->execute(
                 $request->validated(),
                 $request->file('cover_image'),
                 $request->file('attachments', [])
@@ -69,7 +72,7 @@ class AuctionsController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'حدث خطأ أثناء إنشاء المزاد: ' . $e->getMessage());
+                ->with('error', 'حدث خطأ أثناء إنشاء المزاد: '.$e->getMessage());
         }
     }
 
@@ -93,17 +96,20 @@ class AuctionsController extends Controller
             ->get();
 
         return view('tenants.auctions.edit', [
-            'auction'     => $auction,
+            'auction' => $auction,
             'assignments' => $assignments,
-            'properties'  => $properties,
+            'properties' => $properties,
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
         ]);
     }
 
-    public function update(UpdateAuctionRequest $request, Auction $auction): RedirectResponse
-    {
+    public function update(
+        UpdateAuctionRequest $request,
+        Auction $auction,
+        UpdateAuctionAction $action,
+    ): RedirectResponse {
         try {
-            $this->auctionService->updateAuction(
+            $action->execute(
                 $auction,
                 $request->validated(),
                 $request->file('cover_image'),
@@ -115,7 +121,7 @@ class AuctionsController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'حدث خطأ أثناء تحديث المزاد: ' . $e->getMessage());
+                ->with('error', 'حدث خطأ أثناء تحديث المزاد: '.$e->getMessage());
         }
     }
 
@@ -155,7 +161,7 @@ class AuctionsController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => $newStatus ? 'تم تفعيل المزاد' : 'تم تعطيل المزاد',
-                'status'  => $newStatus,
+                'status' => $newStatus,
             ]);
         } catch (\Exception $e) {
             return response()->json([

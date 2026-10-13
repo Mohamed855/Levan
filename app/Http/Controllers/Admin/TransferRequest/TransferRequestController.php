@@ -4,16 +4,15 @@ namespace App\Http\Controllers\Admin\TransferRequest;
 
 use App\DataTables\Admin\TransferRequest\TransferRequestDataTable;
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Plan\Plan;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Admin\Microsoft\Mail\MicrosoftMailService;
 use App\Services\Admin\TransferRequest\TransferRequestService;
 use App\Services\shared\Billing\BillingService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\URL;
-use Mpdf\Tag\Tr;
 
 class TransferRequestController extends Controller
 {
@@ -29,7 +28,7 @@ class TransferRequestController extends Controller
         $approved_transfer_requests = Subscription::where('status', 'active')->whereNotNull('transfer_bank_attachment')->count();
         $rejected_transfer_requests = Subscription::where('status', 'cancelled')->whereNotNull('transfer_bank_attachment')->count();
         $pending_transfer_requests = Subscription::where('status', 'suspended')->whereNotNull('transfer_bank_attachment')->count();
-        $plans = \App\Models\Admin\Plan\Plan::all(['id', 'name']);
+        $plans = Plan::all(['id', 'name']);
 
         $filterOptions = [
             'statuses' => [
@@ -62,7 +61,7 @@ class TransferRequestController extends Controller
 
     public function rejectTransferRequest($subscription)
     {
-        Log::info("Rejecting transfer request for subscription ID: " . $subscription);
+        Log::info('Rejecting transfer request for subscription ID: '.$subscription);
         $subscription = Subscription::findOrFail($subscription);
         $subscription->update([
             'status' => 'cancelled',
@@ -74,8 +73,8 @@ class TransferRequestController extends Controller
 
         tenancy()->initialize($subscription->tenant->id);
 
-        Log::info("Tenant: " .  User::first()->email);
-        $mail = $this->mailService->sendEmail(User::first()->email, "تم رفض  طلب الاشتراك الخاص بك", "<p>تم رفض  طلب الاشتراك الخاص بك</p>");
+        Log::info('Tenant: '.User::first()->email);
+        $mail = $this->mailService->sendEmail(User::first()->email, 'تم رفض  طلب الاشتراك الخاص بك', '<p>تم رفض  طلب الاشتراك الخاص بك</p>');
         if ($mail) {
             return redirect()->route('admin.transfer-requests.index')->with('success', 'تم رفض  طلب الاشتراك و ارسال ايميل للعميل.');
         }
@@ -87,8 +86,8 @@ class TransferRequestController extends Controller
     public function approveTransferRequest($subscription)
     {
 
-        Log::info("Approving transfer request for subscription ID: " . $subscription);
-        $subscription =  Subscription::with('tenant')->where('id', $subscription)->first();
+        Log::info('Approving transfer request for subscription ID: '.$subscription);
+        $subscription = Subscription::with('tenant')->where('id', $subscription)->first();
         $subscription->update([
             'status' => 'active',
         ]);
@@ -100,27 +99,27 @@ class TransferRequestController extends Controller
             'originalTotal' => $subscription->price,
             'price' => $subscription->price,
             'payment_method' => 'bank_transfer',
-            'payment_type' => 'paid'
+            'payment_type' => 'paid',
         ];
         $this->billingService->createTransferBankBillByAdmin($subscription, $subscription->currentPeriod, $data);
 
         Log::info($this->billingService->createTransferBankBillByAdmin($subscription, $subscription->currentPeriod, $data));
         tenancy()->initialize($subscription->tenant->id);
-        Log::info("Tenant: " .  User::first()->email);
+        Log::info('Tenant: '.User::first()->email);
         $user = User::first(); // أو المستخدم المناسب
 
         $token = Password::createToken($user);
 
         $resetLink = URL::to(
-            '/reset-password/' . $token .
-                '?email=' . urlencode(User::first()->email) .
-                '&tenant_id=' . $subscription->tenant->id
+            '/reset-password/'.$token.
+                '?email='.urlencode(User::first()->email).
+                '&tenant_id='.$subscription->tenant->id
         );
 
         // إرسال الإيميل مع اللينك
         $this->mailService->sendEmail(
             User::first()->email,
-            "إعادة تعيين كلمة المرور",
+            'إعادة تعيين كلمة المرور',
             "<p>تمت الموافقة على طلب نقل الاشتراك بنجاح.</p>
          <p>اضغط هنا لتغيير كلمة المرور: <a href='{$resetLink}'>تغيير كلمة المرور</a></p>"
         );

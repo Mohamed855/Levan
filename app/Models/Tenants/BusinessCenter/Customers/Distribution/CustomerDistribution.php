@@ -8,12 +8,12 @@ use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\Support\LogOptions;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class CustomerDistribution extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, LogsActivity, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -56,7 +56,7 @@ class CustomerDistribution extends Model
             ->logOnlyDirty()
             ->dontLogEmptyChanges()
             ->useLogName('customer_distributions')
-            ->setDescriptionForEvent(fn(string $eventName) => $this->getEventDescription($eventName))
+            ->setDescriptionForEvent(fn (string $eventName) => $this->getEventDescription($eventName))
             ->dontLogIfAttributesChangedOnly(['updated_at']);
     }
 
@@ -76,11 +76,10 @@ class CustomerDistribution extends Model
             $description = $descriptions[$eventName] ?? "تم {$eventName} توزيع العملاء";
 
             if ($eventName === 'created') {
-                $description .= " - المبلغ الإجمالي: " . number_format($this->total_debt, 2) . " ريال";
+                $description .= ' - المبلغ الإجمالي: '.number_format($this->total_debt, 2).' ريال';
                 // التعديل هنا
-                $description .= " - طريقة التوزيع: " . $this->distribution_method_label;
+                $description .= ' - طريقة التوزيع: '.$this->distribution_method_label;
             }
-
 
             return $description;
         } catch (\Exception $e) {
@@ -131,12 +130,13 @@ class CustomerDistribution extends Model
     {
         return self::getDistributionMethodLabel($this->distribution_method);
     }
+
     /**
      * Get formatted total debt.
      */
     public function getFormattedTotalDebtAttribute(): string
     {
-        return number_format($this->total_debt, 2) . ' ريال';
+        return number_format($this->total_debt, 2).' ريال';
     }
 
     /**

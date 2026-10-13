@@ -8,11 +8,11 @@ use Carbon\Carbon;
 
 class AuctionsDataTable extends AbstractDataTable
 {
-    private string $route = "auctions";
+    private string $route = 'auctions';
 
     protected function getTableId(): string
     {
-        return "auctions-table";
+        return 'auctions-table';
     }
 
     protected function resource()
@@ -43,7 +43,7 @@ class AuctionsDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', function ($row) {
-                return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
             ->addColumn('image', function ($row): string {
                 return $this->renderTableImage(
@@ -52,11 +52,11 @@ class AuctionsDataTable extends AbstractDataTable
                 );
             })
             ->editColumn('name', function ($row) {
-                $showUrl = tenant_route_name($this->route . '.show', $row->id);
+                $showUrl = tenant_route_name($this->route.'.show', $row->id);
 
                 return '<div>
-                    <a href="' . $showUrl . '" class="text-body fw-medium d-block">' . e($row->name) . '</a>
-                    <small class="text-muted">' . e($row->type_label) . ' - ' . e($row->city) . '</small>
+                    <a href="'.$showUrl.'" class="text-body fw-medium d-block">'.e($row->name).'</a>
+                    <small class="text-muted">'.e($row->type_label).' - '.e($row->city).'</small>
                 </div>';
             })
             ->editColumn('platform_name', function ($row) {
@@ -65,15 +65,17 @@ class AuctionsDataTable extends AbstractDataTable
             ->editColumn('start_date', function ($row) {
                 $date = Carbon::parse($row->start_date)->format('Y/m/d');
                 $time = $row->start_time ? Carbon::parse($row->start_time)->format('h:i A') : '';
-                return '<div>' . $date . '</div><small class="text-muted">' . $time . '</small>';
+
+                return '<div>'.$date.'</div><small class="text-muted">'.$time.'</small>';
             })
             ->editColumn('end_date', function ($row) {
                 $date = Carbon::parse($row->end_date)->format('Y/m/d');
                 $time = $row->end_time ? Carbon::parse($row->end_time)->format('h:i A') : '';
-                return '<div>' . $date . '</div><small class="text-muted">' . $time . '</small>';
+
+                return '<div>'.$date.'</div><small class="text-muted">'.$time.'</small>';
             })
             ->editColumn('properties_count', function ($row) {
-                return '<span class="badge bg-label-info">' . (int) $row->properties_count . '</span>';
+                return '<span class="badge bg-label-info">'.(int) $row->properties_count.'</span>';
             })
             ->editColumn('status', function ($row) {
                 $canEdit = auth('tenant')->user()?->can('auctions.edit');
@@ -83,13 +85,13 @@ class AuctionsDataTable extends AbstractDataTable
 
                     return '<div class="d-flex justify-content-center align-items-center gap-1">
                         <div class="form-check form-switch mb-0">
-                            <input type="checkbox" class="form-check-input js-table-status-toggle" id="auction_status_' . $row->id . '" data-url="' . e($url) . '" data-active-value="active" data-inactive-value="inactive" ' . $checked . ' aria-label="تبديل حالة المزاد">
+                            <input type="checkbox" class="form-check-input js-table-status-toggle" id="auction_status_'.$row->id.'" data-url="'.e($url).'" data-active-value="active" data-inactive-value="inactive" '.$checked.' aria-label="تبديل حالة المزاد">
                         </div>
-                        <span class="badge ' . $row->status_badge_class . ' ms-1">' . e($row->status_label) . '</span>
+                        <span class="badge '.$row->status_badge_class.' ms-1">'.e($row->status_label).'</span>
                     </div>';
                 }
 
-                return '<span class="badge ' . $row->status_badge_class . '">' . e($row->status_label) . '</span>';
+                return '<span class="badge '.$row->status_badge_class.'">'.e($row->status_label).'</span>';
             })
             ->addColumn('outputs', function ($row) {
                 return '<div class="d-flex justify-content-center gap-1">
@@ -122,7 +124,7 @@ class AuctionsDataTable extends AbstractDataTable
         }
 
         if ($request->filled('platform_name')) {
-            $query->where('platform_name', 'like', '%' . $request->platform_name . '%');
+            $query->where('platform_name', 'like', '%'.$request->platform_name.'%');
         }
 
         if ($request->filled('start_date')) {
@@ -153,17 +155,17 @@ class AuctionsDataTable extends AbstractDataTable
 
         if (auth('tenant')->user()?->can('auctions.delete')) {
             $buttons[] = [
-                'text'      => 'حذف المحدد',
+                'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
-                'action'    => 'function() { handleMassDelete(); }',
+                'action' => 'function() { handleMassDelete(); }',
             ];
         }
 
         return [
-            'extend'    => 'collection',
+            'extend' => 'collection',
             'className' => 'btn btn-export',
-            'text'      => 'الإجراءات',
-            'buttons'   => $buttons,
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
         ];
     }
 
@@ -171,9 +173,9 @@ class AuctionsDataTable extends AbstractDataTable
     {
         if (auth('tenant')->user()?->can('auctions.create')) {
             return [
-                'text'      => '<i class="ti ti-plus me-1"></i> إضافة مزاد',
+                'text' => '<i class="ti ti-plus me-1"></i> إضافة مزاد',
                 'className' => 'btn btn-primary btn-add',
-                'action'    => "function(){ window.location.href='" . tenant_route_name($this->route . '.create') . "'; }",
+                'action' => "function(){ window.location.href='".tenant_route_name($this->route.'.create')."'; }",
             ];
         }
 

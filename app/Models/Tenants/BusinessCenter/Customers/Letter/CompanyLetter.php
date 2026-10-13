@@ -57,7 +57,7 @@ class CompanyLetter extends Model
     | العلاقات
     |--------------------------------------------------------------------------
     */
-    
+
     public function customer()
     {
         return $this->belongsTo(Customer::class);
@@ -95,7 +95,7 @@ class CompanyLetter extends Model
     */
     public function getActionTypeLabelAttribute(): string
     {
-        return match($this->action_type) {
+        return match ($this->action_type) {
             'payment_full' => 'سداد كامل',
             'payment_partial' => 'سداد جزئي',
             'document_request' => 'طلب مستندات',
@@ -111,7 +111,7 @@ class CompanyLetter extends Model
     */
     public function getActionTypeIconAttribute(): string
     {
-        return match($this->action_type) {
+        return match ($this->action_type) {
             'payment_full' => '<i class="ti ti-cash ti-sm text-success"></i>',
             'payment_partial' => '<i class="ti ti-coins ti-sm text-info"></i>',
             'document_request' => '<i class="ti ti-file-text ti-sm text-warning"></i>',
@@ -127,7 +127,7 @@ class CompanyLetter extends Model
     */
     public function getStatusLabelAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending_approval' => 'ينتظر الاعتماد',
             'approved_ready_to_send' => 'معتمد - جاهز للإرسال',
             'ready_to_send' => 'جاهز للإرسال',
@@ -144,7 +144,7 @@ class CompanyLetter extends Model
     */
     public function getStatusClassAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending_approval' => 'bg-label-warning',
             'approved_ready_to_send' => 'bg-label-info',
             'ready_to_send' => 'bg-label-primary',

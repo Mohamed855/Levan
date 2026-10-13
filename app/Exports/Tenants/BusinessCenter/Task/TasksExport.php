@@ -2,23 +2,25 @@
 
 namespace App\Exports\Tenants\BusinessCenter\Task;
 
+use Carbon\Carbon;
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\WithColumnWidths;
-use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
-use Carbon\Carbon;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class TasksExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle, WithColumnWidths, WithEvents
+class TasksExport implements FromCollection, WithColumnWidths, WithEvents, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     protected $tasks;
+
     protected $rowCount = 0;
 
     /*
@@ -36,7 +38,7 @@ class TasksExport implements FromCollection, WithHeadings, WithMapping, WithStyl
     | Collection
     |--------------------------------------------------------------------------
     */
-    public function collection(): \Illuminate\Support\Enumerable
+    public function collection(): Enumerable
     {
         return $this->tasks;
     }
@@ -93,13 +95,13 @@ class TasksExport implements FromCollection, WithHeadings, WithMapping, WithStyl
         }
 
         // Overdue Days
-        $days = (int)$task->overdue_days;
+        $days = (int) $task->overdue_days;
         if ($days < 0) {
-            $overdueDays = 'متبقي ' . abs($days) . ' يوم';
+            $overdueDays = 'متبقي '.abs($days).' يوم';
         } elseif ($days == 0) {
             $overdueDays = 'اليوم';
         } else {
-            $overdueDays = $days . ' يوم';
+            $overdueDays = $days.' يوم';
         }
 
         $row = [
@@ -114,12 +116,13 @@ class TasksExport implements FromCollection, WithHeadings, WithMapping, WithStyl
             $task->due_date ? Carbon::parse($task->due_date)->format('Y-m-d') : 'غير محدد',
             $overdueDays,
             $status,
-            number_format((float)$task->remaining_debt, 2) . ' ريال',
+            number_format((float) $task->remaining_debt, 2).' ريال',
             $task->relationship_manager_name ?: 'غير محدد',
             $task->relationship_manager_emp ?: 'غير محدد',
         ];
 
         $this->rowCount++;
+
         return $row;
     }
 

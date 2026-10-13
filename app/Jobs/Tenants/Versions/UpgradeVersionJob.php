@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Tenants\Versions;
 
+use App\Models\Tenants\Settings\Settings;
 use App\Support\Security\TenantUpgradeRequestSignature;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -10,18 +11,19 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use App\Models\Tenants\Settings\Settings;
 
 class UpgradeVersionJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $timeout         = 1800;
-    public int $tries           = 1;
-    public int $maxExceptions   = 1;
+    public int $timeout = 1800;
+
+    public int $tries = 1;
+
+    public int $maxExceptions = 1;
 
     public function __construct(public string $tenantId, public int $currentVersion, public int $targetVersion) {}
 
@@ -56,7 +58,7 @@ class UpgradeVersionJob implements ShouldQueue
     {
         Settings::query()->update([
             'maintenance_mode' => true,
-            'updated_at'       => now(),
+            'updated_at' => now(),
         ]);
 
         Cache::forget('app_settings');
@@ -66,7 +68,7 @@ class UpgradeVersionJob implements ShouldQueue
     {
         Settings::query()->update([
             'maintenance_mode' => false,
-            'updated_at'       => now(),
+            'updated_at' => now(),
         ]);
 
         Cache::forget('app_settings');
@@ -75,7 +77,7 @@ class UpgradeVersionJob implements ShouldQueue
     private function runMigrations(): void
     {
         $nextVersionUrl = config('app.next_version_url');
-        $upgradeSecret  = config('app.upgrade_secret');
+        $upgradeSecret = config('app.upgrade_secret');
 
         if (! is_string($nextVersionUrl) || trim($nextVersionUrl) === '') {
             throw new \RuntimeException('رابط النسخة التالية غير مهيأ.');
@@ -111,11 +113,11 @@ class UpgradeVersionJob implements ShouldQueue
             ->post($endpoint);
 
         if ($response->failed()) {
-            throw new \RuntimeException("فشل الـ migrations للطلب {$requestId}: " . $response->status());
+            throw new \RuntimeException("فشل الـ migrations للطلب {$requestId}: ".$response->status());
         }
 
         $data = $response->json();
-        if (!($data['success'] ?? false)) {
+        if (! ($data['success'] ?? false)) {
             throw new \RuntimeException("فشل endpoint الترقية للطلب {$requestId}.");
         }
     }
@@ -147,7 +149,7 @@ class UpgradeVersionJob implements ShouldQueue
         try {
             $this->disableMaintenance();
         } catch (\Throwable $ignored) {
-            Log::error("فشل إلغاء وضع الصيانة بعد الخطأ");
+            Log::error('فشل إلغاء وضع الصيانة بعد الخطأ');
         }
 
         // يمكنك إرسال إشعار للمسؤولين هنا
@@ -156,9 +158,9 @@ class UpgradeVersionJob implements ShouldQueue
 
     public function failed(\Throwable $exception): void
     {
-        Log::critical("💥 فشلت عملية الترقية نهائياً", [
+        Log::critical('💥 فشلت عملية الترقية نهائياً', [
             'tenant_id' => $this->tenantId,
-            'error'     => $exception->getMessage(),
+            'error' => $exception->getMessage(),
         ]);
     }
 
@@ -169,6 +171,6 @@ class UpgradeVersionJob implements ShouldQueue
     // {
     //     Mail::to(config('app.admin_email'))->send(
     //         new UpgradeFailedMail($this->tenantId, $e)
-    //);
+    // );
     // }
 }
