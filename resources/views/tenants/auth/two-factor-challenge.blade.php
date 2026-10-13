@@ -38,7 +38,7 @@
                 <label class="form-label text-center d-block mb-3" id="codeLabel">أدخل الرمز الأمني المكون من 6
                     أرقام</label>
                 <div class="auth-otp-wrapper" dir="ltr">
-                    <input type="tel" class="form-control auth-otp-input" maxlength="1" autofocus autocomplete="off">
+                    <input type="tel" class="form-control auth-otp-input" maxlength="1" autocomplete="off">
                     <input type="tel" class="form-control auth-otp-input" maxlength="1" autocomplete="off">
                     <input type="tel" class="form-control auth-otp-input" maxlength="1" autocomplete="off">
                     <input type="tel" class="form-control auth-otp-input" maxlength="1" autocomplete="off">

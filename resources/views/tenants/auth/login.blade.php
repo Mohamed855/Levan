@@ -36,7 +36,7 @@
             data-validation-url="{{ tenant_route_name('form-validation') }}">
             @csrf
             <x-form.controls.input name="email" label="البريد الإلكتروني أو رقم الجوال" placeholder="أدخل البريد الإلكتروني أو رقم الجوال"
-                type="text" :value="old('email')" required autofocus autocomplete="username" col="col-12 mb-3"
+                type="text" :value="old('email')" required autocomplete="username" col="col-12 mb-3"
                 icon="ti ti-mail" />
 
             <x-form.controls.password name="password" label="كلمة المرور" placeholder="أدخل كلمة المرور" required

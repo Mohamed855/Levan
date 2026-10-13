@@ -30,7 +30,7 @@
             @csrf
 
             <x-form.controls.input name="name" label="الاسم الكامل" placeholder="أدخل الاسم الكامل" :value="old('name')"
-                required autofocus autocomplete="name" col="col-12 mb-3" icon="ti ti-user" />
+                required autocomplete="name" col="col-12 mb-3" icon="ti ti-user" />
 
             <x-form.controls.input name="email" label="البريد الإلكتروني" placeholder="أدخل البريد الإلكتروني"
                 type="email" :value="old('email')" required autocomplete="username" col="col-12 mb-3" icon="ti ti-mail" />

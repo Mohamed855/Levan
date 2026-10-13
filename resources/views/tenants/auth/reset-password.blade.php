@@ -40,7 +40,7 @@
             @endif
 
             <x-form.controls.input name="email" label="البريد الإلكتروني" placeholder="أدخل البريد الإلكتروني"
-                type="email" :value="old('email', $request->email ?? request('email'))" required autofocus autocomplete="username" col="col-12 mb-3"
+                type="email" :value="old('email', $request->email ?? request('email'))" required autocomplete="username" col="col-12 mb-3"
                 icon="ti ti-mail" />
 
             <x-form.controls.password name="password" id="password" label="كلمة المرور الجديدة"

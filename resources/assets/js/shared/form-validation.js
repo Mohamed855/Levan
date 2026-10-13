@@ -276,6 +276,23 @@ function isCreateForm(form) {
   return method === 'POST' && Boolean(form.action);
 }
 
+function isAuthForm(form) {
+  if (!form) {
+    return false;
+  }
+
+  if (form.id === 'formAuthentication' || form.id === 'twoStepsForm') {
+    return true;
+  }
+
+  if (form.closest('.auth-split-container, .tenant-login-container, .auth-form-side, [data-auth-form]')) {
+    return true;
+  }
+
+  const action = form.getAttribute('action') || '';
+  return /\b(login|register|forgot-password|reset-password|password\/confirm|two-factor)\b/.test(action);
+}
+
 function draftButtonFromTemplate() {
   const template = document.querySelector('template[data-create-draft-button-template]');
   return template?.content.firstElementChild?.cloneNode(true) || null;
@@ -651,9 +668,14 @@ function validateControlClientSide(form, control) {
     }
 
     // Email
-    if (control.type === 'email' || name.toLowerCase().includes('email')) {
+    if (control.type === 'email') {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
         setFieldError(form, name, 'البريد الإلكتروني غير صحيح');
+        return false;
+      }
+    } else if (name.toLowerCase() === 'email' && !trimmed.includes('@')) {
+      if (!/^(?:05\d{8}|\+?\d{9,15}|[a-zA-Z0-9._-]{3,})$/.test(trimmed)) {
+        setFieldError(form, name, 'البريد الإلكتروني أو رقم الجوال غير صحيح');
         return false;
       }
     }
@@ -1125,6 +1147,15 @@ function initForm(form) {
 
     return String(control.value ?? '').trim() !== '';
   };
+  const isAuth = isAuthForm(form);
+  let isPageReady = !isAuth;
+  if (isAuth) {
+    setTimeout(() => {
+      isPageReady = true;
+    }, 400);
+  }
+
+  const userInteractedControls = new WeakSet();
   const shouldValidateInteraction = (control, event) => event?.isTrusted || hasControlValue(control);
 
   formControls.forEach((control) => {
@@ -1132,8 +1163,22 @@ function initForm(form) {
       return;
     }
 
+    control.addEventListener('focus', () => {
+      userInteractedControls.add(control);
+    });
+
     control.addEventListener('input', (event) => {
+      if (isAuth && !isPageReady) return;
+      if (isAuth && !event.isTrusted && !userInteractedControls.has(control)) return;
+
       if (!shouldValidateInteraction(control, event)) return;
+
+      if (isAuth) {
+        if (control.classList.contains('is-invalid') || control.getAttribute('aria-invalid') === 'true') {
+          validateControlClientSide(form, control);
+        }
+        return;
+      }
 
       // 1. Instant client-side feedback
       validateControlClientSide(form, control);
@@ -1147,6 +1192,10 @@ function initForm(form) {
     });
 
     control.addEventListener('change', (event) => {
+      if (isAuth && !isPageReady) return;
+      if (isAuth && !event.isTrusted && !userInteractedControls.has(control)) return;
+
+      userInteractedControls.add(control);
       if (!shouldValidateInteraction(control, event)) return;
 
       clearScheduledValidation(control);
@@ -1159,6 +1208,9 @@ function initForm(form) {
     });
 
     control.addEventListener('blur', () => {
+      if (isAuth && !isPageReady) return;
+      if (isAuth && !userInteractedControls.has(control)) return;
+
       clearScheduledValidation(control);
       validateControlClientSide(form, control);
       const step = getStepForControl(control);
@@ -1173,6 +1225,7 @@ function initForm(form) {
     const validatedSelectSelector = 'select[data-form-control][name]:not([data-validation-skip])';
 
     window.jQuery(form).on('change.sharedFormValidation', validatedSelectSelector, function (event) {
+      if (isAuth && !isPageReady) return;
       if (!shouldValidateInteraction(this, event.originalEvent)) return;
 
       validateControlClientSide(form, this);
@@ -1182,6 +1235,7 @@ function initForm(form) {
     });
 
     window.jQuery(form).on('select2:close.sharedFormValidation', validatedSelectSelector, function () {
+      if (isAuth && !isPageReady) return;
       validateControlClientSide(form, this);
       const step = getStepForControl(this);
       if (step) updateStepNextButton(form, step);
@@ -1202,18 +1256,21 @@ function initForm(form) {
   };
 
   const initialFieldsByStep = new Map();
-  formControls.filter(hasInitialValue).forEach((control) => {
-    const step = getStepForControl(control);
-    const fields = initialFieldsByStep.get(step) || new Set();
-    fields.add(control.name);
-    initialFieldsByStep.set(step, fields);
-  });
-
-  initialFieldsByStep.forEach((fields, step) => {
-    validateFields(form, Array.from(fields)).then(() => {
-      if (step) updateStepNextButton(form, step);
+  if (!isAuth) {
+    formControls.filter(hasInitialValue).forEach((control) => {
+      const step = getStepForControl(control);
+      if (!step) return;
+      const fields = initialFieldsByStep.get(step) || new Set();
+      fields.add(control.name);
+      initialFieldsByStep.set(step, fields);
     });
-  });
+
+    initialFieldsByStep.forEach((fields, step) => {
+      validateFields(form, Array.from(fields)).then(() => {
+        if (step) updateStepNextButton(form, step);
+      });
+    });
+  }
 
   form.addEventListener('submit', async (event) => {
     const state = getFormState(form);

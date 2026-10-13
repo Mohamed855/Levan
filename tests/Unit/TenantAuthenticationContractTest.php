@@ -95,7 +95,17 @@ class TenantAuthenticationContractTest extends TestCase
 
             $this->assertStringContainsString('data-form-validate', $content);
             $this->assertStringContainsString("tenant_route_name('form-validation')", $content);
+            $this->assertStringNotContainsString('autofocus', $content);
         }
+    }
+
+    public function test_auth_forms_do_not_validate_on_page_load(): void
+    {
+        $script = file_get_contents(dirname(__DIR__, 2) . '/resources/assets/js/shared/form-validation.js');
+
+        $this->assertStringContainsString('function isAuthForm(form)', $script);
+        $this->assertStringContainsString('const isAuth = isAuthForm(form);', $script);
+        $this->assertStringContainsString('if (!isAuth) {', $script);
     }
 
     public function test_two_factor_setup_uses_the_shared_validation_contract(): void

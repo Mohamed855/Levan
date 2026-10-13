@@ -30,7 +30,7 @@
             @csrf
 
             <x-form.controls.input name="email" label="البريد الإلكتروني" placeholder="أدخل البريد الإلكتروني"
-                type="email" :value="old('email')" required autofocus autocomplete="email" col="col-12 mb-4"
+                type="email" :value="old('email')" required autocomplete="email" col="col-12 mb-4"
                 icon="ti ti-mail" />
 
             <button class="btn-auth-primary mb-3" type="submit">
