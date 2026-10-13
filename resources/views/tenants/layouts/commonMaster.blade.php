@@ -28,7 +28,7 @@ $contentLayout = isset($container) ? ($container === 'container-xxl' ? 'layout-c
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
-    <title>@yield('title') |ليفـــان LEVAN </title>
+    <title>@yield('title') | لـــوت LOT </title>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -36,7 +36,11 @@ $contentLayout = isset($container) ? ($container === 'container-xxl' ? 'layout-c
     <meta name="user-id" content="{{ auth()->id() }}">
     @endauth
 
-    <link rel="icon" type="image/x-icon" href="{{ asset('static/brand/logos/logo-light.svg') }}" />
+    <link rel="icon" type="image/svg+xml" href="{{ asset('static/brand/logos/logo.svg') }}" />
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}" />
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}" />
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
 
     <!-- Include Styles -->
     @include('tenants/layouts.sections/styles' . $isFront)

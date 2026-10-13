@@ -1,10 +1,10 @@
 .package-card {
-    --package-card-accent: var(--primary-color, #372632);
+    --package-card-accent: var(--primary-color, #1D4F44);
     background-color: #fff;
     border: 1px solid #e8e1e4;
     border-block-start: 3px solid var(--package-card-accent);
     border-radius: .75rem;
-    color: var(--primary-color, #372632);
+    color: var(--primary-color, #1D4F44);
     display: flex;
     flex-direction: column;
     min-height: 100%;
@@ -28,7 +28,7 @@
     }
 
     &__title {
-        color: var(--primary-color, #372632);
+        color: var(--primary-color, #1D4F44);
         font-size: 1.35rem;
         font-weight: 800;
         margin: .45rem 0;
@@ -63,7 +63,7 @@
     }
 
     &__price-value {
-        color: var(--primary-color, #372632);
+        color: var(--primary-color, #1D4F44);
         font-size: 2.25rem;
         font-weight: 800;
         line-height: 1;
@@ -102,7 +102,7 @@
 
         i { color: var(--package-card-accent); font-size: .95rem; }
         span { color: #8d8388; font-size: .7rem; }
-        strong { color: var(--primary-color, #372632); font-size: .75rem; grid-column: 2; }
+        strong { color: var(--primary-color, #1D4F44); font-size: .75rem; grid-column: 2; }
     }
 
     &__features {
@@ -118,7 +118,7 @@
     &__empty-feature { color: #9d9498; }
 
     &__action {
-        background-color: var(--primary-color, #372632);
+        background-color: var(--primary-color, #1D4F44);
         border-radius: .5rem;
         color: #fff;
         display: flex;
@@ -132,7 +132,7 @@
 
         &:hover,
         &:focus-visible {
-            background-color: #4a3442;
+            background-color: #12332C;
             color: #fff;
         }
 

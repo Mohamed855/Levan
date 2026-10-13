@@ -1,9 +1,9 @@
 @extends('site.layouts.main')
 
-@section('title', 'ليفـــان LEVAN')
+@section('title', 'لوت LOT - مزادك يبدأ مع لوت')
 
 @section('page-style')
-@vite(['resources/assets/css/site/landing.css', 'resources/assets/css/components/icons.css', 'resources/scss/shared/package-card.scss'])
+@vite(['resources/assets/css/components/icons.css', 'resources/scss/shared/package-card.scss'])
 @endsection
 
 @section('page-script')
@@ -44,7 +44,7 @@
                     <div class="scroll-revealed mx-auto max-w-[780px] text-right">
                         <h1
                             class="mb-6 text-3xl font-bold leading-snug text-primary sm:text-4xl sm:leading-snug lg:text-5xl lg:leading-tight">
-                            منصة ليفان للمزادات العقارية
+                            منصة لوت للمزادات والأصول
 
                         </h1>
 
@@ -56,7 +56,7 @@
                         <ul class="flex flex-wrap items-center justify-center gap-4 md:justify-start md:gap-5">
                             <li>
                                 <a href="{{ $plans->isNotEmpty() ? route('site.plans.checkout', $plans->first()->id) : '#pricing' }}"
-                                    class="flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-base font-medium text-primary-color transition-colors hover:bg-primary-light-10 hover:text-[#e3d8d1] md:px-7 md:py-[14px]"
+                                    class="flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-base font-medium text-primary-color transition-colors hover:bg-primary-light-10 hover:text-[#BF874A] md:px-7 md:py-[14px]"
                                     role="button">طلب اشتراك <i class="ti ti-arrow-left text-lg/none"></i></a>
                             </li>
                         </ul>
@@ -97,7 +97,7 @@
                 <div class="w-full m-auto">
                     <div class="scroll-revealed">
                         <h6 class="mb-2 block text-7xl font-semibold text-primary">
-                            ليفـــان
+                            لوت LOT
                         </h6>
                         <p class="font-bold text-3xl mb-6">
                             المنصة ذكية لإدارة عمليات التحصيل
@@ -276,8 +276,8 @@
                     تحكّم في تحصيلاتك وتوقف عن ملاحقة المستحقات يدوياً
                 </h2>
                 <p class="text-lg md:text-xl leading-relaxed">
-                    مع ليفـــان، كل فاتورة في مكانها، وكل موعد استحقاق تحت عينك، وكل عميل متأخر يصلك تنبيهه تلقائياً.
-                    ركّز على تنمية أعمالك ودع المنصة تتولى متابعة التحصيلات عنك.
+                    مع لوت، كل مزاد وإجراء منظم في مكانه، وكل مستند تحت عينك، مع متابعة دقيقة لمراحل العمل من التجهيز حتى الإسناد.
+                    مزادك يبدأ مع لوت.
                 </p>
                 <a href="{{ route('site.trial') }}"
                     class="inline-block px-7 py-4 rounded-full mt-11 bg-white text-primary font-medium text-lg hover:bg-opacity-90 hover:text-primary focus:bg-opacity-90 focus:text-primary hover:shadow-xl focus:shadow-xl transition-all duration-300"
@@ -673,7 +673,7 @@
                                 <div class="col-12">
                                     <div class="w-full text-center">
                                         <button type="submit" id="submit-form"
-                                            class="inline-flex items-center gap-3 px-8 py-3 rounded-full text-base font-medium bg-primary text-primary-color hover:bg-primary-light-10 hover:text-[#e3d8d1] dark:hover:bg-primary-dark-10 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200">
+                                            class="inline-flex items-center gap-3 px-8 py-3 rounded-full text-base font-medium bg-primary text-primary-color hover:bg-primary-light-10 hover:text-[#BF874A] dark:hover:bg-primary-dark-10 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200">
                                             <span class="spinner-border spinner-border-sm hidden" role="status"
                                                 aria-hidden="true"></span>
                                             <span class="btn-text">إرسال الرسالة</span>

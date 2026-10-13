@@ -113,7 +113,7 @@
                     الوقت: {{ \Carbon\Carbon::now()->format('H:i') }}
                 </td>
                 <td>
-                    النظام: LEVAN
+                    النظام: LOT
                 </td>
             </tr>
         </tfoot>

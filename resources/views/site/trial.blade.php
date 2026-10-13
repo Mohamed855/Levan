@@ -1,9 +1,8 @@
 @extends('site.layouts.main')
 
-@section('title', 'ليفـــان LEVAN - التجربة المجانية')
+@section('title', 'لوت LOT - التجربة المجانية')
 
 @section('page-style')
-@vite(['resources/assets/css/site/landing.css'])
 @endsection
 
 @section('page-script')
@@ -41,12 +40,12 @@
                     <div class="scroll-revealed mx-auto max-w-[780px] text-center">
                         <h1
                             class="mb-12 text-3xl font-bold leading-snug text-primary-color sm:text-4xl sm:leading-snug lg:text-5xl lg:leading-tight">
-                            جرّب نظام مسند مجاناً واكتشف الفرق بنفسك
+                            جرّب منصة لوت مجاناً واكتشف الفرق بنفسك
                         </h1>
 
                         <p class="mx-auto mb-9 max-w-[600px] text-base text-primary-color sm:text-lg sm:leading-normal">
-                            استمتع بجميع مميزات ليفـــان كاملةً بدون أي التزامات مالية أو بطاقة ائتمانية.
-                            ابدأ تجربتك المجانية اليوم وانضم إلى آلاف الشركات التي تثق في مسند لإدارة أعمالها بكفاءة
+                            استمتع بجميع مميزات لوت كاملةً بدون أي التزامات مالية أو بطاقة ائتمانية.
+                            ابدأ تجربتك المجانية اليوم وانضم إلى الشركات التي تثق في لوت لإدارة أعمالها بكفاءة
                             واحترافية.
                         </p>
                     </div>
@@ -73,8 +72,8 @@
                                 جاهز للبدء؟
                             </p>
                             <p class="text-base font-normal">
-                                قم بالتسجيل الآن للحصول على تجربة مجانية كاملة لنظام ليفـــان واكتشف كيف
-                                يمكن أن يساعدك في تحسين عمليات التحصيل وإدارة المستندات بكفاءة عالية.
+                                قم بالتسجيل الآن للحصول على تجربة مجانية كاملة لنظام لوت واكتشف كيف
+                                يمكن أن يساعدك في إدارة المزادات والأصول والمستندات بكفاءة عالية.
 
                             </p>
                         </div>
@@ -196,7 +195,7 @@
                 <div class="w-full m-auto">
                     <div class="scroll-revealed">
                         <h6 class="mb-2 block text-7xl font-semibold text-primary">
-                            ليفـــان
+                            لوت LOT
                         </h6>
                         <p class="font-bold text-3xl mb-6">
                             المنصة ذكية لإدارة عمليات التحصيل

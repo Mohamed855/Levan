@@ -6,7 +6,7 @@
 
 @extends('tenants.layouts.layoutFront')
 
-@section('title', 'عملية التحصيل اليومية - ليفـــان')
+@section('title', 'عملية التحصيل اليومية - لوت LOT')
 
 @section('vendor-style')
     @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/select2/select2.scss'])

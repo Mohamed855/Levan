@@ -66,8 +66,8 @@
 }
 
 :root {
-    --color-primary: #372632;
-    --color-primary-dark: #271b23;
+    --color-primary: #1D4F44;
+    --color-primary-dark: #12332C;
 }
 *,
 ::before,
@@ -127,7 +127,7 @@ body {
     margin: 0;
     /* 1 */
     line-height: inherit;
-    font-family: "Zain", sans-serif !important;
+    font-family: "Thmanyah Sans", "Zain", sans-serif !important;
     font-weight: 200;
     font-style: normal;
 }
@@ -1017,7 +1017,7 @@ p + p {
 }
 
 .ic-navbar.sticky:where([data-web-theme="dark"], [data-web-theme="dark"] *) {
-    border-color: #6d59604d;
+    border-color: #66766F4d;
     background-color: rgb(29 34 46 / var(--tw-bg-opacity));
     --tw-bg-opacity: 0.7;
 }
@@ -1170,7 +1170,7 @@ p + p {
         [data-web-theme="dark"],
         [data-web-theme="dark"] *
     ) {
-    background-color: #e3d8d11a;
+    background-color: #EADFCC1a;
 }
 
 .tabs-nav .tabs-link.active {
@@ -1847,7 +1847,7 @@ p + p {
 }
 
 .border-alpha-dark {
-    border-color: #6d59604d;
+    border-color: #66766F4d;
 }
 
 .border-alpha-light {
@@ -2744,7 +2744,7 @@ p + p {
         [data-web-theme="dark"],
         [data-web-theme="dark"] *
     ) {
-    border-color: #6d59604d;
+    border-color: #66766F4d;
 }
 
 .dark\:bg-body-dark-12\/10:where(
@@ -2851,7 +2851,7 @@ p + p {
 }
 
     body:where([data-web-theme="dark"], [data-web-theme="dark"] *) {
-        color: #f2e9e4;
+        color: #F7F3EC;
     }
 
     .text-primary:where([data-web-theme="dark"], [data-web-theme="dark"] *) {
@@ -2860,13 +2860,13 @@ p + p {
     }
 
     body:where([data-web-theme="dark"], [data-web-theme="dark"] *) {
-        background-color: #271b23;
-        color: #f2e9e4;
+        background-color: #12332C;
+        color: #F7F3EC;
     }
 
     .section-area:where([data-web-theme="dark"], [data-web-theme="dark"] *) {
-        background-color: #33282f;
-        color: #f2e9e4;
+        background-color: #163A32;
+        color: #F7F3EC;
     }
 
     .ic-navbar-floating:where([data-web-theme="dark"], [data-web-theme="dark"] *) {
@@ -2877,13 +2877,13 @@ p + p {
             [data-web-theme="dark"],
             [data-web-theme="dark"] *
         ) {
-        background-color: #e3d8d1 !important;
+        background-color: #EADFCC !important;
         color: var(--color-primary) !important;
     }
 
     a.bg-primary:where([data-web-theme="dark"], [data-web-theme="dark"] *),
     button.bg-primary:where([data-web-theme="dark"], [data-web-theme="dark"] *) {
-        background-color: #e3d8d1 !important;
+        background-color: #EADFCC !important;
         color: var(--color-primary) !important;
     }
 
@@ -2892,7 +2892,7 @@ p + p {
             [data-web-theme="dark"],
             [data-web-theme="dark"] *
         ) {
-        background-color: #e3d8d1 !important;
+        background-color: #EADFCC !important;
         color: var(--color-primary) !important;
     }
 
@@ -2904,7 +2904,7 @@ p + p {
             [data-web-theme="dark"],
             [data-web-theme="dark"] *
         ) {
-        background-color: #e3d8d1 !important;
+        background-color: #EADFCC !important;
         color: var(--color-primary) !important;
     }
 
@@ -2912,7 +2912,7 @@ p + p {
             [data-web-theme="dark"],
             [data-web-theme="dark"] *
         ) {
-        background-color: #271b23;
+        background-color: #12332C;
     }
 
     .dark\:bg-primary-dark-2:where(
@@ -2923,35 +2923,35 @@ p + p {
             [data-web-theme="dark"],
             [data-web-theme="dark"] *
         ) {
-        background-color: #3b2d35;
+        background-color: #1E433B;
     }
 
     .dark\:bg-body-dark-12\/20:where(
             [data-web-theme="dark"],
             [data-web-theme="dark"] *
         ) {
-        background-color: #463640;
+        background-color: #255248;
     }
 
     .dark\:text-body-dark-11:where(
             [data-web-theme="dark"],
             [data-web-theme="dark"] *
         ) {
-        color: #d7c9c2;
+        color: #EADFCC;
     }
 
     .dark\:text-body-dark-12:where(
             [data-web-theme="dark"],
             [data-web-theme="dark"] *
         ) {
-        color: #f2e9e4;
+        color: #F7F3EC;
     }
 
     .dark\:border-body-dark-4:where(
             [data-web-theme="dark"],
             [data-web-theme="dark"] *
         ) {
-        border-color: #6d5960;
+        border-color: #66766F;
     }
 
     #contact input,
@@ -2973,14 +2973,14 @@ p + p {
             [data-web-theme="dark"],
             [data-web-theme="dark"] *
         ) {
-        background-color: #3b2d35;
-        border-color: #6d5960;
-        color: #f2e9e4;
+        background-color: #1E433B;
+        border-color: #66766F;
+        color: #F7F3EC;
     }
 
     [data-web-theme="dark"] #contact input::placeholder,
     [data-web-theme="dark"] #contact textarea::placeholder {
-        color: #d7c9c2;
+        color: #EADFCC;
     }
 
     .footer-contact-icon,

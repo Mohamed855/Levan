@@ -2,40 +2,44 @@
 // Design Tokens — shared across admin & tenants
 // =============================================================================
 
-$primary-color:     #372632;
-$secondary-color:   #f3edea;
-// Darken secondary color (~5.5% lightness reduction) to obtain #e9ddd8
-$secondary-darker:  darken($secondary-color, 5.5%);
+$primary-color:     #1D4F44;
+$secondary-color:   #F7F3EC;
+$secondary-darker:  #EADFCC;
+$brand-gold:        #BF874A;
+$brand-dark-green:  #12332C;
 
 :root {
     --primary-color:        #{$primary-color};
     --secondary-color:      #{$secondary-color};
     --secondary-color-dark: #{$secondary-darker};
+    --brand-gold:           #{$brand-gold};
+    --brand-gold-rgb:       191, 135, 74;
+    --brand-dark-green:     #{$brand-dark-green};
+    --brand-dark-green-rgb: 18, 51, 44;
     --menu-cutout-bg:       #f8f7fa;
     --menu-active-bg:       #f8f7fa;
     --menu-active-text:     #{$primary-color};
 
-    // Bootstrap-compatible tokens. Primary is deliberately dark and secondary
-    // deliberately light; foreground colours are defined in the base layer.
+    // Bootstrap-compatible tokens
     --bs-primary: #{$primary-color};
-    --bs-primary-rgb: 55, 38, 50;
+    --bs-primary-rgb: 29, 79, 68;
     --bs-secondary: #{$secondary-color};
-    --bs-secondary-rgb: 243, 237, 234;
+    --bs-secondary-rgb: 247, 243, 236;
     --bs-body-bg: #{$secondary-color};
-    --bs-body-color: #{$primary-color};
+    --bs-body-color: #{$brand-dark-green};
 
     // Semantic state colors
     --bs-success: #28c76f;
     --bs-success-rgb: 40, 199, 111;
     --bs-danger: #ea5455;
     --bs-danger-rgb: 234, 84, 85;
-    --bs-warning: #ff9f43;
-    --bs-warning-rgb: 255, 159, 67;
+    --bs-warning: #BF874A;
+    --bs-warning-rgb: 191, 135, 74;
     --bs-info: #00cfe8;
     --bs-info-rgb: 0, 207, 232;
 
     // Focus rings
-    --focus-ring-color: rgba(55, 38, 50, 0.2);
+    --focus-ring-color: rgba(29, 79, 68, 0.2);
     --focus-ring-danger: rgba(234, 84, 85, 0.25);
     --focus-ring-success: rgba(40, 199, 111, 0.25);
     --focus-ring-shadow: 0 0 0 0.2rem var(--focus-ring-color);
@@ -53,6 +57,6 @@ $secondary-darker:  darken($secondary-color, 5.5%);
     --transition-base: all 0.2s ease-in-out;
     --transition-fast: all 0.15s ease-in-out;
 
-    --font-family-base: "Zain", sans-serif;
+    --font-family-base: "Thmanyah Sans", "Zain", sans-serif;
     --font-weight-base: 400;
 }

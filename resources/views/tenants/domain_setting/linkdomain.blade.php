@@ -158,7 +158,7 @@
                 <div class="confirmation-card">
                     <i class="ti ti-circle-check"></i>
                     <h5>جاهز لربط الدومين!</h5>
-                    <p>سيتم ربط الدومين التالي بمنصة Levan:</p>
+                    <p>سيتم ربط الدومين التالي بمنصة LOT:</p>
 
                     <div class="domain-display" id="confirmDomainDisplay"></div>
 

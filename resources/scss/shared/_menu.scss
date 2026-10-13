@@ -16,35 +16,73 @@
     border-radius: 0 !important;
     box-shadow: none !important;
 
-    // Hide scrollbars completely while preserving scrolling
-    scrollbar-width: none !important; // Firefox
-    -ms-overflow-style: none !important; // IE / Edge
+    // Scrollbars on the LEFT for RTL sidebar
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(255, 255, 255, 0.25) transparent !important;
 
     &::-webkit-scrollbar {
-        width: 0 !important;
-        height: 0 !important;
-        display: none !important; // Chrome, Safari, Edge
+        width: 5px !important;
+        height: 5px !important;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent !important;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.25) !important;
+        border-radius: 4px !important;
     }
 
     .menu-inner {
-        scrollbar-width: none !important;
-        -ms-overflow-style: none !important;
+        direction: rtl !important;
+        scrollbar-width: thin !important;
+        scrollbar-color: rgba(255, 255, 255, 0.25) transparent !important;
 
         &::-webkit-scrollbar {
-            width: 0 !important;
-            height: 0 !important;
-            display: none !important;
+            width: 5px !important;
+            height: 5px !important;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent !important;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.25) !important;
+            border-radius: 4px !important;
         }
     }
 
-    .ps__rail-x,
-    .ps__rail-y,
-    .ps__thumb-x,
-    .ps__thumb-y {
+    .ps__rail-x {
         display: none !important;
-        opacity: 0 !important;
-        visibility: hidden !important;
-        pointer-events: none !important;
+    }
+
+    .ps__rail-y {
+        display: block !important;
+        left: 2px !important;
+        right: auto !important;
+        background: transparent !important;
+        z-index: 100 !important;
+        opacity: 0.6 !important;
+        width: 5px !important;
+        transition: opacity 0.2s ease !important;
+
+        &:hover,
+        &:focus,
+        &.ps--clicking {
+            opacity: 1 !important;
+            width: 7px !important;
+        }
+
+        .ps__thumb-y {
+            display: block !important;
+            background-color: rgba(255, 255, 255, 0.35) !important;
+            left: 0 !important;
+            right: auto !important;
+            border-radius: 4px !important;
+            width: 100% !important;
+        }
     }
 }
 
@@ -161,7 +199,7 @@
 // 4. Base Menu Items & Consistent Geometry (Prevents Text Movement / Jumping)
 // -----------------------------------------------------------------------------
 $menu-link-height: 48px;
-$menu-sub-link-height: 44px;
+$menu-sub-link-height: 48px;
 
 .bg-menu-theme.menu-vertical .menu-inner .menu-link,
 .layout-wrapper:not(.layout-horizontal) .bg-menu-theme .menu-inner .menu-link {
@@ -243,9 +281,6 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
     }
 }
 
-.bg-menu-theme.menu-vertical .menu-sub > .menu-item {
-    --menu-item-link-height: #{$menu-sub-link-height};
-}
 
 // RTL Geometry (cutouts face the page at the sidebar's inline end)
 :root[dir="rtl"] .bg-menu-theme.menu-vertical .menu-inner > .menu-item::before,
@@ -383,13 +418,13 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
         margin: 0 !important;
 
         .menu-item {
-            margin: 0.25rem 0 !important;
+            margin: 0 !important;
             position: relative !important;
         }
 
         // Submenu links base state — matching margins & curved tab shape
         .menu-link {
-            min-height: 44px !important;
+            min-height: $menu-link-height !important;
             font-size: 0.9rem !important;
             font-weight: 600 !important; // Strictly constant font-weight
             color: rgba(255, 255, 255, 0.75) !important;
@@ -430,7 +465,7 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
             margin-left: 0 !important;
             margin-right: 0.875rem !important;
             border-radius: 0 24px 24px 0 !important;
-            padding: 0.65rem 1.15rem 0.65rem 2rem !important;
+            padding: 0.725rem 2.25rem 0.725rem 1.15rem !important;
         }
 
         :root:not([dir="rtl"]) & .menu-link,
@@ -438,7 +473,7 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
             margin-right: 0 !important;
             margin-left: 0.875rem !important;
             border-radius: 24px 0 0 24px !important;
-            padding: 0.65rem 2rem 0.65rem 1.15rem !important;
+            padding: 0.725rem 1.15rem 0.725rem 2.25rem !important;
         }
 
         // Submenu link HOVER & ACTIVE — EXACT same #f8f7fa design
@@ -465,4 +500,11 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
             }
         }
     }
+}
+
+// Ensure browser window scrollbar is strictly on the left in RTL mode
+:root[dir="rtl"],
+html[dir="rtl"],
+html[dir="rtl"] body {
+    direction: rtl !important;
 }

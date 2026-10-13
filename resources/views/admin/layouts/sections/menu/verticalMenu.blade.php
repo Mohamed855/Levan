@@ -10,7 +10,7 @@
     @if (!isset($navbarFull))
         <div class="app-brand demo">
             <a href="{{ route('admin.dashboard') }}" class="app-brand-link">
-                <x-partials.admin-logo :height="30" :logo-path="asset('static/brand/logos/logo-light.svg')" />
+                <x-partials.admin-logo :height="32" :logo-path="asset('static/brand/logos/logo-light.svg')" />
                 <span class="app-brand-text demo menu-text fw-bold">
                     {{ App\Helpers\Admin\Settings\AdminSettingsHelper::get('logo_text') }}
                 </span>

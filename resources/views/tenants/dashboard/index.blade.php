@@ -91,7 +91,7 @@
                     <div class="avatar avatar-xl bg-label-primary mx-auto mb-3">
                         <i class="ti ti-gavel ti-xl"></i>
                     </div>
-                    <h4 class="mb-2">ليفـــان العقارية</h4>
+                    <h4 class="mb-2">لوت للمزادات LOT</h4>
                     <p class="text-muted mx-auto mb-4" style="max-width: 600px;">
 
                     </p>

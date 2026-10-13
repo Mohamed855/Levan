@@ -18,7 +18,7 @@
 @section('content')
     <x-auth.split-layout form-title="هل نسيت كلمة المرور؟"
         form-subtitle="أدخل بريدك الإلكتروني وسنرسل لك رابطاً لإعادة تعيين كلمة المرور" :bg-image="asset('static/auth/backgrounds/auth-security-bg.jpg')"
-        media-tagline="استعادة الحساب | ليفان العقارية" media-title="استعد وصولك الآمن | إلى حساب شركتك"
+        media-tagline="استعادة الحساب | لوت LOT" media-title="استعد وصولك الآمن | إلى حساب شركتك"
         media-desc="سنرسل لك رابطاً مشفراً عبر بريدك الإلكتروني يتيح لك إعادة تعيين كلمة المرور بسهولة ومتابعة أعمالك العقارية بأمان."
         :features="[
             ['icon' => 'ti ti-lock-check', 'text' => 'استرداد آمن وموثوق'],

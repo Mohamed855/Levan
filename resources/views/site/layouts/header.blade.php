@@ -1,18 +1,24 @@
 <!-- Navbar -->
-<header class="ic-navbar fixed right-0 top-4 z-40 flex w-full items-center bg-transparent" role="banner"
+<header class="ic-navbar site-header fixed right-0 top-4 z-40 flex w-full items-center bg-transparent" role="banner"
     aria-label="Navigation bar">
     <div class="container">
-        <div class="ic-navbar-floating mx-auto flex items-center justify-between px-5 py-4 rounded-full shadow-lg"
-            style="background-color: #e3d8d1;">
+        <div class="ic-navbar-floating mx-auto flex items-center justify-between px-5 py-3 rounded-full">
             <!-- Logo (right) -->
-            <a href="{{ route('site.index') }}" class="ic-navbar-logo block text-primary-color" aria-label="ليفـــان">
-                <img src="{{ asset('static/brand/logos/Levan-logo.svg') }}" data-default-logo="{{ asset('static/brand/logos/Levan-logo.svg') }}"
-                    data-sticky-logo="{{ asset('static/brand/logos/Levan-logo.svg') }}"
-                    data-light-logo="{{ asset('static/brand/logos/Levan-logo.svg') }}"
-                    data-dark-logo="{{ asset('static/brand/logos/Levan-logo-light.svg') }}" class="h-10" alt="ليفـــان">
+            <a href="{{ route('site.index') }}" class="ic-navbar-logo block text-primary-color" aria-label="لوت LOT">
+                <img src="{{ asset('static/brand/logos/lot/trans-profile.png') }}" data-default-logo="{{ asset('static/brand/logos/lot/trans-profile.png') }}"
+                    data-sticky-logo="{{ asset('static/brand/logos/lot/trans-profile.png') }}"
+                    data-light-logo="{{ asset('static/brand/logos/lot/trans-profile.png') }}"
+                    data-dark-logo="{{ asset('static/brand/logos/lot/trans-profile-white.png') }}" class="h-10" alt="لوت LOT">
             </a>
 
             <!-- Left side: Theme toggle + Contact button -->
+            <nav class="site-nav hidden lg:flex items-center gap-7" aria-label="التنقل الرئيسي">
+                <a href="{{ route('site.index') }}#home">الرئيسية</a>
+                <a href="{{ route('site.index') }}#services">المزايا</a>
+                <a href="{{ route('site.index') }}#pricing">الباقات</a>
+                <a href="{{ route('site.index') }}#faq">الأسئلة الشائعة</a>
+            </nav>
+
             <div class="flex items-center gap-3">
                 {{-- <!-- Theme Toggle -->
                 <button type="button" class="inline-flex items-center text-primary text-[22px]/none"
@@ -20,8 +26,8 @@
 
                 <!-- Contact button -->
                 <a href="#contact" id="navbar-contact-btn"
-                    class="btn-navbar-float px-5 py-2 rounded-full text-sm font-semibold text-white transition-all duration-200 hover:text-[#e3d8d1]"
-                    style="background-color: var(--color-primary);" role="button">تواصل معنا</a>
+                    class="btn-navbar-float px-5 py-2 rounded-full text-sm font-semibold text-white transition-all duration-200"
+                    role="button">تواصل معنا</a>
             </div>
         </div>
     </div>

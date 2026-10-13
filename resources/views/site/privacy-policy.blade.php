@@ -1,6 +1,6 @@
 @extends('site.layouts.main')
 
-@section('title', 'ليفـــان LEVAN - السياسات ')
+@section('title', 'لوت LOT - السياسات')
 
 @section('page-style')
 @vite('resources/assets/vendor/scss/pages/front-page-help-center.scss')
@@ -19,12 +19,12 @@
                     <div class="scroll-revealed mx-auto max-w-[780px] text-center">
                         <h1
                             class="mb-12 text-3xl font-bold leading-snug text-primary-color sm:text-4xl sm:leading-snug lg:text-5xl lg:leading-tight">
-                            سياسات استخدام نظام مسند
+                            سياسات استخدام نظام لوت
                         </h1>
 
                         <p class="mx-auto mb-9 max-w-[750px] text-base text-primary-color sm:text-lg sm:leading-normal">
                             تهدف هذه السياسات إلى تنظيم العلاقة بين شركة إتمام لتقنية نظم المعلومات ممثلة في نظام
-                            مسند وعملائها من
+                            لوت وعملائها من
                             شركات مكاتب وأقسام التحصيل، وضمان حماية حقوق الطرفين، بما يتوافق مع القوانين والأنظمة
                             المرعية في المملكة
                             العربية السعودية، وخاصةً نظام حماية البيانات الشخصية ونظام مكافحة الجرائم المعلوماتية
@@ -58,7 +58,7 @@
                             <h5 class="fw-bold mb-3"></h5>
                             <p class="mb-6 font-medium text-sm">
                                 تهدف هذه السياسات إلى تنظيم العلاقة بين شركة إتمام لتقنية نظم المعلومات ممثلة في نظام
-                                مسند وعملائها من
+                                لوت وعملائها من
                                 شركات مكاتب وأقسام التحصيل، وضمان حماية حقوق الطرفين، بما يتوافق مع القوانين والأنظمة
                                 المرعية في المملكة
                                 العربية السعودية، وخاصةً نظام حماية البيانات الشخصية ونظام مكافحة الجرائم المعلوماتية
@@ -77,7 +77,7 @@
                             <div class="font-medium text-sm">
                                 <div class="font-medium text-sm">
                                     <h5 class="fw-semibold mb-3">1. البيانات التي يتم جمعها</h5>
-                                    <p class="mb-2">يقوم مسند بجمع ومعالجة البيانات التالية فقط لأغراض تشغيل الخدمة:
+                                    <p class="mb-2">يقوم لوت بجمع ومعالجة البيانات التالية فقط لأغراض تشغيل الخدمة:
                                     </p>
                                     <ul class="list-unstyled ps-3">
                                         <li class="mb-2"><i class="ti ti-point-filled text-primary me-2"></i>الاسم
@@ -172,7 +172,7 @@
                             <div class="mx-5">
                                 <div class="mb-4">
                                     <h5 class="fw-semibold mb-3">1. قنوات الدعم الفني</h5>
-                                    <p class="mb-2">يوفر مسند الدعم الفني من خلال:</p>
+                                    <p class="mb-2">يوفر لوت الدعم الفني من خلال:</p>
                                     <ul class="list-unstyled ps-3">
                                         <li class="mb-2"><i class="ti ti-point-filled text-primary me-2"></i>نظام
                                             التذاكر
@@ -252,7 +252,7 @@
                                     <h5 class="fw-semibold mb-3">1. آليات المراقبة</h5>
                                     <ul class="list-unstyled ps-3">
                                         <li class="mb-2"><i class="ti ti-point-filled text-primary me-2"></i>يعتمد
-                                            مسند
+                                            لوت
                                             أنظمة تحليل آلي لرصد المعاملات والسلوكيات غير المعتادة أو التي تحمل مؤشرات
                                             خطر.
                                         </li>
@@ -275,7 +275,7 @@
                                     <ul class="list-unstyled ps-3">
                                         <li class="mb-2"><i class="ti ti-point-filled text-primary me-2"></i>في حال
                                             ثبوت
-                                            أي نشاط احتيالي، يلتزم مسند بإبلاغ الجهات المختصة، مع تقديم جميع الأدلة
+                                            أي نشاط احتيالي، يلتزم لوت بإبلاغ الجهات المختصة، مع تقديم جميع الأدلة
                                             الرقمية
                                             المتاحة.</li>
                                     </ul>
@@ -366,7 +366,7 @@
                                         القضائية
                                         المختصة في مدينة الرياض.</li>
                                     <li class="mb-3"><i class="ti ti-point-filled text-primary me-2"></i>تحتفظ شركة
-                                        مسند
+                                        لوت
                                         بحق تعديل هذه السياسات في أي وقت، على أن يتم إشعار العملاء بالتعديلات قبل
                                         سريانها.
                                     </li>
@@ -399,7 +399,7 @@
                 <div class="w-full m-auto">
                     <div class="scroll-revealed">
                         <h6 class="mb-2 block text-7xl font-semibold text-primary">
-                            ليفـــان
+                            لوت LOT
                         </h6>
                         <p class="font-bold text-3xl mb-6">
                             المنصة ذكية لإدارة عمليات التحصيل

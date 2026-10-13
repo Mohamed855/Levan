@@ -18,7 +18,7 @@
 @section('content')
     <x-auth.split-layout form-title="تحقق من بريدك الإلكتروني"
         form-subtitle="شكراً لتسجيلك! قبل البدء، يرجى التحقق من بريدك الإلكتروني بالنقر على الرابط الذي أرسلناه إليك."
-        :bg-image="asset('static/auth/backgrounds/tenant-login-bg.jpg')" media-tagline="التحقق من الحساب | ليفان العقارية" media-title="خطوة أخيرة | لتفعيل حسابك"
+        :bg-image="asset('static/auth/backgrounds/tenant-login-bg.jpg')" media-tagline="التحقق من الحساب | لوت LOT" media-title="خطوة أخيرة | لتفعيل حسابك"
         media-desc="أرسلنا إليك بريداً إلكترونياً يحتوي على رابط التحقق. انقر عليه لتفعيل حسابك والبدء في استخدام المنصة."
         :features="[
             ['icon' => 'ti ti-mail-check', 'text' => 'تحقق آمن عبر البريد الإلكتروني'],

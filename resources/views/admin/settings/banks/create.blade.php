@@ -48,7 +48,7 @@
                             </label>
                             <input type="text" class="form-control @error('account_name') is-invalid @enderror"
                                 id="account_name" name="account_name" value="{{ old('account_name') }}"
-                                placeholder="مثال: شركة ليفـــان للتقنية" required>
+                                placeholder="مثال: شركة لوت للمزادات" required>
                             @error('account_name')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

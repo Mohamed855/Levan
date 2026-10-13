@@ -17,7 +17,7 @@
 
 @section('content')
     <x-auth.split-layout form-title="مرحباً بك مجدداً" form-subtitle="تسجيل الدخول للوحة تحكم الإدارة المركزية"
-        :bg-image="asset('static/auth/backgrounds/admin-login-bg.jpg')" media-tagline="الإدارة المركزية | ليفان العقارية"
+        :bg-image="asset('static/auth/backgrounds/admin-login-bg.jpg')" media-tagline="الإدارة المركزية | لوت LOT"
         media-title="منظومة الإدارة والتحكم الشامل | للمنصة العقارية"
         media-desc="أدوات حصرية للإدارة العامة لمتابعة الشركات العقارية، إدارة التراخيص والاشتراكات، والتحكم في إعدادات المنظومة بدقة وكفاءة عالية."
         :features="[

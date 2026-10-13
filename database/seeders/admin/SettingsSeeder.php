@@ -16,8 +16,8 @@ class SettingsSeeder extends Seeder
             ['id' => Settings::query()->value('id') ?? 1],
             [
                 'image'       => 'default-office.png',
-                'office_name' => 'ليفـــان LEVAN',
-                'logo_text'   => 'ليفـــان LEVAN',
+                'office_name' => 'لوت LOT',
+                'logo_text'   => 'لوت LOT',
             ]
         );
     }

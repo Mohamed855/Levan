@@ -1,6 +1,6 @@
 @extends('site.layouts.main')
 
-@section('title', 'ليفـــان LEVAN')
+@section('title', 'لوت LOT - إتمام الطلب')
 
 @section('page-style')
     @vite(['resources/assets/vendor/fonts/tabler-icons.scss', 'resources/assets/css/components/icons.css', 'resources/assets/css/site/checkout.css'])

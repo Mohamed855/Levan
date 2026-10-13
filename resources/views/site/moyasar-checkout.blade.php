@@ -1,6 +1,6 @@
 @extends('site.layouts.main')
 
-@section('title', 'إتمام الدفع | ليفان')
+@section('title', 'إتمام الدفع | لوت LOT')
 
 @section('page-style')
     @vite(['resources/assets/vendor/fonts/tabler-icons.scss', 'resources/assets/css/components/icons.css'])

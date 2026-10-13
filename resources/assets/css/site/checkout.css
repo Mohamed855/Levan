@@ -60,12 +60,12 @@ textarea::placeholder {
 }
 
 .payment-option:hover {
-    border-color: #696cff;
+    border-color: #1D4F44;
     box-shadow: 0 4px 12px rgba(105, 108, 255, 0.15);
 }
 
 .payment-option.active {
-    border-color: #696cff;
+    border-color: #1D4F44;
     background: rgba(105, 108, 255, 0.05);
 }
 
@@ -88,12 +88,12 @@ textarea::placeholder {
 }
 
 .bank-card:hover {
-    border-color: #696cff;
+    border-color: #1D4F44;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .bank-card.selected {
-    border-color: #696cff;
+    border-color: #1D4F44;
     background: rgba(105, 108, 255, 0.05);
 }
 
@@ -114,7 +114,7 @@ textarea::placeholder {
 }
 
 .upload-area:hover {
-    border-color: #696cff;
+    border-color: #1D4F44;
     background: #f5f5ff;
 }
 
@@ -125,7 +125,7 @@ textarea::placeholder {
 
 .upload-icon {
     font-size: 2.5rem;
-    color: #696cff;
+    color: #1D4F44;
     margin-bottom: 12px;
 }
 
@@ -265,11 +265,11 @@ textarea::placeholder {
 }
 
 .text-price {
-    background-color: #3726320a;
+    background-color: rgba(29, 79, 68, 0.05);
 }
 
 .text-price h3 {
-    color: #372632 !important;
+    color: #1D4F44 !important;
 }
 
 input.field-invalid,

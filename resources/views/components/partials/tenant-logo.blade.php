@@ -9,7 +9,7 @@
 
     if (! $logoPath) {
         $logoImage = SettingsHelper::get('image');
-        $logoPath = $logoImage ? tasset($logoImage) : asset('static/brand/logos/logo.svg');
+        $logoPath = $logoImage ? tasset($logoImage) : asset('static/brand/logos/lot/trans-icon.png');
     }
 @endphp
 

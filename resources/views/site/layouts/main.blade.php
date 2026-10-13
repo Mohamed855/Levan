@@ -3,7 +3,7 @@
 
 @include('site.layouts.head')
 
-<body>
+<body class="site-shell">
     <x-shared.toastr />
 
     <!-- Page loading -->
@@ -30,7 +30,7 @@
     @include('site.layouts.footer')
 
     <button type="button"
-        class="back-to-top inline-flex w-12 h-12 rounded-full items-center justify-center text-lg/none bg-[#e3d8d1] text-primary hover:bg-primary hover:text-primary fixed bottom-[80px] right-[20px] hover:-translate-y-1 opacity-100 visible z-50 is-hided"
+        class="back-to-top inline-flex w-12 h-12 rounded-full items-center justify-center text-lg/none fixed bottom-[24px] right-[24px] opacity-100 visible z-50 is-hided"
         data-web-trigger="scroll-top" aria-label="Scroll to top">
         <i class="ti ti-chevron-up"></i>
     </button>

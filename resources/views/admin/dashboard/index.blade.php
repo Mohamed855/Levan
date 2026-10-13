@@ -1,6 +1,6 @@
 @extends('admin.layouts.layoutMaster')
 
-@section('title', 'لوحة التحكم الرئيسية - LEVAN')
+@section('title', 'لوحة التحكم الرئيسية - LOT')
 
 @section('vendor-style')
     @vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])

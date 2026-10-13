@@ -18,7 +18,7 @@
 @section('content')
     <x-auth.split-layout form-title="التحقق بخطوتين"
         form-subtitle="أدخل الرمز المكوّن من 6 أرقام من تطبيق المصادقة لإكمال تسجيل الدخول" :bg-image="asset('static/auth/backgrounds/auth-security-bg.jpg')"
-        media-tagline="أمان الحساب | ليفان العقارية" media-title="طبقة حماية إضافية | لحساب شركتك"
+        media-tagline="أمان الحساب | لوت LOT" media-title="طبقة حماية إضافية | لحساب شركتك"
         media-desc="نضمن سلامة بياناتك وعملياتك من خلال بروتوكولات التحقق الثنائي المعتمدة عالمياً." :features="[
             ['icon' => 'ti ti-shield-check', 'text' => 'حماية فائقة المستوى'],
             ['icon' => 'ti ti-device-mobile', 'text' => 'تكامل مع تطبيقات المصادقة'],
