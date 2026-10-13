@@ -115,4 +115,17 @@
   - Must use the **Two-Column Asymmetric Layout**:
     - **Left column (`col-xl-4 col-lg-5 col-md-5 mb-4`)**: Profile card (centered 100x100px rounded image, name, category badge, horizontal stat counters, key-value info list) + Attachments card underneath rendering a clean file list with `ti ti-download` action buttons.
     - **Right column (`col-xl-8 col-lg-7 col-md-7`)**: Dedicated strictly to child subtables and related records (1:M tables, auctions, history) using clean `<div class="card mb-4"><div class="table-responsive"><table class="table table-hover">...</table></div></div>`.
+- **Unified Typography Scale Bands**:
+  - **Band 1 (`11px - 13px -> 12px` / `0.75rem`)**: Small helper texts, metadata dates, badges, tooltips (`xs`, `sm`, `.form-text`).
+  - **Band 2 (`14px - 16px -> 15px` / `0.9375rem`)**: Body texts, inputs, standard buttons, table content, top-level and submenu links.
+  - **Band 3 (`17px - 24px -> 18px` / `1.125rem`)**: Card headers (`h5`), sub-headings (`h4`), card descriptive titles (`.text-xl`).
+  - **Band 4 (`25px - 28px -> 24px` / `1.5rem`)**: Page titles and modal headers (`h3`).
+  - **Band 5 (`> 28px`)**: Auth/welcome titles (`h2: 38px`), landing titles (`h1: 46px`).
+  - **Icons Exemption**: Icon dimensions are strictly exempt from font scale reductions (`.menu-icon` 20px / `1.25rem`, Tabler/FA icons).
+- **Sidebar & Viewport Scrollbar Contract**:
+  - The sidebar (`#layout-menu`) must never display a scrollbar (`scrollbar-width: none; -ms-overflow-style: none; display: none;`), while preserving smooth mouse wheel navigation.
+  - Viewport scrollbar must be strictly aligned to the **left** in RTL via `:root[dir="rtl"], html[dir="rtl"] { direction: rtl !important; }`.
+  - Submenu items (`.menu-sub .menu-item`) must maintain a uniform height of `48px`, seamless concave scoops, and a vertical gap (`margin: 0.35rem 0 !important;`) preventing active/hover pill collision.
+- **Brand Identity & Color Architecture**:
+  - System brand is LOT («لوت LOT»). Primary color is `#1D4F44` and Secondary is `#F7F3EC`.
 
