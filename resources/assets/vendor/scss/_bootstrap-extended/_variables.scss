@@ -257,11 +257,11 @@ $font-family-code: var(--#{$variable-prefix}font-monospace) !default;
 // $font-size-root effects the value of `rem`, which is used for as well font sizes, paddings and margins
 // $font-size-base effects the font size of the body text
 $font-size-root: 16px !default;
-$font-size-base: 0.9375rem !default; // Assumes the browser default, typically `16px`
-$font-size-xl: 1.1875rem !default; // (C)
-$font-size-lg: 1rem !default;
-$font-size-sm: 0.8125rem !default;
-$font-size-xs: 0.6875rem !default; // (C)
+$font-size-base: 0.9375rem !default; // 15px (Band 2: 14px-16px -> 15px)
+$font-size-xl: 1.125rem !default; // 18px (Band 3: 17px-24px -> 18px)
+$font-size-lg: 0.9375rem !default; // 15px (Band 2: 14px-16px -> 15px)
+$font-size-sm: 0.75rem !default; // 12px (Band 1: 11px-13px -> 12px)
+$font-size-xs: 0.75rem !default; // 12px (Band 1: 11px-13px -> 12px)
 
 $font-weight-lighter: lighter !default;
 $font-weight-light: 300 !default;
@@ -278,17 +278,17 @@ $line-height-lg: 1.625 !default;
 $line-height-sm: 1.125 !default;
 $line-height-xs: 1 !default; // (C)
 
-$h1-font-size: 2.875rem !default;
-$h2-font-size: 2.375rem !default;
-$h3-font-size: 1.75rem !default;
-$h4-font-size: 1.5rem !default;
-$h5-font-size: 1.125rem !default;
-$h6-font-size: $font-size-base !default;
+$h1-font-size: 2.875rem !default; // 46px (> 28px -> unchanged)
+$h2-font-size: 2.375rem !default; // 38px (> 28px -> unchanged)
+$h3-font-size: 1.5rem !default; // 24px (Band 4: 25px-28px -> 24px)
+$h4-font-size: 1.125rem !default; // 18px (Band 3: 17px-24px -> 18px)
+$h5-font-size: 1.125rem !default; // 18px (Band 3: 17px-24px -> 18px)
+$h6-font-size: $font-size-base !default; // 15px (Band 2: 14px-16px -> 15px)
 
 $h1-line-height: 4.25rem !default;
 $h2-line-height: 3.5rem !default;
-$h3-line-height: 2.625rem !default;
-$h4-line-height: 2.375rem !default;
+$h3-line-height: 2.25rem !default;
+$h4-line-height: 1.75rem !default;
 $h5-line-height: 1.75rem !default;
 $h6-line-height: 1.375rem !default;
 // scss-docs-end font-variables
@@ -318,7 +318,7 @@ $display-font-weight: 500 !default;
 $lead-font-size: $spacer * 1.125 !default;
 
 $tiny-font-size: 70% !default; // (C)
-$small-font-size: 0.8125rem !default;
+$small-font-size: 0.75rem !default; // 12px (Band 1: 11px-13px -> 12px)
 $big-font-size: 112% !default; // (C)
 $large-font-size: 150% !default; // (C)
 $xlarge-font-size: 170% !default; // (C)

@@ -143,9 +143,9 @@
     }
 
     .menu-header {
-        margin-top: 1rem !important;
-        margin-bottom: 0.35rem !important;
-        padding-inline-start: 1.15rem !important;
+        // margin-top: 1rem !important;
+        // margin-bottom: 0.35rem !important;
+        // padding-inline-start: 1.15rem !important;
 
         .menu-header-text {
             color: rgba(255, 255, 255, 0.45) !important;
@@ -166,7 +166,7 @@ $menu-sub-link-height: 48px;
 .bg-menu-theme.menu-vertical .menu-inner .menu-link,
 .layout-wrapper:not(.layout-horizontal) .bg-menu-theme .menu-inner .menu-link {
     color: rgba(255, 255, 255, 0.82) !important;
-    font-size: 0.95rem !important;
+    font-size: 0.9375rem !important; // 15px (Band 2: 14px-16px -> 15px)
     font-weight: 600 !important;
     padding: 0.725rem 1.15rem !important; // Larger, more comfortable padding
     min-height: $menu-link-height !important;
@@ -388,7 +388,7 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
         // Submenu links base state — matching margins & curved tab shape
         .menu-link {
             min-height: $menu-link-height !important;
-            font-size: 0.9rem !important;
+            font-size: 0.9375rem !important; // 15px (Band 2: 14px-16px -> 15px)
             font-weight: 600 !important; // Strictly constant font-weight
             color: rgba(255, 255, 255, 0.75) !important;
             background: transparent !important;

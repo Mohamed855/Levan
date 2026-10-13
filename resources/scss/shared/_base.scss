@@ -124,3 +124,32 @@ code {
     background-color: #f8f9fa;
     color: var(--primary-color);
 }
+
+// =============================================================================
+// Unified Typography Scale Contract
+// Band 1: 11px - 13px -> 12px (0.75rem)
+// Band 2: 14px - 16px -> 15px (0.9375rem)
+// Band 3: 17px - 24px -> 18px (1.125rem)
+// Band 4: 25px - 28px -> 24px (1.5rem)
+// Band 5: > 28px      -> Unchanged (h2: 38px, h1: 46px)
+// Note: Icons ([class*="ti-"], .menu-icon, svg, etc.) are strictly excluded.
+// =============================================================================
+:where(small, .text-sm, .text-xs, .form-text, .badge:not(.badge-lg)) {
+    font-size: var(--font-size-xs, 0.75rem) !important;
+}
+
+:where(body, p, input, select, textarea, .btn:not(.btn-lg):not(.btn-sm), .form-control, .form-select, .table, .nav-link, .dropdown-item, .text-base, .text-lg) {
+    font-size: var(--font-size-base, 0.9375rem);
+}
+
+:where(h6, .h6) {
+    font-size: var(--h6-font-size, 0.9375rem) !important;
+}
+
+:where(h5, .h5, h4, .h4, .text-xl) {
+    font-size: var(--h4-font-size, 1.125rem) !important;
+}
+
+:where(h3, .h3) {
+    font-size: var(--h3-font-size, 1.5rem) !important;
+}
