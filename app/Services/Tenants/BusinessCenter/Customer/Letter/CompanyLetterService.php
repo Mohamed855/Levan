@@ -250,7 +250,7 @@ class CompanyLetterService
     | إزالة متغيرات المفوضين غير المعالجة
     |--------------------------------------------------------------------------
     */
-    private function removeAuthorizedPeopleVariables(string $content, int $authorizedNumber = null): string
+    private function removeAuthorizedPeopleVariables(string $content, ?int $authorizedNumber = null): string
     {
         if ($authorizedNumber === null) {
             $patterns = [

@@ -43,7 +43,7 @@ use App\Http\Controllers\Tenants\BusinessCenter\Task\TaskController;
 use App\Http\Controllers\Tenants\ChartSetting\ChartSettingController;
 use App\Http\Controllers\Tenants\Communication\MessageLog\MessageIndividualLogController;
 use App\Http\Controllers\Tenants\Communication\MessageLog\MessageLogController;
-use App\Http\Controllers\Tenants\dashboard\DashboardController;
+use App\Http\Controllers\Tenants\Dashboard\DashboardController;
 use App\Http\Controllers\Tenants\DeleteBulk\MassDeleteController;
 use App\Http\Controllers\Tenants\Domains\CheckMultipleDomainController as DomainsCheckMultipleDomainController;
 use App\Http\Controllers\Tenants\Domains\CpanelController;
