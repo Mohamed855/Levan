@@ -63,7 +63,7 @@
 @section('content')
     <div class="d-flex flex-column min-vh-100" style="background-color: #f8f9fa;">
         <div class="flex-grow-1">
-            <div class="container-fluid py-4">
+            <div class="container-xxl py-4">
                 <!-- Header -->
                 <div class="row mb-4">
                     <div class="col-12">
