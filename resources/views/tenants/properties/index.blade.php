@@ -117,7 +117,7 @@
         <x-slot:filters>
             <x-data-table.filters table="#properties-table">
                 <x-filter.select id="filter-assignment-status" filterKey="assignment_status" label="حالة الارتباط" placeholder="الكل"
-                    :options="['linked' => 'مرتبط بإسناد', 'unlinked' => 'غير مرتبط بإسناد']" />
+                    :enum="\App\Enums\Tenants\Properties\PropertyAssignmentStatus::class" />
                 <x-filter.select id="filter-assignment" filterKey="assignment_id" label="الإسناد" placeholder="جميع الإسنادات"
                     :options="$assignments->pluck('name', 'id')->toArray()" />
                 <x-filter.select id="filter-type" filterKey="type" label="نوع العقار" placeholder="جميع الأنواع"

@@ -41,11 +41,11 @@
 
 @section('content')
     <div id="top_card" class="row g-4 mb-4">
-        <x-admin.dashboard-card col="col-sm-6 col-xl-4" title="المجموعات" :value="$totalTeams" subtitle="إجمالي المجموعات"
+        <x-ui.stat-card col="col-sm-6 col-xl-4" title="المجموعات" :value="$totalTeams" subtitle="إجمالي المجموعات"
             icon="ti-users-group" color="primary" />
-        <x-admin.dashboard-card col="col-sm-6 col-xl-4" title="المجموعات النشطة" :value="$activeTeams" subtitle="المجموعات النشطة"
+        <x-ui.stat-card col="col-sm-6 col-xl-4" title="المجموعات النشطة" :value="$activeTeams" subtitle="المجموعات النشطة"
             icon="ti-circle-check" color="success" />
-        <x-admin.dashboard-card col="col-sm-6 col-xl-4" title="المجموعات غير النشطة" :value="$inactiveTeams"
+        <x-ui.stat-card col="col-sm-6 col-xl-4" title="المجموعات غير النشطة" :value="$inactiveTeams"
             subtitle="المجموعات غير النشطة" icon="ti-circle-x" color="danger" />
     </div>
 

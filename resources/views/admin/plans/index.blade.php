@@ -31,13 +31,13 @@
 
 @section('content')
     <div class="row g-4 mb-4">
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="إجمالي الباقات" :value="$totalPlans" subtitle="جميع الباقات المعرفة"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="إجمالي الباقات" :value="$totalPlans" subtitle="جميع الباقات المعرفة"
             icon="ti-packages" color="primary" />
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="الاشتراكات النشطة" :value="$activeSubscriptions" subtitle="الاشتراكات السارية حالياً"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="الاشتراكات النشطة" :value="$activeSubscriptions" subtitle="الاشتراكات السارية حالياً"
             icon="ti-bolt" color="success" />
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="الاشتراكات المنتهية" :value="$expiredSubscriptions" subtitle="المنتهية أو الملغاة"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="الاشتراكات المنتهية" :value="$expiredSubscriptions" subtitle="المنتهية أو الملغاة"
             icon="ti-calendar-off" color="warning" />
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="الإيراد الشهري" :value="number_format($monthlyRevenue, 2) . ' ر.س'" subtitle="الفواتير المدفوعة هذا الشهر"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="الإيراد الشهري" :value="number_format($monthlyRevenue, 2) . ' ر.س'" subtitle="الفواتير المدفوعة هذا الشهر"
             icon="ti-cash" color="info" />
     </div>
 

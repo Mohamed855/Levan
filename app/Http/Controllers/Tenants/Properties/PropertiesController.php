@@ -8,6 +8,7 @@ use App\Actions\Tenants\Properties\CreatePropertyAction;
 use App\Actions\Tenants\Properties\UpdatePropertyAction;
 use App\DataTables\Tenants\Properties\PropertiesDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
 use App\Http\Requests\Tenants\Properties\SearchPropertyLocationRequest;
 use App\Http\Requests\Tenants\Properties\StorePropertyRequest;
 use App\Http\Requests\Tenants\Properties\UpdatePropertyRequest;
@@ -123,7 +124,7 @@ class PropertiesController extends Controller
         }
     }
 
-    public function destroy(Property $property)
+    public function destroy(TenantAuthenticatedRequest $request, Property $property)
     {
         try {
             $this->propertyService->deleteProperty($property);

@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Assignments\SelectedAssignmentPropertiesRequest;
 use App\Http\Requests\Tenants\Assignments\StoreAssignmentRequest;
 use App\Http\Requests\Tenants\Assignments\UpdateAssignmentRequest;
+use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
 use App\Http\Requests\Tenants\UpdateResourceStatusRequest;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Properties\Property;
@@ -131,7 +132,7 @@ class AssignmentsController extends Controller
         }
     }
 
-    public function destroy(Assignment $assignment)
+    public function destroy(TenantAuthenticatedRequest $request, Assignment $assignment)
     {
         try {
             $this->assignmentService->deleteAssignment($assignment);

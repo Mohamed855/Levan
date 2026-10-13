@@ -30,16 +30,16 @@
 
 @section('content')
     <div class="mb-4 row g-4">
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="المعاملات" :value="$billcounts" subtitle="إجمالي المعاملات"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="المعاملات" :value="$billcounts" subtitle="إجمالي المعاملات"
             icon="ti-receipt-2" color="primary" />
 
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="المعاملات المدفوعة" :value="$paidbills"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="المعاملات المدفوعة" :value="$paidbills"
             subtitle="إجمالي المعاملات المدفوعة" icon="ti-cash" color="success" />
 
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="المعاملات الغير مدفوعة" :value="$unpaidbills"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="المعاملات الغير مدفوعة" :value="$unpaidbills"
             subtitle="إجمالي المعاملات الغير مدفوعة" icon="ti-file-invoice" color="warning" />
 
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="معاملات لم يوافق عليها" :value="$pendingbills"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="معاملات لم يوافق عليها" :value="$pendingbills"
             subtitle="إجمالي المعاملات التي لم يوافق عليها" icon="ti-ban" color="danger" />
     </div>
 

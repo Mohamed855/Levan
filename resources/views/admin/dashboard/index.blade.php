@@ -32,22 +32,22 @@
 @section('content')
     {{-- KPI Cards (6 كروت) --}}
     <div class="row g-4 mb-4">
-        <x-admin.dashboard-card col="col-sm-4 col-lg-6 col-xxl-2" title="طلبات الاشتراك الجديدة" :value="number_format($kpis['new_subscription_requests'])"
+        <x-ui.stat-card col="col-sm-4 col-lg-6 col-xxl-2" title="طلبات الاشتراك الجديدة" :value="number_format($kpis['new_subscription_requests'])"
             subtitle="طلبات قيد المراجعة" icon="ti-user-plus" color="primary" />
 
-        <x-admin.dashboard-card col="col-sm-4 col-lg-6 col-xxl-2" title="الشركات المشتركة" :value="number_format($kpis['subscribed_companies'])"
+        <x-ui.stat-card col="col-sm-4 col-lg-6 col-xxl-2" title="الشركات المشتركة" :value="number_format($kpis['subscribed_companies'])"
             subtitle="شركات لديها اشتراك نشط" icon="ti-building" color="success" />
 
-        <x-admin.dashboard-card col="col-sm-4 col-lg-6 col-xxl-2" title="الاشتراكات النشطة" :value="number_format($kpis['active_subscriptions'])"
+        <x-ui.stat-card col="col-sm-4 col-lg-6 col-xxl-2" title="الاشتراكات النشطة" :value="number_format($kpis['active_subscriptions'])"
             subtitle="اشتراكات فعّالة حالياً" icon="ti-file-text" color="info" />
 
-        <x-admin.dashboard-card col="col-sm-4 col-lg-6 col-xxl-2" title="الاشتراكات المعلقة" :value="number_format($kpis['suspended_subscriptions'])"
+        <x-ui.stat-card col="col-sm-4 col-lg-6 col-xxl-2" title="الاشتراكات المعلقة" :value="number_format($kpis['suspended_subscriptions'])"
             subtitle="اشتراكات موقوفة مؤقتاً" icon="ti-clock" color="warning" />
 
-        <x-admin.dashboard-card col="col-sm-4 col-lg-6 col-xxl-2" title="القوالب المركزية" :value="number_format($kpis['central_templates'])"
+        <x-ui.stat-card col="col-sm-4 col-lg-6 col-xxl-2" title="القوالب المركزية" :value="number_format($kpis['central_templates'])"
             subtitle="قالب متاح للتطبيق" icon="ti-template" color="danger" />
 
-        <x-admin.dashboard-card col="col-sm-4 col-lg-6 col-xxl-2" title="المدفوعات هذا الشهر" :value="number_format($kpis['monthly_payments'], 0)"
+        <x-ui.stat-card col="col-sm-4 col-lg-6 col-xxl-2" title="المدفوعات هذا الشهر" :value="number_format($kpis['monthly_payments'], 0)"
             subtitle="ر.س إجمالي هذا الشهر" icon="ti-wallet" color="dark" />
     </div>
 

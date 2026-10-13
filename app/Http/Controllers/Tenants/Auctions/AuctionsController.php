@@ -10,6 +10,7 @@ use App\DataTables\Tenants\Auctions\AuctionsDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Auctions\StoreAuctionRequest;
 use App\Http\Requests\Tenants\Auctions\UpdateAuctionRequest;
+use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
 use App\Http\Requests\Tenants\UpdateResourceStatusRequest;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
@@ -128,7 +129,7 @@ class AuctionsController extends Controller
         }
     }
 
-    public function destroy(Auction $auction)
+    public function destroy(TenantAuthenticatedRequest $request, Auction $auction)
     {
         try {
             $this->auctionService->deleteAuction($auction);

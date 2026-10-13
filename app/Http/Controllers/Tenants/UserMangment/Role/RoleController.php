@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tenants\UserMangment\Role;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
 use App\Http\Requests\Tenants\UserManagement\Role\StoreRoleRequest;
 use App\Http\Requests\Tenants\UserManagement\Role\UpdateRoleRequest;
 use App\Http\Requests\Tenants\UserManagement\Role\UpdateUserRoleRequest;
@@ -252,14 +253,28 @@ class RoleController extends Controller
     |--------------------------------------------------------------------------
     | Remove the specified role from storage.
     */
-    public function destroy(Role $role): RedirectResponse
+    public function destroy(TenantAuthenticatedRequest $request, Role $role): JsonResponse|RedirectResponse
     {
         try {
             $this->roleService->deleteRole($role);
 
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'تم حذف الدور بنجاح',
+                ]);
+            }
+
             return redirect()->to(tenant_route_name('roles.index'))
                 ->with('success', 'تم حذف الدور بنجاح');
         } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ], 422);
+            }
+
             return redirect()->to(tenant_route_name('roles.index'))
                 ->with('error', $e->getMessage());
         }

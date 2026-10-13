@@ -46,13 +46,13 @@
     @endif
 
     <div id="top_card" class="row g-4 mb-4">
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="إجمالي الرسائل" :value="number_format($statistics['total'])"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="إجمالي الرسائل" :value="number_format($statistics['total'])"
             subtitle="منذ البداية" icon="ti-messages" color="primary" />
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="تم الإرسال" :value="number_format($statistics['sent'])"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="تم الإرسال" :value="number_format($statistics['sent'])"
             :subtitle="'معدل النجاح: ' . $statistics['success_rate'] . '%'" icon="ti-check" color="success" />
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="فشل الإرسال" :value="number_format($statistics['failed'])"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="فشل الإرسال" :value="number_format($statistics['failed'])"
             subtitle="يحتاج مراجعة" icon="ti-x" color="danger" />
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="في الانتظار" :value="number_format($statistics['pending'])"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="في الانتظار" :value="number_format($statistics['pending'])"
             subtitle="لم يتم الإرسال بعد" icon="ti-clock" color="warning" />
     </div>
 

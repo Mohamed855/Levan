@@ -14,7 +14,7 @@ return [
         'myRTLMode' => true,
         'hasCustomizer' => false,
         'displayCustomizer' => false,
-        'contentLayout' => 'wide', // options[String]: 'compact', 'wide' (compact=container-xxl, wide=container-fluid)
+        'contentLayout' => 'compact', // options[String]: 'compact', 'wide' (compact=container-xxl, wide=container-fluid)
         'navbarType' => 'sticky', // options[String]: 'sticky', 'static', 'hidden' (Only for vertical Layout)
         'footerFixed' => false, // options[Boolean]: false(default), true // Footer Fixed
         'menuFixed' => true, // options[Boolean]: true(default), false // Layout(menu) Fixed (Only for vertical Layout)

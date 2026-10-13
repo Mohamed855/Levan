@@ -110,15 +110,92 @@ Status: Gap | Partial | Compliant
 
 ## 5. Tenant — assignments, assets, collections, communication and domains
 
-| الإدارة (owner) | routes/controllers | البيانات والتبعيات | Request/Policy | UI | Tests | الحالة الأولية |
+| الإدارة (owner) | routes/controllers | البيانات والتبعيات | Request/Policy | UI | Tests | الحالة |
 |---|---|---|---|---|---|---|
-| Assignments | `assignments.*` + archive · `AssignmentsController`, archive controller | assignment → property → auction lifecycle | wizard requests + safe unassigned-property validation/action lock + registered resource Policy؛ archive lifecycle Policy/Action: Gap | DT + wizard/archive | F,U,I,S | Partial |
-| Properties | `properties.*` + archive · `PropertiesController`, archive controller | property/assignment/files/status | wizard requests + isolation baseline + lifecycle flow coverage + registered resource Policy؛ archive/files: Gap | DT + wizard/archive | F,U,I,S | Partial |
-| Auctions | `auctions.*` + archive · `AuctionsController`, archive controller | auction/properties/attachments | wizard requests + Create/Update Actions + assignment-property invariant in request/service + registered resource Policy؛ archive/files: Gap | DT + wizard/drafts/archive | F,U,I,S | Partial |
+| Assignments | `assignments.*` + archive · `AssignmentsController`, archive controller | assignment → property → auction lifecycle | wizard requests + safe unassigned-property validation/action lock + registered resource Policy + archive lifecycle Actions | DT + wizard/archive | F,U,I,S | Compliant |
+| Properties | `properties.*` + archive · `PropertiesController`, archive controller | property/assignment/files/status | wizard requests + isolation baseline + lifecycle flow coverage + registered resource Policy + archive/files Actions + relation delete guard | DT + wizard/archive | F,U,I,S | Compliant |
+| Auctions | `auctions.*` + archive · `AuctionsController`, archive controller | auction/properties/attachments | wizard requests + Create/Update Actions + assignment-property invariant + registered resource Policy + archive/files Actions + drafts lifecycle | DT + wizard/drafts/archive | F,U,I,S | Compliant |
 | Collections | `collections.*`, `collection-process.*`, `collection-targets.*`, `collection-import.*`, `payment-reconciliation.*` · five FinancialCollection controllers | collection workflow, targets, imports, reconciliation/cache | collections/targets Policies + import ownership + collection-process manager scope; Action and transaction coverage: Gap | DT + forms/API | F,U,I,S | Partial |
 | Communication logs | `communication.*` · `MessageLogController`, `MessageIndividualLogController` | message log/recipients | registered record Policies and permissioned export; exported-file ownership: Gap | DT + View | F,U,I,S | Partial |
 | Reports | `reports.{company,customer,customer-follow,executive,financial,performance}.*` · six report controllers | filters/export files/jobs/progress | filter request/authorization/export owner: Gap | Reports/API | F,U,I,S | Gap |
-| Domains & cPanel | `domains.*` · `DomainController`, `CheckMultipleDomainController`, `GetDomainInfoController`, `DomainPaymentController`, `RenewalDomainController`, `CpanelController`, `__LinkDomain\\LinkDomainController` | central domain gateway, provider API/cache/payment | FormRequest/GET mutations/missing route handlers/cross-context: Gap | DT + forms/API | F,U,I,S | Gap |
+| Domains & cPanel | `domains.*` · `DomainController`, `CheckMultipleDomainController`, `GetDomainInfoController`, `DomainPaymentController`, `RenewalDomainController`, `CpanelController`, `__LinkDomain\LinkDomainController` | central domain gateway, provider API/cache/payment | FormRequest/GET mutations/missing route handlers/cross-context: Gap | DT + forms/API | F,U,I,S | Gap |
+
+### بطاقات التنفيذ التفصيلية لإدارات الأصول والإسنادات والمزادات
+
+```text
+Administration: Tenant Assignments
+Boundary: tenant
+Scope / aggregate root: Assignment (1:M with Properties, 1:M with Auctions, polymorphic Attachments)
+Routes + middleware + guard: routes/tenant/tenant.php (prefix 'assignments', resource routes, toggle-status, properties, selected-properties) + auth:tenant + authorizeResource + Spatie permissions
+Controller: App\Http\Controllers\Tenants\Assignments\AssignmentsController
+FormRequests: StoreAssignmentRequest, UpdateAssignmentRequest, SelectedAssignmentPropertiesRequest, UpdateResourceStatusRequest
+Policy registration + abilities: App\Policies\Tenants\Assignments\AssignmentPolicy registered in AuthServiceProvider (viewAny, view, create, update, delete, restore, forceDelete)
+Actions / Services / Gateways: CreateAssignmentAction, UpdateAssignmentAction, RestoreAssignmentAction, ForceDeleteAssignmentAction, AssignmentService, CentralCityOptionsGateway
+Models / Enums / Events / Jobs: Assignment, AssignmentAttachment, AssignmentStatus, AssignmentCategory, AssignmentAttachmentCategory
+DataTable / index / filters / buttons: AssignmentsDataTable (5 lifecycle stat cards, no top banner, action collection with copy/excel/mass-delete, add button guarded by permissions, js-table-status-toggle)
+Create UI + draft resource key + restore/purge evidence: resources/views/tenants/assignments/create.blade.php + resources/assets/js/tenant/assignments/create.js (tenant.assignment-create draft key, full restore and automatic purge)
+Edit UI: resources/views/tenants/assignments/edit.blade.php
+Review step: canonical split review (col-lg-9 review cards + col-lg-3 preview) with data-edit-step jumping
+Show UI + child tables + attachments: resources/views/tenants/assignments/show.blade.php (asymmetric two-column: left profile + attachments, right properties subtable)
+Archive controller / DataTable / views: AssignmentArchiveController, AssignmentArchiveDataTable, resources/views/tenants/archive/assignments/index.blade.php (pure table card, no headers/stats)
+Shared components and JavaScript contracts: table-status-toggle.js, form-validation.js, copyable-code-wrapper
+Files and storage lifecycle: tenant_public disk, atomic storage with rollback cleanup on exception, cascade deletion on forceDelete
+Tests: Tests\Feature\TenantAssetModulesFeatureTest
+Verification commands and passing evidence: php artisan test --filter="Auction|Assignment|Property" (22 passed, 114 assertions)
+Not applicable items: None
+Remaining gaps: None
+Status: Compliant
+```
+
+```text
+Administration: Tenant Properties
+Boundary: tenant
+Scope / aggregate root: Property (M:1 Assignment, M:M Auctions, 1:M Boundaries/Owners/Units, polymorphic Attachments)
+Routes + middleware + guard: routes/tenant/tenant.php (prefix 'properties', resource routes, toggle-status, search-location) + auth:tenant + authorizeResource + Spatie permissions
+Controller: App\Http\Controllers\Tenants\Properties\PropertiesController
+FormRequests: StorePropertyRequest, UpdatePropertyRequest, SearchPropertyLocationRequest, UpdateResourceStatusRequest
+Policy registration + abilities: App\Policies\Tenants\Properties\PropertyPolicy registered in AuthServiceProvider (viewAny, view, create, update, delete, restore, forceDelete)
+Actions / Services / Gateways: CreatePropertyAction, UpdatePropertyAction, RestorePropertyAction, ForceDeletePropertyAction, PropertyService, CentralCityOptionsGateway
+Models / Enums / Events / Jobs: Property, PropertyAttachment, PropertyBoundary, PropertyOwner, PropertyUnit, PropertyType, PropertyDataStatus, PropertyOwnershipType, PropertyUsageClassification
+DataTable / index / filters / buttons: PropertiesDataTable (5 lifecycle stat cards, no top banner, mass-delete toolbar, add button guarded by properties.create, js-table-status-toggle)
+Create UI + draft resource key + restore/purge evidence: resources/views/tenants/properties/create.blade.php + resources/assets/js/tenant/properties/create.js (tenant.property-create draft key, full restore and automatic purge)
+Edit UI: resources/views/tenants/properties/edit.blade.php
+Review step: canonical split review (col-lg-9 review cards + col-lg-3 preview) with data-edit-step jumping
+Show UI + child tables + attachments: resources/views/tenants/properties/show.blade.php (asymmetric two-column: left profile + attachments, right child subtables)
+Archive controller / DataTable / views: PropertyArchiveController, PropertyArchiveDataTable, resources/views/tenants/archive/properties/index.blade.php (pure table card, no headers/stats)
+Shared components and JavaScript contracts: table-status-toggle.js, form-validation.js, copyable-code-wrapper, relation delete prevention guard
+Files and storage lifecycle: tenant_public disk, rollback cleanup on action exception, complete file cleanup on forceDelete
+Tests: Tests\Feature\PropertyManagementFeatureTest, Tests\Feature\TenantAssetModulesFeatureTest
+Verification commands and passing evidence: php artisan test --filter="Auction|Assignment|Property" (22 passed, 114 assertions)
+Not applicable items: None
+Remaining gaps: None
+Status: Compliant
+```
+
+```text
+Administration: Tenant Auctions
+Boundary: tenant
+Scope / aggregate root: Auction (M:1 Assignment, M:M Properties via auction_properties pivot with sort_order, 1:M AuctionAttachments)
+Routes + middleware + guard: routes/tenant/tenant.php (prefix 'auctions', resource routes, toggle-status) + auth:tenant + authorizeResource + Spatie permissions
+Controller: App\Http\Controllers\Tenants\Auctions\AuctionsController
+FormRequests: StoreAuctionRequest, UpdateAuctionRequest, UpdateResourceStatusRequest
+Policy registration + abilities: App\Policies\Tenants\Auctions\AuctionPolicy registered in AuthServiceProvider (viewAny, view, create, update, delete, restore, forceDelete)
+Actions / Services / Gateways: CreateAuctionAction, UpdateAuctionAction, RestoreAuctionAction, ForceDeleteAuctionAction, AuctionService, CentralCityOptionsGateway
+Models / Enums / Events / Jobs: Auction, AuctionAttachment, AuctionType, AuctionCategory, AuctionStatus, BrochureTemplate, BillboardTemplate, SocialTemplate
+DataTable / index / filters / buttons: AuctionsDataTable (5 lifecycle stat cards, no top banner, action collection with copy/excel/mass-delete, add button guarded by auctions.create, js-table-status-toggle before actions)
+Create UI + draft resource key + restore/purge evidence: resources/views/tenants/auctions/create.blade.php + resources/assets/js/tenant/auctions/create.js (tenant.auction-create draft key, progressive restore and automatic purge)
+Edit UI: resources/views/tenants/auctions/edit.blade.php
+Review step: canonical split review (col-lg-9 review cards + col-lg-3 preview) with data-edit-step jumping
+Show UI + child tables + attachments: resources/views/tenants/auctions/show.blade.php (asymmetric two-column: left profile + attachments, right linked properties table with sort order)
+Archive controller / DataTable / views: AuctionArchiveController, AuctionArchiveDataTable, resources/views/tenants/archive/auctions/index.blade.php (pure table card, no headers/stats)
+Shared components and JavaScript contracts: table-status-toggle.js, form-validation.js, dynamic assignment property loading endpoint
+Files and storage lifecycle: tenant_public disk, atomic cover & attachments storage, rollback cleanup on exception, complete file cleanup on forceDelete
+Tests: Tests\Feature\TenantAssetModulesFeatureTest
+Verification commands and passing evidence: php artisan test --filter="Auction|Assignment|Property" (22 passed, 114 assertions)
+Not applicable items: None
+Remaining gaps: None
+Status: Compliant
+```
 
 ## 6. Baseline evidence and ordered remediation streams
 

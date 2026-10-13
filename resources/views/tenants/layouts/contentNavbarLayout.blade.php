@@ -28,9 +28,9 @@ $menuCollapsed = isset($configData['menuCollapsed']) ? $configData['menuCollapse
 
 /* Content classes */
 $container =
-isset($configData['contentLayout']) && $configData['contentLayout'] === 'compact'
-? 'container-xxl'
-: 'container-fluid';
+isset($configData['contentLayout']) && $configData['contentLayout'] === 'wide'
+? 'container-fluid'
+: 'container-xxl';
 
 @endphp
 

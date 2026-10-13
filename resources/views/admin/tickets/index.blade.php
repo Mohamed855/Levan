@@ -35,17 +35,16 @@
     </form>
 
     <div class="row g-4 mb-4">
-
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="إجمالي التذاكر" :value="number_format($stats['total'] ?? 0)" subtitle="إجمالي التذاكر"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="إجمالي التذاكر" :value="number_format($stats['total'] ?? 0)" subtitle="إجمالي التذاكر"
             icon="ti-messages" color="primary" />
 
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="تذاكر جديدة" :value="number_format($stats['open'] ?? 0)"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="تذاكر جديدة" :value="number_format($stats['open'] ?? 0)"
             subtitle="تحتاج للرد والمعالجة" icon="ti-bell-ringing" color="info" />
 
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="قيد المعالجة" :value="number_format($stats['in_progress'] ?? 0)" subtitle="جارٍ العمل عليها"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="قيد المعالجة" :value="number_format($stats['in_progress'] ?? 0)" subtitle="جارٍ العمل عليها"
             icon="ti-clock" color="warning" />
 
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="تم الحل" :value="number_format($stats['resolved'] ?? 0)" subtitle="تم الانتهاء منها"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="تم الحل" :value="number_format($stats['resolved'] ?? 0)" subtitle="تم الانتهاء منها"
             icon="ti-circle-check" color="success" />
     </div>
 

@@ -24,16 +24,16 @@
 
     <x-data-table.page table-id="companies-table">
         <x-slot:stats>
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="إجمالي الشركات" :value="$totalCompanies ?? 0"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="إجمالي الشركات" :value="$totalCompanies ?? 0"
             subtitle="جميع الشركات المسجلة" icon="ti-building" color="primary" />
 
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="الشركات النشطة" :value="$activeCompanies ?? 0" subtitle="شركات مفعلة ونشطة"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="الشركات النشطة" :value="$activeCompanies ?? 0" subtitle="شركات مفعلة ونشطة"
             icon="ti-circle-check" color="success" />
 
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="الشركات الموقوفة" :value="$suspendedCompanies ?? 0"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="الشركات الموقوفة" :value="$suspendedCompanies ?? 0"
             subtitle="شركات موقوفة مؤقتاً" icon="ti-ban" color="danger" />
 
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="بانتظار التفعيل" :value="$pendingCompanies ?? 0"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="بانتظار التفعيل" :value="$pendingCompanies ?? 0"
             subtitle="شركات جديدة بانتظار الاعتماد" icon="ti-clock-pause" color="warning" />
         </x-slot:stats>
 

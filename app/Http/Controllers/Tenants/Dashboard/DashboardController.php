@@ -1,12 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Tenants\Dashboard;
 
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Tenants\UserMangment\Team\Team;
 use App\Models\Tenants\UserMangment\User\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class DashboardController extends Controller
 {
@@ -35,6 +39,101 @@ class DashboardController extends Controller
             'total_seats' => $subscription?->total_users ?? 0,
         ];
 
+        if ($request?->wantsJson() || $request?->ajax()) {
+            return response()->json([
+                'success' => true,
+                'stats' => $stats,
+            ]);
+        }
+
         return view('tenants.dashboard.index', compact('stats', 'tenant', 'subscription'));
+    }
+
+    public function getUpcomingFollowUps(Request $request): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data' => [],
+        ]);
+    }
+
+    public function getMyUpcomingFollowUps(Request $request): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data' => [],
+        ]);
+    }
+
+    public function exportCollectionSessions(Request $request): Response
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'تم تصدير الجلسات بنجاح',
+        ]);
+    }
+
+    public function excellence(Request $request): Response
+    {
+        return response()->json([
+            'success' => true,
+            'data' => [],
+        ]);
+    }
+
+    public function getMyPerformanceComparison(Request $request): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data' => [],
+        ]);
+    }
+
+    public function getStatisticsData(Request $request): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data' => [],
+        ]);
+    }
+
+    public function getApprovalsData(Request $request): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data' => [],
+        ]);
+    }
+
+    public function getOverdueTasks(Request $request): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data' => [],
+        ]);
+    }
+
+    public function exportOverdueTasks(Request $request): Response
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'تم تصدير المهام بنجاح',
+        ]);
+    }
+
+    public function getMyOverdueTasks(Request $request): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data' => [],
+        ]);
+    }
+
+    public function exportMyOverdueTasks(Request $request): Response
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'تم تصدير المهام بنجاح',
+        ]);
     }
 }

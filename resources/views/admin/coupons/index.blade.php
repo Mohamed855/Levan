@@ -109,13 +109,13 @@
 
 @section('content')
     <div class="row g-4 mb-4">
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="إجمالي الكوبونات" :value="$totalPlans" subtitle="إجمالي الكوبونات"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="إجمالي الكوبونات" :value="$totalPlans" subtitle="إجمالي الكوبونات"
             icon="ti-ticket" color="primary" />
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="الكوبونات النشطة" :value="$activecoupons" subtitle="الكوبونات النشطة"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="الكوبونات النشطة" :value="$activecoupons" subtitle="الكوبونات النشطة"
             icon="ti-rosette-discount" color="success" />
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="الكوبونات الغير نشطة" :value="$inactivecoupons"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="الكوبونات الغير نشطة" :value="$inactivecoupons"
             subtitle="الكوبونات الغير نشطة" icon="ti-rosette-discount-off" color="warning" />
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="عدد الكوبونات المستخدمة" :value="$couponCount"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="عدد الكوبونات المستخدمة" :value="$couponCount"
             subtitle="عدد الكوبونات المستخدمة" icon="ti-discount-check" color="danger" />
     </div>
 

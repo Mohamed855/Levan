@@ -44,16 +44,16 @@
 
     @if (!($isExpiringPage ?? false) && !($isPendingPage ?? false) && !($isExpiredPage ?? false))
         <div class="row g-4 mb-4">
-            <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="إجمالي الشركات" :value="$totalSubscriptions"
+            <x-ui.stat-card col="col-sm-6 col-xl-3" title="إجمالي الشركات" :value="$totalSubscriptions"
                 subtitle="عدد جميع الشركات" icon="ti-building" color="primary" />
 
-            <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="الشركات الفعالة" :value="$activeSubscriptions"
+            <x-ui.stat-card col="col-sm-6 col-xl-3" title="الشركات الفعالة" :value="$activeSubscriptions"
                 subtitle="شركات فعالة حاليًا" icon="ti-bolt" color="success" />
 
-            <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="الشركات المعلقة" :value="$pendingSubscriptions"
+            <x-ui.stat-card col="col-sm-6 col-xl-3" title="الشركات المعلقة" :value="$pendingSubscriptions"
                 subtitle="لم تتم الموافقة عليها بعد" icon="ti-alert-circle" color="warning" />
 
-            <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="الشركات المنتهية" :value="$expiredSubscriptions"
+            <x-ui.stat-card col="col-sm-6 col-xl-3" title="الشركات المنتهية" :value="$expiredSubscriptions"
                 subtitle="أوقف اشتراكها أو انتهت مدته" icon="ti-clock-pause" color="danger" />
         </div>
     @endif

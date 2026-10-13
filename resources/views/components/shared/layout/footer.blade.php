@@ -4,9 +4,9 @@
 
 @php
     $configData = App\Helpers\Helpers::appClasses();
-    $containerFooter = isset($configData['contentLayout']) && $configData['contentLayout'] === 'compact'
-        ? 'container-xxl'
-        : 'container-fluid';
+    $containerFooter = isset($configData['contentLayout']) && $configData['contentLayout'] === 'wide'
+        ? 'container-fluid'
+        : 'container-xxl';
 @endphp
 
 <!-- Footer-->

@@ -198,9 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
       </td>
       <td>
         <select name="units[${index}][status]" class="form-select form-select-sm" data-form-control>
-          <option value="available" ${data.status === 'available' ? 'selected' : ''}>متاح</option>
-          <option value="rented" ${data.status === 'rented' ? 'selected' : ''}>مؤجر</option>
-          <option value="sold" ${data.status === 'sold' ? 'selected' : ''}>مباع</option>
+          ${(Array.isArray(window.propertyUnitStatuses) ? window.propertyUnitStatuses : []).map(opt => `<option value="${escapeHtml(opt.value)}"` + (data.status === opt.value ? ' selected' : '') + `>${escapeHtml(opt.label)}</option>`).join('')}
         </select>
       </td>
       <td class="text-center">

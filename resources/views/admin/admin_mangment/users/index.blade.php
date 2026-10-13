@@ -33,11 +33,11 @@
 @section('content')
 
     <div id="top_card" class="row g-4 mb-4">
-        <x-admin.dashboard-card col="col-sm-6 col-xl-4" title="إجمالي المستخدمين" :value="$totalUsers"
+        <x-ui.stat-card col="col-sm-6 col-xl-4" title="إجمالي المستخدمين" :value="$totalUsers"
             subtitle="إجمالي المستخدمين" icon="ti-users" color="primary" />
-        <x-admin.dashboard-card col="col-sm-6 col-xl-4" title="المستخدمين النشطين" :value="$activeUsers"
+        <x-ui.stat-card col="col-sm-6 col-xl-4" title="المستخدمين النشطين" :value="$activeUsers"
             subtitle="المستخدمين النشطين" icon="ti-user-check" color="success" />
-        <x-admin.dashboard-card col="col-sm-6 col-xl-4" title="المستخدمين غير النشطين" :value="$inactiveUsers"
+        <x-ui.stat-card col="col-sm-6 col-xl-4" title="المستخدمين غير النشطين" :value="$inactiveUsers"
             subtitle="المستخدمين غير النشطين" icon="ti-user-off" color="warning" />
     </div>
 

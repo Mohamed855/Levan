@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tenants\UserMangment\User;
 
 use App\DataTables\Tenants\UserManagement\User\UsersDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
 use App\Http\Requests\Tenants\UserManagement\User\StoreUserRequest;
 use App\Http\Requests\Tenants\UserManagement\User\UpdateManagedUserStatusRequest;
 use App\Http\Requests\Tenants\UserManagement\User\UpdateUserRequest;
@@ -188,15 +189,23 @@ class UserController extends Controller
     |--------------------------------------------------------------------------
     | Remove the specified user from storage.
     */
-    public function destroy(User $user): RedirectResponse
+    public function destroy(TenantAuthenticatedRequest $request, User $user): JsonResponse|RedirectResponse
     {
         if ((int) $user->id === 1) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'لا يمكن حذف المستخدم الأساسي.'], 422);
+            }
+
             return redirect()
                 ->back()
                 ->with('error', 'لا يمكن حذف المستخدم الأساسي.');
         }
 
         if (auth()->id() === (int) $user->id) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'لا يمكنك حذف حسابك الشخصي.'], 422);
+            }
+
             return redirect()
                 ->back()
                 ->with('error', 'لا يمكنك حذف حسابك الشخصي.');
@@ -205,10 +214,18 @@ class UserController extends Controller
         try {
             $this->userService->deleteUser($user);
 
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'تم حذف المستخدم بنجاح']);
+            }
+
             return redirect()
                 ->back()
                 ->with('success', 'تم حذف المستخدم بنجاح');
         } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'حدث خطأ أثناء حذف المستخدم'], 500);
+            }
+
             return redirect()
                 ->back()
                 ->with('error', 'حدث خطأ أثناء حذف المستخدم');

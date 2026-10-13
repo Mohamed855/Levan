@@ -58,13 +58,13 @@
     @endif
 
     <div id="top_card" class="row g-4 mb-4">
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="المستخدمين" :value="$totalUsers" subtitle="إجمالي المستخدمين"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين" :value="$totalUsers" subtitle="إجمالي المستخدمين"
             icon="ti-users" color="primary" />
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="المستخدمين النشطين" :value="$activeUsers"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين النشطين" :value="$activeUsers"
             subtitle="المستخدمين النشطين" icon="ti-user-check" color="success" />
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="المستخدمين غير النشطين" :value="$inactiveUsers"
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين غير النشطين" :value="$inactiveUsers"
             subtitle="المستخدمين غير النشطين" icon="ti-user-off" color="danger" />
-        <x-admin.dashboard-card col="col-sm-6 col-xl-3" title="التراخيص" :value="($subscription_formatted['used_users'] ?? 0) . ' / ' . ($subscription_formatted['total_users'] ?? 0)" :subtitle="'متبقي ' .
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="التراخيص" :value="($subscription_formatted['used_users'] ?? 0) . ' / ' . ($subscription_formatted['total_users'] ?? 0)" :subtitle="'متبقي ' .
             (($subscription_formatted['total_users'] ?? 0) - ($subscription_formatted['used_users'] ?? 0)) .
             ' ترخيص'"
             icon="ti-license" color="primary" valueClass="badge bg-label-primary rounded-pill">
@@ -78,7 +78,7 @@
                     aria-valuemax="{{ $subscription_formatted['total_users'] ?? 0 }}">
                 </div>
             </div>
-        </x-admin.dashboard-card>
+        </x-ui.stat-card>
     </div>
 
 

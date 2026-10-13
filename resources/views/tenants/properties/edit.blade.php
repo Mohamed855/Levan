@@ -29,6 +29,7 @@
     <script>
         window.routes = window.routes || {};
         window.routes.propertyLocationSearch = "{{ tenant_route_name('properties.search-location') }}";
+        window.propertyUnitStatuses = @json(array_map(fn($case) => ['value' => $case->value, 'label' => $case->label()], \App\Enums\Tenants\Properties\PropertyUnitStatus::cases()));
     </script>
     @vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/tenant/properties/create.js'])
 @endsection
@@ -70,7 +71,7 @@
                     <x-form.controls.select name="type" label="نوع العقار" :value="$property->type?->value ?? $property->type" required col="col-md-6" :enum="\App\Enums\Tenants\Properties\PropertyType::class" />
                     <x-form.controls.select name="usage_classification" label="تصنيف الاستخدام" :value="$property->usage_classification?->value ?? $property->usage_classification" required col="col-md-6" :enum="\App\Enums\Tenants\Properties\PropertyUsageClassification::class" />
                     <x-form.controls.input name="area" type="number" step="0.01" label="المساحة (م²)" :value="$property->area" placeholder="مثال: 600" required col="col-md-6" />
-                    <x-form.controls.select name="is_active" label="حالة العقار" :value="$property->is_active ? '1' : '0'" required col="col-md-6" :options="[['value' => '1', 'label' => 'نشط'], ['value' => '0', 'label' => 'غير نشط']]" />
+                    <x-form.controls.select name="is_active" label="حالة العقار" :value="$property->is_active ? '1' : '0'" required col="col-md-6" :enum="\App\Enums\Shared\ActivationStatus::class" />
                     <x-form.controls.textarea name="short_description" label="وصف العقار" :value="$property->short_description" placeholder="أدخل وصفاً للعقار..." required col="col-12" rows="4" maxlength="500" />
 
                     <x-form.wizard.actions>
@@ -249,9 +250,9 @@
                                                     <td><input type="text" name="units[{{ $idx }}][current_use]" class="form-control form-control-sm" value="{{ $unit['current_use'] ?? '' }}" placeholder="سكني / تجاري..." data-form-control></td>
                                                     <td>
                                                         <select name="units[{{ $idx }}][status]" class="form-select form-select-sm" data-form-control>
-                                                            <option value="available" {{ ($unit['status'] ?? '') === 'available' ? 'selected' : '' }}>متاح</option>
-                                                            <option value="rented" {{ ($unit['status'] ?? '') === 'rented' ? 'selected' : '' }}>مؤجر</option>
-                                                            <option value="sold" {{ ($unit['status'] ?? '') === 'sold' ? 'selected' : '' }}>مباع</option>
+                                                            @foreach (\App\Enums\Tenants\Properties\PropertyUnitStatus::cases() as $unitStatus)
+                                                                <option value="{{ $unitStatus->value }}" {{ ($unit['status'] ?? '') === $unitStatus->value ? 'selected' : '' }}>{{ $unitStatus->label() }}</option>
+                                                            @endforeach
                                                         </select>
                                                     </td>
                                                     <td class="text-center">
