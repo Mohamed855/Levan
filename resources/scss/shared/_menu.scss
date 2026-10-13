@@ -16,73 +16,35 @@
     border-radius: 0 !important;
     box-shadow: none !important;
 
-    // Scrollbars on the LEFT for RTL sidebar
-    scrollbar-width: thin !important;
-    scrollbar-color: rgba(255, 255, 255, 0.25) transparent !important;
+    // Hide scrollbars completely on the sidebar while preserving scrolling
+    scrollbar-width: none !important; // Firefox
+    -ms-overflow-style: none !important; // IE / Edge
 
     &::-webkit-scrollbar {
-        width: 5px !important;
-        height: 5px !important;
-    }
-
-    &::-webkit-scrollbar-track {
-        background: transparent !important;
-    }
-
-    &::-webkit-scrollbar-thumb {
-        background-color: rgba(255, 255, 255, 0.25) !important;
-        border-radius: 4px !important;
+        width: 0 !important;
+        height: 0 !important;
+        display: none !important; // Chrome, Safari, Edge
     }
 
     .menu-inner {
-        direction: rtl !important;
-        scrollbar-width: thin !important;
-        scrollbar-color: rgba(255, 255, 255, 0.25) transparent !important;
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
 
         &::-webkit-scrollbar {
-            width: 5px !important;
-            height: 5px !important;
-        }
-
-        &::-webkit-scrollbar-track {
-            background: transparent !important;
-        }
-
-        &::-webkit-scrollbar-thumb {
-            background-color: rgba(255, 255, 255, 0.25) !important;
-            border-radius: 4px !important;
+            width: 0 !important;
+            height: 0 !important;
+            display: none !important;
         }
     }
 
-    .ps__rail-x {
+    .ps__rail-x,
+    .ps__rail-y,
+    .ps__thumb-x,
+    .ps__thumb-y {
         display: none !important;
-    }
-
-    .ps__rail-y {
-        display: block !important;
-        left: 2px !important;
-        right: auto !important;
-        background: transparent !important;
-        z-index: 100 !important;
-        opacity: 0.6 !important;
-        width: 5px !important;
-        transition: opacity 0.2s ease !important;
-
-        &:hover,
-        &:focus,
-        &.ps--clicking {
-            opacity: 1 !important;
-            width: 7px !important;
-        }
-
-        .ps__thumb-y {
-            display: block !important;
-            background-color: rgba(255, 255, 255, 0.35) !important;
-            left: 0 !important;
-            right: auto !important;
-            border-radius: 4px !important;
-            width: 100% !important;
-        }
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
     }
 }
 
@@ -418,7 +380,8 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
         margin: 0 !important;
 
         .menu-item {
-            margin: 0 !important;
+            margin-top: 0.35rem !important;
+            margin-bottom: 0.35rem !important;
             position: relative !important;
         }
 
