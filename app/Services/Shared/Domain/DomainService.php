@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 class DomainService
 {
     protected $nameCheapService;
+
     public function __construct(NameCheapService $nameCheapService)
     {
         $this->nameCheapService = $nameCheapService;
@@ -21,12 +22,11 @@ class DomainService
         $baseQuery = Domain::where('tenant_id', $tenantId)->get();
 
         return [
-            'total'    => (clone $baseQuery)->count(),
-            'active'   => (clone $baseQuery)->where('is_active', 1)->count(),
+            'total' => (clone $baseQuery)->count(),
+            'active' => (clone $baseQuery)->where('is_active', 1)->count(),
             'inactive' => (clone $baseQuery)->where('is_active', 0)->count(),
         ];
     }
-
 
     public function switchActiveDomain($request)
     {
@@ -34,15 +34,15 @@ class DomainService
         $selectedDomain = $request->domain;
 
         try {
-            Log::info("🔄 Switching active domain", [
+            Log::info('🔄 Switching active domain', [
                 'tenant_id' => $tenantId,
-                'selected_domain' => $selectedDomain
+                'selected_domain' => $selectedDomain,
             ]);
 
             // جلب الدومين الرئيسي
             $mainDomain = Domain::where('tenant_id', $tenantId)->first();
 
-            if (!$mainDomain) {
+            if (! $mainDomain) {
                 return redirect()->back()->with('error', 'لم يتم العثور على دومينات مسجلة');
             }
 
@@ -52,7 +52,7 @@ class DomainService
                 : json_decode($mainDomain->registered_domains ?? '[]', true);
 
             // التحقق من وجود الدومين المطلوب
-            if (!array_key_exists($selectedDomain, $registeredDomains)) {
+            if (! array_key_exists($selectedDomain, $registeredDomains)) {
                 return redirect()->back()->with('error', 'الدومين المطلوب غير موجود');
             }
 
@@ -84,7 +84,7 @@ class DomainService
                         $domainName => [
                             'status' => 1,          // الحالة (1 = نشط)
                             'type' => 'register',   // النوع: register أو transfer
-                        ]
+                        ],
                     ],
                     'registered_at' => now(),
                 ]
@@ -93,16 +93,18 @@ class DomainService
             // تحديث registered_domains في جميع الدومينات
             Domain::where('tenant_id', $tenantId)
                 ->update(['registered_domains' => json_encode($registeredDomains)]);
-            return  $this->nameCheapService->modifyAccount($request);
+
+            return $this->nameCheapService->modifyAccount($request);
+
             return redirect()->back()->with('success', 'تم تبديل الدومين النشط بنجاح');
         } catch (\Exception $e) {
-            Log::error("❌ Failed to switch domain", [
+            Log::error('❌ Failed to switch domain', [
                 'tenant_id' => $tenantId,
                 'selected_domain' => $selectedDomain,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
-            return redirect()->back()->with('error', 'حدث خطأ أثناء تبديل الدومين: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'حدث خطأ أثناء تبديل الدومين: '.$e->getMessage());
         }
     }
 }

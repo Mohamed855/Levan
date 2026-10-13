@@ -2,8 +2,6 @@
 
 namespace App\Services\shared\Integration\WithOutTenant;
 
-use Illuminate\Support\Facades\Log;
-
 class EtmamTicketServiceWithOutTenant
 {
     protected ?EtmamConnectorWithOutTenant $connector = null;
@@ -11,8 +9,9 @@ class EtmamTicketServiceWithOutTenant
     protected function getConnector(): EtmamConnectorWithOutTenant
     {
         if ($this->connector === null) {
-            $this->connector = new EtmamConnectorWithOutTenant();
+            $this->connector = new EtmamConnectorWithOutTenant;
         }
+
         return $this->connector;
     }
 
@@ -21,13 +20,11 @@ class EtmamTicketServiceWithOutTenant
         return $this->getConnector()->isConfigured();
     }
 
-
     // الفترة التجريبية
     public function demoRequest(array $data)
     {
         return $this->getConnector()->post('demo-request', $data);
     }
-
 
     //  طلب استفسار
     public function contactRequest(array $data)

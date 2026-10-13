@@ -3,14 +3,14 @@
 namespace App\Services\shared\Integration;
 
 use App\Models\Admin\Settings\Settings;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Http;
 
 class EtmamConnector
 {
     protected ?Settings $settings;
-    protected ?string   $tenantId;
+
+    protected ?string $tenantId;
 
     public function __construct(?string $tenantId = null)
     {
@@ -21,29 +21,29 @@ class EtmamConnector
     public function isConfigured(): bool
     {
         $this->settings = Settings::first();
+
         return $this->settings
             && $this->settings->etmam_enabled
-            && !empty($this->settings->etmam_base_url)
-            && !empty($this->settings->etmam_api_token)
-            && !empty($this->settings->etmam_system_code)
-            && !empty($this->settings->etmam_hmac_secret);
+            && ! empty($this->settings->etmam_base_url)
+            && ! empty($this->settings->etmam_api_token)
+            && ! empty($this->settings->etmam_system_code)
+            && ! empty($this->settings->etmam_hmac_secret);
     }
-
 
     // POST Request
     public function post(string $endpoint, array $payload = []): array
     {
-        if (!$this->isConfigured()) {
+        if (! $this->isConfigured()) {
             return [
                 'success' => false,
                 'message' => 'إعدادات الاتصال مع النظام المركزي غير مكتملة.',
             ];
         }
 
-        $url        = $this->buildUrl($endpoint);
-        $payload    = $this->enrichPayload($payload);
-        $body       = json_encode($payload, JSON_UNESCAPED_UNICODE);  //  تحويل البيانات إلى JSON
-        $signature  = $this->sign($body); //  التوقيع على الـ raw body
+        $url = $this->buildUrl($endpoint);
+        $payload = $this->enrichPayload($payload);
+        $body = json_encode($payload, JSON_UNESCAPED_UNICODE);  //  تحويل البيانات إلى JSON
+        $signature = $this->sign($body); //  التوقيع على الـ raw body
 
         try {
             $response = Http::withHeaders($this->buildHeaders($signature))
@@ -58,46 +58,45 @@ class EtmamConnector
         }
     }
 
-
     // POST With Files
     public function postWithFiles(string $endpoint, array $data = [], array $files = []): array
     {
-        if (!$this->isConfigured()) {
+        if (! $this->isConfigured()) {
             return [
                 'success' => false,
                 'message' => 'إعدادات الاتصال مع النظام المركزي غير مكتملة.',
             ];
         }
 
-        $url    = $this->buildUrl($endpoint);
-        $data   = $this->enrichPayload($data);
+        $url = $this->buildUrl($endpoint);
+        $data = $this->enrichPayload($data);
 
         try {
             //
             $headers = [
-                'X-API-Key'     => $this->settings->etmam_api_token,
-                'X-Tenant-ID'       => $this->tenantId,
-                'X-Tenant-User-ID'  => auth()->id(),
-                'Accept'        => 'application/json',
+                'X-API-Key' => $this->settings->etmam_api_token,
+                'X-Tenant-ID' => $this->tenantId,
+                'X-Tenant-User-ID' => auth()->id(),
+                'Accept' => 'application/json',
             ];
 
             $multipart = [];
 
             foreach ($data as $key => $value) {
                 $multipart[] = [
-                    'name'     => $key,
+                    'name' => $key,
                     'contents' => is_array($value) ? json_encode($value) : (string) $value,
                 ];
             }
 
-            if (!empty($files)) {
+            if (! empty($files)) {
                 //
                 foreach ($files as $index => $file) {
 
                     if ($file instanceof UploadedFile && $file->isValid()) {
                         //
                         $multipart[] = [
-                            'name'     => "attachments[{$index}]",
+                            'name' => "attachments[{$index}]",
                             'contents' => fopen($file->getRealPath(), 'r'),
                             'filename' => $file->getClientOriginalName(),
                         ];
@@ -111,15 +110,15 @@ class EtmamConnector
             //
         } catch (\Throwable $e) {
             report($e);
+
             return $this->handleException($e, 'POST', $endpoint);
         }
     }
 
-
     // GET Request
     public function get(string $endpoint, array $query = []): array
     {
-        if (!$this->isConfigured()) {
+        if (! $this->isConfigured()) {
             return [
                 'success' => false,
                 'message' => 'إعدادات الاتصال مع النظام المركزي غير مكتملة.',
@@ -147,7 +146,7 @@ class EtmamConnector
      */
     public function put(string $endpoint, array $payload = []): array
     {
-        if (!$this->isConfigured()) {
+        if (! $this->isConfigured()) {
             return [
                 'success' => false,
                 'message' => 'إعدادات الاتصال مع النظام المركزي غير مكتملة.',
@@ -178,7 +177,7 @@ class EtmamConnector
      */
     public function delete(string $endpoint, array $query = []): array
     {
-        if (!$this->isConfigured()) {
+        if (! $this->isConfigured()) {
             return [
                 'success' => false,
                 'message' => 'إعدادات الاتصال مع النظام المركزي غير مكتملة.',
@@ -207,7 +206,7 @@ class EtmamConnector
      */
     public function patch(string $endpoint, array $payload = []): array
     {
-        if (!$this->isConfigured()) {
+        if (! $this->isConfigured()) {
             return [
                 'success' => false,
                 'message' => 'إعدادات الاتصال مع النظام المركزي غير مكتملة.',
@@ -238,8 +237,6 @@ class EtmamConnector
         return $this->tenantId;
     }
 
-
-
     // اضافة البيانات المطلوبة في كل رابط
     protected function enrichPayload(array $payload): array
     {
@@ -257,10 +254,6 @@ class EtmamConnector
         return $payload;
     }
 
-
-
-
-
     /*
     |============================================================================
     |============================================================================
@@ -273,42 +266,39 @@ class EtmamConnector
         if (function_exists('tenant') && tenant()) {
             return tenant('id');
         }
+
         return null;
     }
-
 
     protected function buildUrl(string $endpoint, array $query = []): string
     {
         $endpoint = ltrim($endpoint, '/'); // فقط إزالة الـ / من البداية
 
-        $url = rtrim($this->settings->etmam_base_url, '/') . '/' . $endpoint;
+        $url = rtrim($this->settings->etmam_base_url, '/').'/'.$endpoint;
 
-        if (!empty($query)) {
-            $url .= '?' . http_build_query($query);
+        if (! empty($query)) {
+            $url .= '?'.http_build_query($query);
         }
 
         return $url;
     }
-
 
     protected function sign(string $body): string
     {
         return hash_hmac('sha256', $body, $this->settings->etmam_hmac_secret);
     }
 
-
     protected function buildHeaders(string $signature): array
     {
         return [
-            'X-API-Key'         => $this->settings->etmam_api_token,
-            'X-Signature'       => $signature,
-            'X-Tenant-ID'       => $this->tenantId,
-            'X-Tenant-User-ID'  => auth()->id(),
-            'Accept'            => 'application/json',
-            'Content-Type'      => 'application/json',
+            'X-API-Key' => $this->settings->etmam_api_token,
+            'X-Signature' => $signature,
+            'X-Tenant-ID' => $this->tenantId,
+            'X-Tenant-User-ID' => auth()->id(),
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json',
         ];
     }
-
 
     protected function handleResponse($response, string $method, string $endpoint, bool $hasFiles = false): array
     {
@@ -320,7 +310,7 @@ class EtmamConnector
         } else {
             $data = [
                 'message' => 'الاستجابة من الخادم ليست بصيغة JSON',
-                'raw_response' => $response->body()
+                'raw_response' => $response->body(),
             ];
         }
 
@@ -341,12 +331,11 @@ class EtmamConnector
         ];
     }
 
-
     protected function handleException(\Throwable $e, string $method, string $endpoint): array
     {
         return [
             'success' => false,
-            'message' => 'حدث خطأ أثناء الاتصال بالنظام المركزي'
+            'message' => 'حدث خطأ أثناء الاتصال بالنظام المركزي',
         ];
     }
 }

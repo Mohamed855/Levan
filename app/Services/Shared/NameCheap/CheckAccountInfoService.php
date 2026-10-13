@@ -7,37 +7,44 @@ use Illuminate\Support\Facades\Http;
 
 class CheckAccountInfoService
 {
-
     private $apiUser;
+
     private $apiKey;
+
     private $clientIp;
+
     private $baseUrl;
+
     private $whmUrl;
+
     private $whmToken;
+
     private $serverIp;
+
     public function __construct()
     {
         $this->apiUser = config('services.namecheap.user');
         $this->apiKey = config('services.namecheap.api_key');
         $this->clientIp = config('services.namecheap.client_ip');
-        $this->baseUrl = "https://api.namecheap.com/xml.response";
+        $this->baseUrl = 'https://api.namecheap.com/xml.response';
         $this->whmUrl = 'https://server7.e-tec.sa:2087/json-api';
         $this->whmToken = config('services.namecheap.whm_token');
         $this->serverIp = '41.237.215.140';
     }
+
     public function getBalance()
     {
         $params = [
-            'ApiUser'  => $this->apiUser,
-            'ApiKey'   => $this->apiKey,
+            'ApiUser' => $this->apiUser,
+            'ApiKey' => $this->apiKey,
             'UserName' => $this->apiUser,
             'ClientIp' => $this->clientIp,
-            'Command'  => 'namecheap.users.getBalances',
+            'Command' => 'namecheap.users.getBalances',
         ];
 
         $response = Http::timeout(10)->get($this->baseUrl, $params);
 
-        if (!$response->ok()) {
+        if (! $response->ok()) {
             return [
                 'ok' => false,
                 'status_code' => $response->status(),
@@ -58,13 +65,13 @@ class CheckAccountInfoService
         $json = json_decode(json_encode($xml), true);
         $attributes = $json['CommandResponse']['UserGetBalancesResult']['@attributes'];
         $balance = $attributes['AccountBalance'];
+
         return [
             'ok' => true,
             'balance' => (float) $balance,
             // 'parsed' => $json,
         ];
     }
-
 
     public function getDomainPrice(string $tld)
     {
@@ -74,32 +81,31 @@ class CheckAccountInfoService
 
         try {
             $priceResponse = Http::get($baseUrl, [
-                'ApiUser'        => $this->apiUser,
-                'ApiKey'         => $this->apiKey,
-                'UserName'       => $this->apiUser,
-                'ClientIp'       => $this->clientIp,
-                'Command'        => 'namecheap.users.getPricing',
-                'ProductType'    => 'DOMAIN',
+                'ApiUser' => $this->apiUser,
+                'ApiKey' => $this->apiKey,
+                'UserName' => $this->apiUser,
+                'ClientIp' => $this->clientIp,
+                'Command' => 'namecheap.users.getPricing',
+                'ProductType' => 'DOMAIN',
                 'ProductCategory' => 'DOMAINS',
-                'Action'         => 'REGISTER',
-                'ProductName'    => $tld,
+                'Action' => 'REGISTER',
+                'ProductName' => $tld,
             ]);
 
-            if (!$priceResponse->successful()) {
+            if (! $priceResponse->successful()) {
                 throw new \Exception('Failed to get pricing from Namecheap');
             }
 
-
-            $priceXml  = simplexml_load_string($priceResponse->body());
+            $priceXml = simplexml_load_string($priceResponse->body());
             $priceJson = json_decode(json_encode($priceXml), true);
 
-            $productData = $priceJson['CommandResponse']['UserGetPricingResult']['ProductType']['ProductCategory'][0]["Product"] ?? null;
-            if (!$productData) {
+            $productData = $priceJson['CommandResponse']['UserGetPricingResult']['ProductType']['ProductCategory'][0]['Product'] ?? null;
+            if (! $productData) {
                 throw new \Exception("Pricing data not available for TLD: $tld");
             }
 
             $priceData = $productData['Price'] ?? null;
-            if (!$priceData) {
+            if (! $priceData) {
                 throw new \Exception("Price not found for TLD: $tld");
             }
 
@@ -111,22 +117,21 @@ class CheckAccountInfoService
             }
 
             return [
-                'tld'         => $tld,
+                'tld' => $tld,
                 'total_price' => $totalPrice,
-                'currency'    => $priceAttr['Currency'] ?? 'USD',
+                'currency' => $priceAttr['Currency'] ?? 'USD',
             ];
         } catch (\Exception $e) {
             return [
-                'tld'         => $tld,
-                'price'       => 0,
-                'additional'  => 0,
+                'tld' => $tld,
+                'price' => 0,
+                'additional' => 0,
                 'total_price' => 0,
-                'currency'    => 'USD',
-                'error'       => $e->getMessage(),
+                'currency' => 'USD',
+                'error' => $e->getMessage(),
             ];
         }
     }
-
 
     public function CalculateResults($domain)
     {
@@ -135,7 +140,7 @@ class CheckAccountInfoService
         $domain_price = $this->getDomainPrice($domain[1]);
         // return $balance['balance'];
         if ($balance['balance'] > $domain_price['total_price']) {
-            return "can register";
+            return 'can register';
         }
 
         $tenantId = tenant('id'); // اسم العميل

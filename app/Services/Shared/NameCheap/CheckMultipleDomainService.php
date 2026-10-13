@@ -2,16 +2,22 @@
 
 namespace App\Services\shared\NameCheap;
 
-use Illuminate\Support\Facades\Log;
+use App\Models\Admin\ControlDomain\ControlDomain;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class CheckMultipleDomainService
 {
     private $apiUser;
+
     private $apiKey;
+
     private $username;
+
     private $clientIp;
+
     private $baseUrl;
+
     private $cacheEnabled = true;
 
     public function __construct()
@@ -21,7 +27,7 @@ class CheckMultipleDomainService
         $this->username = $this->apiUser;
         $this->clientIp = config('services.namecheap.client_ip');
         $this->baseUrl = config('services.namecheap.base_url');
-        
+
         // التحقق من إمكانية استخدام Cache
         $this->checkCacheAvailability();
     }
@@ -34,30 +40,32 @@ class CheckMultipleDomainService
         try {
             // محاولة إنشاء المجلدات إذا لم تكن موجودة
             $cachePath = storage_path('framework/cache/data');
-            
-            if (!is_dir($cachePath)) {
+
+            if (! is_dir($cachePath)) {
                 // محاولة إنشاء المجلد
-                if (!@mkdir($cachePath, 0755, true)) {
-                    Log::warning('Unable to create cache directory: ' . $cachePath);
+                if (! @mkdir($cachePath, 0755, true)) {
+                    Log::warning('Unable to create cache directory: '.$cachePath);
                     $this->cacheEnabled = false;
+
                     return;
                 }
             }
-            
+
             // التحقق من إمكانية الكتابة
-            if (!is_writable($cachePath)) {
-                Log::warning('Cache directory is not writable: ' . $cachePath);
+            if (! is_writable($cachePath)) {
+                Log::warning('Cache directory is not writable: '.$cachePath);
                 $this->cacheEnabled = false;
+
                 return;
             }
-            
+
             // اختبار الكتابة
-            $testKey = 'cache_test_' . time();
+            $testKey = 'cache_test_'.time();
             Cache::put($testKey, 'test', 1);
             Cache::forget($testKey);
-            
+
         } catch (\Exception $e) {
-            Log::warning('Cache is not available: ' . $e->getMessage());
+            Log::warning('Cache is not available: '.$e->getMessage());
             $this->cacheEnabled = false;
         }
     }
@@ -67,16 +75,18 @@ class CheckMultipleDomainService
      */
     private function safeCache($key, $value, $ttl)
     {
-        if (!$this->cacheEnabled) {
+        if (! $this->cacheEnabled) {
             return false;
         }
-        
+
         try {
             Cache::put($key, $value, $ttl);
+
             return true;
         } catch (\Exception $e) {
-            Log::warning('Cache put failed: ' . $e->getMessage());
+            Log::warning('Cache put failed: '.$e->getMessage());
             $this->cacheEnabled = false;
+
             return false;
         }
     }
@@ -86,15 +96,16 @@ class CheckMultipleDomainService
      */
     private function safeGetCache($key)
     {
-        if (!$this->cacheEnabled) {
+        if (! $this->cacheEnabled) {
             return null;
         }
-        
+
         try {
             return Cache::get($key);
         } catch (\Exception $e) {
-            Log::warning('Cache get failed: ' . $e->getMessage());
+            Log::warning('Cache get failed: '.$e->getMessage());
             $this->cacheEnabled = false;
+
             return null;
         }
     }
@@ -104,29 +115,27 @@ class CheckMultipleDomainService
      */
     private function safeCacheHas($key)
     {
-        if (!$this->cacheEnabled) {
+        if (! $this->cacheEnabled) {
             return false;
         }
-        
+
         try {
             return Cache::has($key);
         } catch (\Exception $e) {
-            Log::warning('Cache has check failed: ' . $e->getMessage());
+            Log::warning('Cache has check failed: '.$e->getMessage());
             $this->cacheEnabled = false;
+
             return false;
         }
     }
 
     /**
      * التحقق من توفر دومين واحد
-     * 
-     * @param string $domain
-     * @return array
      */
     public function checkSingleDomain(string $domain, bool $forceFresh = false): array
     {
         $cacheKey = $this->domainCacheKey($domain);
-        
+
         // محاولة جلب من Cache
         if (! $forceFresh && $this->safeCacheHas($cacheKey)) {
             $cached = $this->safeGetCache($cacheKey);
@@ -141,20 +150,20 @@ class CheckMultipleDomainService
             'UserName' => $this->username,
             'Command' => 'namecheap.domains.check',
             'ClientIp' => $this->clientIp,
-            'DomainList' => $domain
+            'DomainList' => $domain,
         ]);
 
-        $url = $this->baseUrl . '?' . $query;
+        $url = $this->baseUrl.'?'.$query;
 
         try {
             $response = $this->makeApiRequest($url);
-            
-            if (!$response) {
+
+            if (! $response) {
                 throw new \Exception('فشل الاتصال بالخادم');
             }
 
             $xml = simplexml_load_string($response);
-            
+
             if ($xml === false) {
                 throw new \Exception('خطأ في معالجة البيانات');
             }
@@ -162,31 +171,31 @@ class CheckMultipleDomainService
             $json = json_decode(json_encode($xml), true);
 
             if (isset($json['Errors']['Error'])) {
-                $error = is_array($json['Errors']['Error']) 
-                    ? $json['Errors']['Error'][0] 
+                $error = is_array($json['Errors']['Error'])
+                    ? $json['Errors']['Error'][0]
                     : $json['Errors']['Error'];
-                
-                Log::error('Namecheap API Error: ' . ($error['#text'] ?? 'Unknown error'));
-                
+
+                Log::error('Namecheap API Error: '.($error['#text'] ?? 'Unknown error'));
+
                 return [
                     'success' => false,
                     'domain' => $domain,
                     'available' => null,
-                    'error' => 'خطأ من الخادم: ' . ($error['#text'] ?? 'غير معروف')
+                    'error' => 'خطأ من الخادم: '.($error['#text'] ?? 'غير معروف'),
                 ];
             }
 
             $isAvailable = null;
             if (isset($json['CommandResponse']['DomainCheckResult'])) {
                 $checkResult = $json['CommandResponse']['DomainCheckResult'];
-                $isAvailable = isset($checkResult['@attributes']['Available']) && 
+                $isAvailable = isset($checkResult['@attributes']['Available']) &&
                               $checkResult['@attributes']['Available'] === 'true';
             }
 
             $result = [
                 'success' => true,
                 'domain' => $domain,
-                'available' => $isAvailable
+                'available' => $isAvailable,
             ];
 
             // محاولة حفظ في Cache
@@ -197,22 +206,19 @@ class CheckMultipleDomainService
             return $result;
 
         } catch (\Exception $e) {
-            Log::error('Namecheap Domain Check Error: ' . $e->getMessage());
-            
+            Log::error('Namecheap Domain Check Error: '.$e->getMessage());
+
             return [
                 'success' => false,
                 'domain' => $domain,
                 'available' => null,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ];
         }
     }
 
     /**
      * التحقق من عدة دومينات (حتى 10 دومينات في طلب واحد)
-     * 
-     * @param array $domains
-     * @return array
      */
     public function checkMultipleDomains(array $domains): array
     {
@@ -221,27 +227,27 @@ class CheckMultipleDomainService
         }
 
         $domainList = implode(',', $domains);
-        
+
         $query = http_build_query([
             'ApiUser' => $this->apiUser,
             'ApiKey' => $this->apiKey,
             'UserName' => $this->username,
             'Command' => 'namecheap.domains.check',
             'ClientIp' => $this->clientIp,
-            'DomainList' => $domainList
+            'DomainList' => $domainList,
         ]);
 
-        $url = $this->baseUrl . '?' . $query;
+        $url = $this->baseUrl.'?'.$query;
 
         try {
             $response = $this->makeApiRequest($url);
-            
-            if (!$response) {
+
+            if (! $response) {
                 throw new \Exception('فشل الاتصال بالخادم');
             }
 
             $xml = simplexml_load_string($response);
-            
+
             if ($xml === false) {
                 throw new \Exception('خطأ في معالجة البيانات');
             }
@@ -249,28 +255,28 @@ class CheckMultipleDomainService
             $json = json_decode(json_encode($xml), true);
 
             if (isset($json['Errors']['Error'])) {
-                throw new \Exception('خطأ من API: ' . ($json['Errors']['Error']['#text'] ?? 'Unknown'));
+                throw new \Exception('خطأ من API: '.($json['Errors']['Error']['#text'] ?? 'Unknown'));
             }
 
             $results = [];
-            
+
             if (isset($json['CommandResponse']['DomainCheckResult'])) {
                 $checkResults = $json['CommandResponse']['DomainCheckResult'];
-                
+
                 if (isset($checkResults['@attributes'])) {
                     $checkResults = [$checkResults];
                 }
-                
+
                 foreach ($checkResults as $result) {
                     if (isset($result['@attributes'])) {
                         $domain = $result['@attributes']['Domain'];
                         $available = $result['@attributes']['Available'] === 'true';
-                        
+
                         $results[$domain] = [
                             'domain' => $domain,
                             'available' => $available,
-                            'premium' => isset($result['@attributes']['IsPremiumName']) && 
-                                       $result['@attributes']['IsPremiumName'] === 'true'
+                            'premium' => isset($result['@attributes']['IsPremiumName']) &&
+                                       $result['@attributes']['IsPremiumName'] === 'true',
                         ];
 
                         // حفظ في Cache بشكل آمن
@@ -278,7 +284,7 @@ class CheckMultipleDomainService
                         $this->safeCache($cacheKey, [
                             'success' => true,
                             'domain' => $domain,
-                            'available' => $available
+                            'available' => $available,
                         ], now()->addHour());
                     }
                 }
@@ -287,26 +293,22 @@ class CheckMultipleDomainService
             return [
                 'success' => true,
                 'results' => $results,
-                'total' => count($results)
+                'total' => count($results),
             ];
 
         } catch (\Exception $e) {
-            Log::error('Namecheap Multiple Check Error: ' . $e->getMessage());
-            
+            Log::error('Namecheap Multiple Check Error: '.$e->getMessage());
+
             return [
                 'success' => false,
                 'results' => [],
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ];
         }
     }
 
     /**
      * اقتراح دومينات بديلة بامتدادات مختلفة من قاعدة البيانات
-     * 
-     * @param string $domainName
-     * @param int $limit
-     * @return array
      */
     public function suggestAlternativeExtensions(string $domainName, int $limit = 8): array
     {
@@ -316,53 +318,54 @@ class CheckMultipleDomainService
         if (empty($domainName)) {
             return [
                 'success' => false,
-                'error' => 'اسم الدومين غير صالح'
+                'error' => 'اسم الدومين غير صالح',
             ];
         }
 
         $extensions = [];
-        
+
         try {
             tenancy()->central(function () use (&$extensions, $limit) {
-                $extensions = \App\Models\Admin\ControlDomain\ControlDomain::select('domain_extension', 'price')
+                $extensions = ControlDomain::select('domain_extension', 'price')
                     ->orderBy('price', 'asc')
                     ->limit($limit * 2)
                     ->get();
             });
         } catch (\Exception $e) {
-            Log::error('Database Error: ' . $e->getMessage());
+            Log::error('Database Error: '.$e->getMessage());
+
             return [
                 'success' => false,
-                'error' => 'خطأ في جلب البيانات'
+                'error' => 'خطأ في جلب البيانات',
             ];
         }
 
         if ($extensions->isEmpty()) {
             return [
                 'success' => false,
-                'error' => 'لا توجد امتدادات متاحة'
+                'error' => 'لا توجد امتدادات متاحة',
             ];
         }
 
         $domainsToCheck = [];
         $priceMap = [];
-        
+
         foreach ($extensions as $extension) {
-            $fullDomain = $domainName . $extension->domain_extension;
+            $fullDomain = $domainName.$extension->domain_extension;
             $domainsToCheck[] = $fullDomain;
             $priceMap[$fullDomain] = [
                 'extension' => $extension->domain_extension,
-                'price' => $extension->price
+                'price' => $extension->price,
             ];
         }
 
         $suggestions = [];
         $chunks = array_chunk($domainsToCheck, 10);
-        
+
         foreach ($chunks as $index => $chunk) {
             $results = $this->checkMultipleDomains($chunk);
-            
-            if ($results['success'] && !empty($results['results'])) {
+
+            if ($results['success'] && ! empty($results['results'])) {
                 foreach ($results['results'] as $domain => $result) {
                     if ($result['available'] === true && isset($priceMap[$domain])) {
                         $suggestions[] = [
@@ -370,16 +373,16 @@ class CheckMultipleDomainService
                             'extension' => $priceMap[$domain]['extension'],
                             'price' => $priceMap[$domain]['price'],
                             'available' => true,
-                            'premium' => $result['premium'] ?? false
+                            'premium' => $result['premium'] ?? false,
                         ];
-                        
+
                         if (count($suggestions) >= $limit) {
                             break 2;
                         }
                     }
                 }
             }
-            
+
             if ($index < count($chunks) - 1 && count($chunks) > 1) {
                 usleep(500000);
             }
@@ -389,16 +392,12 @@ class CheckMultipleDomainService
             'success' => true,
             'suggestions' => $suggestions,
             'total' => count($suggestions),
-            'domain_name' => $domainName
+            'domain_name' => $domainName,
         ];
     }
 
     /**
      * اقتراح دومينات بديلة بتعديلات على الاسم
-     * 
-     * @param string $domainName
-     * @param string $extension
-     * @return array
      */
     public function suggestAlternativeNames(string $domainName, string $extension = '.com'): array
     {
@@ -406,32 +405,32 @@ class CheckMultipleDomainService
         $domainName = preg_replace('/[^a-z0-9-]/', '', $domainName);
 
         $variations = [
-            $domainName . 'online',
-            $domainName . 'shop',
-            $domainName . 'store',
-            $domainName . 'hub',
-            $domainName . 'pro',
-            'get' . $domainName,
-            'my' . $domainName,
-            $domainName . '24',
-            $domainName . 'app',
-            'the' . $domainName,
+            $domainName.'online',
+            $domainName.'shop',
+            $domainName.'store',
+            $domainName.'hub',
+            $domainName.'pro',
+            'get'.$domainName,
+            'my'.$domainName,
+            $domainName.'24',
+            $domainName.'app',
+            'the'.$domainName,
         ];
 
         $domainsToCheck = [];
         foreach ($variations as $variation) {
-            $domainsToCheck[] = $variation . $extension;
+            $domainsToCheck[] = $variation.$extension;
         }
 
         $results = $this->checkMultipleDomains($domainsToCheck);
-        
+
         $suggestions = [];
-        if ($results['success'] && !empty($results['results'])) {
+        if ($results['success'] && ! empty($results['results'])) {
             foreach ($results['results'] as $domain => $result) {
                 if ($result['available'] === true) {
                     $suggestions[] = [
                         'domain' => $domain,
-                        'available' => true
+                        'available' => true,
                     ];
                 }
             }
@@ -440,7 +439,7 @@ class CheckMultipleDomainService
         return [
             'success' => true,
             'suggestions' => $suggestions,
-            'total' => count($suggestions)
+            'total' => count($suggestions),
         ];
     }
 
@@ -451,30 +450,29 @@ class CheckMultipleDomainService
 
     public function clearCurrentTenantDomainCache(): void
     {
-        $versionKey = $this->cachePrefix() . ':version';
+        $versionKey = $this->cachePrefix().':version';
         Cache::put($versionKey, ((int) Cache::get($versionKey, 0)) + 1, now()->addDay());
     }
 
     private function domainCacheKey(string $domain): string
     {
-        return $this->cachePrefix() . ':v' . (int) Cache::get($this->cachePrefix() . ':version', 0) . ':' . md5($domain);
+        return $this->cachePrefix().':v'.(int) Cache::get($this->cachePrefix().':version', 0).':'.md5($domain);
     }
 
     private function cachePrefix(): string
     {
-        return 'domain_check:' . (string) (tenant('id') ?: 'central');
+        return 'domain_check:'.(string) (tenant('id') ?: 'central');
     }
 
     /**
      * إرسال طلب للـ API باستخدام cURL
-     * 
-     * @param string $url
+     *
      * @return string|false
      */
     private function makeApiRequest(string $url)
     {
         $curl = curl_init();
-        
+
         curl_setopt_array($curl, [
             CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
@@ -489,17 +487,17 @@ class CheckMultipleDomainService
         $response = curl_exec($curl);
         $error = curl_error($curl);
         $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        
+
         curl_close($curl);
 
         if ($error) {
-            Log::error('cURL Error: ' . $error);
-            throw new \Exception('فشل الاتصال: ' . $error);
+            Log::error('cURL Error: '.$error);
+            throw new \Exception('فشل الاتصال: '.$error);
         }
 
         if ($httpCode !== 200) {
-            Log::error('HTTP Error: ' . $httpCode);
-            throw new \Exception('خطأ في الخادم: ' . $httpCode);
+            Log::error('HTTP Error: '.$httpCode);
+            throw new \Exception('خطأ في الخادم: '.$httpCode);
         }
 
         return $response;

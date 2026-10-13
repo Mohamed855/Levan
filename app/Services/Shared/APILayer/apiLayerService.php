@@ -2,13 +2,8 @@
 
 namespace App\Services\shared\APILayer;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-
 class apiLayerService
 {
-
-
     public function checkDomainNamecheap($domain)
     {
         $apiUser = config('services.namecheap.user');
@@ -22,7 +17,7 @@ class apiLayerService
             'UserName' => $username,
             'Command' => 'namecheap.domains.check',
             'ClientIp' => $clientIp,
-            'DomainList' => $domain
+            'DomainList' => $domain,
         ]);
 
         $url = "https://api.namecheap.com/xml.response?$query";
@@ -51,7 +46,7 @@ class apiLayerService
         return response()->json([
             'domain' => $domain,
             'available' => $isAvailable,
-            'raw_response' => $json
+            'raw_response' => $json,
         ]);
     }
 }
