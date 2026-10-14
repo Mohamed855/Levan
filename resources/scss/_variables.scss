@@ -3,6 +3,7 @@
 // =============================================================================
 
 $primary-color:     #1D4F44;
+$primary-color-deep:#12332C;
 $secondary-color:   #F7F3EC;
 $secondary-darker:  #EADFCC;
 $brand-gold:        #BF874A;
@@ -10,6 +11,7 @@ $brand-dark-green:  #12332C;
 
 :root {
     --primary-color:        #{$primary-color};
+    --primary-color-deep:   #{$primary-color-deep};
     --secondary-color:      #{$secondary-color};
     --secondary-color-rgb:  247, 243, 236;
     --secondary-color-dark: #{$secondary-darker};
@@ -59,7 +61,7 @@ $brand-dark-green:  #12332C;
     --transition-base: all 0.2s ease-in-out;
     --transition-fast: all 0.15s ease-in-out;
 
-    --font-family-base: "Thmanyah Sans", "Zain", sans-serif;
+    --font-family-base: "Almarai", "Zain", sans-serif;
     --font-weight-base: 400;
 
     // Typography Scale Tokens (Unified bands)

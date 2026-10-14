@@ -10,3 +10,38 @@
 .modal {
     z-index: 1050;
 }
+
+.modal-content {
+    border-radius: 14px;
+    border: 1px solid rgba(29, 79, 68, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+
+    .modal-header {
+        border-bottom: 1px solid rgba(29, 79, 68, 0.06);
+        padding: 1.25rem 1.5rem;
+
+        .modal-title {
+            color: var(--primary-color, #1D4F44);
+            font-weight: 600;
+            font-size: 1.15rem;
+        }
+
+        .btn-close {
+            transition: transform 0.15s ease;
+            &:hover {
+                transform: rotate(90deg);
+            }
+        }
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .modal-footer {
+        border-top: 1px solid rgba(29, 79, 68, 0.06);
+        padding: 1rem 1.5rem;
+        background-color: transparent;
+    }
+}

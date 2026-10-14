@@ -9,7 +9,40 @@
 
 @use '../variables';
 
-// Font-faces (moved from resources/assets/css/shared/main.css)
+// Local Brand Typography (Almarai)
+@font-face {
+    font-family: 'Almarai';
+    src: url('/static/fonts/almarai/Almarai-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Almarai';
+    src: url('/static/fonts/almarai/Almarai-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Almarai';
+    src: url('/static/fonts/almarai/Almarai-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Almarai';
+    src: url('/static/fonts/almarai/Almarai-ExtraBold.ttf') format('truetype');
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+}
+
+// Font-faces (Zain fallback)
 @font-face {
     font-family: 'Zain';
     src: url('/static/fonts/zain/zain-v4-arabic_latin-200.woff2') format('woff2');

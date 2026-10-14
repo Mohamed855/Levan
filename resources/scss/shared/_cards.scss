@@ -2,6 +2,31 @@
 // Cards — Common card layout patterns
 // =============================================================================
 
+.card {
+    border: 1px solid rgba(29, 79, 68, 0.08);
+    border-radius: 12px;
+    background-color: #fff;
+    transition: border-color 0.2s ease;
+
+    .card-header {
+        background-color: transparent;
+        border-bottom: 1px solid rgba(29, 79, 68, 0.06);
+        padding: 1.15rem 1.35rem;
+
+        .card-title,
+        h5,
+        h4 {
+            color: var(--primary-color, #1D4F44);
+            font-weight: 600;
+            margin-bottom: 0;
+        }
+    }
+
+    .card-body {
+        padding: 1.35rem;
+    }
+}
+
 // Card with no border-radius (used in full-width data cards)
 .card-flush {
     border-radius: 0;
@@ -23,7 +48,7 @@
     justify-content: space-between;
     padding: 1rem 1.5rem;
     background-color: transparent;
-    border-top: 1px solid rgba(55, 38, 50, 0.08);
+    border-top: 1px solid rgba(29, 79, 68, 0.08);
 }
 
 // Page header / breadcrumb wrapper
@@ -39,7 +64,42 @@
         margin-bottom: 0;
         font-size: 1.35rem;
         font-weight: 600;
-        color: var(--primary-color, #372632);
+        color: var(--primary-color, #1D4F44);
+    }
+}
+
+// -----------------------------------------------------------------------------
+// KPI & Stat Cards (5 Lifecycle Cards Golden Pattern)
+// -----------------------------------------------------------------------------
+.card .avatar .avatar-initial {
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    &.bg-label-primary {
+        background-color: rgba(29, 79, 68, 0.09) !important;
+        color: var(--primary-color, #1D4F44) !important;
+    }
+
+    &.bg-label-success {
+        background-color: rgba(40, 199, 111, 0.12) !important;
+        color: #28c76f !important;
+    }
+
+    &.bg-label-info {
+        background-color: rgba(0, 207, 232, 0.12) !important;
+        color: #00cfe8 !important;
+    }
+
+    &.bg-label-warning {
+        background-color: rgba(191, 135, 74, 0.14) !important;
+        color: #BF874A !important;
+    }
+
+    &.bg-label-danger {
+        background-color: rgba(234, 84, 85, 0.12) !important;
+        color: #ea5455 !important;
     }
 }
 
@@ -69,7 +129,7 @@
         font-size: 1.15rem;
         font-weight: 600;
         margin-bottom: 0.5rem;
-        color: var(--primary-color, #372632);
+        color: var(--primary-color, #1D4F44);
     }
 
     .empty-state-description {
