@@ -34,12 +34,12 @@ class TenantInitializer
     public function createCoreSeat(Tenant $tenant, Subscription $subscription, User $user): void
     {
         $seat = LicenseSeat::create([
-            'tenant_id'         => $tenant->id,
-            'subscription_id'   => $subscription->id,
+            'tenant_id' => $tenant->id,
+            'subscription_id' => $subscription->id,
             'assigned_user_uid' => $user->global_uid,
-            'status'            => 'assigned',
-            'is_core'           => true,
-            'assigned_at'       => now(),
+            'status' => 'assigned',
+            'is_core' => true,
+            'assigned_at' => now(),
         ]);
 
         // العودة إلى بيئة التيننت لتحديث المستخدم
@@ -58,22 +58,22 @@ class TenantInitializer
     private function runMigrations(Tenant $tenant): void
     {
         Artisan::call('tenants:migrate', [
-            '--tenants' => [$tenant->id]
+            '--tenants' => [$tenant->id],
         ]);
     }
 
     private function createFirstUser(array $metadata): User
     {
         $user = User::create([
-            'name'              => $metadata['billing_name'] ?? 'مستخدم جديد',
-            'employee_number'   => 'EMP001',
-            'email'             => $metadata['billing_email'],
+            'name' => $metadata['billing_name'] ?? 'مستخدم جديد',
+            'employee_number' => 'EMP001',
+            'email' => $metadata['billing_email'],
             'email_verified_at' => now(),
-            'password'          => Hash::make($metadata['billing_password']),
-            'phone'             => $metadata['billing_phone'],
-            'status'            => 'active',
-            'created_at'        => now(),
-            'updated_at'        => now(),
+            'password' => Hash::make($metadata['billing_password']),
+            'phone' => $metadata['billing_phone'],
+            'status' => 'active',
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         $user->assignRole('Admin');
@@ -84,12 +84,11 @@ class TenantInitializer
     private function createSettings(array $metadata): void
     {
         Settings::create([
-            'image'       => 'default-office.png',
-            'office_name' =>  $metadata['billing_company_name'],
-            'logo_text'   => 'ليفـــان LEVAN',
+            'image' => 'default-office.png',
+            'office_name' => $metadata['billing_company_name'],
+            'logo_text' => 'لوت LOT',
         ]);
     }
-
 
     private function runSeeders(): void
     {

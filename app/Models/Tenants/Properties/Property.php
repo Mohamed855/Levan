@@ -42,6 +42,7 @@ class Property extends Model
         'latitude',
         'longitude',
         'boundary_geojson',
+        'aerial_image',
         'area',
         'deed_number',
         'deed_date',

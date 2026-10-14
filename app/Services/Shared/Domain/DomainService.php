@@ -28,10 +28,9 @@ class DomainService
         ];
     }
 
-    public function switchActiveDomain($request)
+    public function switchActiveDomain(string $selectedDomain)
     {
         $tenantId = tenant('id');
-        $selectedDomain = $request->domain;
 
         try {
             Log::info('🔄 Switching active domain', [
@@ -94,7 +93,7 @@ class DomainService
             Domain::where('tenant_id', $tenantId)
                 ->update(['registered_domains' => json_encode($registeredDomains)]);
 
-            return $this->nameCheapService->modifyAccount($request);
+            $this->nameCheapService->modifyAccount($selectedDomain, $tenantId);
 
             return redirect()->back()->with('success', 'تم تبديل الدومين النشط بنجاح');
         } catch (\Exception $e) {

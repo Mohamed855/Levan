@@ -47,16 +47,32 @@ class StorePropertyRequest extends WizardFormRequest
             'administrative_region' => ['required', 'string', 'max:100'],
             'plan_number' => ['required', 'string', 'max:100'],
             'parcel_number' => ['required', 'string', 'max:100'],
-            'google_maps_url' => ['required', 'string', 'max:1000'],
+            'google_maps_url' => ['nullable', 'string', 'max:1000'],
             'latitude' => ['nullable', 'numeric'],
             'longitude' => ['nullable', 'numeric'],
+            'aerial_image' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    if ($value instanceof \Illuminate\Http\UploadedFile) {
+                        if (! $value->isValid() || ! in_array($value->getMimeType(), ['image/jpeg', 'image/png', 'image/webp'])) {
+                            $fail('يجب أن تكون صورة العقار المحددة صورة صالحة (JPG, PNG, WEBP).');
+                        }
+                    } elseif (is_string($value)) {
+                        if (! str_starts_with($value, 'data:image/') && ! str_starts_with($value, 'properties/')) {
+                            $fail('صورة العقار المحددة غير صالحة.');
+                        }
+                    } else {
+                        $fail('يرجى رفع صورة العقار وتحديد حدوده عليها.');
+                    }
+                },
+            ],
             'boundary_geojson' => ['required', 'array'],
             'boundary_geojson.type' => ['required', 'in:Polygon'],
             'boundary_geojson.coordinates' => ['required', 'array', 'size:1'],
             'boundary_geojson.coordinates.0' => ['required', 'array', 'min:4'],
             'boundary_geojson.coordinates.0.*' => ['required', 'array', 'size:2'],
-            'boundary_geojson.coordinates.0.*.0' => ['required', 'numeric', 'between:-180,180'],
-            'boundary_geojson.coordinates.0.*.1' => ['required', 'numeric', 'between:-90,90'],
+            'boundary_geojson.coordinates.0.*.0' => ['required', 'numeric'],
+            'boundary_geojson.coordinates.0.*.1' => ['required', 'numeric'],
             'boundaries' => ['required', 'array', 'min:1'],
             'boundaries.*.direction' => ['required', Rule::enum(PropertyBoundaryDirection::class)],
             'boundaries.*.border_type' => ['required', 'string', 'max:100'],
@@ -118,9 +134,9 @@ class StorePropertyRequest extends WizardFormRequest
             'administrative_region.required' => 'المنطقة الإدارية مطلوبة.',
             'plan_number.required' => 'رقم المخطط مطلوب.',
             'parcel_number.required' => 'رقم القطعة مطلوب.',
-            'google_maps_url.required' => 'رابط الموقع من Google Maps مطلوب.',
-            'boundary_geojson.required' => 'يجب رسم حدود العقار على الخريطة.',
-            'boundary_geojson.coordinates.0.min' => 'يجب أن تحتوي حدود العقار على ثلاث نقاط على الأقل.',
+            'aerial_image.required' => 'يجب رفع صورة العقار وتحديد حدوده عليها.',
+            'boundary_geojson.required' => 'يجب تحديد مضلع حدود العقار على الصورة.',
+            'boundary_geojson.coordinates.0.min' => 'يجب أن يحتوي تحديد العقار على ثلاث نقاط على الأقل لتكوين مضلع.',
             'boundaries.required' => 'يجب إدخال حدود العقار وأطوالها.',
             'boundaries.min' => 'يجب إدخال حد واحد على الأقل للعقار.',
             'boundaries.*.direction.required' => 'جهة الحد مطلوبة.',
@@ -167,7 +183,8 @@ class StorePropertyRequest extends WizardFormRequest
             'plan_number' => 'رقم المخطط',
             'parcel_number' => 'رقم القطعة',
             'google_maps_url' => 'رابط الموقع من Google Maps',
-            'boundary_geojson' => 'الرسم الجغرافي لحدود العقار',
+            'aerial_image' => 'صورة العقار المحددة',
+            'boundary_geojson' => 'تحديد حدود العقار على الصورة',
             'boundaries' => 'حدود العقار',
             'deed_number' => 'رقم الصك',
             'deed_date' => 'تاريخ الصك',

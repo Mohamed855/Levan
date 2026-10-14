@@ -14,6 +14,7 @@ enum PropertyAttachmentCategory: string
     case ASSIGNMENT_LETTER_IMAGE = 'assignment_letter_image';
     case MAIN_IMAGE = 'property_main_image';
     case GALLERY_IMAGE = 'property_gallery';
+    case AERIAL_PHOTO = 'property_aerial_photo';
 
     public function label(): string
     {
@@ -26,6 +27,7 @@ enum PropertyAttachmentCategory: string
             self::ASSIGNMENT_LETTER_IMAGE => 'صورة الإسناد',
             self::MAIN_IMAGE => 'الصورة الرئيسية للعقار',
             self::GALLERY_IMAGE => 'صورة العقار',
+            self::AERIAL_PHOTO => 'صورة العقار المحددة',
         };
     }
 }
