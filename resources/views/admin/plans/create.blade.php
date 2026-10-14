@@ -21,10 +21,10 @@
 @section('content')
     @php
         $steps = [
-            ['id' => 'basics-validation', 'title' => 'الأساسيات والميزات', 'subtitle' => 'هوية الباقة وقيمتها'],
-            ['id' => 'pricing-validation', 'title' => 'التسعير والفوترة', 'subtitle' => 'السعر ودورة الاشتراك'],
-            ['id' => 'limits-validation', 'title' => 'الحدود', 'subtitle' => 'الحصص والصلاحيات'],
-            ['id' => 'review-validation', 'title' => 'المراجعة والنشر', 'subtitle' => 'تأكيد الباقة'],
+            ['id' => 'basics-validation', 'title' => 'الأساسيات والميزات'],
+            ['id' => 'pricing-validation', 'title' => 'التسعير والفوترة'],
+            ['id' => 'limits-validation', 'title' => 'الحدود'],
+            ['id' => 'review-validation', 'title' => 'المراجعة والنشر'],
         ];
     @endphp
 

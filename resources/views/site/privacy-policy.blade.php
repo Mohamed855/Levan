@@ -11,29 +11,21 @@
 
 <main class="main relative">
     <!-- Hero section -->
-    <section id=""
-        class="relative overflow-hidden bg-primary text-primary-color pt-[120px] md:pt-[130px] lg:pt-[160px]">
+    <section class="site-page-hero">
         <div class="container">
-            <div class="-mx-5 flex flex-wrap items-center">
-                <div class="w-full px-5">
-                    <div class="scroll-revealed mx-auto max-w-[780px] text-center">
-                        <h1
-                            class="mb-12 text-3xl font-bold leading-snug text-primary-color sm:text-4xl sm:leading-snug lg:text-5xl lg:leading-tight">
-                            سياسات استخدام نظام لوت
-                        </h1>
+            <div class="scroll-revealed mx-auto max-w-[780px] text-center">
+                <span class="hero-eyebrow">
+                    <i class="ti ti-shield-check"></i>
+                    الخصوصية والشروط
+                </span>
+                <h1 class="site-page-hero-title">
+                    سياسات استخدام نظام لوت
+                </h1>
 
-                        <p class="mx-auto mb-9 max-w-[750px] text-base text-primary-color sm:text-lg sm:leading-normal">
-                            تهدف هذه السياسات إلى تنظيم العلاقة بين شركة إتمام لتقنية نظم المعلومات ممثلة في نظام
-                            لوت وعملائها من
-                            شركات مكاتب وأقسام التحصيل، وضمان حماية حقوق الطرفين، بما يتوافق مع القوانين والأنظمة
-                            المرعية في المملكة
-                            العربية السعودية، وخاصةً نظام حماية البيانات الشخصية ونظام مكافحة الجرائم المعلوماتية
-                            وأنظمة حماية
-                            المستهلك.
-                        </p>
-                    </div>
-                </div>
-
+                <p class="site-page-hero-desc">
+                    تهدف هذه السياسات إلى تنظيم العلاقة بين شركة إتمام لتقنية نظم المعلومات ممثلة في نظام
+                    لوت وعملائها، وضمان حماية حقوق الطرفين، بما يتوافق مع الأنظمة المرعية في المملكة العربية السعودية.
+                </p>
             </div>
         </div>
     </section>

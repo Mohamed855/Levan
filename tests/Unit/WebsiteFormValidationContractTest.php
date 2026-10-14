@@ -4,14 +4,23 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use App\Http\Requests\Site\StoreTrialRequest;
 use App\Http\Requests\Site\StoreContactRequest;
+use App\Http\Requests\Site\StoreTrialRequest;
 use App\Http\Requests\Site\SubscriptionCheckoutRequest;
-use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use Tests\TestCase;
 
 class WebsiteFormValidationContractTest extends TestCase
 {
+    public function test_checkout_controller_delegates_bank_transfer_storage_and_bill_mutation_to_the_billing_service(): void
+    {
+        $controller = file_get_contents(dirname(__DIR__, 2).'/app/Http/Controllers/Site/SubscriptionController.php');
+
+        $this->assertStringContainsString('submitBankTransfer(', $controller);
+        $this->assertDoesNotMatchRegularExpression('/\$request->file\([^)]*transfer_receipt[^)]*\)->store\(/', $controller);
+        $this->assertDoesNotMatchRegularExpression('/\$bill->update\s*\(/', $controller);
+    }
+
     public function test_public_form_requests_are_the_source_of_truth(): void
     {
         foreach ([StoreContactRequest::class, StoreTrialRequest::class, SubscriptionCheckoutRequest::class] as $requestClass) {

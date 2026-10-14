@@ -14,6 +14,8 @@ function getBladeViteEntries() {
     const entries = new Set([
         "resources/assets/vendor/scss/rtl/core.scss",
         "resources/assets/vendor/scss/rtl/theme-semi-dark.scss",
+        "resources/assets/scss/site/site.scss",
+        "resources/assets/js/site/site.js",
     ]);
 
     for (const viewPath of glob.sync("resources/views/**/*.blade.php")) {

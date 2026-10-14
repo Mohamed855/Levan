@@ -1,749 +1,464 @@
 @extends('site.layouts.main')
 
-@section('title', 'لوت LOT - مزادك يبدأ مع لوت')
+@section('title', 'لوت LOT - المنصة المتقدمة لإدارة المزادات والأصول')
 
 @section('page-style')
-@vite(['resources/assets/css/components/icons.css', 'resources/scss/shared/package-card.scss'])
+    @vite(['resources/scss/shared/package-card.scss'])
 @endsection
 
 @section('page-script')
-<script>
-    window.recaptchaSiteKey = @json(config('services.recaptcha.site_key'));
-</script>
-
-<script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
-
-
-@vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/site/landing.js'])
+    <script>
+        window.recaptchaSiteKey = @json(config('services.recaptcha.site_key'));
+    </script>
+    <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+    @vite(['resources/assets/js/shared/form-validation.js'])
 @endsection
 
 @section('toastr')
-@vite(['resources/css/toastr.css', 'resources/js/toastr.js'])
+    @vite(['resources/css/toastr.css', 'resources/js/toastr.js'])
 @endsection
 
 @section('content')
 
 @if ($errors->any())
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-                @foreach ($errors->all() as $error)
-                    toastr.error(@json($error));
-                @endforeach
-            });
-</script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @foreach ($errors->all() as $error)
+                toastr.error(@json($error));
+            @endforeach
+        });
+    </script>
 @endif
 
-
-<main class="main relative">
-    <!-- Hero section -->
-    <section id="home"
-        class="relative overflow-hidden text-primary pt-[120px] pb-16 md:pt-[130px] lg:pt-[160px] lg:pb-24">
+<main class="site-main">
+    <!-- 1. Hero Section -->
+    <section id="home" class="hero-section">
         <div class="container">
-            <div class="-mx-5 flex flex-wrap items-center lg:flex-nowrap">
-                <div class="w-full px-5 lg:order-2 lg:w-1/2">
-                    <div class="scroll-revealed mx-auto max-w-[780px] text-right">
-                        <h1
-                            class="mb-6 text-3xl font-bold leading-snug text-primary sm:text-4xl sm:leading-snug lg:text-5xl lg:leading-tight">
-                            منصة لوت للمزادات والأصول
+            <div class="hero-grid">
+                <!-- Content Column -->
+                <div class="hero-content scroll-revealed">
+                    <span class="hero-eyebrow">
+                        <i class="ti ti-sparkles"></i>
+                        المنصة الرقمية الرائدة
+                    </span>
 
-                        </h1>
+                    <h1 class="hero-title">
+                        منصة لوت لإدارة <span class="hero-title-highlight">المزادات والأصول</span>
+                    </h1>
 
-                        <p class="mx-0 mb-9 max-w-[600px] text-base text-primary sm:text-lg sm:leading-normal">
-                            حل متكامل لإدارة المزادات بثقة وكفاءة عالية
+                    <p class="hero-desc">
+                        حل رقمي متكامل مصمم خصيصاً لتمكين الشركات والجهات من ضبط وإدارة المزادات والتحصيلات بثقة وكفاءة استثنائية.
+                    </p>
 
-                        </p>
+                    <div class="hero-actions">
+                        <a href="{{ $plans->isNotEmpty() ? route('site.plans.checkout', $plans->first()->id) : '#pricing' }}"
+                           class="btn-hero-primary" role="button">
+                            <span>طلب اشتراك</span>
+                            <i class="ti ti-arrow-left"></i>
+                        </a>
 
-                        <ul class="flex flex-wrap items-center justify-center gap-4 md:justify-start md:gap-5">
-                            <li>
-                                <a href="{{ $plans->isNotEmpty() ? route('site.plans.checkout', $plans->first()->id) : '#pricing' }}"
-                                    class="flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-base font-medium text-primary-color transition-colors hover:bg-primary-light-10 hover:text-[#BF874A] md:px-7 md:py-[14px]"
-                                    role="button">طلب اشتراك <i class="ti ti-arrow-left text-lg/none"></i></a>
-                            </li>
-                        </ul>
-
+                        <a href="{{ route('site.trial') }}" class="btn-hero-outline" role="button">
+                            <span>تجربة مجانية</span>
+                            <i class="ti ti-device-laptop"></i>
+                        </a>
                     </div>
                 </div>
-                <div class="w-full px-5 lg:order-1 lg:w-1/2">
-                    <div class="scroll-revealed relative z-10 mx-auto max-w-[845px]">
-                        <figure class="mt-12 lg:mt-0">
-                            <img src="{{ asset('static/site/images/hero.png') }}" alt="Hero image"
-                                class="mx-auto max-w-full rounded-t-xl rounded-tr-xl" />
-                        </figure>
 
-                        <div class="absolute -left-9 bottom-0 z-[-1]">
-                            <img src="{{ asset('static/site/images/dots.svg') }}" alt class="w-[120px] opacity-75" />
-                        </div>
-
-                        <div class="absolute -right-6 -top-6 z-[-1]">
-                            <img src="{{ asset('static/site/images/dots.svg') }}" alt class="w-[120px] opacity-75" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {{-- About section intentionally disabled for future reuse.
-    <section id="about" class="section-area">
-        <div class="container">
-            <div class="grid grid-cols-1 lg:grid-cols-2">
-                <div class="w-full">
-                    <figure class="scroll-revealed max-w-[480px] mx-auto">
-                        <img src="{{ asset('static/site/images/about-img.png') }}" alt="About image"
-                            class="rounded-xl" />
+                <!-- Media Column -->
+                <div class="hero-media scroll-revealed">
+                    <figure>
+                        <img src="{{ asset('static/site/images/hero.png') }}" alt="لوت LOT منصة المزادات والأصول">
                     </figure>
-                </div>
 
-                <div class="w-full m-auto">
-                    <div class="scroll-revealed">
-                        <h6 class="mb-2 block text-7xl font-semibold text-primary">
-                            لوت LOT
-                        </h6>
-                        <p class="font-bold text-3xl mb-6">
-                            المنصة ذكية لإدارة عمليات التحصيل
-                        </p>
-                    </div>
-
-                    <div class="font-semibold mt-4">
-                        <p>
-                            منصة ذكية لإدارة عمليات التحصيل هدفها تمكين الجهات من ضبط العمليات و رفع أداء افرق التحصيل
-                            عبر لوحات متابعة فورية و تقارير تحليلية و أرشفة للمستندات
-
-                        </p>
-                    </div>
+                    <img src="{{ asset('static/site/images/dots.svg') }}" alt="" class="hero-dots hero-dots--bottom-left">
+                    <img src="{{ asset('static/site/images/dots.svg') }}" alt="" class="hero-dots hero-dots--top-right">
                 </div>
             </div>
         </div>
     </section>
-    --}}
 
-
-
-    <!-- Services section -->
+    <!-- 2. Services Section -->
     <section id="services" class="section-area">
         <div class="container">
-            <div class="scroll-revealed text-center max-w-[550px] mx-auto mb-12">
-                <h6 class="mb-2 block text-3xl font-semibold text-primary">
-                    المميزات
-                </h6>
-                <p class="mb-6 font-medium text-sm">أفضل خدماتنا</p>
-                <p class="text-base font-normal">
-                    نقدّم مجموعة متكاملة من الخدمات المصممة بعناية لتلبية احتياجات عملك، مع التركيز على الجودة، السهولة،
-                    والاعتمادية.
-                </p>
-            </div>
+            <x-site.section-header
+                title="أبرز مميزات منصة لوت"
+                subtitle="خدمات متكاملة"
+                desc="نقدّم حزمة متطورة من الأدوات الذكية المصممة لرفع كفاءة أعمالك وضبط العمليات بدقة متناهية."
+            />
 
-            <div class="row text-center">
-                <div class="scroll-revealed col-12 sm:col-6 lg:col-4">
-                    <div class="group hover:-translate-y-1">
-                        <div
-                            class="w-[70px] h-[70px] rounded-2xl mx-auto mb-6 flex items-center justify-center text-[37px]/none bg-primary text-primary-color">
-                            <i class="ti  ti-xl ti-xl ti-layout-dashboard"></i>
-
-                        </div>
-                        <div class="w-full">
-                            <h4 class="text-[1.25rem]/tight font-semibold mb-5">
-                                لوحة القيادة الذكية
-                            </h4>
-                            <p>
-                                نظرة شاملة لحظية على مؤشرات الأداء ونشاطات التحصيل والمهام الجارية
-                            </p>
-                        </div>
+            <div class="services-grid">
+                <!-- Feature 1 -->
+                <div class="service-card scroll-revealed">
+                    <div class="service-icon-wrap">
+                        <i class="ti ti-layout-dashboard"></i>
                     </div>
+                    <h3 class="service-title">لوحة القيادة الذكية</h3>
+                    <p class="service-desc">
+                        نظرة شاملة ولحظية على مؤشرات الأداء الحيوية، وحالة المزادات، وسير عمليات التحصيل والمهام الجارية.
+                    </p>
                 </div>
 
-                <div class="scroll-revealed col-12 sm:col-6 lg:col-4">
-                    <div class="group hover:-translate-y-1">
-                        <div
-                            class="w-[70px] h-[70px] rounded-2xl mx-auto mb-6 flex items-center justify-center text-[37px]/none bg-primary text-primary-color">
-                            <i class="ti  ti-xl ti-xl ti-arrows-shuffle"></i>
-
-                        </div>
-                        <div class="w-full">
-                            <h4 class="text-[1.25rem]/tight font-semibold mb-5">
-                                توزيع ذكي وعادل
-                            </h4>
-                            <p>
-                                نظام توزيع المحافظ بين الموظفين حسب المبالغ أو عدد العملاء أو مختلط لضمان العدالة
-                            </p>
-                        </div>
+                <!-- Feature 2 -->
+                <div class="service-card scroll-revealed">
+                    <div class="service-icon-wrap">
+                        <i class="ti ti-arrows-shuffle"></i>
                     </div>
+                    <h3 class="service-title">توزيع ذكي وعادل</h3>
+                    <p class="service-desc">
+                        آليات مؤتمتة لتوزيع المحافظ والمهام بين فرق العمل حسب المبالغ أو الكثافة لضمان أعلى مستويات الإنتاجية.
+                    </p>
                 </div>
 
-                <div class="scroll-revealed col-12 sm:col-6 lg:col-4">
-                    <div class="group hover:-translate-y-1">
-                        <div
-                            class="w-[70px] h-[70px] rounded-2xl mx-auto mb-6 flex items-center justify-center text-[37px]/none bg-primary text-primary-color">
-                            <i class="ti  ti-xl ti-chart-bar"></i>
-                        </div>
-                        <div class="w-full">
-                            <h4 class="text-[1.25rem]/tight font-semibold mb-5">
-                                لوحة التميز التنافسية
-                            </h4>
-                            <p>
-                                لوحة أداء تفاعلية لعرض تقدم الموظفين لحظياً وتحفيز التنافس البناء
-                            </p>
-                        </div>
+                <!-- Feature 3 -->
+                <div class="service-card scroll-revealed">
+                    <div class="service-icon-wrap">
+                        <i class="ti ti-chart-bar"></i>
                     </div>
+                    <h3 class="service-title">لوحة التميز التنافسية</h3>
+                    <p class="service-desc">
+                        شاشات تقدم لحظية تعزز الشفافية والتحفيز التنافسي الإيجابي بين فرق العمل التنفيذية.
+                    </p>
                 </div>
 
-                <div class="scroll-revealed col-12 sm:col-6 lg:col-4">
-                    <div class="group hover:-translate-y-1">
-                        <div
-                            class="w-[70px] h-[70px] rounded-2xl mx-auto mb-6 flex items-center justify-center text-[37px]/none bg-primary text-primary-color">
-                            <i class="ti ti-xl ti-stack-front"></i>
-                        </div>
-                        <div class="w-full">
-                            <h4 class="text-[1.25rem]/tight font-semibold mb-5">
-                                إدارة شاملة للعمليات
-                            </h4>
-                            <p>
-                                إدارة الشركات والمحافظ والعملاء والمستخدمين مع تخصيص الصلاحيات
-                            </p>
-                        </div>
+                <!-- Feature 4 -->
+                <div class="service-card scroll-revealed">
+                    <div class="service-icon-wrap">
+                        <i class="ti ti-stack-front"></i>
                     </div>
+                    <h3 class="service-title">إدارة شاملة للعمليات</h3>
+                    <p class="service-desc">
+                        إدارة مرنة للمحافظ والعملاء والأصول وصلاحيات المستخدمين بأعلى معايير الحوكمة والأمان.
+                    </p>
                 </div>
 
-                <div class="scroll-revealed col-12 sm:col-6 lg:col-4">
-                    <div class="group hover:-translate-y-1">
-                        <div
-                            class="w-[70px] h-[70px] rounded-2xl mx-auto mb-6 flex items-center justify-center text-[37px]/none bg-primary text-primary-color">
-                            <i class="ti  ti-xl ti-headset"></i>
-
-                        </div>
-                        <div class="w-full">
-                            <h4 class="text-[1.25rem]/tight font-semibold mb-5">
-                                دعم فني متاح 24/7
-                            </h4>
-                            <p>
-                                دعم تقني متخصص على مدار الساعة مع إمكانية التخصيص حسب احتياجات الجهة
-                            </p>
-                        </div>
+                <!-- Feature 5 -->
+                <div class="service-card scroll-revealed">
+                    <div class="service-icon-wrap">
+                        <i class="ti ti-headset"></i>
                     </div>
+                    <h3 class="service-title">دعم فني استشاري 24/7</h3>
+                    <p class="service-desc">
+                        فريق تقني واستشاري متخصص على مدار الساعة لمرافقتك في تخصيص وتشغيل المنصة بكل سلاسة.
+                    </p>
                 </div>
 
-                <div class="scroll-revealed col-12 sm:col-6 lg:col-4">
-                    <div class="group hover:-translate-y-1">
-                        <div
-                            class="w-[70px] h-[70px] rounded-2xl mx-auto mb-6 flex items-center justify-center text-[37px]/none bg-primary text-primary-color">
-                            <i class="ti  ti-xl ti-trending-up"></i>
-                        </div>
-                        <div class="w-full">
-                            <h4 class="text-[1.25rem]/tight font-semibold mb-5">
-                                تقارير تحليلية دقيقة
-                            </h4>
-                            <p>
-                                لوحات تحكم تحليلية وتقارير مالية دقيقة مع أرشيف منظم للوثائق والمستندات
-                            </p>
-                        </div>
+                <!-- Feature 6 -->
+                <div class="service-card scroll-revealed">
+                    <div class="service-icon-wrap">
+                        <i class="ti ti-trending-up"></i>
                     </div>
+                    <h3 class="service-title">تقارير تحليلية وأرشفة</h3>
+                    <p class="service-desc">
+                        تقارير مالية وتشغيلية تفصيلية جاهزة للتصدير مع نظام أرشفة موثق يحفظ كامل المستندات والوثائق.
+                    </p>
                 </div>
             </div>
         </div>
     </section>
 
-
-    <!-- Pricing section -->
-    <section id="pricing" class="section-area">
+    <!-- 3. Pricing Section -->
+    <section id="pricing" class="section-area section-area--alt">
         <div class="container">
-            <div class="scroll-revealed text-center max-w-[550px] mx-auto mb-12">
-                <h6 class="mb-2 block text-3xl font-semibold text-primary">
-                    الاسعار
-                </h6>
-                <p class="mb-6 font-medium text-sm">الباقات و الاسعار</p>
-                <p class="text-base font-normal">
-                    نوفر باقات اشتراك متنوعة بأسعار تنافسية، تتيح لك اختيار الخطة الأنسب لطبيعة عملك
-                </p>
-            </div>
+            <x-site.section-header
+                title="باقات مرنة تناسب طموحك"
+                subtitle="الباقات والأسعار"
+                desc="نوفر باقات اشتراك مدروسة وشفافة تمنحك كافة الإمكانات لتوسيع أعمالك وإدارة مزاداتك بأمان."
+            />
 
-            <div class="row">
-
+            <div class="pricing-grid">
                 @foreach ($plans as $plan)
-                <div class="scroll-revealed col-12 sm:col-6 lg:col-4 flex">
-                    <x-ui.package-card :plan="$plan" :action-url="route('site.plans.checkout', $plan->id)" />
-                </div>
+                    <div class="scroll-revealed">
+                        <x-ui.package-card :plan="$plan" :action-url="route('site.plans.checkout', $plan->id)" />
+                    </div>
                 @endforeach
-
             </div>
         </div>
     </section>
 
-    <!-- Call action section -->
-    <section id="call-action" class="section-area !bg-primary !text-primary-color">
+    <!-- 4. Call to Action Banner -->
+    <section id="call-action" class="cta-section">
         <div class="container">
-            <div class="scroll-revealed text-center max-w-[650px] mx-auto">
-                <h2 class="mb-8 text-inherit text-3xl md:text-4xl font-bold">
-                    تحكّم في تحصيلاتك وتوقف عن ملاحقة المستحقات يدوياً
+            <div class="cta-content scroll-revealed">
+                <h2 class="cta-title">
+                    تحكّم في مزاداتك وتوقف عن إدارة الأصول يدوياً
                 </h2>
-                <p class="text-lg md:text-xl leading-relaxed">
-                    مع لوت، كل مزاد وإجراء منظم في مكانه، وكل مستند تحت عينك، مع متابعة دقيقة لمراحل العمل من التجهيز حتى الإسناد.
+                <p class="cta-desc">
+                    مع لوت، كل إجراء منظم في مساره الصحيح، وكل مستند تحت عينك، مع متابعة دقيقة لمراحل العمل من البداية وحتى الإسناد.
                     مزادك يبدأ مع لوت.
                 </p>
-                <a href="{{ route('site.trial') }}"
-                    class="inline-block px-7 py-4 rounded-full mt-11 bg-white text-primary font-medium text-lg hover:bg-opacity-90 hover:text-primary focus:bg-opacity-90 focus:text-primary hover:shadow-xl focus:shadow-xl transition-all duration-300"
-                    role="button">
-                    ابدأ تجربتك المجانية الآن
+                <a href="{{ route('site.trial') }}" class="btn-cta" role="button">
+                    <span>ابدأ تجربتك المجانية الآن</span>
+                    <i class="ti ti-arrow-left"></i>
                 </a>
             </div>
         </div>
     </section>
 
-    <!-- Portfolio section -->
+    <!-- 5. Portfolios Section -->
     <section id="portfolios" class="section-area">
         <div class="container">
-            <div class="scroll-revealed text-center max-w-[550px] mx-auto mb-12">
-                <h6 class="mb-2 block text-3xl font-semibold text-primary">
-                    المحافظ
-                </h6>
-                <p class="mb-6 font-medium text-sm">
-                    شركاء النجاح
-                </p>
-                <p class="text-base font-normal">
-                    نفخر بثقة عملائنا وشركائنا، ونسعى دائمًا إلى تقديم حلول احترافية تلبي تطلعاتهم
-                    وتدعم نجاحهم في مختلف المجالات.
-                </p>
-            </div>
+            <x-site.section-header
+                title="المحافظ الشريكة"
+                subtitle="محافظ معتمدة"
+                desc="نفخر بثقة المحافظ والجهات الاستثمارية التي تعتمد على تقنياتنا لتشغيل وإدارة أصولها."
+            />
 
-            <div class="">
-                <div class="row">
-                    @forelse ($portfolios as $portfolio)
-                    <div class="scroll-revealed text-center p-4 col-12 sm:col-6 md:col-4 lg:col-3">
-                        <img src="{{ asset('storage/' . $portfolio->logo) }}" alt="{{ $portfolio->name }}"
-                            class="h-[100px] w-auto object-contain inline-block grayscale dark:invert hover:grayscale-0 hover:invert-0" />
+            <div class="logos-grid">
+                @forelse ($portfolios as $portfolio)
+                    <div class="logo-item scroll-revealed">
+                        <img src="{{ asset('storage/' . $portfolio->logo) }}" alt="{{ $portfolio->name }}" loading="lazy">
                     </div>
-                    @empty
-                    <span class="text-center">لا يوجد عملاء حاليا</span>
-                    @endforelse
-                </div>
+                @empty
+                    <div class="logos-empty">لا يوجد محافظ معروضة حالياً</div>
+                @endforelse
             </div>
         </div>
     </section>
 
-
-    <!-- Clients section -->
-    <section id="clients" class="section-area">
+    <!-- 6. Clients Section -->
+    <section id="clients" class="section-area section-area--alt">
         <div class="container">
-            <div class="scroll-revealed text-center max-w-[550px] mx-auto mb-12">
-                <h6 class="mb-2 block text-3xl font-semibold text-primary">
-                    عملاؤنا
-                </h6>
-                <p class="mb-6 font-medium text-sm">
-                    شركاء النجاح
-                </p>
-                <p class="text-base font-normal">
-                    نفخر بثقة عملائنا وشركائنا، ونسعى دائمًا إلى تقديم حلول احترافية تلبي تطلعاتهم
-                    وتدعم نجاحهم في مختلف المجالات.
-                </p>
-            </div>
+            <x-site.section-header
+                title="شركاء النجاح"
+                subtitle="عملاؤنا"
+                desc="شراكات نعتز بها ومسيرة مستمرة من النجاح مع كبرى الجهات والشركات."
+            />
 
-            <div class="">
-                <div class="row">
-                    @forelse ($ourClients as $client)
-                    <div class="scroll-revealed text-center p-4 col-12 sm:col-6 md:col-4 lg:col-3">
-                        <img src="{{ asset('storage/' . $client->logo) }}" alt="{{ $client->name }}"
-                            class="h-[100px] inline-block grayscale dark:invert hover:grayscale-0 hover:invert-0" />
+            <div class="logos-grid">
+                @forelse ($ourClients as $client)
+                    <div class="logo-item scroll-revealed">
+                        <img src="{{ asset('storage/' . $client->logo) }}" alt="{{ $client->name }}" loading="lazy">
                     </div>
-                    @empty
-                    <span class="text-center">لا يوجد عملاء حاليا</span>
-                    @endforelse
-                </div>
+                @empty
+                    <div class="logos-empty">لا يوجد عملاء معروضون حالياً</div>
+                @endforelse
             </div>
         </div>
     </section>
 
-    <!-- Testimonials section -->
-    <section id="testimonials" class="section-area z-0">
+    <!-- 7. Testimonials Section -->
+    <section id="testimonials" class="testimonials-section section-area">
         <div class="container">
-            <div class="scroll-revealed text-center max-w-[550px] mx-auto mb-12">
-                <h6 class="mb-2 block text-3xl font-semibold text-primary">
-                    آراء العملاء
-                </h6>
-                <p class="mb-6 font-medium text-sm">
-                    ماذا يقول عملاؤنا
-                </p>
-                <p class="text-base font-normal">
-                    نعتز بآراء عملائنا وتجاربهم معنا، فهي تعكس مستوى الجودة والاحترافية التي نحرص
-                    على تقديمها في جميع خدماتنا.
-                </p>
-            </div>
+            <x-site.section-header
+                title="ماذا يقول عملاؤنا"
+                subtitle="آراء وتجارب"
+                desc="تجارب حقيقية تعكس الجودة والاحترافية التي نحرص على تقديمها لعملائنا في كل خطوة."
+            />
 
-            <div class="swiper testimonial-carousel common-carousel scroll-revealed">
+            <div class="swiper testimonial-carousel scroll-revealed">
                 <div class="swiper-wrapper">
-
+                    <!-- Slide 1 -->
                     <div class="swiper-slide">
-                        <div class="rounded-xl bg-body-light-1 dark:bg-body-dark-12/10 px-5 py-8 shadow-card-2 sm:px-8">
-                            <p class="mb-6 text-base text-body-light-11 dark:text-body-dark-11">
-                                "قبل المنصة كنا نتابع التحصيلات يدوياً عبر الإكسل، والآن أصبح كل شيء واضح أمامي بنقرة
-                                واحدة. وفّرت علينا ساعات من العمل الأسبوعي."
+                        <div class="testimonial-card">
+                            <p class="testimonial-text">
+                                "قبل منصة لوت كنا نتابع المزادات والإجراءات يدوياً، والآن أصبح كل شيء واضحاً بنقرة واحدة وفي مكان موحد. وفّرت علينا مئات ساعات العمل."
                             </p>
-                            <figure class="flex items-center gap-4">
-                                <figcaption class="flex-grow">
-                                    <h3 class="text-sm font-semibold text-body-light-11 dark:text-body-dark-11">
-                                        خالد العتيبي
-                                    </h3>
-
-                                </figcaption>
-                            </figure>
+                            <div class="testimonial-author">
+                                <h4 class="author-name">خالد العتيبي</h4>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- Slide 2 -->
                     <div class="swiper-slide">
-                        <div class="rounded-xl bg-body-light-1 dark:bg-body-dark-12/10 px-5 py-8 shadow-card-2 sm:px-8">
-                            <p class="mb-6 text-base text-body-light-11 dark:text-body-dark-11">
-                                "التقارير التفصيلية ساعدتنا نحدد العملاء المتأخرين بسرعة ونتواصل معهم في الوقت المناسب.
-                                تحسّن معدل التحصيل لدينا بشكل ملحوظ."
+                        <div class="testimonial-card">
+                            <p class="testimonial-text">
+                                "التقارير التفصيلية ولوحة المؤشرات ساعدتنا في اتخاذ قرارات دقيقة وسريعة. تحسّن مستوى إدارة الأصول والمتابعة بشكل ملموس جداً."
                             </p>
-                            <figure class="flex items-center gap-4">
-                                <figcaption class="flex-grow">
-                                    <h3 class="text-sm font-semibold text-body-light-11 dark:text-body-dark-11">
-                                        نورة الشمري
-                                    </h3>
-                                </figcaption>
-                            </figure>
+                            <div class="testimonial-author">
+                                <h4 class="author-name">نورة الشمري</h4>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- Slide 3 -->
                     <div class="swiper-slide">
-                        <div class="rounded-xl bg-body-light-1 dark:bg-body-dark-12/10 px-5 py-8 shadow-card-2 sm:px-8">
-                            <p class="mb-6 text-base text-body-light-11 dark:text-body-dark-11">
-                                "الواجهة سهلة جداً، أي موظف في الفريق يقدر يستخدمها بدون تدريب طويل. أكثر شيء أعجبني
-                                لوحة التحكم اللي تعطيك صورة كاملة عن الوضع المالي."
+                        <div class="testimonial-card">
+                            <p class="testimonial-text">
+                                "الواجهة عصرية وسهلة الاستخدام، وفريق العمل تمكّن من التعامل مع النظام دون الحاجة لتدريب معقد. تجربة استثنائية بكل المقاييس."
                             </p>
-                            <figure class="flex items-center gap-4">
-
-                                <figcaption class="flex-grow">
-                                    <h3 class="text-sm font-semibold text-body-light-11 dark:text-body-dark-11">
-                                        فهد القحطاني
-                                    </h3>
-                                </figcaption>
-                            </figure>
+                            <div class="testimonial-author">
+                                <h4 class="author-name">فهد القحطاني</h4>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- Slide 4 -->
                     <div class="swiper-slide">
-                        <div class="rounded-xl bg-body-light-1 dark:bg-body-dark-12/10 px-5 py-8 shadow-card-2 sm:px-8">
-                            <p class="mb-6 text-base text-body-light-11 dark:text-body-dark-11">
-                                "منذ اشتركنا في المنصة لم نفقد أي فاتورة ولم نتأخر في متابعة أي مستحق. فريق الدعم متجاوب
-                                ويحل أي استفسار بسرعة."
+                        <div class="testimonial-card">
+                            <p class="testimonial-text">
+                                "منذ بدأنا العمل مع لوت أصبحت كامل الوثائق والمستندات مؤرشفة ومنظمة بدقة، وفريق الدعم الفني متجاوب وسريع في تلبية كل المتطلبات."
                             </p>
-                            <figure class="flex items-center gap-4">
-                                <figcaption class="flex-grow">
-                                    <h3 class="text-sm font-semibold text-body-light-11 dark:text-body-dark-11">
-                                        سارة الدوسري
-                                    </h3>
-                                </figcaption>
-                            </figure>
+                            <div class="testimonial-author">
+                                <h4 class="author-name">سارة الدوسري</h4>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- Slide 5 -->
                     <div class="swiper-slide">
-                        <div class="rounded-xl bg-body-light-1 dark:bg-body-dark-12/10 px-5 py-8 shadow-card-2 sm:px-8">
-                            <p class="mb-6 text-base text-body-light-11 dark:text-body-dark-11">
-                                "ربطنا المنصة مع نظام الفوترة الخاص بنا وكان الأمر أسهل مما توقعنا. الآن التحصيلات
-                                تُسجَّل تلقائياً ولا حاجة لإدخال يدوي."
+                        <div class="testimonial-card">
+                            <p class="testimonial-text">
+                                "ربط المنصة وإطلاق حسابنا تم بسلاسة وسرعة فائقة. التقارير المالية والتشغيلية في لوت ذات مستوى احترافي عالي جداً."
                             </p>
-                            <figure class="flex items-center gap-4">
-                                <figcaption class="flex-grow">
-                                    <h3 class="text-sm font-semibold text-body-light-11 dark:text-body-dark-11">
-                                        عبدالله الزهراني
-                                    </h3>
-                                </figcaption>
-                            </figure>
+                            <div class="testimonial-author">
+                                <h4 class="author-name">عبدالله الزهراني</h4>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- Slide 6 -->
                     <div class="swiper-slide">
-                        <div class="rounded-xl bg-body-light-1 dark:bg-body-dark-12/10 px-5 py-8 shadow-card-2 sm:px-8">
-                            <p class="mb-6 text-base text-body-light-11 dark:text-body-dark-11">
-                                "أصبحت أتابع تحصيلات فروعنا الثلاثة من مكان واحد. التنبيهات التلقائية عند اقتراب مواعيد
-                                الاستحقاق غيّرت طريقة عملنا كلياً."
+                        <div class="testimonial-card">
+                            <p class="testimonial-text">
+                                "إدارة المزادات والمحافظ المتعددة من لوحة واحدة غيّرت طريقة تنظيمنا بالكامل. نوصي بها لأي جهة تبحث عن الكفاءة والاحترافية."
                             </p>
-                            <figure class="flex items-center gap-4">
-                                <figcaption class="flex-grow">
-                                    <h3 class="text-sm font-semibold text-body-light-11 dark:text-body-dark-11">
-                                        منى الحربي
-                                    </h3>
-                                </figcaption>
-                            </figure>
+                            <div class="testimonial-author">
+                                <h4 class="author-name">منى الحربي</h4>
+                            </div>
                         </div>
                     </div>
-
                 </div>
 
-                <div class="mt-[60px] flex items-center justify-center gap-1">
-                    <div class="swiper-button-next">
+                <!-- Navigation Controls -->
+                <div class="swiper-controls">
+                    <button type="button" class="swiper-btn swiper-button-prev" aria-label="السابق">
                         <i class="ti ti-arrow-right"></i>
-                    </div>
-                    <div class="swiper-button-prev">
+                    </button>
+                    <button type="button" class="swiper-btn swiper-button-next" aria-label="التالي">
                         <i class="ti ti-arrow-left"></i>
-                    </div>
+                    </button>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- FAQ section -->
-    <section id="faq" class="section-area relative">
+    <!-- 8. FAQ Section -->
+    <section id="faq" class="section-area section-area--alt">
         <div class="container">
-            <div class="scroll-revealed text-center max-w-[550px] mx-auto mb-12">
-                <h6 class="mb-2 block text-3xl font-semibold text-primary">
-                    الأسئلة الشائعة
-                </h6>
-                <p class="mb-6 font-medium text-sm">
-                    كل ما تريد معرفته
-                </p>
-                <p class="text-base font-normal">
-                    تجد هنا أهم الأسئلة التي يطرحها عملاؤنا والإجابات عليها، لمساعدتك على فهم
-                    خدماتنا واستخدامها بكل سهولة ويسر.
-                </p>
+            <x-site.section-header
+                title="الأسئلة الشائعة"
+                subtitle="إجابات واضحة"
+                desc="إليك أهم الأسئلة التي يطرحها عملاؤنا، لمساعدتك في التعرف على إمكانات النظام بكل وضوح."
+            />
+
+            <div class="faq-grid">
+                <!-- Q1 -->
+                <div class="faq-item scroll-revealed">
+                    <div class="faq-icon-wrap">
+                        <i class="ti ti-help"></i>
+                    </div>
+                    <div class="faq-body">
+                        <h3 class="faq-question">هل تتقاضون رسوماً مقابل التحديثات والدعم الفني؟</h3>
+                        <p class="faq-answer">
+                            لا، جميع التحديثات الدورية والتحسينات المستمرة وخدمات الدعم الفني مشمولة بالكامل ضمن الاشتراك دون أي تكاليف خفية.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="faq-item scroll-revealed">
+                    <div class="faq-icon-wrap">
+                        <i class="ti ti-help"></i>
+                    </div>
+                    <div class="faq-body">
+                        <h3 class="faq-question">هل أحتاج إلى شراء ترخيص لكل مستخدم؟</h3>
+                        <p class="faq-answer">
+                            يعتمد عدد تراخيص المستخدمين على الباقة المختارة، مع إمكانية الترقية وإضافة مستخدمين جدد بكل سهولة في أي وقت.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q3 -->
+                <div class="faq-item scroll-revealed">
+                    <div class="faq-icon-wrap">
+                        <i class="ti ti-help"></i>
+                    </div>
+                    <div class="faq-body">
+                        <h3 class="faq-question">هل يدعم النظام الربط والتكامل مع الأنظمة المحاسبية؟</h3>
+                        <p class="faq-answer">
+                            نعم، تدعم منصة لوت الربط والتكامل مع الأنظمة المحاسبية وأنظمة ERP الرائدة لتسهيل تبادل البيانات بسلاسة وأمان.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q4 -->
+                <div class="faq-item scroll-revealed">
+                    <div class="faq-icon-wrap">
+                        <i class="ti ti-help"></i>
+                    </div>
+                    <div class="faq-body">
+                        <h3 class="faq-question">هل يمكن تخصيص النظام ليتناسب مع سياسات شركتنا؟</h3>
+                        <p class="faq-answer">
+                            بالتأكيد، يتيح النظام تخصيص الصلاحيات، وهيكل فرق العمل، ونماذج التقارير، وطرق توزيع العمل بما يتوافق مع لوائح وسياسات كل جهة.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q5 -->
+                <div class="faq-item scroll-revealed">
+                    <div class="faq-icon-wrap">
+                        <i class="ti ti-help"></i>
+                    </div>
+                    <div class="faq-body">
+                        <h3 class="faq-question">ما مدى أمان وحماية البيانات في منصة لوت؟</h3>
+                        <p class="faq-answer">
+                            نطبق أعلى بروتوكولات التشفير والنسخ الاحتياطي السحابي المستمر وعزل بيانات كل منشأة لضمان الامتثال التام لمعايير الأمن السيبراني.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q6 -->
+                <div class="faq-item scroll-revealed">
+                    <div class="faq-icon-wrap">
+                        <i class="ti ti-help"></i>
+                    </div>
+                    <div class="faq-body">
+                        <h3 class="faq-question">كيف يتم نقل البيانات من أنظمتنا القديمة؟</h3>
+                        <p class="faq-answer">
+                            يوفر فريقنا التقني خدمة نقل وترحيل البيانات مجاناً عند الاشتراك، مع التحقق الدقيق لضمان سلامة واكتمال السجلات.
+                        </p>
+                    </div>
+                </div>
             </div>
-
-            <div class="grid gap-x-8 gap-y-12 grid-cols-1 lg:grid-cols-2">
-
-                <!-- Question 1 -->
-                <div class="scroll-revealed flex">
-                    <div
-                        class="ml-4 flex h-[50px] w-full max-w-[50px] items-center justify-center rounded-xl bg-primary text-primary-color text-[28px] sm:mr-6 sm:h-[60px] sm:max-w-[60px] sm:text-[32px]">
-                        <i class="ti ti-xl ti-help-circle"></i>
-                    </div>
-                    <div class="w-full">
-                        <h3
-                            class="mb-3 text-xl font-semibold text-body-light-12 dark:text-body-dark-12 sm:text-2xl lg:text-xl xl:text-2xl">
-                            هل تتقاضون رسوماً مقابل التحديثات والدعم الفني؟
-                        </h3>
-                        <p>
-                            لا، جميع التحديثات والتحسينات والدعم الفني مشمولة ضمن الاشتراك السنوي دون أي رسوم إضافية.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Question 2 -->
-                <div class="scroll-revealed flex">
-                    <div
-                        class="ml-4 flex h-[50px] w-full max-w-[50px] items-center justify-center rounded-xl bg-primary text-primary-color text-[28px] sm:mr-6 sm:h-[60px] sm:max-w-[60px] sm:text-[32px]">
-                        <i class="ti ti-xl ti-help-circle"></i>
-                    </div>
-                    <div class="w-full">
-                        <h3
-                            class="mb-3 text-xl font-semibold text-body-light-12 dark:text-body-dark-12 sm:text-2xl lg:text-xl xl:text-2xl">
-                            هل أحتاج إلى شراء ترخيص لكل مستخدم؟
-                        </h3>
-                        <p>
-                            عدد تراخيص المستخدمين يعتمد على الباقة المختارة، ويمكن إضافة تراخيص إضافية عند الحاجة.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Question 3 -->
-                <div class="scroll-revealed flex">
-                    <div
-                        class="ml-4 flex h-[50px] w-full max-w-[50px] items-center justify-center rounded-xl bg-primary text-primary-color text-[28px] sm:mr-6 sm:h-[60px] sm:max-w-[60px] sm:text-[32px]">
-                        <i class="ti ti-xl ti-help-circle"></i>
-                    </div>
-                    <div class="w-full">
-                        <h3
-                            class="mb-3 text-xl font-semibold text-body-light-12 dark:text-body-dark-12 sm:text-2xl lg:text-xl xl:text-2xl">
-                            هل يدعم النظام الربط مع الأنظمة المالية أو أنظمة ERP؟
-                        </h3>
-                        <p>
-                            نعم، يدعم “ليفـان” التكامل مع الأنظمة المحاسبية وERP لتسهيل عمليات تبادل البيانات بشكل
-                            مؤتمت.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Question 4-->
-                <div class="scroll-revealed flex">
-                    <div
-                        class="ml-4 flex h-[50px] w-full max-w-[50px] items-center justify-center rounded-xl bg-primary text-primary-color text-[28px] sm:mr-6 sm:h-[60px] sm:max-w-[60px] sm:text-[32px]">
-                        <i class="ti ti-xl ti-help-circle"></i>
-                    </div>
-                    <div class="w-full">
-                        <h3
-                            class="mb-3 text-xl font-semibold text-body-light-12 dark:text-body-dark-12 sm:text-2xl lg:text-xl xl:text-2xl">
-                            هل يمكن تخصيص النظام حسب احتياجات الجهة؟
-                        </h3>
-                        <p>
-                            نعم، يمكن تخصيص العديد من الإعدادات مثل الصلاحيات، طرق توزيع المحافظ، التقارير، وهيكل الجهات
-                            وهيكل فرق العمل، بما يناسب سياسات كل جهة.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Question 5 -->
-                <div class="scroll-revealed flex">
-                    <div
-                        class="ml-4 flex h-[50px] w-full max-w-[50px] items-center justify-center rounded-xl bg-primary text-primary-color text-[28px] sm:mr-6 sm:h-[60px] sm:max-w-[60px] sm:text-[32px]">
-                        <i class="ti ti-xl ti-help-circle"></i>
-                    </div>
-                    <div class="w-full">
-                        <h3
-                            class="mb-3 text-xl font-semibold text-body-light-12 dark:text-body-dark-12 sm:text-2xl lg:text-xl xl:text-2xl">
-                            ما مدى أمان البيانات وكيف يتم حفظها؟
-                        </h3>
-                        <p>
-                            النظام يعتمد بروتوكولات تشفير قوية، ونسخ احتياطي دوري، وصلاحيات وصول دقيقة لضمان حماية
-                            بيانات الجهة والعملاء.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Question 6 -->
-                <div class="scroll-revealed flex">
-                    <div
-                        class="ml-4 flex h-[50px] w-full max-w-[50px] items-center justify-center rounded-xl bg-primary text-primary-color text-[28px] sm:mr-6 sm:h-[60px] sm:max-w-[60px] sm:text-[32px]">
-                        <i class="ti ti-xl ti-help-circle"></i>
-                    </div>
-                    <div class="w-full">
-                        <h3
-                            class="mb-3 text-xl font-semibold text-body-light-12 dark:text-body-dark-12 sm:text-2xl lg:text-xl xl:text-2xl">
-                            كيف يتم نقل بياناتي من النظام القديم إلى ليفـان؟
-                        </h3>
-                        <p>
-                            نوفر خدمة نقل بيانات احترافية عند الاشتراك. يقوم فريقنا التقني بترحيل كافة البيانات من نظامك
-                            الحالي إلى منصة ليفـان بسرية تامة وبدون أي تكاليف إضافية.
-                        </p>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <div>
-
         </div>
     </section>
 
-    <!-- Contact section -->
+    <!-- 9. Contact Section -->
     <section id="contact" class="section-area">
         <div class="container">
-            <div class="row">
+            <x-site.section-header
+                title="ابدأ محادثتك معنا اليوم"
+                subtitle="تواصل معنا"
+                desc="فريقنا المتخصص على أتم الاستعداد للإجابة على استفساراتك واستعراض مزايا المنصة المناسبة لعملك."
+            />
 
-                <div class="col-12 xl:col-8">
-                    <div
-                        class="scroll-revealed bg-body-light-1 dark:bg-primary-dark-2 rounded-xl py-8 sm:py-12 px-6 sm:px-10 z-0 relative shadow-card-1 hover:shadow-lg">
-                        <div class="text-center max-w-[550px] mx-auto mb-12">
-                            <h6 class="mb-2 block text-3xl font-semibold text-primary">
-                                تواصل معنا
-                            </h6>
-                            <p class="mb-6 font-medium text-sm">
-                                جاهز للبدء؟
-                            </p>
-                            <p class="text-base font-normal">
-                                نحن هنا لمساعدتك والإجابة على جميع استفساراتك، فلا تتردد في التواصل معنا لبدء رحلتك
-                                معنا.
-                            </p>
-                        </div>
-                        <form id="form" method="POST" action="{{ route('site.contact.store') }}" autocomplete="off"
-                            data-form-validate data-validation-url="{{ route('site.form-validation') }}" novalidate>
-                            @csrf
+            <div class="contact-layout">
+                <!-- Form Container -->
+                <x-site.contact-form
+                    data-form-validate
+                    :action="route('site.contact.store')"
+                    :validation-url="route('site.form-validation')"
+                    fields="contact"
+                    title="أرسل لنا استفسارك"
+                    subtitle="يسعدنا تواصلك"
+                    desc="املأ البيانات وسيقوم ممثلنا بالتواصل معك في أقرب فرصة."
+                />
 
-                            <div class="row">
-                                <div class="col-12 md:col-6">
-                                    <input type="text" name="customer_name" minlength="3" data-form-control
-                                        class="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                                        placeholder="الاسم" required />
-                                    <p class="invalid-feedback hidden text-red-500 text-xs mt-1" data-form-error
-                                        aria-live="polite" hidden></p>
-                                </div>
-
-                                <div class="col-12 md:col-6">
-                                    <input type="email" name="customer_email" data-form-control
-                                        class="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                                        placeholder="البريد الإلكتروني" />
-                                    <p class="invalid-feedback hidden text-red-500 text-xs mt-1" data-form-error
-                                        aria-live="polite" hidden></p>
-                                </div>
-
-                                <div class="col-12">
-                                    <textarea name="message" rows="5" minlength="10" data-form-control
-                                        class="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                                        placeholder="رسالتك أو استفسارك" required></textarea>
-                                    <p class="invalid-feedback hidden text-red-500 text-xs mt-1" data-form-error
-                                        aria-live="polite" hidden></p>
-                                </div>
-
-                                <!-- recaptcha -->
-                                <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response" data-validation-skip>
-
-                                @error('recaptcha')
-                                <div class="text-danger mt-2">{{ $message }}</div>
-                                @enderror
-
-                                <div class="col-12">
-                                    <div class="w-full text-center">
-                                        <button type="submit" id="submit-form"
-                                            class="inline-flex items-center gap-3 px-8 py-3 rounded-full text-base font-medium bg-primary text-primary-color hover:bg-primary-light-10 hover:text-[#BF874A] dark:hover:bg-primary-dark-10 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200">
-                                            <span class="spinner-border spinner-border-sm hidden" role="status"
-                                                aria-hidden="true"></span>
-                                            <span class="btn-text">إرسال الرسالة</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-
-                    </div>
-                </div>
-
-                <div class="col-12 xl:col-4">
-                    <div class="row">
-                        <div class="col-12 md:col-6 xl:col-12">
-                            <div
-                                class="scroll-revealed py-5 px-6 rounded-xl shadow-card-1 bg-body-light-1 dark:bg-primary-dark-2 flex gap-6 hover:shadow-lg">
-                                <div
-                                    class="w-[50px] h-[50px] flex items-center justify-center rounded-lg bg-primary text-primary-color text-[1.25rem] flex-shrink-0">
-                                    <i class="ti ti-phone"></i>
-                                </div>
-                                <div>
-                                    <h4 class="text-[1.25rem] text-primary mb-3">تواصل معنا</h4>
-                                    <p class="m-0 font-normal">0500181100</p>
-                                    <p class="m-0 font-normal">info@e-tec.sa</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-12 md:col-6 xl:col-12">
-                            <div
-                                class="scroll-revealed py-5 px-6 rounded-xl shadow-card-1 bg-body-light-1 dark:bg-primary-dark-2 flex gap-6 hover:shadow-lg">
-                                <div
-                                    class="w-[50px] h-[50px] flex items-center justify-center rounded-lg bg-primary text-primary-color text-[1.25rem] flex-shrink-0">
-                                    <i class="ti ti-map-pin"></i>
-                                </div>
-                                <div>
-                                    <h4 class="text-[1.25rem] text-primary mb-3">العنوان</h4>
-                                    <p class="m-0 font-normal">الرياض، طريق الأمير محمد بن عبدالعزيز، حي السليمانية،
-                                        12242</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-12 md:col-6 xl:col-12">
-                            <div
-                                class="scroll-revealed py-5 px-6 rounded-xl shadow-card-1 bg-body-light-1 dark:bg-primary-dark-2 flex gap-6 hover:shadow-lg">
-                                <div
-                                    class="w-[50px] h-[50px] flex items-center justify-center rounded-lg bg-primary text-primary-color text-[1.25rem] flex-shrink-0">
-                                    <i class="ti ti-alarm"></i>
-                                </div>
-                                <div>
-                                    <h4 class="text-[1.25rem] text-primary mb-3">ساعات العمل</h4>
-                                    <p class="m-0 font-normal">متاح 24 ساعة / 7 أيام</p>
-                                    <p class="m-0 font-normal">ساعات المكتب: 10:00 ص - 6:00 م</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+                <!-- Info Cards -->
+                <x-site.contact-info />
             </div>
         </div>
     </section>
 
-    <!-- Map section -->
-    <section id="map" class="w-full h-[500px] overflow-hidden -mt-[12rem]">
+    <!-- 10. Map Section -->
+    <section id="map" class="map-section">
         <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d453.0895346409257!2d46.697927505802454!3d24.702278165008337!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e2f1d8fe707d467%3A0x665443538d6963!2z2KfZhNio2LHZh9in2YYg2YTZhNmF2K3Yp9mF2KfYqQ!5e0!3m2!1sen!2ssa!4v1778593837435!5m2!1sen!2ssa"
-            class="border-0 w-full h-full" allowfullscreen loading="lazy">
+            allowfullscreen=""
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            title="موقع لوت LOT">
         </iframe>
     </section>
 </main>
