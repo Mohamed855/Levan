@@ -127,6 +127,14 @@
     box-shadow: none !important;
 }
 
+.auth-form-side .input-group-merge.is-invalid,
+.tenant-login-form-side .input-group-merge.is-invalid,
+.auth-form-side [data-form-field].has-error .input-group-merge,
+.tenant-login-form-side [data-form-field].has-error .input-group-merge {
+    border: 1px solid #ea5455 !important;
+    box-shadow: none !important;
+}
+
 .auth-form-side .input-group-merge .form-control,
 .tenant-login-form-side .input-group-merge .form-control {
     background-color: transparent !important;
@@ -137,6 +145,17 @@
     font-weight: 500;
     color: var(--auth-primary) !important;
     box-shadow: none !important;
+    padding: 10px 14px !important;
+}
+
+.auth-form-side .input-group-merge .form-control.is-invalid,
+.tenant-login-form-side .input-group-merge .form-control.is-invalid {
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    background-image: none !important;
+    height: 46px !important;
+    min-height: 46px !important;
     padding: 10px 14px !important;
 }
 

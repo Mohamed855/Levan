@@ -25,21 +25,80 @@ label:not(.form-check-label) {
 }
 
 // Form Controls, Textareas & Selects
-.form-control,
-.form-select,
-textarea.form-control {
+.form-control:not(textarea),
+.form-select {
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    padding: 0.55rem 0.85rem !important;
     border: 1px solid rgba(29, 79, 68, 0.16) !important;
     border-radius: 8px;
-    padding: 0.55rem 0.85rem;
     font-size: var(--font-size-base, 0.9375rem);
     color: var(--brand-dark-green, #12332C);
     background-color: #fff;
     box-shadow: none !important;
+    box-sizing: border-box !important;
     transition: border-color 0.15s ease-in-out;
 
     &:hover:not(:disabled):not([readonly]) {
         border-color: rgba(29, 79, 68, 0.36) !important;
         box-shadow: none !important;
+    }
+}
+
+textarea.form-control {
+    border: 1px solid rgba(29, 79, 68, 0.16) !important;
+    border-radius: 8px;
+    padding: 0.55rem 0.85rem !important;
+    min-height: 100px !important;
+    font-size: var(--font-size-base, 0.9375rem);
+    color: var(--brand-dark-green, #12332C);
+    background-color: #fff;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    transition: border-color 0.15s ease-in-out;
+
+    &:hover:not(:disabled):not([readonly]) {
+        border-color: rgba(29, 79, 68, 0.36) !important;
+        box-shadow: none !important;
+    }
+}
+
+// Input Group & Input Group Merge
+.input-group {
+    border-radius: 8px;
+
+    .input-group-text {
+        height: 42px !important;
+        min-height: 42px !important;
+        max-height: 42px !important;
+        padding: 0.55rem 0.85rem !important;
+        border: 1px solid rgba(29, 79, 68, 0.16) !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+    }
+
+    .form-control {
+        margin: 0 !important;
+    }
+
+    &.is-invalid,
+    &:has(.is-invalid),
+    &:has(.form-control.is-invalid) {
+        .input-group-text {
+            border: 1px solid var(--bs-danger) !important;
+            padding: 0.55rem 0.85rem !important;
+            height: 42px !important;
+            min-height: 42px !important;
+        }
+
+        .form-control {
+            border: 1px solid var(--bs-danger) !important;
+            padding: 0.55rem 0.85rem !important;
+            height: 42px !important;
+            min-height: 42px !important;
+            margin: 0 !important;
+        }
     }
 }
 
@@ -80,28 +139,46 @@ input[type="file"].form-control,
     }
 }
 
-// Form validation UI contracts (No shadows, strictly 1px borders)
+// Strict Form validation UI contracts:
+// Lock dimensions and padding so appearing errors never alter height/dimensions!
+.form-control.is-invalid,
+.form-control.is-valid,
+.form-select.is-invalid,
+.form-select.is-valid,
+[data-form-field].has-error .form-control,
+[data-form-field].has-error .form-select {
+    padding: 0.55rem 0.85rem !important;
+    box-shadow: none !important;
+    background-image: none !important; // Prevent bootstrap icon from altering padding or dimensions
+
+    &:not(textarea) {
+        height: 42px !important;
+        min-height: 42px !important;
+        max-height: 42px !important;
+    }
+
+    &:focus {
+        box-shadow: none !important;
+    }
+}
+
 .form-control.is-invalid,
 .form-select.is-invalid,
 [data-form-field].has-error .form-control,
 [data-form-field].has-error .form-select {
     border: 1px solid var(--bs-danger) !important;
-    box-shadow: none !important;
 
     &:focus {
         border-color: var(--bs-danger) !important;
-        box-shadow: none !important;
     }
 }
 
 .form-control.is-valid,
 .form-select.is-valid {
     border: 1px solid var(--bs-success) !important;
-    box-shadow: none !important;
 
     &:focus {
         border-color: var(--bs-success) !important;
-        box-shadow: none !important;
     }
 }
 
