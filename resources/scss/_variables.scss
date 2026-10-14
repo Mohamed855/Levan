@@ -3,7 +3,7 @@
 // =============================================================================
 
 $primary-color:     #1D4F44;
-$secondary-color:   #f5efe6;
+$secondary-color:   #F7F3EC;
 $secondary-darker:  #EADFCC;
 $brand-gold:        #BF874A;
 $brand-dark-green:  #12332C;
@@ -11,23 +11,23 @@ $brand-dark-green:  #12332C;
 :root {
     --primary-color:        #{$primary-color};
     --secondary-color:      #{$secondary-color};
-    --secondary-color-rgb:  245, 239, 230;
+    --secondary-color-rgb:  247, 243, 236;
     --secondary-color-dark: #{$secondary-darker};
     --brand-gold:           #{$brand-gold};
     --brand-gold-rgb:       191, 135, 74;
     --brand-dark-green:     #{$brand-dark-green};
     --brand-dark-green-rgb: 18, 51, 44;
-    --menu-cutout-bg:       #f5efe6;
-    --menu-active-bg:       #f5efe6;
+    --menu-cutout-bg:       #f8f7fa;
+    --menu-active-bg:       #f8f7fa;
     --menu-active-text:     #{$primary-color};
 
     // Bootstrap-compatible tokens
     --bs-primary: #{$primary-color};
     --bs-primary-rgb: 29, 79, 68;
     --bs-secondary: #{$secondary-color};
-    --bs-secondary-rgb: 245, 239, 230;
+    --bs-secondary-rgb: 247, 243, 236;
     --bs-body-bg: #{$secondary-color};
-    --bs-body-bg-rgb: 245, 239, 230;
+    --bs-body-bg-rgb: 247, 243, 236;
     --bs-body-color: #{$brand-dark-green};
 
     // Semantic state colors

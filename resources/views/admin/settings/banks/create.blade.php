@@ -116,6 +116,7 @@
 
                     <!-- الأزرار -->
                     <div class="mt-4 d-flex gap-2">
+                        <x-form.wizard.draft-button />
                         <button type="submit" class="btn btn-primary">
                             <i class="ti ti-device-floppy me-1"></i>
                             حفظ البنك

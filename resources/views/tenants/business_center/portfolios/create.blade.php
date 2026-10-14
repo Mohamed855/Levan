@@ -116,10 +116,13 @@
                                         <i class="ti ti-arrow-left ti-xs me-sm-2 me-0"></i>
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
                                     </a>
-                                    <button type="button" class="btn btn-primary btn-next" disabled>
-                                        <span class="align-middle d-sm-inline-block d-none me-sm-2">التالي</span>
-                                        <i class="ti ti-arrow-right ti-xs"></i>
-                                    </button>
+                                    <div class="d-flex gap-2">
+                                        <x-form.wizard.draft-button />
+                                        <button type="button" class="btn btn-primary btn-next" disabled>
+                                            <span class="align-middle d-sm-inline-block d-none me-sm-2">التالي</span>
+                                            <i class="ti ti-arrow-right ti-xs"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -194,6 +197,7 @@
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
                                     </button>
                                     <div class="d-flex gap-2">
+                                        <x-form.wizard.draft-button />
                                         <button type="submit" class="btn btn-primary btn-submit">
                                             <span class="align-middle d-sm-inline-block d-none me-sm-2">حفظ</span>
                                         </button>

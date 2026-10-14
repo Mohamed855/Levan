@@ -723,7 +723,7 @@ protected function buttons(): array
 2. **شريط تمرير الصفحة الرئيسي (Window Scrollbar)**:
    - يتموضع دائماً على جهة اليسار في الواجهات العربية عبر فرض `direction: rtl !important;` على مستوى الجذر (`:root[dir="rtl"]`, `html[dir="rtl"]`).
 3. **الهوية البصرية والألوان**:
-   - اعتماد هوية وشعار "لوت LOT" وتطبيق باليتة الألوان المعتمدة (`#1D4F44` كـ Primary، `#f5efe6` كـ Secondary).
+   - اعتماد هوية وشعار "لوت LOT" وتطبيق باليتة الألوان المعتمدة (`#1D4F44` كـ Primary، `#F7F3EC` كـ Secondary).
 
 ---
 

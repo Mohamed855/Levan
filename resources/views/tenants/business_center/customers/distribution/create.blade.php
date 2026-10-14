@@ -304,6 +304,7 @@
                                     <i class="ti ti-arrow-left me-1"></i> السابق
                                 </button>
                                 <div class="d-flex gap-2">
+                                    <x-form.wizard.draft-button />
                                     <button type="button" class="btn btn-primary btn-preview">
                                         معاينة <i class="ti ti-arrow-left me-1"></i>
                                     </button>
@@ -358,6 +359,7 @@
                                         <i class="ti ti-arrow-left me-1"></i> السابق
                                     </button>
                                     <div class="d-flex gap-2">
+                                        <x-form.wizard.draft-button />
                                         <button type="button" class="btn btn-primary btn-execute" disabled>
                                             تنفيذ التوزيع
                                         </button>

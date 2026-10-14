@@ -188,6 +188,7 @@
                                         <span>السابق</span>
                                     </button>
                                     <div class="d-flex gap-2">
+                                        <x-form.wizard.draft-button />
                                         <button type="button" class="btn btn-primary btn-next" disabled>
                                             <span class="me-sm-2">التالي</span>
                                             <i class="ti ti-arrow-right ti-xs"></i>
@@ -262,6 +263,7 @@
                                         <span>السابق</span>
                                     </button>
                                     <div class="d-flex gap-2">
+                                        <x-form.wizard.draft-button />
                                         <button type="submit" class="btn btn-primary btn-submit">
                                             <span>حفظ</span>
                                         </button>

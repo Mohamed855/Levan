@@ -14,7 +14,10 @@
                     <input type="number" name="price" placeholder="2000" step="0.01" class="form-control" required>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary mt-2">حفظ</button>
+            <div class="d-flex gap-2 mt-2">
+                <x-form.wizard.draft-button />
+                <button type="submit" class="btn btn-primary">حفظ</button>
+            </div>
         </form>
     </div>
 @endsection

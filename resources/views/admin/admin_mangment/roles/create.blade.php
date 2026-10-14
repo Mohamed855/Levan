@@ -114,7 +114,8 @@
                             </div>
                         </div>
 
-                        <div class="text-end">
+                        <div class="d-flex justify-content-end gap-2">
+                            <x-form.wizard.draft-button />
                             <button type="submit" class="btn btn-primary">حفظ</button>
                         </div>
                     </form>

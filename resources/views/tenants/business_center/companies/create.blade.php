@@ -108,6 +108,7 @@
                                         السابق
                                     </button>
                                     <div class="d-flex gap-2">
+                                        <x-form.wizard.draft-button />
                                         <button type="submit" class="btn btn-primary btn-next btn-submit">
                                             حفظ
                                         </button>

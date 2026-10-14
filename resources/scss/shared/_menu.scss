@@ -217,7 +217,7 @@ $menu-sub-link-height: 48px;
 // Applied equally on ALL top-level items (both leaf items and togglers)
 // -----------------------------------------------------------------------------
 
-$menu-tab-bg: var(--menu-active-bg, #f5efe6);
+$menu-tab-bg: var(--menu-active-bg, #f8f7fa);
 
 // Allocate concave scoops on top-level items with opacity: 0 for synchronous transition
 .layout-wrapper .bg-menu-theme.menu-vertical .menu-inner > .menu-item,
@@ -252,7 +252,7 @@ $menu-tab-bg: var(--menu-active-bg, #f5efe6);
     top: -24px !important;
     inset-inline-start: auto !important;
     inset-inline-end: 0 !important;
-    background: radial-gradient(circle 24px at 100% 0%, transparent 23.5px, var(--menu-cutout-bg, #f5efe6) 24px) !important;
+    background: radial-gradient(circle 24px at 100% 0%, transparent 23.5px, var(--menu-cutout-bg, #f8f7fa) 24px) !important;
 }
 
 :root[dir="rtl"] .bg-menu-theme.menu-vertical .menu-inner > .menu-item::after,
@@ -263,7 +263,7 @@ $menu-tab-bg: var(--menu-active-bg, #f5efe6);
     bottom: auto !important;
     inset-inline-start: auto !important;
     inset-inline-end: 0 !important;
-    background: radial-gradient(circle 24px at 100% 100%, transparent 23.5px, var(--menu-cutout-bg, #f5efe6) 24px) !important;
+    background: radial-gradient(circle 24px at 100% 100%, transparent 23.5px, var(--menu-cutout-bg, #f8f7fa) 24px) !important;
 }
 
 // LTR Geometry (cutouts face the page at the sidebar's inline end)
@@ -274,7 +274,7 @@ $menu-tab-bg: var(--menu-active-bg, #f5efe6);
     top: -24px !important;
     inset-inline-start: auto !important;
     inset-inline-end: 0 !important;
-    background: radial-gradient(circle 24px at 0% 0%, transparent 23.5px, var(--menu-cutout-bg, #f5efe6) 24px) !important;
+    background: radial-gradient(circle 24px at 0% 0%, transparent 23.5px, var(--menu-cutout-bg, #f8f7fa) 24px) !important;
 }
 
 :root[dir="ltr"] .bg-menu-theme.menu-vertical .menu-inner > .menu-item::after,
@@ -285,7 +285,7 @@ $menu-tab-bg: var(--menu-active-bg, #f5efe6);
     bottom: auto !important;
     inset-inline-start: auto !important;
     inset-inline-end: 0 !important;
-    background: radial-gradient(circle 24px at 0% 100%, transparent 23.5px, var(--menu-cutout-bg, #f5efe6) 24px) !important;
+    background: radial-gradient(circle 24px at 0% 100%, transparent 23.5px, var(--menu-cutout-bg, #f8f7fa) 24px) !important;
 }
 
 .bg-menu-theme.menu-vertical .menu-inner > .menu-item,

@@ -98,8 +98,12 @@
                                 <div class="invalid-feedback d-block" data-form-error role="alert" hidden></div>
                             </div>
                         </div>
-                        <x-form.wizard.actions><x-form.wizard.previous-button :href="route('admin.plans.index')" text="رجوع" />
-                            <div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button /></div>
+                        <x-form.wizard.actions>
+                            <x-form.wizard.previous-button :href="route('admin.plans.index')" text="رجوع" />
+                            <div class="d-flex gap-2">
+                                <x-form.wizard.draft-button />
+                                <x-form.wizard.next-button />
+                            </div>
                         </x-form.wizard.actions>
                     </x-form.wizard.step>
 
@@ -109,21 +113,24 @@
                                 id="price" label="سعر الدورة الأساسية (ر.س)" placeholder="500" required
                                 col="col-md-6" />
                             <x-form.controls.select name="subscription_billing_cycle" id="subscription_billing_cycle"
-                                label="دورة الفوترة الأساسية" required value="monthly" col="col-md-6"
-                                :options="array_map(
+                                label="دورة الفوترة الأساسية" required value="monthly" col="col-md-6" :options="array_map(
                                     fn($cycle) => ['value' => $cycle->value, 'label' => $cycle->label()],
                                     \App\Enums\Admin\Subscriptions\SubscriptionBillingCycle::cases(),
                                 )" />
                             <x-form.controls.input type="number" step="0.01" min="0" max="100"
-                                name="discount_percentage" id="discount_percentage" label="نسبة الخصم (%)" value="0"
-                                col="col-md-6" />
+                                name="discount_percentage" id="discount_percentage" label="نسبة الخصم (%)"
+                                value="0" col="col-md-6" />
                             <x-form.controls.input type="number" step="0.01" min="0"
                                 name="yearly_renewal_price" id="yearly_renewal_price"
                                 label="سعر العرض السنوي الترويجي (ر.س)" col="col-md-6"
                                 help="عرض سنوي اختياري للباقات الشهرية والربع سنوية." />
                         </div>
-                        <x-form.wizard.actions><x-form.wizard.previous-button />
-                            <div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button /></div>
+                        <x-form.wizard.actions>
+                            <x-form.wizard.previous-button />
+                            <div class="d-flex gap-2">
+                                <x-form.wizard.draft-button />
+                                <x-form.wizard.next-button />
+                            </div>
                         </x-form.wizard.actions>
                     </x-form.wizard.step>
 
@@ -161,9 +168,12 @@
                             <x-form.controls.select name="domain_management_enabled" id="domain_management_enabled"
                                 label="إدارة الدومينات" required value="1" col="col-md-6" :enum="\App\Enums\Shared\ActivationStatus::class" />
                         </div>
-                        <x-form.wizard.actions><x-form.wizard.previous-button />
-                            <div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button
-                                    text="التالي للمراجعة" /></div>
+                        <x-form.wizard.actions>
+                            <x-form.wizard.previous-button />
+                            <div class="d-flex gap-2">
+                                <x-form.wizard.draft-button />
+                                <x-form.wizard.next-button text="التالي للمراجعة" />
+                            </div>
                         </x-form.wizard.actions>
                     </x-form.wizard.step>
 

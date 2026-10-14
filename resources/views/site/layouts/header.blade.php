@@ -1,50 +1,63 @@
-<!-- Navbar -->
-<header class="ic-navbar site-header fixed right-0 top-4 z-40 flex w-full items-center bg-transparent" role="banner"
-    aria-label="Navigation bar">
+<!-- Site Header & Glassmorphism Navbar -->
+<header class="site-header" role="banner" aria-label="Navigation bar">
     <div class="container">
-        <div class="ic-navbar-floating mx-auto flex items-center justify-between px-5 py-3 rounded-full">
-            <!-- Logo (right) -->
-            <a href="{{ route('site.index') }}" class="ic-navbar-logo block text-primary-color" aria-label="لوت LOT">
-                <img src="{{ asset('static/brand/logos/lot/trans-profile.png') }}" data-default-logo="{{ asset('static/brand/logos/lot/trans-profile.png') }}"
-                    data-sticky-logo="{{ asset('static/brand/logos/lot/trans-profile.png') }}"
-                    data-light-logo="{{ asset('static/brand/logos/lot/trans-profile.png') }}"
-                    data-dark-logo="{{ asset('static/brand/logos/lot/trans-profile-white.png') }}" class="h-10" alt="لوت LOT">
+        <div class="ic-navbar-floating">
+            <!-- Brand Logo -->
+            <a href="{{ route('site.index') }}" class="site-logo" aria-label="لوت LOT">
+                <img src="{{ asset('static/brand/logos/lot/trans-profile.png') }}" alt="لوت LOT">
             </a>
 
-            <!-- Left side: Theme toggle + Contact button -->
-            <nav class="site-nav hidden lg:flex items-center gap-7" aria-label="التنقل الرئيسي">
+            <!-- Desktop Navigation Links -->
+            <nav class="site-nav" aria-label="التنقل الرئيسي">
                 <a href="{{ route('site.index') }}#home">الرئيسية</a>
-                <a href="{{ route('site.index') }}#services">المزايا</a>
+                <a href="{{ route('site.index') }}#services">المميزات</a>
                 <a href="{{ route('site.index') }}#pricing">الباقات</a>
                 <a href="{{ route('site.index') }}#faq">الأسئلة الشائعة</a>
             </nav>
 
-            <div class="flex items-center gap-3">
-                {{-- <!-- Theme Toggle -->
-                <button type="button" class="inline-flex items-center text-primary text-[22px]/none"
-                    aria-label="Switch theme" data-web-trigger="web-theme"></button> --}}
+            <!-- Actions: Hamburger on Mobile + Contact on Desktop -->
+            <div class="site-nav-actions">
+                <button type="button" class="site-hamburger" aria-label="افتح القائمة" aria-expanded="false">
+                    <i class="ti ti-menu-2"></i>
+                </button>
 
-                <!-- Contact button -->
-                <a href="#contact" id="navbar-contact-btn"
-                    class="btn-navbar-float px-5 py-2 rounded-full text-sm font-semibold text-white transition-all duration-200"
-                    role="button">تواصل معنا</a>
+                <a href="{{ route('site.trial') }}" class="btn-navbar-float" role="button">
+                    <span>تجربة مجانية</span>
+                    <i class="ti ti-arrow-left"></i>
+                </a>
             </div>
         </div>
     </div>
 </header>
 
-{{-- ============================================================
-navbarMenu — Old full navigation (commented for future use)
-============================================================
-<nav id="navbarMenu" class="ic-navbar-collapse ...">
-    <ul>
-        <li><a href="#home" class="ic-page-scroll ...">الرئيسية</a></li>
-        <li><a href="#services" class="ic-page-scroll ...">المميزات</a></li>
-        <li><a href="#pricing" class="ic-page-scroll ...">الباقات و الاسعار</a></li>
-        <li><a href="#portfolios" class="ic-page-scroll ...">المحافظ</a></li>
-        <li><a href="#clients" class="ic-page-scroll ...">عملائنا</a></li>
-        <li><a href="#faq" class="ic-page-scroll ...">الأسئلة الشائعة</a></li>
-        <li><a href="#contact" class="ic-page-scroll ...">تواصل معنا</a></li>
-    </ul>
-</nav>
---}}
+<!-- Mobile Navigation Drawer -->
+<div class="site-mobile-drawer" role="dialog" aria-modal="true" aria-label="قائمة التنقل">
+    <div class="site-mobile-content">
+        <div>
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <a href="{{ route('site.index') }}" class="site-logo">
+                    <img src="{{ asset('static/brand/logos/lot/trans-profile.png') }}" alt="لوت LOT"
+                        style="height: 2.2rem;">
+                </a>
+                <button type="button" class="site-mobile-close" aria-label="إغلاق القائمة">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+
+            <nav class="site-mobile-nav">
+                <a href="{{ route('site.index') }}#home">الرئيسية</a>
+                <a href="{{ route('site.index') }}#services">المميزات</a>
+                <a href="{{ route('site.index') }}#pricing">الباقات والأسعار</a>
+                <a href="{{ route('site.index') }}#faq">الأسئلة الشائعة</a>
+                <a href="{{ route('site.index') }}#contact">تواصل معنا</a>
+            </nav>
+        </div>
+
+        <div class="site-mobile-footer pt-4 border-top">
+            <a href="{{ route('site.trial') }}" class="btn-hero-primary w-100 justify-content-center text-center">
+                <span>طلب تجربة مجانية</span>
+                <i class="ti ti-arrow-left"></i>
+            </a>
+        </div>
+    </div>
+</div>

@@ -99,9 +99,12 @@
                                 <a href="{{ route('admin.content_management.portfolio.index') }}" class="btn btn-secondary">
                                     <i class="bx bx-arrow-back me-1"></i> رجوع
                                 </a>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bx bx-save me-1"></i> حفظ
-                                </button>
+                                <div class="d-flex gap-2">
+                                    <x-form.wizard.draft-button />
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bx bx-save me-1"></i> حفظ
+                                    </button>
+                                </div>
                             </div>
                         </div>
 

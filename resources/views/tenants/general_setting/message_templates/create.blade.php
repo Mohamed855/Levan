@@ -110,7 +110,10 @@
 
                                 <x-form.wizard.actions>
                                     <x-form.wizard.previous-button />
-                                    <x-form.wizard.next-button />
+                                    <div class="d-flex gap-2">
+                                        <x-form.wizard.draft-button />
+                                        <x-form.wizard.next-button />
+                                    </div>
                                 </x-form.wizard.actions>
                             </div>
                         </div>
@@ -225,7 +228,10 @@
 
                                 <x-form.wizard.actions>
                                     <x-form.wizard.previous-button />
-                                    <x-form.wizard.save-button type="submit" />
+                                    <div class="d-flex gap-2">
+                                        <x-form.wizard.draft-button />
+                                        <x-form.wizard.save-button type="submit" />
+                                    </div>
                                 </x-form.wizard.actions>
                             </div>
                         </div>

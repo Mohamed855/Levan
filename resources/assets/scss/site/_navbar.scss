@@ -235,6 +235,36 @@
       }
     }
   }
+
+  .site-mobile-footer,
+  .border-top {
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--site-border);
+    margin-top: auto;
+
+    .btn-hero-primary {
+      width: 100% !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      text-align: center !important;
+      gap: 0.65rem;
+      padding: 0.9rem 1.5rem;
+      border-radius: var(--site-radius-pill);
+      background-color: var(--site-primary);
+      color: #FFFFFF !important;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 8px 24px rgba(29, 79, 68, 0.28);
+      transition: background-color var(--site-transition-fast), color var(--site-transition-fast), box-shadow var(--site-transition-fast);
+
+      &:hover {
+        background-color: var(--site-gold);
+        color: var(--site-primary-deep) !important;
+        box-shadow: 0 12px 32px rgba(191, 135, 74, 0.35);
+      }
+    }
+  }
 }
 
 @media (max-width: 991px) {

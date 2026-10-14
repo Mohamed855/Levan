@@ -55,7 +55,10 @@
                             <x-form.controls.textarea name="description" label="الوصف" placeholder="أدخل وصف المجموعة" rows="3" col="col-12" />
                             <x-form.wizard.actions>
                                 <x-form.wizard.previous-button :href="tenant_route_name('teams.index')" />
-                                <x-form.wizard.next-button />
+                                <div class="d-flex gap-2">
+                                    <x-form.wizard.draft-button />
+                                    <x-form.wizard.next-button />
+                                </div>
                             </x-form.wizard.actions>
                         </div>
                     </x-form.wizard.step>
@@ -88,7 +91,10 @@
                             </div>
                             <x-form.wizard.actions>
                                 <x-form.wizard.previous-button />
-                                <x-form.wizard.save-button text="حفظ المجموعة" />
+                                <div class="d-flex gap-2">
+                                    <x-form.wizard.draft-button />
+                                    <x-form.wizard.save-button text="حفظ المجموعة" />
+                                </div>
                             </x-form.wizard.actions>
                         </div>
                     </x-form.wizard.step>

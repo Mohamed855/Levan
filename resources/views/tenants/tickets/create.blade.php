@@ -94,10 +94,13 @@
                             </div>
 
                             <div class="col-12 d-flex justify-content-end mt-5">
-                                <button type="submit" class="btn btn-primary waves-effect waves-light btn-submit">
-                                    <i class="bx bx-save me-1"></i>
-                                    <span>حفظ </span>
-                                </button>
+                                <div class="d-flex gap-2">
+                                    <x-form.wizard.draft-button />
+                                    <button type="submit" class="btn btn-primary waves-effect waves-light btn-submit">
+                                        <i class="bx bx-save me-1"></i>
+                                        <span>حفظ </span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </form>

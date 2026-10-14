@@ -30,7 +30,10 @@
                             <input type="text" class="form-control" id="name" name="name"
                                 value="{{ old('name') }}" required>
                         </div>
-                        <button type="submit" class="btn btn-primary">إضافة</button>
+                        <div class="d-flex gap-2">
+                            <x-form.wizard.draft-button />
+                            <button type="submit" class="btn btn-primary">إضافة</button>
+                        </div>
                     </form>
                 </div>
             </div>
