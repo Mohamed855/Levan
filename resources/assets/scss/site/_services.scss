@@ -22,19 +22,6 @@
   position: relative;
   height: 100%;
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    left: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--site-gold), var(--site-primary));
-    opacity: 0;
-    transition: opacity var(--site-transition-fast);
-    border-radius: var(--site-radius-card) var(--site-radius-card) 0 0;
-  }
-
   .service-icon-wrap {
     width: 68px;
     height: 68px;
@@ -70,18 +57,13 @@
   }
 
   &:hover {
-    border-color: rgba(var(--site-gold-rgb), 0.35);
+    border-color: var(--site-border-strong);
     box-shadow: var(--site-shadow-md);
 
-    &::before {
-      opacity: 1;
-    }
-
     .service-icon-wrap {
-      background: var(--site-gold);
-      color: var(--site-primary-deep);
-      transform: scale(1.08);
-      box-shadow: 0 10px 28px rgba(191, 135, 74, 0.35);
+      background: var(--site-primary-deep);
+      color: #FFFFFF;
+      box-shadow: 0 10px 28px rgba(18, 51, 44, 0.3);
     }
   }
 }

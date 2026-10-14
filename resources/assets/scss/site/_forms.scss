@@ -128,7 +128,7 @@
     background-color: var(--site-primary-deep);
     color: #FFFFFF;
     box-shadow: 0 12px 32px rgba(18, 51, 44, 0.35);
-    border-color: rgba(var(--site-gold-rgb), 0.35);
+    border-color: var(--site-primary-deep);
   }
 
   &:disabled {

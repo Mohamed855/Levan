@@ -91,20 +91,20 @@
         transition: color var(--site-transition-fast);
 
         &:hover {
-          color: var(--site-gold);
+          color: var(--site-primary-deep);
         }
       }
     }
   }
 
   &:hover {
-    border-color: rgba(var(--site-gold-rgb), 0.35);
+    border-color: var(--site-border-strong);
     box-shadow: var(--site-shadow-md);
 
     .info-icon-wrap {
-      background: var(--site-gold);
-      color: var(--site-primary-deep);
-      transform: scale(1.08);
+      background: var(--site-primary-deep);
+      color: #FFFFFF;
+      box-shadow: 0 8px 22px rgba(18, 51, 44, 0.28);
     }
   }
 }

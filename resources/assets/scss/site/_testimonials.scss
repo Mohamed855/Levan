@@ -57,7 +57,7 @@
 
     &:hover {
       box-shadow: var(--site-shadow-md);
-      border-color: rgba(var(--site-gold-rgb), 0.35);
+      border-color: var(--site-border-strong);
     }
   }
 
@@ -94,7 +94,6 @@
     &:hover {
       background: var(--site-primary-deep);
       color: #FFFFFF;
-      box-shadow: 0 8px 20px rgba(18, 51, 44, 0.3);
     }
 
     &.swiper-button-disabled {

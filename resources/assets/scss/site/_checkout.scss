@@ -316,8 +316,13 @@
   }
 
   &:hover {
-    border-color: var(--site-gold);
+    border-color: var(--site-primary);
     background: #FFFFFF;
+
+    .upload-icon-wrap {
+      background: rgba(var(--site-primary-rgb), 0.14);
+      color: var(--site-primary-deep);
+    }
   }
 
   &.has-files {

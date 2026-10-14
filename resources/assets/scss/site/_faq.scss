@@ -58,12 +58,11 @@
 
   &:hover {
     box-shadow: var(--site-shadow-md);
-    border-color: rgba(var(--site-gold-rgb), 0.35);
+    border-color: var(--site-border-strong);
 
     .faq-icon-wrap {
-      background: var(--site-primary);
+      background: var(--site-primary-deep);
       color: #FFFFFF;
-      transform: scale(1.06);
     }
   }
 }

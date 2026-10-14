@@ -75,10 +75,6 @@
     width: auto;
     object-fit: contain;
     transition: transform var(--site-transition-fast);
-
-    &:hover {
-      transform: scale(1.03);
-    }
   }
 }
 
@@ -152,7 +148,7 @@
     background-color: var(--site-primary-deep);
     color: #FFFFFF !important;
     box-shadow: 0 8px 24px rgba(18, 51, 44, 0.35);
-    border-color: rgba(var(--site-gold-rgb), 0.35);
+    border-color: var(--site-primary-deep);
   }
 }
 
@@ -170,7 +166,7 @@
   transition: color var(--site-transition-fast);
 
   &:hover {
-    color: var(--site-gold);
+    color: var(--site-primary-deep);
   }
 }
 
@@ -232,7 +228,7 @@
       transition: color var(--site-transition-fast);
 
       &:hover {
-        color: var(--site-gold);
+        color: var(--site-primary-deep);
       }
     }
   }

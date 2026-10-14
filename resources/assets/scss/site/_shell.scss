@@ -190,6 +190,7 @@ body.site-shell {
   &:hover {
     background-color: var(--site-primary-deep);
     color: #FFFFFF;
+    border-color: var(--site-primary-deep);
     box-shadow: var(--site-shadow-lg);
   }
 }
@@ -208,7 +209,7 @@ body.site-shell {
   &:hover {
     background-color: var(--site-primary-deep) !important;
     color: #FFFFFF !important;
-    border-color: rgba(var(--site-gold-rgb), 0.35);
+    border-color: var(--site-primary-deep) !important;
     box-shadow: 0 8px 24px rgba(18, 51, 44, 0.28);
   }
 }
