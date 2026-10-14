@@ -99,6 +99,23 @@
                 </div>
             </div>
 
+            {{-- كارت صورة العقار المحددة --}}
+            @if ($property->aerial_image)
+                <div class="card mb-4">
+                    <div class="card-header pb-2 d-flex justify-content-between align-items-center">
+                        <h6 class="card-title mb-0"><i class="ti ti-photo-edit me-1 text-primary"></i> صورة العقار المحددة</h6>
+                        <a href="{{ tasset($property->aerial_image) }}" download="property-{{ $property->property_number }}-boundary.png" class="btn btn-xs btn-label-primary">
+                            <i class="ti ti-download me-1"></i> تحميل
+                        </a>
+                    </div>
+                    <div class="card-body text-center p-2">
+                        <a href="{{ tasset($property->aerial_image) }}" target="_blank" title="عرض الصورة بالحجم الكامل">
+                            <img src="{{ tasset($property->aerial_image) }}" alt="تحديد العقار على الصورة" class="img-fluid rounded border shadow-sm" style="max-height: 280px; object-fit: contain;">
+                        </a>
+                    </div>
+                </div>
+            @endif
+
             {{-- كارت المستندات والمرفقات --}}
             @if ($property->attachments->isNotEmpty())
                 <div class="card mb-4">
