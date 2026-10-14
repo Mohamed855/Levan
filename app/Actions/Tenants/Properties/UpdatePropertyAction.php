@@ -9,6 +9,7 @@ use App\Models\Tenants\Properties\Property;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Throwable;
 
 final class UpdatePropertyAction
@@ -34,6 +35,7 @@ final class UpdatePropertyAction
                 ];
 
                 $mainImageFile = $data['main_image'] ?? null;
+                $aerialImageInput = $data['aerial_image'] ?? null;
 
                 unset(
                     $data['boundaries'],
@@ -47,6 +49,7 @@ final class UpdatePropertyAction
                     $data['additional_documents'],
                     $data['property_images'],
                     $data['main_image'],
+                    $data['aerial_image'],
                     $data['_wizard_draft_id'],
                     $data['_wizard_resource_key']
                 );
@@ -76,6 +79,46 @@ final class UpdatePropertyAction
                         'file_size' => $mainImageFile->getSize(),
                         'category' => PropertyAttachmentCategory::MAIN_IMAGE->value,
                     ]);
+                }
+
+                // If new aerial image uploaded or modified
+                if ($aerialImageInput instanceof UploadedFile) {
+                    $aerialImagePath = $aerialImageInput->store('properties/aerial_images', 'tenant_public');
+                    $storedPaths[] = $aerialImagePath;
+                    $data['aerial_image'] = $aerialImagePath;
+
+                    $property->attachments()->where('category', PropertyAttachmentCategory::AERIAL_PHOTO->value)->delete();
+                    $property->attachments()->create([
+                        'disk' => 'tenant_public',
+                        'file_path' => $aerialImagePath,
+                        'original_name' => $aerialImageInput->getClientOriginalName(),
+                        'mime_type' => $aerialImageInput->getClientMimeType(),
+                        'extension' => $aerialImageInput->getClientOriginalExtension(),
+                        'file_size' => $aerialImageInput->getSize(),
+                        'category' => PropertyAttachmentCategory::AERIAL_PHOTO->value,
+                    ]);
+                } elseif (is_string($aerialImageInput) && str_starts_with($aerialImageInput, 'data:image/')) {
+                    [$type, $imageData] = explode(';', $aerialImageInput);
+                    [, $imageData] = explode(',', $imageData);
+                    $decoded = base64_decode($imageData);
+                    $extension = str_contains($type, 'png') ? 'png' : (str_contains($type, 'webp') ? 'webp' : 'jpg');
+                    $aerialImagePath = 'properties/aerial_images/'.Str::uuid().'.'.$extension;
+                    Storage::disk('tenant_public')->put($aerialImagePath, $decoded);
+                    $storedPaths[] = $aerialImagePath;
+                    $data['aerial_image'] = $aerialImagePath;
+
+                    $property->attachments()->where('category', PropertyAttachmentCategory::AERIAL_PHOTO->value)->delete();
+                    $property->attachments()->create([
+                        'disk' => 'tenant_public',
+                        'file_path' => $aerialImagePath,
+                        'original_name' => 'property_aerial_image.png',
+                        'mime_type' => 'image/png',
+                        'extension' => 'png',
+                        'file_size' => strlen($decoded),
+                        'category' => PropertyAttachmentCategory::AERIAL_PHOTO->value,
+                    ]);
+                } elseif (is_string($aerialImageInput) && ! empty($aerialImageInput)) {
+                    $data['aerial_image'] = $aerialImageInput;
                 }
 
                 $property->update($data);

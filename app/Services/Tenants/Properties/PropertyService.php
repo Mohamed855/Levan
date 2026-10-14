@@ -61,6 +61,7 @@ class PropertyService
                 'path' => $attachment->file_path,
             ]);
         $mainImage = $property->main_image;
+        $aerialImage = $property->aerial_image;
         $deleted = (bool) $property->forceDelete();
 
         if (! $deleted) {
@@ -73,6 +74,10 @@ class PropertyService
 
         if ($mainImage && ! $attachmentPaths->contains('path', $mainImage)) {
             Storage::disk('tenant_public')->delete($mainImage);
+        }
+
+        if ($aerialImage && ! $attachmentPaths->contains('path', $aerialImage)) {
+            Storage::disk('tenant_public')->delete($aerialImage);
         }
 
         return true;

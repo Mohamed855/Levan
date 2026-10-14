@@ -456,7 +456,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         |--------------------------------------------------------------------------
         */
         Route::prefix('properties')->name('properties.')->group(function () {
-            Route::name('search-location')->post('search-location', [PropertiesController::class, 'searchLocation']);
             Route::name('toggle-status')->patch('{property}/toggle-status', [PropertiesController::class, 'toggleStatus']);
         });
         Route::resource('properties', PropertiesController::class)

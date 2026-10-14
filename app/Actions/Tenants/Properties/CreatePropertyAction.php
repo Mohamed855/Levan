@@ -11,6 +11,7 @@ use App\Services\Tenants\Properties\PropertyService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Throwable;
 
 final class CreatePropertyAction
@@ -39,6 +40,7 @@ final class CreatePropertyAction
                 ];
 
                 $mainImageFile = $data['main_image'] ?? null;
+                $aerialImageInput = $data['aerial_image'] ?? null;
 
                 // Remove non-column data from array
                 unset(
@@ -53,6 +55,7 @@ final class CreatePropertyAction
                     $data['additional_documents'],
                     $data['property_images'],
                     $data['main_image'],
+                    $data['aerial_image'],
                     $data['_wizard_draft_id'],
                     $data['_wizard_resource_key']
                 );
@@ -77,6 +80,24 @@ final class CreatePropertyAction
                     $data['main_image'] = $mainImagePath;
                 }
 
+                // Store aerial image (uploaded file or base64 rendered data)
+                if ($aerialImageInput instanceof UploadedFile) {
+                    $aerialImagePath = $aerialImageInput->store('properties/aerial_images', 'tenant_public');
+                    $storedPaths[] = $aerialImagePath;
+                    $data['aerial_image'] = $aerialImagePath;
+                } elseif (is_string($aerialImageInput) && str_starts_with($aerialImageInput, 'data:image/')) {
+                    [$type, $imageData] = explode(';', $aerialImageInput);
+                    [, $imageData] = explode(',', $imageData);
+                    $decoded = base64_decode($imageData);
+                    $extension = str_contains($type, 'png') ? 'png' : (str_contains($type, 'webp') ? 'webp' : 'jpg');
+                    $aerialImagePath = 'properties/aerial_images/'.Str::uuid().'.'.$extension;
+                    Storage::disk('tenant_public')->put($aerialImagePath, $decoded);
+                    $storedPaths[] = $aerialImagePath;
+                    $data['aerial_image'] = $aerialImagePath;
+                } elseif (is_string($aerialImageInput) && ! empty($aerialImageInput)) {
+                    $data['aerial_image'] = $aerialImageInput;
+                }
+
                 $data['created_by'] = $creatorId;
                 $data['data_status'] = PropertyDataStatus::COMPLETED->value;
 
@@ -92,6 +113,23 @@ final class CreatePropertyAction
                         'extension' => $mainImageFile->getClientOriginalExtension(),
                         'file_size' => $mainImageFile->getSize(),
                         'category' => PropertyAttachmentCategory::MAIN_IMAGE->value,
+                    ]);
+                }
+
+                // Create aerial image attachment record
+                if (! empty($data['aerial_image'])) {
+                    $fileSize = Storage::disk('tenant_public')->exists($data['aerial_image'])
+                        ? Storage::disk('tenant_public')->size($data['aerial_image'])
+                        : 0;
+
+                    $property->attachments()->create([
+                        'disk' => 'tenant_public',
+                        'file_path' => $data['aerial_image'],
+                        'original_name' => 'property_aerial_image.png',
+                        'mime_type' => 'image/png',
+                        'extension' => 'png',
+                        'file_size' => $fileSize,
+                        'category' => PropertyAttachmentCategory::AERIAL_PHOTO->value,
                     ]);
                 }
 
