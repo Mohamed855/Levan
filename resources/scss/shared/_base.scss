@@ -115,10 +115,22 @@ body {
     font-style: normal;
 }
 
-// The product has one deliberately flat visual language.  This is loaded
+// The product has one deliberately flat visual language. This is loaded
 // after vendor styles for both the central and tenant applications.
-:where(.card, .modal-content, .dropdown-menu, .offcanvas, .popover, .tooltip, .toast, .btn, .form-control:focus, .form-select:focus) {
+:where(.card, .modal-content, .dropdown-menu, .offcanvas, .popover, .tooltip, .toast, .btn, .form-control, .form-select, input, textarea, select, input[type="file"], .dropzone) {
     box-shadow: none !important;
+}
+
+:where(input, textarea, select, .form-control, .form-select) {
+    border-width: 1px !important;
+}
+
+:where(.form-control, .form-select, input, textarea, select, input[type="file"], .dropzone):hover,
+:where(.form-control, .form-select, input, textarea, select, input[type="file"], .dropzone):focus,
+:where(.form-control, .form-select, input, textarea, select, input[type="file"], .dropzone):active,
+:where(.form-control, .form-select, input, textarea, select, input[type="file"], .dropzone):focus-within {
+    box-shadow: none !important;
+    border-width: 1px !important;
 }
 
 :where(.bg-primary, .btn-primary, .badge.bg-primary, .text-bg-primary) {
@@ -141,9 +153,13 @@ body {
     transform: none !important;
 }
 
-:where(a, button, input, select, textarea):focus-visible {
+:where(a, button):focus-visible {
     outline: 2px solid var(--primary-color);
     outline-offset: 2px;
+}
+
+:where(input, select, textarea):focus-visible {
+    outline: none !important;
 }
 
 code {

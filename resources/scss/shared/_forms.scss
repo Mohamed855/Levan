@@ -24,19 +24,22 @@ label:not(.form-check-label) {
     margin-bottom: 0.35rem;
 }
 
-// Form Controls & Selects
+// Form Controls, Textareas & Selects
 .form-control,
-.form-select {
-    border: 1px solid rgba(29, 79, 68, 0.16);
+.form-select,
+textarea.form-control {
+    border: 1px solid rgba(29, 79, 68, 0.16) !important;
     border-radius: 8px;
     padding: 0.55rem 0.85rem;
     font-size: var(--font-size-base, 0.9375rem);
     color: var(--brand-dark-green, #12332C);
     background-color: #fff;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    box-shadow: none !important;
+    transition: border-color 0.15s ease-in-out;
 
     &:hover:not(:disabled):not([readonly]) {
-        border-color: rgba(29, 79, 68, 0.32);
+        border-color: rgba(29, 79, 68, 0.36) !important;
+        box-shadow: none !important;
     }
 }
 
@@ -51,34 +54,54 @@ label:not(.form-check-label) {
     color: #9aa0a6;
 }
 
-// Consistent focus rings across inputs and selects
+// Consistent focus without shadow across inputs and selects
 .form-control:focus,
-.form-select:focus {
+.form-select:focus,
+textarea.form-control:focus {
     border-color: var(--primary-color) !important;
-    box-shadow: 0 0 0 0.2rem rgba(29, 79, 68, 0.15) !important;
+    box-shadow: none !important;
     outline: 0;
 }
 
-// Form validation UI contracts
+// File Uploads & Dropzone
+input[type="file"].form-control,
+.form-control[type="file"],
+.dropzone {
+    border: 1px dashed rgba(29, 79, 68, 0.28) !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    background-color: rgba(247, 243, 236, 0.35);
+    transition: border-color 0.15s ease;
+
+    &:hover,
+    &:focus {
+        border-color: var(--primary-color) !important;
+        box-shadow: none !important;
+    }
+}
+
+// Form validation UI contracts (No shadows, strictly 1px borders)
 .form-control.is-invalid,
 .form-select.is-invalid,
 [data-form-field].has-error .form-control,
 [data-form-field].has-error .form-select {
-    border-color: var(--bs-danger) !important;
+    border: 1px solid var(--bs-danger) !important;
+    box-shadow: none !important;
 
     &:focus {
         border-color: var(--bs-danger) !important;
-        box-shadow: 0 0 0 0.2rem var(--focus-ring-danger) !important;
+        box-shadow: none !important;
     }
 }
 
 .form-control.is-valid,
 .form-select.is-valid {
-    border-color: var(--bs-success) !important;
+    border: 1px solid var(--bs-success) !important;
+    box-shadow: none !important;
 
     &:focus {
         border-color: var(--bs-success) !important;
-        box-shadow: 0 0 0 0.2rem var(--focus-ring-success) !important;
+        box-shadow: none !important;
     }
 }
 
@@ -94,7 +117,7 @@ label:not(.form-check-label) {
 }
 
 // -----------------------------------------------------------------------------
-// Select2 Harmony
+// Select2 Harmony (1px border, No shadow)
 // -----------------------------------------------------------------------------
 .select2-container--default {
     .select2-selection--single,
@@ -104,10 +127,12 @@ label:not(.form-check-label) {
         min-height: 42px !important;
         display: flex !important;
         align-items: center !important;
+        box-shadow: none !important;
 
         &:focus,
         &:hover {
             border-color: var(--primary-color) !important;
+            box-shadow: none !important;
         }
     }
 
@@ -116,7 +141,7 @@ label:not(.form-check-label) {
     &.select2-container--open .select2-selection--single,
     &.select2-container--open .select2-selection--multiple {
         border-color: var(--primary-color) !important;
-        box-shadow: 0 0 0 0.2rem rgba(29, 79, 68, 0.15) !important;
+        box-shadow: none !important;
     }
 
     .select2-results__option--highlighted.select2-results__option--selectable {

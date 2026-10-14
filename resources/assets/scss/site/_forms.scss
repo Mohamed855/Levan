@@ -29,10 +29,11 @@
   font-size: var(--site-font-base);
   color: var(--site-ink);
   background-color: #FFFFFF;
-  border: 1.5px solid var(--site-border);
+  border: 1px solid var(--site-border);
   border-radius: var(--site-radius-md);
   outline: none;
-  transition: all var(--site-transition-fast);
+  box-shadow: none !important;
+  transition: border-color var(--site-transition-fast), background-color var(--site-transition-fast);
   box-sizing: border-box;
 
   &::placeholder {
@@ -41,25 +42,27 @@
   }
 
   &:hover {
-    border-color: rgba(var(--site-primary-rgb), 0.3);
+    border-color: rgba(var(--site-primary-rgb), 0.4);
+    box-shadow: none !important;
   }
 
   &:focus {
     border-color: var(--site-primary);
-    box-shadow: 0 0 0 3px rgba(var(--site-primary-rgb), 0.12);
+    box-shadow: none !important;
+    outline: none;
   }
 
   // Validation States
   &.field-invalid,
   &.is-invalid {
-    border-color: var(--site-danger) !important;
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
+    border: 1px solid var(--site-danger) !important;
+    box-shadow: none !important;
   }
 
   &.field-valid,
   &.is-valid {
-    border-color: var(--site-success) !important;
-    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.12) !important;
+    border: 1px solid var(--site-success) !important;
+    box-shadow: none !important;
   }
 }
 

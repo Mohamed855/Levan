@@ -88,14 +88,15 @@
 
 .payment-option {
   cursor: pointer;
-  border: 2px solid var(--site-border);
+  border: 1px solid var(--site-border);
   border-radius: var(--site-radius-md);
   padding: 1.25rem;
   display: flex;
   align-items: center;
   gap: 1rem;
-  transition: all var(--site-transition-fast);
+  transition: border-color var(--site-transition-fast), background-color var(--site-transition-fast);
   background: #FFFFFF;
+  box-shadow: none !important;
   position: relative;
 
   input[type="radio"] {
@@ -137,7 +138,7 @@
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    border: 2px solid rgba(var(--site-primary-rgb), 0.25);
+    border: 1px solid rgba(var(--site-primary-rgb), 0.25);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -156,12 +157,13 @@
 
   &:hover {
     border-color: var(--site-primary);
-    box-shadow: var(--site-shadow-sm);
+    box-shadow: none !important;
   }
 
   &.active {
     border-color: var(--site-primary);
     background: rgba(var(--site-primary-rgb), 0.04);
+    box-shadow: none !important;
 
     .payment-icon-wrap {
       background: var(--site-primary);
@@ -187,14 +189,15 @@
 
 .bank-card {
   cursor: pointer;
-  border: 2px solid var(--site-border);
+  border: 1px solid var(--site-border);
   border-radius: var(--site-radius-md);
   padding: 1.15rem 1.35rem;
   display: flex;
   align-items: center;
   gap: 1.25rem;
   background: #FFFFFF;
-  transition: all var(--site-transition-fast);
+  box-shadow: none !important;
+  transition: border-color var(--site-transition-fast), background-color var(--site-transition-fast);
 
   .bank-logo {
     width: 64px;
@@ -242,7 +245,7 @@
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    border: 2px solid rgba(var(--site-primary-rgb), 0.25);
+    border: 1px solid rgba(var(--site-primary-rgb), 0.25);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -261,12 +264,13 @@
 
   &:hover {
     border-color: var(--site-primary);
-    box-shadow: var(--site-shadow-sm);
+    box-shadow: none !important;
   }
 
   &.selected {
     border-color: var(--site-primary);
     background: rgba(var(--site-primary-rgb), 0.04);
+    box-shadow: none !important;
 
     .bank-radio {
       border-color: var(--site-primary);
@@ -280,12 +284,13 @@
 
 // Receipt Upload Area
 .upload-area {
-  border: 2px dashed rgba(var(--site-primary-rgb), 0.28);
+  border: 1px dashed rgba(var(--site-primary-rgb), 0.28);
   border-radius: var(--site-radius-md);
   padding: 2.25rem 1.5rem;
   text-align: center;
   background: rgba(var(--site-sand-rgb), 0.5);
-  transition: all var(--site-transition-fast);
+  box-shadow: none !important;
+  transition: border-color var(--site-transition-fast), background-color var(--site-transition-fast);
   cursor: pointer;
   margin-bottom: 1rem;
 
@@ -318,6 +323,7 @@
   &:hover {
     border-color: var(--site-primary);
     background: #FFFFFF;
+    box-shadow: none !important;
 
     .upload-icon-wrap {
       background: rgba(var(--site-primary-rgb), 0.14);

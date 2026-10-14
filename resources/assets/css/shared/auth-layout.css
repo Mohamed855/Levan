@@ -124,7 +124,7 @@
 .auth-form-side .input-group-merge:focus-within,
 .tenant-login-form-side .input-group-merge:focus-within {
     border-color: var(--auth-primary);
-    box-shadow: 0 0 0 3px rgba(29, 79, 68, 0.12);
+    box-shadow: none !important;
 }
 
 .auth-form-side .input-group-merge .form-control,
