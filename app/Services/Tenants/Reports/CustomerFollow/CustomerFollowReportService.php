@@ -9,29 +9,28 @@ use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Customers\Follow\CustomerFollow;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Models\Tenants\GeneralSetting\ContactMethod\SettingsContactMethod;
-use App\Models\Tenants\GeneralSetting\CustomerStatus\SettingsCustomerStatus;
 use App\Models\Tenants\GeneralSetting\ContactResult\ContactResult;
+use App\Models\Tenants\GeneralSetting\CustomerStatus\SettingsCustomerStatus;
 use App\Models\Tenants\UserMangment\User\User;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use App\Services\Tenants\Reports\TenantExportAccess;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
+use Mpdf\Config\ConfigVariables;
+use Mpdf\Config\FontVariables;
+use Mpdf\Mpdf;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Yajra\DataTables\Facades\DataTables;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Cache;
 
 class CustomerFollowReportService
 {
-
-
     /*
     |--------------------------------------------------------------------------
     | Add Constants
     |--------------------------------------------------------------------------
     */
     private const LARGE_EXPORT_THRESHOLD = 5000;
+
     private const CHUNK_SIZE = 1000;
 
     /*
@@ -43,7 +42,7 @@ class CustomerFollowReportService
     {
         try {
             // ✅ 1. الإحصائيات الرئيسية
-            $stats = DB::selectOne("
+            $stats = DB::selectOne('
             SELECT 
                 COUNT(*) as total_follows,
                 SUM(CASE WHEN cf.next_contact_datetime > NOW() THEN 1 ELSE 0 END) as upcoming_follows,
@@ -51,10 +50,10 @@ class CustomerFollowReportService
             FROM customer_follows cf
             INNER JOIN customers c ON cf.customer_id = c.id
             WHERE c.deleted_at IS NULL
-        ");
+        ');
 
             // ✅ 2. طرق الاتصال - اسم الجدول الصحيح
-            $contactMethods = DB::select("
+            $contactMethods = DB::select('
             SELECT scm.name, COUNT(*) as total
             FROM customer_follows cf
             INNER JOIN customers c ON cf.customer_id = c.id
@@ -64,15 +63,15 @@ class CustomerFollowReportService
             GROUP BY scm.name
             ORDER BY total DESC
             LIMIT 6
-        ");
+        ');
 
             $followsByContactMethod = [];
             foreach ($contactMethods as $item) {
-                $followsByContactMethod[$item->name] = (int)$item->total;
+                $followsByContactMethod[$item->name] = (int) $item->total;
             }
 
             // ✅ 3. نتائج الاتصال
-            $contactResults = DB::select("
+            $contactResults = DB::select('
             SELECT cr.name, COUNT(*) as total
             FROM customer_follows cf
             INNER JOIN customers c ON cf.customer_id = c.id
@@ -82,15 +81,15 @@ class CustomerFollowReportService
             GROUP BY cr.name
             ORDER BY total DESC
             LIMIT 6
-        ");
+        ');
 
             $followsByContactResult = [];
             foreach ($contactResults as $item) {
-                $followsByContactResult[$item->name] = (int)$item->total;
+                $followsByContactResult[$item->name] = (int) $item->total;
             }
 
             // ✅ 4. المستخدمين
-            $users = DB::select("
+            $users = DB::select('
             SELECT u.name, COUNT(*) as total
             FROM customer_follows cf
             INNER JOIN customers c ON cf.customer_id = c.id
@@ -100,11 +99,11 @@ class CustomerFollowReportService
             GROUP BY u.name
             ORDER BY total DESC
             LIMIT 5
-        ");
+        ');
 
             $followsByUser = [];
             foreach ($users as $item) {
-                $followsByUser[$item->name] = (int)$item->total;
+                $followsByUser[$item->name] = (int) $item->total;
             }
 
             // ✅ 5. التوزيع الشهري
@@ -122,7 +121,7 @@ class CustomerFollowReportService
 
             $followsByMonth = [];
             foreach ($months as $item) {
-                $followsByMonth[$item->month] = (int)$item->total;
+                $followsByMonth[$item->month] = (int) $item->total;
             }
 
             return [
@@ -135,7 +134,7 @@ class CustomerFollowReportService
                 'follows_by_month' => $followsByMonth,
             ];
         } catch (\Exception $e) {
-            Log::error('Error in getReportStatistics: ' . $e->getMessage());
+            Log::error('Error in getReportStatistics: '.$e->getMessage());
 
             return [
                 'total_follows' => 0,
@@ -176,9 +175,11 @@ class CustomerFollowReportService
     {
         try {
             $query = $this->buildFilteredQuery($filters);
+
             return $query->count();
         } catch (\Exception $e) {
-            Log::error('Error in getFollowsCount: ' . $e->getMessage());
+            Log::error('Error in getFollowsCount: '.$e->getMessage());
+
             return 0;
         }
     }
@@ -207,7 +208,7 @@ class CustomerFollowReportService
         ]);
 
         $totalCount = (clone $query)->count();
-        $fileName   = 'customer_follows_report_' . now()->format('Y_m_d_H_i_s') . '.xlsx';
+        $fileName = 'customer_follows_report_'.now()->format('Y_m_d_H_i_s').'.xlsx';
 
         return Excel::download(
             new CustomerFollowReportExport($query, $filters, [], $totalCount),
@@ -231,7 +232,7 @@ class CustomerFollowReportService
             $dateTo = $filters['date_to'] ?? null;
             $dateRange = $this->getDateRangeText($dateFrom, $dateTo);
 
-            $mpdf = new \Mpdf\Mpdf([
+            $mpdf = new Mpdf([
                 'mode' => 'utf-8',
                 'format' => 'A4',
                 'orientation' => 'P',
@@ -243,11 +244,11 @@ class CustomerFollowReportService
                 'margin_footer' => 0,
                 'default_font' => 'almarai',
                 'fontDir' => array_merge(
-                    (new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'],
+                    (new ConfigVariables)->getDefaults()['fontDir'],
                     [public_path('static/fonts/almarai')]
                 ),
                 'fontdata' => array_merge(
-                    (new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'],
+                    (new FontVariables)->getDefaults()['fontdata'],
                     ['almarai' => [
                         'R' => 'Almarai-Regular.ttf',
                         'B' => 'Almarai-Bold.ttf',
@@ -274,21 +275,21 @@ class CustomerFollowReportService
 
             $mpdf->WriteHTML($html);
 
-            $fileName = 'تقرير_متابعات_العملاء_' . now()->format('Y_m_d_H_i_s') . '.pdf';
+            $fileName = 'تقرير_متابعات_العملاء_'.now()->format('Y_m_d_H_i_s').'.pdf';
 
             $tempDir = storage_path('app/public/temp');
-            if (!file_exists($tempDir)) {
+            if (! file_exists($tempDir)) {
                 mkdir($tempDir, 0755, true);
             }
 
-            $tempPath = $tempDir . '/' . $fileName;
+            $tempPath = $tempDir.'/'.$fileName;
             $mpdf->Output($tempPath, 'F');
 
             return response()->download($tempPath)->deleteFileAfterSend();
         } catch (\Throwable $e) {
             Log::error('exportFollowsReportToPDF error', [
                 'msg' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
             throw $e;
         }
@@ -334,7 +335,7 @@ class CustomerFollowReportService
                 ['key' => 'documents_reason', 'label' => 'سبب طلب المستندات', 'selected' => false],
                 ['key' => 'objection_reason', 'label' => 'سبب الاعتراض', 'selected' => false],
                 ['key' => 'recovery_reason', 'label' => 'سبب الاسترداد', 'selected' => false],
-            ]
+            ],
         ];
     }
 
@@ -362,13 +363,14 @@ class CustomerFollowReportService
         ]);
 
         $totalCount = (clone $query)->count();
-        $fileName   = 'تقرير_متابعات_العملاء_مخصص_' . now()->format('Y_m_d_H_i_s') . '.xlsx';
+        $fileName = 'تقرير_متابعات_العملاء_مخصص_'.now()->format('Y_m_d_H_i_s').'.xlsx';
 
         Excel::store(
             new CustomerFollowReportExport($query, $filters, $selectedFields, $totalCount),
-            'exports/' . $fileName,
+            'exports/'.$fileName,
             'tenant_public'
         );
+        app(TenantExportAccess::class)->registerFile($fileName, (int) auth('tenant')->id());
 
         return $fileName;
     }
@@ -401,6 +403,7 @@ class CustomerFollowReportService
             );
 
         $this->applyFiltersToQuery($query, $filters);
+
         return $query;
     }
 
@@ -412,7 +415,9 @@ class CustomerFollowReportService
     private function applyFiltersToQuery($query, array $filters): void
     {
         foreach ($filters as $key => $value) {
-            if (empty($value)) continue;
+            if (empty($value)) {
+                continue;
+            }
 
             switch ($key) {
                 case 'date_from':
@@ -443,7 +448,7 @@ class CustomerFollowReportService
                 case 'created_by':
                     $query->where('customer_follows.created_by', $value);
                     break;
-                // إضافة فلاتر الشركة والمحفظة
+                    // إضافة فلاتر الشركة والمحفظة
                 case 'company_id':
                     $query->where('customers.company_id', $value);
                     break;
@@ -453,6 +458,7 @@ class CustomerFollowReportService
             }
         }
     }
+
     /*
     |--------------------------------------------------------------------------
     | الحصول على نص نطاق التاريخ
@@ -467,6 +473,7 @@ class CustomerFollowReportService
         } elseif ($dateTo) {
             return "حتى {$dateTo}";
         }
+
         return 'جميع الفترات';
     }
 
@@ -479,14 +486,14 @@ class CustomerFollowReportService
     {
         $appliedFilters = [];
 
-        if (!empty($filters['customer_id'])) {
+        if (! empty($filters['customer_id'])) {
             $customer = Customer::find($filters['customer_id']);
             if ($customer) {
                 $appliedFilters[] = "العميل: {$customer->name}";
             }
         }
 
-        if (!empty($filters['company_id'])) {
+        if (! empty($filters['company_id'])) {
             $company = Company::find($filters['company_id']);
             if ($company) {
                 $appliedFilters[] = "الشركة: {$company->name}";
@@ -494,42 +501,42 @@ class CustomerFollowReportService
         }
 
         // إضافة فلتر المحفظة
-        if (!empty($filters['portfolio_id'])) {
+        if (! empty($filters['portfolio_id'])) {
             $portfolio = Portfolio::find($filters['portfolio_id']);
             if ($portfolio) {
                 $appliedFilters[] = "المحفظة: {$portfolio->name}";
             }
         }
 
-        if (!empty($filters['contact_method_id'])) {
+        if (! empty($filters['contact_method_id'])) {
             $method = SettingsContactMethod::find($filters['contact_method_id']);
             if ($method) {
                 $appliedFilters[] = "طريقة الاتصال: {$method->name}";
             }
         }
 
-        if (!empty($filters['customer_status_id'])) {
+        if (! empty($filters['customer_status_id'])) {
             $status = SettingsCustomerStatus::find($filters['customer_status_id']);
             if ($status) {
                 $appliedFilters[] = "حالة العميل: {$status->name}";
             }
         }
 
-        if (!empty($filters['contact_result_id'])) {
+        if (! empty($filters['contact_result_id'])) {
             $result = ContactResult::find($filters['contact_result_id']);
             if ($result) {
                 $appliedFilters[] = "نتيجة الاتصال: {$result->name}";
             }
         }
 
-        if (!empty($filters['created_by'])) {
+        if (! empty($filters['created_by'])) {
             $user = User::find($filters['created_by']);
             if ($user) {
                 $appliedFilters[] = "أنشأ بواسطة: {$user->name}";
             }
         }
 
-        if (!empty($filters['next_contact_from']) || !empty($filters['next_contact_to'])) {
+        if (! empty($filters['next_contact_from']) || ! empty($filters['next_contact_to'])) {
             $nextFrom = $filters['next_contact_from'] ?? 'البدء';
             $nextTo = $filters['next_contact_to'] ?? 'النهاية';
             $appliedFilters[] = "الاتصال القادم: من {$nextFrom} إلى {$nextTo}";
@@ -579,7 +586,7 @@ class CustomerFollowReportService
             return [];
         }
 
-        if (!empty($search)) {
+        if (! empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('account_number', 'like', "%{$search}%")
                     ->orWhere('name', 'like', "%{$search}%");
@@ -593,7 +600,7 @@ class CustomerFollowReportService
             ->map(function ($customer) {
                 return [
                     'id' => $customer->id,
-                    'text' => $customer->account_number
+                    'text' => $customer->account_number,
                 ];
             })->values()->toArray();
     }
@@ -609,12 +616,12 @@ class CustomerFollowReportService
         $customer = Customer::select('id', 'name', 'account_number')
             ->find($customerId);
 
-        if (!$customer) {
+        if (! $customer) {
             return null;
         }
 
         if (
-            !auth()->user()->can('customers.view') &&
+            ! auth()->user()->can('customers.view') &&
             auth()->user()->can('customers.my_view') &&
             $customer->relationship_manager_id !== auth()->id()
         ) {
@@ -623,7 +630,7 @@ class CustomerFollowReportService
 
         return [
             'id' => $customer->id,
-            'text' => $customer->account_number
+            'text' => $customer->account_number,
         ];
     }
 
@@ -637,9 +644,9 @@ class CustomerFollowReportService
     {
         $query = Customer::select('id', 'name', 'account_number', 'phone');
 
-        if (!auth()->user()->can('customers.view') && auth()->user()->can('customers.my_view')) {
+        if (! auth()->user()->can('customers.view') && auth()->user()->can('customers.my_view')) {
             $query->where('relationship_manager_id', auth()->id());
-        } elseif (!auth()->user()->can('customers.view')) {
+        } elseif (! auth()->user()->can('customers.view')) {
             return [];
         }
 
@@ -649,12 +656,10 @@ class CustomerFollowReportService
             ->map(function ($customer) {
                 return [
                     'id' => $customer->id,
-                    'text' => $customer->account_number
+                    'text' => $customer->account_number,
                 ];
             })->toArray();
     }
-
-
 
     /*
     |--------------------------------------------------------------------------
@@ -669,21 +674,22 @@ class CustomerFollowReportService
             return [
                 'success' => false,
                 'message' => 'لا توجد بيانات للتصدير',
-                'count'   => 0,
+                'count' => 0,
             ];
         }
 
-        $job        = new ExportCustomerFollowsJob($filters, $selectedFields, $userId);
+        $job = new ExportCustomerFollowsJob($filters, $selectedFields, $userId);
+        app(TenantExportAccess::class)->registerExport($job->getExportId(), (int) $userId);
         $totalParts = (int) ceil($count / ExportCustomerFollowsJob::MAX_ROWS_PER_EXPORT_FILE);
 
         dispatch($job->onQueue('exports'));
 
         return [
-            'success'     => true,
-            'export_id'   => $job->getExportId(),
-            'count'       => $count,
+            'success' => true,
+            'export_id' => $job->getExportId(),
+            'count' => $count,
             'total_parts' => $totalParts,
-            'message'     => $count > self::LARGE_EXPORT_THRESHOLD
+            'message' => $count > self::LARGE_EXPORT_THRESHOLD
                 ? "سيتم تصدير {$count} متابعة. سيتم إشعارك عند الانتهاء"
                 : "جاري تصدير {$count} متابعة...",
         ];
@@ -696,6 +702,8 @@ class CustomerFollowReportService
     */
     public function cancelExport(string $exportId): void
     {
+        app(TenantExportAccess::class)->authorizeExport($exportId, auth('tenant')->id());
+
         Cache::put("export_cancel_{$exportId}", true, now()->addHours(2));
     }
 
@@ -706,11 +714,13 @@ class CustomerFollowReportService
     */
     public function getExportProgress(string $exportId): array
     {
+        app(TenantExportAccess::class)->authorizeExport($exportId, auth('tenant')->id());
+
         $progress = Cache::get("export_progress_{$exportId}");
-        $result   = Cache::get("export_result_{$exportId}");
+        $result = Cache::get("export_result_{$exportId}");
 
         if ($result) {
-            if ($result['status'] === 'completed' && !empty($result['files'])) {
+            if ($result['status'] === 'completed' && ! empty($result['files'])) {
                 $result['download_urls'] = array_map(
                     fn (string $file) => tenant_route_name('reports.customer_follows.download', ['file' => $file]),
                     $result['files']
@@ -729,7 +739,7 @@ class CustomerFollowReportService
         if ($progress) {
             // أضف روابط التحميل للملفات المكتملة أثناء المعالجة
             $completedFiles = $progress['completed_files'] ?? [];
-            $downloadUrls   = array_map(
+            $downloadUrls = array_map(
                 fn (string $file) => tenant_route_name('reports.customer_follows.download', ['file' => $file]),
                 $completedFiles
             );
@@ -743,8 +753,8 @@ class CustomerFollowReportService
 
         return [
             'export_id' => $exportId,
-            'status'    => 'not_found',
-            'message'   => 'لم يتم العثور على عملية التصدير',
+            'status' => 'not_found',
+            'message' => 'لم يتم العثور على عملية التصدير',
         ];
     }
 }

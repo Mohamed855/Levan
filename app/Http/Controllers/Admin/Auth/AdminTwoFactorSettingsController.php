@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Auth;
 
+use App\Actions\Auth\PersistAuthenticationStateAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\Auth\ConfirmAdminTwoFactorRequest;
@@ -54,7 +55,7 @@ class AdminTwoFactorSettingsController extends Controller
         return response()->json(['status' => 'disabled']);
     }
 
-    public function recoveryCodes(AdminAuthenticatedRequest $request): JsonResponse
+    public function recoveryCodes(AdminAuthenticatedRequest $request, PersistAuthenticationStateAction $authenticationState): JsonResponse
     {
         $user = Auth::guard('admin')->user();
 
@@ -64,9 +65,7 @@ class AdminTwoFactorSettingsController extends Controller
             fn () => RecoveryCode::generate()
         )->all();
 
-        $user->forceFill([
-            'two_factor_recovery_codes' => encrypt(json_encode($newCodes)),
-        ])->save();
+        $authenticationState->replaceRecoveryCodes($user, $newCodes);
 
         return response()->json($newCodes);
     }

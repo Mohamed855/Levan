@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenants\Auth;
 
+use App\Actions\Auth\PersistAuthenticationStateAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Auth\LoginRequest;
 use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
@@ -25,7 +26,7 @@ class AuthenticatedSessionController extends Controller
         return view('tenants.auth.login');
     }
 
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request, PersistAuthenticationStateAction $authenticationState): RedirectResponse
     {
         $request->authenticate();
 
@@ -45,16 +46,12 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        $user->update([
-            'last_login_at' => now(),
-            'last_login_ip' => $request->ip(),
-            'current_session_id' => session()->getId(),
-        ]);
+        $authenticationState->recordLogin($user, $request->ip(), $request->session()->getId());
 
         return redirect(RouteServiceProvider::home());
     }
 
-    public function impersonate(Request $request): RedirectResponse
+    public function impersonate(Request $request, PersistAuthenticationStateAction $authenticationState): RedirectResponse
     {
         abort_unless($request->filled('token'), 403);
 
@@ -75,11 +72,7 @@ class AuthenticatedSessionController extends Controller
         Auth::guard('tenant')->login($user);
         $request->session()->regenerate();
 
-        $user->update([
-            'last_login_at' => now(),
-            'last_login_ip' => $request->ip(),
-            'current_session_id' => $request->session()->getId(),
-        ]);
+        $authenticationState->recordLogin($user, $request->ip(), $request->session()->getId());
 
         return redirect()->to(tenant_route_name('dashboard'));
     }
@@ -90,12 +83,12 @@ class AuthenticatedSessionController extends Controller
     |--------------------------------------------------------------------------
     | معالجة طلب تسجيل الخروج وتنظيف بيانات الجلسة
     */
-    public function destroy(TenantAuthenticatedRequest $request): RedirectResponse
+    public function destroy(TenantAuthenticatedRequest $request, PersistAuthenticationStateAction $authenticationState): RedirectResponse
     {
         $user = Auth::guard('tenant')->user();
 
         if ($user) {
-            $user->update(['current_session_id' => null]);
+            $authenticationState->clearCurrentSession($user);
         }
 
         Auth::guard('tenant')->logout();

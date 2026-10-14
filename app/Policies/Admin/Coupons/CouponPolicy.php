@@ -33,4 +33,14 @@ class CouponPolicy
     {
         return $user->can('coupons.delete');
     }
+
+    public function restore(AdminUser $user, Coupon $coupon): bool
+    {
+        return $user->can('coupons.restore') || $user->can('coupons.delete');
+    }
+
+    public function forceDelete(AdminUser $user, Coupon $coupon): bool
+    {
+        return $user->can('coupons.force_delete') || $user->can('coupons.delete');
+    }
 }

@@ -20,7 +20,7 @@
 
 @section('content')
     @php
-        $steps = [['id' => 'coupon-info-validation', 'title' => 'معلومات الكوبون', 'subtitle' => 'البيانات الأساسية']];
+        $steps = [['id' => 'coupon-info-validation', 'title' => 'معلومات الكوبون']];
     @endphp
 
     <div class="row">

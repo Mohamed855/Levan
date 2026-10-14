@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin\DeleteBulk;
 
+use App\Actions\Admin\MassDelete\DeleteAdminRecordsAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\DeleteBulk\MassDeleteRequest;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
@@ -17,6 +18,7 @@ use App\Models\Admin\Tenants\Tenant;
 use App\Models\Admin\Tickets\Ticket;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class AdminMassDeleteController extends Controller
 {
@@ -64,7 +66,7 @@ class AdminMassDeleteController extends Controller
         ],
     ];
 
-    public function __construct()
+    public function __construct(private readonly DeleteAdminRecordsAction $deleteRecords)
     {
         $this->middleware('auth:admin');
     }
@@ -91,8 +93,14 @@ class AdminMassDeleteController extends Controller
             return response()->json(['success' => false, 'message' => 'فئة النموذج غير موجودة.'], 400);
         }
 
+        $records = $modelClass::query()->whereIn('id', $ids)->get();
+
+        foreach ($records as $record) {
+            Gate::forUser(Auth::guard('admin')->user())->authorize('delete', $record);
+        }
+
         try {
-            $deleted = $modelClass::whereIn('id', $ids)->delete();
+            $deleted = $this->deleteRecords->execute($records);
 
             return response()->json([
                 'success' => true,

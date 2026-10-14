@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\Tenants\Properties;
 
+use App\Enums\Tenants\Properties\PropertyUnitStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -25,6 +26,7 @@ class PropertyUnit extends Model
     protected $casts = [
         'area' => 'decimal:2',
         'sort_order' => 'integer',
+        'status' => PropertyUnitStatus::class,
     ];
 
     public function property(): BelongsTo

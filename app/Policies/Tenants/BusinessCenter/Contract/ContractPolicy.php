@@ -33,4 +33,14 @@ class ContractPolicy
     {
         return $user->can('contracts.delete') && tenancy()->initialized;
     }
+
+    public function restore(User $user, Contract $contract): bool
+    {
+        return $user->can('contracts_archive.restore') && tenancy()->initialized;
+    }
+
+    public function forceDelete(User $user, Contract $contract): bool
+    {
+        return $user->can('contracts_archive.force_delete') && tenancy()->initialized;
+    }
 }

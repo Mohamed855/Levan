@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin\Archive\Plan;
 
+use App\Actions\Admin\Archive\ManageCentralArchiveAction;
 use App\DataTables\Admin\Archive\Plan\PlanDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Log;
 
 class PlanArchiveController extends Controller
 {
-    public function __construct()
+    public function __construct(private ManageCentralArchiveAction $archive)
     {
         $this->middleware('auth:admin');
         $this->middleware('can:plans.view')->only(['index']);
@@ -40,7 +41,8 @@ class PlanArchiveController extends Controller
     {
         try {
             $plan = Plan::withTrashed()->findOrFail($id);
-            $plan->restore();
+            $this->authorize('restore', $plan);
+            $this->archive->restore($plan);
 
             return redirect()->route('admin.archives.plans.index')
                 ->with('success', 'تم استرجاع الباقة بنجاح.');
@@ -56,13 +58,14 @@ class PlanArchiveController extends Controller
     {
         try {
             $plan = Plan::withTrashed()->findOrFail($id);
+            $this->authorize('forceDelete', $plan);
 
             if ($plan->subscriptions()->exists()) {
                 return redirect()->route('admin.archives.plans.index')
                     ->with('error', __('plans.errors.cannot_force_delete_used_plan'));
             }
 
-            $plan->forceDelete();
+            $this->archive->forceDelete($plan);
 
             return redirect()->route('admin.archives.plans.index')
                 ->with('success', 'تم حذف الباقة نهائيًا بنجاح.');

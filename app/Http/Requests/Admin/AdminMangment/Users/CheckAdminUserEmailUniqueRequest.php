@@ -10,7 +10,7 @@ class CheckAdminUserEmailUniqueRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user('admin')?->can('users.create') || $this->user('admin')?->can('users.edit');
     }
 
     public function rules(): array

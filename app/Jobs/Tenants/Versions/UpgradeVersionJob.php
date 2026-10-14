@@ -3,6 +3,7 @@
 namespace App\Jobs\Tenants\Versions;
 
 use App\Models\Tenants\Settings\Settings;
+use App\Services\Tenants\Shared\CentralVersionGateway;
 use App\Support\Security\TenantUpgradeRequestSignature;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -10,7 +11,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -27,14 +27,14 @@ class UpgradeVersionJob implements ShouldQueue
 
     public function __construct(public string $tenantId, public int $currentVersion, public int $targetVersion) {}
 
-    public function handle(): void
+    public function handle(CentralVersionGateway $versionGateway): void
     {
         try {
             $this->enableMaintenance();
 
             $this->runMigrations();
 
-            $this->updateVersion();
+            $versionGateway->updateTenantVersion($this->tenantId, $this->targetVersion);
 
             $this->clearCache();
 
@@ -122,14 +122,6 @@ class UpgradeVersionJob implements ShouldQueue
         }
     }
 
-    private function updateVersion(): void
-    {
-        DB::connection('mysql')->table('tenants')->where('id', $this->tenantId)->update([
-            'version_id' => $this->targetVersion,
-            'updated_at' => now(),
-        ]);
-    }
-
     private function clearCache(): void
     {
         $cacheKeys = [
@@ -152,8 +144,6 @@ class UpgradeVersionJob implements ShouldQueue
             Log::error('فشل إلغاء وضع الصيانة بعد الخطأ');
         }
 
-        // يمكنك إرسال إشعار للمسؤولين هنا
-        // $this->notifyAdmins($e);
     }
 
     public function failed(\Throwable $exception): void
@@ -163,14 +153,4 @@ class UpgradeVersionJob implements ShouldQueue
             'error' => $exception->getMessage(),
         ]);
     }
-
-    /**
-     * إرسال إشعار للمسؤولين (اختياري)
-     */
-    // private function notifyAdmins(\Throwable $e): void
-    // {
-    //     Mail::to(config('app.admin_email'))->send(
-    //         new UpgradeFailedMail($this->tenantId, $e)
-    // );
-    // }
 }

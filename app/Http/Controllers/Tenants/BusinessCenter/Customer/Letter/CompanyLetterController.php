@@ -4,12 +4,13 @@ namespace App\Http\Controllers\Tenants\BusinessCenter\Customer\Letter;
 
 use App\DataTables\Tenants\BusinessCenter\Customer\Letters\CompanyLettersDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\Letter\PreviewCompanyLetterRequest;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\Letter\SendCompanyLetterRequest;
 use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Models\Tenants\BusinessCenter\Customers\Letter\CompanyLetter;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Services\Tenants\BusinessCenter\Customer\Letter\CompanyLetterService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class CompanyLetterController extends Controller
@@ -36,6 +37,8 @@ class CompanyLetterController extends Controller
     */
     public function index(CompanyLettersDataTable $dataTable): mixed
     {
+        $this->authorize('viewAny', CompanyLetter::class);
+
         $statistics = $this->letterService->getStatistics();
 
         $companies = Company::active()
@@ -63,6 +66,7 @@ class CompanyLetterController extends Controller
     public function show(int $id): View
     {
         $letter = $this->letterService->getLetterDetails($id);
+        $this->authorize('view', $letter);
 
         $templates = $this->letterService->getTemplatesByType($letter->action_type);
 
@@ -77,15 +81,12 @@ class CompanyLetterController extends Controller
     | معاينة القالب
     |--------------------------------------------------------------------------
     */
-    public function previewTemplate(Request $request, int $id): JsonResponse
+    public function previewTemplate(PreviewCompanyLetterRequest $request, int $id): JsonResponse
     {
-        $request->validate([
-            'template_id' => 'required|exists:message_templates,id',
-        ]);
-
         try {
             $letter = CompanyLetter::findOrFail($id);
-            $preview = $this->letterService->previewTemplate($letter, $request->template_id);
+            $this->authorize('send', $letter);
+            $preview = $this->letterService->previewTemplate($letter, $request->validated('template_id'));
 
             return response()->json($preview);
         } catch (\Exception $e) {
@@ -101,19 +102,11 @@ class CompanyLetterController extends Controller
     | إرسال البريد
     |--------------------------------------------------------------------------
     */
-    public function send(Request $request, int $id): JsonResponse
+    public function send(SendCompanyLetterRequest $request, int $id): JsonResponse
     {
-        $request->validate([
-            'template_id' => 'required|exists:message_templates,id',
-            'recipient_email' => 'required|email',
-        ], [
-            'template_id.required' => 'يرجى اختيار قالب البريد',
-            'recipient_email.required' => 'يرجى إدخال البريد الإلكتروني',
-            'recipient_email.email' => 'يرجى إدخال بريد إلكتروني صحيح',
-        ]);
-
         try {
             $letter = CompanyLetter::findOrFail($id);
+            $this->authorize('send', $letter);
 
             if ($letter->status === 'sent') {
                 return response()->json([
@@ -122,7 +115,7 @@ class CompanyLetterController extends Controller
                 ], 400);
             }
 
-            $result = $this->letterService->sendEmail($letter, $request->only(['template_id', 'recipient_email']));
+            $result = $this->letterService->sendEmail($letter, $request->validated());
 
             return response()->json($result);
         } catch (\Exception $e) {
@@ -140,6 +133,8 @@ class CompanyLetterController extends Controller
     */
     public function getStatistics(): JsonResponse
     {
+        $this->authorize('viewAny', CompanyLetter::class);
+
         try {
             $statistics = $this->letterService->getStatistics();
 

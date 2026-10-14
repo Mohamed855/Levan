@@ -26,6 +26,8 @@ class CustomerSmsController extends Controller
      */
     public function create(Customer $customer): JsonResponse
     {
+        $this->authorize('update', $customer);
+
         try {
             $phoneNumbers = $this->customerSmsService->getCustomerPhoneNumbers($customer);
             $templates = $this->customerSmsService->getAvailableTemplates();
@@ -63,6 +65,8 @@ class CustomerSmsController extends Controller
      */
     public function previewTemplate(PreviewCustomerSmsRequest $request, Customer $customer): JsonResponse
     {
+        $this->authorize('update', $customer);
+
         try {
             $template = MessageTemplate::findOrFail($request->validated('template_id'));
 
@@ -88,6 +92,8 @@ class CustomerSmsController extends Controller
      */
     public function send(SendCustomerSmsRequest $request, Customer $customer): JsonResponse
     {
+        $this->authorize('update', $customer);
+
         try {
             $sms = $this->customerSmsService->sendSms($customer, $request->validated());
 
@@ -111,6 +117,8 @@ class CustomerSmsController extends Controller
      */
     public function destroy(Customer $customer, CustomerSms $customerSms): JsonResponse
     {
+        $this->authorize('update', $customer);
+
         try {
             // التحقق من أن الرسالة تخص هذا العميل
             if ($customerSms->customer_id !== $customer->id) {

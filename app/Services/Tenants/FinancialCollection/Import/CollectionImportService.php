@@ -3,24 +3,24 @@
 namespace App\Services\Tenants\FinancialCollection\Import;
 
 use App\Jobs\Tenants\FinancialCollection\Collection\ProcessCollectionImport;
-use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\FinancialCollection\Collection\Collection;
 use App\Models\Tenants\GeneralSetting\PaymentMethod\SettingsPaymentMethod;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Cache;
 use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class CollectionImportService
 {
     protected CollectionImportValidationService $validationService;
+
     protected CollectionImportReportService $reportService;
 
     /*
@@ -36,6 +36,11 @@ class CollectionImportService
         $this->reportService = $reportService;
     }
 
+    public function cancelImport(string $tempPath): void
+    {
+        Storage::disk('tenant_public')->delete($tempPath);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Generate Import Template
@@ -44,7 +49,7 @@ class CollectionImportService
     public function generateImportTemplate(): array
     {
         try {
-            $spreadsheet = new Spreadsheet();
+            $spreadsheet = new Spreadsheet;
             $sheet = $spreadsheet->getActiveSheet();
             $sheet->setRightToLeft(true);
 
@@ -55,26 +60,26 @@ class CollectionImportService
             $headers = [
                 'رقم حساب العميل',
                 'المبلغ المحصل',
-                'تاريخ التحصيل'
+                'تاريخ التحصيل',
             ];
 
             $this->setupTemplateColumns($sheet, $headers);
             $this->addSampleData($sheet);
             $this->formatTemplate($sheet, count($headers));
 
-            $fileName = 'نموذج_استيراد_التحصيلات_' . now()->format('Y-m-d') . '.xlsx';
+            $fileName = 'نموذج_استيراد_التحصيلات_'.now()->format('Y-m-d').'.xlsx';
             $tempDir = storage_path('app/public/temp');
-            if (!is_dir($tempDir)) {
+            if (! is_dir($tempDir)) {
                 mkdir($tempDir, 0755, true);
             }
-            $filePath = $tempDir . '/' . $fileName;
+            $filePath = $tempDir.'/'.$fileName;
 
             $writer = new Xlsx($spreadsheet);
             $writer->save($filePath);
 
             return ['success' => true, 'file_path' => $filePath, 'file_name' => $fileName];
         } catch (\Exception $e) {
-            return ['success' => false, 'message' => 'فشل في إنشاء النموذج: ' . $e->getMessage()];
+            return ['success' => false, 'message' => 'فشل في إنشاء النموذج: '.$e->getMessage()];
         }
     }
 
@@ -94,8 +99,9 @@ class CollectionImportService
 
             $extracted = $this->findAndExtractData($allRows);
 
-            if ($extracted === null || !isset($extracted['headers'])) {
+            if ($extracted === null || ! isset($extracted['headers'])) {
                 Storage::disk('tenant_public')->delete($tempPath);
+
                 return ['success' => false, 'message' => 'لم يتم العثور على صف العناوين في الملف.'];
             }
 
@@ -103,9 +109,10 @@ class CollectionImportService
 
             if ($totalRows > $absoluteMaxRows) {
                 Storage::disk('tenant_public')->delete($tempPath);
+
                 return [
                     'success' => false,
-                    'message' => "الملف يحتوي على {$totalRows} صف. الحد الأقصى المسموح هو {$absoluteMaxRows} صف."
+                    'message' => "الملف يحتوي على {$totalRows} صف. الحد الأقصى المسموح هو {$absoluteMaxRows} صف.",
                 ];
             }
 
@@ -121,7 +128,7 @@ class CollectionImportService
                 ],
             ];
         } catch (\Exception $e) {
-            return ['success' => false, 'message' => 'فشل في تحليل الملف: ' . $e->getMessage()];
+            return ['success' => false, 'message' => 'فشل في تحليل الملف: '.$e->getMessage()];
         }
     }
 
@@ -134,7 +141,7 @@ class CollectionImportService
     {
         $fullPath = Storage::disk('tenant_public')->path($importConfig['temp_path']);
 
-        if (!file_exists($fullPath)) {
+        if (! file_exists($fullPath)) {
             return ['success' => false, 'message' => 'الملف المؤقت غير موجود.'];
         }
 
@@ -146,11 +153,11 @@ class CollectionImportService
                 return ['success' => false, 'message' => 'ملف غير صالح، لم يتم العثور على العناوين.'];
             }
 
-            if (!isset($extracted['headers'])) {
+            if (! isset($extracted['headers'])) {
                 return ['success' => false, 'message' => 'رؤوس الأعمدة غير موجودة.'];
             }
 
-            if (!isset($extracted['data'])) {
+            if (! isset($extracted['data'])) {
                 return ['success' => false, 'message' => 'بيانات الملف غير موجودة.'];
             }
 
@@ -163,7 +170,7 @@ class CollectionImportService
 
             return $this->processSmallFileDirectly($importConfig, $dataRows);
         } catch (\Exception $e) {
-            return ['success' => false, 'message' => 'حدث خطأ أثناء معالجة الملف: ' . $e->getMessage()];
+            return ['success' => false, 'message' => 'حدث خطأ أثناء معالجة الملف: '.$e->getMessage()];
         }
     }
 
@@ -185,19 +192,19 @@ class CollectionImportService
                 ->get(),
             'collection_types' => [
                 ['value' => 'cash', 'label' => 'نقدي'],
-                ['value' => 'scheduled', 'label' => 'مجدول']
+                ['value' => 'scheduled', 'label' => 'مجدول'],
             ],
             'payment_types' => [
                 ['value' => 'settlement', 'label' => 'سداد بتسوية'],
-                ['value' => 'without_settlement', 'label' => 'سداد بدون تسوية']
+                ['value' => 'without_settlement', 'label' => 'سداد بدون تسوية'],
             ],
             'date_formats' => [
                 ['value' => 'Y-m-d', 'label' => 'YYYY-MM-DD (2024-01-15)'],
                 ['value' => 'd/m/Y', 'label' => 'DD/MM/YYYY (15/01/2024)'],
                 ['value' => 'm/d/Y', 'label' => 'MM/DD/YYYY (01/15/2024)'],
                 ['value' => 'd-m-Y', 'label' => 'DD-MM-YYYY (15-01-2024)'],
-                ['value' => 'Y/m/d', 'label' => 'YYYY/MM/DD (2024/01/15)']
-            ]
+                ['value' => 'Y/m/d', 'label' => 'YYYY/MM/DD (2024/01/15)'],
+            ],
         ];
     }
 
@@ -213,7 +220,7 @@ class CollectionImportService
             'successful' => 0,
             'failed' => 0,
             'errors' => [],
-            'new_collections' => []
+            'new_collections' => [],
         ];
 
         DB::beginTransaction();
@@ -223,9 +230,10 @@ class CollectionImportService
             foreach ($dataRows as $rowIndex => $row) {
                 $validation = $this->validationService->validateRowData($row, $importConfig, $rowIndex + 2);
 
-                if (!$validation['success']) {
+                if (! $validation['success']) {
                     $results['failed']++;
                     $results['errors'][] = ['row' => $rowIndex + 2, 'errors' => $validation['errors']];
+
                     continue;
                 }
 
@@ -242,10 +250,12 @@ class CollectionImportService
 
             DB::commit();
             Storage::disk('tenant_public')->delete($importConfig['temp_path']);
+
             return ['success' => true, 'data' => $results];
         } catch (\Exception $e) {
             DB::rollBack();
-            return ['success' => false, 'message' => 'حدث خطأ أثناء الاستيراد: ' . $e->getMessage()];
+
+            return ['success' => false, 'message' => 'حدث خطأ أثناء الاستيراد: '.$e->getMessage()];
         }
     }
 
@@ -276,8 +286,8 @@ class CollectionImportService
                 'job_id' => $jobId,
                 'total_rows' => count($dataRows),
                 'is_queued' => true,
-                'message' => 'تم إضافة عملية الاستيراد إلى قائمة الانتظار. ستتلقى إشعاراً عند اكتمالها.'
-            ]
+                'message' => 'تم إضافة عملية الاستيراد إلى قائمة الانتظار. ستتلقى إشعاراً عند اكتمالها.',
+            ],
         ];
     }
 
@@ -290,13 +300,14 @@ class CollectionImportService
     {
         $columns = [];
         foreach ($headers as $index => $header) {
-            if (!empty(trim($header))) {
+            if (! empty(trim($header))) {
                 $columns[] = [
                     'index' => $index,
-                    'name' => trim($header)
+                    'name' => trim($header),
                 ];
             }
         }
+
         return $columns;
     }
 
@@ -309,10 +320,10 @@ class CollectionImportService
     {
         $column = 'A';
         foreach ($headers as $header) {
-            $sheet->setCellValue($column . '5', $header);
-            $sheet->getStyle($column . '5')->getFont()->setBold(true);
-            $sheet->getStyle($column . '5')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('E3F2FD');
-            $sheet->getStyle($column . '5')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->setCellValue($column.'5', $header);
+            $sheet->getStyle($column.'5')->getFont()->setBold(true);
+            $sheet->getStyle($column.'5')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('E3F2FD');
+            $sheet->getStyle($column.'5')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             $sheet->getColumnDimension($column)->setWidth(30);
             $column++;
         }
@@ -328,12 +339,12 @@ class CollectionImportService
         $sampleData = [
             '123456',
             '1500.50',
-            now()->format('Y-m-d')
+            now()->format('Y-m-d'),
         ];
 
         $column = 'A';
         foreach ($sampleData as $data) {
-            $sheet->setCellValue($column . '6', $data);
+            $sheet->setCellValue($column.'6', $data);
             $column++;
         }
     }
@@ -384,9 +395,9 @@ class CollectionImportService
             ->first();
 
         $sequence = $lastCollection ?
-            (int)substr($lastCollection->receipt_number, -4) + 1 : 1;
+            (int) substr($lastCollection->receipt_number, -4) + 1 : 1;
 
-        return $prefix . $date . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+        return $prefix.$date.str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 
     /*
@@ -400,9 +411,11 @@ class CollectionImportService
         $headersRaw = [];
 
         foreach ($allRows as $index => $row) {
-            if (is_null($row)) continue;
+            if (is_null($row)) {
+                continue;
+            }
 
-            $nonEmptyCount = count(array_filter($row, fn($cell) => !is_null($cell) && trim($cell) !== ''));
+            $nonEmptyCount = count(array_filter($row, fn ($cell) => ! is_null($cell) && trim($cell) !== ''));
 
             if ($nonEmptyCount >= 3) {
                 $headerRowIndex = $index;
@@ -418,8 +431,8 @@ class CollectionImportService
         $dataRowsCount = 0;
         for ($i = $headerRowIndex + 1; $i < count($allRows); $i++) {
             $row = $allRows[$i];
-            if (!is_null($row)) {
-                $nonEmptyCount = count(array_filter($row, fn($cell) => !is_null($cell) && trim($cell) !== ''));
+            if (! is_null($row)) {
+                $nonEmptyCount = count(array_filter($row, fn ($cell) => ! is_null($cell) && trim($cell) !== ''));
                 if ($nonEmptyCount > 0) {
                     $dataRowsCount++;
                 }
@@ -428,14 +441,14 @@ class CollectionImportService
 
         $dataRows = array_slice($allRows, $headerRowIndex + 1);
         $dataRows = array_filter($dataRows, function ($row) {
-            return !is_null($row) && !empty(array_filter($row, fn($cell) => !is_null($cell) && $cell !== ''));
+            return ! is_null($row) && ! empty(array_filter($row, fn ($cell) => ! is_null($cell) && $cell !== ''));
         });
 
         $result = [
             'headers' => $headersRaw,
             'data' => array_values($dataRows),
             'total_rows' => $dataRowsCount,
-            'header_row_index' => $headerRowIndex
+            'header_row_index' => $headerRowIndex,
         ];
 
         return $result;

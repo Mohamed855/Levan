@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Archive\AdminUser;
 
+use App\Actions\Admin\Archive\ManageCentralArchiveAction;
 use App\DataTables\Admin\Archive\AdminUser\AdminUserDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
@@ -12,7 +13,7 @@ use Spatie\Permission\Models\Role;
 
 class AdminUserController extends Controller
 {
-    public function __construct(private UserService $userService)
+    public function __construct(private UserService $userService, private ManageCentralArchiveAction $archive)
     {
         $this->middleware('auth:admin');
         $this->middleware('can:users.view')->only(['index']);
@@ -42,13 +43,14 @@ class AdminUserController extends Controller
     {
         try {
             $adminUser = AdminUser::withTrashed()->findOrFail($id);
+            $this->authorize('restore', $adminUser);
 
             if ($adminUser->isSuperAdmin()) {
                 return redirect()->route('admin.archives.index')
                     ->with('error', 'لا يمكن استرجاع السوبر أدمن');
             }
 
-            $adminUser->restore();
+            $this->archive->restore($adminUser);
 
             return redirect()->route('admin.archives.index')
                 ->with('success', 'تم استرجاع المستخدم بنجاح.');
@@ -64,6 +66,7 @@ class AdminUserController extends Controller
     {
         try {
             $adminUser = AdminUser::withTrashed()->findOrFail($id);
+            $this->authorize('forceDelete', $adminUser);
 
             if ($adminUser->isSuperAdmin()) {
                 return redirect()->route('admin.archives.index')

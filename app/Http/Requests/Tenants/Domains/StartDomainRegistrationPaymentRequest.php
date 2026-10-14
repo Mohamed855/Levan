@@ -8,7 +8,7 @@ class StartDomainRegistrationPaymentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return tenant() !== null;
+        return tenant() !== null && ($this->user('tenant')?->can('domain.reserve') ?? false);
     }
 
     protected function prepareForValidation(): void

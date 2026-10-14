@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Services\Tenants\BusinessCenter\Company\CompanyReportService;
+use App\Services\Tenants\Reports\TenantExportAccess;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -14,8 +15,10 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class CompanyReportController extends Controller
 {
-    public function __construct(private readonly CompanyReportService $reportService)
-    {
+    public function __construct(
+        private readonly CompanyReportService $reportService,
+        private readonly TenantExportAccess $exportAccess,
+    ) {
         $this->middleware('can:reports.companies.view');
     }
 
@@ -144,6 +147,8 @@ class CompanyReportController extends Controller
 
     public function downloadFile(string $file): BinaryFileResponse
     {
+        $this->exportAccess->authorizeFile($file, request()->user('tenant')?->id);
+
         $disk = Storage::disk('tenant_public');
         $path = 'exports/'.$file;
 

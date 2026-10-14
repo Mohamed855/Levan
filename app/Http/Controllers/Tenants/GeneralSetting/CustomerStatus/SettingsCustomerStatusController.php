@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Tenants\GeneralSetting\CustomerStatus;
 
+use App\Actions\Tenants\GeneralSetting\GeneralSettingAction;
 use App\DataTables\Tenants\GeneralSetting\CustomerStatus\SettingsCustomerStatusDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
 use App\Http\Requests\Tenants\GeneralSetting\CustomerStatus\SaveSettingsCustomerStatusRequest;
 use App\Models\Tenants\GeneralSetting\CustomerStatus\SettingsCustomerStatus;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -41,6 +43,8 @@ class SettingsCustomerStatusController extends Controller
     */
     public function index(SettingsCustomerStatusDataTable $dataTable): View|JsonResponse
     {
+        $this->authorize('viewAny', SettingsCustomerStatus::class);
+
         return $dataTable->render('tenants.general_setting.settings_customer_status.index');
     }
 
@@ -51,9 +55,12 @@ class SettingsCustomerStatusController extends Controller
 
     public function show($id): JsonResponse
     {
+        $customerStatus = SettingsCustomerStatus::query()->findOrFail($id);
+        $this->authorize('view', $customerStatus);
+
         return response()->json([
             'success' => true,
-            'data' => SettingsCustomerStatus::query()->findOrFail($id),
+            'data' => $customerStatus,
         ]);
     }
 
@@ -72,13 +79,15 @@ class SettingsCustomerStatusController extends Controller
     {
         try {
             $validatedData = $request->validated();
-
-            SettingsCustomerStatus::create($validatedData + ['user_id' => auth()->id()]);
+            $this->authorize('create', SettingsCustomerStatus::class);
+            app(GeneralSettingAction::class)->create(SettingsCustomerStatus::class, $validatedData, auth('tenant')->id());
 
             return response()->json([
                 'success' => true,
                 'message' => 'تم إضافة الحالة بنجاح',
             ]);
+        } catch (AuthorizationException $e) {
+            throw $e;
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -97,13 +106,16 @@ class SettingsCustomerStatusController extends Controller
     {
         try {
             $customerStatus = SettingsCustomerStatus::findOrFail($id);
+            $this->authorize('update', $customerStatus);
             $validatedData = $request->validated();
-            $customerStatus->update($validatedData);
+            app(GeneralSettingAction::class)->update($customerStatus, $validatedData, auth('tenant')->id());
 
             return response()->json([
                 'success' => true,
                 'message' => 'تم تحديث الحالة بنجاح',
             ]);
+        } catch (AuthorizationException $e) {
+            throw $e;
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -122,9 +134,12 @@ class SettingsCustomerStatusController extends Controller
     {
         try {
             $customerStatus = SettingsCustomerStatus::findOrFail($id);
-            $customerStatus->delete();
+            $this->authorize('delete', $customerStatus);
+            app(GeneralSettingAction::class)->delete($customerStatus);
 
             return redirect()->back()->with('success', 'تم حذف الحالة بنجاح');
+        } catch (AuthorizationException $e) {
+            throw $e;
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
@@ -136,18 +151,20 @@ class SettingsCustomerStatusController extends Controller
     |--------------------------------------------------------------------------
     | يقوم بتغيير حالة التفعيل لحالة عميل معينة عبر AJAX.
     */
-    public function toggleStatus($id): JsonResponse
+    public function toggleStatus(TenantAuthenticatedRequest $request, $id): JsonResponse
     {
         try {
             $customerStatus = SettingsCustomerStatus::findOrFail($id);
-            $customerStatus->status = $customerStatus->status === 'active' ? 'inactive' : 'active';
-            $customerStatus->save();
+            $this->authorize('toggleStatus', $customerStatus);
+            $status = app(GeneralSettingAction::class)->toggleStatus($customerStatus);
 
             return response()->json([
                 'success' => true,
                 'message' => 'تم تحديث الحالة بنجاح',
-                'status' => $customerStatus->status,
+                'status' => $status,
             ]);
+        } catch (AuthorizationException $e) {
+            throw $e;
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

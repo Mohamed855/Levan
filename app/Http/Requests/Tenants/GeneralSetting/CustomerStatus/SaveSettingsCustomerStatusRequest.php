@@ -14,7 +14,7 @@ class SaveSettingsCustomerStatusRequest extends FormRequest
     */
     public function authorize(): bool
     {
-        return true;
+        return $this->user('tenant')?->can('customer_statuses.view') ?? false;
     }
 
     /*

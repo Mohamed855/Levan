@@ -11,8 +11,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Payment\PaymentRequest;
 use App\Http\Requests\Tenants\Subscriptions\LicenseCheckoutRequest;
 use App\Http\Requests\Tenants\Subscriptions\ProcessLicensePaymentRequest;
-use App\Models\Admin\Bills\Bill;
-use App\Models\Admin\Plans\Plan;
 use App\Services\shared\Bills\BillService;
 use App\Services\shared\Coupons\CouponService;
 use App\Services\shared\Payment\Moyasar\MoyasarCallbackHandler;
@@ -20,8 +18,8 @@ use App\Services\shared\Payment\Moyasar\MoyasarFormConfiguration;
 use App\Services\shared\Subscription\SubscriptionFormatter;
 use App\Services\shared\Subscription\SubscriptionManager;
 use App\Services\shared\Subscription\SubscriptionService;
+use App\Services\Tenants\Shared\CentralBillingGateway;
 use Illuminate\Http\Request;
-use Stancl\Tenancy\Facades\Tenancy;
 
 class TenantSubscriptionController extends Controller
 {
@@ -33,6 +31,7 @@ class TenantSubscriptionController extends Controller
         private CouponService $couponService,
         private BillService $billService,
         private SubscriptionService $subscriptionService,
+        private CentralBillingGateway $billingGateway,
     ) {
         $this->middleware('can:subscriptions.view')->only(['index']);
         $this->middleware('can:subscriptions.renew')->only(['renewCheckout', 'processRenew', 'renewCallback']);
@@ -44,7 +43,7 @@ class TenantSubscriptionController extends Controller
         $tenant = tenant();
         $subscription = $this->subscriptionManager->getTenantSubscription($tenant->id);
         $formatted = $this->subscriptionFormatter->format($subscription);
-        $plans = Plan::where('is_active', true)->get();
+        $plans = $this->billingGateway->activePlans();
 
         //
         return view('tenants.subscription.index', [
@@ -232,7 +231,7 @@ class TenantSubscriptionController extends Controller
     |============================================================================
     |============================================================================
     */
-    private function createPendingBill(Plan $plan, array $couponData, BillType $type, float $originalAmount, array $extraMetadata = []): Bill
+    private function createPendingBill($plan, array $couponData, BillType $type, float $originalAmount, array $extraMetadata = [])
     {
         return $this->billService->createPendingBill(
             amount: $couponData['final_total'],
@@ -251,7 +250,7 @@ class TenantSubscriptionController extends Controller
         );
     }
 
-    private function showMoyasarCheckout(Bill $bill, string $description, string $callbackUrl, string $backUrl)
+    private function showMoyasarCheckout($bill, string $description, string $callbackUrl, string $backUrl)
     {
         return view('tenants.payment.moyasar-checkout', [
             'amountInHalala' => $this->moyasarFormConfiguration->amountInHalala((float) $bill->amount),
@@ -266,13 +265,6 @@ class TenantSubscriptionController extends Controller
 
     private function getCentralPlan()
     {
-        $tenant = tenant();
-        $plan = Tenancy::central(fn () => Plan::find($tenant->lastSubscription->plan?->id));
-
-        if (! $plan) {
-            return redirect()->to(tenant_route_name('subscriptions.index'))->with('error', 'لا يوجد اشتراك .');
-        }
-
-        return $plan;
+        return $this->billingGateway->currentTenantPlan();
     }
 }

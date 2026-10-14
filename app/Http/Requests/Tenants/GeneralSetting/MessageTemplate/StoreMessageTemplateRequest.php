@@ -14,7 +14,7 @@ class StoreMessageTemplateRequest extends WizardFormRequest
     */
     public function authorize(): bool
     {
-        return true;
+        return $this->user('tenant')?->can('message_templates.view') ?? false;
     }
 
     /*

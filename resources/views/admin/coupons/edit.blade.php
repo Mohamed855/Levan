@@ -21,7 +21,7 @@
 @section('content')
     @php
         $steps = [
-            ['id' => 'coupon-info-validation', 'title' => 'تعديل الكوبون', 'subtitle' => 'تحديث البيانات الأساسية'],
+            ['id' => 'coupon-info-validation', 'title' => 'تعديل الكوبون'],
         ];
         $discountTypeValue = is_object($coupon->discount_type) ? $coupon->discount_type->value : $coupon->discount_type;
         $expiryDateValue = $coupon->expiry_date ? $coupon->expiry_date->format('Y-m-d') : '';

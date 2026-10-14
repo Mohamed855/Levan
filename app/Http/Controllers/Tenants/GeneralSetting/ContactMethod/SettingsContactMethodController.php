@@ -57,23 +57,6 @@ class SettingsContactMethodController extends Controller
 
     public function destroy(TenantAuthenticatedRequest $request, $id)
     {
-        try {
-            $contactMethod = SettingsContactMethod::findOrFail($id);
-
-            // التحقق من وجود ارتباطات (في حالة وجود اتصالات أو عملاء مرتبطين)
-            // if ($contactMethod->customerContacts()->count() > 0) {
-            //     throw new \Exception('لا يمكن حذف وسيلة الاتصال هذه لأنها مرتبطة بعملاء. يجب تغيير وسيلة الاتصال للعملاء أولاً.');
-            // }
-
-            // if ($contactMethod->communications()->count() > 0) {
-            //     throw new \Exception('لا يمكن حذف وسيلة الاتصال هذه لأنها مرتبطة باتصالات. يجب حذف الاتصالات أولاً.');
-            // }
-
-            $contactMethod->delete();
-
-            return redirect()->back()->with('success', 'تم الحذف بنجاح.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
+        return $this->destroy_trait($this->model, $id);
     }
 }

@@ -24,6 +24,8 @@ class CustomerSettlementController extends Controller
      */
     public function getSettlementsList(Customer $customer): JsonResponse
     {
+        $this->authorize('view', $customer);
+
         try {
             $customerSettlements = $customer->settlements()->with('createdBy:id,name')->latest()->get();
 
@@ -50,6 +52,8 @@ class CustomerSettlementController extends Controller
      */
     public function create(Customer $customer): JsonResponse
     {
+        $this->authorize('update', $customer);
+
         try {
             $settlementTypes = $this->customerSettlementService->getSettlementTypes();
 
@@ -78,6 +82,8 @@ class CustomerSettlementController extends Controller
      */
     public function store(StoreCustomerSettlementRequest $request, Customer $customer): JsonResponse
     {
+        $this->authorize('update', $customer);
+
         try {
             $settlements = $this->customerSettlementService->createMultipleSettlements(
                 $customer,
@@ -104,6 +110,8 @@ class CustomerSettlementController extends Controller
      */
     public function edit(Customer $customer, CustomerSettlement $customerSettlement): JsonResponse
     {
+        $this->authorize('update', $customer);
+
         try {
             // التحقق من أن التسوية تخص هذا العميل
             if ($customerSettlement->customer_id !== $customer->id) {
@@ -141,6 +149,8 @@ class CustomerSettlementController extends Controller
      */
     public function update(UpdateCustomerSettlementRequest $request, Customer $customer, CustomerSettlement $customerSettlement): JsonResponse
     {
+        $this->authorize('update', $customer);
+
         try {
             if ($customerSettlement->customer_id !== $customer->id) {
                 return response()->json([
@@ -185,6 +195,8 @@ class CustomerSettlementController extends Controller
      */
     public function destroy(Customer $customer, CustomerSettlement $customerSettlement): JsonResponse
     {
+        $this->authorize('delete', $customer);
+
         try {
             // التحقق من أن التسوية تخص هذا العميل
             if ($customerSettlement->customer_id !== $customer->id) {

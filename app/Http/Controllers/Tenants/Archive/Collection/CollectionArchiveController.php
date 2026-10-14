@@ -206,6 +206,7 @@ class CollectionArchiveController extends Controller
     {
         try {
             $collection = Collection::onlyTrashed()->findOrFail($collectionId);
+            $this->authorize('restore', $collection);
             $this->collectionArchiveService->restoreCollection($collection);
 
             return redirect()
@@ -228,6 +229,7 @@ class CollectionArchiveController extends Controller
     {
         try {
             $collection = Collection::onlyTrashed()->findOrFail($collectionId);
+            $this->authorize('forceDelete', $collection);
             $this->collectionArchiveService->forceDeleteCollection($collection);
 
             return redirect()

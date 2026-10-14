@@ -60,19 +60,6 @@ class SettingsDocumentRequestReasonController extends Controller
 
     public function destroy(TenantAuthenticatedRequest $request, $id)
     {
-        try {
-            $documentRequestReason = SettingsDocumentRequestReason::findOrFail($id);
-
-            // يمكنك إضافة فحص للعلاقات هنا إذا كان هناك جداول مرتبطة
-            // if ($documentRequestReason->relatedTable()->count() > 0) {
-            //     throw new \Exception('لا يمكن حذف هذا السبب لأنه مرتبط ببيانات أخرى.');
-            // }
-
-            $documentRequestReason->delete();
-
-            return redirect()->back()->with('success', 'تم الحذف بنجاح.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
+        return $this->destroy_trait($this->model, $id);
     }
 }

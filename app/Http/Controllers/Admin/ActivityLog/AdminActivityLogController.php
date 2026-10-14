@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Admin\ActivityLog;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ActivityLog\AdminActivityLogIndexRequest;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Traits\ActivityLogPresenterTrait;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Spatie\Activitylog\Models\Activity;
 use Yajra\DataTables\Facades\DataTables;
@@ -21,7 +21,7 @@ class AdminActivityLogController extends Controller
         $this->middleware('can:activity_log.view');
     }
 
-    public function index(Request $request): View|JsonResponse
+    public function index(AdminActivityLogIndexRequest $request): View|JsonResponse
     {
         if ($request->ajax()) {
             $query = Activity::with('causer', 'subject')
@@ -38,7 +38,7 @@ class AdminActivityLogController extends Controller
                 ]);
 
             // تطبيق الفلاتر
-            $this->applyFilters($query, $request);
+            $this->applyFilters($query, $request->validated());
 
             return DataTables::of($query)
                 ->addIndexColumn()
@@ -119,25 +119,25 @@ class AdminActivityLogController extends Controller
         ];
     }
 
-    private function applyFilters($query, Request $request): void
+    private function applyFilters($query, array $filters): void
     {
-        if ($request->filled('user_id')) {
-            $query->where('causer_id', $request->user_id);
+        if (isset($filters['user_id'])) {
+            $query->where('causer_id', $filters['user_id']);
         }
 
-        if ($request->filled('log_name')) {
-            $query->where('log_name', $request->log_name);
+        if (isset($filters['log_name'])) {
+            $query->where('log_name', $filters['log_name']);
         }
 
-        if ($request->filled('date_from')) {
-            $query->whereDate('created_at', '>=', $request->date_from);
+        if (isset($filters['date_from'])) {
+            $query->whereDate('created_at', '>=', $filters['date_from']);
         }
 
-        if ($request->filled('date_to')) {
-            $query->whereDate('created_at', '<=', $request->date_to);
+        if (isset($filters['date_to'])) {
+            $query->whereDate('created_at', '<=', $filters['date_to']);
         }
 
-        $search = $request->input('search.value');
+        $search = $filters['search']['value'] ?? null;
         if (! empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('description', 'like', "%{$search}%")

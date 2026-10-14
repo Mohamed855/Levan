@@ -85,6 +85,31 @@ class TenantUserManagementValidationFeatureTest extends TestCase
             ->assertJsonValidationErrors('name');
     }
 
+    public function test_guard_mismatched_role_assignment_is_rejected(): void
+    {
+        $nonTenantRole = \Spatie\Permission\Models\Role::create([
+            'name' => 'admin_guard_role_' . random_int(1000, 9999),
+            'guard_name' => 'admin',
+        ]);
+
+        $this->actingAs($this->owner, 'tenant')
+            ->postJson($this->tenantUrl("roles/users/{$this->owner->id}/update-roles"), [
+                'role' => $nonTenantRole->id,
+                'status' => 'active',
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('role');
+
+        $nonTenantRole->delete();
+    }
+
+    public function test_wrong_guard_cannot_access_tenant_user_management(): void
+    {
+        $this->patchJson($this->tenantUrl("users/{$this->owner->id}/toggle-status"), [
+            'status' => 'inactive',
+        ])->assertUnauthorized();
+    }
+
     private function tenantUrl(string $path): string
     {
         return 'http://test.localhost/' . ltrim($path, '/');

@@ -1,34 +1,60 @@
 <?php
 
- 
+use App\Models\Admin\AdminMangment\Users\AdminUser;
+use App\Models\Admin\Bills\Bill;
+use App\Models\Admin\Coupons\Coupon;
+use App\Models\Admin\Plans\Plan;
+use App\Models\Admin\Subscription\Subscription;
+use App\Models\Admin\Tenants\Tenant;
+use App\Models\Admin\Tickets\Ticket;
+use App\Models\Tenants\Assignments\Assignment;
+use App\Models\Tenants\Auctions\Auction;
+use App\Models\Tenants\BusinessCenter\Company\Company;
+use App\Models\Tenants\BusinessCenter\Contract\Contract;
+use App\Models\Tenants\BusinessCenter\Customers\Customer;
+use App\Models\Tenants\BusinessCenter\Customers\Distribution\CustomerDistribution;
+use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
+use App\Models\Tenants\Communication\MessageLog\MessageIndividualLog;
+use App\Models\Tenants\Communication\MessageLog\MessageLog;
+use App\Models\Tenants\FinancialCollection\Target\CollectionTarget;
+use App\Models\Tenants\GeneralSetting\ContactMethod\SettingsContactMethod;
+use App\Models\Tenants\GeneralSetting\ContactResult\ContactResult;
+use App\Models\Tenants\GeneralSetting\Country\SettingsCountry;
+use App\Models\Tenants\GeneralSetting\CustomerStatus\SettingsCustomerStatus;
+use App\Models\Tenants\GeneralSetting\DebtType\SettingsDebtType;
+use App\Models\Tenants\GeneralSetting\PaymentMethod\SettingsPaymentMethod;
+use App\Models\Tenants\Properties\Property;
+use App\Models\Tenants\UserMangment\User\User;
+use Spatie\Activitylog\Models\Activity;
+
 return [
-    'User' => App\Models\Tenants\UserMangment\user\user::class,
-    'SettingsCountry' => App\Models\Tenants\GeneralSetting\Country\SettingsCountry::class,
-    'Company' => App\Models\Tenants\BusinessCenter\Company\Company::class,
-    'Portfolio' => App\Models\Tenants\BusinessCenter\Portfolio\Portfolio::class,
-    'Customer' => App\Models\Tenants\BusinessCenter\Customers\Customer::class,
-    'MessageLog' => App\Models\Tenants\Communication\MessageLog\MessageLog::class,
-    'Activity' => Spatie\Activitylog\Models\Activity::class,
-    'SettingsPaymentMethod' => App\Models\Tenants\GeneralSetting\PaymentMethod\SettingsPaymentMethod::class,
-    'SettingsCustomerStatus' => App\Models\Tenants\GeneralSetting\CustomerStatus\SettingsCustomerStatus::class,
-    'SettingsContactMethod' => App\Models\Tenants\GeneralSetting\ContactMethod\SettingsContactMethod::class,
-    'ContactResult' => App\Models\Tenants\GeneralSetting\ContactResult\ContactResult::class,
+    'User' => User::class,
+    'SettingsCountry' => SettingsCountry::class,
+    'Company' => Company::class,
+    'Portfolio' => Portfolio::class,
+    'Customer' => Customer::class,
+    'MessageLog' => MessageLog::class,
+    'Activity' => Activity::class,
+    'SettingsPaymentMethod' => SettingsPaymentMethod::class,
+    'SettingsCustomerStatus' => SettingsCustomerStatus::class,
+    'SettingsContactMethod' => SettingsContactMethod::class,
+    'ContactResult' => ContactResult::class,
     // 'Collection' => App\Models\Tenants\FinancialCollection\Collection::class,
-    'CollectionTarget' => App\Models\Tenants\FinancialCollection\Target\CollectionTarget::class,
-    'SettingsDebtType' => App\Models\Tenants\GeneralSetting\DebtType\SettingsDebtType::class,
-    'CustomerDistribution' => App\Models\Tenants\BusinessCenter\Customers\Distribution\CustomerDistribution::class,
-    'MessageIndividualLog' => App\Models\Tenants\Communication\MessageLog\MessageIndividualLog::class,
-    'Contract' =>             App\Models\Tenants\BusinessCenter\Contract\Contract::class,
-    'Assignment' => App\Models\Tenants\Assignments\Assignment::class,
-    'Property' => App\Models\Tenants\Properties\Property::class,
-    'Auction' => App\Models\Tenants\Auctions\Auction::class,
+    'CollectionTarget' => CollectionTarget::class,
+    'SettingsDebtType' => SettingsDebtType::class,
+    'CustomerDistribution' => CustomerDistribution::class,
+    'MessageIndividualLog' => MessageIndividualLog::class,
+    'Contract' => Contract::class,
+    'Assignment' => Assignment::class,
+    'Property' => Property::class,
+    'Auction' => Auction::class,
 
     // super admin models
-    'Plan' => App\Models\Admin\Plans\Plan::class,
-    'AdminUser' => App\Models\Admin\AdminMangment\Users\AdminUser::class,
-    'Coupon' => App\Models\Admin\Coupons\Coupon::class,
-    'Tenant' =>  App\Models\Admin\Tenants\Tenant::class,
-    'Subscription' => App\Models\Admin\Subscription\Subscription::class,
-    'Bill' => App\Models\Admin\Bills\Bill::class,
-    'Ticket' => App\Models\Admin\Tickets\Ticket::class,
+    'Plan' => Plan::class,
+    'AdminUser' => AdminUser::class,
+    'Coupon' => Coupon::class,
+    'Tenant' => Tenant::class,
+    'Subscription' => Subscription::class,
+    'Bill' => Bill::class,
+    'Ticket' => Ticket::class,
 ];

@@ -24,9 +24,10 @@ class LinkDomainController extends Controller
 
     public function __construct()
     {
-        $this->whmToken = env('WHM_TOKEN');
-        $this->whmUrl = env('WHM_HOST');
-        $this->serverIp = env('SERVER_IP', '135.181.215.105');
+        $this->middleware('can:domain.connect');
+        $this->whmToken = config('services.namecheap.whm_token');
+        $this->whmUrl = config('services.namecheap.whm_host');
+        $this->serverIp = config('services.domains.server_ip');
     }
 
     public function processLinkExternalDomain(ProcessExternalDomainLinkRequest $request)

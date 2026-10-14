@@ -29,6 +29,7 @@ class AdminRoleController extends Controller
     {
         $this->userService = $userService;
         $this->roleService = $roleService;
+        $this->authorizeResource(Role::class, 'role');
 
         $this->middleware('can:roles.view')->only(['index']);
         $this->middleware('can:roles.create')->only(['create', 'store']);

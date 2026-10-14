@@ -7,6 +7,7 @@ namespace App\Http\Requests\Tenants\Properties;
 use App\Enums\Tenants\Properties\PropertyBoundaryDirection;
 use App\Enums\Tenants\Properties\PropertyOwnershipType;
 use App\Enums\Tenants\Properties\PropertyType;
+use App\Enums\Tenants\Properties\PropertyUnitStatus;
 use App\Enums\Tenants\Properties\PropertyUsageClassification;
 use App\Http\Requests\Concerns\WizardFormRequest;
 use Illuminate\Validation\Rule;
@@ -80,7 +81,7 @@ class StorePropertyRequest extends WizardFormRequest
             'units.*.unit_type' => ['nullable', 'string', 'max:100'],
             'units.*.area' => ['nullable', 'numeric', 'min:0'],
             'units.*.current_use' => ['nullable', 'string', 'max:100'],
-            'units.*.status' => ['nullable', 'string', 'max:100'],
+            'units.*.status' => ['nullable', Rule::enum(PropertyUnitStatus::class)],
 
             // Step 4: المستندات والصور
             'deed_document' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],

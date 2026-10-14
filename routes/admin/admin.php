@@ -10,23 +10,23 @@ use App\Http\Controllers\Admin\Archive\Plan\PlanArchiveController;
 use App\Http\Controllers\Admin\Archive\Tenant\TenantArchiveController;
 use App\Http\Controllers\Admin\Bills\AdminBillsController;
 use App\Http\Controllers\Admin\Companies\CompanyController;
-use App\Http\Controllers\Admin\Subscriptions\SubscriptionController as CentralSubscriptionController;
 use App\Http\Controllers\Admin\ContentManagement\Client\ClientController;
 use App\Http\Controllers\Admin\ContentManagement\Portfolio\PortfolioController;
 use App\Http\Controllers\Admin\Coupons\AdminCouponController;
 use App\Http\Controllers\Admin\Dashboard\DashboardController;
+use App\Http\Controllers\Admin\DeleteBulk\AdminMassDeleteController;
 use App\Http\Controllers\Admin\Plans\PlanController;
 use App\Http\Controllers\Admin\Settings\Bank\SettingsBankController;
 use App\Http\Controllers\Admin\Settings\Domain\SettingsDomainController;
 use App\Http\Controllers\Admin\Settings\SettingsController;
 use App\Http\Controllers\Admin\SubscriptionManagement\SubscriptionManagementController;
+use App\Http\Controllers\Admin\Subscriptions\SubscriptionController as CentralSubscriptionController;
+use App\Http\Controllers\Admin\Tickets\AdminTicketController;
 use App\Http\Controllers\Admin\Versions\VersionController;
 use App\Http\Controllers\Admin\VersionTester\VersionTesterController;
-use App\Http\Controllers\Admin\Tickets\AdminTicketController;
-use App\Http\Controllers\Tenants\Auth\NewPasswordController;
-use App\Http\Controllers\Admin\DeleteBulk\AdminMassDeleteController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Shared\Wizard\WizardDraftController;
+use App\Http\Controllers\Tenants\Auth\NewPasswordController;
+use Illuminate\Support\Facades\Route;
 
 Route::name('password.reset')->get('reset-password/{token}', [NewPasswordController::class, 'create']);
 
@@ -46,13 +46,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
 
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::prefix('banks')->name('banks.')->group(function () {
-        Route::resource('/', SettingsBankController::class)->except('show')->parameters(['' => 'bank']);
-        Route::patch('{bank}/toggle-status', [SettingsBankController::class, 'toggleStatus'])->name('toggle-status');
+            Route::resource('/', SettingsBankController::class)->except('show')->parameters(['' => 'bank']);
+            Route::patch('{bank}/toggle-status', [SettingsBankController::class, 'toggleStatus'])->name('toggle-status');
         });
 
         Route::prefix('domains')->name('domains.')->group(function () {
-        Route::resource('/', SettingsDomainController::class)->except('show')->parameters(['' => 'domain']);
-        Route::patch('{domain}/toggle-status', [SettingsDomainController::class, 'toggleStatus'])->name('toggle-status');
+            Route::resource('/', SettingsDomainController::class)->except('show')->parameters(['' => 'domain']);
+            Route::patch('{domain}/toggle-status', [SettingsDomainController::class, 'toggleStatus'])->name('toggle-status');
         });
 
         // اعدادات النظاام
@@ -60,16 +60,23 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
         Route::put('/', [SettingsController::class, 'update'])->name('update');
     });
 
-
     // تنبيهات الاشتراكات
     Route::prefix('subscription-manage')->name('subscriptionManage.')->group(function () {
-        Route::get('pending', [SubscriptionManagementController::class, 'pending'])->name('pending');
-        Route::get('expiring', [SubscriptionManagementController::class, 'expiring'])->name('expiring');
-        Route::get('expired', [SubscriptionManagementController::class, 'expired'])->name('expired');
-        Route::post('{subscription}/accept', [SubscriptionManagementController::class, 'accept'])->name('accept');
-        Route::post('{subscription}/reject', [SubscriptionManagementController::class, 'reject'])->name('reject');
-        Route::post('mass-accept', [SubscriptionManagementController::class, 'massAccept'])->name('mass-accept');
-        Route::post('mass-reject', [SubscriptionManagementController::class, 'massReject'])->name('mass-reject');
+        Route::middleware('can:subscriptions.pending.view')->group(function () {
+            Route::get('pending', [SubscriptionManagementController::class, 'pending'])->name('pending');
+            Route::get('expiring', [SubscriptionManagementController::class, 'expiring'])->name('expiring');
+            Route::get('expired', [SubscriptionManagementController::class, 'expired'])->name('expired');
+        });
+
+        Route::middleware('can:subscriptions.pending.approve')->group(function () {
+            Route::post('{subscription}/accept', [SubscriptionManagementController::class, 'accept'])->name('accept');
+            Route::post('mass-accept', [SubscriptionManagementController::class, 'massAccept'])->name('mass-accept');
+        });
+
+        Route::middleware('can:subscriptions.pending.reject')->group(function () {
+            Route::post('{subscription}/reject', [SubscriptionManagementController::class, 'reject'])->name('reject');
+            Route::post('mass-reject', [SubscriptionManagementController::class, 'massReject'])->name('mass-reject');
+        });
     });
 
     // ادارة الشركات
@@ -123,7 +130,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
         Route::post('update-user-roles/{id}', [AdminRoleController::class, 'updateUserRoles'])->name('update-user-role'); // تعديل الصلاحية للمستخدم
     });
 
-    //Activity Logs
+    // Activity Logs
     Route::prefix('activity-logs')->name('activity-logs.')->group(function () {
         Route::resource('/', AdminActivityLogController::class)
             ->only(['index', 'show'])
@@ -218,4 +225,4 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
     });
 });
 
-require __DIR__ . '/admin-auth.php';
+require __DIR__.'/admin-auth.php';

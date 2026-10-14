@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Archive\Coupon;
 
+use App\Actions\Admin\Archive\ManageCentralArchiveAction;
 use App\DataTables\Admin\Archive\Coupon\CouponDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
@@ -10,6 +11,13 @@ use Illuminate\Support\Facades\Log;
 
 class CouponArchiveController extends Controller
 {
+    public function __construct(private ManageCentralArchiveAction $archive)
+    {
+        $this->middleware('auth:admin');
+        $this->middleware('can:coupons.view')->only('index');
+        $this->middleware('can:coupons.delete')->only(['restore', 'forceDelete']);
+    }
+
     public function index(CouponDataTable $dataTable)
     {
         $filterOptions = [
@@ -29,8 +37,9 @@ class CouponArchiveController extends Controller
     public function restore(AdminAuthenticatedRequest $request, int $id)
     {
         try {
-            $plan = Coupon::withTrashed()->findOrFail($id);
-            $plan->restore();
+            $coupon = Coupon::withTrashed()->findOrFail($id);
+            $this->authorize('restore', $coupon);
+            $this->archive->restore($coupon);
 
             return redirect()->route('admin.archives.coupons.index')
                 ->with('success', 'تم استرجاع الكوبون بنجاح.');
@@ -45,8 +54,9 @@ class CouponArchiveController extends Controller
     public function forceDelete(AdminAuthenticatedRequest $request, int $id)
     {
         try {
-            $plan = Coupon::withTrashed()->findOrFail($id);
-            $plan->forceDelete();
+            $coupon = Coupon::withTrashed()->findOrFail($id);
+            $this->authorize('forceDelete', $coupon);
+            $this->archive->forceDelete($coupon);
 
             return redirect()->route('admin.archives.coupons.index')
                 ->with('success', 'تم حذف الكوبون نهائيًا بنجاح.');

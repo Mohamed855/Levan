@@ -43,7 +43,7 @@
 
     {{-- Statistics Cards --}}
     <div id="top_card" class="row g-4 mb-4">
-        <div class="col-sm-6 col-xl-3">
+        <div class="col-sm-6 col-xl">
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">
@@ -64,7 +64,7 @@
             </div>
         </div>
 
-        <div class="col-sm-6 col-xl-3">
+        <div class="col-sm-6 col-xl">
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">
@@ -85,7 +85,7 @@
             </div>
         </div>
 
-        <div class="col-sm-6 col-xl-3">
+        <div class="col-sm-6 col-xl">
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">
@@ -106,7 +106,7 @@
             </div>
         </div>
 
-        <div class="col-sm-6 col-xl-3">
+        <div class="col-sm-6 col-xl">
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">
@@ -120,6 +120,26 @@
                         <div class="avatar">
                             <span class="avatar-initial rounded bg-label-danger">
                                 <i class="ti ti-alert-triangle ti-26px"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between">
+                        <div class="content-left">
+                            <span class="text-heading">المهام المستحقة اليوم</span>
+                            <div class="d-flex align-items-center my-1">
+                                <h4 class="mb-0 me-2">{{ $dueTodayTasks }}</h4>
+                            </div>
+                            <small class="mb-0">تحتاج متابعة خلال اليوم</small>
+                        </div>
+                        <div class="avatar">
+                            <span class="avatar-initial rounded bg-label-info">
+                                <i class="ti ti-calendar-event ti-26px"></i>
                             </span>
                         </div>
                     </div>

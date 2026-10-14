@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers\Tenants\Auth;
 
+use App\Actions\Tenants\Auth\ResetTenantPasswordAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Auth\ResetTenantPasswordRequest;
-use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -34,19 +32,15 @@ class NewPasswordController extends Controller
      *
      * @throws ValidationException
      */
-    public function store(ResetTenantPasswordRequest $request): RedirectResponse
+    public function store(ResetTenantPasswordRequest $request, ResetTenantPasswordAction $resetPassword): RedirectResponse
     {
         // Here we will attempt to reset the user's password. If it is successful we
         // will update the password on an actual user model and persist it to the
         // database. Otherwise we will parse the error and return the response.
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user) use ($request) {
-                $user->forceFill([
-                    'password' => Hash::make($request->password),
-                    'remember_token' => Str::random(60),
-                    'must_change_password' => false,
-                ])->save();
+            function ($user) use ($request, $resetPassword) {
+                $resetPassword->execute($user, $request->validated('password'));
 
                 event(new PasswordReset($user));
             }
@@ -61,18 +55,18 @@ class NewPasswordController extends Controller
                 ->withErrors(['email' => __($status)]);
     }
 
-    public function updatePassword(ResetTenantPasswordRequest $request)
+    public function updatePassword(ResetTenantPasswordRequest $request, ResetTenantPasswordAction $resetPassword)
     {
-        $tenant = $request->tenant_id;
+        $user = $resetPassword->executeForTenant(
+            (string) $request->input('tenant_id'),
+            $request->validated('email'),
+            $request->validated('password'),
+        );
 
-        // Here we will attempt to reset the user's password. If it is successful we
-        // will update the password on an actual user model and persist it to the
-        // database. Otherwise we will parse the error and return the response.
-        tenancy()->initialize($tenant);
-        $user = User::where('email', $request->email)->update(['password' => Hash::make($request->password)]);
         if ($user) {
             return redirect('https://levan.com')->with('success', 'تم تعديل كلمة المرور بنجاح يمكنك الاستفادة بخدماتنا');
         }
-        tenancy()->end();
+
+        return back()->withErrors(['email' => 'المستخدم غير موجود.']);
     }
 }

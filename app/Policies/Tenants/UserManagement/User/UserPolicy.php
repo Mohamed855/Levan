@@ -32,4 +32,14 @@ class UserPolicy
     {
         return $user->can('users.delete') && tenancy()->initialized;
     }
+
+    public function restore(User $user, User $managedUser): bool
+    {
+        return $user->can('user_archive.restore') && tenancy()->initialized;
+    }
+
+    public function forceDelete(User $user, User $managedUser): bool
+    {
+        return $user->can('user_archive.force_delete') && tenancy()->initialized;
+    }
 }

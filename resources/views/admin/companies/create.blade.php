@@ -37,10 +37,10 @@
 @section('content')
     @php
         $steps = [
-            ['id' => 'company-details-step', 'title' => 'بيانات الشركة', 'subtitle' => 'البيانات الأساسية والإعدادات'],
-            ['id' => 'admin-user-step', 'title' => 'المستخدم الإداري الأول', 'subtitle' => 'حساب المسؤول الرئيسي'],
-            ['id' => 'subscription-step', 'title' => 'الاشتراك والدفع', 'subtitle' => 'الباقة وتفاصيل الدفع'],
-            ['id' => 'review-step', 'title' => 'مراجعة واعتماد', 'subtitle' => 'تأكيد البيانات والحفظ'],
+            ['id' => 'company-details-step', 'title' => 'بيانات الشركة'],
+            ['id' => 'admin-user-step', 'title' => 'المستخدم الإداري الأول'],
+            ['id' => 'subscription-step', 'title' => 'الاشتراك والدفع'],
+            ['id' => 'review-step', 'title' => 'مراجعة واعتماد'],
         ];
     @endphp
 

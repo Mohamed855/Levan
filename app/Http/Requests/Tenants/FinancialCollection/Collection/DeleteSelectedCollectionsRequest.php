@@ -20,4 +20,14 @@ class DeleteSelectedCollectionsRequest extends FormRequest
             'ids.*' => ['required', 'integer', 'exists:collections,id'],
         ];
     }
+
+    public function messages(): array
+    {
+        return ['ids.required' => 'يرجى تحديد تحصيل واحد على الأقل.'];
+    }
+
+    public function attributes(): array
+    {
+        return ['ids' => 'التحصيلات'];
+    }
 }

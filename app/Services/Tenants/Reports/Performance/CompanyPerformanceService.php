@@ -2,18 +2,21 @@
 
 namespace App\Services\Tenants\Reports\Performance;
 
-use App\Models\Tenants\BusinessCenter\Customers\Customer;
-use App\Models\Tenants\BusinessCenter\Customers\Follow\CustomerFollow;
-use App\Models\Tenants\BusinessCenter\Company\Company;
-use App\Models\Tenants\GeneralSetting\ContactResult\ContactResult;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
-use Maatwebsite\Excel\Facades\Excel;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use App\Exports\Tenants\Reports\Performance\PerformanceReportExport;
 use App\Jobs\Tenants\Reports\Performance\ExportPerformanceReportJob;
+use App\Models\Tenants\BusinessCenter\Customers\Customer;
+use App\Models\Tenants\BusinessCenter\Customers\Follow\CustomerFollow;
+use App\Models\Tenants\GeneralSetting\ContactResult\ContactResult;
+use App\Services\Tenants\Reports\TenantExportAccess;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
+use Mpdf\Config\ConfigVariables;
+use Mpdf\Config\FontVariables;
+use Mpdf\Mpdf;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class CompanyPerformanceService extends BasePerformanceService
 {
@@ -29,11 +32,11 @@ class CompanyPerformanceService extends BasePerformanceService
 
         // ✅ استعلام واحد مُحسّن للحصول على جميع الإحصائيات
         $stats = DB::table('customers')
-            ->when(!empty($filters['company_id']), fn($q) => $q->where('company_id', $filters['company_id']))
-            ->when(!empty($filters['portfolio_id']), fn($q) => $q->where('portfolio_id', $filters['portfolio_id']))
-            ->when(!empty($filters['user_id']), fn($q) => $q->where('relationship_manager_id', $filters['user_id']))
-            ->when(!empty($filters['team_id']), function ($q) use ($filters) {
-                $q->whereHas('relationshipManager', fn($sub) => $sub->where('team_id', $filters['team_id']));
+            ->when(! empty($filters['company_id']), fn ($q) => $q->where('company_id', $filters['company_id']))
+            ->when(! empty($filters['portfolio_id']), fn ($q) => $q->where('portfolio_id', $filters['portfolio_id']))
+            ->when(! empty($filters['user_id']), fn ($q) => $q->where('relationship_manager_id', $filters['user_id']))
+            ->when(! empty($filters['team_id']), function ($q) use ($filters) {
+                $q->whereHas('relationshipManager', fn ($sub) => $sub->where('team_id', $filters['team_id']));
             })
             ->selectRaw('
                 COUNT(DISTINCT company_id) as companies_count,
@@ -48,17 +51,17 @@ class CompanyPerformanceService extends BasePerformanceService
             ->where('status', 'approved')
             ->whereBetween('collection_date', [$startDate, $endDate]);
 
-        if (!empty($filters['company_id'])) {
-            $collectionsQuery->whereHas('customer', fn($q) => $q->where('company_id', $filters['company_id']));
+        if (! empty($filters['company_id'])) {
+            $collectionsQuery->whereHas('customer', fn ($q) => $q->where('company_id', $filters['company_id']));
         }
-        if (!empty($filters['portfolio_id'])) {
-            $collectionsQuery->whereHas('customer', fn($q) => $q->where('portfolio_id', $filters['portfolio_id']));
+        if (! empty($filters['portfolio_id'])) {
+            $collectionsQuery->whereHas('customer', fn ($q) => $q->where('portfolio_id', $filters['portfolio_id']));
         }
-        if (!empty($filters['user_id'])) {
+        if (! empty($filters['user_id'])) {
             $collectionsQuery->where('added_by', $filters['user_id']);
         }
-        if (!empty($filters['team_id'])) {
-            $collectionsQuery->whereHas('addedBy', fn($q) => $q->where('team_id', $filters['team_id']));
+        if (! empty($filters['team_id'])) {
+            $collectionsQuery->whereHas('addedBy', fn ($q) => $q->where('team_id', $filters['team_id']));
         }
 
         $collectionsStats = $collectionsQuery->selectRaw('
@@ -119,13 +122,13 @@ class CompanyPerformanceService extends BasePerformanceService
             '))
             ->groupBy('company_id');
 
-        if (!empty($filters['user_id'])) {
+        if (! empty($filters['user_id'])) {
             $portfoliosQuery->where('relationship_manager_id', $filters['user_id']);
         }
-        if (!empty($filters['team_id'])) {
-            $portfoliosQuery->whereHas('relationshipManager', fn($q) => $q->where('team_id', $filters['team_id']));
+        if (! empty($filters['team_id'])) {
+            $portfoliosQuery->whereHas('relationshipManager', fn ($q) => $q->where('team_id', $filters['team_id']));
         }
-        if (!empty($filters['company_id'])) {
+        if (! empty($filters['company_id'])) {
             $portfoliosQuery->where('company_id', $filters['company_id']);
         }
 
@@ -145,7 +148,7 @@ class CompanyPerformanceService extends BasePerformanceService
 
             $companyTargets = $targets->get($companyId);
 
-            if (!$companyTargets || $companyTargets->isEmpty()) {
+            if (! $companyTargets || $companyTargets->isEmpty()) {
                 continue;
             }
 
@@ -185,10 +188,10 @@ class CompanyPerformanceService extends BasePerformanceService
         // ✅ استعلام واحد مُحسّن للغاية
         $companiesData = DB::table('companies')
             ->leftJoin('customers', 'companies.id', '=', 'customers.company_id')
-            ->when(!empty($filters['company_id']), fn($q) => $q->where('companies.id', $filters['company_id']))
-            ->when(!empty($filters['portfolio_id']), fn($q) => $q->where('customers.portfolio_id', $filters['portfolio_id']))
-            ->when(!empty($filters['user_id']), fn($q) => $q->where('customers.relationship_manager_id', $filters['user_id']))
-            ->when(!empty($filters['team_id']), function ($q) use ($filters) {
+            ->when(! empty($filters['company_id']), fn ($q) => $q->where('companies.id', $filters['company_id']))
+            ->when(! empty($filters['portfolio_id']), fn ($q) => $q->where('customers.portfolio_id', $filters['portfolio_id']))
+            ->when(! empty($filters['user_id']), fn ($q) => $q->where('customers.relationship_manager_id', $filters['user_id']))
+            ->when(! empty($filters['team_id']), function ($q) use ($filters) {
                 $q->whereExists(function ($sub) use ($filters) {
                     $sub->select(DB::raw(1))
                         ->from('users')
@@ -213,10 +216,10 @@ class CompanyPerformanceService extends BasePerformanceService
             ->join('customers', 'collections.customer_id', '=', 'customers.id')
             ->where('collections.status', 'approved')
             ->whereBetween('collections.collection_date', [$startDate, $endDate])
-            ->when(!empty($filters['company_id']), fn($q) => $q->where('customers.company_id', $filters['company_id']))
-            ->when(!empty($filters['portfolio_id']), fn($q) => $q->where('customers.portfolio_id', $filters['portfolio_id']))
-            ->when(!empty($filters['user_id']), fn($q) => $q->where('collections.added_by', $filters['user_id']))
-            ->when(!empty($filters['team_id']), function ($q) use ($filters) {
+            ->when(! empty($filters['company_id']), fn ($q) => $q->where('customers.company_id', $filters['company_id']))
+            ->when(! empty($filters['portfolio_id']), fn ($q) => $q->where('customers.portfolio_id', $filters['portfolio_id']))
+            ->when(! empty($filters['user_id']), fn ($q) => $q->where('collections.added_by', $filters['user_id']))
+            ->when(! empty($filters['team_id']), function ($q) use ($filters) {
                 $q->whereExists(function ($sub) use ($filters) {
                     $sub->select(DB::raw(1))
                         ->from('users')
@@ -385,20 +388,20 @@ class CompanyPerformanceService extends BasePerformanceService
 
         $query = CustomerFollow::query();
 
-        if (!empty($filters['company_id'])) {
-            $query->whereHas('customer', fn($q) => $q->where('company_id', $filters['company_id']));
+        if (! empty($filters['company_id'])) {
+            $query->whereHas('customer', fn ($q) => $q->where('company_id', $filters['company_id']));
         }
 
-        if (!empty($filters['portfolio_id'])) {
-            $query->whereHas('customer', fn($q) => $q->where('portfolio_id', $filters['portfolio_id']));
+        if (! empty($filters['portfolio_id'])) {
+            $query->whereHas('customer', fn ($q) => $q->where('portfolio_id', $filters['portfolio_id']));
         }
 
-        if (!empty($filters['user_id'])) {
+        if (! empty($filters['user_id'])) {
             $query->where('created_by', $filters['user_id']);
         }
 
-        if (!empty($filters['team_id'])) {
-            $query->whereHas('createdBy', fn($q) => $q->where('team_id', $filters['team_id']));
+        if (! empty($filters['team_id'])) {
+            $query->whereHas('createdBy', fn ($q) => $q->where('team_id', $filters['team_id']));
         }
 
         $latestFollows = $query->select('customer_id', DB::raw('MAX(id) as latest_follow_id'))
@@ -413,7 +416,7 @@ class CompanyPerformanceService extends BasePerformanceService
         $categoryCounts = [
             'positive' => 0,
             'negative' => 0,
-            'other' => 0
+            'other' => 0,
         ];
 
         $breakdownData = [];
@@ -430,7 +433,7 @@ class CompanyPerformanceService extends BasePerformanceService
                     'name' => $result->name,
                     'category' => $result->category,
                     'count' => $count,
-                    'id' => $resultId
+                    'id' => $resultId,
                 ];
             }
         }
@@ -465,6 +468,7 @@ class CompanyPerformanceService extends BasePerformanceService
     {
         $query = Customer::query();
         $this->applyFilters($query, $filters);
+
         return $query->distinct('company_id')->count('company_id');
     }
 
@@ -485,7 +489,7 @@ class CompanyPerformanceService extends BasePerformanceService
                 ['key' => 'total_settlements', 'label' => 'إجمالي التسويات', 'selected' => false],
                 // ✅ حذف total_collected
                 ['key' => 'achievement_rate', 'label' => 'نسبة الإنجاز', 'selected' => true],
-            ]
+            ],
         ];
     }
 
@@ -508,13 +512,14 @@ class CompanyPerformanceService extends BasePerformanceService
     {
         $data = $this->getCompaniesPerformance($filters);
 
-        $fileName = 'تقرير_أداء_الشركات_' . now()->format('Y_m_d_H_i_s') . '.xlsx';
+        $fileName = 'تقرير_أداء_الشركات_'.now()->format('Y_m_d_H_i_s').'.xlsx';
 
         Excel::store(
             new PerformanceReportExport($data, $filters, $selectedFields, 'companies'),
-            'exports/' . $fileName,
+            'exports/'.$fileName,
             'tenant_public'
         );
+        app(TenantExportAccess::class)->registerFile($fileName, (int) auth('tenant')->id());
 
         return $fileName;
     }
@@ -534,7 +539,7 @@ class CompanyPerformanceService extends BasePerformanceService
             $statistics = $this->getOverallStatistics($filters);
             $dateRange = $this->getDateRangeText($startDate, $endDate);
 
-            $mpdf = new \Mpdf\Mpdf([
+            $mpdf = new Mpdf([
                 'mode' => 'utf-8',
                 'format' => 'A4', // ✅ Portrait (عمودي)
                 'orientation' => 'P', // ✅ P = Portrait
@@ -544,11 +549,11 @@ class CompanyPerformanceService extends BasePerformanceService
                 'margin_bottom' => 10,
                 'default_font' => 'almarai',
                 'fontDir' => array_merge(
-                    (new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'],
+                    (new ConfigVariables)->getDefaults()['fontDir'],
                     [public_path('static/fonts/almarai')]
                 ),
                 'fontdata' => array_merge(
-                    (new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'],
+                    (new FontVariables)->getDefaults()['fontdata'],
                     ['almarai' => [
                         'R' => 'Almarai-Regular.ttf',
                         'B' => 'Almarai-Bold.ttf',
@@ -570,21 +575,21 @@ class CompanyPerformanceService extends BasePerformanceService
 
             $mpdf->WriteHTML($html);
 
-            $fileName = 'تقرير_أداء_الشركات_' . now()->format('Y_m_d_H_i_s') . '.pdf';
+            $fileName = 'تقرير_أداء_الشركات_'.now()->format('Y_m_d_H_i_s').'.pdf';
 
             $tempDir = storage_path('app/public/temp');
-            if (!file_exists($tempDir)) {
+            if (! file_exists($tempDir)) {
                 mkdir($tempDir, 0755, true);
             }
 
-            $tempPath = $tempDir . '/' . $fileName;
+            $tempPath = $tempDir.'/'.$fileName;
             $mpdf->Output($tempPath, 'F');
 
             return response()->download($tempPath)->deleteFileAfterSend();
         } catch (\Throwable $e) {
             Log::error('exportPerformanceReportToPDF error', [
                 'msg' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
             throw $e;
         }
@@ -603,11 +608,12 @@ class CompanyPerformanceService extends BasePerformanceService
             return [
                 'success' => false,
                 'message' => 'لا توجد بيانات للتصدير',
-                'count' => 0
+                'count' => 0,
             ];
         }
 
         $job = new ExportPerformanceReportJob($filters, $selectedFields, $userId, 'companies');
+        app(TenantExportAccess::class)->registerExport($job->getExportId(), (int) $userId);
         dispatch($job);
 
         return [
@@ -616,7 +622,7 @@ class CompanyPerformanceService extends BasePerformanceService
             'count' => $count,
             'message' => $count > self::LARGE_EXPORT_THRESHOLD
                 ? "سيتم تصدير {$count} سجل. سيتم إشعارك عند الانتهاء"
-                : "جاري تصدير {$count} سجل..."
+                : "جاري تصدير {$count} سجل...",
         ];
     }
 
@@ -627,6 +633,8 @@ class CompanyPerformanceService extends BasePerformanceService
     */
     public function getExportProgress(string $exportId): array
     {
+        app(TenantExportAccess::class)->authorizeExport($exportId, auth('tenant')->id());
+
         $progress = Cache::get("performance_export_progress_{$exportId}");
         $result = Cache::get("performance_export_result_{$exportId}");
 
@@ -641,7 +649,7 @@ class CompanyPerformanceService extends BasePerformanceService
         return [
             'export_id' => $exportId,
             'status' => 'not_found',
-            'message' => 'لم يتم العثور على عملية التصدير'
+            'message' => 'لم يتم العثور على عملية التصدير',
         ];
     }
 }

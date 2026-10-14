@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin\Settings\Domain;
 
+use App\Actions\Admin\Settings\ManageControlDomainAction;
 use App\DataTables\Admin\Setting\SettingDomainDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
@@ -9,79 +12,73 @@ use App\Http\Requests\Admin\Settings\Domain\StoreControlDomainRequest;
 use App\Http\Requests\Admin\Settings\Domain\UpdateControlDomainRequest;
 use App\Models\Admin\ControlDomain\ControlDomain;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
-class SettingsDomainController extends Controller
+final class SettingsDomainController extends Controller
 {
-    private $page = 'admin.settings.domains';
+    private string $page = 'admin.settings.domains';
 
-    private $route = 'admin.settings.domains';
-
-    public function __construct()
+    public function __construct(private readonly ManageControlDomainAction $domains)
     {
         $this->authorizeResource(ControlDomain::class, 'domain');
         $this->middleware('can:domain_extension_prices.settings');
     }
 
-    public function index(SettingDomainDataTable $dataTable)
+    public function index(SettingDomainDataTable $dataTable): mixed
     {
-        try {
-            $filterOptions = [
-                'statuses' => [
-                    ['value' => 'active', 'label' => 'نشط'],
-                    ['value' => 'inactive', 'label' => 'غير نشط'],
-                ],
-            ];
+        $filterOptions = ['statuses' => [
+            ['value' => 'active', 'label' => 'نشط'],
+            ['value' => 'inactive', 'label' => 'غير نشط'],
+        ]];
 
-            return $dataTable->render($this->page.'.index', compact('filterOptions'));
-        } catch (\Exception $e) {
-            report($e);
-
-            return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
-        }
+        return $dataTable->render($this->page.'.index', compact('filterOptions'));
     }
 
-    public function create()
+    public function create(): View
     {
         return view($this->page.'.create');
     }
 
-    // Store extension
-    public function store(StoreControlDomainRequest $request)
+    public function store(StoreControlDomainRequest $request): RedirectResponse
     {
-        ControlDomain::create($request->validated());
+        $this->domains->create($request->validated());
 
         return redirect()->route('admin.settings.domains.index')->with('success', 'تم إضافة الامتداد بنجاح');
     }
 
-    // Show edit form
-    public function edit(ControlDomain $domain)
+    public function edit(ControlDomain $domain): View
     {
         return view($this->page.'.edit', compact('domain'));
     }
 
-    // Update
-    public function update(UpdateControlDomainRequest $request, ControlDomain $domain)
+    public function update(UpdateControlDomainRequest $request, ControlDomain $domain): RedirectResponse
     {
-        $domain->update($request->validated());
+        $this->domains->update($domain, $request->validated());
 
         return redirect()->route('admin.settings.domains.index')->with('success', 'تم التعديل بنجاح');
     }
 
     public function toggleStatus(AdminAuthenticatedRequest $request, ControlDomain $domain): JsonResponse
     {
-        $domain->update(['is_active' => ! $domain->is_active]);
+        $status = $this->domains->toggleStatus($domain);
 
         return response()->json([
             'success' => true,
-            'message' => $domain->is_active ? 'تم تفعيل امتداد الدومين بنجاح' : 'تم تعطيل امتداد الدومين بنجاح',
+            'message' => $status ? 'تم تفعيل امتداد الدومين بنجاح' : 'تم تعطيل امتداد الدومين بنجاح',
+            'status' => $status,
         ]);
     }
 
-    // Delete
-    public function destroy(AdminAuthenticatedRequest $request, ControlDomain $domain)
+    public function destroy(AdminAuthenticatedRequest $request, ControlDomain $domain): RedirectResponse|JsonResponse
     {
-        $domain->delete();
+        $this->domains->delete($domain);
+        $message = 'تم حذف الامتداد بنجاح';
 
-        return redirect()->route('admin.settings.domains.index')->with('success', 'تم حذف الامتداد بنجاح');
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => $message]);
+        }
+
+        return redirect()->route('admin.settings.domains.index')->with('success', $message);
     }
 }

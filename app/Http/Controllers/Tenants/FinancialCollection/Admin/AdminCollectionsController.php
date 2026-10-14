@@ -4,13 +4,16 @@ namespace App\Http\Controllers\Tenants\FinancialCollection\Admin;
 
 use App\DataTables\Tenants\FinancialCollection\Admin\AdminCollectionsDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\FinancialCollection\Collection\ApproveSelectedAdminCollectionsRequest;
+use App\Http\Requests\Tenants\FinancialCollection\Collection\DeleteSelectedAdminCollectionsRequest;
+use App\Http\Requests\Tenants\FinancialCollection\Collection\RejectCollectionRequest;
+use App\Http\Requests\Tenants\FinancialCollection\Collection\RejectSelectedAdminCollectionsRequest;
 use App\Models\Tenants\FinancialCollection\Collection\Collection;
 use App\Services\Tenants\FinancialCollection\Collection\CollectionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class AdminCollectionsController extends Controller
@@ -133,19 +136,12 @@ class AdminCollectionsController extends Controller
     |--------------------------------------------------------------------------
     | Reject the specified collection.
     */
-    public function reject(Request $request, Collection $collection): JsonResponse
+    public function reject(RejectCollectionRequest $request, Collection $collection): JsonResponse
     {
-        $request->validate([
-            'rejection_reason' => 'required|string|max:500',
-        ], [
-            'rejection_reason.required' => 'يرجى إدخال سبب الرفض',
-            'rejection_reason.max' => 'سبب الرفض طويل جداً',
-        ]);
-
         try {
             $this->collectionService->rejectCollection(
                 $collection,
-                $request->rejection_reason,
+                $request->validated('rejection_reason'),
                 Auth::id()
             );
 
@@ -169,30 +165,15 @@ class AdminCollectionsController extends Controller
     |--------------------------------------------------------------------------
     | Approve multiple selected collections.
     */
-    public function approveSelected(Request $request): JsonResponse
+    public function approveSelected(ApproveSelectedAdminCollectionsRequest $request): JsonResponse
     {
-        if ($request->isJson()) {
-            $request->merge($request->json()->all());
-        }
-
         try {
-            $validated = $request->validate([
-                'ids' => 'required|array|min:1',
-                'ids.*' => 'required|numeric|exists:collections,id',
-            ]);
-
             $result = $this->collectionService->approveSelectedCollections(
-                $validated['ids'],
+                $request->validated('ids'),
                 Auth::id()
             );
 
             return response()->json($result);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'فشل التحقق من صحة البيانات.',
-                'errors' => $e->errors(),
-            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -208,22 +189,12 @@ class AdminCollectionsController extends Controller
     |--------------------------------------------------------------------------
     | Reject multiple selected collections.
     */
-    public function rejectSelected(Request $request): JsonResponse
+    public function rejectSelected(RejectSelectedAdminCollectionsRequest $request): JsonResponse
     {
-        $request->validate([
-            'ids' => 'required|array|min:1',
-            'ids.*' => 'required|integer|exists:collections,id',
-            'rejection_reason' => 'required|string|max:500',
-        ], [
-            'ids.required' => 'يرجى تحديد تحصيل واحد على الأقل',
-            'rejection_reason.required' => 'يرجى إدخال سبب الرفض',
-            'rejection_reason.max' => 'سبب الرفض طويل جداً',
-        ]);
-
         try {
             $rejectedCount = $this->collectionService->rejectSelectedCollections(
-                $request->ids,
-                $request->rejection_reason,
+                $request->validated('ids'),
+                $request->validated('rejection_reason'),
                 Auth::id()
             );
 
@@ -268,20 +239,10 @@ class AdminCollectionsController extends Controller
     |--------------------------------------------------------------------------
     | Remove multiple selected collections from storage.
     */
-    public function deleteSelected(Request $request): JsonResponse
+    public function deleteSelected(DeleteSelectedAdminCollectionsRequest $request): JsonResponse
     {
-        $request->validate([
-            'ids' => 'required|array|min:1',
-            'ids.*' => 'required|integer|exists:collections,id',
-        ], [
-            'ids.required' => 'يرجى تحديد تحصيل واحد على الأقل',
-            'ids.array' => 'البيانات المرسلة غير صحيحة',
-            'ids.min' => 'يرجى تحديد تحصيل واحد على الأقل',
-            'ids.*.exists' => 'أحد التحصيلات المحددة غير موجود',
-        ]);
-
         try {
-            $deletedCount = $this->collectionService->deleteSelectedAdminCollections($request->ids);
+            $deletedCount = $this->collectionService->deleteSelectedAdminCollections($request->validated('ids'));
 
             return response()->json([
                 'success' => true,

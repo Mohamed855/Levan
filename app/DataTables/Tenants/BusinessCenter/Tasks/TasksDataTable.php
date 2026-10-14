@@ -68,16 +68,6 @@ class TasksDataTable extends AbstractDataTable
     {
         return [
             ['data' => '', 'orderable' => false, 'searchable' => false],
-            [
-                'data' => 'checkbox',
-                'name' => 'checkbox',
-                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
-                'orderable' => false,
-                'searchable' => false,
-                'width' => '10px',
-                'className' => 'custom-checkbox',
-                'titleAttr' => 'تحديد الكل',
-            ],
             ['data' => 'customer_name', 'name' => 'c.name', 'title' => 'العميل'],
             ['data' => 'account_number', 'name' => 'c.account_number', 'title' => 'رقم الحساب'],
             ['data' => 'identity_number', 'name' => 'c.identity_number', 'title' => 'رقم الهوية'],
@@ -100,8 +90,6 @@ class TasksDataTable extends AbstractDataTable
     protected function addCustomColumns($datatable)
     {
         $datatable
-            ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
-
             ->addColumn('customer_name', function ($row) {
                 $showUrl = tenant_route_name('customers.show', $row->customer_id);
                 $phone = $row->customer_phone ?: 'غير محدد';
@@ -177,7 +165,7 @@ class TasksDataTable extends AbstractDataTable
     */
     protected function rawColumns(): array
     {
-        return ['checkbox', 'customer_name', 'company_name', 'task_type', 'due_date', 'overdue_days', 'status', 'relationship_manager'];
+        return ['customer_name', 'company_name', 'task_type', 'due_date', 'overdue_days', 'status', 'relationship_manager'];
     }
 
     /*
@@ -249,13 +237,6 @@ class TasksDataTable extends AbstractDataTable
             }",
             ],
         ];
-
-        if (auth()->user()?->can('tasks.delete')) {
-            $buttons[] = [
-                'text' => 'حذف المحدد',
-                'action' => 'function() { handleMassDelete(); }',
-            ];
-        }
 
         return [
             'extend' => 'collection',

@@ -41,6 +41,16 @@ class VersionService
         });
     }
 
+    public function toggleStatus(Version $version): bool
+    {
+        return DB::transaction(function () use ($version): bool {
+            $status = ! $version->is_active;
+            $version->update(['is_active' => $status]);
+
+            return $status;
+        });
+    }
+
     // Get Version statistics
     public function getVersionStatistics(): array
     {

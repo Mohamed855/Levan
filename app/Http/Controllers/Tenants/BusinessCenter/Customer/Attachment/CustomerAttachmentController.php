@@ -26,6 +26,8 @@ class CustomerAttachmentController extends Controller
     */
     public function getAttachmentsList(Customer $customer): JsonResponse
     {
+        $this->authorize('view', $customer);
+
         try {
             $customerAttachments = $customer->attachments()->with('createdBy:id,name')->latest()->get();
 
@@ -53,6 +55,8 @@ class CustomerAttachmentController extends Controller
     */
     public function store(StoreCustomerAttachmentRequest $request, Customer $customer): JsonResponse
     {
+        $this->authorize('update', $customer);
+
         try {
             $attachments = $this->customerAttachmentService->createMultipleAttachments(
                 $customer,
@@ -79,6 +83,15 @@ class CustomerAttachmentController extends Controller
     */
     public function destroy(Customer $customer, CustomerAttachment $customerAttachment): JsonResponse
     {
+        $this->authorize('delete', $customer);
+
+        if ($customerAttachment->customer_id !== $customer->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'غير مصرح لك بحذف هذا المرفق',
+            ], 403);
+        }
+
         try {
             $this->customerAttachmentService->deleteAttachment($customerAttachment);
 
@@ -101,6 +114,8 @@ class CustomerAttachmentController extends Controller
     */
     public function download(Customer $customer, CustomerAttachment $customerAttachment)
     {
+        $this->authorize('view', $customer);
+
         try {
             // التحقق من أن المرفق يخص هذا العميل
             if ($customerAttachment->customer_id !== $customer->id) {
@@ -157,63 +172,6 @@ class CustomerAttachmentController extends Controller
                 'success' => false,
                 'message' => 'حدث خطأ أثناء تحميل الملف: '.$e->getMessage(),
             ], 500);
-        }
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | دالة تشخيص لفحص الملفات (للتطوير فقط)
-    |--------------------------------------------------------------------------
-    */
-    public function diagnose(Customer $customer, CustomerAttachment $customerAttachment)
-    {
-        $filePath = $customerAttachment->file_path;
-        $fullPath = Storage::disk('tenant_public')->path($filePath);
-
-        return response()->json([
-            'attachment_id' => $customerAttachment->id,
-            'file_path' => $filePath,
-            'full_path' => $fullPath,
-            'storage_exists' => Storage::disk('tenant_public')->exists($filePath),
-            'file_exists' => file_exists($fullPath),
-            'storage_url' => Storage::disk('tenant_public')->url($filePath),
-            'file_size_db' => $customerAttachment->file_size,
-            'file_size_actual' => file_exists($fullPath) ? filesize($fullPath) : 'غير موجود',
-            'storage_path' => storage_path('app/public'),
-            'public_path' => public_path('storage'),
-            'symlink_exists' => is_link(public_path('storage')),
-            'description' => $customerAttachment->description, // إضافة الوصف للتشخيص
-            'all_attributes' => $customerAttachment->toArray(), // جميع البيانات
-        ]);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | اختبار إنشاء مرفق يدوياً للتشخيص
-    |--------------------------------------------------------------------------
-    */
-    public function testCreate(Customer $customer)
-    {
-        try {
-            $attachment = CustomerAttachment::create([
-                'customer_id' => $customer->id,
-                'created_by' => auth()->id(),
-                'description' => 'اختبار الوصف',
-                'file_path' => 'test/test.pdf',
-                'file_type' => 'pdf',
-                'file_size' => 1024,
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'تم إنشاء مرفق اختبار',
-                'data' => $attachment->toArray(),
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'خطأ في إنشاء مرفق اختبار: '.$e->getMessage(),
-            ]);
         }
     }
 }

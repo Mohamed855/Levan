@@ -412,12 +412,12 @@ class AdminCollectionsDataTable extends AbstractDataTable
             'title' => 'تحصيلات المستخدمين',
         ];
 
-        // if (Auth::user()->can('استيراد التحصيلات')) {
-        $buttons[0]['buttons'][] = [
-            'text' => 'استيراد التحصيلات',
-            'action' => 'function() { window.location.href = window.routes.collectionsImport; }',
-        ];
-        // }
+        if (Auth::user()->can('admin_collections.import')) {
+            $buttons[0]['buttons'][] = [
+                'text' => 'استيراد التحصيلات',
+                'action' => 'function() { window.location.href = window.routes.collectionsImport; }',
+            ];
+        }
 
         if (Auth::user()->can('admin_collections.approve_all')) {
             $buttons[0]['buttons'][] = [

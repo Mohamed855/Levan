@@ -54,8 +54,8 @@
                 $canEdit = !in_array($follow->collection->status, ['approved', 'rejected']);
                 }
 
-                $hasEditButton = $canEdit && auth()->user()->can('تعديل متابعة');
-                $hasDeleteButton = auth()->user()->can('حذف متابعة');
+                $hasEditButton = $canEdit && auth()->user()->can('customer_follows.edit');
+                $hasDeleteButton = auth()->user()->can('customer_follows.delete');
 
                 if ($hasEditButton || $hasDeleteButton) {
                 $hasAnyActions = true;

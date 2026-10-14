@@ -6,6 +6,7 @@ use App\DataTables\Tenants\Reports\CustomerFollow\CustomerFollowReportsDataTable
 use App\Http\Controllers\Controller;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Services\Tenants\Reports\CustomerFollow\CustomerFollowReportService;
+use App\Services\Tenants\Reports\TenantExportAccess;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -15,10 +16,12 @@ class CustomerFollowReportController extends Controller
 {
     protected CustomerFollowReportService $customerFollowReportService;
 
-    public function __construct(CustomerFollowReportService $customerFollowReportService)
+    protected TenantExportAccess $exportAccess;
+
+    public function __construct(CustomerFollowReportService $customerFollowReportService, TenantExportAccess $exportAccess)
     {
         $this->customerFollowReportService = $customerFollowReportService;
-        // $this->middleware('can:تقارير متابعات العملاء');
+        $this->exportAccess = $exportAccess;
     }
 
     /*
@@ -265,6 +268,8 @@ class CustomerFollowReportController extends Controller
     */
     public function downloadFile($file)
     {
+        $this->exportAccess->authorizeFile((string) $file, request()->user('tenant')?->id);
+
         $disk = Storage::disk('tenant_public');
         $relativePath = 'exports/'.$file;
 

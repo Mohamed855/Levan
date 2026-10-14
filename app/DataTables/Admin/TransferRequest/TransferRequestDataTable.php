@@ -164,10 +164,6 @@ class TransferRequestDataTable extends AbstractDataTable
 
     private function getAddButton(): array
     {
-        // if (!auth()->user()?->can('إضافة شركة')) {
-        //     return [];
-        // }
-
         return [
             // 'text'      => '<i class="fas fa-plus-circle me-1"></i> إضافة شركة',
             // 'className' => 'btn btn-primary btn-add',

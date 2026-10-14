@@ -33,4 +33,14 @@ class PortfolioPolicy
     {
         return $user->can('portfolios.delete') && tenancy()->initialized;
     }
+
+    public function restore(User $user, Portfolio $portfolio): bool
+    {
+        return $user->can('portfolios_archive.restore') && tenancy()->initialized;
+    }
+
+    public function forceDelete(User $user, Portfolio $portfolio): bool
+    {
+        return $user->can('portfolios_archive.force_delete') && tenancy()->initialized;
+    }
 }

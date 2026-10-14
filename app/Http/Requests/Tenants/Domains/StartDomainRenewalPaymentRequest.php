@@ -8,7 +8,7 @@ class StartDomainRenewalPaymentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return tenant() !== null;
+        return tenant() !== null && ($this->user('tenant')?->can('domain.reserve') ?? false);
     }
 
     public function rules(): array

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Domains\CheckMultipleDomainsRequest;
 use App\Http\Requests\Tenants\Domains\ClearAllDomainCacheRequest;
 use App\Http\Requests\Tenants\Domains\ClearDomainCacheRequest;
+use App\Http\Requests\Tenants\Domains\SuggestDomainAlternativesRequest;
+use App\Http\Requests\Tenants\Domains\SuggestDomainNamesRequest;
 use App\Services\shared\NameCheap\CheckMultipleDomainService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -66,23 +68,10 @@ class CheckMultipleDomainController extends Controller
     /**
      * اقتراح دومينات بديلة بامتدادات مختلفة
      */
-    public function suggestAlternatives(Request $request): JsonResponse
+    public function suggestAlternatives(SuggestDomainAlternativesRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'domain_name' => 'required|string|min:2|max:63',
-            'limit' => 'nullable|integer|min:1|max:20',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'error' => 'بيانات غير صالحة',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        $domainName = $request->input('domain_name');
-        $limit = $request->input('limit', 8);
+        $domainName = $request->validated('domain_name');
+        $limit = $request->integer('limit', 8);
 
         $result = $this->domainService->suggestAlternativeExtensions($domainName, $limit);
 
@@ -96,31 +85,10 @@ class CheckMultipleDomainController extends Controller
     /**
      * اقتراح دومينات بديلة بتعديلات على الاسم
      */
-    public function suggestNames(Request $request): JsonResponse
+    public function suggestNames(SuggestDomainNamesRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'domain_name' => 'required|string|min:2|max:63',
-            'extension' => 'nullable|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'error' => 'بيانات غير صالحة',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        $domainName = $request->input('domain_name');
-        $extension = $request->input('extension', '.com');
-
-        // التحقق من صحة الامتداد
-        if (! preg_match('/^\.[a-z]{2,}$/', $extension)) {
-            return response()->json([
-                'success' => false,
-                'error' => 'الامتداد غير صحيح',
-            ], 400);
-        }
+        $domainName = $request->validated('domain_name');
+        $extension = $request->validated('extension', '.com');
 
         $result = $this->domainService->suggestAlternativeNames($domainName, $extension);
 

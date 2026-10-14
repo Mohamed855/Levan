@@ -60,6 +60,7 @@ class PortfolioArchiveController extends Controller
     {
         try {
             $portfolio = Portfolio::onlyTrashed()->findOrFail($request->validated('id'));
+            $this->authorize('restore', $portfolio);
             $this->portfolioArchiveService->restorePortfolio($portfolio);
 
             if ($request->ajax() || $request->wantsJson()) {
@@ -90,6 +91,7 @@ class PortfolioArchiveController extends Controller
     {
         try {
             $portfolio = Portfolio::onlyTrashed()->findOrFail($request->validated('id'));
+            $this->authorize('forceDelete', $portfolio);
             $this->portfolioArchiveService->forceDeletePortfolio($portfolio);
 
             if ($request->ajax() || $request->wantsJson()) {
@@ -120,6 +122,9 @@ class PortfolioArchiveController extends Controller
     {
         try {
             $portfolioIds = $request->validated('ids');
+            Portfolio::onlyTrashed()->whereKey($portfolioIds)->get()->each(
+                fn (Portfolio $portfolio) => $this->authorize('restore', $portfolio)
+            );
 
             $restoredCount = $this->portfolioArchiveService->massRestorePortfolios($portfolioIds);
 
@@ -145,6 +150,9 @@ class PortfolioArchiveController extends Controller
     {
         try {
             $portfolioIds = $request->validated('ids');
+            Portfolio::onlyTrashed()->whereKey($portfolioIds)->get()->each(
+                fn (Portfolio $portfolio) => $this->authorize('forceDelete', $portfolio)
+            );
 
             $deletedCount = $this->portfolioArchiveService->massForceDeletePortfolios($portfolioIds);
 

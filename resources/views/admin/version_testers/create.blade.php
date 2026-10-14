@@ -28,7 +28,6 @@
                             <span class="bs-stepper-circle">1</span>
                             <span class="bs-stepper-label mt-1">
                                 <span class="bs-stepper-title">معلومات عضو الفريق</span>
-                                <span class="bs-stepper-subtitle">البيانات الأساسية</span>
                             </span>
                         </button>
                     </div>

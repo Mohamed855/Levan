@@ -2,26 +2,28 @@
 
 namespace App\Services\Tenants\BusinessCenter\Customer\BulkUpdate;
 
-use App\Jobs\Tenants\BusinessCenter\Customer\BulkUpdate\ProcessCustomerBulkUpdate;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\BulkUpdate\BulkUpdateRequest;
 use App\Jobs\Tenants\BusinessCenter\Customer\BulkUpdate\ProcessCustomerBulkExclusion;
+use App\Jobs\Tenants\BusinessCenter\Customer\BulkUpdate\ProcessCustomerBulkUpdate;
 use App\Models\Tenants\BusinessCenter\Company\Company;
-use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
-use App\Models\Tenants\BusinessCenter\Portfolio\PortfolioField;
-use App\Models\Tenants\BusinessCenter\Customers\FieldValue\CustomerFieldValue;
-use App\Models\Tenants\FinancialCollection\Collection\CustomerTransaction;
-use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class CustomerBulkUpdateService
 {
+    public function storeTemporaryFile(UploadedFile $file): string
+    {
+        return $file->store('temp_updates');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Get Initial View Data
@@ -77,7 +79,7 @@ class CustomerBulkUpdateService
         $dynamicFields = $portfolio->fields->pluck('field_name', 'id')->toArray();
         $formattedDynamicFields = [];
         foreach ($dynamicFields as $id => $name) {
-            $formattedDynamicFields['dynamic_' . $id] = $name;
+            $formattedDynamicFields['dynamic_'.$id] = $name;
         }
 
         return [
@@ -106,7 +108,7 @@ class CustomerBulkUpdateService
             }
         }
 
-        $spreadsheet = new Spreadsheet();
+        $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
 
         $columnIndex = 1;
@@ -128,28 +130,28 @@ class CustomerBulkUpdateService
         }
 
         $lastColumn = $sheet->getHighestColumn();
-        $sheet->getStyle('A1:' . $lastColumn . '1')->applyFromArray([
+        $sheet->getStyle('A1:'.$lastColumn.'1')->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
             'fill' => [
-                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                'startColor' => ['rgb' => '4472C4']
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '4472C4'],
             ],
             'alignment' => [
-                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
-            ]
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
         ]);
 
         foreach (range('A', $lastColumn) as $column) {
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
 
-        if (!Storage::exists('temp')) {
+        if (! Storage::exists('temp')) {
             Storage::makeDirectory('temp');
         }
 
-        $fileName = 'customer_update_template_' . now()->format('Ymd_His') . '.xlsx';
-        $path = storage_path('app/temp/' . $fileName);
+        $fileName = 'customer_update_template_'.now()->format('Ymd_His').'.xlsx';
+        $path = storage_path('app/temp/'.$fileName);
 
         $writer = new Xlsx($spreadsheet);
         $writer->save($path);
@@ -165,19 +167,19 @@ class CustomerBulkUpdateService
     public function analyzeFileHeaders(UploadedFile $file): array
     {
         $tempPath = $file->store('temp_analysis');
-        $fullPath = storage_path('app/' . $tempPath);
+        $fullPath = storage_path('app/'.$tempPath);
 
         try {
             $spreadsheet = IOFactory::load($fullPath);
             $sheet = $spreadsheet->getActiveSheet();
-            $firstRow = $sheet->rangeToArray('A1:' . $sheet->getHighestColumn() . '1')[0];
+            $firstRow = $sheet->rangeToArray('A1:'.$sheet->getHighestColumn().'1')[0];
 
             $headers = array_map(function ($header) {
                 return trim($header ?? '');
             }, $firstRow);
 
             $headers = array_filter($headers, function ($header) {
-                return !empty($header);
+                return ! empty($header);
             });
 
             Storage::delete($tempPath);
@@ -250,17 +252,17 @@ class CustomerBulkUpdateService
     */
     public function generateErrorReport(array $errors): string
     {
-        $spreadsheet = new Spreadsheet();
+        $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setRightToLeft(true);
 
         $sheet->setCellValue('A1', 'تقرير أخطاء التحديث المجمع للعملاء');
         $sheet->mergeCells('A1:D1');
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(16);
-        $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-        $sheet->setCellValue('A2', 'تاريخ التنفيذ: ' . now()->format('Y-m-d H:i:s'));
-        $sheet->setCellValue('A3', 'عدد الأخطاء: ' . count($errors));
+        $sheet->setCellValue('A2', 'تاريخ التنفيذ: '.now()->format('Y-m-d H:i:s'));
+        $sheet->setCellValue('A3', 'عدد الأخطاء: '.count($errors));
 
         $sheet->setCellValue('A5', 'رقم الصف');
         $sheet->setCellValue('B5', 'مفتاح المطابقة');
@@ -270,25 +272,25 @@ class CustomerBulkUpdateService
         $headerRange = 'A5:D5';
         $sheet->getStyle($headerRange)->getFont()->setBold(true);
         $sheet->getStyle($headerRange)->getFill()
-            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->setFillType(Fill::FILL_SOLID)
             ->getStartColor()->setRGB('E3F2FD');
 
         $row = 6;
         foreach ($errors as $error) {
-            $sheet->setCellValue('A' . $row, $error['row']);
-            $sheet->setCellValue('B' . $row, $error['match_value'] ?? '');
+            $sheet->setCellValue('A'.$row, $error['row']);
+            $sheet->setCellValue('B'.$row, $error['match_value'] ?? '');
 
             if (strpos($error['message'], 'سدادات مسجلة') !== false) {
-                $sheet->setCellValue('C' . $row, 'مديونية محظورة');
+                $sheet->setCellValue('C'.$row, 'مديونية محظورة');
             } elseif (strpos($error['message'], 'الرقم الوظيفي') !== false) {
-                $sheet->setCellValue('C' . $row, 'رقم وظيفي غير موجود');
+                $sheet->setCellValue('C'.$row, 'رقم وظيفي غير موجود');
             } elseif (strpos($error['message'], 'نوع العميل') !== false) {
-                $sheet->setCellValue('C' . $row, 'نوع عميل غير صحيح');
+                $sheet->setCellValue('C'.$row, 'نوع عميل غير صحيح');
             } else {
-                $sheet->setCellValue('C' . $row, 'خطأ عام');
+                $sheet->setCellValue('C'.$row, 'خطأ عام');
             }
 
-            $sheet->setCellValue('D' . $row, $error['message']);
+            $sheet->setCellValue('D'.$row, $error['message']);
             $row++;
         }
 
@@ -297,15 +299,15 @@ class CustomerBulkUpdateService
         $sheet->getColumnDimension('C')->setWidth(25);
         $sheet->getColumnDimension('D')->setWidth(50);
 
-        $fileName = 'bulk_update_errors_' . now()->format('YmdHis') . '.xlsx';
-        $filePath = 'reports/' . $fileName;
+        $fileName = 'bulk_update_errors_'.now()->format('YmdHis').'.xlsx';
+        $filePath = 'reports/'.$fileName;
 
-        if (!Storage::exists('reports')) {
+        if (! Storage::exists('reports')) {
             Storage::makeDirectory('reports');
         }
 
         $writer = new Xlsx($spreadsheet);
-        $writer->save(storage_path('app/' . $filePath));
+        $writer->save(storage_path('app/'.$filePath));
 
         return $filePath;
     }
@@ -313,7 +315,7 @@ class CustomerBulkUpdateService
     public function rememberErrorReportOwner(string $path, int $userId): void
     {
         Cache::put(
-            \App\Http\Requests\Tenants\BusinessCenter\Customer\BulkUpdate\BulkUpdateRequest::errorReportOwnerKey($path),
+            BulkUpdateRequest::errorReportOwnerKey($path),
             $userId,
             now()->addHours(2),
         );
@@ -339,10 +341,10 @@ class CustomerBulkUpdateService
     public function validateFileRowCount(UploadedFile $file): array
     {
         $tempPath = $file->store('temp_analysis');
-        $fullPath = storage_path('app/' . $tempPath);
+        $fullPath = storage_path('app/'.$tempPath);
 
         try {
-            $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
+            $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx;
             $reader->setReadDataOnly(true);
 
             $spreadsheet = $reader->load($fullPath);
@@ -363,23 +365,23 @@ class CustomerBulkUpdateService
                     'message' => sprintf(
                         'عدد الصفوف (%s) يتجاوز الحد الأقصى المسموح به (50,000 صف). يرجى تقسيم الملف إلى ملفات أصغر.',
                         number_format($totalRows)
-                    )
+                    ),
                 ];
             }
 
             return [
                 'valid' => true,
-                'total_rows' => $totalRows
+                'total_rows' => $totalRows,
             ];
         } catch (\Exception $e) {
             Storage::delete($tempPath);
+
             return [
                 'valid' => false,
-                'message' => 'فشل في التحقق من عدد الصفوف: ' . $e->getMessage()
+                'message' => 'فشل في التحقق من عدد الصفوف: '.$e->getMessage(),
             ];
         }
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -388,7 +390,7 @@ class CustomerBulkUpdateService
     */
     public function generateExclusionTemplate(array $data): array
     {
-        $spreadsheet = new Spreadsheet();
+        $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setRightToLeft(true);
 
@@ -399,13 +401,13 @@ class CustomerBulkUpdateService
         $sheet->getStyle('A1')->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
             'fill' => [
-                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                'startColor' => ['rgb' => 'DC3545'] // أحمر للاستبعاد
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => 'DC3545'], // أحمر للاستبعاد
             ],
             'alignment' => [
-                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
-            ]
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
         ]);
 
         $sheet->setCellValue('A2', 'مثال: 123456');
@@ -414,12 +416,12 @@ class CustomerBulkUpdateService
 
         $sheet->getColumnDimension('A')->setAutoSize(true);
 
-        if (!Storage::exists('temp')) {
+        if (! Storage::exists('temp')) {
             Storage::makeDirectory('temp');
         }
 
-        $fileName = 'customer_exclusion_template_' . now()->format('Ymd_His') . '.xlsx';
-        $path = storage_path('app/temp/' . $fileName);
+        $fileName = 'customer_exclusion_template_'.now()->format('Ymd_His').'.xlsx';
+        $path = storage_path('app/temp/'.$fileName);
 
         $writer = new Xlsx($spreadsheet);
         $writer->save($path);

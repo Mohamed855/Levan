@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Admin\Auth;
 
+use App\Actions\Auth\PersistAuthenticationStateAction;
 use App\Actions\Auth\ResolveTwoFactorLogin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Auth\AdminTwoFactorChallengeRequest;
-use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,7 +23,7 @@ class AdminTwoFactorChallengeController extends Controller
         return view('admin.auth.two-factor-challenge');
     }
 
-    public function store(AdminTwoFactorChallengeRequest $request, ResolveTwoFactorLogin $resolver): RedirectResponse
+    public function store(AdminTwoFactorChallengeRequest $request, ResolveTwoFactorLogin $resolver, PersistAuthenticationStateAction $authenticationState): RedirectResponse
     {
         $admin = $resolver->verify('admin', $request, $request->validated());
         $remember = $request->session()->pull('login.remember', false);
@@ -34,10 +34,7 @@ class AdminTwoFactorChallengeController extends Controller
 
         $request->session()->regenerate();
 
-        AdminUser::where('id', $admin->id)->update([
-            'last_login_at' => now(),
-            'last_login_ip' => $request->ip(),
-        ]);
+        $authenticationState->recordLogin($admin, $request->ip());
 
         return redirect()->intended(RouteServiceProvider::ADMIN);
     }

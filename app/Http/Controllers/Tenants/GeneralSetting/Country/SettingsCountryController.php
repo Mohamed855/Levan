@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenants\GeneralSetting\Country;
 
+use App\Actions\Tenants\GeneralSetting\GeneralSettingAction;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tenants\Traits\CommonSettingController;
 use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
@@ -55,22 +56,18 @@ class SettingsCountryController extends Controller
         return $this->update_trait($request, $this->model, $id);
     }
 
-    // public function destroy($id)
-    // {
-    //     return $this->destroy_trait($this->model, $id);
-    // }
-
     public function destroy(TenantAuthenticatedRequest $request, $id)
     {
-        try {
-            $country = SettingsCountry::findOrFail($id);
+        $country = SettingsCountry::findOrFail($id);
+        $this->authorize('delete', $country);
 
+        try {
             // Check if country has customers
             if ($country->customers()->count() > 0) {
                 throw new \Exception('لا يمكن حذف هذه الدولة لأنها مرتبطة بعملاء. يجب حذف العملاء أولاً.');
             }
 
-            $country->delete();
+            app(GeneralSettingAction::class)->delete($country);
 
             return redirect()->back()->with('success', 'تم الحذف بنجاح.');
         } catch (\Exception $e) {

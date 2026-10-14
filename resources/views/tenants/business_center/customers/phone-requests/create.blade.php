@@ -19,7 +19,7 @@
             </div>
 
             <div class="text-end">
-                @if (auth()->user()->can('تحديث مباشر للبيانات'))
+                @if (auth()->user()->can('customers.update_directly'))
                     <button type="submit" class="btn btn-primary btn-sm">
                         <i class="fas fa-plus-circle me-1"></i> إضافة هاتف
                     </button>
@@ -33,6 +33,6 @@
     </div>
 </div>
 
-@if (!auth()->user()->can('تحديث مباشر للبيانات'))
+@if (!auth()->user()->can('customers.update_directly'))
     @include('tenants.business_center.customers.partials.phones-list', ['customer' => $customer])
 @endif

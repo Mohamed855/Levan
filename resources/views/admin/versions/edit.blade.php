@@ -28,7 +28,6 @@
                             <span class="bs-stepper-circle">1</span>
                             <span class="bs-stepper-label mt-1">
                                 <span class="bs-stepper-title">تعديل الإصدارة</span>
-                                <span class="bs-stepper-subtitle">تحديث البيانات الأساسية</span>
                             </span>
                         </button>
                     </div>

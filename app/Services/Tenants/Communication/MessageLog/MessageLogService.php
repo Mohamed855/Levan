@@ -2,16 +2,21 @@
 
 namespace App\Services\Tenants\Communication\MessageLog;
 
+use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\Communication\MessageLog\MessageLog;
 use App\Models\Tenants\GeneralSetting\MessageTemplate\MessageTemplate;
-use App\Models\Tenants\BusinessCenter\Customers\Customer;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class MessageLogService
 {
+    public function delete(MessageLog $messageLog): void
+    {
+        DB::transaction(fn () => $messageLog->delete());
+    }
+
     /*
     |--------------------------------------------------------------------------
     | سجل رسالة
@@ -33,7 +38,7 @@ class MessageLogService
     {
         $messageLog = MessageLog::find($messageLogId);
 
-        if (!$messageLog) {
+        if (! $messageLog) {
             return false;
         }
 
@@ -102,19 +107,19 @@ class MessageLogService
         $recipientsData = [];
 
         foreach ($customers as $customer) {
-            if (!empty($customer->phone)) {
+            if (! empty($customer->phone)) {
                 $recipientsData[] = [
                     'id' => $customer->id,
                     'name' => $customer->name,
                     'phone' => $customer->phone,
                     'type' => 'customer',
                     'phone_source' => 'primary',
-                    'phone_type' => 'primary'
+                    'phone_type' => 'primary',
                 ];
             }
 
             foreach ($customer->phones as $phoneRecord) {
-                if (!empty($phoneRecord->phone) && $phoneRecord->phone !== $customer->phone) {
+                if (! empty($phoneRecord->phone) && $phoneRecord->phone !== $customer->phone) {
                     $recipientsData[] = [
                         'id' => $customer->id,
                         'name' => $customer->name,
@@ -122,7 +127,7 @@ class MessageLogService
                         'type' => 'customer',
                         'phone_source' => 'additional', // مصدر الرقم
                         'phone_type' => $phoneRecord->type ?? 'mobile',
-                        'phone_notes' => $phoneRecord->notes ?? null
+                        'phone_notes' => $phoneRecord->notes ?? null,
                     ];
                 }
             }
@@ -203,7 +208,7 @@ class MessageLogService
                 'status',
                 'created_at',
                 'recipients_data',
-                'target_model'
+                'target_model',
             ])
             ->orderBy('created_at', 'desc')
             ->limit($limit)
@@ -212,6 +217,7 @@ class MessageLogService
                 // إضافة إحصائيات مفصلة للأرقام المتعددة
                 $recipientsData = $message->recipients_data ?? [];
                 $message->phone_breakdown = $this->analyzeRecipientsPhones($recipientsData);
+
                 return $message;
             });
     }
@@ -228,7 +234,7 @@ class MessageLogService
             'primary_phones' => 0,
             'additional_phones' => 0,
             'unique_customers' => 0,
-            'customers_with_multiple_phones' => 0
+            'customers_with_multiple_phones' => 0,
         ];
 
         $customerPhoneCounts = [];
@@ -238,7 +244,7 @@ class MessageLogService
             $phoneSource = $recipient['phone_source'] ?? 'unknown';
 
             if ($customerId) {
-                if (!isset($customerPhoneCounts[$customerId])) {
+                if (! isset($customerPhoneCounts[$customerId])) {
                     $customerPhoneCounts[$customerId] = 0;
                 }
                 $customerPhoneCounts[$customerId]++;
@@ -253,7 +259,7 @@ class MessageLogService
 
         $analysis['unique_customers'] = count($customerPhoneCounts);
         $analysis['customers_with_multiple_phones'] = count(
-            array_filter($customerPhoneCounts, fn($count) => $count > 1)
+            array_filter($customerPhoneCounts, fn ($count) => $count > 1)
         );
 
         return $analysis;
@@ -334,12 +340,24 @@ class MessageLogService
         ];
 
         // إضافة معلومات إضافية من البيانات المرسلة
-        if (isset($data['sent_count'])) $prepared['sent_count'] = $data['sent_count'];
-        if (isset($data['failed_count'])) $prepared['failed_count'] = $data['failed_count'];
-        if (isset($data['customers_reached'])) $prepared['customers_reached'] = $data['customers_reached'];
-        if (isset($data['total_cost'])) $prepared['total_cost'] = $data['total_cost'];
-        if (isset($data['response_data'])) $prepared['response_data'] = $data['response_data'];
-        if (isset($data['status_message'])) $prepared['status_message'] = $data['status_message'];
+        if (isset($data['sent_count'])) {
+            $prepared['sent_count'] = $data['sent_count'];
+        }
+        if (isset($data['failed_count'])) {
+            $prepared['failed_count'] = $data['failed_count'];
+        }
+        if (isset($data['customers_reached'])) {
+            $prepared['customers_reached'] = $data['customers_reached'];
+        }
+        if (isset($data['total_cost'])) {
+            $prepared['total_cost'] = $data['total_cost'];
+        }
+        if (isset($data['response_data'])) {
+            $prepared['response_data'] = $data['response_data'];
+        }
+        if (isset($data['status_message'])) {
+            $prepared['status_message'] = $data['status_message'];
+        }
 
         // إضافة اسم القالب إذا وجد
         if ($prepared['template_id']) {
@@ -357,39 +375,39 @@ class MessageLogService
     */
     private function applyFilters($query, array $filters): void
     {
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        if (!empty($filters['message_type'])) {
+        if (! empty($filters['message_type'])) {
             $query->where('message_type', $filters['message_type']);
         }
 
-        if (!empty($filters['target_model'])) {
+        if (! empty($filters['target_model'])) {
             $query->where('target_model', $filters['target_model']);
         }
 
-        if (!empty($filters['sender_id'])) {
+        if (! empty($filters['sender_id'])) {
             $query->where('sender_id', $filters['sender_id']);
         }
 
-        if (!empty($filters['template_id'])) {
+        if (! empty($filters['template_id'])) {
             $query->where('template_id', $filters['template_id']);
         }
 
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->whereDate('created_at', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->whereDate('created_at', '<=', $filters['date_to']);
         }
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $query->where(function ($q) use ($filters) {
-                $q->where('message_content', 'like', '%' . $filters['search'] . '%')
-                    ->orWhere('template_name', 'like', '%' . $filters['search'] . '%')
-                    ->orWhere('reference_number', 'like', '%' . $filters['search'] . '%');
+                $q->where('message_content', 'like', '%'.$filters['search'].'%')
+                    ->orWhere('template_name', 'like', '%'.$filters['search'].'%')
+                    ->orWhere('reference_number', 'like', '%'.$filters['search'].'%');
             });
         }
     }
@@ -414,7 +432,7 @@ class MessageLogService
     */
     private function generateReferenceNumber(): string
     {
-        return 'MSG-' . now()->format('Ymd') . '-' . strtoupper(Str::random(6));
+        return 'MSG-'.now()->format('Ymd').'-'.strtoupper(Str::random(6));
     }
 
     /*

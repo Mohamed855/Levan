@@ -6,6 +6,11 @@ namespace App\Http\Requests\Admin\SubscriptionManagement;
 
 class MassRejectSubscriptionsRequest extends MassAcceptSubscriptionsRequest
 {
+    public function authorize(): bool
+    {
+        return $this->user('admin')?->can('subscriptions.pending.reject') ?? false;
+    }
+
     public function rules(): array
     {
         return [

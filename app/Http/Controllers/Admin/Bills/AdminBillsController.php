@@ -161,10 +161,7 @@ class AdminBillsController extends Controller
                 return redirect()->back()->with('error', 'يمكن إعادة التفعيل للفواتير الملغاة فقط.');
             }
 
-            $bill->update([
-                'status' => BillStatus::UNPAID,
-                'due_date' => now()->addDays(7),
-            ]);
+            $this->billService->reactivate($bill);
 
             return redirect()->route('admin.bills.show', $bill->id)->with('success', 'تم إعادة تفعيل الفاتورة بنجاح.');
         } catch (\Exception $e) {

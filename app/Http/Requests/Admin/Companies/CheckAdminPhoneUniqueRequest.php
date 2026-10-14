@@ -10,7 +10,7 @@ class CheckAdminPhoneUniqueRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user('admin')?->can('companies.create') || $this->user('admin')?->can('companies.edit');
     }
 
     public function rules(): array

@@ -21,8 +21,8 @@
 @section('content')
     @php
         $steps = [
-            ['id' => 'basic-info-validation', 'title' => 'المعلومات الأساسية', 'subtitle' => 'البيانات الشخصية والاتصال'],
-            ['id' => 'security-info-validation', 'title' => 'كلمة المرور والصورة', 'subtitle' => 'الأمان والصورة الشخصية'],
+            ['id' => 'basic-info-validation', 'title' => 'المعلومات الأساسية'],
+            ['id' => 'security-info-validation', 'title' => 'كلمة المرور والصورة'],
         ];
         $currentRoleId = $user->roles->first()?->id;
     @endphp

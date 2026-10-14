@@ -102,7 +102,8 @@ class ExportCustomerFollowsJob implements ShouldQueue
                 [],
                 $this->filters,
                 $this->selectedFields,
-                $timestamp
+                $timestamp,
+                $this->userId
             )->onQueue('exports');
 
         } catch (\Throwable $e) {

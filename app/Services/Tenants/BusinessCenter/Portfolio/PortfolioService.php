@@ -7,7 +7,6 @@ use App\Data\Tenants\BusinessCenter\Portfolio\PortfolioFieldInput;
 use App\Data\Tenants\BusinessCenter\Portfolio\PortfolioUpdateDTO;
 use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
-use App\Models\Tenants\BusinessCenter\Portfolio\PortfolioField;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -22,17 +21,17 @@ class PortfolioService
     {
         return DB::transaction(function () use ($dto) {
             $portfolio = Portfolio::create([
-                'name'             => $dto->name,
-                'company_id'       => $dto->company_id,
-                'assignment_date'  => $dto->assignment_date,
-                'call_start_time'  => $dto->call_start_time,
-                'call_end_time'    => $dto->call_end_time,
-                'has_split_names'  => $dto->has_split_names,
-                'status'           => $dto->status ?? 'active',
-                'user_id'          => $dto->user_id,
+                'name' => $dto->name,
+                'company_id' => $dto->company_id,
+                'assignment_date' => $dto->assignment_date,
+                'call_start_time' => $dto->call_start_time,
+                'call_end_time' => $dto->call_end_time,
+                'has_split_names' => $dto->has_split_names,
+                'status' => $dto->status ?? 'active',
+                'user_id' => $dto->user_id,
             ]);
 
-            if (!empty($dto->fields)) {
+            if (! empty($dto->fields)) {
                 $this->storeFieldsCollection($portfolio, $dto->fields);
             }
 
@@ -49,17 +48,17 @@ class PortfolioService
     {
         return DB::transaction(function () use ($portfolio, $dto) {
             $portfolio->update([
-                'name'             => $dto->name,
-                'company_id'       => $dto->company_id,
-                'assignment_date'  => $dto->assignment_date,
-                'call_start_time'  => $dto->call_start_time,
-                'call_end_time'    => $dto->call_end_time,
-                'has_split_names'  => $dto->has_split_names,
-                'status'           => $dto->status ?? $portfolio->status,
-                'user_id'          => $dto->user_id,
+                'name' => $dto->name,
+                'company_id' => $dto->company_id,
+                'assignment_date' => $dto->assignment_date,
+                'call_start_time' => $dto->call_start_time,
+                'call_end_time' => $dto->call_end_time,
+                'has_split_names' => $dto->has_split_names,
+                'status' => $dto->status ?? $portfolio->status,
+                'user_id' => $dto->user_id,
             ]);
 
-            if (!empty($dto->fields)) {
+            if (! empty($dto->fields)) {
                 $this->syncFieldsCollection($portfolio, $dto->fields);
             } else {
                 $this->clearPortfolioFields($portfolio);
@@ -81,7 +80,17 @@ class PortfolioService
                 throw new \Exception('لا يمكن حذف المحفظة لأنها تحتوي على عملاء. يجب حذف العملاء أولاً.');
             }
             $this->clearPortfolioFields($portfolio);
+
             return $portfolio->delete();
+        });
+    }
+
+    public function updateStatus(Portfolio $portfolio, string $status): Portfolio
+    {
+        return DB::transaction(function () use ($portfolio, $status): Portfolio {
+            $portfolio->update(['status' => $status]);
+
+            return $portfolio->refresh();
         });
     }
 
@@ -93,14 +102,14 @@ class PortfolioService
     protected function storeFieldsCollection(Portfolio $portfolio, array $inputs): void
     {
         foreach ($inputs as $input) {
-            if (!$input instanceof PortfolioFieldInput) {
+            if (! $input instanceof PortfolioFieldInput) {
                 continue;
             }
 
             $portfolio->portfolioFields()->create([
-                'field_name'    => $input->name,
-                'field_type'    => $input->type,
-                'is_required'   => $input->is_required,
+                'field_name' => $input->name,
+                'field_type' => $input->type,
+                'is_required' => $input->is_required,
             ]);
         }
     }
@@ -115,20 +124,22 @@ class PortfolioService
         $existing = $portfolio->portfolioFields()->get()->keyBy('id');
 
         foreach ($inputs as $input) {
-            if (!$input instanceof PortfolioFieldInput) continue;
+            if (! $input instanceof PortfolioFieldInput) {
+                continue;
+            }
 
             if ($input->id && $existing->has($input->id)) {
                 $existing[$input->id]->update([
-                    'field_name'    => $input->name,
-                    'field_type'    => $input->type,
-                    'is_required'   => $input->is_required,
+                    'field_name' => $input->name,
+                    'field_type' => $input->type,
+                    'is_required' => $input->is_required,
                 ]);
                 $existing->forget($input->id);
             } else {
                 $portfolio->portfolioFields()->create([
-                    'field_name'    => $input->name,
-                    'field_type'    => $input->type,
-                    'is_required'   => $input->is_required,
+                    'field_name' => $input->name,
+                    'field_type' => $input->type,
+                    'is_required' => $input->is_required,
                 ]);
             }
         }
@@ -187,12 +198,13 @@ class PortfolioService
     */
     public function filterPortfoliosQuery(Builder $query, array $filters): Builder
     {
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
-        if (!empty($filters['company_id'])) {
+        if (! empty($filters['company_id'])) {
             $query->where('company_id', $filters['company_id']);
         }
+
         return $query;
     }
 
@@ -233,37 +245,37 @@ class PortfolioService
 
         $financialData = $this->calculatePortfolioFinancials($portfolio);
 
-        $statusText  = $portfolio->status === 'active' ? 'نشط' : 'غير نشط';
+        $statusText = $portfolio->status === 'active' ? 'نشط' : 'غير نشط';
         $statusClass = $portfolio->status === 'active' ? 'bg-label-success' : 'bg-label-danger';
 
         return [
-            'pageTitle'           => 'عرض المحفظة',
-            'portfolioId'         => $portfolio->id,
-            'portfolioName'       => $portfolio->name,
-            'companyName'         => $portfolio->company->name ?? 'غير محدد',
-            'statusText'          => $statusText,
-            'statusClass'         => $statusClass,
-            'customersCount'      => (int)$portfolio->customers_count,
-            'fieldsCount'         => $portfolio->portfolioFields->count(),
-            'assignmentDateLong'  => $portfolio->formatted_assignment_date ?? 'غير محدد',
+            'pageTitle' => 'عرض المحفظة',
+            'portfolioId' => $portfolio->id,
+            'portfolioName' => $portfolio->name,
+            'companyName' => $portfolio->company->name ?? 'غير محدد',
+            'statusText' => $statusText,
+            'statusClass' => $statusClass,
+            'customersCount' => (int) $portfolio->customers_count,
+            'fieldsCount' => $portfolio->portfolioFields->count(),
+            'assignmentDateLong' => $portfolio->formatted_assignment_date ?? 'غير محدد',
             'assignmentDateShort' => $portfolio->assignment_date?->format('Y-m-d') ?? 'غير محدد',
 
-            'callStartTime'       => $portfolio->call_start_time?->format('H:i') ?? null,
-            'callEndTime'         => $portfolio->call_end_time?->format('H:i') ?? null,
+            'callStartTime' => $portfolio->call_start_time?->format('H:i') ?? null,
+            'callEndTime' => $portfolio->call_end_time?->format('H:i') ?? null,
             'callStartTimeFormatted' => $portfolio->formatted_call_start_time ?? 'غير محدد',
-            'callEndTimeFormatted'   => $portfolio->formatted_call_end_time ?? 'غير محدد',
-            'callTimeRange'       => $portfolio->call_time_range ?? 'غير محدد',
+            'callEndTimeFormatted' => $portfolio->formatted_call_end_time ?? 'غير محدد',
+            'callTimeRange' => $portfolio->call_time_range ?? 'غير محدد',
 
-            'hasSplitNamesText'   => $portfolio->has_split_names ? 'مفعل' : 'غير مفعل',
-            'createdAt'           => $portfolio->created_at?->format('Y-m-d H:i'),
-            'updatedAt'           => $portfolio->updated_at?->format('Y-m-d H:i'),
-            'totalDebt'           => $financialData['total_debt'],
-            'totalDebtFormatted'  => number_format($financialData['total_debt'], 2),
-            'totalCollected'      => $financialData['total_collected'],
+            'hasSplitNamesText' => $portfolio->has_split_names ? 'مفعل' : 'غير مفعل',
+            'createdAt' => $portfolio->created_at?->format('Y-m-d H:i'),
+            'updatedAt' => $portfolio->updated_at?->format('Y-m-d H:i'),
+            'totalDebt' => $financialData['total_debt'],
+            'totalDebtFormatted' => number_format($financialData['total_debt'], 2),
+            'totalCollected' => $financialData['total_collected'],
             'totalCollectedFormatted' => number_format($financialData['total_collected'], 2),
-            'remainingDebt'       => $financialData['remaining_debt'],
+            'remainingDebt' => $financialData['remaining_debt'],
             'remainingDebtFormatted' => number_format($financialData['remaining_debt'], 2),
-            'collectionRate'      => $financialData['collection_rate'],
+            'collectionRate' => $financialData['collection_rate'],
             'collectionRateFormatted' => number_format($financialData['collection_rate'], 1),
         ];
     }

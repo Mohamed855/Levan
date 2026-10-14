@@ -174,11 +174,7 @@ class PlanController extends Controller
         try {
             $order = $request->validated('order');
 
-            foreach ($order as $item) {
-                Plan::where('id', $item['id'])->update(['sort_order' => $item['sort_order']]);
-            }
-
-            $this->planService->clearMostRequestedCache();
+            $this->planService->reorder($order);
 
             return response()->json([
                 'success' => true,

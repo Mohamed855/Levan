@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Archive\Bill;
 
+use App\Actions\Admin\Archive\ManageCentralArchiveAction;
 use App\DataTables\Admin\Archive\Bill\BillDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
@@ -9,6 +10,13 @@ use App\Models\Admin\Bills\Bill;
 
 class BillArchiveController extends Controller
 {
+    public function __construct(private ManageCentralArchiveAction $archive)
+    {
+        $this->middleware('auth:admin');
+        $this->middleware('can:financial_transactions.view')->only('index');
+        $this->middleware('can:financial_transactions.view')->only(['restore', 'forceDelete']);
+    }
+
     public function index(BillDataTable $dataTable)
     {
         $filterOptions = [
@@ -37,7 +45,8 @@ class BillArchiveController extends Controller
     public function restore(AdminAuthenticatedRequest $request, $id)
     {
         $bill = Bill::withTrashed()->findOrFail($id);
-        $bill->restore();
+        $this->authorize('restore', $bill);
+        $this->archive->restore($bill);
 
         return redirect()->route('admin.archives.bills.index')->with('success', 'تم استعادة الفاتورة بنجاح.');
     }
@@ -45,7 +54,8 @@ class BillArchiveController extends Controller
     public function forceDelete(AdminAuthenticatedRequest $request, $id)
     {
         $bill = Bill::withTrashed()->findOrFail($id);
-        $bill->forceDelete();
+        $this->authorize('forceDelete', $bill);
+        $this->archive->forceDelete($bill);
 
         return redirect()->route('admin.archives.bills.index')->with('success', 'تم حذف الفاتورة نهائيًا بنجاح.');
     }

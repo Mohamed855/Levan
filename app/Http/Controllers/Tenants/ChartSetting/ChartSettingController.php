@@ -1,34 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Tenants\ChartSetting;
 
+use App\Actions\Tenants\ChartSetting\UpdateChartVisibilityAction;
 use App\Http\Controllers\Controller;
-use App\Models\Tenants\Settings\Settings;
+use App\Http\Requests\Tenants\ChartSetting\UpdateChartVisibilityRequest;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
-class ChartSettingController extends Controller
+final class ChartSettingController extends Controller
 {
-    private const ALLOWED_KEYS = ['compare_effort', 'daily_tasks', 'Overdue_tasks'];
+    public function __construct(private readonly UpdateChartVisibilityAction $updateChartVisibility) {}
 
-    public function updateChartVisibility(Request $request): JsonResponse
+    public function updateChartVisibility(UpdateChartVisibilityRequest $request): JsonResponse
     {
-        $data = $request->validate([
-            'key' => ['required', 'string', Rule::in(self::ALLOWED_KEYS)],
-            'value' => ['required', 'boolean'],
-        ]);
-
-        $settings = Settings::firstOrFail();
-        $settings->update([$data['key'] => $data['value']]);
+        $data = $request->validated();
+        $isVisible = (bool) $data['value'];
+        $this->updateChartVisibility->execute($data['key'], $isVisible);
 
         return response()->json([
             'success' => true,
             'message' => 'تم التحديث بنجاح',
-            'data' => [
-                'key' => $data['key'],
-                'value' => $data['value'],
-            ],
+            'data' => ['key' => $data['key'], 'value' => $isVisible],
         ]);
     }
 }

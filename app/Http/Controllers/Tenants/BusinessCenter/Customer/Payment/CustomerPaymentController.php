@@ -19,12 +19,21 @@ class CustomerPaymentController extends Controller
     public function __construct(CollectionService $collectionService)
     {
         $this->collectionService = $collectionService;
-
-        // $this->middleware('auth');
-        // $this->middleware('can:إدارة تحصيلات العملاء')->only(['index']);
-        // $this->middleware('can:إضافة تحصيل عميل')->only(['create', 'store']);
-        // $this->middleware('can:تعديل تحصيل عميل')->only(['edit', 'update']);
-        // $this->middleware('can:حذف تحصيل عميل')->only(['destroy']);
+        $this->middleware('can:collections.view')->only([
+            'dataTable',
+            'statistics',
+            'recentPayments',
+        ]);
+        $this->middleware('can:collections.create')->only([
+            'create',
+            'store',
+            'generateReceiptNumber',
+        ]);
+        $this->middleware('can:collections.edit')->only([
+            'edit',
+            'update',
+        ]);
+        $this->middleware('can:collections.delete')->only(['destroy']);
     }
 
     /*
@@ -157,6 +166,8 @@ class CustomerPaymentController extends Controller
     public function edit(Customer $customer, Collection $collection): JsonResponse
     {
         try {
+            $this->authorize('update', $collection);
+
             // التحقق من أن التحصيل يخص هذا العميل
             if ($collection->customer_id !== $customer->id) {
                 return response()->json([
@@ -225,6 +236,8 @@ class CustomerPaymentController extends Controller
     public function update(UpdateCollectionRequest $request, Customer $customer, Collection $collection): JsonResponse
     {
         try {
+            $this->authorize('update', $collection);
+
             // التحقق من أن التحصيل يخص هذا العميل
             if ($collection->customer_id !== $customer->id) {
                 return response()->json([
@@ -261,6 +274,8 @@ class CustomerPaymentController extends Controller
     public function destroy(Customer $customer, Collection $collection): JsonResponse
     {
         try {
+            $this->authorize('delete', $collection);
+
             // التحقق من أن التحصيل يخص هذا العميل
             if ($collection->customer_id !== $customer->id) {
                 return response()->json([

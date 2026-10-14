@@ -5,10 +5,13 @@ namespace App\Http\Controllers\Tenants\BusinessCenter\Customer\UpdateRequest;
 use App\DataTables\Tenants\BusinessCenter\Customer\UpdateRequest\CustomerUpdateRequestsDataTable;
 use App\Exports\Tenants\BusinessCenter\Customer\UpdateRequest\CustomerUpdateRequestsExport;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\UpdateRequest\ApproveCustomerUpdateRequest;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\UpdateRequest\BulkCustomerUpdateRequestDecisionRequest;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\UpdateRequest\ExportCustomerUpdateRequestsRequest;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\UpdateRequest\RejectCustomerUpdateRequest;
 use App\Models\Tenants\BusinessCenter\Customers\UpdateRequest\CustomerUpdateRequest;
 use App\Services\Tenants\BusinessCenter\Customer\UpdateRequest\CustomerUpdateRequestService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -26,7 +29,7 @@ class CustomerUpdateRequestController extends Controller
     {
         $this->updateRequestService = $updateRequestService;
         $this->middleware('auth');
-        $this->middleware('can:customer_update_requests.view')->only(['index', 'show']);
+        $this->middleware('can:customer_update_requests.view')->only(['index', 'show', 'getPendingCount', 'exportFields', 'exportExcel']);
         $this->middleware('can:customer_update_requests.approve')->only(['approve', 'bulkApprove']);
         $this->middleware('can:customer_update_requests.reject')->only(['reject', 'bulkReject']);
     }
@@ -53,9 +56,10 @@ class CustomerUpdateRequestController extends Controller
     | Show Update Request Details
     |--------------------------------------------------------------------------
     */
-    public function show(int $id): View
+    public function show(CustomerUpdateRequest $customerUpdateRequest): View
     {
-        $updateRequest = $this->updateRequestService->getRequestDetails($id);
+        $this->authorize('view', $customerUpdateRequest);
+        $updateRequest = $customerUpdateRequest->load(['customer', 'requestedBy', 'approvedBy']);
 
         if (! $updateRequest) {
             abort(404, 'طلب التحديث غير موجود');
@@ -77,10 +81,12 @@ class CustomerUpdateRequestController extends Controller
     | Approve Update Request
     |--------------------------------------------------------------------------
     */
-    public function approve(int $id): JsonResponse
+    public function approve(ApproveCustomerUpdateRequest $request, CustomerUpdateRequest $customerUpdateRequest): JsonResponse
     {
+        $this->authorize('approve', $customerUpdateRequest);
+
         try {
-            $updateRequest = CustomerUpdateRequest::find($id);
+            $updateRequest = $customerUpdateRequest;
 
             if (! $updateRequest) {
                 return response()->json([
@@ -115,10 +121,12 @@ class CustomerUpdateRequestController extends Controller
     | Reject Update Request
     |--------------------------------------------------------------------------
     */
-    public function reject(Request $request, int $id): JsonResponse
+    public function reject(RejectCustomerUpdateRequest $request, CustomerUpdateRequest $customerUpdateRequest): JsonResponse
     {
+        $this->authorize('reject', $customerUpdateRequest);
+
         try {
-            $updateRequest = CustomerUpdateRequest::find($id);
+            $updateRequest = $customerUpdateRequest;
 
             if (! $updateRequest) {
                 return response()->json([
@@ -134,7 +142,7 @@ class CustomerUpdateRequestController extends Controller
                 ], 400);
             }
 
-            $reason = $request->input('reason');
+            $reason = $request->validated('reason');
             $this->updateRequestService->rejectUpdateRequest($updateRequest, $reason);
 
             return response()->json([
@@ -154,11 +162,12 @@ class CustomerUpdateRequestController extends Controller
     | Bulk Approve Update Requests
     |--------------------------------------------------------------------------
     */
-    public function bulkApprove(Request $request): JsonResponse
+    public function bulkApprove(BulkCustomerUpdateRequestDecisionRequest $request): JsonResponse
     {
-        try {
-            $requestIds = $request->input('request_ids', []);
+        $requestIds = $request->validated('request_ids');
+        CustomerUpdateRequest::whereKey($requestIds)->get()->each(fn (CustomerUpdateRequest $updateRequest) => $this->authorize('approve', $updateRequest));
 
+        try {
             if (empty($requestIds)) {
                 return response()->json([
                     'success' => false,
@@ -191,11 +200,13 @@ class CustomerUpdateRequestController extends Controller
     | Bulk Reject Update Requests
     |--------------------------------------------------------------------------
     */
-    public function bulkReject(Request $request): JsonResponse
+    public function bulkReject(BulkCustomerUpdateRequestDecisionRequest $request): JsonResponse
     {
+        $requestIds = $request->validated('request_ids');
+        CustomerUpdateRequest::whereKey($requestIds)->get()->each(fn (CustomerUpdateRequest $updateRequest) => $this->authorize('reject', $updateRequest));
+
         try {
-            $requestIds = $request->input('request_ids', []);
-            $reason = $request->input('reason');
+            $reason = $request->validated('reason');
 
             if (empty($requestIds)) {
                 return response()->json([
@@ -251,10 +262,10 @@ class CustomerUpdateRequestController extends Controller
     | Get Export Fields
     |--------------------------------------------------------------------------
     */
-    public function exportFields(Request $request): JsonResponse
+    public function exportFields(ExportCustomerUpdateRequestsRequest $request): JsonResponse
     {
         try {
-            $filters = $request->only([
+            $filters = $request->validated([
                 'status',
                 'requested_by',
                 'search_query',
@@ -334,10 +345,10 @@ class CustomerUpdateRequestController extends Controller
     | Export Excel
     |--------------------------------------------------------------------------
     */
-    public function exportExcel(Request $request)
+    public function exportExcel(ExportCustomerUpdateRequestsRequest $request)
     {
         try {
-            $filters = $request->only([
+            $filters = $request->validated([
                 'status',
                 'requested_by',
                 'search_query',

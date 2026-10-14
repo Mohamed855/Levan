@@ -1,10 +1,33 @@
 <?php
 
+use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\changeEnvAttributes;
+use App\Http\Middleware\CheckDomainBalance;
+use App\Http\Middleware\DiscardCompletedWizardDraft;
+use App\Http\Middleware\EnsureAdminTwoFactorIsEnforced;
+use App\Http\Middleware\EnsureAuthenticatedAndActiveAdmin;
+use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\SecurityHeadersMiddleware;
+use App\Http\Middleware\Tenancy\CheckLimits\CheckDomainManagement;
+use App\Http\Middleware\Tenancy\CheckSubscription;
+use App\Http\Middleware\Tenancy\EnsureCustomerSubresourceOwnership;
+use App\Http\Middleware\Tenancy\EnsureTenantTwoFactorIsEnforced;
+use App\Http\Middleware\Tenancy\EnsureUserHasActiveLicense;
+use App\Http\Middleware\Tenancy\TenantDomainRedirect;
+use App\Http\Middleware\Tenancy\TenantMaintenance;
+use App\Http\Middleware\Tenancy\VerifyTenantToken;
+use App\Http\Middleware\VerifyTenantUpgradeRequest;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Validation\ValidationException;
+use Stancl\Tenancy\Contracts\TenantCouldNotBeIdentifiedException;
+use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
+use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
+use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -15,7 +38,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Global middleware
         $middleware->append(SecurityHeadersMiddleware::class);
         $middleware->append(changeEnvAttributes::class);
-        $middleware->append(\App\Http\Middleware\DiscardCompletedWizardDraft::class);
+        $middleware->append(DiscardCompletedWizardDraft::class);
 
         $middleware->validateCsrfTokens(except: [
             'wizard-drafts/validate-step',
@@ -32,29 +55,30 @@ return Application::configure(basePath: dirname(__DIR__))
         // Middleware aliases
         $middleware->alias([
             // Laravel Core
-            'auth'              => \App\Http\Middleware\Authenticate::class,
-            'guest'             => \App\Http\Middleware\RedirectIfAuthenticated::class,
+            'auth' => Authenticate::class,
+            'guest' => RedirectIfAuthenticated::class,
 
             // Admin Middleware
-            'admin.active'     => \App\Http\Middleware\EnsureAuthenticatedAndActiveAdmin::class,
-            'admin.2fa.force'  => \App\Http\Middleware\EnsureAdminTwoFactorIsEnforced::class,
+            'admin.active' => EnsureAuthenticatedAndActiveAdmin::class,
+            'admin.2fa.force' => EnsureAdminTwoFactorIsEnforced::class,
 
             // Tenant Middleware
-            'tenant.path'           => \Stancl\Tenancy\Middleware\InitializeTenancyByPath::class,
-            'tenant.domain'         => \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,
-            'tenant.subscription'   => \App\Http\Middleware\Tenancy\CheckSubscription::class,
-            'tenant.license'        => \App\Http\Middleware\Tenancy\EnsureUserHasActiveLicense::class,
-            'tenant.maintenance'    => \App\Http\Middleware\Tenancy\TenantMaintenance::class,
-            'tenant.redirect'       => \App\Http\Middleware\Tenancy\TenantDomainRedirect::class,
-            'tenant.2fa.force'      => \App\Http\Middleware\Tenancy\EnsureTenantTwoFactorIsEnforced::class,
-            'prevent.central'       => \Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains::class,
+            'tenant.path' => InitializeTenancyByPath::class,
+            'tenant.domain' => InitializeTenancyByDomain::class,
+            'tenant.subscription' => CheckSubscription::class,
+            'tenant.license' => EnsureUserHasActiveLicense::class,
+            'tenant.maintenance' => TenantMaintenance::class,
+            'tenant.redirect' => TenantDomainRedirect::class,
+            'tenant.2fa.force' => EnsureTenantTwoFactorIsEnforced::class,
+            'customer.subresource' => EnsureCustomerSubresourceOwnership::class,
+            'prevent.central' => PreventAccessFromCentralDomains::class,
 
-            'check.domain.management' => \App\Http\Middleware\Tenancy\CheckLimits\CheckDomainManagement::class,
-            'check.domain.balance'    => \App\Http\Middleware\CheckDomainBalance::class,
+            'check.domain.management' => CheckDomainManagement::class,
+            'check.domain.balance' => CheckDomainBalance::class,
 
             // Tenant API Middleware
-            'tenant.token'          => \App\Http\Middleware\Tenancy\VerifyTenantToken::class,
-            'tenant.upgrade.signature' => \App\Http\Middleware\VerifyTenantUpgradeRequest::class,
+            'tenant.token' => VerifyTenantToken::class,
+            'tenant.upgrade.signature' => VerifyTenantUpgradeRequest::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
@@ -69,7 +93,7 @@ return Application::configure(basePath: dirname(__DIR__))
         };
 
         // Tenant identification failure -> 404
-        $exceptions->render(function (\Stancl\Tenancy\Contracts\TenantCouldNotBeIdentifiedException $e, $request) use ($errorView) {
+        $exceptions->render(function (TenantCouldNotBeIdentifiedException $e, $request) use ($errorView) {
             if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -81,7 +105,7 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         // Authorization exceptions -> 403
-        $exceptions->render(function (\Illuminate\Auth\Access\AuthorizationException $e, $request) use ($errorView) {
+        $exceptions->render(function (AuthorizationException $e, $request) use ($errorView) {
             if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -93,7 +117,7 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         // HTTP Exceptions (403, 404, 500)
-        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpExceptionInterface $e, $request) use ($errorView) {
+        $exceptions->render(function (HttpExceptionInterface $e, $request) use ($errorView) {
             $status = $e->getStatusCode();
 
             if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
@@ -119,8 +143,8 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         // Unhandled server exceptions -> 500
-        $exceptions->render(function (\Throwable $e, $request) use ($errorView) {
-            if ($e instanceof \Illuminate\Validation\ValidationException || $e instanceof \Illuminate\Auth\AuthenticationException) {
+        $exceptions->render(function (Throwable $e, $request) use ($errorView) {
+            if ($e instanceof ValidationException || $e instanceof AuthenticationException) {
                 return null;
             }
 
@@ -133,7 +157,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
             try {
                 return response()->view($errorView($request, 500), ['exception' => $e], 500);
-            } catch (\Throwable) {
+            } catch (Throwable) {
                 return null;
             }
         });

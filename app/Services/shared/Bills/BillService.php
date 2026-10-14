@@ -7,7 +7,11 @@ use App\Enums\Admin\Billing\BillType;
 use App\Enums\Admin\Billing\PaymentMethod;
 use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\Settings\Settings;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class BillService
 {
@@ -83,6 +87,35 @@ class BillService
             'bank_id' => null,
             'payment_method' => null,
         ]);
+    }
+
+    public function reactivate(Bill $bill): void
+    {
+        DB::connection('mysql')->transaction(function () use ($bill): void {
+            $bill->update([
+                'status' => BillStatus::UNPAID,
+                'due_date' => now()->addDays(7),
+            ]);
+        });
+    }
+
+    public function submitBankTransfer(Bill $bill, int|string $bankId, UploadedFile $receipt): void
+    {
+        $path = $receipt->store('bank_transfers', 'public');
+
+        try {
+            DB::connection('mysql')->transaction(function () use ($bill, $bankId, $path): void {
+                $bill->update([
+                    'status' => BillStatus::PENDING_VERIFICATION,
+                    'bank_id' => $bankId,
+                    'invoice_url' => $path,
+                ]);
+            });
+        } catch (Throwable $exception) {
+            Storage::disk('public')->delete($path);
+
+            throw $exception;
+        }
     }
     /*
     |============================================================================

@@ -13,7 +13,7 @@ abstract class BulkUpdateRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user('tenant')?->can('customers.update') ?? false;
+        return $this->user('tenant')?->can('customers.edit_all') ?? false;
     }
 
     protected function portfolioBelongsToCompany(Validator $validator): void

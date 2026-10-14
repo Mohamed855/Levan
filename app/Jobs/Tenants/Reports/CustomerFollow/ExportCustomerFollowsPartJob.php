@@ -4,6 +4,7 @@ namespace App\Jobs\Tenants\Reports\CustomerFollow;
 
 use App\Exports\Tenants\Reports\CustomerFollow\CustomerFollowReportExport;
 use App\Models\Tenants\BusinessCenter\Customers\Follow\CustomerFollow;
+use App\Services\Tenants\Reports\TenantExportAccess;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -49,6 +50,8 @@ class ExportCustomerFollowsPartJob implements ShouldQueue
 
     protected string $timestamp;
 
+    protected int $userId;
+
     public function __construct(
         string $exportId,
         int $partNumber,
@@ -59,7 +62,8 @@ class ExportCustomerFollowsPartJob implements ShouldQueue
         array $fileSizes,
         array $filters,
         array $selectedFields,
-        string $timestamp
+        string $timestamp,
+        int $userId
     ) {
         $this->exportId = $exportId;
         $this->partNumber = $partNumber;
@@ -71,6 +75,7 @@ class ExportCustomerFollowsPartJob implements ShouldQueue
         $this->filters = $filters;
         $this->selectedFields = $selectedFields;
         $this->timestamp = $timestamp;
+        $this->userId = $userId;
     }
 
     /*
@@ -123,6 +128,7 @@ class ExportCustomerFollowsPartJob implements ShouldQueue
             );
 
             Excel::store($export, 'exports/'.$partFileName, 'tenant_public');
+            app(TenantExportAccess::class)->registerFile($partFileName, $this->userId);
 
             $lastId = $export->getLastExportedId();
             $newCompletedFiles = array_merge($this->completedFiles, [$partFileName]);
@@ -155,7 +161,8 @@ class ExportCustomerFollowsPartJob implements ShouldQueue
                     $newFileSizes,
                     $this->filters,
                     $this->selectedFields,
-                    $this->timestamp
+                    $this->timestamp,
+                    $this->userId
                 )->onQueue('exports');
 
             } else {

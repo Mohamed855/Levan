@@ -26,6 +26,8 @@ class CustomerPaymentPlanController extends Controller
     */
     public function getPaymentPlansList(Customer $customer): JsonResponse
     {
+        $this->authorize('view', $customer);
+
         try {
             $customerPaymentPlans = $customer->paymentPlans()->latest()->get();
 
@@ -52,6 +54,8 @@ class CustomerPaymentPlanController extends Controller
     */
     public function create(Customer $customer): JsonResponse
     {
+        $this->authorize('update', $customer);
+
         try {
             $html = view('tenants.business_center.customers.customer_payment_plans.create', [
                 'customer' => $customer,
@@ -77,6 +81,8 @@ class CustomerPaymentPlanController extends Controller
     */
     public function store(StoreCustomerPaymentPlanRequest $request, Customer $customer): JsonResponse
     {
+        $this->authorize('update', $customer);
+
         try {
             $plans = $this->customerPaymentPlanService->createMultiplePaymentPlans(
                 $customer,
@@ -101,6 +107,15 @@ class CustomerPaymentPlanController extends Controller
      */
     public function edit(Customer $customer, CustomerPaymentPlan $customerPaymentPlan): JsonResponse
     {
+        $this->authorize('update', $customer);
+
+        if ($customerPaymentPlan->customer_id !== $customer->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'غير مصرح لك بتعديل هذه الخطة',
+            ], 403);
+        }
+
         try {
             $html = view('tenants.business_center.customers.customer_payment_plans.edit', [
                 'customer' => $customer,
@@ -127,6 +142,8 @@ class CustomerPaymentPlanController extends Controller
     */
     public function update(UpdateCustomerPaymentPlanRequest $request, Customer $customer, CustomerPaymentPlan $customerPaymentPlan): JsonResponse
     {
+        $this->authorize('update', $customer);
+
         try {
             if ($customerPaymentPlan->customer_id !== $customer->id) {
                 return response()->json([
@@ -160,6 +177,8 @@ class CustomerPaymentPlanController extends Controller
     */
     public function destroy(Customer $customer, CustomerPaymentPlan $customerPaymentPlan): JsonResponse
     {
+        $this->authorize('delete', $customer);
+
         try {
             if ($customerPaymentPlan->customer_id !== $customer->id) {
                 return response()->json([

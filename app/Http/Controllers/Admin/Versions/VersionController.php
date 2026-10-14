@@ -101,17 +101,22 @@ class VersionController extends Controller
 
     public function toggleStatus(AdminAuthenticatedRequest $request, Version $version): JsonResponse
     {
-        $version->update(['is_active' => ! $version->is_active]);
+        $status = $this->versionService->toggleStatus($version);
 
         return response()->json([
             'success' => true,
+            'status' => $status,
             'message' => $version->is_active ? 'تم تفعيل الإصدار بنجاح' : 'تم تعطيل الإصدار بنجاح',
         ]);
     }
 
     public function destroy(AdminAuthenticatedRequest $request, Version $version)
     {
-        $version->delete();
+        $this->versionService->delete($version);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'تم حذف الإصدار بنجاح']);
+        }
 
         return redirect()->route($this->route.'.index')->with('success', 'تم حذف الإصدارة بنجاح');
     }

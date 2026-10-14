@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Admin\APILayer\APILayerController;
 use App\Http\Controllers\Shared\Wizard\WizardDraftController;
 use App\Http\Controllers\Tenants\__LinkDomain\LinkDomainController;
 use App\Http\Controllers\Tenants\activity_log\ActivityLogController;
@@ -48,6 +47,7 @@ use App\Http\Controllers\Tenants\DeleteBulk\MassDeleteController;
 use App\Http\Controllers\Tenants\Domains\CheckMultipleDomainController as DomainsCheckMultipleDomainController;
 use App\Http\Controllers\Tenants\Domains\CpanelController;
 use App\Http\Controllers\Tenants\Domains\DomainController;
+use App\Http\Controllers\Tenants\Domains\DomainLookupController;
 use App\Http\Controllers\Tenants\Domains\DomainPaymentController;
 use App\Http\Controllers\Tenants\Domains\GetDomainInfoController;
 use App\Http\Controllers\Tenants\Domains\RenewalDomainController;
@@ -232,7 +232,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             // start blade for domains
             Route::name('setting')->get('setting', [DomainController::class, 'domainSetting']);
             Route::name('newdomain')->get('newdomain', [DomainController::class, 'newdomain']);
-            Route::name('transfer-domain')->match(['post', 'get'], 'transfer-dom-blade', [DomainController::class, 'transferDom']);
+            Route::name('transfer-domain')->get('transfer-dom-blade', [DomainController::class, 'transferDom']);
             Route::name('link-domain')->get('link-domain', [DomainController::class, 'linkDomain']);
             Route::name('link-sub-domain')->get('link-sub-domain', [DomainController::class, 'linkSubDomain']);
             Route::name('faq')->get('faq', [DomainController::class, 'faq']);
@@ -282,9 +282,9 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             // end check multiple domain
 
             // start api layer
-            Route::name('apilayer')->match(['get', 'post'], 'check-domain/{domain}', [APILayerController::class, 'apiLayerFunc']);
-            Route::name('check-domain')->match(['get', 'post'], 'check-domainss/{domain}', [APILayerController::class, 'apiLayer2']);
-            Route::name('checkSubDomain')->get('checkSubdomain/{subdomain}', [APILayerController::class, 'checkSubDomain']);
+            Route::name('apilayer')->match(['get', 'post'], 'check-domain/{domain}', [DomainLookupController::class, 'checkAvailability']);
+            Route::name('check-domain')->match(['get', 'post'], 'check-domainss/{domain}', [DomainLookupController::class, 'inspectDns']);
+            Route::name('checkSubDomain')->get('checkSubdomain/{subdomain}', [DomainLookupController::class, 'checkSubDomain']);
             // end api layer
 
             // moyaser start
@@ -294,10 +294,10 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             Route::name('payment.callback.transfer')->get('process-transfer-payment-callback', [DomainPaymentController::class, 'transferCallback']);
             // moyaser end
 
-            Route::name('checkExistTransferDomain')->post('checkExistTransferDomain/{domain}', [APILayerController::class, 'checkExistTransferDomain']);
+            Route::name('checkExistTransferDomain')->post('checkExistTransferDomain/{domain}', [DomainLookupController::class, 'checkTransferAvailability']);
 
             // start domain controller
-            Route::name('transfer.domain.status')->match(['post', 'get'], 'checkTransferStatus/{domain}', [DomainController::class, 'checkTransferStatus']);
+            Route::name('transfer.domain.status')->get('checkTransferStatus/{domain}', [DomainController::class, 'checkTransferStatus']);
             Route::name('linkDomainproccess')->post('link-domain-proccess', [DomainController::class, 'setupdnsForDomain']);
             Route::post('/verify-dns', [DomainController::class, 'verifyDNS'])->name('domains.verify-dns');
             Route::name('check-domain-exists')->post('check-domain-exists', [DomainController::class, 'checkDomainExists']);
@@ -619,9 +619,9 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             Route::prefix('update-requests')->name('update-requests.')->group(function () {
                 Route::name('index')->get('/', [CustomerUpdateRequestController::class, 'index']);
                 Route::name('pending-count')->get('pending-count', [CustomerUpdateRequestController::class, 'getPendingCount']);
-                Route::name('show')->get('{id}', [CustomerUpdateRequestController::class, 'show']);
-                Route::name('approve')->post('{id}/approve', [CustomerUpdateRequestController::class, 'approve']);
-                Route::name('reject')->post('{id}/reject', [CustomerUpdateRequestController::class, 'reject']);
+                Route::name('show')->get('{customerUpdateRequest}', [CustomerUpdateRequestController::class, 'show']);
+                Route::name('approve')->post('{customerUpdateRequest}/approve', [CustomerUpdateRequestController::class, 'approve']);
+                Route::name('reject')->post('{customerUpdateRequest}/reject', [CustomerUpdateRequestController::class, 'reject']);
                 Route::name('bulk-approve')->post('bulk-approve', [CustomerUpdateRequestController::class, 'bulkApprove']);
                 Route::name('bulk-reject')->post('bulk-reject', [CustomerUpdateRequestController::class, 'bulkReject']);
                 Route::name('export-fields')->post('export-fields', [CustomerUpdateRequestController::class, 'exportFields']);
@@ -629,7 +629,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             });
 
             // == في مجموعة مسارات العملاء ==
-            Route::prefix('{customer}/phone-requests')->name('phone-requests.')->group(function () {
+            Route::middleware(['can:view,customer', 'customer.subresource'])->prefix('{customer}/phone-requests')->name('phone-requests.')->group(function () {
                 Route::name('list')->get('list', [CustomerPhoneRequestController::class, 'getPhoneRequestsList']);
                 Route::name('create')->get('create', [CustomerPhoneRequestController::class, 'create']);
                 Route::name('store')->post('/', [CustomerPhoneRequestController::class, 'store']);
@@ -639,7 +639,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             Route::name('show')->get('{customer}', [CustomerController::class, 'show']);
 
             // === مسارات تحصيلات العملاء ===
-            Route::prefix('{customer}/payments')->name('payments.')->group(function () {
+            Route::middleware(['can:view,customer', 'customer.subresource'])->prefix('{customer}/payments')->name('payments.')->group(function () {
                 Route::name('create')->get('create', [CustomerPaymentController::class, 'create']);
                 Route::name('store')->post('/', [CustomerPaymentController::class, 'store']);
                 Route::name('edit')->get('{collection}/edit', [CustomerPaymentController::class, 'edit']);
@@ -659,7 +659,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             });
 
             // === مسارات متابعة العملاء ===
-            Route::prefix('{customer}/follows')->name('follows.')->group(function () {
+            Route::middleware(['can:view,customer', 'customer.subresource'])->prefix('{customer}/follows')->name('follows.')->group(function () {
                 Route::name('index')->get('/', [CustomerFollowController::class, 'index']);
                 Route::name('list')->get('list', [CustomerFollowController::class, 'getFollowsList']);
                 Route::name('contact-result-fields')->get('contact-result-fields', [CustomerFollowController::class, 'getContactResultFields']);
@@ -675,7 +675,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             });
 
             // === مسارات مرفقات العملاء المبسطة ===
-            Route::prefix('{customer}/attachments')->name('attachments.')->group(function () {
+            Route::middleware(['can:view,customer', 'customer.subresource'])->prefix('{customer}/attachments')->name('attachments.')->group(function () {
                 Route::name('list')->get('list', [CustomerAttachmentController::class, 'getAttachmentsList']);
                 Route::name('store')->post('/', [CustomerAttachmentController::class, 'store']);
                 Route::name('destroy')->delete('{customerAttachment}', [CustomerAttachmentController::class, 'destroy']);
@@ -683,14 +683,14 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             });
 
             // === مسارات ملاحظات العملاء ===
-            Route::prefix('{customer}/notes')->name('notes.')->group(function () {
+            Route::middleware(['can:view,customer', 'customer.subresource'])->prefix('{customer}/notes')->name('notes.')->group(function () {
                 Route::name('list')->get('list', [CustomerNoteController::class, 'getNotesList']);
                 Route::name('store')->post('/', [CustomerNoteController::class, 'store']);
                 Route::name('destroy')->delete('{customerNote}', [CustomerNoteController::class, 'destroy']);
             });
 
             // === مسارات تعليقات العملاء (الجديدة) ===
-            Route::prefix('{customer}/comments')->name('comments.')->group(function () {
+            Route::middleware(['can:view,customer', 'customer.subresource'])->prefix('{customer}/comments')->name('comments.')->group(function () {
                 Route::name('list')->get('list', [CustomerCommentController::class, 'getCommentsList']);
                 Route::name('store')->post('/', [CustomerCommentController::class, 'store']);
                 Route::name('destroy')->delete('{customerComment}', [CustomerCommentController::class, 'destroy']);
@@ -698,7 +698,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             });
 
             // === مسارات خطط سداد العملاء ===
-            Route::prefix('{customer}/payment-plans')->name('payment-plans.')->group(function () {
+            Route::middleware(['can:view,customer', 'customer.subresource'])->prefix('{customer}/payment-plans')->name('payment-plans.')->group(function () {
                 Route::name('list')->get('list', [CustomerPaymentPlanController::class, 'getPaymentPlansList']);
                 Route::name('create')->get('create', [CustomerPaymentPlanController::class, 'create']);
                 Route::name('store')->post('/', [CustomerPaymentPlanController::class, 'store']);
@@ -708,12 +708,12 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             });
 
             // === مسارات سجل السدادات ===
-            Route::prefix('{customer}/payment-history')->name('payment-history.')->group(function () {
+            Route::middleware(['can:view,customer', 'customer.subresource'])->prefix('{customer}/payment-history')->name('payment-history.')->group(function () {
                 Route::name('list')->get('list', [CustomerPaymentHistoryController::class, 'getPaymentHistoryList']);
             });
 
             // === مسارات تسويات العملاء ===
-            Route::prefix('{customer}/settlements')->name('settlements.')->group(function () {
+            Route::middleware(['can:view,customer', 'customer.subresource'])->prefix('{customer}/settlements')->name('settlements.')->group(function () {
                 Route::name('list')->get('list', [CustomerSettlementController::class, 'getSettlementsList']);
                 Route::name('create')->get('create', [CustomerSettlementController::class, 'create']);
                 Route::name('store')->post('/', [CustomerSettlementController::class, 'store']);
@@ -723,7 +723,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             });
 
             // === مسارات الرسائل النصية للعملاء ===
-            Route::prefix('{customer}/sms-messages')->name('sms-messages.')->group(function () {
+            Route::middleware(['can:view,customer', 'customer.subresource'])->prefix('{customer}/sms-messages')->name('sms-messages.')->group(function () {
                 Route::name('create')->get('create', [CustomerSmsController::class, 'create']);
                 Route::name('send')->post('send', [CustomerSmsController::class, 'send']);
                 Route::name('preview-template')->post('preview-template', [CustomerSmsController::class, 'previewTemplate']);

@@ -89,17 +89,22 @@ class VersionTesterController extends Controller
 
     public function toggleStatus(AdminAuthenticatedRequest $request, VersionTester $versionTester): JsonResponse
     {
-        $versionTester->update(['is_active' => ! $versionTester->is_active]);
+        $status = $this->versionTestersService->toggleStatus($versionTester);
 
         return response()->json([
             'success' => true,
+            'status' => $status,
             'message' => $versionTester->is_active ? 'تم تفعيل المختبر بنجاح' : 'تم تعطيل المختبر بنجاح',
         ]);
     }
 
     public function destroy(AdminAuthenticatedRequest $request, VersionTester $versionTester)
     {
-        $versionTester->delete();
+        $this->versionTestersService->delete($versionTester);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'تم حذف العميل من الفريق بنجاح']);
+        }
 
         return redirect()->route($this->route.'.index')->with('success', 'تم حذف العميل من الفريق بنجاح');
     }

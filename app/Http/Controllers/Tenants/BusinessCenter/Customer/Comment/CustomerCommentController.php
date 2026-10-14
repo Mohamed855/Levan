@@ -33,6 +33,8 @@ class CustomerCommentController extends Controller
     */
     public function getCommentsList(Customer $customer): JsonResponse
     {
+        $this->authorize('view', $customer);
+
         try {
             $comments = $this->customerCommentService->getCustomerComments($customer->id);
             $comments->each(function ($comment) {
@@ -55,6 +57,8 @@ class CustomerCommentController extends Controller
     */
     public function store(StoreCustomerCommentRequest $request, Customer $customer): JsonResponse
     {
+        $this->authorize('update', $customer);
+
         try {
             $comment = $this->customerCommentService->createComment($customer, $request->validated());
             $comment->parsed_comment_text = $this->customerCommentService->parseMentions($comment->comment_text);
@@ -80,6 +84,8 @@ class CustomerCommentController extends Controller
     */
     public function destroy(Request $request, Customer $customer, $commentId): JsonResponse
     {
+        $this->authorize('delete', $customer);
+
         try {
             // البحث عن التعليق فقط
             $comment = CustomerComment::where('id', $commentId)
@@ -115,8 +121,10 @@ class CustomerCommentController extends Controller
     |--------------------------------------------------------------------------
     | Fetch a list of active users available for mentioning.
     */
-    public function getMentionableUsers(): JsonResponse
+    public function getMentionableUsers(Customer $customer): JsonResponse
     {
+        $this->authorize('view', $customer);
+
         try {
             $users = $this->customerCommentService->getAllMentionableUsers();
 

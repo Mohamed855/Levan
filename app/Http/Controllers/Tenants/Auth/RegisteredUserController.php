@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers\Tenants\Auth;
 
+use App\Actions\Tenants\Auth\RegisterTenantUserAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Auth\RegisterUserRequest;
-use App\Models\Tenants\UserMangment\User\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -29,17 +27,9 @@ class RegisteredUserController extends Controller
      *
      * @throws ValidationException
      */
-    public function store(RegisterUserRequest $request): RedirectResponse
+    public function store(RegisterUserRequest $request, RegisterTenantUserAction $registerUser): RedirectResponse
     {
-        $user = User::create([
-            'name' => $request->name,
-            'phone' => $request->phone,
-            'employee_number' => 'REG-'.strtoupper(Str::random(8)),
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'global_uid' => (string) Str::uuid(),
-            'status' => 'active',
-        ]);
+        $user = $registerUser->execute($request->validated());
 
         event(new Registered($user));
 

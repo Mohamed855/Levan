@@ -48,4 +48,14 @@ class BillPolicy
     {
         return $user->can('subscriptions.pending.approve');
     }
+
+    public function restore(AdminUser $user, Bill $bill): bool
+    {
+        return $user->can('financial_transactions.restore') || $user->can('financial_transactions.view');
+    }
+
+    public function forceDelete(AdminUser $user, Bill $bill): bool
+    {
+        return $user->can('financial_transactions.force_delete') || $user->can('financial_transactions.view');
+    }
 }

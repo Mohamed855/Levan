@@ -70,6 +70,18 @@ class UserService
         });
     }
 
+    public function toggleStatus(AdminUser $user): AdminUserStatus
+    {
+        return DB::transaction(function () use ($user): AdminUserStatus {
+            $status = $user->status === AdminUserStatus::ACTIVE
+                ? AdminUserStatus::INACTIVE
+                : AdminUserStatus::ACTIVE;
+            $user->update(['status' => $status]);
+
+            return $status;
+        });
+    }
+
     public function bulkDelete(array $ids): int
     {
         return DB::transaction(function () use ($ids) {

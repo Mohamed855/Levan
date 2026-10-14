@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers\Admin\ContentManagement\Portfolio;
 
+use App\Actions\Admin\ContentManagement\ManagePortfolioAction;
 use App\DataTables\Admin\ContentManagement\Portfolio\PortfolioDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\ContentManagement\StorePortfolioRequest;
 use App\Http\Requests\Admin\ContentManagement\UpdatePortfolioRequest;
 use App\Models\Admin\ContentManagement\Portfolio;
-use Illuminate\Support\Facades\Storage;
 
 class PortfolioController extends Controller
 {
-    public function __construct()
+    public function __construct(private readonly ManagePortfolioAction $portfolios)
     {
         $this->middleware('auth:admin');
         $this->authorizeResource(Portfolio::class, 'portfolio');
@@ -48,11 +48,7 @@ class PortfolioController extends Controller
         $validated = $request->validated();
 
         try {
-            if ($request->hasFile('logo')) {
-                $validated['logo'] = $request->file('logo')->store('portfolios', 'public');
-            }
-
-            Portfolio::create($validated);
+            $this->portfolios->create($validated, $request->file('logo'));
 
             return redirect()->route('admin.content_management.portfolio.index')
                 ->with('success', 'تم إضافة المحفظة بنجاح');
@@ -76,14 +72,7 @@ class PortfolioController extends Controller
         $validated = $request->validated();
 
         try {
-            if ($request->hasFile('logo')) {
-                if ($portfolio->logo) {
-                    Storage::disk('public')->delete($portfolio->logo);
-                }
-                $validated['logo'] = $request->file('logo')->store('portfolios', 'public');
-            }
-
-            $portfolio->update($validated);
+            $this->portfolios->update($portfolio, $validated, $request->file('logo'));
 
             return redirect()->route('admin.content_management.portfolio.index')
                 ->with('success', 'تم تحديث المحفظة بنجاح');
@@ -95,10 +84,11 @@ class PortfolioController extends Controller
     public function destroy(AdminAuthenticatedRequest $request, Portfolio $portfolio)
     {
         try {
-            if ($portfolio->logo) {
-                Storage::disk('public')->delete($portfolio->logo);
+            $this->portfolios->delete($portfolio);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'تم حذف المحفظة بنجاح']);
             }
-            $portfolio->delete();
 
             return redirect()->route('admin.content_management.portfolio.index')
                 ->with('success', 'تم حذف المحفظة بنجاح');
@@ -110,8 +100,7 @@ class PortfolioController extends Controller
     public function toggleStatus(AdminAuthenticatedRequest $request, Portfolio $portfolio)
     {
         try {
-            $newStatus = ! $portfolio->status;
-            $portfolio->update(['status' => $newStatus]);
+            $newStatus = $this->portfolios->toggleStatus($portfolio);
 
             return response()->json([
                 'success' => true,

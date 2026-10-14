@@ -8,14 +8,14 @@ class AdminUserStoreRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user('admin')?->can('users.create') ?? false;
     }
 
     public function rules(): array
     {
         return [
             'name' => ['required', 'string', 'max:255', 'min:2', 'regex:/^[\pL\s\-\.]+$/u'],
-            'email' => ['required', 'email:rfc,dns', 'max:255', 'unique:admin_users,email'],
+            'email' => ['required', 'email:rfc', 'max:255', 'unique:admin_users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'phone' => ['required', 'string', 'size:10', 'regex:/^05[0-9]{8}$/'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048', 'dimensions:min_width=100,min_height=100,max_width=2000,max_height=2000'],

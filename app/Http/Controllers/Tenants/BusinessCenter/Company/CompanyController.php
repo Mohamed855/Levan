@@ -17,7 +17,6 @@ use App\Services\Tenants\BusinessCenter\Company\CompanyService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class CompanyController extends Controller
@@ -85,13 +84,7 @@ class CompanyController extends Controller
     {
         try {
             $dto = $request->toCreateDTO();
-
-            if ($request->hasFile('logo')) {
-                $path = $request->file('logo')->store('companies/logos', 'tenant_public');
-                $dto->withLogoPath($path);
-            }
-
-            $this->companyService->createCompany($dto);
+            $this->companyService->createCompanyWithLogo($dto, $request->file('logo'));
 
             return redirect()->to(tenant_route_name('companies.index'))
                 ->with('success', 'تم إضافة الشركة بنجاح');
@@ -215,15 +208,7 @@ class CompanyController extends Controller
         try {
             $dto = $request->toUpdateDTO();
 
-            if ($request->hasFile('logo')) {
-                if ($company->logo_path) {
-                    Storage::disk('tenant_public')->delete($company->logo_path);
-                }
-                $path = $request->file('logo')->store('companies/logos', 'tenant_public');
-                $dto->withLogoPath($path);
-            }
-
-            $this->companyService->updateCompany($company, $dto);
+            $this->companyService->updateCompanyWithLogo($company, $dto, $request->file('logo'));
 
             return redirect()->to(tenant_route_name('companies.index'))
                 ->with('success', 'تم تحديث الشركة بنجاح');
@@ -262,7 +247,7 @@ class CompanyController extends Controller
     {
         try {
             $newStatus = $request->validated('status');
-            $company->update(['status' => $newStatus]);
+            $this->companyService->updateStatus($company, $newStatus);
 
             $statusText = $newStatus === 'active' ? 'نشط' : 'غير نشط';
 

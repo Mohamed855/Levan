@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Tenants\BusinessCenter\Customer;
 
 use App\DataTables\Tenants\BusinessCenter\Customer\CustomersDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\CustomerPortfolioFieldsRequest;
 use App\Http\Requests\Tenants\BusinessCenter\Customer\PreviewCustomerSmsTemplateRequest;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\PreviewCustomerWhatsAppTemplateRequest;
 use App\Http\Requests\Tenants\BusinessCenter\Customer\SendBulkCustomerSmsRequest;
 use App\Http\Requests\Tenants\BusinessCenter\Customer\SetPrimaryCustomerPhoneRequest;
 use App\Http\Requests\Tenants\BusinessCenter\Customer\ShowCustomerSmsFormRequest;
@@ -21,7 +23,6 @@ use App\Services\Tenants\SMS\Customer\CustomerSMSService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
@@ -69,7 +70,6 @@ class CustomerController extends Controller
             return $next($request);
         })->only(['index']);
 
-        // $this->middleware('can:العملاء')->only(['index']);
         $this->middleware('can:customers.create')->only(['create', 'store']);
         $this->middleware('can:customers.edit')->only(['edit', 'update']);
         $this->middleware('can:customers.delete')->only(['destroy']);
@@ -626,14 +626,10 @@ class CustomerController extends Controller
     | جلب الحقول المرتبطة بالمحفظة
     |--------------------------------------------------------------------------
     */
-    public function getPortfolioFields(Request $request): JsonResponse
+    public function getPortfolioFields(CustomerPortfolioFieldsRequest $request): JsonResponse
     {
-        $request->validate([
-            'portfolio_id' => 'required|exists:portfolios,id',
-        ]);
-
         $fields = $this->customerService
-            ->getPortfolioFields((int) $request->portfolio_id);
+            ->getPortfolioFields((int) $request->validated('portfolio_id'));
 
         return response()->json(['success' => true, 'data' => $fields]);
     }
@@ -692,11 +688,7 @@ class CustomerController extends Controller
                 ], 409);
             }
 
-            DB::transaction(function () use ($customer, $phone) {
-                CustomerPhone::where('customer_id', $customer->id)
-                    ->update(['is_primary' => false]);
-                $phone->update(['is_primary' => true]);
-            });
+            $this->customerService->setPrimaryPhone($customer, $phoneId);
 
             return response()->json([
                 'success' => true,
@@ -803,15 +795,10 @@ class CustomerController extends Controller
     |--------------------------------------------------------------------------
     | معاينة قالب الواتساب مع استبدال المتغيرات
     */
-    public function previewWhatsAppTemplate(Request $request): JsonResponse
+    public function previewWhatsAppTemplate(PreviewCustomerWhatsAppTemplateRequest $request): JsonResponse
     {
-        $request->validate([
-            'template_id' => 'required|exists:message_templates,id',
-            'customer_id' => 'required|exists:customers,id',
-        ]);
-
         try {
-            $template = MessageTemplate::findOrFail($request->template_id);
+            $template = MessageTemplate::findOrFail($request->validated('template_id'));
             $customer = Customer::with([
                 'nationalityCountry',
                 'customerStatus',
@@ -820,7 +807,7 @@ class CustomerController extends Controller
                 'portfolio',
                 'dynamicValues.portfolioField',
                 'phones',
-            ])->findOrFail($request->customer_id);
+            ])->findOrFail($request->validated('customer_id'));
 
             // حساب المديونية الصحيحة
             $totalDebit = CustomerTransaction::where('customer_id', $customer->id)

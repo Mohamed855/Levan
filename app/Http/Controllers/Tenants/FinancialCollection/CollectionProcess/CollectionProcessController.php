@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers\Tenants\FinancialCollection\CollectionProcess;
 
+use App\Actions\Tenants\FinancialCollection\ManageCollectionCustomerPhoneAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\BusinessCenter\Customer\CustomerFollow\StoreCustomerFollowRequest;
+use App\Http\Requests\Tenants\FinancialCollection\CollectionProcess\AddCollectionCustomerPhoneRequest;
+use App\Http\Requests\Tenants\FinancialCollection\CollectionProcess\PreviewCollectionWhatsAppTemplateRequest;
 use App\Http\Requests\Tenants\FinancialCollection\CollectionProcess\SearchCollectionCustomerRequest;
+use App\Http\Requests\Tenants\FinancialCollection\CollectionProcess\SetCollectionCustomerPrimaryPhoneRequest;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Customers\Phone\CustomerPhone;
 use App\Models\Tenants\FinancialCollection\Collection\Collection;
@@ -18,8 +22,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 
 class CollectionProcessController extends Controller
@@ -27,7 +29,8 @@ class CollectionProcessController extends Controller
     public function __construct(
         private CollectionProcessService $collectionProcessService,
         private CustomerFollowService $customerFollowService,
-        private CollectionSessionService $collectionSessionService
+        private CollectionSessionService $collectionSessionService,
+        private ManageCollectionCustomerPhoneAction $customerPhones,
     ) {
         $this->middleware('can:collection_process.start');
         $this->middleware('can:collect,customer')->only([
@@ -346,14 +349,10 @@ class CollectionProcessController extends Controller
     | معاينة قالب الواتساب
     |--------------------------------------------------------------------------
     */
-    public function previewWhatsAppTemplate(Request $request, Customer $customer): JsonResponse
+    public function previewWhatsAppTemplate(PreviewCollectionWhatsAppTemplateRequest $request, Customer $customer): JsonResponse
     {
-        $request->validate([
-            'template_id' => 'required|exists:message_templates,id',
-        ]);
-
         try {
-            $template = MessageTemplate::findOrFail($request->template_id);
+            $template = MessageTemplate::findOrFail($request->validated('template_id'));
             $customer->load(['nationalityCountry', 'customerStatus', 'relationshipManager', 'company', 'portfolio', 'dynamicValues.portfolioField', 'phones']);
 
             // حساب المديونية الصحيحة
@@ -566,44 +565,10 @@ class CollectionProcessController extends Controller
     | إضافة رقم هاتف جديد للعميل
     |--------------------------------------------------------------------------
     */
-    public function addCustomerPhone(Request $request, Customer $customer): JsonResponse
+    public function addCustomerPhone(AddCollectionCustomerPhoneRequest $request, Customer $customer): JsonResponse
     {
-        if (
-            ! auth()->user()->can('customers.edit_all') &&
-            ! (auth()->user()->can('customers.edit') && $customer->relationship_manager_id === auth()->id())
-        ) {
-            return response()->json([
-                'success' => false,
-                'message' => 'ليس لديك صلاحية لتعديل هذا العميل',
-            ], 403);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'phone' => 'required|string|size:10|regex:/^05[0-9]{8}$/',
-            'type' => 'nullable|string|max:50',
-            'notes' => 'nullable|string|max:255',
-        ], [
-            'phone.required' => 'رقم الهاتف مطلوب',
-            'phone.size' => 'رقم الهاتف يجب أن يتكون من 10 أرقام',
-            'phone.regex' => 'رقم الهاتف يجب أن يبدأ بـ 05',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => $validator->errors()->first(),
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
         try {
-            $phone = CustomerPhone::create([
-                'customer_id' => $customer->id,
-                'phone' => $request->phone,
-                'type' => $request->type ?? 'mobile',
-                'is_primary' => false,
-                'notes' => $request->notes,
-            ]);
+            $phone = $this->customerPhones->add($customer, $request->validated());
 
             return response()->json([
                 'success' => true,
@@ -627,40 +592,12 @@ class CollectionProcessController extends Controller
     | تعيين رقم هاتف افتراضي للعميل
     |--------------------------------------------------------------------------
     */
-    public function setPrimaryPhone(Request $request, Customer $customer): JsonResponse
+    public function setPrimaryPhone(SetCollectionCustomerPrimaryPhoneRequest $request, Customer $customer): JsonResponse
     {
-        if (
-            ! auth()->user()->can('customers.edit_all') &&
-            ! (auth()->user()->can('customers.edit') && $customer->relationship_manager_id === auth()->id())
-        ) {
-            return response()->json([
-                'success' => false,
-                'message' => 'ليس لديك صلاحية لتعديل هذا العميل',
-            ], 403);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'phone_id' => 'required|integer|exists:customer_phones,id',
-        ], [
-            'phone_id.required' => 'معرف رقم الهاتف مطلوب',
-            'phone_id.integer' => 'معرف رقم الهاتف يجب أن يكون رقمًا صحيحًا',
-            'phone_id.exists' => 'رقم الهاتف المحدد غير موجود',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => $validator->errors()->first(),
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
         try {
-            $phoneId = (int) $request->phone_id;
+            $phoneId = (int) $request->validated('phone_id');
 
-            $phone = CustomerPhone::where('id', $phoneId)
-                ->where('customer_id', $customer->id)
-                ->first();
+            $phone = CustomerPhone::query()->whereKey($phoneId)->where('customer_id', $customer->id)->first();
 
             if (! $phone) {
                 return response()->json([
@@ -676,11 +613,14 @@ class CollectionProcessController extends Controller
                 ], 409);
             }
 
-            DB::transaction(function () use ($customer, $phone) {
-                CustomerPhone::where('customer_id', $customer->id)
-                    ->update(['is_primary' => false]);
-                $phone->update(['is_primary' => true]);
-            });
+            $phone = $this->customerPhones->makePrimary($customer, $phoneId);
+
+            if ($phone === null) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'رقم الهاتف غير موجود أو لا ينتمي لهذا العميل',
+                ], 404);
+            }
 
             return response()->json([
                 'success' => true,

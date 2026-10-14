@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Tenants\BusinessCenter\Customer\Distribution;
 use App\DataTables\Tenants\BusinessCenter\Customer\Distribution\CustomerDistributionDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\BusinessCenter\Customer\Distribution\CreateDistributionRequest;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\Distribution\DistributionPortfolioLookupRequest;
+use App\Http\Requests\Tenants\BusinessCenter\Customer\Distribution\DistributionTargetsRequest;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Models\Tenants\UserMangment\Team\Team;
@@ -13,7 +15,6 @@ use App\Services\Tenants\BusinessCenter\Customer\Distribution\CustomerDistributi
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class CustomerDistributionController extends Controller
@@ -34,8 +35,8 @@ class CustomerDistributionController extends Controller
     {
         $this->distributionService = $distributionService;
         $this->middleware('auth');
-        $this->middleware('can:customer_distributions.view')->only(['index', 'show']);
-        $this->middleware('can:customer_distributions.create')->only(['create', 'execute']);
+        $this->middleware('can:customer_distributions.view')->only(['index', 'show', 'getPortfoliosWithUnassignedCustomers', 'getCollectorsByTeam']);
+        $this->middleware('can:customer_distributions.create')->only(['create', 'preview', 'calculateTargets', 'execute']);
     }
 
     /*
@@ -245,14 +246,10 @@ class CustomerDistributionController extends Controller
     | Get Portfolios with Unassigned Customers by Company
     |--------------------------------------------------------------------------
     */
-    public function getPortfoliosWithUnassignedCustomers(Request $request): JsonResponse
+    public function getPortfoliosWithUnassignedCustomers(DistributionPortfolioLookupRequest $request): JsonResponse
     {
-        $request->validate([
-            'company_id' => 'required|exists:companies,id',
-        ]);
-
-        $company_id = $request->company_id;
-        $portfolio_id = $request->input('portfolio_id');
+        $company_id = $request->validated('company_id');
+        $portfolio_id = $request->validated('portfolio_id');
         $getTotal = $request->boolean('get_total', false);
 
         if ($getTotal && $portfolio_id) {
@@ -289,33 +286,20 @@ class CustomerDistributionController extends Controller
     |--------------------------------------------------------------------------
     | Calculate targets preview .
     */
-    public function calculateTargets(Request $request): JsonResponse
+    public function calculateTargets(DistributionTargetsRequest $request): JsonResponse
     {
         try {
-            $request->validate([
-                'distribution_result' => 'required|array',
-                'duration' => 'required|integer|min:1|max:12',
-                'start_month' => 'required|integer|min:1|max:12',
-                'start_year' => 'required|integer|min:2024',
-            ]);
-
             $monthlyTargets = $this->distributionService->calculateMonthlyTargets(
-                $request->input('distribution_result'),
-                $request->input('duration'),
-                $request->input('start_month'),
-                $request->input('start_year')
+                $request->validated('distribution_result'),
+                $request->integer('duration'),
+                $request->integer('start_month'),
+                $request->integer('start_year')
             );
 
             return response()->json([
                 'success' => true,
                 'data' => $monthlyTargets,
             ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'خطأ في البيانات المدخلة',
-                'errors' => $e->errors(),
-            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -332,54 +316,6 @@ class CustomerDistributionController extends Controller
     */
     // في ملف: CustomerDistributionService.php
     // استبدل دالة calculateMonthlyTargets بهذه النسخة:
-
-    public function calculateMonthlyTargets(array $distributionResult, int $duration, int $startMonth, int $startYear): array
-    {
-        $monthlyTargets = [];
-
-        foreach ($distributionResult as $collectorId => $data) {
-            try {
-                $totalAmount = floatval($data['total_debt']);
-                $monthlyAmount = floor($totalAmount / $duration);
-                $remainder = $totalAmount - ($monthlyAmount * $duration);
-
-                // التعامل مع collector كـ array أو object
-                $collectorName = is_array($data['collector'])
-                    ? $data['collector']['name']
-                    : $data['collector']->name;
-
-                $months = [];
-                for ($i = 0; $i < $duration; $i++) {
-                    $currentMonth = (($startMonth - 1 + $i) % 12) + 1;
-                    $currentYear = $startYear + floor(($startMonth - 1 + $i) / 12);
-
-                    $amount = $monthlyAmount;
-                    if ($i >= $duration - $remainder) {
-                        $amount += 1;
-                    }
-
-                    $months[] = [
-                        'month' => $currentMonth,
-                        'year' => $currentYear,
-                        'amount' => $amount,
-                        'month_name' => $this->getMonthName($currentMonth),
-                    ];
-                }
-
-                $monthlyTargets[$collectorId] = [
-                    'collector_id' => $collectorId,
-                    'collector_name' => $collectorName,
-                    'total_amount' => $totalAmount,
-                    'monthly_amount' => $monthlyAmount,
-                    'months' => $months,
-                ];
-            } catch (\Exception $e) {
-                throw $e;
-            }
-        }
-
-        return $monthlyTargets;
-    }
 
     public function getCollectorsByTeam(Request $request): JsonResponse
     {

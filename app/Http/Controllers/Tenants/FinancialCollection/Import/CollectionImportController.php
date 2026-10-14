@@ -148,7 +148,7 @@ class CollectionImportController extends Controller
     public function cancelImport(CancelCollectionImportRequest $request)
     {
         $tempPath = $request->validated('temp_path');
-        Storage::disk('tenant_public')->delete($tempPath);
+        $this->importService->cancelImport($tempPath);
 
         return response()->json(['success' => true]);
     }

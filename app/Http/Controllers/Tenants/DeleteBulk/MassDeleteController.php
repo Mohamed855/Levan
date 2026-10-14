@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers\Tenants\DeleteBulk;
 
+use App\Actions\Tenants\MassDelete\DeleteTenantRecordsAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\DeleteBulk\MassDeleteRequest;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Gate;
 
 class MassDeleteController extends Controller
 {
+    public function __construct(private readonly DeleteTenantRecordsAction $deleteRecords) {}
+
     /** @var array<string, string> */
     private const MODEL_DELETE_PERMISSIONS = [
         'Assignment' => 'assignments.delete',
@@ -39,7 +44,7 @@ class MassDeleteController extends Controller
             return response()->json(['success' => false, 'message' => 'الموديل غير موجود.'], 400);
         }
 
-        return $this->processSmallDelete($modelClass, $ids);
+        return $this->processSmallDelete($request, $modelClass, $ids);
     }
 
     /*
@@ -47,10 +52,17 @@ class MassDeleteController extends Controller
     | Process Small Delete
     |--------------------------------------------------------------------------
     */
-    private function processSmallDelete($modelClass, $ids)
+    /** @param class-string<Model> $modelClass */
+    private function processSmallDelete(MassDeleteRequest $request, string $modelClass, array $ids)
     {
+        $records = $modelClass::query()->whereIn('id', $ids)->get();
+
+        foreach ($records as $record) {
+            Gate::forUser($request->user('tenant'))->authorize('delete', $record);
+        }
+
         try {
-            $deleted = $modelClass::whereIn('id', $ids)->delete();
+            $deleted = $this->deleteRecords->execute($records);
 
             return response()->json([
                 'success' => true,

@@ -11,10 +11,58 @@ use App\Models\Tenants\BusinessCenter\Contract\Contract;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\FinancialCollection\Collection\CustomerTransaction;
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class CompanyService
 {
+    public function createCompanyWithLogo(CompanyCreateDTO $dto, ?UploadedFile $logo): Company
+    {
+        $logoPath = $logo?->store('companies/logos', 'tenant_public');
+
+        if ($logoPath) {
+            $dto->withLogoPath($logoPath);
+        }
+
+        try {
+            return $this->createCompany($dto);
+        } catch (Throwable $exception) {
+            if ($logoPath) {
+                Storage::disk('tenant_public')->delete($logoPath);
+            }
+
+            throw $exception;
+        }
+    }
+
+    public function updateCompanyWithLogo(Company $company, CompanyUpdateDTO $dto, ?UploadedFile $logo): Company
+    {
+        $oldPath = $company->logo_path;
+        $newPath = $logo?->store('companies/logos', 'tenant_public');
+
+        if ($newPath) {
+            $dto->withLogoPath($newPath);
+        }
+
+        try {
+            $updated = $this->updateCompany($company, $dto);
+        } catch (Throwable $exception) {
+            if ($newPath) {
+                Storage::disk('tenant_public')->delete($newPath);
+            }
+            throw $exception;
+        }
+
+        if ($newPath && $oldPath && $oldPath !== $newPath) {
+            Storage::disk('tenant_public')->delete($oldPath);
+        }
+
+        return $updated;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Create Company
@@ -25,11 +73,11 @@ class CompanyService
         return DB::transaction(function () use ($dto) {
             $company = Company::create($dto->toModelArray());
 
-            if (!empty($dto->authorized_people)) {
+            if (! empty($dto->authorized_people)) {
                 $this->syncAuthorizedPeople($company, $dto->authorized_people);
             }
 
-            if ($dto->target_percentage !== null && \Illuminate\Support\Facades\Schema::hasTable('company_targets')) {
+            if ($dto->target_percentage !== null && Schema::hasTable('company_targets')) {
                 CompanyTarget::create([
                     'company_id' => $company->id,
                     'target_percentage' => $dto->target_percentage,
@@ -40,7 +88,7 @@ class CompanyService
             }
 
             $relations = ['authorizedPeople'];
-            if (\Illuminate\Support\Facades\Schema::hasTable('company_targets')) {
+            if (Schema::hasTable('company_targets')) {
                 $relations[] = 'currentTarget';
             }
 
@@ -61,15 +109,15 @@ class CompanyService
             if ($dto->wasProvided('authorized_people')) {
                 CompanyAuthorizedPerson::where('company_id', $company->id)->delete();
 
-                if (!empty($dto->authorized_people)) {
+                if (! empty($dto->authorized_people)) {
                     $this->syncAuthorizedPeople($company, $dto->authorized_people);
                 }
             }
 
-            if ($dto->target_percentage !== null && \Illuminate\Support\Facades\Schema::hasTable('company_targets')) {
+            if ($dto->target_percentage !== null && Schema::hasTable('company_targets')) {
                 $currentTarget = $company->currentTarget;
 
-                if (!$currentTarget || $currentTarget->target_percentage != $dto->target_percentage) {
+                if (! $currentTarget || $currentTarget->target_percentage != $dto->target_percentage) {
 
                     if ($currentTarget) {
                         $currentTarget->update([
@@ -88,7 +136,7 @@ class CompanyService
             }
 
             $relations = ['authorizedPeople'];
-            if (\Illuminate\Support\Facades\Schema::hasTable('company_targets')) {
+            if (Schema::hasTable('company_targets')) {
                 $relations[] = 'currentTarget';
             }
 
@@ -104,8 +152,8 @@ class CompanyService
     */
     private function syncAuthorizedPeople(Company $company, array $people): void
     {
-        $hasDefault = collect($people)->contains(fn($p) => $p->is_default === true);
-        if (!$hasDefault && count($people) === 1) {
+        $hasDefault = collect($people)->contains(fn ($p) => $p->is_default === true);
+        if (! $hasDefault && count($people) === 1) {
             $people[0]->is_default = true;
             $hasDefault = true;
         }
@@ -124,6 +172,7 @@ class CompanyService
             $data['company_id'] = $company->id;
             $data['created_at'] = now();
             $data['updated_at'] = now();
+
             return $data;
         }, $people);
 
@@ -147,6 +196,15 @@ class CompanyService
             }
 
             return $company->delete();
+        });
+    }
+
+    public function updateStatus(Company $company, string $status): Company
+    {
+        return DB::transaction(function () use ($company, $status): Company {
+            $company->update(['status' => $status]);
+
+            return $company->refresh();
         });
     }
 
@@ -175,16 +233,16 @@ class CompanyService
             ->withCount('customers')
             ->get();
 
-        $contract = \Illuminate\Support\Facades\Schema::hasTable('contracts')
+        $contract = Schema::hasTable('contracts')
             ? Contract::forCompany($company->id)->latest('start_date')->first()
             : null;
 
         return [
             'authorizedCount' => (int) $company->authorized_people_count,
-            'portfolios'      => $portfolios,
+            'portfolios' => $portfolios,
             'portfoliosCount' => $portfolios->count(),
-            'customersCount'  => (int) $portfolios->sum('customers_count'),
-            'contract'        => $contract,
+            'customersCount' => (int) $portfolios->sum('customers_count'),
+            'contract' => $contract,
         ];
     }
 
@@ -197,13 +255,14 @@ class CompanyService
     {
         $baseQuery = $this->getCompaniesQuery();
         $totalCredit = CustomerTransaction::where('type', 'credit')->sum('amount');
-        $totalDebit  = CustomerTransaction::where('type', 'debit')->sum('amount');
+        $totalDebit = CustomerTransaction::where('type', 'debit')->sum('amount');
         $totalCollectionDebt = $totalDebit > 0
             ? round(($totalCredit / $totalDebit) * 100, 2)
             : 0;
+
         return [
-            'total'    => (clone $baseQuery)->count(),
-            'active'   => (clone $baseQuery)->where('status', 'active')->count(),
+            'total' => (clone $baseQuery)->count(),
+            'active' => (clone $baseQuery)->where('status', 'active')->count(),
             'companyHasPortfolios' => (clone $baseQuery)->where('status', 'active')->whereHas('portfolios', function ($q) {
                 $q->where('status', 'active');
             })->count(),
@@ -215,7 +274,7 @@ class CompanyService
                 ->count(),
             'inactive' => (clone $baseQuery)->where('status', 'inactive')->count(),
             'archived' => Company::onlyTrashed()->count(),
-            'recent'   => Company::where('created_at', '>=', now()->subDays(30))->count(),
+            'recent' => Company::where('created_at', '>=', now()->subDays(30))->count(),
             'totalCusomtersForAllCompanies' => Customer::count(),
             'totalDeptForAllCompanies' => CustomerTransaction::where('type', 'debit')->sum('amount'),
             'totalCreditForAllCompanies' => CustomerTransaction::where('type', 'credit')->sum('amount'),
@@ -231,11 +290,11 @@ class CompanyService
     */
     public function filterCompaniesQuery(Builder $query, array $filters): Builder
     {
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -266,6 +325,7 @@ class CompanyService
                     ->join('customer_transactions', 'customers.id', '=', 'customer_transactions.customer_id')
                     ->where('customer_transactions.type', 'debit')
                     ->sum('customer_transactions.amount');
+
                 return [
                     'id' => $company->id,
                     'name' => $company->name,
@@ -303,7 +363,7 @@ class CompanyService
                     'count' => $company->customers_count,
                 ];
             })
-            ->filter(fn($c) => $c['count'] > 0)
+            ->filter(fn ($c) => $c['count'] > 0)
             ->sortByDesc('count')
             ->values()
             ->toArray();
@@ -330,6 +390,7 @@ class CompanyService
                     ->join('customer_transactions', 'customers.id', '=', 'customer_transactions.customer_id')
                     ->where('customer_transactions.type', 'debit')
                     ->sum('customer_transactions.amount');
+
                 return [
                     'id' => $company->id,
                     'name' => $company->name,
@@ -350,7 +411,7 @@ class CompanyService
         foreach ($topCompanies as $company) {
             $datasets = [];
             foreach ($dates as $date) {
-                $startDate = $date . '-01';
+                $startDate = $date.'-01';
                 $endDate = now()->createFromFormat('Y-m', $date)->endOfMonth()->format('Y-m-d');
 
                 $debt = $company['debt']; // Total debt

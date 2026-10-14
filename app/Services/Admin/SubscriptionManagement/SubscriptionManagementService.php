@@ -2,16 +2,21 @@
 
 namespace App\Services\Admin\SubscriptionManagement;
 
+use App\Enums\Admin\Billing\BillStatus;
 use App\Enums\Admin\Billing\BillType;
 use App\Enums\Admin\Billing\PaymentMethod;
 use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Jobs\Admin\Mail\SendSubscriptionMailJob;
+use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Tenants\Tenant;
 use App\Services\shared\Bills\BillService;
 use App\Services\shared\Subscription\SubscriptionService;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
 
 class SubscriptionManagementService
 {
@@ -19,6 +24,116 @@ class SubscriptionManagementService
         private SubscriptionService $subscriptionService,
         private BillService $billService,
     ) {}
+
+    public function updateSubscription(Subscription $subscription, array $data, bool $autoRenew): Subscription
+    {
+        return DB::connection('mysql')->transaction(function () use ($subscription, $data, $autoRenew): Subscription {
+            $tenant = Tenant::query()->findOrFail($data['tenant_id']);
+            $plan = Plan::query()->findOrFail($data['plan_id']);
+
+            if ($data['total_users'] < $plan->included_users) {
+                throw new InvalidArgumentException('لا يمكن أن يقل عدد المستخدمين عن المستخدمين المشمولين في الباقة.');
+            }
+
+            $startsAt = Carbon::parse($data['starts_at']);
+            if ($plan->subscription_duration_type === 'limited') {
+                $endsAt = $plan->subscription_billing_cycle === 'monthly'
+                    ? $startsAt->copy()->addMonth()
+                    : $startsAt->copy()->addYear();
+            } else {
+                if (empty($data['ends_at'])) {
+                    throw new InvalidArgumentException('تاريخ نهاية الاشتراك مطلوب للباقات غير محددة المدة');
+                }
+                $endsAt = Carbon::parse($data['ends_at']);
+            }
+
+            $tenant->update([
+                'tax_number' => $data['tax_number'],
+                'city_id' => $data['city_id'],
+                'address' => $data['address'],
+                'status' => $data['status'] === SubscriptionStatus::ACTIVE->value ? 'active' : 'pending',
+            ]);
+
+            $subscription->update([
+                'plan_id' => $data['plan_id'],
+                'price' => $data['price'],
+                'status' => $data['status'],
+                'total_users' => $data['total_users'],
+                'used_users' => $data['licenses_quota'] ?? $subscription->used_users,
+                'starts_at' => $data['starts_at'],
+                'ends_at' => $endsAt,
+                'next_payment_date' => $data['next_payment_date'] ?? $subscription->next_payment_date,
+                'auto_renew' => $autoRenew,
+            ]);
+
+            $period = $subscription->currentPeriod ?? $subscription->periods()->latest('period_end')->first();
+            $period?->update(['period_start' => $data['starts_at'], 'period_end' => $endsAt]);
+
+            return $subscription->refresh();
+        });
+    }
+
+    public function accept(Subscription $subscription, int|string|null $adminId): void
+    {
+        DB::connection('mysql')->transaction(fn () => $this->acceptWithinTransaction($subscription, $adminId));
+
+        cache()->forget('admin:pending_subscriptions_count');
+    }
+
+    public function reject(Subscription $subscription, ?string $reason): void
+    {
+        DB::connection('mysql')->transaction(fn () => $this->rejectWithinTransaction($subscription, $reason));
+
+        cache()->forget('admin:pending_subscriptions_count');
+    }
+
+    public function massAccept(array $ids, int|string|null $adminId): void
+    {
+        DB::connection('mysql')->transaction(function () use ($ids, $adminId): void {
+            Subscription::query()->whereKey($ids)->get()
+                ->each(fn (Subscription $subscription) => $this->acceptWithinTransaction($subscription, $adminId));
+        });
+
+        cache()->forget('admin:pending_subscriptions_count');
+    }
+
+    public function massReject(array $ids, ?string $reason): void
+    {
+        DB::connection('mysql')->transaction(function () use ($ids, $reason): void {
+            Subscription::query()->whereKey($ids)->get()
+                ->each(fn (Subscription $subscription) => $this->rejectWithinTransaction($subscription, $reason));
+        });
+
+        cache()->forget('admin:pending_subscriptions_count');
+    }
+
+    public function delete(Subscription $subscription): void
+    {
+        DB::connection('mysql')->transaction(fn () => $subscription->delete());
+    }
+
+    private function acceptWithinTransaction(Subscription $subscription, int|string|null $adminId): void
+    {
+        $subscription->update(['status' => SubscriptionStatus::ACTIVE]);
+        Tenant::query()->whereKey($subscription->tenant_id)->update(['status' => 'active']);
+        $subscription->periods()->update(['status' => SubscriptionPeriodStatus::ACTIVE]);
+        Bill::query()->where('subscription_id', $subscription->id)
+            ->whereIn('status', [BillStatus::PENDING, BillStatus::PENDING_VERIFICATION, BillStatus::UNPAID])
+            ->update(['status' => BillStatus::PAID, 'paid_at' => now(), 'verified_by' => $adminId, 'verified_at' => now()]);
+    }
+
+    private function rejectWithinTransaction(Subscription $subscription, ?string $reason): void
+    {
+        $subscription->update([
+            'status' => SubscriptionStatus::CANCELLED,
+            'cancelled_at' => now(),
+            'cancellation_reason' => $reason,
+        ]);
+        $subscription->periods()->update(['status' => SubscriptionPeriodStatus::CANCELLED]);
+        Bill::query()->where('subscription_id', $subscription->id)
+            ->whereIn('status', [BillStatus::PENDING, BillStatus::PENDING_VERIFICATION, BillStatus::UNPAID])
+            ->update(['status' => BillStatus::CANCELLED, 'cancelled_at' => now(), 'reject_reason' => $reason]);
+    }
 
     // Get  statistics
     public function getSubscriptionStatistics(): array

@@ -14,7 +14,7 @@ class AdminUpdateUserRoleRequest extends FormRequest
     */
     public function authorize(): bool
     {
-        return true;
+        return $this->user('admin')?->can('roles.assign') ?? false;
     }
 
     /*

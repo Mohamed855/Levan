@@ -126,7 +126,11 @@ class AdminCouponController extends Controller
 
     public function destroy(AdminAuthenticatedRequest $request, Coupon $coupon)
     {
-        $coupon->delete();
+        $this->couponService->delete($coupon);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'تم حذف الكوبون بنجاح']);
+        }
 
         return redirect()->route($this->route.'.index')->with('success', 'تم حذف الكوبون بنجاح');
     }

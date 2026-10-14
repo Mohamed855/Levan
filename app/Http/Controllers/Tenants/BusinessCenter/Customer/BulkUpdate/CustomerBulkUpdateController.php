@@ -32,7 +32,7 @@ class CustomerBulkUpdateController extends Controller
     public function __construct(CustomerBulkUpdateService $bulkUpdateService)
     {
         $this->bulkUpdateService = $bulkUpdateService;
-        $this->middleware(['auth:tenant', 'can:customers.update']);
+        $this->middleware(['auth:tenant', 'can:customers.edit_all']);
     }
 
     /*
@@ -240,7 +240,7 @@ class CustomerBulkUpdateController extends Controller
                 ], 422);
             }
 
-            $tempPath = $request->file('file')->store('temp_updates');
+            $tempPath = $this->bulkUpdateService->storeTemporaryFile($request->file('file'));
             Cache::put(
                 BulkUpdateRequest::temporaryFileOwnerKey($tempPath),
                 $request->user('tenant')->getKey(),

@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers\Admin\ContentManagement\Client;
 
+use App\Actions\Admin\ContentManagement\ManageClientAction;
 use App\DataTables\Admin\ContentManagement\Client\ClientDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\ContentManagement\StoreClientRequest;
 use App\Http\Requests\Admin\ContentManagement\UpdateClientRequest;
 use App\Models\Admin\ContentManagement\Client;
-use Illuminate\Support\Facades\Storage;
 
 class ClientController extends Controller
 {
-    public function __construct()
+    public function __construct(private readonly ManageClientAction $clients)
     {
         $this->middleware('auth:admin');
         $this->authorizeResource(Client::class, 'client');
@@ -48,11 +48,7 @@ class ClientController extends Controller
         $validated = $request->validated();
 
         try {
-            if ($request->hasFile('logo')) {
-                $validated['logo'] = $request->file('logo')->store('clients', 'public');
-            }
-
-            Client::create($validated);
+            $this->clients->create($validated, $request->file('logo'));
 
             return redirect()->route('admin.content_management.client.index')
                 ->with('success', 'تم إضافة العميل بنجاح');
@@ -76,15 +72,7 @@ class ClientController extends Controller
         $validated = $request->validated();
 
         try {
-            if ($request->hasFile('logo')) {
-                // حذف الشعار القديم
-                if ($client->logo) {
-                    Storage::disk('public')->delete($client->logo);
-                }
-                $validated['logo'] = $request->file('logo')->store('clients', 'public');
-            }
-
-            $client->update($validated);
+            $this->clients->update($client, $validated, $request->file('logo'));
 
             return redirect()->route('admin.content_management.client.index')
                 ->with('success', 'تم تحديث العميل بنجاح');
@@ -96,10 +84,11 @@ class ClientController extends Controller
     public function destroy(AdminAuthenticatedRequest $request, Client $client)
     {
         try {
-            if ($client->logo) {
-                Storage::disk('public')->delete($client->logo);
+            $this->clients->delete($client);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'تم حذف العميل بنجاح']);
             }
-            $client->delete();
 
             return redirect()->route('admin.content_management.client.index')
                 ->with('success', 'تم حذف العميل بنجاح');
@@ -111,8 +100,7 @@ class ClientController extends Controller
     public function toggleStatus(AdminAuthenticatedRequest $request, Client $client)
     {
         try {
-            $newStatus = ! $client->status;
-            $client->update(['status' => $newStatus]);
+            $newStatus = $this->clients->toggleStatus($client);
 
             return response()->json([
                 'success' => true,

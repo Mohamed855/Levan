@@ -1,27 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Tenants\Domains;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class DomainLookupRequest extends FormRequest
+final class DomainLookupRequest extends FormRequest
 {
-    protected function prepareForValidation(): void
-    {
-        $this->merge([
-            'domain' => strtolower((string) $this->route('domain')),
-        ]);
-    }
-
     public function authorize(): bool
     {
-        return $this->user('tenant') !== null && $this->user('tenant')->can('domain.view');
+        return $this->user('tenant')?->can('domain.view') ?? false;
     }
 
     public function rules(): array
     {
         return [
-            'domain' => ['required', 'string', 'regex:/^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i'],
+            'domain' => ['required', 'string', 'max:253', 'regex:/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i'],
         ];
     }
 
@@ -29,14 +24,12 @@ class DomainLookupRequest extends FormRequest
     {
         return [
             'domain.required' => 'اسم النطاق مطلوب.',
-            'domain.regex' => 'صيغة اسم النطاق غير صحيحة.',
+            'domain.regex' => 'اسم النطاق غير صالح.',
         ];
     }
 
     public function attributes(): array
     {
-        return [
-            'domain' => 'اسم النطاق',
-        ];
+        return ['domain' => 'اسم النطاق'];
     }
 }

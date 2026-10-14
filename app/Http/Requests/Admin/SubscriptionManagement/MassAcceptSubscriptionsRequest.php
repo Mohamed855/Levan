@@ -10,7 +10,7 @@ class MassAcceptSubscriptionsRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user('admin')?->can('subscriptions.pending.approve') ?? false;
     }
 
     public function rules(): array

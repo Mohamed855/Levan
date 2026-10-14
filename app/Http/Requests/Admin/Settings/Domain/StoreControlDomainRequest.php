@@ -11,7 +11,7 @@ class StoreControlDomainRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user('admin')?->can('domain_extension_prices.settings') ?? false;
     }
 
     public function rules(): array

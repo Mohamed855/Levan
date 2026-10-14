@@ -16,7 +16,16 @@ use Illuminate\View\View;
 
 class DomainPaymentController extends Controller
 {
-    public function __construct(private DomainRegistrationPaymentService $paymentService) {}
+    public function __construct(private DomainRegistrationPaymentService $paymentService)
+    {
+        $this->middleware('can:domain.reserve')->only([
+            'startRegistration',
+            'registrationCallback',
+            'startRenewal',
+            'renewalCallback',
+        ]);
+        $this->middleware('can:domain.transfer')->only(['startTransfer', 'transferCallback']);
+    }
 
     public function startRegistration(StartDomainRegistrationPaymentRequest $request): View|RedirectResponse
     {

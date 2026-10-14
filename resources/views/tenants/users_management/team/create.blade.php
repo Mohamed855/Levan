@@ -27,8 +27,8 @@
 @section('content')
     @php
         $steps = [
-            ['id' => 'basic-info-validation', 'title' => 'المعلومات الأساسية', 'subtitle' => 'بيانات المجموعة'],
-            ['id' => 'members-validation', 'title' => 'الأعضاء والقائد', 'subtitle' => 'تكوين المجموعة'],
+            ['id' => 'basic-info-validation', 'title' => 'المعلومات الأساسية'],
+            ['id' => 'members-validation', 'title' => 'الأعضاء والقائد'],
         ];
     @endphp
 

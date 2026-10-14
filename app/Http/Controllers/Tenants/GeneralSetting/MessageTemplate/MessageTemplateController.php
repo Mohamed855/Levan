@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Tenants\GeneralSetting\MessageTemplate;
 
+use App\Actions\Tenants\GeneralSetting\MessageTemplateAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
+use App\Http\Requests\Tenants\GeneralSetting\MessageTemplate\PreviewMessageTemplateRequest;
 use App\Http\Requests\Tenants\GeneralSetting\MessageTemplate\StoreMessageTemplateRequest;
 use App\Http\Requests\Tenants\GeneralSetting\MessageTemplate\UpdateMessageTemplateRequest;
 use App\Models\Tenants\GeneralSetting\MessageTemplate\MessageTemplate;
@@ -20,7 +22,7 @@ class MessageTemplateController extends Controller
     | Constructor & Dependencies
     |--------------------------------------------------------------------------
     */
-    public function __construct()
+    public function __construct(private readonly MessageTemplateAction $messageTemplates)
     {
         $this->middleware('can:message_templates.view');
     }
@@ -32,6 +34,8 @@ class MessageTemplateController extends Controller
     */
     public function index(Request $request): View|JsonResponse
     {
+        $this->authorize('viewAny', MessageTemplate::class);
+
         if ($request->ajax()) {
             $query = MessageTemplate::with('creator')
                 ->select([
@@ -136,6 +140,8 @@ class MessageTemplateController extends Controller
     */
     public function create(): View
     {
+        $this->authorize('create', MessageTemplate::class);
+
         $categories = MessageTemplate::getCategories();
         $channels = MessageTemplate::getChannels();
         $variables = MessageTemplate::getVariablesByCategory();
@@ -152,16 +158,16 @@ class MessageTemplateController extends Controller
     public function store(StoreMessageTemplateRequest $request): RedirectResponse
     {
         $data = $request->validated();
+        $this->authorize('create', MessageTemplate::class);
 
         try {
-            MessageTemplate::create([
+            $this->messageTemplates->create([
                 'name' => $data['name'],
                 'content' => $data['content'],
                 'category' => $data['category'],
                 'channel' => $data['channel'],
                 'is_active' => $request->boolean('is_active', true),
-                'created_by' => $request->user('tenant')->getKey(),
-            ]);
+            ], $request->user('tenant')->getKey());
 
             return redirect()
                 ->to(tenant_route_name('general-settings.message-templates.index'))
@@ -181,6 +187,7 @@ class MessageTemplateController extends Controller
     */
     public function show(MessageTemplate $messageTemplate): View
     {
+        $this->authorize('view', $messageTemplate);
         $messageTemplate->load('creator');
 
         return view('tenants.general_setting.message_templates.show', compact('messageTemplate'));
@@ -193,6 +200,7 @@ class MessageTemplateController extends Controller
     */
     public function edit(MessageTemplate $messageTemplate): View
     {
+        $this->authorize('update', $messageTemplate);
         $categories = MessageTemplate::getCategories();
         $channels = MessageTemplate::getChannels();
         $variables = MessageTemplate::getVariablesByCategory($messageTemplate->category);
@@ -209,9 +217,10 @@ class MessageTemplateController extends Controller
     public function update(UpdateMessageTemplateRequest $request, MessageTemplate $messageTemplate): RedirectResponse
     {
         $data = $request->validated();
+        $this->authorize('update', $messageTemplate);
 
         try {
-            $messageTemplate->update([
+            $this->messageTemplates->update($messageTemplate, [
                 'name' => $data['name'],
                 'content' => $data['content'],
                 'category' => $data['category'],
@@ -236,8 +245,10 @@ class MessageTemplateController extends Controller
     */
     public function destroy(TenantAuthenticatedRequest $request, MessageTemplate $messageTemplate): RedirectResponse
     {
+        $this->authorize('delete', $messageTemplate);
+
         try {
-            $messageTemplate->delete();
+            $this->messageTemplates->delete($messageTemplate);
 
             return redirect()
                 ->to(tenant_route_name('general-settings.message-templates.index'))
@@ -254,15 +265,17 @@ class MessageTemplateController extends Controller
     | Toggle Template Status
     |--------------------------------------------------------------------------
     */
-    public function toggleStatus(MessageTemplate $messageTemplate): JsonResponse
+    public function toggleStatus(TenantAuthenticatedRequest $request, MessageTemplate $messageTemplate): JsonResponse
     {
+        $this->authorize('toggleStatus', $messageTemplate);
+
         try {
-            $newStatus = ! $messageTemplate->is_active;
-            $messageTemplate->update(['is_active' => $newStatus]);
+            $newStatus = $this->messageTemplates->toggleStatus($messageTemplate);
 
             return response()->json([
                 'success' => true,
                 'message' => 'تم تحديث حالة القالب بنجاح',
+                'status' => $newStatus,
                 'new_status' => $newStatus,
                 'status_text' => $newStatus ? 'نشط' : 'غير نشط',
             ]);
@@ -279,29 +292,25 @@ class MessageTemplateController extends Controller
     | Preview Template with Variables
     |--------------------------------------------------------------------------
     */
-    public function preview(Request $request): JsonResponse
+    public function preview(PreviewMessageTemplateRequest $request): JsonResponse
     {
-        $request->validate([
-            'content' => 'required|string',
-            'category' => 'nullable|string',
-            'sample_data' => 'nullable|array',
-        ]);
+        $validated = $request->validated();
 
         try {
             // إنشاء قالب مؤقت للمعاينة
             $tempTemplate = new MessageTemplate([
-                'content' => $request->content,
-                'category' => $request->category ?? 'general',
+                'content' => $validated['content'],
+                'category' => $validated['category'] ?? 'general',
             ]);
 
-            $sampleData = $request->sample_data ?? [];
+            $sampleData = $validated['sample_data'] ?? [];
             $previewContent = $tempTemplate->previewContent($sampleData);
 
             return response()->json([
                 'success' => true,
                 'preview' => $previewContent,
                 'length' => mb_strlen(strip_tags($previewContent)),
-                'available_variables' => MessageTemplate::getVariablesByCategory($request->category),
+                'available_variables' => MessageTemplate::getVariablesByCategory($validated['category'] ?? null),
             ]);
         } catch (\Exception $e) {
             return response()->json([

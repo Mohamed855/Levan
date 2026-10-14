@@ -43,4 +43,14 @@ class CollectionPolicy
     {
         return $user->can('collections.reject') && tenancy()->initialized;
     }
+
+    public function restore(User $user, Collection $collection): bool
+    {
+        return $user->can('archive.restore') && tenancy()->initialized;
+    }
+
+    public function forceDelete(User $user, Collection $collection): bool
+    {
+        return $user->can('archive.force_delete') && tenancy()->initialized;
+    }
 }

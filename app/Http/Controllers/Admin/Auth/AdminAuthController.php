@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Auth;
 
+use App\Actions\Auth\PersistAuthenticationStateAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Http\Requests\Admin\Auth\AdminLoginRequest;
@@ -19,7 +20,7 @@ class AdminAuthController extends Controller
         return view('admin.auth.login');
     }
 
-    public function login(AdminLoginRequest $request): RedirectResponse
+    public function login(AdminLoginRequest $request, PersistAuthenticationStateAction $authenticationState): RedirectResponse
     {
         $credentials = $request->validated();
 
@@ -46,10 +47,7 @@ class AdminAuthController extends Controller
         Auth::guard('admin')->login($admin, $request->boolean('remember'));
         $request->session()->regenerate();
 
-        AdminUser::where('id', $admin->id)->update([
-            'last_login_at' => now(),
-            'last_login_ip' => $request->ip(),
-        ]);
+        $authenticationState->recordLogin($admin, $request->ip());
 
         return redirect()->intended(RouteServiceProvider::ADMIN);
     }

@@ -5,30 +5,29 @@ namespace App\Services\Tenants\Reports\Financial;
 use App\Exports\Tenants\Reports\Financial\FinancialReportExport;
 use App\Jobs\Tenants\Reports\Financial\ExportFinancialCollectionsJob;
 use App\Models\Tenants\BusinessCenter\Company\Company;
-use App\Models\Tenants\FinancialCollection\Collection\Collection;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
+use App\Models\Tenants\FinancialCollection\Collection\Collection;
 use App\Models\Tenants\UserMangment\User\User;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Maatwebsite\Excel\Facades\Excel;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Yajra\DataTables\Facades\DataTables;
+use App\Services\Tenants\Reports\TenantExportAccess;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
+use Mpdf\Config\ConfigVariables;
+use Mpdf\Config\FontVariables;
+use Mpdf\Mpdf;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class FinancialReportService
 {
-
-
     /*
     |--------------------------------------------------------------------------
     | Add Constants
     |--------------------------------------------------------------------------
     */
     private const LARGE_EXPORT_THRESHOLD = 5000;
+
     private const CHUNK_SIZE = 1000;
 
     /*
@@ -120,6 +119,7 @@ class FinancialReportService
             'portfolios' => Portfolio::select('id', 'name', 'company_id')->orderBy('name')->get(),
         ];
     }
+
     /*
     |--------------------------------------------------------------------------
     | الحصول على عدد التحصيلات حسب الفلاتر
@@ -129,9 +129,11 @@ class FinancialReportService
     {
         try {
             $query = $this->buildFilteredQuery($filters);
+
             return $query->count();
         } catch (\Exception $e) {
-            Log::error('Error in getTransactionsCount: ' . $e->getMessage());
+            Log::error('Error in getTransactionsCount: '.$e->getMessage());
+
             return 0;
         }
     }
@@ -146,7 +148,8 @@ class FinancialReportService
         $query = $this->buildFilteredQuery($filters);
         $collections = $query->orderBy('collections.created_at')->get();
 
-        $fileName = 'financial_collections_report_' . now()->format('Y_m_d_H_i_s') . '.xlsx';
+        $fileName = 'financial_collections_report_'.now()->format('Y_m_d_H_i_s').'.xlsx';
+
         return Excel::download(new FinancialReportExport($collections, $filters), $fileName);
     }
 
@@ -166,7 +169,7 @@ class FinancialReportService
             $dateTo = $filters['date_to'] ?? null;
             $dateRange = $this->getDateRangeText($dateFrom, $dateTo);
 
-            $mpdf = new \Mpdf\Mpdf([
+            $mpdf = new Mpdf([
                 'mode' => 'utf-8',
                 'format' => 'A4',
                 'orientation' => 'P',
@@ -178,11 +181,11 @@ class FinancialReportService
                 'margin_footer' => 0,
                 'default_font' => 'almarai',
                 'fontDir' => array_merge(
-                    (new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'],
+                    (new ConfigVariables)->getDefaults()['fontDir'],
                     [public_path('static/fonts/almarai')]
                 ),
                 'fontdata' => array_merge(
-                    (new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'],
+                    (new FontVariables)->getDefaults()['fontdata'],
                     ['almarai' => [
                         'R' => 'Almarai-Regular.ttf',
                         'B' => 'Almarai-Bold.ttf',
@@ -209,21 +212,21 @@ class FinancialReportService
 
             $mpdf->WriteHTML($html);
 
-            $fileName = 'تقرير_التحصيلات_المالية_' . now()->format('Y_m_d_H_i_s') . '.pdf';
+            $fileName = 'تقرير_التحصيلات_المالية_'.now()->format('Y_m_d_H_i_s').'.pdf';
 
             $tempDir = storage_path('app/public/temp');
-            if (!file_exists($tempDir)) {
+            if (! file_exists($tempDir)) {
                 mkdir($tempDir, 0755, true);
             }
 
-            $tempPath = $tempDir . '/' . $fileName;
+            $tempPath = $tempDir.'/'.$fileName;
             $mpdf->Output($tempPath, 'F');
 
             return response()->download($tempPath)->deleteFileAfterSend();
         } catch (\Throwable $e) {
             Log::error('exportFinancialReportToPDF error', [
                 'msg' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
             throw $e;
         }
@@ -253,7 +256,7 @@ class FinancialReportService
                 ['key' => 'collection_date', 'label' => 'تاريخ التحصيل', 'selected' => true],
                 ['key' => 'created_by', 'label' => 'أنشأ بواسطة', 'selected' => false],
                 ['key' => 'created_at', 'label' => 'تاريخ الإنشاء', 'selected' => true],
-            ]
+            ],
         ];
     }
 
@@ -269,15 +272,17 @@ class FinancialReportService
         $collections = $query->with([
             'customer',
             'addedBy',
-            'paymentMethod'
+            'paymentMethod',
         ])->orderBy('collections.created_at')->get();
 
-        $fileName = 'تقرير_التحصيلات_المالية_مخصص_' . now()->format('Y_m_d_H_i_s') . '.xlsx';
+        $fileName = 'تقرير_التحصيلات_المالية_مخصص_'.now()->format('Y_m_d_H_i_s').'.xlsx';
         Excel::store(
             new FinancialReportExport($collections, $filters, $selectedFields),
-            'exports/' . $fileName,
+            'exports/'.$fileName,
             'tenant_public'
         );
+        app(TenantExportAccess::class)->registerFile($fileName, (int) auth('tenant')->id());
+
         return $fileName;
     }
 
@@ -293,7 +298,7 @@ class FinancialReportService
             'customer.company:id,name',
             'customer.portfolio:id,name',
             'addedBy:id,name',
-            'paymentMethod:id,name'
+            'paymentMethod:id,name',
         ])
             ->whereHas('customer')
             ->select('collections.*');
@@ -311,7 +316,9 @@ class FinancialReportService
     private function applyFiltersToQuery($query, array $filters): void
     {
         foreach ($filters as $key => $value) {
-            if (empty($value)) continue;
+            if (empty($value)) {
+                continue;
+            }
 
             switch ($key) {
                 case 'company_id':
@@ -369,6 +376,7 @@ class FinancialReportService
         } elseif ($dateTo) {
             return "حتى {$dateTo}";
         }
+
         return 'جميع الفترات';
     }
 
@@ -381,14 +389,14 @@ class FinancialReportService
     {
         $appliedFilters = [];
 
-        if (!empty($filters['customer_id'])) {
+        if (! empty($filters['customer_id'])) {
             $customer = Customer::find($filters['customer_id']);
             if ($customer) {
                 $appliedFilters[] = "العميل: {$customer->name}";
             }
         }
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $statusLabel = match ($filters['status']) {
                 'approved' => 'معتمد',
                 'pending' => 'معلق',
@@ -398,14 +406,14 @@ class FinancialReportService
             $appliedFilters[] = "الحالة: {$statusLabel}";
         }
 
-        if (!empty($filters['created_by'])) {
+        if (! empty($filters['created_by'])) {
             $user = User::find($filters['created_by']);
             if ($user) {
                 $appliedFilters[] = "أنشأ بواسطة: {$user->name}";
             }
         }
 
-        if (!empty($filters['amount_from']) || !empty($filters['amount_to'])) {
+        if (! empty($filters['amount_from']) || ! empty($filters['amount_to'])) {
             $amountFrom = $filters['amount_from'] ?? '0';
             $amountTo = $filters['amount_to'] ?? '∞';
             $appliedFilters[] = "المبلغ: من {$amountFrom} إلى {$amountTo}";
@@ -449,7 +457,7 @@ class FinancialReportService
             return [];
         }
 
-        if (!empty($search)) {
+        if (! empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('account_number', 'like', "%{$search}%")
                     ->orWhere('name', 'like', "%{$search}%");
@@ -463,7 +471,7 @@ class FinancialReportService
             ->map(function ($customer) {
                 return [
                     'id' => $customer->id,
-                    'text' => $customer->account_number
+                    'text' => $customer->account_number,
                 ];
             })->values()->toArray();
     }
@@ -478,12 +486,12 @@ class FinancialReportService
         $customer = Customer::select('id', 'name', 'account_number')
             ->find($customerId);
 
-        if (!$customer) {
+        if (! $customer) {
             return null;
         }
 
         if (
-            !auth()->user()->can('customers.view') &&
+            ! auth()->user()->can('customers.view') &&
             auth()->user()->can('customers.my_view') &&
             $customer->relationship_manager_id !== auth()->id()
         ) {
@@ -492,7 +500,7 @@ class FinancialReportService
 
         return [
             'id' => $customer->id,
-            'text' => $customer->account_number
+            'text' => $customer->account_number,
         ];
     }
 
@@ -505,9 +513,9 @@ class FinancialReportService
     {
         $query = Customer::select('id', 'name', 'account_number', 'phone');
 
-        if (!auth()->user()->can('customers.view') && auth()->user()->can('customers.my_view')) {
+        if (! auth()->user()->can('customers.view') && auth()->user()->can('customers.my_view')) {
             $query->where('relationship_manager_id', auth()->id());
-        } elseif (!auth()->user()->can('customers.view')) {
+        } elseif (! auth()->user()->can('customers.view')) {
             return [];
         }
 
@@ -517,11 +525,10 @@ class FinancialReportService
             ->map(function ($customer) {
                 return [
                     'id' => $customer->id,
-                    'text' => $customer->account_number
+                    'text' => $customer->account_number,
                 ];
             })->toArray();
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -536,11 +543,12 @@ class FinancialReportService
             return [
                 'success' => false,
                 'message' => 'لا توجد بيانات للتصدير',
-                'count' => 0
+                'count' => 0,
             ];
         }
 
         $job = new ExportFinancialCollectionsJob($filters, $selectedFields, $userId);
+        app(TenantExportAccess::class)->registerExport($job->getExportId(), (int) $userId);
         dispatch($job);
 
         return [
@@ -549,7 +557,7 @@ class FinancialReportService
             'count' => $count,
             'message' => $count > self::LARGE_EXPORT_THRESHOLD
                 ? "سيتم تصدير {$count} تحصيلة  سيتم إشعارك عند الانتهاء"
-                : "جاري تصدير {$count} تحصيلة..."
+                : "جاري تصدير {$count} تحصيلة...",
         ];
     }
 
@@ -560,6 +568,8 @@ class FinancialReportService
     */
     public function getExportProgress(string $exportId): array
     {
+        app(TenantExportAccess::class)->authorizeExport($exportId, auth('tenant')->id());
+
         $progress = Cache::get("financial_export_progress_{$exportId}");
         $result = Cache::get("financial_export_result_{$exportId}");
 
@@ -574,7 +584,7 @@ class FinancialReportService
         return [
             'export_id' => $exportId,
             'status' => 'not_found',
-            'message' => 'لم يتم العثور على عملية التصدير'
+            'message' => 'لم يتم العثور على عملية التصدير',
         ];
     }
 }

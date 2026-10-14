@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Tickets\ReplyTicketRequest;
 use App\Http\Requests\Admin\Tickets\ToggleTicketsServiceRequest;
 use App\Http\Requests\Admin\Tickets\UpdateTicketStatusRequest;
-use App\Models\Admin\Settings\Settings;
 use App\Models\Admin\Tickets\TicketSection;
 use App\Services\Admin\Tickets\AdminTicketService;
 use Illuminate\Support\Facades\Log;
@@ -24,6 +23,7 @@ class AdminTicketController extends Controller
     {
         $this->middleware('can:tickets.view')->only(['index', 'show']);
         $this->middleware('can:tickets.reply')->only(['reply', 'updateStatus']);
+        $this->middleware('can:system.settings')->only(['toggleService']);
     }
 
     /**
@@ -35,7 +35,7 @@ class AdminTicketController extends Controller
             $stats = $this->ticketService->getStats();
             $sections = TicketSection::where('is_active', true)->get();
             $tenants = Tenant::select('id', 'company_name')->get();
-            $ticketsEnabled = Settings::first()?->tickets_enabled ?? true;
+            $ticketsEnabled = $this->ticketService->ticketsEnabled();
 
             $filterOptions = [
                 'statuses' => [
@@ -76,6 +76,8 @@ class AdminTicketController extends Controller
                 return redirect()->route($this->route.'.index')->with('error', 'لم يتم العثور على التذكرة المطلوبة');
             }
 
+            $this->authorize('view', $ticket);
+
             $status = TicketStatus::toBadge($ticket->status);
             $replies = $ticket->replies;
 
@@ -96,6 +98,11 @@ class AdminTicketController extends Controller
     public function reply(ReplyTicketRequest $request, string $ticketNumber)
     {
         try {
+            $ticket = $this->ticketService->getTicket($ticketNumber);
+            if ($ticket) {
+                $this->authorize('reply', $ticket);
+            }
+
             $result = $this->ticketService->addReply(
                 $ticketNumber,
                 $request->input('message'),
@@ -120,6 +127,11 @@ class AdminTicketController extends Controller
     public function updateStatus(UpdateTicketStatusRequest $request, string $ticketNumber)
     {
         try {
+            $ticket = $this->ticketService->getTicket($ticketNumber);
+            if ($ticket) {
+                $this->authorize('updateStatus', $ticket);
+            }
+
             $result = $this->ticketService->updateStatus($ticketNumber, $request->input('status'));
 
             if ($result['success']) {
@@ -140,12 +152,7 @@ class AdminTicketController extends Controller
     public function toggleService(ToggleTicketsServiceRequest $request)
     {
         try {
-            $settings = Settings::first();
-            if (! $settings) {
-                return redirect()->back()->with('error', 'لم يتم العثور على الإعدادات');
-            }
-
-            $settings->update(['tickets_enabled' => $request->boolean('tickets_enabled')]);
+            $this->ticketService->updateTicketsEnabled($request->boolean('tickets_enabled'));
 
             $statusText = $request->boolean('tickets_enabled') ? 'تم تفعيل' : 'تم إيقاف';
 

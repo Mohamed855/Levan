@@ -55,6 +55,7 @@ class CompanyArchiveController extends Controller
     {
         try {
             $company = Company::onlyTrashed()->findOrFail($request->validated('id'));
+            $this->authorize('restore', $company);
             $this->companyArchiveService->restoreCompany($company);
 
             if ($request->ajax() || $request->wantsJson()) {
@@ -85,6 +86,7 @@ class CompanyArchiveController extends Controller
     {
         try {
             $company = Company::onlyTrashed()->findOrFail($request->validated('id'));
+            $this->authorize('forceDelete', $company);
             $this->companyArchiveService->forceDeleteCompany($company);
 
             if ($request->ajax() || $request->wantsJson()) {
@@ -115,6 +117,9 @@ class CompanyArchiveController extends Controller
     {
         try {
             $companyIds = $request->validated('ids');
+            Company::onlyTrashed()->whereKey($companyIds)->get()->each(
+                fn (Company $company) => $this->authorize('restore', $company)
+            );
 
             $restoredCount = $this->companyArchiveService->massRestoreCompanies($companyIds);
 
@@ -140,6 +145,9 @@ class CompanyArchiveController extends Controller
     {
         try {
             $companyIds = $request->validated('ids');
+            Company::onlyTrashed()->whereKey($companyIds)->get()->each(
+                fn (Company $company) => $this->authorize('forceDelete', $company)
+            );
 
             $deletedCount = $this->companyArchiveService->massForceDeleteCompanies($companyIds);
 

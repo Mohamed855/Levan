@@ -3,21 +3,19 @@
 namespace App\Http\Controllers\Tenants\License;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\License\ManageLicenseRequest;
 use App\Services\Tenants\License\LicenseService;
 use DomainException;
 use Exception;
-use Illuminate\Http\Request;
 
 class LicenseController extends Controller
 {
     public function __construct(private LicenseService $licenseService) {}
 
-    public function assign(Request $request)
+    public function assign(ManageLicenseRequest $request)
     {
-        $request->validate(['user_id' => 'required|exists:users,id']);
-
         try {
-            $result = $this->licenseService->assignLicenseToUser($request->user_id);
+            $result = $this->licenseService->assignLicenseToUser($request->validated('user_id'));
 
             return response()->json($result);
             //
@@ -34,12 +32,10 @@ class LicenseController extends Controller
         }
     }
 
-    public function release(Request $request)
+    public function release(ManageLicenseRequest $request)
     {
-        $request->validate(['user_id' => 'required|exists:users,id']);
-
         try {
-            $result = $this->licenseService->releaseLicenseFromUser($request->user_id);
+            $result = $this->licenseService->releaseLicenseFromUser($request->validated('user_id'));
 
             return response()->json($result);
             //

@@ -6,12 +6,12 @@ use App\Exports\Tenants\ActivityLog\ActivityLogsExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\ActivityLog\DownloadActivityLogExportRequest;
 use App\Http\Requests\Tenants\ActivityLog\ExportActivityLogsRequest;
+use App\Http\Requests\Tenants\ActivityLog\ActivityLogIndexRequest;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Traits\ActivityLogPresenterTrait;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -37,8 +37,10 @@ class ActivityLogController extends Controller
         $this->middleware('can:activity_log.view');
     }
 
-    public function index(Request $request): View|JsonResponse
+    public function index(ActivityLogIndexRequest $request): View|JsonResponse
     {
+        $this->authorize('viewAny', Activity::class);
+
         if ($request->ajax()) {
             $query = Activity::with('causer', 'subject')
                 ->select([
@@ -196,7 +198,7 @@ class ActivityLogController extends Controller
     | تطبيق الفلاتر على الاستعلام
     |--------------------------------------------------------------------------
     */
-    private function applyFilters($query, Request $request): void
+    private function applyFilters($query, ActivityLogIndexRequest $request): void
     {
         if ($request->filled('user_id')) {
             $query->where('causer_id', $request->user_id);

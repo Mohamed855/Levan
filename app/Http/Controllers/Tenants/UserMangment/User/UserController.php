@@ -18,7 +18,6 @@ use App\Services\Tenants\UserManagement\User\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Spatie\Activitylog\Models\Activity;
@@ -242,7 +241,7 @@ class UserController extends Controller
     {
         try {
             $newStatus = $request->validated('status');
-            $user->update(['status' => $newStatus]);
+            $this->userService->updateStatus($user, $newStatus);
 
             $statusText = $newStatus === 'active' ? 'نشط' : 'غير نشط';
 
@@ -281,8 +280,7 @@ class UserController extends Controller
     {
         $user = $request->user('tenant');
 
-        $user->password = Hash::make($request->validated('new_password'));
-        $user->save();
+        $this->userService->updatePassword($user, $request->validated('new_password'));
 
         Auth::guard('tenant')->logoutOtherDevices($request->validated('new_password'));
         Auth::guard('tenant')->logout();

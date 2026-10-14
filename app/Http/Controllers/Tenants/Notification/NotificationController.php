@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenants\Notification;
 
+use App\Actions\Tenants\Notification\ManageUserNotificationsAction;
 use App\DataTables\Tenants\Notifications\NotificationsDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Notification\DeleteNotificationRequest;
@@ -11,6 +12,8 @@ use App\Http\Requests\Tenants\Notification\MassDeleteNotificationsRequest;
 
 class NotificationController extends Controller
 {
+    public function __construct(private readonly ManageUserNotificationsAction $notifications) {}
+
     /*
     |--------------------------------------------------------------------------
     | Section Title
@@ -54,8 +57,7 @@ class NotificationController extends Controller
     */
     public function markAsRead(MarkNotificationReadRequest $request)
     {
-        $notification = auth('tenant')->user()->notifications()->findOrFail($request->validated('id'));
-        $notification->markAsRead();
+        $this->notifications->markAsRead($request->user('tenant'), $request->validated('id'));
 
         return response()->json(['success' => true, 'message' => 'تم تحديد الإشعار كمقروء']);
     }
@@ -68,7 +70,7 @@ class NotificationController extends Controller
     */
     public function markAllAsRead(MarkAllNotificationsReadRequest $request)
     {
-        auth('tenant')->user()->unreadNotifications->markAsRead();
+        $this->notifications->markAllAsRead($request->user('tenant'));
 
         return response()->json(['success' => true, 'message' => 'تم تحديد جميع الإشعارات كمقروءة']);
     }
@@ -81,18 +83,14 @@ class NotificationController extends Controller
     */
     public function destroy(DeleteNotificationRequest $request)
     {
-        $notification = auth('tenant')->user()->notifications()->findOrFail($request->validated('id'));
-        $notification->delete();
+        $this->notifications->delete($request->user('tenant'), $request->validated('id'));
 
         return response()->json(['success' => true, 'message' => 'تم حذف الإشعار']);
     }
 
     public function massDelete(MassDeleteNotificationsRequest $request)
     {
-        $deleted = auth('tenant')->user()
-            ->notifications()
-            ->whereIn('id', $request->validated('ids'))
-            ->delete();
+        $deleted = $this->notifications->deleteMany($request->user('tenant'), $request->validated('ids'));
 
         return response()->json([
             'success' => true,

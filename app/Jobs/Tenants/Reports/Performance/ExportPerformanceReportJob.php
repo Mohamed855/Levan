@@ -3,6 +3,7 @@
 namespace App\Jobs\Tenants\Reports\Performance;
 
 use App\Exports\Tenants\Reports\Performance\PerformanceReportExport;
+use App\Services\Tenants\Reports\TenantExportAccess;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -97,6 +98,7 @@ class ExportPerformanceReportJob implements ShouldQueue
                 'exports/'.$this->fileName,
                 'tenant_public'
             );
+            app(TenantExportAccess::class)->registerFile($this->fileName, (int) $this->userId);
 
             $fileSize = Storage::disk('tenant_public')->size('exports/'.$this->fileName);
 

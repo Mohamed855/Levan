@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenants\Auth\Fortify;
 
+use App\Actions\Auth\PersistAuthenticationStateAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Auth\ConfirmTenantTwoFactorRequest;
 use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
@@ -54,7 +55,7 @@ class TenantTwoFactorSettingsController extends Controller
         return response()->json(['status' => 'disabled']);
     }
 
-    public function recoveryCodes(TenantAuthenticatedRequest $request): JsonResponse
+    public function recoveryCodes(TenantAuthenticatedRequest $request, PersistAuthenticationStateAction $authenticationState): JsonResponse
     {
         $user = Auth::guard('tenant')->user();
 
@@ -64,9 +65,7 @@ class TenantTwoFactorSettingsController extends Controller
             fn () => RecoveryCode::generate()
         )->all();
 
-        $user->forceFill([
-            'two_factor_recovery_codes' => encrypt(json_encode($newCodes)),
-        ])->save();
+        $authenticationState->replaceRecoveryCodes($user, $newCodes);
 
         return response()->json($newCodes);
     }

@@ -156,7 +156,7 @@ class TeamController extends Controller
     {
         try {
             $newStatus = $request->validated('status');
-            $team->update(['status' => $newStatus]);
+            $this->teamService->updateStatus($team, $newStatus);
 
             $statusText = $newStatus === 'active' ? 'نشط' : 'غير نشط';
 

@@ -155,7 +155,7 @@ class PortfolioController extends Controller
     {
         try {
             $newStatus = $request->validated('status');
-            $portfolio->update(['status' => $newStatus]);
+            $this->portfolioService->updateStatus($portfolio, $newStatus);
 
             $statusText = $newStatus === 'active' ? 'نشط' : 'غير نشط';
 

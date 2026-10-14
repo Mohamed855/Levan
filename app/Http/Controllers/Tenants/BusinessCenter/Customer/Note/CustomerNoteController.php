@@ -25,6 +25,8 @@ class CustomerNoteController extends Controller
     */
     public function getNotesList(Customer $customer): JsonResponse
     {
+        $this->authorize('view', $customer);
+
         try {
             $customerNotes = $customer->notes()->with('createdBy:id,name')->latest()->get();
 
@@ -51,6 +53,8 @@ class CustomerNoteController extends Controller
     */
     public function store(StoreCustomerNoteRequest $request, Customer $customer): JsonResponse
     {
+        $this->authorize('update', $customer);
+
         try {
             $notes = $this->customerNoteService->createMultipleNotes(
                 $customer,
@@ -77,6 +81,8 @@ class CustomerNoteController extends Controller
     */
     public function destroy(Customer $customer, CustomerNote $customerNote): JsonResponse
     {
+        $this->authorize('delete', $customer);
+
         try {
             if ($customerNote->customer_id !== $customer->id) {
                 return response()->json([

@@ -40,19 +40,6 @@ class SettingsDebtTypeController extends Controller
 
     public function destroy($id)
     {
-        try {
-            $debtType = SettingsDebtType::findOrFail($id);
-
-            // التحقق من وجود ارتباطات (في حالة وجود عقود أو معاملات مرتبطة)
-            // if ($debtType->contracts()->count() > 0) {
-            //     throw new \Exception('لا يمكن حذف نوع المديونية هذا لأنه مرتبط بعقود. يجب حذف العقود أولاً.');
-            // }
-
-            $debtType->delete();
-
-            return redirect()->back()->with('success', 'تم الحذف بنجاح.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
+        return $this->destroy_trait($this->model, $id);
     }
 }

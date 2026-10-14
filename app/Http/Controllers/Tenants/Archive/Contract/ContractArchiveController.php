@@ -58,6 +58,7 @@ class ContractArchiveController extends Controller
     {
         try {
             $contract = Contract::onlyTrashed()->findOrFail($request->validated('id'));
+            $this->authorize('restore', $contract);
             $this->contractArchiveService->restoreContract($contract);
 
             if ($request->ajax() || $request->wantsJson()) {
@@ -87,6 +88,7 @@ class ContractArchiveController extends Controller
     {
         try {
             $contract = Contract::onlyTrashed()->findOrFail($request->validated('id'));
+            $this->authorize('forceDelete', $contract);
             $this->contractArchiveService->forceDeleteContract($contract);
 
             if ($request->ajax() || $request->wantsJson()) {
@@ -116,6 +118,9 @@ class ContractArchiveController extends Controller
     {
         try {
             $contractIds = $request->validated('ids');
+            Contract::onlyTrashed()->whereKey($contractIds)->get()->each(
+                fn (Contract $contract) => $this->authorize('restore', $contract)
+            );
 
             $restoredCount = $this->contractArchiveService->massRestoreContracts($contractIds);
 
@@ -140,6 +145,9 @@ class ContractArchiveController extends Controller
     {
         try {
             $contractIds = $request->validated('ids');
+            Contract::onlyTrashed()->whereKey($contractIds)->get()->each(
+                fn (Contract $contract) => $this->authorize('forceDelete', $contract)
+            );
 
             $deletedCount = $this->contractArchiveService->massForceDeleteContracts($contractIds);
 

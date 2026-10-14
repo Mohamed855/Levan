@@ -40,14 +40,6 @@ class ContactResultController extends Controller
 
     public function destroy($id)
     {
-        try {
-            $ContactResult = ContactResult::findOrFail($id);
-
-            $ContactResult->delete();
-
-            return redirect()->back()->with('success', 'تم الحذف بنجاح.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
+        return $this->destroy_trait($this->model, $id);
     }
 }

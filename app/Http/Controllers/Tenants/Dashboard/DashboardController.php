@@ -4,80 +4,61 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenants\Dashboard;
 
-use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Http\Controllers\Controller;
-use App\Models\Tenants\UserMangment\Team\Team;
-use App\Models\Tenants\UserMangment\User\User;
+use App\Services\Tenants\Dashboard\DashboardService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Yajra\DataTables\Facades\DataTables;
 
-class DashboardController extends Controller
+final class DashboardController extends Controller
 {
-    /**
-     * Display tenant dashboard with core foundation metrics.
-     */
-    public function index(?Request $request = null)
+    public function __construct(private readonly DashboardService $dashboardService)
     {
-        $tenant = tenant();
-        $subscription = $tenant?->lastSubscription;
+        $this->middleware('can:dashboard.view');
+    }
 
-        $statusLabel = 'غير نشط';
-        if ($subscription?->status) {
-            $statusLabel = $subscription->status instanceof SubscriptionStatus
-                ? $subscription->status->label()
-                : (string) $subscription->status;
+    public function index(Request $request): Response
+    {
+        $data = $this->dashboardService->getFoundationDashboardData();
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true, 'stats' => $data['stats']]);
         }
 
-        $stats = [
-            'total_users' => User::count(),
-            'active_users' => User::where('status', 'active')->count(),
-            'total_teams' => Team::count(),
-            'plan_name' => $subscription?->plan?->name ?? 'غير محدد',
-            'subscription_status' => $statusLabel,
-            'next_payment_date' => $subscription?->next_payment_date ?? null,
-            'total_seats' => $subscription?->total_users ?? 0,
-        ];
-
-        if ($request?->wantsJson() || $request?->ajax()) {
-            return response()->json([
-                'success' => true,
-                'stats' => $stats,
-            ]);
-        }
-
-        return view('tenants.dashboard.index', compact('stats', 'tenant', 'subscription'));
+        return response()->view('tenants.dashboard.index', $data);
     }
 
     public function getUpcomingFollowUps(Request $request): JsonResponse
     {
-        return response()->json([
-            'success' => true,
-            'data' => [],
-        ]);
+        return DataTables::of($this->dashboardService->getUpcomingFollowUpsQuery($request->only([
+            'company_id', 'portfolio_id', 'relationship_manager_id',
+        ])))->addIndexColumn()->toJson();
     }
 
     public function getMyUpcomingFollowUps(Request $request): JsonResponse
     {
-        return response()->json([
-            'success' => true,
-            'data' => [],
-        ]);
+        return DataTables::of($this->dashboardService->getUpcomingFollowUpsQuery(
+            $request->only(['company_id', 'portfolio_id']),
+            (int) $request->user('tenant')->getAuthIdentifier()
+        ))->toJson();
     }
 
     public function exportCollectionSessions(Request $request): Response
     {
-        return response()->json([
-            'success' => true,
-            'message' => 'تم تصدير الجلسات بنجاح',
-        ]);
+        $rows = $this->dashboardService->getCollectionSessionsData(
+            $request->string('date')->toString() ?: null,
+            $request->string('status')->toString() ?: null
+        );
+
+        return $this->csvResponse('collection-sessions.csv', $rows);
     }
 
-    public function excellence(Request $request): Response
+    public function excellence(Request $request): JsonResponse
     {
         return response()->json([
             'success' => true,
-            'data' => [],
+            'data' => $this->dashboardService->getExcellenceDashboardData($request->string('period', 'month')->toString()),
         ]);
     }
 
@@ -85,55 +66,76 @@ class DashboardController extends Controller
     {
         return response()->json([
             'success' => true,
-            'data' => [],
+            'data' => $this->dashboardService->getUserComparisonData(
+                (int) $request->user('tenant')->getAuthIdentifier(),
+                $request->string('period', 'month')->toString(),
+                $request->string('data_type', 'collections')->toString()
+            ),
         ]);
     }
 
     public function getStatisticsData(Request $request): JsonResponse
     {
-        return response()->json([
-            'success' => true,
-            'data' => [],
-        ]);
+        return response()->json(['success' => true, 'data' => $this->dashboardService->getStatisticsData(
+            $request->string('period', 'month')->toString()
+        )]);
     }
 
     public function getApprovalsData(Request $request): JsonResponse
     {
-        return response()->json([
-            'success' => true,
-            'data' => [],
-        ]);
+        return response()->json(['success' => true, 'data' => $this->dashboardService->getApprovalsData(
+            $request->string('period', 'month')->toString()
+        )]);
     }
 
     public function getOverdueTasks(Request $request): JsonResponse
     {
-        return response()->json([
-            'success' => true,
-            'data' => [],
-        ]);
+        return DataTables::of($this->dashboardService->getOverdueTasksQuery(null, $request->only([
+            'company_id', 'portfolio_id', 'relationship_manager_id', 'result_type', 'overdue_days', 'date_from', 'date_to',
+        ])))->addIndexColumn()->toJson();
     }
 
     public function exportOverdueTasks(Request $request): Response
     {
-        return response()->json([
-            'success' => true,
-            'message' => 'تم تصدير المهام بنجاح',
-        ]);
+        $rows = $this->dashboardService->getOverdueTasksQuery(null, $request->only([
+            'company_id', 'portfolio_id', 'relationship_manager_id', 'result_type', 'overdue_days', 'date_from', 'date_to',
+        ]))->get()->toArray();
+
+        return $this->csvResponse('overdue-tasks.csv', $rows);
     }
 
     public function getMyOverdueTasks(Request $request): JsonResponse
     {
-        return response()->json([
-            'success' => true,
-            'data' => [],
-        ]);
+        return DataTables::of($this->dashboardService->getOverdueTasksQuery(
+            (int) $request->user('tenant')->getAuthIdentifier(),
+            $request->only(['result_type', 'overdue_days', 'date_from', 'date_to'])
+        ))->toJson();
     }
 
     public function exportMyOverdueTasks(Request $request): Response
     {
-        return response()->json([
-            'success' => true,
-            'message' => 'تم تصدير المهام بنجاح',
-        ]);
+        $rows = $this->dashboardService->getOverdueTasksQuery(
+            (int) $request->user('tenant')->getAuthIdentifier(),
+            $request->only(['result_type', 'overdue_days', 'date_from', 'date_to'])
+        )->get()->toArray();
+
+        return $this->csvResponse('my-overdue-tasks.csv', $rows);
+    }
+
+    private function csvResponse(string $fileName, array $rows): Response
+    {
+        return response()->streamDownload(static function () use ($rows): void {
+            $stream = fopen('php://output', 'wb');
+            fwrite($stream, "\xEF\xBB\xBF");
+            if ($rows !== []) {
+                fputcsv($stream, array_keys((array) $rows[0]));
+                foreach ($rows as $row) {
+                    fputcsv($stream, array_map(static fn ($value): string => is_scalar($value) || $value === null
+                        ? (string) $value
+                        : json_encode($value, JSON_UNESCAPED_UNICODE), (array) $row));
+                }
+            }
+            fclose($stream);
+        }, $fileName, ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 }

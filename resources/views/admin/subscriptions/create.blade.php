@@ -37,9 +37,9 @@
 @section('content')
     @php
         $steps = [
-            ['id' => 'step-company-plan', 'title' => 'الشركة والباقة', 'subtitle' => 'اختيار الشركة وتحديد الباقة'],
-            ['id' => 'step-payment-details', 'title' => 'تفاصيل الاشتراك والدفع', 'subtitle' => 'المدة، حالة الدفع والتفعيل'],
-            ['id' => 'step-subscription-review', 'title' => 'مراجعة واعتماد', 'subtitle' => 'تأكيد البيانات وإنشاء الاشتراك'],
+            ['id' => 'step-company-plan', 'title' => 'الشركة والباقة'],
+            ['id' => 'step-payment-details', 'title' => 'تفاصيل الاشتراك والدفع'],
+            ['id' => 'step-subscription-review', 'title' => 'مراجعة واعتماد'],
         ];
     @endphp
 

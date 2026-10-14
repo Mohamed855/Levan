@@ -4,6 +4,7 @@ namespace App\Jobs\Tenants\Reports\Company;
 
 use App\Exports\Tenants\Reports\Company\CompanyReportExport;
 use App\Services\Tenants\BusinessCenter\Company\CompanyReportService;
+use App\Services\Tenants\Reports\TenantExportAccess;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -72,6 +73,7 @@ class ExportCompanyReportJob implements ShouldQueue
                 'exports/'.$this->fileName,
                 'tenant_public'
             );
+            app(TenantExportAccess::class)->registerFile($this->fileName, (int) $this->userId);
 
             $fileSize = Storage::disk('tenant_public')->size('exports/'.$this->fileName);
 

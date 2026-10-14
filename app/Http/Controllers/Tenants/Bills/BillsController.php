@@ -2,24 +2,20 @@
 
 namespace App\Http\Controllers\Tenants\Bills;
 
+use App\Actions\Tenants\Billing\SubmitBankTransferReceiptAction;
 use App\DataTables\Tenants\Bills\BillsDataTable;
 use App\Enums\Admin\Billing\BillStatus;
-use App\Enums\Admin\Billing\PaymentMethod;
 use App\Exceptions\Payment\PaymentInitiationException;
 use App\Exceptions\Payment\PaymentVerificationException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Payment\BankTransferReceiptRequest;
 use App\Http\Requests\Tenants\Payment\PaymentRequest;
-use App\Models\Admin\Bank\Bank;
-use App\Models\Admin\Bills\Bill;
-use App\Models\Admin\Settings\Settings;
-use App\Services\shared\Bills\BillService;
 use App\Services\shared\Payment\Moyasar\MoyasarCallbackHandler;
 use App\Services\shared\Payment\Moyasar\MoyasarFormConfiguration;
 use App\Services\shared\Subscription\SubscriptionService;
+use App\Services\Tenants\Shared\CentralBillingGateway;
 use Closure;
 use Illuminate\Http\Request;
-use Stancl\Tenancy\Facades\Tenancy;
 
 class BillsController extends Controller
 {
@@ -29,17 +25,15 @@ class BillsController extends Controller
     public function __construct(
         private MoyasarCallbackHandler $moyasarCallbackHandler,
         private MoyasarFormConfiguration $moyasarFormConfiguration,
-        private BillService $billService,
         private SubscriptionService $subscriptionService,
+        private CentralBillingGateway $billingGateway,
+        private SubmitBankTransferReceiptAction $submitReceipt,
     ) {
         $this->middleware('can:bills.view');
 
         $this->middleware(function (Request $request, Closure $next) {
             $id = $request->route('id');
-            $bill = Bill::query()
-                ->whereKey($id)
-                ->where('tenant_id', tenant()->id)
-                ->first();
+            $bill = rescue(fn () => $this->billingGateway->billForCurrentTenant($id), report: false);
 
             if (! $bill) {
                 return redirect()->to(tenant_route_name('bills.index'))->with('error', 'الفاتورة غير موجودة.');
@@ -72,8 +66,8 @@ class BillsController extends Controller
 
     public function show($id)
     {
-        $bill = $this->tenantBillOrFail($id);
-        $settings = Settings::firstOrFail();
+        $bill = $this->billingGateway->billForCurrentTenant($id);
+        $settings = $this->billingGateway->platformSettings();
 
         $vatRate = 0.15;
         $vatAmount = round($bill->original_amount * $vatRate, 2);
@@ -94,7 +88,7 @@ class BillsController extends Controller
     public function checkout($id)
     {
         try {
-            $bill = $this->tenantBillOrFail($id);
+            $bill = $this->billingGateway->billForCurrentTenant($id);
 
             if ($bill->status != BillStatus::UNPAID) {
                 return redirect()->to(tenant_route_name('bills.index'))->with('error', 'لا يمكن دفع هذه الفاتورة  ');
@@ -121,7 +115,7 @@ class BillsController extends Controller
     public function processCheckout(PaymentRequest $request, $id)
     {
         try {
-            $bill = $this->tenantBillOrFail($id);
+            $bill = $this->billingGateway->billForCurrentTenant($id);
 
             if ($bill->status !== BillStatus::UNPAID) {
                 return redirect()->to(tenant_route_name('bills.index'))->with('error', 'هذه الفاتورة غير متاحة للدفع.');
@@ -167,8 +161,8 @@ class BillsController extends Controller
     public function bankTransfer($id)
     {
         try {
-            $bill = $this->tenantBillOrFail($id);
-            $banks = Bank::where('is_active', 1)->get();
+            $bill = $this->billingGateway->billForCurrentTenant($id);
+            $banks = $this->billingGateway->activeBanks();
 
             $amount = $bill->amount;
 
@@ -183,14 +177,11 @@ class BillsController extends Controller
     public function uploadReceipt(BankTransferReceiptRequest $request, $id)
     {
         try {
-            $receiptPath = $request->file('receipt')->store('receipts', 'public');
-
-            $this->tenantBillOrFail($id)->update([
-                'invoice_url' => $receiptPath,
-                'bank_id' => $request->bank_id,
-                'payment_method' => PaymentMethod::BANK_TRANSFER,
-                'status' => BillStatus::PENDING_VERIFICATION,
-            ]);
+            $this->submitReceipt->execute(
+                $id,
+                $request->file('receipt'),
+                (int) $request->validated('bank_id'),
+            );
 
             return redirect(tenant_route_name('bills.show', $id))->with('success', 'تم رفع الإيصال بنجاح. سيتم التحقق منه قريباً.');
         } catch (\Exception $e) {
@@ -198,60 +189,5 @@ class BillsController extends Controller
 
             return redirect()->back()->with('error', 'حدث خطأ أثناء رفع الإيصال');
         }
-    }
-
-    public function __bankTransfer__($id)
-    {
-        try {
-
-            [$bill, $amount, $banks] = Tenancy::central(function () use ($id) {
-                $bill = Bill::where('id', $id)->firstOrFail();
-                $amount = $bill->amount - $bill->settlement_amount;
-                $banks = Bank::where('is_active', 1)->get();
-
-                return [$bill, $amount, $banks];
-            });
-
-            return view(self::VIEW_PATH.'.bank_transfer', compact('bill', 'banks', 'amount'));
-            //
-        } catch (\Exception $e) {
-            report($e);
-
-            return redirect()->back()->with('error', 'حدث خطأ أثناء تحميل صفحة التحويل البنكي');
-        }
-    }
-
-    public function __uploadReceipt__(BankTransferReceiptRequest $request, $id)
-    {
-        try {
-            if (! $request->hasFile('receipt')) {
-                return redirect()->back()->with('error', 'لم يتم رفع الإيصال، يرجى اختيار ملف.');
-            }
-
-            $receiptPath = $request->file('receipt')->store('receipts', 'tenant_public');
-
-            $this->tenantBillOrFail($id)->update([
-                'invoice_url' => $receiptPath,
-                'bank_id' => $request->bank_id,
-                'transfer_date' => $request->transfer_date,
-                'transfer_notes' => $request->notes,
-                'payment_method' => PaymentMethod::BANK_TRANSFER,
-                'status' => BillStatus::PENDING_VERIFICATION,
-            ]);
-
-            return redirect(tenant_route_name('bills.show', $id))->with('success', 'تم رفع إيصال التحويل بنجاح. سيتم التحقق منه قريباً.');
-        } catch (\Exception $e) {
-            report($e);
-
-            return redirect()->back()->with('error', 'حدث خطأ أثناء رفع الإيصال. يرجى المحاولة مرة أخرى.');
-        }
-    }
-
-    private function tenantBillOrFail(int|string $id): Bill
-    {
-        return Bill::query()
-            ->whereKey($id)
-            ->where('tenant_id', tenant()->id)
-            ->firstOrFail();
     }
 }

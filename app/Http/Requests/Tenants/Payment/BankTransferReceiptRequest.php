@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Tenants\Payment;
 
+use App\Services\Tenants\Shared\CentralBillingGateway;
+use Closure;
 use Illuminate\Foundation\Http\FormRequest;
 
 class BankTransferReceiptRequest extends FormRequest
@@ -14,12 +16,20 @@ class BankTransferReceiptRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'bank_id' => ['required', 'integer', 'exists:mysql.banks,id'],
+            'bank_id' => [
+                'required',
+                'integer',
+                function (string $attribute, mixed $value, Closure $fail): void {
+                    if (! app(CentralBillingGateway::class)->bankIsActive($value)) {
+                        $fail('البنك المحدد غير صالح. يرجى اختيار بنك من القائمة.');
+                    }
+                },
+            ],
             'receipt' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
         ];
     }
 
-    public function messages()
+    public function messages(): array
     {
         return [
             'bank_id.required' => 'يجب اختيار البنك المحول إليه.',
@@ -29,6 +39,14 @@ class BankTransferReceiptRequest extends FormRequest
             'receipt.image' => 'الملف المرفوع يجب أن يكون صورة.',
             'receipt.mimes' => 'صيغة الملف المسموح بها هي: jpeg, png, jpg, gif.',
             'receipt.max' => 'حجم الصورة يجب ألا يتجاوز 2 ميجابايت.',
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'bank_id' => 'البنك',
+            'receipt' => 'إيصال التحويل',
         ];
     }
 }

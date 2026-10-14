@@ -57,19 +57,6 @@ class SettingsPaymentMethodController extends Controller
 
     public function destroy(TenantAuthenticatedRequest $request, $id)
     {
-        try {
-            $paymentMethod = SettingsPaymentMethod::findOrFail($id);
-
-            // التحقق من وجود ارتباطات (في حالة وجود فواتير أو معاملات مرتبطة)
-            // if ($paymentMethod->invoices()->count() > 0) {
-            //     throw new \Exception('لا يمكن حذف طريقة التحصيل هذه لأنها مرتبطة بفواتير. يجب حذف الفواتير أولاً.');
-            // }
-
-            $paymentMethod->delete();
-
-            return redirect()->back()->with('success', 'تم الحذف بنجاح.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
+        return $this->destroy_trait($this->model, $id);
     }
 }

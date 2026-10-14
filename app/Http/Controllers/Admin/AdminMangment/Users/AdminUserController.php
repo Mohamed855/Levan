@@ -154,13 +154,7 @@ class AdminUserController extends Controller
                     'message' => 'لا يمكن تغيير حالة السوبر أدمن',
                 ], 403);
             }
-            Log::info($user.'user in toggle');
-            $newStatus = $user->status === AdminUserStatus::ACTIVE
-                ? AdminUserStatus::INACTIVE
-                : AdminUserStatus::ACTIVE;
-
-            $user->status = $newStatus;
-            $user->save();
+            $newStatus = $this->userService->toggleStatus($user);
 
             $statusText = $newStatus === AdminUserStatus::ACTIVE ? 'نشط' : 'غير نشط';
 

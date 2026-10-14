@@ -104,4 +104,43 @@ class ActiveRouteHandlerContractFeatureTest extends TestCase
             }
         }
     }
+
+    public function test_every_active_mutation_requires_an_authenticated_guard_or_is_an_explicit_public_auth_flow(): void
+    {
+        foreach (Route::getRoutes()->getRoutes() as $route) {
+            if (! array_intersect($route->methods(), ['POST', 'PUT', 'PATCH', 'DELETE'])) {
+                continue;
+            }
+
+            $action = $route->getActionName();
+
+            if (! is_string($action) || ! str_contains($action, '@') || (! str_starts_with($action, 'App\\Http\\Controllers\\Admin\\') && ! str_starts_with($action, 'App\\Http\\Controllers\\Tenants\\'))) {
+                continue;
+            }
+
+            $middleware = $route->gatherMiddleware();
+            $isAuthenticated = collect($middleware)->contains(
+                fn (string $middleware): bool => str_contains($middleware, 'Authenticate')
+                    || str_starts_with($middleware, 'auth:'),
+            );
+
+            $this->assertTrue(
+                $isAuthenticated || $this->isExplicitPublicAuthenticationFlow($action),
+                'Mutation route ['.($route->getName() ?? $route->uri()).'] must require authentication or be an allow-listed public authentication flow.',
+            );
+        }
+    }
+
+    private function isExplicitPublicAuthenticationFlow(string $action): bool
+    {
+        return in_array($action, [
+            'App\\Http\\Controllers\\Admin\\Auth\\AdminAuthController@login',
+            'App\\Http\\Controllers\\Admin\\Auth\\AdminTwoFactorChallengeController@store',
+            'App\\Http\\Controllers\\Tenants\\Auth\\AuthenticatedSessionController@store',
+            'App\\Http\\Controllers\\Tenants\\Auth\\PasswordResetLinkController@store',
+            'App\\Http\\Controllers\\Tenants\\Auth\\NewPasswordController@store',
+            'App\\Http\\Controllers\\Tenants\\Auth\\RegisteredUserController@store',
+            'App\\Http\\Controllers\\Tenants\\Auth\\Fortify\\TenantTwoFactorChallengeController@store',
+        ], true);
+    }
 }

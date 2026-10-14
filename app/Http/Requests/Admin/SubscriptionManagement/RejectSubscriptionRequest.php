@@ -10,7 +10,7 @@ class RejectSubscriptionRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user('admin')?->can('subscriptions.pending.reject') ?? false;
     }
 
     public function rules(): array

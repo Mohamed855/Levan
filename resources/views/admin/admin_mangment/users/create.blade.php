@@ -24,12 +24,10 @@
             [
                 'id' => 'basic-info-validation',
                 'title' => 'المعلومات الأساسية',
-                'subtitle' => 'البيانات الشخصية والاتصال',
             ],
             [
                 'id' => 'security-info-validation',
                 'title' => 'كلمة المرور والصورة',
-                'subtitle' => 'الأمان والصورة الشخصية',
             ],
         ];
     @endphp

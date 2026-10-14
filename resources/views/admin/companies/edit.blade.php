@@ -27,8 +27,8 @@
 @section('content')
     @php
         $steps = [
-            ['id' => 'company-details-step', 'title' => 'البيانات التجارية الأساسية', 'subtitle' => 'اسم الشركة والسجل والعنوان'],
-            ['id' => 'contact-settings-step', 'title' => 'بيانات المسؤول والإعدادات', 'subtitle' => 'بيانات التواصل وإعدادات النظام'],
+            ['id' => 'company-details-step', 'title' => 'البيانات التجارية الأساسية'],
+            ['id' => 'contact-settings-step', 'title' => 'بيانات المسؤول والإعدادات'],
         ];
     @endphp
 

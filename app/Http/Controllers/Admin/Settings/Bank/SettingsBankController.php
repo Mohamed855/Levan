@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin\Settings\Bank;
 
+use App\Actions\Admin\Settings\ManageBankAction;
 use App\DataTables\Admin\Setting\Bank\BankDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
@@ -9,119 +12,75 @@ use App\Http\Requests\Admin\Settings\Bank\StoreBankRequest;
 use App\Http\Requests\Admin\Settings\Bank\UpdateBankRequest;
 use App\Models\Admin\Bank\Bank;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
-class SettingsBankController extends Controller
+final class SettingsBankController extends Controller
 {
-    private $page = 'admin.settings.banks';
+    private string $page = 'admin.settings.banks';
 
-    private $route = 'admin.settings.banks';
+    private string $route = 'admin.settings.banks';
 
-    public function __construct()
+    public function __construct(private readonly ManageBankAction $banks)
     {
         $this->authorizeResource(Bank::class, 'bank');
         $this->middleware('can:bank_settings.view');
     }
 
-    public function index(BankDataTable $dataTable)
+    public function index(BankDataTable $dataTable): mixed
     {
-        try {
-            $filterOptions = [
-                'statuses' => [
-                    ['value' => 'active', 'label' => 'نشط'],
-                    ['value' => 'inactive', 'label' => 'غير نشط'],
-                ],
-            ];
+        $filterOptions = ['statuses' => [
+            ['value' => 'active', 'label' => 'نشط'],
+            ['value' => 'inactive', 'label' => 'غير نشط'],
+        ]];
 
-            return $dataTable->render($this->page.'.index', compact('filterOptions'));
-        } catch (\Exception $e) {
-            report($e);
-
-            return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
-        }
+        return $dataTable->render($this->page.'.index', compact('filterOptions'));
     }
 
-    public function create()
+    public function create(): View
     {
         return view($this->page.'.create');
     }
 
-    public function store(StoreBankRequest $request)
+    public function store(StoreBankRequest $request): RedirectResponse
     {
-        $validated = $request->validated();
+        $this->banks->create($request->validated(), $request->file('icon'));
 
-        // رفع الأيقونة
-        if ($request->hasFile('icon')) {
-            $iconPath = $request->file('icon')->store('banks/icons', 'public');
-            $validated['icon'] = $iconPath;
-        }
-
-        Bank::create($validated);
-
-        return redirect()->route($this->route.'.index')
-            ->with('success', 'تم إضافة البنك بنجاح');
+        return redirect()->route($this->route.'.index')->with('success', 'تم إضافة البنك بنجاح');
     }
 
-    /**
-     * عرض صفحة تعديل بنك
-     */
-    public function edit(Bank $bank)
+    public function edit(Bank $bank): View
     {
         return view($this->page.'.edit', compact('bank'));
     }
 
-    /**
-     * تحديث بيانات بنك
-     */
-    public function update(UpdateBankRequest $request, Bank $bank)
+    public function update(UpdateBankRequest $request, Bank $bank): RedirectResponse
     {
-        $validated = $request->validated();
+        $this->banks->update($bank, $request->validated(), $request->file('icon'));
 
-        // رفع الأيقونة الجديدة
-        if ($request->hasFile('icon')) {
-            // حذف الأيقونة القديمة
-            if ($bank->icon && Storage::disk('public')->exists($bank->icon)) {
-                Storage::disk('public')->delete($bank->icon);
-            }
-
-            $iconPath = $request->file('icon')->store('banks/icons', 'public');
-            $validated['icon'] = $iconPath;
-        }
-
-        $bank->update($validated);
-
-        return redirect()->route($this->route.'.index')
-            ->with('success', 'تم تحديث البنك بنجاح');
+        return redirect()->route($this->route.'.index')->with('success', 'تم تحديث البنك بنجاح');
     }
 
     public function toggleStatus(AdminAuthenticatedRequest $request, Bank $bank): JsonResponse
     {
-        $bank->update(['is_active' => ! $bank->is_active]);
+        $status = $this->banks->toggleStatus($bank);
 
         return response()->json([
             'success' => true,
-            'message' => $bank->is_active ? 'تم تفعيل البنك بنجاح' : 'تم تعطيل البنك بنجاح',
+            'message' => $status ? 'تم تفعيل البنك بنجاح' : 'تم تعطيل البنك بنجاح',
+            'status' => $status,
         ]);
     }
 
-    /**
-     * حذف بنك
-     */
-    public function destroy(AdminAuthenticatedRequest $request, Bank $bank)
+    public function destroy(AdminAuthenticatedRequest $request, Bank $bank): RedirectResponse|JsonResponse
     {
-        try {
-            // حذف الأيقونة
-            if ($bank->icon && Storage::disk('public')->exists($bank->icon)) {
-                Storage::disk('public')->delete($bank->icon);
-            }
+        $this->banks->delete($bank);
+        $message = 'تم حذف البنك بنجاح';
 
-            $bank->delete();
-
-            return redirect()->route($this->route.'.index')
-                ->with('success', 'تم حذف البنك بنجاح');
-        } catch (\Exception $e) {
-            return redirect()->route($this->route.'.index')
-                ->with('error', 'حدث خطأ أثناء الحذف: '.$e->getMessage());
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => $message]);
         }
+
+        return redirect()->route($this->route.'.index')->with('success', $message);
     }
 }

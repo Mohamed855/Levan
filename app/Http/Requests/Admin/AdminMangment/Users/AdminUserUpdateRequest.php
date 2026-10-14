@@ -9,7 +9,7 @@ class AdminUserUpdateRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user('admin')?->can('users.edit') ?? false;
     }
 
     public function rules(): array
@@ -22,7 +22,7 @@ class AdminUserUpdateRequest extends FormRequest
 
             'email' => [
                 'required',
-                'email:rfc,dns',
+                'email:rfc',
                 'max:255',
                 Rule::unique('admin_users', 'email')->ignore($userId),
             ],

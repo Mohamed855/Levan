@@ -57,8 +57,15 @@ return [
         'client_ip' => env('NAMECHEAP_CLIENT_IP'),
         'base_url' => env('NAMECHEAP_URL', 'https://api.namecheap.com/xml.response'),
         'whm_api_url' => env('WHM_API_URL'),
+        'whm_host' => env('WHM_HOST', env('WHM_API_URL')),
         'whm_token' => env('WHM_TOKEN'),
         'server_ip' => env('SERVER_IP'),
+    ],
+
+    'domains' => [
+        'server_ip' => env('SERVER_IP', '135.181.215.105'),
+        'name_servers' => ['ns1.levan.com', 'ns2.levan.com'],
+        'server_domain' => env('SERVER_DOMAIN', 'levan.com'),
     ],
 
     'ticket_api' => [

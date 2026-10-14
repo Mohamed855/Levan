@@ -81,6 +81,7 @@ class CustomerArchiveController extends Controller
     {
         try {
             $customer = Customer::onlyTrashed()->findOrFail($request->validated('id'));
+            $this->authorize('restore', $customer);
             $this->customerArchiveService->restoreCustomer($customer);
 
             if ($request->ajax() || $request->wantsJson()) {
@@ -110,6 +111,7 @@ class CustomerArchiveController extends Controller
     {
         try {
             $customer = Customer::onlyTrashed()->findOrFail($request->validated('id'));
+            $this->authorize('forceDelete', $customer);
             $this->customerArchiveService->forceDeleteCustomer($customer);
 
             if ($request->ajax() || $request->wantsJson()) {
@@ -139,6 +141,9 @@ class CustomerArchiveController extends Controller
     {
         try {
             $customerIds = $request->validated('ids');
+            Customer::onlyTrashed()->whereKey($customerIds)->get()->each(
+                fn (Customer $customer) => $this->authorize('restore', $customer)
+            );
 
             $restoredCount = $this->customerArchiveService->massRestoreCustomers($customerIds);
 
@@ -163,6 +168,9 @@ class CustomerArchiveController extends Controller
     {
         try {
             $customerIds = $request->validated('ids');
+            Customer::onlyTrashed()->whereKey($customerIds)->get()->each(
+                fn (Customer $customer) => $this->authorize('forceDelete', $customer)
+            );
 
             $deletedCount = $this->customerArchiveService->massForceDeleteCustomers($customerIds);
 

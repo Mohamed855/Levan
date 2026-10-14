@@ -10,7 +10,7 @@ class AdminMainSettingsRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user('admin')?->can('system.settings') ?? false;
     }
 
     public function rules(): array

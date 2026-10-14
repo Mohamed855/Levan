@@ -5,10 +5,11 @@ namespace App\Http\Controllers\Tenants\Settings;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Settings\RegenerateApiTokenRequest;
 use App\Models\Tenants\Api\ApiRequestLog;
+use App\Services\Tenants\Shared\CentralTenantApiTokenGateway;
 
 class ApiTokenSettingsController extends Controller
 {
-    public function __construct()
+    public function __construct(private readonly CentralTenantApiTokenGateway $tokenGateway)
     {
         $this->middleware('can:system.settings');
     }
@@ -32,7 +33,7 @@ class ApiTokenSettingsController extends Controller
     */
     public function regenerate(RegenerateApiTokenRequest $request)
     {
-        $plainTextToken = tenant()->regenerateApiToken();
+        $plainTextToken = $this->tokenGateway->regenerateCurrentTenantToken();
 
         return redirect(tenant_route_name('api-token-settings.index'))
             ->with('new_api_token', $plainTextToken)

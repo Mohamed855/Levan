@@ -16,7 +16,9 @@ class PlanRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        $ability = $this->isMethod('post') ? 'plans.create' : 'plans.edit';
+
+        return $this->user('admin')?->can($ability) ?? false;
     }
 
     protected function prepareForValidation(): void

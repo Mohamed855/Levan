@@ -62,6 +62,7 @@ class UserArchiveController extends Controller
     {
         try {
             $user = User::onlyTrashed()->findOrFail($request->validated('id'));
+            $this->authorize('restore', $user);
             $this->userArchiveService->restoreUser($user);
 
             if ($request->ajax() || $request->wantsJson()) {
@@ -92,6 +93,7 @@ class UserArchiveController extends Controller
     {
         try {
             $user = User::onlyTrashed()->findOrFail($request->validated('id'));
+            $this->authorize('forceDelete', $user);
             $this->userArchiveService->forceDeleteUser($user);
 
             if ($request->ajax() || $request->wantsJson()) {
@@ -122,6 +124,9 @@ class UserArchiveController extends Controller
     {
         try {
             $userIds = $request->validated('ids');
+            User::onlyTrashed()->whereKey($userIds)->get()->each(
+                fn (User $user) => $this->authorize('restore', $user)
+            );
 
             $restoredCount = $this->userArchiveService->massRestoreUsers($userIds);
 
@@ -147,6 +152,9 @@ class UserArchiveController extends Controller
     {
         try {
             $userIds = $request->validated('ids');
+            User::onlyTrashed()->whereKey($userIds)->get()->each(
+                fn (User $user) => $this->authorize('forceDelete', $user)
+            );
 
             $deletedCount = $this->userArchiveService->massForceDeleteUsers($userIds);
 

@@ -10,7 +10,9 @@ class VersionRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        $ability = $this->isMethod('post') ? 'versions.create' : 'versions.edit';
+
+        return $this->user('admin')?->can($ability) ?? false;
     }
 
     public function rules(): array

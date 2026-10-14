@@ -3,6 +3,7 @@
 namespace App\Services\Admin\Tickets;
 
 use App\Enums\Tenants\Tickets\TicketStatus;
+use App\Models\Admin\Settings\Settings;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Admin\Tickets\Ticket;
 use App\Models\Admin\Tickets\TicketReply;
@@ -11,6 +12,7 @@ use App\Models\Tenants\UserMangment\User\User;
 use App\Notifications\Tenants\General\GeneralNotification;
 use App\Services\shared\Integration\EtmamTicketService;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -30,6 +32,21 @@ class AdminTicketService
             'resolved' => Ticket::whereIn('status', ['resolved', 'resolved_pending_survey'])->count(),
             'closed' => Ticket::where('status', 'closed')->count(),
         ];
+    }
+
+    public function ticketsEnabled(): bool
+    {
+        return Settings::query()->value('tickets_enabled') ?? true;
+    }
+
+    public function updateTicketsEnabled(bool $enabled): bool
+    {
+        return DB::transaction(function () use ($enabled): bool {
+            $settings = Settings::query()->firstOrFail();
+            $settings->update(['tickets_enabled' => $enabled]);
+
+            return $enabled;
+        });
     }
 
     /**

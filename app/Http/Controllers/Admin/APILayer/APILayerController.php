@@ -3,16 +3,17 @@
 namespace App\Http\Controllers\Admin\APILayer;
 
 use App\Http\Controllers\Controller;
-use App\Models\Admin\Tenants\Domain;
 use App\Services\shared\APILayer\apiLayerService;
+use App\Services\Tenants\Shared\CentralDomainGateway;
 
 class APILayerController extends Controller
 {
     protected $apiLayerService;
 
-    public function __construct(apiLayerService $apilayer)
+    public function __construct(apiLayerService $apilayer, private readonly CentralDomainGateway $domains)
     {
         $this->apiLayerService = $apilayer;
+        $this->middleware('can:domain.view');
     }
 
     public function apiLayerFunc($domain)
@@ -23,9 +24,7 @@ class APILayerController extends Controller
     public function checkExistTransferDomain($domain)
     {
 
-        $transfered = tenancy()->central(function () use ($domain) {
-            return Domain::where('domain', $domain)->first();
-        });
+        $transfered = $this->domains->findTransferred($domain);
 
         if ($transfered) {
             return response()->json([

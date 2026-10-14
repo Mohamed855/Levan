@@ -4,20 +4,21 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use App\Http\Controllers\Tenants\Auth\ConfirmablePasswordController;
-use App\Http\Controllers\Tenants\Auth\Fortify\TenantTwoFactorSettingsController;
-use App\Http\Controllers\Tenants\Auth\Fortify\TenantTwoFactorChallengeController;
-use App\Http\Controllers\Tenants\Auth\NewPasswordController;
-use App\Http\Controllers\Tenants\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Tenants\Auth\PasswordController;
-use App\Http\Controllers\Tenants\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Tenants\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Tenants\Auth\ConfirmablePasswordController;
+use App\Http\Controllers\Tenants\Auth\EmailVerificationNotificationController;
+use App\Http\Controllers\Tenants\Auth\Fortify\TenantTwoFactorChallengeController;
+use App\Http\Controllers\Tenants\Auth\Fortify\TenantTwoFactorSettingsController;
+use App\Http\Controllers\Tenants\Auth\NewPasswordController;
+use App\Http\Controllers\Tenants\Auth\PasswordController;
+use App\Http\Controllers\Tenants\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Tenants\Auth\RegisteredUserController;
 use App\Http\Requests\Tenants\Auth\ConfirmTenantPasswordRequest;
 use App\Http\Requests\Tenants\Auth\ConfirmTenantTwoFactorRequest;
 use App\Http\Requests\Tenants\Auth\ResetTenantPasswordRequest;
 use App\Http\Requests\Tenants\Auth\SendPasswordResetLinkRequest;
-use App\Http\Requests\Tenants\Auth\TenantTwoFactorChallengeRequest;
 use App\Http\Requests\Tenants\Auth\TenantAuthenticatedRequest;
+use App\Http\Requests\Tenants\Auth\TenantTwoFactorChallengeRequest;
 use App\Http\Requests\Tenants\Auth\UpdateTenantPasswordRequest;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -82,6 +83,24 @@ class TenantAuthenticationContractTest extends TestCase
         }
     }
 
+    public function test_authenticated_tenant_controllers_delegate_persistence_to_actions(): void
+    {
+        $controllers = [
+            AuthenticatedSessionController::class,
+            TenantTwoFactorChallengeController::class,
+            TenantTwoFactorSettingsController::class,
+            PasswordController::class,
+            NewPasswordController::class,
+            RegisteredUserController::class,
+        ];
+
+        foreach ($controllers as $controller) {
+            $content = file_get_contents((new ReflectionClass($controller))->getFileName());
+
+            $this->assertDoesNotMatchRegularExpression('/(?:->(?:update|save|forceFill)|User::create)\s*\(/', $content);
+        }
+    }
+
     public function test_public_auth_forms_use_the_shared_validation_contract(): void
     {
         foreach ([
@@ -91,7 +110,7 @@ class TenantAuthenticationContractTest extends TestCase
             'two-factor-challenge.blade.php',
             'register.blade.php',
         ] as $view) {
-            $content = file_get_contents(dirname(__DIR__, 2) . '/resources/views/tenants/auth/' . $view);
+            $content = file_get_contents(dirname(__DIR__, 2).'/resources/views/tenants/auth/'.$view);
 
             $this->assertStringContainsString('data-form-validate', $content);
             $this->assertStringContainsString("tenant_route_name('form-validation')", $content);
@@ -101,7 +120,7 @@ class TenantAuthenticationContractTest extends TestCase
 
     public function test_auth_forms_do_not_validate_on_page_load(): void
     {
-        $script = file_get_contents(dirname(__DIR__, 2) . '/resources/assets/js/shared/form-validation.js');
+        $script = file_get_contents(dirname(__DIR__, 2).'/resources/assets/js/shared/form-validation.js');
 
         $this->assertStringContainsString('function isAuthForm(form)', $script);
         $this->assertStringContainsString('const isAuth = isAuthForm(form);', $script);
@@ -110,10 +129,10 @@ class TenantAuthenticationContractTest extends TestCase
 
     public function test_two_factor_setup_uses_the_shared_validation_contract(): void
     {
-        $content = file_get_contents(dirname(__DIR__, 2) . '/resources/views/tenants/auth/two-factor-settings.blade.php');
+        $content = file_get_contents(dirname(__DIR__, 2).'/resources/views/tenants/auth/two-factor-settings.blade.php');
 
         $this->assertStringContainsString('data-form-validate', $content);
         $this->assertStringContainsString("tenant_route_name('wizard-drafts.validate-step')", $content);
-        $this->assertStringContainsString('SharedFormValidation', file_get_contents(dirname(__DIR__, 2) . '/resources/assets/js/shared/form-validation.js'));
+        $this->assertStringContainsString('SharedFormValidation', file_get_contents(dirname(__DIR__, 2).'/resources/assets/js/shared/form-validation.js'));
     }
 }

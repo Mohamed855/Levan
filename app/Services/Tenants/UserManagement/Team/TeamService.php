@@ -4,8 +4,8 @@ namespace App\Services\Tenants\UserManagement\Team;
 
 use App\Models\Tenants\UserMangment\Team\Team;
 use App\Models\Tenants\UserMangment\User\User;
-use Illuminate\Support\Facades\DB;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class TeamService
 {
@@ -71,7 +71,7 @@ class TeamService
             ->exists();
 
         if ($usersWithOtherTeams) {
-            throw new \Exception('بعض المستخدمين مرتبطون بالفعل بفرق أخرى');
+            throw new Exception('بعض المستخدمين مرتبطون بالفعل بفرق أخرى');
         }
 
         // إضافة الأعضاء الجدد
@@ -99,6 +99,15 @@ class TeamService
             ]);
 
             return $team->delete();
+        });
+    }
+
+    public function updateStatus(Team $team, string $status): Team
+    {
+        return DB::transaction(function () use ($team, $status): Team {
+            $team->update(['status' => $status]);
+
+            return $team->refresh();
         });
     }
 

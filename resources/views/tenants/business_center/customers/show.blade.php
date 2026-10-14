@@ -150,7 +150,7 @@
                     @endcan
 
                     <!-- إضافة التاب الجديد بعد تاب متابعة العميل -->
-                    {{-- @can('تفاصيل السداد')
+                    {{-- @can('customers.view')
                 <li class="card rounded-0 mb-3 nav-item shadow-none">
                     <a class="py-3 nav-link fw-bold m-0" data-bs-toggle="tab" href="#paymentDetails">
                         <i class="ti ti-credit-card ti-sm me-1"></i><span> تفاصيل السداد</span>
@@ -175,7 +175,7 @@
                     @endcan
 
                     <!-- ✅ التاب الجديد: سجل السدادات -->
-                    {{-- @can('خطة سداد') --}}
+                    {{-- @can('customers.view') --}}
                     <li class="card rounded-0 mb-3 nav-item shadow-none">
                         <a class="py-3 nav-link fw-bold m-0" data-bs-toggle="tab" href="#paymentHistory">
                             <i class="ti ti-receipt ti-sm me-1"></i><span>سجل السدادات</span>

@@ -4,6 +4,7 @@ namespace App\Jobs\Tenants\Reports\Financial;
 
 use App\Exports\Tenants\Reports\Financial\FinancialReportExport;
 use App\Models\Tenants\FinancialCollection\Collection\Collection;
+use App\Services\Tenants\Reports\TenantExportAccess;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -97,6 +98,7 @@ class ExportFinancialCollectionsJob implements ShouldQueue
                 'exports/'.$this->fileName,
                 'tenant_public'
             );
+            app(TenantExportAccess::class)->registerFile($this->fileName, (int) $this->userId);
 
             $fileSize = Storage::disk('tenant_public')->size('exports/'.$this->fileName);
 

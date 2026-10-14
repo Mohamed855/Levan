@@ -15,7 +15,7 @@ class UpdateMessageTemplateRequest extends FormRequest
     */
     public function authorize(): bool
     {
-        return true;
+        return $this->user('tenant')?->can('message_templates.view') ?? false;
     }
 
     /*

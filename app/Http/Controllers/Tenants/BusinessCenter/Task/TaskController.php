@@ -6,6 +6,7 @@ use App\DataTables\Tenants\BusinessCenter\Tasks\TasksDataTable;
 use App\Exports\Tenants\BusinessCenter\Task\TasksExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\BusinessCenter\Task\ExportTasksRequest;
+use App\Models\Tenants\BusinessCenter\Customers\Task\Task;
 use App\Services\Tenants\BusinessCenter\Task\TaskService;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -33,6 +34,8 @@ class TaskController extends Controller
     */
     public function index(TasksDataTable $dataTable): mixed
     {
+        $this->authorize('viewAny', Task::class);
+
         $statistics = $this->taskService->getTaskStatistics();
         $companies = $this->taskService->getActiveCompanies();
         $portfolios = $this->taskService->getActivePortfolios();
@@ -42,6 +45,7 @@ class TaskController extends Controller
             'totalTasks' => $statistics['total'],
             'pendingTasks' => $statistics['pending'],
             'completedTasks' => $statistics['completed'],
+            'dueTodayTasks' => $statistics['due_today'],
             'overdueTasks' => $statistics['overdue'],
             'companies' => $companies,
             'portfolios' => $portfolios,

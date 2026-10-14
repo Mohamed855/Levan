@@ -21,6 +21,8 @@ class CustomerPhoneRequestController extends Controller
     */
     public function getPhoneRequestsList(Customer $customer): JsonResponse
     {
+        $this->authorize('view', $customer);
+
         try {
             $customer->load(['phoneRequests' => function ($query) {
                 $query->where('requested_by', auth()->id());
@@ -62,6 +64,8 @@ class CustomerPhoneRequestController extends Controller
     */
     public function create(Customer $customer): View
     {
+        $this->authorize('update', $customer);
+
         $customer->load(['phoneRequests' => function ($query) {
             $query->where('requested_by', auth()->id());
         }, 'phoneRequests.requestedBy']);
@@ -80,6 +84,8 @@ class CustomerPhoneRequestController extends Controller
     */
     public function store(CustomerPhoneRequest $request, Customer $customer): JsonResponse
     {
+        $this->authorize('update', $customer);
+
         try {
             $validated = $request->validated();
 

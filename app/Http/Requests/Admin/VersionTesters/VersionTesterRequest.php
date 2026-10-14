@@ -10,7 +10,9 @@ class VersionTesterRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        $ability = $this->isMethod('post') ? 'version_testers.create' : 'version_testers.edit';
+
+        return $this->user('admin')?->can($ability) ?? false;
     }
 
     public function rules(): array

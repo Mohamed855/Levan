@@ -45,4 +45,14 @@ class CustomerPolicy
             && $user->can('collection_process.start')
             && $customer->relationship_manager_id === $user->id;
     }
+
+    public function restore(User $user, Customer $customer): bool
+    {
+        return $user->can('customers_archive.restore') && tenancy()->initialized;
+    }
+
+    public function forceDelete(User $user, Customer $customer): bool
+    {
+        return $user->can('customers_archive.force_delete') && tenancy()->initialized;
+    }
 }

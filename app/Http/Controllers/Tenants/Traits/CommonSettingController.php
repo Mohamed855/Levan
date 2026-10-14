@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenants\Traits;
 
+use App\Actions\Tenants\GeneralSetting\GeneralSettingAction;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\JsonResponse;
@@ -16,14 +17,18 @@ trait CommonSettingController
 
     public function show_trait(string $model, int|string $id): JsonResponse
     {
+        $item = $model::query()->findOrFail($id);
+        $this->authorize('view', $item);
+
         return response()->json([
             'success' => true,
-            'data' => $model::query()->findOrFail($id),
+            'data' => $item,
         ]);
     }
 
     public function index_trait($model, $view, $route, $with = null)
     {
+        $this->authorize('viewAny', $model);
         $request = request();
 
         try {
@@ -87,31 +92,22 @@ trait CommonSettingController
     public function toggleStatus_trait($model, $id) // لتغيير حالة الاعدادات
     {
         $setting = $model::findOrFail($id);
-
-        // تغيير الحالة
-        if ($setting->status === 'active') {
-            $setting->status = 'inactive';
-        } else {
-            $setting->status = 'active';
-        }
-
-        $setting->save();
+        $this->authorize('toggleStatus', $setting);
+        $status = app(GeneralSettingAction::class)->toggleStatus($setting);
 
         return response()->json([
             'success' => true,
             'message' => 'تم تحديث الحالة بنجاح.',
-            'status' => $setting->status,
+            'status' => $status,
         ]);
     }
 
     public function store_trait(FormRequest $request, $model)
     {
+        $this->authorize('create', $model);
         $validated = $request->validated();
 
-        $model::create([
-            'name' => $validated['name'],
-            'user_id' => auth('tenant')->id(),
-        ]);
+        app(GeneralSettingAction::class)->create($model, ['name' => $validated['name']], auth('tenant')->id());
 
         return redirect()->back()->with('success', 'تمت الإضافة بنجاح.');
     }
@@ -121,10 +117,8 @@ trait CommonSettingController
         $validated = $request->validated();
 
         $item = $model::findOrFail($id);
-        $item->update([
-            'name' => $validated['name'],
-            'user_id' => auth('tenant')->id(),
-        ]);
+        $this->authorize('update', $item);
+        app(GeneralSettingAction::class)->update($item, ['name' => $validated['name']], auth('tenant')->id());
 
         return redirect()->back()->with('success', 'تم التحديث بنجاح.');
     }
@@ -132,7 +126,8 @@ trait CommonSettingController
     public function destroy_trait($model, $id)
     {
         $item = $model::findOrFail($id);
-        $item->delete();
+        $this->authorize('delete', $item);
+        app(GeneralSettingAction::class)->delete($item);
 
         return redirect()->back()->with('success', 'تم الحذف بنجاح.');
     }

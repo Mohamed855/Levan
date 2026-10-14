@@ -8,7 +8,9 @@ class UpdateCustomerSettlementRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user('tenant')?->can('customers.edit') ?? false;
+        return $this->user('tenant')?->can('customers.edit')
+            || $this->user('tenant')?->can('customers.edit_all')
+            || false;
     }
 
     public function rules(): array

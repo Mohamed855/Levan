@@ -10,7 +10,7 @@ class StoreBankRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user('admin')?->can('bank_settings.view') ?? false;
     }
 
     public function rules(): array

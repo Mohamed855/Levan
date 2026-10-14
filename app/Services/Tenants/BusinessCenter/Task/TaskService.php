@@ -158,6 +158,10 @@ class TaskService
             'total' => (clone $baseQuery)->count(),
             'pending' => (clone $baseQuery)->where('tasks.status', 'pending')->count(),
             'completed' => (clone $baseQuery)->where('tasks.status', 'completed')->count(),
+            'due_today' => (clone $baseQuery)
+                ->where('tasks.status', 'pending')
+                ->whereDate('tasks.due_date', $today)
+                ->count(),
             'overdue' => (clone $baseQuery)
                 ->where('tasks.status', 'pending')
                 ->whereDate('tasks.due_date', '<', $today)
@@ -189,6 +193,10 @@ class TaskService
             'total' => (clone $baseQuery)->count(),
             'pending' => (clone $baseQuery)->where('tasks.status', 'pending')->count(),
             'completed' => (clone $baseQuery)->where('tasks.status', 'completed')->count(),
+            'due_today' => (clone $baseQuery)
+                ->where('tasks.status', 'pending')
+                ->whereDate('tasks.due_date', $today)
+                ->count(),
             'overdue' => (clone $baseQuery)
                 ->where('tasks.status', 'pending')
                 ->whereDate('tasks.due_date', '<', $today)

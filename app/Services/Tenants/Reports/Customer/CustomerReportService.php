@@ -4,27 +4,27 @@ namespace App\Services\Tenants\Reports\Customer;
 
 use App\Exports\Tenants\Reports\Customer\CustomersReportExport;
 use App\Jobs\Tenants\Reports\Customer\ExportCustomersJob;
-use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Company\Company;
+use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
+use App\Models\Tenants\GeneralSetting\ContactResult\ContactResult;
 use App\Models\Tenants\GeneralSetting\Country\SettingsCountry;
 use App\Models\Tenants\GeneralSetting\CustomerStatus\SettingsCustomerStatus;
-use App\Models\Tenants\GeneralSetting\ContactResult\ContactResult;
 use App\Models\Tenants\UserMangment\User\User;
-use App\Models\Tenants\FinancialCollection\Collection\CustomerTransaction;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
-use Maatwebsite\Excel\Facades\Excel;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Yajra\DataTables\Facades\DataTables;
+use App\Services\Tenants\Reports\TenantExportAccess;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use Mpdf\Config\ConfigVariables;
+use Mpdf\Config\FontVariables;
+use Mpdf\Mpdf;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class CustomerReportService
 {
     private const LARGE_EXPORT_THRESHOLD = 5000;
+
     private const CHUNK_SIZE = 1000;
 
     /*
@@ -46,7 +46,7 @@ class CustomerReportService
     ");
 
         $contactResults = [];
-        $contactRaw = DB::select("
+        $contactRaw = DB::select('
         SELECT cr.name, COUNT(*) as count
         FROM customers c
         INNER JOIN contact_results cr ON c.last_contact_result_id = cr.id
@@ -54,7 +54,7 @@ class CustomerReportService
         GROUP BY cr.id, cr.name
         ORDER BY count DESC
         LIMIT 6
-        ");
+        ');
         foreach ($contactRaw as $row) {
             $contactResults[$row->name] = (int) $row->count;
         }
@@ -138,8 +138,8 @@ class CustomerReportService
                 return $this->buildFilteredQuery($filters)->count();
             }
 
-            $debtFrom = isset($filters['debt_from']) ? (float)$filters['debt_from'] : null;
-            $debtTo   = isset($filters['debt_to']) ? (float)$filters['debt_to'] : null;
+            $debtFrom = isset($filters['debt_from']) ? (float) $filters['debt_from'] : null;
+            $debtTo = isset($filters['debt_to']) ? (float) $filters['debt_to'] : null;
 
             $query = Customer::query()
                 ->leftJoin('customer_transactions as d', function ($join) {
@@ -153,11 +153,11 @@ class CustomerReportService
 
             $this->applyFiltersToQuery($query, $filters);
 
-            if (!is_null($debtFrom)) {
+            if (! is_null($debtFrom)) {
                 $query->having('debt_amount', '>=', $debtFrom);
             }
 
-            if (!is_null($debtTo)) {
+            if (! is_null($debtTo)) {
                 $query->having('debt_amount', '<=', $debtTo);
             }
 
@@ -179,7 +179,8 @@ class CustomerReportService
         $query = $this->buildFilteredQuery($filters);
         $customers = $query->orderBy('customers.name')->get();
 
-        $fileName = 'customers_report_' . now()->format('Y_m_d_H_i_s') . '.xlsx';
+        $fileName = 'customers_report_'.now()->format('Y_m_d_H_i_s').'.xlsx';
+
         return Excel::download(new CustomersReportExport($customers, $filters), $fileName);
     }
 
@@ -196,11 +197,12 @@ class CustomerReportService
             return [
                 'success' => false,
                 'message' => 'لا توجد بيانات للتصدير',
-                'count' => 0
+                'count' => 0,
             ];
         }
 
         $job = new ExportCustomersJob($filters, $selectedFields, $userId);
+        app(TenantExportAccess::class)->registerExport($job->getExportId(), (int) $userId);
 
         dispatch($job->onQueue('exports'));
 
@@ -210,7 +212,7 @@ class CustomerReportService
             'count' => $count,
             'message' => $count > self::LARGE_EXPORT_THRESHOLD
                 ? "سيتم تصدير {$count} عميل  سيتم إشعارك عند الانتهاء"
-                : "جاري تصدير {$count} عميل..."
+                : "جاري تصدير {$count} عميل...",
         ];
     }
 
@@ -221,6 +223,8 @@ class CustomerReportService
     */
     public function getExportProgress(string $exportId): array
     {
+        app(TenantExportAccess::class)->authorizeExport($exportId, auth('tenant')->id());
+
         $progress = Cache::get("export_progress_{$exportId}");
         $result = Cache::get("export_result_{$exportId}");
 
@@ -235,7 +239,7 @@ class CustomerReportService
         return [
             'export_id' => $exportId,
             'status' => 'not_found',
-            'message' => 'لم يتم العثور على عملية التصدير'
+            'message' => 'لم يتم العثور على عملية التصدير',
         ];
     }
 
@@ -259,32 +263,32 @@ class CustomerReportService
             $dateTo = $filters['date_to'] ?? null;
             $dateRange = $this->getDateRangeText($dateFrom, $dateTo);
 
-            $mpdf = new \Mpdf\Mpdf([
-                'mode'              => 'utf-8',
-                'format'            => 'A4',
-                'orientation'       => 'P',
-                'margin_left'       => 0,
-                'margin_right'      => 0,
-                'margin_top'        => 0,
-                'margin_bottom'     => 10,
-                'margin_header'     => 0,
-                'margin_footer'     => 0,
-                'default_font'      => 'almarai',
-                'fontDir'           => array_merge(
-                    (new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'],
+            $mpdf = new Mpdf([
+                'mode' => 'utf-8',
+                'format' => 'A4',
+                'orientation' => 'P',
+                'margin_left' => 0,
+                'margin_right' => 0,
+                'margin_top' => 0,
+                'margin_bottom' => 10,
+                'margin_header' => 0,
+                'margin_footer' => 0,
+                'default_font' => 'almarai',
+                'fontDir' => array_merge(
+                    (new ConfigVariables)->getDefaults()['fontDir'],
                     [public_path('static/fonts/almarai')]
                 ),
-                'fontdata'          => array_merge(
-                    (new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'],
+                'fontdata' => array_merge(
+                    (new FontVariables)->getDefaults()['fontdata'],
                     ['almarai' => [
                         'R' => 'Almarai-Regular.ttf',
                         'B' => 'Almarai-Bold.ttf',
-                        'useOTL'    => 0xFF,
+                        'useOTL' => 0xFF,
                         'useKashida' => 75,
                     ]]
                 ),
                 'default_font_size' => 12,
-                'tempDir'           => storage_path('app/public/temp'),
+                'tempDir' => storage_path('app/public/temp'),
             ]);
 
             $mpdf->SetDirectionality('rtl');
@@ -306,14 +310,14 @@ class CustomerReportService
 
             $mpdf->WriteHTML($html);
 
-            $fileName = 'تقرير_العملاء_' . now()->format('Y_m_d_H_i_s') . '.pdf';
+            $fileName = 'تقرير_العملاء_'.now()->format('Y_m_d_H_i_s').'.pdf';
 
             $tempDir = storage_path('app/public/temp');
-            if (!file_exists($tempDir)) {
+            if (! file_exists($tempDir)) {
                 mkdir($tempDir, 0755, true);
             }
 
-            $tempPath = $tempDir . '/' . $fileName;
+            $tempPath = $tempDir.'/'.$fileName;
             $mpdf->Output($tempPath, 'F');
 
             return response()->download($tempPath)->deleteFileAfterSend();
@@ -358,7 +362,7 @@ class CustomerReportService
                 ['key' => 'total_credit', 'label' => 'المدفوع', 'selected' => true],
                 ['key' => 'remaining_debt', 'label' => 'المتبقي', 'selected' => true],
                 ['key' => 'days_elapsed', 'label' => 'أيام الاسناد', 'selected' => false],
-            ]
+            ],
         ];
     }
 
@@ -387,7 +391,7 @@ class CustomerReportService
             'smsMessages',
             'updateRequests',
             'createdBy',
-            'lastContactResult'
+            'lastContactResult',
         ])->orderBy('customers.name')->get();
 
         $enrichedCustomers = $customers->map(function ($customer) {
@@ -429,14 +433,15 @@ class CustomerReportService
             return $customer;
         });
 
-        $fileName = 'تقرير_العملاء_مخصص_' . now()->format('Y_m_d_H_i_s') . '.xlsx';
-        $relative = 'exports/' . $fileName;
+        $fileName = 'تقرير_العملاء_مخصص_'.now()->format('Y_m_d_H_i_s').'.xlsx';
+        $relative = 'exports/'.$fileName;
 
         Excel::store(
             new CustomersReportExport($enrichedCustomers, $filters, $selectedFields),
             $relative,
             'tenant_public'
         );
+        app(TenantExportAccess::class)->registerFile($fileName, (int) auth('tenant')->id());
 
         return $fileName;
     }
@@ -477,7 +482,7 @@ class CustomerReportService
                 'relationshipManager:id,name',
                 'customerStatus:id,name',
                 'lastContactResult:id,name',
-                'createdBy:id,name'
+                'createdBy:id,name',
             ]);
 
         $this->applyFiltersToQuery($query, $filters);
@@ -493,7 +498,9 @@ class CustomerReportService
     private function applyFiltersToQuery($query, array $filters, bool $isDebtSubquery = false): void
     {
         foreach ($filters as $key => $value) {
-            if (empty($value)) continue;
+            if (empty($value)) {
+                continue;
+            }
 
             switch ($key) {
                 case 'date_from':
@@ -527,7 +534,7 @@ class CustomerReportService
                 case 'relationship_manager_id':
                     if (is_array($value)) {
                         $cleanValues = array_filter($value);
-                        if (!empty($cleanValues)) {
+                        if (! empty($cleanValues)) {
                             $query->whereIn('customers.relationship_manager_id', $cleanValues);
                         }
                     } else {
@@ -538,7 +545,7 @@ class CustomerReportService
                 case 'contact_result_id':
                     if (is_array($value)) {
                         $cleanValues = array_filter($value);
-                        if (!empty($cleanValues)) {
+                        if (! empty($cleanValues)) {
                             $query->whereIn('customers.last_contact_result_id', $cleanValues);
                         }
                     } else {
@@ -548,17 +555,17 @@ class CustomerReportService
 
                 case 'debt_from':
                     if ($isDebtSubquery) {
-                        $query->where('sub.debt_amount', '>=', (float)$value);
+                        $query->where('sub.debt_amount', '>=', (float) $value);
                     } else {
-                        $query->havingRaw('debt_amount >= ?', [(float)$value]);
+                        $query->havingRaw('debt_amount >= ?', [(float) $value]);
                     }
                     break;
 
                 case 'debt_to':
                     if ($isDebtSubquery) {
-                        $query->where('sub.debt_amount', '<=', (float)$value);
+                        $query->where('sub.debt_amount', '<=', (float) $value);
                     } else {
-                        $query->havingRaw('debt_amount <= ?', [(float)$value]);
+                        $query->havingRaw('debt_amount <= ?', [(float) $value]);
                     }
                     break;
             }
@@ -579,6 +586,7 @@ class CustomerReportService
         } elseif ($dateTo) {
             return "حتى {$dateTo}";
         }
+
         return 'جميع الفترات';
     }
 
@@ -591,54 +599,54 @@ class CustomerReportService
     {
         $appliedFilters = [];
 
-        if (!empty($filters['customer_type'])) {
+        if (! empty($filters['customer_type'])) {
             $type = $filters['customer_type'] === 'individual' ? 'الأفراد' : 'الشركات';
             $appliedFilters[] = "نوع العميل: {$type}";
         }
 
-        if (!empty($filters['company_id'])) {
+        if (! empty($filters['company_id'])) {
             $company = Company::find($filters['company_id']);
             if ($company) {
                 $appliedFilters[] = "الشركة: {$company->name}";
             }
         }
 
-        if (!empty($filters['customer_status_id'])) {
+        if (! empty($filters['customer_status_id'])) {
             $status = SettingsCustomerStatus::find($filters['customer_status_id']);
             if ($status) {
                 $appliedFilters[] = "الحالة: {$status->name}";
             }
         }
 
-        if (!empty($filters['portfolio_id'])) {
+        if (! empty($filters['portfolio_id'])) {
             $portfolio = Portfolio::find($filters['portfolio_id']);
             if ($portfolio) {
                 $appliedFilters[] = "المحفظة: {$portfolio->name}";
             }
         }
 
-        if (!empty($filters['nationality'])) {
+        if (! empty($filters['nationality'])) {
             $country = SettingsCountry::find($filters['nationality']);
             if ($country) {
                 $appliedFilters[] = "الجنسية: {$country->name}";
             }
         }
 
-        if (!empty($filters['relationship_manager_id'])) {
+        if (! empty($filters['relationship_manager_id'])) {
             $manager = User::find($filters['relationship_manager_id']);
             if ($manager) {
                 $appliedFilters[] = "مسؤول العلاقة: {$manager->name}";
             }
         }
 
-        if (!empty($filters['contact_result_id'])) {
+        if (! empty($filters['contact_result_id'])) {
             $contactResult = ContactResult::find($filters['contact_result_id']);
             if ($contactResult) {
                 $appliedFilters[] = "نتيجة الاتصال: {$contactResult->name}";
             }
         }
 
-        if (!empty($filters['debt_from']) || !empty($filters['debt_to'])) {
+        if (! empty($filters['debt_from']) || ! empty($filters['debt_to'])) {
             $debtFrom = $filters['debt_from'] ?? '0';
             $debtTo = $filters['debt_to'] ?? '∞';
             $appliedFilters[] = "المديونية: من {$debtFrom} إلى {$debtTo}";

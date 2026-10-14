@@ -39,7 +39,7 @@ class SubscriptionCheckoutRequest extends FormRequest
             'coupon_code' => ['nullable', 'string', 'exists:coupons,code'],
 
             // حقول التحويل البنكي
-            'bank_id' => $isBankTransfer ? ['required', 'exists:banks,id'] : ['nullable'],
+            'bank_id' => $isBankTransfer ? ['required', 'exists:banks,id,is_active,1'] : ['nullable'],
             'transfer_receipt' => $isBankTransfer ? ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'] : ['nullable'],
 
         ];

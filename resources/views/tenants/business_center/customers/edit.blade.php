@@ -348,7 +348,7 @@
                                         <span class="align-middle d-sm-inline-block d-none">السابق</span>
                                     </button>
 
-                                    @if (auth()->user()->can('تحديث مباشر للبيانات'))
+                                    @if (auth()->user()->can('customers.update_directly'))
                                         <button type="submit" class="btn btn-primary btn-next btn-submit">
                                             <span class="align-middle d-sm-inline-block d-none me-sm-2">تحديث</span>
                                         </button>

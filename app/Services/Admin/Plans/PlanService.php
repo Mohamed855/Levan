@@ -231,6 +231,17 @@ class PlanService
         Cache::forget(self::MOST_REQUESTED_CACHE_KEY);
     }
 
+    public function reorder(array $order): void
+    {
+        DB::transaction(function () use ($order): void {
+            foreach ($order as $item) {
+                Plan::query()->whereKey($item['id'])->update(['sort_order' => $item['sort_order']]);
+            }
+        });
+
+        $this->clearMostRequestedCache();
+    }
+
     /**
      * Get plan full details with subscriptions snapshot information and unique company stats.
      */

@@ -33,4 +33,14 @@ class CompanyPolicy
     {
         return $user->can('companies.delete') && tenancy()->initialized;
     }
+
+    public function restore(User $user, Company $company): bool
+    {
+        return $user->can('companies_archive.restore') && tenancy()->initialized;
+    }
+
+    public function forceDelete(User $user, Company $company): bool
+    {
+        return $user->can('companies_archive.force_delete') && tenancy()->initialized;
+    }
 }

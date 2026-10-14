@@ -4,15 +4,13 @@ namespace App\Services\Tenants\UserManagement\User;
 
 use App\Models\Tenants\FinancialCollection\CollectionProcess\CollectionProcessSession;
 use App\Models\Tenants\UserMangment\User\User;
-use Spatie\Permission\Models\Role;
 use Carbon\Carbon;
-use Carbon\CarbonPeriod;
-use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
+use Spatie\Permission\Models\Role;
 
 class UserService
 {
@@ -67,7 +65,7 @@ class UserService
                 $data['image'] = $this->handleImageUpload($data['image']);
             }
 
-            if (isset($data['password']) && !empty($data['password'])) {
+            if (isset($data['password']) && ! empty($data['password'])) {
                 $data['password'] = Hash::make($data['password']);
             } else {
                 unset($data['password']);
@@ -103,6 +101,20 @@ class UserService
         });
     }
 
+    public function updateStatus(User $user, string $status): User
+    {
+        return DB::transaction(function () use ($user, $status): User {
+            $user->update(['status' => $status]);
+
+            return $user->refresh();
+        });
+    }
+
+    public function updatePassword(User $user, string $password): void
+    {
+        DB::transaction(fn () => $user->update(['password' => Hash::make($password)]));
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Image Upload Handling
@@ -112,7 +124,7 @@ class UserService
     private function handleImageUpload(UploadedFile $image): string
     {
         // Generate unique filename
-        $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+        $filename = time().'_'.uniqid().'.'.$image->getClientOriginalExtension();
 
         // Store image
         return $image->storeAs('users', $filename, 'tenant_public');
@@ -145,8 +157,6 @@ class UserService
         ];
     }
 
-
-
     /*
     |--------------------------------------------------------------------------
     | Generate Next Employee Number
@@ -160,12 +170,13 @@ class UserService
 
         $lastUser = User::latest('id')->first();
 
-        if ($lastUser && !empty($lastUser->employee_number) && str_starts_with($lastUser->employee_number, $prefix)) {
+        if ($lastUser && ! empty($lastUser->employee_number) && str_starts_with($lastUser->employee_number, $prefix)) {
             $lastNumber = (int) substr($lastUser->employee_number, strlen($prefix));
             $nextNumber = $lastNumber + 1;
         }
         $paddedNumber = str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
-        return $prefix . $paddedNumber;
+
+        return $prefix.$paddedNumber;
     }
 
     /*
@@ -176,7 +187,7 @@ class UserService
     */
     public function getUserSessionsData(int $userId): array
     {
-        if (!Schema::hasTable('collection_process_sessions')) {
+        if (! Schema::hasTable('collection_process_sessions')) {
             return [
                 'days' => [],
                 'statistics' => [
@@ -276,7 +287,7 @@ class UserService
         if ($session->workPeriods->isEmpty()) {
             return [
                 'periods' => [],
-                'work_range' => ['start' => '08:00', 'end' => '16:00']
+                'work_range' => ['start' => '08:00', 'end' => '16:00'],
             ];
         }
 
@@ -285,7 +296,7 @@ class UserService
         $lastExit = $session->workPeriods->whereNotNull('exit_time')->max('exit_time');
 
         // إذا كان لا يزال نشطاً، استخدم الوقت الحالي
-        if (!$lastExit || $session->is_active) {
+        if (! $lastExit || $session->is_active) {
             $lastExit = now();
         }
 
@@ -322,7 +333,7 @@ class UserService
                     'start_time' => $entryTime->format('H:i'),
                     'end_time' => $period->exit_time ? $exitTime->format('H:i') : 'الآن',
                     'duration' => $durationFormatted,
-                    'is_active' => !$period->exit_time,
+                    'is_active' => ! $period->exit_time,
                 ];
             }
         }
@@ -332,7 +343,7 @@ class UserService
             'work_range' => [
                 'start' => $workStart->format('H:i'),
                 'end' => $workEnd->format('H:i'),
-            ]
+            ],
         ];
     }
 
@@ -346,6 +357,7 @@ class UserService
     {
         $hours = floor($minutes / 60);
         $mins = $minutes % 60;
+
         return sprintf('%02d:%02d', $hours, $mins);
     }
 
@@ -368,7 +380,6 @@ class UserService
             return $user->fresh();
         });
     }
-
 
     public function updateBackgroundImage(User $user, $image): User
     {

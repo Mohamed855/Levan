@@ -17,7 +17,7 @@ class EnglishAuthorizationKeysTest extends TestCase
             $contents = preg_replace('/\{\{--.*?--\}\}/s', '', File::get($file->getPathname()));
 
             $this->assertDoesNotMatchRegularExpression(
-                "/^\\s*@can\\('[^']*\\p{Arabic}[^']*'\\)/mu",
+                "/(?:^\\s*@can\\(\\s*['\"]|->can\\(\\s*['\"])[^'\"]*\\p{Arabic}/mu",
                 $contents,
                 "Blade authorization key must be English: {$file->getPathname()}",
             );

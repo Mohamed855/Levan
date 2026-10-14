@@ -155,7 +155,7 @@
                     <!-- معلومات الحساب -->
                     <div class="row g-2 mb-3">
                         @php
-                            $hasCustomersPermission = auth()->user()->can('العملاء');
+                            $hasCustomersPermission = auth()->user()->can('customers.view');
                             $colClass = $hasCustomersPermission ? 'col-md-3' : 'col-md-6';
                         @endphp
 

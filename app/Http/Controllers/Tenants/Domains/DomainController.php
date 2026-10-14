@@ -4,21 +4,20 @@ namespace App\Http\Controllers\Tenants\Domains;
 
 use App\DataTables\Tenants\Domain\DomainDataTable as DomainDomainDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Domains\CheckTransferDomainRequest;
+use App\Http\Requests\Tenants\Domains\ConnectDomainRequest;
 use App\Http\Requests\Tenants\Domains\DomainDnsLookupRequest;
 use App\Http\Requests\Tenants\Domains\DomainLookupRequest;
 use App\Http\Requests\Tenants\Domains\ProcessDomainTransferRequest;
-use App\Models\Admin\Cpanel\CpanelAccount;
-use App\Models\Admin\Tenants\Domain;
-use App\Models\Admin\Tenants\Tenant;
 use App\Services\shared\Cpanel\CpanelService;
 use App\Services\shared\Domain\DomainService;
 use App\Services\shared\NameCheap\CheckAccountInfoService;
 use App\Services\shared\NameCheap\NameCheapService;
+use App\Services\Tenants\Shared\CentralDomainGateway;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 // TODO islam
@@ -54,6 +53,7 @@ class DomainController extends Controller
         private CheckAccountInfoService $accountInfoService,
         DomainService $domain_service,
         CpanelService $cpanelService,
+        private readonly CentralDomainGateway $domainGateway,
     ) {
         // لتحقق هل الباقة تحتوي على ميزة الدومينات ام لا
         $this->middleware('check.domain.management');
@@ -65,13 +65,13 @@ class DomainController extends Controller
         $this->plan = 'levan_default';
         $this->tenantId = $tenantId ?? tenant('id');
 
-        $this->apiUser = env('NAMECHEAP_API_USER');
-        $this->apiKey = env('NAMECHEAP_API_KEY');
-        $this->clientIp = env('NAMECHEAP_CLIENT_IP');
-        $this->baseUrl = 'https://api.sandbox.namecheap.com/xml.response';
-        $this->whmUrl = env('WHM_HOST');
-        $this->whmToken = env('WHM_TOKEN');
-        $this->serverIp = env('SERVER_IP', '135.181.215.105');
+        $this->apiUser = config('services.namecheap.user');
+        $this->apiKey = config('services.namecheap.api_key');
+        $this->clientIp = config('services.namecheap.client_ip');
+        $this->baseUrl = config('services.namecheap.base_url');
+        $this->whmUrl = config('services.namecheap.whm_host');
+        $this->whmToken = config('services.namecheap.whm_token');
+        $this->serverIp = config('services.domains.server_ip');
     }
 
     public function domainSetting(DomainDomainDataTable $dataTable)
@@ -130,53 +130,6 @@ class DomainController extends Controller
         return view('tenants.domain_setting.explain-create-subdomain');
     }
 
-    protected function getCpanelUserForTenant()
-    {
-        try {
-            $tenant = Tenant::find(tenant('id'));
-
-            return $tenant->update([
-                'cpanel_username' => 'aewg',
-            ]);
-
-            // التحقق من وجود username محفوظ
-            if ($tenant) {
-                // التحقق من أن الحساب موجود فعلياً على WHM
-                $response = Http::withHeaders([
-                    'Authorization' => 'whm levan:'.$this->whmToken,
-                ])->timeout(30)->get($this->whmUrl.'/accountsummary', [
-                    'api.version' => 1,
-                    'user' => 'tn386a65',
-                ]);
-
-                $result = $response->json();
-
-                if (isset($result['data']['acct'])) {
-                    Log::info('✅ Found existing cPanel account', [
-                        'cpanel_user' => $tenant->cpanel_username,
-                        'tenant_id' => $this->tenantId,
-                    ]);
-
-                    return true;
-                } else {
-                    Log::warning("⚠️ cPanel username found in DB but account doesn't exist on WHM", [
-                        'cpanel_user' => $tenant->cpanel_username,
-                        'tenant_id' => $this->tenantId,
-                    ]);
-
-                    return 'no';
-                }
-            }
-        } catch (Exception $e) {
-            Log::warning('⚠️ Error checking cPanel user', [
-                'tenant_id' => $this->tenantId,
-                'error' => $e->getMessage(),
-            ]);
-
-            return null;
-        }
-    }
-
     protected function createCpanelAccount($domain)
     {
 
@@ -212,23 +165,16 @@ class DomainController extends Controller
         return $result = $response->json();
     }
 
-    public function checkDomainExists(Request $request)
+    public function checkDomainExists(CheckTransferDomainRequest $request)
     {
-        $request->validate([
-            'domain' => 'required|string|regex:/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
-        ], [
-            'domain.required' => 'الرجاء إدخال اسم الدومين',
-            'domain.regex' => 'صيغة الدومين غير صحيحة',
-        ]);
-
         try {
-            $domain = $request->domain;
+            $domain = $request->validated('domain');
 
             Log::info('Checking if domain exists: '.$domain);
 
-            $apiUser = env('NAMECHEAP_API_USER');
-            $apiKey = env('NAMECHEAP_API_KEY');
-            $clientIp = env('NAMECHEAP_CLIENT_IP');
+            $apiUser = config('services.namecheap.user');
+            $apiKey = config('services.namecheap.api_key');
+            $clientIp = config('services.namecheap.client_ip');
 
             if (! $apiUser || ! $apiKey || ! $clientIp) {
                 return redirect()->back()
@@ -236,7 +182,7 @@ class DomainController extends Controller
                     ->withInput();
             }
 
-            $url = env('NAMECHEAP_URL');
+            $url = config('services.namecheap.base_url');
 
             $params = [
                 'ApiUser' => $apiUser,
@@ -310,19 +256,17 @@ class DomainController extends Controller
             Log::info('Processing transfer for: '.$domain);
 
             // تحقق إذا كان الدومين قيد النقل حالياً
-            $existingTransfer = tenancy()->central(function () use ($domain) {
-                return Domain::where('domain', $domain)->where('type', 'transfered')->first();
-            });
+            $existingTransfer = $this->domainGateway->findTransferred($domain);
             if ($existingTransfer) {
                 return redirect()->back()
                     ->with('info', 'تم بالفعل تقديم طلب نقل لهذا الدومين وهو قيد المعالجة. الرجاء الانتظار حتى الانتهاء من النقل.')
                     ->withInput();
             }
 
-            $apiUser = config('namecheap.api_user');
-            $apiKey = config('namecheap.api_key');
-            $clientIp = env('NAMECHEAP_CLIENT_IP');
-            $url = config('namecheap.api_url');
+            $apiUser = config('services.namecheap.user');
+            $apiKey = config('services.namecheap.api_key');
+            $clientIp = config('services.namecheap.client_ip');
+            $url = config('services.namecheap.base_url');
 
             // التحقق من حالة القفل
             $lockParams = [
@@ -404,21 +348,15 @@ class DomainController extends Controller
             $orderId = (string) $transferResult['OrderID'];
             $tenantId = tenant('id');
 
-            $selectedDomain = $request->domain;
+            $selectedDomain = $domain;
 
             Log::info('🔄 Switching active domain', [
                 'tenant_id' => $tenantId,
                 'selected_domain' => $selectedDomain,
             ]);
-            Domain::create([
-                'domain' => $request->domain,
-                'tenant_id' => $tenantId,
-                'is_active' => '1',
-                'type' => 'transfered',
-                'transfer_code' => $orderId,
-            ]);
+            $this->domainGateway->createTransferred($request->validated('domain'), $tenantId, $orderId);
 
-            $mainDomain = Domain::where('tenant_id', $tenantId)->first();
+            $mainDomain = $this->domainGateway->firstForTenant($tenantId);
 
             if (! $mainDomain) {
                 return redirect()->back()->with('error', 'لم يتم العثور على دومينات مسجلة');
@@ -435,9 +373,9 @@ class DomainController extends Controller
         }
     }
 
-    public function switchActiveDomain(Request $request)
+    public function switchActiveDomain(ConnectDomainRequest $request)
     {
-        return $this->domain_service->switchActiveDomain($request);
+        return $this->domain_service->switchActiveDomain($request->validated('domain'));
     }
 
     // TODO islam
@@ -495,25 +433,9 @@ class DomainController extends Controller
         return (bool) preg_match('/^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/i', $domain);
     }
 
-    public function transferDomainProcess(Request $request)
+    public function transferDomainProcess(ConnectDomainRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'domain' => 'required|string', // تغيير من subdomain إلى domain
-        ]);
-
-        if ($validator->fails()) {
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $validator->errors()->first(),
-                    'type' => 'error',
-                ], 422);
-            }
-
-            return back()->withErrors($validator)->withInput();
-        }
-
-        $domain = $this->cleanDomain($request->domain);
+        $domain = $request->validated('domain');
 
         // تحديد نوع الدومين (دومين أو صب دومين)
         $domainType = $this->getDomainType($domain);
@@ -538,17 +460,6 @@ class DomainController extends Controller
                 $message = '⚠️ حدثت استجابة غير متوقعة من السيرفر. يرجى التواصل مع الدعم الفني.';
                 $type = 'warning';
                 $success = false;
-            }
-
-            // حفظ البيانات في قاعدة البيانات إذا كان الربط ناجح
-            if ($success && $result === true) {
-                // حفظ Domain في الداتابيز
-                // Domain::create([
-                //     'tenant_id' => tenant('id'),
-                //     'domain' => $domain,
-                //     'type' => $domainType,
-                //     'status' => 'active',
-                // ]);
             }
 
             // Return JSON for AJAX requests
@@ -604,7 +515,7 @@ class DomainController extends Controller
     public function checkDomain($domain)
     {
         $domain = $this->cleanDomain($domain);
-        $requiredIp = env('SERVER_IP', '135.181.215.105');
+        $requiredIp = config('services.domains.server_ip');
 
         try {
             // محاولة الحصول على A Record
@@ -650,11 +561,10 @@ class DomainController extends Controller
         }
     }
 
-    public function checkTransferStatus($domain)
+    public function checkTransferStatus(DomainLookupRequest $request)
     {
-        $transfer = tenancy()->central(function () use ($domain) {
-            return Domain::where('domain', $domain)->first();
-        });
+        $domain = $request->validated('domain');
+        $transfer = $this->domainGateway->findForCurrentTenant($domain);
 
         if (! $transfer) {
             return response()->json([
@@ -664,10 +574,10 @@ class DomainController extends Controller
 
         $transferId = $transfer->transfer_code;
 
-        $apiUser = env('NAMECHEAP_API_USER');
-        $apiKey = env('NAMECHEAP_API_KEY');
-        $clientIp = '154.180.114.3';
-        $baseUrl = 'https://api.sandbox.namecheap.com/xml.response';
+        $apiUser = config('services.namecheap.user');
+        $apiKey = config('services.namecheap.api_key');
+        $clientIp = config('services.namecheap.client_ip');
+        $baseUrl = config('services.namecheap.base_url');
 
         $params = [
             'ApiUser' => $apiUser,
@@ -698,11 +608,6 @@ class DomainController extends Controller
             }
 
             $status = (string) ($xml->CommandResponse->DomainTransferStatusResult['Status'] ?? 'غير معروف');
-
-            // تحديث الحالة في الجدول المركزي
-            // tenancy()->central(function () use ($transfer, $status) {
-            //     $transfer->update(['status' => $status]);
-            // });
 
             return response()->json([
                 'domain' => $domain,
@@ -754,11 +659,8 @@ class DomainController extends Controller
         $domain = $request->validated('domain');
         $method = $request->validated('method');
 
-        $serverIp = env('SERVER_IP', '135.181.215.105');
-        $serverNS = [
-            env('NS1', 'ns1.levan.com'),
-            env('NS2', 'ns2.levan.com'),
-        ];
+        $serverIp = config('services.domains.server_ip');
+        $serverNS = config('services.domains.name_servers');
 
         try {
 
@@ -793,7 +695,7 @@ class DomainController extends Controller
                 if (! empty($cname)) {
 
                     $target = $cname[0] ?? '';
-                    $serverDomain = env('SERVER_DOMAIN', 'levan.com');
+                    $serverDomain = config('services.domains.server_domain');
 
                     if (! str_contains($target, $serverDomain)) {
                         return response()->json([
@@ -942,10 +844,10 @@ class DomainController extends Controller
         return end($parts);
     }
 
-    public function setupdnsForDomain(Request $request)
+    public function setupdnsForDomain(ConnectDomainRequest $request)
     {
 
-        $domainName = $request->domain;
+        $domainName = $request->validated('domain');
         if (blank($this->whmUrl) || blank($this->whmToken)) {
             Log::error('WHM configuration is missing while linking a domain.', [
                 'tenant_id' => tenant('id'),
@@ -956,68 +858,66 @@ class DomainController extends Controller
         }
 
         // $method = $request->method;
-        $exists = Domain::where('domain', $domainName)->first();
+        $exists = $this->domainGateway->find($domainName);
         if ($exists) {
             return redirect()->back()->with('info', 'الدومين موجود بالفعل ');
         }
         $tenantId = tenant('id');
 
         // Domain is already verified by verifyDNS() before reaching here
-        return $saved = tenancy()->central(function () use ($domainName, $tenantId, $request) {
-            $cpanel = CpanelAccount::where('tenant_id', $tenantId)->first();
+        $cpanel = $this->domainGateway->cpanelForTenant($tenantId);
 
-            if ($cpanel) {
-                $this->namecheapService->createDomainRowWithActivation($request->domain, 'linked', $tenantId);
-                $this->namecheapService->modifyAccount($domainName, $tenantId);
+        if ($cpanel) {
+            $this->namecheapService->createDomainRowWithActivation($domainName, 'linked', $tenantId);
+            $this->namecheapService->modifyAccount($domainName, $tenantId);
 
-                return $this->cpanelService->createLoginAndToken($domainName, $cpanel->cpanel_username, $tenantId);
-            }
+            return $this->cpanelService->createLoginAndToken($domainName, $cpanel->cpanel_username, $tenantId);
+        }
 
-            $prefix = 'tn';
-            $unique = substr(md5($domainName.microtime()), 0, 6);
-            $whmUser = strtolower($prefix.$unique);
-            $whmPass = Str::random(16).'@1Aa';
+        $prefix = 'tn';
+        $unique = substr(md5($domainName.microtime()), 0, 6);
+        $whmUser = strtolower($prefix.$unique);
+        $whmPass = Str::random(16).'@1Aa';
 
-            $whmResponse = Http::withHeaders([
-                'Authorization' => 'whm levan:'.$this->whmToken,
-            ])->timeout(60)->get(rtrim($this->whmUrl, '/').'/json-api/createacct', [
-                'username' => $whmUser,
-                'domain' => $domainName,
-                'password' => $whmPass,
-                'plan' => 'default_levan',
-                'contactemail' => 'islamay124@gmail.com',
-                'featurelist' => 'default',
-                'quota' => 0,
-                'hasshell' => 0,
-                'ip' => 'n',
-            ]);
+        $whmResponse = Http::withHeaders([
+            'Authorization' => 'whm levan:'.$this->whmToken,
+        ])->timeout(60)->get(rtrim($this->whmUrl, '/').'/json-api/createacct', [
+            'username' => $whmUser,
+            'domain' => $domainName,
+            'password' => $whmPass,
+            'plan' => 'default_levan',
+            'contactemail' => 'islamay124@gmail.com',
+            'featurelist' => 'default',
+            'quota' => 0,
+            'hasshell' => 0,
+            'ip' => 'n',
+        ]);
 
-            $whmJson = $whmResponse->json();
+        $whmJson = $whmResponse->json();
 
-            if ($whmJson['result'][0]['status'] == 0) {
-                return redirect()->back()->with('info', $whmJson['result'][0]['statusmsg']);
-            }
+        if ($whmJson['result'][0]['status'] == 0) {
+            return redirect()->back()->with('info', $whmJson['result'][0]['statusmsg']);
+        }
 
-            $cpanelAcc = CpanelAccount::create([
-                'cpanel_username' => $whmUser,
-                'cpanel_password' => $whmPass,
-                'tenant_id' => $tenantId,
-                'domain' => $domainName,
-                // 'created_at' => now(),
-                // 'updated_at' => now(),
-            ]);
-            if ($cpanelAcc) {
-                // $this->namecheapService->modifyAccount($request);
-                $this->namecheapService->createDomainRowWithActivation($request->domain, 'linked', $tenantId);
+        $cpanelAcc = $this->domainGateway->createCpanel([
+            'cpanel_username' => $whmUser,
+            'cpanel_password' => $whmPass,
+            'tenant_id' => $tenantId,
+            'domain' => $domainName,
+            // 'created_at' => now(),
+            // 'updated_at' => now(),
+        ]);
+        if ($cpanelAcc) {
+            // $this->namecheapService->modifyAccount($request);
+            $this->namecheapService->createDomainRowWithActivation($domainName, 'linked', $tenantId);
 
-                return $this->cpanelService->createLoginAndToken($domainName, $cpanelAcc->cpanel_username, $tenantId);
-            }
-        });
+            return $this->cpanelService->createLoginAndToken($domainName, $cpanelAcc->cpanel_username, $tenantId);
+        }
     }
 
-    public function modifyaccount(Request $request)
+    public function modifyaccount(ConnectDomainRequest $request)
     {
-        return $this->namecheapService->modifyAccount($request->domain, $request->tenant_id);
+        return $this->namecheapService->modifyAccount($request->validated('domain'), (string) tenant('id'));
     }
 
     public function verifyDNSTest(DomainDnsLookupRequest $request)

@@ -112,7 +112,7 @@
             return $account->id === $customer->id ? 1 : 0;
         });
 
-        $hasCustomersPermission = auth()->user()->can('العملاء');
+        $hasCustomersPermission = auth()->user()->can('customers.view');
         $colClass = $hasCustomersPermission ? 'col-md-4' : 'col-md-6';
     @endphp
 

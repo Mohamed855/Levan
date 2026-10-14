@@ -51,12 +51,12 @@
         };
 
         window.userPermissions = {
-            canAddCustomer: @json(auth()->user()->can('إضافة عميل')),
-            canEditCustomer: @json(auth()->user()->can('تعديل عميل')),
-            canDeleteCustomer: @json(auth()->user()->can('حذف عميل')),
-            canDeleteAllCustomers: @json(auth()->user()->can('حذف جميع العملاء')),
-            canSendSMS: @json(auth()->user()->can('إرسال رسالة')),
-            canExportExcel: @json(auth()->user()->can('تصدير أكسل'))
+            canAddCustomer: @json(auth()->user()->can('customers.create')),
+            canEditCustomer: @json(auth()->user()->can('customers.edit')),
+            canDeleteCustomer: @json(auth()->user()->can('customers.delete')),
+            canDeleteAllCustomers: @json(auth()->user()->can('customers.delete_all')),
+            canSendSMS: @json(auth()->user()->can('customers.send_message')),
+            canExportExcel: @json(auth()->user()->can('customers.export'))
         };
 
         function handleImportCustomers() {

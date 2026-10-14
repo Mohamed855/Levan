@@ -10,7 +10,7 @@ class BulkDeleteAdminUsersRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user('admin')?->can('users.delete') ?? false;
     }
 
     protected function prepareForValidation(): void

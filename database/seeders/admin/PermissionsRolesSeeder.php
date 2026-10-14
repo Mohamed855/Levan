@@ -5,6 +5,7 @@ namespace Database\Seeders\admin;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class PermissionsRolesSeeder extends Seeder
 {
@@ -40,6 +41,8 @@ class PermissionsRolesSeeder extends Seeder
                 'coupons.create',
                 'coupons.edit',
                 'coupons.delete',
+                'coupons.restore',
+                'coupons.force_delete',
             ],
 
             'companies_management' => [
@@ -64,6 +67,8 @@ class PermissionsRolesSeeder extends Seeder
 
             'financial_transactions_management' => [
                 'financial_transactions.view',
+                'financial_transactions.restore',
+                'financial_transactions.force_delete',
             ],
 
             'tickets_management' => [
@@ -109,17 +114,17 @@ class PermissionsRolesSeeder extends Seeder
             ],
         ];
 
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         foreach ($permissions as $section => $perms) {
             foreach ($perms as $perm) {
                 Permission::updateOrCreate(
                     [
-                        'name'       => $perm,
+                        'name' => $perm,
                         'guard_name' => 'admin',
                     ],
                     [
-                        'section'    => $section,
+                        'section' => $section,
                     ]
                 );
             }
@@ -127,8 +132,8 @@ class PermissionsRolesSeeder extends Seeder
 
         $roleSuperAdmin = Role::firstOrCreate(
             [
-                'name'             => 'SuperAdmin',
-                'guard_name'        => 'admin'
+                'name' => 'SuperAdmin',
+                'guard_name' => 'admin',
             ]
         );
 

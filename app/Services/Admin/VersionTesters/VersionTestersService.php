@@ -41,6 +41,16 @@ class VersionTestersService
         });
     }
 
+    public function toggleStatus(VersionTester $tester): bool
+    {
+        return DB::transaction(function () use ($tester): bool {
+            $status = ! $tester->is_active;
+            $tester->update(['is_active' => $status]);
+
+            return $status;
+        });
+    }
+
     // Get VersionTester statistics
     public function getVersionTesterStatistics(): array
     {

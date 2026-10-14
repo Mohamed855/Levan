@@ -12,7 +12,7 @@ use App\Enums\Tenants\Properties\PropertyUsageClassification;
 use App\Models\Shared\Attachment;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
-use App\Models\Tenants\UserMangment\User;
+use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

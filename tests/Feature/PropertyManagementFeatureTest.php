@@ -143,6 +143,12 @@ class PropertyManagementFeatureTest extends TestCase
         $this->assertCount(1, $property->owners);
         $this->assertCount(1, $property->units);
         $this->assertGreaterThanOrEqual(4, $property->attachments()->count());
+        $this->assertSame('available', $property->units->firstOrFail()->getRawOriginal('status'));
+
+        $this->actingAs($this->owner, 'tenant')
+            ->get($this->tenantUrl('properties/'.$property->id))
+            ->assertOk()
+            ->assertSee('متاح');
 
         $property->forceDelete();
     }

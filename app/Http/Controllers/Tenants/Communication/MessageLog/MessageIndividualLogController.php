@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tenants\Communication\MessageLog;
 
 use App\DataTables\Tenants\Communication\MessageLog\MessageIndividualLogsDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Communication\ExportMessageIndividualLogsRequest;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Models\Tenants\Communication\MessageLog\MessageIndividualLog;
@@ -172,20 +173,10 @@ class MessageIndividualLogController extends Controller
     |--------------------------------------------------------------------------
     | Export filtered logs to Excel format.
     */
-    public function export(Request $request): BinaryFileResponse|RedirectResponse
+    public function export(ExportMessageIndividualLogsRequest $request): BinaryFileResponse|RedirectResponse
     {
         try {
-            $filters = $request->only([
-                'status',
-                'message_type',
-                'company_id',
-                'portfolio_id',
-                'template_id',
-                'customer_id',
-                'date_from',
-                'date_to',
-                'search',
-            ]);
+            $filters = $request->validated();
 
             $hasFilters = ! empty($filters['status']) ||
                 ! empty($filters['message_type']) ||

@@ -41,6 +41,8 @@ class CustomerFollowController extends Controller
     */
     public function getFollowsList(Customer $customer): JsonResponse
     {
+        $this->authorize('view', $customer);
+
         try {
             $customerFollows = $this->customerFollowService->getCustomerFollowsQuery($customer->id)->get();
 
@@ -69,6 +71,7 @@ class CustomerFollowController extends Controller
 
     public function show(Customer $customer, CustomerFollow $customerFollow): JsonResponse
     {
+        $this->authorize('view', $customer);
         abort_unless($customerFollow->customer_id === $customer->getKey(), 404);
 
         return response()->json([
@@ -111,8 +114,10 @@ class CustomerFollowController extends Controller
     | Get Contact Result Fields
     |--------------------------------------------------------------------------
     */
-    public function getContactResultFields(Request $request): JsonResponse
+    public function getContactResultFields(Request $request, Customer $customer): JsonResponse
     {
+        $this->authorize('view', $customer);
+
         try {
             $contactResultId = $request->input('contact_result_id');
 
@@ -144,6 +149,8 @@ class CustomerFollowController extends Controller
     */
     public function create(Customer $customer): JsonResponse
     {
+        $this->authorize('update', $customer);
+
         try {
             $hasPendingCollection = CollectionModel::withoutGlobalScopes()
                 ->whereNull('deleted_at')
@@ -208,6 +215,8 @@ class CustomerFollowController extends Controller
     */
     public function store(StoreCustomerFollowRequest $request, Customer $customer): JsonResponse
     {
+        $this->authorize('update', $customer);
+
         try {
             $data = $request->validated();
             $data['customer_id'] = $customer->id;
@@ -252,6 +261,9 @@ class CustomerFollowController extends Controller
    */
     public function edit(Customer $customer, CustomerFollow $customerFollow): JsonResponse
     {
+        $this->authorize('update', $customer);
+        abort_unless($customerFollow->customer_id === $customer->getKey(), 404);
+
         try {
             $formData = $this->customerFollowService->getFormData();
             $customerFollow->load([
@@ -293,6 +305,9 @@ class CustomerFollowController extends Controller
    */
     public function update(UpdateCustomerFollowRequest $request, Customer $customer, CustomerFollow $customerFollow): JsonResponse
     {
+        $this->authorize('update', $customer);
+        abort_unless($customerFollow->customer_id === $customer->getKey(), 404);
+
         try {
             $data = $request->validated();
 
@@ -333,6 +348,9 @@ class CustomerFollowController extends Controller
    */
     public function destroy(Customer $customer, CustomerFollow $customerFollow): JsonResponse
     {
+        $this->authorize('delete', $customer);
+        abort_unless($customerFollow->customer_id === $customer->getKey(), 404);
+
         try {
             $this->customerFollowService->deleteCustomerFollow($customerFollow);
 
@@ -355,6 +373,8 @@ class CustomerFollowController extends Controller
    */
     public function getData(Request $request, Customer $customer)
     {
+        $this->authorize('view', $customer);
+
         if ($request->ajax()) {
             $query = $this->customerFollowService->getCustomerFollowsQuery($customer->id);
 
@@ -406,6 +426,8 @@ class CustomerFollowController extends Controller
    */
     public function getNextCustomer(Customer $customer)
     {
+        $this->authorize('view', $customer);
+
         try {
             $currentUserId = auth()->id();
             $nextCustomer = Customer::where('relationship_manager_id', $currentUserId)
@@ -440,6 +462,8 @@ class CustomerFollowController extends Controller
     */
     public function getCustomerDebt(Request $request, Customer $customer): JsonResponse
     {
+        $this->authorize('view', $customer);
+
         try {
             $remainingDebt = $customer->remaining_debt ?? 0;
 
@@ -462,6 +486,8 @@ class CustomerFollowController extends Controller
     */
     public function getRelatedAccounts(Customer $customer): JsonResponse
     {
+        $this->authorize('view', $customer);
+
         try {
             if (! $customer->identity_number) {
                 return response()->json([

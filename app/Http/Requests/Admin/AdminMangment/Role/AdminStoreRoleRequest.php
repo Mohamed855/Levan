@@ -14,7 +14,7 @@ class AdminStoreRoleRequest extends WizardFormRequest
     */
     public function authorize(): bool
     {
-        return true;
+        return $this->user('admin')?->can('roles.create') ?? false;
     }
 
     /*

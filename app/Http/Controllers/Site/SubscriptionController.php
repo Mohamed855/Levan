@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Site;
 
-use App\Enums\Admin\Billing\BillStatus;
 use App\Enums\Admin\Billing\BillType;
 use App\Enums\Admin\Billing\PaymentMethod;
 use App\Exceptions\Payment\PaymentInitiationException;
@@ -137,13 +136,11 @@ class SubscriptionController extends Controller
 
     private function handleBankTransfer(Request $request, Bill $bill): void
     {
-        $path = $request->file('transfer_receipt')->store('bank_transfers', 'public');
-
-        $bill->update([
-            'status' => BillStatus::PENDING_VERIFICATION,
-            'bank_id' => $request->bank_id,
-            'invoice_url' => $path,
-        ]);
+        $this->billingService->submitBankTransfer(
+            $bill,
+            $request->integer('bank_id'),
+            $request->file('transfer_receipt'),
+        );
     }
 
     private function showMoyasarCheckout(Bill $bill, Plan $plan)

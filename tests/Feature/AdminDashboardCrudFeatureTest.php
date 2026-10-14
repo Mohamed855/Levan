@@ -2,33 +2,33 @@
 
 namespace Tests\Feature;
 
+use App\Enums\Admin\Billing\BillStatus;
+use App\Enums\Admin\Billing\BillType;
+use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
+use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\Bank\Bank;
 use App\Models\Admin\Bills\Bill;
+use App\Models\Admin\City;
 use App\Models\Admin\ContentManagement\Client;
 use App\Models\Admin\ContentManagement\Portfolio;
 use App\Models\Admin\ControlDomain\ControlDomain;
 use App\Models\Admin\Coupons\Coupon;
-use App\Models\Admin\City;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Settings\Settings;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Subscription\SubscriptionPeriod;
 use App\Models\Admin\Tenants\Tenant;
-use App\Models\Admin\Version\Version;
-use App\Models\Admin\Version\VersionTester;
 use App\Models\Admin\Tickets\Ticket;
 use App\Models\Admin\Tickets\TicketReply;
 use App\Models\Admin\Tickets\TicketSection;
-use App\Enums\Admin\Billing\BillStatus;
-use App\Enums\Admin\Billing\BillType;
-use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
-use App\Enums\Admin\Subscriptions\SubscriptionStatus;
+use App\Models\Admin\Version\Version;
+use App\Models\Admin\Version\VersionTester;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -51,7 +51,8 @@ class AdminDashboardCrudFeatureTest extends TestCase
     protected function adminUrl(string $path = ''): string
     {
         $path = ltrim($path, '/');
-        return $path ? 'http://localhost/admin/' . $path : 'http://localhost/admin';
+
+        return $path ? 'http://localhost/admin/'.$path : 'http://localhost/admin';
     }
 
     /**
@@ -106,7 +107,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
             ->assertStatus(200)
             ->assertJson(['available' => false]);
 
-        $uniqueEmail = 'admin' . rand(1000, 9999) . '@gmail.com';
+        $uniqueEmail = 'admin'.rand(1000, 9999).'@gmail.com';
         $this->postJson($this->adminUrl('users/check-email-unique'), ['email' => $uniqueEmail])
             ->assertStatus(200)
             ->assertJson(['available' => true]);
@@ -119,13 +120,13 @@ class AdminDashboardCrudFeatureTest extends TestCase
 
         // 4. Store
         $userName = 'مشرف اختباري';
-        $phone = '05' . rand(10000000, 99999999);
+        $phone = '05'.rand(10000000, 99999999);
         $storeResponse = $this->post($this->adminUrl('users'), [
-            'name'                  => $userName,
-            'email'                 => $uniqueEmail,
-            'password'              => '123456789',
+            'name' => $userName,
+            'email' => $uniqueEmail,
+            'password' => '123456789',
             'password_confirmation' => '123456789',
-            'phone'                 => $phone,
+            'phone' => $phone,
         ]);
         $storeResponse->assertStatus(302);
 
@@ -141,7 +142,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
         // 7. Update
         $updatedName = 'مشرف اختباري معدل';
         $updateResponse = $this->put($this->adminUrl("users/{$user->id}"), [
-            'name'  => $updatedName,
+            'name' => $updatedName,
             'email' => $uniqueEmail,
             'phone' => $phone,
         ]);
@@ -203,11 +204,11 @@ class AdminDashboardCrudFeatureTest extends TestCase
 
         // 4. Cannot restore or force-delete Super Admin via archive
         $tempSuperAdmin = AdminUser::create([
-            'name'     => 'مشرف عام تجريبي',
-            'email'    => 'super_temp_' . uniqid() . '@gmail.com',
+            'name' => 'مشرف عام تجريبي',
+            'email' => 'super_temp_'.uniqid().'@gmail.com',
             'password' => bcrypt('password123'),
-            'phone'    => '05' . rand(10000000, 99999999),
-            'status'         => 'active',
+            'phone' => '05'.rand(10000000, 99999999),
+            'status' => 'active',
             'is_super_admin' => 1,
         ]);
         $superAdminRole = Role::where('name', 'SuperAdmin')->where('guard_name', 'admin')->first();
@@ -244,21 +245,21 @@ class AdminDashboardCrudFeatureTest extends TestCase
         Storage::disk('public')->put($imagePath2, 'fake content 2');
 
         $user1 = AdminUser::create([
-            'name'     => 'مستخدم صورة 1',
-            'email'    => 'img1_' . uniqid() . '@gmail.com',
+            'name' => 'مستخدم صورة 1',
+            'email' => 'img1_'.uniqid().'@gmail.com',
             'password' => bcrypt('password123'),
-            'phone'    => '05' . rand(10000000, 99999999),
-            'status'   => 'active',
-            'image'    => $imagePath1,
+            'phone' => '05'.rand(10000000, 99999999),
+            'status' => 'active',
+            'image' => $imagePath1,
         ]);
 
         $user2 = AdminUser::create([
-            'name'     => 'مستخدم صورة 2',
-            'email'    => 'img2_' . uniqid() . '@gmail.com',
+            'name' => 'مستخدم صورة 2',
+            'email' => 'img2_'.uniqid().'@gmail.com',
             'password' => bcrypt('password123'),
-            'phone'    => '05' . rand(10000000, 99999999),
-            'status'   => 'active',
-            'image'    => $imagePath2,
+            'phone' => '05'.rand(10000000, 99999999),
+            'status' => 'active',
+            'image' => $imagePath2,
         ]);
 
         // Bulk delete both users
@@ -281,12 +282,12 @@ class AdminDashboardCrudFeatureTest extends TestCase
         Storage::disk('public')->put($imagePath3, 'fake content 3');
 
         $user3 = AdminUser::create([
-            'name'     => 'مستخدم صورة 3',
-            'email'    => 'img3_' . uniqid() . '@gmail.com',
+            'name' => 'مستخدم صورة 3',
+            'email' => 'img3_'.uniqid().'@gmail.com',
             'password' => bcrypt('password123'),
-            'phone'    => '05' . rand(10000000, 99999999),
-            'status'   => 'active',
-            'image'    => $imagePath3,
+            'phone' => '05'.rand(10000000, 99999999),
+            'status' => 'active',
+            'image' => $imagePath3,
         ]);
         $user3->delete();
 
@@ -302,16 +303,16 @@ class AdminDashboardCrudFeatureTest extends TestCase
      */
     public function test_admin_users_uniqueness_endpoints_and_self_ignore(): void
     {
-        $uniqueEmail = 'target_' . uniqid() . '@gmail.com';
-        $uniquePhone = '05' . rand(10000000, 99999999);
-        $uniqueName = 'مشرف فريد ' . rand(1000, 9999);
+        $uniqueEmail = 'target_'.uniqid().'@gmail.com';
+        $uniquePhone = '05'.rand(10000000, 99999999);
+        $uniqueName = 'مشرف فريد '.rand(1000, 9999);
 
         $targetUser = AdminUser::create([
-            'name'     => $uniqueName,
-            'email'    => $uniqueEmail,
+            'name' => $uniqueName,
+            'email' => $uniqueEmail,
             'password' => bcrypt('password123'),
-            'phone'    => $uniquePhone,
-            'status'   => 'active',
+            'phone' => $uniquePhone,
+            'status' => 'active',
         ]);
 
         // Email uniqueness
@@ -320,12 +321,12 @@ class AdminDashboardCrudFeatureTest extends TestCase
         ])->assertStatus(200)->assertJson(['available' => false]);
 
         $this->postJson($this->adminUrl('users/check-email-unique'), [
-            'email'   => $uniqueEmail,
+            'email' => $uniqueEmail,
             'user_id' => $targetUser->id,
         ])->assertStatus(200)->assertJson(['available' => true]);
 
         $this->postJson($this->adminUrl('users/check-email-unique'), [
-            'email'   => $uniqueEmail,
+            'email' => $uniqueEmail,
             'user_id' => 999999,
         ])->assertStatus(200)->assertJson(['available' => false]);
 
@@ -335,7 +336,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
         ])->assertStatus(200)->assertJson(['available' => false]);
 
         $this->postJson($this->adminUrl('users/check-phone-unique'), [
-            'phone'   => $uniquePhone,
+            'phone' => $uniquePhone,
             'user_id' => $targetUser->id,
         ])->assertStatus(200)->assertJson(['available' => true]);
 
@@ -345,7 +346,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
         ])->assertStatus(200)->assertJson(['available' => false]);
 
         $this->postJson($this->adminUrl('users/check-name-unique'), [
-            'name'   => $uniqueName,
+            'name' => $uniqueName,
             'user_id' => $targetUser->id,
         ])->assertStatus(200)->assertJson(['available' => true]);
 
@@ -367,11 +368,11 @@ class AdminDashboardCrudFeatureTest extends TestCase
     public function test_admin_users_authorization_for_bulk_delete_archives_and_uniqueness(): void
     {
         $restrictedUser = AdminUser::create([
-            'name'     => 'مشرف مقيد',
-            'email'    => 'restricted_' . uniqid() . '@gmail.com',
+            'name' => 'مشرف مقيد',
+            'email' => 'restricted_'.uniqid().'@gmail.com',
             'password' => bcrypt('password123'),
-            'phone'    => '05' . rand(10000000, 99999999),
-            'status'   => 'active',
+            'phone' => '05'.rand(10000000, 99999999),
+            'status' => 'active',
         ]);
 
         $this->actingAs($restrictedUser, 'admin');
@@ -438,9 +439,9 @@ class AdminDashboardCrudFeatureTest extends TestCase
 
         // 3. Store
         $suffix = substr(str_shuffle('abcdefghijklmnopqrstuvwxyz'), 0, 8);
-        $roleName = 'محرر النظام ' . $suffix;
+        $roleName = 'محرر النظام '.$suffix;
         $storeResponse = $this->post($this->adminUrl('roles'), [
-            'name'       => $roleName,
+            'name' => $roleName,
             'select_all' => 1,
         ]);
         $storeResponse->assertStatus(302);
@@ -452,9 +453,9 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $this->get($this->adminUrl("roles/{$role->id}/edit"))->assertStatus(200);
 
         // 5. Update
-        $updatedRoleName = $roleName . ' معدل';
+        $updatedRoleName = $roleName.' معدل';
         $updateResponse = $this->put($this->adminUrl("roles/{$role->id}"), [
-            'name'       => $updatedRoleName,
+            'name' => $updatedRoleName,
             'select_all' => 1,
         ]);
         $updateResponse->assertStatus(302);
@@ -486,30 +487,30 @@ class AdminDashboardCrudFeatureTest extends TestCase
         // === A. General Settings ===
         $this->get($this->adminUrl('settings'))->assertStatus(200);
         $updateSettingsResponse = $this->put($this->adminUrl('settings'), [
-            'office_name'        => 'شركة ليفان للحلول العقارية والمزادات',
-            'logo_text'          => 'ليفان العقارية',
-            'office_address'     => 'الرياض - طريق الملك فهد',
-            'commercial_register'=> '1010123456',
-            'tax_number'         => '300123456700003',
-            'phone_number'       => '0112345678',
-            'email'              => 'info@levan.com',
+            'office_name' => 'شركة لوت للحلول العقارية والمزادات',
+            'logo_text' => 'لوت LOT',
+            'office_address' => 'الرياض - طريق الملك فهد',
+            'commercial_register' => '1010123456',
+            'tax_number' => '300123456700003',
+            'phone_number' => '0112345678',
+            'email' => 'info@lot.sa',
         ]);
         $updateSettingsResponse->assertStatus(302);
 
         $settings = Settings::first();
-        $this->assertEquals('شركة ليفان للحلول العقارية والمزادات', $settings->office_name);
+        $this->assertEquals('شركة لوت للحلول العقارية والمزادات', $settings->office_name);
 
         // === B. Banks Management ===
         $this->get($this->adminUrl('settings/banks'))->assertStatus(200);
         $this->get($this->adminUrl('settings/banks/create'))->assertStatus(200);
 
         $fakeIcon = UploadedFile::fake()->image('bank.png', 100, 100);
-        $bankName = 'بنك الإنماء ' . rand(100, 999);
+        $bankName = 'بنك الإنماء '.rand(100, 999);
         $storeBankResponse = $this->post($this->adminUrl('settings/banks'), [
-            'bank_name'      => $bankName,
-            'icon'           => $fakeIcon,
-            'account_name'   => 'حساب ليفان',
-            'iban'           => 'SA0380000000608010167519',
+            'bank_name' => $bankName,
+            'icon' => $fakeIcon,
+            'account_name' => 'حساب لوت',
+            'iban' => 'SA0380000000608010167519',
             'account_number' => '608010167519',
         ]);
         $storeBankResponse->assertStatus(302);
@@ -520,9 +521,9 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $this->get($this->adminUrl("settings/banks/{$bank->id}/edit"))->assertStatus(200);
 
         $updateBankResponse = $this->put($this->adminUrl("settings/banks/{$bank->id}"), [
-            'bank_name'      => $bankName . ' معدل',
-            'account_name'   => 'حساب ليفان التجاري',
-            'iban'           => 'SA0380000000608010167519',
+            'bank_name' => $bankName.' معدل',
+            'account_name' => 'حساب لوت التجاري',
+            'iban' => 'SA0380000000608010167519',
             'account_number' => '608010167519',
         ]);
         $updateBankResponse->assertStatus(302);
@@ -534,10 +535,10 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $this->get($this->adminUrl('settings/domains'))->assertStatus(200);
         $this->get($this->adminUrl('settings/domains/create'))->assertStatus(200);
 
-        $ext = '.levan' . rand(10, 99);
+        $ext = '.levan'.rand(10, 99);
         $storeDomainResponse = $this->post($this->adminUrl('settings/domains'), [
             'domain_extension' => $ext,
-            'price'            => 150.00,
+            'price' => 150.00,
         ]);
         $storeDomainResponse->assertStatus(302);
 
@@ -548,7 +549,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
 
         $this->put($this->adminUrl("settings/domains/{$controlDomain->id}"), [
             'domain_extension' => $ext,
-            'price'            => 180.00,
+            'price' => 180.00,
         ])->assertStatus(302);
 
         $this->delete($this->adminUrl("settings/domains/{$controlDomain->id}"))->assertStatus(302);
@@ -567,26 +568,26 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $this->get($this->adminUrl('plans/create'))->assertStatus(200);
 
         // 3. Store
-        $planName = 'باقة المزادات المميزة ' . rand(100, 999);
+        $planName = 'باقة المزادات المميزة '.rand(100, 999);
         $storeResponse = $this->post($this->adminUrl('plans'), [
-            'name'                      => $planName,
-            'code'                      => 'AUCTION_' . rand(10000, 99999),
-            'plan_type'                 => 'professional',
-            'color'                     => 'purple',
-            'is_active'                 => 1,
-            'price'                     => 12000,
-            'extra_user_license_price'  => 500,
-            'yearly_renewal_price'      => 10000,
-            'included_users'            => 5,
-            'limits_mode'               => 'limited',
-            'properties_limit'          => 50,
-            'storage_quota_gb'          => 10,
-            'active_auctions_limit'     => 10,
+            'name' => $planName,
+            'code' => 'AUCTION_'.rand(10000, 99999),
+            'plan_type' => 'professional',
+            'color' => 'purple',
+            'is_active' => 1,
+            'price' => 12000,
+            'extra_user_license_price' => 500,
+            'yearly_renewal_price' => 10000,
+            'included_users' => 5,
+            'limits_mode' => 'limited',
+            'properties_limit' => 50,
+            'storage_quota_gb' => 10,
+            'active_auctions_limit' => 10,
             'subscription_billing_cycle' => 'monthly',
-            'description'               => 'باقة مخصصة لإدارة المزادات العقارية',
-            'discount_percentage'       => 10,
+            'description' => 'باقة مخصصة لإدارة المزادات العقارية',
+            'discount_percentage' => 10,
             'domain_management_enabled' => 1,
-            'features'                  => [
+            'features' => [
                 'إدارة المزادات والمحافظ',
                 'بوابة الدفع الإلكتروني',
                 'تقارير وإحصائيات متقدمة',
@@ -615,24 +616,24 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $this->get($this->adminUrl("plans/{$plan->id}/edit"))->assertStatus(200);
 
         // 5. Update
-        $updatedPlanName = $planName . ' معدلة';
+        $updatedPlanName = $planName.' معدلة';
         $updateResponse = $this->put($this->adminUrl("plans/{$plan->id}"), [
-            'name'                      => $updatedPlanName,
-            'code'                      => $plan->code,
-            'plan_type'                 => 'professional',
-            'color'                     => 'purple',
-            'is_active'                 => 1,
-            'price'                     => 15000,
-            'extra_user_license_price'  => 600,
-            'yearly_renewal_price'      => 12000,
-            'included_users'            => 10,
-            'limits_mode'               => 'limited',
-            'properties_limit'          => 50,
-            'storage_quota_gb'          => 10,
-            'active_auctions_limit'     => 10,
+            'name' => $updatedPlanName,
+            'code' => $plan->code,
+            'plan_type' => 'professional',
+            'color' => 'purple',
+            'is_active' => 1,
+            'price' => 15000,
+            'extra_user_license_price' => 600,
+            'yearly_renewal_price' => 12000,
+            'included_users' => 10,
+            'limits_mode' => 'limited',
+            'properties_limit' => 50,
+            'storage_quota_gb' => 10,
+            'active_auctions_limit' => 10,
             'subscription_billing_cycle' => 'monthly',
             'domain_management_enabled' => 1,
-            'features'                  => ['ميزة محدثة'],
+            'features' => ['ميزة محدثة'],
         ]);
         $updateResponse->assertStatus(302);
         $plan->refresh();
@@ -662,24 +663,24 @@ class AdminDashboardCrudFeatureTest extends TestCase
      */
     public function test_admin_plan_actions_mass_deletion_and_company_wizard_validation(): void
     {
-        $planName = 'باقة حذف جماعي ' . rand(1000, 9999);
+        $planName = 'باقة حذف جماعي '.rand(1000, 9999);
         $this->post($this->adminUrl('plans'), [
-            'name'                       => $planName,
-            'code'                       => 'DELETE_' . rand(10000, 99999),
-            'plan_type'                  => 'basic',
-            'color'                      => 'blue',
-            'is_active'                  => 1,
-            'price'                      => 1000,
-            'extra_user_license_price'   => 100,
-            'yearly_renewal_price'       => 900,
-            'included_users'             => 2,
-            'limits_mode'                => 'limited',
+            'name' => $planName,
+            'code' => 'DELETE_'.rand(10000, 99999),
+            'plan_type' => 'basic',
+            'color' => 'blue',
+            'is_active' => 1,
+            'price' => 1000,
+            'extra_user_license_price' => 100,
+            'yearly_renewal_price' => 900,
+            'included_users' => 2,
+            'limits_mode' => 'limited',
             'subscription_billing_cycle' => 'monthly',
-            'properties_limit'           => 10,
-            'storage_quota_gb'           => 5,
-            'active_auctions_limit'      => 5,
-            'domain_management_enabled'  => 1,
-            'features'                   => ['اختبار الحذف الجماعي'],
+            'properties_limit' => 10,
+            'storage_quota_gb' => 5,
+            'active_auctions_limit' => 5,
+            'domain_management_enabled' => 1,
+            'features' => ['اختبار الحذف الجماعي'],
         ])->assertStatus(302);
 
         $plan = Plan::where('name', $planName)->firstOrFail();
@@ -695,7 +696,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
 
         $this->postJson($this->adminUrl('mass-delete'), [
             'model' => 'Plan',
-            'ids'   => [$plan->id],
+            'ids' => [$plan->id],
         ])->assertOk()
             ->assertJson(['success' => true]);
 
@@ -713,18 +714,18 @@ class AdminDashboardCrudFeatureTest extends TestCase
 
         $this->postJson($stepUrl, [
             'target_path' => '/admin/companies',
-            'fields'      => ['company_name'],
+            'fields' => ['company_name'],
         ])->assertUnprocessable()
             ->assertJsonValidationErrors(['company_name']);
 
         $this->postJson($stepUrl, [
-            'target_path'       => '/admin/companies',
-            'fields'            => ['company_name', 'commercial_number', 'tax_number', 'city_id', 'address'],
-            'company_name'      => 'شركة اختبار خطوات ' . rand(1000, 9999),
+            'target_path' => '/admin/companies',
+            'fields' => ['company_name', 'commercial_number', 'tax_number', 'city_id', 'address'],
+            'company_name' => 'شركة اختبار خطوات '.rand(1000, 9999),
             'commercial_number' => (string) rand(1000000000, 9999999999),
-            'tax_number'        => '3' . str_pad((string) rand(10000000000000, 99999999999999), 14, '0', STR_PAD_LEFT),
-            'city_id'           => $city->id,
-            'address'           => 'عنوان اختبار التحقق من خطوات النموذج',
+            'tax_number' => '3'.str_pad((string) rand(10000000000000, 99999999999999), 14, '0', STR_PAD_LEFT),
+            'city_id' => $city->id,
+            'address' => 'عنوان اختبار التحقق من خطوات النموذج',
         ])->assertOk()
             ->assertJson(['success' => true]);
     }
@@ -739,27 +740,27 @@ class AdminDashboardCrudFeatureTest extends TestCase
 
         $createSubscription = function () use ($tenant, $plan): Subscription {
             $subscription = Subscription::create([
-                'tenant_id'   => $tenant->id,
-                'plan_id'     => $plan->id,
-                'starts_at'   => now(),
-                'ends_at'     => now()->addMonth(),
-                'status'      => SubscriptionStatus::PENDING,
-                'price'       => $plan->price,
+                'tenant_id' => $tenant->id,
+                'plan_id' => $plan->id,
+                'starts_at' => now(),
+                'ends_at' => now()->addMonth(),
+                'status' => SubscriptionStatus::PENDING,
+                'price' => $plan->price,
                 'total_users' => max(1, $plan->included_users),
-                'used_users'  => 0,
-                'auto_renew'  => false,
+                'used_users' => 0,
+                'auto_renew' => false,
             ]);
 
             SubscriptionPeriod::create([
-                'subscription_id'        => $subscription->id,
-                'period_start'           => now(),
-                'period_end'             => now()->addMonth(),
-                'plan_id_snapshot'       => $plan->id,
-                'price_snapshot'         => $plan->price,
-                'total_users_snapshot'   => max(1, $plan->included_users),
-                'used_users_snapshot'    => 0,
-                'status'                 => SubscriptionPeriodStatus::PENDING_PAYMENT,
-                'is_current'             => true,
+                'subscription_id' => $subscription->id,
+                'period_start' => now(),
+                'period_end' => now()->addMonth(),
+                'plan_id_snapshot' => $plan->id,
+                'price_snapshot' => $plan->price,
+                'total_users_snapshot' => max(1, $plan->included_users),
+                'used_users_snapshot' => 0,
+                'status' => SubscriptionPeriodStatus::PENDING_PAYMENT,
+                'is_current' => true,
             ]);
 
             return $subscription;
@@ -787,19 +788,19 @@ class AdminDashboardCrudFeatureTest extends TestCase
 
         $massRejectedSubscription = $createSubscription();
         $this->postJson($this->adminUrl('subscription-manage/mass-reject'), [
-            'ids'           => [$massRejectedSubscription->id],
+            'ids' => [$massRejectedSubscription->id],
             'reject_reason' => 'رفض جماعي للاختبار',
         ])->assertOk()
             ->assertJson(['success' => true]);
         $this->assertSame(SubscriptionStatus::CANCELLED, $massRejectedSubscription->fresh()->status);
 
         $rejectedBill = Bill::create([
-            'tenant_id'       => $tenant->id,
+            'tenant_id' => $tenant->id,
             'subscription_id' => $acceptedSubscription->id,
-            'amount'          => 100,
+            'amount' => 100,
             'original_amount' => 100,
-            'type'            => BillType::NEW_SUBSCRIPTION,
-            'status'          => BillStatus::PENDING_VERIFICATION,
+            'type' => BillType::NEW_SUBSCRIPTION,
+            'status' => BillStatus::PENDING_VERIFICATION,
         ]);
         $this->post($this->adminUrl("bills/{$rejectedBill->id}/reject"), [
             'reject_reason' => 'إيصال اختبار غير صالح',
@@ -807,23 +808,23 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $this->assertSame(BillStatus::UNPAID, $rejectedBill->fresh()->status);
 
         $reactivatedBill = Bill::create([
-            'tenant_id'       => $tenant->id,
+            'tenant_id' => $tenant->id,
             'subscription_id' => $acceptedSubscription->id,
-            'amount'          => 100,
+            'amount' => 100,
             'original_amount' => 100,
-            'type'            => BillType::NEW_SUBSCRIPTION,
-            'status'          => BillStatus::CANCELLED,
+            'type' => BillType::NEW_SUBSCRIPTION,
+            'status' => BillStatus::CANCELLED,
         ]);
         $this->post($this->adminUrl("bills/{$reactivatedBill->id}/reactivate"))->assertStatus(302);
         $this->assertSame(BillStatus::UNPAID, $reactivatedBill->fresh()->status);
 
         $verifiedBill = Bill::create([
-            'tenant_id'       => $tenant->id,
+            'tenant_id' => $tenant->id,
             'subscription_id' => $acceptedSubscription->id,
-            'amount'          => 100,
+            'amount' => 100,
             'original_amount' => 100,
-            'type'            => BillType::NEW_SUBSCRIPTION,
-            'status'          => BillStatus::PENDING_VERIFICATION,
+            'type' => BillType::NEW_SUBSCRIPTION,
+            'status' => BillStatus::PENDING_VERIFICATION,
         ]);
         $this->post($this->adminUrl("bills/{$verifiedBill->id}/verify"))->assertStatus(302);
         $this->assertSame(BillStatus::PAID, $verifiedBill->fresh()->status);
@@ -833,13 +834,13 @@ class AdminDashboardCrudFeatureTest extends TestCase
             ['is_active' => true],
         );
         $ticket = Ticket::create([
-            'ticket_number'          => 'TICKET-TEST-' . uniqid(),
-            'tenant_id'              => $tenant->id,
-            'ticketing_sections_id'  => $section->id,
-            'title'                  => 'تذكرة اختبار Super Admin',
-            'description'            => 'تذكرة لاختبار الرد وتغيير الحالة.',
-            'status'                 => 'open',
-            'priority'               => 'medium',
+            'ticket_number' => 'TICKET-TEST-'.uniqid(),
+            'tenant_id' => $tenant->id,
+            'ticketing_sections_id' => $section->id,
+            'title' => 'تذكرة اختبار Super Admin',
+            'description' => 'تذكرة لاختبار الرد وتغيير الحالة.',
+            'status' => 'open',
+            'priority' => 'medium',
         ]);
 
         $this->post($this->adminUrl("tickets/{$ticket->ticket_number}/reply"), [
@@ -847,7 +848,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
         ])->assertStatus(302);
         $this->assertDatabaseHas('ticket_replies', [
             'ticket_id' => $ticket->id,
-            'message'   => 'رد اختبار من Super Admin',
+            'message' => 'رد اختبار من Super Admin',
         ]);
         $this->assertSame('in_progress', $ticket->fresh()->status);
 
@@ -893,23 +894,23 @@ class AdminDashboardCrudFeatureTest extends TestCase
             ? now()->addMonth()->toDateString()
             : now()->addYear()->toDateString();
         $companyPayload = [
-            'company_name'          => 'شركة اختبار إنشاء محلي ' . rand(1000, 9999),
-            'commercial_number'     => $commercialNumber,
-            'tax_number'            => '3' . str_pad((string) rand(10000000000000, 99999999999999), 14, '0', STR_PAD_LEFT),
-            'city_id'               => $city->id,
-            'address'               => 'عنوان اختبار إنشاء شركة محليًا',
-            'name'                  => 'مدير شركة الاختبار',
-            'phone'                 => '05' . rand(10000000, 99999999),
-            'email'                 => 'company-' . uniqid() . '@example.com',
-            'password'              => 'Password123!',
+            'company_name' => 'شركة اختبار إنشاء محلي '.rand(1000, 9999),
+            'commercial_number' => $commercialNumber,
+            'tax_number' => '3'.str_pad((string) rand(10000000000000, 99999999999999), 14, '0', STR_PAD_LEFT),
+            'city_id' => $city->id,
+            'address' => 'عنوان اختبار إنشاء شركة محليًا',
+            'name' => 'مدير شركة الاختبار',
+            'phone' => '05'.rand(10000000, 99999999),
+            'email' => 'company-'.uniqid().'@example.com',
+            'password' => 'Password123!',
             'password_confirmation' => 'Password123!',
-            'plan_id'               => $plan->id,
-            'start_date'            => $startDate,
-            'total_users'           => max(1, $plan->included_users),
-            'payment_type'          => 'paid',
-            'payment_method'        => 'cash',
-            'has_discount'          => 'no',
-            'activate_immediately'  => 1,
+            'plan_id' => $plan->id,
+            'start_date' => $startDate,
+            'total_users' => max(1, $plan->included_users),
+            'payment_type' => 'paid',
+            'payment_method' => 'cash',
+            'has_discount' => 'no',
+            'activate_immediately' => 1,
         ];
 
         try {
@@ -938,11 +939,11 @@ class AdminDashboardCrudFeatureTest extends TestCase
             $this->withoutHeader('X-Requested-With')->withoutHeader('Accept');
 
             $this->put($this->adminUrl("companies/{$tenant->id}"), [
-                'company_name'      => $tenant->company_name,
+                'company_name' => $tenant->company_name,
                 'commercial_number' => $tenant->commercial_number,
-                'tax_number'        => $tenant->tax_number,
-                'city_id'           => $city->id,
-                'address'           => 'عنوان محدث لاختبار الشركة',
+                'tax_number' => $tenant->tax_number,
+                'city_id' => $city->id,
+                'address' => 'عنوان محدث لاختبار الشركة',
             ])->assertRedirect($this->adminUrl('companies'));
             $this->assertSame('عنوان محدث لاختبار الشركة', $tenant->fresh()->address);
 
@@ -966,7 +967,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
             }
 
             if ($tenantDatabase && preg_match('/^[A-Za-z0-9_]+$/', $tenantDatabase)) {
-                DB::connection('mysql')->statement('DROP DATABASE IF EXISTS ' . $tenantDatabase);
+                DB::connection('mysql')->statement('DROP DATABASE IF EXISTS '.$tenantDatabase);
             }
         }
     }
@@ -983,16 +984,16 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $this->get($this->adminUrl('coupons/create'))->assertStatus(200);
 
         // 3. Store
-        $code = 'LEVAN' . rand(1000, 9999);
+        $code = 'LEVAN'.rand(1000, 9999);
         $storeResponse = $this->post($this->adminUrl('coupons'), [
-            'name'           => 'خصم الافتتاح',
-            'code'           => $code,
-            'discount_type'  => 'percentage',
+            'name' => 'خصم الافتتاح',
+            'code' => $code,
+            'discount_type' => 'percentage',
             'discount_value' => 20,
-            'max_discount'   => 500,
-            'expiry_date'    => now()->addMonths(3)->toDateString(),
-            'usage_limit'    => 100,
-            'is_active'      => 1,
+            'max_discount' => 500,
+            'expiry_date' => now()->addMonths(3)->toDateString(),
+            'usage_limit' => 100,
+            'is_active' => 1,
         ]);
         $storeResponse->assertStatus(302);
 
@@ -1007,14 +1008,14 @@ class AdminDashboardCrudFeatureTest extends TestCase
 
         // 6. Update
         $this->put($this->adminUrl("coupons/{$coupon->id}"), [
-            'name'           => 'خصم الافتتاح المحدث',
-            'code'           => $code,
-            'discount_type'  => 'percentage',
+            'name' => 'خصم الافتتاح المحدث',
+            'code' => $code,
+            'discount_type' => 'percentage',
             'discount_value' => 25,
-            'is_active'      => 1,
+            'is_active' => 1,
         ])->assertStatus(302);
         $coupon->refresh();
-        $this->assertEquals(25, (float)$coupon->discount_value);
+        $this->assertEquals(25, (float) $coupon->discount_value);
 
         // 7. Soft Delete
         $this->delete($this->adminUrl("coupons/{$coupon->id}"))->assertStatus(302);
@@ -1076,14 +1077,14 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $this->get($this->adminUrl('versions'))->assertStatus(200);
         $this->get($this->adminUrl('versions/create'))->assertStatus(200);
 
-        $vNumber = 'v' . rand(2, 9) . '.' . rand(0, 9) . '.' . rand(0, 9);
+        $vNumber = 'v'.rand(2, 9).'.'.rand(0, 9).'.'.rand(0, 9);
         $storeVResponse = $this->post($this->adminUrl('versions'), [
-            'version'     => $vNumber,
-            'changelog'   => 'تحديثات وتحسينات للنظام',
-            'file_path'   => 'updates/' . $vNumber . '.zip',
-            'stage'       => 'stable',
+            'version' => $vNumber,
+            'changelog' => 'تحديثات وتحسينات للنظام',
+            'file_path' => 'updates/'.$vNumber.'.zip',
+            'stage' => 'stable',
             'released_at' => now()->toDateString(),
-            'is_active'   => 1,
+            'is_active' => 1,
         ]);
         $storeVResponse->assertStatus(302);
 
@@ -1093,12 +1094,12 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $this->get($this->adminUrl("versions/{$version->id}/edit"))->assertStatus(200);
 
         $this->put($this->adminUrl("versions/{$version->id}"), [
-            'version'     => $vNumber,
-            'changelog'   => 'تحديثات محدثة',
-            'file_path'   => 'updates/' . $vNumber . '_updated.zip',
-            'stage'       => 'stable',
+            'version' => $vNumber,
+            'changelog' => 'تحديثات محدثة',
+            'file_path' => 'updates/'.$vNumber.'_updated.zip',
+            'stage' => 'stable',
             'released_at' => now()->toDateString(),
-            'is_active'   => 1,
+            'is_active' => 1,
         ])->assertStatus(302);
 
         // === B. Version Testers ===
@@ -1106,9 +1107,9 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $this->get($this->adminUrl('version_testers/create'))->assertStatus(200);
 
         $tenant = Tenant::first();
-        if (!$tenant) {
+        if (! $tenant) {
             $tenant = Tenant::create([
-                'id'           => 'tenant_test_' . rand(100, 999),
+                'id' => 'tenant_test_'.rand(100, 999),
                 'company_name' => 'شركة اختبارية',
             ]);
         }
@@ -1118,7 +1119,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
 
         $storeTesterResponse = $this->post($this->adminUrl('version_testers'), [
             'tenant_id' => $tenant->id,
-            'type'      => 'tester',
+            'type' => 'tester',
             'is_active' => 1,
         ]);
         $storeTesterResponse->assertStatus(302);
@@ -1130,7 +1131,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
 
         $this->put($this->adminUrl("version_testers/{$tester->id}"), [
             'tenant_id' => $tenant->id,
-            'type'      => 'developer',
+            'type' => 'developer',
             'is_active' => 1,
         ])->assertStatus(302);
 
@@ -1153,11 +1154,11 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $this->get($this->adminUrl('content-management/client'))->assertStatus(200);
         $this->get($this->adminUrl('content-management/client/create'))->assertStatus(200);
 
-        $clientName = 'شركة عقارية ' . rand(100, 999);
+        $clientName = 'شركة عقارية '.rand(100, 999);
         $storeClientResponse = $this->post($this->adminUrl('content-management/client'), [
-            'name'   => $clientName,
+            'name' => $clientName,
             'status' => 1,
-            'logo'   => UploadedFile::fake()->image('client.png', 100, 100),
+            'logo' => UploadedFile::fake()->image('client.png', 100, 100),
         ]);
         $storeClientResponse->assertStatus(302);
 
@@ -1168,7 +1169,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $this->get($this->adminUrl("content-management/client/{$client->id}/edit"))->assertStatus(200);
 
         $this->put($this->adminUrl("content-management/client/{$client->id}"), [
-            'name'   => $clientName . ' معدل',
+            'name' => $clientName.' معدل',
             'status' => 1,
         ])->assertStatus(302);
 
@@ -1183,11 +1184,11 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $this->get($this->adminUrl('content-management/portfolio'))->assertStatus(200);
         $this->get($this->adminUrl('content-management/portfolio/create'))->assertStatus(200);
 
-        $portfolioName = 'مشروع عقاري ' . rand(100, 999);
+        $portfolioName = 'مشروع عقاري '.rand(100, 999);
         $storePortfolioResponse = $this->post($this->adminUrl('content-management/portfolio'), [
-            'name'   => $portfolioName,
+            'name' => $portfolioName,
             'status' => 1,
-            'logo'   => UploadedFile::fake()->image('project.png', 100, 100),
+            'logo' => UploadedFile::fake()->image('project.png', 100, 100),
         ]);
         $storePortfolioResponse->assertStatus(302);
 
@@ -1198,7 +1199,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $this->get($this->adminUrl("content-management/portfolio/{$contentPortfolio->id}/edit"))->assertStatus(200);
 
         $this->put($this->adminUrl("content-management/portfolio/{$contentPortfolio->id}"), [
-            'name'   => $portfolioName . ' معدل',
+            'name' => $portfolioName.' معدل',
             'status' => 1,
         ])->assertStatus(302);
 
@@ -1245,10 +1246,10 @@ class AdminDashboardCrudFeatureTest extends TestCase
         ];
 
         foreach ($endpoints as $endpoint) {
-            $url = $this->adminUrl($endpoint) . '?draw=1&start=0&length=10';
+            $url = $this->adminUrl($endpoint).'?draw=1&start=0&length=10';
             $response = $this->withHeaders([
                 'X-Requested-With' => 'XMLHttpRequest',
-                'Accept'           => 'application/json, text/javascript, */*',
+                'Accept' => 'application/json, text/javascript, */*',
             ])->get($url);
 
             $response->assertStatus(200);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenants\Reports\Performance;
 use App\DataTables\Tenants\Reports\Performance\CompanyPerformanceDataTable;
 use App\Http\Controllers\Controller;
 use App\Services\Tenants\Reports\Performance\CompanyPerformanceService;
+use App\Services\Tenants\Reports\TenantExportAccess;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -14,9 +15,12 @@ class CompanyPerformanceReportController extends Controller
 {
     protected CompanyPerformanceService $companyPerformanceService;
 
-    public function __construct(CompanyPerformanceService $companyPerformanceService)
+    protected TenantExportAccess $exportAccess;
+
+    public function __construct(CompanyPerformanceService $companyPerformanceService, TenantExportAccess $exportAccess)
     {
         $this->companyPerformanceService = $companyPerformanceService;
+        $this->exportAccess = $exportAccess;
     }
 
     /*
@@ -229,6 +233,8 @@ class CompanyPerformanceReportController extends Controller
     */
     public function downloadFile($file)
     {
+        $this->exportAccess->authorizeFile((string) $file, request()->user('tenant')?->id);
+
         $disk = Storage::disk('tenant_public');
         $relativePath = 'exports/'.$file;
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenants\Auth\Fortify;
 
+use App\Actions\Auth\PersistAuthenticationStateAction;
 use App\Actions\Auth\ResolveTwoFactorLogin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Auth\TenantTwoFactorChallengeRequest;
@@ -22,7 +23,7 @@ class TenantTwoFactorChallengeController extends Controller
         return view('tenants.auth.two-factor-challenge');
     }
 
-    public function store(TenantTwoFactorChallengeRequest $request, ResolveTwoFactorLogin $resolver): RedirectResponse
+    public function store(TenantTwoFactorChallengeRequest $request, ResolveTwoFactorLogin $resolver, PersistAuthenticationStateAction $authenticationState): RedirectResponse
     {
         $user = $resolver->verify('tenant', $request, $request->validated());
         $remember = $request->session()->pull('login.remember', false);
@@ -33,11 +34,7 @@ class TenantTwoFactorChallengeController extends Controller
 
         $request->session()->regenerate();
 
-        $user->update([
-            'last_login_at' => now(),
-            'last_login_ip' => $request->ip(),
-            'current_session_id' => session()->getId(),
-        ]);
+        $authenticationState->recordLogin($user, $request->ip(), $request->session()->getId());
 
         return redirect(RouteServiceProvider::home());
     }

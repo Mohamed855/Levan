@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Services\Tenants\Reports\Financial\FinancialReportService;
+use App\Services\Tenants\Reports\TenantExportAccess;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -16,10 +17,12 @@ class FinancialReportController extends Controller
 {
     protected FinancialReportService $financialReportService;
 
-    public function __construct(FinancialReportService $financialReportService)
+    protected TenantExportAccess $exportAccess;
+
+    public function __construct(FinancialReportService $financialReportService, TenantExportAccess $exportAccess)
     {
         $this->financialReportService = $financialReportService;
-        // $this->middleware('can:تقارير المعاملات المالية');
+        $this->exportAccess = $exportAccess;
     }
 
     /*
@@ -246,6 +249,8 @@ class FinancialReportController extends Controller
     */
     public function downloadFile($file)
     {
+        $this->exportAccess->authorizeFile((string) $file, request()->user('tenant')?->id);
+
         $disk = Storage::disk('tenant_public');
         $relativePath = 'exports/'.$file;
 

@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Tenants\Communication\MessageLog;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenants\Communication\FilterMessageLogRequest;
 use App\Models\Tenants\Communication\MessageLog\MessageLog;
 use App\Models\Tenants\GeneralSetting\MessageTemplate\MessageTemplate;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\Communication\MessageLog\MessageLogService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -30,7 +30,7 @@ class MessageLogController extends Controller
     /**
      * عرض قائمة سجل الرسائل
      */
-    public function index(Request $request): View|JsonResponse
+    public function index(FilterMessageLogRequest $request): View|JsonResponse
     {
         if ($request->ajax()) {
             $query = MessageLog::with(['sender:id,name', 'template:id,name'])
@@ -153,7 +153,7 @@ class MessageLogController extends Controller
     public function destroy(MessageLog $messageLog): RedirectResponse
     {
         try {
-            $messageLog->delete();
+            $this->messageLogService->delete($messageLog);
 
             return redirect()->back()->with('success', 'تم حذف الرسالة من السجل بنجاح');
         } catch (\Exception $e) {
@@ -224,7 +224,7 @@ class MessageLogController extends Controller
     /**
      * تطبيق الفلاتر على الاستعلام
      */
-    private function applyFilters($query, Request $request): void
+    private function applyFilters($query, FilterMessageLogRequest $request): void
     {
         if ($request->filled('status')) {
             $query->where('status', $request->status);

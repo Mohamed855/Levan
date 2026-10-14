@@ -9,17 +9,15 @@ use App\Exceptions\Payment\PaymentVerificationException;
 use App\Exceptions\Subscription\SubscriptionCreationException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenants\Payment\PaymentRequest;
-use App\Models\Admin\Bills\Bill;
-use App\Models\Admin\Plans\Plan;
 use App\Services\shared\Bills\BillService;
 use App\Services\shared\Coupons\CouponService;
 use App\Services\shared\Payment\Moyasar\MoyasarCallbackHandler;
 use App\Services\shared\Payment\Moyasar\MoyasarFormConfiguration;
 use App\Services\shared\Session\SessionManagerService;
 use App\Services\shared\Subscription\SubscriptionService;
+use App\Services\Tenants\Shared\CentralBillingGateway;
 use Closure;
 use Illuminate\Http\Request;
-use Stancl\Tenancy\Facades\Tenancy;
 
 class NewSubscriptionController extends Controller
 {
@@ -32,12 +30,13 @@ class NewSubscriptionController extends Controller
         private CouponService $couponService,
         private BillService $billService,
         private SubscriptionService $subscriptionService,
+        private CentralBillingGateway $billingGateway,
     ) {
 
         // اذا كان هناك اشتراك
         $this->middleware(function (Request $request, Closure $next) {
 
-            $hasSubscription = tenant()->lastSubscription()->exists();
+            $hasSubscription = $this->billingGateway->currentTenantHasSubscription();
 
             if ($hasSubscription) {
                 return redirect()->to(tenant_route_name('dashboard'));
@@ -50,13 +49,14 @@ class NewSubscriptionController extends Controller
     // لا يوجد اشتراك
     public function index()
     {
-        $plans = Tenancy::central(fn () => Plan::where('is_active', true)->get());
+        $plans = $this->billingGateway->activePlans();
 
         return view($this->page.'.index', compact('plans'));
     }
 
-    public function checkout(Plan $plan)
+    public function checkout(int|string $plan)
     {
+        $plan = $this->billingGateway->plan($plan);
         $this->sessionManagerService->storeSubscriptionData($plan);
 
         $taxRate = 0.15;
@@ -121,7 +121,7 @@ class NewSubscriptionController extends Controller
     |============================================================================
     |============================================================================
     */
-    private function createPendingBill(Plan $plan, array $couponData): Bill
+    private function createPendingBill($plan, array $couponData)
     {
         $tenant = tenant();
         $user = auth('tenant')->user();
@@ -144,7 +144,7 @@ class NewSubscriptionController extends Controller
         );
     }
 
-    private function showMoyasarCheckout(Bill $bill, Plan $plan)
+    private function showMoyasarCheckout($bill, $plan)
     {
         return view('tenants.payment.moyasar-checkout', [
             'amountInHalala' => $this->moyasarFormConfiguration->amountInHalala((float) $bill->amount),
@@ -157,9 +157,9 @@ class NewSubscriptionController extends Controller
         ]);
     }
 
-    private function getCentralPlan(int $planId): Plan
+    private function getCentralPlan(int $planId)
     {
-        return Tenancy::central(fn () => Plan::findOrFail($planId));
+        return $this->billingGateway->plan($planId);
     }
 
     private function redirectWithError(string $route, string $message)

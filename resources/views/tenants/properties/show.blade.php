@@ -214,7 +214,7 @@
                                     <td>{{ $unit->unit_type ?: '-' }}</td>
                                     <td>{{ number_format((float) $unit->area, 2) }} م²</td>
                                     <td>{{ $unit->current_use ?: '-' }}</td>
-                                    <td><span class="badge bg-label-info">{{ $unit->status ?: 'متاح' }}</span></td>
+                                    <td><span class="badge bg-label-info">{{ $unit->status?->label() ?? 'متاح' }}</span></td>
                                 </tr>
                             @endforeach
                         </tbody>
