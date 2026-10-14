@@ -92,10 +92,9 @@
     }
 
     &:hover {
-      background: var(--site-gold);
-      color: var(--site-primary-deep);
-      transform: scale(1.08);
-      box-shadow: var(--site-shadow-md);
+      background: var(--site-primary-deep);
+      color: #FFFFFF;
+      box-shadow: 0 8px 20px rgba(18, 51, 44, 0.3);
     }
 
     &.swiper-button-disabled {

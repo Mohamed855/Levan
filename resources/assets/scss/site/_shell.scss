@@ -188,9 +188,44 @@ body.site-shell {
   }
 
   &:hover {
-    background-color: var(--site-gold);
-    color: var(--site-primary-deep);
+    background-color: var(--site-primary-deep);
+    color: #FFFFFF;
     box-shadow: var(--site-shadow-lg);
+  }
+}
+
+// =============================================================================
+// Universal Website Button Standards
+// =============================================================================
+
+.btn-primary,
+.site-btn-primary {
+  background-color: var(--site-primary);
+  color: #FFFFFF !important;
+  border-color: rgba(var(--site-gold-rgb), 0.25);
+  transition: background-color var(--site-transition-fast), color var(--site-transition-fast), box-shadow var(--site-transition-fast), border-color var(--site-transition-fast);
+
+  &:hover {
+    background-color: var(--site-primary-deep) !important;
+    color: #FFFFFF !important;
+    border-color: rgba(var(--site-gold-rgb), 0.35);
+    box-shadow: 0 8px 24px rgba(18, 51, 44, 0.28);
+  }
+}
+
+.btn-secondary,
+.btn-outline,
+.site-btn-secondary,
+.site-btn-outline {
+  background: transparent;
+  color: var(--site-primary);
+  border: 1.5px solid var(--site-border-strong);
+  transition: background-color var(--site-transition-fast), color var(--site-transition-fast), border-color var(--site-transition-fast);
+
+  &:hover {
+    background: rgba(var(--site-primary-rgb), 0.1) !important;
+    border-color: var(--site-primary-deep) !important;
+    color: var(--site-primary-deep) !important;
   }
 }
 

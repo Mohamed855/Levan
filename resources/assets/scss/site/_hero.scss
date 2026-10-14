@@ -229,9 +229,10 @@
   }
 
   &:hover {
-    background-color: var(--site-gold);
-    color: var(--site-primary-deep) !important;
-    box-shadow: 0 14px 40px rgba(191, 135, 74, 0.4);
+    background-color: var(--site-primary-deep);
+    color: #FFFFFF !important;
+    box-shadow: 0 14px 40px rgba(18, 51, 44, 0.35);
+    border-color: rgba(var(--site-gold-rgb), 0.35);
   }
 }
 
@@ -263,8 +264,8 @@
   }
 
   &:hover {
-    background: rgba(var(--site-primary-rgb), 0.05);
-    border-color: var(--site-primary);
-    color: var(--site-primary);
+    background: rgba(var(--site-primary-rgb), 0.1);
+    border-color: var(--site-primary-deep);
+    color: var(--site-primary-deep);
   }
 }

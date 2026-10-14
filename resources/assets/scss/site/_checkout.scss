@@ -518,11 +518,11 @@
       align-items: center;
       gap: 0.35rem;
       white-space: nowrap;
-      transition: background-color var(--site-transition-fast);
+      transition: background-color var(--site-transition-fast), color var(--site-transition-fast);
 
       &:hover {
-        background-color: var(--site-gold);
-        color: var(--site-primary-deep);
+        background-color: var(--site-primary-deep);
+        color: #FFFFFF;
       }
     }
   }
