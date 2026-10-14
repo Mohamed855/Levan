@@ -3,11 +3,11 @@
 @section('title', 'إضافة عقار جديد')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss', 'resources/assets/vendor/libs/leaflet/leaflet.scss'])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/flatpickr/flatpickr.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js', 'resources/assets/vendor/libs/leaflet/leaflet.js'])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/flatpickr/flatpickr.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
 @endsection
 
 @section('toastr')
@@ -16,19 +16,11 @@
 
 @section('page-style')
     @vite(['resources/css/dataTable.css', 'resources/assets/scss/pages/assignment-create.scss'])
-    <style>
-        .leaflet-map-container {
-            border-radius: var(--bs-border-radius);
-            overflow: hidden;
-            border: 1px solid var(--bs-border-color);
-        }
-    </style>
 @endsection
 
 @section('page-script')
     <script>
         window.routes = window.routes || {};
-        window.routes.propertyLocationSearch = "{{ tenant_route_name('properties.search-location') }}";
         window.propertyUnitStatuses = @json(array_map(fn($case) => ['value' => $case->value, 'label' => $case->label()], \App\Enums\Tenants\Properties\PropertyUnitStatus::cases()));
     </script>
     @vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/tenant/properties/create.js'])
