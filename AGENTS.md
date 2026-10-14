@@ -10,6 +10,7 @@
 - Keep `x-filter.select` separate from form select components; it is a DataTable filter, not a submitted form field.
 - **Create Forms & Drafts Contract (Mandatory)**:
   - ALL create forms (single-card forms and wizards alike) MUST include a "حفظ كمسودة" (Save as Draft) button alongside primary form action buttons.
+  - The draft button (`<x-form.wizard.draft-button />`) and the next/save button (`<x-form.wizard.next-button />` or `<x-form.wizard.save-button>` / submit) MUST be enclosed together inside `<div class="d-flex gap-2">` to maintain uniform spacing and flex alignment across all create views.
   - All create forms must be wired to the drafts subsystem/table: clicking "حفظ كمسودة" saves current inputs and uploaded files progressively without enforcing full mandatory creation validation, restores saved draft data upon reopening the form, and automatically discards/purges the draft upon successful record creation.
   - **Drafts Table Multi-Tenancy**: The drafts table for Tenant administrations MUST reside in the **tenant database** (tenant migrations/connection) so tenant forms store and isolate drafts directly within each tenant's database. Central/SuperAdmin forms store drafts in the central database drafts table.
 
@@ -111,6 +112,7 @@
   - The final review step MUST use the canonical split layout:
     - **Right column (`col-lg-9`)**: Review cards using `<x-form.wizard.review-card>` with quick edit buttons (`data-edit-step`) jumping directly to the corresponding step via `bsStepper.to(step)`.
     - **Left column (`col-lg-3`)**: Live entity preview card `<article class="card assignment-preview h-100">` with top image (`.assignment-preview__image` aspect-ratio 4:3), entity name, and description.
+  - **Wizard Actions & Draft Button Grouping**: In all wizard create steps, the draft button (`<x-form.wizard.draft-button />`) and the forward action (`<x-form.wizard.next-button />` or `<x-form.wizard.save-button>`) must be wrapped together inside `<div class="d-flex gap-2">`.
 - **Show View Layout**:
   - Must use the **Two-Column Asymmetric Layout**:
     - **Left column (`col-xl-4 col-lg-5 col-md-5 mb-4`)**: Profile card (centered 100x100px rounded image, name, category badge, horizontal stat counters, key-value info list) + Attachments card underneath rendering a clean file list with `ti ti-download` action buttons.
@@ -127,5 +129,5 @@
   - Viewport scrollbar must be strictly aligned to the **left** in RTL via `:root[dir="rtl"], html[dir="rtl"] { direction: rtl !important; }`.
   - Submenu items (`.menu-sub .menu-item`) must maintain a uniform height of `48px`, seamless concave scoops, and a vertical gap (`margin: 0.35rem 0 !important;`) preventing active/hover pill collision.
 - **Brand Identity & Color Architecture**:
-  - System brand is LOT («لوت LOT»). Primary color is `#1D4F44` and Secondary is `#F7F3EC`.
+  - System brand is LOT («لوت LOT»). Primary color is `#1D4F44` and Secondary is `#f5efe6`.
 

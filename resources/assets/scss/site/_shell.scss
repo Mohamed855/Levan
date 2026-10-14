@@ -1,0 +1,268 @@
+// =============================================================================
+// Shell Layout & Base Structure
+// =============================================================================
+
+html {
+  scroll-behavior: smooth;
+  text-size-adjust: 100%;
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+// =============================================================================
+// Modern CSS Reset (Reboot) - Headings, Paragraphs & Flow Elements
+// =============================================================================
+
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-weight: 750;
+  line-height: 1.25;
+  color: var(--site-primary);
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+ul, ol {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+figure, blockquote, dl, dd {
+  margin: 0;
+}
+
+body.site-shell {
+  margin: 0;
+  padding: 0;
+  direction: rtl;
+  font-family: var(--site-font-family);
+  background-color: var(--site-sand);
+  color: var(--site-ink);
+  line-height: 1.65;
+  font-size: var(--site-font-base);
+  overflow-x: hidden;
+  position: relative;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  // Background subtle radial ambient gradients
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 65vw;
+    height: 65vw;
+    max-width: 900px;
+    max-height: 900px;
+    background: radial-gradient(circle, rgba(var(--site-gold-rgb), 0.12) 0%, rgba(var(--site-sand-rgb), 0) 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  &::after {
+    content: '';
+    position: fixed;
+    bottom: -10vw;
+    left: -10vw;
+    width: 70vw;
+    height: 70vw;
+    max-width: 950px;
+    max-height: 950px;
+    background: radial-gradient(circle, rgba(var(--site-primary-rgb), 0.08) 0%, rgba(var(--site-sand-rgb), 0) 75%);
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+::selection {
+  background-color: var(--site-primary);
+  color: var(--site-sand);
+}
+
+// Container standard overrides
+.site-shell .container {
+  width: 100%;
+  max-width: 1240px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  position: relative;
+  z-index: 1;
+}
+
+// Page loading indicator
+.page-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--site-sand);
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+
+  &.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .grid-loader {
+    display: inline-grid;
+    grid-template-columns: repeat(3, 16px);
+    grid-gap: 8px;
+
+    div {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      background: var(--site-primary);
+      animation: gridLoader 1.2s infinite ease-in-out;
+
+      &:nth-child(1) { animation-delay: 0.2s; }
+      &:nth-child(2) { animation-delay: 0.3s; }
+      &:nth-child(3) { animation-delay: 0.4s; }
+      &:nth-child(4) { animation-delay: 0.1s; }
+      &:nth-child(5) { animation-delay: 0.2s; }
+      &:nth-child(6) { animation-delay: 0.3s; }
+      &:nth-child(7) { animation-delay: 0s; }
+      &:nth-child(8) { animation-delay: 0.1s; }
+      &:nth-child(9) { animation-delay: 0.2s; }
+    }
+  }
+}
+
+@keyframes gridLoader {
+  0%, 70%, 100% {
+    transform: scale3D(1, 1, 1);
+    opacity: 1;
+  }
+  35% {
+    transform: scale3D(0, 0, 1);
+    opacity: 0.3;
+  }
+}
+
+// Back to top floating button
+.back-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: var(--site-radius-pill);
+  background-color: var(--site-primary);
+  color: var(--site-sand);
+  border: 1px solid rgba(var(--site-gold-rgb), 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  box-shadow: var(--site-shadow-md);
+  cursor: pointer;
+  z-index: 999;
+  transition: all var(--site-transition-fast);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(16px);
+
+  &.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  &:hover {
+    background-color: var(--site-gold);
+    color: var(--site-primary-deep);
+    box-shadow: var(--site-shadow-lg);
+  }
+}
+
+// =============================================================================
+// Foundational Display & Layout Utilities
+// =============================================================================
+
+.d-none,
+.hidden,
+[hidden] {
+  display: none !important;
+}
+
+.d-block {
+  display: block !important;
+}
+
+.d-inline-block {
+  display: inline-block !important;
+}
+
+.d-flex {
+  display: flex !important;
+}
+
+.d-inline-flex {
+  display: inline-flex !important;
+}
+
+.d-grid {
+  display: grid !important;
+}
+
+.align-items-center {
+  align-items: center !important;
+}
+
+.align-items-start {
+  align-items: flex-start !important;
+}
+
+.align-items-end {
+  align-items: flex-end !important;
+}
+
+.justify-content-center {
+  justify-content: center !important;
+}
+
+.justify-content-between {
+  justify-content: space-between !important;
+}
+
+.justify-content-start {
+  justify-content: flex-start !important;
+}
+
+.justify-content-end {
+  justify-content: flex-end !important;
+}
+
+.flex-column {
+  flex-direction: column !important;
+}
+
+.flex-wrap {
+  flex-wrap: wrap !important;
+}
+
+.w-100 {
+  width: 100% !important;
+}
+
+.h-100 {
+  height: 100% !important;
+}

@@ -8,7 +8,7 @@
 
     <!-- Page title -->
     <title>
-        @yield('title')
+        @yield('title', 'لوت LOT - المنصة المتقدمة لإدارة المزادات والأصول')
     </title>
 
     <!-- Favicon -->
@@ -18,14 +18,17 @@
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}" />
     <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
 
-    <!-- CSS Plugins -->
-    <link rel="stylesheet" href="{{ asset('static/site/css/swiper-bundle.min.css') }}" />
-    <link rel="stylesheet" href="{{ asset('static/site/css/glightbox.min.css') }}" />
+    <!-- Brand Fonts: Almarai, Readex Pro, Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Outfit:wght@400;500;600;700;800&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="{{ asset('static/site/css/main.css') }}" />
-
-    @vite(['resources/css/app.css', 'resources/assets/css/site/landing.css', 'resources/js/app.js', 'resources/js/shared/input-guards.js', 'resources/assets/vendor/fonts/tabler-icons.scss'])
+    <!-- Core Site Styles -->
+    @vite([
+        'resources/assets/scss/site/site.scss',
+        'resources/assets/vendor/fonts/tabler-icons.scss',
+        'resources/js/shared/input-guards.js'
+    ])
 
     @yield('page-style')
-
 </head>

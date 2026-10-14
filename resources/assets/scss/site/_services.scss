@@ -1,0 +1,100 @@
+// =============================================================================
+// Services / Features Section
+// =============================================================================
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+.service-card {
+  background: #FFFFFF;
+  border-radius: var(--site-radius-card);
+  border: 1px solid var(--site-border);
+  padding: 2.5rem 1.75rem;
+  text-align: center;
+  box-shadow: var(--site-shadow-sm);
+  transition: all var(--site-transition-fast);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  height: 100%;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--site-gold), var(--site-primary));
+    opacity: 0;
+    transition: opacity var(--site-transition-fast);
+    border-radius: var(--site-radius-card) var(--site-radius-card) 0 0;
+  }
+
+  .service-icon-wrap {
+    width: 68px;
+    height: 68px;
+    border-radius: 1.25rem;
+    background: var(--site-primary);
+    color: var(--site-sand);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.85rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 8px 24px rgba(29, 79, 68, 0.22);
+    transition: all var(--site-transition-fast);
+
+    i {
+      line-height: 1;
+    }
+  }
+
+  .service-title {
+    font-size: var(--site-font-lg);
+    font-weight: 750;
+    color: var(--site-primary);
+    margin-bottom: 0.85rem;
+    line-height: 1.35;
+  }
+
+  .service-desc {
+    font-size: var(--site-font-base);
+    color: var(--site-muted);
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  &:hover {
+    border-color: rgba(var(--site-gold-rgb), 0.35);
+    box-shadow: var(--site-shadow-md);
+
+    &::before {
+      opacity: 1;
+    }
+
+    .service-icon-wrap {
+      background: var(--site-gold);
+      color: var(--site-primary-deep);
+      transform: scale(1.08);
+      box-shadow: 0 10px 28px rgba(191, 135, 74, 0.35);
+    }
+  }
+}
+
+@media (max-width: 991px) {
+  .services-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+}

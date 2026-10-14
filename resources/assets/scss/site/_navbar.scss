@@ -1,0 +1,258 @@
+// =============================================================================
+// Glassmorphism Navbar & Header
+// =============================================================================
+
+@keyframes navbarSlideDown {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.site-header {
+  position: fixed;
+  top: 1.25rem;
+  right: 0;
+  left: 0;
+  z-index: 1000;
+  width: 100%;
+
+  &.is-sticky {
+    top: 0;
+    animation: navbarSlideDown 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+    .container {
+      max-width: 100% !important;
+      width: 100% !important;
+      padding-inline: 0 !important;
+    }
+
+    .ic-navbar-floating {
+      max-width: 100% !important;
+      width: 100% !important;
+      border-radius: 0 !important;
+      margin: 0 !important;
+      border-top: none !important;
+      border-inline: none !important;
+      border-bottom: 1px solid var(--site-border);
+      background: rgba(255, 255, 255, 0.9) !important;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 4px 24px rgba(18, 51, 44, 0.08);
+      padding: 0.85rem clamp(1.25rem, 4vw, 3.5rem);
+      transition: none !important;
+    }
+  }
+}
+
+.ic-navbar-floating {
+  max-width: 1140px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.75rem;
+  border-radius: var(--site-radius-pill);
+  background: rgba(255, 255, 255, 0.82); // White blurred semi-transparent
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 8px 32px rgba(18, 51, 44, 0.07);
+  transition: background var(--site-transition-fast), box-shadow var(--site-transition-fast);
+}
+
+.site-logo {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+
+  img {
+    height: 2.6rem;
+    width: auto;
+    object-fit: contain;
+    transition: transform var(--site-transition-fast);
+
+    &:hover {
+      transform: scale(1.03);
+    }
+  }
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  a {
+    color: var(--site-primary);
+    text-decoration: none;
+    font-size: var(--site-font-base);
+    font-weight: 650;
+    position: relative;
+    padding: 0.35rem 0.25rem;
+    transition: color var(--site-transition-fast);
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 0%;
+      height: 2.5px;
+      background-color: var(--site-gold);
+      border-radius: 99px;
+      transition: width var(--site-transition-fast);
+    }
+
+    &:hover,
+    &.is-active {
+      color: var(--site-gold);
+
+      &::after {
+        width: 100%;
+      }
+    }
+  }
+}
+
+.site-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-navbar-float {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.6rem;
+  border-radius: var(--site-radius-pill);
+  background-color: var(--site-primary);
+  color: #FFFFFF !important;
+  font-weight: 700;
+  font-size: var(--site-font-base);
+  text-decoration: none;
+  box-shadow: 0 4px 18px rgba(29, 79, 68, 0.28);
+  border: 1px solid rgba(var(--site-gold-rgb), 0.2);
+  transition: all var(--site-transition-fast);
+
+  i {
+    font-size: 1.125rem;
+    line-height: 1;
+  }
+
+  &:hover {
+    background-color: var(--site-gold);
+    color: var(--site-primary-deep) !important;
+    box-shadow: 0 8px 24px rgba(191, 135, 74, 0.35);
+  }
+}
+
+// Mobile Hamburger Toggle
+.site-hamburger {
+  display: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--site-radius-sm);
+  color: var(--site-primary);
+  font-size: 1.75rem;
+  line-height: 1;
+  transition: color var(--site-transition-fast);
+
+  &:hover {
+    color: var(--site-gold);
+  }
+}
+
+// Mobile Navigation Drawer
+.site-mobile-drawer {
+  position: fixed;
+  inset: 0;
+  background: rgba(18, 51, 44, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 1050;
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--site-transition-base);
+
+  &.is-open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .site-mobile-content {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 80%;
+    max-width: 340px;
+    height: 100%;
+    background: var(--site-sand);
+    padding: 2rem 1.5rem;
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform var(--site-transition-base);
+  }
+
+  .site-mobile-close {
+    align-self: flex-end;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--site-primary);
+    cursor: pointer;
+  }
+
+  .site-mobile-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-top: 2rem;
+
+    a {
+      font-size: var(--site-font-lg);
+      font-weight: 700;
+      color: var(--site-primary);
+      text-decoration: none;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--site-border);
+      transition: color var(--site-transition-fast);
+
+      &:hover {
+        color: var(--site-gold);
+      }
+    }
+  }
+}
+
+@media (max-width: 991px) {
+  .site-nav {
+    display: none;
+  }
+
+  .site-hamburger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-navbar-float {
+    display: none; // in mobile drawer instead
+  }
+
+  .ic-navbar-floating {
+    padding: 0.5rem 1.25rem;
+  }
+}
