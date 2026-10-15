@@ -21,6 +21,14 @@ class UpdatePropertyRequest extends WizardFormRequest
             $data['boundary_geojson'] = json_decode($data['boundary_geojson'], true);
         }
 
+        if (array_key_exists('is_active', $data)) {
+            if ($data['is_active'] === 'نشط' || $data['is_active'] === '1' || $data['is_active'] === 1 || $data['is_active'] === true) {
+                $data['is_active'] = 1;
+            } elseif ($data['is_active'] === 'غير نشط' || $data['is_active'] === '0' || $data['is_active'] === 0 || $data['is_active'] === false) {
+                $data['is_active'] = 0;
+            }
+        }
+
         return $data;
     }
 

@@ -48,8 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!row) return;
       bordersList.appendChild(row);
       reindexBorders();
-      const position = markerInstance?.getLatLng();
-      if (position) renderBoundaries(position.lat, position.lng);
       form.dispatchEvent(new Event('change', { bubbles: true }));
     });
 
@@ -63,8 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       removeBtn.closest('.boundary-row').remove();
       reindexBorders();
-      const position = markerInstance?.getLatLng();
-      if (position) renderBoundaries(position.lat, position.lng);
       form.dispatchEvent(new Event('change', { bubbles: true }));
     });
   }
@@ -154,8 +150,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function reindexOwners() {
     if (!ownersList) return;
     ownersList.querySelectorAll('.owner-item').forEach((item, index) => {
-      const numLabel = item.querySelector('.owner-number');
-      if (numLabel) numLabel.textContent = `المالك #${index + 1}`;
+      const numberEl = item.querySelector('.owner-number');
+      if (numberEl) numberEl.textContent = `المالك #${index + 1}`;
+
       item.querySelectorAll('input').forEach((input) => {
         const name = input.getAttribute('name');
         if (name) {
@@ -163,6 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     });
+    form.dispatchEvent(new CustomEvent('stepChanged'));
   }
 
   // =========================================================================
@@ -177,28 +175,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function createUnitRow(data = {}) {
     const index = getUnitIndex();
-    const row = document.createElement('tr');
-    row.className = 'unit-row';
-    row.innerHTML = `
-      <td>
-        <input type="text" name="units[${index}][unit_number]" class="form-control form-control-sm"
-               value="${escapeHtml(data.unit_number || (index + 1))}" placeholder="رقم الوحدة" data-form-control>
-      </td>
-      <td>
-        <input type="text" name="units[${index}][unit_type]" class="form-control form-control-sm"
-               value="${escapeHtml(data.unit_type || '')}" placeholder="فيلا / ملحق / شقة..." data-form-control>
-      </td>
-      <td>
-        <input type="number" step="0.01" name="units[${index}][area]" class="form-control form-control-sm"
-               value="${escapeHtml(data.area || '')}" placeholder="المساحة م²" data-form-control>
-      </td>
-      <td>
-        <input type="text" name="units[${index}][current_use]" class="form-control form-control-sm"
-               value="${escapeHtml(data.current_use || '')}" placeholder="سكني / تجاري..." data-form-control>
-      </td>
+    const tr = document.createElement('tr');
+    tr.className = 'unit-row';
+
+    const statuses = window.propertyUnitStatuses || [
+      { value: 'available', label: 'متاح' },
+      { value: 'rented', label: 'مؤجر' },
+      { value: 'sold', label: 'مباع' }
+    ];
+
+    const statusOptions = statuses.map(s => `
+      <option value="${s.value}" ${data.status === s.value ? 'selected' : ''}>${s.label}</option>
+    `).join('');
+
+    tr.innerHTML = `
+      <td><input type="text" name="units[${index}][unit_number]" class="form-control form-control-sm"
+                 value="${escapeHtml(data.unit_number || '')}" placeholder="مثال: U-101" data-form-control></td>
+      <td><input type="text" name="units[${index}][unit_type]" class="form-control form-control-sm"
+                 value="${escapeHtml(data.unit_type || '')}" placeholder="فيلا / شقة..." data-form-control></td>
+      <td><input type="number" step="0.01" name="units[${index}][area]" class="form-control form-control-sm"
+                 value="${escapeHtml(data.area || '')}" placeholder="المساحة" data-form-control></td>
+      <td><input type="text" name="units[${index}][current_use]" class="form-control form-control-sm"
+                 value="${escapeHtml(data.current_use || '')}" placeholder="سكني / تجاري..." data-form-control></td>
       <td>
         <select name="units[${index}][status]" class="form-select form-select-sm" data-form-control>
-          ${(Array.isArray(window.propertyUnitStatuses) ? window.propertyUnitStatuses : []).map(opt => `<option value="${escapeHtml(opt.value)}"` + (data.status === opt.value ? ' selected' : '') + `>${escapeHtml(opt.label)}</option>`).join('')}
+          ${statusOptions}
         </select>
       </td>
       <td class="text-center">
@@ -207,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </button>
       </td>
     `;
-    return row;
+    return tr;
   }
 
   if (addUnitBtn && unitsList) {
@@ -239,31 +240,25 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // =========================================================================
-  // 4. Leaflet Map, Google Places Search & Interactive Polygon Boundary
+  // 4. Interactive Property Image Boundary Selection & Annotation
   // =========================================================================
-  let mapInstance = null;
-  let centerMarker = null;
-  let currentPolygon = null;
-  let vertexMarkers = [];
-  let boundaryMaskLayer = null;
-
-  const mapsInput = form.elements.namedItem('google_maps_url');
-  const latInput = form.elements.namedItem('latitude');
-  const lngInput = form.elements.namedItem('longitude');
-  const mapWarningBox = document.getElementById('map-warning-box');
-  const mapContainer = document.getElementById('property-leaflet-map');
+  const imageUploadInput = document.getElementById('property-image-upload');
+  const emptyPlaceholder = document.getElementById('property-image-empty-placeholder');
+  const canvasWrapper = document.getElementById('property-image-canvas-wrapper');
+  const canvas = document.getElementById('property-drawing-canvas');
+  const statusBar = document.getElementById('property-image-status-bar');
+  const pointsBadge = document.getElementById('points-count-badge');
+  const statusText = document.getElementById('polygon-status-text');
+  const btnDownload = document.getElementById('btn-download-annotated');
+  const btnClearBoundary = document.getElementById('btn-clear-boundary');
+  const aerialImageInput = document.getElementById('property-aerial-image');
   const boundaryGeoJsonInput = document.getElementById('property-boundary-geojson');
 
-  const btnDrawBoundary = document.getElementById('btn-draw-boundary');
-  const btnResetBoundary = document.getElementById('btn-reset-boundary');
-  const btnClearBoundary = document.getElementById('btn-clear-boundary');
-
-  const searchInput = document.getElementById('property-map-search-input');
-  const searchBtn = document.getElementById('property-map-search-btn');
-  const searchSpinner = document.getElementById('property-map-search-spinner');
-  const searchResults = document.getElementById('property-map-search-results');
-
-  const L = window.L || window.leaFlet;
+  let loadedImage = null;
+  let points = []; // Array of normalized { x: 0..1, y: 0..1 }
+  let draggedPointIndex = null;
+  let hoveredPointIndex = null;
+  let annotatedDataUrl = '';
 
   function notifyUser(type, message) {
     if (window.toastr && typeof window.toastr[type] === 'function') {
@@ -271,566 +266,353 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function getBoundaryLengths() {
-    const lengths = { north: 0, south: 0, east: 0, west: 0 };
-    if (!bordersList) return lengths;
-
-    bordersList.querySelectorAll('.boundary-row').forEach((row) => {
-      const direction = row.querySelector('select[name*="[direction]"]')?.value;
-      const length = Number.parseFloat(row.querySelector('input[name*="[length]"]')?.value);
-      if (direction in lengths && Number.isFinite(length) && length > 0) {
-        lengths[direction] = Math.max(lengths[direction], length);
-      }
-    });
-
-    return lengths;
-  }
-
-  function latLngsToGeoJson(latLngs) {
-    if (!Array.isArray(latLngs) || latLngs.length < 3) return null;
-    const ring = latLngs.map((p) => [
-      Number(Number(p.lng).toFixed(7)),
-      Number(Number(p.lat).toFixed(7))
-    ]);
-
-    // Close linear ring if needed
-    if (ring[0][0] !== ring[ring.length - 1][0] || ring[0][1] !== ring[ring.length - 1][1]) {
-      ring.push([ring[0][0], ring[0][1]]);
-    }
-
+  function getCanvasCoords(event) {
+    if (!canvas) return { x: 0, y: 0, pixelX: 0, pixelY: 0 };
+    const rect = canvas.getBoundingClientRect();
+    const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+    const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+    const px = Math.max(0, Math.min(canvas.width, (clientX - rect.left) * (canvas.width / rect.width)));
+    const py = Math.max(0, Math.min(canvas.height, (clientY - rect.top) * (canvas.height / rect.height)));
     return {
-      type: 'Polygon',
-      coordinates: [ring]
+      x: px / canvas.width,
+      y: py / canvas.height,
+      pixelX: px,
+      pixelY: py
     };
   }
 
-  function geoJsonToLatLngs(geoJson) {
-    if (!geoJson || !L) return null;
-    let parsed = geoJson;
-    if (typeof geoJson === 'string') {
-      try {
-        parsed = JSON.parse(geoJson);
-      } catch (e) {
-        return null;
-      }
+  function findPointNear(pixelX, pixelY, threshold = 14) {
+    if (!canvas || !points.length) return -1;
+    for (let i = 0; i < points.length; i++) {
+      const ptX = points[i].x * canvas.width;
+      const ptY = points[i].y * canvas.height;
+      const dist = Math.hypot(ptX - pixelX, ptY - pixelY);
+      if (dist <= threshold) return i;
     }
-
-    if (parsed?.type !== 'Polygon' || !Array.isArray(parsed?.coordinates?.[0])) {
-      return null;
-    }
-
-    const ring = parsed.coordinates[0];
-    if (ring.length < 4) return null;
-
-    // Discard the repeated closing vertex
-    const points = ring.slice(0, ring.length - 1).map((c) => L.latLng(Number(c[1]), Number(c[0])));
-    return points.length >= 3 ? points : null;
+    return -1;
   }
 
-  function syncGeoJsonInput(latLngs) {
-    if (!boundaryGeoJsonInput) return;
-    const geoJson = latLngsToGeoJson(latLngs);
-    boundaryGeoJsonInput.value = geoJson ? JSON.stringify(geoJson) : '';
-    boundaryGeoJsonInput.dispatchEvent(new Event('input', { bubbles: true }));
-    boundaryGeoJsonInput.dispatchEvent(new Event('change', { bubbles: true }));
-  }
+  function drawCanvas() {
+    if (!canvas || !loadedImage) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  function calculateCentroid(latLngs) {
-    if (!Array.isArray(latLngs) || !latLngs.length) return null;
-    let totalLat = 0;
-    let totalLng = 0;
-    latLngs.forEach((p) => {
-      totalLat += p.lat;
-      totalLng += p.lng;
-    });
-    return {
-      lat: totalLat / latLngs.length,
-      lng: totalLng / latLngs.length
-    };
-  }
+    // Draw background image
+    ctx.drawImage(loadedImage, 0, 0, canvas.width, canvas.height);
 
-  function updateDarkMask(latLngs) {
-    if (!mapInstance || !L) return;
-    const worldBounds = [
-      [85.05112878, -180],
-      [85.05112878, 180],
-      [-85.05112878, 180],
-      [-85.05112878, -180]
-    ];
-
-    if (!Array.isArray(latLngs) || latLngs.length < 3) {
-      if (boundaryMaskLayer) {
-        boundaryMaskLayer.remove();
-        boundaryMaskLayer = null;
-      }
+    if (!points.length) {
+      updateStatusUI();
       return;
     }
 
-    if (!boundaryMaskLayer) {
-      boundaryMaskLayer = L.polygon([worldBounds, latLngs], {
-        stroke: false,
-        fillColor: '#0a0d14',
-        fillOpacity: 0.65,
-        fillRule: 'evenodd',
-        interactive: false
-      }).addTo(mapInstance);
-    } else {
-      boundaryMaskLayer.setLatLngs([worldBounds, latLngs]);
+    // Draw Polygon path
+    ctx.beginPath();
+    ctx.moveTo(points[0].x * canvas.width, points[0].y * canvas.height);
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(points[i].x * canvas.width, points[i].y * canvas.height);
     }
-  }
 
-  function updateCenterMarker(lat, lng) {
-    if (!mapInstance || !L) return;
-    const centerPinIcon = L.divIcon({
-      className: 'property-center-pin',
-      iconSize: [32, 32],
-      iconAnchor: [16, 16],
-      html: '<div class="pin-badge"><i class="ti ti-map-pin"></i></div>'
+    if (points.length >= 3) {
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(29, 79, 68, 0.28)';
+      ctx.fill();
+    }
+
+    ctx.strokeStyle = '#1D4F44';
+    ctx.lineWidth = 3;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    // Draw vertex handles
+    points.forEach((pt, index) => {
+      const px = pt.x * canvas.width;
+      const py = pt.y * canvas.height;
+      const isHovered = (hoveredPointIndex === index);
+      const isDragged = (draggedPointIndex === index);
+      const isFirst = (index === 0);
+
+      ctx.beginPath();
+      ctx.arc(px, py, isDragged ? 8 : (isHovered ? 7 : 5.5), 0, Math.PI * 2);
+      ctx.fillStyle = isFirst ? '#F7F3EC' : (isDragged || isHovered ? '#ffc107' : '#ffffff');
+      ctx.fill();
+      ctx.strokeStyle = '#1D4F44';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      ctx.fillStyle = '#1D4F44';
+      ctx.font = 'bold 11px sans-serif';
+      ctx.fillText(String(index + 1), px + 8, py - 6);
     });
 
-    if (!centerMarker) {
-      centerMarker = L.marker([lat, lng], {
-        icon: centerPinIcon,
-        draggable: true,
-        zIndexOffset: 1000
-      }).addTo(mapInstance);
+    updateStatusUI();
+  }
 
-      centerMarker.on('dragend', () => {
-        const pos = centerMarker.getLatLng();
-        if (latInput) latInput.value = pos.lat.toFixed(7);
-        if (lngInput) lngInput.value = pos.lng.toFixed(7);
-        if (mapsInput && (!mapsInput.value || mapsInput.value.includes('google.com'))) {
-          mapsInput.value = `https://maps.google.com/?q=${pos.lat.toFixed(7)},${pos.lng.toFixed(7)}`;
-        }
-        form.dispatchEvent(new Event('change', { bubbles: true }));
-      });
+  function updateStatusUI() {
+    if (!statusBar || !pointsBadge || !statusText) return;
+    pointsBadge.textContent = `${points.length} نقاط محددة`;
+    if (points.length === 0) {
+      statusText.textContent = 'انقر على زوايا العقار لوضع نقاط الحدود';
+      pointsBadge.className = 'badge bg-label-info';
+    } else if (points.length < 3) {
+      statusText.textContent = `حدد ${3 - points.length} نقاط إضافية على الأقل لإغلاق المضلع`;
+      pointsBadge.className = 'badge bg-label-warning';
     } else {
-      centerMarker.setLatLng([lat, lng]);
+      statusText.textContent = 'تم إغلاق وتحديد مضلع العقار بنجاح (يمكنك سحب أي نقطة لتعديلها)';
+      pointsBadge.className = 'badge bg-label-success';
     }
-
-    if (latInput) latInput.value = lat.toFixed(7);
-    if (lngInput) lngInput.value = lng.toFixed(7);
   }
 
-  function clearVertexMarkers() {
-    vertexMarkers.forEach((m) => m.remove());
-    vertexMarkers = [];
-  }
+  function syncAnnotatedImage() {
+    if (!loadedImage) return;
 
-  function renderPolygonWithVertices(latLngs, shouldFit = false) {
-    if (!mapInstance || !L) return;
-    if (!Array.isArray(latLngs) || latLngs.length < 3) return;
+    if (points.length >= 3) {
+      const naturalW = loadedImage.naturalWidth || loadedImage.width || 1200;
+      const naturalH = loadedImage.naturalHeight || loadedImage.height || 800;
+      const offscreen = document.createElement('canvas');
+      offscreen.width = naturalW;
+      offscreen.height = naturalH;
+      const oCtx = offscreen.getContext('2d');
 
-    clearVertexMarkers();
+      oCtx.drawImage(loadedImage, 0, 0, naturalW, naturalH);
 
-    if (!currentPolygon) {
-      currentPolygon = L.polygon(latLngs, {
-        color: '#6366f1',
-        weight: 3.5,
-        opacity: 0.95,
-        fillColor: '#6366f1',
-        fillOpacity: 0.28
-      }).addTo(mapInstance);
-    } else {
-      currentPolygon.setLatLngs(latLngs);
-    }
+      oCtx.beginPath();
+      oCtx.moveTo(points[0].x * naturalW, points[0].y * naturalH);
+      for (let i = 1; i < points.length; i++) {
+        oCtx.lineTo(points[i].x * naturalW, points[i].y * naturalH);
+      }
+      oCtx.closePath();
 
-    const vertexIcon = L.divIcon({
-      className: 'polygon-vertex-handle',
-      iconSize: [16, 16],
-      iconAnchor: [8, 8],
-      html: '<div class="vertex-dot"></div>'
-    });
+      oCtx.fillStyle = 'rgba(29, 79, 68, 0.32)';
+      oCtx.fill();
 
-    latLngs.forEach((latLng, index) => {
-      const handle = L.marker(latLng, {
-        icon: vertexIcon,
-        draggable: true,
-        zIndexOffset: 500
-      }).addTo(mapInstance);
+      const strokeW = Math.max(4, Math.round(naturalW / 250));
+      oCtx.strokeStyle = '#1D4F44';
+      oCtx.lineWidth = strokeW;
+      oCtx.lineJoin = 'round';
+      oCtx.lineCap = 'round';
+      oCtx.stroke();
 
-      // Realtime dragging of vertex handles
-      handle.on('drag', () => {
-        const updatedLatLngs = currentPolygon.getLatLngs()[0] || currentPolygon.getLatLngs();
-        updatedLatLngs[index] = handle.getLatLng();
-        currentPolygon.setLatLngs(updatedLatLngs);
-        updateDarkMask(updatedLatLngs);
-
-        const centroid = calculateCentroid(updatedLatLngs);
-        if (centroid && centerMarker) {
-          centerMarker.setLatLng([centroid.lat, centroid.lng]);
-          if (latInput) latInput.value = centroid.lat.toFixed(7);
-          if (lngInput) lngInput.value = centroid.lng.toFixed(7);
-        }
-
-        syncGeoJsonInput(updatedLatLngs);
+      const vRadius = Math.max(6, Math.round(naturalW / 180));
+      points.forEach((pt) => {
+        const vx = pt.x * naturalW;
+        const vy = pt.y * naturalH;
+        oCtx.beginPath();
+        oCtx.arc(vx, vy, vRadius, 0, Math.PI * 2);
+        oCtx.fillStyle = '#ffffff';
+        oCtx.fill();
+        oCtx.strokeStyle = '#1D4F44';
+        oCtx.lineWidth = Math.max(2.5, Math.round(strokeW / 2));
+        oCtx.stroke();
       });
 
-      handle.on('dragend', () => {
-        const updatedLatLngs = currentPolygon.getLatLngs()[0] || currentPolygon.getLatLngs();
-        syncGeoJsonInput(updatedLatLngs);
-        const centroid = calculateCentroid(updatedLatLngs);
-        if (centroid) {
-          updateCenterMarker(centroid.lat, centroid.lng);
-        }
-        form.dispatchEvent(new Event('change', { bubbles: true }));
-      });
-
-      vertexMarkers.push(handle);
-    });
-
-    updateDarkMask(latLngs);
-
-    const center = calculateCentroid(latLngs);
-    if (center) {
-      updateCenterMarker(center.lat, center.lng);
-    }
-
-    syncGeoJsonInput(latLngs);
-
-    if (shouldFit) {
-      window.requestAnimationFrame(() => {
-        mapInstance.invalidateSize();
-        mapInstance.fitBounds(currentPolygon.getBounds(), {
-          padding: [30, 30],
-          maxZoom: 18
-        });
-      });
-    }
-  }
-
-  function buildDefaultPolygonFromCenter(lat, lng) {
-    const lengths = getBoundaryLengths();
-    const width = Math.max(lengths.north, lengths.south, 30);
-    const height = Math.max(lengths.east, lengths.west, 30);
-    const latitudeMeters = 111320;
-    const longitudeMeters = Math.max(latitudeMeters * Math.cos((lat * Math.PI) / 180), 1);
-
-    const northLat = lat + (height / 2) / latitudeMeters;
-    const southLat = lat - (height / 2) / latitudeMeters;
-    const eastLng = lng + (width / 2) / longitudeMeters;
-    const westLng = lng - (width / 2) / longitudeMeters;
-
-    return [
-      L.latLng(northLat, westLng),
-      L.latLng(northLat, eastLng),
-      L.latLng(southLat, eastLng),
-      L.latLng(southLat, westLng)
-    ];
-  }
-
-  function clearBoundarySelection() {
-    if (currentPolygon) {
-      currentPolygon.remove();
-      currentPolygon = null;
-    }
-    clearVertexMarkers();
-    if (boundaryMaskLayer) {
-      boundaryMaskLayer.remove();
-      boundaryMaskLayer = null;
-    }
-    if (boundaryGeoJsonInput) {
-      boundaryGeoJsonInput.value = '';
-      boundaryGeoJsonInput.dispatchEvent(new Event('input', { bubbles: true }));
-      boundaryGeoJsonInput.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-    notifyUser('warning', 'تم مسح تحديد الحدود.');
-  }
-
-  function initMap(lat = 24.7136, lng = 46.6753, zoom = 15) {
-    if (!mapContainer || !L) return;
-
-    if (!mapInstance) {
-      mapInstance = L.map('property-leaflet-map', {
-        attributionControl: true
-      }).setView([lat, lng], zoom);
-
-      // Remove Leaflet branding badge while keeping attribution legally required
-      if (mapInstance.attributionControl) {
-        mapInstance.attributionControl.setPrefix(false);
+      annotatedDataUrl = offscreen.toDataURL('image/png');
+      if (aerialImageInput) {
+        aerialImageInput.value = annotatedDataUrl;
+        aerialImageInput.dispatchEvent(new Event('input', { bubbles: true }));
+        aerialImageInput.dispatchEvent(new Event('change', { bubbles: true }));
       }
 
-      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 19,
-        attribution: 'Tiles &copy; Esri, Maxar, Earthstar Geographics'
-      }).addTo(mapInstance);
+      if (btnDownload) {
+        btnDownload.disabled = false;
+      }
 
-      // Custom GPS Locate Control
-      const LocateControl = L.Control.extend({
-        onAdd: function () {
-          const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
-          const link = L.DomUtil.create('a', 'leaflet-control-locate-btn', container);
-          link.href = '#';
-          link.title = 'تحديد موقعي الحالي';
-          link.setAttribute('role', 'button');
-          link.innerHTML = '<i class="ti ti-current-location"></i>';
-
-          L.DomEvent.on(link, 'click', function (e) {
-            L.DomEvent.stopPropagation(e);
-            L.DomEvent.preventDefault(e);
-            if (navigator.geolocation) {
-              notifyUser('info', 'جاري تحديد موقعك الحالي...');
-              navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                  const uLat = pos.coords.latitude;
-                  const uLng = pos.coords.longitude;
-                  mapInstance.flyTo([uLat, uLng], 17);
-                  updateCenterMarker(uLat, uLng);
-                  if (mapsInput) {
-                    mapsInput.value = `https://maps.google.com/?q=${uLat.toFixed(7)},${uLng.toFixed(7)}`;
-                  }
-                  if (currentPolygon) {
-                    const shifted = buildDefaultPolygonFromCenter(uLat, uLng);
-                    renderPolygonWithVertices(shifted, true);
-                  }
-                  notifyUser('success', 'تم تحديد موقعك الحالي بنجاح.');
-                },
-                () => {
-                  notifyUser('error', 'تعذر الوصول إلى موقعك الحالي.');
-                }
-              );
-            } else {
-              notifyUser('warning', 'المتصفح لا يدعم تحديد الموقع الجغرافي.');
-            }
-          });
-          return container;
-        }
-      });
-      new LocateControl({ position: 'topleft' }).addTo(mapInstance);
-
-      updateCenterMarker(lat, lng);
+      const ring = points.map((p) => [
+        Number((p.x * 100).toFixed(4)),
+        Number((p.y * 100).toFixed(4))
+      ]);
+      ring.push([ring[0][0], ring[0][1]]);
+      const geoJson = {
+        type: 'Polygon',
+        coordinates: [ring]
+      };
+      if (boundaryGeoJsonInput) {
+        boundaryGeoJsonInput.value = JSON.stringify(geoJson);
+        boundaryGeoJsonInput.dispatchEvent(new Event('input', { bubbles: true }));
+        boundaryGeoJsonInput.dispatchEvent(new Event('change', { bubbles: true }));
+      }
     } else {
-      mapInstance.setView([lat, lng], zoom);
-      updateCenterMarker(lat, lng);
-      setTimeout(() => mapInstance.invalidateSize(), 200);
+      if (btnDownload) btnDownload.disabled = true;
+      if (boundaryGeoJsonInput) {
+        boundaryGeoJsonInput.value = '';
+        boundaryGeoJsonInput.dispatchEvent(new Event('input', { bubbles: true }));
+        boundaryGeoJsonInput.dispatchEvent(new Event('change', { bubbles: true }));
+      }
     }
 
-    // Restore existing GeoJSON if available
-    const existingGeoJson = boundaryGeoJsonInput?.value?.trim();
-    if (existingGeoJson) {
-      const points = geoJsonToLatLngs(existingGeoJson);
-      if (points) {
-        renderPolygonWithVertices(points, true);
+    form.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
+  function loadImageSrc(src, existingGeoJson = null) {
+    if (!src) return;
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      loadedImage = img;
+      if (emptyPlaceholder) emptyPlaceholder.classList.add('d-none');
+      if (canvasWrapper) canvasWrapper.classList.remove('d-none');
+      if (statusBar) statusBar.classList.remove('d-none');
+      if (statusBar) statusBar.classList.add('d-flex');
+
+      const maxW = 720;
+      const scale = Math.min(1, maxW / img.naturalWidth);
+      canvas.width = Math.round(img.naturalWidth * scale);
+      canvas.height = Math.round(img.naturalHeight * scale);
+
+      if (existingGeoJson) {
+        let parsed = existingGeoJson;
+        if (typeof existingGeoJson === 'string') {
+          try { parsed = JSON.parse(existingGeoJson); } catch (e) { parsed = null; }
+        }
+        if (parsed?.type === 'Polygon' && Array.isArray(parsed?.coordinates?.[0])) {
+          const ring = parsed.coordinates[0];
+          const slice = ring.length > 3 ? ring.slice(0, ring.length - 1) : ring;
+          points = slice.map((c) => ({
+            x: Math.max(0, Math.min(1, Number(c[0]) / 100)),
+            y: Math.max(0, Math.min(1, Number(c[1]) / 100))
+          }));
+        }
+      }
+
+      drawCanvas();
+      syncAnnotatedImage();
+    };
+    img.src = src;
+  }
+
+  if (imageUploadInput) {
+    imageUploadInput.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        notifyUser('error', 'يرجى اختيار ملف صورة صالح.');
         return;
       }
-    }
 
-    // Default polygon if coordinates are available
-    if (latInput?.value && lngInput?.value) {
-      const parsedLat = Number(latInput.value);
-      const parsedLng = Number(lngInput.value);
-      if (Number.isFinite(parsedLat) && Number.isFinite(parsedLng)) {
-        const poly = buildDefaultPolygonFromCenter(parsedLat, parsedLng);
-        renderPolygonWithVertices(poly, true);
-      }
-    }
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        points = [];
+        loadImageSrc(event.target.result);
+        notifyUser('info', 'تم تحميل الصورة. انقر الآن على زوايا العقار لتحديد حدوده.');
+      };
+      reader.readAsDataURL(file);
+    });
   }
 
-  function parseGoogleMapsUrl(url) {
-    if (!url) return null;
-    let match = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
-    if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+  if (canvas) {
+    canvas.addEventListener('mousedown', (e) => {
+      if (!loadedImage) return;
+      const coords = getCanvasCoords(e);
+      const nearIndex = findPointNear(coords.pixelX, coords.pixelY);
 
-    match = url.match(/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/);
-    if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
-
-    match = url.match(/[?&]ll=(-?\d+\.\d+),(-?\d+\.\d+)/);
-    if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
-
-    match = url.match(/place\/(-?\d+\.\d+),(-?\d+\.\d+)/);
-    if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
-
-    return null;
-  }
-
-  function updateMapFromUrl() {
-    const url = mapsInput?.value?.trim();
-    if (!url) {
-      if (mapWarningBox) mapWarningBox.style.display = 'block';
-      return;
-    }
-
-    const coords = parseGoogleMapsUrl(url);
-    if (coords) {
-      if (latInput) latInput.value = coords.lat.toFixed(7);
-      if (lngInput) lngInput.value = coords.lng.toFixed(7);
-      if (mapWarningBox) mapWarningBox.style.display = 'none';
-      initMap(coords.lat, coords.lng, 17);
-      const poly = buildDefaultPolygonFromCenter(coords.lat, coords.lng);
-      renderPolygonWithVertices(poly, true);
-    } else {
-      if (mapWarningBox) {
-        mapWarningBox.style.display = 'block';
-        mapWarningBox.innerHTML = '<i class="ti ti-alert-triangle me-1"></i> تم إدخال الرابط، لكن تعذر قراءة الإحداثيات منه تلقائياً. يمكنك تحريك المؤشر على الخريطة لتحديد الموقع.';
-      }
-      initMap(24.7136, 46.6753, 12);
-    }
-  }
-
-  // Toolbar Button 1: رسم الحدود على الخريطة
-  if (btnDrawBoundary) {
-    btnDrawBoundary.addEventListener('click', () => {
-      const currentLat = Number(latInput?.value) || centerMarker?.getLatLng()?.lat || 24.7136;
-      const currentLng = Number(lngInput?.value) || centerMarker?.getLatLng()?.lng || 46.6753;
-
-      if (!currentPolygon) {
-        const poly = buildDefaultPolygonFromCenter(currentLat, currentLng);
-        renderPolygonWithVertices(poly, true);
-        notifyUser('success', 'تم رسم حدود العقار. اسحب زوايا الشكل بالماوس لتعديل الأبعاد بدقة.');
+      if (nearIndex >= 0) {
+        draggedPointIndex = nearIndex;
+        canvas.style.cursor = 'grabbing';
       } else {
-        mapInstance.fitBounds(currentPolygon.getBounds(), { padding: [30, 30], maxZoom: 18 });
-        notifyUser('info', 'يمكنك سحب النقاط الزرقاء على زوايا الحدود لتعديل الشكل لحظياً.');
+        points.push({ x: coords.x, y: coords.y });
+        drawCanvas();
+        syncAnnotatedImage();
       }
     });
-  }
 
-  // Toolbar Button 2: تحديد عبر الإحداثيات
-  if (btnResetBoundary) {
-    btnResetBoundary.addEventListener('click', () => {
-      const currentLat = Number(latInput?.value) || centerMarker?.getLatLng()?.lat || 24.7136;
-      const currentLng = Number(lngInput?.value) || centerMarker?.getLatLng()?.lng || 46.6753;
+    window.addEventListener('mousemove', (e) => {
+      if (!canvas || !loadedImage) return;
 
-      const poly = buildDefaultPolygonFromCenter(currentLat, currentLng);
-      renderPolygonWithVertices(poly, true);
-      notifyUser('info', 'تم تحديد وضبط حدود العقار بناءً على الإحداثيات وأطوال الحدود المدخلة.');
-    });
-  }
-
-  // Toolbar Button 3: مسح التحديد
-  if (btnClearBoundary) {
-    btnClearBoundary.addEventListener('click', clearBoundarySelection);
-  }
-
-  // Location Search via Server-Side Google Places Endpoint
-  let searchTimeout = null;
-  const searchEndpoint = window.routes?.propertyLocationSearch || mapContainer?.dataset?.searchUrl || '';
-
-  async function executeLocationSearch() {
-    const query = searchInput?.value?.trim() || '';
-    if (query.length < 3) {
-      if (searchResults) searchResults.classList.add('d-none');
-      return;
-    }
-
-    if (searchSpinner) searchSpinner.classList.remove('d-none');
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || form.querySelector('input[name="_token"]')?.value;
-
-    try {
-      const response = await fetch(searchEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'X-CSRF-TOKEN': csrfToken || ''
-        },
-        body: JSON.stringify({
-          query: query,
-          latitude: Number(latInput?.value) || 24.7136,
-          longitude: Number(lngInput?.value) || 46.6753
-        })
-      });
-
-      const result = await response.json();
-      if (searchSpinner) searchSpinner.classList.add('d-none');
-
-      if (searchResults) {
-        searchResults.innerHTML = '';
-        if (result.success && Array.isArray(result.places) && result.places.length > 0) {
-          result.places.forEach((place) => {
-            const item = document.createElement('button');
-            item.type = 'button';
-            item.className = 'list-group-item list-group-item-action text-start';
-            item.innerHTML = `
-              <div class="fw-semibold text-truncate"><i class="ti ti-map-pin me-1 text-primary"></i>${escapeHtml(place.name)}</div>
-              <small class="text-muted text-truncate d-block">${escapeHtml(place.address || '')}</small>
-            `;
-            item.addEventListener('click', () => {
-              const placeLat = Number(place.latitude);
-              const placeLng = Number(place.longitude);
-              mapInstance.flyTo([placeLat, placeLng], 17);
-              updateCenterMarker(placeLat, placeLng);
-
-              if (mapsInput) {
-                mapsInput.value = `https://maps.google.com/?q=${placeLat.toFixed(7)},${placeLng.toFixed(7)}`;
-              }
-
-              const poly = buildDefaultPolygonFromCenter(placeLat, placeLng);
-              renderPolygonWithVertices(poly, true);
-
-              searchResults.classList.add('d-none');
-              if (searchInput) searchInput.value = place.name;
-              notifyUser('success', `تم الانتقال إلى الموقع: ${place.name}`);
-            });
-            searchResults.appendChild(item);
-          });
-          searchResults.classList.remove('d-none');
-        } else {
-          searchResults.innerHTML = '<div class="list-group-item text-muted small py-2">لم يتم العثور على نتائج مطابقة.</div>';
-          searchResults.classList.remove('d-none');
-        }
+      if (draggedPointIndex !== null) {
+        const coords = getCanvasCoords(e);
+        points[draggedPointIndex] = {
+          x: Math.max(0, Math.min(1, coords.x)),
+          y: Math.max(0, Math.min(1, coords.y))
+        };
+        drawCanvas();
+      } else {
+        const coords = getCanvasCoords(e);
+        const nearIndex = findPointNear(coords.pixelX, coords.pixelY);
+        hoveredPointIndex = nearIndex;
+        canvas.style.cursor = nearIndex >= 0 ? 'grab' : 'crosshair';
+        drawCanvas();
       }
-    } catch (err) {
-      if (searchSpinner) searchSpinner.classList.add('d-none');
-      if (searchResults) {
-        searchResults.innerHTML = '<div class="list-group-item text-danger small py-2">حدث خطأ أثناء البحث. يرجى المحاولة لاحقاً.</div>';
-        searchResults.classList.remove('d-none');
-      }
-    }
-  }
-
-  if (searchInput) {
-    searchInput.addEventListener('input', () => {
-      clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(executeLocationSearch, 350);
     });
 
-    searchInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
+    window.addEventListener('mouseup', () => {
+      if (draggedPointIndex !== null) {
+        draggedPointIndex = null;
+        if (canvas) canvas.style.cursor = 'crosshair';
+        syncAnnotatedImage();
+      }
+    });
+
+    canvas.addEventListener('touchstart', (e) => {
+      if (!loadedImage) return;
+      e.preventDefault();
+      const coords = getCanvasCoords(e);
+      const nearIndex = findPointNear(coords.pixelX, coords.pixelY, 20);
+
+      if (nearIndex >= 0) {
+        draggedPointIndex = nearIndex;
+      } else {
+        points.push({ x: coords.x, y: coords.y });
+        drawCanvas();
+        syncAnnotatedImage();
+      }
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (e) => {
+      if (draggedPointIndex !== null) {
         e.preventDefault();
-        clearTimeout(searchTimeout);
-        executeLocationSearch();
+        const coords = getCanvasCoords(e);
+        points[draggedPointIndex] = {
+          x: Math.max(0, Math.min(1, coords.x)),
+          y: Math.max(0, Math.min(1, coords.y))
+        };
+        drawCanvas();
       }
-    });
+    }, { passive: false });
 
-    document.addEventListener('click', (e) => {
-      if (!searchInput.contains(e.target) && !searchResults?.contains(e.target)) {
-        if (searchResults) searchResults.classList.add('d-none');
-      }
-    });
-  }
-
-  if (searchBtn) {
-    searchBtn.addEventListener('click', executeLocationSearch);
-  }
-
-  if (mapsInput) {
-    mapsInput.addEventListener('input', updateMapFromUrl);
-    mapsInput.addEventListener('change', updateMapFromUrl);
-  }
-
-  if (bordersList) {
-    bordersList.addEventListener('input', () => {
-      if (currentPolygon && centerMarker) {
-        const center = centerMarker.getLatLng();
-        const poly = buildDefaultPolygonFromCenter(center.lat, center.lng);
-        renderPolygonWithVertices(poly, false);
+    canvas.addEventListener('touchend', () => {
+      if (draggedPointIndex !== null) {
+        draggedPointIndex = null;
+        syncAnnotatedImage();
       }
     });
   }
 
-  // Initial Map Bootstrapping
-  const initialLat = Number(latInput?.value) || 24.7136;
-  const initialLng = Number(lngInput?.value) || 46.6753;
-  initMap(initialLat, initialLng, initialLat !== 24.7136 ? 17 : 14);
-
-  // Invalidate map size on step change
-  document.querySelectorAll('[data-bs-toggle="tab"], .step, [data-wizard-next], [data-wizard-prev]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      setTimeout(() => {
-        if (mapInstance) mapInstance.invalidateSize();
-      }, 300);
+  if (btnClearBoundary) {
+    btnClearBoundary.addEventListener('click', () => {
+      points = [];
+      annotatedDataUrl = '';
+      drawCanvas();
+      syncAnnotatedImage();
+      if (aerialImageInput && loadedImage?.src && !loadedImage.src.startsWith('data:image/')) {
+        aerialImageInput.value = loadedImage.src;
+      } else if (aerialImageInput) {
+        aerialImageInput.value = '';
+      }
+      notifyUser('info', 'تم مسح تحديد المضلع. يمكنك النقر للبدء من جديد.');
     });
-  });
+  }
+
+  if (btnDownload) {
+    btnDownload.addEventListener('click', () => {
+      if (!annotatedDataUrl) {
+        notifyUser('warning', 'يرجى تحديد مضلع العقار أولاً قبل التحميل.');
+        return;
+      }
+      const a = document.createElement('a');
+      a.href = annotatedDataUrl;
+      const propName = form.elements.namedItem('name')?.value?.trim() || 'property';
+      a.download = `${propName}-marked-boundary.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      notifyUser('success', 'تم تحميل الصورة المحددة بنجاح إلى جهازك.');
+    });
+  }
+
+  if (aerialImageInput && aerialImageInput.value) {
+    loadImageSrc(aerialImageInput.value, boundaryGeoJsonInput?.value || null);
+  }
 
   // =========================================================================
   // 5. Review Step (الخطوة 5: المراجعة والحفظ)
@@ -866,15 +648,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const reviewLocation = document.getElementById('review-location');
     if (reviewLocation) {
       const bordersCount = bordersList ? bordersList.querySelectorAll('.boundary-row').length : 0;
-      const hasPolygon = Boolean(currentPolygon || boundaryGeoJsonInput?.value);
+      const hasPolygon = Boolean(boundaryGeoJsonInput?.value && points.length >= 3);
+      const hasImage = Boolean(aerialImageInput?.value || loadedImage);
       const locationFields = [
         ['المدينة', getSelectedText('city')],
         ['الحي', getVal('district')],
         ['المنطقة الإدارية', getVal('administrative_region')],
         ['رقم المخطط', getVal('plan_number')],
         ['رقم القطعة', getVal('parcel_number')],
-        ['الإحداثيات', (getVal('latitude') !== '-' && getVal('longitude') !== '-') ? `${getVal('latitude')}, ${getVal('longitude')}` : 'غير محددة'],
-        ['حدود العقار (الخريطة)', hasPolygon ? 'تم تحديد ورسم الحدود بنجاح' : 'لم يتم التحديد بعد'],
+        ['صورة العقار للتحديد', hasImage ? 'تم رفع صورة العقار' : 'لم يتم الرفع'],
+        ['تحديد حدود العقار', hasPolygon ? `تم تحديد مضلع العقار بنجاح (${points.length} نقاط)` : 'لم يتم التحديد بعد'],
         ['عدد الحدود المدخلة', `${bordersCount} حدود`],
       ];
       reviewLocation.innerHTML = `<dl class="row mb-0">${locationFields.map(([label, val]) => `
@@ -998,13 +781,11 @@ document.addEventListener('DOMContentLoaded', () => {
       reindexUnits();
     }
 
-    if (data.boundary_geojson) {
-      const points = geoJsonToLatLngs(data.boundary_geojson);
-      if (points) {
-        renderPolygonWithVertices(points, true);
-      }
-    } else if (data.google_maps_url) {
-      updateMapFromUrl();
+    // Restore aerial image and boundary points
+    if (data.aerial_image) {
+      loadImageSrc(data.aerial_image, data.boundary_geojson || null);
+    } else if (data.boundary_geojson && aerialImageInput?.value) {
+      loadImageSrc(aerialImageInput.value, data.boundary_geojson);
     }
 
     buildReview();

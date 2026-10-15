@@ -66,7 +66,11 @@
         @endif
         @foreach ($options as $key => $option)
             @php
-                if (is_array($option)) {
+                if ($enum) {
+                    $optionValue = $key;
+                    $optionLabel = $option;
+                    $optionDisabled = false;
+                } elseif (is_array($option)) {
                     $optionValue = $option['value'] ?? $option['id'] ?? $key;
                     $optionLabel = $option['label'] ?? $option['name'] ?? $option['title'] ?? (string) $optionValue;
                     $optionDisabled = !empty($option['disabled']);
@@ -74,8 +78,12 @@
                     $optionValue = $option->value ?? $option->id ?? $key;
                     $optionLabel = $option->label ?? $option->name ?? $option->title ?? (string) $optionValue;
                     $optionDisabled = !empty($option->disabled);
+                } elseif (is_array($options) && array_is_list($options)) {
+                    $optionValue = $option;
+                    $optionLabel = $option;
+                    $optionDisabled = false;
                 } else {
-                    $optionValue = is_numeric($key) ? $option : $key;
+                    $optionValue = $key;
                     $optionLabel = $option;
                     $optionDisabled = false;
                 }

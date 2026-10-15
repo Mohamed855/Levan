@@ -44,13 +44,27 @@
         @endif
         @foreach ($options as $key => $option)
             @php
-                $optionValue = is_object($option)
-                    ? ($option->id ?? $option->value ?? $key)
-                    : (is_array($option) ? ($option['value'] ?? $option['id'] ?? $key) : (is_numeric($key) ? $option : $key));
-                $optionLabel = is_object($option)
-                    ? ($option->name ?? $option->label ?? $optionValue)
-                    : (is_array($option) ? ($option['label'] ?? $option['name'] ?? $optionValue) : $option);
-                $optionDisabled = is_array($option) ? ($option['disabled'] ?? false) : (is_object($option) ? ($option->disabled ?? false) : false);
+                if ($enum) {
+                    $optionValue = $key;
+                    $optionLabel = $option;
+                    $optionDisabled = false;
+                } elseif (is_object($option)) {
+                    $optionValue = $option->id ?? $option->value ?? $key;
+                    $optionLabel = $option->name ?? $option->label ?? $option->title ?? (string) $optionValue;
+                    $optionDisabled = (bool) ($option->disabled ?? false);
+                } elseif (is_array($option)) {
+                    $optionValue = $option['value'] ?? $option['id'] ?? $key;
+                    $optionLabel = $option['label'] ?? $option['name'] ?? $option['title'] ?? (string) $optionValue;
+                    $optionDisabled = (bool) ($option['disabled'] ?? false);
+                } elseif (is_array($options) && array_is_list($options)) {
+                    $optionValue = $option;
+                    $optionLabel = $option;
+                    $optionDisabled = false;
+                } else {
+                    $optionValue = $key;
+                    $optionLabel = $option;
+                    $optionDisabled = false;
+                }
             @endphp
             <option value="{{ $optionValue }}" @selected($selectedValues->contains((string) $optionValue)) @disabled($optionDisabled)>
                 {{ $optionLabel }}
