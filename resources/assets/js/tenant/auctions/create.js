@@ -5,12 +5,43 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!form) return;
 
     let restoredPropertyIds = [];
+    const selectedAttachments = new Map();
+    const selectedProperties = new Map();
+    const propertyImageFallback = form.dataset.propertyImageFallback || '/static/brand/logos/logo.svg';
 
     function escapeHtml(value) {
         if (value === null || value === undefined) return '';
         const element = document.createElement('div');
         element.textContent = String(value);
         return element.innerHTML;
+    }
+
+    function attachmentInput() {
+        return form.elements.namedItem('attachments[]');
+    }
+
+    function renderAttachmentCards() {
+        const list = document.getElementById('auction-attachments-cards');
+        const count = document.getElementById('auction-attachments-count');
+        const files = selectedAttachments.get('attachments') || Array.from(attachmentInput()?.files || []);
+        if (!list || !count) return;
+
+        count.textContent = `${files.length} ${files.length === 1 ? 'ملف' : 'ملفات'}`;
+        $('#review-attachments-count').text(count.textContent);
+        list.innerHTML = files.length
+            ? files.map((file, index) => `<article class="assignment-file-card"><i class="ti ti-paperclip text-primary fs-4"></i><span class="assignment-file-card__name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</span><button type="button" class="btn btn-icon btn-sm btn-label-danger" data-remove-auction-attachment="${index}" aria-label="حذف ${escapeHtml(file.name)}"><i class="ti ti-trash" aria-hidden="true"></i></button></article>`).join('')
+            : '<p class="text-muted mb-0">لم يتم إرفاق ملفات بعد.</p>';
+    }
+
+    function renderSelectedPropertyCards() {
+        const cards = document.getElementById('selected-properties-cards');
+        const count = document.getElementById('selected-properties-count');
+        if (!cards || !count) return;
+        const properties = [...selectedProperties.values()];
+        count.textContent = String(properties.length);
+        cards.innerHTML = properties.length
+            ? properties.map((property) => `<article class="assignment-property-card"><img class="assignment-property-card__image" src="${escapeHtml(property.image || propertyImageFallback)}" alt=""><div class="assignment-property-card__content"><code class="copyable-code">${escapeHtml(property.number || '-')}</code><h6 class="mb-1 text-body text-truncate">${escapeHtml(property.name)}</h6><p class="mb-0 text-muted small">${escapeHtml(property.city || '-')}</p></div><button type="button" class="btn btn-sm btn-icon btn-label-danger" data-remove-auction-property="${escapeHtml(property.id)}"><i class="ti ti-x" aria-hidden="true"></i></button></article>`).join('')
+            : '<p class="text-muted mb-0">لم يتم اختيار عقارات بعد.</p>';
     }
 
     // Wizard draft restored handler
@@ -25,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         updateLivePreview();
+        renderAttachmentCards();
     });
 
     function updateLivePreview() {
@@ -54,6 +86,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const supervising = $('#supervising_entity').val();
         $('#review-supervising').text(supervising || '-');
+        $('#review-platform').text($('#platform_name').val() || '-');
+        $('#review-description').text($('#description').val() || '-');
+        $('#review-expected-properties').text($('#expected_properties_count').val() || '-');
+        $('#review-brochure-template').text($('#brochure_template_id option:selected').text() || '-');
+        $('#review-billboard-template').text($('#billboard_template_id option:selected').text() || '-');
+        $('#review-social-template').text($('#social_template_id option:selected').text() || '-');
     }
 
     // Live preview event listeners
@@ -63,6 +101,27 @@ document.addEventListener('DOMContentLoaded', () => {
     $('#start_date, #end_date').on('change input', updateLivePreview);
     $('#type').on('change', updateLivePreview);
     $('#supervising_entity').on('input', updateLivePreview);
+    $('#platform_name, #description, #expected_properties_count').on('input change', updateLivePreview);
+    $('#brochure_template_id, #billboard_template_id, #social_template_id').on('change', updateLivePreview);
+
+    $(attachmentInput()).on('change', function() {
+        selectedAttachments.set('attachments', Array.from(this.files || []));
+        renderAttachmentCards();
+        form.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    $(form).on('click', '[data-remove-auction-attachment]', function() {
+        if (!window.DataTransfer) return;
+        const files = [...(selectedAttachments.get('attachments') || [])];
+        const index = Number(this.dataset.removeAuctionAttachment);
+        if (!Number.isInteger(index) || !files[index]) return;
+        files.splice(index, 1);
+        const transfer = new DataTransfer();
+        files.forEach((file) => transfer.items.add(file));
+        attachmentInput().files = transfer.files;
+        selectedAttachments.set('attachments', files);
+        renderAttachmentCards();
+    });
 
     // Dynamic Assignment Handling in Step 2 -> Loading Properties in Step 3
     $('#assignment_id').on('change', function() {
@@ -113,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <tr>
                                     <td>
                                         <input type="checkbox" name="property_ids[]" value="${escapeHtml(prop.id)}" class="form-check-input property-select-check" data-form-control
-                                            data-area="${parseFloat(prop.area) || 0}" data-val="${parseFloat(prop.estimated_value) || 0}">
+                                            data-area="${parseFloat(prop.area) || 0}" data-val="${parseFloat(prop.estimated_value) || 0}" data-number="${escapeHtml(prop.property_number)}" data-name="${escapeHtml(prop.name)}" data-city="${escapeHtml(prop.city || '')}" data-image="${escapeHtml(img)}">
                                     </td>
                                     <td><code>${escapeHtml(prop.property_number)}</code></td>
                                     <td>
@@ -165,17 +224,26 @@ document.addEventListener('DOMContentLoaded', () => {
         let count = 0;
         let totalArea = 0;
         let totalVal = 0;
+        selectedProperties.clear();
 
         $('.property-select-check:checked').each(function() {
             count++;
             totalArea += parseFloat($(this).data('area')) || 0;
             totalVal += parseFloat($(this).data('val')) || 0;
+            selectedProperties.set(String(this.value), {
+                id: String(this.value),
+                number: this.dataset.number || '',
+                name: this.dataset.name || '',
+                city: this.dataset.city || '',
+                image: this.dataset.image || propertyImageFallback,
+            });
         });
 
         $('#selected-props-count').text(count);
         $('#selected-props-area').text(totalArea.toLocaleString() + ' م²');
         $('#selected-props-val').text(totalVal.toLocaleString() + ' ر.س');
         $('#review-selected-props-count').text(count + ' عقارات');
+        renderSelectedPropertyCards();
 
         const allCount = $('.property-select-check').length;
         if (allCount > 0 && count === allCount) {
@@ -186,6 +254,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         form.dispatchEvent(new Event('change', { bubbles: true }));
     }
+
+    $(form).on('click', '[data-remove-auction-property]', function() {
+        const propertyId = String(this.dataset.removeAuctionProperty);
+        $(`.property-select-check[value="${CSS.escape(propertyId)}"]`).prop('checked', false);
+        calculateSelectedProperties();
+    });
 
     // Quick jump step buttons in Step 5 Review
     document.querySelectorAll('[data-edit-step]').forEach(button => {
@@ -201,4 +275,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial sync
     updateLivePreview();
+    renderAttachmentCards();
 });

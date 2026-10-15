@@ -324,18 +324,23 @@ class TenantAssetModulesFeatureTest extends TestCase
         $auctionName = 'Lifecycle auction '.uniqid();
         $this->post($this->tenantUrl('auctions'), [
             'name' => $auctionName,
+            'description' => 'Lifecycle auction description.',
             'start_date' => now()->addDay()->toDateString(),
+            'start_time' => '09:00',
             'end_date' => now()->addDays(2)->toDateString(),
+            'end_time' => '17:00',
             'type' => 'electronic',
             'category' => 'lands',
             'city' => 'Riyadh',
+            'expected_properties_count' => 1,
             'assignment_id' => $assignment->id,
+            'platform_name' => 'Auction platform',
             'property_ids' => [$firstProperty->id],
-            'status' => 'draft',
         ])->assertRedirect($this->tenantUrl('auctions'));
 
         $auction = Auction::where('name', $auctionName)->firstOrFail();
         $this->assertSame($assignment->id, $auction->assignment_id);
+        $this->assertSame('pending_approval', $auction->status);
         $this->assertEquals([$firstProperty->id], $auction->properties()->pluck('properties.id')->all());
         $this->assertDatabaseMissing('auction_properties', [
             'auction_id' => $auction->id,
@@ -509,7 +514,7 @@ class TenantAssetModulesFeatureTest extends TestCase
             'city' => 'الرياض',
             'expected_properties_count' => 1,
             'cover_image' => $coverPath,
-            'status' => 'draft',
+            'status' => 'in_preparation',
             'is_active' => true,
             'created_by' => $this->owner->id,
         ]);
@@ -572,12 +577,17 @@ class TenantAssetModulesFeatureTest extends TestCase
         $this->actingAs($this->owner, 'tenant')
             ->post($this->tenantUrl('auctions'), [
                 'name' => $auctionName,
+                'description' => 'Sort order auction description.',
                 'start_date' => now()->addDay()->toDateString(),
+                'start_time' => '09:00',
                 'end_date' => now()->addDays(2)->toDateString(),
+                'end_time' => '17:00',
                 'type' => 'electronic',
                 'category' => 'lands',
                 'city' => 'Riyadh',
+                'expected_properties_count' => 2,
                 'assignment_id' => $assignment->id,
+                'platform_name' => 'Auction platform',
                 'property_ids' => [$prop2->id, $prop1->id],
             ])
             ->assertRedirect($this->tenantUrl('auctions'));
@@ -712,12 +722,17 @@ class TenantAssetModulesFeatureTest extends TestCase
                 '_wizard_draft_id' => $draft['draft_id'],
                 '_wizard_resource_key' => $resourceKey,
                 'name' => 'Final Auction From Draft',
+                'description' => 'Auction restored from a draft.',
                 'start_date' => now()->addDay()->toDateString(),
+                'start_time' => '09:00',
                 'end_date' => now()->addDays(2)->toDateString(),
+                'end_time' => '17:00',
                 'type' => 'electronic',
                 'category' => 'lands',
                 'city' => 'Riyadh',
+                'expected_properties_count' => 1,
                 'assignment_id' => $assignment->id,
+                'platform_name' => 'Auction platform',
                 'property_ids' => [$prop->id],
             ])
             ->assertRedirect($this->tenantUrl('auctions'));

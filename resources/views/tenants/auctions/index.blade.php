@@ -30,7 +30,6 @@
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/shared/table-status-toggle.js'])
     <script>
         window.routes = {
             massDelete: "{{ tenant_route_name('mass-delete') }}"
@@ -107,10 +106,18 @@
 
         <x-slot:filters>
             <x-data-table.filters table="#auctions-table">
-                <x-filter.select id="filter-status" filterKey="status" label="الحالة" placeholder="جميع الحالات"
-                    :enum="\App\Enums\Tenants\Auctions\AuctionStatus::class" />
-                <x-filter.select id="filter-type" filterKey="type" label="نوع المزاد" placeholder="جميع الأنواع"
+                <x-filter.select id="filter-type" filterKey="type" table="#auctions-table" label="نوع المزاد" placeholder="جميع الأنواع"
                     :enum="\App\Enums\Tenants\Auctions\AuctionType::class" />
+                <x-filter.select id="filter-status" filterKey="status" table="#auctions-table" label="الحالة" placeholder="جميع الحالات"
+                    :enum="\App\Enums\Tenants\Auctions\AuctionStatus::class" />
+                <x-filter.select id="filter-assignment" filterKey="assignment_id" table="#auctions-table" label="الإسناد" placeholder="جميع الإسنادات"
+                    :options="$assignments->pluck('name', 'id')->all()" />
+                <x-filter.select id="filter-start-date" filterKey="start_date" table="#auctions-table" label="تاريخ البداية" placeholder="جميع التواريخ"
+                    :options="$startDateOptions" />
+                <x-filter.select id="filter-end-date" filterKey="end_date" table="#auctions-table" label="تاريخ النهاية" placeholder="جميع التواريخ"
+                    :options="$endDateOptions" />
+                <x-filter.select id="filter-city" filterKey="city" table="#auctions-table" label="المدينة" placeholder="جميع المدن"
+                    :options="$cityOptions" />
             </x-data-table.filters>
         </x-slot:filters>
 

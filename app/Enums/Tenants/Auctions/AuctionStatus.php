@@ -6,7 +6,6 @@ namespace App\Enums\Tenants\Auctions;
 
 enum AuctionStatus: string
 {
-    case DRAFT = 'draft';
     case IN_PREPARATION = 'in_preparation';
     case PENDING_APPROVAL = 'pending_approval';
     case ACTIVE = 'active';
@@ -16,7 +15,7 @@ enum AuctionStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::DRAFT => 'مسودة', self::IN_PREPARATION => 'قيد الإعداد', self::PENDING_APPROVAL => 'بانتظار الاعتماد', self::ACTIVE => 'نشط', self::COMPLETED => 'منتهي', self::SUSPENDED => 'معلق'
+            self::IN_PREPARATION => 'قيد الإعداد', self::PENDING_APPROVAL => 'بانتظار الاعتماد', self::ACTIVE => 'نشط', self::COMPLETED => 'منتهي', self::SUSPENDED => 'معلق'
         };
     }
 }

@@ -60,6 +60,21 @@ document.addEventListener('DOMContentLoaded', () => {
     propertyCount.textContent = String(selectedProperties.size);
     renderPropertyCards();
     document.querySelectorAll('.property-selector').forEach(checkbox => { checkbox.checked = selectedProperties.has(String(checkbox.value)); });
+
+    if (selectedProperties.size > 0) {
+      const errorEl = document.getElementById('property_ids-error');
+      if (errorEl) {
+        errorEl.textContent = '';
+        errorEl.setAttribute('hidden', 'true');
+        errorEl.classList.add('hidden');
+        errorEl.style.display = 'none';
+      }
+      const wrapper = form.querySelector('[data-form-field][data-field-name="property_ids"]');
+      if (wrapper) {
+        wrapper.classList.remove('is-invalid');
+      }
+    }
+
     form.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
@@ -82,6 +97,17 @@ document.addEventListener('DOMContentLoaded', () => {
     syncProperties();
   });
 
+  // Clicking on a row toggles its property-selector checkbox
+  document.addEventListener('click', event => {
+    const tr = event.target.closest('#assignment-properties-table tbody tr');
+    if (!tr) return;
+    if (event.target.closest('input, button, a, label')) return;
+    const checkbox = tr.querySelector('.property-selector');
+    if (!checkbox) return;
+    checkbox.checked = !checkbox.checked;
+    checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+
   document.addEventListener('change', event => {
     if (event.target.id !== 'select-all-properties') return;
     document.querySelectorAll('#assignment-properties-table .property-selector').forEach(checkbox => {
@@ -100,18 +126,27 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   if (window.jQuery) {
-    const tableWrapper = document.getElementById('assignment-properties-table_wrapper');
-    tableWrapper?.querySelectorAll('input, select, textarea').forEach(control => {
-      control.removeAttribute('name');
-      control.dataset.validationSkip = 'true';
-      control.classList.remove('is-valid', 'is-invalid');
-      control.removeAttribute('aria-invalid');
-    });
+    const cleanTableControls = () => {
+      const tableWrapper = document.getElementById('assignment-properties-table_wrapper');
+      tableWrapper?.querySelectorAll('input, select, textarea').forEach(control => {
+        if (!control.classList.contains('property-selector') && control.id !== 'select-all-properties') {
+          control.removeAttribute('name');
+          control.dataset.validationSkip = 'true';
+          control.classList.remove('is-valid', 'is-invalid');
+          control.removeAttribute('aria-invalid');
+        }
+      });
+    };
+
+    cleanTableControls();
 
     window.jQuery('#assignment-properties-table').on('draw.dt', () => {
+      cleanTableControls();
       const selectAll = document.getElementById('select-all-properties');
       if (selectAll) selectAll.checked = false;
-      document.querySelectorAll('.property-selector').forEach(checkbox => { checkbox.checked = selectedProperties.has(String(checkbox.value)); });
+      document.querySelectorAll('.property-selector').forEach(checkbox => {
+        checkbox.checked = selectedProperties.has(String(checkbox.value));
+      });
     });
   }
 

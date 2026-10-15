@@ -45,6 +45,9 @@ class AuctionsController extends Controller
             'inPreparationAuctions' => $statistics['in_preparation'],
             'pendingAuctions' => $statistics['pending_approval'],
             'needsReviewAuctions' => $statistics['needs_review'],
+            'assignments' => Assignment::query()->select(['id', 'name', 'assignment_number'])->orderBy('name')->get(),
+            'startDateOptions' => Auction::query()->whereNotNull('start_date')->orderByDesc('start_date')->pluck('start_date', 'start_date')->all(),
+            'endDateOptions' => Auction::query()->whereNotNull('end_date')->orderByDesc('end_date')->pluck('end_date', 'end_date')->all(),
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
         ]);
     }
@@ -67,7 +70,7 @@ class AuctionsController extends Controller
             $action->execute(
                 $request->validated(),
                 (int) $request->user('tenant')?->getAuthIdentifier(),
-                $request->file('cover_image'),
+                null,
                 $request->file('attachments', [])
             );
 
@@ -116,7 +119,7 @@ class AuctionsController extends Controller
             $action->execute(
                 $auction,
                 $request->validated(),
-                $request->file('cover_image'),
+                null,
                 $request->file('attachments', [])
             );
 

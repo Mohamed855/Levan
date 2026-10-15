@@ -155,6 +155,7 @@ function clearFieldError(form, fieldName) {
     if (error) {
       error.textContent = '';
       error.hidden = true;
+      error.setAttribute('hidden', 'true');
       error.classList.add('hidden');
       error.style.display = 'none';
     }
@@ -172,6 +173,7 @@ function clearFieldError(form, fieldName) {
       if (feedback) {
         feedback.textContent = '';
         feedback.hidden = true;
+        feedback.setAttribute('hidden', 'true');
         feedback.style.display = 'none';
       }
     }
@@ -193,6 +195,7 @@ function setFieldError(form, fieldName, message) {
     if (error) {
       error.textContent = message;
       error.hidden = false;
+      error.removeAttribute('hidden');
       error.classList.remove('hidden');
       error.setAttribute('aria-live', 'polite');
       error.style.display = 'block';
@@ -215,6 +218,7 @@ function setFieldError(form, fieldName, message) {
       if (feedback) {
         feedback.textContent = message;
         feedback.hidden = false;
+        feedback.removeAttribute('hidden');
         feedback.style.display = 'block';
       }
     }
@@ -233,6 +237,7 @@ function setFieldError(form, fieldName, message) {
     if (stepError) {
       stepError.textContent = message;
       stepError.hidden = false;
+      stepError.removeAttribute('hidden');
       stepError.style.display = 'block';
     }
   }
@@ -500,7 +505,7 @@ async function restoreDraft(form) {
     }
 
     let shouldRestore = true;
-    if (window.Swal) {
+    if (window.Swal && !form.hasAttribute('data-draft-auto-restore')) {
       const result = await window.Swal.fire({
         title: 'مسودة محفوظة',
         text: 'توجد مسودة محفوظة مسبقاً. هل ترغب في استعادتها؟',
@@ -954,7 +959,7 @@ function initStepper(form) {
   }
 
   const state = getFormState(form);
-  state.stepper = new window.Stepper(stepperElement, { linear: true });
+  state.stepper = new window.Stepper(stepperElement, { linear: false });
 
   const getSteps = () => Array.from(stepperElement.querySelectorAll('[data-form-step]'));
 
@@ -1034,6 +1039,17 @@ function initStepper(form) {
           const isValid = await validateFields(form, stepFields, { force: true });
           if (isValid) {
             moveTo(currentIndex + 1);
+          } else {
+            const visibleError = currentStep.querySelector(
+              '[data-form-error]:not([hidden]):not([style*="display: none"]), .invalid-feedback:not([hidden]):not([style*="display: none"]), .is-invalid [data-form-error]'
+            );
+            const errorMessage = visibleError?.textContent?.trim() || 'يرجى تصحيح الأخطاء قبل الانتقال للخطوة التالية.';
+            if (window.toastr?.error) {
+              window.toastr.error(errorMessage);
+            }
+            if (visibleError && typeof visibleError.scrollIntoView === 'function') {
+              visibleError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
           }
         } finally {
           state.isValidatingStep = false;

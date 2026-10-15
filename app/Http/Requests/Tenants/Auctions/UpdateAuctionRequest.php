@@ -32,7 +32,6 @@ class UpdateAuctionRequest extends WizardFormRequest
             'category' => ['required', Rule::enum(AuctionCategory::class)],
             'city' => ['required', 'string', 'max:100'],
             'expected_properties_count' => ['nullable', 'integer', 'min:1'],
-            'cover_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
 
             // Step 2: Assignment & Platform
             'assignment_id' => ['required', Rule::exists('assignments', 'id')->whereNull('deleted_at')],

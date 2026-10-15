@@ -76,11 +76,8 @@ final class CreateAuctionAction
                 );
 
                 $data['created_by'] = $creatorId ?? (int) auth('tenant')->id();
-                if (empty($data['status'])) {
-                    $data['status'] = AuctionStatus::DRAFT->value;
-                }
-
-                $statusValue = $data['status'] instanceof AuctionStatus ? $data['status']->value : (string) $data['status'];
+                $data['status'] = AuctionStatus::PENDING_APPROVAL->value;
+                $statusValue = $data['status'];
                 $data['is_active'] = $statusValue === AuctionStatus::ACTIVE->value;
 
                 $auction = Auction::query()->create($data);

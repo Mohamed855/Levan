@@ -23,21 +23,20 @@ class StoreAuctionRequest extends WizardFormRequest
         return [
             // Step 1: Basic Info
             'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:500'],
+            'description' => ['required', 'string', 'max:500'],
             'start_date' => ['required', 'date'],
-            'start_time' => ['nullable'],
+            'start_time' => ['required', 'date_format:H:i'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
-            'end_time' => ['nullable'],
+            'end_time' => ['required', 'date_format:H:i'],
             'type' => ['required', Rule::enum(AuctionType::class)],
             'category' => ['required', Rule::enum(AuctionCategory::class)],
             'city' => ['required', 'string', 'max:100'],
-            'expected_properties_count' => ['nullable', 'integer', 'min:1'],
-            'cover_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'expected_properties_count' => ['required', 'integer', 'min:1'],
 
             // Step 2: Assignment & Platform
             'assignment_id' => ['required', Rule::exists('assignments', 'id')->whereNull('deleted_at')],
             'supervising_entity' => ['nullable', 'string', 'max:255'],
-            'platform_name' => ['nullable', 'string', 'max:255'],
+            'platform_name' => ['required', 'string', 'max:255'],
             'platform_url' => ['nullable', 'url', 'max:255'],
             'notes' => ['nullable', 'string', 'max:500'],
 
@@ -59,8 +58,6 @@ class StoreAuctionRequest extends WizardFormRequest
             'attachments' => ['nullable', 'array'],
             'attachments.*' => ['file', 'max:10240', 'mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx'],
 
-            // Step 5: Status
-            'status' => ['nullable', Rule::enum(AuctionStatus::class)],
         ];
     }
 
@@ -70,13 +67,18 @@ class StoreAuctionRequest extends WizardFormRequest
             'name.required' => 'اسم المزاد مطلوب.',
             'name.max' => 'اسم المزاد يجب ألا يتجاوز 255 حرف.',
             'description.max' => 'وصف المزاد يجب ألا يتجاوز 500 حرف.',
+            'description.required' => 'وصف المزاد مطلوب.',
             'start_date.required' => 'تاريخ بداية المزاد مطلوب.',
+            'start_time.required' => 'وقت بداية المزاد مطلوب.',
             'end_date.required' => 'تاريخ نهاية المزاد مطلوب.',
+            'end_time.required' => 'وقت نهاية المزاد مطلوب.',
             'end_date.after_or_equal' => 'تاريخ نهاية المزاد يجب أن يكون مساوياً أو بعد تاريخ البداية.',
             'type.required' => 'نوع المزاد مطلوب.',
             'category.required' => 'تصنيف المزاد مطلوب.',
             'city.required' => 'المدينة الرئيسية مطلوبة.',
             'assignment_id.required' => 'يجب ربط المزاد بإسناد مسجل.',
+            'expected_properties_count.required' => 'عدد العقارات المتوقع مطلوب.',
+            'platform_name.required' => 'منصة المزاد مطلوبة.',
             'assignment_id.exists' => 'الإسناد المختار غير موجود.',
             'property_ids.*.exists' => 'يجب أن تكون جميع العقارات المختارة تابعة للإسناد المختار.',
             'property_ids.*.distinct' => 'لا يمكن اختيار العقار نفسه أكثر من مرة.',

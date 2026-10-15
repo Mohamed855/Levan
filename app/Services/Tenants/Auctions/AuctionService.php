@@ -17,7 +17,7 @@ class AuctionService
         return [
             'total' => Auction::count(),
             'active' => Auction::where('status', 'active')->count(),
-            'in_preparation' => Auction::where('status', 'in_preparation')->orWhere('status', 'draft')->count(),
+            'in_preparation' => Auction::where('status', 'in_preparation')->count(),
             'pending_approval' => Auction::where('status', 'pending_approval')->count(),
             'needs_review' => Auction::where('status', 'suspended')->count(),
         ];

@@ -121,9 +121,6 @@
                     <x-form.controls.textarea name="notes" label="الملاحظات" :value="$auction->notes" col="col-12"
                         rows="2" />
 
-                    <x-form.controls.image-upload name="cover_image" label="صورة الغلاف" :value="$auction->cover_image ? tasset($auction->cover_image) : null"
-                        accept="image/jpeg,image/png,image/webp" hint="JPG، PNG أو WebP. الحد الأقصى 4MB" col="col-12" />
-
                     <div class="col-12" data-form-field data-field-name="attachments[]">
                         <label class="form-label" for="attachments">إضافة مرفقات</label>
                         <input id="attachments" type="file" name="attachments[]" multiple data-form-control

@@ -33,15 +33,14 @@
         <!-- Sub Hero -->
         <section class="site-page-hero">
             <div class="container">
-                <div class="scroll-revealed">
-                    <span class="hero-eyebrow">
-                        <i class="ti ti-gift"></i>
+                <div class="scroll-revealed d-flex flex-column align-items-center gap-3">
+                    <p class="hero-eyebrow">
                         تجربة مجانية كاملة المزايا
-                    </span>
-                    <h1 class="site-page-hero-title">
+                    </p>
+                    <h1 class="site-page-hero-title mb-0">
                         جرّب منصة لوت مجاناً واكتشف الفرق بنفسك
                     </h1>
-                    <p class="site-page-hero-desc">
+                    <p class="site-page-hero-desc mb-0">
                         استمتع بجميع إمكانات لوت بدون أي التزامات مالية أو بطاقة ائتمانية. ابدأ تجربتك المجانية اليوم واكتشف
                         كيف ترتقي بأعمالك إلى آفاق جديدة.
                     </p>

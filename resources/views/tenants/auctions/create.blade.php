@@ -48,7 +48,7 @@
                     data-draft-url="{{ tenant_route_name('wizard-drafts.store') }}"
                     data-draft-file-url="{{ tenant_route_name('wizard-drafts.file.destroy') }}"
                     data-assignment-properties-url="{{ tenant_route_name('assignments.properties', ':id') }}"
-                    data-draft-resource-key="tenant.auction-create">
+                    data-draft-resource-key="tenant.auction-create" data-draft-auto-restore>
                     @csrf
 
                     {{-- الخطوة 1: البيانات الأساسية --}}
@@ -63,38 +63,33 @@
                         'category',
                         'city',
                         'expected_properties_count',
-                        'cover_image',
                     ]">
                         <div class="row g-4">
                             <x-form.controls.input name="name" label="اسم المزاد" placeholder="مثال: مزاد جوار الحرم"
-                                required col="col-12" />
+                                required col="col-lg-6" />
 
                             <x-form.controls.textarea name="description" label="وصف المزاد"
-                                placeholder="اكتب وصفاً توضيحياً للمزاد..." col="col-12" rows="3" />
+                                placeholder="اكتب وصفاً توضيحياً للمزاد..." required col="col-lg-6" rows="3" />
 
                             <x-form.controls.input name="start_date" type="date" label="تاريخ بداية المزاد" required
-                                col="col-md-6" />
-                            <x-form.controls.input name="start_time" type="time" label="وقت البداية" col="col-md-6" />
+                                col="col-lg-6" />
+                            <x-form.controls.input name="start_time" type="time" label="وقت البداية" required col="col-lg-6" />
 
                             <x-form.controls.input name="end_date" type="date" label="تاريخ نهاية المزاد" required
-                                col="col-md-6" />
-                            <x-form.controls.input name="end_time" type="time" label="وقت النهاية" col="col-md-6" />
+                                col="col-lg-6" />
+                            <x-form.controls.input name="end_time" type="time" label="وقت النهاية" required col="col-lg-6" />
 
-                            <x-form.controls.select name="type" label="نوع المزاد" required col="col-md-4"
+                            <x-form.controls.select name="type" label="نوع المزاد" required col="col-lg-6"
                                 :enum="\App\Enums\Tenants\Auctions\AuctionType::class" />
 
-                            <x-form.controls.select name="category" label="تصنيف المزاد" required col="col-md-4"
+                            <x-form.controls.select name="category" label="تصنيف المزاد" required col="col-lg-6"
                                 :enum="\App\Enums\Tenants\Auctions\AuctionCategory::class" />
 
-                            <x-form.controls.select name="city" label="المدينة الرئيسية" required col="col-md-4"
+                            <x-form.controls.select name="city" label="المدينة الرئيسية" required col="col-lg-6"
                                 :options="$cityOptions" />
 
                             <x-form.controls.input name="expected_properties_count" type="number"
-                                label="عدد العقارات المتوقع" :value="1" min="1" col="col-md-6" />
-
-                            <x-form.controls.image-upload name="cover_image" label="صورة الغلاف للمزاد"
-                                accept="image/jpeg,image/png,image/webp" hint="JPG، PNG أو WebP. الحد الأقصى 4MB"
-                                col="col-md-6" />
+                                label="عدد العقارات المتوقع" :value="1" min="1" required col="col-lg-6" />
                         </div>
 
                         <x-form.wizard.actions>
@@ -143,7 +138,7 @@
                             </div>
 
                             <x-form.controls.input name="platform_name" label="منصة المزاد"
-                                placeholder="مثال: منصة مباشر للمزادات" col="col-md-6" />
+                                placeholder="مثال: منصة مباشر للمزادات" required col="col-md-6" />
 
                             <x-form.controls.input name="platform_url" type="url" label="رابط المزاد على المنصة"
                                 placeholder="https://mubasher.sa/auctions/..." col="col-md-6" />
@@ -209,6 +204,16 @@
                                 hidden></div>
                         </div>
 
+                        <section class="assignment-selection mt-4" aria-live="polite">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <h5 class="mb-0">العقارات المحددة</h5>
+                                <span class="badge bg-label-primary"><span id="selected-properties-count">0</span> عقار</span>
+                            </div>
+                            <div id="selected-properties-cards" class="assignment-selection__items">
+                                <p class="text-muted mb-0">لم يتم اختيار عقارات بعد.</p>
+                            </div>
+                        </section>
+
                         <x-form.wizard.actions>
                             <x-form.wizard.previous-button />
                             <div class="d-flex gap-2">
@@ -237,10 +242,17 @@
 
                             <div class="col-12 mt-4 border-top pt-3">
                                 <h6 class="fw-bold mb-3"><i class="ti ti-paperclip me-1"></i>مرفقات ووثائق المزاد:</h6>
-                                <input type="file" name="attachments[]" class="form-control" multiple
-                                    data-form-control accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx" />
-                                <small class="text-muted d-block mt-1">الملفات المدعومة: PDF, PNG, JPG, DOC, XLS (الحد
-                                    الأقصى لكل ملف: 10MB)</small>
+                                <x-form.controls.file name="attachments[]" label="ملفات إضافية" multiple :required="false"
+                                    accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx" help="الحد الأقصى لكل ملف: 10MB" col="col-12" />
+                                <section class="assignment-properties-table-card mt-3" aria-live="polite">
+                                    <header class="assignment-properties-table-card__header">
+                                        <h6 class="mb-0">المرفقات والوثائق</h6>
+                                        <span id="auction-attachments-count" class="badge bg-label-primary">0 ملف</span>
+                                    </header>
+                                    <div id="auction-attachments-cards" class="assignment-file-list p-3">
+                                        <p class="text-muted mb-0">لم يتم إرفاق ملفات بعد.</p>
+                                    </div>
+                                </section>
                             </div>
                         </div>
 
@@ -264,11 +276,14 @@
                                             id="review-category">-</span></div>
                                     <div><strong>المدينة:</strong> <span id="review-city">-</span></div>
                                     <div><strong>الفترة:</strong> <span id="review-dates">-</span></div>
+                                    <div><strong>الوصف:</strong> <span id="review-description">-</span></div>
+                                    <div><strong>عدد العقارات المتوقع:</strong> <span id="review-expected-properties">-</span></div>
                                 </x-form.wizard.review-card>
                                 <x-form.wizard.review-card title="الإسناد والمنصة" step="2"
                                     class="assignment-review__card">
                                     <div><strong>الإسناد:</strong> <span id="review-assignment-name">-</span></div>
                                     <div><strong>الجهة المشرفة:</strong> <span id="review-supervising">-</span></div>
+                                    <div><strong>المنصة:</strong> <span id="review-platform">-</span></div>
                                 </x-form.wizard.review-card>
                                 <x-form.wizard.review-card title="العقارات المشمولة" step="3"
                                     class="assignment-review__card">
@@ -277,7 +292,10 @@
                                 </x-form.wizard.review-card>
                                 <x-form.wizard.review-card title="الإعدادات والملفات" step="4"
                                     class="assignment-review__card">
-                                    <div><strong>القوالب المعتمدة:</strong> تم التحديد</div>
+                                    <div><strong>قالب البروشور:</strong> <span id="review-brochure-template">-</span></div>
+                                    <div><strong>قالب اللوحة الإعلانية:</strong> <span id="review-billboard-template">-</span></div>
+                                    <div><strong>قالب منصات التواصل:</strong> <span id="review-social-template">-</span></div>
+                                    <div><strong>المرفقات والوثائق:</strong> <span id="review-attachments-count">0 ملف</span></div>
                                 </x-form.wizard.review-card>
                             </div>
                             <div class="col-lg-3">

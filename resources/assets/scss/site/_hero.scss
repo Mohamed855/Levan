@@ -149,6 +149,19 @@
     pointer-events: none;
   }
 
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 1.1rem;
+    border-radius: var(--site-radius-pill);
+    background: rgba(var(--site-gold-rgb), 0.15);
+    color: var(--site-gold);
+    font-size: var(--site-font-sm);
+    font-weight: 700;
+    border: 1px solid rgba(var(--site-gold-rgb), 0.28);
+  }
+
   .site-page-hero-title {
     color: #FFFFFF;
     font-size: clamp(2.2rem, 4vw, 3.25rem);
