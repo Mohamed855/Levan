@@ -530,8 +530,8 @@ function initializeMonthlyChart() {
             custom: function ({ series, seriesIndex, dataPointIndex, w }) {
                 const value = series[seriesIndex][dataPointIndex];
                 const month = categories[dataPointIndex];
-                return `<div class="apexcharts-tooltip-title" style="font-family: Cairo; font-size: 13px; font-weight: bold; color: #fff; background: #372632; padding: 5px 10px; border-radius: 4px;">${month}</div>
-                        <div class="apexcharts-tooltip-value" style="font-family: Cairo; font-size: 12px; color: #fff; background: #4cc1bb; padding: 5px 10px; border-radius: 4px; margin-top: 2px;">${value} معاملة</div>`;
+                return `<div class="apexcharts-tooltip-title" style="font-family: Cairo; font-size: 13px; font-weight: bold; color: #fff; background: #372632; padding: 5px 10px; border-radius: 0.25rem;">${month}</div>
+                        <div class="apexcharts-tooltip-value" style="font-family: Cairo; font-size: 0.75rem; color: #fff; background: #4cc1bb; padding: 5px 10px; border-radius: 0.25rem; margin-top: 2px;">${value} معاملة</div>`;
             },
             style: {
                 fontSize: "13px",
@@ -682,18 +682,11 @@ function getCurrentFiltersAsParams() {
 */
 function getCurrentFilters() {
     return {
-        date_from: $("#filter-date-from").val(),
-        date_to: $("#filter-date-to").val(),
-        created_from: $("#filter-created-from").val(),
-        created_to: $("#filter-created-to").val(),
         customer_id: $("#filter-customer").val(),
         status: $("#filter-status").val(),
         company_id: $("#filter-company").val(),
         portfolio_id: $("#filter-portfolio").val(),
         created_by: $("#filter-created-by").val(),
-        amount_from: $("#filter-amount-from").val(),
-        amount_to: $("#filter-amount-to").val(),
-        search_query: $("#filter-search-query").val(),
     };
 }
 
@@ -764,55 +757,11 @@ function exportCustomReportToPDF() {
 
 /*
 |--------------------------------------------------------------------------
-| Export Filtered To Excel - مع فحص تاريخ التحصيل أو الإنشاء
+| Export Filtered To Excel
 |--------------------------------------------------------------------------
 */
 function exportFilteredToExcel() {
     const filters = getCurrentFilters();
-
-    const hasCollectionDateRange = filters.date_from && filters.date_to;
-    const hasCreatedDateRange = filters.created_from && filters.created_to;
-
-    if (!hasCollectionDateRange && !hasCreatedDateRange) {
-        toastr.error(
-            "يرجى تحديد نطاق تاريخ واحد على الأقل (تاريخ التحصيل أو تاريخ الإنشاء)",
-        );
-        return;
-    }
-
-    if (hasCollectionDateRange) {
-        const collectionDateFrom = new Date(filters.date_from);
-        const collectionDateTo = new Date(filters.date_to);
-        const collectionDiffTime = Math.abs(
-            collectionDateTo - collectionDateFrom,
-        );
-        const collectionDiffDays = Math.ceil(
-            collectionDiffTime / (1000 * 60 * 60 * 24),
-        );
-
-        if (collectionDiffDays > 31) {
-            toastr.error(
-                "نطاق تاريخ التحصيل يتجاوز 31 يوم. الرجاء تحديد فترة أقصر",
-            );
-            return;
-        }
-    }
-
-    if (hasCreatedDateRange) {
-        const createdDateFrom = new Date(filters.created_from);
-        const createdDateTo = new Date(filters.created_to);
-        const createdDiffTime = Math.abs(createdDateTo - createdDateFrom);
-        const createdDiffDays = Math.ceil(
-            createdDiffTime / (1000 * 60 * 60 * 24),
-        );
-
-        if (createdDiffDays > 31) {
-            toastr.error(
-                "نطاق تاريخ الإنشاء يتجاوز 31 يوم. الرجاء تحديد فترة أقصر",
-            );
-            return;
-        }
-    }
 
     $.ajax({
         url: window.routes.financialReportsShowExportModal,
@@ -1161,7 +1110,7 @@ function showAsyncExportModal() {
                         </h5>
                     </div>
                     <div class="modal-body text-center">
-                        <div class="progress mb-3 position-relative" style="height: 25px; border-radius: 12px; overflow: hidden;">
+                        <div class="progress mb-3 position-relative" style="height: 25px; border-radius: 0.75rem; overflow: hidden;">
                             <div id="exportProgress" 
                                  class="progress-bar progress-bar-striped progress-bar-animated bg-primary" 
                                  role="progressbar" 
@@ -1171,7 +1120,7 @@ function showAsyncExportModal() {
                                  aria-valuemax="100">
                             </div>
                             <div class="position-absolute w-100 h-100 d-flex align-items-center justify-content-center">
-                                <span id="progressText" class="text-white fw-bold" style="font-size: 12px;">
+                                <span id="progressText" class="text-white fw-bold" style="font-size: 0.75rem;">
                                     0%
                                 </span>
                             </div>
@@ -1222,8 +1171,8 @@ function showCompletedExportModal(data) {
                         <div class="text-center mb-4">
                             <div class="position-relative d-inline-block">
                                 <i class="ti ti-file-spreadsheet text-success" style="font-size: 64px;"></i>
-                                <div class="position-absolute top-0 end-0 bg-success rounded-circle d-flex align-items-center justify-content-center" style="width: 20px; height: 20px;">
-                                    <i class="ti ti-check text-white" style="font-size: 12px;"></i>
+                                <div class="position-absolute top-0 end-0 bg-success rounded-circle d-flex align-items-center justify-content-center" style="width: 1.25rem; height: 1.25rem;">
+                                    <i class="ti ti-check text-white" style="font-size: 0.75rem;"></i>
                                 </div>
                             </div>
                         </div>
@@ -1231,21 +1180,21 @@ function showCompletedExportModal(data) {
                         <div class="row g-4 mb-3">
                             <div class="col-4 text-center">
                                 <div class="p-3 rounded border">
-                                    <i class="ti ti-database text-primary d-block mb-2" style="font-size: 24px;"></i>
+                                    <i class="ti ti-database text-primary d-block mb-2" style="font-size: 1.5rem;"></i>
                                     <small class="text-muted d-block">السجلات</small>
                                     <strong>${data.total_records?.toLocaleString() || "غير محدد"}</strong>
                                 </div>
                             </div>
                             <div class="col-4 text-center">
                                 <div class="p-3 rounded border">
-                                   <i class="ti ti-archive text-warning d-block mb-2" style="font-size: 24px;"></i>
+                                   <i class="ti ti-archive text-warning d-block mb-2" style="font-size: 1.5rem;"></i>
                                     <small class="text-muted d-block">الحجم</small>
                                     <strong>${data.file_size || "غير محدد"}</strong>
                                 </div>
                             </div>
                             <div class="col-4 text-center">
                                 <div class="p-3 rounded border">
-                                    <i class="ti ti-clock text-success d-block mb-2" style="font-size: 24px;"></i>
+                                    <i class="ti ti-clock text-success d-block mb-2" style="font-size: 1.5rem;"></i>
                                     <small class="text-muted d-block">التاريخ</small>
                                     <strong class="small">${formatDateTime(data.created_at) || "الآن"}</strong>
                                 </div>

@@ -329,7 +329,7 @@ function loadTaskComments(taskId) {
             padding-left: 10px;
         }
         .comments-list::-webkit-scrollbar {
-            width: 8px;
+            width: 0.5rem;
         }
         .comments-list::-webkit-scrollbar-track {
             background: #f1f1f1;
@@ -367,11 +367,11 @@ function loadTaskComments(taskId) {
             gap: 5px;
             background-color: rgba(255,255,255,0.9);
             padding: 5px;
-            border-radius: 4px;
+            border-radius: 0.25rem;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .comment-buttons .btn {
-            padding: 4px 8px;
+            padding: 0.25rem 0.5rem;
             display: flex;
             align-items: center;
             justify-content: center;

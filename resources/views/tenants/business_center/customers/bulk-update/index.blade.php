@@ -300,14 +300,14 @@
                                 <div class="card-body">
                                     <div class="position-relative">
                                         <div id="progress-overlay" class="position-absolute w-100 h-100"
-                                            style="background: rgba(128, 128, 128, 0.1); z-index: 1; border-radius: 8px; display: none;">
+                                            style="background: rgba(128, 128, 128, 0.1); z-index: 1; border-radius: 0.5rem; display: none;">
                                         </div>
                                         <div class="progress"
-                                            style="height: 35px; border-radius: 8px; position: relative; z-index: 2; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                                            style="height: 35px; border-radius: 0.5rem; position: relative; z-index: 2; box-shadow: 0 2px 0.25rem rgba(0, 0, 0, 0.1);">
                                             <div id="progress-bar"
                                                 class="progress-bar bg-primary progress-bar-striped progress-bar-animated d-flex align-items-center justify-content-center"
                                                 role="progressbar"
-                                                style="width: 0%; font-size: 16px; font-weight: 600; color: #ffffff;"
+                                                style="width: 0%; font-size: 1rem; font-weight: 600; color: #ffffff;"
                                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                                                 0%
                                             </div>

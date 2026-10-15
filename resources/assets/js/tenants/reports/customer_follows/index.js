@@ -617,8 +617,8 @@ function initializeMonthlyChart() {
             custom: function ({ series, seriesIndex, dataPointIndex, w }) {
                 const value = series[seriesIndex][dataPointIndex];
                 const month = categories[dataPointIndex];
-                return `<div class="apexcharts-tooltip-title" style="font-family: Cairo; font-size: 13px; font-weight: bold; color: #fff; background: #372632; padding: 5px 10px; border-radius: 4px;">${month}</div>
-                        <div class="apexcharts-tooltip-value" style="font-family: Cairo; font-size: 12px; color: #fff; background: #4cc1bb; padding: 5px 10px; border-radius: 4px; margin-top: 2px;">${value} متابعة</div>`;
+                return `<div class="apexcharts-tooltip-title" style="font-family: Cairo; font-size: 13px; font-weight: bold; color: #fff; background: #372632; padding: 5px 10px; border-radius: 0.25rem;">${month}</div>
+                        <div class="apexcharts-tooltip-value" style="font-family: Cairo; font-size: 0.75rem; color: #fff; background: #4cc1bb; padding: 5px 10px; border-radius: 0.25rem; margin-top: 2px;">${value} متابعة</div>`;
             },
             style: {
                 fontSize: "13px",
@@ -769,10 +769,6 @@ function getCurrentFiltersAsParams() {
 */
 function getCurrentFilters() {
     return {
-        date_from: $("#filter-date-from").val(),
-        date_to: $("#filter-date-to").val(),
-        next_contact_from: $("#filter-next-contact-from").val(),
-        next_contact_to: $("#filter-next-contact-to").val(),
         customer_id: $("#filter-customer").val(),
         company_id: $("#filter-company").val(),
         portfolio_id: $("#filter-portfolio").val(),
@@ -780,7 +776,6 @@ function getCurrentFilters() {
         customer_status_id: $("#filter-customer-status").val(),
         contact_result_id: $("#filter-contact-result").val(),
         created_by: $("#filter-created-by").val(),
-        search_query: $("#filter-search-query").val(),
         // تم حذف has_upcoming
     };
 }
@@ -857,23 +852,6 @@ function exportCustomReportToPDF() {
 */
 function exportFilteredToExcel() {
     const filters = getCurrentFilters();
-
-    if (!filters.date_from || !filters.date_to) {
-        toastr.error("يرجى تحديد تاريخ المتابعة (من - إلى) قبل التصدير");
-        return;
-    }
-
-    const dateFrom = new Date(filters.date_from);
-    const dateTo = new Date(filters.date_to);
-    const diffTime = Math.abs(dateTo - dateFrom);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays > 31) {
-        toastr.error(
-            "لا يمكن تصدير أكثر من شهر واحد. الرجاء تحديد فترة أقل من 31 يوم",
-        );
-        return;
-    }
 
     $.ajax({
         url: window.routes.customerFollowsReportsShowExportModal,
@@ -1434,7 +1412,7 @@ function showAsyncExportModal(totalParts, totalCount) {
                         <span class="text-white fw-bold" id="progress-text-part-${i}" style="font-size: 11px; text-shadow: 0 0 3px rgba(0,0,0,.5);">0%</span>
                     </div>
                 </div>
-                <div id="part-status-${i}" class="text-muted mt-1" style="display:none; font-size: 12px;"></div>
+                <div id="part-status-${i}" class="text-muted mt-1" style="display:none; font-size: 0.75rem;"></div>
             </div>
         `;
     }

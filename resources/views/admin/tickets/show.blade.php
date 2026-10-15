@@ -145,12 +145,12 @@
                                 style="background-color: var(--bs-paper-bg, var(--bs-card-bg, #fff));">
                                 <textarea class="form-control border-0 shadow-none" id="replyMessage" name="message" rows="4"
                                     placeholder="اكتب رد الدعم الفني هنا..."
-                                    style="resize: vertical; min-height: 140px; margin-bottom: 48px; background: transparent;" required>{{ old('message') }}</textarea>
+                                    style="resize: vertical; min-height: 140px; margin-bottom: 3rem; background: transparent;" required>{{ old('message') }}</textarea>
 
                                 {{-- شريط المرفقات المدمج داخل الـ textarea --}}
                                 <div class="position-absolute bottom-0 start-0 end-0 px-3 py-2 border-top d-flex justify-content-between align-items-center rounded-bottom"
                                     dir="rtl"
-                                    style="z-index: 5; height: 48px; background-color: var(--bs-paper-bg, var(--bs-card-bg, #fff));">
+                                    style="z-index: 5; height: 3rem; background-color: var(--bs-paper-bg, var(--bs-card-bg, #fff));">
                                     {{-- النص ع اليمين --}}
                                     <div id="attachment-status-container" class="d-flex align-items-center">
                                         <span id="attachment-status-text"
@@ -201,8 +201,8 @@
                         <div class="mb-3">
                             <label class="form-label small">الحالة الحالية:</label>
                             <select name="status" class="form-select">
-                                        <x-form.controls.enum-options :enum="\App\Enums\Tenants\Tickets\TicketStatus::class" :selected="`$ticket->status" />
-                                    </select>
+                                <x-form.controls.enum-options :enum="\App\Enums\Tenants\Tickets\TicketStatus::class" :selected="`$ticket->status" />
+                            </select>
                         </div>
                         <button type="submit" class="btn btn-outline-warning w-100">
                             <i class="ti ti-check me-1"></i> تحديث الحالة

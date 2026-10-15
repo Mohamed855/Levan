@@ -131,7 +131,7 @@
                     <div class="d-flex align-items-center mb-3">
                         <div
                             style="width: 50px; height: 50px; background: #e3f2fd; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-left: 15px;">
-                            <i class="ti ti-lifebuoy" style="font-size: 24px; color: #2196f3;"></i>
+                            <i class="ti ti-lifebuoy" style="font-size: 1.5rem; color: #2196f3;"></i>
                         </div>
                         <h5 class="mb-0">مركز المساعدة</h5>
                     </div>
@@ -161,7 +161,7 @@
                     <div class="d-flex align-items-center mb-3">
                         <div
                             style="width: 50px; height: 50px; background: #f3e5f5; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-left: 15px;">
-                            <i class="ti ti-headset" style="font-size: 24px; color: #9c27b0;"></i>
+                            <i class="ti ti-headset" style="font-size: 1.5rem; color: #9c27b0;"></i>
                         </div>
                         <h5 class="mb-0">الدعم الفني</h5>
                     </div>

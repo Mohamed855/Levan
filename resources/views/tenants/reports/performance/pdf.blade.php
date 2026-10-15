@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,7 +30,7 @@
         }
 
         .statistics-table td {
-            padding: 8px;
+            padding: 0.5rem;
             text-align: center;
             border: 1px solid #000;
             vertical-align: middle;
@@ -44,7 +45,7 @@
         }
 
         .statistics-table .value {
-            font-size: 12px;
+            font-size: 0.75rem;
             font-weight: bold;
             color: #000;
             display: block;
@@ -63,7 +64,7 @@
         }
 
         .data-table thead th {
-            padding: 8px 4px;
+            padding: 0.5rem 0.25rem;
             text-align: center;
             font-size: 9px;
             font-weight: bold;
@@ -71,10 +72,10 @@
         }
 
         .data-table tbody td {
-            padding: 6px 4px;
+            padding: 6px 0.25rem;
             text-align: center;
             border: 1px solid #000;
-            font-size: 8px;
+            font-size: 0.5rem;
         }
 
         .data-table tbody tr:nth-child(even) {
@@ -85,9 +86,9 @@
         .achievement-badge {
             display: inline-block;
             padding: 2px 6px;
-            border-radius: 8px;
+            border-radius: 0.5rem;
             font-weight: bold;
-            font-size: 8px;
+            font-size: 0.5rem;
             border: 1px solid #000;
         }
 
@@ -107,6 +108,7 @@
         }
     </style>
 </head>
+
 <body>
     {{-- ✅ جدول الإحصائيات --}}
     <table class="statistics-table">
@@ -155,27 +157,33 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($data as $index => $company)
-            <tr>
-                <td>{{ $index + 1 }}</td>
-                <td style="text-align: right; padding-right: 8px;">{{ $company['company_name'] }}</td>
-                <td>{{ number_format($company['customers_count']) }}</td>
-                <td>{{ number_format($company['total_portfolio'], 0) }}</td>
-                <td>{{ number_format($company['customer_target'], 0) }}</td>
-                <td>{{ number_format($company['total_payment'], 0) }}</td>
-                <td>{{ number_format($company['total_settlements'], 0) }}</td>
-                <td>
-                    @php
-                        $rate = $company['achievement_rate'];
-                        $class = $rate >= 100 ? 'achievement-success' : ($rate >= 50 ? 'achievement-warning' : 'achievement-danger');
-                    @endphp
-                    <span class="achievement-badge {{ $class }}">
-                        {{ number_format($rate, 1) }}%
-                    </span>
-                </td>
-            </tr>
+            @foreach ($data as $index => $company)
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td style="text-align: right; padding-right: 0.5rem;">{{ $company['company_name'] }}</td>
+                    <td>{{ number_format($company['customers_count']) }}</td>
+                    <td>{{ number_format($company['total_portfolio'], 0) }}</td>
+                    <td>{{ number_format($company['customer_target'], 0) }}</td>
+                    <td>{{ number_format($company['total_payment'], 0) }}</td>
+                    <td>{{ number_format($company['total_settlements'], 0) }}</td>
+                    <td>
+                        @php
+                            $rate = $company['achievement_rate'];
+                            $class =
+                                $rate >= 100
+                                    ? 'achievement-success'
+                                    : ($rate >= 50
+                                        ? 'achievement-warning'
+                                        : 'achievement-danger');
+                        @endphp
+                        <span class="achievement-badge {{ $class }}">
+                            {{ number_format($rate, 1) }}%
+                        </span>
+                    </td>
+                </tr>
             @endforeach
         </tbody>
     </table>
 </body>
+
 </html>

@@ -31,8 +31,8 @@
         }
 
         .color-display {
-            width: 40px;
-            height: 40px;
+            width: 2.5rem;
+            height: 2.5rem;
             border-radius: 50%;
             border: 2px solid #ddd;
             margin-left: 10px;
@@ -48,8 +48,8 @@
         .color-input {
             opacity: 0;
             position: absolute;
-            width: 40px;
-            height: 40px;
+            width: 2.5rem;
+            height: 2.5rem;
             cursor: pointer;
         }
 

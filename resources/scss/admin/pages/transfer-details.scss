@@ -1,5 +1,5 @@
     .transfer-requests-page {
-        padding: 20px;
+        padding: 1.25rem;
         background: #f5f5f9;
     }
 
@@ -10,11 +10,11 @@
     }
     .page-header {
         background: #e3d8d1 !important;
-        border-radius: 12px;
+        border-radius: 0.75rem;
         padding: 13px 30px;
-        margin-bottom: 24px;
+        margin-bottom: 1.5rem;
         color: white;
-        box-shadow: 0 4px 12px rgba(76, 193, 187, 0.2);
+        box-shadow: 0 0.25rem 0.75rem rgba(76, 193, 187, 0.2);
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -28,7 +28,7 @@
     }
 
     .page-header p {
-        margin: 8px 0 0 0;
+        margin: 0.5rem 0 0 0;
         opacity: 0.95;
         font-size: 0.95rem;
     }
@@ -37,13 +37,13 @@
         background: rgba(255, 255, 255, 0.2);
         color: white;
         border: none;
-        padding: 6px 20px;
-        border-radius: 8px;
+        padding: 6px 1.25rem;
+        border-radius: 0.5rem;
         cursor: pointer;
         transition: all 0.3s;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 0.5rem;
         font-weight: 600;
     }
 
@@ -53,12 +53,12 @@
 
     .request-card {
         background: white;
-        border-radius: 12px;
+        border-radius: 0.75rem;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
         overflow: hidden;
         transition: all 0.3s ease;
         border: 1px solid #e9ecef;
-        margin-bottom: 20px;
+        margin-bottom: 1.25rem;
     }
 
     .request-header {
@@ -79,8 +79,8 @@
     }
 
     .status-badge {
-        padding: 8px 20px;
-        border-radius: 20px;
+        padding: 0.5rem 1.25rem;
+        border-radius: 1.25rem;
         font-size: 0.9rem;
         font-weight: 600;
         background: rgba(255, 255, 255, 0.25);
@@ -96,7 +96,7 @@
         color: #372632;
         font-weight: 700;
         font-size: 1.1rem;
-        margin-bottom: 20px;
+        margin-bottom: 1.25rem;
         padding-bottom: 10px;
         border-bottom: 2px solid #4cc1bb;
         display: flex;
@@ -107,7 +107,7 @@
     .info-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 20px;
+        gap: 1.25rem;
         margin-bottom: 30px;
     }
 
@@ -157,7 +157,7 @@
 
     .plan-details {
         background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        border-radius: 12px;
+        border-radius: 0.75rem;
         padding: 25px;
         margin-bottom: 30px;
         border-right: 5px solid #4cc1bb;
@@ -189,14 +189,14 @@
 
     .plan-description {
         color: #6c757d;
-        margin-bottom: 20px;
+        margin-bottom: 1.25rem;
         font-size: 0.95rem;
     }
 
     .plan-features {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 12px;
+        gap: 0.75rem;
     }
 
     .plan-feature {
@@ -205,7 +205,7 @@
         gap: 10px;
         color: #495057;
         font-size: 0.95rem;
-        padding: 8px 12px;
+        padding: 0.5rem 0.75rem;
         background: white;
         border-radius: 6px;
         transition: all 0.3s;
@@ -233,8 +233,8 @@
     }
 
     .attachment-section {
-        margin-top: 20px;
-        padding: 20px;
+        margin-top: 1.25rem;
+        padding: 1.25rem;
         background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
         border-radius: 10px;
         border: 2px dashed #ffc107;
@@ -247,7 +247,7 @@
         font-size: 1rem;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 0.5rem;
     }
 
     .attachment-preview {
@@ -271,7 +271,7 @@
     .attachment-item:hover {
         border-color: #4cc1bb;
         transform: scale(1.1);
-        box-shadow: 0 5px 20px rgba(76, 193, 187, 0.4);
+        box-shadow: 0 5px 1.25rem rgba(76, 193, 187, 0.4);
         z-index: 10;
     }
 
@@ -307,7 +307,7 @@
 
     .btn-approve:hover {
         opacity: 0.9;
-        box-shadow: 0 6px 20px rgba(76, 193, 187, 0.4);
+        box-shadow: 0 6px 1.25rem rgba(76, 193, 187, 0.4);
     }
 
     .btn-reject {
@@ -328,12 +328,12 @@
 
     .btn-reject:hover {
         background: #1a1d2e !important;
-        box-shadow: 0 6px 20px rgba(47, 51, 73, 0.4);
+        box-shadow: 0 6px 1.25rem rgba(47, 51, 73, 0.4);
     }
 
     .timeline-section {
         background: white;
-        border-radius: 12px;
+        border-radius: 0.75rem;
         padding: 25px;
         border: 1px solid #e9ecef;
     }
@@ -351,13 +351,13 @@
     }
 
     .timeline-dot {
-        width: 12px;
-        height: 12px;
+        width: 0.75rem;
+        height: 0.75rem;
         border-radius: 50%;
         background: #4cc1bb;
         position: absolute;
         right: -7.5px;
-        top: 20px;
+        top: 1.25rem;
     }
 
     /* Responsive */

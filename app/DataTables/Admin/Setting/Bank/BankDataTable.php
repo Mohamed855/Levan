@@ -70,7 +70,7 @@ class BankDataTable extends AbstractDataTable
                         <img src="%s"
                              alt="%s"
                              class="bank-icon"
-                             style="max-width: 60px; max-height: 40px; object-fit: contain; border-radius: 4px;"
+                             style="max-width: 60px; max-height: 2.5rem; object-fit: contain; border-radius: 0.25rem;"
                              onerror="this.onerror=null; this.parentElement.innerHTML=\'<span class=\\\'badge bg-label-warning\\\'>خطأ</span>\';">
                     </div>',
                     $imagePath,

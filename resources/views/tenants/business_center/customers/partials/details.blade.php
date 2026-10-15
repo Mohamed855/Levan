@@ -21,7 +21,7 @@
                     <div class="avatar" style="width: 50px; height: 50px;">
                         <div
                             class="avatar-initial bg-primary rounded-circle d-flex align-items-center justify-content-center">
-                            <i class="ti ti-user" style="font-size: 24px; color: white;"></i>
+                            <i class="ti ti-user" style="font-size: 1.5rem; color: white;"></i>
                         </div>
                     </div>
                 </div>
@@ -59,7 +59,7 @@
         <div class="card border mb-3" style="box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
             <div class="card-body p-2">
                 <h6 class="card-title mb-2 d-flex align-items-center" style="font-size: 0.9rem;">
-                    <i class="ti ti-chart-bar me-2" style="font-size: 16px;"></i>الملخص المالي الشامل - جميع الحسابات
+                    <i class="ti ti-chart-bar me-2" style="font-size: 1rem;"></i>الملخص المالي الشامل - جميع الحسابات
                 </h6>
                 <div class="table-responsive">
                     <table class="table table-bordered mb-0" style="font-size: 0.85rem;">
@@ -119,8 +119,8 @@
 
                     <div class="d-flex align-items-center gap-2">
                         <div class="d-flex align-items-center justify-content-center rounded-circle"
-                            style="width: 32px; height: 32px; background-color: {{ $account->id === $customer->id ? '#4cc1bb' : '#4cc1bb' }};">
-                            <i class="ti ti-credit-card text-white" style="font-size: 16px;"></i>
+                            style="width: 2rem; height: 2rem; background-color: {{ $account->id === $customer->id ? '#4cc1bb' : '#4cc1bb' }};">
+                            <i class="ti ti-credit-card text-white" style="font-size: 1rem;"></i>
                         </div>
 
                         <div>
@@ -140,7 +140,7 @@
                         <div class="text-muted d-flex align-items-center justify-content-end gap-2"
                             style="font-size: 0.75rem;">
                             <span class="d-flex align-items-center gap-1">
-                                <i class="ti ti-building" style="font-size: 12px;"></i>
+                                <i class="ti ti-building" style="font-size: 0.75rem;"></i>
                                 {{ $account->company->name }}
                             </span>
                             <span style="color: #dee2e6;">|</span>
@@ -171,7 +171,7 @@
                                             @if ($account->company->logo_url)
                                                 <img src="{{ tasset($account->company->logo_url) }}"
                                                     alt="{{ $account->company->name }}"
-                                                    style="width: 32px; height: 32px; object-fit: contain; border-radius: 4px; margin-bottom: 8px;">
+                                                    style="width: 2rem; height: 2rem; object-fit: contain; border-radius: 0.25rem; margin-bottom: 0.5rem;">
                                             @endif
                                             <div class="fw-medium text-center"
                                                 style="font-size: 0.85rem; line-height: 1.3;">
@@ -195,7 +195,7 @@
                                             @if ($account->company->logo_url)
                                                 <img src="{{ tasset($account->company->logo_url) }}"
                                                     alt="{{ $account->company->name }}"
-                                                    style="width: 32px; height: 32px; object-fit: contain; border-radius: 4px; margin-bottom: 8px;">
+                                                    style="width: 2rem; height: 2rem; object-fit: contain; border-radius: 0.25rem; margin-bottom: 0.5rem;">
                                             @endif
                                             <div class="fw-medium text-center"
                                                 style="font-size: 0.85rem; line-height: 1.3;">
@@ -211,7 +211,7 @@
                     <div class="card border" style="box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
                         <div class="card-body p-2">
                             <h6 class="card-title mb-2 d-flex align-items-center" style="font-size: 0.9rem;">
-                                <i class="ti ti-calculator me-2" style="font-size: 16px;"></i>الإحصائيات المالية
+                                <i class="ti ti-calculator me-2" style="font-size: 1rem;"></i>الإحصائيات المالية
                                 للحساب
                             </h6>
                             <div class="table-responsive">
@@ -318,7 +318,7 @@
                         <div class="card border mt-2" style="box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
                             <div class="card-body p-2">
                                 <h6 class="card-title mb-2 d-flex align-items-center" style="font-size: 0.9rem;">
-                                    <i class="ti ti-settings me-2" style="font-size: 16px;"></i>الحقول الإضافية
+                                    <i class="ti ti-settings me-2" style="font-size: 1rem;"></i>الحقول الإضافية
                                 </h6>
                                 <div class="table-responsive">
                                     <table class="table table-sm table-bordered mb-0" style="font-size: 0.8rem;">
@@ -369,7 +369,7 @@
         <div class="card border" style="box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
             <div class="card-body p-2">
                 <h6 class="card-title mb-2 d-flex align-items-center" style="font-size: 0.9rem;">
-                    <i class="ti ti-phone me-2" style="font-size: 16px; color: #4cc1bb;"></i>أرقام الهاتف
+                    <i class="ti ti-phone me-2" style="font-size: 1rem; color: #4cc1bb;"></i>أرقام الهاتف
                 </h6>
 
                 @if ($customer->phones && $customer->phones->count() > 0)
@@ -421,7 +421,7 @@
                                                 <span class="badge bg-info" style="font-size: 0.65rem;">إضافي</span>
                                             @endif
                                         </td>
-                                    @can('customers.add_phone')
+                                        @can('customers.add_phone')
                                             <td class="py-1 text-center">
                                                 @if (!$phone->is_primary)
                                                     <button type="button" class="btn btn-xs set-primary-phone-btn"

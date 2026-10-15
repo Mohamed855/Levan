@@ -22,13 +22,6 @@ $(document).ready(function () {
     }
 
     $('#overdueDaysFilter').on('change', function () {
-        if ($(this).val() === 'custom') {
-            $('#customDateRange').removeClass('d-none').show();
-        } else {
-            $('#customDateRange').addClass('d-none').hide();
-            $('#overdueDateFrom, #overdueDateTo').val('');
-        }
-
         if ($.fn.DataTable.isDataTable('#overdue-tasks-table')) {
             $('#overdue-tasks-table').DataTable().ajax.reload();
         }
@@ -40,21 +33,13 @@ $(document).ready(function () {
         }
     });
 
-    $('#overdueDateFrom, #overdueDateTo').on('change', function () {
-        if ($('#overdueDaysFilter').val() === 'custom' && $.fn.DataTable.isDataTable('#overdue-tasks-table')) {
-            $('#overdue-tasks-table').DataTable().ajax.reload();
-        }
-    });
-
     $('#exportOverdueTasksExcel').on('click', function () {
         const params = new URLSearchParams({
             company_id: $('#overdueCompanyFilter').val() || '',
             portfolio_id: $('#overduePortfolioFilter').val() || '',
             relationship_manager_id: $('#overdueManagerFilter').val() || '',
             result_type: $('#overdueResultTypeFilter').val() || '',
-            overdue_days: $('#overdueDaysFilter').val() !== 'custom' ? $('#overdueDaysFilter').val() : '',
-            date_from: $('#overdueDateFrom').val() || '',
-            date_to: $('#overdueDateTo').val() || ''
+            overdue_days: $('#overdueDaysFilter').val() !== 'custom' ? $('#overdueDaysFilter').val() : ''
         });
 
         window.location.href = window.routes.exportOverdueTasks + '?' + params.toString();
@@ -84,10 +69,6 @@ function initializeOverdueTasksTable() {
                     d.overdue_days = daysFilter;
                 }
 
-                if (daysFilter === 'custom') {
-                    d.date_from = $('#overdueDateFrom').val() || '';
-                    d.date_to = $('#overdueDateTo').val() || '';
-                }
             },
             error: function () {
                 $('#overdue-tasks-table tbody').html(

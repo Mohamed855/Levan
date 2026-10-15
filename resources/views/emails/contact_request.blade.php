@@ -103,9 +103,9 @@
         .details li {
             background: linear-gradient(135deg, #fafbfc 0%, #ffffff 100%);
             margin-bottom: 10px;
-            padding: 18px 20px;
+            padding: 18px 1.25rem;
             border-right: 3px solid #1e293b;
-            border-radius: 8px;
+            border-radius: 0.5rem;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
@@ -120,27 +120,27 @@
         .value {
             display: block;
             color: #334155;
-            font-size: 16px;
+            font-size: 1rem;
             font-weight: 500;
         }
 
         .card {
-            border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            border-radius: 0.75rem;
+            box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.08);
         }
 
         .company-info {
             background-color: #f8fafc;
-            border-radius: 8px;
-            padding: 16px;
-            margin-top: 12px;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 0.75rem;
             direction: rtl;
         }
 
         .company-info-item {
             display: flex;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 0.5rem;
             font-size: 13px;
             color: #475569;
         }
@@ -150,16 +150,16 @@
         }
 
         .company-info-icon {
-            margin-left: 8px;
+            margin-left: 0.5rem;
             color: #64748b;
             font-size: 14px;
         }
 
         .feature-box {
             background-color: #f8fafc;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 12px;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
             direction: rtl;
             border-right: 3px solid #10b981;
         }
@@ -189,7 +189,7 @@
                 style="background:#1e293b;background-color:#1e293b;width:100%;">
                 <tbody>
                     <tr>
-                        <td style="direction:ltr;font-size:0px;padding:32px 24px 28px 24px;text-align:center;">
+                        <td style="direction:ltr;font-size:0px;padding:32px 1.5rem 1.75rem 1.5rem;text-align:center;">
                             <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:552px;" ><![endif]-->
                             <div class="mj-column-per-100 mj-outlook-group-fix"
                                 style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
@@ -198,7 +198,7 @@
                                     <tbody>
                                         <tr>
                                             <td align="center"
-                                                style="font-size:0px;padding:0 0 20px 0;word-break:break-word;">
+                                                style="font-size:0px;padding:0 0 1.25rem 0;word-break:break-word;">
                                                 <table border="0" cellpadding="0" cellspacing="0"
                                                     role="presentation"
                                                     style="border-collapse:collapse;border-spacing:0px;">
@@ -215,7 +215,7 @@
                                         </tr>
                                         <tr>
                                             <td align="center"
-                                                style="font-size:0px;padding:0 0 8px 0;word-break:break-word;">
+                                                style="font-size:0px;padding:0 0 0.5rem 0;word-break:break-word;">
                                                 <div
                                                     style="font-family:'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;font-size:20px;line-height:28px;text-align:center;color:#ffffff;">
                                                     <strong style="font-weight: 700;">{{ $office_name }}</strong>
@@ -254,24 +254,24 @@
                                     width="100%">
                                     <tbody>
                                         <tr>
-                                            <td style="background-color:#ffffff;vertical-align:top;padding:40px 32px;">
+                                            <td style="background-color:#ffffff;vertical-align:top;padding:40px 2rem;">
                                                 <table border="0" cellpadding="0" cellspacing="0"
                                                     role="presentation" width="100%">
                                                     <tbody><!-- Welcome Message -->
                                                         <tr>
                                                             <td align="right"
-                                                                style="font-size:0px;padding:0 0 12px 0;word-break:break-word;">
+                                                                style="font-size:0px;padding:0 0 0.75rem 0;word-break:break-word;">
                                                                 <div
                                                                     style="font-family:'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;font-size:13px;line-height:26px;text-align:right;color:#333333;">
                                                                     <h1
-                                                                        style="margin: 0; color: #1e293b; direction: rtl; text-align: right; font-size: 28px; font-weight: 700;">
+                                                                        style="margin: 0; color: #1e293b; direction: rtl; text-align: right; font-size: 1.75rem; font-weight: 700;">
                                                                         مرحباً {{ $customer_name }} 👋</h1>
                                                                 </div>
                                                             </td>
                                                         </tr>
                                                         <tr>
                                                             <td align="right"
-                                                                style="font-size:0px;padding:0 0 24px 0;word-break:break-word;">
+                                                                style="font-size:0px;padding:0 0 1.5rem 0;word-break:break-word;">
                                                                 <div
                                                                     style="font-family:'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;font-size:16px;line-height:26px;text-align:right;color:#333333;">
                                                                     <p
@@ -294,10 +294,10 @@
                                                                         <tr>
                                                                             <td align="center" bgcolor="#1e293b"
                                                                                 role="presentation"
-                                                                                style="border:none;border-radius:8px;cursor:auto;mso-padding-alt:16px 40px;background:#1e293b;"
+                                                                                style="border:none;border-radius:8px;cursor:auto;mso-padding-alt:16px 2.5rem;background:#1e293b;"
                                                                                 valign="middle"><a
                                                                                     href="{{ $url }}"
-                                                                                    style="display:inline-block;background:#1e293b;color:#ffffff;font-family:'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;font-size:16px;font-weight:600;line-height:120%;margin:0;text-decoration:none;text-transform:none;padding:16px 40px;mso-padding-alt:0px;border-radius:8px;"
+                                                                                    style="display:inline-block;background:#1e293b;color:#ffffff;font-family:'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;font-size:16px;font-weight:600;line-height:120%;margin:0;text-decoration:none;text-transform:none;padding:16px 2.5rem;mso-padding-alt:0px;border-radius:8px;"
                                                                                     target="_blank">تصفح موقعنا
                                                                                     الإلكتروني</a></td>
                                                                         </tr>
@@ -311,9 +311,9 @@
                                                                 <div
                                                                     style="font-family:'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;font-size:15px;line-height:24px;text-align:right;color:#333333;">
                                                                     <div
-                                                                        style="background-color: #f1f5f9; border-right: 3px solid #1e293b; border-radius: 8px; padding: 20px; direction: rtl;">
+                                                                        style="background-color: #f1f5f9; border-right: 3px solid #1e293b; border-radius: 0.5rem; padding: 1.25rem; direction: rtl;">
                                                                         <p
-                                                                            style="margin: 0; color: #334155; line-height: 24px;">
+                                                                            style="margin: 0; color: #334155; line-height: 1.5rem;">
                                                                             <strong style="font-weight: 600;">💡 هل
                                                                                 لديك أسئلة؟</strong> لا تتردد في التواصل
                                                                             معنا على الأرقام والبريد الإلكتروني الموضح
@@ -337,7 +337,7 @@
                                                                 style="font-size:0px;padding:0;word-break:break-word;">
                                                                 <div
                                                                     style="font-family:'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;font-size:16px;line-height:26px;text-align:right;color:#4b5563;">
-                                                                    <p style="margin: 0 0 12px 0; direction: rtl;">
+                                                                    <p style="margin: 0 0 0.75rem 0; direction: rtl;">
                                                                         نتطلع للعمل معك قريباً ومساعدتك في تحسين أعمالك!
                                                                     </p>
                                                                     <p
@@ -372,13 +372,13 @@
                                     width="100%">
                                     <tbody>
                                         <tr>
-                                            <td style="background-color:#ffffff;vertical-align:top;padding:28px 32px;">
+                                            <td style="background-color:#ffffff;vertical-align:top;padding:28px 2rem;">
                                                 <table border="0" cellpadding="0" cellspacing="0"
                                                     role="presentation" width="100%">
                                                     <tbody>
                                                         <tr>
                                                             <td align="right"
-                                                                style="font-size:0px;padding:0 0 16px 0;word-break:break-word;">
+                                                                style="font-size:0px;padding:0 0 1rem 0;word-break:break-word;">
                                                                 <div
                                                                     style="font-family:'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;font-size:16px;line-height:26px;text-align:right;color:#333333;">
                                                                     <h3
@@ -398,28 +398,28 @@
                                                                             <span
                                                                                 style="color: #1e293b; font-weight: 600;">📍
                                                                                 العنوان:</span> <span
-                                                                                style="display: block; margin-top: 4px; color: #475569;">{{ $office_address }}</span>
+                                                                                style="display: block; margin-top: 0.25rem; color: #475569;">{{ $office_address }}</span>
                                                                         </div>
                                                                         <div class="company-info-item"
                                                                             style="display: block; margin-bottom: 10px;">
                                                                             <span
                                                                                 style="color: #1e293b; font-weight: 600;">📋
                                                                                 السجل التجاري:</span> <span
-                                                                                style="display: block; margin-top: 4px; color: #475569;">{{ $commercial_register }}</span>
+                                                                                style="display: block; margin-top: 0.25rem; color: #475569;">{{ $commercial_register }}</span>
                                                                         </div>
                                                                         <div class="company-info-item"
                                                                             style="display: block; margin-bottom: 10px;">
                                                                             <span
                                                                                 style="color: #1e293b; font-weight: 600;">🔢
                                                                                 الرقم الضريبي:</span> <span
-                                                                                style="display: block; margin-top: 4px; color: #475569;">{{ $tax_number }}</span>
+                                                                                style="display: block; margin-top: 0.25rem; color: #475569;">{{ $tax_number }}</span>
                                                                         </div>
                                                                         <div class="company-info-item"
                                                                             style="display: block; margin-bottom: 10px;">
                                                                             <span
                                                                                 style="color: #1e293b; font-weight: 600;">📞
                                                                                 رقم الهاتف:</span> <span
-                                                                                style="display: block; margin-top: 4px;"><a
+                                                                                style="display: block; margin-top: 0.25rem;"><a
                                                                                     href="tel:{{ $phone_number }}"
                                                                                     style="color: #475569; text-decoration: none;">{{ $phone_number }}</a></span>
                                                                         </div>
@@ -427,7 +427,7 @@
                                                                             style="display: block;"><span
                                                                                 style="color: #1e293b; font-weight: 600;">✉️
                                                                                 البريد الإلكتروني:</span> <span
-                                                                                style="display: block; margin-top: 4px;"><a
+                                                                                style="display: block; margin-top: 0.25rem;"><a
                                                                                     href="mailto:{{ $email }}"
                                                                                     style="color: #475569; text-decoration: none;">{{ $email }}</a></span>
                                                                         </div>
@@ -453,7 +453,7 @@
                 style="background:#f9fafb;background-color:#f9fafb;width:100%;">
                 <tbody>
                     <tr>
-                        <td style="direction:ltr;font-size:0px;padding:24px 24px 32px 24px;text-align:center;">
+                        <td style="direction:ltr;font-size:0px;padding:24px 1.5rem 2rem 1.5rem;text-align:center;">
                             <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:552px;" ><![endif]-->
                             <div class="mj-column-per-100 mj-outlook-group-fix"
                                 style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
@@ -462,7 +462,7 @@
                                     <tbody>
                                         <tr>
                                             <td align="center"
-                                                style="font-size:0px;padding:0 0 20px 0;word-break:break-word;">
+                                                style="font-size:0px;padding:0 0 1.25rem 0;word-break:break-word;">
                                                 <p
                                                     style="border-top:solid 1px #e5e7eb;font-size:1px;margin:0px auto;width:100%;">
                                                 </p><!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" style="border-top:solid 1px #e5e7eb;font-size:1px;margin:0px auto;width:552px;" role="presentation" width="552px" ><tr><td style="height:0;line-height:0;"> &nbsp;
@@ -475,7 +475,7 @@
                                                 <div
                                                     style="font-family:'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;font-size:14px;line-height:24px;text-align:center;color:#6b7280;">
                                                     <p
-                                                        style="direction: rtl; unicode-bidi: embed; text-align: center; margin: 0 0 8px 0;">
+                                                        style="direction: rtl; unicode-bidi: embed; text-align: center; margin: 0 0 0.5rem 0;">
                                                         شكراً لاهتمامك بنظام <strong
                                                             style="font-weight: 600;">{{ $office_name }}</strong></p>
                                                     <p

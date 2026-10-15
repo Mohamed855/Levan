@@ -123,7 +123,7 @@
                     <ul class="list-unstyled" style="position: relative;">
                         <!-- الخط الزمني العمودي -->
                         <div
-                            style="position: absolute; right: 20px; top: 0; bottom: 0; width: 2px; background-color: #e9ecef; z-index: 1;">
+                            style="position: absolute; right: 1.25rem; top: 0; bottom: 0; width: 2px; background-color: #e9ecef; z-index: 1;">
                         </div>
 
                         <!-- 1. حدث إنشاء التحصيل -->

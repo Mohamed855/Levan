@@ -504,12 +504,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     style.textContent = `
                         .file-success-display {
                             border: 2px solid #28a745;
-                            border-radius: 8px;
+                            border-radius: 0.5rem;
                             background: linear-gradient(135deg, #f8fff9 0%, #e8f5e8 100%);
                             transition: all 0.3s ease;
                         }
                         .file-success-display:hover {
-                            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.15);
+                            box-shadow: 0 0.25rem 0.75rem rgba(40, 167, 69, 0.15);
                         }
                     `;
                     document.head.appendChild(style);

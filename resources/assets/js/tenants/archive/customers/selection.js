@@ -437,8 +437,7 @@ const CustomerArchiveSelection = {
             company_id: $('#filter-company').val() || '',
             portfolio_id: $('#filter-portfolio').val() || '',
             relationship_manager_id: $('#filter-manager').val() || '',
-            last_contact_result_id: $('#filter-contact-result').val() || '',
-            search: $('#filter-search').val() || ''
+            last_contact_result_id: $('#filter-contact-result').val() || ''
         };
     },
 

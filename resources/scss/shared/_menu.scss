@@ -160,8 +160,8 @@
 // -----------------------------------------------------------------------------
 // 4. Base Menu Items & Consistent Geometry (Prevents Text Movement / Jumping)
 // -----------------------------------------------------------------------------
-$menu-link-height: 48px;
-$menu-sub-link-height: 48px;
+$menu-link-height: 3rem;
+$menu-sub-link-height: 3rem;
 
 .bg-menu-theme.menu-vertical .menu-inner .menu-link,
 .layout-wrapper:not(.layout-horizontal) .bg-menu-theme .menu-inner .menu-link {
@@ -202,14 +202,14 @@ $menu-sub-link-height: 48px;
 [dir="rtl"] .bg-menu-theme.menu-vertical .menu-inner > .menu-item > .menu-link {
     margin-left: 0 !important;
     margin-right: 0.875rem !important;
-    border-radius: 0 24px 24px 0 !important;
+    border-radius: 0 1.5rem 1.5rem 0 !important;
 }
 
 :root:not([dir="rtl"]) .bg-menu-theme.menu-vertical .menu-inner > .menu-item > .menu-link,
 [dir="ltr"] .bg-menu-theme.menu-vertical .menu-inner > .menu-item > .menu-link {
     margin-right: 0 !important;
     margin-left: 0.875rem !important;
-    border-radius: 24px 0 0 24px !important;
+    border-radius: 1.5rem 0 0 1.5rem !important;
 }
 
 // -----------------------------------------------------------------------------
@@ -231,8 +231,8 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
         content: '' !important;
         display: block !important;
         position: absolute !important;
-        width: 24px !important;
-        height: 24px !important;
+        width: 1.5rem !important;
+        height: 1.5rem !important;
         border-radius: 0 !important;
         border: none !important;
         box-shadow: none !important;
@@ -252,7 +252,7 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
     top: -24px !important;
     inset-inline-start: auto !important;
     inset-inline-end: 0 !important;
-    background: radial-gradient(circle 24px at 100% 0%, transparent 23.5px, var(--menu-cutout-bg, #f8f7fa) 24px) !important;
+    background: radial-gradient(circle 1.5rem at 100% 0%, transparent 23.5px, var(--menu-cutout-bg, #f8f7fa) 1.5rem) !important;
 }
 
 :root[dir="rtl"] .bg-menu-theme.menu-vertical .menu-inner > .menu-item::after,
@@ -263,7 +263,7 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
     bottom: auto !important;
     inset-inline-start: auto !important;
     inset-inline-end: 0 !important;
-    background: radial-gradient(circle 24px at 100% 100%, transparent 23.5px, var(--menu-cutout-bg, #f8f7fa) 24px) !important;
+    background: radial-gradient(circle 1.5rem at 100% 100%, transparent 23.5px, var(--menu-cutout-bg, #f8f7fa) 1.5rem) !important;
 }
 
 // LTR Geometry (cutouts face the page at the sidebar's inline end)
@@ -274,7 +274,7 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
     top: -24px !important;
     inset-inline-start: auto !important;
     inset-inline-end: 0 !important;
-    background: radial-gradient(circle 24px at 0% 0%, transparent 23.5px, var(--menu-cutout-bg, #f8f7fa) 24px) !important;
+    background: radial-gradient(circle 1.5rem at 0% 0%, transparent 23.5px, var(--menu-cutout-bg, #f8f7fa) 1.5rem) !important;
 }
 
 :root[dir="ltr"] .bg-menu-theme.menu-vertical .menu-inner > .menu-item::after,
@@ -285,7 +285,7 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
     bottom: auto !important;
     inset-inline-start: auto !important;
     inset-inline-end: 0 !important;
-    background: radial-gradient(circle 24px at 0% 100%, transparent 23.5px, var(--menu-cutout-bg, #f8f7fa) 24px) !important;
+    background: radial-gradient(circle 1.5rem at 0% 100%, transparent 23.5px, var(--menu-cutout-bg, #f8f7fa) 1.5rem) !important;
 }
 
 .bg-menu-theme.menu-vertical .menu-inner > .menu-item,
@@ -427,7 +427,7 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
         [dir="rtl"] & .menu-link {
             margin-left: 0 !important;
             margin-right: 0.875rem !important;
-            border-radius: 0 24px 24px 0 !important;
+            border-radius: 0 1.5rem 1.5rem 0 !important;
             padding: 0.725rem 2.25rem 0.725rem 1.15rem !important;
         }
 
@@ -435,7 +435,7 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
         [dir="ltr"] & .menu-link {
             margin-right: 0 !important;
             margin-left: 0.875rem !important;
-            border-radius: 24px 0 0 24px !important;
+            border-radius: 1.5rem 0 0 1.5rem !important;
             padding: 0.725rem 1.15rem 0.725rem 2.25rem !important;
         }
 

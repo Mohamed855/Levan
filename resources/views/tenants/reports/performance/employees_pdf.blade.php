@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,16 +22,16 @@
 
         .header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 1.25rem;
             padding: 15px;
             background: linear-gradient(135deg, #1f4e78 0%, #4cc1bb 100%);
             color: white;
-            border-radius: 8px;
+            border-radius: 0.5rem;
         }
 
         .header h1 {
             font-size: 18px;
-            margin-bottom: 8px;
+            margin-bottom: 0.5rem;
             font-weight: bold;
         }
 
@@ -51,7 +52,7 @@
         }
 
         table thead th {
-            padding: 8px 6px;
+            padding: 0.5rem 6px;
             text-align: center;
             font-size: 9px;
             font-weight: bold;
@@ -62,7 +63,7 @@
             padding: 6px;
             text-align: center;
             border: 1px solid #ddd;
-            font-size: 8px;
+            font-size: 0.5rem;
         }
 
         table tbody tr:nth-child(even) {
@@ -78,7 +79,7 @@
             padding: 2px 6px;
             border-radius: 10px;
             font-weight: bold;
-            font-size: 8px;
+            font-size: 0.5rem;
         }
 
         .achievement-success {
@@ -98,11 +99,11 @@
 
         .footer {
             margin-top: 25px;
-            padding: 12px;
+            padding: 0.75rem;
             background: #f8f9fa;
             border-top: 2px solid #1f4e78;
             text-align: center;
-            font-size: 8px;
+            font-size: 0.5rem;
             color: #666;
         }
 
@@ -121,6 +122,7 @@
         }
     </style>
 </head>
+
 <body>
     @php
         $formatReportNumber = fn($value) => \App\Support\ReportNumberFormatter::format($value);
@@ -154,44 +156,54 @@
         </thead>
         <tbody>
             @forelse($employeesPerformance as $index => $employee)
-            <tr>
-                <td>{{ $index + 1 }}</td>
-                <td class="text-right">{{ $employee['company_name'] }}</td>
-                <td class="text-right text-primary">{{ $employee['employee_name'] }}</td>
-                <td>{{ $formatReportNumber($employee['customers_count']) }}</td>
-                <td>{{ $formatReportNumber($employee['total_portfolio']) }}</td>
-                <td class="text-success">{{ $formatReportNumber($employee['avg_payment']) }}</td>
-                <td>{{ $formatReportNumber($employee['paid_customers']) }}</td>
-                <td>{{ $formatReportNumber($employee['avg_calls']) }}</td>
-                <td>{{ $formatReportNumber($employee['not_contacted']) }}</td>
-                <td>{{ $formatReportNumber($employee['overdue_tasks'] ?? 0) }}</td>
-                <td>{{ $formatReportNumber($employee['promises_count']) }}</td>
-                <td>{{ $formatReportNumber($employee['promises_amount']) }}</td>
-                <td>
-                    @php
-                        $promiseRate = $employee['promise_achievement_rate'];
-                        $promiseClass = $promiseRate >= 80 ? 'achievement-success' : ($promiseRate >= 50 ? 'achievement-warning' : 'achievement-danger');
-                    @endphp
-                    <span class="achievement-badge {{ $promiseClass }}">
-                        {{ $formatReportNumber($promiseRate) }}%
-                    </span>
-                </td>
-                <td>
-                    @php
-                        $targetRate = $employee['target_achievement_rate'];
-                        $targetClass = $targetRate >= 100 ? 'achievement-success' : ($targetRate >= 50 ? 'achievement-warning' : 'achievement-danger');
-                    @endphp
-                    <span class="achievement-badge {{ $targetClass }}">
-                        {{ $formatReportNumber($targetRate) }}%
-                    </span>
-                </td>
-            </tr>
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td class="text-right">{{ $employee['company_name'] }}</td>
+                    <td class="text-right text-primary">{{ $employee['employee_name'] }}</td>
+                    <td>{{ $formatReportNumber($employee['customers_count']) }}</td>
+                    <td>{{ $formatReportNumber($employee['total_portfolio']) }}</td>
+                    <td class="text-success">{{ $formatReportNumber($employee['avg_payment']) }}</td>
+                    <td>{{ $formatReportNumber($employee['paid_customers']) }}</td>
+                    <td>{{ $formatReportNumber($employee['avg_calls']) }}</td>
+                    <td>{{ $formatReportNumber($employee['not_contacted']) }}</td>
+                    <td>{{ $formatReportNumber($employee['overdue_tasks'] ?? 0) }}</td>
+                    <td>{{ $formatReportNumber($employee['promises_count']) }}</td>
+                    <td>{{ $formatReportNumber($employee['promises_amount']) }}</td>
+                    <td>
+                        @php
+                            $promiseRate = $employee['promise_achievement_rate'];
+                            $promiseClass =
+                                $promiseRate >= 80
+                                    ? 'achievement-success'
+                                    : ($promiseRate >= 50
+                                        ? 'achievement-warning'
+                                        : 'achievement-danger');
+                        @endphp
+                        <span class="achievement-badge {{ $promiseClass }}">
+                            {{ $formatReportNumber($promiseRate) }}%
+                        </span>
+                    </td>
+                    <td>
+                        @php
+                            $targetRate = $employee['target_achievement_rate'];
+                            $targetClass =
+                                $targetRate >= 100
+                                    ? 'achievement-success'
+                                    : ($targetRate >= 50
+                                        ? 'achievement-warning'
+                                        : 'achievement-danger');
+                        @endphp
+                        <span class="achievement-badge {{ $targetClass }}">
+                            {{ $formatReportNumber($targetRate) }}%
+                        </span>
+                    </td>
+                </tr>
             @empty
-            <tr>
-                <td colspan="14" style="text-align: center; padding: 20px; color: #999;">
-                    لا توجد بيانات للعرض
-                </td>
-            </tr>
+                <tr>
+                    <td colspan="14" style="text-align: center; padding: 1.25rem; color: #999;">
+                        لا توجد بيانات للعرض
+                    </td>
+                </tr>
             @endforelse
         </tbody>
     </table>
@@ -199,7 +211,9 @@
     {{-- التذييل --}}
     <div class="footer">
         <p>تم إنشاء هذا التقرير بواسطة نظام إدارة التحصيل | {{ now()->format('Y-m-d H:i:s') }}</p>
-        <p>إجمالي الموظفين: {{ $formatReportNumber(count($employeesPerformance)) }} | إجمالي العملاء: {{ $formatReportNumber(collect($employeesPerformance)->sum('customers_count')) }}</p>
+        <p>إجمالي الموظفين: {{ $formatReportNumber(count($employeesPerformance)) }} | إجمالي العملاء:
+            {{ $formatReportNumber(collect($employeesPerformance)->sum('customers_count')) }}</p>
     </div>
 </body>
+
 </html>

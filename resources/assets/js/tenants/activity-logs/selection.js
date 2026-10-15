@@ -257,8 +257,6 @@ const ActivityLogSelection = {
         return {
             user_id: $('#filter-user').val() || '',
             log_name: $('#filter-log-name').val() || '',
-            date_from: $('#filter-date-from').val() || '',
-            date_to: $('#filter-date-to').val() || '',
             search: search
         };
     }

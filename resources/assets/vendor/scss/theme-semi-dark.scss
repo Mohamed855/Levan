@@ -55,7 +55,7 @@ body {
 );
 @include media-breakpoint-up($menu-collapsed-layout-breakpoint) {
   .bg-menu-theme {
-    box-shadow: 0px 2px 8px 0px rgba(#1a1118, 0.12);
+    box-shadow: 0px 2px 0.5rem 0px rgba(#1a1118, 0.12);
   }
 }
 

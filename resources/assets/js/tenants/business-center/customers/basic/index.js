@@ -82,51 +82,6 @@ function initializeComponents() {
         });
     });
 
-    // ✅ تفعيل التحكم في حقول تاريخ الإرسال
-    setupSMSDateFieldsControl();
-}
-
-/*
-|--------------------------------------------------------------------------
-| SMS Date Fields Control
-|--------------------------------------------------------------------------
-| التحكم في حقول تاريخ الإرسال بناءً على حالة الإرسال
-*/
-function setupSMSDateFieldsControl() {
-    const smsStatusFilter = $("#filter-sms-status");
-    const smsDateFrom = $("#filter-sms-date-from");
-    const smsDateTo = $("#filter-sms-date-to");
-
-    // دالة التحكم في حالة حقول التاريخ
-    function updateDateFieldsState() {
-        const selectedStatus = smsStatusFilter.val();
-
-        if (selectedStatus === "not_sent") {
-            // ✅ تعطيل حقول التاريخ (لكن تبقى ظاهرة)
-            smsDateFrom.prop("disabled", true).val("");
-            smsDateTo.prop("disabled", true).val("");
-
-            // إضافة تنسيق بصري للتوضيح
-            smsDateFrom.addClass("bg-lighter text-muted");
-            smsDateTo.addClass("bg-lighter text-muted");
-        } else {
-            // ✅ تفعيل حقول التاريخ
-            smsDateFrom.prop("disabled", false);
-            smsDateTo.prop("disabled", false);
-
-            // إزالة التنسيق البصري
-            smsDateFrom.removeClass("bg-lighter text-muted");
-            smsDateTo.removeClass("bg-lighter text-muted");
-        }
-    }
-
-    // ✅ تطبيق التحكم عند تغيير حالة الإرسال
-    smsStatusFilter.on("change", function () {
-        updateDateFieldsState();
-    });
-
-    // ✅ تطبيق الحالة الأولية عند تحميل الصفحة
-    updateDateFieldsState();
 }
 
 /*
@@ -557,7 +512,7 @@ function downloadCustomersExportFile(fileName) {
 const CUSTOMERS_EXPORT_PROGRESS_TITLE_HTML =
     '<i class="ti ti-file-export me-2 text-primary"></i>جاري تصدير العملاء';
 const CUSTOMERS_EXPORT_PROGRESS_BODY_HTML = `
-    <div class="progress mb-3 position-relative" style="height: 25px; border-radius: 12px; overflow: hidden;">
+    <div class="progress mb-3 position-relative" style="height: 25px; border-radius: 0.75rem; overflow: hidden;">
         <div id="customersExportProgressBar"
              class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
              role="progressbar"
@@ -567,7 +522,7 @@ const CUSTOMERS_EXPORT_PROGRESS_BODY_HTML = `
              aria-valuemax="100">
         </div>
         <div class="position-absolute w-100 h-100 d-flex align-items-center justify-content-center">
-            <span id="customersExportProgressText" class="text-white fw-bold" style="font-size: 12px;">0%</span>
+            <span id="customersExportProgressText" class="text-white fw-bold" style="font-size: 0.75rem;">0%</span>
         </div>
     </div>
     <div id="customersExportProgressMessage" class="text-muted mb-2" style="font-size: 14px;">
@@ -643,7 +598,7 @@ function showCustomersExportReadyModal(fileName, totalRecords) {
     );
     $("#customersExportProgressModal .modal-body").html(`
         <div class="text-center">
-            <i class="ti ti-file-spreadsheet text-success mb-3" style="font-size: 48px;"></i>
+            <i class="ti ti-file-spreadsheet text-success mb-3" style="font-size: 3rem;"></i>
             <p class="mb-3">تم تصدير ${totalRecords ?? ""} عميل بنجاح</p>
             <a href="${url}" target="_blank" class="btn btn-success" id="customersExportDownloadBtn">
                 <i class="ti ti-download me-1"></i> تحميل الملف

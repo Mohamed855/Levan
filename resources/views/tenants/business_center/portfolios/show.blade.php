@@ -227,7 +227,7 @@
                         <div class="flex-fill">
                             <div class="legend-item" data-series="0" style="cursor: pointer;">
                                 <div class="color-indicator bg-info rounded-circle mx-auto mb-1"
-                                    style="width: 12px; height: 12px;"></div>
+                                    style="width: 0.75rem; height: 0.75rem;"></div>
                                 <small class="text-muted d-block" style="font-size: 10px;">إجمالي المديونيات</small>
                                 <small style="font-size: 11px;">{{ $totalDebtFormatted }}</small>
                             </div>
@@ -235,7 +235,7 @@
                         <div class="flex-fill">
                             <div class="legend-item" data-series="1" style="cursor: pointer;">
                                 <div class="color-indicator bg-success rounded-circle mx-auto mb-1"
-                                    style="width: 12px; height: 12px;"></div>
+                                    style="width: 0.75rem; height: 0.75rem;"></div>
                                 <small class="text-muted d-block" style="font-size: 10px;">المتحصل</small>
                                 <small class="text-success"
                                     style="font-size: 11px;">{{ $totalCollectedFormatted }}</small>
@@ -244,7 +244,7 @@
                         <div class="flex-fill">
                             <div class="legend-item" data-series="2" style="cursor: pointer;">
                                 <div class="color-indicator bg-warning rounded-circle mx-auto mb-1"
-                                    style="width: 12px; height: 12px;"></div>
+                                    style="width: 0.75rem; height: 0.75rem;"></div>
                                 <small class="text-muted d-block" style="font-size: 10px;">المتبقي</small>
                                 <small class="text-warning"
                                     style="font-size: 11px;">{{ $remainingDebtFormatted }}</small>

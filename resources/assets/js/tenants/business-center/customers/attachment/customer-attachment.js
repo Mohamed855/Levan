@@ -298,7 +298,7 @@ function checkAndShowNoAttachmentsMessage() {
     if (attachmentElements.length === 0) {
         const noAttachmentsHtml = `
             <div class="text-center py-4 text-muted" id="no-attachments-message">
-                <i class="ti ti-paperclip" style="font-size: 48px; opacity: 0.3;"></i>
+                <i class="ti ti-paperclip" style="font-size: 3rem; opacity: 0.3;"></i>
                 <div class="mt-2">لا توجد مرفقات لهذا العميل</div>
             </div>
         `;

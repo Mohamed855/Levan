@@ -114,7 +114,7 @@
   font-size: var(--site-font-base);
   font-weight: 750;
   cursor: pointer;
-  box-shadow: 0 8px 24px rgba(29, 79, 68, 0.25);
+  box-shadow: 0 0.5rem 1.5rem rgba(29, 79, 68, 0.25);
   transition: all var(--site-transition-fast);
 
   i {
@@ -130,7 +130,7 @@
   &:hover:not(:disabled) {
     background-color: var(--site-primary-deep);
     color: #FFFFFF;
-    box-shadow: 0 12px 32px rgba(18, 51, 44, 0.35);
+    box-shadow: 0 0.75rem 2rem rgba(18, 51, 44, 0.35);
     border-color: var(--site-primary-deep);
   }
 

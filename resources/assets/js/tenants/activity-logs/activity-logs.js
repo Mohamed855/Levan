@@ -46,8 +46,6 @@ function initializeDataTable() {
             data: function (d) {
                 d.user_id = $('#filter-user').val();
                 d.log_name = $('#filter-log-name').val();
-                d.date_from = $('#filter-date-from').val();
-                d.date_to = $('#filter-date-to').val();
             }
         },
         columns: getTableColumns(),
@@ -314,7 +312,7 @@ function handleExportActivityLogs() {
 */
 const ACTIVITY_LOGS_EXPORT_PROGRESS_TITLE_HTML = '<i class="ti ti-file-export me-2 text-primary"></i>جاري تصدير السجلات';
 const ACTIVITY_LOGS_EXPORT_PROGRESS_BODY_HTML = `
-    <div class="progress mb-3 position-relative" style="height: 25px; border-radius: 12px; overflow: hidden;">
+    <div class="progress mb-3 position-relative" style="height: 25px; border-radius: 0.75rem; overflow: hidden;">
         <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 100%;"></div>
     </div>
     <div class="d-flex justify-content-center align-items-center mt-3">
@@ -359,7 +357,7 @@ function showActivityLogsExportReadyModal(fileName, count) {
     $('#activityLogsExportModal .modal-title').html('<i class="ti ti-circle-check me-2 text-success"></i>اكتمل التصدير');
     $('#activityLogsExportModal .modal-body').html(`
         <div class="text-center">
-            <i class="ti ti-file-spreadsheet text-success mb-3" style="font-size: 48px;"></i>
+            <i class="ti ti-file-spreadsheet text-success mb-3" style="font-size: 3rem;"></i>
             <p class="mb-3">تم تصدير ${count ?? ''} سجل بنجاح</p>
             <a href="${url}" target="_blank" class="btn btn-success" id="activityLogsExportDownloadBtn">
                 <i class="ti ti-download me-1"></i> تحميل الملف

@@ -52,7 +52,6 @@ function initializeDataTable() {
         d.category = $('#filter-category').val();
         d.channel  = $('#filter-channel').val();   // ✅ فلتر القناة
         d.status   = $('#filter-status').val();
-        d.search   = $('#filter-search').val();
       }
     },
     columns: [
@@ -153,14 +152,6 @@ function getButtons() {
 /**
  * ربط الأحداث
  */
-function bindEvents() {
-  // تحديث الجدول عند البحث
-  $('#filter-search').on('keyup', function () {
-    clearTimeout(window.searchTimeout);
-    window.searchTimeout = setTimeout(function () {
-      messageTemplatesTable.draw();
-    }, 500);
-  });
-}
+function bindEvents() {}
 
 window.confirmDelete = confirmDelete;

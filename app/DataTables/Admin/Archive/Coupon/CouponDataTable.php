@@ -171,11 +171,10 @@ class CouponDataTable extends AbstractDataTable
             '<div class="d-flex align-items-center gap-2">
                 <code class="copyable-code"
                       data-code="%s"
-                      style="cursor: pointer; user-select: none; padding: 4px 8px; background: #f5f5f5; border-radius: 4px; font-weight: 600;"
                       title="اضغط للنسخ">
                     %s
                 </code>
-                <i class="ti ti-copy text-muted" style="font-size: 16px;"></i>
+                <i class="ti ti-copy text-muted copy-icon"></i>
             </div>',
             $row->code,
             $row->code

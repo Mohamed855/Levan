@@ -2,7 +2,10 @@
     use Illuminate\Support\Facades\Auth;
     use Illuminate\Support\Facades\Route;
 
-    $containerNav = (isset($configData['contentLayout']) && $configData['contentLayout'] === 'wide') ? 'container-fluid' : 'container-xxl';
+    $containerNav =
+        isset($configData['contentLayout']) && $configData['contentLayout'] === 'wide'
+            ? 'container-fluid'
+            : 'container-xxl';
     $navbarDetached = $navbarDetached ?? '';
 @endphp
 
@@ -77,8 +80,8 @@
 
         {{-- Settings - يظهر فقط إذا توفرت إحدى الصلاحيات --}}
         @canany(['system.settings', 'users.view', 'roles.view', 'activity_log.view', 'message_logs.view',
-            'countries.view', 'payment_methods.view', 'client_statuses.view',
-            'contact_channels.view', 'message_templates.view', 'subscriptions.view', 'bills.view', 'system.groups'])
+            'countries.view', 'payment_methods.view', 'client_statuses.view', 'contact_channels.view',
+            'message_templates.view', 'subscriptions.view', 'bills.view', 'system.groups'])
             <li class="nav-item dropdown me-2 me-xl-2">
                 <a class="nav-link btn btn-text-secondary btn-icon rounded-pill dropdown-toggle hide-arrow"
                     href="javascript:void(0);" data-bs-toggle="dropdown">
@@ -209,8 +212,8 @@
                     </div>
 
                     {{-- رابط المركز التفصيلي --}}
-                    @canany(['countries.view', 'payment_methods.view', 'client_statuses.view',
-                        'contact_channels.view', 'message_templates.view'])
+                    @canany(['countries.view', 'payment_methods.view', 'client_statuses.view', 'contact_channels.view',
+                        'message_templates.view'])
                         <div class="dropdown-divider my-3"></div>
                         <div class="d-grid">
                             <a href="{{ tenant_route_name('settings.center') }}" class="btn btn-primary btn-sm">
@@ -432,7 +435,7 @@
 <div class="navbar-search-wrapper search-input-wrapper {{ isset($menuHorizontal) ? $containerNav : '' }} d-none">
     <input type="text"
         class="form-control search-input {{ isset($menuHorizontal) ? '' : $containerNav }} border-0"
-        placeholder="Search..." aria-label="Search...">
+        placeholder="بحث..." aria-label="بحث...">
     <i class="ti ti-x search-toggler cursor-pointer"></i>
 </div>
 <!--/ Search Small Screens -->

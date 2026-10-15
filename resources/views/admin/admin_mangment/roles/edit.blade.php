@@ -58,7 +58,7 @@
                                 </div>
 
                                 <!-- الأقسام -->
-                                <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+                                <div style="display: flex; flex-wrap: wrap; gap: 1.25rem;">
                                     @foreach ($permissions as $section => $perms)
                                         <div style="flex: 1; min-width: 300px;">
                                             <div class="accordion" id="accordion-{{ $loop->index }}">

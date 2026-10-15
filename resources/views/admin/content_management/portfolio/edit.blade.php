@@ -59,7 +59,8 @@
                         </div>
                     @endif
 
-                    <form id="wizard-validation-form" data-form-validate data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}"
+                    <form id="wizard-validation-form" data-form-validate
+                        data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}"
                         action="{{ route('admin.content_management.portfolio.update', $portfolio->id) }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
@@ -95,10 +96,10 @@
                                             <p class="text-muted mb-1" style="font-size:12px;">الشعار الحالي:</p>
                                             <img id="logo-preview" src="{{ asset('storage/' . $portfolio->logo) }}"
                                                 alt="Logo"
-                                                style="max-width: 120px; height: 80px; object-fit: contain; border: 1px solid #ddd; border-radius: 8px; padding: 4px;">
+                                                style="max-width: 120px; height: 80px; object-fit: contain; border: 1px solid #ddd; border-radius: 0.5rem; padding: 0.25rem;">
                                         @else
                                             <img id="logo-preview" src="#" alt="معاينة"
-                                                style="max-width: 120px; height: 80px; object-fit: contain; border: 1px solid #ddd; border-radius: 8px; padding: 4px; display: none;">
+                                                style="max-width: 120px; height: 80px; object-fit: contain; border: 1px solid #ddd; border-radius: 0.5rem; padding: 0.25rem; display: none;">
                                         @endif
                                     </div>
 

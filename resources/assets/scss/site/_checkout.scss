@@ -104,8 +104,8 @@
   }
 
   .payment-icon-wrap {
-    width: 44px;
-    height: 44px;
+    width: 2.75rem;
+    height: 2.75rem;
     border-radius: var(--site-radius-md);
     background: rgba(var(--site-primary-rgb), 0.08);
     color: var(--site-primary);
@@ -205,7 +205,7 @@
     object-fit: contain;
     border-radius: var(--site-radius-sm);
     border: 1px solid var(--site-border);
-    padding: 4px;
+    padding: 0.25rem;
     background: #FFFFFF;
     flex-shrink: 0;
   }
@@ -460,8 +460,8 @@
   }
 
   .btn-remove-file {
-    width: 32px;
-    height: 32px;
+    width: 2rem;
+    height: 2rem;
     border-radius: var(--site-radius-pill);
     background: rgba(239, 68, 68, 0.1);
     color: #ef4444;
@@ -646,7 +646,7 @@
     max-height: 90%;
     object-fit: contain;
     border-radius: var(--site-radius-md);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 1.25rem 60px rgba(0, 0, 0, 0.4);
   }
 
   .modal-close {
@@ -655,8 +655,8 @@
     left: 1.5rem;
     background: #FFFFFF;
     border: none;
-    width: 44px;
-    height: 44px;
+    width: 2.75rem;
+    height: 2.75rem;
     border-radius: 50%;
     cursor: pointer;
     font-size: 1.5rem;

@@ -122,7 +122,7 @@
         function showCopyNotification(code) {
             const notification = document.createElement('div');
             notification.innerHTML = `
-                <div style="position: fixed; top: 20px; right: 20px; z-index: 9999; background: #28a745; color: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideIn 0.3s ease;">
+                <div style="position: fixed; top: 1.25rem; right: 1.25rem; z-index: 9999; background: #28a745; color: white; padding: 15px 1.25rem; border-radius: 0.5rem; box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.15); animation: slideIn 0.3s ease;">
                     <i class="ti ti-check me-2"></i>
                     تم نسخ الكود: <strong>${code}</strong>
                 </div>

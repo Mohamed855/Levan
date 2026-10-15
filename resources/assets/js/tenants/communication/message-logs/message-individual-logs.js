@@ -134,8 +134,6 @@ function handleExport() {
         ($('#filter-company').val() && $('#filter-company').val() !== '') ||
         ($('#filter-portfolio').val() && $('#filter-portfolio').val() !== '') ||
         ($('#filter-customer').val() && $('#filter-customer').val() !== '') ||
-        ($('#filter-date-from').val() && $('#filter-date-from').val() !== '') ||
-        ($('#filter-date-to').val() && $('#filter-date-to').val() !== '') ||
         ($('.dataTables_filter input').val() && $('.dataTables_filter input').val() !== '');
 
     if (!hasFilters) {
@@ -149,8 +147,6 @@ function handleExport() {
         company_id: $('#filter-company').val() || '',
         portfolio_id: $('#filter-portfolio').val() || '',
         customer_id: $('#filter-customer').val() || '',
-        date_from: $('#filter-date-from').val() || '',
-        date_to: $('#filter-date-to').val() || '',
         search: $('.dataTables_filter input').val() || ''
     };
 
@@ -177,14 +173,6 @@ function handleExport() {
     })).append($('<input>', {
         'name': 'customer_id',
         'value': filters.customer_id,
-        'type': 'hidden'
-    })).append($('<input>', {
-        'name': 'date_from',
-        'value': filters.date_from,
-        'type': 'hidden'
-    })).append($('<input>', {
-        'name': 'date_to',
-        'value': filters.date_to,
         'type': 'hidden'
     })).append($('<input>', {
         'name': 'search',

@@ -53,7 +53,7 @@
                 </label>
                 <input type="text" id="domainInput" class="form-control-custom" placeholder="example.com" dir="ltr">
                 <div class="alert-box alert-info mt-3">
-                    <i class="ti ti-info-circle" style="font-size: 16px;"></i>
+                    <i class="ti ti-info-circle" style="font-size: 1rem;"></i>
                     <div>
                         <strong>مثال:</strong> levan.com للدومين الرئيسي، أو app.levan.com للدومين الفرعي
                     </div>
@@ -82,7 +82,7 @@
                 </div>
 
                 <div class="alert-box alert-warning mt-3" id="methodAlert" style="display: none;">
-                    <i class="ti ti-alert-triangle" style="font-size: 16px;"></i>
+                    <i class="ti ti-alert-triangle" style="font-size: 1rem;"></i>
                     <div id="methodAlertText"></div>
                 </div>
             </div>
@@ -108,7 +108,7 @@
                 </p>
 
                 <div class="alert-box alert-info">
-                    <i class="ti ti-info-circle" style="font-size: 16px;"></i>
+                    <i class="ti ti-info-circle" style="font-size: 1rem;"></i>
                     <div>
                         قم بإضافة السجلات التالية ثم انتظر حتى يتم التحديث (5 دقائق إلى 48 ساعة)
                     </div>
@@ -146,7 +146,7 @@
                 </p>
 
                 <div class="alert-box alert-info">
-                    <i class="ti ti-info-circle" style="font-size: 16px;"></i>
+                    <i class="ti ti-info-circle" style="font-size: 1rem;"></i>
                     <div>
                         قم بتحديث Name Servers ثم انتظر حتى يتم التحديث (قد يستغرق من 5 دقائق إلى 48 ساعة)
                     </div>
@@ -163,7 +163,7 @@
                     <div class="domain-display" id="confirmDomainDisplay"></div>
 
                     <div class="alert-box alert-success" style="text-align: right;">
-                        <i class="ti ti-check-circle" style="font-size: 16px;"></i>
+                        <i class="ti ti-check-circle" style="font-size: 1rem;"></i>
                         <div>
                             تأكد من تحديث Name Servers كما هو موضح أعلاه قبل الضغط على تأكيد الربط
                         </div>
@@ -481,7 +481,7 @@
 
                 alertContainer.innerHTML = `
             <div class="alert-box ${config.class}">
-                <i class="ti ${config.icon}" style="font-size: 16px;"></i>
+                <i class="ti ${config.icon}" style="font-size: 1rem;"></i>
                 <div>${message}</div>
             </div>
         `;
@@ -553,18 +553,18 @@
 
                             if (data.current_ns && data.required_ns) {
                                 errorMessage +=
-                                    '<br><br><div style="background: #fff; padding: 12px; border-radius: 7px; margin-top: 8px;">';
+                                    '<br><br><div style="background: #fff; padding: 0.75rem; border-radius: 7px; margin-top: 0.5rem;">';
                                 errorMessage +=
                                     '<strong style="color: var(--danger-color); font-size: 0.8rem;">Name Servers الحالية:</strong><br>';
                                 data.current_ns.forEach(ns => {
                                     errorMessage +=
-                                        `<code style="padding: 3px 7px; border-radius: 4px; margin: 2px; display: inline-block; font-size: 0.75rem;">${ns}</code><br>`;
+                                        `<code style="padding: 3px 7px; border-radius: 0.25rem; margin: 2px; display: inline-block; font-size: 0.75rem;">${ns}</code><br>`;
                                 });
                                 errorMessage +=
                                     '<br><strong style="color: var(--success-color); font-size: 0.8rem;">Name Servers المطلوبة:</strong><br>';
                                 data.required_ns.forEach(ns => {
                                     errorMessage +=
-                                        `<code style="padding: 3px 7px; border-radius: 4px; margin: 2px; display: inline-block; font-size: 0.75rem;">${ns}</code><br>`;
+                                        `<code style="padding: 3px 7px; border-radius: 0.25rem; margin: 2px; display: inline-block; font-size: 0.75rem;">${ns}</code><br>`;
                                 });
                                 errorMessage += '</div>';
                             }
@@ -590,7 +590,7 @@
                 navigator.clipboard.writeText(text).then(function() {
                     const toast = document.createElement('div');
                     toast.style.cssText =
-                        'position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #4caf50; color: white; padding: 10px 20px; border-radius: 7px; box-shadow: 0 3px 10px rgba(0,0,0,0.12); z-index: 9999; font-size: 0.8rem;';
+                        'position: fixed; top: 1.25rem; left: 50%; transform: translateX(-50%); background: #4caf50; color: white; padding: 10px 1.25rem; border-radius: 7px; box-shadow: 0 3px 10px rgba(0,0,0,0.12); z-index: 9999; font-size: 0.8rem;';
                     toast.innerHTML = '<i class="ti ti-check me-2"></i>تم النسخ!';
                     document.body.appendChild(toast);
                     setTimeout(() => {

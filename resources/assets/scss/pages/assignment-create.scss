@@ -24,9 +24,9 @@
 }
 
 .assignment-property-card__image {
-  inline-size: 40px;
-  block-size: 40px;
-  flex: 0 0 40px;
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  flex: 0 0 2.5rem;
   border-radius: var(--bs-border-radius);
   object-fit: cover;
 }
@@ -162,7 +162,7 @@
     background-color: #2b56f5;
     border: 2.5px solid #ffffff;
     border-radius: 50%;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.5);
     cursor: grab;
     transition: transform 0.15s ease, background-color 0.15s ease;
 
@@ -185,8 +185,8 @@
   justify-content: center;
 
   .pin-badge {
-    width: 32px;
-    height: 32px;
+    width: 2rem;
+    height: 2rem;
     border-radius: 50%;
     background: #1e1b4b;
     color: #ffffff;
@@ -194,7 +194,7 @@
     align-items: center;
     justify-content: center;
     border: 2.5px solid #ffffff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.35);
   }
 }
 

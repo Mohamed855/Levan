@@ -119,10 +119,9 @@ class PropertiesDataTable extends AbstractDataTable
         return sprintf(
             '<div class="d-inline-flex align-items-center gap-1 copyable-code-wrapper"
                   data-code="%s"
-                  style="cursor: pointer;"
                   title="اضغط للنسخ">
-                <code class="copyable-code" style="padding: 2px 6px; background: #f1f3f5; border-radius: 4px; font-weight: 600;">%s</code>
-                <i class="ti ti-copy text-muted copy-icon" style="font-size: 14px;"></i>
+                <code class="copyable-code">%s</code>
+                <i class="ti ti-copy text-muted copy-icon"></i>
             </div>',
             $escaped,
             $escaped

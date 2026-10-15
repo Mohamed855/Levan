@@ -19,12 +19,12 @@
   display: -ms-flexbox;
   display: flex;
   /* width: 34px; */
-  /* height: 24px; */
+  /* height: 1.5rem; */
 }
 
 .app-brand-logo.demo svg {
   width: 35px;
-  height: 24px;
+  height: 1.5rem;
 }
 
 .app-brand-text.demo {

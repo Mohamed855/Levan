@@ -28,7 +28,7 @@
 .swal2-confirm {
     min-width: 90px;
     font-weight: 500 !important;
-    border-radius: 8px !important;
+    border-radius: 0.5rem !important;
     transition: all 0.2s ease !important;
 
     &:hover {
@@ -41,7 +41,7 @@
 .swal2-cancel {
     min-width: 90px;
     font-weight: 500 !important;
-    border-radius: 8px !important;
+    border-radius: 0.5rem !important;
     transition: all 0.2s ease !important;
 
     &:hover {

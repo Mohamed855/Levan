@@ -6,7 +6,7 @@ $flatpickr-content-padding-x: 0.5rem !default;
 $flatpickr-content-padding-y: 0.25rem !default;
 $flatpickr-cell-size: 2.25rem !default;
 $flatpickr-animation-duration: 400ms !default;
-$flatpickr-time-picker-height: 40px !default;
+$flatpickr-time-picker-height: 2.5rem !default;
 $flatpickr-week-height: 2.25rem !default;
 $flatpickr-month-height: 2.5rem !default;
 $flatpickr-year-height: 1.2rem !default;
@@ -254,9 +254,9 @@ $flatpickr-width: ($flatpickr-cell-size * 7)+ ($flatpickr-content-padding-x * 2)
     }
 
     &.arrowUp:after {
-      border-right: 4px solid transparent;
-      border-bottom: 4px solid rgba(72, 72, 72, 0.6);
-      border-left: 4px solid transparent;
+      border-right: 0.25rem solid transparent;
+      border-bottom: 0.25rem solid rgba(72, 72, 72, 0.6);
+      border-left: 0.25rem solid transparent;
     }
 
     &.arrowDown {
@@ -264,9 +264,9 @@ $flatpickr-width: ($flatpickr-cell-size * 7)+ ($flatpickr-content-padding-x * 2)
     }
 
     &.arrowDown:after {
-      border-top: 4px solid rgba(72, 72, 72, 0.6);
-      border-right: 4px solid transparent;
-      border-left: 4px solid transparent;
+      border-top: 0.25rem solid rgba(72, 72, 72, 0.6);
+      border-right: 0.25rem solid transparent;
+      border-left: 0.25rem solid transparent;
     }
 
     svg {

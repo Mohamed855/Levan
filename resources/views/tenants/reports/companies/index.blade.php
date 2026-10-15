@@ -30,10 +30,10 @@
             align-items: center;
             border-radius: .5rem;
             display: inline-flex;
-            flex: 0 0 40px;
-            height: 40px;
+            flex: 0 0 2.5rem;
+            height: 2.5rem;
             justify-content: center;
-            width: 40px;
+            width: 2.5rem;
         }
 
         .kpi-label {
@@ -123,9 +123,8 @@
 
                 <div class="col-md-5 report-filter-field">
                     <label for="company-selector" class="form-label form-label-sm">الشركة</label>
-                    <select id="company-selector" class="form-select form-select-sm select2"
-                        data-datatable-filter="true" data-filter-key="company_id" data-table="#companies-table"
-                        data-placeholder="جميع الشركات">
+                    <select id="company-selector" class="form-select form-select-sm select2" data-datatable-filter="true"
+                        data-filter-key="company_id" data-table="#companies-table" data-placeholder="جميع الشركات">
                         <option value="">جميع الشركات</option>
                         @foreach ($companiesList as $company)
                             <option value="{{ $company->id }}">{{ $company->name }}</option>
@@ -135,9 +134,8 @@
 
                 <div id="portfolio-wrap" class="col-md-5 report-filter-field is-disabled">
                     <label for="portfolio-selector" class="form-label form-label-sm">المحفظة</label>
-                    <select id="portfolio-selector" class="form-select form-select-sm"
-                        data-datatable-filter="true" data-filter-key="portfolio_id" data-table="#companies-table"
-                        data-placeholder="جميع محافظ الشركة">
+                    <select id="portfolio-selector" class="form-select form-select-sm select2" data-datatable-filter="true"
+                        data-filter-key="portfolio_id" data-table="#companies-table" data-placeholder="جميع محافظ الشركة">
                         <option value="">جميع المحافظ</option>
                     </select>
                 </div>
@@ -398,21 +396,15 @@
             </div>
 
 
-            <x-data-table.filters id="filtersSection" class="table-filters d-none" card-class="border-0 shadow-none mb-0" table="#companies-table" reset-id="reset-filters">
+            <x-data-table.filters id="filtersSection" class="table-filters d-none" card-class="border-0 shadow-none mb-0"
+                table="#companies-table" reset-id="reset-filters">
                 <div>
                     <label for="filter-status" class="form-label form-label-sm">الحالة</label>
-                    <select id="filter-status" class="form-select form-select-sm" data-datatable-filter="true" data-filter-key="status">
+                    <select id="filter-status" class="form-select form-select-sm select2" data-datatable-filter="true"
+                        data-filter-key="status">
                         <option value="">الكل</option>
                         <x-form.controls.enum-options :enum="\App\Enums\Shared\ActivityStatus::class" />
                     </select>
-                </div>
-                <div>
-                    <label for="filter-date-from" class="form-label form-label-sm">من تاريخ الإنشاء</label>
-                    <input type="date" id="filter-date-from" class="form-control form-control-sm" data-datatable-filter="true" data-filter-key="date_from">
-                </div>
-                <div>
-                    <label for="filter-date-to" class="form-label form-label-sm">إلى تاريخ الإنشاء</label>
-                    <input type="date" id="filter-date-to" class="form-control form-control-sm" data-datatable-filter="true" data-filter-key="date_to">
                 </div>
             </x-data-table.filters>
             <div class="card-body">

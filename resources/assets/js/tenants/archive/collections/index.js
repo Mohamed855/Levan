@@ -62,8 +62,6 @@ function initializeDataTable() {
                 d.collection_type = $('#filter-collection-type').val();
                 d.payment_type = $('#filter-payment-type').val();
                 d.added_by = $('#filter-added-by').val();
-                d.date_from = $('#filter-date-from').val();
-                d.date_to = $('#filter-date-to').val();
             }
         },
         columns: getTableColumns(),

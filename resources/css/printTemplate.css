@@ -73,7 +73,7 @@
     .editor-footer {
         width: 100%;
         text-align: center;
-        margin: 20px 0;
+        margin: 1.25rem 0;
     }
 
     .editor-header img,
@@ -101,7 +101,7 @@
         padding: 10px;
         border-top: 1px solid #ddd;
         text-align: center;
-        font-size: 12px; /* تصغير حجم رسائل الشكر */
+        font-size: 0.75rem; /* تصغير حجم رسائل الشكر */
         line-height: 1.5;
         margin-top: 3px
       }
@@ -113,8 +113,8 @@
     background-color: #007bff; /* لون الخلفية */
     color: #fff; /* لون النص */
     border: none; /* إزالة الحدود الافتراضية */
-    padding: 8px 16px; /* حشوة داخلية */
-    border-radius: 4px; /* زوايا مستديرة */
+    padding: 0.5rem 1rem; /* حشوة داخلية */
+    border-radius: 0.25rem; /* زوايا مستديرة */
     cursor: pointer; /* تغيير مؤشر الفأرة */
     font-size: 14px; /* حجم الخط */
     transition: background-color 0.3s ease; /* تأثير الانتقال عند التفاعل */
@@ -136,7 +136,7 @@
 /* تنسيق التذييل خارج وضع الطباعة */
 .print-footer {
     display: block; /* إظهار التذييل في العرض */
-    margin-top: 20px;
+    margin-top: 1.25rem;
     text-align: center;
 }
 

@@ -104,7 +104,7 @@ body {
 
   &:hover,
   &:focus {
-    box-shadow: 0 5px 20px rgba($black, 0.4);
+    box-shadow: 0 5px 1.25rem rgba($black, 0.4);
   }
 }
 
@@ -175,7 +175,7 @@ body {
       right: inherit;
     }
     z-index: $zindex-menu-fixed;
-    box-shadow: 0 1px 20px 1px $danger !important;
+    box-shadow: 0 1px 1.25rem 1px $danger !important;
     &:hover {
       box-shadow: none;
     }

@@ -25,36 +25,36 @@
 
 #toast-container {
   > div {
-    padding: 20px 30px 20px 50px !important;
+    padding: 1.25rem 30px 1.25rem 50px !important;
     opacity: 1;
 
     @include app-rtl {
       direction: rtl;
       background-position: top 0.9rem right 1.25rem;
-      padding: 20px 50px 20px 30px !important;
+      padding: 1.25rem 50px 1.25rem 30px !important;
     }
   }
   &.toast-top-left {
     @include app-rtl {
-      right: 12px;
+      right: 0.75rem;
       left: auto;
     }
   }
   &.toast-top-right {
     @include app-rtl {
-      left: 12px;
+      left: 0.75rem;
       right: auto;
     }
   }
   &.toast-bottom-left {
     @include app-rtl {
-      right: 12px;
+      right: 0.75rem;
       left: auto;
     }
   }
   &.toast-bottom-right {
     @include app-rtl {
-      left: 12px;
+      left: 0.75rem;
       right: auto;
     }
   }
@@ -69,7 +69,7 @@
   }
   > .toast {
     max-width: 100%;
-    background-size: 28px;
+    background-size: 1.75rem;
     background-repeat: no-repeat;
   }
   &.toast-bottom-full-width > div,

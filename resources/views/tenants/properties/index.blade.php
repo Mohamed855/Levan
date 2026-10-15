@@ -126,8 +126,6 @@
                     :enum="\App\Enums\Tenants\Properties\PropertyDataStatus::class" />
                 <x-filter.select id="filter-city" filterKey="city" label="المدينة" placeholder="جميع المدن"
                     :options="$cityOptions" />
-                <x-form.controls.input name="filter_deed_number" id="filter-deed" label="رقم الصك"
-                    placeholder="بحث برقم الصك..." />
             </x-data-table.filters>
         </x-slot:filters>
 

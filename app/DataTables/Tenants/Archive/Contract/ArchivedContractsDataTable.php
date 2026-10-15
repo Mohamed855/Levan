@@ -169,14 +169,14 @@ class ArchivedContractsDataTable extends AbstractDataTable
                     if ($row->company->logo_url) {
                         $logoHtml = '<img src="'.$row->company->logo_url.'" 
                              alt="'.e($row->company->name).'" 
-                             style="width: 24px; height: 24px; object-fit: contain; border-radius: 4px; margin-right: 8px; vertical-align: middle;">';
+                             style="width: 1.5rem; height: 1.5rem; object-fit: contain; border-radius: 0.25rem; margin-right: 0.5rem; vertical-align: middle;">';
                     }
-                    $companyHtml = '<div class="d-flex align-items-center justify-content-start" style="min-height: 24px;">'.
+                    $companyHtml = '<div class="d-flex align-items-center justify-content-start" style="min-height: 1.5rem;">'.
                         $logoHtml.
                         '<span class="small flex-grow-1">'.e($row->company->name).'</span>'.
                         '</div>';
                 } else {
-                    $companyHtml = '<div class="d-flex align-items-center" style="min-height: 24px;"><span class="small">غير محدد</span></div>';
+                    $companyHtml = '<div class="d-flex align-items-center" style="min-height: 1.5rem;"><span class="small">غير محدد</span></div>';
                 }
 
                 return $companyHtml;

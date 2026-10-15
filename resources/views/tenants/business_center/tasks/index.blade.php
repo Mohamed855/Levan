@@ -222,17 +222,6 @@
             />
         </div>
 
-        <div id="custom-date-range" class="d-none">
-            <label class="form-label">نطاق تاريخي مخصص</label>
-            <div class="row g-2">
-                <div class="col-6">
-                    <input type="date" id="filter-date-from" class="form-control" placeholder="من تاريخ" data-filter-key="date_from" data-datatable-filter="true" data-datatable-target="#tasks-table">
-                </div>
-                <div class="col-6">
-                    <input type="date" id="filter-date-to" class="form-control" placeholder="إلى تاريخ" data-filter-key="date_to" data-datatable-filter="true" data-datatable-target="#tasks-table">
-                </div>
-            </div>
-        </div>
     </x-data-table.filters>
 
     <div class="card" id="card-tasks">

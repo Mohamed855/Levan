@@ -76,8 +76,8 @@
       display: block;
     }
     svg {
-      height: 28px;
-      width: 28px;
+      height: 1.75rem;
+      width: 1.75rem;
       margin-bottom: 0.5rem;
     }
     .custom-option-title {
@@ -117,8 +117,8 @@
     position: relative;
     .form-check-input {
       position: absolute;
-      top: 16px;
-      right: 16px;
+      top: 1rem;
+      right: 1rem;
       margin: 0;
       border: 0;
       opacity: 0;
@@ -155,7 +155,7 @@
   .custom-option-image.custom-option-image-check {
     .form-check-input {
       right: auto;
-      left: 16px;
+      left: 1rem;
     }
   }
 }

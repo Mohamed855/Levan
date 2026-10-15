@@ -60,14 +60,6 @@
             />
         </div>
 
-        <div>
-            <label for="filter-search" class="form-label">البحث</label>
-            <input type="text" id="filter-search" class="form-control"
-                placeholder="البحث في اسم الشركة أو المفوضين"
-                data-filter-key="search_query"
-                data-datatable-filter="true"
-                data-datatable-target="#archived-companies-table">
-        </div>
     </x-data-table.filters>
 
     <div class="card">

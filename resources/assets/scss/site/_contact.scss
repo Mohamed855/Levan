@@ -55,8 +55,8 @@
   transition: all var(--site-transition-fast);
 
   .info-icon-wrap {
-    width: 48px;
-    height: 48px;
+    width: 3rem;
+    height: 3rem;
     border-radius: 1rem;
     background: var(--site-primary);
     color: var(--site-sand);
@@ -104,7 +104,7 @@
     .info-icon-wrap {
       background: var(--site-primary-deep);
       color: #FFFFFF;
-      box-shadow: 0 8px 22px rgba(18, 51, 44, 0.28);
+      box-shadow: 0 0.5rem 22px rgba(18, 51, 44, 0.28);
     }
   }
 }

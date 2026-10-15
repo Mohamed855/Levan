@@ -109,7 +109,7 @@
                             <!-- معاينة الصورة -->
                             <div id="imagePreview" class="mt-3" style="display: none;">
                                 <img id="preview" src="" alt="Preview"
-                                    style="max-width: 200px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                                    style="max-width: 200px; border-radius: 0.5rem; border: 2px solid #e0e0e0;">
                             </div>
                         </div>
                     </div>

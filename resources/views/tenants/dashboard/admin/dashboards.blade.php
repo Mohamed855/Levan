@@ -24,12 +24,12 @@
         }
 
         .chart-setting-icon {
-            width: 40px;
-            height: 40px;
+            width: 2.5rem;
+            height: 2.5rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: 8px;
+            border-radius: 0.5rem;
             background: rgba(105, 108, 255, 0.08);
             color: #696cff;
             font-weight: 700;
@@ -420,9 +420,9 @@
                     <div>
                         <p class="mb-0 text-body">الإحصائيات</p>
                     </div>
-                    <select id="statisticsPeriodFilter" class="form-select form-select-sm" style="width: 150px;">
-                <x-form.controls.enum-options :enum="\App\Enums\Shared\DashboardPeriod::class" />
-            </select>
+                    <select id="statisticsPeriodFilter" class="form-select form-select-sm select2" style="width: 150px;">
+                        <x-form.controls.enum-options :enum="\App\Enums\Shared\DashboardPeriod::class" />
+                    </select>
                 </div>
                 <div class="mb-4"></div>
                 <div class="card-body">
@@ -456,7 +456,7 @@
                         </div>
                     </div>
                     <div class="d-flex align-items-center mt-6">
-                        <div class="progress w-100" style="height: 16px; border-radius: 4px;">
+                        <div class="progress w-100" style="height: 1rem; border-radius: 0.25rem;">
                             <div class="progress-bar d-flex align-items-center justify-content-center position-relative"
                                 id="followupsProgressSegment" role="progressbar"
                                 style="width: 0%; background-color: #372632; opacity: 0.5;" aria-valuenow="0"
@@ -478,7 +478,7 @@
                     <div class="text-center mt-2">
                         <div class="d-inline-block">
                             <span class="d-inline-block"
-                                style="width: 8px; height: 8px; border-radius: 50%; background-color: #4cc1bb;"></span>
+                                style="width: 0.5rem; height: 0.5rem; border-radius: 50%; background-color: #4cc1bb;"></span>
                             <span class="ms-1" style="font-size: 0.65rem; color: #6c757d;"
                                 id="collectionsSmallNumber">0
                                 ريال</span>
@@ -494,9 +494,9 @@
                     <div>
                         <p class="mb-0 text-body">الاعتمادات</p>
                     </div>
-                    <select id="approvalsPeriodFilter" class="form-select form-select-sm" style="width: 150px;">
-                <x-form.controls.enum-options :enum="\App\Enums\Shared\DashboardPeriod::class" />
-            </select>
+                    <select id="approvalsPeriodFilter" class="form-select form-select-sm select2" style="width: 150px;">
+                        <x-form.controls.enum-options :enum="\App\Enums\Shared\DashboardPeriod::class" />
+                    </select>
                 </div>
                 <div class="mb-4"></div>
                 <div class="card-body">
@@ -530,7 +530,7 @@
                         </div>
                     </div>
                     <div class="d-flex align-items-center mt-6">
-                        <div class="progress w-100" style="height: 16px; border-radius: 4px;">
+                        <div class="progress w-100" style="height: 1rem; border-radius: 0.25rem;">
                             <div class="progress-bar d-flex align-items-center justify-content-center position-relative"
                                 id="pendingProgressSegment" role="progressbar"
                                 style="width: 0%; background-color: #372632; opacity: 0.5;" aria-valuenow="0"

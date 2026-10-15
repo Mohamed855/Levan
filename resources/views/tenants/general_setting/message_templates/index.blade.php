@@ -161,10 +161,6 @@
             </select>
         </div>
 
-        <div>
-            <label class="form-label" for="filter-search">البحث</label>
-            <input type="text" id="filter-search" class="form-control" data-datatable-filter="true" data-filter-key="search" placeholder="البحث في الاسم أو المحتوى">
-        </div>
     </x-data-table.filters>
 
     {{-- جدول القوالب --}}

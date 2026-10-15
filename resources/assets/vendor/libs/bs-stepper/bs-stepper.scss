@@ -18,7 +18,7 @@ $bs-stepper-vertical-header-min-width: 18rem !default;
 
 // Default Styles
 .bs-stepper {
-  border-radius: light.$border-radius;
+  border-radius: 0.75rem;
   .line {
     flex: 0;
     min-width: auto;

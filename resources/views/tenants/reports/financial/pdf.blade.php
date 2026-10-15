@@ -14,7 +14,7 @@
 
         body {
             direction: rtl;
-            font-size: 12px;
+            font-size: 0.75rem;
             line-height: 1.6;
             color: #333;
         }
@@ -22,22 +22,22 @@
         .header {
             background: linear-gradient(135deg, #372632 0%, #4cc1bb 100%);
             color: white;
-            padding: 20px;
+            padding: 1.25rem;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 1.25rem;
         }
 
         .header h1 {
-            font-size: 24px;
+            font-size: 1.5rem;
             margin-bottom: 10px;
         }
 
         .info-box {
             background: #f8f9fa;
             border: 1px solid #dee2e6;
-            border-radius: 8px;
+            border-radius: 0.5rem;
             padding: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 1.25rem;
         }
 
         .info-row {
@@ -54,7 +54,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 1.25rem;
         }
 
         table thead {
@@ -74,8 +74,8 @@
         }
 
         .status-badge {
-            padding: 4px 8px;
-            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
             font-size: 11px;
             font-weight: bold;
             display: inline-block;
@@ -107,9 +107,9 @@
         .summary-box {
             background: #e7f3ff;
             border: 2px solid #4cc1bb;
-            border-radius: 8px;
+            border-radius: 0.5rem;
             padding: 15px;
-            margin-top: 20px;
+            margin-top: 1.25rem;
         }
 
         .summary-item {
@@ -160,44 +160,46 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($collections as $index => $collection)
-            <tr>
-                <td>{{ $index + 1 }}</td>
-                <td>{{ $collection->customer->name ?? 'غير محدد' }}</td>
-                <td>{{ $collection->customer->account_number ?? 'غير محدد' }}</td> <!-- إضافة خلية رقم الحساب -->
-                <td>{{ number_format($collection->collected_amount, 2) }} ريال</td>
-                <td>{{ $collection->receipt_number ?: 'غير محدد' }}</td>
-                <td>
-                    @php
-                    $statusClass = match($collection->status) {
-                    'approved' => 'status-approved',
-                    'pending' => 'status-pending',
-                    'rejected' => 'status-rejected',
-                    default => ''
-                    };
-                    $statusLabel = match($collection->status) {
-                    'approved' => 'معتمد',
-                    'pending' => 'معلق',
-                    'rejected' => 'مرفوض',
-                    default => $collection->status
-                    };
-                    @endphp
-                    <span class="status-badge {{ $statusClass }}">{{ $statusLabel }}</span>
-                </td>
-                <td>{{ $collection->collection_date ?
-                    \Carbon\Carbon::parse($collection->collection_date)->format('Y-m-d') : 'غير محدد' }}</td>
-                <td>{{ $collection->addedBy->name ?? 'غير محدد' }}</td>
-            </tr>
+            @foreach ($collections as $index => $collection)
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ $collection->customer->name ?? 'غير محدد' }}</td>
+                    <td>{{ $collection->customer->account_number ?? 'غير محدد' }}</td> <!-- إضافة خلية رقم الحساب -->
+                    <td>{{ number_format($collection->collected_amount, 2) }} ريال</td>
+                    <td>{{ $collection->receipt_number ?: 'غير محدد' }}</td>
+                    <td>
+                        @php
+                            $statusClass = match ($collection->status) {
+                                'approved' => 'status-approved',
+                                'pending' => 'status-pending',
+                                'rejected' => 'status-rejected',
+                                default => '',
+                            };
+                            $statusLabel = match ($collection->status) {
+                                'approved' => 'معتمد',
+                                'pending' => 'معلق',
+                                'rejected' => 'مرفوض',
+                                default => $collection->status,
+                            };
+                        @endphp
+                        <span class="status-badge {{ $statusClass }}">{{ $statusLabel }}</span>
+                    </td>
+                    <td>{{ $collection->collection_date
+                        ? \Carbon\Carbon::parse($collection->collection_date)->format('Y-m-d')
+                        : 'غير محدد' }}
+                    </td>
+                    <td>{{ $collection->addedBy->name ?? 'غير محدد' }}</td>
+                </tr>
             @endforeach
         </tbody>
     </table>
 
     @php
-    $approvedCollections = $collections->where('status', 'approved');
-    $pendingCollections = $collections->where('status', 'pending');
-    $rejectedCollections = $collections->where('status', 'rejected');
-    $totalApprovedAmount = $approvedCollections->sum('collected_amount');
-    $totalPendingAmount = $pendingCollections->sum('collected_amount');
+        $approvedCollections = $collections->where('status', 'approved');
+        $pendingCollections = $collections->where('status', 'pending');
+        $rejectedCollections = $collections->where('status', 'rejected');
+        $totalApprovedAmount = $approvedCollections->sum('collected_amount');
+        $totalPendingAmount = $pendingCollections->sum('collected_amount');
     @endphp
 
     <div class="summary-box">

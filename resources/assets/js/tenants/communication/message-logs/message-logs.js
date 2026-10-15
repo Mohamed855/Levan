@@ -48,7 +48,6 @@ function initializeDataTable() {
                 d.status = $('#filter-status').val();
                 d.message_type = $('#filter-message-type').val();
                 d.sender_id = $('#filter-sender').val();
-                d.search = $('#filter-search').val();
             }
         },
         columns: getTableColumns(),
@@ -246,14 +245,6 @@ function handleTableRowCreation(row, data, dataIndex) {
  * ربط الأحداث
  */
 function bindEvents() {
-    // تحديث الجدول عند البحث
-    $('#filter-search').on('keyup', function() {
-        clearTimeout(window.searchTimeout);
-        window.searchTimeout = setTimeout(function() {
-            messageLogsTable.draw();
-        }, 500);
-    });
-
     // تحديد الكل
     $('#select-all').on('click', function() {
         const rows = messageLogsTable.rows({ 'search': 'applied' }).nodes();

@@ -188,22 +188,6 @@
             </select>
         </div>
 
-        <div>
-            <label for="filter-date-from" class="form-label">من تاريخ التحصيل</label>
-            <input type="date" id="filter-date-from" class="form-control" data-datatable-filter="true" data-filter-key="date_from" placeholder="اختر التاريخ">
-        </div>
-        <div>
-            <label for="filter-date-to" class="form-label">إلى تاريخ التحصيل</label>
-            <input type="date" id="filter-date-to" class="form-control" data-datatable-filter="true" data-filter-key="date_to" placeholder="اختر التاريخ">
-        </div>
-        <div>
-            <label for="filter-created-from" class="form-label">من تاريخ الإنشاء</label>
-            <input type="date" id="filter-created-from" class="form-control" data-datatable-filter="true" data-filter-key="created_from" placeholder="اختر التاريخ">
-        </div>
-        <div>
-            <label for="filter-created-to" class="form-label">إلى تاريخ الإنشاء</label>
-            <input type="date" id="filter-created-to" class="form-control" data-datatable-filter="true" data-filter-key="created_to" placeholder="اختر التاريخ">
-        </div>
 
         <div>
             <label for="filter-customer" class="form-label">العميل</label>
@@ -231,14 +215,6 @@
             </select>
         </div>
 
-        <div>
-            <label for="filter-amount-from" class="form-label">المبلغ من</label>
-            <input type="number" id="filter-amount-from" class="form-control" data-datatable-filter="true" data-filter-key="amount_from" placeholder="0" step="0.01">
-        </div>
-        <div>
-            <label for="filter-amount-to" class="form-label">المبلغ إلى</label>
-            <input type="number" id="filter-amount-to" class="form-control" data-datatable-filter="true" data-filter-key="amount_to" placeholder="0" step="0.01">
-        </div>
     </x-data-table.filters>
 
     <div class="card">

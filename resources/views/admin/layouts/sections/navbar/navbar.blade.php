@@ -2,7 +2,10 @@
     use Illuminate\Support\Facades\Auth;
     use Illuminate\Support\Facades\Route;
 
-    $containerNav = (isset($configData['contentLayout']) && $configData['contentLayout'] === 'wide') ? 'container-fluid' : 'container-xxl';
+    $containerNav =
+        isset($configData['contentLayout']) && $configData['contentLayout'] === 'wide'
+            ? 'container-fluid'
+            : 'container-xxl';
     $navbarDetached = $navbarDetached ?? '';
 @endphp
 
@@ -411,7 +414,7 @@
 <div class="navbar-search-wrapper search-input-wrapper {{ isset($menuHorizontal) ? $containerNav : '' }} d-none">
     <input type="text"
         class="form-control search-input {{ isset($menuHorizontal) ? '' : $containerNav }} border-0"
-        placeholder="Search..." aria-label="Search...">
+        placeholder="بحث..." aria-label="بحث...">
     <i class="ti ti-x search-toggler cursor-pointer"></i>
 </div>
 <!--/ Search Small Screens -->

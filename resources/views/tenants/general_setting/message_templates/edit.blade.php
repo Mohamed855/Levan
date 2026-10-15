@@ -190,7 +190,7 @@
                                                                                     class="btn btn-outline-primary variable-btn w-100"
                                                                                     data-variable="{{ $variable }}"
                                                                                     title="{{ $description }}"
-                                                                                    style="font-size: 0.7rem; padding: 0.35rem 0.5rem; border-radius: 4px; transition: all 0.2s ease; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-width: 1px;">
+                                                                                    style="font-size: 0.7rem; padding: 0.35rem 0.5rem; border-radius: 0.25rem; transition: all 0.2s ease; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-width: 1px;">
                                                                                     {{ $description }}
                                                                                 </button>
                                                                             </div>

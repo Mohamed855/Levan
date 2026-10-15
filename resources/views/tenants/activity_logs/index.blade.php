@@ -70,15 +70,6 @@
             </select>
         </div>
 
-        <div>
-            <label class="form-label" for="filter-date-from">من تاريخ</label>
-            <input type="date" id="filter-date-from" class="form-control" data-datatable-filter="true" data-filter-key="date_from">
-        </div>
-
-        <div>
-            <label class="form-label" for="filter-date-to">إلى تاريخ</label>
-            <input type="date" id="filter-date-to" class="form-control" data-datatable-filter="true" data-filter-key="date_to">
-        </div>
     </x-data-table.filters>
 
     <div class="card" id="card-activity-logs">

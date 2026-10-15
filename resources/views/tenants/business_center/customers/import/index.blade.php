@@ -101,20 +101,20 @@
         <div class="card-body">
             <div class="mb-3">
                 <div class="alert alert-info"
-                    style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border: 2px solid #2196F3; border-radius: 12px; margin-bottom: 25px;">
+                    style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border: 2px solid #2196F3; border-radius: 0.75rem; margin-bottom: 25px;">
                     <div style="display: flex; gap: 15px; align-items: flex-start;">
                         <div style="font-size: 1.8rem; flex-shrink: 0;">📋</div>
                         <div style="flex: 1;">
-                            <h6 style="color: #1565c0; margin: 0 0 8px 0; font-weight: 700;">تعليمات مهمة:</h6>
-                            <p style="color: #333; margin: 0 0 8px 0; font-size: 14px; line-height: 1.6;">
+                            <h6 style="color: #1565c0; margin: 0 0 0.5rem 0; font-weight: 700;">تعليمات مهمة:</h6>
+                            <p style="color: #333; margin: 0 0 0.5rem 0; font-size: 14px; line-height: 1.6;">
                                 <strong>1. حمّل النموذج أولاً:</strong> انقر على "تحميل القالب" و احفظ الملف الذي يحتوي على
                                 أسماء جميع الأعمدة المطلوبة.
                             </p>
-                            <p style="color: #333; margin: 0 0 8px 0; font-size: 14px; line-height: 1.6;">
+                            <p style="color: #333; margin: 0 0 0.5rem 0; font-size: 14px; line-height: 1.6;">
                                 <strong>2. انسخ بيانات العملاء:</strong> افتح ملف بيانات العملاء الخاصة بك وانسخ البيانات
                                 إلى الأعمدة المناسبة في النموذج.
                             </p>
-                            <p style="color: #333; margin: 0 0 8px 0; font-size: 14px; line-height: 1.6;">
+                            <p style="color: #333; margin: 0 0 0.5rem 0; font-size: 14px; line-height: 1.6;">
                                 <strong>3. حافظ على أسماء الأعمدة:</strong> <span
                                     style="color: #d32f2f; font-weight: 600;">لا تغيّر أسماء الأعمدة</span> - يجب أن تبقى
                                 بنفس الأسماء تماماً.
@@ -126,7 +126,7 @@
                     </div>
                 </div>
                 <div id="file-upload-area"
-                    style="cursor: pointer; border: 2px dashed #e0e0e0; border-radius: 8px; padding: 40px; text-align: center; background: #fafafa;">
+                    style="cursor: pointer; border: 2px dashed #e0e0e0; border-radius: 0.5rem; padding: 2.5rem; text-align: center; background: #fafafa;">
                     <div id="import-dropzone" class="w-100 h-100">
                         <div class="d-flex flex-column align-items-center">
                             <i class="ti ti-cloud-upload mb-3" style="font-size: 3rem; color: #6c757d;"></i>
@@ -232,8 +232,7 @@
 
                 <div class="modal-body" id="template-preview-content"></div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-sm btn-secondary"
-                        data-bs-dismiss="modal">إغلاق</button>
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">إغلاق</button>
                     <button type="button" class="btn btn-sm btn-primary" id="btn-download-template-modal">
                         تحميل القالب
                     </button>
@@ -261,11 +260,11 @@
                     <!--  تحذير بارز -->
                     <div class="alert-emphasis">
                         <div class="alert-emphasis-title">
-                            <i class="ti ti-alert-triangle" style="font-size: 20px;"></i>
+                            <i class="ti ti-alert-triangle" style="font-size: 1.25rem;"></i>
                             تحذير مهم: استخدم الأرقام فقط وليس الأسماء!
                         </div>
                         <div class="alert-emphasis-content">
-                            <p style="margin-bottom: 12px;">
+                            <p style="margin-bottom: 0.75rem;">
                                 عند ملء حقول <strong>الجنسية</strong> و <strong>حالة العميل</strong> و <strong>مسؤول
                                     العلاقة</strong>،
                                 يجب أن <strong style="color: #dc3545;">تكتب الرقم فقط</strong> وليس الاسم. كتابة الاسم
@@ -324,7 +323,7 @@
                         </div>
 
                         <div class="example-box"
-                            style="border-left-color: #2196F3; background: #e3f2fd; margin-top: 20px;">
+                            style="border-left-color: #2196F3; background: #e3f2fd; margin-top: 1.25rem;">
                             <div class="example-box-title" style="color: #1976D2;">💡 أمثلة مقبولة:</div>
                             <div class="example-correct" style="background: #e3f2fd; color: #1976D2; border-left: none;">
                                 <i class="ti ti-check"></i>

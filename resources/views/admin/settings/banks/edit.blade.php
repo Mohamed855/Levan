@@ -120,7 +120,7 @@
 
                                     <div class="current-image-wrapper" style="position: relative; display: inline-block;">
                                         <img src="{{ $imagePath }}" alt="{{ $bank->bank_name }}" id="currentImage"
-                                            style="max-width: 150px; border-radius: 8px; border: 2px solid #e0e0e0;"
+                                            style="max-width: 150px; border-radius: 0.5rem; border: 2px solid #e0e0e0;"
                                             onerror="this.parentElement.innerHTML='<div class=\'alert alert-warning\'>الصورة غير موجودة في المسار: {{ $bank->icon }}</div>'">
                                     </div>
 
@@ -149,7 +149,7 @@
                             <div id="imagePreview" class="mt-3" style="display: none;">
                                 <p class="text-muted small mb-2">معاينة الصورة الجديدة:</p>
                                 <img id="preview" src="" alt="Preview"
-                                    style="max-width: 200px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                                    style="max-width: 200px; border-radius: 0.5rem; border: 2px solid #e0e0e0;">
                             </div>
                         </div>
                     </div>

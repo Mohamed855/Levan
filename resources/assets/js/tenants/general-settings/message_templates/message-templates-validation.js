@@ -135,21 +135,21 @@ function initializeVariableHandlers() {
                     content.style.display = 'none';
                     icon.style.transform = 'rotate(0deg)';
                     cardElement.style.borderColor = 'rgba(var(--bs-primary-rgb), 0.1)';
-                    cardElement.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+                    cardElement.style.boxShadow = '0 2px 0.25rem rgba(0,0,0,0.05)';
                 } else {
                     // إخفاء جميع المجموعات الأخرى
                     document.querySelectorAll('.variable-group-content').forEach(c => c.style.display = 'none');
                     document.querySelectorAll('.transition-icon').forEach(i => i.style.transform = 'rotate(0deg)');
                     document.querySelectorAll('.variable-group-card .card').forEach(c => {
                         c.style.borderColor = 'rgba(var(--bs-primary-rgb), 0.1)';
-                        c.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+                        c.style.boxShadow = '0 2px 0.25rem rgba(0,0,0,0.05)';
                     });
 
                     // إظهار المجموعة المختارة
                     content.style.display = 'block';
                     icon.style.transform = 'rotate(180deg)';
                     cardElement.style.borderColor = 'rgb(var(--bs-primary-rgb))';
-                    cardElement.style.boxShadow = '0 4px 12px rgba(var(--bs-primary-rgb), 0.2)';
+                    cardElement.style.boxShadow = '0 0.25rem 0.75rem rgba(var(--bs-primary-rgb), 0.2)';
                 }
             }
         }
@@ -312,7 +312,7 @@ function updateVariablesContainer(groupedVariables) {
                             class="btn btn-outline-primary variable-btn w-100"
                             data-variable="${escapeHtml(variable)}"
                             title="${escapeHtml(description)}"
-                            style="font-size: 0.7rem; padding: 0.35rem 0.5rem; border-radius: 4px; transition: all 0.2s ease; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-width: 1px;">
+                            style="font-size: 0.7rem; padding: 0.35rem 0.5rem; border-radius: 0.25rem; transition: all 0.2s ease; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-width: 1px;">
                             ${escapeHtml(description)}
                         </button>
                     </div>`;
@@ -358,7 +358,7 @@ function showToast(message, type = 'info') {
 
     const alertHtml = `
         <div class="alert ${alertClass} alert-dismissible fade show position-fixed"
-             style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+             style="top: 1.25rem; right: 1.25rem; z-index: 9999; min-width: 300px;">
             ${escapeHtml(message)}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>

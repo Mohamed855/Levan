@@ -31,19 +31,12 @@ function bindFilters(table) {
         applyFilters(table);
     });
 
-    $('#filter-search').on('keyup', function () {
-        clearTimeout(window.searchTimeout);
-        window.searchTimeout = setTimeout(function () {
-            applyFilters(table);
-        }, 500);
-    });
 }
 
 function applyFilters(table) {
     const filters = {
         status: $('#filter-status').val() || '',
-        authorizedCount: $('#filter-authorized-count').val() || '',
-        searchQuery: $('#filter-search').val() || ''
+        authorizedCount: $('#filter-authorized-count').val() || ''
     };
 
     const baseUrl = window.location.pathname;

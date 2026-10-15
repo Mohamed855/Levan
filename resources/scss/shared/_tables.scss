@@ -59,7 +59,7 @@ table.dataTable {
 
     .dataTables_filter input {
         border: 1px solid rgba(29, 79, 68, 0.16) !important;
-        border-radius: 8px !important;
+        border-radius: 0.5rem !important;
         padding: 0.35rem 0.75rem;
         outline: none;
 
@@ -73,7 +73,7 @@ table.dataTable {
         padding: 0.75rem 1rem;
 
         .pagination {
-            gap: 4px;
+            gap: 0.25rem;
 
             .page-item {
                 .page-link {
@@ -114,7 +114,7 @@ input[type="checkbox"].row-checkbox,
     cursor: pointer;
     width: 1.1rem;
     height: 1.1rem;
-    border-radius: 4px;
+    border-radius: 0.25rem;
 }
 
 // Single-click copyable entity code
@@ -123,19 +123,66 @@ input[type="checkbox"].row-checkbox,
     color: var(--primary-color);
     border: 1px dashed rgba(29, 79, 68, 0.25);
     border-radius: 6px;
-    padding: 2px 8px;
+    padding: 2px 0.5rem;
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 0.25rem;
     transition: background-color 0.2s ease, color 0.2s ease;
 
     &:hover {
         background-color: rgba(29, 79, 68, 0.12);
         color: var(--primary-color-deep, #12332C);
     }
+
+    .copyable-code {
+        background-color: transparent !important;
+        padding: 0 !important;
+        border: none !important;
+        color: inherit !important;
+        font-weight: inherit;
+        font-size: inherit;
+        letter-spacing: inherit;
+        user-select: none;
+        -webkit-user-select: none;
+        cursor: pointer;
+    }
+
+    .copy-icon,
+    .ti-copy {
+        font-size: 14px;
+        cursor: pointer;
+    }
+}
+
+// Standalone / Reusable Copyable Code
+.copyable-code {
+    color: var(--primary-color) !important;
+    background-color: #f1f3f5;
+    user-select: none;
+    -webkit-user-select: none;
+    padding: 2px 6px;
+    border-radius: 0.25rem;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+
+    &:hover {
+        background-color: rgba(29, 79, 68, 0.12);
+        color: var(--primary-color-deep, #12332C) !important;
+    }
+}
+
+.copy-icon {
+    font-size: 14px;
+    cursor: pointer;
 }
 
 // Table Status Toggle Switch

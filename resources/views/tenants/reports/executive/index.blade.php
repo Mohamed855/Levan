@@ -30,8 +30,8 @@
             background: #fff;
             border: 1px solid #e6edf5;
             border-radius: 6px;
-            padding: 16px;
-            box-shadow: 0 8px 8px rgba(18, 38, 63, 0.04);
+            padding: 1rem;
+            box-shadow: 0 0.5rem 0.5rem rgba(18, 38, 63, 0.04);
         }
 
         .filter-control {
@@ -49,7 +49,7 @@
             min-height: 150px;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 8px 24px rgba(18, 38, 63, 0.04);
+            box-shadow: 0 0.5rem 1.5rem rgba(18, 38, 63, 0.04);
             transition: 0.25s ease;
         }
 
@@ -60,9 +60,9 @@
 
         .kpi-value {
             color: #12263f;
-            font-size: 16px;
+            font-size: 1rem;
             font-weight: 400;
-            margin-bottom: 8px;
+            margin-bottom: 0.5rem;
         }
 
         .kpi-icon {
@@ -77,7 +77,7 @@
             position: absolute;
             left: 18px;
             top: 18px;
-            box-shadow: 0 8px 18px rgba(18, 38, 63, 0.12);
+            box-shadow: 0 0.5rem 18px rgba(18, 38, 63, 0.12);
         }
 
         .bg-kpi-blue {
@@ -103,9 +103,9 @@
         .mini-insight-card {
             background: #fff;
             border: 1px solid #e6edf5;
-            border-radius: 16px;
-            padding: 16px;
-            box-shadow: 0 8px 24px rgba(18, 38, 63, 0.04);
+            border-radius: 1rem;
+            padding: 1rem;
+            box-shadow: 0 0.5rem 1.5rem rgba(18, 38, 63, 0.04);
         }
 
         .mini-insight-label {
@@ -128,7 +128,7 @@
         .table.executive-table thead th {
             background: #f7f9fc;
             color: #5f6f85;
-            font-size: 12px;
+            font-size: 0.75rem;
             border-bottom: 1px solid #e6edf5;
             white-space: nowrap;
         }
@@ -142,8 +142,8 @@
 
         .status-dot {
             margin-left: 6px;
-            width: 8px;
-            height: 8px;
+            width: 0.5rem;
+            height: 0.5rem;
             border-radius: 50%;
             display: inline-block;
             margin-inline-start: 6px;
@@ -212,7 +212,7 @@
                 <div class="col-lg-3 col-md-6">
                     <label class="form-label">الشركة</label>
                     <select id="companyFilter" class="form-select filter-control">
-                            <x-form.controls.enum-options :enum="\App\Enums\Shared\AllScope::class" />
+                        <x-form.controls.enum-options :enum="\App\Enums\Shared\AllScope::class" />
                         @foreach ($companies as $company)
                             <option value="{{ $company->id }}">{{ $company->name }}</option>
                         @endforeach
@@ -222,7 +222,7 @@
                 <div class="col-lg-3 col-md-6">
                     <label class="form-label">المحفظة</label>
                     <select id="portfolioFilter" class="form-select filter-control">
-                            <x-form.controls.enum-options :enum="\App\Enums\Shared\AllScope::class" />
+                        <x-form.controls.enum-options :enum="\App\Enums\Shared\AllScope::class" />
                         @foreach ($portfolios as $portfolio)
                             <option value="{{ $portfolio->id }}" data-company="{{ $portfolio->company_id }}">
                                 {{ $portfolio->name }}</option>

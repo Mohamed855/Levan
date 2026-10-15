@@ -36,8 +36,8 @@
       position: absolute;
       bottom: 0;
       right: 3px;
-      width: 8px;
-      height: 8px;
+      width: 0.5rem;
+      height: 0.5rem;
       border-radius: 100%;
       box-shadow: 0 0 0 2px $avatar-group-border;
     }
@@ -75,7 +75,7 @@
   @include template-avatar-style($avatar-size-sm, $avatar-size-sm, $avatar-initial-sm, 2px);
 }
 .avatar-md {
-  @include template-avatar-style($avatar-size-md, $avatar-size-md, $avatar-initial-md, 4px);
+  @include template-avatar-style($avatar-size-md, $avatar-size-md, $avatar-initial-md, 0.25rem);
 }
 .avatar-lg {
   @include template-avatar-style($avatar-size-lg, $avatar-size-lg, $avatar-initial-lg, 5px);

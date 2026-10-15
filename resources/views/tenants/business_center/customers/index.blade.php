@@ -263,25 +263,7 @@
                 />
             </div>
 
-            <div>
-                <label class="form-label" for="filter-sms-date-from">تاريخ الإرسال من</label>
-                <input type="date" id="filter-sms-date-from" class="form-control" placeholder="من التاريخ" data-filter-key="sms_date_from" data-datatable-filter="true" data-datatable-target="#customers-table">
-            </div>
-
-            <div>
-                <label class="form-label" for="filter-sms-date-to">تاريخ الإرسال إلى</label>
-                <input type="date" id="filter-sms-date-to" class="form-control" placeholder="إلى التاريخ" data-filter-key="sms_date_to" data-datatable-filter="true" data-datatable-target="#customers-table">
-            </div>
         @else
-            <div>
-                <label class="form-label" for="filter-sms-date-from">تاريخ الإرسال من</label>
-                <input type="date" id="filter-sms-date-from" class="form-control" placeholder="من التاريخ" data-filter-key="sms_date_from" data-datatable-filter="true" data-datatable-target="#customers-table">
-            </div>
-
-            <div>
-                <label class="form-label" for="filter-sms-date-to">تاريخ الإرسال إلى</label>
-                <input type="date" id="filter-sms-date-to" class="form-control" placeholder="إلى التاريخ" data-filter-key="sms_date_to" data-datatable-filter="true" data-datatable-target="#customers-table">
-            </div>
         @endif
     </x-data-table.filters>
 

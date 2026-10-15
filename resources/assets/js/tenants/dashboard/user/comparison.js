@@ -315,13 +315,14 @@ function createUserComparisonChart(canvas, users) {
 
 /* ============================ Filters ============================= */
 function initializeUserComparisonFilters() {
-  const dataTypeTabs = document.querySelectorAll('input[name="userDataTypeFilter"]');
-  dataTypeTabs.forEach(tab => {
-    tab.addEventListener('change', function () {
+  const dataTypeFilter = document.getElementById('userDataTypeFilter');
+  if (dataTypeFilter) {
+    dataTypeFilter.value = currentUserDataType;
+    dataTypeFilter.addEventListener('change', function () {
       currentUserDataType = this.value;
       fetchUserComparisonData();
     });
-  });
+  }
 
   const periodFilter = document.getElementById('userComparisonPeriodFilter');
   if (periodFilter) {
@@ -382,7 +383,7 @@ function displayUserRankComparison(elementId, rank, totalCount, opts = {}) {
   const total = Number.isFinite(+totalCount) ? +totalCount : '-';
 
   el.innerHTML = `
-    <div class="inline-flex items-center justify-center" style="display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px dashed #4cc1bb;border-radius:10px;background:#f7fffe;">
+    <div class="inline-flex items-center justify-center" style="display:inline-flex;align-items:center;gap:8px;padding:8px 0.75rem;border:1px dashed #4cc1bb;border-radius:10px;background:#f7fffe;">
       <img src="${userImage}" alt="me" style="width:26px;height:26px;border-radius:50%;object-fit:cover;border:2px solid #4cc1bb;">
       <span style="font-size:13px;color:#333;">
         ${icon}

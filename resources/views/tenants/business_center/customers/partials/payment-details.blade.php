@@ -109,7 +109,7 @@
                 </div>
             @else
                 <div class="text-center py-5">
-                    <i class="ti ti-credit-card-off" style="font-size: 48px; color: #8592a3;"></i>
+                    <i class="ti ti-credit-card-off" style="font-size: 3rem; color: #8592a3;"></i>
                     <h5 class="text-muted mt-3">لا توجد تحصيلات لهذا العميل</h5>
                 </div>
             @endif

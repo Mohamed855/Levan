@@ -40,7 +40,6 @@ function initializeDataTable() {
             url: window.routes.contactResultsIndex,
             data: function (d) {
                 d.status = $('#filter-status').val();
-                d.search = $('#filter-search').val();
             }
         },
         columns: [
@@ -160,13 +159,6 @@ function bindEvents() {
     // تحديث الجدول عند تغيير الفلاتر
     $('#filter-status').on('change', function () {
         contactResultsTable.draw();
-    });
-    // تحديث الجدول عند البحث
-    $('#filter-search').on('keyup', function () {
-        clearTimeout(window.searchTimeout);
-        window.searchTimeout = setTimeout(function () {
-            contactResultsTable.draw();
-        }, 500);
     });
 }
 

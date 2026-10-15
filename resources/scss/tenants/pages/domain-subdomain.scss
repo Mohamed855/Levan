@@ -6,8 +6,8 @@
 
         .transfer-card {
             background: #fff;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            border-radius: 1.25rem;
+            box-shadow: 0 1.25rem 60px rgba(0, 0, 0, 0.15);
             overflow: hidden;
             max-width: 900px;
             margin: 0 auto;
@@ -16,12 +16,12 @@
         .card-header-custom {
             background: linear-gradient(135deg, #282c3e 0%, #3d4152 100%);
             color: white;
-            padding: 40px 30px;
+            padding: 2.5rem 30px;
             text-align: center;
         }
 
         .card-header-custom h3 {
-            font-size: 28px;
+            font-size: 1.75rem;
             font-weight: 700;
             margin-bottom: 10px;
         }
@@ -32,7 +32,7 @@
         }
 
         .card-body-custom {
-            padding: 40px 30px;
+            padding: 2.5rem 30px;
         }
 
         .form-group-custom {
@@ -69,7 +69,7 @@
             color: white;
             border: none;
             border-radius: 10px;
-            font-size: 16px;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -77,7 +77,7 @@
 
         .btn-check-domain:hover {
             background: #3d4152;
-            box-shadow: 0 5px 20px rgba(40, 44, 62, 0.3);
+            box-shadow: 0 5px 1.25rem rgba(40, 44, 62, 0.3);
         }
 
         .btn-check-domain:disabled {
@@ -91,7 +91,7 @@
             background: #28a745;
             color: white;
             border: none;
-            padding: 12px 24px;
+            padding: 0.75rem 1.5rem;
             border-radius: 10px;
             font-weight: 600;
             transition: all 0.3s ease;
@@ -103,12 +103,12 @@
         }
 
         .alert-custom {
-            padding: 15px 20px;
+            padding: 15px 1.25rem;
             border-radius: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 1.25rem;
             display: flex;
             align-items: flex-start;
-            gap: 12px;
+            gap: 0.75rem;
         }
 
         .alert-success-custom {
@@ -138,10 +138,10 @@
         .ip-highlight {
             background: #fff;
             border: 2px dashed #28a745;
-            padding: 12px 20px;
-            border-radius: 8px;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
             font-family: 'Courier New', monospace;
-            font-size: 20px;
+            font-size: 1.25rem;
             font-weight: 700;
             color: #28a745;
             text-align: center;
@@ -157,7 +157,7 @@
             background: #28a745;
             color: white;
             border: none;
-            padding: 8px 16px;
+            padding: 0.5rem 1rem;
             border-radius: 6px;
             font-size: 14px;
             font-weight: 600;
@@ -196,7 +196,7 @@
         .guide-panel {
             margin-bottom: 30px;
             border: 2px solid #e0e0e0;
-            border-radius: 12px;
+            border-radius: 0.75rem;
             overflow: hidden;
             background: white;
         }
@@ -219,23 +219,23 @@
         .guide-header-content {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 0.75rem;
         }
 
         .guide-header-content i {
-            font-size: 24px;
+            font-size: 1.5rem;
             color: #282c3e;
         }
 
         .guide-header-content h5 {
             margin: 0;
-            font-size: 16px;
+            font-size: 1rem;
             font-weight: 700;
             color: #282c3e;
         }
 
         .guide-arrow {
-            font-size: 20px;
+            font-size: 1.25rem;
             color: #6c757d;
             transition: transform 0.3s ease;
         }
@@ -261,20 +261,20 @@
 
         .guide-step {
             margin-bottom: 30px;
-            padding: 20px;
+            padding: 1.25rem;
             background: #f8f9fa;
-            border-left: 4px solid #282c3e;
-            border-radius: 8px;
+            border-left: 0.25rem solid #282c3e;
+            border-radius: 0.5rem;
         }
 
         .guide-step h6 {
             color: #282c3e;
             font-weight: 700;
-            margin-bottom: 12px;
+            margin-bottom: 0.75rem;
             font-size: 15px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 0.5rem;
         }
 
         .guide-step p {
@@ -287,7 +287,7 @@
         .guide-step ul,
         .guide-step ol {
             margin: 10px 0;
-            padding-right: 20px;
+            padding-right: 1.25rem;
         }
 
         .guide-step ul li,
@@ -295,14 +295,14 @@
             color: #495057;
             line-height: 1.8;
             font-size: 14px;
-            margin-bottom: 8px;
+            margin-bottom: 0.5rem;
         }
 
         .code-block {
             background: #1e1e1e;
             color: #d4d4d4;
             padding: 15px;
-            border-radius: 8px;
+            border-radius: 0.5rem;
             font-family: 'Courier New', monospace;
             font-size: 13px;
             margin: 10px 0;
@@ -328,15 +328,15 @@
         .provider-tabs {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 1.25rem;
             flex-wrap: wrap;
         }
 
         .provider-tab {
-            padding: 10px 20px;
+            padding: 10px 1.25rem;
             background: white;
             border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            border-radius: 0.5rem;
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: 600;
@@ -366,7 +366,7 @@
         .check-section {
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             padding: 30px;
-            border-radius: 12px;
+            border-radius: 0.75rem;
             border: 2px solid #dee2e6;
             margin-bottom: 30px;
         }
@@ -379,14 +379,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 20px;
+            margin: 0 auto 1.25rem;
         }
 
         .domain-badge {
             display: inline-block;
-            padding: 6px 12px;
+            padding: 6px 0.75rem;
             border-radius: 6px;
-            font-size: 12px;
+            font-size: 0.75rem;
             font-weight: 600;
             margin-right: 10px;
         }
@@ -403,20 +403,20 @@
 
         /* إضافة تنسيق خاص للـ Main Section */
         .main-operations-section {
-            margin-bottom: 40px;
+            margin-bottom: 2.5rem;
         }
 
         /* DNS Info Styles */
         .dns-info-card {
             background: #f8f9fa;
             border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin: 1.25rem 0;
         }
 
         .dns-section {
-            margin-bottom: 20px;
+            margin-bottom: 1.25rem;
         }
 
         .dns-section:last-child {
@@ -426,22 +426,22 @@
         .dns-section h6 {
             color: #282c3e;
             font-weight: 700;
-            margin-bottom: 12px;
+            margin-bottom: 0.75rem;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 0.5rem;
         }
 
         .dns-list {
             background: white;
-            border-radius: 8px;
+            border-radius: 0.5rem;
             padding: 15px;
             margin-top: 10px;
             border: 1px solid #e0e0e0;
         }
 
         .dns-item {
-            padding: 8px 12px;
+            padding: 0.5rem 0.75rem;
             border-bottom: 1px solid #f0f0f0;
             font-family: 'Courier New', monospace;
             color: #495057;
@@ -460,8 +460,8 @@
 
         .dns-item code {
             background: #f8f9fa;
-            padding: 2px 8px;
-            border-radius: 4px;
+            padding: 2px 0.5rem;
+            border-radius: 0.25rem;
             font-size: 13px;
         }
 
@@ -469,9 +469,9 @@
             background: #282c3e;
             color: white;
             border: none;
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 12px;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -482,14 +482,14 @@
         }
 
         .copy-dns-btn i {
-            font-size: 12px;
+            font-size: 0.75rem;
         }
 
         .info-box {
             background: #fff3cd;
-            border-right: 4px solid #ffc107;
+            border-right: 0.25rem solid #ffc107;
             padding: 15px;
-            border-radius: 8px;
+            border-radius: 0.5rem;
             margin: 15px 0;
         }
 

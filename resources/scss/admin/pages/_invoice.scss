@@ -34,7 +34,7 @@ body {
 .invoice-wrapper {
     background: #fff;
     max-width: 900px;
-    margin: 28px auto 48px;
+    margin: 1.75rem auto 3rem;
     padding: 52px 56px;
     border: 1px solid #dde3ea;
 }
@@ -44,13 +44,13 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 36px;
+    margin-bottom: 2.25rem;
     padding-bottom: 15px;
     border-bottom: 3px solid var(--inv-border);
 }
 
 .inv-title {
-    font-size: 32px;
+    font-size: 2rem;
     font-weight: 700;
     color: var(--inv-text-primary);
     text-transform: uppercase;
@@ -61,10 +61,10 @@ body {
 .inv-status {
     display: inline-flex;
     align-items: center;
-    padding: 4px 14px;
-    font-size: 12px;
+    padding: 0.25rem 14px;
+    font-size: 0.75rem;
     font-weight: 600;
-    border-radius: 4px;
+    border-radius: 0.25rem;
     letter-spacing: 0.3px;
 }
 
@@ -73,7 +73,7 @@ body {
     min-width: 220px;
 
     .company-name {
-        font-size: 20px;
+        font-size: 1.25rem;
         font-weight: 700;
         color: var(--inv-brand);
         letter-spacing: -0.3px;
@@ -84,8 +84,8 @@ body {
     .company-details {
         display: grid;
         grid-template-columns: auto 1fr;
-        gap: 4px 10px;
-        font-size: 12px;
+        gap: 0.25rem 10px;
+        font-size: 0.75rem;
     }
 
     .c-label {
@@ -105,12 +105,12 @@ body {
 .info-section {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    margin-bottom: 32px;
+    margin-bottom: 2rem;
     border: 1px solid var(--inv-border);
 }
 
 .info-cell {
-    padding: 20px 24px;
+    padding: 1.25rem 1.5rem;
 
     & + .info-cell { border-right: 1px solid var(--inv-border); }
 }
@@ -121,7 +121,7 @@ body {
     text-transform: uppercase;
     letter-spacing: 1.6px;
     color: var(--inv-brand);
-    margin-bottom: 12px;
+    margin-bottom: 0.75rem;
 }
 
 .info-cell address {
@@ -144,13 +144,13 @@ body {
 .inv-details {
     display: grid;
     grid-template-columns: auto 1fr;
-    gap: 7px 20px;
+    gap: 7px 1.25rem;
 }
 
 .d-lbl {
     color: var(--inv-text-muted);
     white-space: nowrap;
-    font-size: 12px;
+    font-size: 0.75rem;
     font-weight: 500;
     line-height: 1.8;
 }
@@ -172,7 +172,7 @@ body {
     align-items: center;
     background: var(--inv-brand-bg);
     border-right: 3px solid var(--inv-brand);
-    padding: 10px 16px;
+    padding: 10px 1rem;
     font-size: 13px;
     font-weight: 600;
     color: #166534;
@@ -181,10 +181,10 @@ body {
     .badge {
         background: var(--inv-brand);
         color: white;
-        padding: 3px 12px;
-        font-size: 12px;
+        padding: 3px 0.75rem;
+        font-size: 0.75rem;
         font-weight: 600;
-        border-radius: 4px;
+        border-radius: 0.25rem;
         letter-spacing: 0.5px;
     }
 }
@@ -201,7 +201,7 @@ body {
     }
 
     thead th {
-        padding: 12px 16px;
+        padding: 0.75rem 1rem;
         font-size: 11px;
         font-weight: 700;
         text-transform: uppercase;
@@ -210,7 +210,7 @@ body {
     }
 
     tbody td {
-        padding: 14px 16px;
+        padding: 14px 1rem;
         font-size: 14px;
         color: var(--inv-text-secondary);
         border-bottom: 1px solid #f1f5f9;
@@ -220,7 +220,7 @@ body {
     tbody tr:nth-child(even) td { background: #fafbfc; }
 
     .sub-row td {
-        padding: 9px 16px;
+        padding: 9px 1rem;
         font-size: 12.5px;
         color: #64748b;
         background: #fafafa !important;
@@ -228,7 +228,7 @@ body {
     }
 
     .discount-row td {
-        padding: 9px 16px;
+        padding: 9px 1rem;
         font-size: 12.5px;
         color: #16a34a;
         background: var(--inv-brand-bg) !important;
@@ -236,8 +236,8 @@ body {
     }
 
     .total-row td {
-        padding: 15px 16px;
-        font-size: 16px;
+        padding: 15px 1rem;
+        font-size: 1rem;
         font-weight: 700;
         color: var(--inv-text-primary);
         background: #f8fafc !important;
@@ -257,7 +257,7 @@ body {
     justify-content: end;
     display: flex;
     gap: 10px;
-    margin-top: 28px;
+    margin-top: 1.75rem;
 }
 
 .btn-inv-primary {
@@ -267,7 +267,7 @@ body {
     font-family: var(--font-family-base, 'Cairo', sans-serif);
     font-weight: 700;
     font-size: 14px;
-    padding: 10px 28px;
+    padding: 10px 1.75rem;
     cursor: pointer;
     transition: background 0.2s;
     letter-spacing: 0.3px;
@@ -282,7 +282,7 @@ body {
     font-family: var(--font-family-base, 'Cairo', sans-serif);
     font-weight: 600;
     font-size: 14px;
-    padding: 10px 28px;
+    padding: 10px 1.75rem;
     cursor: pointer;
     text-decoration: none;
     display: inline-block;
@@ -298,11 +298,11 @@ body {
 // ── Footer ────────────────────────────────────────────────────────────────────
 .inv-footer {
     text-align: center;
-    font-size: 12px;
+    font-size: 0.75rem;
     font-weight: 500;
     color: #a0aec0;
-    margin-top: 36px;
-    padding-top: 20px;
+    margin-top: 2.25rem;
+    padding-top: 1.25rem;
     border-top: 1px solid var(--inv-border);
     letter-spacing: 0.3px;
 

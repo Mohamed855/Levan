@@ -199,14 +199,12 @@ class CouponDataTable extends AbstractDataTable
         return sprintf(
             '<div class="d-inline-flex align-items-center gap-2 copyable-code-wrapper"
                   data-code="%s"
-                  style="cursor: pointer; padding: 2px 6px; border-radius: 4px; transition: background 0.15s ease-in-out;"
                   title="اضغط لنسخ الكود">
                 <code class="copyable-code"
-                      data-code="%s"
-                      style="cursor: pointer; padding: 4px 8px; background: #f5f5f5; border-radius: 4px; font-weight: 600;">
+                      data-code="%s">
                     %s
                 </code>
-                <i class="ti ti-copy text-muted copy-icon" style="font-size: 16px; cursor: pointer;"></i>
+                <i class="ti ti-copy text-muted copy-icon"></i>
             </div>',
             $code,
             $code,

@@ -22,12 +22,12 @@
 
 .toast-top-left {
     top: 19px;
-    left: 12px;
+    left: 0.75rem;
 }
 
 .toast-bottom-left {
     bottom: 60px;
-    left: 12px;
+    left: 0.75rem;
 }
 
 div:where(.swal2-container) .swal2-html-container {

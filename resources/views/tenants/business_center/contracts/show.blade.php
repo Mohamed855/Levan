@@ -50,7 +50,7 @@
                     <div class="row text-center g-4">
                         <div class="col-md-3">
                             <h6 class="text-muted fw-normal mb-2">تاريخ البداية</h6>
-                            <div style="border-top: 1px dashed rgba(0,0,0,0.08); margin: 8px 0;"></div>
+                            <div style="border-top: 1px dashed rgba(0,0,0,0.08); margin: 0.5rem 0;"></div>
                             <p class="fs-5 mb-0 fw-semibold">
                                 {{ $contract->formatted_start_date }}
                             </p>
@@ -58,7 +58,7 @@
 
                         <div class="col-md-3">
                             <h6 class="text-muted fw-normal mb-2">تاريخ الانتهاء</h6>
-                            <div style="border-top: 1px dashed rgba(0,0,0,0.08); margin: 8px 0;"></div>
+                            <div style="border-top: 1px dashed rgba(0,0,0,0.08); margin: 0.5rem 0;"></div>
                             <p class="fs-6 mb-0 fw-medium">
                                 {{ $contract->formatted_end_date }}
                             </p>
@@ -66,7 +66,7 @@
 
                         <div class="col-md-3">
                             <h6 class="text-muted fw-normal mb-2">مدة العقد</h6>
-                            <div style="border-top: 1px dashed rgba(0,0,0,0.08); margin: 8px 0;"></div>
+                            <div style="border-top: 1px dashed rgba(0,0,0,0.08); margin: 0.5rem 0;"></div>
                             <p class="fs-5 mb-0 fw-semibold">
                                 {{ $contract->duration_months }} شهر
                             </p>
@@ -74,7 +74,7 @@
 
                         <div class="col-md-3">
                             <h6 class="text-muted fw-normal mb-2">نوع العمولة</h6>
-                            <div style="border-top: 1px dashed rgba(0,0,0,0.08); margin: 8px 0;"></div>
+                            <div style="border-top: 1px dashed rgba(0,0,0,0.08); margin: 0.5rem 0;"></div>
                             <p class="fs-6 mb-0">
                                 {{ match ($contract->commission_type) {
                                     'procedure' => 'حسب الإجراء',
@@ -477,7 +477,7 @@
                         <h5 class="card-title mb-0">الملاحظات</h5>
                     </div>
                     <div class="card-body">
-                        <div class="alert alert-info mb-0" style="border-left: 4px solid #28a745;">
+                        <div class="alert alert-info mb-0" style="border-left: 0.25rem solid #28a745;">
                             <div class="d-flex align-items-start">
                                 <i class="ti ti-note text-info me-2 mt-1"></i>
                                 <div>{{ $contract->notes }}</div>

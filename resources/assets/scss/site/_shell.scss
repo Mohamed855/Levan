@@ -124,13 +124,13 @@ body.site-shell {
 
   .grid-loader {
     display: inline-grid;
-    grid-template-columns: repeat(3, 16px);
-    grid-gap: 8px;
+    grid-template-columns: repeat(3, 1rem);
+    grid-gap: 0.5rem;
 
     div {
-      width: 16px;
-      height: 16px;
-      border-radius: 4px;
+      width: 1rem;
+      height: 1rem;
+      border-radius: 0.25rem;
       background: var(--site-primary);
       animation: gridLoader 1.2s infinite ease-in-out;
 
@@ -210,7 +210,7 @@ body.site-shell {
     background-color: var(--site-primary-deep) !important;
     color: #FFFFFF !important;
     border-color: var(--site-primary-deep) !important;
-    box-shadow: 0 8px 24px rgba(18, 51, 44, 0.28);
+    box-shadow: 0 0.5rem 1.5rem rgba(18, 51, 44, 0.28);
   }
 }
 

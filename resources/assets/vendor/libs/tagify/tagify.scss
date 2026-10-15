@@ -17,7 +17,7 @@ $tag-remove-btn-color: light.rgba-to-hex(light.$gray-600, light.$rgba-to-hex-bg)
 $tag-invalid-bg: rgba($tag-remove, 0.5) !default;
 
 $tag-avatar-size: 22px !default;
-$tag-avatar-select-size: 36px !default;
+$tag-avatar-select-size: 2.25rem !default;
 
 $tag-max-width: auto !default;
 
@@ -57,7 +57,7 @@ $tag-bg: rgb(light.$text-light, 0.5) !default;
   &__input {
     line-height: $tag-line-height;
     &:empty::before {
-      top: 4px;
+      top: 0.25rem;
     }
   }
   &__tag {

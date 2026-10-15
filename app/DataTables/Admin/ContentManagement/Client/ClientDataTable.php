@@ -62,7 +62,7 @@ class ClientDataTable extends AbstractDataTable
 
             ->editColumn('logo', function ($row) {
                 if ($row->logo) {
-                    return '<img src="'.asset('storage/'.$row->logo).'" alt="'.$row->name.'" style="max-width: 60px; max-height: 40px; border-radius: 4px; object-fit: cover;">';
+                    return '<img src="'.asset('storage/'.$row->logo).'" alt="'.$row->name.'" style="max-width: 60px; max-height: 2.5rem; border-radius: 0.25rem; object-fit: cover;">';
                 }
 
                 return '<span class="badge bg-secondary">بدون شعار</span>';
@@ -172,11 +172,11 @@ class ClientDataTable extends AbstractDataTable
     //         '<div class="d-flex align-items-center gap-2">
     //             <code class="copyable-code"
     //                   data-code="%s"
-    //                   style="cursor: pointer; user-select: none; padding: 4px 8px; background: #f5f5f5; border-radius: 4px; font-weight: 600;"
+    //                   style="cursor: pointer; user-select: none; padding: 0.25rem 0.5rem; background: #f5f5f5; border-radius: 0.25rem; font-weight: 600;"
     //                   title="اضغط للنسخ">
     //                 %s
     //             </code>
-    //             <i class="ti ti-copy text-muted" style="font-size: 16px;"></i>
+    //             <i class="ti ti-copy text-muted" style="font-size: 1rem;"></i>
     //         </div>',
     //         $row->code,
     //         $row->code

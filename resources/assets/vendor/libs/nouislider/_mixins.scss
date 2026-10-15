@@ -10,7 +10,7 @@
       .noUi-handle {
         border-color: $background;
         &:hover {
-          box-shadow: 0 0 0 8px rgba($background, 0.16);
+          box-shadow: 0 0 0 0.5rem rgba($background, 0.16);
         }
         &:active,
         &:focus {

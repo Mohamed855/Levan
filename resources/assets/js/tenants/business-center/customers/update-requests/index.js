@@ -209,7 +209,6 @@ function exportUpdateRequests() {
     const filters = {
         status: $("#filter-status").val() || "",
         requested_by: $("#filter-requested-by").val() || "",
-        search_query: $("#filter-search").val() || "",
     };
 
     $.ajax({

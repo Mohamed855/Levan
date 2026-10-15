@@ -26,26 +26,26 @@
         </thead>
         <tbody>
             @forelse($customers as $index => $customer)
-            <tr>
-                <td>{{ $index + 1 }}</td>
-                <td class="text-right">{{ $customer->name }}</td>
-                <td>{{ $customer->customer_type === 'individual' ? 'فردي' : 'شركة' }}</td>
-                <td>{{ $customer->identity_number ?: '—' }}</td>
-                <td>{{ $customer->phone ?: '—' }}</td>
-                <td class="text-right">{{ $customer->company->name ?? '—' }}</td>
-                <td class="text-right">{{ $customer->portfolio->name ?? '—' }}</td>
-                <td class="text-right">{{ $customer->relationshipManager->name ?? '—' }}</td>
-                <td>{{ $customer->customerStatus->name ?? '—' }}</td>
-                <td>{{ $customer->lastContactResult->name ?? 'غير محدد' }}</td>
-                <td class="{{ $customer->debt_amount > 0 ? 'debt-positive' : 'debt-zero' }}">
-                    {{ number_format($customer->debt_amount, 2) }}
-                </td>
-                <td>{{ $customer->created_at->format('Y-m-d') }}</td>
-            </tr>
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td class="text-right">{{ $customer->name }}</td>
+                    <td>{{ $customer->customer_type === 'individual' ? 'فردي' : 'شركة' }}</td>
+                    <td>{{ $customer->identity_number ?: '—' }}</td>
+                    <td>{{ $customer->phone ?: '—' }}</td>
+                    <td class="text-right">{{ $customer->company->name ?? '—' }}</td>
+                    <td class="text-right">{{ $customer->portfolio->name ?? '—' }}</td>
+                    <td class="text-right">{{ $customer->relationshipManager->name ?? '—' }}</td>
+                    <td>{{ $customer->customerStatus->name ?? '—' }}</td>
+                    <td>{{ $customer->lastContactResult->name ?? 'غير محدد' }}</td>
+                    <td class="{{ $customer->debt_amount > 0 ? 'debt-positive' : 'debt-zero' }}">
+                        {{ number_format($customer->debt_amount, 2) }}
+                    </td>
+                    <td>{{ $customer->created_at->format('Y-m-d') }}</td>
+                </tr>
             @empty
-            <tr>
-                <td colspan="12" class="no-records">لا توجد بيانات للعرض</td>
-            </tr>
+                <tr>
+                    <td colspan="12" class="no-records">لا توجد بيانات للعرض</td>
+                </tr>
             @endforelse
         </tbody>
     </table>
@@ -63,14 +63,14 @@
 
     body {
         font-family: almarai;
-        font-size: 12px;
+        font-size: 0.75rem;
         direction: rtl;
         margin: 0;
         color: #333;
     }
 
     .report-header {
-        margin-bottom: 20px;
+        margin-bottom: 1.25rem;
         border-bottom: 2px solid #372632;
         padding-bottom: 15px;
         text-align: center;
@@ -92,7 +92,7 @@
     .data-table th,
     .data-table td {
         border: 1px solid #ddd;
-        padding: 4px 3px;
+        padding: 0.25rem 3px;
         text-align: center;
     }
 
@@ -112,7 +112,7 @@
     }
 
     .report-footer {
-        margin-top: 20px;
+        margin-top: 1.25rem;
         font-size: 11px;
         color: #777;
         text-align: center;

@@ -84,7 +84,7 @@ class RoleController extends Controller
                             : asset('static/brand/logos/logo.svg');
 
                         return '<img src="'.$profilePicture.'" alt="'.$user->name.'"
-                             class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">';
+                             class="rounded-circle" style="width: 2.5rem; height: 2.5rem; object-fit: cover;">';
                     })
                     ->addColumn('name', function (User $user) {
                         return '<span>'.$user->name.'</span>';

@@ -24,6 +24,25 @@ label:not(.form-check-label) {
     margin-bottom: 0.35rem;
 }
 
+// Form Check / Checkboxes — Primary Accent Contract
+.form-check-input:checked,
+input[type="checkbox"]:checked {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.form-check-input:indeterminate,
+input[type="checkbox"]:indeterminate {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.form-check-input:focus,
+input[type="checkbox"]:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: none !important;
+}
+
 // Form Controls, Textareas & Selects
 .form-control:not(textarea),
 .form-select {
@@ -32,7 +51,7 @@ label:not(.form-check-label) {
     max-height: 42px !important;
     padding: 0.55rem 0.85rem !important;
     border: 1px solid rgba(29, 79, 68, 0.16) !important;
-    border-radius: 8px;
+    border-radius: 0.5rem;
     font-size: var(--font-size-base, 0.9375rem);
     color: var(--brand-dark-green, #12332C);
     background-color: #fff;
@@ -48,7 +67,7 @@ label:not(.form-check-label) {
 
 textarea.form-control {
     border: 1px solid rgba(29, 79, 68, 0.16) !important;
-    border-radius: 8px;
+    border-radius: 0.5rem;
     padding: 0.55rem 0.85rem !important;
     min-height: 100px !important;
     font-size: var(--font-size-base, 0.9375rem);
@@ -66,7 +85,7 @@ textarea.form-control {
 
 // Input Group & Input Group Merge
 .input-group {
-    border-radius: 8px;
+    border-radius: 0.5rem;
 
     .input-group-text {
         height: 42px !important;
@@ -127,7 +146,7 @@ input[type="file"].form-control,
 .form-control[type="file"],
 .dropzone {
     border: 1px dashed rgba(29, 79, 68, 0.28) !important;
-    border-radius: 8px !important;
+    border-radius: 0.5rem !important;
     box-shadow: none !important;
     background-color: rgba(247, 243, 236, 0.35);
     transition: border-color 0.15s ease;
@@ -200,7 +219,7 @@ input[type="file"].form-control,
     .select2-selection--single,
     .select2-selection--multiple {
         border: 1px solid rgba(29, 79, 68, 0.16) !important;
-        border-radius: 8px !important;
+        border-radius: 0.5rem !important;
         min-height: 42px !important;
         display: flex !important;
         align-items: center !important;
@@ -236,6 +255,8 @@ input[type="file"].form-control,
 // BS-Stepper (Wizards)
 // -----------------------------------------------------------------------------
 .bs-stepper {
+    border-radius: 0.75rem;
+
     .bs-stepper-header {
         border-bottom: 1px solid rgba(29, 79, 68, 0.08);
         padding-bottom: 1rem;
@@ -294,7 +315,7 @@ input[type="file"].form-control,
     padding: 10px;
     border-radius: 5px;
     backdrop-filter: blur(5px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0.25rem 6px rgba(0, 0, 0, 0.1);
 
     li {
         display: flex;
@@ -305,13 +326,13 @@ input[type="file"].form-control,
         &.valid::before {
             content: '✔️';
             color: #28a745;
-            margin-right: 8px;
+            margin-right: 0.5rem;
         }
 
         &.invalid::before {
             content: '❌';
             color: #dc3545;
-            margin-right: 8px;
+            margin-right: 0.5rem;
         }
     }
 }

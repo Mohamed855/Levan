@@ -171,10 +171,6 @@
             </select>
         </div>
 
-        <div>
-            <label for="filter-date-from" class="form-label">من تاريخ</label>
-            <input type="date" id="filter-date-from" class="form-control" data-filter-key="date_from" data-datatable-filter="true" data-datatable-target="#company-letters-table">
-        </div>
     </x-data-table.filters>
 
     {{-- ═══ جدول الخطابات ═══ --}}

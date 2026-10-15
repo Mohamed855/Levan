@@ -50,15 +50,6 @@
         <x-filter.select id="filter-user" filterKey="user_id" label="المستخدم"
             placeholder="اختر المستخدم" :options="$filterOptions['users'] ?? []" />
 
-        <div>
-            <label class="form-label" for="filter-date-from">من تاريخ</label>
-            <input type="date" id="filter-date-from" data-filter-key="date_from" data-datatable-filter="true" class="form-control">
-        </div>
-
-        <div>
-            <label class="form-label" for="filter-date-to">إلى تاريخ</label>
-            <input type="date" id="filter-date-to" data-filter-key="date_to" data-datatable-filter="true" class="form-control">
-        </div>
     </x-data-table.filters>
 
     <div class="card" id="card-activity-logs">

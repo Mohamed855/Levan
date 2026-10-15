@@ -210,19 +210,12 @@
                                 </small>
                             </div>
                             <div class="d-flex align-items-center gap-3 flex-wrap">
-                                <div class="btn-group" role="group">
-                                    <input type="radio" class="btn-check" name="userDataTypeFilter"
-                                        id="userCollectionsTab" value="collections" checked>
-                                    <label class="btn btn-outline-primary btn-sm" for="userCollectionsTab">
-                                        <i class="ti ti-cash me-1"></i> التحصيلات
-                                    </label>
-                                    <input type="radio" class="btn-check" name="userDataTypeFilter"
-                                        id="userFollowsTab" value="follows">
-                                    <label class="btn btn-secondary btn-sm" for="userFollowsTab">
-                                        <i class="ti ti-phone-call me-1"></i> المتابعات
-                                    </label>
-                                </div>
-                                <select id="userComparisonPeriodFilter" class="form-select form-select-sm"
+                                <select id="userDataTypeFilter" class="form-select form-select-sm select2"
+                                    style="width: 150px;">
+                                    <option value="collections">التحصيلات</option>
+                                    <option value="follows">المتابعات</option>
+                                </select>
+                                 <select id="userComparisonPeriodFilter" class="form-select form-select-sm select2"
                                     style="width: 150px;">
                 <x-form.controls.enum-options :enum="\App\Enums\Shared\DashboardPeriod::class" />
             </select>
@@ -299,7 +292,7 @@
                                 <small class="text-muted">المتابعات التي تجاوزت موعدها المحدد</small>
                             </div>
                             <div class="d-flex align-items-center gap-2 flex-wrap">
-                                <select id="myOverdueResultTypeFilter" class="form-select form-select-sm"
+                                <select id="myOverdueResultTypeFilter" class="form-select form-select-sm select2"
                                     style="width:160px;">
                                     <option value="">كل الأنواع</option>
                                     @foreach ($overdueContactResults ?? [] as $resultId => $resultName)
@@ -307,17 +300,11 @@
                                     @endforeach
                                 </select>
 
-                                <select id="myOverdueDaysFilter" class="form-select form-select-sm" style="width:160px;">
+                                <select id="myOverdueDaysFilter" class="form-select form-select-sm select2" style="width:160px;">
                 <option value="">كل الفترات</option>
                 <x-form.controls.enum-options :enum="\App\Enums\Tenants\Collections\OverdueDaysRange::class" />
             </select>
 
-                                <div id="myCustomDateRange" class="d-none" style="display: flex; gap: 5px;">
-                                    <input type="date" id="myOverdueDateFrom" class="form-control form-control-sm"
-                                        style="width:140px;">
-                                    <input type="date" id="myOverdueDateTo" class="form-control form-control-sm"
-                                        style="width:140px;">
-                                </div>
                             </div>
                         </div>
                         <div class="card-body pt-3">

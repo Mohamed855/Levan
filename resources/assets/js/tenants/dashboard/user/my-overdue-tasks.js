@@ -22,13 +22,6 @@ $(document).ready(function () {
   }
 
   $('#myOverdueDaysFilter').on('change', function () {
-    if ($(this).val() === 'custom') {
-      $('#myCustomDateRange').removeClass('d-none').show();
-    } else {
-      $('#myCustomDateRange').addClass('d-none').hide();
-      $('#myOverdueDateFrom, #myOverdueDateTo').val('');
-    }
-
     if ($.fn.DataTable.isDataTable('#my-overdue-tasks-table')) {
       $('#my-overdue-tasks-table').DataTable().ajax.reload();
     }
@@ -40,18 +33,10 @@ $(document).ready(function () {
     }
   });
 
-  $('#myOverdueDateFrom, #myOverdueDateTo').on('change', function () {
-    if ($('#myOverdueDaysFilter').val() === 'custom' && $.fn.DataTable.isDataTable('#my-overdue-tasks-table')) {
-      $('#my-overdue-tasks-table').DataTable().ajax.reload();
-    }
-  });
-
   $('#exportMyOverdueTasksExcel').on('click', function () {
     const params = new URLSearchParams({
       result_type: $('#myOverdueResultTypeFilter').val() || '',
-      overdue_days: $('#myOverdueDaysFilter').val() !== 'custom' ? $('#myOverdueDaysFilter').val() : '',
-      date_from: $('#myOverdueDateFrom').val() || '',
-      date_to: $('#myOverdueDateTo').val() || ''
+      overdue_days: $('#myOverdueDaysFilter').val() !== 'custom' ? $('#myOverdueDaysFilter').val() : ''
     });
 
     window.location.href = window.userRoutes.exportMyOverdueTasks + '?' + params.toString();
@@ -78,10 +63,6 @@ function initializeMyOverdueTasksTable() {
           d.overdue_days = daysFilter;
         }
 
-        if (daysFilter === 'custom') {
-          d.date_from = $('#myOverdueDateFrom').val() || '';
-          d.date_to = $('#myOverdueDateTo').val() || '';
-        }
       },
       error: function () {
         $('#my-overdue-tasks-table tbody').html(

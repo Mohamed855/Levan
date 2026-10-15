@@ -695,7 +695,7 @@ function displayPreview(data) {
                     <td class="text-end">${number_format(item.total_debt, 2)} ريال</td>
                     <td class="text-center">
                         <div class="d-flex align-items-center justify-content-center">
-                            <div class="progress me-2" style="height: 8px; width: 60px;">
+                            <div class="progress me-2" style="height: 0.5rem; width: 60px;">
                                 <div class="progress-bar" style="width: ${percentage}%;" role="progressbar"></div>
                             </div>
                             <span class="small">${formattedPercentage}%</span>

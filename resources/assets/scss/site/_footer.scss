@@ -14,7 +14,7 @@
     position: absolute;
     inset: 0;
     background-image: radial-gradient(rgba(var(--site-gold-rgb), 0.1) 1px, transparent 1px);
-    background-size: 24px 24px;
+    background-size: 1.5rem 1.5rem;
     opacity: 0.6;
     pointer-events: none;
   }
@@ -93,7 +93,7 @@
         position: absolute;
         bottom: 0;
         right: 0;
-        width: 36px;
+        width: 2.25rem;
         height: 2.5px;
         background: var(--site-gold);
         border-radius: 99px;
@@ -144,7 +144,7 @@
         position: absolute;
         bottom: 0;
         right: 0;
-        width: 36px;
+        width: 2.25rem;
         height: 2.5px;
         background: var(--site-gold);
         border-radius: 99px;

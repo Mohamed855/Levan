@@ -13,7 +13,7 @@
                 <i class="ti ti-building me-2 text-primary"></i>تفاصيل العقار: {{ $property->name }}
             </h4>
             <div class="d-flex align-items-center gap-2">
-                <code class="copyable-code fs-6" style="cursor: pointer;"
+                <code class="copyable-code fs-6"
                     onclick="navigator.clipboard.writeText('{{ $property->property_number }}'); toastr.success('تم نسخ رقم العقار');">
                     {{ $property->property_number }}
                 </code>

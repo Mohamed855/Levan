@@ -311,7 +311,7 @@ $chat-bg-dark: #202534;
   .light-style {
     .app-chat {
       .app-sidebar .sidebar-header .chat-sidebar-avatar::after {
-        box-shadow: 0 0 0 4px light.$card-bg;
+        box-shadow: 0 0 0 0.25rem light.$card-bg;
       }
       .app-chat-contacts,
       .app-chat-sidebar-left {
@@ -371,7 +371,7 @@ $chat-bg-dark: #202534;
 
       .app-chat-sidebar-right {
         background-color: light.$white;
-        box-shadow: 16px 1px 45px 3px rgba(light.$black, 0.5);
+        box-shadow: 1rem 1px 45px 3px rgba(light.$black, 0.5);
       }
 
       @media (max-width: 992px) {
@@ -392,7 +392,7 @@ $chat-bg-dark: #202534;
   .dark-style {
     .app-chat {
       .app-sidebar .sidebar-header .chat-sidebar-avatar::after {
-        box-shadow: 0 0 0 4px dark.$card-bg;
+        box-shadow: 0 0 0 0.25rem dark.$card-bg;
       }
       .app-chat-contacts,
       .app-chat-sidebar-left {

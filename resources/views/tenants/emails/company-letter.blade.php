@@ -17,17 +17,17 @@
 
         .email-container {
             max-width: 600px;
-            margin: 40px auto;
+            margin: 2.5rem auto;
             background-color: #ffffff;
-            border-radius: 8px;
+            border-radius: 0.5rem;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
         }
 
         .email-header {
             background: linear-gradient(135deg, #372632 0%, #4cc1bb 100%);
             color: #ffffff;
-            padding: 30px 20px;
+            padding: 30px 1.25rem;
             text-align: center;
             display: flex;
             flex-direction: column;
@@ -46,7 +46,7 @@
 
         .email-header h1 {
             margin: 0;
-            font-size: 24px;
+            font-size: 1.5rem;
             font-weight: 600;
         }
 
@@ -73,7 +73,7 @@
 
         .email-footer {
             background-color: #f8f9fa;
-            padding: 20px;
+            padding: 1.25rem;
             text-align: center;
             font-size: 13px;
             color: #6c757d;
@@ -88,15 +88,15 @@
         .divider {
             height: 1px;
             background-color: #e9ecef;
-            margin: 20px 0;
+            margin: 1.25rem 0;
         }
 
         .btn {
             display: inline-block;
             background-color: #4cc1bb;
             color: white;
-            padding: 10px 20px;
-            border-radius: 4px;
+            padding: 10px 1.25rem;
+            border-radius: 0.25rem;
             text-decoration: none;
             font-weight: 600;
         }

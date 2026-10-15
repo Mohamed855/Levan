@@ -18,8 +18,8 @@
 }
 
 .color-picker-preview {
-    width: 40px;
-    height: 40px;
+    width: 2.5rem;
+    height: 2.5rem;
     border-radius: 50%;
     border: 2px solid var(--bs-border-color, #ddd);
     margin-inline-end: 0.75rem;

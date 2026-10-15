@@ -15,7 +15,7 @@
   .bs-searchbox,
   .bs-actionsbox,
   .bs-donebutton {
-    padding: 0 0 8px;
+    padding: 0 0 0.5rem;
   }
   .dropdown-toggle {
     transition: none;
@@ -33,7 +33,7 @@
       top: 50%;
       margin: 0 !important;
       @include app-rtl {
-        inset-inline-end: 12px;
+        inset-inline-end: 0.75rem;
       }
     }
     &:active {

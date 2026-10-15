@@ -20,7 +20,7 @@
             <div class="transfer-card">
                 <!-- Card Header -->
                 <div class="card-header-custom">
-                    <i class="ti ti-link" style="font-size: 48px; margin-bottom: 15px;"></i>
+                    <i class="ti ti-link" style="font-size: 3rem; margin-bottom: 15px;"></i>
                     <h3 style="color:white">اربط دومينك الفرعي إلى استضافتنا</h3>
                     <p>اربط الدومين الفرعي الخاص بك إلى استضافتنا بخطوات بسيطة</p>
                 </div>
@@ -30,38 +30,38 @@
                     <!-- Flash Messages Display -->
                     @if (Session::has('success'))
                         <div class="alert-custom alert-success-custom">
-                            <i class="ti ti-check-circle" style="font-size: 24px;"></i>
+                            <i class="ti ti-check-circle" style="font-size: 1.5rem;"></i>
                             <div>{{ Session::get('success') }}</div>
                         </div>
                     @endif
 
                     @if (Session::has('error'))
                         <div class="alert-custom alert-error-custom">
-                            <i class="ti ti-alert-circle" style="font-size: 24px;"></i>
+                            <i class="ti ti-alert-circle" style="font-size: 1.5rem;"></i>
                             <div>{{ Session::get('error') }}</div>
                         </div>
                     @endif
 
                     @if (Session::has('info'))
                         <div class="alert-custom alert-info-custom">
-                            <i class="ti ti-info-circle" style="font-size: 24px;"></i>
+                            <i class="ti ti-info-circle" style="font-size: 1.5rem;"></i>
                             <div>{{ Session::get('info') }}</div>
                         </div>
                     @endif
 
                     @if (Session::has('warning'))
                         <div class="alert-custom alert-warning-custom">
-                            <i class="ti ti-bulb" style="font-size: 24px;"></i>
+                            <i class="ti ti-bulb" style="font-size: 1.5rem;"></i>
                             <div>{{ Session::get('warning') }}</div>
                         </div>
                     @endif
 
                     @if ($errors->any())
                         <div class="alert-custom alert-error-custom">
-                            <i class="ti ti-alert-circle" style="font-size: 24px;"></i>
+                            <i class="ti ti-alert-circle" style="font-size: 1.5rem;"></i>
                             <div>
                                 <strong>خطأ في التحقق:</strong>
-                                <ul style="margin: 5px 0 0 0; padding-right: 20px;">
+                                <ul style="margin: 5px 0 0 0; padding-right: 1.25rem;">
                                     @foreach ($errors->all() as $error)
                                         <li>{{ $error }}</li>
                                     @endforeach
@@ -75,7 +75,7 @@
 
                         <!-- Check Domain Section -->
                         <div id="checkDomainSection">
-                            <h5 style="color: #282c3e; font-weight: 700; margin-bottom: 20px; text-align: center;">
+                            <h5 style="color: #282c3e; font-weight: 700; margin-bottom: 1.25rem; text-align: center;">
                                 <i class="ti ti-check me-2"></i>
                                 تحقق من إعداد الدومين الفرعي
                             </h5>
@@ -102,7 +102,7 @@
                         <!-- Transfer Form Section -->
                         <div id="transferSection" style="display: none;">
                             <div class="success-icon">
-                                <i class="ti ti-check" style="font-size: 40px; color: white;"></i>
+                                <i class="ti ti-check" style="font-size: 2.5rem; color: white;"></i>
                             </div>
 
                             <h4 class="text-center mb-3" style="color: #282c3e;">الدومين جاهز للربط!</h4>
@@ -141,7 +141,7 @@
                     <!-- Success Section - SEPARATED BELOW -->
                     <div id="successSection" style="display: none; text-align: center;">
                         <div class="success-icon">
-                            <i class="ti ti-check" style="font-size: 40px; color: white;"></i>
+                            <i class="ti ti-check" style="font-size: 2.5rem; color: white;"></i>
                         </div>
                         <h4 class="mt-4 mb-3" style="color: #282c3e;">تم ربط الدومين بنجاح!</h4>
                         <p class="text-muted mb-4">
@@ -153,11 +153,11 @@
                         </a>
                     </div>
 
-                    <hr style="margin: 40px 0; border-color: #dee2e6;">
+                    <hr style="margin: 2.5rem 0; border-color: #dee2e6;">
 
                     <!-- Info Alert -->
                     <div class="alert-custom alert-info-custom">
-                        <i class="ti ti-info-circle" style="font-size: 24px;"></i>
+                        <i class="ti ti-info-circle" style="font-size: 1.5rem;"></i>
                         <div>
                             <strong>قبل البدء:</strong>
                             <p class="mb-0">يجب أن يكون لديك صلاحية الوصول إلى إعدادات DNS الخاصة بالدومين لإضافة A Record
@@ -209,7 +209,7 @@
                                     <div class="guide-step">
                                         <h6>
                                             <span
-                                                style="background: #282c3e; color: white; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 13px;">1</span>
+                                                style="background: #282c3e; color: white; width: 1.75rem; height: 1.75rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 13px;">1</span>
                                             تسجيل الدخول إلى لوحة تحكم الدومين
                                         </h6>
                                         <p>قم بتسجيل الدخول إلى حسابك لدى مزود خدمة الدومين (مثل GoDaddy، Namecheap،
@@ -219,7 +219,7 @@
                                     <div class="guide-step">
                                         <h6>
                                             <span
-                                                style="background: #282c3e; color: white; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 13px;">2</span>
+                                                style="background: #282c3e; color: white; width: 1.75rem; height: 1.75rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 13px;">2</span>
                                             الوصول إلى إعدادات DNS
                                         </h6>
                                         <p>ابحث عن قسم DNS Management أو DNS Settings أو Manage DNS في لوحة التحكم</p>
@@ -232,7 +232,7 @@
                                     <div class="guide-step">
                                         <h6>
                                             <span
-                                                style="background: #282c3e; color: white; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 13px;">3</span>
+                                                style="background: #282c3e; color: white; width: 1.75rem; height: 1.75rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 13px;">3</span>
                                             إضافة A Record جديد
                                         </h6>
                                         <p>اضغط على "Add Record" أو "Add DNS Record" ثم اختر نوع السجل "A"</p>
@@ -261,7 +261,7 @@
                                     <div class="guide-step">
                                         <h6>
                                             <span
-                                                style="background: #282c3e; color: white; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 13px;">4</span>
+                                                style="background: #282c3e; color: white; width: 1.75rem; height: 1.75rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 13px;">4</span>
                                             حفظ التغييرات والانتظار
                                         </h6>
                                         <p>اضغط على "Save" أو "Add Record" لحفظ الإعدادات</p>
@@ -432,7 +432,7 @@
 
 
                                 <div class="alert-custom alert-warning-custom mt-3">
-                                    <i class="ti ti-bulb" style="font-size: 20px;"></i>
+                                    <i class="ti ti-bulb" style="font-size: 1.25rem;"></i>
                                     <div>
                                         <strong>نصيحة:</strong>
                                         <p class="mb-0">بعد إضافة A Record، انتظر بضع دقائق ثم تحقق من الدومين باستخدام
@@ -536,7 +536,7 @@
 
                 dnsHtml += `
                 <div class="alert-custom alert-${statusClass}-custom mb-3">
-                    <i class="ti ti-${statusIcon}" style="font-size: 24px;"></i>
+                    <i class="ti ti-${statusIcon}" style="font-size: 1.5rem;"></i>
                     <div>
                         <h6 class="mb-2"><strong>حالة التوجيه: ${statusTitle}</strong></h6>
                         <p class="mb-0">${pointingStatus.message}</p>
@@ -882,7 +882,7 @@
 
                 alertContainer.innerHTML = `
                 <div class="alert-custom ${alertConfig.class}">
-                    <i class="ti ${alertConfig.icon}" style="font-size: 24px; flex-shrink: 0;"></i>
+                    <i class="ti ${alertConfig.icon}" style="font-size: 1.5rem; flex-shrink: 0;"></i>
                     <div style="flex: 1;">${message}</div>
                 </div>
             `;
@@ -957,7 +957,7 @@
                 alertDiv.className = `alert-custom ${alertConfig.class}`;
                 alertDiv.style.marginBottom = '20px';
                 alertDiv.innerHTML = `
-                <i class="ti ${alertConfig.icon}" style="font-size: 24px; flex-shrink: 0;"></i>
+                <i class="ti ${alertConfig.icon}" style="font-size: 1.5rem; flex-shrink: 0;"></i>
                 <div style="flex: 1;">${message}</div>
             `;
 

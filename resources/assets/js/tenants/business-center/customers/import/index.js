@@ -186,7 +186,7 @@ function updateTemplateButtons() {
 */
 function updateFileUploadArea(fileName) {
     $("#file-upload-area").html(`
-        <div class="d-flex align-items-center justify-content-between p-3" style="background: linear-gradient(135deg, #e8f5e8, #f1f8e9); border-radius: 8px;">
+        <div class="d-flex align-items-center justify-content-between p-3" style="background: linear-gradient(135deg, #e8f5e8, #f1f8e9); border-radius: 0.5rem;">
             <div class="d-flex align-items-center">
                 <i class="ti ti-file-check me-2 text-success" style="font-size: 1.5rem;"></i>
                 <div>

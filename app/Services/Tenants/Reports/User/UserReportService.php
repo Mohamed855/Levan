@@ -590,7 +590,7 @@ class UserReportService
 
 body {
     font-family: almarai;
-    font-size: 12px;
+    font-size: 0.75rem;
     direction: rtl;
     margin: 0;
     padding: 0;
@@ -617,7 +617,7 @@ body {
 }
 
 .header-info {
-    font-size: 12px;
+    font-size: 0.75rem;
     color: #666;
 }
 
@@ -627,17 +627,17 @@ body {
 }
 
 .data-section h3, .statistics-section h3 {
-    margin: 20px 0 15px 0;
-    font-size: 16px;
+    margin: 1.25rem 0 15px 0;
+    font-size: 1rem;
     color: #1f2a44;
     text-align: center;
     font-weight: 700;
     border-bottom: 1px solid #1f2a44;
-    padding-bottom: 8px;
+    padding-bottom: 0.5rem;
 }
 
 .statistics-section {
-    margin: 20px 0;
+    margin: 1.25rem 0;
 }
 
 .statistics-table, .data-table {
@@ -649,14 +649,14 @@ body {
 
 .statistics-table td, .data-table th, .data-table td {
     border: 1px solid #ddd;
-    padding: 8px 6px;
+    padding: 0.5rem 6px;
     text-align: center;
     font-size: 11px;
 }
 
 .data-table th, .data-table td {
     font-size: 9px;
-    padding: 6px 4px;
+    padding: 6px 0.25rem;
 }
 
 .stat-label {
@@ -695,7 +695,7 @@ body {
 
 .no-records {
     text-align: center;
-    padding: 20px;
+    padding: 1.25rem;
     color: #777;
     font-style: italic;
 }
@@ -711,7 +711,7 @@ body {
 
 .report-footer span {
     display: inline-block;
-    margin: 0 20px;
+    margin: 0 1.25rem;
 }
 ';
     }

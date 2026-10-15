@@ -591,10 +591,7 @@ function getExportFilters() {
         company_id: $("#company-selector").val() || "",
         portfolio_id: $("#portfolio-selector").val() || "",
         status: $("#filter-status").val() || "",
-        date_from: $("#filter-date-from").val() || "",
-        date_to: $("#filter-date-to").val() || "",
-        search_query:
-            $("#filter-search").val() || (table ? table.search() : ""),
+        search_query: table ? table.search() : "",
     };
 }
 

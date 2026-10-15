@@ -84,6 +84,112 @@ class DataTableContractTest extends TestCase
         }
     }
 
+    public function test_admin_and_tenant_datatable_filters_are_select2_only(): void
+    {
+        $viewsPath = dirname(__DIR__, 2) . '/resources/views';
+        $directories = [
+            $viewsPath . '/admin',
+            $viewsPath . '/tenants',
+        ];
+
+        foreach ($directories as $directory) {
+            $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directory));
+
+            foreach ($files as $file) {
+                if (! $file->isFile() || $file->getExtension() !== 'php') {
+                    continue;
+                }
+
+                $content = file_get_contents($file->getPathname());
+
+                foreach ($this->datatableFilterBlocks($content) as $block) {
+                    $this->assertDoesNotMatchRegularExpression(
+                        '/<input\b[^>]*data-datatable-filter\s*=\s*["\']true["\'][^>]*>/is',
+                        $block,
+                        "{$file->getPathname()} must not use input controls as DataTable filters.",
+                    );
+                    $this->assertStringNotContainsString(
+                        '<x-form.controls.input',
+                        $block,
+                        "{$file->getPathname()} must not render form input components inside DataTable filters.",
+                    );
+
+                    preg_match_all('/<select\b[^>]*>/is', $block, $selectMatches);
+
+                    foreach ($selectMatches[0] as $select) {
+                        if (! str_contains($select, 'data-datatable-filter')) {
+                            continue;
+                        }
+
+                        $this->assertMatchesRegularExpression(
+                            '/class\s*=\s*["\'][^"\']*\bselect2(?:\b|-)/i',
+                            $select,
+                            "{$file->getPathname()} has a DataTable select without the Select2 class.",
+                        );
+                    }
+                }
+            }
+        }
+
+        $sharedFilter = file_get_contents($viewsPath . '/components/shared/filter/select.blade.php');
+
+        $this->assertStringContainsString(
+            "'class' => trim('form-control select2 ' . " . '$selectClass)',
+            $sharedFilter,
+        );
+    }
+
+    public function test_dashboard_filters_are_select2_selects_without_input_controls(): void
+    {
+        $viewsPath = dirname(__DIR__, 2) . '/resources/views';
+        $directories = [
+            $viewsPath . '/admin/dashboard',
+            $viewsPath . '/tenants/dashboard',
+        ];
+
+        foreach ($directories as $directory) {
+            if (! is_dir($directory)) {
+                continue;
+            }
+
+            $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directory));
+
+            foreach ($files as $file) {
+                if (! $file->isFile() || $file->getExtension() !== 'php') {
+                    continue;
+                }
+
+                $content = file_get_contents($file->getPathname());
+
+                $this->assertDoesNotMatchRegularExpression(
+                    '/<input\b/i',
+                    $content,
+                    "{$file->getPathname()} must not use input controls for dashboard filters.",
+                );
+
+                preg_match_all('/<select\b[^>]*>/is', $content, $selectMatches);
+
+                foreach ($selectMatches[0] as $select) {
+                    $this->assertMatchesRegularExpression(
+                        '/class\s*=\s*["\'][^"\']*\bselect2(?:\b|-)/i',
+                        $select,
+                        "{$file->getPathname()} has a dashboard select without the Select2 class.",
+                    );
+                }
+            }
+        }
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function datatableFilterBlocks(string $content): array
+    {
+        preg_match_all('/<x-data-table\.filters\b[^>]*>.*?<\/x-data-table\.filters>/is', $content, $matches);
+
+        return $matches[0];
+    }
+
     /**
      * @return list<string>
      */

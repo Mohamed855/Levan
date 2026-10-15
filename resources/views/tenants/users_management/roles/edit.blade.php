@@ -27,13 +27,14 @@
                         </div>
                     @endif
 
-                    <form action="{{ tenant_route_name('roles.update', $role->id) }}" method="POST" novalidate data-form-validate
-                        data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
+                    <form action="{{ tenant_route_name('roles.update', $role->id) }}" method="POST" novalidate
+                        data-form-validate data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                         @csrf
                         @method('PUT')
 
-                        <x-form.controls.input name="name" label="معرّف الدور" :value="$role->name" placeholder="مثال: collection_manager" required
-                            col="col-md-6 mb-3" help="يُحفظ معرفاً إنجليزياً فقط، وتُترجم التسمية في الواجهة." />
+                        <x-form.controls.input name="name" label="معرّف الدور" :value="$role->name"
+                            placeholder="مثال: collection_manager" required col="col-md-6 mb-3"
+                            help="يُحفظ معرفاً إنجليزياً فقط، وتُترجم التسمية في الواجهة." />
 
                         <div class="mb-3" data-form-field data-field-name="permissions">
                             <label for="permissions" class="form-label">الصلاحيات</label>
@@ -41,12 +42,13 @@
 
                                 <!-- تحديد الكل العام -->
                                 <div class="form-check mb-3">
-                                    <input type="checkbox" name="select_all" value="1" class="form-check-input" id="select-all" data-validation-skip>
+                                    <input type="checkbox" name="select_all" value="1" class="form-check-input"
+                                        id="select-all" data-validation-skip>
                                     <label class="form-check-label" for="select-all">تحديد الكل</label>
                                 </div>
 
                                 <!-- الأقسام -->
-                                <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+                                <div style="display: flex; flex-wrap: wrap; gap: 1.25rem;">
                                     @foreach ($permissions as $section => $perms)
                                         <div style="flex: 1; min-width: 300px;">
                                             <div class="accordion" id="accordion-{{ $loop->index }}">

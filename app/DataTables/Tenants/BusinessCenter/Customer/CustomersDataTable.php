@@ -272,12 +272,12 @@ class CustomersDataTable extends AbstractDataTable
                 if ($customer->company) {
                     $img = tasset($customer->company->logo_path ?? null);
 
-                    $companyHtml = '<div class="d-flex align-items-center" style="min-height: 24px;">'.
+                    $companyHtml = '<div class="d-flex align-items-center" style="min-height: 1.5rem;">'.
                         '<img src="'.$img.'" alt="'.e($customer->company->name).'" class="rounded me-2" style="width:28px;height:28px;object-fit:cover" />'.
                         '<span class=" ">'.e($customer->company->name).'</span>'.
                         '</div>';
                 } else {
-                    $companyHtml = '<div class="d-flex align-items-center" style="min-height: 24px;"><span class="">غير محدد</span></div>';
+                    $companyHtml = '<div class="d-flex align-items-center" style="min-height: 1.5rem;"><span class="">غير محدد</span></div>';
                 }
 
                 return '<div>'.

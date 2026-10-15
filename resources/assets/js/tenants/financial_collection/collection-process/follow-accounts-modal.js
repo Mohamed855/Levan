@@ -140,7 +140,7 @@ class FollowAccountsModalManager {
                     <span class="px-2 py-1"
                         style="
                             font-size: 0.72rem;
-                            border-radius: 8px;
+                            border-radius: 0.5rem;
                             background: ${debtBg};
                             color: ${debtColor};
                             border: 1px solid ${debtBorder};

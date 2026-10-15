@@ -40,7 +40,7 @@
   }
   &.form-select-lg {
     min-height: $input-height-lg;
-    background-size: 24px 24px;
+    background-size: 1.5rem 1.5rem;
     padding: calc($form-select-padding-y-lg - $input-border-width) calc($form-select-padding-x-lg - $input-border-width);
     padding-inline-end: calc($form-select-padding-x-lg * 3 - $input-border-width);
     &:focus,
@@ -61,7 +61,7 @@
   }
   &.form-select-sm {
     min-height: $input-height-sm;
-    background-size: 20px 20px;
+    background-size: 1.25rem 1.25rem;
     padding: calc($form-select-padding-y-sm - $input-border-width) calc($form-select-padding-x-sm - $input-border-width);
     padding-inline-end: calc($form-select-padding-x-sm * 3 - $input-border-width);
     &:focus,

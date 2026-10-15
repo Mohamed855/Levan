@@ -37,8 +37,8 @@
 }
 
 .task-progress {
-    height: 8px;
-    border-radius: 4px;
+    height: 0.5rem;
+    border-radius: 0.25rem;
     margin-top: 10px;
 }
 
@@ -58,16 +58,16 @@
 .stat-card {
     border-radius: 15px;
     overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.05);
 }
 
 .stat-icon {
-    width: 40px;
-    height: 40px;
+    width: 2.5rem;
+    height: 2.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 12px;
+    border-radius: 0.75rem;
     /* font-size: 1.5rem; */
 }
 
@@ -93,8 +93,8 @@
 .timeline-item::before {
     content: '';
     position: absolute;
-    width: 12px;
-    height: 12px;
+    width: 0.75rem;
+    height: 0.75rem;
     border-radius: 50%;
     background: #372632;
     border: 2px solid #fff;
@@ -166,8 +166,8 @@
     background: transparent;
     border: none;
     cursor: pointer;
-    height: 40px;
-    width: 40px;
+    height: 2.5rem;
+    width: 2.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -194,7 +194,7 @@
 
 /* حاوية نقاط التنقل السفلية */
 .swiper-pagination-container {
-    margin-top: 20px;
+    margin-top: 1.25rem;
     display: flex;
     justify-content: center;
 }
@@ -206,8 +206,8 @@
 }
 
 .swiper-pagination-bullet {
-    width: 12px;
-    height: 12px;
+    width: 0.75rem;
+    height: 0.75rem;
     margin: 0 5px;
 }
 

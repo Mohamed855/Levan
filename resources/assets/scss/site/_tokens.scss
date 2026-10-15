@@ -63,9 +63,9 @@
   --site-warning: #f59e0b;
 
   // Elevation & Shadows
-  --site-shadow-sm: 0 4px 16px rgba(18, 51, 44, 0.05);
-  --site-shadow-md: 0 12px 36px rgba(18, 51, 44, 0.07);
-  --site-shadow-lg: 0 24px 70px rgba(18, 51, 44, 0.11);
+  --site-shadow-sm: 0 0.25rem 1rem rgba(18, 51, 44, 0.05);
+  --site-shadow-md: 0 0.75rem 2.25rem rgba(18, 51, 44, 0.07);
+  --site-shadow-lg: 0 1.5rem 70px rgba(18, 51, 44, 0.11);
   --site-shadow-glow: 0 0 35px rgba(191, 135, 74, 0.25);
 
   // Radii
@@ -81,13 +81,13 @@
   --site-font-family-en: 'Outfit', 'Readex Pro', system-ui, sans-serif;
   
   // Unified Typography Scale Bands (Canonical System Standard)
-  --site-font-xs: 0.75rem;     // 12px - Band 1: Helpers, meta dates, badges, sub-labels
+  --site-font-xs: 0.75rem;     // 0.75rem - Band 1: Helpers, meta dates, badges, sub-labels
   --site-font-sm: 0.8125rem;   // 13px - Band 1 upper: Eyebrows, small badges
   --site-font-base: 0.9375rem; // 15px - Band 2: Body texts, inputs, standard buttons, links
-  --site-font-md: 1.05rem;     // 16px - 17px - Band 2/3 transition
+  --site-font-md: 1.05rem;     // 1rem - 17px - Band 2/3 transition
   --site-font-lg: 1.125rem;    // 18px - Band 3: Card headers (h5), sub-headings (h4)
-  --site-font-xl: 1.5rem;      // 24px - Band 4: Section titles (h3), modal headers
-  --site-font-2xl: 2rem;       // 32px - Band 5: Sub-hero, large section headers
+  --site-font-xl: 1.5rem;      // 1.5rem - Band 4: Section titles (h3), modal headers
+  --site-font-2xl: 2rem;       // 2rem - Band 5: Sub-hero, large section headers
   --site-font-hero: clamp(2.35rem, 4.8vw, 3.85rem); // Band 5 display
 
   // Transition speed

@@ -1,71 +1,83 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
+
 <head>
     <meta charset="UTF-8">
     <title>تقرير متابعات العملاء</title>
     <style>
         body {
             font-family: 'Almarai', sans-serif;
-            font-size: 12px;
+            font-size: 0.75rem;
             margin: 0;
             padding: 0;
         }
+
         .header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 1.25rem;
             border-bottom: 1px solid #ddd;
             padding-bottom: 10px;
         }
+
         .filters {
             margin-bottom: 15px;
             font-size: 11px;
             color: #666;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
             direction: rtl;
         }
+
         th {
             background-color: #1F4E78;
             color: white;
             text-align: center;
-            padding: 8px;
+            padding: 0.5rem;
             font-weight: bold;
         }
+
         td {
-            padding: 6px 8px;
+            padding: 6px 0.5rem;
             text-align: right;
             border: 1px solid #ddd;
         }
+
         .text-center {
             text-align: center;
         }
+
         .text-left {
             text-align: left;
         }
+
         .stats-row {
             background-color: #f8f9fa;
             font-weight: bold;
         }
+
         .stats-row td {
             text-align: center;
             padding: 10px;
             color: #1F4E78;
         }
+
         .footer {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 1.25rem;
             font-size: 10px;
             color: #666;
         }
     </style>
 </head>
+
 <body>
     <div class="header">
         <h2>تقرير متابعات العملاء</h2>
         <div class="filters">
-            <strong>الفترة:</strong> {{ $dateRange }} | 
+            <strong>الفترة:</strong> {{ $dateRange }} |
             <strong>الفلاتر:</strong> {{ $appliedFilters }}
         </div>
     </div>
@@ -84,21 +96,21 @@
         </thead>
         <tbody>
             @foreach ($follows as $index => $follow)
-            <tr>
-                <td class="text-center">{{ $index + 1 }}</td>
-                <td>{{ $follow->customer->name ?? 'غير محدد' }}</td>
-                <td>{{ $follow->contactMethod->name ?? 'غير محدد' }}</td>
-                <td>{{ $follow->contactResult->name ?? 'غير محدد' }}</td>
-                <td>{{ $follow->customerStatus->name ?? 'غير محدد' }}</td>
-                <td>
-                    @if($follow->next_contact_datetime)
-                        {{ \Carbon\Carbon::parse($follow->next_contact_datetime)->format('Y-m-d H:i') }}
-                    @else
-                        غير محدد
-                    @endif
-                </td>
-                <td>{{ \Carbon\Carbon::parse($follow->created_at)->format('Y-m-d') }}</td>
-            </tr>
+                <tr>
+                    <td class="text-center">{{ $index + 1 }}</td>
+                    <td>{{ $follow->customer->name ?? 'غير محدد' }}</td>
+                    <td>{{ $follow->contactMethod->name ?? 'غير محدد' }}</td>
+                    <td>{{ $follow->contactResult->name ?? 'غير محدد' }}</td>
+                    <td>{{ $follow->customerStatus->name ?? 'غير محدد' }}</td>
+                    <td>
+                        @if ($follow->next_contact_datetime)
+                            {{ \Carbon\Carbon::parse($follow->next_contact_datetime)->format('Y-m-d H:i') }}
+                        @else
+                            غير محدد
+                        @endif
+                    </td>
+                    <td>{{ \Carbon\Carbon::parse($follow->created_at)->format('Y-m-d') }}</td>
+                </tr>
             @endforeach
         </tbody>
         <tfoot>
@@ -118,9 +130,10 @@
             </tr>
         </tfoot>
     </table>
-    
+
     <div class="footer">
         تم إنشاء التقرير بواسطة نظام إدارة العملاء - {{ \Carbon\Carbon::now()->format('Y-m-d H:i') }}
     </div>
 </body>
+
 </html>

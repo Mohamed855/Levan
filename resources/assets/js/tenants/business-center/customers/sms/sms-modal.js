@@ -349,7 +349,7 @@ const CustomerSMS = {
             #smsModal .variable-tags {
                 padding: 0.75rem;
                 background-color: #ffffff;
-                border-radius: 4px;
+                border-radius: 0.25rem;
                 border: 1px solid #e9ecef;
                 margin-top: 0.5rem;
             }

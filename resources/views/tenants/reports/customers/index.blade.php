@@ -134,7 +134,7 @@
                 <div class="card-body">
                     <div id="portfolioAmountChart"></div>
                     <div class="text-center mt-2 py-1 px-3 mx-auto"
-                        style="border: 1px dashed #4cc1bb; border-radius: 4px; background: rgba(76, 193, 187, 0.03); max-width: 220px;">
+                        style="border: 1px dashed #4cc1bb; border-radius: 0.25rem; background: rgba(76, 193, 187, 0.03); max-width: 220px;">
                         <small class="text-muted" style="font-size: 0.65rem;">إجمالي المديونية :</small>
                         <strong style="color: #4cc1bb; font-size: 0.85rem; margin-right: 5px;">
                             {{ number_format($total_portfolios_debt ?? 0, 2) }}
@@ -147,16 +147,9 @@
 
     <x-data-table.filters table="#customer-reports-table" reset-id="reset-filters">
         <div>
-            <label for="filter-date-from" class="form-label">من تاريخ</label>
-            <input type="date" id="filter-date-from" class="form-control" data-datatable-filter="true" data-filter-key="date_from" placeholder="اختر التاريخ">
-        </div>
-        <div>
-            <label for="filter-date-to" class="form-label">إلى تاريخ</label>
-            <input type="date" id="filter-date-to" class="form-control" data-datatable-filter="true" data-filter-key="date_to" placeholder="اختر التاريخ">
-        </div>
-        <div>
             <label for="filter-customer-status" class="form-label">حالة العميل</label>
-            <select id="filter-customer-status" class="form-control select2" data-datatable-filter="true" data-filter-key="customer_status_id" data-placeholder="جميع الحالات">
+            <select id="filter-customer-status" class="form-control select2" data-datatable-filter="true"
+                data-filter-key="customer_status_id" data-placeholder="جميع الحالات">
                 <option value=""></option>
                 @foreach ($customer_statuses as $status)
                     <option value="{{ $status->id }}">{{ $status->name }}</option>
@@ -165,7 +158,8 @@
         </div>
         <div>
             <label for="filter-customer-type" class="form-label">نوع العميل</label>
-            <select id="filter-customer-type" class="form-control select2" data-datatable-filter="true" data-filter-key="customer_type" data-placeholder="جميع الأنواع">
+            <select id="filter-customer-type" class="form-control select2" data-datatable-filter="true"
+                data-filter-key="customer_type" data-placeholder="جميع الأنواع">
                 <option value=""></option>
                 <x-form.controls.enum-options :enum="\App\Enums\Tenants\Customers\CustomerType::class" />
             </select>
@@ -173,7 +167,8 @@
 
         <div>
             <label for="filter-company" class="form-label">الشركة</label>
-            <select id="filter-company" class="form-control select2" data-datatable-filter="true" data-filter-key="company_id" data-placeholder="جميع الشركات">
+            <select id="filter-company" class="form-control select2" data-datatable-filter="true"
+                data-filter-key="company_id" data-placeholder="جميع الشركات">
                 <option value=""></option>
                 @foreach ($companies as $company)
                     <option value="{{ $company->id }}">{{ $company->name }}</option>
@@ -182,7 +177,8 @@
         </div>
         <div>
             <label for="filter-portfolio" class="form-label">المحفظة</label>
-            <select id="filter-portfolio" class="form-control select2" data-datatable-filter="true" data-filter-key="portfolio_id" data-placeholder="جميع المحافظ">
+            <select id="filter-portfolio" class="form-control select2" data-datatable-filter="true"
+                data-filter-key="portfolio_id" data-placeholder="جميع المحافظ">
                 <option value=""></option>
                 @foreach ($portfolios as $portfolio)
                     <option value="{{ $portfolio->id }}" data-company="{{ $portfolio->company_id }}">
@@ -192,7 +188,8 @@
         </div>
         <div>
             <label for="filter-nationality" class="form-label">الجنسية</label>
-            <select id="filter-nationality" class="form-control select2" data-datatable-filter="true" data-filter-key="nationality" data-placeholder="جميع الجنسيات">
+            <select id="filter-nationality" class="form-control select2" data-datatable-filter="true"
+                data-filter-key="nationality" data-placeholder="جميع الجنسيات">
                 <option value=""></option>
                 @foreach ($countries as $country)
                     <option value="{{ $country->id }}">{{ $country->name }}</option>
@@ -202,8 +199,8 @@
 
         <div>
             <label for="filter-manager" class="form-label">مسؤول العلاقة</label>
-            <select id="filter-manager" class="form-control select2-multiple" multiple data-datatable-filter="true" data-filter-key="relationship_manager_id"
-                data-placeholder="اختر المسؤولين">
+            <select id="filter-manager" class="form-control select2-multiple" multiple data-datatable-filter="true"
+                data-filter-key="relationship_manager_id" data-placeholder="اختر المسؤولين">
                 @foreach ($users as $user)
                     <option value="{{ $user->id }}">{{ $user->name }}</option>
                 @endforeach
@@ -211,22 +208,14 @@
         </div>
         <div>
             <label for="filter-contact-result" class="form-label">نتيجة الاتصال</label>
-            <select id="filter-contact-result" class="form-control select2-multiple" multiple data-datatable-filter="true" data-filter-key="contact_result_id"
-                data-placeholder="اختر نتائج الاتصال">
+            <select id="filter-contact-result" class="form-control select2-multiple" multiple
+                data-datatable-filter="true" data-filter-key="contact_result_id" data-placeholder="اختر نتائج الاتصال">
                 @foreach ($contact_results as $result)
                     <option value="{{ $result->id }}">{{ $result->name }}</option>
                 @endforeach
             </select>
         </div>
 
-        <div>
-            <label for="filter-debt-from" class="form-label">مديونية من</label>
-            <input type="number" id="filter-debt-from" class="form-control" data-datatable-filter="true" data-filter-key="debt_from" placeholder="0" step="0.01">
-        </div>
-        <div>
-            <label for="filter-debt-to" class="form-label">مديونية إلى</label>
-            <input type="number" id="filter-debt-to" class="form-control" data-datatable-filter="true" data-filter-key="debt_to" placeholder="0" step="0.01">
-        </div>
     </x-data-table.filters>
 
     <div class="card">

@@ -1,10 +1,10 @@
     /* تحسين تصميم الحقول */
     .field-badge {
-      padding: 6px 12px;
-      border-radius: 20px;
+      padding: 6px 0.75rem;
+      border-radius: 1.25rem;
       font-size: 0.75rem;
       font-weight: 500;
-      margin: 2px 4px 2px 0;
+      margin: 2px 0.25rem 2px 0;
       display: inline-block;
       border: 1px solid transparent;
       transition: all 0.2s ease;
@@ -44,7 +44,7 @@
     #file-upload-area:hover {
       border-color: #696cff !important;
       background: linear-gradient(135deg, #f0f0ff, #fafaff) !important;
-      box-shadow: 0 4px 12px rgba(105, 108, 255, 0.1);
+      box-shadow: 0 0.25rem 0.75rem rgba(105, 108, 255, 0.1);
     }
 
     #file-upload-area.dragover {
@@ -64,7 +64,7 @@
       font-weight: 600;
       color: #495057;
       border-bottom: 2px solid #dee2e6;
-      padding: 8px 10px;
+      padding: 0.5rem 10px;
       white-space: nowrap;
     }
 
@@ -86,43 +86,43 @@
     .result-success {
       background: linear-gradient(135deg, #f0fff4, #f8fff9);
       border: 1px solid #d4edda;
-      border-radius: 12px;
-      padding: 20px;
+      border-radius: 0.75rem;
+      padding: 1.25rem;
       margin-bottom: 15px;
-      box-shadow: 0 2px 8px rgba(40, 167, 69, 0.1);
+      box-shadow: 0 2px 0.5rem rgba(40, 167, 69, 0.1);
     }
 
     .result-warning {
       background: linear-gradient(135deg, #fffbf0, #fefdf8);
       border: 1px solid #ffeaa7;
-      border-radius: 12px;
-      padding: 20px;
+      border-radius: 0.75rem;
+      padding: 1.25rem;
       margin-bottom: 15px;
-      box-shadow: 0 2px 8px rgba(255, 193, 7, 0.1);
+      box-shadow: 0 2px 0.5rem rgba(255, 193, 7, 0.1);
     }
 
     .result-error {
       background: linear-gradient(135deg, #fff5f5, #fef8f8);
       border: 1px solid #f5c6cb;
-      border-radius: 12px;
-      padding: 20px;
+      border-radius: 0.75rem;
+      padding: 1.25rem;
       margin-bottom: 15px;
-      box-shadow: 0 2px 8px rgba(220, 53, 69, 0.1);
+      box-shadow: 0 2px 0.5rem rgba(220, 53, 69, 0.1);
     }
 
     /* تحسين البطاقات */
     .card {
-      border-radius: 12px;
+      border-radius: 0.75rem;
       transition: all 0.3s ease;
     }
 
     .card-header {
-      border-radius: 12px 12px 0 0 !important;
+      border-radius: 0.75rem 0.75rem 0 0 !important;
     }
 
     /* تحسين الأزرار */
     .btn {
-      border-radius: 8px;
+      border-radius: 0.5rem;
       font-weight: 500;
       transition: all 0.2s ease;
     }
@@ -132,25 +132,25 @@
     #import-progress .progress {
       height: 35px !important;
       /* زيادة ارتفاع شريط التقدم */
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 0.25rem rgba(0, 0, 0, 0.1);
       background-color: #f8f9fa;
     }
 
     #import-progress .progress-bar {
-      font-size: 16px !important;
+      font-size: 1rem !important;
       /* زيادة حجم النص */
       font-weight: 600;
       line-height: 35px;
       /* محاذاة النص مع الارتفاع الجديد */
-      border-radius: 8px;
+      border-radius: 0.5rem;
       transition: width 0.3s ease;
     }
 
     /* تحسين مظهر منطقة التقدم */
     #import-progress {
-      margin: 20px 0;
-      padding: 20px;
+      margin: 1.25rem 0;
+      padding: 1.25rem;
       background: #f8f9fa;
       border-radius: 10px;
       border: 1px solid #e9ecef;

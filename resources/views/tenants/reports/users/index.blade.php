@@ -149,17 +149,6 @@
             </select>
         </div>
 
-        <div>
-            <label for="date_from">من تاريخ</label>
-            <input type="text" id="date_from" name="date_from" class="form-control flatpickr-date"
-                data-datatable-filter="true" data-filter-key="date_from" placeholder="اختر التاريخ">
-        </div>
-
-        <div>
-            <label for="date_to">إلى تاريخ</label>
-            <input type="text" id="date_to" name="date_to" class="form-control flatpickr-date"
-                data-datatable-filter="true" data-filter-key="date_to" placeholder="اختر التاريخ">
-        </div>
     </x-data-table.filters>
 
     <div class="card" id="card-users-report">

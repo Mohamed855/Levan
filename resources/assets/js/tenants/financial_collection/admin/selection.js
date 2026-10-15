@@ -459,9 +459,7 @@ getSelectedIds() {
             payment_method_id: $('#filter-payment-method').val() || '',
             collection_type: $('#filter-collection-type').val() || '',
             payment_type: $('#filter-payment-type').val() || '',
-            added_by: $('#filter-added-by').val() || '',
-            date_from: $('#filter-date-from').val() || '',
-            date_to: $('#filter-date-to').val() || ''
+            added_by: $('#filter-added-by').val() || ''
         };
     },
 

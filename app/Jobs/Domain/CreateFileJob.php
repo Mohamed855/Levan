@@ -85,7 +85,7 @@ class CreateFileJob implements ShouldQueue
         }
         p {
             font-size: 1.2em;
-            margin-top: 20px;
+            margin-top: 1.25rem;
         }
     </style>
 </head>

@@ -60,8 +60,6 @@ function initializeDataTable() {
             data: function (d) {
                 // الفلاتر الخاصة بتقارير المستخدمين
                 d.status = $('#status').val();
-                d.date_from = $('#date_from').val();
-                d.date_to = $('#date_to').val();
             }
         },
         columns: getTableColumns(),
@@ -322,7 +320,6 @@ function bindEvents() {
 |--------------------------------------------------------------------------
 */
 function resetFilters() {
-    $('#date_from, #date_to').val('');
     $('.select2').val('').trigger('change');
 
     usersReportTable.ajax.reload();
@@ -382,9 +379,7 @@ function exportUsersReportToPDF() {
 */
 function getCurrentFilters() {
     return {
-        status: $('#status').val(),
-        date_from: $('#date_from').val(),
-        date_to: $('#date_to').val()
+        status: $('#status').val()
     };
 }
 

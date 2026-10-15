@@ -39,7 +39,7 @@
     max-height: 350px;
     overflow-y: auto;
     z-index: 1020;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.12);
 }
 
 .search-result-item {

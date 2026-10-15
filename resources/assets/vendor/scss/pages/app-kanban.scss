@@ -107,7 +107,7 @@ $kanban-add-new-board-padding: 1rem;
             }
           }
           &:hover {
-            box-shadow: rgba(0, 0, 0, 0.1) 0 4px 20px 0;
+            box-shadow: rgba(0, 0, 0, 0.1) 0 0.25rem 1.25rem 0;
             .kanban-tasks-item-dropdown {
               display: block;
             }
@@ -177,7 +177,7 @@ $kanban-add-new-board-padding: 1rem;
   }
 }
 .kanban-board.is-moving.gu-mirror .kanban-drag {
-  padding-right: 20px;
+  padding-right: 1.25rem;
   width: 100%;
 }
 

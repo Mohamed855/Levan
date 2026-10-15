@@ -44,14 +44,16 @@
                 </div>
 
                 <form action="{{ tenant_route_name('tickets.survey.submit', $ticket->ticket_number) }}" method="POST"
-                    novalidate data-form-validate data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
+                    novalidate data-form-validate
+                    data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                     @csrf
 
                     <div class="modal-body text-center">
                         <p class="mb-3 fw-bold fs-5">
                             شاركنا تجربتك! هل تم حل مشكلتك بنجاح؟
                         </p>
-                        <div class="d-flex justify-content-center gap-3 mb-4 choice-buttons" data-form-field data-field-name="solved">
+                        <div class="d-flex justify-content-center gap-3 mb-4 choice-buttons" data-form-field
+                            data-field-name="solved">
                             <input type="radio" class="btn-check" name="solved" id="solvedYes" value="1"
                                 autocomplete="off" required data-form-control {{ old('solved') == '1' ? 'checked' : '' }}>
                             <label class="btn btn-outline-success" for="solvedYes">
@@ -72,7 +74,8 @@
                                 <div class="my-4">
                                     <label class="form-label d-block mb-2 fw-semibold">{{ $label }}</label>
 
-                                    <input type="hidden" name="{{ $field }}" value="{{ old($field) }}" data-validation-skip />
+                                    <input type="hidden" name="{{ $field }}" value="{{ old($field) }}"
+                                        data-validation-skip />
 
                                     <div class="d-flex justify-content-center">
                                         <div class="survey-stars" data-target="{{ $field }}">
@@ -87,7 +90,8 @@
 
                         <hr class="my-4">
                         <div class="mt-3">
-                            <textarea name="comment" class="form-control" data-form-control rows="3" placeholder="شاركنا رأيك أو أي ملاحظات لديك...">{{ old('comment') }}</textarea>
+                            <textarea name="comment" class="form-control" data-form-control rows="3"
+                                placeholder="شاركنا رأيك أو أي ملاحظات لديك...">{{ old('comment') }}</textarea>
                         </div>
                     </div>
 
@@ -289,14 +293,14 @@
                                 <label class="form-label fw-bold" for="replyMessage">إضافة رد على التذكرة:</label>
                                 <div class="position-relative border rounded @error('message') border-danger @enderror"
                                     style="background-color: var(--bs-paper-bg, var(--bs-card-bg, #fff));">
-                                    <textarea class="form-control border-0 shadow-none" id="replyMessage" name="message" data-form-control rows="4"
-                                        placeholder="اكتب ردك هنا..."
-                                        style="resize: vertical; min-height: 140px; margin-bottom: 48px; background: transparent;" required>{{ old('message') }}</textarea>
+                                    <textarea class="form-control border-0 shadow-none" id="replyMessage" name="message" data-form-control
+                                        rows="4" placeholder="اكتب ردك هنا..."
+                                        style="resize: vertical; min-height: 140px; margin-bottom: 3rem; background: transparent;" required>{{ old('message') }}</textarea>
 
                                     {{-- شريط المرفقات المدمج داخل الـ textarea --}}
                                     <div class="position-absolute bottom-0 start-0 end-0 px-3 py-2 border-top d-flex justify-content-between align-items-center rounded-bottom"
                                         dir="rtl"
-                                        style="z-index: 5; height: 48px; background-color: var(--bs-paper-bg, var(--bs-card-bg, #fff));">
+                                        style="z-index: 5; height: 3rem; background-color: var(--bs-paper-bg, var(--bs-card-bg, #fff));">
                                         {{-- النص ع اليمين --}}
                                         <div id="attachment-status-container" class="d-flex align-items-center">
                                             <span id="attachment-status-text"
@@ -310,8 +314,8 @@
 
                                         {{-- الـ icon ع الشمال --}}
                                         <div class="d-flex align-items-center">
-                                            <input type="file" id="attachments" name="attachments[]" data-form-control multiple
-                                                class="d-none" accept="image/*,application/pdf,.doc,.docx">
+                                            <input type="file" id="attachments" name="attachments[]" data-form-control
+                                                multiple class="d-none" accept="image/*,application/pdf,.doc,.docx">
                                             <button type="button" id="btn-trigger-attachments"
                                                 class="btn btn-icon mb-0 cursor-pointer" title="إرفاق ملفات">
                                                 <i class="ti ti-paperclip fs-5"></i>

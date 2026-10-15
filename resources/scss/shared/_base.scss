@@ -163,9 +163,10 @@ body {
 }
 
 code {
+    color: var(--primary-color) !important;
     letter-spacing: 1px;
     padding: 2px 6px;
-    border-radius: 4px;
+    border-radius: 0.25rem;
     font-size: 0.9em;
 }
 
@@ -174,13 +175,112 @@ code {
     color: var(--primary-color);
 }
 
+// Dashboard Navbar Border Radius Contract
+.layout-navbar,
+.navbar-detached {
+    border-radius: 0.75rem !important;
+}
+
+// Global Search Seamless Replacement (within navbar)
+.layout-navbar {
+    .search-input-wrapper {
+        position: absolute !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        z-index: 10 !important;
+        border-radius: 0.75rem !important;
+        background-color: var(--bs-card-bg, #fff) !important;
+        display: flex;
+        align-items: center;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+
+        &.d-none {
+            display: none !important;
+        }
+
+        .twitter-typeahead {
+            position: absolute !important;
+            top: 0 !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 0.75rem !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        .search-input,
+        input.search-input,
+        .form-control.search-input {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100% !important;
+            min-height: 100% !important;
+            max-height: 100% !important;
+            line-height: normal !important;
+            margin: 0 !important;
+            border: none !important;
+            border-width: 0 !important;
+            border-radius: 0.75rem !important;
+            background-color: transparent !important;
+            box-shadow: none !important;
+            outline: none !important;
+            font-size: 0.95rem;
+            color: var(--brand-dark-green, #12332C);
+            padding-inline-start: 1.5rem !important;
+            padding-inline-end: 3.5rem !important;
+
+            &:focus,
+            &:active,
+            &:hover,
+            &:focus-visible {
+                border: none !important;
+                border-width: 0 !important;
+                border-color: transparent !important;
+                outline: none !important;
+                outline-offset: 0 !important;
+                box-shadow: none !important;
+            }
+        }
+
+        .search-toggler {
+            position: absolute !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            inset-inline-end: 1.25rem !important;
+            inset-inline-start: auto !important;
+            z-index: 12 !important;
+            cursor: pointer;
+            font-size: 1.35rem;
+            color: var(--brand-dark-green, #12332C);
+            opacity: 0.65;
+            transition: opacity 0.15s ease;
+
+            &:hover {
+                opacity: 1;
+            }
+        }
+    }
+}
+
 // =============================================================================
 // Unified Typography Scale Contract
-// Band 1: 11px - 13px -> 12px (0.75rem)
-// Band 2: 14px - 16px -> 15px (0.9375rem)
-// Band 3: 17px - 24px -> 18px (1.125rem)
-// Band 4: 25px - 28px -> 24px (1.5rem)
-// Band 5: > 28px      -> Unchanged (h2: 38px, h1: 46px)
+// Band 1: 11px - 13px -> 0.75rem (0.75rem)
+// Band 2: 14px - 1rem -> 15px (0.9375rem)
+// Band 3: 17px - 1.5rem -> 18px (1.125rem)
+// Band 4: 25px - 1.75rem -> 1.5rem (1.5rem)
+// Band 5: > 1.75rem      -> Unchanged (h2: 38px, h1: 46px)
 // Note: Icons ([class*="ti-"], .menu-icon, svg, etc.) are strictly excluded.
 // =============================================================================
 :where(small, .text-sm, .text-xs, .form-text, .badge:not(.badge-lg)) {

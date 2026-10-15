@@ -32,9 +32,8 @@
 
                 <div class="background-image-container"
                     style="position: relative; width: 100%; height: 100%; overflow: hidden;">
-                    <img src="{{ asset('static/dashboard/backgrounds/cta-bg-light3.png') }}"
-                        alt="صورة الغلاف" class="rounded-top"
-                        style="width: 100%; height: 143px !important; object-fit: cover;">
+                    <img src="{{ asset('static/dashboard/backgrounds/cta-bg-light3.png') }}" alt="صورة الغلاف"
+                        class="rounded-top" style="width: 100%; height: 143px !important; object-fit: cover;">
                 </div>
                 <div class="user-profile-header d-flex flex-column flex-lg-row text-sm-start text-center mb-5">
                     <div class="profile-image-container mt-n5 mx-sm-0 mx-auto"
@@ -194,7 +193,7 @@
                                     @endphp
 
                                     <div class="card mb-3 border border-2 {{ $coupon->is_active && !$isExpired && !$isExhausted ? 'border-primary' : 'border-secondary' }}"
-                                        style="border-radius: 12px; overflow: hidden;">
+                                        style="border-radius: 0.75rem; overflow: hidden;">
                                         <div class="card-body p-4">
                                             <!-- الصف الأول: العنوان والحالة -->
                                             <div class="d-flex justify-content-between align-items-start mb-3">

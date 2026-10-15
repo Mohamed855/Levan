@@ -204,15 +204,6 @@
             />
         </div>
 
-        <div>
-            <label for="filter-date-from" class="form-label">من تاريخ</label>
-            <input type="date" id="filter-date-from" class="form-control" placeholder="اختر التاريخ" data-filter-key="date_from" data-datatable-filter="true" data-datatable-target="#collections-table">
-        </div>
-
-        <div>
-            <label for="filter-date-to" class="form-label">إلى تاريخ</label>
-            <input type="date" id="filter-date-to" class="form-control" placeholder="اختر التاريخ" data-filter-key="date_to" data-datatable-filter="true" data-datatable-target="#collections-table">
-        </div>
     </x-data-table.filters>
 
     <div class="card">

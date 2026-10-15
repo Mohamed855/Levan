@@ -202,7 +202,7 @@
 }
 
 .ti-12px, .ti-12px:before {
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 
 .ti-14px, .ti-14px:before {
@@ -210,7 +210,7 @@
 }
 
 .ti-16px, .ti-16px:before {
-  font-size: 16px;
+  font-size: 1rem;
 }
 
 .ti-18px, .ti-18px:before {
@@ -218,7 +218,7 @@
 }
 
 .ti-20px, .ti-20px:before {
-  font-size: 20px;
+  font-size: 1.25rem;
 }
 
 .ti-22px, .ti-22px:before {
@@ -226,7 +226,7 @@
 }
 
 .ti-24px, .ti-24px:before {
-  font-size: 24px;
+  font-size: 1.5rem;
 }
 
 .ti-26px, .ti-26px:before {
@@ -234,7 +234,7 @@
 }
 
 .ti-28px, .ti-28px:before {
-  font-size: 28px;
+  font-size: 1.75rem;
 }
 
 .ti-30px, .ti-30px:before {
@@ -242,15 +242,15 @@
 }
 
 .ti-32px, .ti-32px:before {
-  font-size: 32px;
+  font-size: 2rem;
 }
 
 .ti-36px, .ti-36px:before {
-  font-size: 36px;
+  font-size: 2.25rem;
 }
 
 .ti-40px, .ti-40px:before {
-  font-size: 40px;
+  font-size: 2.5rem;
 }
 
 .ti-42px, .ti-42px:before {
@@ -258,7 +258,7 @@
 }
 
 .ti-48px, .ti-48px:before {
-  font-size: 48px;
+  font-size: 3rem;
 }
 
 .ti-a-b:before {

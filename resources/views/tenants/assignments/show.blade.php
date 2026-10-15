@@ -13,7 +13,7 @@
                 <i class="ti ti-file-certificate me-2 text-primary"></i>تفاصيل الإسناد: {{ $assignment->name }}
             </h4>
             <div class="d-flex align-items-center gap-2">
-                <code class="copyable-code fs-6" style="cursor: pointer;"
+                <code class="copyable-code fs-6"
                     onclick="navigator.clipboard.writeText('{{ $assignment->assignment_number }}'); toastr.success('تم نسخ الرقم');">
                     {{ $assignment->assignment_number }}
                 </code>

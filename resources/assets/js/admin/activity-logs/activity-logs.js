@@ -49,8 +49,6 @@ function initializeDataTable() {
             data: function (d) {
                 d.user_id = $('#filter-user').val();
                 d.log_name = $('#filter-log-name').val();
-                d.date_from = $('#filter-date-from').val();
-                d.date_to = $('#filter-date-to').val();
             }
         },
         columns: getTableColumns(),

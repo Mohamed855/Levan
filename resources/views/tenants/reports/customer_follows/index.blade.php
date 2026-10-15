@@ -207,22 +207,6 @@
             </select>
         </div>
 
-        <div>
-            <label for="filter-date-from" class="form-label">من تاريخ</label>
-            <input type="date" id="filter-date-from" class="form-control" data-datatable-filter="true" data-filter-key="date_from" placeholder="اختر التاريخ">
-        </div>
-        <div>
-            <label for="filter-date-to" class="form-label">إلى تاريخ</label>
-            <input type="date" id="filter-date-to" class="form-control" data-datatable-filter="true" data-filter-key="date_to" placeholder="اختر التاريخ">
-        </div>
-        <div>
-            <label for="filter-next-contact-from" class="form-label">اتصال قادم من</label>
-            <input type="date" id="filter-next-contact-from" class="form-control" data-datatable-filter="true" data-filter-key="next_contact_from" placeholder="اختر التاريخ">
-        </div>
-        <div>
-            <label for="filter-next-contact-to" class="form-label">اتصال قادم إلى</label>
-            <input type="date" id="filter-next-contact-to" class="form-control" data-datatable-filter="true" data-filter-key="next_contact_to" placeholder="اختر التاريخ">
-        </div>
 
         <div>
             <label for="filter-customer" class="form-label">العميل</label>

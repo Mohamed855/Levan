@@ -80,14 +80,14 @@ function createDayRow(day, index) {
         `;
 
         timelineHtml = `
-            <div style="position: relative; width: 100%; height: 24px; background: #f8f8f8; border-radius: 4px; overflow: hidden;">
+            <div style="position: relative; width: 100%; height: 1.5rem; background: #f8f8f8; border-radius: 0.25rem; overflow: hidden;">
                 ${barsHtml}
             </div>
             ${timeAxisHtml}
         `;
     } else {
         timelineHtml = `
-            <div style="background: #fff9e6; color: #999; text-align: center; line-height: 24px; border-radius: 4px; font-size: 0.6875rem;">
+            <div style="background: #fff9e6; color: #999; text-align: center; line-height: 1.5rem; border-radius: 0.25rem; font-size: 0.6875rem;">
                 لا توجد فترات عمل
             </div>
         `;
@@ -104,7 +104,7 @@ function createDayRow(day, index) {
     `;
 
     return `
-        <div style="padding: 8px 16px; border-bottom: 1px solid #f5f5f5;">
+        <div style="padding: 0.5rem 1rem; border-bottom: 1px solid #f5f5f5;">
             <div class="row align-items-center g-2">
                 <div class="col-auto" style="min-width: 120px;">
                     <div class="d-flex align-items-center">

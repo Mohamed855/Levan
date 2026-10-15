@@ -57,7 +57,7 @@
                             <button type="button"
                                 class="btn btn-icon btn-primary rounded-circle position-absolute bottom-0 end-0 me-4 mb-1"
                                 data-bs-toggle="modal" data-bs-target="#changeProfileImageModal"
-                                style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;">
+                                style="width: 2rem; height: 2rem; padding: 0; display: flex; align-items: center; justify-content: center;">
                                 <i class="ti ti-pencil ti-14px"></i>
                             </button>
                         @endif
@@ -96,8 +96,10 @@
                             <h5 class="modal-title">تغيير الصورة الشخصية</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form id="changeProfileImageForm" method="POST" enctype="multipart/form-data" novalidate data-form-validate data-validation-submit="ajax"
-                            action="{{ tenant_route_name('users.update-image', $user->id) }}" data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
+                        <form id="changeProfileImageForm" method="POST" enctype="multipart/form-data" novalidate
+                            data-form-validate data-validation-submit="ajax"
+                            action="{{ tenant_route_name('users.update-image', $user->id) }}"
+                            data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                             @csrf
                             <div class="modal-body">
                                 <div class="text-center mb-4">
@@ -129,8 +131,10 @@
             <div class="modal fade" id="editBackgroundImageModal" tabindex="-1"
                 aria-labelledby="editBackgroundImageModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog">
-                    <form id="changeBackgroundImageForm" method="POST" enctype="multipart/form-data" novalidate data-form-validate data-validation-submit="ajax"
-                        action="{{ tenant_route_name('users.update-background', $user->id) }}" data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
+                    <form id="changeBackgroundImageForm" method="POST" enctype="multipart/form-data" novalidate
+                        data-form-validate data-validation-submit="ajax"
+                        action="{{ tenant_route_name('users.update-background', $user->id) }}"
+                        data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                         @csrf
                         <div class="modal-content">
                             <div class="modal-header pb-5">
@@ -172,24 +176,24 @@
                 <div class="col-md-12">
                     <div class="nav-align-top">
                         <ul class="nav nav-pills mb-4 gap-2"
-                            style="background: #fff; padding: 8px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+                            style="background: #fff; padding: 0.5rem; border-radius: 0.5rem; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
                             <li class="nav-item">
                                 <a class="nav-link active" data-bs-toggle="tab" href="#general_info_tab"
-                                    style="padding: 6px 16px; font-size: 0.8125rem; border-radius: 6px;">
+                                    style="padding: 6px 1rem; font-size: 0.8125rem; border-radius: 6px;">
                                     <i class="ti ti-user-check" style="font-size: 0.875rem;"></i>
                                     <span class="d-none d-sm-inline ms-1">البيانات الأساسية</span>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" data-bs-toggle="tab" href="#activity_tab"
-                                    style="padding: 6px 16px; font-size: 0.8125rem; border-radius: 6px;">
+                                    style="padding: 6px 1rem; font-size: 0.8125rem; border-radius: 6px;">
                                     <i class="ti ti-activity" style="font-size: 0.875rem;"></i>
                                     <span class="d-none d-sm-inline ms-1">النشاطات</span>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" data-bs-toggle="tab" href="#sessions_tab"
-                                    style="padding: 6px 16px; font-size: 0.8125rem; border-radius: 6px;">
+                                    style="padding: 6px 1rem; font-size: 0.8125rem; border-radius: 6px;">
                                     <i class="ti ti-clock" style="font-size: 0.875rem;"></i>
                                     <span class="d-none d-sm-inline ms-1">جلسات التحصيل</span>
                                 </a>
@@ -259,7 +263,7 @@
                                             <div class="fw-semibold" style="font-size: 0.875rem;">
                                                 {{ $user->phone ??
                                                     'غير
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            محدد' }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            محدد' }}
                                             </div>
                                         </div>
                                     </div>
@@ -459,57 +463,58 @@
                     });
             });
 
-            document.getElementById('changeBackgroundImageForm').addEventListener('formValidationPassed', function() {
+            document.getElementById('changeBackgroundImageForm').addEventListener('formValidationPassed',
+                function() {
 
-                const formData = new FormData(this);
-                const submitBtn = document.getElementById('submitBackgroundBtn');
-                const originalBtnHtml = submitBtn.innerHTML;
+                    const formData = new FormData(this);
+                    const submitBtn = document.getElementById('submitBackgroundBtn');
+                    const originalBtnHtml = submitBtn.innerHTML;
 
-                submitBtn.disabled = true;
-                submitBtn.innerHTML =
-                    '<span class="d-flex align-items-center"><span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>جاري الحفظ...</span>';
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML =
+                        '<span class="d-flex align-items-center"><span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>جاري الحفظ...</span>';
 
-                fetch(`{{ tenant_route_name('users.update-background', $user->id) }}`, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(response => {
-                        if (response.status === 422) {
-                            return response.json().then(data => {
-                                const errors = Object.values(data.errors).flat();
-                                toastr.error(errors[0], 'خطأ في التحقق');
-                                throw new Error('validation');
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            const modal = bootstrap.Modal.getInstance(document.getElementById(
-                                'editBackgroundImageModal'));
-                            modal.hide();
-                            document.querySelector('.background-image-container img').src = data
-                                .image_url + '?t=' + new Date().getTime();
-                            toastr.success('تم تحديث صورة الخلفية بنجاح', 'تم بنجاح');
-                            this.reset();
-                        } else {
-                            toastr.error(data.message || 'حدث خطأ أثناء تحديث الصورة', 'خطأ');
-                        }
-                    })
-                    .catch(error => {
-                        if (error.message !== 'validation') {
-                            toastr.error('حدث خطأ أثناء الاتصال بالخادم', 'خطأ');
-                        }
-                    })
-                    .finally(() => {
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = originalBtnHtml;
-                    });
-            });
+                    fetch(`{{ tenant_route_name('users.update-background', $user->id) }}`, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => {
+                            if (response.status === 422) {
+                                return response.json().then(data => {
+                                    const errors = Object.values(data.errors).flat();
+                                    toastr.error(errors[0], 'خطأ في التحقق');
+                                    throw new Error('validation');
+                                });
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                const modal = bootstrap.Modal.getInstance(document.getElementById(
+                                    'editBackgroundImageModal'));
+                                modal.hide();
+                                document.querySelector('.background-image-container img').src = data
+                                    .image_url + '?t=' + new Date().getTime();
+                                toastr.success('تم تحديث صورة الخلفية بنجاح', 'تم بنجاح');
+                                this.reset();
+                            } else {
+                                toastr.error(data.message || 'حدث خطأ أثناء تحديث الصورة', 'خطأ');
+                            }
+                        })
+                        .catch(error => {
+                            if (error.message !== 'validation') {
+                                toastr.error('حدث خطأ أثناء الاتصال بالخادم', 'خطأ');
+                            }
+                        })
+                        .finally(() => {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalBtnHtml;
+                        });
+                });
 
         });
     </script>

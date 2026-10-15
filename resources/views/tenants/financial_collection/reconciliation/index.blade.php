@@ -248,10 +248,10 @@
                             {{-- Progress Bar --}}
                             <div class="mb-4">
                                 <div class="card-body">
-                                    <div class="progress" style="height: 35px; border-radius: 8px;">
+                                    <div class="progress" style="height: 35px; border-radius: 0.5rem;">
                                         <div id="progress-bar"
                                             class="progress-bar bg-primary progress-bar-striped progress-bar-animated d-flex align-items-center justify-content-center"
-                                            role="progressbar" style="width: 0%; font-size: 16px; font-weight: 600;"
+                                            role="progressbar" style="width: 0%; font-size: 1rem; font-weight: 600;"
                                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                                             0%
                                         </div>

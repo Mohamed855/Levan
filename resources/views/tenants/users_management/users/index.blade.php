@@ -60,18 +60,18 @@
     <div id="top_card" class="row g-4 mb-4">
         <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين" :value="$totalUsers" subtitle="إجمالي المستخدمين"
             icon="ti-users" color="primary" />
-        <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين النشطين" :value="$activeUsers"
-            subtitle="المستخدمين النشطين" icon="ti-user-check" color="success" />
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين النشطين" :value="$activeUsers" subtitle="المستخدمين النشطين"
+            icon="ti-user-check" color="success" />
         <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين غير النشطين" :value="$inactiveUsers"
             subtitle="المستخدمين غير النشطين" icon="ti-user-off" color="danger" />
         <x-ui.stat-card col="col-sm-6 col-xl-3" title="التراخيص" :value="($subscription_formatted['used_users'] ?? 0) . ' / ' . ($subscription_formatted['total_users'] ?? 0)" :subtitle="'متبقي ' .
             (($subscription_formatted['total_users'] ?? 0) - ($subscription_formatted['used_users'] ?? 0)) .
-            ' ترخيص'"
-            icon="ti-license" color="primary" valueClass="badge bg-label-primary rounded-pill">
+            ' ترخيص'" icon="ti-license"
+            color="primary" valueClass="badge bg-label-primary rounded-pill">
             <div class="text-end">
                 {{ $subscription_formatted['total_users'] > 0 ? round(($subscription_formatted['used_users'] / $subscription_formatted['total_users']) * 100) : 0 }}%
             </div>
-            <div class="progress" style="height: 8px;">
+            <div class="progress" style="height: 0.5rem;">
                 <div class="progress-bar bg-primary" role="progressbar"
                     style="width: {{ $subscription_formatted['total_users'] > 0 ? ($subscription_formatted['used_users'] / $subscription_formatted['total_users']) * 100 : 0 }}%"
                     aria-valuenow="{{ $subscription_formatted['used_users'] ?? 0 }}" aria-valuemin="0"
@@ -86,7 +86,8 @@
     <x-data-table.filters table="#users-table" reset-id="btn-reset-filters">
         <div>
             <label class="form-label" for="filter-status">حالة المستخدم</label>
-            <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر حالة المستخدم">
+            <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status"
+                data-placeholder="اختر حالة المستخدم">
                 <option value=""></option>
                 <x-form.controls.enum-options :enum="\App\Enums\Shared\ActivityStatus::class" />
             </select>
@@ -94,7 +95,8 @@
 
         <div>
             <label class="form-label" for="filter-role">دور المستخدم</label>
-            <select id="filter-role" class="form-control select2" data-datatable-filter="true" data-filter-key="role" data-placeholder="اختر الدور">
+            <select id="filter-role" class="form-control select2" data-datatable-filter="true" data-filter-key="role"
+                data-placeholder="اختر الدور">
                 <option value=""></option>
                 @foreach ($roles as $role)
                     <option value="{{ $role->id }}">{{ $role->name }}</option>

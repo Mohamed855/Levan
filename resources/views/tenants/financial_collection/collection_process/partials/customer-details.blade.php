@@ -6,7 +6,7 @@
                 <div class="avatar" style="width: 50px; height: 50px;">
                     <div
                         class="avatar-initial bg-primary rounded-circle d-flex align-items-center justify-content-center">
-                        <i class="ti ti-user" style="font-size: 24px; color: white;"></i>
+                        <i class="ti ti-user" style="font-size: 1.5rem; color: white;"></i>
                     </div>
                 </div>
             </div>
@@ -49,7 +49,7 @@
     <div class="card border mb-3" style="box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
         <div class="card-body p-2">
             <h6 class="card-title mb-2 d-flex align-items-center" style="font-size: 0.9rem;">
-                <i class="ti ti-chart-bar me-2" style="font-size: 16px;"></i>الملخص المالي الشامل - جميع الحسابات
+                <i class="ti ti-chart-bar me-2" style="font-size: 1rem;"></i>الملخص المالي الشامل - جميع الحسابات
             </h6>
             <div class="mb-2 border-dashed border-1 border-light"></div>
 
@@ -139,8 +139,8 @@
                 {{-- Left side --}}
                 <div class="d-flex align-items-center gap-2">
                     <div class="d-flex align-items-center justify-content-center rounded-circle"
-                        style="width: 32px; height: 32px; background-color: #4cc1bb;">
-                        <i class="ti ti-credit-card text-white" style="font-size: 16px;"></i>
+                        style="width: 2rem; height: 2rem; background-color: #4cc1bb;">
+                        <i class="ti ti-credit-card text-white" style="font-size: 1rem;"></i>
                     </div>
 
                     <div>
@@ -163,7 +163,7 @@
                         <div class="text-muted d-flex align-items-center justify-content-end gap-2"
                             style="font-size: 0.75rem;">
                             <span class="d-flex align-items-center gap-1">
-                                <i class="ti ti-building" style="font-size: 12px;"></i>
+                                <i class="ti ti-building" style="font-size: 0.75rem;"></i>
                                 {{ $account->company->name }}
                             </span>
                             <span style="color: #dee2e6;">|</span>
@@ -193,7 +193,7 @@
                                     @if ($account->company->logo_url)
                                         <img src="{{ tasset($account->company->logo_url) }}"
                                             alt="{{ $account->company->name }}"
-                                            style="width: 32px; height: 32px; object-fit: contain; border-radius: 4px; margin-bottom: 8px;">
+                                            style="width: 2rem; height: 2rem; object-fit: contain; border-radius: 0.25rem; margin-bottom: 0.5rem;">
                                     @endif
                                     <div class="fw-medium" style="font-size: 0.85rem;">{{ $account->company->name }}
                                     </div>
@@ -209,7 +209,7 @@
                                     @if ($account->company->logo_url)
                                         <img src="{{ tasset($account->company->logo_url) }}"
                                             alt="{{ $account->company->name }}"
-                                            style="width: 32px; height: 32px; object-fit: contain; border-radius: 4px; margin-bottom: 8px;">
+                                            style="width: 2rem; height: 2rem; object-fit: contain; border-radius: 0.25rem; margin-bottom: 0.5rem;">
                                     @endif
                                     <div class="fw-medium" style="font-size: 0.85rem;">
                                         {{ $account->portfolio->name }}</div>
@@ -227,7 +227,7 @@
                                         <div class="fw-medium" style="font-size: 0.85rem;">
                                             {{ $account->contract_date ??
                                                 'غير
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                محدد' }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        محدد' }}
                                         </div>
                                     </div>
                                 </div>
@@ -239,7 +239,7 @@
                     <div class="card border mb-3" style="box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
                         <div class="card-body p-2">
                             <h6 class="card-title mb-2 d-flex align-items-center" style="font-size: 0.9rem;">
-                                <i class="ti ti-calculator me-2" style="font-size: 16px;"></i>الإحصائيات المالية
+                                <i class="ti ti-calculator me-2" style="font-size: 1rem;"></i>الإحصائيات المالية
                             </h6>
                             <div class="mb-2 border-dashed border-1 border-light"></div>
                             <div class="table-responsive">
@@ -287,7 +287,7 @@
                                                     {{ $account->default_date
                                                         ? \Carbon\Carbon::parse($account->default_date)->format('Y-m-d')
                                                         : 'لا
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    يوجد' }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            يوجد' }}
                                                 </span>
                                             </td>
                                             <td class="py-2">
@@ -311,9 +311,9 @@
                                 data-bs-target="#{{ $fieldsCollapseId }}">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h6 class="mb-0 fw-semibold" style="font-size: 0.9rem;">
-                                        <i class="ti ti-settings me-2" style="font-size: 16px;"></i>الحقول الإضافية
+                                        <i class="ti ti-settings me-2" style="font-size: 1rem;"></i>الحقول الإضافية
                                     </h6>
-                                    <i class="ti ti-chevron-down collapse-icon" style="font-size: 16px;"></i>
+                                    <i class="ti ti-chevron-down collapse-icon" style="font-size: 1rem;"></i>
                                 </div>
                             </div>
                             <div class="collapse" id="{{ $fieldsCollapseId }}">
@@ -354,7 +354,7 @@
             {{-- العنوان + زر الإضافة (مع نفس الشكل المرجعي) --}}
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <h6 class="card-title mb-0 d-flex align-items-center" style="font-size: 0.9rem;">
-                    <i class="ti ti-phone me-2" style="font-size: 16px; color: #4cc1bb;"></i>
+                    <i class="ti ti-phone me-2" style="font-size: 1rem; color: #4cc1bb;"></i>
                     أرقام الهاتف
                 </h6>
                 @can('customers.add_phone')
@@ -475,7 +475,7 @@
 
         <div class="card-header py-2">
             <h6 class="mb-0 fw-semibold" style="font-size: 0.9rem;">
-                <i class="ti ti-notes me-2" style="font-size: 16px; color: #4cc1bb;"></i>اخر 5 ملاحظات على العميل
+                <i class="ti ti-notes me-2" style="font-size: 1rem; color: #4cc1bb;"></i>اخر 5 ملاحظات على العميل
             </h6>
         </div>
         <div class="mb-2 border-dashed border-1 border-light"></div>
@@ -501,7 +501,7 @@
         <div class="card border mb-3" style="box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
             <div class="card-header py-2">
                 <h6 class="mb-0 fw-semibold" style="font-size: 0.9rem;">
-                    <i class="bx bx-history me-2" style="font-size: 16px;"></i>آخر متابعة
+                    <i class="bx bx-history me-2" style="font-size: 1rem;"></i>آخر متابعة
                 </h6>
             </div>
             <div class="mb-2 border-dashed border-1 border-light"></div>
@@ -537,7 +537,7 @@
                             <button type="button" class="btn btn-sm position-absolute top-0 end-0 m-1"
                                 onclick="copyNoteToClipboard(this, {{ json_encode($lastFollow->notes) }})"
                                 title="نسخ الملاحظة"
-                                style="width: 32px; height: 32px; border-radius: 50%; padding: 0; background-color: #f8f9fa; border: 1px solid #dee2e6; transition: all 0.2s;">
+                                style="width: 2rem; height: 2rem; border-radius: 50%; padding: 0; background-color: #f8f9fa; border: 1px solid #dee2e6; transition: all 0.2s;">
                                 <i class="ti ti-copy" style="font-size: 14px; color: #6c757d;"></i>
                             </button>
                         </div>
@@ -598,7 +598,7 @@
         <div class="card border" style="box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
             <div class="card-header py-2">
                 <h6 class="mb-0 fw-semibold" style="font-size: 0.9rem;">
-                    <i class="bx bx-list-ul me-2" style="font-size: 16px;"></i>سجل المتابعات الأخيرة
+                    <i class="bx bx-list-ul me-2" style="font-size: 1rem;"></i>سجل المتابعات الأخيرة
                 </h6>
             </div>
             <div class="mb-2 border-dashed border-1 border-light"></div>

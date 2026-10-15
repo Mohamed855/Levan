@@ -23,12 +23,12 @@
         background-color: rgba-to-hex(rgba($primary, 0.85), $rgba-to-hex-bg-inverted);
         padding: 0.293rem 0.5rem;
         border-radius: $border-radius;
-        min-width: 48px;
+        min-width: 3rem;
         text-align: center;
       }
 
       .card-website-analytics-img {
-        filter: drop-shadow(rgba(0, 0, 0, 0.5) 0px 4px 60px);
+        filter: drop-shadow(rgba(0, 0, 0, 0.5) 0px 0.25rem 60px);
       }
     }
   }
@@ -113,14 +113,14 @@ div.dataTables_wrapper div.dataTables_length select {
 .select2-container--default .select2-selection--single {
   height: 30px !important;
   border: 1px solid #d0d4dc !important;
-  border-radius: 4px !important;
+  border-radius: 0.25rem !important;
   font-size: 0.875rem !important;
   padding: 0 6px !important;
   line-height: 30px !important;
 }
 
 .select2-container--default .select2-selection__rendered {
-  line-height: 28px !important;
+  line-height: 1.75rem !important;
   font-size: 13px !important;
 }
 

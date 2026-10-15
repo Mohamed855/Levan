@@ -1,8 +1,8 @@
 .chat-message {
     max-width: 75%;
     padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 20px;
+    border-radius: 0.75rem;
+    margin-bottom: 1.25rem;
     position: relative;
 }
 
@@ -19,7 +19,7 @@
 }
 
 .chat-meta {
-    font-size: 12px;
+    font-size: 0.75rem;
     color: #6c757d;
 }
 
@@ -34,28 +34,28 @@
     background-color: #28a745 !important;
     border-color: #28a745 !important;
     color: white !important;
-    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+    box-shadow: 0 0.25rem 0.75rem rgba(40, 167, 69, 0.4);
 }
 
 .choice-buttons .btn-check:checked + .btn-outline-danger {
     background-color: #dc3545 !important;
     border-color: #dc3545 !important;
     color: white !important;
-    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+    box-shadow: 0 0.25rem 0.75rem rgba(220, 53, 69, 0.4);
 }
 
 .choice-buttons .btn:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 0.5rem rgba(0, 0, 0, 0.15);
 }
 
 /* نجوم الاستبيان داخل المودال */
 .survey-stars {
     display: inline-flex;
-    gap: 4px;
+    gap: 0.25rem;
 }
 
 .survey-star {
-    font-size: 28px;
+    font-size: 1.75rem;
     line-height: 1;
     cursor: pointer;
     color: #acb1c6;
@@ -75,7 +75,7 @@
 /* نجوم تقييم الردود */
 .reply-rating {
     display: inline-flex;
-    gap: 4px;
+    gap: 0.25rem;
 }
 
 .reply-star-btn {
@@ -118,14 +118,14 @@
 
 .timeline-badge {
     position: absolute;
-    top: 16px;
+    top: 1rem;
     right: 15px;
-    width: 32px;
-    height: 32px;
+    width: 2rem;
+    height: 2rem;
     border-radius: 50%;
     text-align: center;
     font-size: 1.2em;
-    line-height: 32px;
+    line-height: 2rem;
     color: #fff;
     background-color: #6c757d;
     z-index: 100;
@@ -136,16 +136,16 @@
     margin-right: 60px;
     background: #fff;
     border: 1px solid #e9ecef;
-    border-radius: 8px;
-    padding: 20px;
+    border-radius: 0.5rem;
+    padding: 1.25rem;
 }
 
 .attachment-item {
     display: inline-block;
     margin: 5px;
-    padding: 8px 12px;
+    padding: 0.5rem 0.75rem;
     background: #f8f9fa;
-    border-radius: 4px;
+    border-radius: 0.25rem;
     text-decoration: none;
     color: #495057;
 }

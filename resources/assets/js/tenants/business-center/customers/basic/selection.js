@@ -451,11 +451,7 @@ const CustomerSelection = {
             portfolio_id: $('#filter-portfolio').val() || '',
             nationality: $('#filter-nationality').val() || '',
             relationship_manager_id: $('#filter-manager').val() || '',
-            debt_min: $('#filter-debt-min').val() || '',
-            debt_max: $('#filter-debt-max').val() || '',
             sms_status: $('#filter-sms-status').val() || '',
-            sms_date_from: $('#filter-sms-date-from').val() || '',
-            sms_date_to: $('#filter-sms-date-to').val() || '',
             search: search,
 
             view_type: window.viewType || 'all'

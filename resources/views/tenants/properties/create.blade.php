@@ -21,7 +21,8 @@
 @section('page-script')
     <script>
         window.routes = window.routes || {};
-        window.propertyUnitStatuses = @json(array_map(fn($case) => ['value' => $case->value, 'label' => $case->label()], \App\Enums\Tenants\Properties\PropertyUnitStatus::cases()));
+        window.propertyUnitStatuses = @json(array_map(fn($case) => ['value' => $case->value, 'label' => $case->label()],
+                \App\Enums\Tenants\Properties\PropertyUnitStatus::cases()));
     </script>
     @vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/tenant/properties/create.js'])
 @endsection
@@ -145,9 +146,9 @@
                                         required col="col-md-6" />
                                     <x-form.controls.input name="parcel_number" label="رقم القطعة" placeholder="مثال: 1288"
                                         required col="col-md-6" />
-                                    <x-form.controls.input name="google_maps_url" label="رابط الموقع (Google Maps - اختياري)"
+                                    <x-form.controls.input name="google_maps_url"
+                                        label="رابط الموقع (Google Maps - اختياري)"
                                         placeholder="https://maps.google.com/?q=..." :required="false" col="col-md-6"
-                                        icon="ti ti-link"
                                         help="رابط موقع العقار على خرائط جوجل إن وُجد (اختياري)." />
                                 </div>
                                 @include('tenants.properties._boundaries-table', [

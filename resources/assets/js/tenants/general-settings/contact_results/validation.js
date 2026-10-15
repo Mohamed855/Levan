@@ -64,7 +64,7 @@ function showToast(message, type = 'info') {
     const alertClass = alertClasses[type] || 'alert-info';
     const alertHtml = `
         <div class="alert ${alertClass} alert-dismissible fade show position-fixed"
-             style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+             style="top: 1.25rem; right: 1.25rem; z-index: 9999; min-width: 300px;">
             ${escapeHtml(message)}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
