@@ -103,6 +103,41 @@
   border-start-end-radius: inherit;
 }
 
+.property-aerial-review {
+  position: relative;
+  overflow: hidden;
+  width: min(100%, 18rem);
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+
+  img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  &__download {
+    position: absolute;
+    inset-block-start: 0.5rem;
+    inset-inline-start: 0.5rem;
+    display: grid;
+    width: 2rem;
+    height: 2rem;
+    place-items: center;
+    color: var(--bs-white);
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  &:hover &__download,
+  &:focus-within &__download {
+    opacity: 1;
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .assignment-item-card,
   .assignment-file-card,

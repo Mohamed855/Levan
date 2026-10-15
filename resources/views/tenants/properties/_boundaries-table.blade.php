@@ -11,7 +11,12 @@
         'south' => 'الجنوب',
         'east' => 'الشرق',
         'west' => 'الغرب',
+        'northeast' => 'الشمال الشرقي',
+        'northwest' => 'الشمال الغربي',
+        'southeast' => 'الجنوب الشرقي',
+        'southwest' => 'الجنوب الغربي',
     ];
+    $boundaryTypeOptions = ['street' => 'شارع', 'parcel' => 'قطعة'];
 @endphp
 
 <div class="table-responsive" data-form-field data-field-name="boundaries">
@@ -34,9 +39,10 @@
                             :value="$border['direction'] ?? null" placeholder="اختر الجهة" required col="" />
                     </td>
                     <td>
-                        <x-form.controls.input name="boundaries[{{ $idx }}][border_type]"
-                            id="boundaries-{{ $idx }}-border-type" :value="$border['border_type'] ?? null"
-                            placeholder="شارع / قطعة..." required col="" />
+                        <x-form.controls.select name="boundaries[{{ $idx }}][border_type]"
+                            id="boundaries-{{ $idx }}-border-type" :options="$boundaryTypeOptions"
+                            :value="$border['border_type'] ?? null" placeholder="اختر نوع الحد" required col=""
+                            data-select2-search="false" />
                     </td>
                     <td>
                         <x-form.controls.input name="boundaries[{{ $idx }}][border_description]"
@@ -67,8 +73,9 @@
                 placeholder="اختر الجهة" required col="" />
         </td>
         <td>
-            <x-form.controls.input name="boundaries[__INDEX__][border_type]"
-                id="boundaries-__INDEX__-border-type" placeholder="شارع / قطعة..." required col="" />
+            <x-form.controls.select name="boundaries[__INDEX__][border_type]"
+                id="boundaries-__INDEX__-border-type" :options="$boundaryTypeOptions"
+                placeholder="اختر نوع الحد" required col="" data-select2-search="false" />
         </td>
         <td>
             <x-form.controls.input name="boundaries[__INDEX__][border_description]"

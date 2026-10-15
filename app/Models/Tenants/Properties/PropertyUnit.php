@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Models\Tenants\Properties;
 
 use App\Enums\Tenants\Properties\PropertyUnitStatus;
+use App\Enums\Tenants\Properties\PropertyUnitType;
+use App\Enums\Tenants\Properties\PropertyUnitUsage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -27,6 +29,8 @@ class PropertyUnit extends Model
         'area' => 'decimal:2',
         'sort_order' => 'integer',
         'status' => PropertyUnitStatus::class,
+        'unit_type' => PropertyUnitType::class,
+        'current_use' => PropertyUnitUsage::class,
     ];
 
     public function property(): BelongsTo

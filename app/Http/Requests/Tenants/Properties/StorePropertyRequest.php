@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Requests\Tenants\Properties;
 
 use App\Enums\Tenants\Properties\PropertyBoundaryDirection;
+use App\Enums\Tenants\Properties\PropertyBoundaryType;
 use App\Enums\Tenants\Properties\PropertyOwnershipType;
 use App\Enums\Tenants\Properties\PropertyType;
 use App\Enums\Tenants\Properties\PropertyUnitStatus;
+use App\Enums\Tenants\Properties\PropertyUnitType;
+use App\Enums\Tenants\Properties\PropertyUnitUsage;
 use App\Enums\Tenants\Properties\PropertyUsageClassification;
 use App\Http\Requests\Concerns\WizardFormRequest;
 use Illuminate\Validation\Rule;
@@ -53,9 +56,9 @@ class StorePropertyRequest extends WizardFormRequest
             'city' => ['required', 'string', 'max:100'],
             'district' => ['required', 'string', 'max:100'],
             'administrative_region' => ['required', 'string', 'max:100'],
-            'plan_number' => ['required', 'string', 'max:100'],
-            'parcel_number' => ['required', 'string', 'max:100'],
-            'google_maps_url' => ['nullable', 'string', 'max:1000'],
+            'plan_number' => ['required', 'string', 'max:100', 'regex:/^\d+$/'],
+            'parcel_number' => ['required', 'string', 'max:100', 'regex:/^\d+$/'],
+            'google_maps_url' => ['nullable', 'url', 'max:1000'],
             'latitude' => ['nullable', 'numeric'],
             'longitude' => ['nullable', 'numeric'],
             'aerial_image' => [
@@ -83,28 +86,28 @@ class StorePropertyRequest extends WizardFormRequest
             'boundary_geojson.coordinates.0.*.1' => ['required', 'numeric'],
             'boundaries' => ['required', 'array', 'min:1'],
             'boundaries.*.direction' => ['required', Rule::enum(PropertyBoundaryDirection::class)],
-            'boundaries.*.border_type' => ['required', 'string', 'max:100'],
+            'boundaries.*.border_type' => ['required', Rule::enum(PropertyBoundaryType::class)],
             'boundaries.*.border_description' => ['required', 'string', 'max:255'],
             'boundaries.*.length' => ['required', 'numeric', 'min:0'],
 
             // Step 3: الملكية والتفاصيل
             'assignment_letter_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
-            'deed_number' => ['required', 'string', 'max:100'],
+            'deed_number' => ['required', 'string', 'max:100', 'regex:/^\d+$/'],
             'deed_date' => ['required', 'date'],
             'issuing_authority' => ['required', 'string', 'max:255'],
             'ownership_type' => ['required', Rule::enum(PropertyOwnershipType::class)],
             'owners' => ['required', 'array', 'min:1'],
             'owners.*.owner_name' => ['required', 'string', 'max:255'],
-            'owners.*.national_id_or_cr' => ['required', 'string', 'max:100'],
+            'owners.*.national_id_or_cr' => ['required', 'string', 'max:100', 'regex:/^\d+$/'],
             'agent_name' => ['nullable', 'string', 'max:255'],
-            'agent_national_id' => ['nullable', 'string', 'max:100'],
-            'agency_number' => ['nullable', 'string', 'max:100'],
+            'agent_national_id' => ['nullable', 'string', 'max:100', 'regex:/^\d+$/'],
+            'agency_number' => ['nullable', 'string', 'max:100', 'regex:/^\d+$/'],
             'agency_date' => ['nullable', 'date'],
             'units' => ['nullable', 'array'],
             'units.*.unit_number' => ['nullable', 'string', 'max:100'],
-            'units.*.unit_type' => ['nullable', 'string', 'max:100'],
+            'units.*.unit_type' => ['nullable', Rule::enum(PropertyUnitType::class)],
             'units.*.area' => ['nullable', 'numeric', 'min:0'],
-            'units.*.current_use' => ['nullable', 'string', 'max:100'],
+            'units.*.current_use' => ['nullable', Rule::enum(PropertyUnitUsage::class)],
             'units.*.status' => ['nullable', Rule::enum(PropertyUnitStatus::class)],
 
             // Step 4: المستندات والصور

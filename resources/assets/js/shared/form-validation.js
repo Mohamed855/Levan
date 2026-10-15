@@ -27,7 +27,9 @@ function normalizeFieldName(name) {
 }
 
 function fieldMatches(fieldName, requestedName) {
-  return normalizeFieldName(fieldName) === normalizeFieldName(requestedName);
+  const normField = normalizeFieldName(fieldName);
+  const normReq = normalizeFieldName(requestedName);
+  return normField === normReq || normReq.startsWith(normField + '.') || normField.startsWith(normReq + '.');
 }
 
 function findFieldWrappers(form, fieldName) {
@@ -217,6 +219,23 @@ function setFieldError(form, fieldName, message) {
       }
     }
   });
+
+  if (wrappers.length === 0 && findControls(form, fieldName).length === 0) {
+    const rootName = fieldName.split('.')[0];
+    const rootWrappers = findFieldWrappers(form, rootName);
+    if (rootWrappers.length > 0) {
+      setFieldError(form, rootName, message);
+      return;
+    }
+
+    const activeStep = form.querySelector('[data-form-step].active') || form.querySelector('[data-form-step]');
+    const stepError = activeStep?.querySelector('[data-form-error]');
+    if (stepError) {
+      stepError.textContent = message;
+      stepError.hidden = false;
+      stepError.style.display = 'block';
+    }
+  }
 }
 
 function setFieldValid(form, fieldName) {
@@ -1070,6 +1089,7 @@ function initSelect2Controls(form, retryCount = 0) {
         allowClear: !$select.prop('required'),
         width: '100%',
         dir: 'rtl',
+        minimumResultsForSearch: $select.data('select2-search') === false || $select.data('select2-search') === 'false' ? Infinity : 0,
         dropdownParent: $modal.length ? $modal : undefined
       });
     });

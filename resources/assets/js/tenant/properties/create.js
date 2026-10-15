@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     row.querySelector('select[name*="[direction]"]').value = data.direction ?? '';
-    row.querySelector('input[name*="[border_type]"]').value = data.border_type ?? '';
+    row.querySelector('select[name*="[border_type]"]').value = data.border_type ?? '';
     row.querySelector('input[name*="[border_description]"]').value = data.border_description ?? '';
     row.querySelector('input[name*="[length]"]').value = data.length ?? '';
 
@@ -116,15 +116,17 @@ document.addEventListener('DOMContentLoaded', () => {
           </button>` : ''}
       </div>
       <div class="row g-3">
-        <div class="col-md-6">
+        <div class="col-md-6" data-form-field data-field-name="owners[${index}][owner_name]">
           <label class="form-label">اسم المالك <span class="text-danger">*</span></label>
           <input type="text" name="owners[${index}][owner_name]" class="form-control"
                  value="${escapeHtml(data.owner_name || '')}" placeholder="أدخل اسم المالك" data-form-control required>
+          <div class="invalid-feedback" data-form-error hidden></div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-6" data-form-field data-field-name="owners[${index}][national_id_or_cr]">
           <label class="form-label">رقم الهوية / السجل التجاري <span class="text-danger">*</span></label>
-          <input type="text" name="owners[${index}][national_id_or_cr]" class="form-control"
+          <input type="number" step="1" min="0" name="owners[${index}][national_id_or_cr]" class="form-control"
                  value="${escapeHtml(data.national_id_or_cr || '')}" placeholder="أدخل رقم الهوية أو السجل" data-form-control required>
+          <div class="invalid-feedback" data-form-error hidden></div>
         </div>
       </div>
     `;
@@ -159,6 +161,9 @@ document.addEventListener('DOMContentLoaded', () => {
           input.setAttribute('name', name.replace(/owners\[\d+\]/, `owners[${index}]`));
         }
       });
+      item.querySelectorAll('[data-field-name]').forEach((field) => {
+        field.dataset.fieldName = String(field.dataset.fieldName || '').replace(/owners\[\d+\]/, `owners[${index}]`);
+      });
     });
     form.dispatchEvent(new CustomEvent('stepChanged'));
   }
@@ -184,21 +189,23 @@ document.addEventListener('DOMContentLoaded', () => {
       { value: 'sold', label: 'مباع' }
     ];
 
-    const statusOptions = statuses.map(s => `
-      <option value="${s.value}" ${data.status === s.value ? 'selected' : ''}>${s.label}</option>
-    `).join('');
+    const selectOptions = (options, value) => [
+      '<option value=""></option>',
+      ...options.map(option => `<option value="${option.value}" ${value === option.value ? 'selected' : ''}>${option.label}</option>`),
+    ].join('');
+    const statusOptions = selectOptions(statuses, data.status);
+    const unitTypeOptions = selectOptions(window.propertyUnitTypes || [], data.unit_type);
+    const unitUsageOptions = selectOptions(window.propertyUnitUsages || [], data.current_use);
 
     tr.innerHTML = `
       <td><input type="text" name="units[${index}][unit_number]" class="form-control form-control-sm"
-                 value="${escapeHtml(data.unit_number || '')}" placeholder="مثال: U-101" data-form-control></td>
-      <td><input type="text" name="units[${index}][unit_type]" class="form-control form-control-sm"
-                 value="${escapeHtml(data.unit_type || '')}" placeholder="فيلا / شقة..." data-form-control></td>
+                 value="${escapeHtml(data.unit_number || '')}" placeholder="وحدة ..." data-form-control></td>
+      <td><select name="units[${index}][unit_type]" class="form-select form-select-sm select2" data-select2-search="false" data-form-control>${unitTypeOptions}</select></td>
       <td><input type="number" step="0.01" name="units[${index}][area]" class="form-control form-control-sm"
                  value="${escapeHtml(data.area || '')}" placeholder="المساحة" data-form-control></td>
-      <td><input type="text" name="units[${index}][current_use]" class="form-control form-control-sm"
-                 value="${escapeHtml(data.current_use || '')}" placeholder="سكني / تجاري..." data-form-control></td>
+      <td><select name="units[${index}][current_use]" class="form-select form-select-sm select2" data-select2-search="false" data-form-control>${unitUsageOptions}</select></td>
       <td>
-        <select name="units[${index}][status]" class="form-select form-select-sm" data-form-control>
+        <select name="units[${index}][status]" class="form-select form-select-sm select2" data-select2-search="false" data-form-control>
           ${statusOptions}
         </select>
       </td>
@@ -229,6 +236,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function reindexUnits() {
     if (!unitsList) return;
+    if (window.jQuery?.fn?.select2) {
+      window.jQuery(unitsList).find('select.select2-hidden-accessible').select2('destroy');
+    }
     unitsList.querySelectorAll('.unit-row').forEach((row, index) => {
       row.querySelectorAll('input, select').forEach((input) => {
         const name = input.getAttribute('name');
@@ -237,6 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     });
+    form.dispatchEvent(new CustomEvent('stepChanged'));
   }
 
   // =========================================================================
@@ -657,6 +668,71 @@ document.addEventListener('DOMContentLoaded', () => {
     return select?.selectedOptions?.[0]?.textContent?.trim() || '-';
   }
 
+  function filesFromInput(name) {
+    return Array.from(form.elements.namedItem(name)?.files || []);
+  }
+
+  function buildAttachmentBox(title, files, icon) {
+    const countLabel = `${files.length} ${files.length === 1 ? 'ملف' : 'ملفات'}`;
+    const content = files.length
+      ? files.map((file) => `<article class="assignment-file-card"><i class="ti ${icon} text-primary fs-4"></i><span class="assignment-file-card__name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</span></article>`).join('')
+      : '<p class="text-muted mb-0">لم يتم إرفاق ملفات بعد.</p>';
+
+    return `<section class="assignment-properties-table-card mb-3"><header class="assignment-properties-table-card__header"><h6 class="mb-0">${title}</h6><span class="badge bg-label-primary">${countLabel}</span></header><div class="assignment-file-list p-3">${content}</div></section>`;
+  }
+
+  function safeAerialReviewMarkup(value) {
+    const source = String(value || '');
+    if (!/^(data:image\/(png|jpeg|webp);base64,|https?:\/\/|\/)/i.test(source)) return '';
+
+    return `<figure class="property-aerial-review mt-3 mb-0"><img src="${escapeHtml(source)}" alt="الصورة الجوية للعقار بعد تحديد الحدود"><a class="property-aerial-review__download" href="${escapeHtml(source)}" download="property-boundary.png" aria-label="تحميل الصورة الجوية المحددة"><i class="ti ti-download" aria-hidden="true"></i></a></figure>`;
+  }
+
+  const additionalFiles = new Map();
+
+  function renderAdditionalAttachmentBox(inputName, listId, countId, icon) {
+    const list = document.getElementById(listId);
+    const count = document.getElementById(countId);
+    if (!list || !count) return;
+
+    const files = additionalFiles.get(inputName) || filesFromInput(inputName);
+    count.textContent = `${files.length} ${files.length === 1 ? 'ملف' : 'ملفات'}`;
+    list.innerHTML = files.length
+      ? files.map((file, index) => `<article class="assignment-file-card"><i class="ti ${icon} text-primary fs-4"></i><span class="assignment-file-card__name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</span><button type="button" class="btn btn-icon btn-sm btn-label-danger" data-remove-additional-file="${inputName}" data-file-index="${index}" aria-label="حذف ${escapeHtml(file.name)}"><i class="ti ti-trash" aria-hidden="true"></i></button></article>`).join('')
+      : '<p class="text-muted mb-0">لم يتم إرفاق ملفات بعد.</p>';
+  }
+
+  function refreshAdditionalAttachmentBoxes() {
+    renderAdditionalAttachmentBox('property_images[]', 'property-images-cards', 'property-images-count', 'ti-photo');
+    renderAdditionalAttachmentBox('additional_documents[]', 'additional-documents-cards', 'additional-documents-count', 'ti-paperclip');
+  }
+
+  ['property_images[]', 'additional_documents[]'].forEach((name) => {
+    form.elements.namedItem(name)?.addEventListener('change', (event) => {
+      additionalFiles.set(name, Array.from(event.currentTarget.files || []));
+      refreshAdditionalAttachmentBoxes();
+    });
+  });
+
+  form.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-remove-additional-file]');
+    if (!button || !window.DataTransfer) return;
+
+    const inputName = button.dataset.removeAdditionalFile;
+    const fileIndex = Number(button.dataset.fileIndex);
+    const input = form.elements.namedItem(inputName);
+    const files = [...(additionalFiles.get(inputName) || filesFromInput(inputName))];
+    if (!input || !Number.isInteger(fileIndex) || !files[fileIndex]) return;
+
+    files.splice(fileIndex, 1);
+    const transfer = new DataTransfer();
+    files.forEach((file) => transfer.items.add(file));
+    input.files = transfer.files;
+    additionalFiles.set(inputName, files);
+    refreshAdditionalAttachmentBoxes();
+    form.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+
   function buildReview() {
     // Review Basic Info
     const reviewBasic = document.getElementById('review-basic');
@@ -694,7 +770,7 @@ document.addEventListener('DOMContentLoaded', () => {
       reviewLocation.innerHTML = `<dl class="row mb-0">${locationFields.map(([label, val]) => `
         <dt class="col-sm-4 text-muted mb-2">${label}:</dt>
         <dd class="col-sm-8 fw-medium mb-2">${escapeHtml(val)}</dd>
-      `).join('')}</dl>`;
+      `).join('')}</dl>${safeAerialReviewMarkup(aerialImageInput?.value)}`;
     }
 
     // Review Ownership
@@ -748,6 +824,27 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         reviewDocs.innerHTML = '<p class="text-muted mb-0">لم يتم اختيار ملفات بعد.</p>';
       }
+    }
+
+    if (reviewDocs) {
+      const files = [];
+      if (form.elements.namedItem('main_image')?.files?.[0]) files.push(form.elements.namedItem('main_image').files[0].name);
+      if (form.elements.namedItem('deed_document')?.files?.[0]) files.push(form.elements.namedItem('deed_document').files[0].name);
+      if (form.elements.namedItem('cadastral_plan')?.files?.[0]) files.push(form.elements.namedItem('cadastral_plan').files[0].name);
+      if (form.elements.namedItem('coordinates_statement')?.files?.[0]) files.push(form.elements.namedItem('coordinates_statement').files[0].name);
+      if (form.elements.namedItem('building_permit')?.files?.[0]) files.push(form.elements.namedItem('building_permit').files[0].name);
+      if (form.elements.namedItem('assignment_letter_image')?.files?.[0]) files.push(form.elements.namedItem('assignment_letter_image').files[0].name);
+      const standardFiles = files.length ? `<div class="assignment-file-list mt-3">${files.map(name => `
+        <article class="assignment-file-card">
+          <i class="ti ti-file text-primary fs-4"></i>
+          <span class="assignment-file-card__name" title="${escapeHtml(name)}">${escapeHtml(name)}</span>
+        </article>
+      `).join('')}</div>` : '';
+      reviewDocs.innerHTML = [
+        buildAttachmentBox('صور إضافية للمعرض', filesFromInput('property_images[]'), 'ti-photo'),
+        buildAttachmentBox('مستندات إضافية', filesFromInput('additional_documents[]'), 'ti-paperclip'),
+        standardFiles,
+      ].join('');
     }
 
     const reviewName = document.getElementById('review-name');
@@ -814,6 +911,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Restore aerial image and boundary points
     if (data.aerial_image) {
+      aerialImageInput.value = data.aerial_image;
+      boundaryGeoJsonInput.value = data.boundary_geojson || '';
       loadImageSrc(data.aerial_image, data.boundary_geojson || null);
     } else if (data.boundary_geojson && aerialImageInput?.value) {
       loadImageSrc(aerialImageInput.value, data.boundary_geojson);
@@ -823,5 +922,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Initial check
+  refreshAdditionalAttachmentBoxes();
   buildReview();
 });

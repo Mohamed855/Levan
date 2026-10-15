@@ -86,8 +86,8 @@
             </x-form.wizard.step>
 
             <x-form.wizard.step id="assignment-properties-validation" :fields="['property_ids']">
-                <div id="selected-property-inputs"></div>
                 <div data-form-field data-field-name="property_ids">
+                    <div id="selected-property-inputs"></div>
                     <div class="card assignment-properties-table-card">
                         <div class="card-body">
                             <div class="row g-3 mb-4" data-datatable-filter-group="assignment-properties"

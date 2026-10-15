@@ -17,7 +17,7 @@ class AssignmentPropertySelectionDataTable extends AbstractDataTable
 
     protected function resource()
     {
-        return Property::query();
+        return Property::query()->whereNull('assignment_id');
     }
 
     protected function getColumns(): array

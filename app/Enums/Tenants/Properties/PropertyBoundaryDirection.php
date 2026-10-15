@@ -10,6 +10,10 @@ enum PropertyBoundaryDirection: string
     case SOUTH = 'south';
     case EAST = 'east';
     case WEST = 'west';
+    case NORTHEAST = 'northeast';
+    case NORTHWEST = 'northwest';
+    case SOUTHEAST = 'southeast';
+    case SOUTHWEST = 'southwest';
 
     public function label(): string
     {
@@ -18,6 +22,10 @@ enum PropertyBoundaryDirection: string
             self::SOUTH => 'الجنوب',
             self::EAST => 'الشرق',
             self::WEST => 'الغرب',
+            self::NORTHEAST => 'الشمال الشرقي',
+            self::NORTHWEST => 'الشمال الغربي',
+            self::SOUTHEAST => 'الجنوب الشرقي',
+            self::SOUTHWEST => 'الجنوب الغربي',
         };
     }
 }

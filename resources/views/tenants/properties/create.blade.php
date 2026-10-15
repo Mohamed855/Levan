@@ -23,6 +23,10 @@
         window.routes = window.routes || {};
         window.propertyUnitStatuses = @json(array_map(fn($case) => ['value' => $case->value, 'label' => $case->label()],
                 \App\Enums\Tenants\Properties\PropertyUnitStatus::cases()));
+        window.propertyUnitTypes = @json(array_map(fn($case) => ['value' => $case->value, 'label' => $case->label()],
+                \App\Enums\Tenants\Properties\PropertyUnitType::cases()));
+        window.propertyUnitUsages = @json(array_map(fn($case) => ['value' => $case->value, 'label' => $case->label()],
+                \App\Enums\Tenants\Properties\PropertyUnitUsage::cases()));
     </script>
     @vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/tenant/properties/create.js'])
 @endsection
@@ -101,27 +105,27 @@
                     $defaultBorders = [
                         [
                             'direction' => 'north',
-                            'border_type' => 'شارع',
-                            'border_description' => 'شارع عرض 20 متر',
-                            'length' => '30.00',
+                            'border_type' => 'street',
+                            'border_description' => '',
+                            'length' => '',
                         ],
                         [
                             'direction' => 'south',
-                            'border_type' => 'قطعة',
-                            'border_description' => 'رقم القطعة 1288',
-                            'length' => '30.00',
+                            'border_type' => 'parcel',
+                            'border_description' => '',
+                            'length' => '',
                         ],
                         [
                             'direction' => 'east',
-                            'border_type' => 'قطعة',
-                            'border_description' => 'رقم القطعة 1290',
-                            'length' => '20.00',
+                            'border_type' => 'parcel',
+                            'border_description' => '',
+                            'length' => '',
                         ],
                         [
                             'direction' => 'west',
-                            'border_type' => 'شارع',
-                            'border_description' => 'شارع عرض 15 متر',
-                            'length' => '20.00',
+                            'border_type' => 'street',
+                            'border_description' => '',
+                            'length' => '',
                         ],
                     ];
                     $bordersData = old('boundaries', $defaultBorders);
@@ -138,9 +142,9 @@
                                         placeholder="مثال: حي العارض" required col="col-md-6" />
                                     <x-form.controls.input name="administrative_region" label="المنطقة الإدارية"
                                         placeholder="مثال: منطقة الرياض" required col="col-md-6" />
-                                    <x-form.controls.input name="plan_number" label="رقم المخطط" placeholder="مثال: 2357"
+                                    <x-form.controls.input name="plan_number" type="number" step="1" min="0" label="رقم المخطط" placeholder="مثال: 2357"
                                         required col="col-md-6" />
-                                    <x-form.controls.input name="parcel_number" label="رقم القطعة" placeholder="مثال: 1288"
+                                    <x-form.controls.input name="parcel_number" type="number" step="1" min="0" label="رقم القطعة" placeholder="مثال: 1288"
                                         required col="col-md-6" />
                                     <x-form.controls.input name="google_maps_url" label="رابط الموقع"
                                         placeholder="https://maps.google.com" :required="false" col="col-md-6"
@@ -170,7 +174,7 @@
             {{-- الخطوة 3: الملكية والتفاصيل --}}
             <x-form.wizard.step id="property-ownership-validation" :fields="['deed_number', 'deed_date', 'issuing_authority', 'ownership_type', 'owners']">
                 <div class="row g-4">
-                    <x-form.controls.input name="deed_number" label="رقم الصك" placeholder="أدخل رقم الصك" required
+                    <x-form.controls.input name="deed_number" type="number" step="1" min="0" label="رقم الصك" placeholder="أدخل رقم الصك" required
                         col="col-md-6" />
                     <x-form.controls.input name="deed_date" type="date" label="تاريخ الصك" required col="col-md-6" />
                     <x-form.controls.input name="issuing_authority" label="جهة الإصدار"
@@ -209,21 +213,23 @@
                                                 @endif
                                             </div>
                                             <div class="row g-3">
-                                                <div class="col-md-6">
+                                                <div class="col-md-6" data-form-field data-field-name="owners[{{ $idx }}][owner_name]">
                                                     <label class="form-label">اسم المالك <span
                                                             class="text-danger">*</span></label>
                                                     <input type="text" name="owners[{{ $idx }}][owner_name]"
                                                         class="form-control" value="{{ $owner['owner_name'] ?? '' }}"
                                                         placeholder="أدخل اسم المالك" data-form-control required>
+                                                    <div class="invalid-feedback" data-form-error hidden></div>
                                                 </div>
-                                                <div class="col-md-6">
+                                                <div class="col-md-6" data-form-field data-field-name="owners[{{ $idx }}][national_id_or_cr]">
                                                     <label class="form-label">رقم الهوية / السجل التجاري <span
                                                             class="text-danger">*</span></label>
-                                                    <input type="text"
+                                                    <input type="number" step="1" min="0"
                                                         name="owners[{{ $idx }}][national_id_or_cr]"
                                                         class="form-control"
                                                         value="{{ $owner['national_id_or_cr'] ?? '' }}"
                                                         placeholder="أدخل رقم الهوية أو السجل" data-form-control required>
+                                                    <div class="invalid-feedback" data-form-error hidden></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -236,9 +242,9 @@
                     {{-- بيانات الوكيل (اختياري) --}}
                     <x-form.controls.input name="agent_name" label="اسم الوكيل (اختياري)" placeholder="أدخل اسم الوكيل"
                         :required="false" col="col-md-6" />
-                    <x-form.controls.input name="agent_national_id" label="رقم هوية الوكيل (اختياري)"
+                    <x-form.controls.input name="agent_national_id" type="number" step="1" min="0" label="رقم هوية الوكيل (اختياري)"
                         placeholder="أدخل رقم هوية الوكيل" :required="false" col="col-md-6" />
-                    <x-form.controls.input name="agency_number" label="رقم الوكالة (اختياري)"
+                    <x-form.controls.input name="agency_number" type="number" step="1" min="0" label="رقم الوكالة (اختياري)"
                         placeholder="أدخل رقم الوكالة" :required="false" col="col-md-6" />
                     <x-form.controls.input name="agency_date" type="date" label="تاريخ الوكالة (اختياري)"
                         :required="false" col="col-md-6" />
@@ -259,8 +265,8 @@
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive" data-form-field data-field-name="units">
-                                    <table class="table table-bordered table-sm align-middle">
-                                        <thead class="table-light">
+                                    <table class="table table-striped table-bordered w-100">
+                                        <thead>
                                             <tr>
                                                 <th style="width: 15%;">رقم الوحدة</th>
                                                 <th style="width: 20%;">نوع الوحدة</th>
@@ -280,25 +286,29 @@
                                                             name="units[{{ $idx }}][unit_number]"
                                                             class="form-control form-control-sm"
                                                             value="{{ $unit['unit_number'] ?? '' }}"
-                                                            placeholder="رقم الوحدة" data-form-control></td>
-                                                    <td><input type="text"
-                                                            name="units[{{ $idx }}][unit_type]"
-                                                            class="form-control form-control-sm"
-                                                            value="{{ $unit['unit_type'] ?? '' }}"
-                                                            placeholder="فيلا / شقة..." data-form-control></td>
+                                                            placeholder="وحدة ..." data-form-control></td>
+                                                    <td><select name="units[{{ $idx }}][unit_type]" class="form-select form-select-sm select2"
+                                                            data-select2-search="false" data-form-control>
+                                                            <option value=""></option>
+                                                            @foreach (\App\Enums\Tenants\Properties\PropertyUnitType::cases() as $unitType)
+                                                                <option value="{{ $unitType->value }}" @selected(($unit['unit_type'] ?? '') === $unitType->value)>{{ $unitType->label() }}</option>
+                                                            @endforeach
+                                                        </select></td>
                                                     <td><input type="number" step="0.01"
                                                             name="units[{{ $idx }}][area]"
                                                             class="form-control form-control-sm"
                                                             value="{{ $unit['area'] ?? '' }}" placeholder="المساحة"
                                                             data-form-control></td>
-                                                    <td><input type="text"
-                                                            name="units[{{ $idx }}][current_use]"
-                                                            class="form-control form-control-sm"
-                                                            value="{{ $unit['current_use'] ?? '' }}"
-                                                            placeholder="سكني / تجاري..." data-form-control></td>
+                                                    <td><select name="units[{{ $idx }}][current_use]" class="form-select form-select-sm select2"
+                                                            data-select2-search="false" data-form-control>
+                                                            <option value=""></option>
+                                                            @foreach (\App\Enums\Tenants\Properties\PropertyUnitUsage::cases() as $unitUsage)
+                                                                <option value="{{ $unitUsage->value }}" @selected(($unit['current_use'] ?? '') === $unitUsage->value)>{{ $unitUsage->label() }}</option>
+                                                            @endforeach
+                                                        </select></td>
                                                     <td>
                                                         <select name="units[{{ $idx }}][status]"
-                                                            class="form-select form-select-sm" data-form-control>
+                                                            class="form-select form-select-sm select2" data-select2-search="false" data-form-control>
                                                             @foreach (\App\Enums\Tenants\Properties\PropertyUnitStatus::cases() as $unitStatus)
                                                                 <option value="{{ $unitStatus->value }}"
                                                                     {{ ($unit['status'] ?? '') === $unitStatus->value ? 'selected' : '' }}>
@@ -352,8 +362,27 @@
                     <x-form.controls.file name="additional_documents[]" label="مستندات إضافية (اختياري)" multiple
                         accept=".pdf,image/*" help="يمكن اختيار عدة ملفات" :required="false" col="col-md-6" />
 
-                    <div class="col-12">
-                        <div id="additional-attachments-cards" class="assignment-file-list" aria-live="polite"></div>
+                    <div class="col-md-6">
+                        <section class="assignment-properties-table-card h-100" aria-live="polite">
+                            <header class="assignment-properties-table-card__header">
+                                <h6 class="mb-0">صور إضافية للمعرض</h6>
+                                <span id="property-images-count" class="badge bg-label-primary">0 ملف</span>
+                            </header>
+                            <div id="property-images-cards" class="assignment-file-list p-3">
+                                <p class="text-muted mb-0">لم يتم إرفاق ملفات بعد.</p>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="col-md-6">
+                        <section class="assignment-properties-table-card h-100" aria-live="polite">
+                            <header class="assignment-properties-table-card__header">
+                                <h6 class="mb-0">مستندات إضافية</h6>
+                                <span id="additional-documents-count" class="badge bg-label-primary">0 ملف</span>
+                            </header>
+                            <div id="additional-documents-cards" class="assignment-file-list p-3">
+                                <p class="text-muted mb-0">لم يتم إرفاق ملفات بعد.</p>
+                            </div>
+                        </section>
                     </div>
 
                     <x-form.wizard.actions>

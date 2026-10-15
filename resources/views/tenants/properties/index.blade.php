@@ -116,15 +116,15 @@
 
         <x-slot:filters>
             <x-data-table.filters table="#properties-table">
-                <x-filter.select id="filter-assignment-status" filterKey="assignment_status" label="حالة الارتباط" placeholder="الكل"
+                <x-filter.select id="filter-assignment-status" filterKey="assignment_status" table="#properties-table" label="حالة الارتباط" placeholder="الكل"
                     :enum="\App\Enums\Tenants\Properties\PropertyAssignmentStatus::class" />
-                <x-filter.select id="filter-assignment" filterKey="assignment_id" label="الإسناد" placeholder="جميع الإسنادات"
+                <x-filter.select id="filter-assignment" filterKey="assignment_id" table="#properties-table" label="الإسناد" placeholder="جميع الإسنادات"
                     :options="$assignments->pluck('name', 'id')->toArray()" />
-                <x-filter.select id="filter-type" filterKey="type" label="نوع العقار" placeholder="جميع الأنواع"
+                <x-filter.select id="filter-type" filterKey="type" table="#properties-table" label="نوع العقار" placeholder="جميع الأنواع"
                     :enum="\App\Enums\Tenants\Properties\PropertyType::class" />
-                <x-filter.select id="filter-data-status" filterKey="data_status" label="حالة البيانات" placeholder="جميع الحالات"
+                <x-filter.select id="filter-data-status" filterKey="data_status" table="#properties-table" label="حالة البيانات" placeholder="جميع الحالات"
                     :enum="\App\Enums\Tenants\Properties\PropertyDataStatus::class" />
-                <x-filter.select id="filter-city" filterKey="city" label="المدينة" placeholder="جميع المدن"
+                <x-filter.select id="filter-city" filterKey="city" table="#properties-table" label="المدينة" placeholder="جميع المدن"
                     :options="$cityOptions" />
             </x-data-table.filters>
         </x-slot:filters>
