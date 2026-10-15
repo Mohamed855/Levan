@@ -24,6 +24,23 @@ if (window.$ && $.fn.dataTable && $.fn.dataTable.Responsive && typeof $.fn.dataT
 $.fn.dataTable.ext.Checkbox = Checkbox(window, $);
 window.JSZip = JSZip;
 
+if (window.$ && $.fn.dataTable && $.fn.dataTable.ext && $.fn.dataTable.ext.pager) {
+    const pager = $.fn.dataTable.ext.pager;
+    Object.keys(pager).forEach(function (key) {
+        const orig = pager[key];
+        if (typeof orig === 'function' && !orig.__patched) {
+            const patched = function (page, pages) {
+                if (pages <= 0) {
+                    return orig(0, 1);
+                }
+                return orig(page, pages);
+            };
+            patched.__patched = true;
+            pager[key] = patched;
+        }
+    });
+}
+
 if (window.$ && $.fn.dataTable) {
     $.extend(true, $.fn.dataTable.defaults, {
         columnDefs: [

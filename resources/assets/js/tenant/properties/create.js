@@ -260,6 +260,16 @@ document.addEventListener('DOMContentLoaded', () => {
   let hoveredPointIndex = null;
   let annotatedDataUrl = '';
 
+  function setImageActionVisibility(visible) {
+    [btnDownload, btnClearBoundary].forEach((button) => {
+      if (!button) return;
+      button.classList.toggle('d-none', !visible);
+      button.setAttribute('aria-hidden', visible ? 'false' : 'true');
+    });
+  }
+
+  setImageActionVisibility(false);
+
   function notifyUser(type, message) {
     if (window.toastr && typeof window.toastr[type] === 'function') {
       window.toastr[type](message);
@@ -292,6 +302,26 @@ document.addEventListener('DOMContentLoaded', () => {
     return -1;
   }
 
+  function appendPolygonPath(context, width, height) {
+    context.moveTo(points[0].x * width, points[0].y * height);
+    for (let i = 1; i < points.length; i++) {
+      context.lineTo(points[i].x * width, points[i].y * height);
+    }
+  }
+
+  function drawOutsideSelectionOverlay(context, width, height) {
+    if (points.length < 3) return;
+
+    context.save();
+    context.beginPath();
+    context.rect(0, 0, width, height);
+    appendPolygonPath(context, width, height);
+    context.closePath();
+    context.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    context.fill('evenodd');
+    context.restore();
+  }
+
   function drawCanvas() {
     if (!canvas || !loadedImage) return;
     const ctx = canvas.getContext('2d');
@@ -305,12 +335,12 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // Dim the area outside the selected property boundary.
+    drawOutsideSelectionOverlay(ctx, canvas.width, canvas.height);
+
     // Draw Polygon path
     ctx.beginPath();
-    ctx.moveTo(points[0].x * canvas.width, points[0].y * canvas.height);
-    for (let i = 1; i < points.length; i++) {
-      ctx.lineTo(points[i].x * canvas.width, points[i].y * canvas.height);
-    }
+    appendPolygonPath(ctx, canvas.width, canvas.height);
 
     if (points.length >= 3) {
       ctx.closePath();
@@ -376,11 +406,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       oCtx.drawImage(loadedImage, 0, 0, naturalW, naturalH);
 
+      // Keep the exported/annotated image visually consistent with the canvas.
+      drawOutsideSelectionOverlay(oCtx, naturalW, naturalH);
+
       oCtx.beginPath();
-      oCtx.moveTo(points[0].x * naturalW, points[0].y * naturalH);
-      for (let i = 1; i < points.length; i++) {
-        oCtx.lineTo(points[i].x * naturalW, points[i].y * naturalH);
-      }
+      appendPolygonPath(oCtx, naturalW, naturalH);
       oCtx.closePath();
 
       oCtx.fillStyle = 'rgba(29, 79, 68, 0.32)';
@@ -449,6 +479,7 @@ document.addEventListener('DOMContentLoaded', () => {
     img.crossOrigin = 'anonymous';
     img.onload = () => {
       loadedImage = img;
+      setImageActionVisibility(true);
       if (emptyPlaceholder) emptyPlaceholder.classList.add('d-none');
       if (canvasWrapper) canvasWrapper.classList.remove('d-none');
       if (statusBar) statusBar.classList.remove('d-none');
@@ -656,7 +687,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ['المنطقة الإدارية', getVal('administrative_region')],
         ['رقم المخطط', getVal('plan_number')],
         ['رقم القطعة', getVal('parcel_number')],
-        ['صورة العقار للتحديد', hasImage ? 'تم رفع صورة العقار' : 'لم يتم الرفع'],
+        ['الصورة الجوية للعقار', hasImage ? 'تم رفع صورة العقار' : 'لم يتم الرفع'],
         ['تحديد حدود العقار', hasPolygon ? `تم تحديد مضلع العقار بنجاح (${points.length} نقاط)` : 'لم يتم التحديد بعد'],
         ['عدد الحدود المدخلة', `${bordersCount} حدود`],
       ];

@@ -47,33 +47,158 @@ table.dataTable {
     }
 }
 
-// DataTables Wrapper & Controls
-.dataTables_wrapper {
-    .dataTables_length,
-    .dataTables_filter,
-    .dataTables_info {
-        color: #6c757d;
-        font-size: 0.875rem;
-        padding: 0.75rem 1rem;
+// DataTables Toolbar & Controls Layout
+.dt-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.5rem 0.25rem 0.75rem;
+    margin: 0 !important;
+
+    .dt-toolbar-left,
+    .dt-toolbar-right {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
-    .dataTables_filter input {
-        border: 1px solid rgba(29, 79, 68, 0.16) !important;
-        border-radius: 0.5rem !important;
-        padding: 0.35rem 0.75rem;
-        outline: none;
+    div.dataTables_length,
+    div.dataTables_filter {
+        margin: 0 !important;
+        padding: 0 !important;
+        display: flex;
+        align-items: center;
 
-        &:focus {
-            border-color: var(--primary-color) !important;
-            box-shadow: 0 0 0 0.2rem rgba(29, 79, 68, 0.15) !important;
+        label {
+            margin: 0 !important;
+            padding: 0 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.4rem;
+            font-size: 0.85rem;
+            color: #6c757d;
+            font-weight: normal;
         }
     }
 
-    .dataTables_paginate {
-        padding: 0.75rem 1rem;
+    div.dataTables_filter input {
+        margin: 0 !important;
+        height: 38px !important;
+        min-height: 38px !important;
+        max-height: 38px !important;
+        padding: 0.35rem 0.75rem !important;
+        font-size: 0.85rem;
+        border: 1px solid rgba(29, 79, 68, 0.16) !important;
+        border-radius: 6px !important;
+
+        &:focus {
+            border-color: var(--primary-color) !important;
+            box-shadow: none !important;
+        }
+    }
+
+    div.dataTables_length select {
+        margin: 0 !important;
+        height: 38px !important;
+        min-height: 38px !important;
+        max-height: 38px !important;
+        padding: 0.35rem 1.75rem 0.35rem 0.75rem !important;
+        font-size: 0.85rem;
+        border: 1px solid rgba(29, 79, 68, 0.16) !important;
+        border-radius: 6px !important;
+
+        &:focus {
+            border-color: var(--primary-color) !important;
+            box-shadow: none !important;
+        }
+    }
+
+    .dt-buttons {
+        margin: 0 !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+
+        .btn,
+        .btn-export,
+        .btn-add {
+            margin: 0 !important;
+            height: 38px !important;
+            min-height: 38px !important;
+            display: inline-flex;
+            align-items: center;
+        }
+    }
+}
+
+// DataTables Wrapper & Bottom Pagination Controls
+.dataTables_wrapper {
+    // Reset vendor inflated margins (which added 1.5rem top/bottom margin)
+    div.dataTables_length,
+    div.dataTables_filter {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        padding: 0 !important;
+    }
+
+    // Compact pagination row beneath table-responsive
+    > .row:last-child,
+    .row:has(.dataTables_paginate),
+    .row:has(.pagination-wrapper) {
+        margin-top: 0.5rem !important;
+        margin-bottom: 0 !important;
+        padding: 0 0.25rem;
+        align-items: center !important;
+
+        > .d-flex {
+            margin: 0 !important;
+            padding: 0 !important;
+            flex-direction: row !important;
+            flex-wrap: wrap !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+        }
+    }
+
+    div.dataTables_info,
+    &.light-style div.dataTables_info,
+    .light-style & div.dataTables_info {
+        color: #6c757d;
+        font-size: 0.85rem;
+        padding: 0.25rem 0 !important;
+        margin: 0 !important;
+        width: auto !important;
+        line-height: normal;
+        white-space: nowrap;
+    }
+
+    .pagination-wrapper {
+        width: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+    }
+
+    div.dataTables_paginate {
+        padding: 0.25rem 0 !important;
+        margin: 0 !important;
+        width: auto !important;
+        display: inline-flex !important;
+        align-items: center !important;
 
         .pagination {
+            margin: 0 !important;
+            padding: 0 !important;
             gap: 0.25rem;
+            display: inline-flex !important;
+            flex-wrap: nowrap !important;
+            align-items: center !important;
 
             .page-item {
                 .page-link {
@@ -81,7 +206,10 @@ table.dataTable {
                     border: 1px solid rgba(29, 79, 68, 0.12);
                     color: var(--primary-color);
                     font-size: 0.85rem;
-                    padding: 0.4rem 0.75rem;
+                    padding: 0.35rem 0.65rem;
+                    line-height: 1.4;
+                    min-width: 32px;
+                    text-align: center;
                     transition: all 0.15s ease;
 
                     &:hover {
@@ -100,21 +228,70 @@ table.dataTable {
                 &.disabled .page-link {
                     opacity: 0.5;
                     border-color: rgba(0, 0, 0, 0.08);
+                    pointer-events: none !important;
+                    cursor: default !important;
+                }
+
+                &.active.disabled .page-link,
+                &.disabled.active .page-link {
+                    background-color: var(--primary-color) !important;
+                    border-color: var(--primary-color) !important;
+                    color: #fff !important;
+                    opacity: 0.65;
+                    pointer-events: none !important;
+                    cursor: default !important;
                 }
             }
         }
     }
 }
 
-// Checkbox selection in DataTable
+// Checkbox selection in DataTable - identical to login checkbox dimensions and style
 .custom-checkbox input[type="checkbox"],
 input[type="checkbox"].row-checkbox,
-#select-all {
-    accent-color: var(--primary-color);
-    cursor: pointer;
-    width: 1.1rem;
-    height: 1.1rem;
-    border-radius: 0.25rem;
+#select-all,
+table.dataTable th.custom-checkbox input[type="checkbox"],
+table.dataTable td.custom-checkbox input[type="checkbox"],
+.table input[type="checkbox"]:not(.form-switch input):not(.js-table-status-toggle) {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    width: 17px !important;
+    height: 17px !important;
+    border-radius: 0.25rem !important;
+    border: 1.5px solid rgba(29, 79, 68, 0.35) !important;
+    background-color: #ffffff !important;
+    cursor: pointer !important;
+    outline: none !important;
+    box-shadow: none !important;
+    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: contain !important;
+    position: relative;
+    vertical-align: middle;
+    margin: 0;
+
+    &:checked {
+        background-color: var(--primary-color) !important;
+        border-color: var(--primary-color) !important;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='17' viewBox='0 0 15 14' fill='none'%3E%3Cpath d='M3.41667 7L6.33333 9.91667L12.1667 4.08333' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+    }
+
+    &:indeterminate {
+        background-color: var(--primary-color) !important;
+        border-color: var(--primary-color) !important;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2.5 6H9.5' stroke='%23fff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+    }
+
+    &:hover:not(:checked):not(:disabled) {
+        border-color: var(--primary-color) !important;
+    }
+
+    &:focus {
+        border-color: var(--primary-color) !important;
+        box-shadow: none !important;
+        outline: 0 !important;
+    }
 }
 
 // Single-click copyable entity code

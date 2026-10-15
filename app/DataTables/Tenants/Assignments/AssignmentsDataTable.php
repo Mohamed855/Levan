@@ -32,7 +32,7 @@ class AssignmentsDataTable extends AbstractDataTable
             ['data' => 'name', 'name' => 'name', 'title' => 'الاسم'],
             ['data' => 'issuing_entity', 'name' => 'issuing_entity', 'title' => 'الجهة'],
             ['data' => 'city', 'name' => 'city', 'title' => 'المدينة'],
-            ['data' => 'category', 'name' => 'category', 'title' => 'النوع'],
+            ['data' => 'category', 'name' => 'category', 'title' => 'التصنيف'],
             ['data' => 'properties_count', 'name' => 'properties_count', 'title' => 'عدد العقارات', 'className' => 'text-center'],
             ['data' => 'auctions_count', 'name' => 'auctions_count', 'title' => 'عدد المزادات', 'className' => 'text-center'],
             ['data' => 'start_date', 'name' => 'start_date', 'title' => 'تاريخ البداية'],
@@ -59,14 +59,7 @@ class AssignmentsDataTable extends AbstractDataTable
             ->editColumn('auctions_count', fn ($row): string => '<span class="badge bg-secondary">'.(int) $row->auctions_count.'</span>')
             ->editColumn('start_date', fn ($row): string => $row->start_date?->format('Y-m-d') ?? '-')
             ->editColumn('end_date', fn ($row): string => $row->end_date?->format('Y-m-d') ?? '-')
-            ->editColumn('status', function ($row): string {
-                if (! auth('tenant')->user()?->can('assignments.edit')) {
-                    return '<span class="badge '.e($row->status_badge_class).'">'.e($row->status_label).'</span>';
-                }
-                $checked = $row->is_active ? 'checked' : '';
-
-                return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="status_'.$row->id.'" data-url="'.e(tenant_route_name('assignments.toggle-status', $row->id)).'" data-active-value="active" data-inactive-value="inactive" '.$checked.' aria-label="تبديل حالة الإسناد"></div></div>';
-            })
+            ->editColumn('status', fn ($row): string => '<span class="badge '.e($row->status_badge_class).'">'.e($row->status_label).'</span>')
             ->addColumn('actions', fn ($row): string => view('tenants.assignments.action', ['row' => $row, 'route' => $this->route])->render());
     }
 
@@ -89,10 +82,10 @@ class AssignmentsDataTable extends AbstractDataTable
         return $query
             ->when($request->filled('status'), fn ($builder) => $builder->where('status', $request->status))
             ->when($request->filled('category'), fn ($builder) => $builder->where('category', $request->category))
+            ->when($request->filled('start_date'), fn ($builder) => $builder->whereDate('start_date', $request->start_date))
+            ->when($request->filled('end_date'), fn ($builder) => $builder->whereDate('end_date', $request->end_date))
             ->when($request->filled('city'), fn ($builder) => $builder->where('city', $request->city))
-            ->when($request->filled('issuing_entity'), fn ($builder) => $builder->where('issuing_entity', 'like', '%'.$request->issuing_entity.'%'))
-            ->when($request->filled('start_date_from'), fn ($builder) => $builder->whereDate('start_date', '>=', $request->start_date_from))
-            ->when($request->filled('end_date_to'), fn ($builder) => $builder->whereDate('end_date', '<=', $request->end_date_to));
+            ;
     }
 
     protected function filterableColumns(): array

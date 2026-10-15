@@ -8,13 +8,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const propertyInputs = document.getElementById('selected-property-inputs');
   const propertyCards = document.getElementById('selected-properties-cards');
   const propertyCount = document.getElementById('selected-properties-count');
+  const propertyImageFallback = form.dataset.propertyImageFallback || '/static/brand/logos/logo.svg';
   const fileInputs = [
-    { input: document.getElementById('general_documents'), list: document.getElementById('general-documents-cards'), label: 'مستند عام' },
-    { input: document.getElementById('additional_attachments'), list: document.getElementById('additional-attachments-cards'), label: 'مرفق إضافي' },
+    {
+      input: document.getElementById('general_documents'),
+      list: document.getElementById('general-documents-cards'),
+      count: document.getElementById('general-documents-count'),
+      reviewList: document.getElementById('review-general-documents'),
+      reviewCount: document.getElementById('review-general-documents-count'),
+    },
+    {
+      input: document.getElementById('additional_attachments'),
+      list: document.getElementById('additional-attachments-cards'),
+      count: document.getElementById('additional-attachments-count'),
+      reviewList: document.getElementById('review-additional-attachments'),
+      reviewCount: document.getElementById('review-additional-attachments-count'),
+    },
   ];
   const accumulatedFiles = new Map();
   const restoredDraftFiles = new Map();
-  const restoredSingleFiles = new Map();
 
   function escapeHtml(value) {
     const element = document.createElement('div');
@@ -29,9 +41,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     target.innerHTML = [...selectedProperties.values()].map(property => `
-      <article class="assignment-file-card assignment-property-card">
-        <img class="assignment-property-card__image" src="${escapeHtml(property.image)}" alt="">
-        <span class="assignment-file-card__name" title="${escapeHtml(property.name)}">${escapeHtml(property.name)}</span>
+      <article class="assignment-property-card">
+        <img class="assignment-property-card__image" src="${escapeHtml(property.image || propertyImageFallback)}" alt="" onerror="this.onerror=null;this.src='${escapeHtml(propertyImageFallback)}';">
+        <div class="assignment-property-card__content">
+          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+            <code class="copyable-code">${escapeHtml(property.number || '-')}</code>
+            <span class="badge bg-label-info">${escapeHtml(property.type || '-')}</span>
+          </div>
+          <h6 class="mb-1 text-body text-truncate" title="${escapeHtml(property.name)}">${escapeHtml(property.name)}</h6>
+          <p class="mb-0 text-muted small"><i class="ti ti-map-pin me-1"></i>${escapeHtml(property.city || '-')}</p>
+        </div>
         ${removable ? `<button type="button" class="btn btn-sm btn-icon btn-label-danger" data-remove-property="${property.id}" aria-label="إزالة ${escapeHtml(property.name)}"><i class="ti ti-x"></i></button>` : ''}
       </article>`).join('');
   }
@@ -45,7 +64,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function propertyFromCheckbox(checkbox) {
-    return { id: String(checkbox.value), name: checkbox.dataset.name || '', number: checkbox.dataset.number || '', image: checkbox.dataset.image || '' };
+    return {
+      id: String(checkbox.value),
+      name: checkbox.dataset.name || '',
+      number: checkbox.dataset.number || '',
+      type: checkbox.dataset.type || '',
+      city: checkbox.dataset.city || '',
+      image: checkbox.dataset.image || propertyImageFallback,
+    };
   }
 
   document.addEventListener('change', event => {
@@ -91,18 +117,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function fileKey(file) { return `${file.name}:${file.size}:${file.lastModified}`; }
 
-  function syncFileInput(config) {
+  function renderFileCards(target, entries, removable = false) {
+    if (!target) return;
+    if (!entries.length) {
+      target.innerHTML = '<p class="text-muted mb-0" data-empty>لم يتم إرفاق ملفات بعد.</p>';
+      return;
+    }
+
+    target.innerHTML = entries.map(file => `
+      <article class="assignment-file-card">
+        <i class="${file.restored ? 'ti ti-file-check text-success' : 'ti ti-file text-primary'} fs-4"></i>
+        <span class="assignment-file-card__name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</span>
+        ${removable ? `<button type="button" class="btn btn-sm btn-icon btn-label-danger" ${file.restored ? `data-remove-draft-file="${escapeHtml(file.key)}"` : `data-remove-file="${escapeHtml(file.key)}"`} data-input-id="${file.inputId}" aria-label="إزالة ${escapeHtml(file.name)}"><i class="ti ti-x"></i></button>` : ''}
+      </article>`).join('');
+  }
+
+  function currentFiles(config) {
     const files = accumulatedFiles.get(config.input.id) || new Map();
     const restored = restoredDraftFiles.get(config.input.id) || new Map();
+    return [
+      ...[...files.entries()].map(([key, file]) => ({ key, name: file.name, inputId: config.input.id, restored: false })),
+      ...[...restored.values()].map(file => ({ key: file.key, name: file.name, inputId: config.input.id, restored: true })),
+    ];
+  }
+
+  function syncFileInput(config) {
+    const files = accumulatedFiles.get(config.input.id) || new Map();
     const transfer = new DataTransfer();
     files.forEach(file => transfer.items.add(file));
     config.input.files = transfer.files;
-    const localCards = [...files.entries()].map(([key, file]) => `
-      <article class="assignment-file-card"><i class="ti ti-file text-primary fs-4"></i><span class="assignment-file-card__name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</span><button type="button" class="btn btn-sm btn-icon btn-label-danger" data-remove-file="${escapeHtml(key)}" data-input-id="${config.input.id}" aria-label="إزالة ${escapeHtml(file.name)}"><i class="ti ti-x"></i></button></article>`).join('');
-    const restoredCards = [...restored.values()].map(file => `
-      <article class="assignment-file-card"><i class="ti ti-file-check text-success fs-4"></i><span class="assignment-file-card__name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</span><button type="button" class="btn btn-sm btn-icon btn-label-danger" data-remove-draft-file="${escapeHtml(file.key)}" data-input-id="${config.input.id}" aria-label="إزالة ${escapeHtml(file.name)}"><i class="ti ti-x"></i></button></article>`).join('');
-    config.list.innerHTML = localCards + restoredCards;
+    const filesForDisplay = currentFiles(config);
+    config.count.textContent = String(filesForDisplay.length);
+    config.reviewCount.textContent = String(filesForDisplay.length);
+    renderFileCards(config.list, filesForDisplay, true);
+    renderFileCards(config.reviewList, filesForDisplay);
     config.input.dispatchEvent(new Event('input', { bubbles: true }));
+    buildReview();
   }
 
   fileInputs.forEach(config => {
@@ -153,20 +203,18 @@ document.addEventListener('DOMContentLoaded', () => {
   function buildReview() {
     const value = name => form.elements.namedItem(name)?.value || '-';
     const fields = [
-      ['رقم الإسناد', value('assignment_number')], ['اسم الإسناد', value('name')], ['نوع الإسناد', selectedText('category')],
+      ['رقم الإسناد', value('assignment_number')], ['اسم الإسناد', value('name')], ['تصنيف الإسناد', selectedText('category')],
       ['حالة الإسناد', selectedText('status')], ['الجهة المسندة', value('issuing_entity')], ['المدينة', selectedText('city')],
       ['النطاق/الحي', value('district')], ['تاريخ البداية', value('start_date')], ['تاريخ النهاية', value('end_date')], ['وصف الإسناد', value('notes')],
     ];
     document.getElementById('review-basic').innerHTML = `<dl class="row mb-0">${fields.map(([label, content]) => `<dt class="col-md-3 mb-2">${label}</dt><dd class="col-md-9 mb-2">${escapeHtml(content)}</dd>`).join('')}</dl>`;
     renderPropertyCards(document.getElementById('review-properties'), false);
 
-    const reviewFiles = [];
-    const singleFiles = [form.elements.namedItem('assignment_image')?.files?.[0], form.elements.namedItem('assignment_letter')?.files?.[0]].filter(Boolean);
-    singleFiles.forEach(file => reviewFiles.push(file.name));
-    accumulatedFiles.forEach(files => files.forEach(file => reviewFiles.push(file.name)));
-    restoredDraftFiles.forEach(files => files.forEach(file => reviewFiles.push(file.name)));
-    restoredSingleFiles.forEach(file => reviewFiles.push(file.name));
-    document.getElementById('review-files').innerHTML = reviewFiles.map(name => `<article class="assignment-file-card"><i class="ti ti-file text-primary fs-4"></i><span class="assignment-file-card__name">${escapeHtml(name)}</span></article>`).join('');
+    fileInputs.forEach(config => {
+      const files = currentFiles(config);
+      config.reviewCount.textContent = String(files.length);
+      renderFileCards(config.reviewList, files);
+    });
     document.getElementById('review-name').textContent = value('name');
     document.getElementById('review-description').textContent = value('notes');
   }
@@ -203,7 +251,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     const singleDraftFiles = [draftFiles.assignment_image, draftFiles.assignment_letter].filter(file => file?.name);
     singleDraftFiles.forEach(file => {
-      restoredSingleFiles.set(file.key, file);
       const field = file.key === 'assignment_image' ? form.elements.namedItem('assignment_image') : form.elements.namedItem('assignment_letter');
       const wrapper = field?.closest('[data-form-field]');
       if (wrapper && !wrapper.querySelector('[data-restored-file]')) {

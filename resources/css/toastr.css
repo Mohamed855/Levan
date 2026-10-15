@@ -37,14 +37,19 @@ div:where(.swal2-container) .swal2-html-container {
 
 .light-style .swal2-popup .swal2-title {
     font-weight: bold !important;
+    text-align: center !important;
+    max-width: 100% !important;
 }
 
 /* تخصيص شكل العنوان */
 .custom-title {
     color: #333333;
     font-size: 1.5em !important;
-    margin: auto !important;
+    margin: 0 auto 0.5rem auto !important;
     font-weight: bold;
+    text-align: center !important;
+    max-width: 100% !important;
+    display: block !important;
 }
 
 /* تخصيص شكل النص */

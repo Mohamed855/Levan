@@ -126,12 +126,10 @@
                                         </div>
                                     </div>
 
-                                    <!-- شريط البحث  -->
                                     <div class="col-md-6">
                                         <form action="{{ tenant_route_name('collection-process.index') }}" method="GET"
                                             class="position-relative">
                                             <div class="input-group input-group-merge">
-
                                                 <input type="text" name="search"
                                                     class="form-control border-start-0 bg-light"
                                                     placeholder="ابحث برقم الهوية أو رقم الحساب أو باسم العميل"

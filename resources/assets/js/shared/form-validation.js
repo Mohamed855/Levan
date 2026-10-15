@@ -71,6 +71,7 @@ function stateTargets(control) {
 
   if (inputGroup) {
     targets.push(inputGroup);
+    inputGroup.querySelectorAll('[data-password-toggle]').forEach((toggle) => targets.push(toggle));
   }
 
   if (control.tagName === 'SELECT') {
@@ -489,6 +490,9 @@ async function restoreDraft(form) {
         confirmButtonText: 'نعم، استعادة المسودة',
         cancelButtonText: 'تجاهل والبدء من جديد',
         customClass: {
+          popup: 'custom-popup',
+          title: 'custom-title text-center',
+          htmlContainer: 'custom-text text-center',
           confirmButton: 'btn btn-primary me-2',
           cancelButton: 'btn btn-secondary',
         },

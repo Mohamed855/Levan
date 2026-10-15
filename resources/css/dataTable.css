@@ -16,11 +16,7 @@
 
 .btn-export,
 .btn-add {
-    margin: 5px;
-}
-
-.btn-add {
-    margin-right: 5px !important;
+    margin: 0;
 }
 
 .dataTables_processing {
@@ -60,6 +56,10 @@ label {
     padding: 0.375rem 0.75rem;
     height: auto;
     border-radius: 0.25rem;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-image: none !important;
 }
 
 @media (min-width: 768px) {
@@ -89,42 +89,51 @@ div.dataTables_processing>div:last-child>div {
 }
 
 .custom-checkbox {
-    justify-content: center;
-    align-items: center;
+    text-align: center;
+    vertical-align: middle;
 }
 
-.custom-checkbox input[type="checkbox"] {
-    transform: scale(1.2);
+.custom-checkbox input[type="checkbox"],
+input[type="checkbox"].row-checkbox,
+#select-all {
     appearance: none;
     -webkit-appearance: none;
-    width: 15px;
-    height: 15px;
-    border: 2px solid #372632;
-    border-radius: 3px;
-    outline: none;
-    transition: all 0.2s;
+    width: 17px;
+    height: 17px;
+    border-radius: 0.25rem;
+    border: 1.5px solid rgba(29, 79, 68, 0.35);
+    background-color: #ffffff;
     cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease-in-out;
     position: relative;
-    background-color: white;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    vertical-align: middle;
+    margin: 0;
 }
 
-.custom-checkbox input[type="checkbox"]:checked {
-    background-color: #372632;
-    border-color: #372632;
+.custom-checkbox input[type="checkbox"]:checked,
+input[type="checkbox"].row-checkbox:checked,
+#select-all:checked {
+    background-color: var(--primary-color, #1D4F44) !important;
+    border-color: var(--primary-color, #1D4F44) !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='17' viewBox='0 0 15 14' fill='none'%3E%3Cpath d='M3.41667 7L6.33333 9.91667L12.1667 4.08333' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
 }
 
-.custom-checkbox input[type="checkbox"]:checked::after {
-    content: "\2714";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-size: 0.75rem;
+.custom-checkbox input[type="checkbox"]:indeterminate,
+input[type="checkbox"].row-checkbox:indeterminate,
+#select-all:indeterminate {
+    background-color: var(--primary-color, #1D4F44) !important;
+    border-color: var(--primary-color, #1D4F44) !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2.5 6H9.5' stroke='%23fff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
 }
 
-.custom-checkbox input[type="checkbox"]:hover {
-    border-color: #372632;
+.custom-checkbox input[type="checkbox"]:hover,
+input[type="checkbox"].row-checkbox:hover,
+#select-all:hover {
+    border-color: var(--primary-color, #1D4F44);
 }
 
 .dt-buttons .dt-button-collection .dropdown-item {
@@ -198,4 +207,35 @@ div.dataTables_processing>div:last-child>div {
 .table-responsive {
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch;
+}
+
+.dataTables_wrapper div.dataTables_info,
+.light-style .dataTables_wrapper div.dataTables_info {
+    width: auto !important;
+    padding: 0.25rem 0 !important;
+    margin: 0 !important;
+}
+
+.dataTables_wrapper .pagination-wrapper {
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+.dataTables_wrapper div.dataTables_paginate {
+    width: auto !important;
+    padding: 0.25rem 0 !important;
+    margin: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+.dataTables_wrapper div.dataTables_paginate .pagination {
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 0.25rem;
+    display: inline-flex !important;
+    align-items: center !important;
 }

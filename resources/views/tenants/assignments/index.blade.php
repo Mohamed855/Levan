@@ -20,7 +20,6 @@
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/shared/table-status-toggle.js'])
     <script>
         window.routes = {
             massDelete: "{{ tenant_route_name('mass-delete') }}"
@@ -87,6 +86,7 @@
                 });
             }
         });
+
     </script>
 @endsection
 
@@ -108,10 +108,14 @@
 
         <x-slot:filters>
             <x-data-table.filters table="#assignments-table">
+                <x-filter.select id="filter-category" filterKey="category" label="تصنيف الإسناد" placeholder="جميع التصنيفات"
+                    :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class" />
                 <x-filter.select id="filter-status" filterKey="status" label="حالة الإسناد" placeholder="جميع الحالات"
                     :enum="\App\Enums\Tenants\Assignments\AssignmentStatus::class" />
-                <x-filter.select id="filter-category" filterKey="category" label="نوع الإسناد" placeholder="جميع التصنيفات"
-                    :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class" />
+                <x-filter.select id="filter-start-date" filterKey="start_date" label="تاريخ البداية" placeholder="جميع تواريخ البداية"
+                    :options="$startDateOptions" />
+                <x-filter.select id="filter-end-date" filterKey="end_date" label="تاريخ النهاية" placeholder="جميع تواريخ النهاية"
+                    :options="$endDateOptions" />
                 <x-filter.select id="filter-city" filterKey="city" label="المدينة" placeholder="جميع المدن"
                     :options="$cityOptions" />
             </x-data-table.filters>

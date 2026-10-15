@@ -364,7 +364,7 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
                 <li>
-                    <a class="dropdown-item mt-0" href="#">
+                    <a class="dropdown-item mt-0" href="{{ tenant_route_name('users.profile') }}">
                         <div class="d-flex align-items-center">
                             <div class="avatar avatar-online me-2">
                                 <img src="{{ tasset(Auth::user()->image) }}" alt="{{ Auth::user()->name }}"
@@ -407,7 +407,8 @@
                     <div class="d-grid px-2 pt-2 pb-1">
 
                         <button type="button" id="tenant-logout-btn"
-                            class="btn btn-sm btn-danger d-flex align-items-center justify-content-center">
+                            class="btn btn-sm btn-danger d-flex align-items-center justify-content-center"
+                            onclick="confirmLogout('tenant-logout-form')">
                             <small class="align-middle">تسجيل الخروج</small>
                             <i class="ti ti-logout ms-2 ti-14px"></i>
                         </button>
@@ -417,13 +418,6 @@
                         </form>
                     </div>
                 </li>
-
-                <script>
-                    document.getElementById('tenant-logout-btn')
-                        .addEventListener('click', function() {
-                            document.getElementById('tenant-logout-form').submit();
-                        });
-                </script>
 
             </ul>
         </li>

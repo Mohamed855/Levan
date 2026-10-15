@@ -60,7 +60,7 @@
                             <x-form.controls.input name="name" label="اسم الإسناد" :value="$assignment->name" required
                                 col="col-md-6" />
 
-                            <x-form.controls.select name="category" label="نوع الإسناد" :value="$assignment->category" required
+                            <x-form.controls.select name="category" label="تصنيف الإسناد" :value="$assignment->category" required
                                 col="col-md-6" :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class" />
 
                             <x-form.controls.select name="status" label="حالة الإسناد" :value="$assignment->status" required
@@ -72,7 +72,7 @@
                             <x-form.controls.select name="city" label="المدينة" :value="$assignment->city" col="col-md-6"
                                 :options="$cityOptions" />
 
-                            <x-form.controls.input name="district" label="النطاق/الحي" :value="$assignment->district" required col="col-md-6" />
+                            <x-form.controls.input name="district" label="النطاق/الحي" :value="$assignment->district" col="col-md-6" />
 
                             <x-form.controls.image-upload name="assignment_image" label="صورة الإسناد"
                                 :value="$assignment->assignmentImage ? tasset($assignment->assignmentImage->file_path) : null" accept="image/jpeg,image/png,image/webp,image/svg+xml"

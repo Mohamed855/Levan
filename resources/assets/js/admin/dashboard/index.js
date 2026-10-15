@@ -1,5 +1,13 @@
 document.addEventListener('DOMContentLoaded', function () {
 
+    if (window.jQuery && typeof window.jQuery.fn.select2 === 'function') {
+        window.jQuery('#platform-activity-range').select2({
+            dir: 'rtl',
+            width: '100%',
+            minimumResultsForSearch: Infinity,
+        });
+    }
+
     // ── الألوان الأساسية ──────────────────────────────────────────
     const colors = {
         primary:   '#372632',

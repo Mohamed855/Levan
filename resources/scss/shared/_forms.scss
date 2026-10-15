@@ -65,6 +65,19 @@ input[type="checkbox"]:focus {
     }
 }
 
+// Hide default select arrow on regular selects (excluding Select2)
+select:not(.select2):not(.select2-hidden-accessible),
+.form-select:not(.select2):not(.select2-hidden-accessible) {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-image: none !important;
+
+    &::-ms-expand {
+        display: none !important;
+    }
+}
+
 textarea.form-control {
     border: 1px solid rgba(29, 79, 68, 0.16) !important;
     border-radius: 0.5rem;
@@ -104,7 +117,8 @@ textarea.form-control {
     &.is-invalid,
     &:has(.is-invalid),
     &:has(.form-control.is-invalid) {
-        .input-group-text {
+        .input-group-text,
+        [data-password-toggle] {
             border: 1px solid var(--bs-danger) !important;
             padding: 0.55rem 0.85rem !important;
             height: 42px !important;
@@ -119,6 +133,16 @@ textarea.form-control {
             margin: 0 !important;
         }
     }
+}
+
+// Password toggle & input-group-text on error states
+.input-group .form-control.is-invalid ~ .input-group-text,
+.input-group .form-control.is-invalid ~ [data-password-toggle],
+.input-group-text[data-password-toggle].is-invalid,
+[data-password-toggle].is-invalid,
+[data-form-field].is-invalid [data-password-toggle],
+[data-form-field].has-error [data-password-toggle] {
+    border: 1px solid var(--bs-danger) !important;
 }
 
 // Keep hint text stationary when a control receives focus. The vendor theme
@@ -240,6 +264,42 @@ input[type="file"].form-control,
         box-shadow: none !important;
     }
 
+    .select2-selection--single {
+        position: relative !important;
+
+        .select2-selection__rendered {
+            width: 100% !important;
+            padding-inline-start: 0.85rem !important;
+            padding-inline-end: 3.5rem !important;
+            line-height: normal;
+        }
+
+        .select2-selection__clear {
+            position: absolute !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            float: none !important;
+            inset-inline-end: 2.25rem !important;
+            inset-inline-start: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            cursor: pointer !important;
+            font-size: 1.15rem !important;
+            font-weight: 600 !important;
+            line-height: 1 !important;
+            color: #a1acb8 !important;
+            z-index: 2 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: color 0.15s ease-in-out;
+
+            &:hover {
+                color: var(--bs-danger, #ea5455) !important;
+            }
+        }
+    }
+
     .select2-results__option--highlighted.select2-results__option--selectable {
         background-color: var(--primary-color) !important;
         color: #fff !important;
@@ -248,6 +308,22 @@ input[type="file"].form-control,
     .select2-results__option--selected {
         background-color: rgba(29, 79, 68, 0.08) !important;
         color: var(--primary-color) !important;
+    }
+}
+
+:root[dir="rtl"],
+html[dir="rtl"] {
+    .select2-container--default .select2-selection--single .select2-selection__clear {
+        left: 2.25rem !important;
+        right: auto !important;
+    }
+}
+
+:root[dir="ltr"],
+html[dir="ltr"] {
+    .select2-container--default .select2-selection--single .select2-selection__clear {
+        right: 2.25rem !important;
+        left: auto !important;
     }
 }
 

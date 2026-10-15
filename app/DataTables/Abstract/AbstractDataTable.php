@@ -232,13 +232,12 @@ abstract class AbstractDataTable extends DataTable
     protected function dom(): string
     {
         return '<"dt-toolbar"'.
-            '<"dt-toolbar-left d-flex flex-column flex-sm-row align-items-start align-items-sm-center" f l >'.
-            '<"dt-toolbar-right d-flex flex-column flex-sm-row align-items-end align-items-sm-center justify-content-between" B >'.
+            '<"dt-toolbar-left d-flex flex-wrap align-items-center gap-2" f l >'.
+            '<"dt-toolbar-right d-flex flex-wrap align-items-center gap-2" B >'.
             '>'.
             'r<"table-responsive"t>'.
-            '<"row mt-3"'.
-            '<"d-flex flex-column flex-sm-row align-items-center justify-content-between w-100" i <"pagination-wrapper overflow-auto w-100" p >'.
-            '>'.
+            '<"row mt-2 align-items-center"'.
+            '<"d-flex flex-wrap align-items-center justify-content-between gap-2 w-100" i <"pagination-wrapper" p > >'.
             '>';
     }
 

@@ -218,6 +218,9 @@ async function shouldRestoreDraft() {
       confirmButtonText: 'نعم، استعادة المسودة',
       cancelButtonText: 'تجاهل والبدء من جديد',
       customClass: {
+        popup: 'custom-popup',
+        title: 'custom-title text-center',
+        htmlContainer: 'custom-text text-center',
         confirmButton: 'btn btn-primary me-2',
         cancelButton: 'btn btn-secondary',
       },

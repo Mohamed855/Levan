@@ -4,6 +4,7 @@ namespace App\Services\Tenants\Assignments;
 
 use App\Enums\Tenants\Assignments\AssignmentAttachmentCategory;
 use App\Models\Tenants\Assignments\Assignment;
+use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -19,6 +20,17 @@ class AssignmentService
             'under_review' => Assignment::where('status', 'under_review')->count(),
             'suspended' => Assignment::where('status', 'suspended')->count(),
             'auctioned' => Assignment::where('status', 'auctioned')->count(),
+        ];
+    }
+
+    /**
+     * @return array{start_dates: array<string, string>, end_dates: array<string, string>}
+     */
+    public function dateFilterOptions(): array
+    {
+        return [
+            'start_dates' => $this->dateOptionsFor('start_date'),
+            'end_dates' => $this->dateOptionsFor('end_date'),
         ];
     }
 
@@ -103,5 +115,20 @@ class AssignmentService
         }
 
         return $deleted;
+    }
+
+    /** @return array<string, string> */
+    private function dateOptionsFor(string $column): array
+    {
+        return Assignment::query()
+            ->whereNotNull($column)
+            ->orderByDesc($column)
+            ->pluck($column)
+            ->mapWithKeys(function ($date): array {
+                $date = Carbon::parse($date)->locale('ar');
+
+                return [$date->toDateString() => $date->translatedFormat('d F Y')];
+            })
+            ->all();
     }
 }

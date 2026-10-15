@@ -130,10 +130,6 @@
                 <div class="row g-4">
                     <div class="col-lg-7">
                         <div class="card assignment-properties-table-card h-100">
-                            <div class="card-header pb-2">
-                                <h5 class="card-title mb-0"><i class="ti ti-map-pin me-2 text-primary"></i>بيانات الموقع
-                                </h5>
-                            </div>
                             <div class="card-body">
                                 <div class="row g-4">
                                     <x-form.controls.select name="city" label="المدينة" required col="col-md-6"
@@ -146,10 +142,9 @@
                                         required col="col-md-6" />
                                     <x-form.controls.input name="parcel_number" label="رقم القطعة" placeholder="مثال: 1288"
                                         required col="col-md-6" />
-                                    <x-form.controls.input name="google_maps_url"
-                                        label="رابط الموقع (Google Maps - اختياري)"
-                                        placeholder="https://maps.google.com/?q=..." :required="false" col="col-md-6"
-                                        help="رابط موقع العقار على خرائط جوجل إن وُجد (اختياري)." />
+                                    <x-form.controls.input name="google_maps_url" label="رابط الموقع"
+                                        placeholder="https://maps.google.com" :required="false" col="col-md-6"
+                                        help="رابط موقع العقار على خرائط جوجل إن وُجد." />
                                 </div>
                                 @include('tenants.properties._boundaries-table', [
                                     'bordersData' => $bordersData,

@@ -129,10 +129,35 @@
 
 .auth-form-side .input-group-merge.is-invalid,
 .tenant-login-form-side .input-group-merge.is-invalid,
+.auth-form-side .input-group-merge:has(.is-invalid),
+.tenant-login-form-side .input-group-merge:has(.is-invalid),
+.auth-form-side .input-group-merge:has(.form-control.is-invalid),
+.tenant-login-form-side .input-group-merge:has(.form-control.is-invalid),
+.auth-form-side [data-form-field].is-invalid .input-group-merge,
+.tenant-login-form-side [data-form-field].is-invalid .input-group-merge,
 .auth-form-side [data-form-field].has-error .input-group-merge,
 .tenant-login-form-side [data-form-field].has-error .input-group-merge {
     border: 1px solid #ea5455 !important;
     box-shadow: none !important;
+}
+
+.auth-form-side .input-group-merge.is-invalid .input-group-text,
+.tenant-login-form-side .input-group-merge.is-invalid .input-group-text,
+.auth-form-side .input-group-merge:has(.is-invalid) .input-group-text,
+.tenant-login-form-side .input-group-merge:has(.is-invalid) .input-group-text,
+.auth-form-side .input-group-merge:has(.form-control.is-invalid) .input-group-text,
+.tenant-login-form-side .input-group-merge:has(.form-control.is-invalid) .input-group-text,
+.auth-form-side .input-group-merge .form-control.is-invalid ~ .input-group-text,
+.tenant-login-form-side .input-group-merge .form-control.is-invalid ~ .input-group-text,
+.auth-form-side .input-group-merge .input-group-text.is-invalid,
+.tenant-login-form-side .input-group-merge .input-group-text.is-invalid,
+.auth-form-side .input-group-merge [data-password-toggle].is-invalid,
+.tenant-login-form-side .input-group-merge [data-password-toggle].is-invalid,
+.auth-form-side [data-form-field].is-invalid [data-password-toggle],
+.tenant-login-form-side [data-form-field].is-invalid [data-password-toggle],
+.auth-form-side [data-form-field].has-error [data-password-toggle],
+.tenant-login-form-side [data-form-field].has-error [data-password-toggle] {
+    border: 1px solid #ea5455 !important;
 }
 
 .auth-form-side .input-group-merge .form-control,

@@ -384,9 +384,9 @@
                 <li>
                     <div class="d-grid px-2 pt-2 pb-1">
 
-                        {{-- ← زر بدون onclick --}}
                         <button type="button" id="logout-btn"
-                            class="btn btn-sm btn-danger d-flex align-items-center justify-content-center">
+                            class="btn btn-sm btn-danger d-flex align-items-center justify-content-center"
+                            onclick="confirmLogout('logout-form')">
                             <small class="align-middle">تسجيل الخروج</small>
                             <i class="ti ti-logout ms-2 ti-14px"></i>
                         </button>
@@ -396,13 +396,6 @@
                         </form>
                     </div>
                 </li>
-
-                <script>
-                    document.getElementById('logout-btn')
-                        .addEventListener('click', function() {
-                            document.getElementById('logout-form').submit();
-                        });
-                </script>
             </ul>
         </li>
         <!--/ User -->

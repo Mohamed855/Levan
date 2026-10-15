@@ -49,6 +49,47 @@ window.confirmDelete = function (id) {
 };
 
 /* --------------------------------------------------------------------------
+ | confirmLogout — confirmation modal before submitting logout form
+ -------------------------------------------------------------------------- */
+window.confirmLogout = function (formId) {
+    const targetForm = typeof formId === 'string'
+        ? document.getElementById(formId)
+        : (document.getElementById('tenant-logout-form') || document.getElementById('logout-form'));
+
+    if (typeof Swal === 'undefined') {
+        if (targetForm) targetForm.submit();
+        return;
+    }
+
+    Swal.fire(_swalDefaults({
+        title: 'تسجيل الخروج',
+        text:  'هل أنت متأكد من رغبتك في تسجيل الخروج؟',
+    })).then(function (result) {
+        if (result.isConfirmed && targetForm) {
+            targetForm.submit();
+        }
+    });
+};
+
+document.addEventListener('DOMContentLoaded', function () {
+    const tenantLogoutBtn = document.getElementById('tenant-logout-btn');
+    if (tenantLogoutBtn) {
+        tenantLogoutBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            window.confirmLogout('tenant-logout-form');
+        });
+    }
+
+    const adminLogoutBtn = document.getElementById('logout-btn');
+    if (adminLogoutBtn) {
+        adminLogoutBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            window.confirmLogout('logout-form');
+        });
+    }
+});
+
+/* --------------------------------------------------------------------------
  | confirmDeleteSelected — bulk delete via AJAX (no password)
  -------------------------------------------------------------------------- */
 window.confirmDeleteSelected = function (selectedIds, deleteUrl) {

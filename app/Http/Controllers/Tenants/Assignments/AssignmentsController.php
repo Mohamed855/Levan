@@ -18,6 +18,7 @@ use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Properties\Property;
 use App\Services\Tenants\Assignments\AssignmentService;
 use App\Services\Tenants\Shared\CentralCityOptionsGateway;
+use App\Helpers\Tenants\Settings\SettingsHelper;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
@@ -42,6 +43,7 @@ class AssignmentsController extends Controller
     public function index(AssignmentsDataTable $dataTable)
     {
         $statistics = $this->assignmentService->getStatistics();
+        $dateOptions = $this->assignmentService->dateFilterOptions();
 
         return $dataTable->render('tenants.assignments.index', [
             'totalAssignments' => $statistics['total'],
@@ -50,16 +52,20 @@ class AssignmentsController extends Controller
             'suspendedAssignments' => $statistics['suspended'],
             'auctionedAssignments' => $statistics['auctioned'],
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
+            'startDateOptions' => $dateOptions['start_dates'],
+            'endDateOptions' => $dateOptions['end_dates'],
         ]);
     }
 
     public function create(AssignmentPropertySelectionDataTable $dataTable)
     {
         $generatedAssignmentNumber = $this->assignmentService->generateAssignmentNumber();
+        $tenantImage = SettingsHelper::get('image');
 
         return $dataTable->render('tenants.assignments.create', [
             'generatedAssignmentNumber' => $generatedAssignmentNumber,
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
+            'propertyImageFallback' => $tenantImage ? tasset($tenantImage) : asset('static/brand/logos/logo.svg'),
         ]);
     }
 
@@ -81,14 +87,18 @@ class AssignmentsController extends Controller
 
     public function selectedProperties(SelectedAssignmentPropertiesRequest $request): JsonResponse
     {
+        $tenantImage = SettingsHelper::get('image');
+        $fallbackImage = $tenantImage ? tasset($tenantImage) : asset('static/brand/logos/logo.svg');
         $properties = Property::query()
             ->whereKey($request->validated('ids'))
-            ->get(['id', 'property_number', 'name', 'main_image'])
+            ->get(['id', 'property_number', 'name', 'type', 'city', 'main_image'])
             ->map(fn (Property $property): array => [
                 'id' => (string) $property->id,
                 'number' => $property->property_number,
                 'name' => $property->name,
-                'image' => $property->main_image ? tasset($property->main_image) : asset('assets/img/illustrations/page-pricing-standard.png'),
+                'type' => $property->type_label,
+                'city' => $property->city,
+                'image' => $property->main_image ? tasset($property->main_image) : $fallbackImage,
             ]);
 
         return response()->json(['data' => $properties]);

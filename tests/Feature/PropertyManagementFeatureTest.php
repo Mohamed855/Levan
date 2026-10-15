@@ -69,6 +69,16 @@ class PropertyManagementFeatureTest extends TestCase
         $response->assertSee('value="1"', false);
         $response->assertSee('value="0"', false);
         $response->assertDontSee('value="نشط"', false);
+        $this->assertMatchesRegularExpression(
+            '/class="[^"]*\bd-none\b[^"]*"[^>]*id="btn-download-annotated"/',
+            $response->getContent(),
+            'The annotated-image download button must be hidden before an image is uploaded.'
+        );
+        $this->assertMatchesRegularExpression(
+            '/class="[^"]*\bd-none\b[^"]*"[^>]*id="btn-clear-boundary"/',
+            $response->getContent(),
+            'The boundary-clear button must be hidden before an image is uploaded.'
+        );
     }
 
     public function test_property_creation_with_subtables_and_attachments(): void

@@ -6,7 +6,9 @@
 // Sweet Alert2 Modal
 .swal2-modal.swal2-popup {
     .swal2-title {
-        max-width: calc(var(--swal2-width) * 0.5);
+        max-width: 100%;
+        text-align: center;
+        justify-content: center;
         line-height: light.$line-height-base;
     }
 

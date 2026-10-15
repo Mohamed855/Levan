@@ -163,6 +163,104 @@ class TenantAssetModulesFeatureTest extends TestCase
 
         $this->assertNotNull($assignmentRow);
         $this->assertStringContainsString($imageUrl, $assignmentRow['image']);
+        $this->assertStringContainsString('نشط', $assignmentRow['status']);
+        $this->assertStringNotContainsString('js-table-status-toggle', $assignmentRow['status']);
+    }
+
+    public function test_assignment_creation_allows_omitting_district(): void
+    {
+        Storage::fake('tenant_public');
+        $property = $this->createUnassignedProperty('OPTIONAL-DISTRICT');
+        $assignmentNumber = 'OPTIONAL-DISTRICT-'.strtoupper(uniqid());
+
+        $this->actingAs($this->owner, 'tenant')
+            ->post($this->tenantUrl('assignments'), [
+                'assignment_number' => $assignmentNumber,
+                'name' => 'Assignment without district',
+                'issuing_entity' => 'Test authority',
+                'city' => 'Riyadh',
+                'category' => 'lands',
+                'status' => 'active',
+                'start_date' => now()->toDateString(),
+                'end_date' => now()->addMonth()->toDateString(),
+                'notes' => 'District is intentionally omitted.',
+                'property_ids' => [$property->id],
+                'assignment_image' => UploadedFile::fake()->image('assignment.jpg'),
+                'assignment_letter' => UploadedFile::fake()->create('letter.pdf', 100, 'application/pdf'),
+                'general_documents' => [UploadedFile::fake()->create('general.pdf', 100, 'application/pdf')],
+                'additional_attachments' => [UploadedFile::fake()->create('extra.pdf', 100, 'application/pdf')],
+            ])
+            ->assertRedirect($this->tenantUrl('assignments'));
+
+        $this->assertDatabaseHas('assignments', [
+            'assignment_number' => $assignmentNumber,
+            'district' => null,
+        ]);
+    }
+
+    public function test_assignment_index_uses_the_requested_select_filter_order(): void
+    {
+        $content = $this->actingAs($this->owner, 'tenant')
+            ->get($this->tenantUrl('assignments'))
+            ->assertOk()
+            ->getContent();
+
+        $filterIds = ['filter-category', 'filter-status', 'filter-start-date', 'filter-end-date', 'filter-city'];
+        $positions = array_map(fn (string $id): int|false => strpos($content, 'id="'.$id.'"'), $filterIds);
+
+        $this->assertNotContains(false, $positions);
+        $this->assertSame($positions, array_values(array_unique($positions)));
+        $this->assertSame($positions, collect($positions)->sort()->values()->all());
+        $this->assertStringContainsString('تصنيف الإسناد', $content);
+    }
+
+    public function test_assignment_table_filters_by_exact_start_and_end_dates(): void
+    {
+        $match = Assignment::create([
+            'assignment_number' => 'DATE-MATCH-'.strtoupper(uniqid()),
+            'name' => 'Exact date match',
+            'issuing_entity' => 'Test authority',
+            'category' => 'lands',
+            'status' => 'active',
+            'start_date' => '2031-01-10',
+            'end_date' => '2031-02-10',
+            'is_active' => true,
+            'created_by' => $this->owner->id,
+        ]);
+        $other = Assignment::create([
+            'assignment_number' => 'DATE-OTHER-'.strtoupper(uniqid()),
+            'name' => 'Different date',
+            'issuing_entity' => 'Test authority',
+            'category' => 'lands',
+            'status' => 'active',
+            'start_date' => '2031-01-11',
+            'end_date' => '2031-02-11',
+            'is_active' => true,
+            'created_by' => $this->owner->id,
+        ]);
+
+        $rows = $this->actingAs($this->owner, 'tenant')
+            ->getJson($this->tenantUrl('assignments?start_date=2031-01-10&end_date=2031-02-10'), ['X-Requested-With' => 'XMLHttpRequest'])
+            ->assertOk()
+            ->json('data');
+        $assignmentNumbers = collect($rows)->pluck('assignment_number')->implode(' ');
+
+        $this->assertStringContainsString($match->assignment_number, $assignmentNumbers);
+        $this->assertStringNotContainsString($other->assignment_number, $assignmentNumbers);
+    }
+
+    public function test_assignment_create_view_has_property_and_attachment_summary_contracts(): void
+    {
+        $response = $this->actingAs($this->owner, 'tenant')
+            ->get($this->tenantUrl('assignments/create'))
+            ->assertOk();
+
+        $response->assertSee('data-property-image-fallback', false);
+        $response->assertSee('general-documents-count', false);
+        $response->assertSee('additional-attachments-count', false);
+        $response->assertSee('review-general-documents', false);
+        $response->assertSee('review-additional-attachments', false);
+        $response->assertSee('لم يتم إرفاق ملفات بعد.', false);
     }
 
     public function test_assignment_creation_rejects_a_property_already_linked_to_an_assignment(): void
