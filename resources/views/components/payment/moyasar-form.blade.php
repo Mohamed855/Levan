@@ -14,7 +14,8 @@
 <div id="{{ $formId }}" class="mysr-form" aria-label="نموذج الدفع الآمن"></div>
 
 @once('moyasar-form-sdk')
-    <script src="https://cdn.moyasar.com/mpf.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/moyasar-payment-form@2.3.0/dist/moyasar.css">
+    <script src="https://cdn.jsdelivr.net/npm/moyasar-payment-form@2.3.0/dist/moyasar.umd.min.js"></script>
 @endonce
 
 <script>
@@ -22,12 +23,12 @@
         const formElement = document.getElementById(@json($formId));
         const errorMessage = document.getElementById(@json($formId . '-error'));
 
-        if (typeof window.Moyasar === 'undefined') {
-            errorMessage.hidden = false;
-            return;
-        }
+        const initialize = function() {
+            if (typeof window.Moyasar === 'undefined') {
+                errorMessage.hidden = false;
+                return;
+            }
 
-        try {
             window.Moyasar.init({
                 element: '#' + @json($formId),
                 amount: @json($amountInHalala),
@@ -38,6 +39,12 @@
                 methods: ['creditcard'],
                 supported_networks: ['mada', 'visa', 'mastercard', 'amex'],
             });
+
+            errorMessage.hidden = true;
+        };
+
+        try {
+            initialize();
         } catch (error) {
             errorMessage.hidden = false;
             formElement.hidden = true;

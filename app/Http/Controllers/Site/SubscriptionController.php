@@ -117,8 +117,6 @@ class SubscriptionController extends Controller
         abort_unless(is_array($verification) && isset($verification['verified_at']), 404);
 
         $checkout = array_merge($verification, $request->validated());
-        $request->session()->forget('checkout_verification');
-
         return $this->createPaymentFromVerifiedCheckout($checkout, $plan);
     }
 
@@ -198,11 +196,15 @@ class SubscriptionController extends Controller
 
             if (($checkout['payment_method'] ?? null) === 'bank_transfer') {
                 $this->handleBankTransfer($request, $pendingBill);
+                request()->session()->forget('checkout_verification');
 
                 return redirect()->route('site.index')->with('success', 'تم استلام طلبك بنجاح.');
             }
 
-            return $this->showMoyasarCheckout($pendingBill, $plan);
+            $moyasarView = $this->showMoyasarCheckout($pendingBill, $plan);
+            request()->session()->forget('checkout_verification');
+
+            return $moyasarView;
         } catch (PaymentInitiationException $e) {
             return redirect()->route('site.plans.checkout', $plan)->with('error', $e->getMessage());
         } catch (\Throwable $e) {
