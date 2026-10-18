@@ -48,6 +48,16 @@ function shouldSkipCell(td) {
     return true;
   }
 
+  // Copyable code elements (strictly single-line, truncated at 200px with ellipsis)
+  const copyable = td.querySelector('.copyable-code-wrapper, .copyable-code') || (td.classList.contains('copyable-code-wrapper') || td.classList.contains('copyable-code') ? td : null);
+  if (copyable) {
+    const fullCode = copyable.textContent.trim();
+    if (fullCode && !copyable.getAttribute('title')) {
+      copyable.setAttribute('title', fullCode);
+    }
+    return true;
+  }
+
   // Already clamped
   if (
     td.classList.contains('table-cell-clamp') ||

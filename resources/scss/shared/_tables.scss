@@ -379,9 +379,14 @@ table.dataTable td.custom-checkbox input[type="checkbox"],
     cursor: pointer;
     user-select: none;
     -webkit-user-select: none;
-    display: inline-flex;
+    display: inline-flex !important;
     align-items: center;
     gap: 0.25rem;
+    max-width: 200px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    vertical-align: middle;
     transition: background-color 0.2s ease, color 0.2s ease;
 
     &:hover {
@@ -400,16 +405,23 @@ table.dataTable td.custom-checkbox input[type="checkbox"],
         user-select: none;
         -webkit-user-select: none;
         cursor: pointer;
+        max-width: calc(200px - 28px) !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        display: inline-block !important;
+        vertical-align: middle;
     }
 
     .copy-icon,
     .ti-copy {
         font-size: 14px;
         cursor: pointer;
+        flex-shrink: 0 !important;
     }
 }
 
-// Standalone / Reusable Copyable Code
+// Standalone / Reusable Copyable Code (strictly single line, truncated at 200px)
 .copyable-code {
     color: var(--primary-color) !important;
     background-color: #f1f3f5;
@@ -422,6 +434,11 @@ table.dataTable td.custom-checkbox input[type="checkbox"],
     letter-spacing: 0.5px;
     display: inline-flex;
     align-items: center;
+    max-width: 200px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    vertical-align: middle;
     transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
 
     &:hover {

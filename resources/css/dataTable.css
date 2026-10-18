@@ -144,6 +144,86 @@ div.dataTables_processing>div:last-child>div {
     white-space: normal !important;
 }
 
+/* Single-click copyable entity code (strictly single-line, truncated at 200px with ellipsis) */
+.copyable-code-wrapper {
+    background-color: rgba(29, 79, 68, 0.06);
+    color: var(--primary-color, #1D4F44);
+    border: 1px dashed rgba(29, 79, 68, 0.25);
+    border-radius: 6px;
+    padding: 2px 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 0.25rem;
+    max-width: 200px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    vertical-align: middle;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.copyable-code-wrapper:hover {
+    background-color: rgba(29, 79, 68, 0.12);
+    color: var(--primary-color-deep, #12332C);
+}
+
+.copyable-code-wrapper .copyable-code {
+    background-color: transparent !important;
+    padding: 0 !important;
+    border: none !important;
+    color: inherit !important;
+    font-weight: inherit;
+    font-size: inherit;
+    letter-spacing: inherit;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: pointer;
+    max-width: calc(200px - 28px) !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: inline-block !important;
+    vertical-align: middle;
+}
+
+.copyable-code-wrapper .copy-icon,
+.copyable-code-wrapper .ti-copy {
+    font-size: 14px;
+    cursor: pointer;
+    flex-shrink: 0 !important;
+}
+
+/* Standalone / Reusable Copyable Code (strictly single line, truncated at 200px) */
+.copyable-code {
+    color: var(--primary-color, #1D4F44) !important;
+    background-color: #f1f3f5;
+    user-select: none;
+    -webkit-user-select: none;
+    padding: 2px 6px;
+    border-radius: 0.25rem;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    max-width: 200px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    vertical-align: middle;
+    transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+}
+
+.copyable-code:hover {
+    background-color: rgba(29, 79, 68, 0.12);
+    color: var(--primary-color-deep, #12332C) !important;
+}
+
 .custom-checkbox {
     text-align: center;
     vertical-align: middle;
