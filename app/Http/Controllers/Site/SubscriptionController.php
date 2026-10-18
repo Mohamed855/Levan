@@ -41,14 +41,18 @@ class SubscriptionController extends Controller
         }
 
         $verification = request()->session()->get('checkout_verification');
-        if (is_array($verification) && (int) ($verification['expires_at'] ?? 0) < now()->timestamp) {
+        if (is_array($verification)
+            && ! isset($verification['verified_at'])
+            && (int) ($verification['expires_at'] ?? 0) < now()->timestamp) {
             request()->session()->forget('checkout_verification');
             $verification = null;
         }
 
         $otpStep = is_array($verification) && ! isset($verification['verified_at']) && (int) ($verification['plan_id'] ?? 0) === (int) $plan->getKey();
         $paymentStep = is_array($verification) && isset($verification['verified_at']) && (int) ($verification['plan_id'] ?? 0) === (int) $plan->getKey();
-        $checkoutData = $otpStep ? collect($verification)->except(['plan_id', 'expires_at', 'otp_hash'])->all() : [];
+        $checkoutData = ($otpStep || $paymentStep)
+            ? collect($verification)->except(['plan_id', 'expires_at', 'otp_hash', 'verified_at'])->all()
+            : [];
         $banks = Bank::where('is_active', true)->get();
         $cities = City::all();
         $taxRate = 0.15;

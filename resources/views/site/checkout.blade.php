@@ -31,6 +31,14 @@
         </script>
     @endif
 
+    @if (session('error'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                toastr.error(@json(session('error')));
+            });
+        </script>
+    @endif
+
     <main class="site-main">
         <!-- Sub Hero -->
         <section class="site-page-hero">
@@ -90,9 +98,6 @@
                                         <div class="d-flex align-items-center justify-content-between mt-3">
                                             <div id="checkout-otp-timer" class="otp-timer fw-bold"
                                                 data-expires-at="{{ $verification['expires_at'] }}"></div>
-                                            <a href="{{ route('site.plans.checkout.edit', $plan) }}" class="otp-edit-link">
-                                                تعديل البيانات
-                                            </a>
                                         </div>
                                     </form>
                                 </div>
@@ -102,6 +107,9 @@
                             @include('site.partials.checkout-summary', [
                                 'showSubmitButton' => true,
                                 'formId' => 'otp-form',
+                                'submitId' => 'submit-otp-btn',
+                                'submitLabel' => 'تأكيد والمتابعة',
+                                'showEditLink' => true,
                             ])
                             @if (false)
                                 <div class="checkout-card scroll-revealed">
@@ -150,13 +158,14 @@
                         </aside>
                     </div>
                 @else
-                    <form id="payment-form" method="POST"
+                    <form id="payment-form" method="POST" data-checkout-step="{{ $paymentStep ? 'payment' : 'details' }}"
                         action="{{ $paymentStep ? route('site.plans.checkout.payment', $plan->id) : route('site.plans.checkout.store', $plan->id) }}"
-                        autocomplete="off" enctype="multipart/form-data" data-form-validate
-                        data-validation-url="{{ route('site.form-validation') }}" novalidate>
+                        autocomplete="off" enctype="multipart/form-data"
+                        @if (!$paymentStep) data-form-validate data-validation-url="{{ route('site.form-validation') }}" @endif
+                        novalidate>
                         @csrf
-                        <input type="hidden" name="coupon_code" id="coupon_code_hidden">
-                        <input type="hidden" name="bank_id" id="bank_id">
+                        <input type="hidden" name="coupon_code" id="coupon_code_hidden" data-validation-skip>
+                        <input type="hidden" name="bank_id" id="bank_id" data-validation-skip>
 
                         <div class="checkout-grid">
                             <!-- Main Forms Column -->
@@ -190,7 +199,7 @@
                                                 label="العنوان أو الحي (اختياري)" placeholder="الرياض، حي السليمانية" />
 
                                             <x-form.controls.input name="billing_name" label="اسم المدير المسؤول"
-                                                placeholder="الاسم الثلاثي" required />
+                                                placeholder="أدخل اسم المدير" required />
 
                                             <x-form.controls.input name="billing_email" type="email"
                                                 label="البريد الإلكتروني للإدارة" placeholder="admin@company.com"
@@ -221,7 +230,7 @@
                                             <!-- Credit Card Option -->
                                             <label class="payment-option" data-method="card" for="payment_method_card">
                                                 <input type="radio" name="payment_method" id="payment_method_card"
-                                                    value="card" class="d-none">
+                                                    value="card" class="d-none" data-validation-skip>
                                                 <div class="payment-icon-wrap">
                                                     <i class="ti ti-credit-card"></i>
                                                 </div>
@@ -238,7 +247,7 @@
                                                 for="payment_method_bank_transfer">
                                                 <input type="radio" name="payment_method"
                                                     id="payment_method_bank_transfer" value="bank_transfer"
-                                                    class="d-none">
+                                                    class="d-none" data-validation-skip>
                                                 <div class="payment-icon-wrap">
                                                     <i class="ti ti-building-bank"></i>
                                                 </div>
@@ -284,7 +293,8 @@
                                     </div>
                                     <div class="checkout-card-body">
                                         @if ($banks->isEmpty())
-                                            <div class="alert alert-warning d-flex align-items-center gap-2">
+                                            <div class="site-alert site-alert-warning d-flex align-items-center gap-2"
+                                                role="alert">
                                                 <i class="ti ti-alert-triangle"></i>
                                                 لا توجد حسابات بنكية معتمدة حالياً، يرجى اختيار الدفع بالبطاقة.
                                             </div>
@@ -339,7 +349,7 @@
                                                 <div class="upload-area" id="upload-area">
                                                     <input type="file" name="transfer_receipt" id="transfer_receipt"
                                                         accept="image/jpeg,image/jpg,image/png,application/pdf"
-                                                        class="d-none">
+                                                        class="d-none" data-validation-skip>
                                                     <div class="upload-icon-wrap">
                                                         <i class="ti ti-cloud-upload"></i>
                                                     </div>
@@ -370,7 +380,10 @@
 
                             <!-- Order Summary Column -->
                             <div class="checkout-summary-col">
-                                @include('site.partials.checkout-summary', ['showSubmitButton' => true])
+                                @include('site.partials.checkout-summary', [
+                                    'showSubmitButton' => true,
+                                    'showEditLink' => $paymentStep,
+                                ])
                                 @if (false)
                                     <div class="checkout-card scroll-revealed">
                                         <div class="checkout-card-header">

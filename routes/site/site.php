@@ -16,6 +16,7 @@ Route::name('site.')->group(function () {
         ->defaults('shared_form_validation_actions', [
             LandingPageController::class.'@contactRequest',
             SubscriptionController::class.'@processCheckout',
+            SubscriptionController::class.'@completeCheckout',
             TrialController::class.'@demoRequest',
         ])
         ->name('form-validation');
@@ -27,7 +28,9 @@ Route::name('site.')->group(function () {
             ->name('checkout.store');  // الدفع
         Route::post('checkout/{plan}/verify-email', [SubscriptionController::class, 'verifyOtp'])->name('checkout.verify.store');
         Route::get('checkout/{plan}/edit', [SubscriptionController::class, 'editCheckout'])->name('checkout.edit');
-        Route::post('checkout/{plan}/payment', [SubscriptionController::class, 'completeCheckout'])->name('checkout.payment');
+        Route::post('checkout/{plan}/payment', [SubscriptionController::class, 'completeCheckout'])
+            ->defaults('shared_form_validation', true)
+            ->name('checkout.payment');
         Route::get('checkout/{plan}/details', [SubscriptionController::class, 'checkout'])->name('checkout'); // عرض التفاصيل
     });
 

@@ -185,6 +185,83 @@ document.addEventListener('DOMContentLoaded', function () {
         if (event.target === imageModal) imageModal.classList.remove('active');
     });
 
+    const notifyError = (message) => {
+        if (window.toastr && typeof window.toastr.error === 'function') {
+            window.toastr.error(message);
+        } else if (typeof toastr !== 'undefined' && typeof toastr.error === 'function') {
+            toastr.error(message);
+        } else {
+            alert(message);
+        }
+    };
+
+    const isPaymentStep = () => {
+        if (paymentForm.dataset.checkoutStep === 'payment') {
+            return true;
+        }
+        if (document.getElementById('submit-payment-btn')) {
+            return true;
+        }
+        const paymentGrid = document.querySelector('.payment-options-grid');
+        return Boolean(paymentGrid && !paymentGrid.closest('.d-none'));
+    };
+
+    paymentForm.addEventListener('submit', function (event) {
+        if (!isPaymentStep()) {
+            return;
+        }
+
+        const checkedMethod = paymentForm.querySelector('input[name="payment_method"]:checked')?.value;
+
+        if (!checkedMethod) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            notifyError('يرجى اختيار طريقة الدفع للمتابعة');
+            return false;
+        }
+
+        if (checkedMethod === 'bank_transfer') {
+            const bankId = document.getElementById('bank_id')?.value;
+            if (!bankId) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                notifyError('يرجى اختيار الحساب البنكي المراد التحويل إليه');
+                return false;
+            }
+
+            const receiptInput = document.getElementById('transfer_receipt');
+            const receiptFile = receiptInput?.files?.[0] || selectedFiles?.[0];
+            if (!receiptFile) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                notifyError('يرجى إرفاق إيصال التحويل البنكي');
+                return false;
+            }
+
+            if (receiptFile.size > 5 * 1024 * 1024) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                notifyError('حجم إيصال التحويل يجب ألا يتجاوز 5 ميجابايت');
+                return false;
+            }
+
+            const allowedExts = ['jpg', 'jpeg', 'png', 'pdf'];
+            const fileExt = receiptFile.name.split('.').pop()?.toLowerCase();
+            if (!allowedExts.includes(fileExt)) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                notifyError('صيغة الملف غير مدعومة، يرجى رفع ملف بصيغة JPG أو PNG أو PDF');
+                return false;
+            }
+        }
+
+        const submitBtn = paymentForm.querySelector('button[type="submit"]') || document.getElementById('submit-payment-btn');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> جاري المعالجة...';
+        }
+    }, true);
+
     paymentForm.addEventListener('formValidationPassed', () => {
         const submitButton = paymentForm.querySelector('button[type="submit"]');
         if (!submitButton) return;

@@ -178,6 +178,11 @@
       }
     }
   }
+
+  .invalid-feedback,
+  [data-form-error] {
+    display: none !important;
+  }
 }
 
 // Bank Cards
@@ -601,20 +606,59 @@
     font-size: var(--site-font-base);
     font-weight: 700;
   }
+}
 
-  .otp-edit-link {
+.site-alert {
+  padding: 1rem 1.15rem;
+  border: 1px solid transparent;
+  border-radius: var(--site-radius-md);
+  gap: 0.5rem;
+  line-height: 1.7;
+
+  i {
+    flex: 0 0 auto;
+    font-size: 1.25rem;
+  }
+}
+
+.otp-edit-link {
+    width: 100% !important;
     color: var(--site-primary);
     font-size: var(--site-font-base);
     font-weight: 600;
     text-decoration: none;
     cursor: pointer;
     transition: color var(--site-transition-fast);
+    margin-top: 1rem;
+    text-align: center !important;
 
     &:hover {
       text-decoration: underline !important;
       color: var(--site-primary);
     }
   }
+
+.site-alert-warning {
+  color: #92400e;
+  background: #fffbeb;
+  border-color: #fcd34d;
+}
+
+.site-alert-success {
+  color: #166534;
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.site-alert-danger {
+  color: #991b1b;
+  background: #fef2f2;
+  border-color: #fca5a5;
+}
+
+#coupon-message .site-alert {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
 }
 
 .summary-details {

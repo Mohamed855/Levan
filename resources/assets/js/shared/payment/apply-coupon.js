@@ -138,11 +138,11 @@ document.addEventListener('DOMContentLoaded', function () {
     function showCouponMessage(message, type) {
         const isSuccess = type === 'success';
         const colorClass = isSuccess
-            ? 'bg-green-50 border-green-200 text-green-700'
-            : 'bg-red-50 border-red-200 text-red-700';
+            ? 'site-alert site-alert-success'
+            : 'site-alert site-alert-danger';
 
         couponMessage.innerHTML = `
-        <div class="${colorClass} flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-semibold ">
+        <div class="${colorClass} d-flex align-items-center gap-2">
            ${message}
         </div>
     `;
