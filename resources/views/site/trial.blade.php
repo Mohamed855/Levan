@@ -6,10 +6,12 @@
 @endsection
 
 @section('page-script')
+    {{-- Temporarily disabled reCAPTCHA.
     <script>
         window.recaptchaSiteKey = @json(config('services.recaptcha.site_key'));
     </script>
     <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+    --}}
     @vite(['resources/assets/js/shared/form-validation.js'])
 @endsection
 

@@ -47,7 +47,7 @@
                             الباقات والأسعار
                         </a>
                     </li>
-                    <li>
+                    {{-- <li>
                         <a href="{{ route('site.index') }}#portfolios">
                             <i class="ti ti-chevron-left"></i>
                             المحافظ
@@ -58,7 +58,7 @@
                             <i class="ti ti-chevron-left"></i>
                             عملاؤنا
                         </a>
-                    </li>
+                    </li> --}}
                     <li>
                         <a href="{{ route('site.index') }}#faq">
                             <i class="ti ti-chevron-left"></i>

@@ -91,7 +91,7 @@
                             رقم الهاتف <span class="required-star">*</span>
                         </label>
                         <input type="tel" id="trial_customer_phone" name="customer_phone" data-form-control
-                            dir="ltr" data-phone-format="international" class="site-input text-end"
+                            dir="ltr" data-phone-format="mobile" class="site-input text-end"
                             placeholder="05XXXXXXXX" required />
                         <p class="invalid-feedback" data-form-error aria-live="polite" hidden></p>
                     </div>

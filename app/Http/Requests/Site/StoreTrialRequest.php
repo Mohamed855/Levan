@@ -8,6 +8,20 @@ use Illuminate\Validation\ValidationException;
 
 class StoreTrialRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        $phone = (string) $this->input('customer_phone', '');
+        $arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+
+        $this->merge([
+            'customer_phone' => preg_replace(
+                '/[^0-9]/',
+                '',
+                str_replace($arabicDigits, range(0, 9), $phone),
+            ),
+        ]);
+    }
+
     public function authorize()
     {
         return true;
@@ -19,7 +33,7 @@ class StoreTrialRequest extends FormRequest
             'customer_name' => ['required', 'string', 'min:2', 'max:100'],
             'customer_email' => ['required', 'email', 'max:255'],
             'customer_phone' => ['required', 'regex:/^(05\d{8}|966\d{9})$/'],
-            'g-recaptcha-response' => ['required', 'string'],
+            // 'g-recaptcha-response' => ['required', 'string'],
         ];
     }
 
@@ -41,6 +55,9 @@ class StoreTrialRequest extends FormRequest
 
     protected function passedValidation(): void
     {
+        // Temporarily disabled until the reCAPTCHA keys are configured.
+        return;
+
         $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
             'secret' => config('services.recaptcha.secret_key'),
             'response' => $this->input('g-recaptcha-response'),

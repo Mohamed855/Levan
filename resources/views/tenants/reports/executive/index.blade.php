@@ -205,8 +205,13 @@
         <div class="report-toolbar mb-3">
             <div class="row g-4 align-items-end">
                 <div class="col-lg-3 col-md-6">
-                    <label class="form-label">الفترة</label>
-                    <input type="text" id="dateRange" class="form-control filter-control">
+                    <label class="form-label">من تاريخ</label>
+                    <input type="date" id="date-from" class="form-control filter-control">
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label">إلى تاريخ</label>
+                    <input type="date" id="date-to" class="form-control filter-control">
                 </div>
 
                 <div class="col-lg-3 col-md-6">
@@ -531,35 +536,16 @@
             let currentDateTo = '';
 
             // ── Flatpickr ────────────────────────────────────────────────────
-            const fp = flatpickr('#dateRange', {
-                mode: 'range',
-                dateFormat: 'd/m/Y',
-                defaultDate: [
-                    new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-                    new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
-                ],
-                locale: {
-                    rangeSeparator: ' - '
-                },
-                onChange(selectedDates) {
-                    if (selectedDates.length === 2) {
-                        const fmt = d => d.toLocaleDateString('en-GB').split('/').join('/');
-                        currentDateFrom = fmt(selectedDates[0]);
-                        currentDateTo = fmt(selectedDates[1]);
-                        fetchDashboard();
-                    }
-                }
-            });
-
-            // Init default dates from flatpickr
+            const dateFromInput = document.getElementById('date-from');
+            const dateToInput = document.getElementById('date-to');
             const today = new Date();
             const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
             const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-            const padDate = d => String(d).padStart(2, '0');
-            currentDateFrom =
-                `${padDate(startDate.getDate())}/${padDate(startDate.getMonth()+1)}/${startDate.getFullYear()}`;
-            currentDateTo =
-                `${padDate(endDate.getDate())}/${padDate(endDate.getMonth()+1)}/${endDate.getFullYear()}`;
+            const toInputDate = date => date.toISOString().slice(0, 10);
+            dateFromInput.value = toInputDate(startDate);
+            dateToInput.value = toInputDate(endDate);
+            currentDateFrom = dateFromInput.value;
+            currentDateTo = dateToInput.value;
 
             // ── Portfolio filter cascade ──────────────────────────────────────
             function updatePortfolioOptions() {
@@ -1186,15 +1172,24 @@
                 fetchDashboard();
             });
 
+            dateFromInput.addEventListener('change', () => {
+                currentDateFrom = dateFromInput.value;
+                fetchDashboard();
+            });
+
+            dateToInput.addEventListener('change', () => {
+                currentDateTo = dateToInput.value;
+                fetchDashboard();
+            });
+
             document.getElementById('resetFilters').addEventListener('click', () => {
                 companyFilter.value = 'all';
                 portfolioFilter.value = 'all';
                 updatePortfolioOptions();
-                fp.setDate([startDate, endDate]);
-                currentDateFrom =
-                    `${padDate(startDate.getDate())}/${padDate(startDate.getMonth()+1)}/${startDate.getFullYear()}`;
-                currentDateTo =
-                    `${padDate(endDate.getDate())}/${padDate(endDate.getMonth()+1)}/${endDate.getFullYear()}`;
+                dateFromInput.value = toInputDate(startDate);
+                dateToInput.value = toInputDate(endDate);
+                currentDateFrom = dateFromInput.value;
+                currentDateTo = dateToInput.value;
                 fetchDashboard();
             });
 

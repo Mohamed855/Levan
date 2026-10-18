@@ -42,6 +42,11 @@ table.dataTable {
                 border-bottom: 1px solid rgba(29, 79, 68, 0.06) !important;
                 color: var(--brand-dark-green, #12332C);
                 font-size: var(--font-size-base, 0.9375rem);
+                font-weight: 400 !important;
+
+                * {
+                    font-weight: 400 !important;
+                }
             }
         }
     }

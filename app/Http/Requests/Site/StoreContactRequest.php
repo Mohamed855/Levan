@@ -19,7 +19,7 @@ class StoreContactRequest extends FormRequest
             'customer_name' => ['required', 'string', 'min:3', 'max:100'],
             'customer_email' => ['required', 'email'],
             'message' => ['required', 'string', 'min:10'],
-            'g-recaptcha-response' => ['required', 'string'],
+            // 'g-recaptcha-response' => ['required', 'string'],
         ];
     }
 
@@ -38,6 +38,9 @@ class StoreContactRequest extends FormRequest
 
     protected function passedValidation(): void
     {
+        // Temporarily disabled until the reCAPTCHA keys are configured.
+        return;
+
         $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
             'secret' => config('services.recaptcha.secret_key'),
             'response' => $this->input('g-recaptcha-response'),

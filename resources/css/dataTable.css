@@ -88,6 +88,11 @@ div.dataTables_processing>div:last-child>div {
     --bs-table-bg-type: initial !important;
 }
 
+.dataTable tbody td,
+.dataTable tbody td * {
+    font-weight: 400 !important;
+}
+
 .custom-checkbox {
     text-align: center;
     vertical-align: middle;
@@ -197,10 +202,8 @@ input[type="checkbox"].row-checkbox:hover,
 }
 
 #customers-table,
-#customers-table th,
-#customers-table td {
+#customers-table th {
     color: #000 !important;
-    font-weight: 600;
 }
 
 

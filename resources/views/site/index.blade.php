@@ -7,10 +7,12 @@
 @endsection
 
 @section('page-script')
+    {{-- Temporarily disabled reCAPTCHA.
     <script>
         window.recaptchaSiteKey = @json(config('services.recaptcha.site_key'));
     </script>
     <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+    --}}
     @vite(['resources/assets/js/shared/form-validation.js'])
 @endsection
 
@@ -20,181 +22,181 @@
 
 @section('content')
 
-@if ($errors->any())
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            @foreach ($errors->all() as $error)
-                toastr.error(@json($error));
-            @endforeach
-        });
-    </script>
-@endif
-
-<main class="site-main">
-    <!-- 1. Hero Section -->
-    <section id="home" class="hero-section">
-        <div class="container">
-            <div class="hero-grid">
-                <!-- Content Column -->
-                <div class="hero-content scroll-revealed">
-                    <span class="hero-eyebrow">
-                        <i class="ti ti-sparkles"></i>
-                        المنصة الرقمية الرائدة
-                    </span>
-
-                    <h1 class="hero-title">
-                        منصة لوت لإدارة <span class="hero-title-highlight">المزادات والأصول</span>
-                    </h1>
-
-                    <p class="hero-desc">
-                        حل رقمي متكامل مصمم خصيصاً لتمكين الشركات والجهات من ضبط وإدارة المزادات والتحصيلات بثقة وكفاءة استثنائية.
-                    </p>
-
-                    <div class="hero-actions">
-                        <a href="{{ $plans->isNotEmpty() ? route('site.plans.checkout', $plans->first()->id) : '#pricing' }}"
-                           class="btn-hero-primary" role="button">
-                            <span>طلب اشتراك</span>
-                            <i class="ti ti-arrow-left"></i>
-                        </a>
-
-                        <a href="{{ route('site.trial') }}" class="btn-hero-outline" role="button">
-                            <span>تجربة مجانية</span>
-                            <i class="ti ti-device-laptop"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Media Column -->
-                <div class="hero-media scroll-revealed">
-                    <figure>
-                        <img src="{{ asset('static/site/images/hero.png') }}" alt="لوت LOT منصة المزادات والأصول">
-                    </figure>
-
-                    <img src="{{ asset('static/site/images/dots.svg') }}" alt="" class="hero-dots hero-dots--bottom-left">
-                    <img src="{{ asset('static/site/images/dots.svg') }}" alt="" class="hero-dots hero-dots--top-right">
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 2. Services Section -->
-    <section id="services" class="section-area">
-        <div class="container">
-            <x-site.section-header
-                title="أبرز مميزات منصة لوت"
-                subtitle="خدمات متكاملة"
-                desc="نقدّم حزمة متطورة من الأدوات الذكية المصممة لرفع كفاءة أعمالك وضبط العمليات بدقة متناهية."
-            />
-
-            <div class="services-grid">
-                <!-- Feature 1 -->
-                <div class="service-card scroll-revealed">
-                    <div class="service-icon-wrap">
-                        <i class="ti ti-layout-dashboard"></i>
-                    </div>
-                    <h3 class="service-title">لوحة القيادة الذكية</h3>
-                    <p class="service-desc">
-                        نظرة شاملة ولحظية على مؤشرات الأداء الحيوية، وحالة المزادات، وسير عمليات التحصيل والمهام الجارية.
-                    </p>
-                </div>
-
-                <!-- Feature 2 -->
-                <div class="service-card scroll-revealed">
-                    <div class="service-icon-wrap">
-                        <i class="ti ti-arrows-shuffle"></i>
-                    </div>
-                    <h3 class="service-title">توزيع ذكي وعادل</h3>
-                    <p class="service-desc">
-                        آليات مؤتمتة لتوزيع المحافظ والمهام بين فرق العمل حسب المبالغ أو الكثافة لضمان أعلى مستويات الإنتاجية.
-                    </p>
-                </div>
-
-                <!-- Feature 3 -->
-                <div class="service-card scroll-revealed">
-                    <div class="service-icon-wrap">
-                        <i class="ti ti-chart-bar"></i>
-                    </div>
-                    <h3 class="service-title">لوحة التميز التنافسية</h3>
-                    <p class="service-desc">
-                        شاشات تقدم لحظية تعزز الشفافية والتحفيز التنافسي الإيجابي بين فرق العمل التنفيذية.
-                    </p>
-                </div>
-
-                <!-- Feature 4 -->
-                <div class="service-card scroll-revealed">
-                    <div class="service-icon-wrap">
-                        <i class="ti ti-stack-front"></i>
-                    </div>
-                    <h3 class="service-title">إدارة شاملة للعمليات</h3>
-                    <p class="service-desc">
-                        إدارة مرنة للمحافظ والعملاء والأصول وصلاحيات المستخدمين بأعلى معايير الحوكمة والأمان.
-                    </p>
-                </div>
-
-                <!-- Feature 5 -->
-                <div class="service-card scroll-revealed">
-                    <div class="service-icon-wrap">
-                        <i class="ti ti-headset"></i>
-                    </div>
-                    <h3 class="service-title">دعم فني استشاري 24/7</h3>
-                    <p class="service-desc">
-                        فريق تقني واستشاري متخصص على مدار الساعة لمرافقتك في تخصيص وتشغيل المنصة بكل سلاسة.
-                    </p>
-                </div>
-
-                <!-- Feature 6 -->
-                <div class="service-card scroll-revealed">
-                    <div class="service-icon-wrap">
-                        <i class="ti ti-trending-up"></i>
-                    </div>
-                    <h3 class="service-title">تقارير تحليلية وأرشفة</h3>
-                    <p class="service-desc">
-                        تقارير مالية وتشغيلية تفصيلية جاهزة للتصدير مع نظام أرشفة موثق يحفظ كامل المستندات والوثائق.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 3. Pricing Section -->
-    <section id="pricing" class="section-area section-area--alt">
-        <div class="container">
-            <x-site.section-header
-                title="باقات مرنة تناسب طموحك"
-                subtitle="الباقات والأسعار"
-                desc="نوفر باقات اشتراك مدروسة وشفافة تمنحك كافة الإمكانات لتوسيع أعمالك وإدارة مزاداتك بأمان."
-            />
-
-            <div class="pricing-grid">
-                @foreach ($plans as $plan)
-                    <div class="scroll-revealed">
-                        <x-ui.package-card :plan="$plan" :action-url="route('site.plans.checkout', $plan->id)" />
-                    </div>
+    @if ($errors->any())
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                @foreach ($errors->all() as $error)
+                    toastr.error(@json($error));
                 @endforeach
-            </div>
-        </div>
-    </section>
+            });
+        </script>
+    @endif
 
-    <!-- 4. Call to Action Banner -->
-    <section id="call-action" class="cta-section">
-        <div class="container">
-            <div class="cta-content scroll-revealed">
-                <h2 class="cta-title">
-                    تحكّم في مزاداتك وتوقف عن إدارة الأصول يدوياً
-                </h2>
-                <p class="cta-desc">
-                    مع لوت، كل إجراء منظم في مساره الصحيح، وكل مستند تحت عينك، مع متابعة دقيقة لمراحل العمل من البداية وحتى الإسناد.
-                    مزادك يبدأ مع لوت.
-                </p>
-                <a href="{{ route('site.trial') }}" class="btn-cta" role="button">
-                    <span>ابدأ تجربتك المجانية الآن</span>
-                    <i class="ti ti-arrow-left"></i>
-                </a>
-            </div>
-        </div>
-    </section>
+    <main class="site-main">
+        <!-- 1. Hero Section -->
+        <section id="home" class="hero-section">
+            <div class="container">
+                <div class="hero-grid">
+                    <!-- Content Column -->
+                    <div class="hero-content scroll-revealed">
+                        <span class="hero-eyebrow">
+                            <i class="ti ti-sparkles"></i>
+                            المنصة الرقمية الرائدة
+                        </span>
 
-    <!-- 5. Portfolios Section -->
+                        <h1 class="hero-title">
+                            منصة لوت لإدارة <span class="hero-title-highlight">المزادات والأصول</span>
+                        </h1>
+
+                        <p class="hero-desc">
+                            حل رقمي متكامل مصمم خصيصاً لتمكين الشركات والجهات من ضبط وإدارة المزادات والتحصيلات بثقة وكفاءة
+                            استثنائية.
+                        </p>
+
+                        <div class="hero-actions">
+                            <a href="{{ $plans->isNotEmpty() ? route('site.plans.checkout', $plans->first()->id) : '#pricing' }}"
+                                class="btn-hero-primary" role="button">
+                                <span>طلب اشتراك</span>
+                                <i class="ti ti-arrow-left"></i>
+                            </a>
+
+                            <a href="{{ route('site.trial') }}" class="btn-hero-outline" role="button">
+                                <span>تجربة مجانية</span>
+                                <i class="ti ti-device-laptop"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Media Column -->
+                    <div class="hero-media scroll-revealed">
+                        <figure>
+                            <img src="{{ asset('static/site/images/hero.png') }}" alt="لوت LOT منصة المزادات والأصول">
+                        </figure>
+
+                        <img src="{{ asset('static/site/images/dots.svg') }}" alt=""
+                            class="hero-dots hero-dots--bottom-left">
+                        <img src="{{ asset('static/site/images/dots.svg') }}" alt=""
+                            class="hero-dots hero-dots--top-right">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Services Section -->
+        <section id="services" class="section-area">
+            <div class="container">
+                <x-site.section-header title="أبرز مميزات منصة لوت" subtitle="خدمات متكاملة"
+                    desc="نقدّم حزمة متطورة من الأدوات الذكية المصممة لرفع كفاءة أعمالك وضبط العمليات بدقة متناهية." />
+
+                <div class="services-grid">
+                    <!-- Feature 1 -->
+                    <div class="service-card scroll-revealed">
+                        <div class="service-icon-wrap">
+                            <i class="ti ti-layout-dashboard"></i>
+                        </div>
+                        <h3 class="service-title">لوحة القيادة الذكية</h3>
+                        <p class="service-desc">
+                            نظرة شاملة ولحظية على مؤشرات الأداء الحيوية، وحالة المزادات، وسير عمليات التحصيل والمهام
+                            الجارية.
+                        </p>
+                    </div>
+
+                    <!-- Feature 2 -->
+                    <div class="service-card scroll-revealed">
+                        <div class="service-icon-wrap">
+                            <i class="ti ti-arrows-shuffle"></i>
+                        </div>
+                        <h3 class="service-title">توزيع ذكي وعادل</h3>
+                        <p class="service-desc">
+                            آليات مؤتمتة لتوزيع المحافظ والمهام بين فرق العمل حسب المبالغ أو الكثافة لضمان أعلى مستويات
+                            الإنتاجية.
+                        </p>
+                    </div>
+
+                    <!-- Feature 3 -->
+                    <div class="service-card scroll-revealed">
+                        <div class="service-icon-wrap">
+                            <i class="ti ti-chart-bar"></i>
+                        </div>
+                        <h3 class="service-title">لوحة التميز التنافسية</h3>
+                        <p class="service-desc">
+                            شاشات تقدم لحظية تعزز الشفافية والتحفيز التنافسي الإيجابي بين فرق العمل التنفيذية.
+                        </p>
+                    </div>
+
+                    <!-- Feature 4 -->
+                    <div class="service-card scroll-revealed">
+                        <div class="service-icon-wrap">
+                            <i class="ti ti-stack-front"></i>
+                        </div>
+                        <h3 class="service-title">إدارة شاملة للعمليات</h3>
+                        <p class="service-desc">
+                            إدارة مرنة للمحافظ والعملاء والأصول وصلاحيات المستخدمين بأعلى معايير الحوكمة والأمان.
+                        </p>
+                    </div>
+
+                    <!-- Feature 5 -->
+                    <div class="service-card scroll-revealed">
+                        <div class="service-icon-wrap">
+                            <i class="ti ti-headset"></i>
+                        </div>
+                        <h3 class="service-title">دعم فني استشاري 24/7</h3>
+                        <p class="service-desc">
+                            فريق تقني واستشاري متخصص على مدار الساعة لمرافقتك في تخصيص وتشغيل المنصة بكل سلاسة.
+                        </p>
+                    </div>
+
+                    <!-- Feature 6 -->
+                    <div class="service-card scroll-revealed">
+                        <div class="service-icon-wrap">
+                            <i class="ti ti-trending-up"></i>
+                        </div>
+                        <h3 class="service-title">تقارير تحليلية وأرشفة</h3>
+                        <p class="service-desc">
+                            تقارير مالية وتشغيلية تفصيلية جاهزة للتصدير مع نظام أرشفة موثق يحفظ كامل المستندات والوثائق.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Pricing Section -->
+        <section id="pricing" class="section-area section-area--alt">
+            <div class="container">
+                <x-site.section-header title="باقات مرنة تناسب طموحك" subtitle="الباقات والأسعار"
+                    desc="نوفر باقات اشتراك مدروسة وشفافة تمنحك كافة الإمكانات لتوسيع أعمالك وإدارة مزاداتك بأمان." />
+
+                <div class="pricing-grid">
+                    @foreach ($plans as $plan)
+                        <div class="scroll-revealed">
+                            <x-ui.package-card :plan="$plan" :action-url="route('site.plans.checkout', $plan->id)" />
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Call to Action Banner -->
+        <section id="call-action" class="cta-section">
+            <div class="container">
+                <div class="cta-content scroll-revealed">
+                    <h2 class="cta-title">
+                        تحكّم في مزاداتك وتوقف عن إدارة الأصول يدوياً
+                    </h2>
+                    <p class="cta-desc">
+                        مع لوت، كل إجراء منظم في مساره الصحيح، وكل مستند تحت عينك، مع متابعة دقيقة لمراحل العمل من البداية
+                        وحتى الإسناد.
+                        مزادك يبدأ مع لوت.
+                    </p>
+                    <a href="{{ route('site.trial') }}" class="btn-cta" role="button">
+                        <span>ابدأ تجربتك المجانية الآن</span>
+                        <i class="ti ti-arrow-left"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        {{-- <!-- 5. Portfolios Section -->
     <section id="portfolios" class="section-area">
         <div class="container">
             <x-site.section-header
@@ -331,136 +333,127 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> --}}
 
-    <!-- 8. FAQ Section -->
-    <section id="faq" class="section-area section-area--alt">
-        <div class="container">
-            <x-site.section-header
-                title="الأسئلة الشائعة"
-                subtitle="إجابات واضحة"
-                desc="إليك أهم الأسئلة التي يطرحها عملاؤنا، لمساعدتك في التعرف على إمكانات النظام بكل وضوح."
-            />
+        <!-- 8. FAQ Section -->
+        <section id="faq" class="section-area section-area--alt">
+            <div class="container">
+                <x-site.section-header title="الأسئلة الشائعة" subtitle="إجابات واضحة"
+                    desc="إليك أهم الأسئلة التي يطرحها عملاؤنا، لمساعدتك في التعرف على إمكانات النظام بكل وضوح." />
 
-            <div class="faq-grid">
-                <!-- Q1 -->
-                <div class="faq-item scroll-revealed">
-                    <div class="faq-icon-wrap">
-                        <i class="ti ti-help"></i>
+                <div class="faq-grid">
+                    <!-- Q1 -->
+                    <div class="faq-item scroll-revealed">
+                        <div class="faq-icon-wrap">
+                            <i class="ti ti-help"></i>
+                        </div>
+                        <div class="faq-body">
+                            <h3 class="faq-question">هل تتقاضون رسوماً مقابل التحديثات والدعم الفني؟</h3>
+                            <p class="faq-answer">
+                                لا، جميع التحديثات الدورية والتحسينات المستمرة وخدمات الدعم الفني مشمولة بالكامل ضمن
+                                الاشتراك دون أي تكاليف خفية.
+                            </p>
+                        </div>
                     </div>
-                    <div class="faq-body">
-                        <h3 class="faq-question">هل تتقاضون رسوماً مقابل التحديثات والدعم الفني؟</h3>
-                        <p class="faq-answer">
-                            لا، جميع التحديثات الدورية والتحسينات المستمرة وخدمات الدعم الفني مشمولة بالكامل ضمن الاشتراك دون أي تكاليف خفية.
-                        </p>
-                    </div>
-                </div>
 
-                <!-- Q2 -->
-                <div class="faq-item scroll-revealed">
-                    <div class="faq-icon-wrap">
-                        <i class="ti ti-help"></i>
+                    <!-- Q2 -->
+                    <div class="faq-item scroll-revealed">
+                        <div class="faq-icon-wrap">
+                            <i class="ti ti-help"></i>
+                        </div>
+                        <div class="faq-body">
+                            <h3 class="faq-question">هل أحتاج إلى شراء ترخيص لكل مستخدم؟</h3>
+                            <p class="faq-answer">
+                                يعتمد عدد تراخيص المستخدمين على الباقة المختارة، مع إمكانية الترقية وإضافة مستخدمين جدد بكل
+                                سهولة في أي وقت.
+                            </p>
+                        </div>
                     </div>
-                    <div class="faq-body">
-                        <h3 class="faq-question">هل أحتاج إلى شراء ترخيص لكل مستخدم؟</h3>
-                        <p class="faq-answer">
-                            يعتمد عدد تراخيص المستخدمين على الباقة المختارة، مع إمكانية الترقية وإضافة مستخدمين جدد بكل سهولة في أي وقت.
-                        </p>
-                    </div>
-                </div>
 
-                <!-- Q3 -->
-                <div class="faq-item scroll-revealed">
-                    <div class="faq-icon-wrap">
-                        <i class="ti ti-help"></i>
+                    <!-- Q3 -->
+                    <div class="faq-item scroll-revealed">
+                        <div class="faq-icon-wrap">
+                            <i class="ti ti-help"></i>
+                        </div>
+                        <div class="faq-body">
+                            <h3 class="faq-question">هل يدعم النظام الربط والتكامل مع الأنظمة المحاسبية؟</h3>
+                            <p class="faq-answer">
+                                نعم، تدعم منصة لوت الربط والتكامل مع الأنظمة المحاسبية وأنظمة ERP الرائدة لتسهيل تبادل
+                                البيانات بسلاسة وأمان.
+                            </p>
+                        </div>
                     </div>
-                    <div class="faq-body">
-                        <h3 class="faq-question">هل يدعم النظام الربط والتكامل مع الأنظمة المحاسبية؟</h3>
-                        <p class="faq-answer">
-                            نعم، تدعم منصة لوت الربط والتكامل مع الأنظمة المحاسبية وأنظمة ERP الرائدة لتسهيل تبادل البيانات بسلاسة وأمان.
-                        </p>
-                    </div>
-                </div>
 
-                <!-- Q4 -->
-                <div class="faq-item scroll-revealed">
-                    <div class="faq-icon-wrap">
-                        <i class="ti ti-help"></i>
+                    <!-- Q4 -->
+                    <div class="faq-item scroll-revealed">
+                        <div class="faq-icon-wrap">
+                            <i class="ti ti-help"></i>
+                        </div>
+                        <div class="faq-body">
+                            <h3 class="faq-question">هل يمكن تخصيص النظام ليتناسب مع سياسات شركتنا؟</h3>
+                            <p class="faq-answer">
+                                بالتأكيد، يتيح النظام تخصيص الصلاحيات، وهيكل فرق العمل، ونماذج التقارير، وطرق توزيع العمل
+                                بما يتوافق مع لوائح وسياسات كل جهة.
+                            </p>
+                        </div>
                     </div>
-                    <div class="faq-body">
-                        <h3 class="faq-question">هل يمكن تخصيص النظام ليتناسب مع سياسات شركتنا؟</h3>
-                        <p class="faq-answer">
-                            بالتأكيد، يتيح النظام تخصيص الصلاحيات، وهيكل فرق العمل، ونماذج التقارير، وطرق توزيع العمل بما يتوافق مع لوائح وسياسات كل جهة.
-                        </p>
-                    </div>
-                </div>
 
-                <!-- Q5 -->
-                <div class="faq-item scroll-revealed">
-                    <div class="faq-icon-wrap">
-                        <i class="ti ti-help"></i>
+                    <!-- Q5 -->
+                    <div class="faq-item scroll-revealed">
+                        <div class="faq-icon-wrap">
+                            <i class="ti ti-help"></i>
+                        </div>
+                        <div class="faq-body">
+                            <h3 class="faq-question">ما مدى أمان وحماية البيانات في منصة لوت؟</h3>
+                            <p class="faq-answer">
+                                نطبق أعلى بروتوكولات التشفير والنسخ الاحتياطي السحابي المستمر وعزل بيانات كل منشأة لضمان
+                                الامتثال التام لمعايير الأمن السيبراني.
+                            </p>
+                        </div>
                     </div>
-                    <div class="faq-body">
-                        <h3 class="faq-question">ما مدى أمان وحماية البيانات في منصة لوت؟</h3>
-                        <p class="faq-answer">
-                            نطبق أعلى بروتوكولات التشفير والنسخ الاحتياطي السحابي المستمر وعزل بيانات كل منشأة لضمان الامتثال التام لمعايير الأمن السيبراني.
-                        </p>
-                    </div>
-                </div>
 
-                <!-- Q6 -->
-                <div class="faq-item scroll-revealed">
-                    <div class="faq-icon-wrap">
-                        <i class="ti ti-help"></i>
-                    </div>
-                    <div class="faq-body">
-                        <h3 class="faq-question">كيف يتم نقل البيانات من أنظمتنا القديمة؟</h3>
-                        <p class="faq-answer">
-                            يوفر فريقنا التقني خدمة نقل وترحيل البيانات مجاناً عند الاشتراك، مع التحقق الدقيق لضمان سلامة واكتمال السجلات.
-                        </p>
+                    <!-- Q6 -->
+                    <div class="faq-item scroll-revealed">
+                        <div class="faq-icon-wrap">
+                            <i class="ti ti-help"></i>
+                        </div>
+                        <div class="faq-body">
+                            <h3 class="faq-question">كيف يتم نقل البيانات من أنظمتنا القديمة؟</h3>
+                            <p class="faq-answer">
+                                يوفر فريقنا التقني خدمة نقل وترحيل البيانات مجاناً عند الاشتراك، مع التحقق الدقيق لضمان
+                                سلامة واكتمال السجلات.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- 9. Contact Section -->
-    <section id="contact" class="section-area">
-        <div class="container">
-            <x-site.section-header
-                title="ابدأ محادثتك معنا اليوم"
-                subtitle="تواصل معنا"
-                desc="فريقنا المتخصص على أتم الاستعداد للإجابة على استفساراتك واستعراض مزايا المنصة المناسبة لعملك."
-            />
+        <!-- 9. Contact Section -->
+        <section id="contact" class="section-area">
+            <div class="container">
+                <x-site.section-header title="ابدأ محادثتك معنا اليوم" subtitle="تواصل معنا"
+                    desc="فريقنا المتخصص على أتم الاستعداد للإجابة على استفساراتك واستعراض مزايا المنصة المناسبة لعملك." />
 
-            <div class="contact-layout">
-                <!-- Form Container -->
-                <x-site.contact-form
-                    data-form-validate
-                    :action="route('site.contact.store')"
-                    :validation-url="route('site.form-validation')"
-                    fields="contact"
-                    title="أرسل لنا استفسارك"
-                    subtitle="يسعدنا تواصلك"
-                    desc="املأ البيانات وسيقوم ممثلنا بالتواصل معك في أقرب فرصة."
-                />
+                <div class="contact-layout">
+                    <!-- Form Container -->
+                    <x-site.contact-form data-form-validate :action="route('site.contact.store')" :validation-url="route('site.form-validation')" fields="contact"
+                        title="أرسل لنا استفسارك" subtitle="يسعدنا تواصلك"
+                        desc="املأ البيانات وسيقوم ممثلنا بالتواصل معك في أقرب فرصة." />
 
-                <!-- Info Cards -->
-                <x-site.contact-info />
+                    <!-- Info Cards -->
+                    <x-site.contact-info />
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- 10. Map Section -->
-    <section id="map" class="map-section">
-        <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d453.0895346409257!2d46.697927505802454!3d24.702278165008337!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e2f1d8fe707d467%3A0x665443538d6963!2z2KfZhNio2LHZh9in2YYg2YTZhNmF2K3Yp9mF2KfYqQ!5e0!3m2!1sen!2ssa!4v1778593837435!5m2!1sen!2ssa"
-            allowfullscreen=""
-            loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade"
-            title="موقع لوت LOT">
-        </iframe>
-    </section>
-</main>
+        <!-- 10. Map Section -->
+        <section id="map" class="map-section">
+            <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d453.0895346409257!2d46.697927505802454!3d24.702278165008337!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e2f1d8fe707d467%3A0x665443538d6963!2z2KfZhNio2LHZh9in2YYg2YTZhNmF2K3Yp9mF2KfYqQ!5e0!3m2!1sen!2ssa!4v1778593837435!5m2!1sen!2ssa"
+                allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="موقع لوت LOT">
+            </iframe>
+        </section>
+    </main>
 
 @endsection

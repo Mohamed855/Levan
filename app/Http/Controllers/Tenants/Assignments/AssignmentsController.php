@@ -43,8 +43,6 @@ class AssignmentsController extends Controller
     public function index(AssignmentsDataTable $dataTable)
     {
         $statistics = $this->assignmentService->getStatistics();
-        $dateOptions = $this->assignmentService->dateFilterOptions();
-
         return $dataTable->render('tenants.assignments.index', [
             'totalAssignments' => $statistics['total'],
             'activeAssignments' => $statistics['active'],
@@ -52,8 +50,6 @@ class AssignmentsController extends Controller
             'suspendedAssignments' => $statistics['suspended'],
             'auctionedAssignments' => $statistics['auctioned'],
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
-            'startDateOptions' => $dateOptions['start_dates'],
-            'endDateOptions' => $dateOptions['end_dates'],
         ]);
     }
 

@@ -46,8 +46,6 @@ class AuctionsController extends Controller
             'pendingAuctions' => $statistics['pending_approval'],
             'needsReviewAuctions' => $statistics['needs_review'],
             'assignments' => Assignment::query()->select(['id', 'name', 'assignment_number'])->orderBy('name')->get(),
-            'startDateOptions' => Auction::query()->whereNotNull('start_date')->orderByDesc('start_date')->pluck('start_date', 'start_date')->all(),
-            'endDateOptions' => Auction::query()->whereNotNull('end_date')->orderByDesc('end_date')->pluck('end_date', 'end_date')->all(),
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
         ]);
     }

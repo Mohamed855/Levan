@@ -66,7 +66,7 @@ export function initContactForms() {
 
       if (!isValid) return;
 
-      // reCAPTCHA verification if key is present
+      /* Temporarily disabled until the reCAPTCHA keys are configured.
       if (window.recaptchaSiteKey) {
         if (typeof grecaptcha === 'undefined') {
           if (typeof toastr !== 'undefined') {
@@ -97,11 +97,11 @@ export function initContactForms() {
               }
             });
         });
-      } else {
+      } else { */
         // Without recaptcha
         setLoadingState(true, initialButtonText);
         HTMLFormElement.prototype.submit.call(form);
-      }
+      // }
     },
     true
   );

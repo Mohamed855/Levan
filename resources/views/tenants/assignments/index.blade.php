@@ -112,10 +112,16 @@
                     :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class" />
                 <x-filter.select id="filter-status" filterKey="status" label="حالة الإسناد" placeholder="جميع الحالات"
                     :enum="\App\Enums\Tenants\Assignments\AssignmentStatus::class" />
-                <x-filter.select id="filter-start-date" filterKey="start_date" label="تاريخ البداية" placeholder="جميع تواريخ البداية"
-                    :options="$startDateOptions" />
-                <x-filter.select id="filter-end-date" filterKey="end_date" label="تاريخ النهاية" placeholder="جميع تواريخ النهاية"
-                    :options="$endDateOptions" />
+                <div class="col-md-6 col-lg-3">
+                    <label class="form-label" for="filter-start-date">تاريخ البداية</label>
+                    <input id="filter-start-date" type="date" class="form-control" data-datatable-filter="true"
+                        data-filter-key="start_date" data-datatable-target="#assignments-table" />
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <label class="form-label" for="filter-end-date">تاريخ النهاية</label>
+                    <input id="filter-end-date" type="date" class="form-control" data-datatable-filter="true"
+                        data-filter-key="end_date" data-datatable-target="#assignments-table" />
+                </div>
                 <x-filter.select id="filter-city" filterKey="city" label="المدينة" placeholder="جميع المدن"
                     :options="$cityOptions" />
             </x-data-table.filters>
