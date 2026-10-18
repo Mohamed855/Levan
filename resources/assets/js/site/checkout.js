@@ -1,8 +1,44 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', function () {
+    const otpTimer = document.querySelector('#checkout-otp-timer');
+    if (otpTimer) {
+        const expiresAt = Number(otpTimer.dataset.expiresAt || 0) * 1000;
+        const updateOtpTimer = () => {
+            const remaining = Math.max(0, expiresAt - Date.now());
+            const totalSeconds = Math.ceil(remaining / 1000);
+            const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+            const seconds = String(totalSeconds % 60).padStart(2, '0');
+            otpTimer.textContent = `${minutes}:${seconds}`;
+
+            if (remaining <= 0) {
+                otpTimer.classList.add('text-danger');
+                window.clearInterval(timer);
+            }
+        };
+
+        const timer = window.setInterval(updateOtpTimer, 1000);
+        updateOtpTimer();
+    }
+
     const paymentForm = document.querySelector('#payment-form');
     if (!paymentForm) return;
+
+    // Initialize Select2 on City select
+    const initCitySelect2 = () => {
+        if (window.jQuery && typeof window.jQuery.fn.select2 === 'function') {
+            const $city = window.jQuery('#billing_city_id');
+            if ($city.length && !$city.hasClass('select2-hidden-accessible')) {
+                $city.select2({
+                    placeholder: $city.data('placeholder') || 'اختر المدينة (اختياري)',
+                    allowClear: true,
+                    width: '100%',
+                    dir: 'rtl'
+                });
+            }
+        }
+    };
+    initCitySelect2();
 
     let selectedFiles = [];
     const paymentOptions = document.querySelectorAll('.payment-option');

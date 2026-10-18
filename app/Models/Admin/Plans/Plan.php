@@ -242,6 +242,11 @@ class Plan extends Model
         return $query->active()->available();
     }
 
+    public function scopePubliclyAvailable(Builder $query): Builder
+    {
+        return $query->selectable()->where('code', '!=', 'trial_7_days');
+    }
+
     public function scopeByBillingCycle(Builder $query, string|SubscriptionBillingCycle $cycle): Builder
     {
         $value = $cycle instanceof SubscriptionBillingCycle ? $cycle->value : $cycle;

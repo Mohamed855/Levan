@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Site;
 
+use App\Rules\SystemEmailAvailable;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
@@ -22,26 +23,19 @@ class SubscriptionCheckoutRequest extends FormRequest
 
     public function rules(): array
     {
-        $isBankTransfer = $this->input('payment_method') === 'bank_transfer';
-
         return [
             'billing_company_name' => ['required', 'string', 'min:2', 'max:255', Rule::unique('tenants', 'company_name')],
-            'billing_commercial_number' => ['required', 'string', 'min:10', 'max:20', 'regex:/^[0-9]+$/', Rule::unique('tenants', 'commercial_number')],
-            'billing_tax_number' => ['nullable', 'string', 'max:50'],
+            'billing_commercial_number' => ['required', 'digits:10', 'regex:/^\\d{10}$/', Rule::unique('tenants', 'commercial_number')],
+            'billing_tax_number' => ['nullable', 'digits:15', 'regex:/^\\d{15}$/'],
             'billing_city_id' => ['nullable', 'exists:cities,id'],
             'billing_address' => ['nullable', 'string', 'max:255'],
             'billing_name' => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\p{Arabic}a-zA-Z\s\.\-]+$/u'],
-            'billing_email' => ['required', 'email', 'max:255'],
+            'billing_email' => ['required', 'email', 'max:255', new SystemEmailAvailable()],
             'billing_phone' => ['required', 'regex:/^(05\d{8}|966\d{9})$/'],
             'billing_password' => ['required', 'string', 'min:8', 'max:50', 'confirmed'],
-            'payment_method' => ['required', 'in:card,bank_transfer'],
-
             'coupon_code' => ['nullable', 'string', 'exists:coupons,code'],
 
             // حقول التحويل البنكي
-            'bank_id' => $isBankTransfer ? ['required', 'exists:banks,id,is_active,1'] : ['nullable'],
-            'transfer_receipt' => $isBankTransfer ? ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'] : ['nullable'],
-
         ];
     }
 

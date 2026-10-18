@@ -29,73 +29,68 @@
         <div class="row g-3">
             @if ($fields === 'contact')
                 {{-- Contact Fields: Name + Email + Message --}}
-                <div class="col-12 col-md-6" data-form-field data-field-name="customer_name">
-                    <div class="site-form-group">
-                        <label class="site-label" for="contact_customer_name">
-                            الاسم <span class="required-star">*</span>
-                        </label>
-                        <input type="text" id="contact_customer_name" name="customer_name" minlength="3"
-                            data-form-control class="site-input" placeholder="أدخل اسمك الكامل" required />
-                        <p class="invalid-feedback" data-form-error aria-live="polite" hidden></p>
-                    </div>
-                </div>
+                <x-form.controls.input
+                    id="contact_customer_name"
+                    name="customer_name"
+                    label="الاسم"
+                    placeholder="أدخل اسمك الكامل"
+                    minlength="3"
+                    required
+                    col="col-12 col-md-6"
+                />
 
-                <div class="col-12 col-md-6" data-form-field data-field-name="customer_email">
-                    <div class="site-form-group">
-                        <label class="site-label" for="contact_customer_email">
-                            البريد الإلكتروني
-                        </label>
-                        <input type="email" id="contact_customer_email" name="customer_email" data-form-control
-                            class="site-input" placeholder="example@domain.com" />
-                        <p class="invalid-feedback" data-form-error aria-live="polite" hidden></p>
-                    </div>
-                </div>
+                <x-form.controls.input
+                    id="contact_customer_email"
+                    name="customer_email"
+                    type="email"
+                    label="البريد الإلكتروني"
+                    placeholder="example@domain.com"
+                    col="col-12 col-md-6"
+                />
 
-                <div class="col-12" data-form-field data-field-name="message">
-                    <div class="site-form-group">
-                        <label class="site-label" for="contact_message">
-                            الرسالة أو الاستفسار <span class="required-star">*</span>
-                        </label>
-                        <textarea id="contact_message" name="message" rows="5" minlength="10" data-form-control class="site-textarea"
-                            placeholder="اكتب استفسارك أو رسالتك بالتفصيل هنا..." required></textarea>
-                        <p class="invalid-feedback" data-form-error aria-live="polite" hidden></p>
-                    </div>
-                </div>
+                <x-form.controls.textarea
+                    id="contact_message"
+                    name="message"
+                    label="الرسالة أو الاستفسار"
+                    placeholder="اكتب استفسارك أو رسالتك بالتفصيل هنا..."
+                    rows="5"
+                    minlength="10"
+                    required
+                    col="col-12"
+                />
             @else
                 {{-- Trial Fields: Name + Email + Phone --}}
-                <div class="col-12" data-form-field data-field-name="customer_name">
-                    <div class="site-form-group">
-                        <label class="site-label" for="trial_customer_name">
-                            الاسم الكامل <span class="required-star">*</span>
-                        </label>
-                        <input type="text" id="trial_customer_name" name="customer_name" data-form-control
-                            class="site-input" placeholder="أدخل اسمك الكامل أو اسم جهة العمل" required />
-                        <p class="invalid-feedback" data-form-error aria-live="polite" hidden></p>
-                    </div>
-                </div>
+                <x-form.controls.input
+                    id="trial_customer_name"
+                    name="customer_name"
+                    label="الاسم الكامل"
+                    placeholder="أدخل اسمك الكامل أو اسم جهة العمل"
+                    required
+                    col="col-12"
+                />
 
-                <div class="col-12 col-md-6" data-form-field data-field-name="customer_email">
-                    <div class="site-form-group">
-                        <label class="site-label" for="trial_customer_email">
-                            البريد الإلكتروني <span class="required-star">*</span>
-                        </label>
-                        <input type="email" id="trial_customer_email" name="customer_email" data-form-control
-                            class="site-input" placeholder="name@company.com" required />
-                        <p class="invalid-feedback" data-form-error aria-live="polite" hidden></p>
-                    </div>
-                </div>
+                <x-form.controls.input
+                    id="trial_customer_email"
+                    name="customer_email"
+                    type="email"
+                    label="البريد الإلكتروني"
+                    placeholder="name@company.com"
+                    required
+                    col="col-12 col-md-6"
+                />
 
-                <div class="col-12 col-md-6" data-form-field data-field-name="customer_phone">
-                    <div class="site-form-group">
-                        <label class="site-label" for="trial_customer_phone">
-                            رقم الهاتف <span class="required-star">*</span>
-                        </label>
-                        <input type="tel" id="trial_customer_phone" name="customer_phone" data-form-control
-                            dir="ltr" data-phone-format="mobile" class="site-input text-end"
-                            placeholder="05XXXXXXXX" required />
-                        <p class="invalid-feedback" data-form-error aria-live="polite" hidden></p>
-                    </div>
-                </div>
+                <x-form.controls.input
+                    id="trial_customer_phone"
+                    name="customer_phone"
+                    type="tel"
+                    label="رقم الهاتف"
+                    placeholder="05XXXXXXXX"
+                    dir="ltr"
+                    data-phone-format="mobile"
+                    required
+                    col="col-12 col-md-6"
+                    class="text-end"
+                />
             @endif
 
             {{-- reCAPTCHA v3 input --}}

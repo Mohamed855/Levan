@@ -539,6 +539,84 @@
   }
 }
 
+.otp-card {
+  form > button {
+    display: none !important;
+  }
+
+  .otp-intro {
+    display: flex;
+    align-items: center;
+    gap: 1.15rem;
+    padding: 1.15rem 1.25rem;
+    margin-bottom: 1.75rem;
+    border-radius: var(--site-radius-md);
+    background: rgba(var(--site-primary-rgb), 0.05);
+    border: 1px solid rgba(var(--site-primary-rgb), 0.12);
+    color: var(--site-primary);
+
+    p {
+      margin: 0;
+      line-height: 1.6;
+      font-size: var(--site-font-base);
+
+      strong {
+        color: var(--site-primary-deep);
+        font-weight: 700;
+      }
+    }
+
+    .otp-intro-hint {
+      display: block;
+      font-size: var(--site-font-xs);
+      color: var(--site-muted);
+      margin-top: 0.25rem;
+    }
+  }
+
+  .otp-intro-icon {
+    display: inline-flex;
+    flex: 0 0 2.75rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--site-primary);
+    color: #fff;
+    font-size: 1.35rem;
+    box-shadow: 0 4px 12px rgba(var(--site-primary-rgb), 0.2);
+  }
+
+  .otp-input {
+    text-align: center;
+    letter-spacing: 0.65rem;
+    font-size: 1.35rem;
+    font-weight: 700;
+    direction: ltr;
+  }
+
+  .otp-timer {
+    color: var(--site-primary);
+    font-size: var(--site-font-base);
+    font-weight: 700;
+  }
+
+  .otp-edit-link {
+    color: var(--site-primary);
+    font-size: var(--site-font-base);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color var(--site-transition-fast);
+
+    &:hover {
+      text-decoration: underline !important;
+      color: var(--site-primary);
+    }
+  }
+}
+
 .summary-details {
   border-top: 1px dashed var(--site-border);
   padding-top: 1.25rem;

@@ -108,11 +108,13 @@ div.dataTables_processing>div:last-child>div {
     overflow-wrap: anywhere !important;
     line-height: 1.4 !important;
     max-height: calc(1.4em * 2) !important;
+    min-width: 100px !important;
     max-width: 200px !important;
     white-space: normal !important;
 }
 
 .dataTable tbody td:not(.custom-checkbox):not(.dt-actions):not(.dt-checkboxes-cell) {
+    min-width: 100px !important;
     max-width: 200px !important;
 }
 

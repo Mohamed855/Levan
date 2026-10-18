@@ -9,9 +9,28 @@ use Tests\TestCase;
 
 class MoyasarRegistrationCheckoutFeatureTest extends TestCase
 {
+    protected Plan $publicPlan;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->publicPlan = Plan::query()->where('code', '!=', 'trial_7_days')->first()
+            ?? Plan::query()->where('code', 'trial_7_days')->firstOrFail()->replicate();
+
+        $this->publicPlan->exists = false;
+        $this->publicPlan->id = null;
+        $this->publicPlan->code = 'public_test_'.uniqid();
+        $this->publicPlan->name = 'Public Test Plan';
+        $this->publicPlan->is_active = true;
+        $this->publicPlan->price = 100;
+        $this->publicPlan->yearly_renewal_price = 100;
+        $this->publicPlan->save();
+    }
+
     public function test_checkout_form_loads_successfully(): void
     {
-        $plan = Plan::where('is_active', true)->first();
+        $plan = $this->publicPlan;
         $this->assertNotNull($plan, 'An active plan must exist');
 
         $response = $this->get(route('site.plans.checkout', $plan->id));
@@ -24,7 +43,7 @@ class MoyasarRegistrationCheckoutFeatureTest extends TestCase
         config()->set('services.moyasar.mode', 'test');
         config()->set('services.moyasar.publishable', 'pk_test_feature_checkout');
 
-        $plan = Plan::where('is_active', true)->first();
+        $plan = $this->publicPlan;
         $this->assertNotNull($plan, 'An active plan must exist');
 
         $unique = rand(10000, 99999);
@@ -44,10 +63,25 @@ class MoyasarRegistrationCheckoutFeatureTest extends TestCase
             'billing_phone'             => $phone,
             'billing_password'          => 'Secret1234!',
             'billing_password_confirmation' => 'Secret1234!',
-            'payment_method'            => 'card',
         ];
 
         $response = $this->post(route('site.plans.checkout.store', $plan->id), $payload);
+
+        $response->assertRedirect(route('site.plans.checkout', $plan->id));
+        $this->get(route('site.plans.checkout', $plan->id))
+            ->assertOk()
+            ->assertSee('checkout-otp-timer', false)
+            ->assertSee('تعديل البيانات');
+
+        $response = $this->post(route('site.plans.checkout.verify.store', $plan->id), ['otp' => '000000']);
+        $response->assertRedirect(route('site.plans.checkout', $plan->id));
+
+        $this->get(route('site.plans.checkout', $plan->id))
+            ->assertOk()
+            ->assertSee('payment_method_card', false)
+            ->assertSee('متابعة إلى الدفع');
+
+        $response = $this->post(route('site.plans.checkout.payment', $plan->id), ['payment_method' => 'card']);
 
         $response->assertOk();
         $response->assertSee('mysr-form', false);
@@ -57,5 +91,28 @@ class MoyasarRegistrationCheckoutFeatureTest extends TestCase
         $pendingBill = Bill::latest('id')->first();
         $this->assertNotNull($pendingBill);
         $this->assertEquals(BillStatus::PENDING, $pendingBill->status);
+        $this->assertSame($email, $pendingBill->metadata['billing_email']);
+        $this->assertSame($companyName, $pendingBill->metadata['billing_company_name']);
+        $this->assertSame($phone, $pendingBill->metadata['billing_phone']);
+    }
+
+    public function test_editing_checkout_clears_otp_state_and_keeps_customer_data_safe(): void
+    {
+        $response = $this->withSession([
+            'checkout_verification' => [
+                'plan_id' => $this->publicPlan->id,
+                'billing_company_name' => 'Editable Company',
+                'billing_email' => 'editable@example.test',
+                'billing_password' => 'Secret1234!',
+                'expires_at' => now()->addMinute()->timestamp,
+                'otp_hash' => hash('sha256', '000000'),
+            ],
+        ])->get(route('site.plans.checkout.edit', $this->publicPlan));
+
+        $response->assertRedirect(route('site.plans.checkout', $this->publicPlan));
+        $this->get(route('site.plans.checkout', $this->publicPlan))
+            ->assertOk()
+            ->assertDontSee('checkout-otp-timer', false)
+            ->assertDontSee('Secret1234!', false);
     }
 }
