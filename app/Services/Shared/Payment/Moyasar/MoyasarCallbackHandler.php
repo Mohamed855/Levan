@@ -29,7 +29,7 @@ class MoyasarCallbackHandler
         }
 
         if ($bill->due_date && now()->isAfter($bill->due_date)) {
-            $bill->update(['status' => BillStatus::CANCELLED]);
+            $bill->forceDelete();
             throw new PaymentVerificationException('انتهت صلاحية هذه العملية.');
         }
 

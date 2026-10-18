@@ -440,8 +440,8 @@
                                                     <span class="row-label">
                                                         <i class="ti ti-discount-2"></i>
                                                         الخصم
-                                                        <button type="button" class="btn-remove-file p-0 ms-1"
-                                                            id="remove-coupon" title="إلغاء الكود">
+                                                        <button type="button" class="btn-remove-coupon"
+                                                            id="remove-coupon" title="إزالة كود الخصم" aria-label="إزالة كود الخصم">
                                                             <i class="ti ti-x"></i>
                                                         </button>
                                                     </span>

@@ -126,11 +126,18 @@ class SubscriptionController extends Controller
         try {
             $result = $this->moyasarCallbackHandler->verify($request);
             $outcome = $this->subscriptionService->completeOnlineSubscription($result['bill'], $result['payment']);
+            $request->session()->forget('checkout_verification');
 
             return redirect()->to(config('app.url').'/'.$outcome['tenant_id'].'/login');
             //
         } catch (PaymentVerificationException $e) {
-            //
+            $bill = $this->findCheckoutBill($request->string('bill')->toString());
+
+            if ($bill) {
+                return redirect()->route('site.plans.checkout', ['plan' => $bill->metadata['plan_id']])
+                    ->with('error', $e->getMessage());
+            }
+
             return redirect()->route('site.index')->with('error', $e->getMessage());
         } catch (SubscriptionCreationException $e) {
             //
@@ -170,6 +177,7 @@ class SubscriptionController extends Controller
                 'billing_tax_number' => $request->billing_tax_number,
                 'billing_city_id' => $request->billing_city_id,
                 'billing_address' => $request->billing_address,
+                'checkout_source' => 'site_checkout',
             ]
         );
     }
@@ -194,6 +202,10 @@ class SubscriptionController extends Controller
             $request = Request::create('/', 'POST', $checkout);
             $pendingBill = $this->createPendingBill($request, $plan, $couponData);
 
+            if (($checkout['payment_method'] ?? null) !== 'bank_transfer') {
+                $pendingBill->update(['due_date' => now()->addMinutes(60)]);
+            }
+
             if (($checkout['payment_method'] ?? null) === 'bank_transfer') {
                 $this->handleBankTransfer($request, $pendingBill);
                 request()->session()->forget('checkout_verification');
@@ -202,7 +214,6 @@ class SubscriptionController extends Controller
             }
 
             $moyasarView = $this->showMoyasarCheckout($pendingBill, $plan);
-            request()->session()->forget('checkout_verification');
 
             return $moyasarView;
         } catch (PaymentInitiationException $e) {
@@ -255,7 +266,7 @@ class SubscriptionController extends Controller
             $publishableKey = $this->moyasarFormConfiguration->getPublishableKey();
             $amountInHalala = $this->moyasarFormConfiguration->amountInHalala((float) $bill->amount);
         } catch (PaymentInitiationException $e) {
-            $this->billingService->cancelBill($bill);
+            $this->billingService->deleteUncompletedCheckoutBill($bill);
             throw $e;
         }
 
@@ -268,5 +279,18 @@ class SubscriptionController extends Controller
             'plan' => $plan,
             'publishableKey' => $publishableKey,
         ]);
+    }
+
+    private function findCheckoutBill(string $billNumber): ?Bill
+    {
+        if ($billNumber === '') {
+            return null;
+        }
+
+        $bill = Bill::where('bill_number', $billNumber)->first();
+
+        return $bill && ($bill->metadata['checkout_source'] ?? null) === 'site_checkout'
+            ? $bill
+            : null;
     }
 }

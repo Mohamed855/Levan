@@ -18,6 +18,7 @@ class Kernel extends ConsoleKernel
     {
         // for delete File Report From Storage
         $schedule->command('reports:clean')->dailyAt('12:00');
+        $schedule->command('checkout:delete-abandoned-bills')->everyMinute()->withoutOverlapping();
 
         // for clean open session import
         // $schedule->command('import:cleanup-sessions')->dailyAt('12:00');

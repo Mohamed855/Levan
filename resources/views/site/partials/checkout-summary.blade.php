@@ -25,8 +25,8 @@
                     id="vat-display">{{ number_format($taxAmount, 2) }} <span class="icon-saudi_riyal"></span></span>
             </div>
             <div class="summary-row summary-row--discount hidden" id="discount-row"><span class="row-label"><i
-                        class="ti ti-discount-2"></i> الخصم <button type="button" class="btn-remove-file p-0 ms-1"
-                        id="remove-coupon"><i class="ti ti-x"></i></button></span><span class="row-value">-<span
+                        class="ti ti-discount-2"></i> الخصم <button type="button" class="btn-remove-coupon"
+                        id="remove-coupon" title="إزالة كود الخصم" aria-label="إزالة كود الخصم"><i class="ti ti-x"></i></button></span><span class="row-value">-<span
                         id="discount-display">0.00</span> <span class="icon-saudi_riyal"></span></span></div>
             <div class="summary-row summary-row--total"><span class="row-label">المبلغ الإجمالي</span><span
                     class="row-value" id="total-final">{{ number_format($plan->price_after_discount, 2) }} <span

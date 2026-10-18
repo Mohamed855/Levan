@@ -693,6 +693,12 @@
   border-color: #fcd34d;
 }
 
+.site-alert-info {
+  color: #075985;
+  background: #f0f9ff;
+  border-color: #7dd3fc;
+}
+
 .site-alert-success {
   color: #166534;
   background: #f0fdf4;
@@ -743,6 +749,23 @@
         display: inline-flex;
         align-items: center;
         gap: 0.35rem;
+      }
+
+      .btn-remove-coupon,
+      #remove-coupon {
+        padding: 0;
+        margin-inline-start: 0.4rem;
+        border: none;
+        background: none;
+        color: #dc2626 !important;
+        cursor: pointer;
+        line-height: 1;
+
+        i {
+          font-size: 0.85rem;
+          line-height: 1;
+          color: inherit;
+        }
       }
 
       .row-value {

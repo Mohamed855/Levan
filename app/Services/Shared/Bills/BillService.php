@@ -75,6 +75,15 @@ class BillService
         $bill->update(['status' => BillStatus::CANCELLED]);
     }
 
+    public function deleteUncompletedCheckoutBill(Bill $bill): void
+    {
+        if ($bill->tenant_id || $bill->subscription_id || $bill->status === BillStatus::PAID) {
+            return;
+        }
+
+        $bill->forceDelete();
+    }
+
     public function rejectBill(Bill $bill, string $reason): void
     {
         $bill->update([

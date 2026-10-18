@@ -43,6 +43,11 @@
                                 <span class="checkout-payment-provider"><i class="ti ti-credit-card"></i> Moyasar</span>
                             </div>
                             <div class="checkout-card-body">
+                                <div class="site-alert site-alert-info d-flex align-items-center mb-4" role="status">
+                                    <i class="ti ti-clock-hour-4"></i>
+                                    <span>يرجى إتمام الدفع خلال 60 دقيقة، وإلا سيتم حذف الفاتورة والبيانات المدخلة وستحتاج إلى التسجيل من جديد.</span>
+                                </div>
+
                                 <div class="checkout-payment-total">
                                     <span>إجمالي الفاتورة</span>
                                     <strong>{{ number_format($bill->amount, 2) }} <span class="icon-saudi_riyal"></span></strong>
