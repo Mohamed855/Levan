@@ -13,6 +13,8 @@ use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Admin\Tickets\Ticket;
+use App\Models\Admin\PublicRequests\ContactRequest;
+use App\Models\Admin\PublicRequests\TrialRequest;
 use App\Models\Admin\Version\Version;
 use App\Models\Admin\Version\VersionTester;
 use App\Models\Tenants\Assignments\Assignment;
@@ -51,6 +53,8 @@ use App\Policies\Admin\Settings\ControlDomainPolicy;
 use App\Policies\Admin\Subscriptions\SubscriptionPolicy;
 use App\Policies\Admin\Tenants\TenantPolicy;
 use App\Policies\Admin\Tickets\TicketPolicy;
+use App\Policies\Admin\PublicRequests\ContactRequestPolicy;
+use App\Policies\Admin\PublicRequests\TrialRequestPolicy;
 use App\Policies\Admin\Users\AdminUserPolicy;
 use App\Policies\Admin\Versions\VersionPolicy;
 use App\Policies\Admin\Versions\VersionTesterPolicy;
@@ -107,6 +111,8 @@ class AuthServiceProvider extends ServiceProvider
         Bill::class => BillPolicy::class,
         Subscription::class => SubscriptionPolicy::class,
         Ticket::class => TicketPolicy::class,
+        ContactRequest::class => ContactRequestPolicy::class,
+        TrialRequest::class => TrialRequestPolicy::class,
         Assignment::class => AssignmentPolicy::class,
         Property::class => PropertyPolicy::class,
         Auction::class => AuctionPolicy::class,

@@ -180,6 +180,22 @@
                 <div>إدارة التذاكر</div>
             </a>
         </li>
+        @can('contact_requests.view')
+            <li class="menu-item @if (Route::is('admin.contact-requests.*')) active @endif">
+                <a href="{{ route('admin.contact-requests.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons ti ti-mail"></i>
+                    <div>طلبات التواصل</div>
+                </a>
+            </li>
+        @endcan
+        @can('trial_requests.view')
+            <li class="menu-item @if (Route::is('admin.trial-requests.*')) active @endif">
+                <a href="{{ route('admin.trial-requests.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons ti ti-clock"></i>
+                    <div>طلبات التجربة</div>
+                </a>
+            </li>
+        @endcan
     @endcan
 
     <li class="menu-header small">

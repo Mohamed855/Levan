@@ -155,6 +155,18 @@ class MailService
         $this->mailService->sendEmail($email, $previewText, $html);
     }
 
+    public function sendContactReplyMail(string $email, string $name, string $message, string $reply): void
+    {
+        $html = view('emails.contact_reply', [
+            'office_name' => $this->office_name,
+            'customer_name' => $name,
+            'message' => $message,
+            'reply' => $reply,
+        ])->render();
+
+        $this->mailService->sendEmail($email, 'رد على رسالتك', $html);
+    }
+
     /*
     |============================================================================
     |============================================================================

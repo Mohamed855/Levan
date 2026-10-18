@@ -22,6 +22,8 @@ use App\Http\Controllers\Admin\Settings\SettingsController;
 use App\Http\Controllers\Admin\SubscriptionManagement\SubscriptionManagementController;
 use App\Http\Controllers\Admin\Subscriptions\SubscriptionController as CentralSubscriptionController;
 use App\Http\Controllers\Admin\Tickets\AdminTicketController;
+use App\Http\Controllers\Admin\PublicRequests\ContactRequestController;
+use App\Http\Controllers\Admin\PublicRequests\TrialRequestController;
 use App\Http\Controllers\Admin\Versions\VersionController;
 use App\Http\Controllers\Admin\VersionTester\VersionTesterController;
 use App\Http\Controllers\Shared\Wizard\WizardDraftController;
@@ -164,6 +166,19 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
         Route::resource('/', AdminTicketController::class)
             ->only(['index', 'show'])
             ->parameters(['' => 'ticket']);
+    });
+
+    Route::prefix('contact-requests')->name('contact-requests.')->group(function () {
+        Route::get('/', [ContactRequestController::class, 'index'])->name('index');
+        Route::get('{contactRequest}', [ContactRequestController::class, 'show'])->name('show');
+        Route::post('{contactRequest}/reply', [ContactRequestController::class, 'reply'])->name('reply');
+    });
+
+    Route::prefix('trial-requests')->name('trial-requests.')->group(function () {
+        Route::get('/', [TrialRequestController::class, 'index'])->name('index');
+        Route::get('{trialRequest}', [TrialRequestController::class, 'show'])->name('show');
+        Route::post('{trialRequest}/approve', [TrialRequestController::class, 'approve'])->name('approve');
+        Route::post('{trialRequest}/reject', [TrialRequestController::class, 'reject'])->name('reject');
     });
 
     // super admin archive routes

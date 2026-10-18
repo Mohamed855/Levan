@@ -78,6 +78,14 @@ class PermissionsRolesSeeder extends Seeder
                 'tickets.delete',
             ],
 
+            'public_requests_management' => [
+                'contact_requests.view',
+                'contact_requests.reply',
+                'trial_requests.view',
+                'trial_requests.approve',
+                'trial_requests.reject',
+            ],
+
             'clients_management' => [
                 'clients.view',
                 'clients.create',

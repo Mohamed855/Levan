@@ -35,6 +35,17 @@
 @endsection
 
 @section('content')
+    @if (!empty($trialPrefill))
+        <script>
+            window.trialPrefill = @json($trialPrefill);
+            document.addEventListener('DOMContentLoaded', function () {
+                Object.entries(window.trialPrefill).forEach(([name, value]) => {
+                    const input = document.querySelector(`[name="${name}"]`);
+                    if (input && !input.value) input.value = value;
+                });
+            });
+        </script>
+    @endif
     @php
         $steps = [
             ['id' => 'company-details-step', 'title' => 'بيانات الشركة'],

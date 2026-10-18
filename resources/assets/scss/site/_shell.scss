@@ -43,6 +43,10 @@ figure, blockquote, dl, dd {
   margin: 0;
 }
 
+button, input, optgroup, select, textarea {
+  font-family: inherit;
+}
+
 body.site-shell {
   margin: 0;
   padding: 0;

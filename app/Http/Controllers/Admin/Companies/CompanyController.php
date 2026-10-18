@@ -16,6 +16,7 @@ use App\Http\Requests\Admin\Companies\StoreCompanyRequest;
 use App\Http\Requests\Admin\Companies\UpdateCompanyRequest;
 use App\Models\Admin\City;
 use App\Models\Admin\Plans\Plan;
+use App\Models\Admin\PublicRequests\TrialRequest;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Admin\Companies\CompanyService;
@@ -97,10 +98,19 @@ class CompanyController extends Controller
     {
         $cities = City::all();
         $plans = Plan::active()->get();
+        $trialRequest = request()->filled('trial_request')
+            ? TrialRequest::query()->whereKey(request()->integer('trial_request'))->where('status', 'approved')->first()
+            : null;
+        $trialPrefill = $trialRequest ? [
+            'name' => $trialRequest->customer_name,
+            'email' => $trialRequest->customer_email,
+            'phone' => $trialRequest->customer_phone,
+        ] : [];
 
         return view('admin.companies.create', [
             'cities' => $cities,
             'plans' => $plans,
+            'trialPrefill' => $trialPrefill,
         ]);
     }
 

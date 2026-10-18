@@ -1,18 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Site;
 
+use App\Actions\Admin\PublicRequests\CreateContactRequestAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Site\StoreContactRequest;
 use App\Jobs\Admin\Mail\SendContactMailJob;
 use App\Models\Admin\ContentManagement\Client;
 use App\Models\Admin\ContentManagement\Portfolio;
 use App\Models\Admin\Plans\Plan;
-use App\Services\shared\Integration\WithOutTenant\EtmamTicketServiceWithOutTenant;
 
 class LandingPageController extends Controller
 {
-    public function __construct(private EtmamTicketServiceWithOutTenant $ticketService) {}
+    public function __construct(private readonly CreateContactRequestAction $createContactRequest) {}
 
     public function index()
     {
@@ -27,21 +29,13 @@ class LandingPageController extends Controller
     {
         try {
             $validated = $request->validated();
-            $result = $this->ticketService->contactRequest($validated);
+            $this->createContactRequest->execute($validated);
 
-            if (isset($result['errors']) && ! empty($result['errors'])) {
-                $firstError = collect($result['errors'])->flatten()->first();
+            SendContactMailJob::dispatch($validated['customer_email'], $validated['customer_name'], 'contact')->onQueue('email');
 
-                return back()->with('error', $firstError ?? 'حدث خطأ في البيانات المرسلة');
-            }
-
-            if ($result['success']) {
-                SendContactMailJob::dispatch($request['customer_email'], $request['customer_name'], 'contact')->onQueue('email');
-
-                return redirect()->route('site.index')->with('success', 'شكراً لتواصلك معنا. تم استقبال استفسارك بنجاح وسيتم الرد عليك في أقرب وقت.');
-            }
-        } catch (\Exception $e) {
-            report($e);
+            return redirect()->route('site.index')->with('success', 'تم استقبال استفسارك بنجاح وسيتم الرد عليك في أقرب وقت.');
+        } catch (\Throwable $exception) {
+            report($exception);
 
             return redirect()->back()->withInput()->with('error', 'حدث خطأ غير متوقع');
         }
