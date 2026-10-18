@@ -44,11 +44,79 @@ table.dataTable {
                 font-size: var(--font-size-base, 0.9375rem);
                 font-weight: 400 !important;
 
+                &:not(.custom-checkbox):not(.dt-actions):not(.dt-checkboxes-cell) {
+                    max-width: 200px !important;
+                }
+
                 * {
                     font-weight: 400 !important;
                 }
+
+                .table-cell-clamp,
+                .cell-clamp-2 {
+                    display: -webkit-box !important;
+                    -webkit-box-orient: vertical !important;
+                    -webkit-line-clamp: 2 !important;
+                    line-clamp: 2 !important;
+                    overflow: hidden !important;
+                    text-overflow: ellipsis !important;
+                    word-break: break-word !important;
+                    overflow-wrap: break-word !important;
+                    overflow-wrap: anywhere !important;
+                    line-height: 1.4 !important;
+                    max-height: calc(1.4em * 2) !important;
+                    max-width: 200px !important;
+                    white-space: normal !important;
+                }
+
+                // Fallback direct children clamping
+                > p,
+                > div:not(.form-check):not(.form-switch):not(.d-flex):not(.dropdown):not(.btn-group):not(.avatar-group):not(.copyable-code-wrapper):not(.table-cell-clamp),
+                > a:not(.btn):not(.dropdown-item):not(.avatar):not(.badge) {
+                    display: -webkit-box !important;
+                    -webkit-box-orient: vertical !important;
+                    -webkit-line-clamp: 2 !important;
+                    line-clamp: 2 !important;
+                    overflow: hidden !important;
+                    text-overflow: ellipsis !important;
+                    word-break: break-word !important;
+                    overflow-wrap: break-word !important;
+                    overflow-wrap: anywhere !important;
+                    line-height: 1.4 !important;
+                    max-height: calc(1.4em * 2) !important;
+                    max-width: 200px !important;
+                    white-space: normal !important;
+                }
             }
         }
+    }
+}
+
+// Global 2-line clamping utility for table cells and responsive child rows
+.table-cell-clamp,
+.cell-clamp-2,
+table.dataTable tbody tr.child .dtr-data .table-cell-clamp {
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+    line-clamp: 2 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    overflow-wrap: anywhere !important;
+    line-height: 1.4 !important;
+    max-height: calc(1.4em * 2) !important;
+    max-width: 200px !important;
+    white-space: normal !important;
+
+    * {
+        max-width: 100%;
+    }
+
+    a,
+    span:not(.badge):not(.copyable-code) {
+        white-space: normal !important;
     }
 }
 

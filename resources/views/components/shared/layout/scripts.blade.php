@@ -32,6 +32,7 @@
     'resources/js/shared/datatable-filter-selects.js',
     'resources/js/shared/datatable-responsive.js',
     'resources/js/shared/datatable-feedback.js',
+    'resources/js/shared/table-cell-clamp.js',
     'resources/assets/js/shared/table-status-toggle.js',
     'resources/assets/js/shared/form-validation.js',
 ])
