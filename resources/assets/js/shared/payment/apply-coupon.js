@@ -34,8 +34,31 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    if (window.paymentData && window.paymentData.appliedCoupon) {
+        const pre = window.paymentData.appliedCoupon;
+        appliedCoupon = {
+            coupon: { code: pre.coupon_code },
+            raw_discount: pre.discount_amount,
+            raw_total_after_discount: pre.final_total,
+        };
+        const hiddenCode = document.getElementById('coupon_code_hidden');
+        if (hiddenCode) {
+            hiddenCode.value = pre.coupon_code;
+        }
+        if (couponCodeInput) {
+            couponCodeInput.value = pre.coupon_code;
+            couponCodeInput.disabled = true;
+        }
+        if (applyCouponBtn) {
+            applyCouponBtn.classList.add('hidden');
+        }
+        if (discountRow) {
+            discountRow.classList.remove('hidden');
+        }
+    }
+
     // تطبيق الكوبون
-    applyCouponBtn.addEventListener('click', function () {
+    applyCouponBtn?.addEventListener('click', function () {
         const couponCode = couponCodeInput.value.trim();
 
         if (!couponCode) {
@@ -66,7 +89,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     showCouponMessage(data.message, 'success');
 
                     // حفظ البيانات في الحقول المخفية
-                    document.getElementById('coupon_code_hidden').value = data.coupon.code;
+                    const hiddenCoupon = document.getElementById('coupon_code_hidden');
+                    if (hiddenCoupon) {
+                        hiddenCoupon.value = data.coupon.code;
+                    }
 
                     // إخفاء زر التطبيق وتعطيل الحقل
                     applyCouponBtn.classList.add('hidden');
@@ -86,33 +112,59 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // إزالة الكوبون
-    removeCouponBtn.addEventListener('click', function () {
-        // إخفاء صفوف الخصم
-        discountRow.classList.add('hidden');
+    removeCouponBtn?.addEventListener('click', function () {
+        // إشعار السيرفر بإزالة الكوبون من الجلسة
+        fetch('/api/central/coupon/remove-coupon', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).catch(() => {});
 
+        // إخفاء صفوف الخصم
+        discountRow?.classList.add('hidden');
 
         if (totalFinal) {
             totalFinal.innerHTML =
                 formatNumber(originalTotal) + ' <span class="icon-saudi_riyal mx-1 text-xs"></span>';
         }
 
+        const taxRate = 0.15;
+        const vat = Math.round(originalTotal * taxRate * 100) / 100;
+        const subtotal = Math.round((originalTotal - vat) * 100) / 100;
+
+        const subtotalDisplay = document.getElementById('subtotal-display');
+        if (subtotalDisplay) {
+            subtotalDisplay.innerHTML = formatNumber(subtotal) + ' <span class="icon-saudi_riyal"></span>';
+        }
+        const vatDisplay = document.getElementById('vat-display');
+        if (vatDisplay) {
+            vatDisplay.innerHTML = formatNumber(vat) + ' <span class="icon-saudi_riyal"></span>';
+        }
+
         // مسح الرسائل
-        couponMessage.innerHTML = '';
+        if (couponMessage) {
+            couponMessage.innerHTML = '';
+        }
 
         // إظهار زر التطبيق وتفعيل الحقل
-        applyCouponBtn.classList.remove('hidden');
-        couponCodeInput.disabled = false;
-        couponCodeInput.value = '';
+        applyCouponBtn?.classList.remove('hidden');
+        if (couponCodeInput) {
+            couponCodeInput.disabled = false;
+            couponCodeInput.value = '';
+        }
 
         // مسح البيانات المخفية
-        document.getElementById('coupon_code_hidden').value = '';
+        const hiddenCoupon = document.getElementById('coupon_code_hidden');
+        if (hiddenCoupon) {
+            hiddenCoupon.value = '';
+        }
 
         appliedCoupon = null;
     });
 
-    // تحديث الأسعار بعد تطبيق الكوبون (على الإجمالي فقط)
+    // تحديث الأسعار بعد تطبيق الكوبون
     function updatePrices(data) {
-
         const discount = parseFloat(data.raw_discount) || 0;
         const totalAfterDiscount = parseFloat(data.raw_total_after_discount) || 0;
 
@@ -122,16 +174,30 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // عرض قيمة الخصم
-        discountDisplay.textContent = formatNumber(discount);
-        discountRow.classList.remove('hidden');
+        if (discountDisplay) {
+            discountDisplay.textContent = formatNumber(discount);
+        }
+        discountRow?.classList.remove('hidden');
 
-        // تحديث الإجمالي النهائي في أعلى/أسفل الصفحة
+        // تحديث الإجمالي النهائي
         if (totalFinal) {
             totalFinal.innerHTML =
                 formatNumber(totalAfterDiscount) + ' <span class="icon-saudi_riyal mx-1 text-xs"></span>';
         }
 
+        // تحديث الضريبة والمبلغ قبل الضريبة
+        const taxRate = 0.15;
+        const vat = Math.round(totalAfterDiscount * taxRate * 100) / 100;
+        const subtotal = Math.round((totalAfterDiscount - vat) * 100) / 100;
 
+        const subtotalDisplay = document.getElementById('subtotal-display');
+        if (subtotalDisplay) {
+            subtotalDisplay.innerHTML = formatNumber(subtotal) + ' <span class="icon-saudi_riyal"></span>';
+        }
+        const vatDisplay = document.getElementById('vat-display');
+        if (vatDisplay) {
+            vatDisplay.innerHTML = formatNumber(vat) + ' <span class="icon-saudi_riyal"></span>';
+        }
     }
 
     // رسالة حالة الكوبون

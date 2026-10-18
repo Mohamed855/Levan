@@ -11,11 +11,19 @@
         <div class="coupon-box">
             <div class="coupon-input-group">
                 <input type="text" id="coupon_code_input" name="coupon_code_display" class="site-input"
-                    placeholder="كود الخصم" data-validation-skip>
-                <button type="button" id="apply-coupon-btn" class="btn-apply-coupon"><i class="ti ti-discount-2"></i>
+                    placeholder="كود الخصم" value="{{ $appliedCoupon['coupon_code'] ?? '' }}"
+                    {{ !empty($appliedCoupon['coupon_code']) ? 'disabled' : '' }} data-validation-skip>
+                <button type="button" id="apply-coupon-btn" class="btn-apply-coupon {{ !empty($appliedCoupon['coupon_code']) ? 'hidden' : '' }}"><i class="ti ti-discount-2"></i>
                     تطبيق</button>
             </div>
-            <div id="coupon-message" class="mt-2 text-sm"></div>
+            <div id="coupon-message" class="mt-2 text-sm">
+                @if (!empty($appliedCoupon['coupon_code']))
+                    <div class="site-alert site-alert-success d-flex align-items-center gap-2 px-3 py-2 rounded-lg border text-sm font-semibold">
+                        <i class="ti ti-check"></i>
+                        تم تطبيق كود الخصم بنجاح
+                    </div>
+                @endif
+            </div>
         </div>
         <div class="summary-details">
             <div class="summary-row"><span class="row-label">المبلغ قبل الضريبة</span><span class="row-value"
@@ -24,12 +32,12 @@
             <div class="summary-row"><span class="row-label">ضريبة القيمة المضافة (15%)</span><span class="row-value"
                     id="vat-display">{{ number_format($taxAmount, 2) }} <span class="icon-saudi_riyal"></span></span>
             </div>
-            <div class="summary-row summary-row--discount hidden" id="discount-row"><span class="row-label"><i
+            <div class="summary-row summary-row--discount {{ !empty($appliedCoupon['coupon_code']) ? '' : 'hidden' }}" id="discount-row"><span class="row-label"><i
                         class="ti ti-discount-2"></i> الخصم <button type="button" class="btn-remove-coupon"
                         id="remove-coupon" title="إزالة كود الخصم" aria-label="إزالة كود الخصم"><i class="ti ti-x"></i></button></span><span class="row-value">-<span
-                        id="discount-display">0.00</span> <span class="icon-saudi_riyal"></span></span></div>
+                        id="discount-display">{{ number_format($appliedCoupon['discount_amount'] ?? 0, 2) }}</span> <span class="icon-saudi_riyal"></span></span></div>
             <div class="summary-row summary-row--total"><span class="row-label">المبلغ الإجمالي</span><span
-                    class="row-value" id="total-final">{{ number_format($plan->price_after_discount, 2) }} <span
+                    class="row-value" id="total-final">{{ number_format($finalTotal ?? $plan->price_after_discount, 2) }} <span
                         class="icon-saudi_riyal"></span></span></div>
         </div>
         @if ($showSubmitButton ?? false)

@@ -19,7 +19,7 @@ final class CompleteCheckoutPaymentRequest extends FormRequest
 
         return [
             'payment_method' => ['required', 'in:card,bank_transfer'],
-            'coupon_code' => ['nullable', 'string', 'exists:coupons,code'],
+            'coupon_code' => ['nullable', 'string', 'max:255'],
             'bank_id' => $bankTransfer ? ['required', 'exists:banks,id,is_active,1'] : ['nullable'],
             'transfer_receipt' => $bankTransfer ? ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'] : ['nullable'],
         ];

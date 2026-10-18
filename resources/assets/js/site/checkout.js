@@ -40,6 +40,43 @@ document.addEventListener('DOMContentLoaded', function () {
     };
     initCitySelect2();
 
+    // Auto-save and restore Step 1 inputs across reloads
+    const storageKey = 'checkout_step1_draft_' + (window.location.pathname);
+    const draftInputs = paymentForm.querySelectorAll(
+        'input[name^="billing_"]:not([type="password"]), select[name^="billing_"], textarea[name^="billing_"]'
+    );
+
+    try {
+        const savedDraft = JSON.parse(sessionStorage.getItem(storageKey) || '{}');
+        draftInputs.forEach((input) => {
+            if (!input.value && savedDraft[input.name]) {
+                input.value = savedDraft[input.name];
+                if (input.tagName === 'SELECT' && window.jQuery) {
+                    window.jQuery(input).val(savedDraft[input.name]).trigger('change');
+                }
+            }
+        });
+    } catch (_) {}
+
+    paymentForm.addEventListener('input', function (e) {
+        if (!e.target.name || !e.target.name.startsWith('billing_') || e.target.type === 'password') return;
+        try {
+            const currentDraft = JSON.parse(sessionStorage.getItem(storageKey) || '{}');
+            currentDraft[e.target.name] = e.target.value;
+            sessionStorage.setItem(storageKey, JSON.stringify(currentDraft));
+        } catch (_) {}
+    });
+
+    if (window.jQuery) {
+        window.jQuery('#billing_city_id').on('change.select2', function () {
+            try {
+                const currentDraft = JSON.parse(sessionStorage.getItem(storageKey) || '{}');
+                currentDraft['billing_city_id'] = this.value;
+                sessionStorage.setItem(storageKey, JSON.stringify(currentDraft));
+            } catch (_) {}
+        });
+    }
+
     let selectedFiles = [];
     const paymentOptions = document.querySelectorAll('.payment-option');
     const cardSection = document.getElementById('card-payment-section');

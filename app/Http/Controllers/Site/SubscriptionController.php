@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Site;
 
 use App\Enums\Admin\Billing\BillType;
+use App\Enums\Admin\Billing\BillStatus;
 use App\Enums\Admin\Billing\PaymentMethod;
 use App\Exceptions\Payment\PaymentInitiationException;
 use App\Exceptions\Payment\PaymentVerificationException;
@@ -48,18 +49,32 @@ class SubscriptionController extends Controller
             $verification = null;
         }
 
-        $otpStep = is_array($verification) && ! isset($verification['verified_at']) && (int) ($verification['plan_id'] ?? 0) === (int) $plan->getKey();
+        $otpStep = is_array($verification) && ! isset($verification['verified_at']) && (int) ($verification['plan_id'] ?? 0) === (int) $plan->getKey() && isset($verification['otp_hash']);
         $paymentStep = is_array($verification) && isset($verification['verified_at']) && (int) ($verification['plan_id'] ?? 0) === (int) $plan->getKey();
-        $checkoutData = ($otpStep || $paymentStep)
+        $checkoutData = is_array($verification)
             ? collect($verification)->except(['plan_id', 'expires_at', 'otp_hash', 'verified_at'])->all()
             : [];
         $banks = Bank::where('is_active', true)->get();
         $cities = City::all();
         $taxRate = 0.15;
-        $taxAmount = round($plan->price_after_discount * $taxRate, 2);
-        $priceWithoutTax = round($plan->price_after_discount - $taxAmount, 2);
 
-        return view('site.checkout', compact('plan', 'priceWithoutTax', 'taxAmount', 'banks', 'cities', 'otpStep', 'paymentStep', 'checkoutData', 'verification'));
+        // استرجاع الكوبون المطبق من الجلسة وحساب الخصم تلقائياً
+        $couponCode = $verification['coupon_code'] ?? request()->session()->get('checkout_coupon_code') ?? old('coupon_code');
+        $appliedCoupon = null;
+        $finalTotal = (float) $plan->price_after_discount;
+
+        if (! empty($couponCode)) {
+            $couponResult = $this->couponService->processCoupon($couponCode, (float) $plan->price_after_discount);
+            if (! isset($couponResult['error']) && ! empty($couponResult['coupon_id'])) {
+                $appliedCoupon = $couponResult;
+                $finalTotal = (float) $couponResult['final_total'];
+            }
+        }
+
+        $taxAmount = round($finalTotal * $taxRate, 2);
+        $priceWithoutTax = round($finalTotal - $taxAmount, 2);
+
+        return view('site.checkout', compact('plan', 'priceWithoutTax', 'taxAmount', 'banks', 'cities', 'otpStep', 'paymentStep', 'checkoutData', 'verification', 'appliedCoupon', 'finalTotal'));
     }
 
     //  Checkout store
@@ -72,6 +87,9 @@ class SubscriptionController extends Controller
         $checkout = $request->validated();
         $checkout['plan_id'] = $plan->getKey();
         $checkout['expires_at'] = now()->addMinutes(2)->timestamp;
+        if (empty($checkout['coupon_code'])) {
+            $checkout['coupon_code'] = $request->session()->get('checkout_coupon_code');
+        }
         $otp = $this->checkoutOtp();
         $checkout['otp_hash'] = hash('sha256', $otp);
         $request->session()->put('checkout_verification', $checkout);
@@ -85,7 +103,9 @@ class SubscriptionController extends Controller
         abort_unless($this->isPublicPlan($plan), 404);
         $checkout = request()->session()->get('checkout_verification', []);
         $safeInput = collect($checkout)->except(['plan_id', 'expires_at', 'otp_hash', 'billing_password', 'billing_password_confirmation'])->all();
-        request()->session()->forget('checkout_verification');
+        // إزالة تأكيد OTP حتى يعود لخطوة تعديل البيانات مع الحفاظ على البيانات في الجلسة عند عمل Reload
+        unset($checkout['verified_at'], $checkout['otp_hash']);
+        request()->session()->put('checkout_verification', $checkout);
 
         return redirect()->route('site.plans.checkout', $plan)->withInput($safeInput);
     }
@@ -116,7 +136,13 @@ class SubscriptionController extends Controller
         $verification = $request->session()->get('checkout_verification');
         abort_unless(is_array($verification) && isset($verification['verified_at']), 404);
 
-        $checkout = array_merge($verification, $request->validated());
+        $validated = $request->validated();
+        if (empty($validated['coupon_code'])) {
+            $validated['coupon_code'] = $verification['coupon_code'] ?? $request->session()->get('checkout_coupon_code');
+        }
+
+        $checkout = array_merge($verification, $validated);
+
         return $this->createPaymentFromVerifiedCheckout($checkout, $plan);
     }
 
@@ -133,6 +159,10 @@ class SubscriptionController extends Controller
         } catch (PaymentVerificationException $e) {
             $bill = $this->findCheckoutBill($request->string('bill')->toString());
 
+            if ($bill?->status === BillStatus::PAID && $bill->tenant_id) {
+                return redirect()->to(config('app.url').'/'.$bill->tenant_id.'/login');
+            }
+
             if ($bill) {
                 return redirect()->route('site.plans.checkout', ['plan' => $bill->metadata['plan_id']])
                     ->with('error', $e->getMessage());
@@ -145,6 +175,16 @@ class SubscriptionController extends Controller
         } catch (\Throwable $e) {
             //
             report($e);
+
+            $bill = $this->findCheckoutBill($request->string('bill')->toString());
+            if ($bill?->status === BillStatus::PAID && $bill->tenant_id) {
+                return redirect()->to(config('app.url').'/'.$bill->tenant_id.'/login');
+            }
+
+            if ($bill) {
+                return redirect()->route('site.plans.checkout', ['plan' => $bill->metadata['plan_id']])
+                    ->with('error', 'تعذر التحقق من الدفع مؤقتًا، يرجى المحاولة مرة أخرى.');
+            }
 
             return redirect()->route('site.index')->with('error', 'حدث خطأ أثناء معالجة نتيجة الدفع');
         }

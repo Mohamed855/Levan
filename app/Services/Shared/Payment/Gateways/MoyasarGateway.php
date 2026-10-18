@@ -23,6 +23,7 @@ class MoyasarGateway implements PaymentGatewayInterface
     public function getPayment(string $paymentId): array
     {
         $response = Http::timeout($this->timeout)
+            ->withOptions(['verify' => (bool) config('services.moyasar.verify_ssl', true)])
             ->withBasicAuth($this->configuredSecretKey(), '')
             ->get("{$this->baseUrl}/payments/{$paymentId}");
 

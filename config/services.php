@@ -24,6 +24,7 @@ return [
             : env('MOYASAR_TEST_PUBLISHABLE_KEY', ''),
         'base_url' => env('MOYASAR_API_BASE_URL', 'https://api.moyasar.com/v1'),
         'timeout' => (int) env('MOYASAR_API_TIMEOUT', 15),
+        'verify_ssl' => filter_var(env('MOYASAR_VERIFY_SSL', true), FILTER_VALIDATE_BOOLEAN),
     ],
 
     'mailgun' => [

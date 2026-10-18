@@ -33,7 +33,7 @@ class SubscriptionCheckoutRequest extends FormRequest
             'billing_email' => ['required', 'email', 'max:255', new SystemEmailAvailable()],
             'billing_phone' => ['required', 'regex:/^(05\d{8}|966\d{9})$/'],
             'billing_password' => ['required', 'string', 'min:8', 'max:50', 'confirmed'],
-            'coupon_code' => ['nullable', 'string', 'exists:coupons,code'],
+            'coupon_code' => ['nullable', 'string', 'max:255'],
 
             // حقول التحويل البنكي
         ];

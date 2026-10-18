@@ -272,11 +272,15 @@ class SubscriptionService
             ];
         } catch (SubscriptionCreationException $e) {
             //
-            $this->billService->cancelBill($bill);
+            if ($bill->status !== BillStatus::PAID) {
+                $this->billService->cancelBill($bill);
+            }
             throw $e;
         } catch (\Throwable $e) {
             //
-            $this->billService->cancelBill($bill);
+            if ($bill->status !== BillStatus::PAID) {
+                $this->billService->cancelBill($bill);
+            }
             Log::error('فشل إنشاء الاشتراك', [
                 'bill_number'    => $bill->bill_number,
                 'payment_method' => $paymentMethod->value,

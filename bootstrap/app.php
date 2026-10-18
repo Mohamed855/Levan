@@ -45,6 +45,7 @@ return Application::configure(basePath: dirname(__DIR__))
             '*/wizard-drafts/validate-step',
             'form-validation',
             '*/form-validation',
+            'api/central/coupon/*',
         ]);
 
         // Middleware groups
