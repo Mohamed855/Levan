@@ -84,7 +84,7 @@ class DataTableContractTest extends TestCase
         }
     }
 
-    public function test_admin_and_tenant_datatable_filters_are_select2_only(): void
+    public function test_admin_and_tenant_datatable_filters_use_select2_or_native_date_inputs(): void
     {
         $viewsPath = dirname(__DIR__, 2) . '/resources/views';
         $directories = [
@@ -104,7 +104,7 @@ class DataTableContractTest extends TestCase
 
                 foreach ($this->datatableFilterBlocks($content) as $block) {
                     $this->assertDoesNotMatchRegularExpression(
-                        '/<input\b[^>]*data-datatable-filter\s*=\s*["\']true["\'][^>]*>/is',
+                        '/<input\b(?![^>]*\btype\s*=\s*["\']date["\'])[^>]*data-datatable-filter\s*=\s*["\']true["\'][^>]*>/is',
                         $block,
                         "{$file->getPathname()} must not use input controls as DataTable filters.",
                     );

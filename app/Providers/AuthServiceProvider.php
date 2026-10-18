@@ -29,9 +29,6 @@ use App\Models\Tenants\BusinessCenter\Customers\UpdateRequest\CustomerUpdateRequ
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Models\Tenants\Communication\MessageLog\MessageIndividualLog;
 use App\Models\Tenants\Communication\MessageLog\MessageLog;
-use App\Models\Tenants\FinancialCollection\Collection\Collection;
-use App\Models\Tenants\FinancialCollection\Reconciliation\PaymentReconciliation;
-use App\Models\Tenants\FinancialCollection\Target\CollectionTarget;
 use App\Models\Tenants\GeneralSetting\ContactMethod\SettingsContactMethod;
 use App\Models\Tenants\GeneralSetting\ContactResult\ContactResult;
 use App\Models\Tenants\GeneralSetting\Country\SettingsCountry;
@@ -71,9 +68,6 @@ use App\Policies\Tenants\BusinessCenter\Portfolio\PortfolioPolicy;
 use App\Policies\Tenants\BusinessCenter\Task\TaskPolicy;
 use App\Policies\Tenants\Communication\MessageLog\MessageIndividualLogPolicy;
 use App\Policies\Tenants\Communication\MessageLog\MessageLogPolicy;
-use App\Policies\Tenants\FinancialCollection\Collection\CollectionPolicy;
-use App\Policies\Tenants\FinancialCollection\Reconciliation\PaymentReconciliationPolicy;
-use App\Policies\Tenants\FinancialCollection\Target\CollectionTargetPolicy;
 use App\Policies\Tenants\GeneralSetting\ContactMethodPolicy;
 use App\Policies\Tenants\GeneralSetting\ContactResultPolicy;
 use App\Policies\Tenants\GeneralSetting\CountryPolicy;
@@ -125,9 +119,6 @@ class AuthServiceProvider extends ServiceProvider
         CustomerUpdateRequest::class => CustomerUpdateRequestPolicy::class,
         Team::class => TeamPolicy::class,
         User::class => UserPolicy::class,
-        Collection::class => CollectionPolicy::class,
-        CollectionTarget::class => CollectionTargetPolicy::class,
-        PaymentReconciliation::class => PaymentReconciliationPolicy::class,
         MessageLog::class => MessageLogPolicy::class,
         MessageIndividualLog::class => MessageIndividualLogPolicy::class,
         SettingsCountry::class => CountryPolicy::class,

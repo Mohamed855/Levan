@@ -51,11 +51,6 @@ use App\Http\Controllers\Tenants\Domains\DomainLookupController;
 use App\Http\Controllers\Tenants\Domains\DomainPaymentController;
 use App\Http\Controllers\Tenants\Domains\GetDomainInfoController;
 use App\Http\Controllers\Tenants\Domains\RenewalDomainController;
-use App\Http\Controllers\Tenants\FinancialCollection\Admin\AdminCollectionsController;
-use App\Http\Controllers\Tenants\FinancialCollection\Collection\CollectionController;
-use App\Http\Controllers\Tenants\FinancialCollection\Import\CollectionImportController;
-use App\Http\Controllers\Tenants\FinancialCollection\Reconciliation\PaymentReconciliationController;
-use App\Http\Controllers\Tenants\FinancialCollection\Target\CollectionTargetController;
 use App\Http\Controllers\Tenants\GeneralSetting\ContactMethod\SettingsContactMethodController;
 use App\Http\Controllers\Tenants\GeneralSetting\Country\SettingsCountryController;
 use App\Http\Controllers\Tenants\GeneralSetting\CustomerStatus\SettingsCustomerStatusController;
@@ -884,91 +879,9 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
 
         /*
         |--------------------------------------------------------------------------
-        | Financial Collections Routes
-        |--------------------------------------------------------------------------
-        | Routes for managing financial collections and related operations.
-        */
-        Route::prefix('financial-collections')->name('financial-collections.')->group(function () {
-
-            // collections
-            Route::prefix('collections')->name('collections.')->group(function () {
-                Route::name('index')->get('/', [CollectionController::class, 'index']);
-                Route::name('create')->get('/create', [CollectionController::class, 'create']);
-                Route::name('store')->post('/', [CollectionController::class, 'store']);
-                Route::name('delete-selected')->delete('/delete-selected', [CollectionController::class, 'deleteSelected']);
-                Route::name('search-customers')->get('/search-customers', [CollectionController::class, 'searchCustomers']);
-                Route::name('get-customer')->get('/get-customer/{customer}', [CollectionController::class, 'getCustomer']);
-                Route::name('show')->get('/{collection}', [CollectionController::class, 'show']);
-                Route::name('edit')->get('/{collection}/edit', [CollectionController::class, 'edit']);
-                Route::name('update')->put('/{collection}', [CollectionController::class, 'update']);
-                Route::name('destroy')->delete('/{collection}', [CollectionController::class, 'destroy']);
-                Route::name('approve')->patch('/{collection}/approve', [CollectionController::class, 'approve']);
-                Route::name('reject')->patch('/{collection}/reject', [CollectionController::class, 'reject']);
-                Route::name('generate-receipt-number')->get('/generate/receipt-number', [CollectionController::class, 'generateReceiptNumber']);
-                Route::name('recent-collections')->get('/recent/collections', [CollectionController::class, 'getRecentCollections']);
-            });
-
-            // admin-collections
-            Route::prefix('admin-collections')->name('admin-collections.')->group(function () {
-                Route::name('index')->get('/', [AdminCollectionsController::class, 'index']);
-                Route::name('search-customers')->get('/search-customers', [AdminCollectionsController::class, 'searchCustomers']);
-                Route::name('get-all-ids')->get('/get-all-ids', [AdminCollectionsController::class, 'getAllCollectionIds']);
-                Route::name('delete-selected')->delete('/delete-selected', [AdminCollectionsController::class, 'deleteSelected']);
-                Route::name('show')->get('/{collection}', [AdminCollectionsController::class, 'show']);
-                Route::name('destroy')->delete('/{collection}', [AdminCollectionsController::class, 'destroy']);
-                Route::name('approve')->patch('/{collection}/approve', [AdminCollectionsController::class, 'approve']);
-                Route::name('reject')->patch('/{collection}/reject', [AdminCollectionsController::class, 'reject']);
-                Route::name('approve-selected')->patch('/approve-selected', [AdminCollectionsController::class, 'approveSelected']);
-                Route::name('reject-selected')->patch('/reject-selected', [AdminCollectionsController::class, 'rejectSelected']);
-                Route::name('quick-stats')->get('/stats/quick', [AdminCollectionsController::class, 'getQuickStats']);
-            });
-
-            // collection-targets
-            Route::prefix('collection-targets')->name('collection-targets.')->group(function () {
-                Route::name('index')->get('/', [CollectionTargetController::class, 'index']);
-                Route::name('create')->get('/create', [CollectionTargetController::class, 'create']);
-                Route::name('store')->post('/', [CollectionTargetController::class, 'store']);
-                Route::name('edit')->get('/{collection_target}/edit', [CollectionTargetController::class, 'edit']);
-                Route::name('update')->put('/{collection_target}', [CollectionTargetController::class, 'update']);
-                Route::name('destroy')->delete('/{collection_target}', [CollectionTargetController::class, 'destroy']);
-                Route::name('toggle-status')->patch('/{collection_target}/toggle-status', [CollectionTargetController::class, 'toggleStatus']);
-                Route::name('user-details')->get('/user-details/{userId}', [CollectionTargetController::class, 'showUserDetails']);
-            });
-
-            // import
-            Route::prefix('import')->name('import.')->group(function () {
-                Route::name('show')->get('/', [CollectionImportController::class, 'showImportForm']);
-                Route::name('download-template')->get('/download-template', [CollectionImportController::class, 'generateTemplate']);
-                Route::name('upload-analyze')->post('/upload-analyze', [CollectionImportController::class, 'uploadAndAnalyze']);
-                Route::name('process')->post('/process', [CollectionImportController::class, 'processImport']);
-                Route::name('get-progress')->get('/get-progress', [CollectionImportController::class, 'getImportProgress']);
-                Route::name('download-error-report')->get('/download-error-report', [CollectionImportController::class, 'downloadErrorReport']);
-                Route::name('cancel')->post('/cancel', [CollectionImportController::class, 'cancelImport']);
-            });
-
-            // reconciliation
-            Route::prefix('reconciliation')->name('reconciliation.')->group(function () {
-                Route::name('index')->get('/', [PaymentReconciliationController::class, 'index']);
-                Route::name('get-portfolios')->post('/get-portfolios', [PaymentReconciliationController::class, 'getPortfolios']);
-                Route::name('analyze-headers')->post('/analyze-headers', [PaymentReconciliationController::class, 'analyzeHeaders']);
-                Route::name('store-temp-file')->post('/store-temp-file', [PaymentReconciliationController::class, 'storeTemporaryFile']);
-                Route::name('process')->post('/process', [PaymentReconciliationController::class, 'process']);
-                Route::name('get-progress')->get('/get-progress', [PaymentReconciliationController::class, 'getProgress']);
-                Route::get('/{reconciliation}/reports/summary', [PaymentReconciliationController::class, 'downloadSummaryReport'])->name('reports.summary');
-                Route::get('/{reconciliation}/reports/unmatched', [PaymentReconciliationController::class, 'downloadUnmatchedReport'])->name('reports.unmatched');
-                Route::get('/{reconciliation}/reports/discrepancies', [PaymentReconciliationController::class, 'downloadDiscrepanciesReport'])->name('reports.discrepancies');
-                Route::get('/{reconciliation}/reports/system-only', [PaymentReconciliationController::class, 'downloadSystemOnlyReport'])->name('reports.system-only');
-                Route::get('/{reconciliation}/reports/employee-performance', [PaymentReconciliationController::class, 'downloadEmployeePerformanceReport'])->name('reports.employee-performance');
-                Route::get('/{reconciliation}/reports/errors', [PaymentReconciliationController::class, 'downloadErrorsReport'])->name('reports.errors');
-            });
-        });
-
-        /*
-        |--------------------------------------------------------------------------
         | عمليات التحصيل - Collection Process Routes
         |--------------------------------------------------------------------------
         */
-        require __DIR__.'/collection-process.php';
 
         /*
         |--------------------------------------------------------------------------

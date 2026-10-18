@@ -19,7 +19,7 @@
 'use strict';
 
 let userComparisonChart = null;
-let currentUserDataType = 'collections'; // 'collections' | 'followups'
+let currentUserDataType = 'follows'; // 'follows'
 let currentUserPeriod = 'month';
 
 document.addEventListener('DOMContentLoaded', function () {

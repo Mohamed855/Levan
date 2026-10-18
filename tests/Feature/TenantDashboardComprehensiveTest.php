@@ -254,28 +254,29 @@ class TenantDashboardComprehensiveTest extends TestCase
     }
 
     /**
-     * Test 7: Financial Collections, Targets, and Reconciliation
+     * Legacy financial collection administration is no longer exposed.
      */
-    public function test_financial_collections_and_targets(): void
+    public function test_legacy_financial_collection_administration_is_removed(): void
     {
-        $this->get($this->tenantUrl('financial-collections/collections'))->assertStatus(200);
-        $this->get($this->tenantUrl('financial-collections/collections/create'))->assertStatus(200);
-
-        $this->get($this->tenantUrl('financial-collections/admin-collections'))->assertStatus(200);
-
-        $this->get($this->tenantUrl('financial-collections/collection-targets'))->assertStatus(200);
-        $this->get($this->tenantUrl('financial-collections/collection-targets/create'))->assertStatus(200);
-
-        $this->get($this->tenantUrl('financial-collections/import'))->assertStatus(200);
-        $this->get($this->tenantUrl('financial-collections/reconciliation'))->assertStatus(200);
+        foreach ([
+            'financial-collections/collections',
+            'financial-collections/collections/create',
+            'financial-collections/admin-collections',
+            'financial-collections/collection-targets',
+            'financial-collections/collection-targets/create',
+            'financial-collections/import',
+            'financial-collections/reconciliation',
+        ] as $path) {
+            $this->get($this->tenantUrl($path))->assertNotFound();
+        }
     }
 
     /**
-     * Test 8: Collection Process
+     * Legacy collection processing is no longer exposed.
      */
-    public function test_collection_process(): void
+    public function test_legacy_collection_process_is_removed(): void
     {
-        $this->get($this->tenantUrl('collection-process'))->assertStatus(200);
+        $this->get($this->tenantUrl('collection-process'))->assertNotFound();
     }
 
     /**

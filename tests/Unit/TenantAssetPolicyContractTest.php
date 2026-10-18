@@ -27,10 +27,6 @@ use App\Http\Controllers\Tenants\BusinessCenter\Task\TaskController;
 use App\Http\Controllers\Tenants\BusinessCenter\Portfolio\PortfolioController;
 use App\Http\Controllers\Tenants\Communication\MessageLog\MessageIndividualLogController;
 use App\Http\Controllers\Tenants\Communication\MessageLog\MessageLogController;
-use App\Http\Controllers\Tenants\FinancialCollection\Collection\CollectionController;
-use App\Http\Controllers\Tenants\FinancialCollection\Import\CollectionImportController;
-use App\Http\Controllers\Tenants\FinancialCollection\Reconciliation\PaymentReconciliationController;
-use App\Http\Controllers\Tenants\FinancialCollection\Target\CollectionTargetController;
 use App\Http\Controllers\Tenants\Properties\PropertiesController;
 use App\Http\Controllers\Tenants\UserMangment\Team\TeamController;
 use App\Http\Controllers\Tenants\UserMangment\User\UserController;
@@ -45,15 +41,11 @@ use App\Policies\Tenants\BusinessCenter\Portfolio\PortfolioPolicy;
 use App\Policies\Tenants\BusinessCenter\Task\TaskPolicy;
 use App\Policies\Tenants\Communication\MessageLog\MessageIndividualLogPolicy;
 use App\Policies\Tenants\Communication\MessageLog\MessageLogPolicy;
-use App\Policies\Tenants\FinancialCollection\Collection\CollectionPolicy;
-use App\Policies\Tenants\FinancialCollection\Reconciliation\PaymentReconciliationPolicy;
-use App\Policies\Tenants\FinancialCollection\Target\CollectionTargetPolicy;
 use App\Policies\Tenants\Properties\PropertyPolicy;
 use App\Policies\Tenants\UserManagement\Team\TeamPolicy;
 use App\Policies\Tenants\UserManagement\User\UserPolicy;
 use App\Services\Tenants\BusinessCenter\Company\CompanyService;
 use App\Services\Tenants\BusinessCenter\Customer\BulkUpdate\CustomerBulkUpdateService;
-use App\Services\Tenants\FinancialCollection\Import\CollectionImportService;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -71,9 +63,6 @@ class TenantAssetPolicyContractTest extends TestCase
             CustomerPolicy::class,
             TeamPolicy::class,
             UserPolicy::class,
-            CollectionPolicy::class,
-            CollectionTargetPolicy::class,
-            PaymentReconciliationPolicy::class,
             MessageLogPolicy::class,
             MessageIndividualLogPolicy::class,
         ] as $policy) {
@@ -96,9 +85,6 @@ class TenantAssetPolicyContractTest extends TestCase
             PortfolioController::class,
             TeamController::class,
             UserController::class,
-            CollectionController::class,
-            CollectionTargetController::class,
-            PaymentReconciliationController::class,
             MessageLogController::class,
             MessageIndividualLogController::class,
         ] as $controller) {
@@ -134,16 +120,6 @@ class TenantAssetPolicyContractTest extends TestCase
         $this->assertStringContainsString('storeTemporaryFile(', $controller);
         $this->assertStringNotContainsString("->store('temp_updates')", $controller);
         $this->assertStringContainsString('function storeTemporaryFile(', $service);
-    }
-
-    public function test_collection_import_file_cleanup_is_owned_by_its_service(): void
-    {
-        $controller = file_get_contents((new ReflectionClass(CollectionImportController::class))->getFileName());
-        $service = file_get_contents((new ReflectionClass(CollectionImportService::class))->getFileName());
-
-        $this->assertStringContainsString('cancelImport(', $controller);
-        $this->assertStringNotContainsString('Storage::disk(\'tenant_public\')->delete($tempPath)', $controller);
-        $this->assertStringContainsString('function cancelImport(', $service);
     }
 
     public function test_customer_payment_mutations_require_collection_capabilities_and_record_authorization(): void

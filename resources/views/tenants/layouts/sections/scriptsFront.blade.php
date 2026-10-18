@@ -4,9 +4,7 @@
 @yield('vendor-script')
 <!-- END: Page Vendor JS-->
 <!-- BEGIN: Theme JS-->
-{{-- @if (!request()->is('collection-process*'))
-    @vite(['resources/assets/js/shared/basic-tamplate/front-main.js'])
-@endif --}}
+@vite(['resources/assets/js/shared/basic-tamplate/front-main.js'])
 @vite(['resources/js/shared/modal-close-controls.js'])
 <!-- END: Theme JS-->
 <!-- Pricing Modal JS-->

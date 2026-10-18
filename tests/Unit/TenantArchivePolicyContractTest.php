@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use App\Http\Controllers\Tenants\Archive\Collection\CollectionArchiveController;
 use App\Http\Controllers\Tenants\Archive\Company\CompanyArchiveController;
 use App\Http\Controllers\Tenants\Archive\Contract\ContractArchiveController;
 use App\Http\Controllers\Tenants\Archive\Customer\CustomerArchiveController;
@@ -14,7 +13,6 @@ use App\Policies\Tenants\BusinessCenter\Company\CompanyPolicy;
 use App\Policies\Tenants\BusinessCenter\Contract\ContractPolicy;
 use App\Policies\Tenants\BusinessCenter\Customer\CustomerPolicy;
 use App\Policies\Tenants\BusinessCenter\Portfolio\PortfolioPolicy;
-use App\Policies\Tenants\FinancialCollection\Collection\CollectionPolicy;
 use App\Policies\Tenants\UserManagement\User\UserPolicy;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -29,7 +27,6 @@ final class TenantArchivePolicyContractTest extends TestCase
             ContractPolicy::class,
             PortfolioPolicy::class,
             CustomerPolicy::class,
-            CollectionPolicy::class,
         ] as $policy) {
             $reflection = new ReflectionClass($policy);
 
@@ -46,7 +43,6 @@ final class TenantArchivePolicyContractTest extends TestCase
             ContractArchiveController::class,
             PortfolioArchiveController::class,
             CustomerArchiveController::class,
-            CollectionArchiveController::class,
         ] as $controller) {
             $content = file_get_contents((new ReflectionClass($controller))->getFileName());
 

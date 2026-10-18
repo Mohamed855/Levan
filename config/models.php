@@ -16,7 +16,6 @@ use App\Models\Tenants\BusinessCenter\Customers\Distribution\CustomerDistributio
 use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use App\Models\Tenants\Communication\MessageLog\MessageIndividualLog;
 use App\Models\Tenants\Communication\MessageLog\MessageLog;
-use App\Models\Tenants\FinancialCollection\Target\CollectionTarget;
 use App\Models\Tenants\GeneralSetting\ContactMethod\SettingsContactMethod;
 use App\Models\Tenants\GeneralSetting\ContactResult\ContactResult;
 use App\Models\Tenants\GeneralSetting\Country\SettingsCountry;
@@ -39,8 +38,6 @@ return [
     'SettingsCustomerStatus' => SettingsCustomerStatus::class,
     'SettingsContactMethod' => SettingsContactMethod::class,
     'ContactResult' => ContactResult::class,
-    // 'Collection' => App\Models\Tenants\FinancialCollection\Collection::class,
-    'CollectionTarget' => CollectionTarget::class,
     'SettingsDebtType' => SettingsDebtType::class,
     'CustomerDistribution' => CustomerDistribution::class,
     'MessageIndividualLog' => MessageIndividualLog::class,

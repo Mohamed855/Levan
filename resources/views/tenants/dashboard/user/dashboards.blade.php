@@ -210,11 +210,6 @@
                                 </small>
                             </div>
                             <div class="d-flex align-items-center gap-3 flex-wrap">
-                                <select id="userDataTypeFilter" class="form-select form-select-sm select2"
-                                    style="width: 150px;">
-                                    <option value="collections">التحصيلات</option>
-                                    <option value="follows">المتابعات</option>
-                                </select>
                                  <select id="userComparisonPeriodFilter" class="form-select form-select-sm select2"
                                     style="width: 150px;">
                 <x-form.controls.enum-options :enum="\App\Enums\Shared\DashboardPeriod::class" />

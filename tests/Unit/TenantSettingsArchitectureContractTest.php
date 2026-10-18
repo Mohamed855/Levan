@@ -12,8 +12,6 @@ use App\Http\Controllers\Tenants\BusinessCenter\Customer\Distribution\CustomerDi
 use App\Http\Controllers\Tenants\BusinessCenter\Customer\Import\GetCustomerImportController;
 use App\Http\Controllers\Tenants\BusinessCenter\Customer\Letter\CompanyLetterController;
 use App\Http\Controllers\Tenants\Domains\CheckMultipleDomainController;
-use App\Http\Controllers\Tenants\FinancialCollection\Admin\AdminCollectionsController;
-use App\Http\Controllers\Tenants\FinancialCollection\CollectionProcess\CollectionProcessController;
 use App\Http\Controllers\Tenants\License\LicenseController;
 use App\Http\Controllers\Tenants\Settings\ApiTokenSettingsController;
 use App\Http\Controllers\Tenants\Settings\SettingsController as TenantSettingsController;
@@ -27,13 +25,6 @@ use App\Http\Requests\Tenants\BusinessCenter\Customer\Letter\SendCompanyLetterRe
 use App\Http\Requests\Tenants\BusinessCenter\Customer\PreviewCustomerWhatsAppTemplateRequest;
 use App\Http\Requests\Tenants\Domains\SuggestDomainAlternativesRequest;
 use App\Http\Requests\Tenants\Domains\SuggestDomainNamesRequest;
-use App\Http\Requests\Tenants\FinancialCollection\Collection\ApproveSelectedAdminCollectionsRequest;
-use App\Http\Requests\Tenants\FinancialCollection\Collection\DeleteSelectedAdminCollectionsRequest;
-use App\Http\Requests\Tenants\FinancialCollection\Collection\RejectCollectionRequest;
-use App\Http\Requests\Tenants\FinancialCollection\Collection\RejectSelectedAdminCollectionsRequest;
-use App\Http\Requests\Tenants\FinancialCollection\CollectionProcess\AddCollectionCustomerPhoneRequest;
-use App\Http\Requests\Tenants\FinancialCollection\CollectionProcess\PreviewCollectionWhatsAppTemplateRequest;
-use App\Http\Requests\Tenants\FinancialCollection\CollectionProcess\SetCollectionCustomerPrimaryPhoneRequest;
 use App\Http\Requests\Tenants\License\ManageLicenseRequest;
 use App\Jobs\Tenants\Versions\UpgradeVersionJob;
 use App\Services\Tenants\Shared\CentralTenantApiTokenGateway;
@@ -90,24 +81,6 @@ final class TenantSettingsArchitectureContractTest extends TestCase
                 $parameter->getType()?->getName(),
             );
         }
-    }
-
-    public function test_admin_collection_mutations_use_dedicated_form_requests(): void
-    {
-        $controller = new ReflectionClass(AdminCollectionsController::class);
-        $requests = [
-            'reject' => RejectCollectionRequest::class,
-            'approveSelected' => ApproveSelectedAdminCollectionsRequest::class,
-            'rejectSelected' => RejectSelectedAdminCollectionsRequest::class,
-            'deleteSelected' => DeleteSelectedAdminCollectionsRequest::class,
-        ];
-
-        foreach ($requests as $method => $request) {
-            $this->assertSame($request, $controller->getMethod($method)->getParameters()[0]->getType()?->getName());
-        }
-
-        $source = file_get_contents($controller->getFileName());
-        $this->assertDoesNotMatchRegularExpression('/\$request->validate\s*\(/', $source);
     }
 
     public function test_domain_suggestions_use_dedicated_form_requests(): void
@@ -181,34 +154,6 @@ final class TenantSettingsArchitectureContractTest extends TestCase
             PreviewCustomerWhatsAppTemplateRequest::class,
             $controller->getMethod('previewWhatsAppTemplate')->getParameters()[0]->getType()?->getName(),
         );
-    }
-
-    public function test_collection_process_whatsapp_preview_uses_a_dedicated_form_request(): void
-    {
-        $controller = new ReflectionClass(CollectionProcessController::class);
-
-        $this->assertSame(
-            PreviewCollectionWhatsAppTemplateRequest::class,
-            $controller->getMethod('previewWhatsAppTemplate')->getParameters()[0]->getType()?->getName(),
-        );
-    }
-
-    public function test_collection_process_phone_mutations_use_dedicated_form_requests(): void
-    {
-        $controller = new ReflectionClass(CollectionProcessController::class);
-
-        $this->assertSame(
-            AddCollectionCustomerPhoneRequest::class,
-            $controller->getMethod('addCustomerPhone')->getParameters()[0]->getType()?->getName(),
-        );
-        $this->assertSame(
-            SetCollectionCustomerPrimaryPhoneRequest::class,
-            $controller->getMethod('setPrimaryPhone')->getParameters()[0]->getType()?->getName(),
-        );
-
-        $source = file_get_contents($controller->getFileName());
-        $this->assertStringContainsString('ManageCollectionCustomerPhoneAction', $source);
-        $this->assertStringNotContainsString('CustomerPhone::create(', $source);
     }
 
     public function test_tenant_version_flow_crosses_central_storage_only_through_gateway(): void
