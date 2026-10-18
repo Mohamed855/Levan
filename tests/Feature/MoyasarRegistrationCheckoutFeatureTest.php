@@ -115,4 +115,36 @@ class MoyasarRegistrationCheckoutFeatureTest extends TestCase
             ->assertDontSee('checkout-otp-timer', false)
             ->assertDontSee('Secret1234!', false);
     }
+
+    public function test_checkout_clears_stale_invalid_coupon_from_session_and_completes_payment_without_error(): void
+    {
+        config()->set('services.moyasar.mode', 'test');
+        config()->set('services.moyasar.publishable', 'pk_test_feature_checkout');
+
+        $plan = $this->publicPlan;
+
+        // Simulate stale/invalid coupon code in session
+        $response = $this->withSession([
+            'checkout_coupon_code' => 'NON_EXISTENT_COUPON',
+            'checkout_verification' => [
+                'plan_id' => $plan->id,
+                'billing_company_name' => 'Stale Coupon Test Co',
+                'billing_commercial_number' => '1010887766',
+                'billing_name' => 'Owner Name',
+                'billing_email' => 'stale_coupon@example.com',
+                'billing_phone' => '0599887766',
+                'billing_password' => 'Secret1234!',
+                'coupon_code' => 'NON_EXISTENT_COUPON',
+                'expires_at' => now()->addMinutes(5)->timestamp,
+                'verified_at' => now()->timestamp,
+            ],
+        ])->post(route('site.plans.checkout.payment', $plan->id), ['payment_method' => 'card']);
+
+        // Must NOT redirect with error "كود الخصم غير صحيح"
+        $response->assertOk();
+        $response->assertSee('mysr-form', false);
+
+        // Stale coupon must be cleared from session
+        $this->assertNull(session('checkout_coupon_code'));
+    }
 }

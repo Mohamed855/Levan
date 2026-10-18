@@ -50,8 +50,7 @@
             data-draft-url="{{ tenant_route_name('wizard-drafts.store') }}"
             data-draft-file-url="{{ tenant_route_name('wizard-drafts.file.destroy') }}"
             data-selected-properties-url="{{ tenant_route_name('assignments.selected-properties') }}"
-            data-draft-resource-key="tenant.assignment-create"
-            data-property-image-fallback="{{ $propertyImageFallback }}">
+            data-draft-resource-key="tenant.assignment-create" data-property-image-fallback="{{ $propertyImageFallback }}">
             @csrf
 
             <x-form.wizard.step id="assignment-basic-validation" :fields="[
@@ -70,7 +69,8 @@
                     <x-form.controls.input name="assignment_number" label="رقم الإسناد" :value="$generatedAssignmentNumber" required
                         col="col-md-6" />
                     <x-form.controls.input name="name" label="اسم الإسناد" required col="col-md-6" />
-                    <x-form.controls.select name="category" label="تصنيف الإسناد" required col="col-md-6" :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class" />
+                    <x-form.controls.select name="category" label="تصنيف الإسناد" required col="col-md-6"
+                        :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class" />
                     <x-form.controls.select name="status" label="حالة الإسناد" required col="col-md-6" :enum="\App\Enums\Tenants\Assignments\AssignmentStatus::class" />
                     <x-form.controls.input name="issuing_entity" label="الجهة المسندة" required col="col-md-6" />
                     <x-form.controls.select name="city" label="المدينة" required col="col-md-6" :options="$cityOptions" />
@@ -133,22 +133,26 @@
                         multiple help="يمكن اختيار الملفات على أكثر من مرة" col="col-md-4" />
                     <x-form.controls.file name="additional_attachments" id="additional_attachments" label="مرفقات إضافية"
                         required multiple help="يمكن اختيار الملفات على أكثر من مرة" col="col-md-4" />
-                    <div class="col-md-6">
-                        <section class="assignment-selection assignment-attachment-box" aria-labelledby="general-documents-title">
+                    <div class="col-12">
+                        <section class="assignment-selection assignment-attachment-box"
+                            aria-labelledby="general-documents-title">
                             <div class="d-flex align-items-center justify-content-between mb-3">
                                 <h5 id="general-documents-title" class="mb-0">مستندات عامة</h5>
-                                <span class="badge bg-label-primary"><span id="general-documents-count">0</span> ملف</span>
+                                <span class="badge bg-label-primary"><span id="general-documents-count">0</span>
+                                    ملف</span>
                             </div>
                             <div id="general-documents-cards" class="assignment-file-list" aria-live="polite">
                                 <p class="text-muted mb-0" data-empty>لم يتم إرفاق ملفات بعد.</p>
                             </div>
                         </section>
                     </div>
-                    <div class="col-md-6">
-                        <section class="assignment-selection assignment-attachment-box" aria-labelledby="additional-attachments-title">
+                    <div class="col-12">
+                        <section class="assignment-selection assignment-attachment-box"
+                            aria-labelledby="additional-attachments-title">
                             <div class="d-flex align-items-center justify-content-between mb-3">
                                 <h5 id="additional-attachments-title" class="mb-0">مرفقات إضافية</h5>
-                                <span class="badge bg-label-primary"><span id="additional-attachments-count">0</span> ملف</span>
+                                <span class="badge bg-label-primary"><span id="additional-attachments-count">0</span>
+                                    ملف</span>
                             </div>
                             <div id="additional-attachments-cards" class="assignment-file-list" aria-live="polite">
                                 <p class="text-muted mb-0" data-empty>لم يتم إرفاق ملفات بعد.</p>
@@ -175,19 +179,23 @@
                             class="assignment-review__card">
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <section class="assignment-selection assignment-attachment-box" aria-labelledby="review-general-documents-title">
+                                    <section class="assignment-selection assignment-attachment-box"
+                                        aria-labelledby="review-general-documents-title">
                                         <div class="d-flex align-items-center justify-content-between mb-3">
                                             <h5 id="review-general-documents-title" class="mb-0">مستندات عامة</h5>
-                                            <span class="badge bg-label-primary"><span id="review-general-documents-count">0</span> ملف</span>
+                                            <span class="badge bg-label-primary"><span
+                                                    id="review-general-documents-count">0</span> ملف</span>
                                         </div>
                                         <div id="review-general-documents" class="assignment-file-list"></div>
                                     </section>
                                 </div>
                                 <div class="col-md-6">
-                                    <section class="assignment-selection assignment-attachment-box" aria-labelledby="review-additional-attachments-title">
+                                    <section class="assignment-selection assignment-attachment-box"
+                                        aria-labelledby="review-additional-attachments-title">
                                         <div class="d-flex align-items-center justify-content-between mb-3">
                                             <h5 id="review-additional-attachments-title" class="mb-0">مرفقات إضافية</h5>
-                                            <span class="badge bg-label-primary"><span id="review-additional-attachments-count">0</span> ملف</span>
+                                            <span class="badge bg-label-primary"><span
+                                                    id="review-additional-attachments-count">0</span> ملف</span>
                                         </div>
                                         <div id="review-additional-attachments" class="assignment-file-list"></div>
                                     </section>

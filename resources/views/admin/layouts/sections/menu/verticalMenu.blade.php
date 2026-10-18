@@ -214,8 +214,8 @@
             <span class="menu-header-text">إدارة المحتوى</span>
         </li>
 
-        <li class="menu-item @if (Route::is('admin.content_management.partner.*')) active open @endif">
-            <a href="{{ route('admin.content_management.partner.index') }}" class="menu-link">
+        <li class="menu-item @if (Route::is('admin.content_management.client.*')) active open @endif">
+            <a href="{{ route('admin.content_management.client.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-users-group"></i>
                 <div>الشركاء</div>
             </a>

@@ -68,6 +68,12 @@ class SubscriptionController extends Controller
             if (! isset($couponResult['error']) && ! empty($couponResult['coupon_id'])) {
                 $appliedCoupon = $couponResult;
                 $finalTotal = (float) $couponResult['final_total'];
+            } else {
+                request()->session()->forget('checkout_coupon_code');
+                if (is_array($verification) && isset($verification['coupon_code'])) {
+                    unset($verification['coupon_code']);
+                    request()->session()->put('checkout_verification', $verification);
+                }
             }
         }
 
@@ -87,8 +93,17 @@ class SubscriptionController extends Controller
         $checkout = $request->validated();
         $checkout['plan_id'] = $plan->getKey();
         $checkout['expires_at'] = now()->addMinutes(2)->timestamp;
-        if (empty($checkout['coupon_code'])) {
-            $checkout['coupon_code'] = $request->session()->get('checkout_coupon_code');
+        $couponCode = $checkout['coupon_code'] ?? $request->session()->get('checkout_coupon_code');
+        if (! empty($couponCode)) {
+            $couponResult = $this->couponService->processCoupon($couponCode, (float) $plan->price_after_discount);
+            if (! isset($couponResult['error']) && ! empty($couponResult['coupon_id'])) {
+                $checkout['coupon_code'] = $couponCode;
+            } else {
+                $request->session()->forget('checkout_coupon_code');
+                $checkout['coupon_code'] = null;
+            }
+        } else {
+            $checkout['coupon_code'] = null;
         }
         $otp = $this->checkoutOtp();
         $checkout['otp_hash'] = hash('sha256', $otp);
@@ -113,7 +128,7 @@ class SubscriptionController extends Controller
     public function verifyOtp(VerifyCheckoutOtpRequest $request, Plan $plan)
     {
         if (! $this->hasCheckoutVerification($plan)) {
-            $request->session()->forget('checkout_verification');
+            $request->session()->forget(['checkout_verification', 'checkout_coupon_code']);
 
             return redirect()->route('site.plans.checkout', $plan)->withErrors(['otp' => 'انتهت صلاحية رمز التحقق، يرجى البدء مرة أخرى.']);
         }
@@ -137,11 +152,25 @@ class SubscriptionController extends Controller
         abort_unless(is_array($verification) && isset($verification['verified_at']), 404);
 
         $validated = $request->validated();
-        if (empty($validated['coupon_code'])) {
-            $validated['coupon_code'] = $verification['coupon_code'] ?? $request->session()->get('checkout_coupon_code');
+        $couponCode = ! empty($validated['coupon_code'])
+            ? $validated['coupon_code']
+            : ($verification['coupon_code'] ?? $request->session()->get('checkout_coupon_code'));
+
+        if (! empty($couponCode)) {
+            $couponResult = $this->couponService->processCoupon($couponCode, (float) $plan->price_after_discount);
+            if (isset($couponResult['error']) || empty($couponResult['coupon_id'])) {
+                $request->session()->forget('checkout_coupon_code');
+                unset($verification['coupon_code']);
+                $request->session()->put('checkout_verification', $verification);
+                $couponCode = null;
+            }
+        } else {
+            $couponCode = null;
         }
 
+        $validated['coupon_code'] = $couponCode;
         $checkout = array_merge($verification, $validated);
+        $checkout['coupon_code'] = $couponCode;
 
         return $this->createPaymentFromVerifiedCheckout($checkout, $plan);
     }
@@ -152,7 +181,7 @@ class SubscriptionController extends Controller
         try {
             $result = $this->moyasarCallbackHandler->verify($request);
             $outcome = $this->subscriptionService->completeOnlineSubscription($result['bill'], $result['payment']);
-            $request->session()->forget('checkout_verification');
+            $request->session()->forget(['checkout_verification', 'checkout_coupon_code']);
 
             return redirect()->to(config('app.url').'/'.$outcome['tenant_id'].'/login');
             //
@@ -248,7 +277,7 @@ class SubscriptionController extends Controller
 
             if (($checkout['payment_method'] ?? null) === 'bank_transfer') {
                 $this->handleBankTransfer($request, $pendingBill);
-                request()->session()->forget('checkout_verification');
+                request()->session()->forget(['checkout_verification', 'checkout_coupon_code']);
 
                 return redirect()->route('site.index')->with('success', 'تم استلام طلبك بنجاح.');
             }
