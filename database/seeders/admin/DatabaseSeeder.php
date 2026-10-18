@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             SettingsSeeder::class,
             VersionSeeder::class,
+            PublicPlanSeeder::class,
             TrialPlanSeeder::class,
             TestTenantSeeder::class,
         ]);
