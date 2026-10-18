@@ -62,7 +62,7 @@
             <li class="menu-item @if (Route::is('admin.companies.*')) active open @endif">
                 <a href="{{ route('admin.companies.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons ti ti-building"></i>
-                    <div>إدارة الشركات</div>
+                    <div>إدارة العملاء</div>
                 </a>
             </li>
         @endcan
@@ -129,7 +129,7 @@
                     <i class="menu-icon tf-icons ti ti-file-certificate"></i>
                     <div>إدارة الاشتراكات</div>
                     @if ($totalBadgeCount > 0)
-                        <div class="badge rounded-pill menu-toggle-badge ms-auto">{{ $totalBadgeCount }}</div>
+                        <div class="badge bg-label-danger rounded-pill ms-auto">{{ $totalBadgeCount }}</div>
                     @endif
                 </a>
                 <ul class="menu-sub">
@@ -137,7 +137,7 @@
                 <a href="{{ route('admin.subscriptions.index') }}" class="menu-link">
                     <div>جميع الإشتراكات</div>
                     @if ($pendingCount > 0)
-                        <div class="badge bg-warning rounded-pill ms-auto">{{ $pendingCount }}</div>
+                        <div class="badge bg-label-danger rounded-pill ms-auto">{{ $pendingCount }}</div>
                     @endif
                 </a>
             </li>
@@ -145,7 +145,7 @@
                 <a href="{{ route('admin.subscriptionManage.pending') }}" class="menu-link">
                     <div>الطلبات</div>
                     @if ($pendingCount > 0)
-                        <div class="badge bg-warning rounded-pill ms-auto">{{ $pendingCount }}</div>
+                        <div class="badge bg-label-danger rounded-pill ms-auto">{{ $pendingCount }}</div>
                     @endif
                 </a>
             </li>
@@ -153,7 +153,7 @@
                 <a href="{{ route('admin.subscriptionManage.expiring') }}" class="menu-link">
                     <div>تقارب على الانتهاء</div>
                     @if ($expiringCount > 0)
-                        <div class="badge bg-danger rounded-pill ms-auto">{{ $expiringCount }}</div>
+                        <div class="badge bg-label-danger rounded-pill ms-auto">{{ $expiringCount }}</div>
                     @endif
                 </a>
             </li>
@@ -161,7 +161,7 @@
                 <a href="{{ route('admin.subscriptionManage.expired') }}" class="menu-link">
                     <div>الاشتراكات المنتهية</div>
                     @if ($expiredCount > 0)
-                        <div class="badge bg-secondary rounded-pill ms-auto">{{ $expiredCount }}</div>
+                        <div class="badge bg-label-danger rounded-pill ms-auto">{{ $expiredCount }}</div>
                     @endif
                 </a>
             </li>
@@ -214,10 +214,10 @@
             <span class="menu-header-text">إدارة المحتوى</span>
         </li>
 
-        <li class="menu-item @if (Route::is('admin.content_management.client.*')) active open @endif">
-            <a href="{{ route('admin.content_management.client.index') }}" class="menu-link">
+        <li class="menu-item @if (Route::is('admin.content_management.partner.*')) active open @endif">
+            <a href="{{ route('admin.content_management.partner.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-users-group"></i>
-                <div>العملاء</div>
+                <div>الشركاء</div>
             </a>
         </li>
 
@@ -293,7 +293,7 @@
 
             <li class="menu-item @if (Route::is('admin.archives.tenants.*')) active @endif">
                 <a href="{{ route('admin.archives.tenants.index') }}" class="menu-link">
-                    <div>الشركات</div>
+                    <div>العملاء المؤرشفون</div>
                 </a>
             </li>
 
