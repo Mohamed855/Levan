@@ -140,7 +140,7 @@ function initializeTopPerformersChart() {
             .slice(0, 20);
 
         chartData = sortedData.map(item => parseInt(item.follows_count) || 0);
-        chartColor = '#372632';
+        chartColor = '#1D4F44';
         yAxisLabel = 'عدد المتابعات';
         tooltipLabel = 'عدد المتابعات';
     }

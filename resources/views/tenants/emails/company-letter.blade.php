@@ -25,7 +25,7 @@
         }
 
         .email-header {
-            background: linear-gradient(135deg, #372632 0%, #4cc1bb 100%);
+            background: linear-gradient(135deg, #1D4F44 0%, #4cc1bb 100%);
             color: #ffffff;
             padding: 30px 1.25rem;
             text-align: center;
@@ -62,7 +62,7 @@
         }
 
         .highlight {
-            color: #372632;
+            color: #1D4F44;
             font-weight: 600;
         }
 
@@ -81,7 +81,7 @@
         }
 
         .email-footer a {
-            color: #372632;
+            color: #1D4F44;
             text-decoration: none;
         }
 
@@ -102,7 +102,7 @@
         }
 
         .btn:hover {
-            background-color: #372632;
+            background-color: #1D4F44;
         }
     </style>
 </head>

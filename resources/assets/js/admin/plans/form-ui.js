@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   };
   const planColors = {
-    purple: '#372632',
+    purple: '#1D4F44',
     blue: '#00a8c0',
     green: '#218c5b',
     orange: '#d97706',

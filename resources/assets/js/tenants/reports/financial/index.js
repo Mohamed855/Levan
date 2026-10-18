@@ -154,7 +154,7 @@ function generateColorPalette(baseColor, count) {
             const b = Math.round(baseB * factor);
             colors.push(`rgb(${r}, ${g}, ${b})`);
         }
-    } else if (baseColor === "#372632") {
+    } else if (baseColor === "#1D4F44") {
         // أزرق داكن بدرجات متفاوتة
         const baseR = 31,
             baseG = 42,
@@ -219,7 +219,7 @@ function initializeStatusChart() {
         return;
     }
 
-    const colors = ["#4cc1bb", "#372632", "#6fc8d3"];
+    const colors = ["#4cc1bb", "#1D4F44", "#6fc8d3"];
 
     const options = {
         series: series,
@@ -312,7 +312,7 @@ function initializeUserChart() {
         return;
     }
 
-    const colors = generateColorPalette("#372632", labels.length);
+    const colors = generateColorPalette("#1D4F44", labels.length);
 
     const options = {
         series: series,
@@ -530,7 +530,7 @@ function initializeMonthlyChart() {
             custom: function ({ series, seriesIndex, dataPointIndex, w }) {
                 const value = series[seriesIndex][dataPointIndex];
                 const month = categories[dataPointIndex];
-                return `<div class="apexcharts-tooltip-title" style="font-family: Cairo; font-size: 13px; font-weight: bold; color: #fff; background: #372632; padding: 5px 10px; border-radius: 0.25rem;">${month}</div>
+                return `<div class="apexcharts-tooltip-title" style="font-family: Cairo; font-size: 13px; font-weight: bold; color: #fff; background: #1D4F44; padding: 5px 10px; border-radius: 0.25rem;">${month}</div>
                         <div class="apexcharts-tooltip-value" style="font-family: Cairo; font-size: 0.75rem; color: #fff; background: #4cc1bb; padding: 5px 10px; border-radius: 0.25rem; margin-top: 2px;">${value} معاملة</div>`;
             },
             style: {

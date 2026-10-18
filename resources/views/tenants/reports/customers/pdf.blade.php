@@ -71,7 +71,7 @@
 
     .report-header {
         margin-bottom: 1.25rem;
-        border-bottom: 2px solid #372632;
+        border-bottom: 2px solid #1D4F44;
         padding-bottom: 15px;
         text-align: center;
     }
@@ -79,7 +79,7 @@
     .report-header h2 {
         margin: 0 0 10px 0;
         font-size: 22px;
-        color: #372632;
+        color: #1D4F44;
     }
 
     .data-table {
@@ -97,7 +97,7 @@
     }
 
     .data-table th {
-        background-color: #372632;
+        background-color: #1D4F44;
         color: #fff;
     }
 

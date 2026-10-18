@@ -1,6 +1,6 @@
 // =============================================================================
 // Vertical Menu — Modern Curved Cutout Tab & Theme Architecture
-// Primary dark background (#372632) with seamless inverted border radius on active & hover
+// Primary dark background (#1D4F44) with seamless inverted border radius on active & hover
 // =============================================================================
 
 @use '../variables';
@@ -11,7 +11,7 @@
 #layout-menu.menu-vertical,
 .layout-menu.menu-vertical,
 .bg-menu-theme.menu-vertical {
-    background-color: var(--primary-color, #372632) !important;
+    background-color: var(--primary-color, #1D4F44) !important;
     border: none !important;
     border-radius: 0 !important;
     box-shadow: none !important;
@@ -319,7 +319,7 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
         position: relative !important;
         z-index: 2 !important;
 
-        color: var(--primary-color, #372632) !important;
+        color: var(--primary-color, #1D4F44) !important;
         font-weight: 600 !important;
         transition: background-color 0.1s ease, color 0.1s ease !important;
         transition-duration: 0.1s !important;
@@ -328,18 +328,18 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
         > div:not(.badge),
         span,
         .menu-text {
-            color: var(--primary-color, #372632) !important;
+            color: var(--primary-color, #1D4F44) !important;
             font-weight: 600 !important;
         }
 
         .menu-icon,
         .tf-icons,
         i {
-            color: var(--primary-color, #372632) !important;
+            color: var(--primary-color, #1D4F44) !important;
         }
 
         &.menu-toggle::after {
-            color: var(--primary-color, #372632) !important;
+            color: var(--primary-color, #1D4F44) !important;
         }
     }
 }
@@ -446,19 +446,19 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
         .menu-link.active {
             background: $menu-tab-bg !important;
             background-image: none !important;
-            color: var(--primary-color, #372632) !important;
+            color: var(--primary-color, #1D4F44) !important;
             font-weight: 600 !important; // Stays 600, NO jumping
             box-shadow: none !important;
             transform: none !important;
 
             > div,
             span {
-                color: var(--primary-color, #372632) !important;
+                color: var(--primary-color, #1D4F44) !important;
                 font-weight: 600 !important;
             }
 
             &::before {
-                background-color: var(--primary-color, #372632) !important;
+                background-color: var(--primary-color, #1D4F44) !important;
                 transform: none !important; // Stays 6px, ZERO movement
             }
         }

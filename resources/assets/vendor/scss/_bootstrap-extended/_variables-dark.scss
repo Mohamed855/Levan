@@ -12,7 +12,7 @@
 
 // scss-docs-start gray-color-variables
 $white: #fff !default;
-$black: #372632 !default;
+$black: #1D4F44 !default;
 
 $base: #e1d5dc !default;
 $gray-25: rgba($base, 0.025) !default; // (C)
@@ -120,7 +120,7 @@ $headings-color: rgba-to-hex($gray-900, $rgba-to-hex-bg) !default;
 // * Cards
 // *******************************************************************************
 
-$card-bg: #372632 !default;
+$card-bg: #1D4F44 !default;
 $card-subtitle-color: rgba-to-hex(rgba($base, 0.55), $rgba-to-hex-bg) !default;
 
 // * Tables

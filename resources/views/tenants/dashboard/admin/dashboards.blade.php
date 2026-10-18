@@ -430,7 +430,7 @@
                         <div class="col-4 text-start">
                             <div class="d-flex gap-2 align-items-center mb-2">
                                 <span class="badge bg-label-primary p-1 rounded"
-                                    style="background-color: #372632 !important;">
+                                    style="background-color: #1D4F44 !important;">
                                     <i class="ti ti-phone-call ti-sm text-white"></i>
                                 </span>
                                 <p class="mb-0" style="font-size: small;">المتابعات</p>
@@ -459,7 +459,7 @@
                         <div class="progress w-100" style="height: 1rem; border-radius: 0.25rem;">
                             <div class="progress-bar d-flex align-items-center justify-content-center position-relative"
                                 id="followupsProgressSegment" role="progressbar"
-                                style="width: 0%; background-color: #372632; opacity: 0.5;" aria-valuenow="0"
+                                style="width: 0%; background-color: #1D4F44; opacity: 0.5;" aria-valuenow="0"
                                 aria-valuemin="0" aria-valuemax="100" data-bs-toggle="tooltip" data-bs-placement="top"
                                 title="عدد المتابعات: 0">
                                 <span id="followupsBarText"
@@ -504,7 +504,7 @@
                         <div class="col-4 text-start">
                             <div class="d-flex gap-2 align-items-center mb-2">
                                 <span class="badge bg-label-primary p-1 rounded"
-                                    style="background-color: #372632 !important;">
+                                    style="background-color: #1D4F44 !important;">
                                     <i class="ti ti-clock ti-sm text-white"></i>
                                 </span>
                                 <p class="mb-0" style="font-size: small;">قيد الانتظار</p>
@@ -533,7 +533,7 @@
                         <div class="progress w-100" style="height: 1rem; border-radius: 0.25rem;">
                             <div class="progress-bar d-flex align-items-center justify-content-center position-relative"
                                 id="pendingProgressSegment" role="progressbar"
-                                style="width: 0%; background-color: #372632; opacity: 0.5;" aria-valuenow="0"
+                                style="width: 0%; background-color: #1D4F44; opacity: 0.5;" aria-valuenow="0"
                                 aria-valuemin="0" aria-valuemax="100" data-bs-toggle="tooltip" data-bs-placement="top"
                                 title="قيد الانتظار: 0">
                                 <span id="pendingBarText"

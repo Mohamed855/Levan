@@ -247,7 +247,7 @@ function initializeUsersPerformanceChart() {
             fontFamily: 'Cairo, sans-serif',
             toolbar: { show: false }
         },
-        colors: ['#372632'],
+        colors: ['#1D4F44'],
         plotOptions: {
             bar: {
                 borderRadius: 6,
@@ -265,7 +265,7 @@ function initializeUsersPerformanceChart() {
             },
             style: {
                 fontSize: '10px',
-                colors: ['#372632']
+                colors: ['#1D4F44']
             }
         },
         xaxis: {

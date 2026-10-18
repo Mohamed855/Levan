@@ -9,7 +9,7 @@
 |     * إن وُجدت قيم > 0: اعرض فقط من لديهم قيمة > 0
 |     * إن كان المستخدم الحالي = 0: أضفه بآخر القائمة بعد آخر صاحب قيمة > 0
 |     * إن لم توجد قيم > 0: لا يوجد مخطط (رسالة "لا توجد بيانات")
-| - لون المتابعات #372632 بتدرّج، والتحصيلات كما هي
+| - لون المتابعات #1D4F44 بتدرّج، والتحصيلات كما هي
 | - لا نعرض "undefined" إطلاقًا
 | - شارة الترتيب بأسفل المكوّن + إبراز اسم المستخدم المتصل
 | - NEW: تمييز اسم المستخدم المتصل داخل المخطط (محور X) + تمييز العمود بحدّ خارجي
@@ -133,7 +133,7 @@ function createUserComparisonChart(canvas, users) {
     ? users.map(u => +u.collection_amount || 0)
     : users.map(u => +u.followups_count || 0);
 
-  const chartColor = isCollections ? '#4cc1bb' : '#372632';
+  const chartColor = isCollections ? '#4cc1bb' : '#1D4F44';
   const tooltipLabel = isCollections ? 'مبلغ التحصيلات' : 'عدد المتابعات';
 
   // تدرج المتابعات
@@ -144,11 +144,11 @@ function createUserComparisonChart(canvas, users) {
   // تمييز عمود المستخدم الحالي:
   const datasetBackground = isCollections
     ? users.map(u => (u.user_id === currentUserId ? '#4cc1bb' : '#3ba99c'))
-    : users.map(u => (u.user_id === currentUserId ? '#372632' : gradient));
+    : users.map(u => (u.user_id === currentUserId ? '#1D4F44' : gradient));
 
   // حدود مميِّزة لعمود المستخدم الحالي فقط
   const datasetBorderColor = users.map(u =>
-    u.user_id === currentUserId ? (isCollections ? '#2b8f89' : '#372632') : 'transparent'
+    u.user_id === currentUserId ? (isCollections ? '#2b8f89' : '#1D4F44') : 'transparent'
   );
   const datasetBorderWidth = users.map(u => (u.user_id === currentUserId ? 2 : 0));
 
@@ -272,7 +272,7 @@ function createUserComparisonChart(canvas, users) {
               const u = users[ctx.index];
               const me = window.userDashboardData?.user?.id;
               return (u && u.user_id === me)
-                ? (currentUserDataType === 'collections' ? '#4cc1bb' : '#372632')
+                ? (currentUserDataType === 'collections' ? '#4cc1bb' : '#1D4F44')
                 : '#666';
             },
             font: (ctx) => {

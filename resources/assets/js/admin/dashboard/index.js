@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ── الألوان الأساسية ──────────────────────────────────────────
     const colors = {
-        primary:   '#372632',
+        primary:   '#1D4F44',
         success:   '#28a745',
         warning:   '#ffc107',
         danger:    '#dc3545',
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     label:           'النشاط الإجمالي',
                     data:            dataPoints.map(d => d.count),
                     borderColor:     colors.primary,
-                    backgroundColor: 'rgba(55, 38, 50, 0.12)',
+                    backgroundColor: 'rgba(29, 79, 68, 0.12)',
                     tension:         0.4,
                     fill:            true,
                     pointRadius:     4,

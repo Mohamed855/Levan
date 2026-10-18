@@ -108,7 +108,7 @@ function createDayRow(day, index) {
             <div class="row align-items-center g-2">
                 <div class="col-auto" style="min-width: 120px;">
                     <div class="d-flex align-items-center">
-                        <span style="font-size: 0.875rem; font-weight: 600; color: #372632;">${day.day_number}</span>
+                        <span style="font-size: 0.875rem; font-weight: 600; color: #1D4F44;">${day.day_number}</span>
                         <span style="margin: 0 6px; color: #ddd;">-</span>
                         <span style="font-size: 0.75rem; color: #666;">${day.day_name}</span>
                     </div>

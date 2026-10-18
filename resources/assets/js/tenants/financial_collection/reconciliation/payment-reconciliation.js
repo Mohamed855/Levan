@@ -894,7 +894,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 text: 'سيتم إنهاء العملية الحالية والبدء بعملية جديدة',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#372632',
+                confirmButtonColor: '#1D4F44',
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'نعم، ابدأ من جديد',
                 cancelButtonText: 'إلغاء'

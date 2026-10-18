@@ -7,7 +7,7 @@
    ============================================================================= */
 
 :root {
-    --tenant-login-primary: var(--primary-color, #372632);
+    --tenant-login-primary: var(--primary-color, #1D4F44);
     --tenant-login-secondary: var(--secondary-color, #f3edea);
     --tenant-login-secondary-dark: var(--secondary-color-dark, #e9ddd8);
 }

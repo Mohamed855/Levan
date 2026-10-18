@@ -20,7 +20,7 @@
         }
 
         .header {
-            background: linear-gradient(135deg, #372632 0%, #4cc1bb 100%);
+            background: linear-gradient(135deg, #1D4F44 0%, #4cc1bb 100%);
             color: white;
             padding: 1.25rem;
             text-align: center;
@@ -58,7 +58,7 @@
         }
 
         table thead {
-            background: #372632;
+            background: #1D4F44;
             color: white;
         }
 
@@ -101,7 +101,7 @@
             text-align: center;
             padding: 15px;
             background: #f8f9fa;
-            border-top: 2px solid #372632;
+            border-top: 2px solid #1D4F44;
         }
 
         .summary-box {
@@ -119,7 +119,7 @@
 
         .summary-value {
             font-weight: bold;
-            color: #372632;
+            color: #1D4F44;
             font-size: 14px;
         }
     </style>

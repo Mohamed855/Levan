@@ -224,7 +224,7 @@ function initializeContactResultChart() {
         return;
     }
 
-    const colors = generateColorPalette("#372632", labels.length);
+    const colors = generateColorPalette("#1D4F44", labels.length);
 
     const options = {
         series: series,
@@ -251,7 +251,7 @@ function initializeContactResultChart() {
                             label: "المجموع",
                             fontSize: "14px",
                             fontWeight: 600,
-                            color: "#372632",
+                            color: "#1D4F44",
                         },
                     },
                 },
