@@ -58,7 +58,6 @@ class ArchivedUsersDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             [
                 'data' => 'checkbox',

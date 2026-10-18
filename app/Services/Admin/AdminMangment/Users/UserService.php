@@ -115,6 +115,7 @@ class UserService
             'active' => AdminUser::where('status', AdminUserStatus::ACTIVE)->count(),
             'inactive' => AdminUser::where('status', AdminUserStatus::INACTIVE)->count(),
             'archived' => AdminUser::onlyTrashed()->count(),
+            'super_admins' => AdminUser::role('SuperAdmin', 'admin')->count(),
         ];
     }
 

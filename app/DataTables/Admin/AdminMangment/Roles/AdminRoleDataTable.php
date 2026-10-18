@@ -1,188 +1,95 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\DataTables\Admin\AdminMangment\Roles;
 
 use App\DataTables\Abstract\AbstractDataTable;
-use App\Enums\Admin\Users\AdminUserStatus;
-use App\Models\Admin\AdminMangment\Users\AdminUser;
+use Spatie\Permission\Models\Role;
 
-class AdminRoleDataTable extends AbstractDataTable
+final class AdminRoleDataTable extends AbstractDataTable
 {
-    private $route = 'admin.users';
+    private string $page = 'admin.admin_mangment.roles';
 
-    // table id
-    protected function getTableId()
+    private string $route = 'admin.roles';
+
+    protected function getTableId(): string
     {
-        return 'users-table';
+        return 'roles-table';
     }
 
     protected function resource()
     {
-        return AdminUser::query();
+        return Role::query()
+            ->where('guard_name', 'admin')
+            ->withCount(['users', 'permissions']);
     }
 
     protected function getColumns(): array
     {
         return [
-            ['data' => '',  'orderable' => false, 'searchable' => false],
-
-            ['data' => 'id',        'name' => 'id',         'title' => 'ID', 'visible' => false],
-            ['data' => 'checkbox',  'name' => 'checkbox',   'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
-            ['data' => 'image',     'name' => 'image',      'title' => 'الصورة',    'orderable' => false, 'searchable' => false],
-            ['data' => 'name',      'name' => 'name',       'title' => 'الاسم'],
-            ['data' => 'email',     'name' => 'email',      'title' => 'البريد الإلكتروني'],
-            ['data' => 'phone',     'name' => 'phone',      'title' => 'رقم الهاتف'],
-            ['data' => 'roles',     'name' => 'roles', 'title' => 'الأدوار',   'orderable' => false, 'searchable' => true],
-            ['data' => 'last_login_at', 'name' => 'last_login_at', 'title' => 'آخر دخول'],
-            ['data' => 'status',    'name' => 'status',     'title' => 'الحالة', 'className' => 'text-center'],
-            ['data' => 'actions',   'name' => 'actions',    'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
-
+            ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
+            ['data' => 'name', 'name' => 'name', 'title' => 'اسم الدور'],
+            ['data' => 'users_count', 'name' => 'users_count', 'title' => 'المستخدمون', 'searchable' => false],
+            ['data' => 'permissions_count', 'name' => 'permissions_count', 'title' => 'الصلاحيات', 'searchable' => false],
+            ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإضافة'],
+            ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
 
-    protected function addCustomColumns($datatable)
+    protected function addCustomColumns($dataTable): void
     {
-        $datatable
-            ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
-
-            ->addColumn('image', function (AdminUser $user) {
-                $profilePicture = $user->image ? asset('storage/'.$user->image) : null;
-
-                return $this->renderTableImage($profilePicture, (string) $user->name, 40);
-            })
-
-            ->addColumn('roles', function ($row) {
-                if ($row->isSuperAdmin()) {
-                    return $row->roles->count() > 0 ? $row->roles->first()->name : '-';
-                }
-
-                if (auth()->user()?->can('roles.assign')) {
-                    $roleName = $row->roles->count() > 0 ? $row->roles->first()->name : '-';
-                    $colorClasses = ['bg-label-primary', 'bg-label-success', 'bg-label-warning', 'bg-label-info', 'bg-secondary'];
-                    $randomColor = $colorClasses[array_rand($colorClasses)];
-
-                    return '<a href="javascript:void(0);" class="edit-role-link" data-user-id="'.htmlspecialchars($row->id, ENT_QUOTES, 'UTF-8').'">
-                                        <span class="badge '.htmlspecialchars($randomColor, ENT_QUOTES, 'UTF-8').'">'.e($roleName).'</span>
-                                    </a>';
-                } else {
-                    return $row->roles->count() > 0 ? $row->roles->first()->name : '-';
-                }
-            })
-
-            ->editColumn('status', function ($row) {
-                if ($row->isSuperAdmin()) {
-                    return '<div class="d-flex justify-content-center"><span class="badge bg-primary">سوبر أدمن</span></div>';
-                }
-
-                return $this->UserStatusBadge($row);
-            })
-
-            ->editColumn('last_login_at', function (AdminUser $user) {
-                return $user->last_login_at
-                    ? $user->last_login_at->locale('ar')->diffForHumans()
-                    : 'لم يسجل دخول';
-            })
-
-            ->addColumn('actions', function ($row) {
-                if ($row->isSuperAdmin()) {
-                    return '<span class="text-muted">محمي</span>';
-                }
-
-                return view('admin.admin_mangment.users.action', ['row' => $row, 'route' => $this->route]);
-            });
+        $dataTable
+            ->editColumn('name', fn (Role $role): string => '<span class="fw-medium text-heading">'.e($role->name).'</span>')
+            ->editColumn('users_count', fn (Role $role): string => '<span class="badge bg-label-primary">'.number_format($role->users_count).'</span>')
+            ->editColumn('permissions_count', fn (Role $role): string => '<span class="badge bg-label-info">'.number_format($role->permissions_count).'</span>')
+            ->editColumn('created_at', fn (Role $role): string => $role->created_at?->locale('ar')->translatedFormat('d F Y') ?? '-')
+            ->addColumn('actions', fn (Role $role): string => view($this->page.'.action', compact('role'))->render());
     }
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'image', 'name', 'email', 'roles', 'status', 'last_login_at', 'actions'];
+        return ['name', 'users_count', 'permissions_count', 'actions'];
     }
 
-    protected function applyCustomFilters($query)
-    {
-        $request = request();
-
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->filled('role')) {
-            $query->whereHas('roles', function ($q) use ($request) {
-                $q->where('roles.id', $request->role);
-            });
-        }
-
-        return $query;
-    }
-
-    // الحقول المسموح البحث فيها
     protected function getSearchableColumns(): array
     {
-        return [
-            'name',
-        ];
+        return ['name'];
     }
 
     protected function getCustomOrder(): array
     {
-        return [1, 'desc'];
+        return [1, 'asc'];
     }
 
-    // Buttons
     protected function buttons(): array
     {
-        return [
-            $this->getActionsDropdownButton(),
-        ];
+        return [$this->getActionsDropdownButton(), $this->getAddButton()];
     }
 
     private function getActionsDropdownButton(): array
     {
-        $buttons = [
-            ['extend' => 'copy', 'text' => 'نسخ'],
-            ['extend' => 'excel', 'text' => 'إكسل'],
-        ];
-
         return [
             'extend' => 'collection',
             'className' => 'btn btn-export',
             'text' => 'الإجراءات',
-            'buttons' => $buttons,
+            'buttons' => [
+                ['extend' => 'copy', 'text' => 'نسخ'],
+                ['extend' => 'excel', 'text' => 'إكسل'],
+            ],
         ];
     }
 
-    /*
-    |============================================================================
-    |                            Private Helper Methods
-    |============================================================================
-    */
-    private function UserStatusBadge($row): string
+    private function getAddButton(): array
     {
-        $isActive = ($row->status === AdminUserStatus::ACTIVE || ($row->status?->value ?? $row->status) === 'active');
-        $checked = $isActive ? 'checked' : '';
-
-        if (auth()->user()?->can('users.change_status') || auth()->user()?->can('roles.edit')) {
-            $url = route('admin.users.toggle-status', $row->id);
-
-            return '
-                <div class="d-flex justify-content-center">
-                    <div class="form-check form-switch mb-0">
-                        <input
-                            type="checkbox"
-                            class="form-check-input js-table-status-toggle"
-                            id="status_'.$row->id.'"
-                            data-url="'.e($url).'"
-                            '.$checked.'
-                            aria-label="تبديل حالة المستخدم"
-                        >
-                    </div>
-                </div>
-            ';
-        } else {
-            return sprintf(
-                '<div class="d-flex justify-content-center"><span class="badge bg-%s">%s</span></div>',
-                $row->status->color(),
-                $row->status->label()
-            );
+        if (! auth('admin')->user()?->can('roles.create')) {
+            return [];
         }
+
+        return [
+            'text' => '<i class="fas fa-plus-circle me-1"></i> إضافة دور',
+            'className' => 'btn btn-primary btn-add',
+            'action' => "function(){ window.location.href='".route($this->route.'.create')."'; }",
+        ];
     }
 }

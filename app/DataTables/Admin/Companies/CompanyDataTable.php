@@ -26,11 +26,6 @@ class CompanyDataTable extends AbstractDataTable
                 'lastSubscription.periods',
             ]);
 
-        // Filter: company status
-        if (request()->filled('status')) {
-            $query->where('status', request('status'));
-        }
-
         // Filter: city
         if (request()->filled('city_id')) {
             $query->where('city_id', request('city_id'));
@@ -78,11 +73,10 @@ class CompanyDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => '', 'orderable' => false, 'searchable' => false],
+            ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             ['data' => 'company_name', 'name' => 'company_name', 'title' => 'اسم الشركة'],
             ['data' => 'primary_contact_name', 'name' => 'primary_contact_name', 'title' => 'المسؤول الرئيسي'],
-            ['data' => 'status', 'name' => 'status', 'title' => 'حالة الشركة'],
             ['data' => 'city', 'name' => 'city_id', 'title' => 'المدينة'],
             ['data' => 'tax_number', 'name' => 'tax_number', 'title' => 'الرقم الضريبي'],
             ['data' => 'commercial_number', 'name' => 'commercial_number', 'title' => 'السجل التجاري'],
@@ -101,6 +95,8 @@ class CompanyDataTable extends AbstractDataTable
 
     protected function addCustomColumns($datatable)
     {
+        $datatable->addColumn('checkbox', fn (Tenant $row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">');
+
         $datatable
             ->editColumn('company_name', fn (Tenant $row) => $row->company_name ?: '-')
             ->addColumn('primary_contact_name', fn (Tenant $row) => $row->primary_contact_name ?: '-')
@@ -160,22 +156,12 @@ class CompanyDataTable extends AbstractDataTable
 
                 return '<span class="badge bg-'.$sub->status->color().'">'.$sub->status->label().'</span>';
             })
-            ->editColumn('status', function (Tenant $row) {
-                $statusMap = [
-                    'active' => ['label' => 'نشط', 'color' => 'success'],
-                    'pending' => ['label' => 'قيد المراجعة', 'color' => 'warning'],
-                    'suspended' => ['label' => 'موقوف', 'color' => 'danger'],
-                ];
-                $status = $statusMap[$row->status] ?? ['label' => $row->status, 'color' => 'secondary'];
-
-                return '<span class="badge bg-label-'.$status['color'].'">'.$status['label'].'</span>';
-            })
             ->addColumn('actions', fn (Tenant $row) => view('admin.companies.action', ['row' => $row])->render());
     }
 
     protected function rawColumns(): array
     {
-        return ['tenant_id', 'days_remaining', 'subscription_status', 'status', 'actions'];
+        return ['checkbox', 'tenant_id', 'days_remaining', 'subscription_status', 'actions'];
     }
 
     protected function getSearchableColumns(): array
@@ -191,20 +177,44 @@ class CompanyDataTable extends AbstractDataTable
     protected function buttons(): array
     {
         return [
-            [
-                'extend' => 'collection',
-                'className' => 'btn btn-export',
-                'text' => 'الإجراءات',
-                'buttons' => [
-                    ['extend' => 'copy', 'text' => 'نسخ'],
-                    ['extend' => 'excel', 'text' => 'إكسل'],
-                ],
-            ],
-            ...(auth()->user()?->can('companies.create') ? [[
-                'text' => '<i class="fas fa-plus-circle me-1"></i> إضافة شركة',
-                'className' => 'btn btn-primary btn-add',
-                'action' => "function(){ window.location.href='".route('admin.companies.create')."'; }",
-            ]] : []),
+            $this->getActionsDropdownButton(),
+            $this->getAddButton(),
+        ];
+    }
+
+    private function getActionsDropdownButton(): array
+    {
+        $buttons = [
+            ['extend' => 'copy', 'text' => 'نسخ'],
+            ['extend' => 'excel', 'text' => 'إكسل'],
+        ];
+
+        if (auth()->user()?->can('companies.delete')) {
+            $buttons[] = [
+                'text' => 'حذف المحدد',
+                'className' => 'btn btn-default btn-delete-selected',
+                'action' => 'function() { handleMassDelete(); }',
+            ];
+        }
+
+        return [
+            'extend' => 'collection',
+            'className' => 'btn btn-export',
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
+        ];
+    }
+
+    private function getAddButton(): array
+    {
+        if (! auth()->user()?->can('companies.create')) {
+            return [];
+        }
+
+        return [
+            'text' => '<i class="ti ti-plus me-1"></i> إضافة شركة',
+            'className' => 'btn btn-primary btn-add',
+            'action' => "function(){ window.location.href='".route('admin.companies.create')."'; }",
         ];
     }
 }

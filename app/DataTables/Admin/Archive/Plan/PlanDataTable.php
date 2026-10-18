@@ -25,7 +25,6 @@ class PlanDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             ['data' => 'checkbox',  'name' => 'checkbox',   'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
 

@@ -24,8 +24,6 @@ class AdminUserDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => '',  'orderable' => false, 'searchable' => false],
-
             ['data' => 'id',        'name' => 'id',         'title' => 'المعرف', 'visible' => false, 'className' => 'no-export'],
             ['data' => 'checkbox',  'name' => 'checkbox',   'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
             ['data' => 'image',     'name' => 'image',  'className' => 'no-export',    'title' => 'الصورة',    'orderable' => false, 'searchable' => false],

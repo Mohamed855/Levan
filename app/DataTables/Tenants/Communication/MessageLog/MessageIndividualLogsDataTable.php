@@ -133,7 +133,7 @@ class MessageIndividualLogsDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'orderable' => false, 'searchable' => false, 'title' => '', 'className' => 'control'],
+            ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'orderable' => false, 'searchable' => false, 'title' => '#', 'className' => 'text-center'],
             [
                 'data' => 'checkbox',
                 'name' => 'checkbox',

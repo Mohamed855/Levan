@@ -49,6 +49,15 @@
             </li>
         @endcan
 
+        @can('roles.view')
+            <li class="menu-item @if (Route::is('admin.roles.*')) active open @endif">
+                <a href="{{ route('admin.roles.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons ti ti-shield-lock"></i>
+                    <div>إدارة الأدوار والصلاحيات</div>
+                </a>
+            </li>
+        @endcan
+
         @can('companies.view')
             <li class="menu-item @if (Route::is('admin.companies.*')) active open @endif">
                 <a href="{{ route('admin.companies.index') }}" class="menu-link">
@@ -120,7 +129,7 @@
                     <i class="menu-icon tf-icons ti ti-file-certificate"></i>
                     <div>إدارة الاشتراكات</div>
                     @if ($totalBadgeCount > 0)
-                        <div class="badge bg-label-danger rounded-pill ms-auto">{{ $totalBadgeCount }}</div>
+                        <div class="badge rounded-pill menu-toggle-badge ms-auto">{{ $totalBadgeCount }}</div>
                     @endif
                 </a>
                 <ul class="menu-sub">
@@ -170,7 +179,7 @@
     @endcan
 
     <li class="menu-header small">
-        <span class="menu-header-text">الدعم الفني والتذاكر</span>
+        <span class="menu-header-text">الدعم والطلبات</span>
     </li>
 
     @can('tickets.view')
@@ -180,23 +189,78 @@
                 <div>إدارة التذاكر</div>
             </a>
         </li>
-        @can('contact_requests.view')
-            <li class="menu-item @if (Route::is('admin.contact-requests.*')) active @endif">
-                <a href="{{ route('admin.contact-requests.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons ti ti-mail"></i>
-                    <div>طلبات التواصل</div>
-                </a>
-            </li>
-        @endcan
-        @can('trial_requests.view')
-            <li class="menu-item @if (Route::is('admin.trial-requests.*')) active @endif">
-                <a href="{{ route('admin.trial-requests.index') }}" class="menu-link">
-                    <i class="menu-icon tf-icons ti ti-clock"></i>
-                    <div>طلبات التجربة</div>
-                </a>
-            </li>
-        @endcan
     @endcan
+
+    @can('contact_requests.view')
+        <li class="menu-item @if (Route::is('admin.contact-requests.*')) active open @endif">
+            <a href="{{ route('admin.contact-requests.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-mail"></i>
+                <div>طلبات التواصل</div>
+            </a>
+        </li>
+    @endcan
+
+    @can('trial_requests.view')
+        <li class="menu-item @if (Route::is('admin.trial-requests.*')) active open @endif">
+            <a href="{{ route('admin.trial-requests.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-clock"></i>
+                <div>طلبات التجربة</div>
+            </a>
+        </li>
+    @endcan
+
+    @can('clients.view')
+        <li class="menu-header small">
+            <span class="menu-header-text">إدارة المحتوى</span>
+        </li>
+
+        <li class="menu-item @if (Route::is('admin.content_management.client.*')) active open @endif">
+            <a href="{{ route('admin.content_management.client.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-users-group"></i>
+                <div>العملاء</div>
+            </a>
+        </li>
+
+        <li class="menu-item @if (Route::is('admin.content_management.portfolio.*')) active open @endif">
+            <a href="{{ route('admin.content_management.portfolio.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-briefcase"></i>
+                <div>معرض الأعمال</div>
+            </a>
+        </li>
+    @endcan
+
+    @canany(['system.settings', 'bank_settings.view', 'domain_extension_prices.settings'])
+        <li class="menu-header small">
+            <span class="menu-header-text">إعدادات المنصة</span>
+        </li>
+
+        @can('system.settings')
+            <li class="menu-item @if (Route::is('admin.settings.index')) active open @endif">
+                <a href="{{ route('admin.settings.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons ti ti-settings"></i>
+                    <div>الإعدادات العامة</div>
+                </a>
+            </li>
+        @endcan
+
+        @can('bank_settings.view')
+            <li class="menu-item @if (Route::is('admin.settings.banks.*')) active open @endif">
+                <a href="{{ route('admin.settings.banks.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons ti ti-building-bank"></i>
+                    <div>الحسابات البنكية</div>
+                </a>
+            </li>
+        @endcan
+
+        @can('domain_extension_prices.settings')
+            <li class="menu-item @if (Route::is('admin.settings.domains.*')) active open @endif">
+                <a href="{{ route('admin.settings.domains.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons ti ti-world"></i>
+                    <div>إعدادات النطاقات</div>
+                </a>
+            </li>
+        @endcan
+    @endcanany
 
     <li class="menu-header small">
         <span class="menu-header-text">المحذوفات</span>

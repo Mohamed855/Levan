@@ -109,7 +109,6 @@ class CompanyAndSubscriptionRefactorTest extends TestCase
                 'commercial_number'    => $commercialNumber,
                 'primary_contact_name' => $data['name'],
                 'primary_contact_email'=> $data['email'],
-                'status'               => 'active',
             ]);
 
             // 2. Verify CompanySetting
@@ -152,6 +151,30 @@ class CompanyAndSubscriptionRefactorTest extends TestCase
                 DB::connection('mysql')->statement('DROP DATABASE IF EXISTS ' . $tenantDb);
             }
         }
+    }
+
+    public function test_company_without_immediate_activation_is_active_while_subscription_is_pending(): void
+    {
+        $companyService = app(CompanyService::class);
+
+        $tenant = $companyService->createCompany([
+            'company_name' => 'Pending Subscription Company '.uniqid(),
+            'commercial_number' => (string) rand(1000000000, 9999999999),
+            'tax_number' => (string) rand(100000000000000, 999999999999999),
+            'city_id' => $this->city->id,
+            'address' => 'Test address',
+            'name' => 'Company Admin',
+            'phone' => '05'.rand(10000000, 99999999),
+            'email' => 'pending-'.uniqid().'@example.test',
+            'password' => 'Password123!',
+            'password_confirmation' => 'Password123!',
+            'plan_id' => $this->plan->id,
+            'start_date' => now()->toDateString(),
+            'payment_type' => 'unpaid',
+            'email_notifications_enabled' => 1,
+        ]);
+
+            $this->assertSame(SubscriptionStatus::PENDING, $tenant->lastSubscription->status);
     }
 
     /**
@@ -349,9 +372,9 @@ class CompanyAndSubscriptionRefactorTest extends TestCase
     }
 
     /**
-     * 5. Toggle subscription status toggles between active/suspended and syncs tenant status
+     * 5. Toggle subscription status toggles between active/suspended without company status coupling
      */
-    public function test_subscription_toggle_status_syncs_tenant_status(): void
+    public function test_subscription_toggle_status_changes_subscription_only(): void
     {
         $companyService = app(CompanyService::class);
         $subscriptionService = app(AdminSubscriptionService::class);
@@ -382,17 +405,14 @@ class CompanyAndSubscriptionRefactorTest extends TestCase
             $sub = $tenant->lastSubscription;
 
             $this->assertEquals(SubscriptionStatus::ACTIVE, $sub->status);
-            $this->assertEquals('active', $tenant->fresh()->status);
 
             // Toggle to suspended
             $subscriptionService->toggleStatus($sub);
             $this->assertEquals(SubscriptionStatus::SUSPENDED, $sub->fresh()->status);
-            $this->assertEquals('suspended', $tenant->fresh()->status);
 
             // Toggle back to active
             $subscriptionService->toggleStatus($sub);
             $this->assertEquals(SubscriptionStatus::ACTIVE, $sub->fresh()->status);
-            $this->assertEquals('active', $tenant->fresh()->status);
         } finally {
             if ($tenant) {
                 Tenant::withTrashed()->whereKey($tenant->id)->forceDelete();

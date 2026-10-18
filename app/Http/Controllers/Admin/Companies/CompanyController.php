@@ -57,11 +57,6 @@ class CompanyController extends Controller
         $plans = Plan::select('id', 'name')->active()->get();
 
         $filterOptions = [
-            'statuses' => [
-                ['value' => 'active', 'label' => 'نشط'],
-                ['value' => 'pending', 'label' => 'بانتظار التفعيل'],
-                ['value' => 'suspended', 'label' => 'موقوف'],
-            ],
             'subscriptionStatuses' => [
                 ['value' => 'active', 'label' => 'نشط'],
                 ['value' => 'pending', 'label' => 'معلق'],
@@ -88,6 +83,7 @@ class CompanyController extends Controller
             'activeCompanies' => $statistics['active'],
             'suspendedCompanies' => $statistics['suspended'],
             'pendingCompanies' => $statistics['pending'],
+            'withoutSubscriptionCompanies' => $statistics['withoutSubscription'],
             'cities' => $cities,
             'plans' => $plans,
             'filterOptions' => $filterOptions,

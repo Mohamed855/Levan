@@ -5,21 +5,21 @@ import { initializeTableStatusToggles } from '../../shared/table-status-toggle';
 
 $(document).ready(function () {
     initializeTableStatusToggles();
-    $('#paln-table').on('init.dt', function () {
+    $('#plans-table').on('init.dt', function () {
         bindTableEvents();
         initSortable();
     });
 
     // إعادة تفعيل السحب بعد كل رسم للجدول
-    $('#paln-table').on('draw.dt', function () {
+    $('#plans-table').on('draw.dt', function () {
         initSortable();
     });
 });
 
 function bindTableEvents() {
-    const table = $('#paln-table').DataTable();
+    const table = $('#plans-table').DataTable();
 
-    const tableWrapper = $('#paln-table_wrapper');
+    const tableWrapper = $('#plans-table_wrapper');
 
     // تحديد الكل
     tableWrapper.on('click', '#select-all', function () {
@@ -34,7 +34,7 @@ function bindTableEvents() {
 }
 
 function initSortable() {
-    const tbody = document.querySelector('#paln-table tbody');
+    const tbody = document.querySelector('#plans-table tbody');
 
     if (!tbody) {
         console.warn('Table body not found');
@@ -68,7 +68,7 @@ function initSortable() {
 }
 
 function updateSortOrder() {
-    const tbody = $('#paln-table tbody');
+    const tbody = $('#plans-table tbody');
     const order = [];
 
     tbody.find('tr').each(function (index) {
@@ -116,7 +116,7 @@ function updateSortOrder() {
 }
 
 function updateTableDisplay() {
-    const tbody = $('#paln-table tbody');
+    const tbody = $('#plans-table tbody');
     tbody.find('tr').each(function (index) {
         const sortOrderCell = $(this).find('.plan-sort-order');
         sortOrderCell.find('.badge').text(index + 1);
@@ -124,7 +124,7 @@ function updateTableDisplay() {
 }
 
 function reloadTable() {
-    const table = $('#paln-table').DataTable();
+    const table = $('#plans-table').DataTable();
     table.ajax.reload(null, false);
 }
 

@@ -87,7 +87,6 @@ class CompanyReportDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'companies.id', 'title' => 'ID', 'visible' => false],
             ['data' => 'name', 'name' => 'companies.name', 'title' => 'اسم الشركة', 'className' => 'text-start', 'width' => '220px'],
             ['data' => 'status', 'name' => 'companies.status', 'title' => 'الحالة', 'width' => '100px'],

@@ -175,11 +175,6 @@ class AdminSubscriptionService
                 ]);
             }
 
-            // If immediate activation or paid, activate company as well
-            if ($activateImmediately || $subStatus === SubscriptionStatus::ACTIVE) {
-                $company->update(['status' => 'active']);
-            }
-
             $this->clearSubscriptionCache($company->id);
 
             return $subscription;
@@ -194,17 +189,6 @@ class AdminSubscriptionService
         };
 
         $subscription->update(['status' => $newStatus]);
-
-        // If this is the company's latest subscription, sync company status
-        $company = $subscription->tenant;
-        if ($company && $company->lastSubscription?->id === $subscription->id) {
-            $companyStatus = match ($newStatus) {
-                SubscriptionStatus::SUSPENDED => 'suspended',
-                SubscriptionStatus::ACTIVE => 'active',
-                default => $company->status,
-            };
-            $company->update(['status' => $companyStatus]);
-        }
 
         $this->clearSubscriptionCache($subscription->tenant_id);
 

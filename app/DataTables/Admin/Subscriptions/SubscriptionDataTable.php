@@ -68,7 +68,6 @@ class SubscriptionDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             ['data' => 'subscription_number', 'name' => 'subscription_number', 'title' => 'رقم الاشتراك'],
             ['data' => 'company_name', 'name' => 'tenant.company_name', 'title' => 'اسم الشركة'],

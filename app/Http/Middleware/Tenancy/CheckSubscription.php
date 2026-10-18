@@ -31,8 +31,8 @@ class CheckSubscription
             }
         };
 
-        // لا يسمح بالوصول إذا كانت الشركة محذوفة (soft-deleted) أو غير نشطة
-        if ($tenant->trashed() || in_array($tenant->status, ['suspended', 'pending'], true)) {
+        // لا يسمح بالوصول إذا كانت الشركة محذوفة (soft-deleted).
+        if ($tenant->trashed()) {
             $terminateSession();
 
             return redirect()->to(tenant_route_name('login'))->withErrors([

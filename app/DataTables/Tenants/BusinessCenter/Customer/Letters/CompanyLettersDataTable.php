@@ -62,7 +62,6 @@ class CompanyLettersDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             ['data' => 'customer_name', 'name' => 'customer.name', 'title' => 'العميل'],
             ['data' => 'account_number', 'name' => 'customer.account_number', 'title' => 'رقم الحساب'],

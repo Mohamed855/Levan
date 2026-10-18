@@ -30,16 +30,19 @@
 @endsection
 
 @section('content')
-    <div class="row g-4 mb-4">
-        <x-ui.stat-card col="col-sm-6 col-xl-3" title="إجمالي الباقات" :value="$totalPlans" subtitle="جميع الباقات المعرفة"
+    <x-data-table.page table-id="plans-table">
+        <x-slot:stats>
+        <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي الباقات" :value="$totalPlans" subtitle="جميع الباقات المعرفة"
             icon="ti-packages" color="primary" />
-        <x-ui.stat-card col="col-sm-6 col-xl-3" title="الاشتراكات النشطة" :value="$activeSubscriptions" subtitle="الاشتراكات السارية حالياً"
+        <x-ui.stat-card col="col-sm-6 col-xl" title="الباقات النشطة" :value="$activePlans" subtitle="متاحة للاشتراك"
             icon="ti-bolt" color="success" />
-        <x-ui.stat-card col="col-sm-6 col-xl-3" title="الاشتراكات المنتهية" :value="$expiredSubscriptions" subtitle="المنتهية أو الملغاة"
+        <x-ui.stat-card col="col-sm-6 col-xl" title="الباقات غير النشطة" :value="$inactivePlans" subtitle="غير متاحة للاشتراك"
             icon="ti-calendar-off" color="warning" />
-        <x-ui.stat-card col="col-sm-6 col-xl-3" title="الإيراد الشهري" :value="number_format($monthlyRevenue, 2) . ' ر.س'" subtitle="الفواتير المدفوعة هذا الشهر"
-            icon="ti-cash" color="info" />
-    </div>
+        <x-ui.stat-card col="col-sm-6 col-xl" title="متاحة الآن" :value="$availablePlans" subtitle="ضمن تاريخ الإتاحة"
+            icon="ti-circle-check" color="info" />
+        <x-ui.stat-card col="col-sm-6 col-xl" title="مجدولة" :value="$futurePlans" subtitle="تتاح مستقبلاً"
+            icon="ti-calendar-time" color="danger" />
+        </x-slot:stats>
 
     @if ($errors->any())
         <div class="alert alert-danger">
@@ -51,8 +54,8 @@
         </div>
     @endif
 
-    {{-- Filters Card --}}
-    <x-data-table.filters table="#paln-table">
+    <x-slot:filters>
+    <x-data-table.filters table="#plans-table">
         <x-filter.select id="filter-status" filterKey="is_active" label="حالة الباقة"
             placeholder="اختر حالة الباقة" :options="$filterOptions['statuses'] ?? []" />
         <x-filter.select id="filter-plan-type" filterKey="plan_type" label="نوع الباقة"
@@ -70,10 +73,10 @@
         <x-filter.select id="filter-most-requested" filterKey="most_requested" label="الأكثر طلباً"
             placeholder="اختر الأكثر طلباً" :options="$filterOptions['most_requested'] ?? []" />
     </x-data-table.filters>
+    </x-slot:filters>
 
-    <div class="card">
-        <div class="card-body">
-            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'paln-table'], false) !!}
-        </div>
-    </div>
+    <x-slot:table>
+        {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'plans-table'], false) !!}
+    </x-slot:table>
+    </x-data-table.page>
 @endsection

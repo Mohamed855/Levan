@@ -82,7 +82,6 @@ class EmployeePerformanceDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'employee_name',             'name' => 'employee_name',              'title' => 'اسم الموظف'],
             ['data' => 'customers_count',           'name' => 'customers_count',            'title' => 'عدد العملاء'],
             ['data' => 'total_portfolio',           'name' => 'total_portfolio',            'title' => 'إجمالي المحفظة'],

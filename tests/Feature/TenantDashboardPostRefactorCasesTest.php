@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Http\Middleware\Tenancy\CheckLimits\CheckDomainManagement;
 use App\Models\Admin\Tenants\CompanySetting;
+use App\Models\Admin\Subscription\Subscription;
+use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Http\Request;
@@ -29,7 +31,7 @@ class TenantDashboardPostRefactorCasesTest extends TestCase
 
     protected function tearDown(): void
     {
-        Tenant::find('test')?->update(['status' => 'active']);
+        Subscription::where('tenant_id', 'test')->latest('id')->first()?->update(['status' => SubscriptionStatus::ACTIVE]);
         if (tenancy()->initialized) {
             tenancy()->end();
         }
@@ -65,14 +67,13 @@ class TenantDashboardPostRefactorCasesTest extends TestCase
     public function test_check_subscription_blocks_suspended_tenant(): void
     {
         try {
-            $this->tenant->status = 'suspended';
-            $this->tenant->save();
+            Subscription::where('tenant_id', 'test')->latest('id')->firstOrFail()->update(['status' => SubscriptionStatus::SUSPENDED]);
 
             $response = $this->get($this->tenantUrl('dashboard'));
             $response->assertRedirect();
             $this->assertFalse(Auth::guard('tenant')->check());
         } finally {
-            Tenant::find('test')?->update(['status' => 'active']);
+            Subscription::where('tenant_id', 'test')->latest('id')->first()?->update(['status' => SubscriptionStatus::ACTIVE]);
         }
     }
 

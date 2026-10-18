@@ -71,7 +71,6 @@ class MyTasksDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'customer_name', 'name' => 'c.name', 'title' => 'العميل'],
             ['data' => 'account_number', 'name' => 'c.account_number', 'title' => 'رقم الحساب'],
             ['data' => 'identity_number', 'name' => 'c.identity_number', 'title' => 'رقم الهوية'],

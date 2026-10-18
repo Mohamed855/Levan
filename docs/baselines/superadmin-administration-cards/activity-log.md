@@ -18,5 +18,5 @@ Files and storage lifecycle: Not applicable
 Tests: Tests\Feature\AdminDashboardCrudFeatureTest, Tests\Unit\SuperAdminContractTest
 Verification commands and passing evidence: php artisan test tests/Feature/AdminDashboardCrudFeatureTest.php --filter="test_admin_activity_logs_and_datatables_endpoints"
 Not applicable items: Policy, Actions, create UI, edit UI, drafts, review step, archive, files
-Remaining gaps: None
-Status: Compliant
+Remaining gaps: Baseline audit pending; rebuild and revalidate this administration before certification.
+Status: Gap

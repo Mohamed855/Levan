@@ -12,7 +12,7 @@
     @endcan
 
     @can('plans.delete')
-        @if ($row->hasSubscriptions())
+        @if ($row->subscriptions_count > 0)
             <button type="button" class="btn btn-icon btn-label-primary"
                 title="لا يمكن حذف باقة مرتبطة باشتراكات، استخدم زر التعطيل بدلاً من ذلك" disabled>
                 <i class="ti ti-trash-off"></i>

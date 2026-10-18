@@ -18,5 +18,5 @@ Files and storage lifecycle: Cascade soft deletion / file handling via model obs
 Tests: Tests\Unit\MassDeletePolicyContractTest, Tests\Feature\AdminDashboardCrudFeatureTest, Tests\Unit\SuperAdminContractTest
 Verification commands and passing evidence: php artisan test tests/Unit/MassDeletePolicyContractTest.php
 Not applicable items: Create UI, edit UI, drafts, review step, show UI, archive
-Remaining gaps: None
-Status: Compliant
+Remaining gaps: Baseline audit pending; rebuild and revalidate this administration before certification.
+Status: Gap

@@ -43,7 +43,7 @@ class AdminUpdateRoleRequest extends FormRequest
                 'array',
             ],
             'permissions.*' => [
-                'exists:permissions,name',
+                Rule::exists('permissions', 'name')->where('guard_name', 'admin'),
             ],
             'select_all' => [
                 'sometimes',
@@ -117,7 +117,10 @@ class AdminUpdateRoleRequest extends FormRequest
 
         // تحديد الصلاحيات بناءً على select_all
         if ($validated['select_all']) {
-            $validated['permissions'] = Permission::pluck('name')->toArray();
+            $validated['permissions'] = Permission::query()
+                ->where('guard_name', 'admin')
+                ->pluck('name')
+                ->toArray();
         } else {
             $validated['permissions'] = $validated['permissions'] ?? [];
         }

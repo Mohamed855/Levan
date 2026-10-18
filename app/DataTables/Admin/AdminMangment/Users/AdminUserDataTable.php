@@ -26,8 +26,6 @@ class AdminUserDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => '',  'orderable' => false, 'searchable' => false],
-
             ['data' => 'id',        'name' => 'id',         'title' => 'ID', 'visible' => false],
             ['data' => 'checkbox',  'name' => 'checkbox',   'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
             ['data' => 'image',     'name' => 'image',      'title' => 'الصورة',    'orderable' => false, 'searchable' => false],
@@ -57,11 +55,15 @@ class AdminUserDataTable extends AbstractDataTable
             // })
 
             ->addColumn('roles', function (AdminUser $user) {
-                if ($user->roles->isEmpty()) {
-                    return '<span class="text-muted">-</span>';
+                $roleBadges = $user->roles->isEmpty()
+                    ? '<span class="text-muted">-</span>'
+                    : $user->roles->map(fn ($role) => '<span class="badge bg-label-info me-1">'.e($role->name).'</span>')->implode('');
+
+                if ($user->isSuperAdmin() || ! auth('admin')->user()?->can('roles.assign')) {
+                    return $roleBadges;
                 }
 
-                return $user->roles->map(fn ($role) => '<span class="badge bg-label-info me-1">'.$role->name.'</span>')->implode('');
+                return '<button type="button" class="btn btn-link p-0 edit-role-link" data-user-id="'.e((string) $user->id).'" aria-label="تعديل دور المستخدم">'.$roleBadges.'</button>';
             })
 
             ->editColumn('status', function ($row) {

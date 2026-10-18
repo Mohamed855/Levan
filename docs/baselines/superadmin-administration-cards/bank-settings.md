@@ -18,5 +18,5 @@ Files and storage lifecycle: Bank logo icons stored on public disk with automati
 Tests: Tests\Feature\AdminDashboardCrudFeatureTest, Tests\Unit\CentralPolicyContractTest, Tests\Unit\SuperAdminContractTest
 Verification commands and passing evidence: php artisan test tests/Feature/AdminDashboardCrudFeatureTest.php --filter="test_admin_settings_banks_and_domains_crud_lifecycle"
 Not applicable items: Review step, show UI, archive
-Remaining gaps: None
-Status: Compliant
+Remaining gaps: Baseline audit pending; rebuild and revalidate this administration before certification.
+Status: Gap

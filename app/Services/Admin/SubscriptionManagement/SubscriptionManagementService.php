@@ -51,7 +51,6 @@ class SubscriptionManagementService
                 'tax_number' => $data['tax_number'],
                 'city_id' => $data['city_id'],
                 'address' => $data['address'],
-                'status' => $data['status'] === SubscriptionStatus::ACTIVE->value ? 'active' : 'pending',
             ]);
 
             $subscription->update([
@@ -115,7 +114,6 @@ class SubscriptionManagementService
     private function acceptWithinTransaction(Subscription $subscription, int|string|null $adminId): void
     {
         $subscription->update(['status' => SubscriptionStatus::ACTIVE]);
-        Tenant::query()->whereKey($subscription->tenant_id)->update(['status' => 'active']);
         $subscription->periods()->update(['status' => SubscriptionPeriodStatus::ACTIVE]);
         Bill::query()->where('subscription_id', $subscription->id)
             ->whereIn('status', [BillStatus::PENDING, BillStatus::PENDING_VERIFICATION, BillStatus::UNPAID])

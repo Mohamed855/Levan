@@ -272,12 +272,6 @@ abstract class AbstractDataTable extends DataTable
                     'targets' => '_all',
                     'defaultContent' => '-',
                     'render' => 'function(data, type, full, meta) {
-                        if (meta && meta.settings && meta.settings.aoColumns && meta.settings.aoColumns[meta.col]) {
-                            var colDef = meta.settings.aoColumns[meta.col];
-                            if (colDef.sClass && colDef.sClass.indexOf("control") !== -1) {
-                                return "";
-                            }
-                        }
                         if (type === "display") {
                             if (data === null || data === undefined || data === "" || (typeof data === "string" && data.trim() === "")) {
                                 return "-";
@@ -286,45 +280,9 @@ abstract class AbstractDataTable extends DataTable
                         return data;
                     }',
                 ],
-                [
-                    'className' => 'control',
-                    'orderable' => false,
-                    'targets' => 0,
-                    'render' => 'function(data, type, full, meta) { return ""; }',
-                ],
             ],
 
-            'responsive' => [
-                'details' => [
-                    'display' => 'function(row, update, render, closeCallback) {
-                    if (typeof window.bootstrap !== "undefined" && window.bootstrap && typeof $.fn.dataTable.Responsive.display.modal === "function") {
-                        try {
-                            return $.fn.dataTable.Responsive.display.modal({
-                                header: function(r) {
-                                    return "التفاصيل";
-                                }
-                            })(row, update, render, closeCallback);
-                        } catch (e) {
-                            return $.fn.dataTable.Responsive.display.childRow(row, update, render, closeCallback);
-                        }
-                    }
-                    return $.fn.dataTable.Responsive.display.childRow(row, update, render, closeCallback);
-                }',
-                    'type' => 'column',
-                    'renderer' => 'function(api, rowIdx, columns) {
-                    var data = $.map(columns, function(col, i) {
-                        var val = col.data;
-                        if (val === null || val === undefined || val === "" || (typeof val === "string" && val.trim() === "")) {
-                            val = "-";
-                        }
-                        return col.title !== "" && col.title.indexOf("checkbox") === -1
-                            ? \'<tr data-dt-row="\' + col.rowIndex + \'" data-dt-column="\' + col.columnIndex + \'"><td>\' + col.title + \':</td><td>\' + val + \'</td></tr>\'
-                            : "";
-                    }).join("");
-                    return data ? $(\'<table class="table"/><tbody />\').append(data) : false;
-                }',
-                ],
-            ],
+            'responsive' => false,
         ];
 
         $customOrder = $this->getCustomOrder();

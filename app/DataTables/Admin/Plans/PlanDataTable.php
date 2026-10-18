@@ -19,18 +19,17 @@ class PlanDataTable extends AbstractDataTable
 
     protected function getTableId(): string
     {
-        return 'paln-table';
+        return 'plans-table';
     }
 
     protected function resource()
     {
-        return Plan::query();
+        return Plan::query()->withCount('subscriptions');
     }
 
     protected function getColumns(): array
     {
         return [
-            ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
             ['data' => 'sort_order', 'name' => 'sort_order', 'title' => 'الترتيب', 'width' => '70px', 'className' => 'text-center plan-sort-order'],
@@ -66,7 +65,7 @@ class PlanDataTable extends AbstractDataTable
             })
 
             ->editColumn('code', function ($row) {
-                return '<span class="badge bg-label-dark font-monospace fw-bold">'.e($row->code ?? '-').'</span>';
+                return '<span class="badge bg-label-dark font-monospace">'.e($row->code ?? '-').'</span>';
             })
 
             ->editColumn('name', function ($row) use ($mostRequestedPlanId) {
@@ -79,7 +78,7 @@ class PlanDataTable extends AbstractDataTable
 
                 $colorDot = '<span class="badge rounded-circle p-1 me-1" style="background-color: '.e($colorHex).';" title="'.e($row->color?->label() ?? '').'">&nbsp;</span>';
 
-                return '<div class="d-flex align-items-center">'.$colorDot.'<span class="fw-bold text-heading">'.e($row->name).'</span>'.$badgeHtml.'</div>';
+                return '<div class="d-flex align-items-center">'.$colorDot.'<span class="text-heading">'.e($row->name).'</span>'.$badgeHtml.'</div>';
             })
 
             ->editColumn('plan_type', function ($row) {
@@ -102,7 +101,7 @@ class PlanDataTable extends AbstractDataTable
             })
 
             ->editColumn('price', function ($row) {
-                return '<span class="fw-semibold">'.number_format((float) $row->price, 2).' ر.س</span>';
+                return '<span>'.number_format((float) $row->price, 2).' ر.س</span>';
             })
 
             ->editColumn('discount_percentage', function ($row) {
@@ -114,7 +113,7 @@ class PlanDataTable extends AbstractDataTable
             })
 
             ->addColumn('price_after_discount', function ($row) {
-                return '<span class="fw-bold text-success">'.number_format($row->price_after_discount, 2).' ر.س</span>';
+                return '<span class="text-success">'.number_format($row->price_after_discount, 2).' ر.س</span>';
             })
 
             ->editColumn('yearly_renewal_price', function ($row) {
@@ -122,12 +121,12 @@ class PlanDataTable extends AbstractDataTable
                     return '<span class="text-muted">-</span>';
                 }
 
-                return '<span class="fw-semibold text-primary">'.number_format((float) $row->yearly_renewal_price, 2).' ر.س</span>';
+                return '<span class="text-primary">'.number_format((float) $row->yearly_renewal_price, 2).' ر.س</span>';
             })
 
             ->editColumn('limits_mode', function ($row) {
                 if ($row->isUnlimited()) {
-                    return '<span class="badge bg-label-primary fw-bold"><i class="ti ti-infinity me-1"></i>غير محدود</span>';
+                    return '<span class="badge bg-label-primary"><i class="ti ti-infinity me-1"></i>غير محدود</span>';
                 }
 
                 return '<span class="badge bg-label-info">محدود</span>';
@@ -135,7 +134,7 @@ class PlanDataTable extends AbstractDataTable
 
             ->editColumn('included_users', function ($row) {
                 if ($row->isUnlimited()) {
-                    return '<span class="text-primary fw-bold">∞</span>';
+                    return '<span class="text-primary">∞</span>';
                 }
 
                 return $row->included_users ? (string) $row->included_users : '-';
@@ -143,7 +142,7 @@ class PlanDataTable extends AbstractDataTable
 
             ->editColumn('properties_limit', function ($row) {
                 if ($row->isUnlimited()) {
-                    return '<span class="text-primary fw-bold">∞</span>';
+                    return '<span class="text-primary">∞</span>';
                 }
 
                 return $row->properties_limit ? (string) $row->properties_limit : '-';
@@ -151,7 +150,7 @@ class PlanDataTable extends AbstractDataTable
 
             ->editColumn('storage_quota_gb', function ($row) {
                 if ($row->isUnlimited()) {
-                    return '<span class="text-primary fw-bold">∞</span>';
+                    return '<span class="text-primary">∞</span>';
                 }
 
                 return $row->storage_quota_gb ? $row->storage_quota_gb.' GB' : '-';
@@ -159,7 +158,7 @@ class PlanDataTable extends AbstractDataTable
 
             ->editColumn('active_auctions_limit', function ($row) {
                 if ($row->isUnlimited()) {
-                    return '<span class="text-primary fw-bold">∞</span>';
+                    return '<span class="text-primary">∞</span>';
                 }
 
                 return $row->active_auctions_limit ? (string) $row->active_auctions_limit : '-';

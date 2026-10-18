@@ -6,6 +6,9 @@
     @vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
 @endsection
 
+@section('page-script')
+    @vite(['resources/assets/js/shared/form-validation.js'])
+@endsection
 
 @section('content')
     <div class="row">
@@ -32,13 +35,13 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('admin.roles.store') }}" method="POST">
+                    <form action="{{ route('admin.roles.store') }}" method="POST" data-form-validate
+                        data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}"
+                        data-draft-url="{{ route('admin.wizard-drafts.store') }}">
                         @csrf
 
-                        <div class="col-md-12 mb-3">
-                            <label for="name" class="form-label">اسم الدور</label>
-                            <input type="text" class="form-control" id="name" name="name"
-                                value="{{ old('name') }}" required>
+                        <div class="row g-4">
+                            <x-form.controls.input name="name" label="اسم الدور" :value="old('name')" required col="col-12" />
                         </div>
 
                         <div class="mb-3">
@@ -114,9 +117,11 @@
                             </div>
                         </div>
 
-                        <div class="d-flex justify-content-end gap-2">
-                            <x-form.wizard.draft-button />
-                            <button type="submit" class="btn btn-primary">حفظ</button>
+                        <div class="d-flex justify-content-end">
+                            <div class="d-flex gap-2">
+                                <x-form.wizard.draft-button step="1" />
+                                <x-form.wizard.save-button text="حفظ الدور" />
+                            </div>
                         </div>
                     </form>
 

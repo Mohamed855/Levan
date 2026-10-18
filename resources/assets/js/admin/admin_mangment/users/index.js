@@ -11,6 +11,43 @@ $(document).ready(function () {
     $('#users-table').on('init.dt', function () {
         bindTableEvents();
     });
+
+    $('#users-table').on('click', '.edit-role-link', function () {
+        const userId = this.dataset.userId;
+        const modalElement = document.getElementById('editUserRoleModal');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+
+        $.get(window.routes.getUserRoles.replace(':id', userId))
+            .done((data) => {
+                const roleSelect = $('#role-assignment-role');
+                roleSelect.val(data.assigned_role || '').trigger('change');
+                $('#role-assignment-user-id').val(userId);
+                modal.show();
+            })
+            .fail(() => toastr.error('تعذر تحميل بيانات الدور.'));
+    });
+
+    $('#updateUserRoleForm').on('submit', function (event) {
+        event.preventDefault();
+
+        const userId = $('#role-assignment-user-id').val();
+        const role = $('#role-assignment-role').val();
+        if (!role) {
+            toastr.warning('يرجى اختيار الدور.');
+            return;
+        }
+
+        $.post(window.routes.updateUserRole.replace(':id', userId), {
+            role,
+            _token: window.csrfToken
+        }).done((response) => {
+            toastr.success(response.message);
+            bootstrap.Modal.getInstance(document.getElementById('editUserRoleModal'))?.hide();
+            $('#users-table').DataTable().ajax.reload(null, false);
+        }).fail((xhr) => {
+            toastr.error(xhr.responseJSON?.message || 'تعذر تحديث الدور.');
+        });
+    });
 });
 
 document.addEventListener('DOMContentLoaded', () => {

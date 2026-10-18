@@ -309,8 +309,6 @@ class SubscriptionService
             $tenant, $plan, $bill->amount, $subscriptionStatus, $periodStatus, $data['trial_end_date'] ?? null,
             ['start_date' => $data['start_date'] ?? null, 'end_date' => $data['end_date'] ?? null, 'total_users' => $data['total_users'] ?? $plan->included_users]
         );
-        $tenant->update(['status' => ! empty($data['activate_immediately']) ? 'active' : 'pending']);
-
         //  ربط المستخدم بالترخيص
         $this->tenantInitializer->createCoreSeat($tenant, $subscription, $user);
 

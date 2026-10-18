@@ -6,6 +6,8 @@ namespace App\Services\Admin\Companies;
 
 use App\Enums\Admin\Billing\BillType;
 use App\Enums\Admin\Billing\PaymentMethod;
+use App\Enums\Admin\Subscriptions\SubscriptionPeriodStatus;
+use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Tenants\CompanySetting;
@@ -33,11 +35,27 @@ class CompanyService
 
     public function getCompanyStatistics(): array
     {
+        $baseQuery = Tenant::query();
+
         return [
-            'total' => Tenant::count(),
-            'active' => Tenant::where('status', 'active')->count(),
-            'suspended' => Tenant::where('status', 'suspended')->count(),
-            'pending' => Tenant::where('status', 'pending')->count(),
+            'total' => (clone $baseQuery)->count(),
+            'active' => (clone $baseQuery)->whereHas('lastSubscription', function ($query) {
+                $query->where('status', SubscriptionStatus::ACTIVE)
+                    ->where(function ($periodQuery) {
+                        $periodQuery->whereHas('currentPeriod', function ($currentPeriod) {
+                            $currentPeriod->where('status', SubscriptionPeriodStatus::ACTIVE)
+                                ->where('period_start', '<=', now())
+                                ->where('period_end', '>=', now());
+                        })->orWhereDoesntHave('periods');
+                    });
+            })->count(),
+            'suspended' => (clone $baseQuery)->whereHas('lastSubscription', function ($query) {
+                $query->whereIn('status', [SubscriptionStatus::SUSPENDED, SubscriptionStatus::EXPIRED]);
+            })->count(),
+            'pending' => (clone $baseQuery)->whereHas('lastSubscription', function ($query) {
+                $query->where('status', SubscriptionStatus::PENDING);
+            })->count(),
+            'withoutSubscription' => (clone $baseQuery)->whereDoesntHave('subscriptions')->count(),
         ];
     }
 

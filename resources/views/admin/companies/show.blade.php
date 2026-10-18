@@ -85,21 +85,6 @@
                                     <div class="flex-grow-1">
                                         <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
                                             <h4 class="fw-bold mb-0 text-primary">{{ $company->company_name }}</h4>
-                                            @php
-                                                $statusBadges = [
-                                                    'active' => ['label' => 'نشط', 'class' => 'bg-label-success'],
-                                                    'pending' => [
-                                                        'label' => 'قيد المراجعة',
-                                                        'class' => 'bg-label-warning',
-                                                    ],
-                                                    'suspended' => ['label' => 'موقوف', 'class' => 'bg-label-danger'],
-                                                ];
-                                                $badge = $statusBadges[$company->status] ?? [
-                                                    'label' => $company->status,
-                                                    'class' => 'bg-secondary',
-                                                ];
-                                            @endphp
-                                            <span class="badge {{ $badge['class'] }}">{{ $badge['label'] }}</span>
                                         </div>
                                         <p class="text-muted mb-0 small">
                                             معرف الشركة: <span

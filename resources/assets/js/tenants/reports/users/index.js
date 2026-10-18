@@ -89,7 +89,7 @@ function getTableColumns() {
             name: "DT_RowIndex",
             orderable: false,
             searchable: false,
-            className: 'control'
+            className: 'text-center'
         },
         {
             data: 'user_info',
@@ -178,7 +178,7 @@ function getTableDom() {
 
 function getColumnDefs() {
     return [{
-        className: "control",
+        className: "text-center",
         orderable: false,
         targets: 0,
         render: function (data, type, full, meta) {
@@ -195,7 +195,7 @@ function getResponsiveConfig() {
                     return "التفاصيل";
                 }
             }),
-            type: "column",
+            type: "inline",
             renderer: function (api, rowIdx, columns) {
                 const data = $.map(columns, function (col) {
                     return col.title !== "" ?

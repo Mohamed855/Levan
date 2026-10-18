@@ -16,7 +16,9 @@
 @section('page-script')
     <script>
         window.routes = {
-            massDelete: "{{ route('admin.users.bulk-delete') }}"
+            massDelete: "{{ route('admin.users.bulk-delete') }}",
+            getUserRoles: "{{ route('admin.roles.get-user-roles', ':id') }}",
+            updateUserRole: "{{ route('admin.roles.update-user-role', ':id') }}"
         };
     </script>
     @vite(['resources/assets/js/admin/admin_mangment/users/index.js'])
@@ -33,12 +35,16 @@
 @section('content')
 
     <div id="top_card" class="row g-4 mb-4">
-        <x-ui.stat-card col="col-sm-6 col-xl-4" title="إجمالي المستخدمين" :value="$totalUsers"
+        <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي المستخدمين" :value="$totalUsers"
             subtitle="إجمالي المستخدمين" icon="ti-users" color="primary" />
-        <x-ui.stat-card col="col-sm-6 col-xl-4" title="المستخدمين النشطين" :value="$activeUsers"
+        <x-ui.stat-card col="col-sm-6 col-xl" title="المستخدمين النشطين" :value="$activeUsers"
             subtitle="المستخدمين النشطين" icon="ti-user-check" color="success" />
-        <x-ui.stat-card col="col-sm-6 col-xl-4" title="المستخدمين غير النشطين" :value="$inactiveUsers"
+        <x-ui.stat-card col="col-sm-6 col-xl" title="المستخدمين غير النشطين" :value="$inactiveUsers"
             subtitle="المستخدمين غير النشطين" icon="ti-user-off" color="warning" />
+        <x-ui.stat-card col="col-sm-6 col-xl" title="المستخدمين المؤرشفين" :value="$archivedUsers"
+            subtitle="يمكن استعادتها من الأرشيف" icon="ti-archive" color="danger" />
+        <x-ui.stat-card col="col-sm-6 col-xl" title="SuperAdmin" :value="$superAdminUsers"
+            subtitle="حسابات محمية" icon="ti-shield-check" color="info" />
     </div>
 
     @if ($errors->any())
@@ -64,4 +70,17 @@
             {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'users-table'], false) !!}
         </div>
     </div>
+
+    <x-bootstrap.modal id="editUserRoleModal" title="تعديل دور المستخدم">
+        <form id="updateUserRoleForm">
+            <input id="role-assignment-user-id" type="hidden" name="user_id">
+            <x-form.controls.select name="role" id="role-assignment-role" label="الدور" :options="$roles"
+                placeholder="اختر الدور" required col="col-12" />
+        </form>
+
+        <x-slot:footer>
+            <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
+            <button type="submit" form="updateUserRoleForm" class="btn btn-primary">حفظ التغيير</button>
+        </x-slot:footer>
+    </x-bootstrap.modal>
 @endsection

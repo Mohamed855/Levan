@@ -176,6 +176,10 @@ class PlanService
         $totalPlans = Plan::count();
         $activePlans = Plan::where('is_active', true)->count();
         $inactivePlans = Plan::where('is_active', false)->count();
+        $availablePlans = Plan::query()
+            ->where(fn ($query) => $query->whereNull('available_from')->orWhere('available_from', '<=', now()))
+            ->count();
+        $futurePlans = Plan::query()->where('available_from', '>', now())->count();
 
         $activeSubscriptions = Subscription::where('status', SubscriptionStatus::ACTIVE->value)->count();
         $expiredSubscriptions = Subscription::whereIn('status', [
@@ -200,6 +204,8 @@ class PlanService
             'total' => $totalPlans,
             'active' => $activePlans,
             'inactive' => $inactivePlans,
+            'available' => $availablePlans,
+            'future' => $futurePlans,
             'active_subscriptions' => $activeSubscriptions,
             'expired_subscriptions' => $expiredSubscriptions,
             'monthly_revenue' => $monthlyRevenue,

@@ -48,7 +48,7 @@ function initializeDataTable() {
                 name: "DT_RowIndex",
                 orderable: false,
                 searchable: false,
-                className: 'control'
+                className: 'text-center'
             },
             {
                 data: 'name',
@@ -85,7 +85,7 @@ function initializeDataTable() {
         orderCellsTop: true,
         columnDefs: [
             {
-                className: "control",
+                className: "text-center",
                 orderable: false,
                 targets: 0,
                 render: function () {
@@ -100,7 +100,7 @@ function initializeDataTable() {
                         return "التفاصيل";
                     }
                 }),
-                type: "column",
+                type: "inline",
                 renderer: function (api, rowIdx, columns) {
                     const data = $.map(columns, function (col) {
                         return col.title !== "" ?

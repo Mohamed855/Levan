@@ -44,31 +44,8 @@ class AdminRoleController extends Controller
     public function index(AdminRoleDataTable $dataTable)
     {
         try {
-            // $statistics = $this->userService->getUserStatistics();
-
-            $roles = $this->roleService->getAllRoles();
-            $permissions = $this->roleService->getGroupedPermissions();
-
-            $filterOptions = [
-                'statuses' => [
-                    ['value' => 'active', 'label' => 'نشط'],
-                    ['value' => 'inactive', 'label' => 'غير نشط'],
-                ],
-                'roles' => $roles->map(fn ($role): array => [
-                    'value' => $role->id,
-                    'label' => $role->name,
-                ]),
-            ];
-
             return $dataTable->render($this->page.'.index', [
-                'roles' => $roles,
-                'permissions' => $permissions,
-                'filterOptions' => $filterOptions,
-
-                // 'totalUsers'       => $statistics['total'],
-                // 'activeUsers'      => $statistics['active'],
-                // 'inactiveUsers'    => $statistics['inactive'],
-                // 'archivedUsers'   => $statistics['archived'],
+                'statistics' => $this->roleService->getRoleStatistics(),
             ]);
         } catch (\Exception $e) {
             report($e);
@@ -190,6 +167,11 @@ class AdminRoleController extends Controller
     {
         try {
             $user = AdminUser::findOrFail($id);
+
+            if ($user->isSuperAdmin() && ! $user->roles()->whereKey($request->validated('role'))->exists()) {
+                return response()->json(['error' => 'لا يمكن تعديل دور السوبر أدمن.'], 403);
+            }
+
             $this->roleService->updateUserRole($user, $request->validated());
 
             return response()->json([

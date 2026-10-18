@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin\AdminMangment\Role;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class AdminUpdateUserRoleRequest extends FormRequest
 {
@@ -28,7 +29,7 @@ class AdminUpdateUserRoleRequest extends FormRequest
         return [
             'role' => [
                 'required',
-                'exists:roles,id',
+                Rule::exists('roles', 'id')->where('guard_name', 'admin'),
             ],
 
         ];

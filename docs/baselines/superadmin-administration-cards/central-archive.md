@@ -18,5 +18,5 @@ Files and storage lifecycle: Cascade file removal on permanent force-deletion
 Tests: Tests\Feature\AdminDashboardCrudFeatureTest, Tests\Unit\CentralPolicyContractTest, Tests\Unit\SuperAdminContractTest
 Verification commands and passing evidence: php artisan test tests/Unit/CentralPolicyContractTest.php
 Not applicable items: Create UI, edit UI, drafts, review step, show UI
-Remaining gaps: None
-Status: Compliant
+Remaining gaps: Baseline audit pending; rebuild and revalidate this administration before certification.
+Status: Gap

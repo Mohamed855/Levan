@@ -19,28 +19,37 @@
     @vite(['resources/css/dataTable.css'])
 @endsection
 
+@section('page-script')
+    <script>
+        window.routes = {
+            massDelete: "{{ route('admin.mass-delete') }}"
+        };
+    </script>
+    @vite(['resources/assets/js/admin/companies/index.js'])
+@endsection
+
 @section('content')
     <x-ui.validation-errors class="mb-4" />
 
     <x-data-table.page table-id="companies-table">
         <x-slot:stats>
-        <x-ui.stat-card col="col-sm-6 col-xl-3" title="إجمالي الشركات" :value="$totalCompanies ?? 0"
+        <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي الشركات" :value="$totalCompanies ?? 0"
             subtitle="جميع الشركات المسجلة" icon="ti-building" color="primary" />
 
-        <x-ui.stat-card col="col-sm-6 col-xl-3" title="الشركات النشطة" :value="$activeCompanies ?? 0" subtitle="شركات مفعلة ونشطة"
+        <x-ui.stat-card col="col-sm-6 col-xl" title="الشركات النشطة" :value="$activeCompanies ?? 0" subtitle="شركات مفعلة ونشطة"
             icon="ti-circle-check" color="success" />
 
-        <x-ui.stat-card col="col-sm-6 col-xl-3" title="الشركات الموقوفة" :value="$suspendedCompanies ?? 0"
+        <x-ui.stat-card col="col-sm-6 col-xl" title="الشركات الموقوفة" :value="$suspendedCompanies ?? 0"
             subtitle="شركات موقوفة مؤقتاً" icon="ti-ban" color="danger" />
 
-        <x-ui.stat-card col="col-sm-6 col-xl-3" title="بانتظار التفعيل" :value="$pendingCompanies ?? 0"
+        <x-ui.stat-card col="col-sm-6 col-xl" title="بانتظار التفعيل" :value="$pendingCompanies ?? 0"
             subtitle="شركات جديدة بانتظار الاعتماد" icon="ti-clock-pause" color="warning" />
+        <x-ui.stat-card col="col-sm-6 col-xl" title="بدون اشتراك" :value="$withoutSubscriptionCompanies ?? 0"
+            subtitle="شركات لم تشترك بعد" icon="ti-package-off" color="info" />
         </x-slot:stats>
 
         <x-slot:filters>
             <x-data-table.filters table="#companies-table">
-                <x-filter.select id="filter-status" filterKey="status" label="حالة الشركة"
-                    placeholder="اختر حالة الشركة" :options="$filterOptions['statuses'] ?? []" />
                 <x-filter.select id="filter-sub-status" filterKey="subscription_status" label="حالة آخر اشتراك"
                     placeholder="اختر حالة الاشتراك" :options="$filterOptions['subscriptionStatuses'] ?? []" />
                 <x-filter.select id="filter-plan" filterKey="plan_id" label="الباقة"
@@ -49,6 +58,16 @@
                     placeholder="اختر المدينة" :options="$filterOptions['cities'] ?? []" />
                 <x-filter.select id="filter-expiring" filterKey="expiring_in" label="انتهاء الاشتراك"
                     placeholder="انتهاء الاشتراك" :options="$filterOptions['expiring'] ?? []" />
+                <div class="col-md-6 col-lg-3">
+                    <label class="form-label" for="filter-created-from">من تاريخ الإنشاء</label>
+                    <input id="filter-created-from" type="date" class="form-control" data-datatable-filter="true"
+                        data-filter-key="created_from" />
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <label class="form-label" for="filter-created-to">إلى تاريخ الإنشاء</label>
+                    <input id="filter-created-to" type="date" class="form-control" data-datatable-filter="true"
+                        data-filter-key="created_to" />
+                </div>
             </x-data-table.filters>
         </x-slot:filters>
 

@@ -54,7 +54,6 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         'tax_number',
         'city_id',
         'address',
-        'status',
         'custom_domain_active',
         'domain_activated_at',
     ];
@@ -83,7 +82,6 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'tax_number',
             'city_id',
             'address',
-            'status',
             'access_type',
             'custom_domain_active',
             'domain_activated_at',

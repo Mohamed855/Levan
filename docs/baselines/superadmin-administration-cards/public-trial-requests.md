@@ -18,5 +18,5 @@ Files and storage lifecycle: Not applicable
 Tests: TestsUnitAdminPublicRequestsGoldenPatternTest plus existing policy/action coverage
 Verification commands and passing evidence: php artisan test tests/Unit/Admin/PublicRequestsGoldenPatternTest.php
 Not applicable items: create/edit/archive/mass-delete because public requests are immutable workflow records
-Remaining gaps: None
-Status: Compliant
+Remaining gaps: Baseline audit pending; rebuild and revalidate this administration before certification.
+Status: Gap

@@ -18,5 +18,5 @@ Files and storage lifecycle: Bank transfer deposit receipts verified via secure 
 Tests: Tests\Feature\AdminDashboardCrudFeatureTest, Tests\Unit\CentralPolicyContractTest, Tests\Unit\SuperAdminContractTest
 Verification commands and passing evidence: php artisan test tests/Feature/AdminDashboardCrudFeatureTest.php --filter="test_admin_subscriptions_and_bills_lifecycle"
 Not applicable items: Show UI, archive (financial audit records are permanent)
-Remaining gaps: None
-Status: Compliant
+Remaining gaps: Baseline audit pending; rebuild and revalidate this administration before certification.
+Status: Gap

@@ -6,6 +6,10 @@
     @vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
 @endsection
 
+@section('page-script')
+    @vite(['resources/assets/js/shared/form-validation.js'])
+@endsection
+
 @section('content')
     <div class="row">
         <div class="col-12 mb-4">
@@ -32,19 +36,13 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('admin.roles.update', $role->id) }}" method="POST">
+                    <form action="{{ route('admin.roles.update', $role->id) }}" method="POST" data-form-validate
+                        data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}">
                         @csrf
                         @method('PUT')
 
-                        <div class="col-md-12 mb-3">
-                            <label for="name" class="form-label">اسم الدور</label>
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" id="name"
-                                name="name" value="{{ old('name', $role->name) }}" required>
-                            @error('name')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
-                            @enderror
+                        <div class="row g-4">
+                            <x-form.controls.input name="name" label="اسم الدور" :value="old('name', $role->name)" required col="col-12" />
                         </div>
 
                         <div class="mb-3">

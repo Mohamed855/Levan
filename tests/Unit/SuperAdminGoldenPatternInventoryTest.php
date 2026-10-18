@@ -97,29 +97,30 @@ class SuperAdminGoldenPatternInventoryTest extends TestCase
         }
     }
 
-    public function test_all_superadmin_administration_cards_are_certified_compliant_with_complete_evidence(): void
+    public function test_rebuilt_administrations_are_certified_while_the_remaining_baseline_stays_gap(): void
     {
         $cardsDir = dirname(__DIR__, 2).'/docs/baselines/superadmin-administration-cards';
 
         foreach (self::SUPERADMIN_CARD_FILES as $file) {
             $content = file_get_contents($cardsDir.'/'.$file);
 
-            $this->assertMatchesRegularExpression(
-                '/Status:\s*Compliant/',
-                $content,
-                "Card {$file} must be certified Compliant"
-            );
+            if (in_array($file, ['admin-users-roles.md', 'plans.md', 'companies-tenants.md'], true)) {
+                $this->assertMatchesRegularExpression('/Status:\s*Compliant/', $content);
+                $this->assertStringContainsString('Remaining gaps: None', $content);
+
+                continue;
+            }
 
             $this->assertMatchesRegularExpression(
-                '/Remaining gaps:\s*None/',
+                '/Status:\s*Gap/',
                 $content,
-                "Card {$file} must have Remaining gaps: None"
+                "Card {$file} must remain a Gap until its Golden Pattern rebuild is complete"
             );
 
-            $this->assertMatchesRegularExpression(
-                '/Verification commands and passing evidence:\s*php artisan test/',
+            $this->assertStringContainsString(
+                'Remaining gaps: Baseline audit pending;',
                 $content,
-                "Card {$file} must have passing verification commands and evidence"
+                "Card {$file} must describe its remaining baseline audit gap"
             );
         }
     }
@@ -152,4 +153,3 @@ class SuperAdminGoldenPatternInventoryTest extends TestCase
         }
     }
 }
-

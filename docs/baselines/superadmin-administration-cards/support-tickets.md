@@ -18,5 +18,5 @@ Files and storage lifecycle: Ticket attachments stored on central storage disk
 Tests: Tests\Feature\AdminDashboardCrudFeatureTest, Tests\Unit\CentralPolicyContractTest, Tests\Unit\SuperAdminContractTest
 Verification commands and passing evidence: php artisan test tests/Feature/AdminDashboardCrudFeatureTest.php --filter="test_admin_subscription_bill_and_ticket_actions_with_real_records"
 Not applicable items: Create UI, drafts, review step, archive
-Remaining gaps: None
-Status: Compliant
+Remaining gaps: Baseline audit pending; rebuild and revalidate this administration before certification.
+Status: Gap

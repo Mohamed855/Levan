@@ -18,5 +18,5 @@ Files and storage lifecycle: Platform brand logo and favicon stored on public di
 Tests: Tests\Unit\TenantSettingsArchitectureContractTest, Tests\Feature\AdminDashboardCrudFeatureTest, Tests\Unit\SuperAdminContractTest
 Verification commands and passing evidence: php artisan test tests/Unit/TenantSettingsArchitectureContractTest.php --filter="test_settings_controllers_delegate_mutations_to_actions|test_settings_actions_own_transactions_cache_and_file_lifecycle"
 Not applicable items: Policy, DataTable, create UI, drafts, review step, show UI, archive
-Remaining gaps: None
-Status: Compliant
+Remaining gaps: Baseline audit pending; rebuild and revalidate this administration before certification.
+Status: Gap

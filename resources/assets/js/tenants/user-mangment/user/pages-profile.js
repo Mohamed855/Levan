@@ -23,7 +23,7 @@ $(function () {
       columnDefs: [
         {
           // For Responsive
-          className: 'control',
+          className: 'text-center',
           searchable: false,
           orderable: false,
           responsivePriority: 2,
@@ -200,7 +200,7 @@ $(function () {
               return 'Details of "' + data['project_name'] + '" Project';
             }
           }),
-          type: 'column',
+          type: 'inline',
           renderer: function (api, rowIdx, columns) {
             var data = $.map(columns, function (col, i) {
               return col.title !== '' // ? Do not show row in modal popup if title is blank (for check box)

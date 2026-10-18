@@ -73,7 +73,7 @@ class RoleService
     */
     public function deleteRole(Role $role): bool
     {
-        if ($role->id == 1) {
+        if ($role->name === 'SuperAdmin') {
             throw new \Exception('لا يمكن حذف هذا الدور');
         }
 
@@ -123,7 +123,7 @@ class RoleService
     */
     public function getGroupedPermissions(): \Illuminate\Support\Collection
     {
-        $permissions = Permission::all()->groupBy('section');
+        $permissions = Permission::query()->where('guard_name', 'admin')->get()->groupBy('section');
 
         foreach (self::ADMIN_PERMISSION_SECTIONS as $section) {
             if (! $permissions->has($section)) {
@@ -143,7 +143,7 @@ class RoleService
     public function updateUserRole(AdminUser $user, array $data): AdminUser
     {
         return DB::transaction(function () use ($user, $data) {
-            $role = Role::findOrFail($data['role']);
+            $role = Role::query()->where('guard_name', 'admin')->findOrFail($data['role']);
 
             $user->syncRoles([$role]);
 
@@ -214,7 +214,23 @@ class RoleService
     */
     public function getAllRoles(): Collection
     {
-        return Role::with('users')->get();
+        return Role::query()
+            ->where('guard_name', 'admin')
+            ->with('users')
+            ->get();
+    }
+
+    public function getRoleStatistics(): array
+    {
+        $roles = Role::query()->where('guard_name', 'admin');
+
+        return [
+            'total' => (clone $roles)->count(),
+            'assigned' => (clone $roles)->has('users')->count(),
+            'unassigned' => (clone $roles)->doesntHave('users')->count(),
+            'permissions' => Permission::query()->where('guard_name', 'admin')->count(),
+            'custom' => (clone $roles)->where('name', '!=', 'SuperAdmin')->count(),
+        ];
     }
 
     /*
@@ -225,6 +241,6 @@ class RoleService
     */
     public function canDeleteRole(Role $role): bool
     {
-        return $role->id !== 1;
+        return $role->name !== 'SuperAdmin';
     }
 }

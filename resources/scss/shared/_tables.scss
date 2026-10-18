@@ -44,79 +44,107 @@ table.dataTable {
                 font-size: var(--font-size-base, 0.9375rem);
                 font-weight: 400 !important;
 
-                &:not(.custom-checkbox):not(.dt-actions):not(.dt-checkboxes-cell) {
+                &:not(.custom-checkbox):not(.dt-actions):not(.actions):not(.dt-checkboxes-cell):not(.td-no-clamp):not(:has(.btn)):not(:has(button)):not(:has(.badge)):not(:has(.form-switch)):not(:has(.js-table-status-toggle)):not(:has(.dropdown)):not(:has(i)):not(:has(svg)):not(:has(.avatar)):not(:has(.avatar-group)):not(:has(input[type="checkbox"])) {
                     max-width: 200px !important;
+                }
+
+                &.custom-checkbox,
+                &.dt-actions,
+                &.actions,
+                &.dt-checkboxes-cell,
+                &.td-no-clamp,
+                &:has(.btn),
+                &:has(button),
+                &:has(.badge),
+                &:has(.form-switch),
+                &:has(.js-table-status-toggle),
+                &:has(.dropdown),
+                &:has(i),
+                &:has(svg),
+                &:has(.avatar),
+                &:has(.avatar-group),
+                &:has(input[type="checkbox"]),
+                &:has(input[type="radio"]) {
+                    max-width: none !important;
+                    min-width: auto !important;
+                    overflow: visible !important;
+                    text-overflow: clip !important;
+                    white-space: nowrap !important;
                 }
 
                 * {
                     font-weight: 400 !important;
                 }
 
-                .table-cell-clamp,
-                .cell-clamp-2 {
-                    display: -webkit-box !important;
-                    -webkit-box-orient: vertical !important;
-                    -webkit-line-clamp: 2 !important;
-                    line-clamp: 2 !important;
-                    overflow: hidden !important;
-                    text-overflow: ellipsis !important;
-                    word-break: break-word !important;
-                    overflow-wrap: break-word !important;
-                    overflow-wrap: anywhere !important;
-                    line-height: 1.4 !important;
-                    max-height: calc(1.4em * 2) !important;
-                    max-width: 200px !important;
-                    white-space: normal !important;
+                // Explicitly ensure non-text elements never have text-overflow
+                .btn,
+                button,
+                .btn-icon,
+                .btn-group,
+                .dropdown,
+                .dropdown-menu,
+                .dropdown-toggle,
+                .badge,
+                .form-switch,
+                .js-table-status-toggle,
+                .form-check,
+                .custom-checkbox,
+                .avatar,
+                .avatar-group,
+                i,
+                svg,
+                [class*="ti-"],
+                [class*="bx-"],
+                [class*="fa-"] {
+                    text-overflow: clip !important;
+                    overflow: visible !important;
                 }
 
-                // Fallback direct children clamping
-                > p,
-                > div:not(.form-check):not(.form-switch):not(.d-flex):not(.dropdown):not(.btn-group):not(.avatar-group):not(.copyable-code-wrapper):not(.table-cell-clamp),
-                > a:not(.btn):not(.dropdown-item):not(.avatar):not(.badge) {
-                    display: -webkit-box !important;
-                    -webkit-box-orient: vertical !important;
-                    -webkit-line-clamp: 2 !important;
-                    line-clamp: 2 !important;
+                // Strictly 1-line text data with max-width and ellipsis
+                .table-cell-clamp,
+                .cell-clamp-1,
+                .cell-clamp-2 {
+                    display: inline-block !important;
+                    max-width: 200px !important;
+                    white-space: nowrap !important;
                     overflow: hidden !important;
                     text-overflow: ellipsis !important;
-                    word-break: break-word !important;
-                    overflow-wrap: break-word !important;
-                    overflow-wrap: anywhere !important;
+                    vertical-align: middle !important;
                     line-height: 1.4 !important;
-                    max-height: calc(1.4em * 2) !important;
+                }
+
+                // Fallback direct children clamping (strictly 1 line for pure text elements)
+                > p,
+                > div:not(.form-check):not(.form-switch):not(.d-flex):not(.dropdown):not(.btn-group):not(.avatar-group):not(.copyable-code-wrapper):not(.table-cell-clamp):not(:has(.btn)):not(:has(button)):not(:has(i)):not(:has(svg)):not(:has(.badge)),
+                > a:not(.btn):not(.dropdown-item):not(.avatar):not(.badge):not(:has(i)):not(:has(svg)) {
+                    display: inline-block !important;
                     max-width: 200px !important;
-                    white-space: normal !important;
+                    white-space: nowrap !important;
+                    overflow: hidden !important;
+                    text-overflow: ellipsis !important;
+                    vertical-align: middle !important;
+                    line-height: 1.4 !important;
                 }
             }
         }
     }
 }
 
-// Global 2-line clamping utility for table cells and responsive child rows
+// Global single-line clamping utility for table cells and responsive child rows
 .table-cell-clamp,
+.cell-clamp-1,
 .cell-clamp-2,
 table.dataTable tbody tr.child .dtr-data .table-cell-clamp {
-    display: -webkit-box !important;
-    -webkit-box-orient: vertical !important;
-    -webkit-line-clamp: 2 !important;
-    line-clamp: 2 !important;
+    display: inline-block !important;
+    max-width: 200px !important;
+    white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
-    word-break: break-word !important;
-    overflow-wrap: break-word !important;
-    overflow-wrap: anywhere !important;
+    vertical-align: middle !important;
     line-height: 1.4 !important;
-    max-height: calc(1.4em * 2) !important;
-    max-width: 200px !important;
-    white-space: normal !important;
 
     * {
         max-width: 100%;
-    }
-
-    a,
-    span:not(.badge):not(.copyable-code) {
-        white-space: normal !important;
     }
 }
 

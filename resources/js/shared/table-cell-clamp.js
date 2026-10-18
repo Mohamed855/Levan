@@ -1,13 +1,16 @@
 'use strict';
 
 /**
- * Checks if a table cell should be excluded from 2-line clamping.
+ * Checks if a table cell should be excluded from text clamping.
  * Excludes:
  * - Checkbox / radio cells (.custom-checkbox, .dt-checkboxes-cell, inputs)
  * - Switch / status toggles (.form-switch, .js-table-status-toggle)
  * - Action buttons / dropdowns (.dt-actions, .actions, .btn-group, .dropdown-menu, .btn, buttons)
- * - Avatars / images (.avatar, .avatar-group, img.rounded-circle)
- * - Already clamped cells
+ * - Icons / SVGs (i, svg, [class*="ti-"], [class*="bx-"], [class*="fa-"])
+ * - Badges / tags (.badge)
+ * - Avatars / images (.avatar, .avatar-group, img)
+ * - Copyable codes (.copyable-code-wrapper)
+ * - Already clamped text cells
  * - Empty or single placeholder cells ('-')
  */
 function shouldSkipCell(td) {
@@ -34,16 +37,31 @@ function shouldSkipCell(td) {
   if (
     td.classList.contains('dt-actions') ||
     td.classList.contains('actions') ||
-    td.querySelector('button, .btn, .btn-group, .dropdown, .dropdown-menu, .dropdown-toggle, .btn-icon, .btn-add, .btn-export')
+    td.querySelector('button, .btn, .btn-group, .dropdown, .dropdown-menu, .dropdown-toggle, .btn-icon, .btn-add, .btn-export, [role="button"]:not(.copyable-code-wrapper)')
   ) {
     return true;
   }
 
-  // Avatars / avatar-groups / circular icons
+  // Icons / SVGs (any cell containing icons must not have text-overflow)
+  if (
+    td.querySelector('i, svg, [class*="ti-"], [class*="bx-"], [class*="fa-"]')
+  ) {
+    return true;
+  }
+
+  // Badges / tags
+  if (
+    td.classList.contains('badge') ||
+    td.querySelector('.badge')
+  ) {
+    return true;
+  }
+
+  // Avatars / avatar-groups / circular icons / images
   if (
     td.classList.contains('avatar-group') ||
     td.classList.contains('avatar') ||
-    td.querySelector('.avatar-group, .avatar, img.rounded-circle')
+    td.querySelector('.avatar-group, .avatar, img')
   ) {
     return true;
   }
@@ -57,11 +75,20 @@ function shouldSkipCell(td) {
     return true;
   }
 
-  // Already clamped
-  if (
-    td.classList.contains('table-cell-clamp') ||
-    td.querySelector('.table-cell-clamp')
-  ) {
+  // Already clamped - if existing wrapper contains buttons, icons, or badges, unwrap it
+  const existingWrapper = td.querySelector('.table-cell-clamp');
+  if (existingWrapper) {
+    if (existingWrapper.querySelector('button, .btn, i, svg, .badge, .form-switch, img')) {
+      while (existingWrapper.firstChild) {
+        td.insertBefore(existingWrapper.firstChild, existingWrapper);
+      }
+      existingWrapper.remove();
+      return true;
+    }
+    return true;
+  }
+
+  if (td.classList.contains('table-cell-clamp')) {
     return true;
   }
 
@@ -75,10 +102,13 @@ function shouldSkipCell(td) {
 }
 
 /**
- * Wraps cell contents into a .table-cell-clamp container
+ * Wraps cell contents into a .table-cell-clamp container (strictly single line text with 200px max-width)
  */
 function clampTableCell(td) {
   if (shouldSkipCell(td)) {
+    td.classList.add('td-no-clamp');
+    td.style.maxWidth = '';
+    td.style.overflow = 'visible';
     return;
   }
 

@@ -78,9 +78,8 @@ class PlanController extends Controller
                 'totalPlans' => $statistics['total'],
                 'activePlans' => $statistics['active'],
                 'inactivePlans' => $statistics['inactive'],
-                'activeSubscriptions' => $statistics['active_subscriptions'],
-                'expiredSubscriptions' => $statistics['expired_subscriptions'],
-                'monthlyRevenue' => $statistics['monthly_revenue'],
+                'availablePlans' => $statistics['available'],
+                'futurePlans' => $statistics['future'],
                 'filterOptions' => $filterOptions,
             ]);
         } catch (\Throwable $e) {

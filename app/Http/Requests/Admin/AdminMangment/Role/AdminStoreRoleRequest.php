@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin\AdminMangment\Role;
 
 use App\Http\Requests\Concerns\WizardFormRequest;
+use Illuminate\Validation\Rule;
 
 class AdminStoreRoleRequest extends WizardFormRequest
 {
@@ -39,7 +40,7 @@ class AdminStoreRoleRequest extends WizardFormRequest
                 'array',
             ],
             'permissions.*' => [
-                'exists:permissions,name',
+                Rule::exists('permissions', 'name')->where('guard_name', 'admin'),
             ],
             'select_all' => [
                 'sometimes',

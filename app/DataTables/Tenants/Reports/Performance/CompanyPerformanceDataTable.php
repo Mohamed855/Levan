@@ -76,7 +76,6 @@ class CompanyPerformanceDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => '', 'orderable' => false, 'searchable' => false],
             ['data' => 'company_name', 'name' => 'company_name', 'title' => 'الشركة', 'className' => 'text-start'],
             ['data' => 'customers_count', 'name' => 'customers_count', 'title' => 'عدد العملاء', 'className' => 'text-center'],
             ['data' => 'total_portfolio', 'name' => 'total_portfolio', 'title' => 'إجمالي المديونية', 'className' => 'text-center'],

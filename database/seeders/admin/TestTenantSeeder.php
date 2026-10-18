@@ -58,7 +58,6 @@ class TestTenantSeeder extends Seeder
                 'tax_number' => '300000000000003',
                 'city_id' => City::firstOrCreate(['name' => 'الرياض'])->id,
                 'address' => 'حي العليا، الرياض',
-                'status' => 'active',
                 'access_type' => 'path',
                 'custom_domain_active' => 0,
                 'api_token' => hash('sha256', 'test-tenant-token'),

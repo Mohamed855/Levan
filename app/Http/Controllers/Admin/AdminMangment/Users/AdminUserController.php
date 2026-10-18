@@ -62,6 +62,8 @@ class AdminUserController extends Controller
                 'totalUsers' => $statistics['total'],
                 'activeUsers' => $statistics['active'],
                 'inactiveUsers' => $statistics['inactive'],
+                'archivedUsers' => $statistics['archived'],
+                'superAdminUsers' => $statistics['super_admins'],
                 'roles' => $roles,
                 'filterOptions' => $filterOptions,
             ]);
