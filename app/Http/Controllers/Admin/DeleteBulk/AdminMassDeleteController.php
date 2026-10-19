@@ -17,8 +17,6 @@ use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Admin\Tickets\Ticket;
-use App\Models\Admin\Version\Version;
-use App\Models\Admin\Version\VersionTester;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -76,14 +74,6 @@ class AdminMassDeleteController extends Controller
         'ControlDomain' => [
             'class' => ControlDomain::class,
             'permission' => 'domain_extension_prices.settings',
-        ],
-        'Version' => [
-            'class' => Version::class,
-            'permission' => 'versions.delete',
-        ],
-        'VersionTester' => [
-            'class' => VersionTester::class,
-            'permission' => 'version_testers.delete',
         ],
         'Activity' => [
             'class' => Activity::class,

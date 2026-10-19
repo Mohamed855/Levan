@@ -217,7 +217,6 @@ class CompanyService
     {
         $company->load([
             'city',
-            'version',
             'companySettings',
             'subscriptions' => fn ($q) => $q->with(['plan', 'currentPeriod', 'periods'])->latest('id'),
         ]);

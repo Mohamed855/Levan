@@ -24,8 +24,6 @@ use App\Http\Controllers\Admin\Subscriptions\SubscriptionController as CentralSu
 use App\Http\Controllers\Admin\Tickets\AdminTicketController;
 use App\Http\Controllers\Admin\PublicRequests\ContactRequestController;
 use App\Http\Controllers\Admin\PublicRequests\TrialRequestController;
-use App\Http\Controllers\Admin\Versions\VersionController;
-use App\Http\Controllers\Admin\VersionTester\VersionTesterController;
 use App\Http\Controllers\Shared\Wizard\WizardDraftController;
 use App\Http\Controllers\Tenants\Auth\NewPasswordController;
 use Illuminate\Support\Facades\Route;
@@ -234,17 +232,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
         });
     });
 
-    // Versions Routes
-    Route::prefix('versions')->name('versions.')->group(function () {
-        Route::resource('/', VersionController::class)->parameters(['' => 'version']);
-        Route::patch('{version}/toggle-status', [VersionController::class, 'toggleStatus'])->name('toggle-status');
-    });
-
-    // Versions Tester Routes
-    Route::prefix('version_testers')->name('version_testers.')->group(function () {
-        Route::resource('/', VersionTesterController::class)->except('show')->parameters(['' => 'version_tester']);
-        Route::patch('{version_tester}/toggle-status', [VersionTesterController::class, 'toggleStatus'])->name('toggle-status');
-    });
     Route::name('mass-delete')->post('/mass-delete', [AdminMassDeleteController::class, 'massDelete']);
 });
 

@@ -50,23 +50,6 @@
             </li>
         @endif
 
-        @if (!empty($tenantHasUpgrade) && $tenantHasUpgrade && !empty($latestVersion))
-            @can('subscriptions.upgrade')
-                <li class="nav-item mx-2 mx-md-5">
-                    <a class="btn btn-sm btn-primary px-2" style="white-space: nowrap; font-size: 10px;"
-                        href="{{ tenant_route_name('versions.latest') }}" title="عرض تفاصيل الإصدارة الجديدة">
-
-                        <span class="d-inline d-md-none">الإصدارة
-                            {{ $latestVersion->version ?? '#' . $latestVersion->id }}
-                            متاحة</span>
-                        <span class="d-none d-md-inline" style="font-size: 14px;">الإصدارة
-                            {{ $latestVersion->version ?? '#' . $latestVersion->id }} متاحة</span>
-
-                    </a>
-                </li>
-            @endcan
-        @endif
-
         @can('domain.view')
             <li class="nav-item dropdown me-2 me-xl-2">
                 <a href="{{ tenant_route_name('domains.setting') }}" class="menu-link" title="إدارة النطاقات"

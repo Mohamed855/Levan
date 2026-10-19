@@ -63,6 +63,8 @@ class AdminSubscriptionManagementFeatureTest extends TestCase
             'commercial_number' => (string) rand(1000000000, 9999999999),
             'tax_number' => '300000000000003',
             'db_database' => 'tenant_db_'.uniqid(),
+            'db_username' => 'root',
+            'db_password' => '',
         ]);
 
         $subscription = Subscription::create([

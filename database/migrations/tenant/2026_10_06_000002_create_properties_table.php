@@ -26,6 +26,8 @@ return new class extends Migration
             $table->text('google_maps_url')->nullable();
             $table->decimal('latitude', 10, 7)->nullable();
             $table->decimal('longitude', 10, 7)->nullable();
+            $table->json('boundary_geojson')->nullable();
+            $table->string('aerial_image')->nullable();
             $table->decimal('area', 12, 2)->default(0);
             $table->string('deed_number')->nullable()->index();
             $table->date('deed_date')->nullable();

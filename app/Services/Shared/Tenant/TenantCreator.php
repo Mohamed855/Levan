@@ -85,7 +85,6 @@ class TenantCreator
             'primary_contact_phone'  => $metadata['billing_phone'] ?? null,
             'db_host'                => $connection['host'] ?? env('DB_HOST', '127.0.0.1'),
             'db_port'           => env('DB_PORT', '3306'),
-            'version_id'        => $settings?->default_landing_version_id,
         ];
 
         return Tenant::create($data);

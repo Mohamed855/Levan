@@ -14,8 +14,6 @@ use App\Http\Controllers\Admin\Plans\PlanController;
 use App\Http\Controllers\Admin\Settings\Bank\SettingsBankController;
 use App\Http\Controllers\Admin\Settings\Domain\SettingsDomainController;
 use App\Http\Controllers\Admin\Subscriptions\SubscriptionController;
-use App\Http\Controllers\Admin\Versions\VersionController;
-use App\Http\Controllers\Admin\VersionTester\VersionTesterController;
 use App\Policies\Admin\Bills\BillPolicy;
 use App\Policies\Admin\Coupons\CouponPolicy;
 use App\Policies\Admin\Plans\PlanPolicy;
@@ -24,8 +22,6 @@ use App\Policies\Admin\Settings\ControlDomainPolicy;
 use App\Policies\Admin\Subscriptions\SubscriptionPolicy;
 use App\Policies\Admin\Tenants\TenantPolicy;
 use App\Policies\Admin\Users\AdminUserPolicy;
-use App\Policies\Admin\Versions\VersionPolicy;
-use App\Policies\Admin\Versions\VersionTesterPolicy;
 use App\Policies\Shared\RolePolicy;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -42,8 +38,6 @@ class CentralPolicyContractTest extends TestCase
             CouponPolicy::class,
             BankPolicy::class,
             ControlDomainPolicy::class,
-            VersionPolicy::class,
-            VersionTesterPolicy::class,
             BillPolicy::class,
             SubscriptionPolicy::class,
         ] as $policy) {
@@ -64,8 +58,6 @@ class CentralPolicyContractTest extends TestCase
             AdminCouponController::class,
             SettingsBankController::class,
             SettingsDomainController::class,
-            VersionController::class,
-            VersionTesterController::class,
             AdminBillsController::class,
             SubscriptionController::class,
         ] as $controller) {
@@ -73,9 +65,6 @@ class CentralPolicyContractTest extends TestCase
 
             $this->assertStringContainsString('authorizeResource(', $content);
         }
-
-        $versionTesterController = file_get_contents((new ReflectionClass(VersionTesterController::class))->getFileName());
-        $this->assertStringContainsString("authorizeResource(VersionTester::class, 'version_tester')", $versionTesterController);
     }
 
     public function test_central_archive_mutations_authorize_the_target_record(): void

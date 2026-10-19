@@ -20,8 +20,6 @@ use App\Models\Admin\Tenants\Tenant;
 use App\Models\Admin\Tickets\Ticket;
 use App\Models\Admin\Tickets\TicketReply;
 use App\Models\Admin\Tickets\TicketSection;
-use App\Models\Admin\Version\Version;
-use App\Models\Admin\Version\VersionTester;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -752,7 +750,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
     public function test_admin_subscription_bill_and_ticket_actions_with_real_records(): void
     {
         $tenantId = 'dummy_admin_'.uniqid();
-        $tenant = Tenant::first() ?? Tenant::create([
+        $tenant = Tenant::find('test') ?? Tenant::first() ?? Tenant::create([
             'id' => $tenantId,
             'db_database' => $tenantId,
             'db_username' => 'root',
@@ -874,7 +872,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $this->assertDatabaseHas('ticket_replies', [
             'ticket_id' => $ticket->id,
             'message' => 'رد اختبار من Super Admin',
-        ]);
+        ], 'mysql');
         $this->assertSame('in_progress', $ticket->fresh()->status);
 
         $this->post($this->adminUrl("tickets/{$ticket->ticket_number}/status"), [
@@ -955,7 +953,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
             $tableResponse = $this->withHeaders([
                 'X-Requested-With' => 'XMLHttpRequest',
                 'Accept' => 'application/json, text/javascript, */*',
-            ])->get($this->adminUrl('companies?draw=1&start=0&length=10'));
+            ])->get($this->adminUrl('companies?draw=1&start=0&length=50&search[value]='.urlencode($tenant->commercial_number)));
             $tableResponse->assertOk()->assertJsonPath('draw', 1);
             $this->assertTrue(
                 collect($tableResponse->json('data'))->contains('id', $tenant->id),
@@ -1093,80 +1091,6 @@ class AdminDashboardCrudFeatureTest extends TestCase
         }
     }
 
-    /**
-     * Test 8: Versions & Version Testers CRUD Lifecycle
-     */
-    public function test_admin_versions_and_testers_crud_lifecycle(): void
-    {
-        // === A. Versions ===
-        $this->get($this->adminUrl('versions'))->assertStatus(200);
-        $this->get($this->adminUrl('versions/create'))->assertStatus(200);
-
-        $vNumber = 'v'.rand(2, 9).'.'.rand(0, 9).'.'.rand(0, 9);
-        $storeVResponse = $this->post($this->adminUrl('versions'), [
-            'version' => $vNumber,
-            'changelog' => 'تحديثات وتحسينات للنظام',
-            'file_path' => 'updates/'.$vNumber.'.zip',
-            'stage' => 'stable',
-            'released_at' => now()->toDateString(),
-            'is_active' => 1,
-        ]);
-        $storeVResponse->assertStatus(302);
-
-        $version = Version::where('version', $vNumber)->first();
-        $this->assertNotNull($version, 'Version was not created in database.');
-
-        $this->get($this->adminUrl("versions/{$version->id}/edit"))->assertStatus(200);
-
-        $this->put($this->adminUrl("versions/{$version->id}"), [
-            'version' => $vNumber,
-            'changelog' => 'تحديثات محدثة',
-            'file_path' => 'updates/'.$vNumber.'_updated.zip',
-            'stage' => 'stable',
-            'released_at' => now()->toDateString(),
-            'is_active' => 1,
-        ])->assertStatus(302);
-
-        // === B. Version Testers ===
-        $this->get($this->adminUrl('version_testers'))->assertStatus(200);
-        $this->get($this->adminUrl('version_testers/create'))->assertStatus(200);
-
-        $tenant = Tenant::first();
-        if (! $tenant) {
-            $tenant = Tenant::create([
-                'id' => 'tenant_test_'.rand(100, 999),
-                'company_name' => 'شركة اختبارية',
-            ]);
-        }
-
-        // Remove existing tester if any to satisfy unique constraint
-        VersionTester::where('tenant_id', $tenant->id)->delete();
-
-        $storeTesterResponse = $this->post($this->adminUrl('version_testers'), [
-            'tenant_id' => $tenant->id,
-            'type' => 'tester',
-            'is_active' => 1,
-        ]);
-        $storeTesterResponse->assertStatus(302);
-
-        $tester = VersionTester::where('tenant_id', $tenant->id)->first();
-        $this->assertNotNull($tester);
-
-        $this->get($this->adminUrl("version_testers/{$tester->id}/edit"))->assertStatus(200);
-
-        $this->put($this->adminUrl("version_testers/{$tester->id}"), [
-            'tenant_id' => $tenant->id,
-            'type' => 'developer',
-            'is_active' => 1,
-        ])->assertStatus(302);
-
-        $this->delete($this->adminUrl("version_testers/{$tester->id}"))->assertStatus(302);
-        $this->assertDatabaseMissing('version_testers', ['id' => $tester->id]);
-
-        // Destroy version
-        $this->delete($this->adminUrl("versions/{$version->id}"))->assertStatus(302);
-        $this->assertDatabaseMissing('versions', ['id' => $version->id]);
-    }
 
 
 
@@ -1192,8 +1116,6 @@ class AdminDashboardCrudFeatureTest extends TestCase
             'companies',
             'coupons',
             'bills',
-            'versions',
-            'version_testers',
             'archives',
             'archives/plans',
             'archives/coupons',

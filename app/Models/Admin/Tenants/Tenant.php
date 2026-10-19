@@ -6,7 +6,6 @@ use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\City;
 use App\Models\Admin\Licenses\LicenseSeat;
 use App\Models\Admin\Subscription\Subscription;
-use App\Models\Admin\Version\Version;
 use App\Models\Tenants\Settings\TransferDomain;
 use App\Models\Tenants\Ticket\Ticket;
 use App\Models\Tenants\UserMangment\User\User;
@@ -32,7 +31,6 @@ class Tenant extends BaseTenant implements TenantWithDatabase
 
     protected $fillable = [
         'id',
-        'version_id',
         'folderName',
         'db_database',
         'db_username',
@@ -62,7 +60,6 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     {
         return [
             'id',
-            'version_id',
             'folderName',
             'db_database',
             'db_username',
@@ -218,11 +215,6 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     public function transferdomains()
     {
         return $this->hasMany(TransferDomain::class, 'tenant_id');
-    }
-
-    public function version()
-    {
-        return $this->belongsTo(Version::class, 'version_id');
     }
 
     public function city()

@@ -178,13 +178,11 @@ class SuperAdminContractTest extends TestCase
         $this->assertStringContainsString("can('system.settings')", $request);
     }
 
-    public function test_version_and_ticket_mutation_requests_check_their_controller_capabilities(): void
+    public function test_ticket_mutation_requests_check_their_controller_capabilities(): void
     {
         $projectRoot = dirname(__DIR__, 2);
 
         foreach ([
-            'app/Http/Requests/Admin/Versions/VersionRequest.php' => 'versions.create',
-            'app/Http/Requests/Admin/VersionTesters/VersionTesterRequest.php' => 'version_testers.create',
             'app/Http/Requests/Admin/Tickets/ReplyTicketRequest.php' => 'tickets.reply',
             'app/Http/Requests/Admin/Tickets/UpdateTicketStatusRequest.php' => 'tickets.reply',
         ] as $path => $permission) {

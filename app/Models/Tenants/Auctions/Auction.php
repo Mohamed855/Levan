@@ -101,7 +101,6 @@ class Auction extends Model
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
-            'draft' => 'مسودة',
             'in_preparation' => 'قيد الإعداد',
             'pending_approval' => 'بانتظار الاعتماد',
             'active' => 'نشط',
@@ -114,7 +113,6 @@ class Auction extends Model
     public function getStatusBadgeClassAttribute(): string
     {
         return match ($this->status) {
-            'draft' => 'bg-secondary',
             'in_preparation' => 'bg-label-warning',
             'pending_approval' => 'bg-label-info',
             'active' => 'bg-label-success',

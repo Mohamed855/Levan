@@ -6,7 +6,6 @@ use App\Actions\Admin\Settings\UpdatePlatformSettingsAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Settings\AdminMainSettingsRequest;
 use App\Models\Admin\Settings\Settings;
-use App\Models\Admin\Version\Version;
 
 class SettingsController extends Controller
 {
@@ -21,9 +20,7 @@ class SettingsController extends Controller
     {
         $settings = Settings::first();
 
-        $versions = Version::select('id', 'version')->where('is_active', 1)->get();
-
-        return view($this->page.'.settings', compact('settings', 'versions'));
+        return view($this->page.'.settings', compact('settings'));
     }
 
     //

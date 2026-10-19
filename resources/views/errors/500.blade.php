@@ -1,1 +1,3 @@
-@include('site.errors.500')
+@extends('site.layouts.main')
+@section('title','خطأ في الخادم | 500')
+@section('content')<main class="site-error-page"><div class="container site-error-container"><article class="site-error-card"><div class="site-error-code">500</div><h1 class="site-error-title">حدث خطأ داخلي في الخادم</h1><p class="site-error-desc">يرجى المحاولة لاحقًا أو التواصل مع الدعم.</p><div class="site-error-actions"><a href="{{ route('site.index') }}" class="site-error-btn">العودة للرئيسية</a><a href="{{ route('site.index') }}#contact" class="site-error-btn-outline">تواصل مع الدعم</a></div></article></div></main>@endsection

@@ -22,13 +22,11 @@ class Settings extends Model
         'tax_number', // الرقم الضريبي
         'phone_number', // رقم الهاتف
         'email', // البريد الإلكتروني
+        'facebook_url', 'x_url', 'linkedin_url', 'google_maps_embed_url',
 
         'maintenance_mode',
         'trial_days_mode',
         'force_two_factor_auth',
-
-        'default_landing_version_id',
-        'default_tenant_version_id',
 
         'etmam_enabled',
         'etmam_base_url',
@@ -79,8 +77,6 @@ class Settings extends Model
             'maintenance_mode' => 'وضع الصيانة',
             'trial_days_mode' => 'تفعيل الفترة التجريبية',
             'force_two_factor_auth' => 'فرض المصادقة الثنائية',
-            'default_landing_version_id' => 'إصدار الصفحة الرئيسية الافتراضي',
-            'default_tenant_version_id' => 'إصدار المستأجر الافتراضي',
             'etmam_enabled' => 'تفعيل إتمام',
             'etmam_base_url' => 'رابط إتمام الأساسي',
             'etmam_system_code' => 'كود نظام إتمام',

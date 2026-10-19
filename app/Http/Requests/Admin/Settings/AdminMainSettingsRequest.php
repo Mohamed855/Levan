@@ -29,15 +29,13 @@ class AdminMainSettingsRequest extends FormRequest
             'tax_number' => ['nullable', 'string', 'max:100'],
             'phone_number' => ['nullable', 'string', 'between:7,15', 'regex:/^[0-9]+$/'],
             'email' => ['nullable', 'email', 'max:255'],
+            'facebook_url' => ['nullable', 'url', 'max:255'], 'x_url' => ['nullable', 'url', 'max:255'], 'linkedin_url' => ['nullable', 'url', 'max:255'], 'google_maps_embed_url' => ['nullable', 'url', 'max:2000'],
 
             'etmam_base_url' => ['nullable', 'string', 'max:255'],
             'etmam_system_code' => ['nullable', 'string', 'max:255'],
             'etmam_api_token' => ['nullable', 'string', 'max:255'],
             'etmam_hmac_secret' => ['nullable', 'string', 'max:255'],
             'etmam_enabled' => ['nullable'],
-
-            'default_tenant_version_id' => ['nullable', 'exists:versions,id'],
-            'default_landing_version_id' => ['nullable', 'exists:versions,id'],
 
             'microsoft_client_id' => ['sometimes', 'required', 'string'],
             'microsoft_client_secret' => ['sometimes', 'nullable', 'string'],
@@ -64,9 +62,6 @@ class AdminMainSettingsRequest extends FormRequest
             'phone_number.regex' => 'رقم الهاتف يجب أن يحتوي على أرقام فقط.',
             'email.email' => 'يجب إدخال بريد إلكتروني صالح.',
             'email.max' => 'البريد الإلكتروني يجب ألا يزيد عن 255 حرفًا.',
-
-            'default_tenant_version_id.exists' => 'الإصدارة المختارة للعملاء غير موجودة.',
-            'default_landing_version_id.exists' => 'الإصدارة المختارة للصفحة التعريفية غير موجودة.',
         ];
     }
 

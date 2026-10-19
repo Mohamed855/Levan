@@ -35,16 +35,6 @@ class CreateTenantsTable extends Migration
             $table->string('tax_number')->nullable();
             $table->foreignId('city_id')->nullable()->constrained('cities')->nullOnDelete();
             $table->string('address')->nullable();
-            $table->enum('status', ['active', 'pending', 'suspended'])->nullable()->default('pending');
-
-
-            $table->unsignedBigInteger('version_id')->nullable();
-
-            $table->foreign('version_id')
-                ->references('id')
-                ->on('versions')
-                ->onDelete('set null');
-
             $table->enum('access_type', ['path', 'domain'])->default('path');
 
             // هل تم تفعيل الدومين المخصص؟

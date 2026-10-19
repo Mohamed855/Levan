@@ -122,11 +122,6 @@
                                             <span class="text-muted">العنوان</span>
                                             <span class="fw-semibold text-dark">{{ $target->address ?: '-' }}</span>
                                         </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-center py-3">
-                                            <span class="text-muted">رقم الإصدار</span>
-                                            <span
-                                                class="badge bg-label-info">{{ $target->version?->version ?: '-' }}</span>
-                                        </li>
                                     </ul>
                                 </div>
 

@@ -3,6 +3,9 @@
     $phoneNumber = \App\Helpers\Admin\Settings\AdminSettingsHelper::get('phone_number');
     $email = \App\Helpers\Admin\Settings\AdminSettingsHelper::get('email');
     $phoneLink = preg_replace('/[^0-9+]/', '', (string) $phoneNumber);
+    $facebookUrl = \App\Helpers\Admin\Settings\AdminSettingsHelper::get('facebook_url');
+    $xUrl = \App\Helpers\Admin\Settings\AdminSettingsHelper::get('x_url');
+    $linkedinUrl = \App\Helpers\Admin\Settings\AdminSettingsHelper::get('linkedin_url');
 @endphp
 
 <!-- Site Footer -->
@@ -20,15 +23,15 @@
                 </p>
 
                 <div class="footer-social">
-                    <a href="javascript:void(0)" class="social-link" aria-label="Facebook">
+                    @if($facebookUrl)<a href="{{ $facebookUrl }}" class="social-link" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
                         <i class="ti ti-brand-facebook"></i>
-                    </a>
-                    <a href="javascript:void(0)" class="social-link" aria-label="X (Twitter)">
+                    </a>@endif
+                    @if($xUrl)<a href="{{ $xUrl }}" class="social-link" aria-label="X (Twitter)" target="_blank" rel="noopener noreferrer">
                         <i class="ti ti-brand-x"></i>
-                    </a>
-                    <a href="javascript:void(0)" class="social-link" aria-label="LinkedIn">
+                    </a>@endif
+                    @if($linkedinUrl)<a href="{{ $linkedinUrl }}" class="social-link" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer">
                         <i class="ti ti-brand-linkedin"></i>
-                    </a>
+                    </a>@endif
                 </div>
             </div>
 

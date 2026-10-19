@@ -18,7 +18,7 @@ class subscriptionMangmentDataTable extends AbstractDataTable
 
     protected function resource()
     {
-        return Subscription::query()->with(['plan', 'currentPeriod', 'tenant.city', 'tenant.version']);
+        return Subscription::query()->with(['plan', 'currentPeriod', 'tenant.city']);
     }
 
     protected function getColumns(): array
@@ -37,7 +37,6 @@ class subscriptionMangmentDataTable extends AbstractDataTable
             ['data' => 'city', 'name' => 'tenant.city.name', 'title' => 'المدينة', 'orderable' => false],
             ['data' => 'tax_number', 'name' => 'tenant.tax_number', 'title' => 'الرقم الضريبي'],
             ['data' => 'tenant_id',       'name' => 'tenant_id',        'title' => 'معرف العميل'],
-            ['data' => 'version',              'name' => 'tenant.version.version',            'title' => 'رقم الإصدار', 'orderable' => false],
 
             ['data' => 'plan_id',         'name' => 'plan.name',          'title' => 'الباقة'],
             ['data' => 'total_users',     'name' => 'total_users',      'title' => 'عدد المستخدمين '],
@@ -84,10 +83,6 @@ class subscriptionMangmentDataTable extends AbstractDataTable
 
             ->editColumn('plan_id', function ($row) {
                 return $row->plan->name ?? '-';
-            })
-
-            ->editColumn('version', function ($row) {
-                return $row->tenant->version?->version;
             })
 
             ->editColumn('starts_at', function ($row) {

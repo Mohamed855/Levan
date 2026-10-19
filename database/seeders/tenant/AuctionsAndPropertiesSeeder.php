@@ -384,7 +384,7 @@ class AuctionsAndPropertiesSeeder extends Seeder
                 'supervising_entity'       => 'وزارة العدل',
                 'platform_name'            => 'منصة مباشر للمزادات',
                 'platform_url'             => 'https://mubasher.sa',
-                'status'                   => 'draft',
+                'status'                   => 'in_preparation',
                 'is_active'                => true,
                 'properties_to_sync'       => ['PROP-007', 'PROP-008'],
             ],

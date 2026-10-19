@@ -82,11 +82,21 @@ class Subscription extends Model
     public static function generateSubscriptionNumber(): string
     {
         $year = date('Y');
-        $lastSubscription = static::whereYear('created_at', $year)->latest('id')->first();
+        $lastSubscription = static::where('subscription_number', 'LIKE', "SUB-{$year}-%")
+            ->latest('id')
+            ->first();
 
-        $number = $lastSubscription ? (int) substr($lastSubscription->subscription_number, -5) + 1 : 1;
+        $number = 1;
+        if ($lastSubscription && preg_match('/SUB-\d{4}-(\d+)/', $lastSubscription->subscription_number, $matches)) {
+            $number = (int) $matches[1] + 1;
+        }
 
-        return 'SUB-'.$year.'-'.str_pad($number, 5, '0', STR_PAD_LEFT);
+        do {
+            $candidate = 'SUB-'.$year.'-'.str_pad((string) $number, 5, '0', STR_PAD_LEFT);
+            $number++;
+        } while (static::where('subscription_number', $candidate)->exists());
+
+        return $candidate;
     }
 
     /*

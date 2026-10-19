@@ -11,14 +11,10 @@ use App\Http\Controllers\Tenants\Domains\CheckMultipleDomainController;
 use App\Http\Controllers\Tenants\License\LicenseController;
 use App\Http\Controllers\Tenants\Settings\ApiTokenSettingsController;
 use App\Http\Controllers\Tenants\Settings\SettingsController as TenantSettingsController;
-use App\Http\Controllers\Tenants\Versions\VersionController;
 use App\Http\Requests\Tenants\Domains\SuggestDomainAlternativesRequest;
 use App\Http\Requests\Tenants\Domains\SuggestDomainNamesRequest;
 use App\Http\Requests\Tenants\License\ManageLicenseRequest;
-use App\Jobs\Tenants\Versions\UpgradeVersionJob;
 use App\Services\Tenants\Shared\CentralTenantApiTokenGateway;
-use App\Services\Tenants\Shared\CentralVersionGateway;
-use App\Services\Tenants\Versions\VersionService;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -89,18 +85,6 @@ final class TenantSettingsArchitectureContractTest extends TestCase
         $this->assertStringNotContainsString('Validator::make(', $source);
     }
 
-    public function test_tenant_version_flow_crosses_central_storage_only_through_gateway(): void
-    {
-        foreach ([VersionController::class, VersionService::class, UpgradeVersionJob::class] as $class) {
-            $source = file_get_contents((new ReflectionClass($class))->getFileName());
-
-            $this->assertStringNotContainsString('App\\Models\\Admin', $source);
-            $this->assertStringNotContainsString("DB::connection('mysql')", $source);
-        }
-
-        $gateway = file_get_contents((new ReflectionClass(CentralVersionGateway::class))->getFileName());
-        $this->assertStringContainsString('Tenancy::central(', $gateway);
-    }
 
     public function test_domain_controller_reads_provider_configuration_through_services_config(): void
     {

@@ -456,12 +456,15 @@
         </section>
 
         <!-- 10. Map Section -->
+        @php($googleMapsEmbedUrl = \App\Helpers\Admin\Settings\AdminSettingsHelper::get('google_maps_embed_url'))
+        @if ($googleMapsEmbedUrl)
         <section id="map" class="map-section">
             <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d453.0895346409257!2d46.697927505802454!3d24.702278165008337!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e2f1d8fe707d467%3A0x665443538d6963!2z2KfZhNio2LHZh9in2YYg2YTZhNmF2K3Yp9mF2KfYqQ!5e0!3m2!1sen!2ssa!4v1778593837435!5m2!1sen!2ssa"
+                src="{{ $googleMapsEmbedUrl }}"
                 allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="موقع لوت LOT">
             </iframe>
         </section>
+        @endif
     </main>
 
 @endsection

@@ -81,15 +81,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $errorView = static function ($request, int $status): string {
-            if (tenant()) {
-                return "tenants.errors.{$status}";
-            }
-
-            return $request->is('admin') || $request->is('admin/*')
-                ? "admin.errors.{$status}"
-                : "site.errors.{$status}";
-        };
+        $errorView = static fn ($request, int $status): string => "errors.{$status}";
 
         // Tenant identification failure -> 404
         $exceptions->render(function (TenantCouldNotBeIdentifiedException $e, $request) use ($errorView) {

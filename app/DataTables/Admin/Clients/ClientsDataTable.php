@@ -20,7 +20,6 @@ class ClientsDataTable extends AbstractDataTable
         $query = Tenant::query()
             ->with([
                 'city',
-                'version',
                 'lastSubscription.plan',
                 'lastSubscription.currentPeriod',
                 'lastSubscription.periods',
@@ -29,11 +28,6 @@ class ClientsDataTable extends AbstractDataTable
         // Filter: city
         if (request()->filled('city_id')) {
             $query->where('city_id', request('city_id'));
-        }
-
-        // Filter: version
-        if (request()->filled('version_id')) {
-            $query->where('version_id', request('version_id'));
         }
 
         // Filter: plan
@@ -80,7 +74,6 @@ class ClientsDataTable extends AbstractDataTable
             ['data' => 'city', 'name' => 'city_id', 'title' => 'المدينة'],
             ['data' => 'tax_number', 'name' => 'tax_number', 'title' => 'الرقم الضريبي'],
             ['data' => 'commercial_number', 'name' => 'commercial_number', 'title' => 'السجل التجاري'],
-            ['data' => 'version', 'name' => 'version_id', 'title' => 'رقم الإصدار'],
             ['data' => 'plan', 'name' => 'plan', 'title' => 'الباقة الحالية', 'orderable' => false, 'searchable' => false],
             ['data' => 'total_users', 'name' => 'total_users', 'title' => 'إجمالي المستخدمين', 'orderable' => false, 'searchable' => false],
             ['data' => 'used_users', 'name' => 'used_users', 'title' => 'المقاعد المستخدمة', 'orderable' => false, 'searchable' => false],
@@ -110,7 +103,6 @@ class ClientsDataTable extends AbstractDataTable
                     .e($row->id)
                     .'</a>';
             })
-            ->addColumn('version', fn (Tenant $row) => $row->version?->version ?: '-')
             ->addColumn('plan', fn (Tenant $row) => $row->lastSubscription?->plan?->name ?: '-')
             ->addColumn('total_users', fn (Tenant $row) => $row->lastSubscription ? ($row->lastSubscription->total_users ?: $row->lastSubscription->plan?->included_users ?: '-') : '-')
             ->addColumn('used_users', fn (Tenant $row) => $row->lastSubscription ? $row->lastSubscription->used_users : '-')

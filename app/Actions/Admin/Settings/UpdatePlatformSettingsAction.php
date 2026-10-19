@@ -31,7 +31,7 @@ class UpdatePlatformSettingsAction
                 $settings = Settings::query()->lockForUpdate()->first() ?? new Settings;
 
                 if (array_key_exists('office_name', $validated)) {
-                    foreach (['office_name', 'logo_text', 'office_address', 'commercial_register', 'tax_number', 'phone_number', 'email'] as $field) {
+                    foreach (['office_name', 'logo_text', 'office_address', 'commercial_register', 'tax_number', 'phone_number', 'email', 'facebook_url', 'x_url', 'linkedin_url', 'google_maps_embed_url'] as $field) {
                         $settings->{$field} = $validated[$field] ?? null;
                     }
                     $settings->maintenance_mode = $flags['maintenance_mode'] ?? false;
@@ -53,12 +53,6 @@ class UpdatePlatformSettingsAction
 
                 if ($flags['two_factor_settings_submit'] ?? false) {
                     $settings->force_two_factor_auth = $flags['force_two_factor_auth'] ?? false;
-                }
-
-                foreach (['default_tenant_version_id', 'default_landing_version_id'] as $field) {
-                    if (array_key_exists($field, $validated)) {
-                        $settings->{$field} = $validated[$field];
-                    }
                 }
 
                 if ($microsoftSecret !== null) {

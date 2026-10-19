@@ -95,6 +95,9 @@
                             <div class="text-danger small">{{ $message }}</div>
                         @enderror
                     </div>
+                    @foreach (['facebook_url' => 'رابط Facebook', 'x_url' => 'رابط X', 'linkedin_url' => 'رابط LinkedIn', 'google_maps_embed_url' => 'رابط Google Maps Embed'] as $field => $label)
+                        <div class="mb-4 col-md-6"><label for="{{ $field }}" class="form-label">{{ $label }}</label><input class="form-control" type="url" id="{{ $field }}" name="{{ $field }}" value="{{ old($field, $settings->{$field} ?? '') }}" />@error($field)<div class="text-danger small">{{ $message }}</div>@enderror</div>
+                    @endforeach
                     {{--
                     <div class="mb-4 col-md-6">
                         <label for="trial_days_mode" class="form-label">فترة التجربة</label>

@@ -46,7 +46,6 @@ class SuperAdminGoldenPatternInventoryTest extends TestCase
         'platform-settings.md',
         'bank-settings.md',
         'domain-settings.md',
-        'versions-testers.md',
         'activity-log.md',
         'central-archive.md',
         'central-mass-delete.md',
@@ -55,11 +54,11 @@ class SuperAdminGoldenPatternInventoryTest extends TestCase
         'public-trial-requests.md',
     ];
 
-    public function test_superadmin_inventory_has_exactly_19_families(): void
+    public function test_superadmin_inventory_has_exactly_18_families(): void
     {
         $manifest = file_get_contents(dirname(__DIR__, 2).'/docs/baselines/golden-pattern-manifest.md');
 
-        $this->assertCount(19, self::SUPERADMIN_CARD_FILES);
+        $this->assertCount(18, self::SUPERADMIN_CARD_FILES);
         $this->assertStringContainsString('Central / Super Admin', $manifest);
     }
 
@@ -78,7 +77,7 @@ class SuperAdminGoldenPatternInventoryTest extends TestCase
         $expectedFiles = self::SUPERADMIN_CARD_FILES;
         sort($expectedFiles);
 
-        $this->assertSame($expectedFiles, $files, 'Must contain exactly the 19 superadmin cards');
+        $this->assertSame($expectedFiles, $files, 'Must contain exactly the 18 superadmin cards');
 
         foreach ($files as $file) {
             $content = file_get_contents($cardsDir.'/'.$file);

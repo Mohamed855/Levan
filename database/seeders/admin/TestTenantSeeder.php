@@ -11,7 +11,6 @@ use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Subscription\SubscriptionPeriod;
 use App\Models\Admin\Tenants\Domain;
 use App\Models\Admin\Tenants\Tenant;
-use App\Models\Admin\Version\Version;
 use App\Models\Tenants\UserMangment\User\User;
 use Database\Seeders\tenant\TenantDatabaseSeeder;
 use Illuminate\Database\Seeder;
@@ -23,8 +22,6 @@ class TestTenantSeeder extends Seeder
 {
     public function run(): void
     {
-        $version = Version::first();
-
         $plan = Plan::updateOrCreate(
             ['name' => 'الباقة الاحترافية الشاملة'],
             [
@@ -54,7 +51,6 @@ class TestTenantSeeder extends Seeder
                 'folderName' => 'test',
                 'company_name' => 'تجربة',
                 'commercial_number' => '2222222222',
-                'version_id' => $version?->id ?? 1,
                 'tax_number' => '300000000000003',
                 'city_id' => City::firstOrCreate(['name' => 'الرياض'])->id,
                 'address' => 'حي العليا، الرياض',

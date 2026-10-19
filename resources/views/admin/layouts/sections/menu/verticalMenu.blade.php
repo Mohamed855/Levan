@@ -297,28 +297,5 @@
             </li>
         </ul>
     </li>
-
-
-    <li class="menu-header small">
-        <span class="menu-header-text">التطوير والإصدارات</span>
-    </li>
-
-    @can('versions.view')
-        <li class="menu-item @if (Route::is('admin.versions.*')) active open @endif">
-            <a href="{{ route('admin.versions.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-git-pull-request-draft"></i>
-                <div>إدارة الإصدارات</div>
-            </a>
-        </li>
-    @endcan
-
-    @can('version_testers.view')
-        <li class="menu-item @if (Route::is('admin.version_testers.*')) active open @endif">
-            <a href="{{ route('admin.version_testers.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-swipe"></i>
-                <div>فريق اختبار الإصدارات</div>
-            </a>
-        </li>
-    @endcan
 </ul>
 </aside>

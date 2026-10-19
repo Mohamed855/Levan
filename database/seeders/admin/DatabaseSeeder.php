@@ -15,7 +15,6 @@ class DatabaseSeeder extends Seeder
             PermissionsRolesSeeder::class,
             AdminUserSeeder::class,
             SettingsSeeder::class,
-            VersionSeeder::class,
             PublicPlanSeeder::class,
             TrialPlanSeeder::class,
             TestTenantSeeder::class,

@@ -96,20 +96,6 @@ class PermissionsRolesSeeder extends Seeder
                 'clients.force_delete',
             ],
 
-            'versions_management' => [
-                'versions.view',
-                'versions.create',
-                'versions.edit',
-                'versions.delete',
-            ],
-
-            'version_testers_management' => [
-                'version_testers.view',
-                'version_testers.create',
-                'version_testers.edit',
-                'version_testers.delete',
-            ],
-
             'auction_templates_management' => [
                 'auction_templates.view',
                 'auction_templates.create',

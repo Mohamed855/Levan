@@ -1,3 +1,9 @@
+@php
+    $officeAddress = \App\Helpers\Admin\Settings\AdminSettingsHelper::get('office_address');
+    $phoneNumber = \App\Helpers\Admin\Settings\AdminSettingsHelper::get('phone_number');
+    $email = \App\Helpers\Admin\Settings\AdminSettingsHelper::get('email');
+    $phoneLink = preg_replace('/[^0-9+]/', '', (string) $phoneNumber);
+@endphp
 <div {{ $attributes->merge(['class' => 'contact-info-list scroll-revealed']) }}>
     {{-- الهاتف والبريد --}}
     <div class="contact-info-card">
@@ -7,10 +13,10 @@
         <div class="info-body">
             <h4 class="info-label">تواصل معنا</h4>
             <p class="info-value">
-                <a href="tel:0500181100" dir="ltr">0500181100</a>
+                @if($phoneNumber)<a href="tel:{{ $phoneLink }}" dir="ltr">{{ $phoneNumber }}</a>@else — @endif
             </p>
             <p class="info-value">
-                <a href="mailto:info@e-tec.sa">info@e-tec.sa</a>
+                @if($email)<a href="mailto:{{ $email }}">{{ $email }}</a>@else — @endif
             </p>
         </div>
     </div>
@@ -23,8 +29,7 @@
         <div class="info-body">
             <h4 class="info-label">العنوان</h4>
             <p class="info-value">
-                الرياض، طريق الأمير محمد بن عبدالعزيز<br>
-                حي السليمانية، 12242
+                {{ $officeAddress ?: '—' }}
             </p>
         </div>
     </div>

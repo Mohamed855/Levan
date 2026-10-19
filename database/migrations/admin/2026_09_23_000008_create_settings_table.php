@@ -22,10 +22,6 @@ return new class extends Migration
             $table->boolean('trial_days_mode')->default(false);
             $table->boolean('force_two_factor_auth')->default(false);
 
-            $table->foreignId('default_landing_version_id')->nullable()->constrained('versions')->nullOnDelete();
-            $table->foreignId('default_tenant_version_id')->nullable()->constrained('versions')->nullOnDelete();
-
-            //
             $table->boolean('etmam_enabled')->default(false);
             $table->boolean('tickets_enabled')->default(true);
             $table->string('etmam_base_url')->nullable();
@@ -45,6 +41,11 @@ return new class extends Migration
             $table->string('tax_number')->nullable(); // الرقم الضريبي
             $table->string('phone_number')->nullable(); // رقم الهاتف
             $table->string('email')->nullable(); // البريد الإلكتروني
+
+            $table->string('facebook_url')->nullable();
+            $table->string('x_url')->nullable();
+            $table->string('linkedin_url')->nullable();
+            $table->text('google_maps_embed_url')->nullable();
 
             $table->timestamps();
         });

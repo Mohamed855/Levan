@@ -37,7 +37,6 @@ use App\Http\Controllers\Tenants\Tickets\TicketController;
 use App\Http\Controllers\Tenants\UserMangment\Role\RoleController;
 use App\Http\Controllers\Tenants\UserMangment\Team\TeamController;
 use App\Http\Controllers\Tenants\UserMangment\User\UserController;
-use App\Http\Controllers\Tenants\Versions\VersionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -235,12 +234,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         Route::prefix('licenses')->name('licenses.')->group(function () {
             Route::name('assign')->post('assign', [LicenseController::class, 'assign']);
             Route::name('release')->post('release', [LicenseController::class, 'release']);
-        });
-
-        // تحديث النسخة
-        Route::prefix('versions')->name('versions.')->group(function () {
-            Route::name('latest')->get('/', [VersionController::class, 'latest']);
-            Route::name('upgrade')->post('/', [VersionController::class, 'upgrade']);
         });
 
         Route::get('/', function () {

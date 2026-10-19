@@ -63,14 +63,6 @@
                     </li>
 
                     <li class="card rounded-0 mb-3 nav-item shadow-none">
-                        <a class="py-3 nav-link fw-bold m-0" data-bs-toggle="tab" href="#versionSettings">
-                            <!-- أيقونة إعدادات SMS -->
-                            <i class="ti ti-binary-tree-2 ti-sm me-1_5"></i>
-                            <span class="align-middle">إعدادات الإصدارات</span>
-                        </a>
-                    </li>
-
-                    <li class="card rounded-0 mb-3 nav-item shadow-none">
                         <a class="py-3 nav-link fw-bold m-0" data-bs-toggle="tab" href="#microsoft">
                             <!-- أيقونة إعدادات Microsoft Graph -->
                             <i class="ti ti-brand-windows ti-sm me-1_5"></i>
@@ -94,7 +86,6 @@
             <div class="tab-content p-0">
                 @include('admin.settings.partials.general-settings')
                 @include('admin.settings.partials.etmam-settings')
-                @include('admin.settings.partials.versions')
                 @include('admin.settings.partials.microsoft_settings')
                 @include('admin.settings.partials.two-factor-settings')
 

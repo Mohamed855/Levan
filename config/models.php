@@ -13,8 +13,6 @@ use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Admin\Tickets\Ticket;
-use App\Models\Admin\Version\Version;
-use App\Models\Admin\Version\VersionTester;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\BusinessCenter\Company\Company;
@@ -47,6 +45,4 @@ return [
     'Bank' => Bank::class,
     'ControlDomain' => ControlDomain::class,
     'Faq' => Faq::class,
-    'Version' => Version::class,
-    'VersionTester' => VersionTester::class,
 ];

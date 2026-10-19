@@ -26,10 +26,10 @@ return new class extends Migration
             $table->string('platform_url')->nullable();
             $table->text('notes')->nullable();
             $table->string('cover_image')->nullable();
-            $table->string('brochure_template_id')->nullable();
-            $table->string('billboard_template_id')->nullable();
-            $table->string('social_template_id')->nullable();
-            $table->enum('status', ['draft', 'in_preparation', 'pending_approval', 'active', 'completed', 'suspended'])->default('draft')->index();
+            $table->unsignedBigInteger('brochure_template_id')->nullable()->index();
+            $table->unsignedBigInteger('billboard_template_id')->nullable()->index();
+            $table->unsignedBigInteger('social_template_id')->nullable()->index();
+            $table->enum('status', ['in_preparation', 'pending_approval', 'active', 'completed', 'suspended'])->default('in_preparation')->index();
             $table->boolean('is_active')->default(true)->index();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
