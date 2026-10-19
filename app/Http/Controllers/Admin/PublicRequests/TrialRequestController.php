@@ -45,6 +45,6 @@ final class TrialRequestController extends Controller
 
         return view('admin.public_requests.trial.show', compact('trialRequest'));
     }
-    public function approve(ApproveTrialRequest $request, TrialRequest $trialRequest) { $this->authorize('approve', $trialRequest); $this->approveAction->execute($trialRequest, $request->user('admin')); return redirect()->route('admin.companies.create', ['trial_request' => $trialRequest->getKey()])->with('trial_prefill', ['name' => $trialRequest->customer_name, 'email' => $trialRequest->customer_email, 'phone' => $trialRequest->customer_phone]); }
+    public function approve(ApproveTrialRequest $request, TrialRequest $trialRequest) { $this->authorize('approve', $trialRequest); $this->approveAction->execute($trialRequest, $request->user('admin')); return redirect()->route('admin.clients.create', ['trial_request' => $trialRequest->getKey()])->with('trial_prefill', ['name' => $trialRequest->customer_name, 'email' => $trialRequest->customer_email, 'phone' => $trialRequest->customer_phone]); }
     public function reject(RejectTrialRequest $request, TrialRequest $trialRequest) { $this->authorize('reject', $trialRequest); $this->rejectAction->execute($trialRequest, $request->validated('rejection_reason'), $request->user('admin')); return back()->with('success', 'تم رفض طلب التجربة.'); }
 }

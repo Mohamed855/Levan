@@ -57,11 +57,11 @@
                     <x-form.wizard.step id="basic-info-validation" :fields="['name', 'email', 'phone']">
                         <div class="row g-4">
                             <x-form.controls.input name="name" label="الاسم الكامل" :value="$user->name"
-                                placeholder="ادخل الاسم الكامل" required col="col-sm-6" />
+                                placeholder="ادخل الاسم الكامل" required col="col-md-6" />
                             <x-form.controls.input name="email" type="email" label="البريد الإلكتروني" :value="$user->email"
-                                placeholder="ادخل البريد الإلكتروني" autocomplete="off" required col="col-sm-6" />
+                                placeholder="ادخل البريد الإلكتروني" autocomplete="off" required col="col-md-6" />
                             <x-form.controls.input name="phone" label="رقم الهاتف" :value="$user->phone"
-                                placeholder="05xxxxxxxx" maxlength="10" inputmode="numeric" required col="col-sm-6" />
+                                placeholder="05xxxxxxxx" maxlength="10" inputmode="numeric" required col="col-md-6" />
                         </div>
 
                         <x-form.wizard.actions>
@@ -74,11 +74,11 @@
                         <div class="row g-4">
                             <x-form.controls.password name="password" label="كلمة المرور الجديدة"
                                 placeholder="اتركه فارغاً إذا لم ترغب بالتعديل"
-                                data-validation-dependents="password_confirmation" col="col-sm-6" />
+                                data-validation-dependents="password_confirmation" col="col-md-6" />
                             <x-form.controls.password name="password_confirmation" label="تأكيد كلمة المرور الجديدة"
-                                placeholder="أعد إدخال كلمة المرور" col="col-sm-6" />
+                                placeholder="أعد إدخال كلمة المرور" col="col-md-6" />
                             <x-form.controls.image-upload name="image" label="الصورة الشخصية" :value="$user->image ? asset('storage/' . $user->image) : asset('static/brand/logos/logo.svg')"
-                                col="col-12" />
+                                col="col-md-6" />
                         </div>
 
                         <x-form.wizard.actions>

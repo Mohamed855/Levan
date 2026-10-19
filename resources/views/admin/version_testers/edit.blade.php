@@ -53,47 +53,35 @@
                         <div id="info-validation" class="content">
                             <div class="row g-4">
                                 <!-- العميل (التينانت) -->
-                                <div class="col-md-6">
-                                    <label for="tenant_id" class="form-label">العميل (التينانت)
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <select id="tenant_id" name="tenant_id" class="form-select select2" required
-                                        data-placeholder="اختر العميل">
-                                        <option value=""> </option>
-                                        @foreach ($tenants as $tenant)
-                                            <option value="{{ $tenant->id }}"
-                                                {{ old('tenant_id', $versionTester->tenant_id) == $tenant->id ? 'selected' : '' }}>
-                                                {{ $tenant->id }} - ({{ $tenant->company_name }})
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                                <x-form.controls.select name="tenant_id" id="tenant_id" label="العميل (التينانت)"
+                                    placeholder="اختر العميل" required select2 col="col-md-6">
+                                    <option value=""> </option>
+                                    @foreach ($tenants as $tenant)
+                                        <option value="{{ $tenant->id }}"
+                                            {{ old('tenant_id', $versionTester->tenant_id) == $tenant->id ? 'selected' : '' }}>
+                                            {{ $tenant->id }} - ({{ $tenant->company_name }})
+                                        </option>
+                                    @endforeach
+                                </x-form.controls.select>
 
                                 <!-- نوع العضو -->
-                                <div class="col-md-6">
-                                    <label for="type" class="form-label">نوع العضو <span
-                                            class="text-danger">*</span></label>
-                                    <select id="type" name="type" class="form-select select2" required
-                                        data-placeholder="اختر نوع العضو">
-                                        <option value=""> </option>
-                                        @foreach ($types as $type)
-                                            <option value="{{ $type->value }}"
-                                                {{ old('type', $versionTester->type->value) == $type->value ? 'selected' : '' }}>
-                                                {{ $type->label() }} - ({{ $type->description() }})
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                                <x-form.controls.select name="type" id="type" label="نوع العضو"
+                                    placeholder="اختر نوع العضو" required select2 col="col-md-6">
+                                    <option value=""> </option>
+                                    @foreach ($types as $type)
+                                        <option value="{{ $type->value }}"
+                                            {{ old('type', $versionTester->type->value) == $type->value ? 'selected' : '' }}>
+                                            {{ $type->label() }} - ({{ $type->description() }})
+                                        </option>
+                                    @endforeach
+                                </x-form.controls.select>
 
                                 <!-- الحالة -->
-                                <div class="col-md-6 mb-4">
-                                    <label for="is_active" class="form-label">حالة العضو <span
-                                            class="text-danger">*</span></label>
-                                    <select id="is_active" name="is_active" class="form-select select2">
-                                        <option value="">اختر الحالة</option>
-                                        <x-form.controls.enum-options :enum="\App\Enums\Shared\ActivationStatus::class" :selected="old('is_active', $versionTester->is_active)" />
-                                    </select>
-                                </div>
+                                <x-form.controls.select name="is_active" id="is_active" label="حالة العضو"
+                                    placeholder="اختر الحالة" required select2 col="col-md-6">
+                                    <option value="">اختر الحالة</option>
+                                    <x-form.controls.enum-options :enum="\App\Enums\Shared\ActivationStatus::class" :selected="old('is_active', $versionTester->is_active)" />
+                                </x-form.controls.select>
                             </div>
 
                             <div class="col-12 d-flex justify-content-end">

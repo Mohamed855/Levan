@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Site\StoreContactRequest;
 use App\Jobs\Admin\Mail\SendContactMailJob;
 use App\Models\Admin\Plans\Plan;
+use App\Models\Admin\Faq;
 
 class LandingPageController extends Controller
 {
@@ -19,8 +20,11 @@ class LandingPageController extends Controller
         $plans = Plan::publiclyAvailable()->orderBy('sort_order', 'asc')->get();
         $ourClients = collect();
         $portfolios = collect();
+        $faqs = \Illuminate\Support\Facades\Schema::hasTable('faqs')
+            ? Faq::query()->active()->latest()->get()
+            : collect();
 
-        return view('site.index', compact('plans', 'ourClients', 'portfolios'));
+        return view('site.index', compact('plans', 'ourClients', 'portfolios', 'faqs'));
     }
 
     public function contactRequest(StoreContactRequest $request)

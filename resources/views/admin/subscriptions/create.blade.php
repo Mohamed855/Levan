@@ -121,26 +121,15 @@
                                     <i class="ti ti-adjustments me-1 text-primary"></i> حدود ومواصفات الباقة المختارة
                                 </h6>
                                 <div class="row g-4">
-                                    <div class="col-md-3">
-                                        <label class="form-label">عدد المستخدمين المسموح به</label>
-                                        <input type="text" class="form-control bg-light"
-                                            id="sub_plan_users_display" value="-" readonly disabled>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label">حد العقارات</label>
-                                        <input type="text" class="form-control bg-light"
-                                            id="sub_plan_properties_display" value="-" readonly disabled>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label">المساحة التخزينية</label>
-                                        <input type="text" class="form-control bg-light"
-                                            id="sub_plan_storage_display" value="-" readonly disabled>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label">المزادات النشطة</label>
-                                        <input type="text" class="form-control bg-light"
-                                            id="sub_plan_auctions_display" value="-" readonly disabled>
-                                    </div>
+                                    <x-form.controls.input name="sub_plan_users_display" id="sub_plan_users_display"
+                                        label="عدد المستخدمين المسموح به" value="-" readonly disabled col="col-md-6"
+                                        class="bg-light" />
+                                    <x-form.controls.input name="sub_plan_properties_display" id="sub_plan_properties_display"
+                                        label="حد العقارات" value="-" readonly disabled col="col-md-6" class="bg-light" />
+                                    <x-form.controls.input name="sub_plan_storage_display" id="sub_plan_storage_display"
+                                        label="المساحة التخزينية" value="-" readonly disabled col="col-md-6" class="bg-light" />
+                                    <x-form.controls.input name="sub_plan_auctions_display" id="sub_plan_auctions_display"
+                                        label="المزادات النشطة" value="-" readonly disabled col="col-md-6" class="bg-light" />
                                     <div class="col-12">
                                         <label class="form-label">المميزات والخصائص المضمنة:</label>
                                         <div id="sub_plan_features_display"
@@ -188,49 +177,38 @@
 
                             <!-- حالة الدفع -->
                             <x-form.controls.select name="payment_type" id="sub_payment-status" label="حالة الدفع"
-                                required :select2="false" :enum="\App\Enums\Admin\Billing\BillStatus::class" col="col-md-6" />
+                                required :enum="\App\Enums\Admin\Billing\BillStatus::class" col="col-md-6" />
 
                             <!-- طريقة الدفع -->
-                            <div class="col-md-6" id="sub_payment-method-wrapper">
-                                <x-form.controls.select name="payment_method" id="sub_payment-method-select"
-                                    label="طريقة الدفع" :select2="false" col="col-12" :enum="\App\Enums\Admin\Billing\PaymentMethod::class" />
-                            </div>
+                            <x-form.controls.select name="payment_method" id="sub_payment-method-select"
+                                wrapper-id="sub_payment-method-wrapper" label="طريقة الدفع" col="col-md-6"
+                                :enum="\App\Enums\Admin\Billing\PaymentMethod::class" />
 
                             <!-- إيصال التحويل البنكي -->
-                            <div class="col-md-6" id="sub_receipt-upload-wrapper">
-                                <x-form.controls.file name="receipt_upload" id="sub_receipt_upload"
-                                    label="إيصال التحويل" accept="image/jpeg,image/png,image/jpg,application/pdf"
-                                    help="يُقبل PDF أو صور بحد أقصى 5 ميجابايت" col="col-12" />
-                            </div>
+                            <x-form.controls.file name="receipt_upload" id="sub_receipt_upload"
+                                wrapper-id="sub_receipt-upload-wrapper" label="إيصال التحويل"
+                                accept="image/jpeg,image/png,image/jpg,application/pdf"
+                                help="يُقبل PDF أو صور بحد أقصى 5 ميجابايت" col="col-md-6" />
 
                             <!-- تاريخ نهاية التجربة -->
-                            <div class="col-md-6" id="sub_trial-date-wrapper" style="display: none;">
-                                <x-form.controls.input type="date" name="trial_end_date" id="sub_trial_end_date"
-                                    label="تاريخ نهاية التجربة" col="col-12" />
-                            </div>
+                            <x-form.controls.input type="date" name="trial_end_date" id="sub_trial_end_date"
+                                wrapper-id="sub_trial-date-wrapper" wrapper-style="display: none;"
+                                label="تاريخ نهاية التجربة" col="col-md-6" />
 
                             <!-- تطبيق خصم -->
                             <x-form.controls.select name="has_discount" id="sub_discount-type"
-                                label="تطبيق خصم أو تسوية؟" :select2="false" :enum="\App\Enums\Shared\YesNo::class" col="col-md-6" />
+                                label="تطبيق خصم أو تسوية؟" :enum="\App\Enums\Shared\YesNo::class" col="col-md-6" />
 
-                            <div class="col-md-6" id="sub_discount-wrapper" style="display: none;">
-                                <x-form.controls.input type="number" step="0.01" min="0" name="discount_value"
-                                    id="sub_discount_value" label="مبلغ الخصم (ر.س)" placeholder="0.00"
-                                    value="0" col="col-12" />
-                            </div>
+                            <x-form.controls.input type="number" step="0.01" min="0" name="discount_value"
+                                id="sub_discount_value" wrapper-id="sub_discount-wrapper" wrapper-style="display: none;"
+                                label="مبلغ الخصم (ر.س)" placeholder="0.00" value="0" col="col-md-6" />
 
                             <!-- التفعيل الفوري -->
-                            <div class="col-12 mt-3">
-                                <div class="card bg-label-warning border-0">
-                                    <div class="card-body">
-                                        <x-form.controls.checkbox name="activate_immediately" id="sub_activate_immediately"
-                                            label="تفعيل الاشتراك فوراً" :checked="true" value="1" col="col-12">
-                                            عند تفعيل هذا الخيار، سيتم تحويل حالة الشركة وحالة الاشتراك إلى
-                                            <span class="badge bg-success">نشط (Active)</span> فوراً حتى لو كانت الفاتورة غير مدفوعة.
-                                        </x-form.controls.checkbox>
-                                    </div>
-                                </div>
-                            </div>
+                            <x-form.controls.checkbox name="activate_immediately" id="sub_activate_immediately"
+                                label="تفعيل الاشتراك فوراً" :checked="true" value="1" col="col-md-6">
+                                عند تفعيل هذا الخيار، سيتم تحويل حالة الشركة وحالة الاشتراك إلى
+                                <span class="badge bg-success">نشط (Active)</span> فوراً حتى لو كانت الفاتورة غير مدفوعة.
+                            </x-form.controls.checkbox>
                         </div>
 
                         <x-form.wizard.actions>

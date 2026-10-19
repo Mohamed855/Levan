@@ -10,7 +10,10 @@
     'multiple' => false,
     'select2' => true,
     'help' => null,
-    'col' => 'col-sm-6',
+    'col' => 'col-md-6',
+    'append' => null,
+    'controlName' => null,
+    'wrapperId' => null,
 ])
 
 @php
@@ -28,18 +31,18 @@
     $errorId = str_replace(['.', '[', ']'], '-', $fieldId) . '-error';
 @endphp
 
-<x-form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help" :col="$col">
+<x-form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help" :col="$col" :wrapper-id="$wrapperId">
     <select
         id="{{ $fieldId }}"
-        name="{{ $fieldName }}"
+        @if ($controlName !== false) name="{{ $controlName ?? $fieldName }}" @endif
         @if ($multiple) multiple @endif
         data-form-control
         data-placeholder="{{ $placeholder }}"
         aria-describedby="{{ $errorId }}"
         aria-invalid="{{ $errors->has($name) ? 'true' : 'false' }}"
-        {{ $attributes->class(['form-control', 'select2' => $select2, 'is-invalid' => $errors->has($name)]) }}
+        {{ $attributes->class(['form-select', 'select2' => $select2, 'is-invalid' => $errors->has($name)]) }}
     >
-        @if (! $multiple)
+        @if (! $multiple && empty($slot->toHtml()))
             <option value=""></option>
         @endif
         @foreach ($options as $key => $option)
@@ -70,5 +73,7 @@
                 {{ $optionLabel }}
             </option>
         @endforeach
+        {{ $slot ?? '' }}
     </select>
+    {!! $append ?? '' !!}
 </x-form.layout.field>

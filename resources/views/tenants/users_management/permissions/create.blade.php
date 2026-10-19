@@ -23,12 +23,11 @@
                         </div>
                     @endif
 
-                    <form action="{{ tenant_route_name('permissions.store') }}" method="POST">
+                    <form action="{{ tenant_route_name('permissions.store') }}" method="POST" data-form-validate>
                         @csrf
-                        <div class="mb-3">
-                            <label for="name" class="form-label">اسم الصلاحية</label>
-                            <input type="text" class="form-control" id="name" name="name"
-                                value="{{ old('name') }}" required>
+                        <div class="row g-4 mb-4">
+                            <x-form.controls.input name="name" id="name" label="اسم الصلاحية"
+                                :value="old('name')" required col="col-md-6" />
                         </div>
                         <div class="d-flex gap-2">
                             <x-form.wizard.draft-button />

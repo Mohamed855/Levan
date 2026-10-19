@@ -1,3 +1,10 @@
+@php
+    $officeAddress = \App\Helpers\Admin\Settings\AdminSettingsHelper::get('office_address');
+    $phoneNumber = \App\Helpers\Admin\Settings\AdminSettingsHelper::get('phone_number');
+    $email = \App\Helpers\Admin\Settings\AdminSettingsHelper::get('email');
+    $phoneLink = preg_replace('/[^0-9+]/', '', (string) $phoneNumber);
+@endphp
+
 <!-- Site Footer -->
 <footer class="site-footer" role="contentinfo">
     <div class="container footer-main">
@@ -102,8 +109,7 @@
                             <i class="ti ti-map-pin"></i>
                         </div>
                         <div class="contact-text">
-                            الرياض، طريق الأمير محمد بن عبدالعزيز<br>
-                            حي السليمانية، 12242
+                            {{ $officeAddress ?: '—' }}
                         </div>
                     </li>
                     <li>
@@ -111,7 +117,11 @@
                             <i class="ti ti-phone"></i>
                         </div>
                         <div class="contact-text">
-                            <a href="tel:0500181100" dir="ltr">0500181100</a>
+                            @if ($phoneNumber)
+                                <a href="tel:{{ $phoneLink }}" dir="ltr">{{ $phoneNumber }}</a>
+                            @else
+                                —
+                            @endif
                         </div>
                     </li>
                     <li>
@@ -119,7 +129,11 @@
                             <i class="ti ti-mail"></i>
                         </div>
                         <div class="contact-text">
-                            <a href="mailto:info@e-tec.sa">info@e-tec.sa</a>
+                            @if ($email)
+                                <a href="mailto:{{ $email }}">{{ $email }}</a>
+                            @else
+                                —
+                            @endif
                         </div>
                     </li>
                 </ul>

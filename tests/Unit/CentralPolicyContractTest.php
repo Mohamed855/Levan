@@ -8,7 +8,7 @@ use App\Http\Controllers\Admin\AdminMangment\Users\AdminUserController;
 use App\Http\Controllers\Admin\Archive\Bill\BillArchiveController;
 use App\Http\Controllers\Admin\Archive\Coupon\CouponArchiveController;
 use App\Http\Controllers\Admin\Bills\AdminBillsController;
-use App\Http\Controllers\Admin\Companies\CompanyController;
+use App\Http\Controllers\Admin\Clients\ClientController;
 use App\Http\Controllers\Admin\Coupons\AdminCouponController;
 use App\Http\Controllers\Admin\Plans\PlanController;
 use App\Http\Controllers\Admin\Settings\Bank\SettingsBankController;
@@ -37,6 +37,7 @@ class CentralPolicyContractTest extends TestCase
         foreach ([
             PlanPolicy::class,
             TenantPolicy::class,
+            \App\Policies\Admin\Clients\ClientPolicy::class,
             AdminUserPolicy::class,
             CouponPolicy::class,
             BankPolicy::class,
@@ -58,7 +59,7 @@ class CentralPolicyContractTest extends TestCase
     {
         foreach ([
             PlanController::class,
-            CompanyController::class,
+            ClientController::class,
             AdminUserController::class,
             AdminCouponController::class,
             SettingsBankController::class,

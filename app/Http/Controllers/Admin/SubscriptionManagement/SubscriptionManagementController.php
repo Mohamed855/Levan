@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin\SubscriptionManagement;
 
-use App\DataTables\Admin\Companies\CompanyDataTable;
+use App\DataTables\Admin\Clients\ClientsDataTable;
 use App\DataTables\Admin\SubscriptionMangment\subscriptionMangmentDataTable;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Http\Controllers\Controller;
@@ -26,11 +26,11 @@ class SubscriptionManagementController extends Controller
 {
     protected const VIEW_PATH = 'admin.subscription_manage';
 
-    protected const ROUTE_NAME = 'admin.companies';
+    protected const ROUTE_NAME = 'admin.clients';
 
     public function __construct(private SubscriptionManagementService $subscriptionManagementService) {}
 
-    public function index(CompanyDataTable $dataTable)
+    public function index(ClientsDataTable $dataTable)
     {
         try {
             $statistics = $this->subscriptionManagementService->getSubscriptionStatistics();
@@ -64,7 +64,7 @@ class SubscriptionManagementController extends Controller
                 ],
             ];
 
-            return $dataTable->render('admin.companies.index', [
+            return $dataTable->render('admin.clients.index', [
                 'totalSubscriptions' => $statistics['total'],
                 'activeSubscriptions' => $statistics['active'],
                 'expiredSubscriptions' => $statistics['expired'],
@@ -165,7 +165,7 @@ class SubscriptionManagementController extends Controller
                 'subscription_billing_cycle' => $plan->subscription_billing_cycle,
             ]);
 
-        return view('admin.companies.create', compact('plans', 'cities'));
+        return view('admin.clients.create', compact('plans', 'cities'));
     }
 
     public function planDuration(Plan $plan)
@@ -220,7 +220,7 @@ class SubscriptionManagementController extends Controller
         $cities = City::orderBy('name')->get(['id', 'name']);
         $allStatus = SubscriptionStatus::options();
 
-        return view('admin.companies.edit', compact('subscription', 'allStatus', 'plan', 'plans', 'cities'));
+        return view('admin.clients.edit', compact('subscription', 'allStatus', 'plan', 'plans', 'cities'));
     }
 
     public function update(UpdateCompanySubscriptionRequest $request, Subscription $subscription)

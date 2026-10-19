@@ -64,8 +64,8 @@
 
                     <x-form.wizard.step id="basic-info-validation" :fields="['name', 'description']">
                         <div class="row g-6">
-                            <x-form.controls.input name="name" label="اسم المجموعة" :value="$team->name" placeholder="أدخل اسم المجموعة" required col="col-12" />
-                            <x-form.controls.textarea name="description" label="الوصف" :value="$team->description" placeholder="أدخل وصف المجموعة" rows="3" col="col-12" />
+                            <x-form.controls.input name="name" label="اسم المجموعة" :value="$team->name" placeholder="أدخل اسم المجموعة" required col="col-md-6" />
+                            <x-form.controls.textarea name="description" label="الوصف" :value="$team->description" placeholder="أدخل وصف المجموعة" rows="3" col="col-md-6" />
                             <x-form.wizard.actions>
                                 <x-form.wizard.previous-button :href="tenant_route_name('teams.index')" />
                                 <x-form.wizard.next-button />
@@ -75,14 +75,20 @@
 
                     <x-form.wizard.step id="members-validation" :fields="['members', 'leaders']">
                         <div class="row g-6">
-                            <div class="col-12" data-form-field data-field-name="members">
-                                <label class="form-label" for="user_select">إضافة عضو</label>
-                                <select id="user_select" class="form-control select2" data-placeholder="اختر مستخدماً" data-validation-skip>
-                                    <option value=""></option>
-                                </select>
-                                <div class="invalid-feedback d-block" data-form-error role="alert" hidden></div>
-                                <div id="team-members-inputs"></div>
-                            </div>
+                            <x-form.controls.select
+                                name="members"
+                                id="user_select"
+                                :control-name="false"
+                                label="إضافة عضو"
+                                placeholder="اختر مستخدماً"
+                                col="col-md-6"
+                                :select2="true"
+                                data-validation-skip
+                            >
+                                <x-slot:append>
+                                    <div id="team-members-inputs"></div>
+                                </x-slot:append>
+                            </x-form.controls.select>
                             <div class="col-12" data-form-field data-field-name="leaders">
                                 <div id="team-leaders-inputs"></div>
                                 <div class="invalid-feedback d-block" data-form-error role="alert" hidden></div>

@@ -66,14 +66,14 @@
                                     \App\Enums\Admin\Plans\PlanColor::cases(),
                                 )" />
                             <x-form.controls.textarea name="description" id="description" label="وصف الباقة" rows="3"
-                                placeholder="وصف واضح لقيمة الباقة..." col="col-12" />
+                                placeholder="وصف واضح لقيمة الباقة..." col="col-md-6" />
 
                             <x-form.controls.select name="is_active" id="is_active" label="حالة تفعيل الباقة" required
                                 value="1" col="col-md-6" :enum="\App\Enums\Shared\ActivationStatus::class" />
                             <x-form.controls.input type="date" name="available_from" id="available_from"
                                 label="تاريخ بدء الإتاحة" col="col-md-6" help="اتركه فارغاً لإتاحتها فوراً." />
                             <x-form.controls.textarea name="admin_notes" id="admin_notes" label="ملاحظات إدارية"
-                                rows="2" col="col-12" />
+                                rows="2" col="col-md-6" />
 
                             <div class="col-12" data-form-field data-field-name="features">
                                 <div class="d-flex justify-content-between align-items-center mb-2">

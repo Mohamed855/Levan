@@ -4,13 +4,14 @@ use App\Http\Controllers\Admin\ActivityLog\AdminActivityLogController;
 use App\Http\Controllers\Admin\AdminMangment\Roles\AdminRoleController;
 use App\Http\Controllers\Admin\AdminMangment\Users\AdminUserController;
 use App\Http\Controllers\Admin\AuctionTemplates\AuctionTemplateController;
+use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\Archive\AdminUser\AdminUserController as AdminUserAdminUserController;
 use App\Http\Controllers\Admin\Archive\Bill\BillArchiveController;
 use App\Http\Controllers\Admin\Archive\Coupon\CouponArchiveController;
 use App\Http\Controllers\Admin\Archive\Plan\PlanArchiveController;
 use App\Http\Controllers\Admin\Archive\Tenant\TenantArchiveController;
 use App\Http\Controllers\Admin\Bills\AdminBillsController;
-use App\Http\Controllers\Admin\Companies\CompanyController;
+use App\Http\Controllers\Admin\Clients\ClientController;
 use App\Http\Controllers\Admin\Coupons\AdminCouponController;
 use App\Http\Controllers\Admin\Dashboard\DashboardController;
 use App\Http\Controllers\Admin\DeleteBulk\AdminMassDeleteController;
@@ -34,10 +35,10 @@ Route::name('password.reset')->get('reset-password/{token}', [NewPasswordControl
 Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active', 'admin.2fa.force'])->group(function () {
     Route::prefix('wizard-drafts')->name('wizard-drafts.')->group(function () {
         Route::get('/', [WizardDraftController::class, 'show'])->name('index');
-        Route::post('/', [WizardDraftController::class, 'store'])->name('store');
+        Route::match(['post', 'put', 'patch'], '/', [WizardDraftController::class, 'store'])->name('store');
         Route::delete('/', [WizardDraftController::class, 'destroy'])->name('destroy');
         Route::delete('file', [WizardDraftController::class, 'destroyFile'])->name('file.destroy');
-        Route::post('validate-step', [WizardDraftController::class, 'validateStep'])->name('validate-step');
+        Route::match(['post', 'put', 'patch'], 'validate-step', [WizardDraftController::class, 'validateStep'])->name('validate-step');
     });
 
     Route::name('password.store')->post('reset-password', [NewPasswordController::class, 'updatePassword']);
@@ -80,16 +81,28 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
         });
     });
 
-    // ادارة الشركات
-    Route::prefix('companies')->name('companies.')->group(function () {
-        Route::post('check-commercial-number-unique', [CompanyController::class, 'checkCommercialNumberUnique'])->name('check-commercial-number-unique');
-        Route::post('check-company-name-unique', [CompanyController::class, 'checkCompanyNameUnique'])->name('check-company-name-unique');
-        Route::post('check-tax-number-unique', [CompanyController::class, 'checkTaxNumberUnique'])->name('check-tax-number-unique');
-        Route::post('check-admin-email-unique', [CompanyController::class, 'checkAdminEmailUnique'])->name('check-admin-email-unique');
-        Route::post('check-admin-phone-unique', [CompanyController::class, 'checkAdminPhoneUnique'])->name('check-admin-phone-unique');
-        Route::get('plans/{plan}/duration', [CompanyController::class, 'planDuration'])->name('plan-duration');
-        Route::resource('/', CompanyController::class)->parameters(['' => 'company']);
+    // ادارة العملاء (Clients)
+    Route::prefix('clients')->name('clients.')->group(function () {
+        Route::post('check-commercial-number-unique', [ClientController::class, 'checkCommercialNumberUnique'])->name('check-commercial-number-unique');
+        Route::post('check-company-name-unique', [ClientController::class, 'checkCompanyNameUnique'])->name('check-company-name-unique');
+        Route::post('check-tax-number-unique', [ClientController::class, 'checkTaxNumberUnique'])->name('check-tax-number-unique');
+        Route::post('check-admin-email-unique', [ClientController::class, 'checkAdminEmailUnique'])->name('check-admin-email-unique');
+        Route::post('check-admin-phone-unique', [ClientController::class, 'checkAdminPhoneUnique'])->name('check-admin-phone-unique');
+        Route::get('plans/{plan}/duration', [ClientController::class, 'planDuration'])->name('plan-duration');
+        Route::resource('/', ClientController::class)->parameters(['' => 'client']);
     });
+
+    // Backward compatibility aliases for companies
+    Route::prefix('companies')->name('companies.')->group(function () {
+        Route::post('check-commercial-number-unique', [ClientController::class, 'checkCommercialNumberUnique'])->name('check-commercial-number-unique');
+        Route::post('check-company-name-unique', [ClientController::class, 'checkCompanyNameUnique'])->name('check-company-name-unique');
+        Route::post('check-tax-number-unique', [ClientController::class, 'checkTaxNumberUnique'])->name('check-tax-number-unique');
+        Route::post('check-admin-email-unique', [ClientController::class, 'checkAdminEmailUnique'])->name('check-admin-email-unique');
+        Route::post('check-admin-phone-unique', [ClientController::class, 'checkAdminPhoneUnique'])->name('check-admin-phone-unique');
+        Route::get('plans/{plan}/duration', [ClientController::class, 'planDuration'])->name('plan-duration');
+        Route::resource('/', ClientController::class)->parameters(['' => 'client']);
+    });
+
 
     // ادارة الاشتراكات
     Route::prefix('subscriptions')->name('subscriptions.')->group(function () {
@@ -153,6 +166,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
         Route::get('{auction_template}/fields', [AuctionTemplateController::class, 'showFields'])->name('fields');
         Route::resource('/', AuctionTemplateController::class)->parameters(['' => 'auction_template']);
     });
+    Route::resource('faqs', FaqController::class)->except('show');
 
     Route::prefix('bills')->name('bills.')->group(function () {
         Route::get('/{bill}/print', [AdminBillsController::class, 'print'])->name('print');

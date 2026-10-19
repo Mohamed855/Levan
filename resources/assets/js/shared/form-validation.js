@@ -593,6 +593,7 @@ function initDrafts(form) {
     button.disabled = true;
     try {
       const data = new FormData(form);
+      data.delete('_method');
       data.set('resource_key', draftResourceKey(form));
       data.set('step', String(currentStepNumber(form)));
 
@@ -884,6 +885,7 @@ async function validateFields(form, fieldNames, { force = false } = {}) {
   if (csrfToken) {
     data.set('_token', csrfToken);
   }
+  data.delete('_method');
   data.append('target_path', getTargetPath(form));
   data.append('target_method', getTargetMethod(form));
   fields.forEach((field) => data.append('fields[]', field));

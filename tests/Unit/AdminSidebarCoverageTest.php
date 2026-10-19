@@ -16,7 +16,7 @@ class AdminSidebarCoverageTest extends TestCase
             'admin.dashboard',
             'admin.users.index',
             'admin.roles.index',
-            'admin.companies.index',
+            'admin.clients.index',
             'admin.subscriptions.index',
             'admin.subscriptionManage.pending',
             'admin.plans.index',

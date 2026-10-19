@@ -74,13 +74,22 @@ class WizardDraftController extends Controller
 
     public function validateStep(ValidateWizardStepRequest $request): JsonResponse
     {
+        $targetMethod = $request->validated('target_method');
+        if (! $targetMethod) {
+            $targetMethod = $request->input('_method') ?: ($request->isMethod('POST') ? 'POST' : $request->method());
+        }
+        $targetMethod = strtoupper((string) $targetMethod);
+        if (! in_array($targetMethod, ['POST', 'PUT', 'PATCH'], true)) {
+            $targetMethod = 'POST';
+        }
+
         $targetRoute = $this->resolveFormRoute(
             $request->validated('target_path'),
-            $request->validated('target_method', 'POST'),
+            $targetMethod,
             $request,
             $request->route()?->defaults['shared_form_validation_actions'] ?? [],
         );
-        $formRequest = $this->makeResourceRequest($request, $targetRoute);
+        $formRequest = $this->makeResourceRequest($request, $targetRoute, $targetMethod);
 
         $authorized = (function (): bool {
             return $this->passesAuthorization();
@@ -144,7 +153,7 @@ class WizardDraftController extends Controller
         return $route;
     }
 
-    private function makeResourceRequest(Request $request, Route $route): FormRequest
+    private function makeResourceRequest(Request $request, Route $route, string $targetMethod = 'POST'): FormRequest
     {
         [$controller, $method] = explode('@', ltrim($route->getActionName(), '\\'));
         $reflection = new \ReflectionMethod($controller, $method);
@@ -162,6 +171,8 @@ class WizardDraftController extends Controller
                 $formRequest->setContainer(app());
                 $formRequest->setRedirector(app('redirect'));
                 $formRequest->setRouteResolver(fn (): Route => $route);
+                $formRequest->setMethod($targetMethod);
+                $formRequest->server->set('REQUEST_METHOD', $targetMethod);
 
                 return $formRequest;
             }

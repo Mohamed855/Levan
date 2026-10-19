@@ -66,30 +66,30 @@
                     ]">
                         <div class="row g-4">
                             <x-form.controls.input name="name" label="اسم المزاد" placeholder="مثال: مزاد جوار الحرم"
-                                required col="col-lg-6" />
+                                required col="col-md-6" />
 
                             <x-form.controls.textarea name="description" label="وصف المزاد"
-                                placeholder="اكتب وصفاً توضيحياً للمزاد..." required col="col-lg-6" rows="3" />
+                                placeholder="اكتب وصفاً توضيحياً للمزاد..." required col="col-md-6" rows="3" />
 
                             <x-form.controls.input name="start_date" type="date" label="تاريخ بداية المزاد" required
-                                col="col-lg-6" />
-                            <x-form.controls.input name="start_time" type="time" label="وقت البداية" required col="col-lg-6" />
+                                col="col-md-6" />
+                            <x-form.controls.input name="start_time" type="time" label="وقت البداية" required col="col-md-6" />
 
                             <x-form.controls.input name="end_date" type="date" label="تاريخ نهاية المزاد" required
-                                col="col-lg-6" />
-                            <x-form.controls.input name="end_time" type="time" label="وقت النهاية" required col="col-lg-6" />
+                                col="col-md-6" />
+                            <x-form.controls.input name="end_time" type="time" label="وقت النهاية" required col="col-md-6" />
 
-                            <x-form.controls.select name="type" label="نوع المزاد" required col="col-lg-6"
+                            <x-form.controls.select name="type" label="نوع المزاد" required col="col-md-6"
                                 :enum="\App\Enums\Tenants\Auctions\AuctionType::class" />
 
-                            <x-form.controls.select name="category" label="تصنيف المزاد" required col="col-lg-6"
+                            <x-form.controls.select name="category" label="تصنيف المزاد" required col="col-md-6"
                                 :enum="\App\Enums\Tenants\Auctions\AuctionCategory::class" />
 
-                            <x-form.controls.select name="city" label="المدينة الرئيسية" required col="col-lg-6"
+                            <x-form.controls.select name="city" label="المدينة الرئيسية" required col="col-md-6"
                                 :options="$cityOptions" />
 
                             <x-form.controls.input name="expected_properties_count" type="number"
-                                label="عدد العقارات المتوقع" :value="1" min="1" required col="col-lg-6" />
+                                label="عدد العقارات المتوقع" :value="1" min="1" required col="col-md-6" />
                         </div>
 
                         <x-form.wizard.actions>
@@ -104,38 +104,36 @@
                     {{-- الخطوة 2: الإسناد والجهات والمنصة --}}
                     <x-form.wizard.step id="step-assignment" :fields="['assignment_id', 'supervising_entity', 'platform_name', 'platform_url', 'notes']">
                         <div class="row g-4">
-                            <div class="col-md-6">
-                                <x-form.controls.select name="assignment_id" id="assignment_id"
-                                    label="الإسناد المرتبط بالمزاد" required col="col-12"
-                                    placeholder="اختر الإسناد المسجل..." :options="$assignments
-                                        ->map(
-                                            fn($a) => [
-                                                'value' => $a->id,
-                                                'label' => $a->name . ' (' . $a->assignment_number . ')',
-                                            ],
-                                        )
-                                        ->toArray()" />
-
-                                {{-- كارت ملخص الإسناد المختار --}}
-                                <div id="selected-assignment-card" class="card bg-label-primary border-primary mt-3 d-none">
-                                    <div class="card-body p-3">
-                                        <h6 class="fw-bold mb-2"><i class="ti ti-file-certificate me-1"></i>بيانات الإسناد
-                                            المختار:</h6>
-                                        <div class="small">
-                                            <div><strong>رقم الإسناد:</strong> <span id="asg-summary-num">-</span></div>
-                                            <div><strong>الجهة المسندة:</strong> <span id="asg-summary-entity">-</span>
+                            <x-form.controls.select name="assignment_id" id="assignment_id"
+                                label="الإسناد المرتبط بالمزاد" required col="col-md-6"
+                                placeholder="اختر الإسناد المسجل..." :options="$assignments
+                                    ->map(
+                                        fn($a) => [
+                                            'value' => $a->id,
+                                            'label' => $a->name . ' (' . $a->assignment_number . ')',
+                                        ],
+                                    )
+                                    ->toArray()">
+                                <x-slot:append>
+                                    {{-- كارت ملخص الإسناد المختار --}}
+                                    <div id="selected-assignment-card" class="card bg-label-primary border-primary mt-3 d-none">
+                                        <div class="card-body p-3">
+                                            <h6 class="fw-bold mb-2"><i class="ti ti-file-certificate me-1"></i>بيانات الإسناد
+                                                المختار:</h6>
+                                            <div class="small">
+                                                <div><strong>رقم الإسناد:</strong> <span id="asg-summary-num">-</span></div>
+                                                <div><strong>الجهة المسندة:</strong> <span id="asg-summary-entity">-</span>
+                                                </div>
+                                                <div><strong>الحالة:</strong> <span id="asg-summary-status">-</span></div>
                                             </div>
-                                            <div><strong>الحالة:</strong> <span id="asg-summary-status">-</span></div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
+                                </x-slot:append>
+                            </x-form.controls.select>
 
-                            <div class="col-md-6">
-                                <x-form.controls.input name="supervising_entity" id="supervising_entity"
-                                    label="الجهة المشرفة على المزاد" placeholder="مثال: مركز الإسناد والتصفية - إنفاذ"
-                                    required col="col-12" />
-                            </div>
+                            <x-form.controls.input name="supervising_entity" id="supervising_entity"
+                                label="الجهة المشرفة على المزاد" placeholder="مثال: مركز الإسناد والتصفية - إنفاذ"
+                                required col="col-md-6" />
 
                             <x-form.controls.input name="platform_name" label="منصة المزاد"
                                 placeholder="مثال: منصة مباشر للمزادات" required col="col-md-6" />
@@ -144,7 +142,7 @@
                                 placeholder="https://mubasher.sa/auctions/..." col="col-md-6" />
 
                             <x-form.controls.textarea name="notes" label="ملاحظات الجهة والمنصة"
-                                placeholder="أي تفاصيل أو اشتراطات خاصة بالجهة أو المنصة..." col="col-12"
+                                placeholder="أي تفاصيل أو اشتراطات خاصة بالجهة أو المنصة..." col="col-md-6"
                                 rows="3" />
                         </div>
 
@@ -231,19 +229,19 @@
                                 </h6>
                             </div>
 
-                            <x-form.controls.select name="brochure_template_id" label="قالب البروشور" col="col-md-4"
+                            <x-form.controls.select name="brochure_template_id" label="قالب البروشور" col="col-md-6"
                                 :options="$brochureTemplates" placeholder="اختر قالب البروشور..." />
 
                             <x-form.controls.select name="billboard_template_id" label="قالب اللوحة الإعلانية"
-                                col="col-md-4" :options="$billboardTemplates" placeholder="اختر قالب اللوحة..." />
+                                col="col-md-6" :options="$billboardTemplates" placeholder="اختر قالب اللوحة..." />
 
-                            <x-form.controls.select name="social_template_id" label="قالب منصات التواصل" col="col-md-4"
+                            <x-form.controls.select name="social_template_id" label="قالب منصات التواصل" col="col-md-6"
                                 :options="$socialTemplates" placeholder="اختر قالب منصات التواصل..." />
 
                             <div class="col-12 mt-4 border-top pt-3">
                                 <h6 class="fw-bold mb-3"><i class="ti ti-paperclip me-1"></i>مرفقات ووثائق المزاد:</h6>
                                 <x-form.controls.file name="attachments[]" label="ملفات إضافية" multiple :required="false"
-                                    accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx" help="الحد الأقصى لكل ملف: 10MB" col="col-12" />
+                                    accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx" help="الحد الأقصى لكل ملف: 10MB" col="col-md-6" />
                                 <section class="assignment-properties-table-card mt-3" aria-live="polite">
                                     <header class="assignment-properties-table-card__header">
                                         <h6 class="mb-0">المرفقات والوثائق</h6>

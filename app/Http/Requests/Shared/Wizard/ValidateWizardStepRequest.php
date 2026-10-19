@@ -16,6 +16,20 @@ class ValidateWizardStepRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if (! $this->has('target_method') || empty($this->input('target_method'))) {
+            $method = $this->input('_method') ?: ($this->isMethod('POST') ? 'POST' : $this->method());
+            $this->merge([
+                'target_method' => strtoupper((string) $method),
+            ]);
+        } else {
+            $this->merge([
+                'target_method' => strtoupper((string) $this->input('target_method')),
+            ]);
+        }
+    }
+
     public function rules(): array
     {
         return [

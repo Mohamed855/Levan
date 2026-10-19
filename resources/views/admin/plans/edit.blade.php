@@ -53,16 +53,13 @@
             <x-form.wizard.step id="basics-validation" :fields="['name', 'code', 'plan_type', 'color', 'description', 'features', 'is_active', 'available_from', 'admin_notes']">
                 <div class="row g-3">
                     <x-form.controls.input name="name" label="اسم الباقة" :value="$plan->name" placeholder="مثال: الباقة الاحترافية" required col="col-md-6" />
-                    <div class="col-md-6" data-form-field data-field-name="code">
-                        <label class="form-label" for="code">كود الباقة (English Uppercase) <span class="text-danger">*</span></label>
-                        <input id="code" name="code" type="text" value="{{ old('code', $plan->code) }}" maxlength="50" pattern="[A-Z][A-Z0-9_]*" required data-form-control
-                            class="form-control font-monospace text-uppercase @error('code') is-invalid @enderror" @readonly($hasSubscriptions)>
-                        <div id="code-error" class="invalid-feedback d-block" data-form-error role="alert" hidden></div>
-                        @if ($hasSubscriptions)<small class="text-warning">الكود مقفل لارتباط الباقة باشتراكات.</small>@endif
-                    </div>
+                    <x-form.controls.input name="code" id="code" label="كود الباقة (English Uppercase)" :value="$plan->code"
+                        maxlength="50" pattern="[A-Z][A-Z0-9_]*" required col="col-md-6"
+                        class="font-monospace text-uppercase" :readonly="$hasSubscriptions"
+                        :help="$hasSubscriptions ? 'الكود مقفل لارتباط الباقة باشتراكات.' : null" />
                     <x-form.controls.select name="plan_type" id="plan_type" label="نوع الباقة" required :value="$currentType" col="col-md-6" :options="array_map(fn($type) => ['value' => $type->value, 'label' => $type->label()], \App\Enums\Admin\Plans\PlanType::cases())" />
                     <x-form.controls.select name="color" id="color" label="لون الباقة المميز" required :value="$currentColor" col="col-md-6" :options="array_map(fn($color) => ['value' => $color->value, 'label' => $color->label()], \App\Enums\Admin\Plans\PlanColor::cases())" />
-                    <x-form.controls.textarea name="description" id="description" label="وصف الباقة" :value="$plan->description" rows="3" placeholder="وصف واضح لقيمة الباقة..." col="col-12" />
+                    <x-form.controls.textarea name="description" id="description" label="وصف الباقة" :value="$plan->description" rows="3" placeholder="وصف واضح لقيمة الباقة..." col="col-md-6" />
 
                     <div class="col-12" data-form-field data-field-name="features">
                         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -79,7 +76,7 @@
 
                     <x-form.controls.select name="is_active" id="is_active" label="حالة تفعيل الباقة" required :value="$plan->is_active ? '1' : '0'" col="col-md-6" :enum="\App\Enums\Shared\ActivationStatus::class" />
                     <x-form.controls.input type="date" name="available_from" id="available_from" label="تاريخ بدء الإتاحة" :value="$plan->available_from?->format('Y-m-d')" col="col-md-6" help="اتركه فارغاً لإتاحتها فوراً." />
-                    <x-form.controls.textarea name="admin_notes" id="admin_notes" label="ملاحظات إدارية" :value="$plan->admin_notes" rows="2" col="col-12" />
+                    <x-form.controls.textarea name="admin_notes" id="admin_notes" label="ملاحظات إدارية" :value="$plan->admin_notes" rows="2" col="col-md-6" />
                 </div>
                 <x-form.wizard.actions><x-form.wizard.previous-button :href="route('admin.plans.index')" text="رجوع" /><div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button /></div></x-form.wizard.actions>
             </x-form.wizard.step>
@@ -88,7 +85,9 @@
                 <div class="row g-3">
                     <x-form.controls.input type="number" step="0.01" min="0" name="price" id="price" label="سعر الدورة الأساسية (ر.س)" :value="$plan->price" required col="col-md-6" />
                     @if ($hasSubscriptions)
-                        <div class="col-md-6" data-form-field data-field-name="subscription_billing_cycle"><label class="form-label">دورة الفوترة الأساسية</label><input type="text" class="form-control" value="{{ $currentCycleLabel }}" readonly><input id="subscription_billing_cycle" type="hidden" name="subscription_billing_cycle" value="{{ $currentCycle }}" data-plan-label="{{ $currentCycleLabel }}" data-form-control></div>
+                        <x-form.controls.input name="subscription_billing_cycle_display" label="دورة الفوترة الأساسية" :value="$currentCycleLabel" readonly col="col-md-6">
+                            <input id="subscription_billing_cycle" type="hidden" name="subscription_billing_cycle" value="{{ $currentCycle }}" data-plan-label="{{ $currentCycleLabel }}" data-form-control>
+                        </x-form.controls.input>
                     @else
                         <x-form.controls.select name="subscription_billing_cycle" id="subscription_billing_cycle" label="دورة الفوترة الأساسية" required :value="$currentCycle" col="col-md-6" :options="array_map(fn($cycle) => ['value' => $cycle->value, 'label' => $cycle->label()], \App\Enums\Admin\Subscriptions\SubscriptionBillingCycle::cases())" />
                     @endif
@@ -101,7 +100,9 @@
             <x-form.wizard.step id="limits-validation" :fields="['limits_mode', 'included_users', 'extra_user_license_price', 'properties_limit', 'storage_quota_gb', 'active_auctions_limit', 'domain_management_enabled']">
                 <div class="row g-3">
                     @if ($hasSubscriptions)
-                        <div class="col-md-6" data-form-field data-field-name="limits_mode"><label class="form-label">وضع الحدود</label><input type="text" class="form-control" value="{{ $currentLimitsMode === 'unlimited' ? 'غير محدود' : 'محدود' }}" readonly><input id="limits_mode" type="hidden" name="limits_mode" value="{{ $currentLimitsMode }}" data-form-control></div>
+                        <x-form.controls.input name="limits_mode_display" label="وضع الحدود" :value="$currentLimitsMode === 'unlimited' ? 'غير محدود' : 'محدود'" readonly col="col-md-6">
+                            <input id="limits_mode" type="hidden" name="limits_mode" value="{{ $currentLimitsMode }}" data-form-control>
+                        </x-form.controls.input>
                     @else
                         <x-form.controls.select name="limits_mode" id="limits_mode" label="وضع الحدود" required :value="$currentLimitsMode" col="col-md-6" :enum="\App\Enums\Admin\Plans\PlanLimitsMode::class" />
                     @endif

@@ -100,13 +100,13 @@
             <x-admin.dashboard-panel title="إجراءات سريعة" icon="ti-bolt">
                 <div class="row g-2">
                     <div class="col-4">
-                        <a href="{{ route('admin.companies.create') }}" class="quick-action-box">
+                        <a href="{{ route('admin.clients.create') }}" class="quick-action-box">
                             <div class="avatar avatar-md mb-4">
                                 <span class="avatar-initial rounded bg-label-primary">
                                     <i class="ti ti-building fs-4"></i>
                                 </span>
                             </div>
-                            <span class="action-title">إضافة شركة</span>
+                            <span class="action-title">إضافة عميل</span>
                         </a>
                     </div>
                     <div class="col-4">

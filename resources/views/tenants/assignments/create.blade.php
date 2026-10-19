@@ -77,7 +77,7 @@
                     <x-form.controls.input name="district" label="النطاق/الحي" col="col-md-6" />
                     <x-form.controls.input name="start_date" type="date" label="تاريخ البداية" required col="col-md-6" />
                     <x-form.controls.input name="end_date" type="date" label="تاريخ النهاية" required col="col-md-6" />
-                    <x-form.controls.textarea name="notes" label="وصف الإسناد" required col="col-12" rows="4" />
+                    <x-form.controls.textarea name="notes" label="وصف الإسناد" required col="col-md-6" rows="4" />
                     <x-form.wizard.actions>
                         <x-form.wizard.previous-button :href="tenant_route_name('assignments.index')" text="العودة" />
                         <div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button /></div>
@@ -126,13 +126,13 @@
                 <div class="row g-4">
                     <x-form.controls.image-upload name="assignment_image" label="صورة الإسناد" required
                         accept="image/jpeg,image/png,image/webp,image/svg+xml"
-                        hint="JPG أو PNG أو WebP أو SVG، بحد أقصى 2MB" col="col-md-4" />
+                        hint="JPG أو PNG أو WebP أو SVG، بحد أقصى 2MB" col="col-md-6" />
                     <x-form.controls.file name="assignment_letter" label="خطاب الإسناد" required accept="application/pdf"
-                        help="PDF فقط، بحد أقصى 10MB" col="col-md-4" />
+                        help="PDF فقط، بحد أقصى 10MB" col="col-md-6" />
                     <x-form.controls.file name="general_documents" id="general_documents" label="مستندات عامة" required
-                        multiple help="يمكن اختيار الملفات على أكثر من مرة" col="col-md-4" />
+                        multiple help="يمكن اختيار الملفات على أكثر من مرة" col="col-md-6" />
                     <x-form.controls.file name="additional_attachments" id="additional_attachments" label="مرفقات إضافية"
-                        required multiple help="يمكن اختيار الملفات على أكثر من مرة" col="col-md-4" />
+                        required multiple help="يمكن اختيار الملفات على أكثر من مرة" col="col-md-6" />
                     <div class="col-12">
                         <section class="assignment-selection assignment-attachment-box"
                             aria-labelledby="general-documents-title">

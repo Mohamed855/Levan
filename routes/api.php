@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Api\Integration\Customer\CustomerApiController;
 use App\Http\Controllers\Api\SubscriptionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -16,12 +15,6 @@ Route::prefix('central')->middleware(['web'])->group(function () {
     });
 });
 
-
-// API التكامل الخارجي: عرض العملاء الخاصة بالتينانت عبر Token
-Route::prefix('v1')->middleware(['tenant.token'])->group(function () {
-    Route::get('customers', [CustomerApiController::class, 'index']);
-    Route::get('customers/{id}', [CustomerApiController::class, 'show']);
-});
 
 
 // الترقية

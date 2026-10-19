@@ -389,31 +389,21 @@
 
                         <form action="{{ tenant_route_name('domains.subdomain') }}" method="POST">
                             @csrf
-                            <div class="row">
-                                <div class="col-md-8">
-                                    <div class="mb-3">
-                                        <label for="subdomain" class="form-label">
-                                            <i class="ti ti-world me-1"></i>
-                                            اسم النطاق الفرعي
-                                        </label>
-                                        <div class="input-group">
-                                            <input type="text"
-                                                class="form-control @error('subdomain') is-invalid @enderror"
-                                                id="subdomain" name="subdomain" placeholder="مثال: blog أو store أو app"
-                                                value="{{ old('subdomain') }}" required>
-                                            <span class="input-group-text">.levan.com</span>
-                                        </div>
-                                        @error('subdomain')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                                        @enderror
-                                        <small class="form-text text-muted">
-                                            استخدم حروف إنجليزية صغيرة وأرقام وشرطة (-) فقط
-                                        </small>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label d-block">&nbsp;</label>
-                                    <button type="submit" class="btn btn-success w-100">
+                            <div class="row g-4 align-items-end">
+                                <x-form.controls.input
+                                    name="subdomain"
+                                    id="subdomain"
+                                    label="اسم النطاق الفرعي"
+                                    placeholder="مثال: blog أو store أو app"
+                                    help="استخدم حروف إنجليزية صغيرة وأرقام وشرطة (-) فقط"
+                                    required
+                                    col="col-md-6"
+                                    :input-group="true"
+                                >
+                                    <span class="input-group-text">.levan.com</span>
+                                </x-form.controls.input>
+                                <div class="col-md-6 mb-3">
+                                    <button type="submit" class="btn btn-primary">
                                         <i class="ti ti-plus me-1"></i>
                                         إنشاء النطاق الفرعي
                                     </button>

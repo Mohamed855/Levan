@@ -28,7 +28,6 @@
                             <span class="bs-stepper-circle">1</span>
                             <span class="bs-stepper-label mt-1">
                                 <span class="bs-stepper-title">معلومات الشركة</span>
-                                <span class="bs-stepper-subtitle">البيانات الأساسية</span>
                             </span>
                         </button>
                     </div>
@@ -51,48 +50,17 @@
                         @method('PUT')
 
                         <div id="company-info-validation" class="content">
-                            <div class="row">
+                            <div class="row g-4 mb-4">
                                 {{-- اسم الشركة --}}
-                                <div class="col-md-4 mb-4">
-                                    <label class="form-label" for="name">
-                                        اسم الشركة
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" name="name" id="name" class="form-control" required
-                                        placeholder="ادخل اسم الشركة" value="{{ old('name', $company->name) }}" />
-                                </div>
-
-                                {{-- شعار الشركة --}}
-                                <div class="col-md-4 mb-4">
-                                    <label class="form-label" for="logo">شعار الشركة</label>
-                                    <input type="file" name="logo" id="logo" class="form-control"
-                                        accept=".jpg,.jpeg,.png,.webp" />
-                                    <small class="text-muted d-block mt-1">
-                                        الأنواع: JPG, JPEG, PNG — الحجم الأقصى: 2MB
-                                    </small>
-
-                                    @if ($company->logo_url)
-                                        <div class="d-flex align-items-center gap-2 mt-2">
-                                            <img src="{{ tasset($company->logo_url) }}" alt="logo"
-                                                style="width:28px;height:28px;object-fit:cover" class="rounded border">
-                                            <small class="text-muted">الشعار الحالي</small>
-                                        </div>
-                                    @endif
-                                </div>
+                                <x-form.controls.input name="name" id="name" label="اسم الشركة"
+                                    placeholder="ادخل اسم الشركة" :value="old('name', $company->name)" required col="col-md-6" />
 
                                 {{-- نسبة المستهدف --}}
-                                <div class="col-md-4 mb-4">
-                                    <label class="form-label" for="target_percentage">
-                                        نسبة المستهدف الشهري (%)
-                                    </label>
-                                    <input type="number" name="target_percentage" id="target_percentage"
-                                        class="form-control" placeholder="مثال: 10"
-                                        value="{{ old('target_percentage', $company->current_target_percentage) }}"
-                                        step="0.01" min="0" max="100" />
-                                    <small class="text-muted d-block mt-1">
-                                        النسبة المئوية من إجمالي المحفظة (مثال: 10 تعني 10%)
-                                    </small>
-
+                                <x-form.controls.input type="number" name="target_percentage" id="target_percentage"
+                                    label="نسبة المستهدف الشهري (%)" placeholder="مثال: 10"
+                                    :value="old('target_percentage', $company->current_target_percentage)"
+                                    step="0.01" min="0" max="100"
+                                    help="النسبة المئوية من إجمالي المحفظة (مثال: 10 تعني 10%)" col="col-md-6">
                                     @if ($company->currentTarget)
                                         <div class="alert alert-info py-2 mt-2 mb-0">
                                             <small>
@@ -103,7 +71,14 @@
                                             </small>
                                         </div>
                                     @endif
-                                </div>
+                                </x-form.controls.input>
+
+                                {{-- شعار الشركة --}}
+                                <x-form.controls.image-upload name="logo" id="logo" label="شعار الشركة"
+                                    :value="$company->logo_url ? tasset($company->logo_url) : null"
+                                    accept=".jpg,.jpeg,.png,.webp"
+                                    hint="الأنواع: JPG, JPEG, PNG — الحجم الأقصى: 2MB" col="col-md-6" />
+                            </div>
 
                                 {{-- المفوضون --}}
                                 <div class="col-12 mb-4">

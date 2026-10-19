@@ -4,7 +4,9 @@
     'id' => null,
     'required' => false,
     'help' => null,
-    'col' => 'col-sm-6',
+    'col' => 'col-md-6',
+    'wrapperId' => null,
+    'wrapperStyle' => null,
 ])
 
 @php
@@ -13,7 +15,7 @@
     $hasError = $errors->has($name);
 @endphp
 
-<div {{ $attributes->class([$col, 'is-invalid' => $hasError]) }} data-form-field data-field-name="{{ $name }}">
+<div @if($wrapperId) id="{{ $wrapperId }}" @endif @if($wrapperStyle) style="{{ $wrapperStyle }}" @endif {{ $attributes->class([$col, 'is-invalid' => $hasError]) }} data-form-field data-field-name="{{ $name }}">
     @if ($label)
         <label class="form-label" for="{{ $fieldId }}">
             {{ $label }}@if ($required)<span class="text-danger" aria-hidden="true"> *</span>@endif

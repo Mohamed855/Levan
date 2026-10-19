@@ -18,7 +18,7 @@ class StoreCompanyRequest extends WizardFormRequest
             'name' => ['required', 'string', 'max:255', 'unique:companies,name'],
             'logo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'status' => ['sometimes', 'in:active,inactive'],
-            'target_percentage' => ['required', 'numeric', 'min:0', 'max:100'],
+            'target_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'authorized_people' => ['nullable', 'array', 'max:50'],
             'authorized_people.*.name' => ['nullable', 'string', 'max:255'],
             'authorized_people.*.phone' => ['nullable', 'string', 'size:10', 'regex:/^05[0-9]{8}$/'],

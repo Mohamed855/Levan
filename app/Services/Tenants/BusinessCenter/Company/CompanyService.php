@@ -6,7 +6,6 @@ use App\Data\Tenants\BusinessCenter\Company\CompanyCreateDTO;
 use App\Data\Tenants\BusinessCenter\Company\CompanyUpdateDTO;
 use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Models\Tenants\BusinessCenter\Company\CompanyAuthorizedPerson;
-use App\Models\Tenants\BusinessCenter\Company\CompanyTarget;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -74,20 +73,7 @@ class CompanyService
                 $this->syncAuthorizedPeople($company, $dto->authorized_people);
             }
 
-            if ($dto->target_percentage !== null && Schema::hasTable('company_targets')) {
-                CompanyTarget::create([
-                    'company_id' => $company->id,
-                    'target_percentage' => $dto->target_percentage,
-                    'effective_from' => now()->startOfDay(),
-                    'effective_to' => null,
-                    'changed_by' => auth()->id(),
-                ]);
-            }
-
             $relations = ['authorizedPeople'];
-            if (Schema::hasTable('company_targets')) {
-                $relations[] = 'currentTarget';
-            }
 
             return $company->fresh($relations);
         });
@@ -111,31 +97,7 @@ class CompanyService
                 }
             }
 
-            if ($dto->target_percentage !== null && Schema::hasTable('company_targets')) {
-                $currentTarget = $company->currentTarget;
-
-                if (! $currentTarget || $currentTarget->target_percentage != $dto->target_percentage) {
-
-                    if ($currentTarget) {
-                        $currentTarget->update([
-                            'effective_to' => now()->subSecond(),
-                        ]);
-                    }
-
-                    CompanyTarget::create([
-                        'company_id' => $company->id,
-                        'target_percentage' => $dto->target_percentage,
-                        'effective_from' => now(),
-                        'effective_to' => null,
-                        'changed_by' => auth()->id(),
-                    ]);
-                }
-            }
-
             $relations = ['authorizedPeople'];
-            if (Schema::hasTable('company_targets')) {
-                $relations[] = 'currentTarget';
-            }
 
             return $company->fresh($relations);
         });
@@ -239,16 +201,9 @@ class CompanyService
         return [
             'total' => (clone $baseQuery)->count(),
             'active' => (clone $baseQuery)->where('status', 'active')->count(),
-            'companyHasPortfolios' => 0,
-            'companyNotHasPortfolios' => (clone $baseQuery)->where('status', 'active')->count(),
             'inactive' => (clone $baseQuery)->where('status', 'inactive')->count(),
             'archived' => Company::onlyTrashed()->count(),
             'recent' => Company::where('created_at', '>=', now()->subDays(30))->count(),
-            'totalCusomtersForAllCompanies' => 0,
-            'totalDeptForAllCompanies' => 0,
-            'totalCreditForAllCompanies' => 0,
-            'safi' => 0,
-            'totalCollectionDebt' => 0,
         ];
     }
 
@@ -277,142 +232,5 @@ class CompanyService
         }
 
         return $query;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Chart Data - Top 5 Companies by Total Debt
-    |--------------------------------------------------------------------------
-    */
-    public function getTopCompaniesByDebt($limit = 5): array
-    {
-        $companies = Company::select('id', 'name')
-            ->withCount('customers')
-            ->get()
-            ->map(function ($company) {
-                $debt = $company->customers()
-                    ->join('customer_transactions', 'customers.id', '=', 'customer_transactions.customer_id')
-                    ->where('customer_transactions.type', 'debit')
-                    ->sum('customer_transactions.amount');
-
-                return [
-                    'id' => $company->id,
-                    'name' => $company->name,
-                    'debt' => (float) $debt,
-                ];
-            })
-            ->filter(function ($company) {
-                return $company['debt'] > 0;
-            })
-            ->sortByDesc('debt')
-            ->take($limit)
-            ->values()
-            ->toArray();
-
-        return [
-            'labels' => array_column($companies, 'name'),
-            'data' => array_column($companies, 'debt'),
-            'companies' => $companies,
-        ];
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Chart Data - Customer Distribution by Company
-    |--------------------------------------------------------------------------
-    */
-    public function getCustomerDistributionByCompany(): array
-    {
-        $companies = Company::select('id', 'name')
-            ->withCount('customers')
-            ->get()
-            ->map(function ($company) {
-                return [
-                    'name' => $company->name,
-                    'count' => $company->customers_count,
-                ];
-            })
-            ->filter(fn ($c) => $c['count'] > 0)
-            ->sortByDesc('count')
-            ->values()
-            ->toArray();
-
-        return [
-            'labels' => array_column($companies, 'name'),
-            'data' => array_column($companies, 'count'),
-            'companies' => $companies,
-        ];
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Chart Data - Collection Rate Trend (Last 6 Months for Top 5 Companies)
-    |--------------------------------------------------------------------------
-    */
-    public function getCollectionRateTrend($months = 6, $limit = 5): array
-    {
-        // Get top 5 companies by debt
-        $topCompanies = Company::select('id', 'name')
-            ->get()
-            ->map(function ($company) {
-                $debt = $company->customers()
-                    ->join('customer_transactions', 'customers.id', '=', 'customer_transactions.customer_id')
-                    ->where('customer_transactions.type', 'debit')
-                    ->sum('customer_transactions.amount');
-
-                return [
-                    'id' => $company->id,
-                    'name' => $company->name,
-                    'debt' => (float) $debt,
-                ];
-            })
-            ->sortByDesc('debt')
-            ->take($limit)
-            ->toArray();
-
-        // Generate dates for last N months
-        $dates = [];
-        for ($i = $months - 1; $i >= 0; $i--) {
-            $dates[] = now()->subMonths($i)->format('Y-m');
-        }
-
-        $chartData = [];
-        foreach ($topCompanies as $company) {
-            $datasets = [];
-            foreach ($dates as $date) {
-                $startDate = $date.'-01';
-                $endDate = now()->createFromFormat('Y-m', $date)->endOfMonth()->format('Y-m-d');
-
-                $debt = $company['debt']; // Total debt
-                $credit = $company['id'];
-
-                $credit = DB::table('customer_transactions')
-                    ->join('customers', 'customer_transactions.customer_id', '=', 'customers.id')
-                    ->where('customers.company_id', $company['id'])
-                    ->where('customer_transactions.type', 'credit')
-                    ->whereBetween('customer_transactions.transaction_date', [$startDate, $endDate])
-                    ->sum('customer_transactions.amount');
-
-                $totalDebt = DB::table('customer_transactions')
-                    ->join('customers', 'customer_transactions.customer_id', '=', 'customers.id')
-                    ->where('customers.company_id', $company['id'])
-                    ->where('customer_transactions.type', 'debit')
-                    ->whereBetween('customer_transactions.transaction_date', [$startDate, $endDate])
-                    ->sum('customer_transactions.amount');
-
-                $percentage = $totalDebt > 0 ? round(($credit / $totalDebt) * 100, 2) : 0;
-                $datasets[] = $percentage;
-            }
-
-            $chartData[] = [
-                'label' => $company['name'],
-                'data' => $datasets,
-            ];
-        }
-
-        return [
-            'labels' => $dates,
-            'datasets' => $chartData,
-        ];
     }
 }

@@ -76,7 +76,7 @@
                     <x-form.controls.select name="is_active" label="حالة العقار" required col="col-md-6" :enum="\App\Enums\Shared\ActivationStatus::class"
                         value="1" />
                     <x-form.controls.textarea name="short_description" label="وصف العقار" placeholder="أدخل وصفاً للعقار..."
-                        required col="col-12" rows="4" maxlength="500" />
+                        required col="col-md-6" rows="4" maxlength="500" />
 
                     <x-form.wizard.actions>
                         <x-form.wizard.previous-button :href="tenant_route_name('properties.index')" text="العودة" />
@@ -346,17 +346,17 @@
                 <div class="row g-4">
                     <x-form.controls.image-upload name="main_image" label="الصورة الرئيسية للعقار" required
                         accept="image/jpeg,image/png,image/webp" hint="JPG أو PNG أو WebP، بحد أقصى 4MB"
-                        col="col-md-4" />
+                        col="col-md-6" />
                     <x-form.controls.file name="deed_document" label="صك الملكية" required accept=".pdf,image/*"
-                        help="PDF أو صورة، بحد أقصى 10MB" col="col-md-4" />
+                        help="PDF أو صورة، بحد أقصى 10MB" col="col-md-6" />
                     <x-form.controls.file name="cadastral_plan" label="مخطط العقار" required accept=".pdf,image/*"
-                        help="PDF أو صورة، بحد أقصى 10MB" col="col-md-4" />
+                        help="PDF أو صورة، بحد أقصى 10MB" col="col-md-6" />
                     <x-form.controls.file name="coordinates_statement" label="كشف الإحداثيات" required
-                        accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" col="col-md-4" />
+                        accept=".pdf,image/*" help="PDF أو صورة، بحد أقصى 10MB" col="col-md-6" />
                     <x-form.controls.file name="building_permit" label="رخصة البناء (اختياري)" accept=".pdf,image/*"
-                        help="PDF أو صورة، بحد أقصى 10MB" :required="false" col="col-md-4" />
+                        help="PDF أو صورة، بحد أقصى 10MB" :required="false" col="col-md-6" />
                     <x-form.controls.file name="assignment_letter_image" label="صورة الإسناد (اختياري)" accept="image/*"
-                        help="صورة فقط بحد أقصى 4MB" :required="false" col="col-md-4" />
+                        help="صورة فقط بحد أقصى 4MB" :required="false" col="col-md-6" />
                     <x-form.controls.file name="property_images[]" label="صور إضافية للمعرض (اختياري)" multiple
                         accept="image/*" help="يمكن اختيار عدة صور للمعرض" :required="false" col="col-md-6" />
                     <x-form.controls.file name="additional_documents[]" label="مستندات إضافية (اختياري)" multiple
@@ -413,7 +413,7 @@
                             <div class="card-body">
                                 <x-form.controls.textarea name="notes" label="ملاحظات إضافية (اختياري)"
                                     placeholder="أدخل أي ملاحظات إدارية أو توجيهات إضافية للعقار..." :required="false"
-                                    col="col-12" rows="3" />
+                                    col="col-md-6" rows="3" />
                             </div>
                         </div>
                     </div>

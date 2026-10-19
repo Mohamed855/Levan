@@ -399,6 +399,27 @@ class TenantAssetModulesFeatureTest extends TestCase
             ])
             ->assertUnprocessable()
             ->assertJsonValidationErrors('property_ids.0');
+
+        $this->actingAs($this->owner, 'tenant')
+            ->postJson($this->tenantUrl('wizard-drafts/validate-step'), [
+                'target_path' => "/properties/{$otherProperty->id}",
+                'target_method' => 'PUT',
+                '_method' => 'PUT',
+                'fields' => ['name'],
+                'name' => $otherProperty->name,
+            ])
+            ->assertOk()
+            ->assertJson(['success' => true]);
+
+        $this->actingAs($this->owner, 'tenant')
+            ->putJson($this->tenantUrl('wizard-drafts/validate-step'), [
+                'target_path' => "/properties/{$otherProperty->id}",
+                'target_method' => 'PUT',
+                'fields' => ['name'],
+                'name' => $otherProperty->name,
+            ])
+            ->assertOk()
+            ->assertJson(['success' => true]);
     }
 
     public function test_tenant_auction_draft_can_be_saved_restored_and_discarded(): void

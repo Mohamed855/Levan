@@ -11,36 +11,36 @@ class TenantPolicy
 {
     public function viewAny(AdminUser $user): bool
     {
-        return $user->can('companies.view');
+        return $user->can('clients.view') || $user->can('companies.view');
     }
 
     public function view(AdminUser $user, Tenant $tenant): bool
     {
-        return $user->can('companies.show');
+        return $user->can('clients.show') || $user->can('companies.show');
     }
 
     public function create(AdminUser $user): bool
     {
-        return $user->can('companies.create');
+        return $user->can('clients.create') || $user->can('companies.create');
     }
 
     public function update(AdminUser $user, Tenant $tenant): bool
     {
-        return $user->can('companies.edit');
+        return $user->can('clients.edit') || $user->can('companies.edit');
     }
 
     public function delete(AdminUser $user, Tenant $tenant): bool
     {
-        return $user->can('companies.delete');
+        return $user->can('clients.delete') || $user->can('companies.delete');
     }
 
     public function restore(AdminUser $user, Tenant $tenant): bool
     {
-        return $user->can('companies.restore');
+        return $user->can('clients.restore') || $user->can('companies.restore');
     }
 
     public function forceDelete(AdminUser $user, Tenant $tenant): bool
     {
-        return $user->can('companies.force_delete');
+        return $user->can('clients.force_delete') || $user->can('companies.force_delete');
     }
 }

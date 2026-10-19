@@ -6,7 +6,7 @@
     'accept' => 'image/png,image/jpeg,image/jpg,image/gif',
     'hint' => 'JPG، PNG أو GIF.',
     'required' => false,
-    'col' => 'col-12',
+    'col' => 'col-md-6',
 ])
 
 @php

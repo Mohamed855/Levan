@@ -6,7 +6,9 @@
     'required' => false,
     'multiple' => false,
     'help' => null,
-    'col' => 'col-sm-6',
+    'col' => 'col-md-6',
+    'wrapperId' => null,
+    'wrapperStyle' => null,
 ])
 
 @php
@@ -15,7 +17,7 @@
     $errorId = str_replace(['.', '[', ']'], '-', $fieldId) . '-error';
 @endphp
 
-<x-form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help" :col="$col">
+<x-form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help" :col="$col" :wrapper-id="$wrapperId" :wrapper-style="$wrapperStyle">
     <input
         id="{{ $fieldId }}"
         name="{{ $fieldName }}"
@@ -27,4 +29,5 @@
         aria-invalid="{{ $errors->has($name) ? 'true' : 'false' }}"
         {{ $attributes->class(['form-control', 'is-invalid' => $errors->has($name)]) }}
     >
+    {{ $slot }}
 </x-form.layout.field>

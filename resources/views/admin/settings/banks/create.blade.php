@@ -25,93 +25,27 @@
 
                     <div class="row g-4">
                         <!-- اسم البنك -->
-                        <div class="col-md-6">
-                            <label class="form-label" for="bank_name">
-                                <i class="ti ti-building-bank me-1"></i>
-                                اسم البنك
-                                <span class="text-danger">*</span>
-                            </label>
-                            <input type="text" class="form-control @error('bank_name') is-invalid @enderror"
-                                id="bank_name" name="bank_name" value="{{ old('bank_name') }}"
-                                placeholder="مثال: البنك الأهلي السعودي" required>
-                            @error('bank_name')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                        <!-- اسم البنك -->
+                        <x-form.controls.input name="bank_name" id="bank_name" label="اسم البنك"
+                            placeholder="مثال: البنك الأهلي السعودي" required col="col-md-6" />
 
                         <!-- اسم الحساب -->
-                        <div class="col-md-6">
-                            <label class="form-label" for="account_name">
-                                <i class="ti ti-user me-1"></i>
-                                اسم الحساب
-                                <span class="text-danger">*</span>
-                            </label>
-                            <input type="text" class="form-control @error('account_name') is-invalid @enderror"
-                                id="account_name" name="account_name" value="{{ old('account_name') }}"
-                                placeholder="مثال: شركة لوت للمزادات" required>
-                            @error('account_name')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                        <x-form.controls.input name="account_name" id="account_name" label="اسم الحساب"
+                            placeholder="مثال: شركة لوت للمزادات" required col="col-md-6" />
 
                         <!-- رقم الآيبان -->
-                        <div class="col-md-6">
-                            <label class="form-label" for="iban">
-                                <i class="ti ti-credit-card me-1"></i>
-                                رقم الآيبان (IBAN)
-                                <span class="text-danger">*</span>
-                            </label>
-                            <input type="text" class="form-control @error('iban') is-invalid @enderror" id="iban"
-                                name="iban" value="{{ old('iban') }}" placeholder="SA0000000000000000000000"
-                                maxlength="24" required>
-                            @error('iban')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                            <small class="text-muted">
-                                <i class="ti ti-info-circle me-1"></i>
-                                يجب أن يبدأ بـ SA ويتكون من 24 رقم
-                            </small>
-                        </div>
+                        <x-form.controls.input name="iban" id="iban" label="رقم الآيبان (IBAN)"
+                            placeholder="SA0000000000000000000000" maxlength="24"
+                            help="يجب أن يبدأ بـ SA ويتكون من 24 رقم" required col="col-md-6" />
 
                         <!-- رقم الحساب -->
-                        <div class="col-md-6">
-                            <label class="form-label" for="account_number">
-                                <i class="ti ti-numbers me-1"></i>
-                                رقم الحساب
-                                <span class="text-danger">*</span>
-                            </label>
-                            <input type="text" class="form-control @error('account_number') is-invalid @enderror"
-                                id="account_number" name="account_number" value="{{ old('account_number') }}"
-                                placeholder="مثال: 1234567890" required>
-                            @error('account_number')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                        <x-form.controls.input name="account_number" id="account_number" label="رقم الحساب"
+                            placeholder="مثال: 1234567890" required col="col-md-6" />
 
                         <!-- أيقونة البنك -->
-                        <div class="col-12">
-                            <label class="form-label" for="icon">
-                                <i class="ti ti-photo me-1"></i>
-                                أيقونة البنك
-                                <span class="text-danger">*</span>
-                            </label>
-                            <input type="file" class="form-control @error('icon') is-invalid @enderror" id="icon"
-                                name="icon" accept="image/jpeg,image/png,image/jpg,image/svg+xml"
-                                onchange="previewImage(event)" required>
-                            @error('icon')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                            <small class="text-muted d-block mt-1">
-                                <i class="ti ti-info-circle me-1"></i>
-                                الصيغ المسموحة: JPG, PNG, SVG | الحجم الأقصى: 2MB
-                            </small>
-
-                            <!-- معاينة الصورة -->
-                            <div id="imagePreview" class="mt-3" style="display: none;">
-                                <img id="preview" src="" alt="Preview"
-                                    style="max-width: 200px; border-radius: 0.5rem; border: 2px solid #e0e0e0;">
-                            </div>
-                        </div>
+                        <x-form.controls.file name="icon" id="icon" label="أيقونة البنك"
+                            accept="image/jpeg,image/png,image/jpg,image/svg+xml"
+                            help="الصيغ المسموحة: JPG, PNG, SVG | الحجم الأقصى: 2MB" required col="col-md-6" />
                     </div>
 
                     <!-- الأزرار -->

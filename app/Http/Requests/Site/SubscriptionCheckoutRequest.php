@@ -69,7 +69,6 @@ class SubscriptionCheckoutRequest extends FormRequest
 
             'billing_phone.required' => 'رقم الجوال مطلوب',
             'billing_phone.regex' => 'صيغة رقم الجوال غير صحيحة (يجب أن يبدأ بـ 05 أو 966)',
-            'billing_phone.unique' => 'رقم الجوال مستخدم بالفعل',
 
             'billing_password.required' => 'كلمة المرور مطلوبة',
             'billing_password.min' => 'كلمة المرور يجب أن تكون 8 أحرف على الأقل',

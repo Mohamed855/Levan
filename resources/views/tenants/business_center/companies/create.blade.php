@@ -28,7 +28,6 @@
                             <span class="bs-stepper-circle">1</span>
                             <span class="bs-stepper-label mt-1">
                                 <span class="bs-stepper-title">معلومات الشركة</span>
-                                <span class="bs-stepper-subtitle">البيانات الأساسية</span>
                             </span>
                         </button>
                     </div>
@@ -50,43 +49,22 @@
                         @csrf
 
                         <div id="company-info-validation" class="content">
-                            <div class="row">
+                            <div class="row g-4 mb-4">
                                 {{-- اسم الشركة --}}
-                                <div class="col-md-4 mb-4">
-                                    <label class="form-label" for="name">
-                                        اسم الشركة
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" name="name" id="name" class="form-control" required
-                                        placeholder="ادخل اسم الشركة" value="{{ old('name') }}" />
-                                </div>
-
-                                {{-- شعار الشركة --}}
-                                <div class="col-md-4 mb-4">
-                                    <label class="form-label" for="logo">
-                                        شعار الشركة
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="file" name="logo" id="logo" class="form-control" required
-                                        accept=".jpg,.jpeg,.png,.webp" />
-                                    <small class="text-muted d-block mt-1">
-                                        الأنواع: JPG, JPEG, PNG — الحجم الأقصى: 2MB
-                                    </small>
-                                </div>
+                                <x-form.controls.input name="name" id="name" label="اسم الشركة"
+                                    placeholder="ادخل اسم الشركة" :value="old('name')" required col="col-md-6" />
 
                                 {{-- نسبة المستهدف --}}
-                                <div class="col-md-4 mb-4">
-                                    <label class="form-label" for="target_percentage">
-                                        نسبة المستهدف الشهري (%)
-                                        <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="number" name="target_percentage" id="target_percentage"
-                                        class="form-control" placeholder="مثال: 10" value="{{ old('target_percentage') }}"
-                                        step="0.01" min="0" max="100" required />
-                                    <small class="text-muted d-block mt-1">
-                                        النسبة المئوية من إجمالي المحفظة (مثال: 10 تعني 10%)
-                                    </small>
-                                </div>
+                                <x-form.controls.input type="number" name="target_percentage" id="target_percentage"
+                                    label="نسبة المستهدف الشهري (%)" placeholder="مثال: 10" :value="old('target_percentage')"
+                                    step="0.01" min="0" max="100"
+                                    help="النسبة المئوية من إجمالي المحفظة (مثال: 10 تعني 10%)" required col="col-md-6" />
+
+                                {{-- شعار الشركة --}}
+                                <x-form.controls.image-upload name="logo" id="logo" label="شعار الشركة"
+                                    accept=".jpg,.jpeg,.png,.webp"
+                                    hint="الأنواع: JPG, JPEG, PNG — الحجم الأقصى: 2MB" required col="col-md-6" />
+                            </div>
 
                                 {{-- المفوضون --}}
                                 <div class="col-12 mb-4">

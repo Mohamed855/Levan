@@ -7,6 +7,7 @@ namespace App\Providers;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\AuctionTemplates\AuctionTemplate;
 use App\Models\Admin\Bank\Bank;
+use App\Models\Admin\Faq;
 use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\ControlDomain\ControlDomain;
 use App\Models\Admin\Coupons\Coupon;
@@ -26,6 +27,7 @@ use App\Models\Tenants\UserMangment\Team\Team;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Policies\Admin\AuctionTemplates\AuctionTemplatePolicy;
 use App\Policies\Admin\Bills\BillPolicy;
+use App\Policies\Admin\FaqPolicy;
 use App\Policies\Admin\Coupons\CouponPolicy;
 use App\Policies\Admin\Plans\PlanPolicy;
 use App\Policies\Admin\PublicRequests\ContactRequestPolicy;
@@ -58,9 +60,11 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
+        Faq::class => FaqPolicy::class,
         AuctionTemplate::class => AuctionTemplatePolicy::class,
         Plan::class => PlanPolicy::class,
         Tenant::class => TenantPolicy::class,
+        \App\Models\Admin\Client::class => \App\Policies\Admin\Clients\ClientPolicy::class,
         AdminUser::class => AdminUserPolicy::class,
         Coupon::class => CouponPolicy::class,
         Bank::class => BankPolicy::class,

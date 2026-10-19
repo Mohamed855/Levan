@@ -92,7 +92,7 @@
                             <x-form.controls.input name="end_date" type="date" label="تاريخ النهاية"
                                 :value="$assignment->end_date?->format('Y-m-d')" col="col-md-6" />
                             <x-form.controls.textarea name="notes" label="وصف الإسناد" :value="$assignment->notes"
-                                col="col-12" rows="4" />
+                                col="col-md-6" rows="4" />
 
                             <x-form.wizard.actions>
                                 <x-form.wizard.previous-button />

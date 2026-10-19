@@ -6,7 +6,7 @@
     'placeholder' => null,
     'required' => false,
     'help' => null,
-    'col' => 'col-sm-6',
+    'col' => 'col-md-6',
 ])
 
 @php

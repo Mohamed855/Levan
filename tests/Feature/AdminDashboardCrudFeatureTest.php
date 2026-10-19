@@ -726,6 +726,24 @@ class AdminDashboardCrudFeatureTest extends TestCase
             'address' => 'عنوان اختبار التحقق من خطوات النموذج',
         ])->assertOk()
             ->assertJson(['success' => true]);
+
+        $testPlan = Plan::query()->firstOrFail();
+        $this->postJson($stepUrl, [
+            'target_path' => "/admin/plans/{$testPlan->id}",
+            'target_method' => 'PUT',
+            '_method' => 'PUT',
+            'fields' => ['name_ar', 'price'],
+            'name_ar' => $testPlan->name_ar,
+            'price' => $testPlan->price,
+        ])->assertOk()->assertJson(['success' => true]);
+
+        $this->putJson($stepUrl, [
+            'target_path' => "/admin/plans/{$testPlan->id}",
+            'target_method' => 'PUT',
+            'fields' => ['name_ar', 'price'],
+            'name_ar' => $testPlan->name_ar,
+            'price' => $testPlan->price,
+        ])->assertOk()->assertJson(['success' => true]);
     }
 
     /**
@@ -733,8 +751,12 @@ class AdminDashboardCrudFeatureTest extends TestCase
      */
     public function test_admin_subscription_bill_and_ticket_actions_with_real_records(): void
     {
-        $tenant = Tenant::where('id', '!=', 'test')->first() ?? Tenant::create([
-            'id' => 'dummy_admin_'.uniqid(),
+        $tenantId = 'dummy_admin_'.uniqid();
+        $tenant = Tenant::first() ?? Tenant::create([
+            'id' => $tenantId,
+            'db_database' => $tenantId,
+            'db_username' => 'root',
+            'db_password' => '',
             'company_name' => 'شركة اختبار أدمن',
             'commercial_number' => (string) rand(1000000000, 9999999999),
             'tax_number' => '300000000000003',

@@ -15,8 +15,6 @@ use App\Http\Controllers\Admin\Bills\AdminBillsController;
 use App\Http\Controllers\Admin\DeleteBulk\AdminMassDeleteController;
 use App\Http\Requests\Admin\Auth\AdminTwoFactorChallengeRequest;
 use App\Http\Requests\Admin\Bills\RejectBillRequest;
-use App\Http\Requests\Admin\Companies\StoreCompanyRequest;
-use App\Http\Requests\Admin\Companies\UpdateCompanyRequest;
 use App\Http\Requests\Admin\Coupons\CouponRequest;
 use App\Http\Requests\Admin\DeleteBulk\MassDeleteRequest;
 use App\Http\Requests\Admin\Plans\PlanRequest;

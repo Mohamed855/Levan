@@ -77,29 +77,29 @@
                             ->toArray()" />
 
                     <x-form.controls.input name="start_date" type="date" label="تاريخ البداية" :value="$auction->start_date?->format('Y-m-d')" required
-                        col="col-md-3" />
+                        col="col-md-6" />
                     <x-form.controls.input name="start_time" type="time" label="وقت البداية" :value="$auction->start_time"
-                        col="col-md-3" />
+                        col="col-md-6" />
 
                     <x-form.controls.input name="end_date" type="date" label="تاريخ النهاية" :value="$auction->end_date?->format('Y-m-d')" required
-                        col="col-md-3" />
+                        col="col-md-6" />
                     <x-form.controls.input name="end_time" type="time" label="وقت النهاية" :value="$auction->end_time"
-                        col="col-md-3" />
+                        col="col-md-6" />
 
-                    <x-form.controls.select name="type" label="نوع المزاد" :value="$auction->type" required col="col-md-4"
+                    <x-form.controls.select name="type" label="نوع المزاد" :value="$auction->type" required col="col-md-6"
                         :enum="\App\Enums\Tenants\Auctions\AuctionType::class" />
 
                     <x-form.controls.select name="city" label="المدينة الرئيسية" :value="$auction->city" required
-                        col="col-md-4" :options="$cityOptions" />
+                        col="col-md-6" :options="$cityOptions" />
 
-                    <x-form.controls.select name="status" label="حالة المزاد" :value="$auction->status" col="col-md-4"
+                    <x-form.controls.select name="status" label="حالة المزاد" :value="$auction->status" col="col-md-6"
                         :enum="\App\Enums\Tenants\Auctions\AuctionStatus::class" />
 
                     <x-form.controls.input name="expected_properties_count" type="number" min="1"
-                        label="عدد العقارات المتوقع" :value="$auction->expected_properties_count" col="col-md-4" />
+                        label="عدد العقارات المتوقع" :value="$auction->expected_properties_count" col="col-md-6" />
 
                     <x-form.controls.select name="property_ids" id="property_ids" label="العقارات المرتبطة" multiple
-                        col="col-12" :value="$auction->properties->pluck('id')->all()"
+                        col="col-md-6" :value="$auction->properties->pluck('id')->all()"
                         help="يتغير الاختيار تلقائياً عند تغيير الإسناد، ولا يقبل النظام إلا عقارات الإسناد المختار."
                         :options="$properties
                             ->map(
@@ -114,33 +114,29 @@
                         col="col-md-6" />
                     <x-form.controls.input name="platform_name" label="منصة المزاد" :value="$auction->platform_name" col="col-md-6" />
                     <x-form.controls.input name="platform_url" type="url" label="رابط المزاد" :value="$auction->platform_url"
-                        col="col-12" />
+                        col="col-md-6" />
 
-                    <x-form.controls.textarea name="description" label="وصف المزاد" :value="$auction->description" col="col-12"
+                    <x-form.controls.textarea name="description" label="وصف المزاد" :value="$auction->description" col="col-md-6"
                         rows="3" />
-                    <x-form.controls.textarea name="notes" label="الملاحظات" :value="$auction->notes" col="col-12"
+                    <x-form.controls.textarea name="notes" label="الملاحظات" :value="$auction->notes" col="col-md-6"
                         rows="2" />
 
                     <div class="col-12">
                         <h6 class="fw-bold mb-1"><i class="ti ti-palette me-1"></i>القوالب التسويقية المعتمدة:</h6>
                     </div>
 
-                    <x-form.controls.select name="brochure_template_id" label="قالب البروشور" col="col-md-4"
+                    <x-form.controls.select name="brochure_template_id" label="قالب البروشور" col="col-md-6"
                         :value="$auction->brochure_template_id" :options="$brochureTemplates" placeholder="اختر قالب البروشور..." />
 
-                    <x-form.controls.select name="billboard_template_id" label="قالب اللوحة الإعلانية" col="col-md-4"
+                    <x-form.controls.select name="billboard_template_id" label="قالب اللوحة الإعلانية" col="col-md-6"
                         :value="$auction->billboard_template_id" :options="$billboardTemplates" placeholder="اختر قالب اللوحة..." />
 
-                    <x-form.controls.select name="social_template_id" label="قالب منصات التواصل" col="col-md-4"
+                    <x-form.controls.select name="social_template_id" label="قالب منصات التواصل" col="col-md-6"
                         :value="$auction->social_template_id" :options="$socialTemplates" placeholder="اختر قالب منصات التواصل..." />
 
-                    <div class="col-12" data-form-field data-field-name="attachments[]">
-                        <label class="form-label" for="attachments">إضافة مرفقات</label>
-                        <input id="attachments" type="file" name="attachments[]" multiple data-form-control
-                            class="form-control" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx">
-                        <p class="invalid-feedback hidden" data-form-error aria-live="polite" hidden></p>
-                        <div class="form-text">PDF، PNG، JPG، DOC أو XLS؛ الحد الأقصى لكل ملف 10MB.</div>
-                    </div>
+                    <x-form.controls.file name="attachments" id="attachments" label="إضافة مرفقات" multiple
+                        accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx"
+                        help="PDF، PNG، JPG، DOC أو XLS؛ الحد الأقصى لكل ملف 10MB." col="col-md-6" />
 
                     @if ($auction->attachments->isNotEmpty())
                         <div class="col-12">

@@ -46,11 +46,11 @@
                     <x-form.wizard.step id="basic-info-validation" :fields="['name', 'email', 'phone']">
                         <div class="row g-4">
                             <x-form.controls.input name="name" label="الاسم الكامل" placeholder="ادخل الاسم الكامل"
-                                required col="col-sm-6" />
+                                required col="col-md-6" />
                             <x-form.controls.input name="email" type="email" label="البريد الإلكتروني"
-                                placeholder="ادخل البريد الإلكتروني" autocomplete="off" required col="col-sm-6" />
+                                placeholder="ادخل البريد الإلكتروني" autocomplete="off" required col="col-md-6" />
                             <x-form.controls.input name="phone" label="رقم الهاتف" placeholder="05xxxxxxxx" maxlength="10"
-                                inputmode="numeric" required col="col-sm-6" />
+                                inputmode="numeric" required col="col-md-6" />
                         </div>
 
                         <x-form.wizard.actions>
@@ -65,10 +65,10 @@
                     <x-form.wizard.step id="security-info-validation" :fields="['password', 'password_confirmation', 'image']">
                         <div class="row g-4">
                             <x-form.controls.password name="password" label="كلمة المرور" placeholder="ادخل كلمة المرور"
-                                data-validation-dependents="password_confirmation" required col="col-sm-6" />
+                                data-validation-dependents="password_confirmation" required col="col-md-6" />
                             <x-form.controls.password name="password_confirmation" label="تأكيد كلمة المرور"
-                                placeholder="أعد إدخال كلمة المرور" required col="col-sm-6" />
-                            <x-form.controls.image-upload name="image" label="الصورة الشخصية" col="col-12" />
+                                placeholder="أعد إدخال كلمة المرور" required col="col-md-6" />
+                            <x-form.controls.image-upload name="image" label="الصورة الشخصية" col="col-md-6" />
                         </div>
 
                         <x-form.wizard.actions>

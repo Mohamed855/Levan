@@ -58,14 +58,14 @@
             </li>
         @endcan
 
-        @can('companies.view')
-            <li class="menu-item @if (Route::is('admin.companies.*')) active open @endif">
-                <a href="{{ route('admin.companies.index') }}" class="menu-link">
+        @if (auth()->user()?->can('clients.view') || auth()->user()?->can('companies.view'))
+            <li class="menu-item @if (Route::is('admin.clients.*')) active open @endif">
+                <a href="{{ route('admin.clients.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons ti ti-building"></i>
                     <div>إدارة العملاء</div>
                 </a>
             </li>
-        @endcan
+        @endif
 
         @can('activity_log.view')
             <li class="menu-item @if (Route::is('admin.activity-logs.*')) active open @endif">
@@ -106,6 +106,9 @@
                     <div>قوالب المزادات</div>
                 </a>
             </li>
+        @endcan
+        @can('faqs.view')
+            <li class="menu-item @if (Route::is('admin.faqs.*')) active open @endif"><a href="{{ route('admin.faqs.index') }}" class="menu-link"><i class="menu-icon tf-icons ti ti-help"></i><div>الأسئلة الشائعة</div></a></li>
         @endcan
 
         <li class="menu-header small">

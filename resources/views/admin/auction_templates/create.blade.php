@@ -45,30 +45,30 @@
                         <div class="row g-3">
                             {{-- Name --}}
                             <x-form.controls.input name="name" id="name" label="اسم القالب"
-                                placeholder="مثال: البروشور التسويقي الرسمي 2026" required col="col-md-7" />
+                                placeholder="مثال: البروشور التسويقي الرسمي 2026" required col="col-md-6" />
 
                             {{-- Type --}}
                             <x-form.controls.select name="type" id="type" label="نوع القالب" required
-                                :options="$typeOptions" col="col-md-5" />
+                                :options="$typeOptions" col="col-md-6" />
 
                             {{-- File Upload --}}
                             <x-form.controls.file name="file" id="file" label="ملف القالب (PDF أو صورة تصميم عالية الدقة)"
-                                accept=".pdf,application/pdf,image/png,image/jpeg,image/webp" required col="col-12"
+                                accept=".pdf,application/pdf,image/png,image/jpeg,image/webp" required col="col-md-6"
                                 help="يمكن رفع ملف PDF جاهز أو صورة تصميم عالية الدقة (PNG, JPG, WEBP). سيتم استخدامها تلقائياً كخلفية رسمية مع تركيب البيانات عليها بدقة 100%. الحد الأقصى 30 ميجابايت." />
 
                             {{-- Thumbnail Upload --}}
                             <x-form.controls.file name="thumbnail" id="thumbnail" label="صورة المعاينة (اختياري)"
-                                accept="image/png,image/jpeg,image/webp" col="col-12"
+                                accept="image/png,image/jpeg,image/webp" col="col-md-6"
                                 help="تُعرض للمستأجرين في شاشة إنشاء وتعديل المزاد لتسهيل اختيار القالب (في حال رفع صورة سيتم اعتمادها تلقائياً كمعاينة إذا تُرك هذا الحقل فارغاً)." />
 
                             {{-- Description --}}
                             <x-form.controls.textarea name="description" id="description"
                                 label="وصف القالب وملاحظات التصميم" rows="3"
-                                placeholder="ملاحظات حول أبعاد القالب أو الغرض منه..." col="col-12" />
+                                placeholder="ملاحظات حول أبعاد القالب أو الغرض منه..." col="col-md-6" />
 
                             {{-- Status Switch --}}
                             <x-form.controls.checkbox name="is_active" id="is_active"
-                                label="تفعيل القالب فور الحفظ وإتاحته للمستأجرين" :checked="true" col="col-12" />
+                                label="تفعيل القالب فور الحفظ وإتاحته للمستأجرين" :checked="true" col="col-md-6" />
 
                             {{-- Action Buttons: Draft and Save enclosed together inside d-flex gap-2 per Golden Pattern --}}
                             <div class="col-12 pt-3">

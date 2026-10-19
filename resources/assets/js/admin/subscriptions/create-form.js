@@ -687,7 +687,10 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!endpoint) return true;
 
         const payload = new FormData(form);
-        payload.append('target_path', new URL(form.action).pathname);
+        const targetMethod = (form.querySelector('input[name="_method"]')?.value || form.method || 'POST').toUpperCase();
+        payload.delete('_method');
+        payload.append('target_path', new URL(form.action, window.location.origin).pathname);
+        payload.append('target_method', targetMethod);
         fields.forEach(field => payload.append('fields[]', field));
 
         const response = await fetch(`${endpoint.replace(/\/$/, '')}/validate-step`, {

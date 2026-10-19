@@ -56,51 +56,31 @@
                                 placeholder="مثال: خصم اليوم الوطني" required col="col-md-6" />
 
                             <!-- الكود -->
-                            <div class="col-md-6" data-form-field data-field-name="code">
-                                <label for="code" class="form-label">كود الكوبون <span class="text-danger">*</span>
-                                    <small class="text-muted">سيتم تحويل الكود إلى أحرف كبيرة تلقائيًا</small>
-                                </label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control font-monospace" id="code" name="code"
-                                        value="{{ old('code', $coupon->code) }}" style="text-transform: uppercase;"
-                                        data-form-control required>
-                                    <button type="button" class="btn btn-secondary btn-generate-code"
-                                        id="btn-generate-code">
-                                        <i class="ti ti-wand"></i> توليد
-                                    </button>
-                                </div>
-                                <div id="code-error" class="invalid-feedback d-block" data-form-error role="alert" hidden>
-                                </div>
-                            </div>
+                            <x-form.controls.input name="code" id="code" label="كود الكوبون"
+                                help="سيتم تحويل الكود إلى أحرف كبيرة تلقائيًا"
+                                :value="$coupon->code" required col="col-md-6" :input-group="true"
+                                class="font-monospace" style="text-transform: uppercase;">
+                                <button type="button" class="btn btn-secondary btn-generate-code"
+                                    id="btn-generate-code">
+                                    <i class="ti ti-wand"></i> توليد
+                                </button>
+                            </x-form.controls.input>
 
                             <!-- نوع الخصم -->
                             <x-form.controls.select name="discount_type" id="discount_type" label="نوع الخصم" required
                                 :value="$discountTypeValue" col="col-md-6" :enum="\App\Enums\Admin\Coupons\CouponDiscountType::class" />
 
                             <!-- قيمة الخصم -->
-                            <div class="col-md-6" data-form-field data-field-name="discount_value">
-                                <label for="discount_value" class="form-label">قيمة الخصم <span id="discountUnit"></span>
-                                    <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" id="discount_value" name="discount_value"
-                                    value="{{ old('discount_value', $coupon->discount_value) }}" step="0.01"
-                                    min="0" data-form-control required>
-                                <div id="discount_value-error" class="invalid-feedback d-block" data-form-error
-                                    role="alert" hidden></div>
-                            </div>
+                            <x-form.controls.input type="number" name="discount_value" id="discount_value"
+                                label="قيمة الخصم" :value="$coupon->discount_value" step="0.01" min="0"
+                                required col="col-md-6" />
 
                             <!-- الحد الأقصى -->
-                            <div class="col-md-6" id="maxDiscountField"
-                                style="{{ $discountTypeValue === 'percentage' ? '' : 'display:none;' }}" data-form-field
-                                data-field-name="max_discount">
-                                <label for="max_discount" class="form-label">الحد الأقصى للخصم
-                                    <small class="text-muted">ينطبق فقط على النسبة المئوية</small>
-                                </label>
-                                <input type="number" class="form-control" id="max_discount" name="max_discount"
-                                    value="{{ old('max_discount', $coupon->max_discount) }}" step="0.01" min="0"
-                                    data-form-control>
-                                <div id="max_discount-error" class="invalid-feedback d-block" data-form-error role="alert"
-                                    hidden></div>
-                            </div>
+                            <x-form.controls.input type="number" name="max_discount" id="max_discount"
+                                wrapper-id="maxDiscountField"
+                                :wrapper-style="$discountTypeValue === 'percentage' ? '' : 'display:none;'"
+                                label="الحد الأقصى للخصم" help="ينطبق فقط على النسبة المئوية"
+                                :value="$coupon->max_discount" step="0.01" min="0" col="col-md-6" />
 
                             <!-- تاريخ الانتهاء -->
                             <x-form.controls.input type="date" name="expiry_date" id="expiry_date" label="تاريخ الانتهاء"

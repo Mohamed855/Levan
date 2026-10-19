@@ -28,7 +28,6 @@
                             <span class="bs-stepper-circle">1</span>
                             <span class="bs-stepper-label mt-1">
                                 <span class="bs-stepper-title">معلومات التذكرة</span>
-                                <span class="bs-stepper-subtitle">البيانات الأساسية</span>
                             </span>
                         </button>
                     </div>
@@ -52,45 +51,30 @@
 
                         <div id="info-validation" class="content">
                             <div class="row g-4">
-                                <div class="col-md-6" data-form-field data-field-name="title">
-                                    <label for="title" class="form-label">عنوان التذكرة <span
-                                            class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="title" name="title" data-form-control
-                                        value="{{ old('title') }}" placeholder="أدخل عنوان التذكرة" required>
-                                </div>
-                                <div class="col-md-6" data-form-field data-field-name="ticketing_sections_id">
-                                    <label for="ticketing_sections_id" class="form-label"> تصنيف التذكرة <span
-                                            class="text-danger">*</span></label>
-                                    <select class="form-select select2" id="ticketing_sections_id" data-form-control
-                                        name="ticketing_sections_id" required data-placeholder="اختر التصنيف">
-                                        <option value=""> </option>
-                                        @foreach ($sections as $section)
-                                            <option value="{{ $section['id'] ?? '' }}">{{ $section['name'] ?? '' }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                                <x-form.controls.input name="title" id="title" label="عنوان التذكرة"
+                                    placeholder="أدخل عنوان التذكرة" required col="col-md-6" />
 
-                                <div class="col-12" data-form-field data-field-name="description">
-                                    <label for="description" class="form-label">وصف المشكلة <span
-                                            class="text-danger">*</span></label>
-                                    <textarea class="form-control" id="description" name="description" data-form-control rows="5"
-                                        placeholder="اشرح تفاصيل المشكلة التي تواجهها..." required>{{ old('description') }}</textarea>
-                                </div>
+                                <x-form.controls.select name="ticketing_sections_id" id="ticketing_sections_id"
+                                    label="تصنيف التذكرة" placeholder="اختر التصنيف" required select2 col="col-md-6">
+                                    <option value=""> </option>
+                                    @foreach ($sections as $section)
+                                        <option value="{{ $section['id'] ?? '' }}" {{ old('ticketing_sections_id') == ($section['id'] ?? '') ? 'selected' : '' }}>{{ $section['name'] ?? '' }}</option>
+                                    @endforeach
+                                </x-form.controls.select>
 
-                                <div class="col-md-12" data-form-field data-field-name="attachments[]">
-                                    <label for="attachments" class="form-label">المرفقات (اختياري)</label>
-                                    <input type="file" class="form-control" id="attachments" name="attachments[]" data-form-control
-                                        multiple accept="image/*,application/pdf,.doc,.docx,.txt" onchange="previewFiles()">
-                                    <small class="text-muted">يمكنك رفع عدة صور أو ملفات (حد أقصى 5 ملفات، كل ملف حتى
-                                        5MB)</small>
+                                <x-form.controls.textarea name="description" id="description" label="وصف المشكلة" rows="5"
+                                    placeholder="اشرح تفاصيل المشكلة التي تواجهها..." required col="col-md-6" />
+
+                                <x-form.controls.file name="attachments" id="attachments" label="المرفقات (اختياري)"
+                                    multiple accept="image/*,application/pdf,.doc,.docx,.txt"
+                                    help="يمكنك رفع عدة صور أو ملفات (حد أقصى 5 ملفات، كل ملف حتى 5MB)"
+                                    onchange="previewFiles()" col="col-md-6">
                                     <div id="file-count" class="mt-2" style="display: none;">
                                         <span class="badge bg-primary">عدد الملفات المحددة: <span
                                                 id="count">0</span></span>
                                     </div>
-
-                                    <!-- Preview Container -->
                                     <div id="preview-container" class="preview-container"></div>
-                                </div>
+                                </x-form.controls.file>
                             </div>
 
                             <div class="col-12 d-flex justify-content-end mt-5">

@@ -342,6 +342,13 @@
                     desc="إليك أهم الأسئلة التي يطرحها عملاؤنا، لمساعدتك في التعرف على إمكانات النظام بكل وضوح." />
 
                 <div class="faq-grid">
+                    @foreach ($faqs as $faq)
+                    <div class="faq-item scroll-revealed">
+                        <div class="faq-icon-wrap"><i class="ti ti-help-circle"></i></div>
+                        <div class="faq-body"><h3 class="faq-question">{{ $faq->question }}</h3><p class="faq-answer">{{ $faq->answer }}</p></div>
+                    </div>
+                    @endforeach
+                    <div class="d-none" aria-hidden="true">
                     <!-- Q1 -->
                     <div class="faq-item scroll-revealed">
                         <div class="faq-icon-wrap">
@@ -424,6 +431,7 @@
                                 سلامة واكتمال السجلات.
                             </p>
                         </div>
+                    </div>
                     </div>
                 </div>
             </div>

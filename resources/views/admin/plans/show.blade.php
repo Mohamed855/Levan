@@ -519,10 +519,10 @@
                                                     </td>
                                                     <td>
                                                         <div class="d-flex align-items-center gap-1">
-                                                            {{-- رابط ملف الشركة --}}
-                                                            <a href="{{ route('admin.companies.show', $subscription->tenant_id) }}"
+                                                            {{-- رابط ملف العميل --}}
+                                                            <a href="{{ route('admin.clients.show', $subscription->tenant_id) }}"
                                                                 class="btn btn-icon btn-label-primary btn-sm"
-                                                                title="عرض ملف الشركة">
+                                                                title="عرض ملف العميل">
                                                                 <i class="ti ti-building"></i>
                                                             </a>
 

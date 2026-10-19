@@ -2,11 +2,6 @@
 
 namespace App\Models\Tenants\UserMangment\User;
 
-use App\Models\Tenants\BusinessCenter\Customers\Comment\CustomerComment;
-use App\Models\Tenants\BusinessCenter\Customers\Comment\CustomerCommentMention;
-use App\Models\Tenants\BusinessCenter\Customers\Customer;
-use App\Models\Tenants\BusinessCenter\Customers\Distribution\CustomerDistribution;
-use App\Models\Tenants\FinancialCollection\CollectionProcess\CollectionProcessSession;
 use App\Models\Tenants\UserMangment\Team\Team;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -238,63 +233,6 @@ class User extends Authenticatable
             : asset('static/brand/logos/logo.svg');
     }
 
-    // ///////////////////////////////////////////////////////////////////////
-
-    /**
-     * Get the customers managed by this user (as relationship manager).
-     */
-    public function managedCustomers()
-    {
-        return $this->hasMany(Customer::class, 'relationship_manager_id');
-    }
-
-    /**
-     * Get the distribution history for this collector.
-     */
-    public function distributionHistory()
-    {
-        return $this->hasMany(CustomerDistribution::class, 'collector_id');
-    }
-
-    /**
-     * Get distributions created by this user.
-     */
-    public function createdDistributions()
-    {
-        return $this->hasMany(CustomerDistribution::class, 'created_by');
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | العلاقات
-    |--------------------------------------------------------------------------
-    */
-    public function collectionProcessSessions()
-    {
-        return $this->hasMany(CollectionProcessSession::class);
-    }
-
-    /**
-     * Get collector workload statistics.
-     */
-    public function getCollectorWorkloadAttribute(): array
-    {
-        if (! $this->hasRole('collector')) {
-            return [
-                'customers_count' => 0,
-                'total_debt' => 0,
-                'distributions_count' => 0,
-            ];
-        }
-
-        return [
-            'customers_count' => $this->managedCustomers()->count(),
-            'total_debt' => $this->managedCustomers()->sum('debt_amount'),
-            'distributions_count' => $this->distributionHistory()->count(),
-            'last_distribution' => $this->distributionHistory()->latest()->first(),
-        ];
-    }
-    // /////////////////////////////////////////////////////////////////////////////////
 
     /*
     |--------------------------------------------------------------------------
@@ -316,25 +254,6 @@ class User extends Authenticatable
         $this->attributes['employee_number'] = strtoupper(trim($value));
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Custom Permission Check
-    |--------------------------------------------------------------------------
-    */
-    public function comments(): HasMany
-    {
-        return $this->hasMany(CustomerComment::class);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Mentions Relationship
-    |--------------------------------------------------------------------------
-    */
-    public function mentions(): HasMany
-    {
-        return $this->hasMany(CustomerCommentMention::class, 'mentioned_user_id');
-    }
 
     /*
     |--------------------------------------------------------------------------

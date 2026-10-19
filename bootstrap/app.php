@@ -10,7 +10,6 @@ use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\SecurityHeadersMiddleware;
 use App\Http\Middleware\Tenancy\CheckLimits\CheckDomainManagement;
 use App\Http\Middleware\Tenancy\CheckSubscription;
-use App\Http\Middleware\Tenancy\EnsureCustomerSubresourceOwnership;
 use App\Http\Middleware\Tenancy\EnsureTenantTwoFactorIsEnforced;
 use App\Http\Middleware\Tenancy\EnsureUserHasActiveLicense;
 use App\Http\Middleware\Tenancy\TenantDomainRedirect;
@@ -71,7 +70,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant.maintenance' => TenantMaintenance::class,
             'tenant.redirect' => TenantDomainRedirect::class,
             'tenant.2fa.force' => EnsureTenantTwoFactorIsEnforced::class,
-            'customer.subresource' => EnsureCustomerSubresourceOwnership::class,
             'prevent.central' => PreventAccessFromCentralDomains::class,
 
             'check.domain.management' => CheckDomainManagement::class,

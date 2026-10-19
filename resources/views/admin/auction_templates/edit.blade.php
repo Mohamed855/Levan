@@ -58,7 +58,7 @@
                             label="اسم القالب"
                             :value="$template->name"
                             required
-                            col="col-md-7"
+                            col="col-md-6"
                         />
 
                         {{-- Type --}}
@@ -69,11 +69,18 @@
                             required
                             :value="$template->type->value"
                             :options="$typeOptions"
-                            col="col-md-5"
+                            col="col-md-6"
                         />
 
                         {{-- File Upload (PDF or High-Res Image) --}}
-                        <div class="col-12">
+                        <x-form.controls.file
+                            name="file"
+                            id="file"
+                            label="استبدال ملف القالب (PDF أو صورة تصميم)"
+                            accept=".pdf,application/pdf,image/png,image/jpeg,image/webp"
+                            col="col-md-6"
+                            help="اتركه فارغاً للإبقاء على الملف الحالي. يمكنك رفع ملف PDF أو صورة بحد أقصى 30 ميجابايت."
+                        >
                             @if($template->file_url)
                                 @php
                                     $isPdf = str_ends_with(strtolower($template->file_path), '.pdf');
@@ -81,39 +88,30 @@
                                 <div class="mb-2 p-2 bg-light rounded d-flex align-items-center justify-content-between border">
                                     <div class="d-flex align-items-center">
                                         <i class="ti {{ $isPdf ? 'ti-file-type-pdf text-danger' : 'ti-photo text-primary' }} fs-3 me-2"></i>
-                                        <span class="text-heading small">الملف الحالي متاح وجاهز للتوليد التلقائي ({{ $isPdf ? 'مستند PDF' : 'صورة تصميم' }})</span>
+                                        <span class="text-heading small">الملف الحالي ({{ $isPdf ? 'PDF' : 'صورة' }})</span>
                                     </div>
                                     <a href="{{ $template->file_url }}" target="_blank" class="btn btn-xs btn-label-primary">
-                                        <i class="ti ti-external-link me-1"></i>معاينة الملف الحالي
+                                        <i class="ti ti-external-link me-1"></i>معاينة
                                     </a>
                                 </div>
                             @endif
-                            <x-form.controls.file
-                                name="file"
-                                id="file"
-                                label="استبدال ملف القالب (PDF أو صورة تصميم)"
-                                accept=".pdf,application/pdf,image/png,image/jpeg,image/webp"
-                                col="col-12"
-                                help="اتركه فارغاً للإبقاء على الملف الحالي. يمكنك رفع ملف PDF أو صورة (PNG/JPG/WEBP) بحد أقصى 30 ميجابايت."
-                            />
-                        </div>
+                        </x-form.controls.file>
 
                         {{-- Thumbnail Upload --}}
-                        <div class="col-12">
+                        <x-form.controls.file
+                            name="thumbnail"
+                            id="thumbnail"
+                            label="استبدال صورة المعاينة (اختياري)"
+                            accept="image/png,image/jpeg,image/webp"
+                            col="col-md-6"
+                            help="تُعرض للمستأجرين في شاشة إنشاء وتعديل المزاد لتسهيل اختيار القالب."
+                        >
                             @if($template->thumbnail_url)
                                 <div class="mb-2">
                                     <img src="{{ $template->thumbnail_url }}" alt="{{ $template->name }}" class="rounded-circle border p-1" style="width: 60px; height: 60px; object-fit: cover;">
                                 </div>
                             @endif
-                            <x-form.controls.file
-                                name="thumbnail"
-                                id="thumbnail"
-                                label="استبدال صورة المعاينة (اختياري)"
-                                accept="image/png,image/jpeg,image/webp"
-                                col="col-12"
-                                help="تُعرض للمستأجرين في شاشة إنشاء وتعديل المزاد لتسهيل اختيار القالب."
-                            />
-                        </div>
+                        </x-form.controls.file>
 
                         {{-- Description --}}
                         <x-form.controls.textarea
@@ -122,7 +120,7 @@
                             label="وصف القالب وملاحظات التصميم"
                             :value="$template->description"
                             rows="3"
-                            col="col-12"
+                            col="col-md-6"
                         />
 
                         {{-- Extracted Fields Summary --}}

@@ -219,70 +219,8 @@ class Company extends Model
         return $query->where($field, $value)->firstOrFail();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Company Targets Relationship
-    |--------------------------------------------------------------------------
-    */
-    public function targets()
-    {
-        return $this->hasMany(CompanyTarget::class)->orderBy('effective_from', 'desc');
-    }
-
-    public function currentTarget()
-    {
-        return $this->hasOne(CompanyTarget::class)
-            ->whereNull('effective_to')
-            ->latest('effective_from');
-    }
-
-    public function getCurrentTargetAttribute()
-    {
-        if (! Schema::hasTable('company_targets')) {
-            return null;
-        }
-
-        return $this->getRelationValue('currentTarget');
-    }
-
-    public function getTargetsAttribute()
-    {
-        if (! Schema::hasTable('company_targets')) {
-            return collect();
-        }
-
-        return $this->getRelationValue('targets');
-    }
-
-    public function getTargetForDate($date)
-    {
-        if (! Schema::hasTable('company_targets')) {
-            return null;
-        }
-
-        return $this->targets()->forDate($date)->first();
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Target Accessors
-    |--------------------------------------------------------------------------
-    */
     public function getCurrentTargetPercentageAttribute(): ?float
     {
-        if (! Schema::hasTable('company_targets')) {
-            return 0.0;
-        }
-
-        return $this->currentTarget?->target_percentage;
-    }
-
-    public function getTargetPercentageForDate($date): ?float
-    {
-        if (! Schema::hasTable('company_targets')) {
-            return 0.0;
-        }
-
-        return $this->getTargetForDate($date)?->target_percentage;
+        return 0.0;
     }
 }

@@ -51,61 +51,38 @@
                         <div id="info-validation" class="content">
                             <div class="row g-4">
                                 <!-- رقم الإصدار -->
-                                <div class="col-md-6">
-                                    <label for="version" class="form-label">رقم الإصدارة <span
-                                            class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="version" name="version"
-                                        value="{{ old('version') }}" placeholder="مثال: v2.0.0">
-                                </div>
+                                <x-form.controls.input name="version" id="version" label="رقم الإصدارة"
+                                    placeholder="مثال: v2.0.0" required col="col-md-6" />
 
                                 <!-- تاريخ الإصدار -->
-                                <div class="col-md-6">
-                                    <label for="released_at" class="form-label">تاريخ الإصدار</label>
-                                    <input type="date" class="form-control" id="released_at" name="released_at"
-                                        value="{{ old('released_at') }}">
-                                </div>
+                                <x-form.controls.input type="date" name="released_at" id="released_at" label="تاريخ الإصدار"
+                                    col="col-md-6" />
 
                                 <!-- سجل التغييرات -->
-                                <div class="col-12">
-                                    <label for="changelog" class="form-label">سجل التغييرات</label>
-                                    <textarea class="form-control" id="changelog" name="changelog" rows="4"
-                                        placeholder="مثال: - تحسين الأداء العام
-- إصلاح مشكلة تسجيل الدخول
-- تحديث واجهات المستخدم">{{ old('changelog') }}</textarea>
-                                </div>
+                                <x-form.controls.textarea name="changelog" id="changelog" label="سجل التغييرات" rows="4"
+                                    placeholder="مثال: - تحسين الأداء العام&#10;- إصلاح مشكلة تسجيل الدخول&#10;- تحديث واجهات المستخدم" col="col-md-6" />
 
-                                <div class="col-md-12">
-                                    <label for="file_path" class="form-label">مسار الإصدارة <span
-                                            class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="file_path" name="file_path"
-                                        placeholder="المسار يتم توفيره من قبل الفريق التقني " required>
-                                </div>
+                                <!-- مسار الإصدارة -->
+                                <x-form.controls.input name="file_path" id="file_path" label="مسار الإصدارة"
+                                    placeholder="المسار يتم توفيره من قبل الفريق التقني" required col="col-md-6" />
 
                                 <!-- المرحلة -->
-                                <div class="col-md-6">
-                                    <label for="stage" class="form-label">مرحلة الإصدار <span
-                                            class="text-danger">*</span></label>
-                                    <select id="stage" name="stage" class="form-select select2" required
-                                        data-placeholder="اختر المرحلة">
-                                        <option value=""> </option>
-                                        @foreach ($versionStages as $item)
-                                            <option value="{{ $item->value }}">
-                                                {{ $item->label() }} - ({{ $item->description() }})
-                                            </option>
-                                        @endforeach
-
-                                    </select>
-                                </div>
+                                <x-form.controls.select name="stage" id="stage" label="مرحلة الإصدار"
+                                    placeholder="اختر المرحلة" required select2 col="col-md-6">
+                                    <option value=""> </option>
+                                    @foreach ($versionStages as $item)
+                                        <option value="{{ $item->value }}">
+                                            {{ $item->label() }} - ({{ $item->description() }})
+                                        </option>
+                                    @endforeach
+                                </x-form.controls.select>
 
                                 <!-- الحالة -->
-                                <div class="col-md-6 mb-4">
-                                    <label for="is_active" class="form-label">حالة الإصدارة <span
-                                            class="text-danger">*</span></label>
-                                    <select id="is_active" name="is_active" class="form-select select2">
-                                        <option value="">اختر الحالة</option>
-                                        <x-form.controls.enum-options :enum="\App\Enums\Shared\ActivationStatus::class" :selected="old('is_active')" />
-                                    </select>
-                                </div>
+                                <x-form.controls.select name="is_active" id="is_active" label="حالة الإصدارة"
+                                    placeholder="اختر الحالة" required select2 col="col-md-6">
+                                    <option value="">اختر الحالة</option>
+                                    <x-form.controls.enum-options :enum="\App\Enums\Shared\ActivationStatus::class" :selected="old('is_active')" />
+                                </x-form.controls.select>
                             </div>
 
                             <x-form.wizard.actions>

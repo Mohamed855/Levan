@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::middleware('guest:admin')->group(function () {
-        Route::post('form-validation', [WizardDraftController::class, 'validateStep'])
+        Route::match(['post', 'put', 'patch'], 'form-validation', [WizardDraftController::class, 'validateStep'])
             ->defaults('shared_form_validation_actions', [
                 AdminAuthController::class . '@login',
             ])

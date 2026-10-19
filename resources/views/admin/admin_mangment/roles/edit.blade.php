@@ -42,7 +42,7 @@
                         @method('PUT')
 
                         <div class="row g-4">
-                            <x-form.controls.input name="name" label="اسم الدور" :value="old('name', $role->name)" required col="col-12" />
+                            <x-form.controls.input name="name" label="اسم الدور" :value="old('name', $role->name)" required col="col-md-6" />
                         </div>
 
                         <div class="mb-3">

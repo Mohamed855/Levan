@@ -7,7 +7,10 @@
     'placeholder' => null,
     'required' => false,
     'help' => null,
-    'col' => 'col-sm-6',
+    'col' => 'col-md-6',
+    'inputGroup' => false,
+    'wrapperId' => null,
+    'wrapperStyle' => null,
 ])
 
 @php
@@ -16,9 +19,20 @@
 @endphp
 
 <x-form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help"
-    :col="$col">
-    <input id="{{ $fieldId }}" name="{{ $name }}" type="{{ $type }}" value="{{ old($name, $value) }}"
-        @if ($placeholder) placeholder="{{ $placeholder }}" @endif data-form-control
-        aria-describedby="{{ $errorId }}" aria-invalid="{{ $errors->has($name) ? 'true' : 'false' }}"
-        {{ $attributes->class(['form-control', 'is-invalid' => $errors->has($name)]) }}>
+    :col="$col" :wrapper-id="$wrapperId" :wrapper-style="$wrapperStyle">
+    @if ($inputGroup)
+        <div class="input-group">
+            <input id="{{ $fieldId }}" name="{{ $name }}" type="{{ $type }}" value="{{ old($name, $value) }}"
+                @if ($placeholder) placeholder="{{ $placeholder }}" @endif data-form-control
+                aria-describedby="{{ $errorId }}" aria-invalid="{{ $errors->has($name) ? 'true' : 'false' }}"
+                {{ $attributes->class(['form-control', 'is-invalid' => $errors->has($name)]) }}>
+            {{ $slot }}
+        </div>
+    @else
+        <input id="{{ $fieldId }}" name="{{ $name }}" type="{{ $type }}" value="{{ old($name, $value) }}"
+            @if ($placeholder) placeholder="{{ $placeholder }}" @endif data-form-control
+            aria-describedby="{{ $errorId }}" aria-invalid="{{ $errors->has($name) ? 'true' : 'false' }}"
+            {{ $attributes->class(['form-control', 'is-invalid' => $errors->has($name)]) }}>
+        {{ $slot }}
+    @endif
 </x-form.layout.field>

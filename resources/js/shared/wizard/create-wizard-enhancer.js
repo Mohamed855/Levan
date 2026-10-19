@@ -84,7 +84,10 @@ async function validateOnServer(form, pane) {
   if (!draftUrl) return true;
 
   const payload = new FormData(form);
-  payload.append('target_path', new URL(form.action).pathname);
+  const targetMethod = (form.querySelector('input[name="_method"]')?.value || form.method || 'POST').toUpperCase();
+  payload.delete('_method');
+  payload.append('target_path', new URL(form.action, window.location.origin).pathname);
+  payload.append('target_method', targetMethod);
   fieldsIn(pane).forEach((field) => payload.append('fields[]', field.name));
 
   const response = await fetch(`${draftUrl.replace(/\/$/, '')}/validate-step`, {
@@ -287,6 +290,7 @@ async function restoreDraft(form) {
 
 async function saveDraft(form, pane, notify = true) {
   const payload = new FormData(form);
+  payload.delete('_method');
   const resourceKey = resourceKeyFor(form);
   payload.set('resource_key', resourceKey);
   payload.set('step', String(stepNumber(pane)));

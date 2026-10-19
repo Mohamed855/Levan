@@ -49,10 +49,10 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
     Route::prefix('wizard-drafts')->name('wizard-drafts.')->group(function () {
         Route::get('/', [WizardDraftController::class, 'show'])->name('index');
-        Route::post('/', [WizardDraftController::class, 'store'])->name('store');
+        Route::match(['post', 'put', 'patch'], '/', [WizardDraftController::class, 'store'])->name('store');
         Route::delete('/', [WizardDraftController::class, 'destroy'])->name('destroy');
         Route::delete('file', [WizardDraftController::class, 'destroyFile'])->name('file.destroy');
-        Route::post('validate-step', [WizardDraftController::class, 'validateStep'])
+        Route::match(['post', 'put', 'patch'], 'validate-step', [WizardDraftController::class, 'validateStep'])
             ->defaults('shared_form_validation_actions', [
                 UserController::class.'@store',
                 UserController::class.'@update',

@@ -89,8 +89,11 @@ class PermissionsRolesSeeder extends Seeder
             'clients_management' => [
                 'clients.view',
                 'clients.create',
+                'clients.show',
                 'clients.edit',
                 'clients.delete',
+                'clients.restore',
+                'clients.force_delete',
             ],
 
             'versions_management' => [
@@ -114,6 +117,13 @@ class PermissionsRolesSeeder extends Seeder
                 'auction_templates.delete',
                 'auction_templates.restore',
                 'auction_templates.force_delete',
+            ],
+
+            'faqs_management' => [
+                'faqs.view',
+                'faqs.create',
+                'faqs.edit',
+                'faqs.delete',
             ],
 
             'system_management' => [

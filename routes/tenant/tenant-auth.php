@@ -18,7 +18,7 @@ Route::get('impersonate', [AuthenticatedSessionController::class, 'impersonate']
     ->name('impersonate');
 
 Route::middleware('guest:tenant')->group(function () {
-    Route::post('form-validation', [WizardDraftController::class, 'validateStep'])
+    Route::match(['post', 'put', 'patch'], 'form-validation', [WizardDraftController::class, 'validateStep'])
         ->defaults('shared_form_validation_actions', [
             AuthenticatedSessionController::class . '@store',
             RegisteredUserController::class . '@store',
