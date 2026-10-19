@@ -15,6 +15,8 @@ use App\Http\Controllers\Admin\Bills\AdminBillsController;
 use App\Http\Controllers\Admin\DeleteBulk\AdminMassDeleteController;
 use App\Http\Requests\Admin\Auth\AdminTwoFactorChallengeRequest;
 use App\Http\Requests\Admin\Bills\RejectBillRequest;
+use App\Http\Requests\Admin\Clients\StoreClientRequest;
+use App\Http\Requests\Admin\Clients\UpdateClientRequest;
 use App\Http\Requests\Admin\Coupons\CouponRequest;
 use App\Http\Requests\Admin\DeleteBulk\MassDeleteRequest;
 use App\Http\Requests\Admin\Plans\PlanRequest;
@@ -107,8 +109,8 @@ class SuperAdminContractTest extends TestCase
     {
         $requests = [
             PlanRequest::class,
-            StoreCompanyRequest::class,
-            UpdateCompanyRequest::class,
+            StoreClientRequest::class,
+            UpdateClientRequest::class,
             StoreSubscriptionRequest::class,
             CouponRequest::class,
         ];
@@ -273,11 +275,11 @@ class SuperAdminContractTest extends TestCase
             'app/Http/Requests/Admin/AdminMangment/Users/CheckAdminUserEmailUniqueRequest.php' => 'users.create',
             'app/Http/Requests/Admin/AdminMangment/Users/CheckAdminUserNameUniqueRequest.php' => 'users.create',
             'app/Http/Requests/Admin/AdminMangment/Users/CheckAdminUserPhoneUniqueRequest.php' => 'users.create',
-            'app/Http/Requests/Admin/Companies/CheckAdminEmailUniqueRequest.php' => 'companies.create',
-            'app/Http/Requests/Admin/Companies/CheckAdminPhoneUniqueRequest.php' => 'companies.create',
-            'app/Http/Requests/Admin/Companies/CheckCommercialNumberUniqueRequest.php' => 'companies.create',
-            'app/Http/Requests/Admin/Companies/CheckCompanyNameUniqueRequest.php' => 'companies.create',
-            'app/Http/Requests/Admin/Companies/CheckTaxNumberUniqueRequest.php' => 'companies.create',
+            'app/Http/Requests/Admin/Clients/CheckAdminEmailUniqueRequest.php' => 'clients.create',
+            'app/Http/Requests/Admin/Clients/CheckAdminPhoneUniqueRequest.php' => 'clients.create',
+            'app/Http/Requests/Admin/Clients/CheckCommercialNumberUniqueRequest.php' => 'clients.create',
+            'app/Http/Requests/Admin/Clients/CheckCompanyNameUniqueRequest.php' => 'clients.create',
+            'app/Http/Requests/Admin/Clients/CheckTaxNumberUniqueRequest.php' => 'clients.create',
         ] as $path => $permission) {
             $request = file_get_contents($projectRoot.'/'.$path);
 
