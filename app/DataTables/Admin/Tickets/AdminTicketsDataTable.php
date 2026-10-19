@@ -26,11 +26,10 @@ class AdminTicketsDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'id', 'name' => 'id', 'visible' => false],
             [
                 'data' => 'checkbox',
                 'name' => 'checkbox',
-                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
+                'title' => '<input type="checkbox" id="select-all">',
                 'orderable' => false,
                 'searchable' => false,
                 'className' => 'custom-checkbox',
@@ -116,7 +115,7 @@ class AdminTicketsDataTable extends AbstractDataTable
 
     protected function getCustomOrder(): array
     {
-        return [1, 'desc'];
+        return [2, 'desc'];
     }
 
     protected function buttons(): array

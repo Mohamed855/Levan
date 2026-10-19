@@ -3,11 +3,11 @@
 @section('title', 'الأدوار والصلاحيات')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss'])
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js'])
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
     {!! $dataTable->scripts() !!}
 @endsection
 
@@ -17,6 +17,53 @@
 
 @section('page-style')
     @vite(['resources/css/dataTable.css'])
+@endsection
+
+@section('page-script')
+    <script>
+        window.routes = {
+            massDelete: "{{ route('admin.mass-delete') }}",
+        };
+
+        $(function () {
+            const tableWrapper = $('#roles-table_wrapper');
+
+            tableWrapper.on('click', '#select-all', function () {
+                const table = $('#roles-table').DataTable();
+                $('.row-checkbox', table.rows({ search: 'applied' }).nodes()).prop('checked', this.checked);
+            });
+
+            tableWrapper.on('change', '.row-checkbox', function () {
+                if (!this.checked) {
+                    $('#select-all').prop('checked', false);
+                }
+            });
+
+            $('#roles-table').on('draw.dt', function () {
+                $('#select-all').prop('checked', false);
+            });
+        });
+
+        function handleMassDelete() {
+            const selectedIds = [];
+            $('.row-checkbox:checked').each(function () {
+                selectedIds.push($(this).val());
+            });
+
+            if (selectedIds.length === 0) {
+                if (typeof toastr !== 'undefined') {
+                    toastr.warning('يرجى تحديد دور واحد على الأقل');
+                }
+                return;
+            }
+
+            if (typeof confirmDeleteSelectedmss === 'function') {
+                confirmDeleteSelectedmss(selectedIds, window.routes.massDelete, 'Role');
+            }
+        }
+
+        window.handleMassDelete = handleMassDelete;
+    </script>
 @endsection
 
 @section('content')

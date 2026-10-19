@@ -47,6 +47,15 @@ return [
             'report' => false,
         ],
 
+        'central_public' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public'),
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
+
         'tenant_public' => [
             'driver'     => 'local',
             'root'       => env('TENANT_STORAGE_ROOT', storage_path('app/tenants')),

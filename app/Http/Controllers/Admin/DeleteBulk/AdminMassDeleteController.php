@@ -8,17 +8,22 @@ use App\Actions\Admin\MassDelete\DeleteAdminRecordsAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\DeleteBulk\MassDeleteRequest;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
+use App\Models\Admin\AuctionTemplates\AuctionTemplate;
+use App\Models\Admin\Bank\Bank;
 use App\Models\Admin\Bills\Bill;
-use App\Models\Admin\ContentManagement\Client;
-use App\Models\Admin\ContentManagement\Portfolio;
+use App\Models\Admin\ControlDomain\ControlDomain;
 use App\Models\Admin\Coupons\Coupon;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Admin\Tickets\Ticket;
+use App\Models\Admin\Version\Version;
+use App\Models\Admin\Version\VersionTester;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Spatie\Activitylog\Models\Activity;
+use Spatie\Permission\Models\Role;
 
 class AdminMassDeleteController extends Controller
 {
@@ -56,13 +61,33 @@ class AdminMassDeleteController extends Controller
             'class' => AdminUser::class,
             'permission' => 'users.delete',
         ],
-        'Client' => [
-            'class' => Client::class,
-            'permission' => 'clients.delete',
+        'AuctionTemplate' => [
+            'class' => AuctionTemplate::class,
+            'permission' => 'auction_templates.delete',
         ],
-        'Portfolio' => [
-            'class' => Portfolio::class,
-            'permission' => 'clients.delete',
+        'Role' => [
+            'class' => Role::class,
+            'permission' => 'roles.delete',
+        ],
+        'Bank' => [
+            'class' => Bank::class,
+            'permission' => 'bank_settings.view',
+        ],
+        'ControlDomain' => [
+            'class' => ControlDomain::class,
+            'permission' => 'domain_extension_prices.settings',
+        ],
+        'Version' => [
+            'class' => Version::class,
+            'permission' => 'versions.delete',
+        ],
+        'VersionTester' => [
+            'class' => VersionTester::class,
+            'permission' => 'version_testers.delete',
+        ],
+        'Activity' => [
+            'class' => Activity::class,
+            'permission' => 'activity_log.view',
         ],
     ];
 

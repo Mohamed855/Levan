@@ -20,6 +20,11 @@
 @endsection
 
 @section('page-script')
+    <script>
+        window.routes = {
+            massDelete: "{{ route('admin.mass-delete') }}",
+        };
+    </script>
     @vite(['resources/assets/js/admin/subscriptions/index.js'])
 @endsection
 
@@ -69,6 +74,9 @@
             ) !!}
         </div>
     </div>
+
+    {{-- Confirmation Modal for Accept/Reject --}}
+    @include('admin.subscription_manage.partials.confirm_modal')
 @endsection
 
 @push('scripts')

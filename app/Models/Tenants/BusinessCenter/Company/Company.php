@@ -2,8 +2,6 @@
 
 namespace App\Models\Tenants\BusinessCenter\Company;
 
-use App\Models\Tenants\BusinessCenter\Customers\Customer;
-use App\Models\Tenants\BusinessCenter\Portfolio\Portfolio;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -187,15 +185,7 @@ class Company extends Model
     |--------------------------------------------------------------------------
     | Define model relationships with other entities.
     */
-    public function portfolios()
-    {
-        return $this->hasMany(Portfolio::class);
-    }
 
-    public function customers()
-    {
-        return $this->hasMany(Customer::class);
-    }
 
     public function authorizedPeople()
     {

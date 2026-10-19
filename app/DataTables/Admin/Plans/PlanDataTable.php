@@ -30,7 +30,6 @@ class PlanDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
             ['data' => 'sort_order', 'name' => 'sort_order', 'title' => 'الترتيب', 'width' => '70px', 'className' => 'text-center plan-sort-order'],
             ['data' => 'code', 'name' => 'code', 'title' => 'الكود', 'className' => 'text-center'],
@@ -307,7 +306,7 @@ class PlanDataTable extends AbstractDataTable
 
     protected function getCustomOrder(): array
     {
-        return [2, 'asc']; // Sort by sort_order
+        return [1, 'asc']; // Sort by sort_order
     }
 
     protected function buttons(): array

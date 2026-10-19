@@ -232,13 +232,13 @@
                             </div>
 
                             <x-form.controls.select name="brochure_template_id" label="قالب البروشور" col="col-md-4"
-                                :enum="\App\Enums\Tenants\Auctions\BrochureTemplate::class" />
+                                :options="$brochureTemplates" placeholder="اختر قالب البروشور..." />
 
                             <x-form.controls.select name="billboard_template_id" label="قالب اللوحة الإعلانية"
-                                col="col-md-4" :enum="\App\Enums\Tenants\Auctions\BillboardTemplate::class" />
+                                col="col-md-4" :options="$billboardTemplates" placeholder="اختر قالب اللوحة..." />
 
                             <x-form.controls.select name="social_template_id" label="قالب منصات التواصل" col="col-md-4"
-                                :enum="\App\Enums\Tenants\Auctions\SocialTemplate::class" />
+                                :options="$socialTemplates" placeholder="اختر قالب منصات التواصل..." />
 
                             <div class="col-12 mt-4 border-top pt-3">
                                 <h6 class="fw-bold mb-3"><i class="ti ti-paperclip me-1"></i>مرفقات ووثائق المزاد:</h6>

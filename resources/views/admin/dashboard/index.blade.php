@@ -56,7 +56,7 @@
         <div class="col-md-6">
             <x-admin.dashboard-panel class="h-100" title="استخدام المنصة" icon="ti-chart-bar">
                 <x-slot:headerAction>
-                    <select id="platform-activity-range" class="form-select select2 chart-range-select w-25">
+                    <select id="platform-activity-range" class="form-select select2 chart-range-select" style="max-width: 250px;">
                         <x-form.controls.enum-options :enum="\App\Enums\Admin\Dashboard\ActivityRange::class" :selected="null" />
                     </select>
                 </x-slot:headerAction>

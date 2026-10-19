@@ -10,8 +10,6 @@ use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\Bank\Bank;
 use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\City;
-use App\Models\Admin\ContentManagement\Client;
-use App\Models\Admin\ContentManagement\Portfolio;
 use App\Models\Admin\ControlDomain\ControlDomain;
 use App\Models\Admin\Coupons\Coupon;
 use App\Models\Admin\Plans\Plan;
@@ -735,7 +733,12 @@ class AdminDashboardCrudFeatureTest extends TestCase
      */
     public function test_admin_subscription_bill_and_ticket_actions_with_real_records(): void
     {
-        $tenant = Tenant::findOrFail('test');
+        $tenant = Tenant::where('id', '!=', 'test')->first() ?? Tenant::create([
+            'id' => 'dummy_admin_'.uniqid(),
+            'company_name' => 'شركة اختبار أدمن',
+            'commercial_number' => (string) rand(1000000000, 9999999999),
+            'tax_number' => '300000000000003',
+        ]);
         $plan = Plan::query()->firstOrFail();
 
         $createSubscription = function () use ($tenant, $plan): Subscription {
@@ -1143,73 +1146,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $this->assertDatabaseMissing('versions', ['id' => $version->id]);
     }
 
-    /**
-     * Test 9: Content Management (Clients & Portfolios) CRUD Lifecycle
-     */
-    public function test_admin_content_management_crud_lifecycle(): void
-    {
-        Storage::fake('public');
 
-        // === A. Clients ===
-        $this->get($this->adminUrl('content-management/client'))->assertStatus(200);
-        $this->get($this->adminUrl('content-management/client/create'))->assertStatus(200);
-
-        $clientName = 'شركة عقارية '.rand(100, 999);
-        $storeClientResponse = $this->post($this->adminUrl('content-management/client'), [
-            'name' => $clientName,
-            'status' => 1,
-            'logo' => UploadedFile::fake()->image('client.png', 100, 100),
-        ]);
-        $storeClientResponse->assertStatus(302);
-
-        $client = Client::where('name', $clientName)->first();
-        $this->assertNotNull($client);
-
-        $this->get($this->adminUrl("content-management/client/{$client->id}"))->assertStatus(200);
-        $this->get($this->adminUrl("content-management/client/{$client->id}/edit"))->assertStatus(200);
-
-        $this->put($this->adminUrl("content-management/client/{$client->id}"), [
-            'name' => $clientName.' معدل',
-            'status' => 1,
-        ])->assertStatus(302);
-
-        $this->patchJson($this->adminUrl("content-management/client/{$client->id}/toggle-status"))
-            ->assertStatus(200)
-            ->assertJson(['success' => true]);
-
-        $this->delete($this->adminUrl("content-management/client/{$client->id}"))->assertStatus(302);
-        $this->assertDatabaseMissing('clients', ['id' => $client->id]);
-
-        // === B. Portfolios ===
-        $this->get($this->adminUrl('content-management/portfolio'))->assertStatus(200);
-        $this->get($this->adminUrl('content-management/portfolio/create'))->assertStatus(200);
-
-        $portfolioName = 'مشروع عقاري '.rand(100, 999);
-        $storePortfolioResponse = $this->post($this->adminUrl('content-management/portfolio'), [
-            'name' => $portfolioName,
-            'status' => 1,
-            'logo' => UploadedFile::fake()->image('project.png', 100, 100),
-        ]);
-        $storePortfolioResponse->assertStatus(302);
-
-        $contentPortfolio = Portfolio::where('name', $portfolioName)->first();
-        $this->assertNotNull($contentPortfolio);
-
-        $this->get($this->adminUrl("content-management/portfolio/{$contentPortfolio->id}"))->assertStatus(200);
-        $this->get($this->adminUrl("content-management/portfolio/{$contentPortfolio->id}/edit"))->assertStatus(200);
-
-        $this->put($this->adminUrl("content-management/portfolio/{$contentPortfolio->id}"), [
-            'name' => $portfolioName.' معدل',
-            'status' => 1,
-        ])->assertStatus(302);
-
-        $this->patchJson($this->adminUrl("content-management/portfolio/{$contentPortfolio->id}/toggle-status"))
-            ->assertStatus(200)
-            ->assertJson(['success' => true]);
-
-        $this->delete($this->adminUrl("content-management/portfolio/{$contentPortfolio->id}"))->assertStatus(302);
-        $this->assertDatabaseMissing('portfolios', ['id' => $contentPortfolio->id]);
-    }
 
     /**
      * Test 10: Activity Logs & DataTables AJAX endpoints across all admin modules
@@ -1235,8 +1172,6 @@ class AdminDashboardCrudFeatureTest extends TestCase
             'bills',
             'versions',
             'version_testers',
-            'content-management/client',
-            'content-management/portfolio',
             'archives',
             'archives/plans',
             'archives/coupons',

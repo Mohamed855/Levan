@@ -64,8 +64,8 @@ class UsersDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'orderable' => false, 'searchable' => false, 'title' => ''],
             ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
+            ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'orderable' => false, 'searchable' => false, 'title' => ''],
             ['data' => 'image', 'name' => 'image', 'title' => 'الصورة', 'orderable' => false, 'searchable' => false],
             ['data' => 'name', 'name' => 'name', 'title' => 'الاسم'],
             ['data' => 'employee_number', 'name' => 'employee_number', 'title' => 'الرقم الوظيفي'],

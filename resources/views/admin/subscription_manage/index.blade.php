@@ -20,21 +20,21 @@
 @endsection
 @section('page-script')
     <script>
-        window.routes = {
-            massDelete: "{{ route('admin.mass-delete') }}",
-            acceptSubscription: "{{ route('admin.subscriptionManage.accept', ':id') }}",
-            rejectSubscription: "{{ route('admin.subscriptionManage.reject', ':id') }}",
-            massAccept: "{{ route('admin.subscriptionManage.mass-accept') }}",
-            massReject: "{{ route('admin.subscriptionManage.mass-reject') }}"
-        };
+        window.routes = Object.assign({}, window.routes || {}, {
+            massDelete: "{{ route('admin.mass-delete', [], false) }}",
+            acceptSubscription: "{{ route('admin.subscriptionManage.accept', ':id', false) }}",
+            rejectSubscription: "{{ route('admin.subscriptionManage.reject', ':id', false) }}",
+            massAccept: "{{ route('admin.subscriptionManage.mass-accept', [], false) }}",
+            massReject: "{{ route('admin.subscriptionManage.mass-reject', [], false) }}"
+        });
     </script>
     @vite(['resources/assets/js/admin/subscriptions/index.js'])
 @endsection
 
 @section('content')
     @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
+        <div class="alert alert-danger mb-4">
+            <ul class="mb-0">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -42,21 +42,22 @@
         </div>
     @endif
 
-    @if (!($isExpiringPage ?? false) && !($isPendingPage ?? false) && !($isExpiredPage ?? false))
-        <div class="row g-4 mb-4">
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="إجمالي الشركات" :value="$totalSubscriptions"
-                subtitle="عدد جميع الشركات" icon="ti-building" color="primary" />
+    <div class="row g-4 mb-4">
+        <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي الاشتراكات" :value="$totalSubscriptions ?? 0"
+            subtitle="جميع اشتراكات الشركات" icon="ti-packages" color="primary" />
 
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="الشركات الفعالة" :value="$activeSubscriptions"
-                subtitle="شركات فعالة حاليًا" icon="ti-bolt" color="success" />
+        <x-ui.stat-card col="col-sm-6 col-xl" title="الاشتراكات النشطة" :value="$activeSubscriptions ?? 0"
+            subtitle="اشتراكات سارية حالياً" icon="ti-circle-check" color="success" />
 
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="الشركات المعلقة" :value="$pendingSubscriptions"
-                subtitle="لم تتم الموافقة عليها بعد" icon="ti-alert-circle" color="warning" />
+        <x-ui.stat-card col="col-sm-6 col-xl" title="طلبات جديدة معلقة" :value="$pendingSubscriptions ?? 0"
+            subtitle="بانتظار الموافقة" icon="ti-clock-pause" color="warning" />
 
-            <x-ui.stat-card col="col-sm-6 col-xl-3" title="الشركات المنتهية" :value="$expiredSubscriptions"
-                subtitle="أوقف اشتراكها أو انتهت مدته" icon="ti-clock-pause" color="danger" />
-        </div>
-    @endif
+        <x-ui.stat-card col="col-sm-6 col-xl" title="تقارب على الانتهاء" :value="$expiringSubscriptions ?? 0"
+            subtitle="خلال 30 يوماً" icon="ti-alert-triangle" color="info" />
+
+        <x-ui.stat-card col="col-sm-6 col-xl" title="الاشتراكات المنتهية" :value="$expiredSubscriptions ?? 0"
+            subtitle="انتهت صلاحيتها" icon="ti-clock-x" color="danger" />
+    </div>
 
     @if (!($isPendingPage ?? false) && !($isExpiringPage ?? false) && !($isExpiredPage ?? false))
         {{-- Filters Card --}}

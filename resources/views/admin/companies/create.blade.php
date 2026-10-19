@@ -38,7 +38,7 @@
     @if (!empty($trialPrefill))
         <script>
             window.trialPrefill = @json($trialPrefill);
-            document.addEventListener('DOMContentLoaded', function () {
+            document.addEventListener('DOMContentLoaded', function() {
                 Object.entries(window.trialPrefill).forEach(([name, value]) => {
                     const input = document.querySelector(`[name="${name}"]`);
                     if (input && !input.value) input.value = value;
@@ -81,10 +81,10 @@
                         <div class="row g-4">
                             <x-form.controls.input name="company_name" label="اسم الشركة"
                                 placeholder="مثال: شركة التطوير العقاري" maxlength="255" required col="col-md-6" />
-                            <x-form.controls.input name="commercial_number" label="رقم السجل التجاري" placeholder="10 أرقام"
-                                maxlength="10" inputmode="numeric" pattern="[0-9]*" data-digits-only required
-                                col="col-md-6" />
-                            <x-form.controls.input name="tax_number" label="الرقم الضريبي" placeholder="15 رقم"
+                            <x-form.controls.input name="commercial_number" label="رقم السجل التجاري"
+                                placeholder="1010XXXXXX" maxlength="10" inputmode="numeric" pattern="[0-9]*"
+                                data-digits-only required col="col-md-6" />
+                            <x-form.controls.input name="tax_number" label="الرقم الضريبي" placeholder="300XXXXXXXXXXXX"
                                 maxlength="15" inputmode="numeric" pattern="[0-9]*" data-digits-only required
                                 col="col-md-6" />
                             <x-form.controls.select name="city_id" label="المدينة" :options="$cities"

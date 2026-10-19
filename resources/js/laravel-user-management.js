@@ -37,7 +37,6 @@ $(function () {
       },
       columns: [
         // columns according to JSON
-        { data: '' },
         { data: 'id' },
         { data: 'name' },
         { data: 'email' },
@@ -46,27 +45,16 @@ $(function () {
       ],
       columnDefs: [
         {
-          // For Responsive
-          className: 'text-center',
           searchable: false,
           orderable: false,
-          responsivePriority: 2,
           targets: 0,
-          render: function (data, type, full, meta) {
-            return '';
-          }
-        },
-        {
-          searchable: false,
-          orderable: false,
-          targets: 1,
           render: function (data, type, full, meta) {
             return `<span>${full.fake_id}</span>`;
           }
         },
         {
           // User full name
-          targets: 2,
+          targets: 1,
           responsivePriority: 4,
           render: function (data, type, full, meta) {
             var $name = full['name'];
@@ -322,39 +310,8 @@ $(function () {
           }
         }
       ],
-      // For responsive popup
-      responsive: {
-        details: {
-          display: $.fn.dataTable.Responsive.display.modal({
-            header: function (row) {
-              var data = row.data();
-              return 'Details of ' + data['name'];
-            }
-          }),
-          type: 'inline',
-          renderer: function (api, rowIdx, columns) {
-            var data = $.map(columns, function (col, i) {
-              return col.title !== '' // ? Do not show row in modal popup if title is blank (for check box)
-                ? '<tr data-dt-row="' +
-                    col.rowIndex +
-                    '" data-dt-column="' +
-                    col.columnIndex +
-                    '">' +
-                    '<td>' +
-                    col.title +
-                    ':' +
-                    '</td> ' +
-                    '<td>' +
-                    col.data +
-                    '</td>' +
-                    '</tr>'
-                : '';
-            }).join('');
-
-            return data ? $('<table class="table"/><tbody />').append(data) : false;
-          }
-        }
-      }
+      // Responsive disabled
+      responsive: false
     });
   }
 

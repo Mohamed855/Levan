@@ -51,7 +51,6 @@ final class PublicRequestsGoldenPatternTest extends TestCase
         $views = [
             $root . '/resources/views/tenants/assignments/index.blade.php',
             $root . '/resources/views/tenants/auctions/index.blade.php',
-            $root . '/resources/views/tenants/reports/executive/index.blade.php',
         ];
 
         foreach ($views as $view) {

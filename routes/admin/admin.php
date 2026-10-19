@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ActivityLog\AdminActivityLogController;
 use App\Http\Controllers\Admin\AdminMangment\Roles\AdminRoleController;
 use App\Http\Controllers\Admin\AdminMangment\Users\AdminUserController;
+use App\Http\Controllers\Admin\AuctionTemplates\AuctionTemplateController;
 use App\Http\Controllers\Admin\Archive\AdminUser\AdminUserController as AdminUserAdminUserController;
 use App\Http\Controllers\Admin\Archive\Bill\BillArchiveController;
 use App\Http\Controllers\Admin\Archive\Coupon\CouponArchiveController;
@@ -10,8 +11,6 @@ use App\Http\Controllers\Admin\Archive\Plan\PlanArchiveController;
 use App\Http\Controllers\Admin\Archive\Tenant\TenantArchiveController;
 use App\Http\Controllers\Admin\Bills\AdminBillsController;
 use App\Http\Controllers\Admin\Companies\CompanyController;
-use App\Http\Controllers\Admin\ContentManagement\Client\ClientController;
-use App\Http\Controllers\Admin\ContentManagement\Portfolio\PortfolioController;
 use App\Http\Controllers\Admin\Coupons\AdminCouponController;
 use App\Http\Controllers\Admin\Dashboard\DashboardController;
 use App\Http\Controllers\Admin\DeleteBulk\AdminMassDeleteController;
@@ -148,6 +147,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
         Route::resource('/', PlanController::class)->parameters(['' => 'plan']);
     });
 
+    // Auction Templates Management
+    Route::prefix('auction-templates')->name('auction-templates.')->group(function () {
+        Route::patch('{auction_template}/toggle-status', [AuctionTemplateController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('{auction_template}/fields', [AuctionTemplateController::class, 'showFields'])->name('fields');
+        Route::resource('/', AuctionTemplateController::class)->parameters(['' => 'auction_template']);
+    });
+
     Route::prefix('bills')->name('bills.')->group(function () {
         Route::get('/{bill}/print', [AdminBillsController::class, 'print'])->name('print');
         Route::post('/{bill}/verify', [AdminBillsController::class, 'verify'])->name('verify');
@@ -226,18 +232,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
         Route::patch('{version_tester}/toggle-status', [VersionTesterController::class, 'toggleStatus'])->name('toggle-status');
     });
     Route::name('mass-delete')->post('/mass-delete', [AdminMassDeleteController::class, 'massDelete']);
-
-    Route::prefix('content-management')->name('content_management.')->group(function () {
-        Route::prefix('client')->name('client.')->group(function () {
-            Route::resource('/', ClientController::class)->parameters(['' => 'client']);
-            Route::patch('/{client}/toggle-status', [ClientController::class, 'toggleStatus'])->name('toggle-status');
-        });
-
-        Route::prefix('portfolio')->name('portfolio.')->group(function () {
-            Route::resource('/', PortfolioController::class)->parameters(['' => 'portfolio']);
-            Route::patch('/{portfolio}/toggle-status', [PortfolioController::class, 'toggleStatus'])->name('toggle-status');
-        });
-    });
 });
 
 require __DIR__.'/admin-auth.php';

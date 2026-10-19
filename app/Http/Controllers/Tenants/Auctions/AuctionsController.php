@@ -16,6 +16,7 @@ use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Properties\Property;
 use App\Services\Tenants\Auctions\AuctionService;
+use App\Services\Tenants\Shared\CentralAuctionTemplatesGateway;
 use App\Services\Tenants\Shared\CentralCityOptionsGateway;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -25,7 +26,8 @@ class AuctionsController extends Controller
 {
     public function __construct(
         protected AuctionService $auctionService,
-        protected CentralCityOptionsGateway $cityOptionsGateway
+        protected CentralCityOptionsGateway $cityOptionsGateway,
+        protected CentralAuctionTemplatesGateway $templatesGateway
     ) {
         $this->middleware('auth:tenant');
         $this->authorizeResource(Auction::class, 'auction');
@@ -57,8 +59,11 @@ class AuctionsController extends Controller
             ->get();
 
         return view('tenants.auctions.create', [
-            'assignments' => $assignments,
-            'cityOptions' => $this->cityOptionsGateway->optionsByName(),
+            'assignments'        => $assignments,
+            'cityOptions'        => $this->cityOptionsGateway->optionsByName(),
+            'brochureTemplates'  => $this->templatesGateway->activeByType('brochure'),
+            'billboardTemplates' => $this->templatesGateway->activeByType('billboard'),
+            'socialTemplates'    => $this->templatesGateway->activeByType('social'),
         ]);
     }
 
@@ -101,10 +106,13 @@ class AuctionsController extends Controller
             ->get();
 
         return view('tenants.auctions.edit', [
-            'auction' => $auction,
-            'assignments' => $assignments,
-            'properties' => $properties,
-            'cityOptions' => $this->cityOptionsGateway->optionsByName(),
+            'auction'            => $auction,
+            'assignments'        => $assignments,
+            'properties'         => $properties,
+            'cityOptions'        => $this->cityOptionsGateway->optionsByName(),
+            'brochureTemplates'  => $this->templatesGateway->activeByType('brochure'),
+            'billboardTemplates' => $this->templatesGateway->activeByType('billboard'),
+            'socialTemplates'    => $this->templatesGateway->activeByType('social'),
         ]);
     }
 

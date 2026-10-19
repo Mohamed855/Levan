@@ -99,6 +99,15 @@
             </li>
         @endcan
 
+        @can('auction_templates.view')
+            <li class="menu-item @if (Route::is('admin.auction-templates.*')) active open @endif">
+                <a href="{{ route('admin.auction-templates.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons ti ti-template"></i>
+                    <div>قوالب المزادات</div>
+                </a>
+            </li>
+        @endcan
+
         <li class="menu-header small">
             <span class="menu-header-text">الإشتراكات والمالية</span>
         </li>
@@ -209,25 +218,6 @@
         </li>
     @endcan
 
-    @can('clients.view')
-        <li class="menu-header small">
-            <span class="menu-header-text">إدارة المحتوى</span>
-        </li>
-
-        <li class="menu-item @if (Route::is('admin.content_management.client.*')) active open @endif">
-            <a href="{{ route('admin.content_management.client.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-users-group"></i>
-                <div>الشركاء</div>
-            </a>
-        </li>
-
-        <li class="menu-item @if (Route::is('admin.content_management.portfolio.*')) active open @endif">
-            <a href="{{ route('admin.content_management.portfolio.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons ti ti-briefcase"></i>
-                <div>معرض الأعمال</div>
-            </a>
-        </li>
-    @endcan
 
     @canany(['system.settings', 'bank_settings.view', 'domain_extension_prices.settings'])
         <li class="menu-header small">

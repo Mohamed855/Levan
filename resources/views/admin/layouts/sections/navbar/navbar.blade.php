@@ -148,39 +148,7 @@
                     @endcan
 
 
-                    <div class="col-12">
-                        <div class="border rounded p-2">
-                            <div class="d-flex align-items-center mb-2 px-2">
-                                {{-- <div class="avatar avatar-sm me-2">
-                                        <span class="avatar-initial rounded bg-label-dark">
-                                            <i class="ti ti-report"></i>
-                                        </span>
-                                    </div> --}}
-                                <small class="fw-medium text-black">إدارة المحتوى</small>
-                            </div>
-                            <div class="row g-2">
-                                <div class="col-6">
-                                    <a href="{{ route('admin.content_management.client.index') }}"
-                                        class="d-block p-2 text-center border rounded hover-bg-light text-decoration-none">
-                                        <small class="text-muted">العملاء</small>
-                                    </a>
-                                </div>
-                                <div class="col-6">
-                                    <a href="{{ route('admin.content_management.portfolio.index') }}"
-                                        class="d-block p-2 text-center border rounded hover-bg-light text-decoration-none">
-                                        <small class="text-muted">المحافظ</small>
-                                    </a>
-                                </div>
-                                {{-- <div class="col-6">
-                                        <a href="{{ route('admin.archives.coupons.index') }}"
-                                            class="d-block p-2 text-center border rounded hover-bg-light text-decoration-none">
-                                            <small class="text-muted">الكوبونات</small>
-                                        </a>
-                                    </div>
-                                    --}}
-                            </div>
-                        </div>
-                    </div>
+
 
 
                     <div class="col-12">

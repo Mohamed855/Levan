@@ -1,0 +1,216 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\DataTables\Admin\AuctionTemplates;
+
+use App\DataTables\Abstract\AbstractDataTable;
+use App\Enums\Admin\AuctionTemplates\AuctionTemplateType;
+use App\Models\Admin\AuctionTemplates\AuctionTemplate;
+use Illuminate\Database\Eloquent\Builder;
+
+class AuctionTemplateDataTable extends AbstractDataTable
+{
+    private string $page = 'admin.auction_templates';
+
+    private string $route = 'admin.auction-templates';
+
+    protected function getTableId(): string
+    {
+        return 'auction-templates-table';
+    }
+
+    protected function resource()
+    {
+        return AuctionTemplate::query()->with('creator');
+    }
+
+    protected function applyCustomFilters($query)
+    {
+        $request = request();
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        if ($request->filled('is_active')) {
+            $val = $request->is_active;
+            if ($val === 'active' || $val === '1' || $val === 1) {
+                $query->where('is_active', true);
+            } elseif ($val === 'inactive' || $val === '0' || $val === 0) {
+                $query->where('is_active', false);
+            }
+        }
+
+        return $query;
+    }
+
+    protected function getColumns(): array
+    {
+        return [
+            ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
+            ['data' => 'thumbnail', 'name' => 'thumbnail_path', 'title' => 'المعاينة', 'orderable' => false, 'searchable' => false, 'className' => 'text-center'],
+            ['data' => 'name', 'name' => 'name', 'title' => 'اسم القالب', 'className' => 'text-start'],
+            ['data' => 'type', 'name' => 'type', 'title' => 'النوع', 'className' => 'text-center'],
+            ['data' => 'field_count', 'name' => 'field_names', 'title' => 'الحقول المستخرجة', 'orderable' => false, 'searchable' => false, 'className' => 'text-center'],
+            ['data' => 'file', 'name' => 'file_path', 'title' => 'الملف', 'orderable' => false, 'searchable' => false, 'className' => 'text-center'],
+            ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإضافة', 'className' => 'text-center'],
+            ['data' => 'is_active', 'name' => 'is_active', 'title' => 'الحالة', 'className' => 'text-center'],
+            ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
+        ];
+    }
+
+    protected function addCustomColumns($datatable)
+    {
+        $datatable
+            ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">')
+
+            ->addColumn('thumbnail', function ($row) {
+                if ($row->thumbnail_url) {
+                    return '<img src="' . e($row->thumbnail_url) . '" alt="' . e($row->name) . '" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">';
+                }
+
+                $icon = $row->type instanceof AuctionTemplateType ? $row->type->icon() : 'ti-file-description';
+                $color = $row->type instanceof AuctionTemplateType ? $row->type->color() : 'primary';
+
+                return '<span class="avatar-initial rounded-circle bg-label-' . e($color) . ' p-2"><i class="ti ' . e($icon) . ' fs-4"></i></span>';
+            })
+
+            ->editColumn('name', function ($row) {
+                $desc = $row->description ? '<small class="text-muted d-block text-truncate" style="max-width: 250px;">' . e($row->description) . '</small>' : '';
+                return '<div><span class="fw-medium text-heading">' . e($row->name) . '</span>' . $desc . '</div>';
+            })
+
+            ->editColumn('type', function ($row) {
+                $type = $row->type instanceof AuctionTemplateType ? $row->type : AuctionTemplateType::tryFrom((string) $row->type);
+                $label = $type ? $type->label() : (string) $row->type;
+                $color = $type ? $type->color() : 'secondary';
+                $icon = $type ? $type->icon() : 'ti-file';
+
+                return '<span class="badge bg-label-' . e($color) . '"><i class="ti ' . e($icon) . ' me-1"></i>' . e($label) . '</span>';
+            })
+
+            ->addColumn('field_count', function ($row) {
+                $count = is_array($row->field_names) ? count($row->field_names) : 0;
+                if ($count === 0) {
+                    return '<span class="badge bg-label-secondary">لا توجد حقول</span>';
+                }
+
+                $url = route($this->route . '.fields', $row);
+                return '<button type="button" class="btn btn-xs btn-label-primary js-view-template-fields" data-url="' . e($url) . '" data-bs-toggle="modal" data-bs-target="#templateFieldsModal">'
+                    . '<i class="ti ti-list-check me-1"></i>' . $count . ' حقل'
+                    . '</button>';
+            })
+
+            ->addColumn('file', function ($row) {
+                if (! $row->file_url) {
+                    return '<span class="text-muted">-</span>';
+                }
+
+                return '<a href="' . e($row->file_url) . '" target="_blank" class="btn btn-icon btn-sm btn-label-danger" title="عرض ملف PDF">'
+                    . '<i class="ti ti-file-type-pdf fs-5"></i>'
+                    . '</a>';
+            })
+
+            ->editColumn('created_at', function ($row) {
+                return $row->created_at ? '<span class="text-muted font-monospace">' . e($row->created_at->format('Y-m-d')) . '</span>' : '-';
+            })
+
+            ->editColumn('is_active', function ($row) {
+                if (! auth()->user()?->can('auction_templates.edit')) {
+                    return $row->is_active
+                        ? '<span class="badge bg-success">مفعل</span>'
+                        : '<span class="badge bg-danger">غير مفعل</span>';
+                }
+
+                $checked = $row->is_active ? 'checked' : '';
+                $url = route($this->route . '.toggle-status', $row);
+
+                return '
+                    <div class="d-flex justify-content-center">
+                        <div class="form-check form-switch mb-0">
+                            <input type="checkbox" class="form-check-input js-table-status-toggle" data-url="' . e($url) . '" ' . $checked . ' aria-label="تبديل حالة القالب">
+                        </div>
+                    </div>';
+            })
+
+            ->addColumn('actions', function ($row) {
+                return view($this->page . '.action', [
+                    'row'   => $row,
+                    'route' => $this->route,
+                ])->render();
+            });
+    }
+
+    protected function rawColumns(): array
+    {
+        return [
+            'checkbox',
+            'thumbnail',
+            'name',
+            'type',
+            'field_count',
+            'file',
+            'created_at',
+            'is_active',
+            'actions',
+        ];
+    }
+
+    protected function getSearchableColumns(): array
+    {
+        return [
+            'name',
+            'description',
+        ];
+    }
+
+    protected function getCustomOrder(): array
+    {
+        return [6, 'desc'];
+    }
+
+    protected function buttons(): array
+    {
+        return [
+            $this->getActionsDropdownButton(),
+            $this->getAddButton(),
+        ];
+    }
+
+    private function getActionsDropdownButton(): array
+    {
+        $buttons = [
+            ['extend' => 'copy', 'text' => 'نسخ'],
+            ['extend' => 'excel', 'text' => 'إكسل'],
+        ];
+
+        if (auth()->user()?->can('auction_templates.delete')) {
+            $buttons[] = [
+                'text'      => 'حذف المحدد',
+                'className' => 'btn btn-default btn-delete-selected',
+                'action'    => 'function() { handleMassDelete(); }',
+            ];
+        }
+
+        return [
+            'extend'    => 'collection',
+            'className' => 'btn btn-export',
+            'text'      => 'الإجراءات',
+            'buttons'   => $buttons,
+        ];
+    }
+
+    private function getAddButton(): array
+    {
+        if (auth()->user()?->can('auction_templates.create')) {
+            return [
+                'text'      => '<i class="ti ti-plus me-1"></i> إضافة قالب جديد',
+                'className' => 'btn btn-primary btn-add',
+                'action'    => "function(){ window.location.href='" . route($this->route . '.create') . "'; }",
+            ];
+        }
+
+        return [];
+    }
+}

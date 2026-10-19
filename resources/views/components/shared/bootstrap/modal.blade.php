@@ -1,15 +1,16 @@
 @props([
     'id',
     'title',
+    'icon' => null,
     'size' => null,
-    'centered' => false,
+    'centered' => true,
     'scrollable' => false,
     'staticBackdrop' => false,
     'labelledBy' => null,
 ])
 
 @php
-    $titleId = $labelledBy ?: $id . '-title';
+    $titleId = $labelledBy ?: $id . 'Label';
     $dialogClasses = trim('modal-dialog' . ($size ? ' modal-' . $size : '') . ($centered ? ' modal-dialog-centered' : '') . ($scrollable ? ' modal-dialog-scrollable' : ''));
 @endphp
 
@@ -18,7 +19,12 @@
     <div class="{{ $dialogClasses }}">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 id="{{ $titleId }}" class="modal-title">{{ $title }}</h5>
+                <h5 id="{{ $titleId }}" class="modal-title d-flex align-items-center">
+                    @if ($icon)
+                        <i class="ti {{ $icon }} me-2 text-primary"></i>
+                    @endif
+                    <span>{{ $title }}</span>
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
             </div>
 

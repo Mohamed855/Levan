@@ -8,9 +8,6 @@ use App\Services\shared\Payment\Gateways\MoyasarGateway;
 use App\Services\shared\Tenant\TenantInitializer;
 use App\Support\Vite as AppVite;
 use Carbon\Carbon;
-use Database\Seeders\tenant\ContactResultSeeder;
-use Database\Seeders\tenant\CustomerStatusSeeder;
-use Database\Seeders\tenant\GeneralSettingsSeeder;
 use Database\Seeders\tenant\PermissionsRolesSeeder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Foundation\Vite;
@@ -31,9 +28,6 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(TenantInitializer::class, function ($app) {
             return new TenantInitializer([
                 PermissionsRolesSeeder::class,
-                CustomerStatusSeeder::class,
-                ContactResultSeeder::class,
-                GeneralSettingsSeeder::class,
             ]);
         });
     }

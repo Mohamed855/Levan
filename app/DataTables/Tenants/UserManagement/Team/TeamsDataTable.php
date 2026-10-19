@@ -57,8 +57,8 @@ class TeamsDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'orderable' => false, 'searchable' => false, 'title' => ''],
             ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
+            ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'orderable' => false, 'searchable' => false, 'title' => ''],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم المجموعة'],
             ['data' => 'members_count', 'name' => 'members_count', 'title' => 'عدد الأعضاء', 'orderable' => false, 'searchable' => false],
             ['data' => 'leaders_count', 'name' => 'leaders_count', 'title' => 'عدد القادة', 'orderable' => false, 'searchable' => false],

@@ -353,25 +353,26 @@
                 </div>
 
                 <!-- Modal رفض الإيصال -->
-                <div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog">
+                <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title">تأكيد الرفض</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
+                                <h5 class="modal-title" id="rejectModalLabel">
+                                    <i class="ti ti-ban text-danger me-2"></i>تأكيد الرفض
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
                             </div>
                             <form action="{{ route('admin.bills.reject', $bill->id) }}" method="POST">
                                 @csrf
                                 <div class="modal-body">
                                     <div class="mb-3">
-                                        <label for="reject_reason" class="form-label">سبب الرفض</label>
-                                        <textarea class="form-control" id="reject_reason" name="reject_reason" rows="3" required></textarea>
+                                        <label for="reject_reason" class="form-label">سبب الرفض <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" id="reject_reason" name="reject_reason" rows="3"
+                                            placeholder="يرجى كتابة سبب رفض الفاتورة..." required></textarea>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">إلغاء</button>
+                                    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
                                     <button type="submit" class="btn btn-danger">تأكيد الرفض</button>
                                 </div>
                             </form>

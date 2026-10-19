@@ -86,27 +86,27 @@
     </div>
 
     @if ($trialRequest->status->value === 'pending')
-        <div class="modal fade" id="rejectTrialModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-simple">
-                <div class="modal-content p-3 p-md-5">
-                    <div class="modal-body p-0">
-                        <button type="button" class="btn-close btn-pinned" data-bs-dismiss="modal" aria-label="إغلاق"></button>
-                        <div class="text-center mb-4">
-                            <h4 class="mb-2">رفض طلب التجربة</h4>
-                            <p class="text-muted">يرجى توضيح سبب الرفض ليتم إشعار العميل وتسجيله في الطلب.</p>
-                        </div>
-                        <form method="POST" action="{{ route('admin.trial-requests.reject', $trialRequest) }}"
-                            data-form-validate>
-                            @csrf
-                            <div class="mb-4">
-                                <x-form.controls.textarea name="rejection_reason" label="سبب الرفض" rows="4" required />
-                            </div>
-                            <div class="d-flex justify-content-center gap-2">
-                                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
-                                <button type="submit" class="btn btn-danger">تأكيد الرفض</button>
-                            </div>
-                        </form>
+        <div class="modal fade" id="rejectTrialModal" tabindex="-1" aria-labelledby="rejectTrialModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="rejectTrialModalLabel">
+                            <i class="ti ti-x text-danger me-2"></i>رفض طلب التجربة
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
                     </div>
+                    <form method="POST" action="{{ route('admin.trial-requests.reject', $trialRequest) }}"
+                        data-form-validate>
+                        @csrf
+                        <div class="modal-body">
+                            <p class="text-muted mb-3">يرجى توضيح سبب الرفض ليتم إشعار العميل وتسجيله في الطلب.</p>
+                            <x-form.controls.textarea name="rejection_reason" label="سبب الرفض" rows="4" required />
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
+                            <button type="submit" class="btn btn-danger">تأكيد الرفض</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

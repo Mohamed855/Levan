@@ -71,7 +71,7 @@
         </div>
     </div>
 
-    <x-bootstrap.modal id="editUserRoleModal" title="تعديل دور المستخدم">
+    <x-bootstrap.modal id="editUserRoleModal" title="تعديل دور المشرف" icon="ti-user-shield">
         <form id="updateUserRoleForm">
             <input id="role-assignment-user-id" type="hidden" name="user_id">
             <x-form.controls.select name="role" id="role-assignment-role" label="الدور" :options="$roles"

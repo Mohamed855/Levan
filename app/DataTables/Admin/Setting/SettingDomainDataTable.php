@@ -24,16 +24,14 @@ class SettingDomainDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             [
                 'data' => 'checkbox',
                 'name' => 'checkbox',
-                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
+                'title' => '<input type="checkbox" id="select-all">',
                 'orderable' => false,
                 'searchable' => false,
                 'width' => '10px',
                 'className' => 'custom-checkbox',
-                'titleAttr' => 'تحديد الكل',
             ],
             ['data' => 'domain_extension',  'name' => 'domain_extension',   'title' => 'امتداد الدومين',   'className' => 'text-start'],
             ['data' => 'price',             'name' => 'price',              'title' => 'السعر',             'className' => 'text-start'],
@@ -68,7 +66,7 @@ class SettingDomainDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'code', 'discount_type', 'is_active', 'status', 'actions'];
+        return ['checkbox', 'is_active', 'actions'];
     }
 
     protected function applyCustomFilters($query)

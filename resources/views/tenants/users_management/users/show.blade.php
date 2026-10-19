@@ -84,17 +84,15 @@
                                 </ul>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Modal لتغيير الصورة الشخصية -->
-            <div class="modal fade" id="changeProfileImageModal" tabindex="-1" aria-hidden="true">
+                       <!-- Modal لتغيير الصورة الشخصية -->
+            <div class="modal fade" id="changeProfileImageModal" tabindex="-1" aria-labelledby="changeProfileImageModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">تغيير الصورة الشخصية</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <h5 class="modal-title" id="changeProfileImageModalLabel">
+                                <i class="ti ti-photo text-primary me-2"></i>تغيير الصورة الشخصية
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
                         </div>
                         <form id="changeProfileImageForm" method="POST" enctype="multipart/form-data" novalidate
                             data-form-validate data-validation-submit="ajax"
@@ -114,12 +112,9 @@
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
                                 <button type="submit" class="btn btn-primary">
-                                    <span class="d-flex align-items-center">
-                                        <i class="ti ti-device-floppy me-2"></i>
-                                        حفظ التغييرات
-                                    </span>
+                                    <i class="ti ti-device-floppy me-1"></i> حفظ التغييرات
                                 </button>
                             </div>
                         </form>
@@ -130,24 +125,24 @@
             <!-- edit background imag -->
             <div class="modal fade" id="editBackgroundImageModal" tabindex="-1"
                 aria-labelledby="editBackgroundImageModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog">
+                <div class="modal-dialog modal-dialog-centered">
                     <form id="changeBackgroundImageForm" method="POST" enctype="multipart/form-data" novalidate
                         data-form-validate data-validation-submit="ajax"
                         action="{{ tenant_route_name('users.update-background', $user->id) }}"
                         data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                         @csrf
                         <div class="modal-content">
-                            <div class="modal-header pb-5">
-                                <h5 class="modal-title" id="editBackgroundImageModalLabel">تحديث صورة الخلفية</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="إغلاق"></button>
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editBackgroundImageModalLabel">
+                                    <i class="ti ti-photo-edit text-primary me-2"></i>تحديث صورة الخلفية
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
                             </div>
-                            <div class="border-1 border-light border-dashed mb-2"></div>
 
                             <div class="modal-body">
                                 <div class="mb-3">
                                     <label for="background_image" class="form-label">اختر صورة خلفية جديدة</label>
-                                    <small class="text-danger">يجب أن تكون أبعاد صورة الخلفية 1693 × 376 بكسل</small>
+                                    <small class="text-danger d-block mb-1">يجب أن تكون أبعاد صورة الخلفية 1693 × 376 بكسل</small>
                                     <input class="form-control" type="file" id="background_image"
                                         name="background_image" accept="image/*" required>
                                 </div>
@@ -158,14 +153,10 @@
                                 </div>
                             </div>
                             <div class="modal-footer">
+                                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
                                 <button type="submit" class="btn btn-primary" id="submitBackgroundBtn">
-                                    <span class="d-flex align-items-center">
-                                        <i class="ti ti-device-floppy me-2"></i>
-                                        تحديث
-                                    </span>
+                                    <i class="ti ti-device-floppy me-1"></i> تحديث
                                 </button>
-                                <button type="button" class="btn btn-secondary mx-0"
-                                    data-bs-dismiss="modal">إغلاق</button>
                             </div>
                         </div>
                     </form>

@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Enums\Admin\Billing\BillStatus;
+use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\Bills\Bill;
+use App\Models\Admin\City;
 use App\Models\Admin\Plans\Plan;
 use Tests\TestCase;
 
@@ -52,11 +54,13 @@ class MoyasarRegistrationCheckoutFeatureTest extends TestCase
         $email = "demo_owner_{$unique}@example.com";
         $phone = "05" . rand(10000000, 99999999);
 
+        $city = City::first();
+
         $payload = [
             'billing_company_name'      => $companyName,
             'billing_commercial_number' => $commercialNumber,
             'billing_tax_number'        => '300000000000003',
-            'billing_city_id'           => null,
+            'billing_city_id'           => $city?->id,
             'billing_address'           => 'الرياض، حي الصحافة',
             'billing_name'              => 'أحمد محمد',
             'billing_email'             => $email,
@@ -114,6 +118,33 @@ class MoyasarRegistrationCheckoutFeatureTest extends TestCase
             ->assertOk()
             ->assertDontSee('checkout-otp-timer', false)
             ->assertDontSee('Secret1234!', false);
+    }
+
+    public function test_checkout_rejects_a_phone_number_already_used_by_an_admin_user(): void
+    {
+        $phone = '0598123456';
+        $adminUser = AdminUser::create([
+            'name' => 'Checkout Phone Test',
+            'email' => 'checkout-phone-'.uniqid().'@example.test',
+            'password' => 'Secret1234!',
+            'phone' => $phone,
+        ]);
+
+        try {
+            $response = $this->post(route('site.plans.checkout.store', $this->publicPlan), [
+                'billing_company_name' => 'Checkout Phone Test Company',
+                'billing_commercial_number' => '1010123456',
+                'billing_name' => 'Checkout Phone Owner',
+                'billing_email' => 'checkout-phone-owner-'.uniqid().'@example.test',
+                'billing_phone' => $phone,
+                'billing_password' => 'Secret1234!',
+                'billing_password_confirmation' => 'Secret1234!',
+            ]);
+
+            $response->assertSessionHasErrors('billing_phone');
+        } finally {
+            $adminUser->forceDelete();
+        }
     }
 
     public function test_checkout_clears_stale_invalid_coupon_from_session_and_completes_payment_without_error(): void

@@ -1,9 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature;
 
 use App\Models\Admin\Tenants\Tenant;
-use App\Models\Tenants\BusinessCenter\Customers\Customer;
 use App\Models\Tenants\UserMangment\User\User;
 use Tests\TestCase;
 
@@ -37,27 +38,15 @@ class TenantDashboardComprehensiveTest extends TestCase
     }
 
     /**
-     * Test 1: Tenant Dashboard views and ajax metrics
+     * Test 1: Tenant Dashboard views and active statistics
      */
     public function test_tenant_dashboard_and_metrics(): void
     {
         $response = $this->get($this->tenantUrl('dashboard'));
         $response->assertStatus(200);
 
-        // Chart / performance AJAX endpoints
-        $this->getJson($this->tenantUrl('dashboard?period=month'))
-            ->assertStatus(200);
-
-        // Sub endpoints
-        $this->getJson($this->tenantUrl('dashboard/upcoming-follow-ups'))->assertStatus(200);
-        $this->getJson($this->tenantUrl('dashboard/my-upcoming-followups'))->assertStatus(200);
+        // Core statistics endpoint
         $this->getJson($this->tenantUrl('dashboard/statistics'))->assertStatus(200);
-        $this->getJson($this->tenantUrl('dashboard/approvals'))->assertStatus(200);
-        $this->getJson($this->tenantUrl('dashboard/overdue-tasks'))->assertStatus(200);
-        $this->getJson($this->tenantUrl('dashboard/my-overdue-tasks'))->assertStatus(200);
-        $this->get($this->tenantUrl('dashboard/collection-sessions-page'))->assertNotFound();
-        $this->get($this->tenantUrl('dashboard/excellence'))->assertStatus(200);
-        $this->getJson($this->tenantUrl('dashboard/my-performance-comparison'))->assertStatus(200);
     }
 
     /**
@@ -68,145 +57,10 @@ class TenantDashboardComprehensiveTest extends TestCase
         $this->get($this->tenantUrl('settings'))->assertStatus(200);
         $this->get($this->tenantUrl('settings/center'))->assertStatus(200);
         $this->get($this->tenantUrl('api-token-settings'))->assertStatus(200);
-
-        // Customer status settings index & toggle
-        $this->get($this->tenantUrl('general-settings/settings-customer-status'))->assertStatus(200);
-
-        // Document request reasons index
-        $this->get($this->tenantUrl('general-settings/settings-document-request-reasons'))->assertStatus(200);
-
-        // Message templates index
-        $this->get($this->tenantUrl('general-settings/message-templates'))->assertStatus(200);
-
-        // Payment methods, contact methods, countries
-        $this->get($this->tenantUrl('general-settings/settings-payment-methods'))->assertStatus(200);
-        $this->get($this->tenantUrl('general-settings/settings-contact-methods'))->assertStatus(200);
-        $this->get($this->tenantUrl('general-settings/settings-country'))->assertStatus(200);
     }
 
     /**
-     * Test 3: General Settings CRUD operations
-     */
-    public function test_general_settings_crud(): void
-    {
-        $unique = uniqid();
-
-        // 1. Message Template CRUD
-        $templateData = [
-            'name' => 'قالب تجريبي ' . $unique,
-            'content' => 'مرحباً {name}، رصيدك هو {balance}',
-            'category' => 'customers',
-            'channel' => 'sms',
-        ];
-        $res = $this->post($this->tenantUrl('general-settings/message-templates'), $templateData);
-        $res->assertSessionHasNoErrors();
-        $this->assertDatabaseHas('message_templates', ['name' => $templateData['name']]);
-
-        $template = \App\Models\Tenants\GeneralSetting\MessageTemplate\MessageTemplate::where('name', $templateData['name'])->first();
-        $this->assertNotNull($template);
-
-        // Preview
-        $this->postJson($this->tenantUrl('general-settings/message-templates/preview'), [
-            'content' => $template->content,
-            'category' => 'customers',
-        ])->assertStatus(200);
-
-        // Get templates & variables
-        $this->getJson($this->tenantUrl('general-settings/message-templates/get-templates'))->assertStatus(200);
-        $this->getJson($this->tenantUrl('general-settings/message-templates/get-variables-by-category?category=customers'))->assertStatus(200);
-
-        // Toggle status
-        $this->patchJson($this->tenantUrl("general-settings/message-templates/{$template->id}/toggle-status"))->assertStatus(200);
-
-        // Update
-        $this->put($this->tenantUrl("general-settings/message-templates/{$template->id}"), [
-            'name' => 'قالب محدث ' . $unique,
-            'content' => 'مرحباً {name} المحدث',
-            'category' => 'customers',
-            'channel' => 'sms',
-        ])->assertSessionHasNoErrors();
-
-        // Delete
-        $this->delete($this->tenantUrl("general-settings/message-templates/{$template->id}"));
-        $this->assertSoftDeleted('message_templates', ['id' => $template->id]);
-
-        // 2. Document Request Reasons CRUD
-        $reasonData = ['name' => 'سبب تجريبي ' . $unique];
-        $this->post($this->tenantUrl('general-settings/settings-document-request-reasons'), $reasonData)
-            ->assertSessionHasNoErrors();
-        $reason = \App\Models\Tenants\GeneralSetting\DocumentRequest\SettingsDocumentRequestReason::where('name', $reasonData['name'])->first();
-        $this->assertNotNull($reason);
-
-        // Toggle status
-        $this->get($this->tenantUrl("general-settings/settings-document-request-reasons/{$reason->id}/edit"));
-
-        // Update
-        $this->put($this->tenantUrl("general-settings/settings-document-request-reasons/{$reason->id}"), [
-            'name' => 'سبب محدث ' . $unique
-        ])->assertSessionHasNoErrors();
-
-        // Delete
-        $this->delete($this->tenantUrl("general-settings/settings-document-request-reasons/{$reason->id}"));
-        $this->assertSoftDeleted('settings_document_request_reasons', ['id' => $reason->id]);
-
-        // 3. Payment Methods CRUD
-        $pmData = ['name' => 'طريقة دفع ' . $unique];
-        $this->post($this->tenantUrl('general-settings/settings-payment-methods'), $pmData)
-            ->assertSessionHasNoErrors();
-        $pm = \App\Models\Tenants\GeneralSetting\PaymentMethod\SettingsPaymentMethod::where('name', $pmData['name'])->first();
-        $this->assertNotNull($pm);
-
-        $this->put($this->tenantUrl("general-settings/settings-payment-methods/{$pm->id}"), [
-            'name' => 'طريقة دفع محدثة ' . $unique
-        ])->assertSessionHasNoErrors();
-
-        $this->delete($this->tenantUrl("general-settings/settings-payment-methods/{$pm->id}"));
-        $this->assertSoftDeleted('settings_payment_methods', ['id' => $pm->id]);
-
-        // 4. Contact Methods CRUD
-        $cmData = ['name' => 'طريقة تواصل ' . $unique];
-        $this->post($this->tenantUrl('general-settings/settings-contact-methods'), $cmData)
-            ->assertSessionHasNoErrors();
-        $cm = \App\Models\Tenants\GeneralSetting\ContactMethod\SettingsContactMethod::where('name', $cmData['name'])->first();
-        $this->assertNotNull($cm);
-
-        $this->put($this->tenantUrl("general-settings/settings-contact-methods/{$cm->id}"), [
-            'name' => 'طريقة تواصل محدثة ' . $unique
-        ])->assertSessionHasNoErrors();
-
-        $this->delete($this->tenantUrl("general-settings/settings-contact-methods/{$cm->id}"));
-        $this->assertSoftDeleted('settings_contact_methods', ['id' => $cm->id]);
-
-        // 5. Country CRUD
-        $countryData = ['name' => 'دولة ' . $unique, 'code' => substr($unique, 0, 8)];
-        $this->post($this->tenantUrl('general-settings/settings-country'), $countryData)
-            ->assertSessionHasNoErrors();
-        $country = \App\Models\Tenants\GeneralSetting\Country\SettingsCountry::where('name', $countryData['name'])->first();
-        $this->assertNotNull($country);
-
-        $this->put($this->tenantUrl("general-settings/settings-country/{$country->id}"), [
-            'name' => 'دولة محدثة ' . $unique,
-            'code' => substr(strrev($unique), 0, 8),
-        ])->assertSessionHasNoErrors();
-
-        $this->delete($this->tenantUrl("general-settings/settings-country/{$country->id}"));
-        $this->assertSoftDeleted('settings_countries', ['id' => $country->id]);
-    }
-
-    /**
-     * Test 4: Tasks and My Tasks
-     */
-    public function test_tasks_and_my_tasks(): void
-    {
-        $this->get($this->tenantUrl('tasks'))->assertStatus(200);
-        $this->get($this->tenantUrl('tasks/export'))->assertSuccessful();
-
-        $this->get($this->tenantUrl('my-tasks'))->assertStatus(200);
-        $this->get($this->tenantUrl('my-tasks/export'))->assertSuccessful();
-    }
-
-    /**
-     * Test 5: Tickets
+     * Test 3: Tickets Management (الدعم الفني)
      */
     public function test_tickets(): void
     {
@@ -242,7 +96,7 @@ class TenantDashboardComprehensiveTest extends TestCase
     }
 
     /**
-     * Test 6: Subscriptions and Bills
+     * Test 4: Subscriptions and Bills
      */
     public function test_subscriptions_and_bills(): void
     {
@@ -254,108 +108,54 @@ class TenantDashboardComprehensiveTest extends TestCase
     }
 
     /**
-     * Legacy financial collection administration is no longer exposed.
-     */
-    public function test_legacy_financial_collection_administration_is_removed(): void
-    {
-        foreach ([
-            'financial-collections/collections',
-            'financial-collections/collections/create',
-            'financial-collections/admin-collections',
-            'financial-collections/collection-targets',
-            'financial-collections/collection-targets/create',
-            'financial-collections/import',
-            'financial-collections/reconciliation',
-        ] as $path) {
-            $this->get($this->tenantUrl($path))->assertNotFound();
-        }
-    }
-
-    /**
-     * Legacy collection processing is no longer exposed.
-     */
-    public function test_legacy_collection_process_is_removed(): void
-    {
-        $this->get($this->tenantUrl('collection-process'))->assertNotFound();
-    }
-
-    /**
-     * Test 9: Customer Sub-resources
-     */
-    public function test_customer_subresources(): void
-    {
-        $customer = Customer::first();
-        $this->assertNotNull($customer);
-
-        // Show & Edit
-        $this->get($this->tenantUrl("customers/{$customer->id}"))->assertStatus(200);
-        $this->get($this->tenantUrl("customers/{$customer->id}/edit"))->assertStatus(200);
-
-        // Sub-resources lists (AJAX endpoints)
-        $this->getJson($this->tenantUrl("customers/{$customer->id}/attachments/list"))->assertStatus(200);
-        $this->getJson($this->tenantUrl("customers/{$customer->id}/notes/list"))->assertStatus(200);
-        $this->getJson($this->tenantUrl("customers/{$customer->id}/comments/list"))->assertStatus(200);
-        $this->getJson($this->tenantUrl("customers/{$customer->id}/payment-plans/list"))->assertStatus(200);
-        $this->getJson($this->tenantUrl("customers/{$customer->id}/settlements/list"))->assertStatus(200);
-        $this->get($this->tenantUrl("customers/{$customer->id}/payments/create"))->assertStatus(200);
-        $this->getJson($this->tenantUrl("customers/{$customer->id}/payment-history/list"))->assertStatus(200);
-
-        // Customer Distributions & Update requests & Import
-        $this->get($this->tenantUrl('customers/distribution'))->assertStatus(200);
-        $this->get($this->tenantUrl('customers/update-requests'))->assertStatus(200);
-        $this->get($this->tenantUrl('customers/import'))->assertStatus(200);
-    }
-
-    /**
-     * Test 10: Company Letters
-     */
-    public function test_company_letters(): void
-    {
-        $this->get($this->tenantUrl('company-letters'))->assertStatus(200);
-    }
-
-    /**
-     * Test 11: Communication Message Logs
-     */
-    public function test_communication_message_logs(): void
-    {
-        $this->get($this->tenantUrl('communication/message-logs'))->assertStatus(200);
-        $this->get($this->tenantUrl('communication/message-individual-logs'))->assertStatus(200);
-        $this->get($this->tenantUrl('communication/message-individual-logs/archives'))->assertStatus(200);
-    }
-
-    /**
-     * Test 12: Activity Logs
+     * Test 5: Activity Logs
      */
     public function test_activity_logs(): void
     {
         $this->get($this->tenantUrl('activity-logs'))->assertStatus(200);
+        $this->get($this->tenantUrl('activity-logs/archives'))->assertStatus(200);
     }
 
     /**
-     * Test 13: Archive Endpoints
+     * Test 6: Archive Endpoints for Active Domains
      */
     public function test_archive_endpoints(): void
     {
-        $this->get($this->tenantUrl('archive/customers'))->assertStatus(200);
         $this->get($this->tenantUrl('archive/companies'))->assertStatus(200);
-        $this->get($this->tenantUrl('archive/contracts'))->assertStatus(200);
-        $this->get($this->tenantUrl('archive/portfolios'))->assertStatus(200);
         $this->get($this->tenantUrl('archive/users'))->assertStatus(200);
-        $this->get($this->tenantUrl('activity-logs/archives'))->assertStatus(200);
-        $this->get($this->tenantUrl('communication/message-individual-logs/archives'))->assertStatus(200);
+        $this->get($this->tenantUrl('archive/assignments'))->assertStatus(200);
+        $this->get($this->tenantUrl('archive/properties'))->assertStatus(200);
+        $this->get($this->tenantUrl('archive/auctions'))->assertStatus(200);
     }
 
     /**
-     * Test 14: Reports Endpoints
+     * Test 7: Verify that decommissioned legacy debt collection routes return 404
      */
-    public function test_reports_endpoints(): void
+    public function test_legacy_debt_collection_routes_are_decommissioned(): void
     {
-        $this->get($this->tenantUrl('reports/customers'))->assertStatus(200);
-        $this->get($this->tenantUrl('reports/customer-follows'))->assertStatus(200);
-        $this->get($this->tenantUrl('reports/financial'))->assertStatus(200);
-        $this->get($this->tenantUrl('reports/companies'))->assertStatus(200);
-        $this->get($this->tenantUrl('reports/employees'))->assertStatus(200);
-        $this->get($this->tenantUrl('reports/executive'))->assertStatus(200);
+        $decommissionedPaths = [
+            'tasks',
+            'my-tasks',
+            'customers',
+            'contracts',
+            'portfolios',
+            'company-letters',
+            'communication/message-logs',
+            'communication/message-individual-logs',
+            'general-settings/settings-customer-status',
+            'general-settings/message-templates',
+            'general-settings/settings-payment-methods',
+            'general-settings/settings-country',
+            'reports/customers',
+            'reports/financial',
+            'reports/companies',
+            'archive/customers',
+            'archive/contracts',
+            'archive/portfolios',
+        ];
+
+        foreach ($decommissionedPaths as $path) {
+            $this->get($this->tenantUrl($path))->assertNotFound();
+        }
     }
 }

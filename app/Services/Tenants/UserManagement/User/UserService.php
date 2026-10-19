@@ -2,7 +2,6 @@
 
 namespace App\Services\Tenants\UserManagement\User;
 
-use App\Models\Tenants\FinancialCollection\CollectionProcess\CollectionProcessSession;
 use App\Models\Tenants\UserMangment\User\User;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
@@ -187,89 +186,15 @@ class UserService
     */
     public function getUserSessionsData(int $userId): array
     {
-        if (! Schema::hasTable('collection_process_sessions')) {
-            return [
-                'days' => [],
-                'statistics' => [
-                    'attendance_days' => 0,
-                    'total_work_hours' => '0:00',
-                    'total_work_minutes' => 0,
-                    'avg_work_hours' => '0:00',
-                    'total_follows' => 0,
-                    'avg_follows' => 0,
-                ],
-            ];
-        }
-
-        $startOfMonth = Carbon::now()->startOfMonth();
-        $today = Carbon::today();
-
-        // جلب جميع الجلسات من بداية الشهر حتى اليوم
-        $sessions = CollectionProcessSession::with(['workPeriods' => function ($q) {
-            $q->orderBy('entry_time', 'asc');
-        }])
-            ->where('user_id', $userId)
-            ->whereBetween('date', [$startOfMonth->format('Y-m-d'), $today->format('Y-m-d')])
-            ->orderBy('date', 'asc')
-            ->get();
-
-        $daysData = [];
-        $totalWorkMinutes = 0;
-        $totalFollows = 0;
-
-        foreach ($sessions as $session) {
-            $date = Carbon::parse($session->date);
-
-            // تخطي السبت والجمعة
-            if ($date->dayOfWeek === Carbon::SATURDAY || $date->dayOfWeek === Carbon::FRIDAY) {
-                continue;
-            }
-
-            // حساب إجمالي الوقت
-            $workMinutes = $session->total_work_minutes;
-
-            // إضافة الوقت الحالي إذا كان نشطاً
-            if ($session->is_active && $date->isToday()) {
-                $openPeriod = $session->workPeriods->whereNull('exit_time')->first();
-                if ($openPeriod) {
-                    $workMinutes += $openPeriod->entry_time->diffInMinutes(now());
-                }
-            }
-
-            $totalWorkMinutes += $workMinutes;
-            $totalFollows += $session->total_follows ?? 0;
-
-            // إنشاء Timeline للخط
-            $timeline = $this->buildDayTimeline($session, $date);
-
-            $daysData[] = [
-                'date' => $date->format('Y-m-d'),
-                'day_name' => $date->locale('ar')->dayName,
-                'day_number' => $date->format('d'),
-                'has_session' => true,
-                'is_active' => $session->is_active,
-                'is_today' => $date->isToday(),
-                'work_hours' => $this->formatMinutesToTime($workMinutes),
-                'work_minutes' => $workMinutes,
-                'follows_count' => $session->total_follows ?? 0,
-                'timeline' => $timeline,
-            ];
-        }
-
-        // حساب المتوسطات
-        $attendanceDays = count($daysData);
-        $avgWorkMinutes = $attendanceDays > 0 ? round($totalWorkMinutes / $attendanceDays) : 0;
-        $avgFollows = $attendanceDays > 0 ? round($totalFollows / $attendanceDays, 1) : 0;
-
         return [
-            'days' => $daysData,
+            'days' => [],
             'statistics' => [
-                'attendance_days' => $attendanceDays,
-                'total_work_hours' => $this->formatMinutesToTime($totalWorkMinutes),
-                'total_work_minutes' => $totalWorkMinutes,
-                'avg_work_hours' => $this->formatMinutesToTime($avgWorkMinutes),
-                'total_follows' => $totalFollows,
-                'avg_follows' => $avgFollows,
+                'attendance_days' => 0,
+                'total_work_hours' => '0:00',
+                'total_work_minutes' => 0,
+                'avg_work_hours' => '0:00',
+                'total_follows' => 0,
+                'avg_follows' => 0,
             ],
         ];
     }

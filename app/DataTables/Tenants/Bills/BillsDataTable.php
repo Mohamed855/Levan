@@ -28,7 +28,6 @@ class BillsDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'id', 'visible' => false],
             [
                 'data' => 'checkbox',
                 'title' => '<input type="checkbox" id="select-all">',

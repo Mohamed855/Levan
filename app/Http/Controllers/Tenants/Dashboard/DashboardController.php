@@ -76,9 +76,14 @@ final class DashboardController extends Controller
 
     public function getStatisticsData(Request $request): JsonResponse
     {
-        return response()->json(['success' => true, 'data' => $this->dashboardService->getStatisticsData(
-            $request->string('period', 'month')->toString()
-        )]);
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'assignments_count' => \App\Models\Tenants\Assignments\Assignment::query()->count(),
+                'properties_count' => \App\Models\Tenants\Properties\Property::query()->count(),
+                'auctions_count' => \App\Models\Tenants\Auctions\Auction::query()->count(),
+            ],
+        ]);
     }
 
     public function getApprovalsData(Request $request): JsonResponse

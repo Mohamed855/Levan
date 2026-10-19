@@ -166,7 +166,9 @@
                         @if (!$paymentStep) data-form-validate data-validation-url="{{ route('site.form-validation') }}" @endif
                         novalidate>
                         @csrf
-                        <input type="hidden" name="coupon_code" id="coupon_code_hidden" value="{{ old('coupon_code', $appliedCoupon['coupon_code'] ?? ($checkoutData['coupon_code'] ?? '')) }}" data-validation-skip>
+                        <input type="hidden" name="coupon_code" id="coupon_code_hidden"
+                            value="{{ old('coupon_code', $appliedCoupon['coupon_code'] ?? ($checkoutData['coupon_code'] ?? '')) }}"
+                            data-validation-skip>
                         <input type="hidden" name="bank_id" id="bank_id" data-validation-skip>
 
                         <div class="checkout-grid">
@@ -184,22 +186,36 @@
                                     <div class="checkout-card-body">
                                         <div class="form-grid-2">
                                             <x-form.controls.input name="billing_company_name" label="اسم الشركة أو المؤسسة"
-                                                placeholder="مثال: شركة لوت للمزادات العقارية" :value="old('billing_company_name', $checkoutData['billing_company_name'] ?? '')" required />
+                                                placeholder="مثال: شركة لوت للمزادات العقارية" :value="old(
+                                                    'billing_company_name',
+                                                    $checkoutData['billing_company_name'] ?? '',
+                                                )" required />
 
                                             <x-form.controls.input name="billing_commercial_number"
                                                 label="رقم السجل التجاري" placeholder="1010XXXXXX" inputmode="numeric"
-                                                maxlength="10" :value="old('billing_commercial_number', $checkoutData['billing_commercial_number'] ?? '')" required />
+                                                maxlength="10" :value="old(
+                                                    'billing_commercial_number',
+                                                    $checkoutData['billing_commercial_number'] ?? '',
+                                                )" required />
 
-                                            <x-form.controls.input name="billing_tax_number"
-                                                label="الرقم الضريبي (اختياري)" placeholder="300XXXXXXXXXXXX"
-                                                inputmode="numeric" maxlength="15" :value="old('billing_tax_number', $checkoutData['billing_tax_number'] ?? '')" />
+                                            <x-form.controls.input name="billing_tax_number" label="الرقم الضريبي"
+                                                placeholder="300XXXXXXXXXXXX" inputmode="numeric" maxlength="15"
+                                                :value="old(
+                                                    'billing_tax_number',
+                                                    $checkoutData['billing_tax_number'] ?? '',
+                                                )" required />
 
-                                            <x-form.controls.select name="billing_city_id" label="المدينة (اختياري)"
-                                                placeholder="اختر المدينة" :options="$cities ?? []" :selected="old('billing_city_id', $checkoutData['billing_city_id'] ?? '')" />
+                                            <x-form.controls.select name="billing_city_id" label="المدينة"
+                                                placeholder="اختر المدينة" :options="$cities ?? []" :selected="old(
+                                                    'billing_city_id',
+                                                    $checkoutData['billing_city_id'] ?? '',
+                                                )" required />
 
-                                            <x-form.controls.input name="billing_address"
-                                                label="العنوان أو الحي (اختياري)" placeholder="الرياض، حي السليمانية"
-                                                :value="old('billing_address', $checkoutData['billing_address'] ?? '')" />
+                                            <x-form.controls.input name="billing_address" label="العنوان"
+                                                placeholder="الرياض، حي السليمانية" :value="old(
+                                                    'billing_address',
+                                                    $checkoutData['billing_address'] ?? '',
+                                                )" required />
 
                                             <x-form.controls.input name="billing_name" label="اسم المدير المسؤول"
                                                 placeholder="أدخل اسم المدير" :value="old('billing_name', $checkoutData['billing_name'] ?? '')" required />
@@ -445,7 +461,8 @@
                                                         <i class="ti ti-discount-2"></i>
                                                         الخصم
                                                         <button type="button" class="btn-remove-coupon"
-                                                            id="remove-coupon" title="إزالة كود الخصم" aria-label="إزالة كود الخصم">
+                                                            id="remove-coupon" title="إزالة كود الخصم"
+                                                            aria-label="إزالة كود الخصم">
                                                             <i class="ti ti-x"></i>
                                                         </button>
                                                     </span>

@@ -46,6 +46,9 @@ class Auction extends Model
         'end_date' => 'date',
         'is_active' => 'boolean',
         'expected_properties_count' => 'integer',
+        'brochure_template_id' => 'integer',
+        'billboard_template_id' => 'integer',
+        'social_template_id' => 'integer',
     ];
 
     public function assignment(): BelongsTo
@@ -72,7 +75,9 @@ class Auction extends Model
 
     public function getTypeLabelAttribute(): string
     {
-        return match ($this->type) {
+        $type = $this->type instanceof \BackedEnum ? $this->type->value : (string) ($this->type ?? '');
+
+        return match ($type) {
             'electronic' => 'إلكتروني',
             'in_person' => 'حضوري',
             'hybrid' => 'هجين',

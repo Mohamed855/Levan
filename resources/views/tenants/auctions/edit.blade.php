@@ -121,6 +121,19 @@
                     <x-form.controls.textarea name="notes" label="الملاحظات" :value="$auction->notes" col="col-12"
                         rows="2" />
 
+                    <div class="col-12">
+                        <h6 class="fw-bold mb-1"><i class="ti ti-palette me-1"></i>القوالب التسويقية المعتمدة:</h6>
+                    </div>
+
+                    <x-form.controls.select name="brochure_template_id" label="قالب البروشور" col="col-md-4"
+                        :value="$auction->brochure_template_id" :options="$brochureTemplates" placeholder="اختر قالب البروشور..." />
+
+                    <x-form.controls.select name="billboard_template_id" label="قالب اللوحة الإعلانية" col="col-md-4"
+                        :value="$auction->billboard_template_id" :options="$billboardTemplates" placeholder="اختر قالب اللوحة..." />
+
+                    <x-form.controls.select name="social_template_id" label="قالب منصات التواصل" col="col-md-4"
+                        :value="$auction->social_template_id" :options="$socialTemplates" placeholder="اختر قالب منصات التواصل..." />
+
                     <div class="col-12" data-form-field data-field-name="attachments[]">
                         <label class="form-label" for="attachments">إضافة مرفقات</label>
                         <input id="attachments" type="file" name="attachments[]" multiple data-form-control

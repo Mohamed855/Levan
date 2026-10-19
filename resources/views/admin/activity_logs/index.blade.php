@@ -58,7 +58,6 @@
             <table id="activity-logs-table" class="table table-striped table-bordered text-center">
                 <thead>
                     <tr>
-                        <th></th>
                         <th class="custom-checkbox">
                             <input type="checkbox" id="select-all">
                         </th>

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders\tenant;
 
 use Illuminate\Database\Seeder;
@@ -14,10 +16,7 @@ class TenantDatabaseSeeder extends Seeder
         $this->call([
             PermissionsRolesSeeder::class,
             SettingsTableSeeder::class,
-            GeneralSettingsSeeder::class,
-            CompanyPortfolioSeeder::class,
             UserSeeder::class,
-            CustomerDataSeeder::class,
             AuctionsAndPropertiesSeeder::class,
         ]);
     }

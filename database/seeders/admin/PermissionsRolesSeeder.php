@@ -107,6 +107,15 @@ class PermissionsRolesSeeder extends Seeder
                 'version_testers.delete',
             ],
 
+            'auction_templates_management' => [
+                'auction_templates.view',
+                'auction_templates.create',
+                'auction_templates.edit',
+                'auction_templates.delete',
+                'auction_templates.restore',
+                'auction_templates.force_delete',
+            ],
+
             'system_management' => [
                 'system.settings',
                 'system.groups',

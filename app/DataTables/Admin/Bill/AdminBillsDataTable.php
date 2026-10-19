@@ -25,9 +25,9 @@ class AdminBillsDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'id', 'visible' => false],
             [
                 'data' => 'checkbox',
+                'name' => 'checkbox',
                 'title' => '<input type="checkbox" id="select-all">',
                 'orderable' => false,
                 'searchable' => false,
@@ -157,6 +157,10 @@ class AdminBillsDataTable extends AbstractDataTable
             ['extend' => 'excel', 'text' => 'إكسل', 'exportOptions' => [
                 'columns' => [11, 10, 9, 8, 7, 6, 5, 4, 3],
             ]],
+            [
+                'text' => 'حذف المحدد',
+                'action' => 'function() { handleMassDelete(); }',
+            ],
         ];
 
         return [

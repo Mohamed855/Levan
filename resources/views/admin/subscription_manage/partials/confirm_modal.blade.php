@@ -17,7 +17,7 @@
     </div>
 
     <x-slot:footer>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
         <button type="button" class="btn btn-success" id="subscriptionConfirmModalSubmitBtn">تأكيد</button>
     </x-slot:footer>
 </x-bootstrap.modal>

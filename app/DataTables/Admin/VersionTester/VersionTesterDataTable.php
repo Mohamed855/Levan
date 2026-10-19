@@ -24,16 +24,14 @@ class VersionTesterDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             [
                 'data' => 'checkbox',
                 'name' => 'checkbox',
-                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
+                'title' => '<input type="checkbox" id="select-all">',
                 'orderable' => false,
                 'searchable' => false,
                 'width' => '10px',
                 'className' => 'custom-checkbox',
-                'titleAttr' => 'تحديد الكل',
             ],
             ['data' => 'tenant_name',   'name' => 'tenant.name',    'title' => 'اسم العميل',    'className' => 'text-start'],
             ['data' => 'type',          'name' => 'type',           'title' => 'نوع المختبر',   'className' => 'text-center'],

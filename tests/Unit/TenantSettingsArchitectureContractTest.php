@@ -7,22 +7,11 @@ namespace Tests\Unit;
 use App\Actions\Admin\Settings\UpdatePlatformSettingsAction;
 use App\Actions\Tenants\Settings\UpdateTenantSettingsAction;
 use App\Http\Controllers\Admin\Settings\SettingsController as AdminSettingsController;
-use App\Http\Controllers\Tenants\BusinessCenter\Customer\CustomerController;
-use App\Http\Controllers\Tenants\BusinessCenter\Customer\Distribution\CustomerDistributionController;
-use App\Http\Controllers\Tenants\BusinessCenter\Customer\Import\GetCustomerImportController;
-use App\Http\Controllers\Tenants\BusinessCenter\Customer\Letter\CompanyLetterController;
 use App\Http\Controllers\Tenants\Domains\CheckMultipleDomainController;
 use App\Http\Controllers\Tenants\License\LicenseController;
 use App\Http\Controllers\Tenants\Settings\ApiTokenSettingsController;
 use App\Http\Controllers\Tenants\Settings\SettingsController as TenantSettingsController;
 use App\Http\Controllers\Tenants\Versions\VersionController;
-use App\Http\Requests\Tenants\BusinessCenter\Customer\CustomerPortfolioFieldsRequest;
-use App\Http\Requests\Tenants\BusinessCenter\Customer\Distribution\DistributionPortfolioLookupRequest;
-use App\Http\Requests\Tenants\BusinessCenter\Customer\Distribution\DistributionTargetsRequest;
-use App\Http\Requests\Tenants\BusinessCenter\Customer\Import\CustomerImportCompanyRequest;
-use App\Http\Requests\Tenants\BusinessCenter\Customer\Letter\PreviewCompanyLetterRequest;
-use App\Http\Requests\Tenants\BusinessCenter\Customer\Letter\SendCompanyLetterRequest;
-use App\Http\Requests\Tenants\BusinessCenter\Customer\PreviewCustomerWhatsAppTemplateRequest;
 use App\Http\Requests\Tenants\Domains\SuggestDomainAlternativesRequest;
 use App\Http\Requests\Tenants\Domains\SuggestDomainNamesRequest;
 use App\Http\Requests\Tenants\License\ManageLicenseRequest;
@@ -100,62 +89,6 @@ final class TenantSettingsArchitectureContractTest extends TestCase
         $this->assertStringNotContainsString('Validator::make(', $source);
     }
 
-    public function test_customer_import_company_lookup_uses_a_dedicated_form_request(): void
-    {
-        $controller = new ReflectionClass(GetCustomerImportController::class);
-
-        $this->assertSame(
-            CustomerImportCompanyRequest::class,
-            $controller->getMethod('getPortfoliosByCompany')->getParameters()[0]->getType()?->getName(),
-        );
-    }
-
-    public function test_company_letter_mutations_use_dedicated_form_requests(): void
-    {
-        $controller = new ReflectionClass(CompanyLetterController::class);
-
-        $this->assertSame(
-            PreviewCompanyLetterRequest::class,
-            $controller->getMethod('previewTemplate')->getParameters()[0]->getType()?->getName(),
-        );
-        $this->assertSame(
-            SendCompanyLetterRequest::class,
-            $controller->getMethod('send')->getParameters()[0]->getType()?->getName(),
-        );
-    }
-
-    public function test_distribution_lookup_and_target_preview_use_form_requests_and_service_calculation(): void
-    {
-        $controller = new ReflectionClass(CustomerDistributionController::class);
-
-        $this->assertSame(
-            DistributionPortfolioLookupRequest::class,
-            $controller->getMethod('getPortfoliosWithUnassignedCustomers')->getParameters()[0]->getType()?->getName(),
-        );
-        $this->assertSame(
-            DistributionTargetsRequest::class,
-            $controller->getMethod('calculateTargets')->getParameters()[0]->getType()?->getName(),
-        );
-
-        $source = file_get_contents($controller->getFileName());
-        $this->assertStringContainsString('$this->distributionService->calculateMonthlyTargets(', $source);
-        $this->assertStringNotContainsString('public function calculateMonthlyTargets(', $source);
-    }
-
-    public function test_customer_auxiliary_lookups_use_dedicated_form_requests(): void
-    {
-        $controller = new ReflectionClass(CustomerController::class);
-
-        $this->assertSame(
-            CustomerPortfolioFieldsRequest::class,
-            $controller->getMethod('getPortfolioFields')->getParameters()[0]->getType()?->getName(),
-        );
-        $this->assertSame(
-            PreviewCustomerWhatsAppTemplateRequest::class,
-            $controller->getMethod('previewWhatsAppTemplate')->getParameters()[0]->getType()?->getName(),
-        );
-    }
-
     public function test_tenant_version_flow_crosses_central_storage_only_through_gateway(): void
     {
         foreach ([VersionController::class, VersionService::class, UpgradeVersionJob::class] as $class) {
@@ -167,17 +100,6 @@ final class TenantSettingsArchitectureContractTest extends TestCase
 
         $gateway = file_get_contents((new ReflectionClass(CentralVersionGateway::class))->getFileName());
         $this->assertStringContainsString('Tenancy::central(', $gateway);
-    }
-
-    public function test_external_domain_linking_requires_domain_connect_permission(): void
-    {
-        $projectRoot = dirname(__DIR__, 2);
-        $controller = file_get_contents($projectRoot.'/app/Http/Controllers/Tenants/__LinkDomain/LinkDomainController.php');
-        $request = file_get_contents($projectRoot.'/app/Http/Requests/Tenants/Domains/ProcessExternalDomainLinkRequest.php');
-
-        $this->assertStringContainsString("middleware('can:domain.connect')", $controller);
-        $this->assertStringContainsString("can('domain.connect')", $request);
-        $this->assertStringNotContainsString('env(', $controller);
     }
 
     public function test_domain_controller_reads_provider_configuration_through_services_config(): void

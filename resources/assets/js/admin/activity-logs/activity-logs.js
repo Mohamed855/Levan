@@ -52,15 +52,14 @@ function initializeDataTable() {
             }
         },
         columns: getTableColumns(),
-        order: [[5, 'desc']],
+        order: [[4, 'desc']],
         dom: getTableDom(),
         buttons: getTableButtons(),
         language: {
             url: window.assets.arabicDataTable
         },
         orderCellsTop: true,
-        columnDefs: getColumnDefs(),
-        responsive: getResponsiveConfig(),
+        responsive: false,
         createdRow: handleTableRowCreation
     });
 }
@@ -70,13 +69,6 @@ function initializeDataTable() {
  */
 function getTableColumns() {
     return [
-        {
-            data: "DT_RowIndex",
-            name: "DT_RowIndex",
-            orderable: false,
-            searchable: false,
-            className: 'text-center'
-        },
         {
             data: 'checkbox',
             name: 'checkbox',
@@ -179,46 +171,6 @@ function getTableButtons() {
     ];
 }
 
-/**
- * تعريف أعمدة الجدول
- */
-function getColumnDefs() {
-    return [{
-        className: "text-center",
-        orderable: false,
-        targets: 0,
-        render: function () {
-            return "";
-        }
-    }];
-}
-
-/**
- * تعريف الاستجابة للجدول
- */
-function getResponsiveConfig() {
-    return {
-        details: {
-            display: $.fn.dataTable.Responsive.display.modal({
-                header: function () {
-                    return "التفاصيل";
-                }
-            }),
-            type: "inline",
-            renderer: function (api, rowIdx, columns) {
-                const data = $.map(columns, function (col) {
-                    return col.title !== "" ?
-                        '<tr data-dt-row="' + col.rowIndex + '" data-dt-column="' + col.columnIndex + '">' +
-                        '<td>' + col.title + ':</td>' +
-                        '<td>' + col.data + '</td>' +
-                        '</tr>' : "";
-                }).join("");
-
-                return data ? $('<table class="table"/><tbody />').append(data) : false;
-            }
-        }
-    };
-}
 
 /**
  * معالجة إنشاء صفوف الجدول

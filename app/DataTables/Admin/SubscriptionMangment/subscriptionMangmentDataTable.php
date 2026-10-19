@@ -4,7 +4,7 @@ namespace App\DataTables\Admin\SubscriptionMangment;
 
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Models\Admin\Subscription\Subscription;
-use App\Services\shared\Subscription\SubscriptionManager;
+use App\Services\Shared\Subscription\SubscriptionManager;
 
 class subscriptionMangmentDataTable extends AbstractDataTable
 {
@@ -18,34 +18,32 @@ class subscriptionMangmentDataTable extends AbstractDataTable
 
     protected function resource()
     {
-        return Subscription::query()->with(['plan', 'currentPeriod', 'tenant.city']);
+        return Subscription::query()->with(['plan', 'currentPeriod', 'tenant.city', 'tenant.version']);
     }
 
     protected function getColumns(): array
     {
         $columns = [
-            ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             [
                 'data' => 'checkbox',
                 'name' => 'checkbox',
-                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
+                'title' => '<input type="checkbox" id="select-all">',
                 'orderable' => false,
                 'searchable' => false,
                 'width' => '10px',
                 'className' => 'custom-checkbox',
-                'titleAttr' => 'تحديد الكل',
             ],
-            ['data' => 'company_name',    'name' => 'company_name',     'title' => 'اسم الشركة'],
-            ['data' => 'city', 'name' => 'city_id', 'title' => 'المدينة'],
-            ['data' => 'tax_number', 'name' => 'tax_number', 'title' => 'الرقم الضريبي'],
+            ['data' => 'company_name',    'name' => 'tenant.company_name',     'title' => 'اسم الشركة'],
+            ['data' => 'city', 'name' => 'tenant.city.name', 'title' => 'المدينة', 'orderable' => false],
+            ['data' => 'tax_number', 'name' => 'tenant.tax_number', 'title' => 'الرقم الضريبي'],
             ['data' => 'tenant_id',       'name' => 'tenant_id',        'title' => 'معرف العميل'],
-            ['data' => 'version',              'name' => 'version',            'title' => 'رقم الإصدار'],
+            ['data' => 'version',              'name' => 'tenant.version.version',            'title' => 'رقم الإصدار', 'orderable' => false],
 
-            ['data' => 'plan_id',         'name' => 'plan_id',          'title' => 'الباقة'],
+            ['data' => 'plan_id',         'name' => 'plan.name',          'title' => 'الباقة'],
             ['data' => 'total_users',     'name' => 'total_users',      'title' => 'عدد المستخدمين '],
             ['data' => 'used_users',      'name' => 'used_users',       'title' => 'التراخيص المستخدمة'],
             ['data' => 'starts_at',       'name' => 'starts_at',        'title' => 'بداية اول اشتراك'],
-            ['data' => 'period_end',      'name' => 'period_end',       'title' => 'نهاية الإشتراك الحالي'],
+            ['data' => 'period_end',      'name' => 'period_end',       'title' => 'نهاية الإشتراك الحالي', 'orderable' => false, 'searchable' => false],
             ['data' => 'ends_at', 'name' => 'ends_at', 'title' => 'نهاية الاشتراك'],
 
             ['data' => 'days_remaining',    'name' => 'days_remaining', 'title' => 'الأيام المتبقية', 'orderable' => false],
@@ -73,12 +71,15 @@ class subscriptionMangmentDataTable extends AbstractDataTable
             ->addColumn('city', fn ($row) => $row->tenant?->city?->name ?? '-')
             ->addColumn('tax_number', fn ($row) => $row->tenant?->tax_number ?? '-')
             ->editColumn('tenant_id', function ($row) {
-                $url = route('admin.companies.tenant-access', ['tenant' => $row->tenant_id]);
+                if (!$row->tenant_id) {
+                    return '-';
+                }
+                $dashboardUrl = url('/'.$row->tenant_id.'/dashboard');
 
-                return '<a href="'.$url.'" class="text-dark d-inline-block" title="رابط العميل" target="_blank">'
+                return '<a href="'.$dashboardUrl.'" class="text-dark d-inline-block fw-semibold" title="رابط لوحة التحكم" target="_blank">'
                     .'<i class="ti ti-external-link me-1 text-primary"></i>'
-                    .$row->tenant_id.
-                    '</a>';
+                    .e($row->tenant_id)
+                    .'</a>';
             })
 
             ->editColumn('plan_id', function ($row) {
@@ -145,17 +146,17 @@ class subscriptionMangmentDataTable extends AbstractDataTable
 
     private function isExpiringRoute(): bool
     {
-        return request()->routeIs('*subscriptionManage.expiring*') || request()->boolean('expiring_soon');
+        return request()->routeIs('*subscriptionManage.expiring*') || request()->is('*subscription-manage/expiring*') || request()->boolean('expiring_soon');
     }
 
     private function isExpiredRoute(): bool
     {
-        return request()->routeIs('*subscriptionManage.expired*') || request()->boolean('expired');
+        return request()->routeIs('*subscriptionManage.expired*') || request()->is('*subscription-manage/expired*') || request()->boolean('expired');
     }
 
     private function isPendingRoute(): bool
     {
-        return request()->routeIs('*subscriptionManage.pending*');
+        return request()->routeIs('*subscriptionManage.pending*') || request()->is('*subscription-manage/pending*');
     }
 
     protected function applyCustomFilters($query)
@@ -193,7 +194,7 @@ class subscriptionMangmentDataTable extends AbstractDataTable
 
     protected function getSearchableColumns(): array
     {
-        return ['version', 'name', 'stage', 'file_path'];
+        return ['subscription_number', 'tenant_id', 'tenant.company_name', 'tenant.tax_number'];
     }
 
     protected function getCustomOrder(): array
@@ -230,6 +231,12 @@ class subscriptionMangmentDataTable extends AbstractDataTable
                 'action' => 'function() { handleMassReject(); }',
             ];
         }
+
+        $buttons[] = [
+            'text' => 'حذف المحدد',
+            'className' => 'btn btn-default btn-delete-selected',
+            'action' => 'function() { handleMassDelete(); }',
+        ];
 
         return [
             'extend' => 'collection',

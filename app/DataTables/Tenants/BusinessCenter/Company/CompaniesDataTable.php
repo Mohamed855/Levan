@@ -66,11 +66,10 @@ class CompaniesDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
             [
                 'data' => 'checkbox',
                 'name' => 'checkbox',
-                'title' => '<span class="custom-checkbox-header"><input type="checkbox" id="select-all"></span>',
+                'title' => '<input type="checkbox" id="select-all">',
                 'orderable' => false,
                 'searchable' => false,
                 'width' => '10px',

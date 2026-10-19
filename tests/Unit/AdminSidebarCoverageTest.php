@@ -28,8 +28,6 @@ class AdminSidebarCoverageTest extends TestCase
             'admin.settings.index',
             'admin.settings.banks.index',
             'admin.settings.domains.index',
-            'admin.content_management.client.index',
-            'admin.content_management.portfolio.index',
             'admin.activity-logs.index',
             'admin.versions.index',
             'admin.version_testers.index',

@@ -26,7 +26,8 @@
             rolesIndex: "{{ tenant_route_name('roles.index') }}",
             getUserRoles: "{{ tenant_route_name('roles.user.get', ['id' => '___ID___']) }}",
             updateUserRoles: "{{ tenant_route_name('roles.user.update', ['id' => '___ID___']) }}",
-            updateStatus: "{{ tenant_route_name('roles.user.status', ['userId' => '___ID___']) }}"
+            updateStatus: "{{ tenant_route_name('roles.user.status', ['userId' => '___ID___']) }}",
+            massDelete: "{{ tenant_route_name('mass-delete') }}"
         };
         window.assets = {
             arabicDataTable: "{{ asset('static/i18n/ar.json') }}"
@@ -141,7 +142,6 @@
             <table id="users-table" class="table table-striped table-bordered text-center">
                 <thead>
                     <tr>
-                        <th></th>
                         <th class="custom-checkbox">
                             <input type="checkbox" id="select-all">
                         </th>
@@ -164,11 +164,13 @@
 
     <!-- مودال تعديل الدور والحالة -->
     <div class="modal fade" id="editRoleModal" tabindex="-1" aria-labelledby="editRoleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered">
             <form id="updateRoleForm">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">تعديل دور المستخدم والحالة</h5>
+                        <h5 class="modal-title" id="editRoleModalLabel">
+                            <i class="ti ti-user-shield text-primary me-2"></i>تعديل دور المستخدم والحالة
+                        </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
                     </div>
 
@@ -204,7 +206,7 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
                         <button type="submit" class="btn btn-primary">تحديث</button>
                     </div>
                 </div>

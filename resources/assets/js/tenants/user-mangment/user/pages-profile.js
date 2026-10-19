@@ -12,7 +12,6 @@ $(function () {
     var dt_project = dt_projects_table.DataTable({
       ajax: assetsPath + 'json/user-profile.json',
       columns: [
-        { data: '' },
         { data: 'id' },
         { data: 'project_name' },
         { data: 'project_leader' },
@@ -22,19 +21,8 @@ $(function () {
       ],
       columnDefs: [
         {
-          // For Responsive
-          className: 'text-center',
-          searchable: false,
-          orderable: false,
-          responsivePriority: 2,
-          targets: 0,
-          render: function (data, type, full, meta) {
-            return '';
-          }
-        },
-        {
           // For Checkboxes
-          targets: 1,
+          targets: 0,
           orderable: false,
           searchable: false,
           responsivePriority: 3,
@@ -48,7 +36,7 @@ $(function () {
         },
         {
           // Avatar image/badge, Name and post
-          targets: 2,
+          targets: 1,
           responsivePriority: 4,
           render: function (data, type, full, meta) {
             var $user_img = full['project_img'],
@@ -90,7 +78,7 @@ $(function () {
         },
         {
           // Task
-          targets: 3,
+          targets: 2,
           render: function (data, type, full, meta) {
             var $task = full['project_leader'];
             return '<span class="text-heading">' + $task + '</span>';
@@ -98,7 +86,7 @@ $(function () {
         },
         {
           // Teams
-          targets: 4,
+          targets: 3,
           orderable: false,
           searchable: false,
           render: function (data, type, full, meta) {
@@ -192,38 +180,7 @@ $(function () {
           previous: '<i class="ti ti-chevron-left ti-sm"></i>'
         }
       },
-      responsive: {
-        details: {
-          display: $.fn.dataTable.Responsive.display.modal({
-            header: function (row) {
-              var data = row.data();
-              return 'Details of "' + data['project_name'] + '" Project';
-            }
-          }),
-          type: 'inline',
-          renderer: function (api, rowIdx, columns) {
-            var data = $.map(columns, function (col, i) {
-              return col.title !== '' // ? Do not show row in modal popup if title is blank (for check box)
-                ? '<tr data-dt-row="' +
-                    col.rowIndex +
-                    '" data-dt-column="' +
-                    col.columnIndex +
-                    '">' +
-                    '<td>' +
-                    col.title +
-                    ':' +
-                    '</td> ' +
-                    '<td>' +
-                    col.data +
-                    '</td>' +
-                    '</tr>'
-                : '';
-            }).join('');
-
-            return data ? $('<table class="table"/><tbody />').append(data) : false;
-          }
-        }
-      }
+      responsive: false
     });
     $('div.head-label').html('<h5 class="card-title mb-0">Project List</h5>');
   }

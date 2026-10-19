@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders\tenant;
 
 use Illuminate\Database\Seeder;
@@ -39,64 +41,61 @@ class PermissionsRolesSeeder extends Seeder
                 'teams.manage',
             ],
             'business_center' => [
-                'companies.view', 'companies.create', 'companies.edit', 'companies.delete',
-                'portfolios.view', 'portfolios.create', 'portfolios.edit', 'portfolios.delete',
-                'customers.view', 'customers.my_view', 'customers.create', 'customers.edit',
-                'customers.edit_all', 'customers.delete', 'customers.delete_all',
-                'customers.send_message', 'customers.update_directly', 'customers.add_phone',
-                'contracts.view', 'contracts.create', 'contracts.edit', 'contracts.delete',
+                'companies.view',
+                'companies.create',
+                'companies.edit',
+                'companies.delete',
             ],
             'system_management' => [
                 'system.settings',
-                'countries.view',
-                'payment_methods.view',
-                'message_templates.view',
-                'document_request_reasons.view',
-                'contact_methods.view',
-                'customer_statuses.view',
                 'roles.view',
                 'roles.create',
                 'roles.edit',
                 'roles.delete',
                 'roles.assign',
                 'activity_log.view',
-                'message_logs.view',
-                'message_logs.show',
-                'message_logs.delete',
-                'message_logs.export',
             ],
             'archive_management' => [
                 'user_archive.view',
                 'user_archive.restore',
                 'user_archive.force_delete',
-                'companies_archive.view', 'companies_archive.restore', 'companies_archive.force_delete',
-                'portfolios_archive.view', 'portfolios_archive.restore', 'portfolios_archive.force_delete',
-                'customers_archive.view', 'customers_archive.restore', 'customers_archive.force_delete',
-                'contracts_archive.view', 'contracts_archive.restore', 'contracts_archive.force_delete',
-                'assignments_archive.view', 'assignments_archive.restore', 'assignments_archive.force_delete',
-                'properties_archive.view', 'properties_archive.restore', 'properties_archive.force_delete',
-                'auctions_archive.view', 'auctions_archive.restore', 'auctions_archive.force_delete',
+                'companies_archive.view',
+                'companies_archive.restore',
+                'companies_archive.force_delete',
+                'assignments_archive.view',
+                'assignments_archive.restore',
+                'assignments_archive.force_delete',
+                'properties_archive.view',
+                'properties_archive.restore',
+                'properties_archive.force_delete',
+                'auctions_archive.view',
+                'auctions_archive.restore',
+                'auctions_archive.force_delete',
             ],
             'assignments_management' => [
-                'assignments.view', 'assignments.create', 'assignments.edit', 'assignments.delete', 'assignments.toggle_status',
+                'assignments.view',
+                'assignments.create',
+                'assignments.edit',
+                'assignments.delete',
+                'assignments.toggle_status',
             ],
             'properties_management' => [
-                'properties.view', 'properties.create', 'properties.edit', 'properties.delete', 'properties.toggle_status',
+                'properties.view',
+                'properties.create',
+                'properties.edit',
+                'properties.delete',
+                'properties.toggle_status',
             ],
             'auctions_management' => [
-                'auctions.view', 'auctions.create', 'auctions.edit', 'auctions.delete', 'auctions.toggle_status',
+                'auctions.view',
+                'auctions.create',
+                'auctions.edit',
+                'auctions.delete',
+                'auctions.toggle_status',
             ],
             'tickets_management' => [
                 'tickets.view',
                 'tickets.create',
-                'tasks.view', 'my_tasks.view',
-                'customer_distributions.view', 'customer_distributions.create', 'customer_distributions.delete',
-                'tasks.delete', 'customer_follows.edit', 'customer_follows.delete',
-                'customers.export', 'archive.restore', 'archive.force_delete',
-                'customer_update_requests.view', 'customer_update_requests.approve', 'customer_update_requests.reject',
-                'company_letters.view', 'company_letters.send',
-                'reports.customers.view', 'reports.companies.view', 'reports.users.view',
-                'reports.executive.view', 'reports.performance.view',
             ],
         ];
 
@@ -111,8 +110,6 @@ class PermissionsRolesSeeder extends Seeder
 
         $adminRole = Role::firstOrCreate(['name' => 'Admin', 'guard_name' => 'tenant']);
         $adminRole->syncPermissions(Permission::where('guard_name', 'tenant')->get());
-
-        Role::firstOrCreate(['name' => 'collector', 'guard_name' => 'tenant']);
 
         $userRole = Role::firstOrCreate(['name' => 'User', 'guard_name' => 'tenant']);
         $userRole->syncPermissions(

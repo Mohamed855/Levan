@@ -8,8 +8,6 @@ use App\Actions\Admin\PublicRequests\CreateContactRequestAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Site\StoreContactRequest;
 use App\Jobs\Admin\Mail\SendContactMailJob;
-use App\Models\Admin\ContentManagement\Client;
-use App\Models\Admin\ContentManagement\Portfolio;
 use App\Models\Admin\Plans\Plan;
 
 class LandingPageController extends Controller
@@ -19,8 +17,8 @@ class LandingPageController extends Controller
     public function index()
     {
         $plans = Plan::publiclyAvailable()->orderBy('sort_order', 'asc')->get();
-        $ourClients = Client::where('status', 1)->latest()->get();
-        $portfolios = Portfolio::where('status', 1)->latest()->get();
+        $ourClients = collect();
+        $portfolios = collect();
 
         return view('site.index', compact('plans', 'ourClients', 'portfolios'));
     }

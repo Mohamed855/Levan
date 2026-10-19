@@ -6,7 +6,7 @@ use App\DataTables\Admin\Companies\CompanyDataTable;
 use App\DataTables\Admin\SubscriptionMangment\subscriptionMangmentDataTable;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
+use App\Http\Requests\Admin\SubscriptionManagement\AcceptSubscriptionRequest;
 use App\Http\Requests\Admin\SubscriptionManagement\FinalizeCompanySubscriptionRequest;
 use App\Http\Requests\Admin\SubscriptionManagement\MassAcceptSubscriptionsRequest;
 use App\Http\Requests\Admin\SubscriptionManagement\MassRejectSubscriptionsRequest;
@@ -246,7 +246,7 @@ class SubscriptionManagementController extends Controller
         }
     }
 
-    public function accept(AdminAuthenticatedRequest $request, Subscription $subscription)
+    public function accept(AcceptSubscriptionRequest $request, Subscription $subscription)
     {
         try {
             $this->subscriptionManagementService->accept($subscription, $request->user('admin')?->getKey());

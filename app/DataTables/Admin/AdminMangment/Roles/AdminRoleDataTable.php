@@ -28,7 +28,7 @@ final class AdminRoleDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
+            ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم الدور'],
             ['data' => 'users_count', 'name' => 'users_count', 'title' => 'المستخدمون', 'searchable' => false],
             ['data' => 'permissions_count', 'name' => 'permissions_count', 'title' => 'الصلاحيات', 'searchable' => false],
@@ -40,6 +40,7 @@ final class AdminRoleDataTable extends AbstractDataTable
     protected function addCustomColumns($dataTable): void
     {
         $dataTable
+            ->addColumn('checkbox', fn (Role $role): string => '<input type="checkbox" class="row-checkbox" value="'.$role->id.'">')
             ->editColumn('name', fn (Role $role): string => '<span class="fw-medium text-heading">'.e($role->name).'</span>')
             ->editColumn('users_count', fn (Role $role): string => '<span class="badge bg-label-primary">'.number_format($role->users_count).'</span>')
             ->editColumn('permissions_count', fn (Role $role): string => '<span class="badge bg-label-info">'.number_format($role->permissions_count).'</span>')
@@ -49,7 +50,7 @@ final class AdminRoleDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['name', 'users_count', 'permissions_count', 'actions'];
+        return ['checkbox', 'name', 'users_count', 'permissions_count', 'actions'];
     }
 
     protected function getSearchableColumns(): array
@@ -69,14 +70,23 @@ final class AdminRoleDataTable extends AbstractDataTable
 
     private function getActionsDropdownButton(): array
     {
+        $buttons = [
+            ['extend' => 'copy', 'text' => 'نسخ'],
+            ['extend' => 'excel', 'text' => 'إكسل'],
+        ];
+
+        if (auth('admin')->user()?->can('roles.delete')) {
+            $buttons[] = [
+                'text' => 'حذف المحدد',
+                'action' => 'function() { handleMassDelete(); }',
+            ];
+        }
+
         return [
             'extend' => 'collection',
             'className' => 'btn btn-export',
             'text' => 'الإجراءات',
-            'buttons' => [
-                ['extend' => 'copy', 'text' => 'نسخ'],
-                ['extend' => 'excel', 'text' => 'إكسل'],
-            ],
+            'buttons' => $buttons,
         ];
     }
 

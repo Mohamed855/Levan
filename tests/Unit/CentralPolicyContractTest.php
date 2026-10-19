@@ -9,8 +9,6 @@ use App\Http\Controllers\Admin\Archive\Bill\BillArchiveController;
 use App\Http\Controllers\Admin\Archive\Coupon\CouponArchiveController;
 use App\Http\Controllers\Admin\Bills\AdminBillsController;
 use App\Http\Controllers\Admin\Companies\CompanyController;
-use App\Http\Controllers\Admin\ContentManagement\Client\ClientController;
-use App\Http\Controllers\Admin\ContentManagement\Portfolio\PortfolioController;
 use App\Http\Controllers\Admin\Coupons\AdminCouponController;
 use App\Http\Controllers\Admin\Plans\PlanController;
 use App\Http\Controllers\Admin\Settings\Bank\SettingsBankController;
@@ -19,8 +17,6 @@ use App\Http\Controllers\Admin\Subscriptions\SubscriptionController;
 use App\Http\Controllers\Admin\Versions\VersionController;
 use App\Http\Controllers\Admin\VersionTester\VersionTesterController;
 use App\Policies\Admin\Bills\BillPolicy;
-use App\Policies\Admin\ContentManagement\ClientPolicy;
-use App\Policies\Admin\ContentManagement\ContentPortfolioPolicy;
 use App\Policies\Admin\Coupons\CouponPolicy;
 use App\Policies\Admin\Plans\PlanPolicy;
 use App\Policies\Admin\Settings\BankPolicy;
@@ -45,8 +41,6 @@ class CentralPolicyContractTest extends TestCase
             CouponPolicy::class,
             BankPolicy::class,
             ControlDomainPolicy::class,
-            ClientPolicy::class,
-            ContentPortfolioPolicy::class,
             VersionPolicy::class,
             VersionTesterPolicy::class,
             BillPolicy::class,
@@ -69,8 +63,6 @@ class CentralPolicyContractTest extends TestCase
             AdminCouponController::class,
             SettingsBankController::class,
             SettingsDomainController::class,
-            ClientController::class,
-            PortfolioController::class,
             VersionController::class,
             VersionTesterController::class,
             AdminBillsController::class,

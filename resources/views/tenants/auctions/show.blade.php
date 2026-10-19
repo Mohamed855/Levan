@@ -69,6 +69,44 @@
                 </div>
             </div>
 
+            {{-- كارت مخرجات المزاد التسويقية --}}
+            @if($auction->brochure_template_id || $auction->billboard_template_id || $auction->social_template_id)
+                <div class="card mb-4 shadow-sm border-primary">
+                    <div class="card-header bg-label-primary py-3">
+                        <h6 class="card-title mb-0 text-primary fw-bold">
+                            <i class="ti ti-printer me-1"></i>مخرجات المزاد التسويقية (Fillable PDF)
+                        </h6>
+                    </div>
+                    <div class="card-body pt-3">
+                        <div class="d-grid gap-2">
+                            @if($auction->brochure_template_id)
+                                <a href="{{ tenant_route_name('auctions.brochure', $auction->id) }}"
+                                   class="btn btn-outline-primary d-flex align-items-center justify-content-between" target="_blank">
+                                    <span><i class="ti ti-file-description me-2"></i>تحميل كتيب البروشور</span>
+                                    <i class="ti ti-download"></i>
+                                </a>
+                            @endif
+
+                            @if($auction->billboard_template_id)
+                                <a href="{{ tenant_route_name('auctions.billboard', $auction->id) }}"
+                                   class="btn btn-outline-warning d-flex align-items-center justify-content-between" target="_blank">
+                                    <span><i class="ti ti-ad me-2"></i>تحميل اللوحة الإعلانية</span>
+                                    <i class="ti ti-download"></i>
+                                </a>
+                            @endif
+
+                            @if($auction->social_template_id)
+                                <a href="{{ tenant_route_name('auctions.social', $auction->id) }}"
+                                   class="btn btn-outline-info d-flex align-items-center justify-content-between" target="_blank">
+                                    <span><i class="ti ti-brand-instagram me-2"></i>تحميل منشور السوشيال ميديا</span>
+                                    <i class="ti ti-download"></i>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             @if ($auction->attachments->isNotEmpty())
                 <div class="card mb-4">
                     <div class="card-header pb-2">

@@ -94,6 +94,17 @@
     }
 }
 
+/* ── Chart range select ── */
+.chart-range-select {
+    max-width: 250px;
+    width: 100%;
+
+    & + .select2-container {
+        max-width: 250px !important;
+        width: 100% !important;
+    }
+}
+
 /* ── Chart containers ── */
 .platform-activity-chart-wrap {
     position: relative;

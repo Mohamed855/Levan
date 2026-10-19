@@ -68,7 +68,7 @@ class SubscriptionDataTable extends AbstractDataTable
     protected function getColumns(): array
     {
         return [
-            ['data' => 'id', 'name' => 'id', 'title' => 'ID', 'visible' => false],
+            ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
             ['data' => 'subscription_number', 'name' => 'subscription_number', 'title' => 'رقم الاشتراك'],
             ['data' => 'company_name', 'name' => 'tenant.company_name', 'title' => 'اسم الشركة'],
             ['data' => 'tax_number', 'name' => 'tenant.tax_number', 'title' => 'الرقم الضريبي'],
@@ -86,6 +86,7 @@ class SubscriptionDataTable extends AbstractDataTable
     protected function addCustomColumns($datatable)
     {
         $datatable
+            ->addColumn('checkbox', fn (Subscription $row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
             ->editColumn('subscription_number', fn (Subscription $row) => '<span class="fw-bold text-primary">'.e($row->subscription_number).'</span>')
             ->addColumn('company_name', fn (Subscription $row) => $row->tenant?->company_name ?: '-')
             ->addColumn('tax_number', fn (Subscription $row) => $row->tenant?->tax_number ?: '-')
@@ -167,7 +168,7 @@ class SubscriptionDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['subscription_number', 'tenant_id', 'plan_limits', 'days_remaining', 'status', 'actions'];
+        return ['checkbox', 'subscription_number', 'tenant_id', 'plan_limits', 'days_remaining', 'status', 'actions'];
     }
 
     protected function getSearchableColumns(): array
@@ -182,15 +183,18 @@ class SubscriptionDataTable extends AbstractDataTable
 
     protected function buttons(): array
     {
+        $buttons = [
+            ['extend' => 'copy', 'text' => 'نسخ'],
+            ['extend' => 'excel', 'text' => 'إكسل'],
+            ['text' => 'حذف المحدد', 'action' => 'function() { handleMassDelete(); }'],
+        ];
+
         return [
             [
                 'extend' => 'collection',
                 'className' => 'btn btn-export',
                 'text' => 'الإجراءات',
-                'buttons' => [
-                    ['extend' => 'copy', 'text' => 'نسخ'],
-                    ['extend' => 'excel', 'text' => 'إكسل'],
-                ],
+                'buttons' => $buttons,
             ],
             [
                 'text' => '<i class="fas fa-plus-circle me-1"></i> إضافة اشتراك',

@@ -96,7 +96,8 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary px-4" id="submitSurveyBtn">
+                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
+                        <button type="submit" class="btn btn-primary" id="submitSurveyBtn">
                             <i class="ti ti-send me-1"></i> إرسال التقييم
                         </button>
                     </div>

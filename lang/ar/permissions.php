@@ -250,5 +250,13 @@ return [
     'auctions.edit' => 'تعديل المزاد',
     'auctions.delete' => 'حذف المزاد',
     'auctions.toggle_status' => 'تغيير حالة المزاد',
+
+    // Auction Templates (SuperAdmin)
+    'auction_templates.view' => 'عرض قوالب المزادات',
+    'auction_templates.create' => 'إضافة قالب مزاد',
+    'auction_templates.edit' => 'تعديل قالب مزاد',
+    'auction_templates.delete' => 'حذف قالب مزاد',
+    'auction_templates.restore' => 'استعادة قالب مزاد',
+    'auction_templates.force_delete' => 'حذف نهائي لقالب مزاد',
 ];
 

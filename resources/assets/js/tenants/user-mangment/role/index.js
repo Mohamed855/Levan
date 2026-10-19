@@ -60,15 +60,14 @@ function initializeDataTable() {
             }
         },
         columns: getTableColumns(),
-        order: [[7, 'desc']],
+        order: [[6, 'desc']],
         dom: getTableDom(),
         buttons: getTableButtons(),
         language: {
             url: window.assets.arabicDataTable
         },
         orderCellsTop: true,
-        columnDefs: getColumnDefs(),
-        responsive: getResponsiveConfig(),
+        responsive: false,
         createdRow: handleTableRowCreation
     });
 }
@@ -78,13 +77,6 @@ function initializeDataTable() {
  */
 function getTableColumns() {
     return [
-        {
-            data: "DT_RowIndex",
-            name: "DT_RowIndex",
-            orderable: false,
-            searchable: false,
-            className: 'text-center'
-        },
         {
             data: 'checkbox',
             name: 'checkbox',
@@ -180,52 +172,18 @@ function getTableButtons() {
                 {
                     extend: 'excel',
                     text: 'إكسل'
+                },
+                {
+                    text: 'حذف المحدد',
+                    action: function () {
+                        handleMassDelete();
+                    }
                 }
             ]
         }
     ];
 }
 
-/**
- * تعريف أعمدة الجدول
- */
-function getColumnDefs() {
-    return [{
-        className: "text-center",
-        orderable: false,
-        targets: 0,
-        render: function () {
-            return "";
-        }
-    }];
-}
-
-/**
- * تعريف الاستجابة للجدول
- */
-function getResponsiveConfig() {
-    return {
-        details: {
-            display: $.fn.dataTable.Responsive.display.modal({
-                header: function () {
-                    return "التفاصيل";
-                }
-            }),
-            type: "inline",
-            renderer: function (api, rowIdx, columns) {
-                const data = $.map(columns, function (col) {
-                    return col.title !== "" ?
-                        '<tr data-dt-row="' + col.rowIndex + '" data-dt-column="' + col.columnIndex + '">' +
-                        '<td>' + col.title + ':</td>' +
-                        '<td>' + col.data + '</td>' +
-                        '</tr>' : "";
-                }).join("");
-
-                return data ? $('<table class="table"/><tbody />').append(data) : false;
-            }
-        }
-    };
-}
 
 /**
  * معالجة إنشاء صفوف الجدول
@@ -247,15 +205,47 @@ function handleTableRowCreation(row, data, dataIndex) {
  * ربط الأحداث
  */
 function bindEvents() {
+    const tableWrapper = $('#users-table_wrapper');
+
     // تحديد الكل
-    $('#select-all').on('click', function () {
+    tableWrapper.on('click', '#select-all', function () {
         const rows = usersTable.rows({ 'search': 'applied' }).nodes();
         $('input[type="checkbox"]', rows).prop('checked', this.checked);
+    });
+
+    tableWrapper.on('change', '.row-checkbox', function () {
+        if (!this.checked) {
+            $('#select-all').prop('checked', false);
+        }
+    });
+
+    $('#users-table').on('draw.dt', function () {
+        $('#select-all').prop('checked', false);
     });
 
     // ربط أحداث المودالات
     bindModalEvents();
 }
+
+function handleMassDelete() {
+    const selectedIds = [];
+    $('.row-checkbox:checked', usersTable.rows().nodes()).each(function () {
+        selectedIds.push($(this).val());
+    });
+
+    if (selectedIds.length === 0) {
+        if (typeof toastr !== 'undefined') {
+            toastr.warning('يرجى تحديد مستخدم واحد على الأقل');
+        }
+        return;
+    }
+
+    if (typeof confirmDeleteSelectedmss === 'function') {
+        confirmDeleteSelectedmss(selectedIds, window.routes.massDelete, 'User');
+    }
+}
+
+window.handleMassDelete = handleMassDelete;
 
 /**
  * ربط أحداث المودالات

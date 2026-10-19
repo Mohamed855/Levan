@@ -97,7 +97,7 @@
                                     <a href="{{ tenant_route_name('subscriptions.index') }}" class="btn btn-danger">
                                         <i class="ti ti-bolt me-1"></i> تجديد الاشتراك فوراً
                                     </a>
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">تذكيرى
+                                    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">تذكيرى
                                         لاحقاً</button>
                                 </div>
                             </div>
