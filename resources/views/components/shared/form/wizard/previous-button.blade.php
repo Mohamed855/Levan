@@ -14,9 +14,9 @@
     $defaultOnClick = null;
     if (!$attributes->has('onclick') && !$isDisabled && !$href) {
         if ($backBool === true) {
-            $defaultOnClick = 'window.history.back();';
+            $defaultOnClick = "window.location.href = window.location.pathname.replace(/\\/create\\/?$/, '').replace(/\\/[^\\/]+\\/edit\\/?$/, '') || '/';";
         } elseif ($backBool !== false) {
-            $defaultOnClick = "const c=this.closest('.content'),s=this.closest('.bs-stepper');const all=s?s.querySelectorAll('.content'):[];if(!c||!s||all[0]===c){window.history.back();}";
+            $defaultOnClick = "const c=this.closest('.content'),s=this.closest('.bs-stepper');const all=s?s.querySelectorAll('.content'):[];if(!c||!s||all[0]===c){window.location.href=window.location.pathname.replace(/\\/create\\/?$/, '').replace(/\\/[^\\/]+\\/edit\\/?$/, '') || '/';}";
         }
     }
 @endphp

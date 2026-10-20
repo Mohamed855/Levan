@@ -37,11 +37,13 @@
 
                     <form action="{{ route('admin.roles.store') }}" method="POST" data-form-validate
                         data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}"
-                        data-draft-url="{{ route('admin.wizard-drafts.store') }}">
+                        data-draft-url="{{ route('admin.wizard-drafts.store') }}"
+                        data-draft-resource-key="admin.role-create">
                         @csrf
 
                         <div class="row g-4">
-                            <x-form.controls.input name="name" label="اسم الدور" :value="old('name')" required col="col-md-6" />
+                            <x-form.controls.input name="name" label="اسم الدور" :value="old('name')" required
+                                col="col-md-6" />
                         </div>
 
                         <div class="mb-3">
@@ -117,10 +119,11 @@
                             </div>
                         </div>
 
-                        <div class="d-flex justify-content-end">
+                        <div class="d-flex justify-content-between">
+                            <x-form.wizard.previous-button :href="route('admin.roles.index')" text="العودة" />
                             <div class="d-flex gap-2">
                                 <x-form.wizard.draft-button step="1" />
-                                <x-form.wizard.save-button text="حفظ الدور" />
+                                <x-form.wizard.save-button />
                             </div>
                         </div>
                     </form>

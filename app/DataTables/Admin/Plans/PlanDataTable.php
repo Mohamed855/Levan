@@ -31,9 +31,10 @@ class PlanDataTable extends AbstractDataTable
     {
         return [
             ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
-            ['data' => 'sort_order', 'name' => 'sort_order', 'title' => 'الترتيب', 'width' => '70px', 'className' => 'text-center plan-sort-order'],
-            ['data' => 'code', 'name' => 'code', 'title' => 'الكود', 'className' => 'text-center'],
+            ['data' => 'color', 'name' => 'color', 'title' => 'اللون', 'width' => '50px', 'className' => 'text-center align-middle', 'orderable' => true],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم الباقة', 'className' => 'text-start'],
+            ['data' => 'code', 'name' => 'code', 'title' => 'الكود', 'className' => 'text-center'],
+            ['data' => 'is_most_requested', 'name' => 'is_most_requested', 'title' => 'الأكثر طلباً', 'width' => '95px', 'className' => 'text-center align-middle', 'orderable' => false, 'searchable' => false],
             ['data' => 'plan_type', 'name' => 'plan_type', 'title' => 'النوع', 'className' => 'text-center'],
             ['data' => 'subscription_billing_cycle', 'name' => 'subscription_billing_cycle', 'title' => 'دورة الفوترة', 'className' => 'text-center'],
             ['data' => 'price', 'name' => 'price', 'title' => 'السعر'],
@@ -59,25 +60,31 @@ class PlanDataTable extends AbstractDataTable
         $datatable
             ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
 
-            ->editColumn('sort_order', function ($row) {
-                return '<span class="badge bg-label-info cursor-move" title="اسحب لإعادة الترتيب"><i class="ti ti-arrows-sort"></i> '.(int) $row->sort_order.'</span>';
+            ->addColumn('color', function ($row) {
+                $planColor = $row->color instanceof PlanColor
+                    ? $row->color
+                    : ($row->color ? PlanColor::tryFrom((string) $row->color) : null);
+
+                $colorHex = $planColor ? $planColor->hex() : '#7367f0';
+                $colorLabel = $planColor ? $planColor->label() : ($row->color ?? '');
+
+                return '<span class="d-inline-block rounded-circle shadow-xs" style="background-color: '.e($colorHex).'; width: 22px; height: 22px; border: 1px solid rgba(0,0,0,0.08); vertical-align: middle;" title="'.e($colorLabel).'" data-bs-toggle="tooltip"></span>';
+            })
+
+            ->editColumn('name', function ($row) {
+                return '<span class="text-heading fw-semibold">'.e($row->name).'</span>';
             })
 
             ->editColumn('code', function ($row) {
                 return '<span class="badge bg-label-dark font-monospace">'.e($row->code ?? '-').'</span>';
             })
 
-            ->editColumn('name', function ($row) use ($mostRequestedPlanId) {
-                $colorHex = $row->color instanceof PlanColor ? $row->color->hex() : '#7367f0';
-                $badgeHtml = '';
+            ->addColumn('is_most_requested', function ($row) use ($mostRequestedPlanId) {
+                $isMostRequested = ($mostRequestedPlanId !== null && (int) $row->id === (int) $mostRequestedPlanId);
 
-                if ($mostRequestedPlanId !== null && (int) $row->id === (int) $mostRequestedPlanId) {
-                    $badgeHtml = ' <span class="badge bg-gradient-danger text-white rounded-pill ms-1 fs-tiny shadow-sm"><i class="ti ti-flame me-1"></i>الأكثر طلباً</span>';
-                }
-
-                $colorDot = '<span class="badge rounded-circle p-1 me-1" style="background-color: '.e($colorHex).';" title="'.e($row->color?->label() ?? '').'">&nbsp;</span>';
-
-                return '<div class="d-flex align-items-center">'.$colorDot.'<span class="text-heading">'.e($row->name).'</span>'.$badgeHtml.'</div>';
+                return $isMostRequested
+                    ? '<span class="badge bg-label-success">نعم</span>'
+                    : '<span class="badge bg-label-danger">لا</span>';
             })
 
             ->editColumn('plan_type', function ($row) {
@@ -213,9 +220,10 @@ class PlanDataTable extends AbstractDataTable
     {
         return [
             'checkbox',
-            'sort_order',
             'code',
             'name',
+            'color',
+            'is_most_requested',
             'plan_type',
             'subscription_billing_cycle',
             'price',
@@ -284,12 +292,18 @@ class PlanDataTable extends AbstractDataTable
             }
         }
 
-        if ($request->filled('most_requested') && $request->most_requested === 'yes') {
+        if ($request->filled('most_requested')) {
             $mostRequestedId = app(PlanService::class)->getMostRequestedPlanId();
-            if ($mostRequestedId) {
-                $query->where('id', $mostRequestedId);
-            } else {
-                $query->whereRaw('1 = 0');
+            if ($request->most_requested === 'yes') {
+                if ($mostRequestedId) {
+                    $query->where('id', $mostRequestedId);
+                } else {
+                    $query->whereRaw('1 = 0');
+                }
+            } elseif ($request->most_requested === 'no') {
+                if ($mostRequestedId) {
+                    $query->where('id', '!=', $mostRequestedId);
+                }
             }
         }
 
@@ -306,7 +320,7 @@ class PlanDataTable extends AbstractDataTable
 
     protected function getCustomOrder(): array
     {
-        return [1, 'asc']; // Sort by sort_order
+        return [2, 'asc']; // Sort by code
     }
 
     protected function buttons(): array

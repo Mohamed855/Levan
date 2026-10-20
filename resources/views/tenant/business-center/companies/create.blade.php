@@ -45,7 +45,10 @@
                     @endif
 
                     <form id="wizard-validation-form" action="{{ tenant_route_name('companies.store') }}" method="POST"
-                        enctype="multipart/form-data" novalidate data-form-validate data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
+                        enctype="multipart/form-data" novalidate data-form-validate
+                        data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}"
+                        data-draft-url="{{ tenant_route_name('wizard-drafts.store') }}"
+                        data-draft-resource-key="tenant.company-create">
                         @csrf
 
                         <div id="company-info-validation" class="content">
@@ -82,9 +85,7 @@
 
                                 {{-- أزرار التحكم --}}
                                 <div class="mt-4 d-flex justify-content-between">
-                                    <button type="button" class="btn btn-secondary btn-prev" disabled>
-                                        السابق
-                                    </button>
+                                    <x-form.wizard.previous-button :href="tenant_route_name('companies.index')" text="العودة" />
                                     <div class="d-flex gap-2">
                                         <x-form.wizard.draft-button />
                                         <button type="submit" class="btn btn-primary btn-next btn-submit">

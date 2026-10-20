@@ -40,7 +40,7 @@
                 <form id="user-wizard-form" action="{{ route('admin.users.store') }}" method="POST"
                     enctype="multipart/form-data" autocomplete="off" data-form-validate
                     data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}"
-                    data-draft-url="{{ route('admin.wizard-drafts.store') }}">
+                    data-draft-url="{{ route('admin.wizard-drafts.store') }}" data-draft-resource-key="admin.user-create">
                     @csrf
 
                     <x-form.wizard.step id="basic-info-validation" :fields="['name', 'email', 'phone']">
@@ -75,7 +75,7 @@
                             <x-form.wizard.previous-button />
                             <div class="d-flex gap-2">
                                 <x-form.wizard.draft-button step="2" />
-                                <x-form.wizard.save-button text="حفظ المستخدم" />
+                                <x-form.wizard.save-button />
                             </div>
                         </x-form.wizard.actions>
                     </x-form.wizard.step>

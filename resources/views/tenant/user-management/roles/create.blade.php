@@ -28,7 +28,9 @@
                     @endif
 
                     <form action="{{ tenant_route_name('roles.store') }}" method="POST" novalidate data-form-validate
-                        data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
+                        data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}"
+                        data-draft-url="{{ tenant_route_name('wizard-drafts.store') }}"
+                        data-draft-resource-key="tenant.role-create">
                         @csrf
 
                         <x-form.controls.input name="name" label="معرّف الدور" placeholder="مثال: collection_manager"
@@ -110,7 +112,9 @@
                             <div class="invalid-feedback d-block" data-form-error role="alert" hidden></div>
                         </div>
 
-                        <div class="d-flex justify-content-end gap-2">
+                        <div class="d-flex justify-content-between">
+                            <x-form.wizard.previous-button :href="tenant_route_name('roles.index')" text="العودة" />
+                            <div class="d-flex gap-2">
                             <x-form.wizard.draft-button />
                             <button type="submit" class="btn btn-primary">حفظ</button>
                         </div>

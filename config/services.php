@@ -48,6 +48,10 @@ return [
         'api_key' => env('OPENAI_API_KEY'),
     ],
 
+    'pdftk' => [
+        'path' => env('PDFTK_PATH'),
+    ],
+
     'google_maps' => [
         'api_key' => env('GOOGLE_MAPS_API_KEY'),
     ],

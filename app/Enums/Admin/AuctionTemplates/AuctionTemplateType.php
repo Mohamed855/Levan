@@ -19,21 +19,12 @@ enum AuctionTemplateType: string
         };
     }
 
-    public function icon(): string
-    {
-        return match ($this) {
-            self::BROCHURE  => 'ti-file-description',
-            self::BILLBOARD => 'ti-ad',
-            self::SOCIAL    => 'ti-brand-instagram',
-        };
-    }
-
     public function color(): string
     {
         return match ($this) {
             self::BROCHURE => 'primary',
             self::BILLBOARD => 'warning',
-            self::SOCIAL => 'info',
+            self::SOCIAL => 'success',
         };
     }
 

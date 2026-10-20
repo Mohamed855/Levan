@@ -20,10 +20,11 @@
 
 @section('content')
     @php
-        $steps = [
-            ['id' => 'coupon-info-validation', 'title' => 'تعديل الكوبون'],
-        ];
-        $discountTypeValue = is_object($coupon->discount_type) ? $coupon->discount_type->value : $coupon->discount_type;
+        $steps = [['id' => 'coupon-info-validation', 'title' => 'تعديل الكوبون']];
+        $discountTypeValue = old(
+            'discount_type',
+            is_object($coupon->discount_type) ? $coupon->discount_type->value : $coupon->discount_type,
+        );
         $expiryDateValue = $coupon->expiry_date ? $coupon->expiry_date->format('Y-m-d') : '';
         $isActiveValue = $coupon->is_active ? '1' : '0';
     @endphp
@@ -57,11 +58,9 @@
 
                             <!-- الكود -->
                             <x-form.controls.input name="code" id="code" label="كود الكوبون"
-                                help="سيتم تحويل الكود إلى أحرف كبيرة تلقائيًا"
-                                :value="$coupon->code" required col="col-md-6" :input-group="true"
-                                class="font-monospace" style="text-transform: uppercase;">
-                                <button type="button" class="btn btn-secondary btn-generate-code"
-                                    id="btn-generate-code">
+                                help="سيتم تحويل الكود إلى أحرف كبيرة تلقائيًا" :value="$coupon->code" required col="col-md-6"
+                                :input-group="true" class="font-monospace" style="text-transform: uppercase;">
+                                <button type="button" class="btn btn-secondary btn-generate-code" id="btn-generate-code">
                                     <i class="ti ti-wand"></i> توليد
                                 </button>
                             </x-form.controls.input>
@@ -72,15 +71,14 @@
 
                             <!-- قيمة الخصم -->
                             <x-form.controls.input type="number" name="discount_value" id="discount_value"
-                                label="قيمة الخصم" :value="$coupon->discount_value" step="0.01" min="0"
-                                required col="col-md-6" />
+                                label="قيمة الخصم" :value="$coupon->discount_value" step="0.01" min="0" required
+                                col="col-md-6" />
 
                             <!-- الحد الأقصى -->
                             <x-form.controls.input type="number" name="max_discount" id="max_discount"
-                                wrapper-id="maxDiscountField"
-                                :wrapper-style="$discountTypeValue === 'percentage' ? '' : 'display:none;'"
-                                label="الحد الأقصى للخصم" help="ينطبق فقط على النسبة المئوية"
-                                :value="$coupon->max_discount" step="0.01" min="0" col="col-md-6" />
+                                wrapper-id="maxDiscountField" :wrapper-style="$discountTypeValue === 'percentage' ? '' : 'display:none;'" label="الحد الأقصى للخصم"
+                                help="ينطبق فقط على النسبة المئوية" :value="$coupon->max_discount" step="0.01" min="0"
+                                col="col-md-6" />
 
                             <!-- تاريخ الانتهاء -->
                             <x-form.controls.input type="date" name="expiry_date" id="expiry_date" label="تاريخ الانتهاء"
@@ -105,7 +103,7 @@
                         <x-form.wizard.actions>
                             <x-form.wizard.previous-button :href="route('admin.coupons.index')" />
                             <div class="d-flex gap-2">
-                                <x-form.wizard.save-button text="تحديث الكوبون" />
+                                <x-form.wizard.save-button />
                             </div>
                         </x-form.wizard.actions>
                     </x-form.wizard.step>

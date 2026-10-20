@@ -69,7 +69,7 @@
 
                     {{-- File Upload (PDF or High-Res Image) --}}
                     <x-form.controls.file name="file" id="file" label="استبدال ملف القالب (PDF أو صورة تصميم)"
-                        accept=".pdf,application/pdf,image/png,image/jpeg,image/webp" col="col-12"
+                                accept=".pdf,application/pdf" col="col-12"
                         help="اتركه فارغاً للإبقاء على الملف الحالي. يمكنك رفع ملف PDF أو صورة بحد أقصى 30 ميجابايت.">
                         @if ($template->file_url)
                             @php

@@ -23,15 +23,20 @@
                         </div>
                     @endif
 
-                    <form action="{{ tenant_route_name('permissions.store') }}" method="POST" data-form-validate>
+                    <form action="{{ tenant_route_name('permissions.store') }}" method="POST" data-form-validate
+                        data-draft-url="{{ tenant_route_name('wizard-drafts.store') }}"
+                        data-draft-resource-key="tenant.permission-create">
                         @csrf
                         <div class="row g-4 mb-4">
                             <x-form.controls.input name="name" id="name" label="اسم الصلاحية"
                                 :value="old('name')" required col="col-md-6" />
                         </div>
-                        <div class="d-flex gap-2">
-                            <x-form.wizard.draft-button />
-                            <button type="submit" class="btn btn-primary">إضافة</button>
+                        <div class="d-flex justify-content-between">
+                            <x-form.wizard.previous-button :href="tenant_route_name('permissions.index')" text="العودة" />
+                            <div class="d-flex gap-2">
+                                <x-form.wizard.draft-button />
+                                <button type="submit" class="btn btn-primary">إضافة</button>
+                            </div>
                         </div>
                     </form>
                 </div>

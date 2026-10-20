@@ -39,14 +39,15 @@ final class AuctionTemplateFileSpecificationRule implements ValidationRule
 
         if (! $isPdf && ! $isImage) {
             $fail('يجب أن يكون الملف بصيغة PDF أو صورة (PNG, JPG, WEBP).');
+
             return;
         }
 
         match ($typeValue) {
             AuctionTemplateType::BROCHURE->value => $this->validateBrochure($value, $isPdf, $fail),
-            AuctionTemplateType::SOCIAL->value   => $this->validateSocial($value, $isPdf, $isImage, $fail),
+            AuctionTemplateType::SOCIAL->value => $this->validateSocial($value, $isPdf, $isImage, $fail),
             AuctionTemplateType::BILLBOARD->value => $this->validateBillboard($value, $isPdf, $isImage, $fail),
-            default                              => null,
+            default => null,
         };
     }
 
@@ -54,6 +55,7 @@ final class AuctionTemplateFileSpecificationRule implements ValidationRule
     {
         if (! $isPdf) {
             $fail('قالب البروشور يجب أن يكون ملف مستند PDF (كتيب صفحات متعددة للطباعة بمقاس A4 رأسي).');
+
             return;
         }
 
@@ -62,7 +64,7 @@ final class AuctionTemplateFileSpecificationRule implements ValidationRule
         }
 
         try {
-            $mpdf = new Mpdf();
+            $mpdf = new Mpdf;
             $pageCount = $mpdf->setSourceFile($file->getRealPath());
             if ($pageCount > 0) {
                 $tplId = $mpdf->importPage(1);
@@ -74,6 +76,7 @@ final class AuctionTemplateFileSpecificationRule implements ValidationRule
                 if ($width > 0 && $height > 0) {
                     if ($width > $height) {
                         $fail('يجب أن تكون صفحات ملف البروشور بتنسيق A4 رأسي (210×297 مم) وليس بتنسيق أفقي عرضي.');
+
                         return;
                     }
 
@@ -99,6 +102,7 @@ final class AuctionTemplateFileSpecificationRule implements ValidationRule
 
                 if (abs($ratio - 1.0) > 0.08) {
                     $fail("قالب السوشيال ميديا يجب أن يكون بنسبة أبعاد مربعة 1:1 (المقاس الموصى به 1080×1080 بكسل). الأبعاد الحالية: {$width}×{$height} بكسل.");
+
                     return;
                 }
 
@@ -106,12 +110,13 @@ final class AuctionTemplateFileSpecificationRule implements ValidationRule
                     $fail("جودة صورة قالب السوشيال ميديا منخفضة ({$width}×{$height} بكسل). يجب ألا تقل الأبعاد عن 600×600 بكسل (الموصى به 1080×1080 بكسل).");
                 }
             }
+
             return;
         }
 
         if ($isPdf && ! app()->environment('testing')) {
             try {
-                $mpdf = new Mpdf();
+                $mpdf = new Mpdf;
                 $pageCount = $mpdf->setSourceFile($file->getRealPath());
                 if ($pageCount > 0) {
                     $tplId = $mpdf->importPage(1);
@@ -142,20 +147,22 @@ final class AuctionTemplateFileSpecificationRule implements ValidationRule
 
                 if ($width <= $height) {
                     $fail("قالب اللوحة الإعلانية يجب أن يكون بتنسيق عرضي عريض (Landscape بنسبة 16:9 أو A4 أفقي). الأبعاد الحالية: {$width}×{$height} بكسل.");
+
                     return;
                 }
 
                 $ratio = $width / $height;
                 if ($ratio < 1.25) {
-                    $fail("نسبة العرض إلى الارتفاع لقالب اللوحة الإعلانية غير مناسبة. يجب أن يكون عريضاً بتنسيق شاشة 16:9 أو A4 أفقي (الموصى به 1920×1080 بكسل).");
+                    $fail('نسبة العرض إلى الارتفاع لقالب اللوحة الإعلانية غير مناسبة. يجب أن يكون عريضاً بتنسيق شاشة 16:9 أو A4 أفقي (الموصى به 1920×1080 بكسل).');
                 }
             }
+
             return;
         }
 
         if ($isPdf && ! app()->environment('testing')) {
             try {
-                $mpdf = new Mpdf();
+                $mpdf = new Mpdf;
                 $pageCount = $mpdf->setSourceFile($file->getRealPath());
                 if ($pageCount > 0) {
                     $tplId = $mpdf->importPage(1);

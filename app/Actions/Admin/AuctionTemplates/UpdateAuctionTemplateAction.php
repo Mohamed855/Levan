@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Actions\Admin\AuctionTemplates;
 
 use App\Models\Admin\AuctionTemplates\AuctionTemplate;
+use App\Services\Admin\AuctionTemplates\AuctionTemplateFieldDefinitionService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 final class UpdateAuctionTemplateAction
@@ -38,12 +40,25 @@ final class UpdateAuctionTemplateAction
                     $data['file_path'] = $newFilePath;
 
                     $absolutePath = Storage::disk('central_public')->path($newFilePath);
-                    $extracted = $this->createAction->extractFieldNames($absolutePath);
-                    if (! empty($extracted)) {
-                        $data['field_names'] = $extracted;
+                    if (str_starts_with((string) $file->getMimeType(), 'image/')) {
+                        $definitions = json_decode((string) ($data['field_definitions'] ?? '[]'), true);
+                        $data['field_definitions'] = app(AuctionTemplateFieldDefinitionService::class)->normalize(is_array($definitions) ? $definitions : []);
+                        $data['field_names'] = array_column($data['field_definitions'], 'key');
                     } else {
-                        $guide = app(\App\Services\Admin\AuctionTemplates\AuctionTemplateService::class)->getFieldGuide();
-                        $data['field_names'] = array_column($guide[$type]['fields'] ?? [], 'name');
+                        $extracted = $this->createAction->extractFieldNames($absolutePath);
+                        if (empty($extracted)) {
+                            throw ValidationException::withMessages([
+                                'file' => 'يجب أن يحتوي ملف PDF على حقول مسماة قابلة للتعبئة قبل استخدامه كقالب مزاد.',
+                            ]);
+                        }
+                        $data['field_names'] = $extracted;
+                        $data['field_definitions'] = null;
+                    }
+
+                    if (empty($data['field_names'])) {
+                        throw ValidationException::withMessages([
+                            'field_definitions' => 'يجب تحديد مواضع الحقول داخل التصميم.',
+                        ]);
                     }
                 }
 

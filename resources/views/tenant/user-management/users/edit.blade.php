@@ -60,7 +60,7 @@
                                 placeholder="اختر الدور" required />
 
                             <x-form.wizard.actions>
-                                <x-form.wizard.previous-button />
+                                <x-form.wizard.previous-button :href="tenant_route_name('users.index')" text="العودة" />
                                 <x-form.wizard.next-button />
                             </x-form.wizard.actions>
                         </div>

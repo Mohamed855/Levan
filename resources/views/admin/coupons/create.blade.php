@@ -21,6 +21,7 @@
 @section('content')
     @php
         $steps = [['id' => 'coupon-info-validation', 'title' => 'معلومات الكوبون']];
+        $selectedDiscountType = old('discount_type');
     @endphp
 
     <div class="row">
@@ -31,8 +32,7 @@
                 <form id="coupon-wizard-form" action="{{ route('admin.coupons.store') }}" method="POST"
                     enctype="multipart/form-data" autocomplete="off" data-form-validate
                     data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}"
-                    data-draft-url="{{ route('admin.wizard-drafts.store') }}"
-                    data-draft-resource-key="admin.coupon-create">
+                    data-draft-url="{{ route('admin.wizard-drafts.store') }}" data-draft-resource-key="admin.coupon-create">
                     @csrf
 
                     <x-form.wizard.step id="coupon-info-validation" :fields="[
@@ -53,11 +53,9 @@
 
                             <!-- الكود -->
                             <x-form.controls.input name="code" id="code" label="كود الكوبون"
-                                help="سيتم تحويل الكود إلى أحرف كبيرة تلقائيًا"
-                                :value="$generatedCode ?? ''" required col="col-md-6" :input-group="true"
-                                class="font-monospace" style="text-transform: uppercase;">
-                                <button type="button" class="btn btn-secondary btn-generate-code"
-                                    id="btn-generate-code">
+                                help="سيتم تحويل الكود إلى أحرف كبيرة تلقائيًا" :value="$generatedCode ?? ''" required col="col-md-6"
+                                :input-group="true" class="font-monospace" style="text-transform: uppercase;">
+                                <button type="button" class="btn btn-secondary btn-generate-code" id="btn-generate-code">
                                     <i class="ti ti-wand"></i> توليد
                                 </button>
                             </x-form.controls.input>
@@ -72,9 +70,8 @@
 
                             <!-- الحد الأقصى -->
                             <x-form.controls.input type="number" name="max_discount" id="max_discount"
-                                wrapper-id="maxDiscountField" wrapper-style="display:none;"
-                                label="الحد الأقصى للخصم" help="ينطبق فقط على النسبة المئوية" step="0.01"
-                                min="0" col="col-md-6" />
+                                wrapper-id="maxDiscountField" :wrapper-style="$selectedDiscountType === 'percentage' ? '' : 'display:none;'" label="الحد الأقصى للخصم"
+                                help="ينطبق فقط على النسبة المئوية" step="0.01" min="0" col="col-md-6" />
 
                             <!-- تاريخ الانتهاء -->
                             <x-form.controls.input type="date" name="expiry_date" id="expiry_date" label="تاريخ الانتهاء"
@@ -100,7 +97,7 @@
                             <x-form.wizard.previous-button :href="route('admin.coupons.index')" />
                             <div class="d-flex gap-2">
                                 <x-form.wizard.draft-button step="1" />
-                                <x-form.wizard.save-button text="حفظ الكوبون" />
+                                <x-form.wizard.save-button />
                             </div>
                         </x-form.wizard.actions>
                     </x-form.wizard.step>

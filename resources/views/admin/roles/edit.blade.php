@@ -119,7 +119,8 @@
                             </div>
                         </div>
 
-                        <div class="text-end">
+                        <div class="d-flex justify-content-between">
+                            <x-form.wizard.previous-button :href="route('admin.roles.index')" text="العودة" />
                             <button type="submit" class="btn btn-primary">تحديث</button>
                         </div>
                     </form>

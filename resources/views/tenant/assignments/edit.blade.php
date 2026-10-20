@@ -79,7 +79,7 @@
                                 hint="JPG، PNG أو WebP أو SVG. الحد الأقصى 2MB" col="col-md-6" />
 
                             <x-form.wizard.actions>
-                                <x-form.wizard.previous-button />
+                                <x-form.wizard.previous-button :href="tenant_route_name('assignments.index')" text="العودة" />
                                 <x-form.wizard.next-button />
                             </x-form.wizard.actions>
                         </div>

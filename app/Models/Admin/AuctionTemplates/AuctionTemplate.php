@@ -28,6 +28,7 @@ class AuctionTemplate extends Model
         'description',
         'file_path',
         'field_names',
+        'field_definitions',
         'is_active',
         'created_by',
     ];
@@ -35,9 +36,10 @@ class AuctionTemplate extends Model
     protected function casts(): array
     {
         return [
-            'type'        => AuctionTemplateType::class,
+            'type' => AuctionTemplateType::class,
             'field_names' => 'array',
-            'is_active'   => 'boolean',
+            'field_definitions' => 'array',
+            'is_active' => 'boolean',
         ];
     }
 
@@ -54,6 +56,7 @@ class AuctionTemplate extends Model
     public function scopeByType(Builder $query, string|AuctionTemplateType $type): Builder
     {
         $value = $type instanceof AuctionTemplateType ? $type->value : $type;
+
         return $query->where('type', $value);
     }
 
@@ -80,12 +83,12 @@ class AuctionTemplate extends Model
     public static function getFieldTranslations(): array
     {
         return [
-            'name'        => 'اسم القالب',
-            'type'        => 'نوع القالب',
+            'name' => 'اسم القالب',
+            'type' => 'نوع القالب',
             'description' => 'الوصف',
-            'file_path'   => 'ملف PDF',
+            'file_path' => 'ملف PDF',
             'field_names' => 'حقول القالب',
-            'is_active'   => 'الحالة',
+            'is_active' => 'الحالة',
         ];
     }
 }

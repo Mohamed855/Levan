@@ -22,8 +22,7 @@
 @section('page-script')
     <script>
         window.routes = {
-            massDelete: "{{ route('admin.mass-delete') }}",
-            updateSortOrder: "{{ route('admin.plans.update-sort-order') }}"
+            massDelete: "{{ route('admin.mass-delete') }}"
         };
     </script>
     @vite(['resources/assets/js/admin/plans/index.js'])

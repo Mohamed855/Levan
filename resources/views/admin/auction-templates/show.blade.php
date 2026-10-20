@@ -11,11 +11,11 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="fw-bold mb-1">
-                <i class="ti {{ $template->type->icon() }} me-2 text-primary"></i>{{ $template->name }}
+                <i class="ti ti-file-description me-2 text-primary"></i>{{ $template->name }}
             </h4>
             <div class="d-flex gap-2 align-items-center">
                 <span class="badge bg-label-{{ $template->type->color() }}">
-                    <i class="ti {{ $template->type->icon() }} me-1"></i>{{ $template->type->label() }}
+                    {{ $template->type->label() }}
                 </span>
                 @if($template->is_active)
                     <span class="badge bg-label-success">نشط ومتاح للمستأجرين</span>
@@ -45,13 +45,13 @@
                 <div class="card-body text-center pt-4">
                     <div class="mx-auto mb-3">
                         <span class="avatar-initial rounded-circle bg-label-{{ $template->type->color() }} d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
-                            <i class="ti {{ $template->type->icon() }} fs-1"></i>
+                            <i class="ti ti-file-description fs-1"></i>
                         </span>
                     </div>
 
                     <h5 class="mb-1 fw-bold">{{ $template->name }}</h5>
                     <span class="badge bg-label-{{ $template->type->color() }} mb-3">
-                        <i class="ti {{ $template->type->icon() }} me-1"></i>{{ $template->type->label() }}
+                        {{ $template->type->label() }}
                     </span>
 
                     {{-- Horizontal key metrics strip --}}
@@ -131,7 +131,7 @@
                         <i class="ti ti-ruler-measure me-2 text-primary"></i>المواصفات والمعايير المعتمدة لهذا القالب
                     </h5>
                     <span class="badge bg-label-{{ $template->type->color() }}">
-                        <i class="ti {{ $template->type->icon() }} me-1"></i>{{ $template->type->label() }}
+                        {{ $template->type->label() }}
                     </span>
                 </div>
                 <div class="card-body">

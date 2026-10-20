@@ -361,8 +361,7 @@
                             <x-form.wizard.previous-button />
                             <div class="d-flex gap-2">
                                 <x-form.wizard.draft-button />
-                                <x-form.wizard.save-button text="اعتماد وإنشاء الاشتراك" class="btn-success btn-lg"
-                                    id="btn-submit-subscription" />
+                                <x-form.wizard.save-button />
                             </div>
                         </x-form.wizard.actions>
                     </x-form.wizard.step>

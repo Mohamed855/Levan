@@ -46,7 +46,9 @@
 
                     <form id="wizard-validation-form" action="{{ tenant_route_name('tickets.store') }}" method="POST"
                         enctype="multipart/form-data" novalidate data-form-validate
-                        data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
+                        data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}"
+                        data-draft-url="{{ tenant_route_name('wizard-drafts.store') }}"
+                        data-draft-resource-key="tenant.ticket-create">
                         @csrf
 
                         <div id="info-validation" class="content">
@@ -77,7 +79,8 @@
                                 </x-form.controls.file>
                             </div>
 
-                            <div class="col-12 d-flex justify-content-end mt-5">
+                            <div class="col-12 d-flex justify-content-between mt-5">
+                                <x-form.wizard.previous-button :href="tenant_route_name('tickets.index')" text="العودة" />
                                 <div class="d-flex gap-2">
                                     <x-form.wizard.draft-button />
                                     <button type="submit" class="btn btn-primary waves-effect waves-light btn-submit">

@@ -20,7 +20,11 @@
         <!-- Form Card -->
         <div class="card">
             <div class="card-body">
-                <form action="{{ route('admin.settings.banks.store') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('admin.settings.banks.store') }}" method="POST" enctype="multipart/form-data"
+                    data-form-validate
+                    data-draft-url="{{ route('admin.wizard-drafts.store') }}"
+                    data-draft-file-url="{{ route('admin.wizard-drafts.file.destroy') }}"
+                    data-draft-resource-key="admin.bank-create">
                     @csrf
 
                     <div class="row g-4">

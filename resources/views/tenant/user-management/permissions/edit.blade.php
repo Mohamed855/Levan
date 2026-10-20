@@ -30,7 +30,10 @@
                             <x-form.controls.input name="name" id="name" label="اسم الصلاحية"
                                 :value="old('name', $permission->name)" required col="col-md-6" />
                         </div>
-                        <button type="submit" class="btn btn-primary">تحديث</button>
+                        <div class="d-flex justify-content-between">
+                            <x-form.wizard.previous-button :href="tenant_route_name('permissions.index')" text="العودة" />
+                            <button type="submit" class="btn btn-primary">تحديث</button>
+                        </div>
                     </form>
                 </div>
             </div>

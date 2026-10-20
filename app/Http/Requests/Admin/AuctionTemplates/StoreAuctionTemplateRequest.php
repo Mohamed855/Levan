@@ -6,7 +6,9 @@ namespace App\Http\Requests\Admin\AuctionTemplates;
 
 use App\Enums\Admin\AuctionTemplates\AuctionTemplateType;
 use App\Http\Requests\Concerns\WizardFormRequest;
+use App\Rules\AuctionTemplateFieldDefinitionsRule;
 use App\Rules\AuctionTemplateFileSpecificationRule;
+use App\Services\Admin\AuctionTemplates\AuctionTemplateService;
 use Illuminate\Validation\Rule;
 
 class StoreAuctionTemplateRequest extends WizardFormRequest
@@ -19,33 +21,39 @@ class StoreAuctionTemplateRequest extends WizardFormRequest
     public function rules(): array
     {
         return [
-            'name'        => [
+            'name' => [
                 'required',
                 'string',
                 'max:255',
                 Rule::unique('auction_templates', 'name')->whereNull('deleted_at'),
             ],
-            'type'        => ['required', Rule::enum(AuctionTemplateType::class)],
+            'type' => ['required', Rule::enum(AuctionTemplateType::class)],
             'description' => ['nullable', 'string', 'max:1000'],
-            'file'        => [
+            'file' => [
                 'required',
                 'file',
                 'mimes:pdf,png,jpg,jpeg,webp',
                 'max:30720',
                 new AuctionTemplateFileSpecificationRule($this->input('type')),
             ],
-            'is_active'   => ['nullable', 'boolean'],
+            'is_active' => ['nullable', 'boolean'],
+            'field_definitions' => [
+                Rule::requiredIf($this->isImageUpload()),
+                'nullable',
+                'json',
+                Rule::when($this->isImageUpload(), [new AuctionTemplateFieldDefinitionsRule($this->requiredFieldNames())]),
+            ],
         ];
     }
 
     public function attributes(): array
     {
         return [
-            'name'        => 'اسم القالب',
-            'type'        => 'نوع القالب',
+            'name' => 'اسم القالب',
+            'type' => 'نوع القالب',
             'description' => 'الوصف',
-            'file'        => 'ملف القالب (PDF أو صورة)',
-            'is_active'   => 'الحالة',
+            'file' => 'ملف القالب (PDF أو صورة)',
+            'is_active' => 'الحالة',
         ];
     }
 
@@ -53,11 +61,23 @@ class StoreAuctionTemplateRequest extends WizardFormRequest
     {
         return [
             'name.required' => 'يرجى إدخال اسم القالب.',
-            'name.unique'   => 'اسم القالب مستخدم بالفعل.',
+            'name.unique' => 'اسم القالب مستخدم بالفعل.',
             'type.required' => 'يرجى اختيار نوع القالب.',
             'file.required' => 'يرجى رفع ملف القالب (PDF أو صورة التصميم).',
-            'file.mimes'    => 'يجب أن يكون الملف بصيغة PDF أو صورة (PNG, JPG, WEBP).',
-            'file.max'      => 'أقصى حجم للملف هو 30 ميجابايت.',
+            'file.mimes' => 'يجب أن يكون الملف بصيغة PDF أو صورة (PNG, JPG, WEBP).',
+            'file.max' => 'أقصى حجم للملف هو 30 ميجابايت.',
         ];
+    }
+
+    private function isImageUpload(): bool
+    {
+        return str_starts_with((string) $this->file('file')?->getMimeType(), 'image/');
+    }
+
+    /** @return list<string> */
+    private function requiredFieldNames(): array
+    {
+        return app(AuctionTemplateService::class)
+            ->requiredFieldNames((string) $this->input('type'));
     }
 }

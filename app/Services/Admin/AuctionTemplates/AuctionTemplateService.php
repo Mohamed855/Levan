@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Admin\AuctionTemplates;
 
-use App\Enums\Admin\AuctionTemplates\AuctionTemplateType;
 use App\Models\Admin\AuctionTemplates\AuctionTemplate;
-use Illuminate\Support\Facades\Storage;
 
 final class AuctionTemplateService
 {
@@ -14,26 +12,27 @@ final class AuctionTemplateService
     {
         $counts = AuctionTemplate::query()
             ->selectRaw('COUNT(*) as total')
-            ->selectRaw("SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) as active")
+            ->selectRaw('SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) as active')
             ->selectRaw("SUM(CASE WHEN type = 'brochure' THEN 1 ELSE 0 END) as brochure")
             ->selectRaw("SUM(CASE WHEN type = 'billboard' THEN 1 ELSE 0 END) as billboard")
             ->selectRaw("SUM(CASE WHEN type = 'social' THEN 1 ELSE 0 END) as social")
-            ->selectRaw("SUM(CASE WHEN is_active = 0 THEN 1 ELSE 0 END) as inactive")
+            ->selectRaw('SUM(CASE WHEN is_active = 0 THEN 1 ELSE 0 END) as inactive')
             ->first();
 
         return [
-            'total'     => (int) ($counts->total ?? 0),
-            'active'    => (int) ($counts->active ?? 0),
-            'brochure'  => (int) ($counts->brochure ?? 0),
+            'total' => (int) ($counts->total ?? 0),
+            'active' => (int) ($counts->active ?? 0),
+            'brochure' => (int) ($counts->brochure ?? 0),
             'billboard' => (int) ($counts->billboard ?? 0),
-            'social'    => (int) ($counts->social ?? 0),
-            'inactive'  => (int) ($counts->inactive ?? 0),
+            'social' => (int) ($counts->social ?? 0),
+            'inactive' => (int) ($counts->inactive ?? 0),
         ];
     }
 
     public function toggleStatus(AuctionTemplate $template): bool
     {
         $newStatus = ! $template->is_active;
+
         return $template->update(['is_active' => $newStatus]);
     }
 
@@ -93,5 +92,14 @@ final class AuctionTemplateService
                 ],
             ],
         ];
+    }
+
+    /** @return list<string> */
+    public function requiredFieldNames(string $type): array
+    {
+        return array_values(array_column(array_filter(
+            $this->getFieldGuide()[$type]['fields'] ?? [],
+            static fn (array $field): bool => $field['required'] === true,
+        ), 'name'));
     }
 }

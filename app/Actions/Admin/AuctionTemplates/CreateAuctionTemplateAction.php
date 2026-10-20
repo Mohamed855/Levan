@@ -5,15 +5,21 @@ declare(strict_types=1);
 namespace App\Actions\Admin\AuctionTemplates;
 
 use App\Models\Admin\AuctionTemplates\AuctionTemplate;
+use App\Services\Admin\AuctionTemplates\AuctionTemplateFieldDefinitionService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use mikehaertl\pdftk\Pdf;
 use Throwable;
 
 final class CreateAuctionTemplateAction
 {
+    public function __construct(
+        private readonly AuctionTemplateFieldDefinitionService $fieldDefinitions,
+    ) {}
+
     public function execute(array $data, UploadedFile $file): AuctionTemplate
     {
         $storedPaths = [];
@@ -27,14 +33,26 @@ final class CreateAuctionTemplateAction
                 $storedPaths[] = $filePath;
                 $data['file_path'] = $filePath;
 
-                // 2. Extract field names or default to standard fields catalog
                 $absolutePath = Storage::disk('central_public')->path($filePath);
-                $extracted = $this->extractFieldNames($absolutePath);
-                if (! empty($extracted)) {
-                    $data['field_names'] = $extracted;
+                if ($this->isImage($file)) {
+                    $definitions = $this->fieldDefinitions->normalize(json_decode((string) ($data['field_definitions'] ?? '[]'), true) ?: []);
+                    $data['field_definitions'] = $definitions;
+                    $data['field_names'] = array_column($definitions, 'key');
                 } else {
-                    $guide = app(\App\Services\Admin\AuctionTemplates\AuctionTemplateService::class)->getFieldGuide();
-                    $data['field_names'] = array_column($guide[$type]['fields'] ?? [], 'name');
+                    $extracted = $this->extractFieldNames($absolutePath);
+                    if (empty($extracted)) {
+                        throw ValidationException::withMessages([
+                            'file' => 'يجب أن يحتوي ملف PDF على حقول مسماة قابلة للتعبئة قبل استخدامه كقالب مزاد.',
+                        ]);
+                    }
+                    $data['field_names'] = $extracted;
+                    $data['field_definitions'] = null;
+                }
+
+                if (empty($data['field_names'])) {
+                    throw ValidationException::withMessages([
+                        'field_definitions' => 'يجب تحديد مواضع الحقول داخل التصميم.',
+                    ]);
                 }
 
                 $data['created_by'] = auth('admin')->id();
@@ -74,7 +92,7 @@ final class CreateAuctionTemplateAction
                     ->toArray();
             }
         } catch (Throwable $e) {
-            Log::warning('pdftk getDataFields failed: ' . $e->getMessage());
+            Log::warning('pdftk getDataFields failed: '.$e->getMessage());
         }
 
         // Fallback: parse PDF form field keys /T (fieldName)
@@ -90,5 +108,10 @@ final class CreateAuctionTemplateAction
         }
 
         return $fields;
+    }
+
+    private function isImage(UploadedFile $file): bool
+    {
+        return str_starts_with((string) $file->getMimeType(), 'image/');
     }
 }

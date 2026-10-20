@@ -3,11 +3,11 @@
 @section('title', 'إنشاء مزاد جديد')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/flatpickr/flatpickr.js', 'resources/assets/vendor/libs/select2/select2.js'])
+    @vite(['resources/assets/vendor/libs/bs-stepper/bs-stepper.js', 'resources/assets/vendor/libs/flatpickr/flatpickr.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
 @endsection
 
 @section('toastr')
@@ -48,7 +48,7 @@
                     data-draft-url="{{ tenant_route_name('wizard-drafts.store') }}"
                     data-draft-file-url="{{ tenant_route_name('wizard-drafts.file.destroy') }}"
                     data-assignment-properties-url="{{ tenant_route_name('assignments.properties', ':id') }}"
-                    data-draft-resource-key="tenant.auction-create" data-draft-auto-restore>
+                    data-draft-resource-key="tenant.auction-create">
                     @csrf
 
                     {{-- الخطوة 1: البيانات الأساسية --}}
@@ -93,7 +93,7 @@
                         </div>
 
                         <x-form.wizard.actions>
-                            <x-form.wizard.previous-button />
+                            <x-form.wizard.previous-button :href="tenant_route_name('auctions.index')" text="العودة" />
                             <div class="d-flex gap-2">
                                 <x-form.wizard.draft-button />
                                 <x-form.wizard.next-button />

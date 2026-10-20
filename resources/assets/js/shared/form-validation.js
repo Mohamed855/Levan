@@ -511,15 +511,28 @@ async function restoreDraft(form) {
       return;
     }
 
-    let shouldRestore = true;
-    if (window.Swal && !form.hasAttribute('data-draft-auto-restore')) {
-      const result = await window.Swal.fire({
+    let shouldRestore = false;
+    let swalInstance = window.Swal;
+    if (!swalInstance && typeof window.Swal === 'undefined') {
+      for (let i = 0; i < 20; i++) {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        if (window.Swal) {
+          swalInstance = window.Swal;
+          break;
+        }
+      }
+    }
+
+    if (swalInstance) {
+      const result = await swalInstance.fire({
         title: 'مسودة محفوظة',
         text: 'توجد مسودة محفوظة مسبقاً. هل ترغب في استعادتها؟',
         icon: 'question',
         showCancelButton: true,
         confirmButtonText: 'نعم، استعادة المسودة',
         cancelButtonText: 'تجاهل والبدء من جديد',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
         customClass: {
           popup: 'custom-popup',
           title: 'custom-title text-center',
@@ -529,7 +542,9 @@ async function restoreDraft(form) {
         },
         buttonsStyling: false,
       });
-      shouldRestore = result.isConfirmed;
+      shouldRestore = Boolean(result.isConfirmed);
+    } else {
+      shouldRestore = Boolean(window.confirm('توجد مسودة محفوظة مسبقاً. هل ترغب في استعادتها؟'));
     }
 
     if (!shouldRestore) {
@@ -546,6 +561,7 @@ async function restoreDraft(form) {
       detail: { data: draft.data || {}, files: draft.files || {}, draftId: draft.draft_id }
     }));
     getFormState(form).stepper?.to(Math.max(1, Number(draft.step || 1)));
+    window.toastr?.success?.('تمت استعادة المسودة بنجاح.');
     canUseForm = true;
   } catch (_) {
     window.toastr?.error?.('تعذر التعامل مع المسودة. أعد تحميل الصفحة للمحاولة مرة أخرى قبل إدخال بيانات جديدة.');
@@ -1080,11 +1096,15 @@ function initStepper(form) {
         const steps = getSteps();
         form.dispatchEvent(new CustomEvent('stepChanged', { detail: { stepIndex: currentIndex - 1, step: steps[currentIndex - 1] } }));
         setTimeout(updateCurrentStepButton, 100);
-      } else if (previousButton && (previousButton.dataset.wizardBack === 'true' || previousButton.getAttribute('href'))) {
-        if (previousButton.getAttribute('href')) {
-          window.location.href = previousButton.getAttribute('href');
+      } else if (previousButton) {
+        const href = previousButton.getAttribute('href');
+        if (href) {
+          window.location.href = href;
         } else {
-          window.history.back();
+          const indexUrl = window.location.pathname
+            .replace(/\/create\/?$/, '')
+            .replace(/\/[^/]+\/edit\/?$/, '');
+          window.location.href = indexUrl || '/';
         }
       }
     },

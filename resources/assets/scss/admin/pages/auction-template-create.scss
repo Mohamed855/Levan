@@ -1,0 +1,46 @@
+.template-placement-canvas {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  cursor: crosshair;
+
+  img {
+    display: block;
+    max-width: 100%;
+    max-height: 700px;
+    object-fit: contain;
+  }
+}
+
+.template-placement-zone {
+  position: absolute;
+  z-index: 1;
+  min-width: 1px;
+  min-height: 1px;
+  border: 2px dashed var(--bs-primary);
+  background: rgba(var(--bs-primary-rgb), 0.14);
+  color: var(--bs-primary);
+  font-size: 0.75rem;
+  pointer-events: auto;
+
+  span {
+    position: absolute;
+    top: -1.75rem;
+    right: 0;
+    padding: 0.15rem 0.35rem;
+    border-radius: 0.25rem;
+    background: var(--bs-primary);
+    color: #fff;
+    white-space: nowrap;
+  }
+
+  button {
+    position: absolute;
+    top: -1.75rem;
+    left: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--bs-danger);
+  }
+}

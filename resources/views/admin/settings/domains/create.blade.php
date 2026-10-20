@@ -14,7 +14,9 @@
                     </a>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.settings.domains.store') }}" method="POST" data-form-validate>
+                    <form action="{{ route('admin.settings.domains.store') }}" method="POST" data-form-validate
+                        data-draft-url="{{ route('admin.wizard-drafts.store') }}"
+                        data-draft-resource-key="admin.domain-create">
                         @csrf
                         <div class="row g-4">
                             <x-form.controls.input name="domain_extension" id="domain_extension" label="الامتداد"

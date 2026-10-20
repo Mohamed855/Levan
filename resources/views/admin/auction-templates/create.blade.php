@@ -15,7 +15,7 @@
 @endsection
 
 @section('page-style')
-    @vite(['resources/assets/scss/tenant/pages/assignment-create.scss'])
+    @vite(['resources/assets/scss/tenant/pages/assignment-create.scss', 'resources/assets/scss/admin/pages/auction-template-create.scss'])
 @endsection
 
 @section('page-script')
@@ -44,7 +44,7 @@
                     data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}"
                     data-draft-url="{{ route('admin.wizard-drafts.store') }}"
                     data-draft-file-url="{{ route('admin.wizard-drafts.file.destroy') }}"
-                    data-draft-resource-key="admin.auction-template-create" data-draft-auto-restore>
+                    data-draft-resource-key="admin.auction-template-create">
                     @csrf
 
                     {{-- الخطوة 1: البيانات الأساسية --}}
@@ -62,7 +62,7 @@
                         </div>
 
                         <x-form.wizard.actions>
-                            <x-form.wizard.previous-button />
+                            <x-form.wizard.previous-button :href="route('admin.auction-templates.index')" text="العودة" />
                             <div class="d-flex gap-2">
                                 <x-form.wizard.draft-button />
                                 <x-form.wizard.next-button />
@@ -71,12 +71,39 @@
                     </x-form.wizard.step>
 
                     {{-- الخطوة 2: ملفات القالب والإعدادات --}}
-                    <x-form.wizard.step id="step-files" :fields="['file', 'is_active']">
+                    <x-form.wizard.step id="step-files" :fields="['file', 'field_definitions', 'is_active']">
                         <div class="row g-4">
                             <x-form.controls.file name="file" id="file"
                                 label="ملف القالب (PDF أو صورة تصميم عالية الدقة)"
                                 accept=".pdf,application/pdf,image/png,image/jpeg,image/webp" required col="col-12"
                                 help="يمكن رفع ملف PDF جاهز أو صورة تصميم عالية الدقة (PNG, JPG, WEBP). الحد الأقصى 30 ميجابايت." />
+
+                            <input type="hidden" name="field_definitions" id="field_definitions" value="[]"
+                                data-form-field data-field-name="field_definitions" data-form-control>
+
+                            <div class="col-12 d-none" id="template-placement-workspace">
+                                <div class="card shadow-sm mb-0">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0"><i class="ti ti-photo-edit me-2 text-primary"></i>معاينة
+                                            القالب وتحديد المواضع</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="template-preview-box"
+                                            class="bg-light rounded border p-2 text-center overflow-auto"></div>
+                                        <div class="alert alert-warning mt-3 mb-0" role="alert">
+                                            <div class="d-flex gap-2 align-items-start">
+                                                <i class="ti ti-info-circle fs-4"></i>
+                                                <div>
+                                                    <strong>الحقول المطلوبة داخل التصميم</strong>
+                                                    <p class="mb-2 small">اختر كل مفتاح ثم ارسم مكانه فوق الصورة. سيُستبدل
+                                                        المحتوى داخل هذه المنطقة نفسها عند تصدير المزاد.</p>
+                                                    <div id="template-required-keys" class="d-flex flex-wrap gap-2"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
                             {{-- كارت المعايير والمواصفات المعتمدة لملف القالب --}}
                             <div class="col-12" id="specifications-guide-wrapper">

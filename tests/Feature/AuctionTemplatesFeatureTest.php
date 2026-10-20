@@ -12,12 +12,14 @@ use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\UserMangment\User\User;
+use App\Rules\AuctionTemplateFileSpecificationRule;
 use App\Rules\ExistsInCentralAuctionTemplates;
 use App\Services\Tenants\Auctions\AuctionOutputService;
 use App\Services\Tenants\Shared\CentralAuctionTemplatesGateway;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 class AuctionTemplatesFeatureTest extends TestCase
@@ -50,17 +52,17 @@ class AuctionTemplatesFeatureTest extends TestCase
     public function test_superadmin_can_create_auction_template_with_fields(): void
     {
         $rawPdf = "%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n"
-            . "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n"
-            . "3 0 obj\n<< /Type /Page /Parent 2 0 R >>\nendobj\n"
-            . "4 0 obj\n<< /T (auction_name) /FT /Tx >>\nendobj\n"
-            . "5 0 obj\n<< /T (auction_date) /FT /Tx >>\nendobj\n"
-            . "xref\n0 6\ntrailer\n<< /Root 1 0 R >>\n%%EOF";
+            ."2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n"
+            ."3 0 obj\n<< /Type /Page /Parent 2 0 R >>\nendobj\n"
+            ."4 0 obj\n<< /T (auction_name) /FT /Tx >>\nendobj\n"
+            ."5 0 obj\n<< /T (auction_date) /FT /Tx >>\nendobj\n"
+            ."xref\n0 6\ntrailer\n<< /Root 1 0 R >>\n%%EOF";
 
         $pdfFile = UploadedFile::fake()->createWithContent('template.pdf', $rawPdf);
 
         $action = app(CreateAuctionTemplateAction::class);
         $template = $action->execute([
-            'name' => 'بروشور تجريبي ' . uniqid(),
+            'name' => 'بروشور تجريبي '.uniqid(),
             'type' => AuctionTemplateType::BROCHURE->value,
             'description' => 'وصف القالب التجريبي',
             'is_active' => true,
@@ -80,7 +82,7 @@ class AuctionTemplatesFeatureTest extends TestCase
     public function test_gateway_returns_active_templates_by_type(): void
     {
         $template = AuctionTemplate::create([
-            'name' => 'قالب بوابة نشط ' . uniqid(),
+            'name' => 'قالب بوابة نشط '.uniqid(),
             'type' => AuctionTemplateType::BROCHURE,
             'file_path' => 'auction_templates/brochure/test.pdf',
             'field_names' => ['auction_name'],
@@ -106,7 +108,7 @@ class AuctionTemplatesFeatureTest extends TestCase
     public function test_validation_rule_validates_against_central_templates(): void
     {
         $template = AuctionTemplate::create([
-            'name' => 'قالب فحص نشط ' . uniqid(),
+            'name' => 'قالب فحص نشط '.uniqid(),
             'type' => AuctionTemplateType::BILLBOARD,
             'file_path' => 'auction_templates/billboard/test.pdf',
             'is_active' => true,
@@ -139,7 +141,7 @@ class AuctionTemplatesFeatureTest extends TestCase
         try {
             $owner = User::first();
             $assignment = Assignment::firstOrCreate(
-                ['assignment_number' => 'ASN-TEST-' . uniqid()],
+                ['assignment_number' => 'ASN-TEST-'.uniqid()],
                 [
                     'name' => 'إسناد تجريبي للمخرجات',
                     'issuing_entity' => 'محكمة التنفيذ',
@@ -185,7 +187,7 @@ class AuctionTemplatesFeatureTest extends TestCase
     public function test_superadmin_can_view_index_and_show_template(): void
     {
         $template = AuctionTemplate::create([
-            'name' => 'قالب فحص العرض ' . uniqid(),
+            'name' => 'قالب فحص العرض '.uniqid(),
             'type' => AuctionTemplateType::BROCHURE,
             'file_path' => 'auction_templates/brochure/test.pdf',
             'field_names' => ['auction_name', 'auction_date'],
@@ -210,7 +212,7 @@ class AuctionTemplatesFeatureTest extends TestCase
     public function test_superadmin_can_toggle_template_status(): void
     {
         $template = AuctionTemplate::create([
-            'name' => 'قالب فحص التفعيل ' . uniqid(),
+            'name' => 'قالب فحص التفعيل '.uniqid(),
             'type' => AuctionTemplateType::BILLBOARD,
             'file_path' => 'auction_templates/billboard/test.pdf',
             'is_active' => true,
@@ -231,7 +233,7 @@ class AuctionTemplatesFeatureTest extends TestCase
     public function test_superadmin_can_delete_template(): void
     {
         $template = AuctionTemplate::create([
-            'name' => 'قالب فحص الحذف ' . uniqid(),
+            'name' => 'قالب فحص الحذف '.uniqid(),
             'type' => AuctionTemplateType::SOCIAL,
             'file_path' => 'auction_templates/social/test.pdf',
             'is_active' => true,
@@ -246,27 +248,19 @@ class AuctionTemplatesFeatureTest extends TestCase
         $this->assertSoftDeleted('auction_templates', ['id' => $template->id]);
     }
 
-    public function test_superadmin_can_create_auction_template_with_image_file(): void
+    public function test_superadmin_cannot_create_a_static_image_as_a_fillable_auction_template(): void
     {
         $imageFile = UploadedFile::fake()->image('template_poster.png', 1200, 1200);
 
         $action = app(CreateAuctionTemplateAction::class);
-        $template = $action->execute([
-            'name' => 'قالب بوستر صورة ' . uniqid(),
+        $this->expectException(ValidationException::class);
+
+        $action->execute([
+            'name' => 'قالب بوستر صورة '.uniqid(),
             'type' => AuctionTemplateType::SOCIAL->value,
             'description' => 'قالب صورة للتواصل الاجتماعي',
             'is_active' => true,
         ], $imageFile);
-
-        $this->assertDatabaseHas('auction_templates', [
-            'id' => $template->id,
-            'type' => 'social',
-            'is_active' => 1,
-        ]);
-
-        $this->assertNotNull($template->file_path);
-        $this->assertNotEmpty($template->field_names);
-        $this->assertContains('auction_name', $template->field_names);
     }
 
     public function test_auction_output_service_generates_pdf_file_from_template(): void
@@ -283,11 +277,11 @@ class AuctionTemplatesFeatureTest extends TestCase
         $rawPng = ob_get_clean();
         imagedestroy($imgContent);
 
-        $relPath = 'auction_templates/brochure/test_bg_' . uniqid() . '.png';
+        $relPath = 'auction_templates/brochure/test_bg_'.uniqid().'.png';
         Storage::disk('central_public')->put($relPath, $rawPng);
 
         $template = AuctionTemplate::create([
-            'name' => 'قالب بروشور حقيقي ' . uniqid(),
+            'name' => 'قالب بروشور حقيقي '.uniqid(),
             'type' => AuctionTemplateType::BROCHURE,
             'file_path' => $relPath,
             'is_active' => true,
@@ -297,7 +291,7 @@ class AuctionTemplatesFeatureTest extends TestCase
 
         try {
             $assignment = Assignment::firstOrCreate(
-                ['assignment_number' => 'ASN-OUT-' . uniqid()],
+                ['assignment_number' => 'ASN-OUT-'.uniqid()],
                 [
                     'name' => 'إسناد المخرجات',
                     'issuing_entity' => 'مركز الإسناد والتصفية (إنفاذ)',
@@ -361,7 +355,7 @@ class AuctionTemplatesFeatureTest extends TestCase
     public function test_superadmin_can_view_edit_page_with_canonical_contracts(): void
     {
         $template = AuctionTemplate::create([
-            'name' => 'قالب فحص شاشة التعديل ' . uniqid(),
+            'name' => 'قالب فحص شاشة التعديل '.uniqid(),
             'type' => AuctionTemplateType::BROCHURE,
             'file_path' => 'auction_templates/brochure/test.pdf',
             'is_active' => true,
@@ -392,32 +386,32 @@ class AuctionTemplatesFeatureTest extends TestCase
 
     public function test_specification_rule_enforces_type_dimensions_and_formats(): void
     {
-        $brochureRule = new \App\Rules\AuctionTemplateFileSpecificationRule('brochure');
-        $socialRule = new \App\Rules\AuctionTemplateFileSpecificationRule('social');
-        $billboardRule = new \App\Rules\AuctionTemplateFileSpecificationRule('billboard');
+        $brochureRule = new AuctionTemplateFileSpecificationRule('brochure');
+        $socialRule = new AuctionTemplateFileSpecificationRule('social');
+        $billboardRule = new AuctionTemplateFileSpecificationRule('billboard');
 
         // 1. Brochure must be PDF, rejecting images
         $imageFile = UploadedFile::fake()->image('brochure.png', 1080, 1080);
         $v1 = Validator::make(['file' => $imageFile], ['file' => [$brochureRule]]);
         $this->assertTrue($v1->fails());
 
-        // 2. Social must be square (rejecting non-square images like 1200x600)
+        // 2. Social square image templates are accepted for manual field placement.
         $wideImage = UploadedFile::fake()->image('social_wide.png', 1200, 600);
         $v2 = Validator::make(['file' => $wideImage], ['file' => [$socialRule]]);
         $this->assertTrue($v2->fails());
 
         $squareImage = UploadedFile::fake()->image('social_square.png', 1080, 1080);
         $v3 = Validator::make(['file' => $squareImage], ['file' => [$socialRule]]);
-        $this->assertTrue($v3->passes());
+        $this->assertFalse($v3->fails());
 
-        // 3. Billboard must be landscape (rejecting portrait like 600x1200)
+        // 3. Billboard images must remain landscape.
         $portraitImage = UploadedFile::fake()->image('billboard_portrait.png', 600, 1200);
         $v4 = Validator::make(['file' => $portraitImage], ['file' => [$billboardRule]]);
         $this->assertTrue($v4->fails());
 
         $landscapeImage = UploadedFile::fake()->image('billboard_landscape.png', 1920, 1080);
         $v5 = Validator::make(['file' => $landscapeImage], ['file' => [$billboardRule]]);
-        $this->assertTrue($v5->passes());
+        $this->assertFalse($v5->fails());
     }
 
     public function test_auction_output_service_generates_social_png_image(): void
@@ -428,7 +422,7 @@ class AuctionTemplatesFeatureTest extends TestCase
         }
 
         $template = AuctionTemplate::create([
-            'name' => 'قالب سوشيال تجريبي ' . uniqid(),
+            'name' => 'قالب سوشيال تجريبي '.uniqid(),
             'type' => AuctionTemplateType::SOCIAL,
             'file_path' => 'auction_templates/social/test.png',
             'is_active' => true,
@@ -442,7 +436,7 @@ class AuctionTemplatesFeatureTest extends TestCase
 
         try {
             $assignment = Assignment::firstOrCreate(
-                ['assignment_number' => 'ASN-IMG-' . uniqid()],
+                ['assignment_number' => 'ASN-IMG-'.uniqid()],
                 [
                     'name' => 'إسناد فحص الصور',
                     'issuing_entity' => 'مركز الإسناد والتصفية (إنفاذ)',
@@ -486,4 +480,3 @@ class AuctionTemplatesFeatureTest extends TestCase
         }
     }
 }
-

@@ -14,7 +14,7 @@ class CouponService
 
             return Coupon::create([
                 ...$data,
-                'created_by' => auth()->id(),
+                'created_by' => auth('admin')->id() ?? auth()->id(),
             ]);
         });
     }
@@ -26,7 +26,7 @@ class CouponService
             // تحديث الكوبون
             $coupon->update([
                 ...$data,
-                'updated_by' => auth()->id(),
+                'updated_by' => auth('admin')->id() ?? auth()->id(),
             ]);
 
             return $coupon;

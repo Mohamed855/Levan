@@ -70,7 +70,8 @@ class PlanController extends Controller
                     ['value' => 'inactive', 'label' => 'غير مفعلة'],
                 ],
                 'most_requested' => [
-                    ['value' => 'yes', 'label' => 'الأكثر طلباً فقط'],
+                    ['value' => 'yes', 'label' => 'الأكثر طلباً (نعم)'],
+                    ['value' => 'no',  'label' => 'غير الأكثر طلباً (لا)'],
                 ],
             ];
 

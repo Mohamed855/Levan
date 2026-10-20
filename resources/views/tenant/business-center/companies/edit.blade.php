@@ -169,9 +169,7 @@
 
                                 {{-- أزرار التحكم --}}
                                 <div class="col-12 d-flex justify-content-between mt-4">
-                                    <button type="button" class="btn btn-secondary btn-prev" disabled>
-                                        السابق
-                                    </button>
+                                    <x-form.wizard.previous-button :href="tenant_route_name('companies.index')" text="العودة" />
                                     <button type="submit" class="btn btn-primary btn-next btn-submit">
                                         تحديث
                                     </button>

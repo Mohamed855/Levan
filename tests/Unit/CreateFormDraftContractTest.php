@@ -42,4 +42,77 @@ final class CreateFormDraftContractTest extends TestCase
 
         $this->assertStringContainsString('DiscardCompletedWizardDraft::class', $bootstrap);
     }
+
+    public function test_draft_restoration_strictly_requires_user_confirmation_modal_and_never_auto_restores(): void
+    {
+        $root = dirname(__DIR__, 2);
+        $script = file_get_contents($root.'/resources/assets/js/shared/form-validation.js');
+
+        $this->assertStringContainsString('let shouldRestore = false;', $script);
+        $this->assertStringContainsString('title: \'مسودة محفوظة\'', $script);
+        $this->assertStringContainsString('text: \'توجد مسودة محفوظة مسبقاً. هل ترغب في استعادتها؟\'', $script);
+        $this->assertStringContainsString('confirmButtonText: \'نعم، استعادة المسودة\'', $script);
+        $this->assertStringContainsString('cancelButtonText: \'تجاهل والبدء من جديد\'', $script);
+        $this->assertStringNotContainsString('data-draft-auto-restore', $script);
+
+        // Ensure no view has data-draft-auto-restore bypass
+        $views = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root.'/resources/views'));
+        foreach ($views as $file) {
+            if ($file->isFile() && str_ends_with($file->getFilename(), '.blade.php')) {
+                $content = file_get_contents($file->getPathname());
+                $this->assertStringNotContainsString('data-draft-auto-restore', $content, "Found forbidden data-draft-auto-restore in {$file->getPathname()}");
+            }
+        }
+    }
+
+    public function test_sweetalert_assets_are_loaded_in_shared_layout_master_scripts_and_styles(): void
+    {
+        $root = dirname(__DIR__, 2);
+        $scripts = file_get_contents($root.'/resources/views/components/shared/layout/scripts.blade.php');
+        $this->assertStringContainsString('resources/assets/vendor/libs/sweetalert2/sweetalert2.js', $scripts);
+
+        $adminStyles = file_get_contents($root.'/resources/views/admin/layouts/sections/styles.blade.php');
+        $this->assertStringContainsString('resources/assets/vendor/libs/sweetalert2/sweetalert2.scss', $adminStyles);
+
+        $tenantStyles = file_get_contents($root.'/resources/views/tenant/layouts/sections/styles.blade.php');
+        $this->assertStringContainsString('resources/assets/vendor/libs/sweetalert2/sweetalert2.scss', $tenantStyles);
+    }
+
+    public function test_step_one_previous_button_navigates_to_index_in_all_wizards(): void
+    {
+        $root = dirname(__DIR__, 2);
+        $script = file_get_contents($root.'/resources/assets/js/shared/form-validation.js');
+
+        $this->assertStringContainsString('replace(/\/create\/?$/, \'\')', $script);
+        $this->assertStringContainsString('replace(/\/[^/]+\/edit\/?$/, \'\')', $script);
+
+        $wizardFiles = [
+            $root.'/resources/views/admin/auction-templates/create.blade.php',
+            $root.'/resources/views/tenant/auctions/create.blade.php',
+            $root.'/resources/views/tenant/user-management/users/create.blade.php',
+            $root.'/resources/views/tenant/user-management/users/edit.blade.php',
+            $root.'/resources/views/tenant/assignments/create.blade.php',
+            $root.'/resources/views/tenant/assignments/edit.blade.php',
+            $root.'/resources/views/tenant/properties/create.blade.php',
+            $root.'/resources/views/tenant/properties/edit.blade.php',
+            $root.'/resources/views/admin/users/create.blade.php',
+            $root.'/resources/views/admin/users/edit.blade.php',
+            $root.'/resources/views/admin/clients/create.blade.php',
+            $root.'/resources/views/admin/clients/edit.blade.php',
+            $root.'/resources/views/admin/plans/create.blade.php',
+            $root.'/resources/views/admin/plans/edit.blade.php',
+            $root.'/resources/views/admin/coupons/create.blade.php',
+            $root.'/resources/views/admin/coupons/edit.blade.php',
+            $root.'/resources/views/admin/subscriptions/create.blade.php',
+        ];
+
+        foreach ($wizardFiles as $file) {
+            $content = file_get_contents($file);
+            $this->assertMatchesRegularExpression(
+                '/<x-form\.wizard\.previous-button[^>]+:href="[^"]+\.index[^"]*"/',
+                $content,
+                "Wizard view {$file} must have previous-button on step 1 with :href pointing to an index route"
+            );
+        }
+    }
 }

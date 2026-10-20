@@ -187,7 +187,7 @@
                             <x-form.wizard.previous-button />
                             <div class="d-flex gap-2">
                                 <x-form.wizard.draft-button />
-                                <x-form.wizard.save-button text="إنشاء ونشر الباقة" class="btn-success" />
+                                <x-form.wizard.save-button />
                             </div>
                         </x-form.wizard.actions>
                     </x-form.wizard.step>

@@ -113,7 +113,8 @@
                             <div class="invalid-feedback d-block" data-form-error role="alert" hidden></div>
                         </div>
 
-                        <div class="text-end">
+                        <div class="d-flex justify-content-between">
+                            <x-form.wizard.previous-button :href="tenant_route_name('roles.index')" text="العودة" />
                             <button type="submit" class="btn btn-primary">تحديث</button>
                         </div>
                     </form>

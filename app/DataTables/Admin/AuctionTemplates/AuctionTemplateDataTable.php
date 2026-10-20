@@ -73,9 +73,8 @@ class AuctionTemplateDataTable extends AbstractDataTable
                 $type = $row->type instanceof AuctionTemplateType ? $row->type : AuctionTemplateType::tryFrom((string) $row->type);
                 $label = $type ? $type->label() : (string) $row->type;
                 $color = $type ? $type->color() : 'secondary';
-                $icon = $type ? $type->icon() : 'ti-file';
 
-                return '<span class="badge bg-label-'.e($color).'"><i class="ti '.e($icon).' me-1"></i>'.e($label).'</span>';
+                return '<span class="badge bg-label-'.e($color).'">'.e($label).'</span>';
             })
 
             ->addColumn('file', function ($row) {
