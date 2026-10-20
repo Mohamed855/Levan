@@ -69,7 +69,7 @@
 
                     {{-- File Upload (PDF or High-Res Image) --}}
                     <x-form.controls.file name="file" id="file" label="استبدال ملف القالب (PDF أو صورة تصميم)"
-                        accept=".pdf,application/pdf,image/png,image/jpeg,image/webp" col="col-md-6"
+                        accept=".pdf,application/pdf,image/png,image/jpeg,image/webp" col="col-12"
                         help="اتركه فارغاً للإبقاء على الملف الحالي. يمكنك رفع ملف PDF أو صورة بحد أقصى 30 ميجابايت.">
                         @if ($template->file_url)
                             @php
@@ -85,19 +85,6 @@
                                 <a href="{{ $template->file_url }}" target="_blank" class="btn btn-xs btn-label-primary">
                                     <i class="ti ti-external-link me-1"></i>معاينة
                                 </a>
-                            </div>
-                        @endif
-                    </x-form.controls.file>
-
-                    {{-- Thumbnail Upload --}}
-                    <x-form.controls.file name="thumbnail" id="thumbnail" label="استبدال صورة المعاينة (اختياري)"
-                        accept="image/png,image/jpeg,image/webp" col="col-md-6"
-                        help="تُعرض للمستأجرين في شاشة إنشاء وتعديل المزاد لتسهيل اختيار القالب.">
-                        @if ($template->thumbnail_url)
-                            <div class="mt-2 d-flex align-items-center gap-2">
-                                <img src="{{ $template->thumbnail_url }}" alt="{{ $template->name }}"
-                                    class="rounded-circle border p-1" style="width: 50px; height: 50px; object-fit: cover;">
-                                <span class="text-muted small">المعاينة الحالية</span>
                             </div>
                         @endif
                     </x-form.controls.file>

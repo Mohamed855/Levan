@@ -27,7 +27,6 @@ class AuctionTemplate extends Model
         'type',
         'description',
         'file_path',
-        'thumbnail_path',
         'field_names',
         'is_active',
         'created_by',
@@ -63,11 +62,6 @@ class AuctionTemplate extends Model
         return $this->file_path ? Storage::disk('central_public')->url($this->file_path) : null;
     }
 
-    public function getThumbnailUrlAttribute(): ?string
-    {
-        return $this->thumbnail_path ? Storage::disk('central_public')->url($this->thumbnail_path) : null;
-    }
-
     /*
     |============================================================================
     |                          Activity Log
@@ -86,13 +80,12 @@ class AuctionTemplate extends Model
     public static function getFieldTranslations(): array
     {
         return [
-            'name'           => 'اسم القالب',
-            'type'           => 'نوع القالب',
-            'description'    => 'الوصف',
-            'file_path'      => 'ملف PDF',
-            'thumbnail_path' => 'صورة المعاينة',
-            'field_names'    => 'حقول القالب',
-            'is_active'      => 'الحالة',
+            'name'        => 'اسم القالب',
+            'type'        => 'نوع القالب',
+            'description' => 'الوصف',
+            'file_path'   => 'ملف PDF',
+            'field_names' => 'حقول القالب',
+            'is_active'   => 'الحالة',
         ];
     }
 }

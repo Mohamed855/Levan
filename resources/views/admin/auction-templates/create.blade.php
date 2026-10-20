@@ -71,16 +71,12 @@
                     </x-form.wizard.step>
 
                     {{-- الخطوة 2: ملفات القالب والإعدادات --}}
-                    <x-form.wizard.step id="step-files" :fields="['file', 'thumbnail', 'is_active']">
+                    <x-form.wizard.step id="step-files" :fields="['file', 'is_active']">
                         <div class="row g-4">
                             <x-form.controls.file name="file" id="file"
                                 label="ملف القالب (PDF أو صورة تصميم عالية الدقة)"
-                                accept=".pdf,application/pdf,image/png,image/jpeg,image/webp" required col="col-md-6"
+                                accept=".pdf,application/pdf,image/png,image/jpeg,image/webp" required col="col-12"
                                 help="يمكن رفع ملف PDF جاهز أو صورة تصميم عالية الدقة (PNG, JPG, WEBP). الحد الأقصى 30 ميجابايت." />
-
-                            <x-form.controls.file name="thumbnail" id="thumbnail" label="صورة المعاينة (اختياري)"
-                                accept="image/png,image/jpeg,image/webp" col="col-md-6"
-                                help="تُعرض للمستأجرين في شاشة إنشاء وتعديل المزاد لتسهيل اختيار القالب (في حال تركه فارغاً سيتم اعتماده تلقائياً من التصميم المرفوع)." />
 
                             {{-- كارت المعايير والمواصفات المعتمدة لملف القالب --}}
                             <div class="col-12" id="specifications-guide-wrapper">
@@ -162,7 +158,6 @@
                                 <x-form.wizard.review-card title="ملفات القالب والإعدادات" step="2"
                                     class="assignment-review__card">
                                     <div><strong>ملف القالب:</strong> <span id="review-file-name">-</span></div>
-                                    <div><strong>صورة المعاينة:</strong> <span id="review-thumbnail-name">-</span></div>
                                     <div><strong>حالة التفعيل:</strong> <span id="review-status">-</span></div>
                                 </x-form.wizard.review-card>
                             </div>
@@ -171,9 +166,6 @@
                                 <article class="card assignment-preview h-100">
                                     <div class="assignment-preview__image bg-primary d-flex flex-column justify-content-center p-4 text-white text-center position-relative overflow-hidden"
                                         style="min-height: 140px;">
-                                        <img id="preview-template-img"
-                                            class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover d-none"
-                                            alt="">
                                         <div id="preview-template-icon" class="position-relative z-1">
                                             <i class="ti ti-palette fs-1 mb-2 text-white"></i>
                                             <h5 class="text-white mb-1" id="preview-template-name">اسم القالب</h5>
@@ -182,8 +174,7 @@
                                     </div>
                                     <div class="card-body">
                                         <p class="mb-2" id="preview-template-status">
-                                            <span class="badge bg-label-success"><i class="ti ti-check me-1"></i>مفعل
-                                                ومتاح للمستأجرين</span>
+                                            <span class="badge bg-label-success">مفعل ومتاح للمستأجرين</span>
                                         </p>
                                         <p class="text-muted mb-0 small" id="preview-template-desc">وصف القالب وملاحظات
                                             التصميم</p>
@@ -196,7 +187,7 @@
                             <x-form.wizard.previous-button />
                             <div class="d-flex gap-2">
                                 <x-form.wizard.draft-button />
-                                <x-form.wizard.save-button text="حفظ وتفعيل القالب" />
+                                <x-form.wizard.save-button />
                             </div>
                         </div>
                     </x-form.wizard.step>

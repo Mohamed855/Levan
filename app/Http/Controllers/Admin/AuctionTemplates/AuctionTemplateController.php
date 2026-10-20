@@ -64,13 +64,12 @@ class AuctionTemplateController extends Controller
         StoreAuctionTemplateRequest $request,
         CreateAuctionTemplateAction $action
     ): RedirectResponse {
-        $data = $request->safe()->except(['file', 'thumbnail']);
+        $data = $request->safe()->except(['file']);
         $data['is_active'] = $request->boolean('is_active', true);
 
         $action->execute(
             $data,
-            $request->file('file'),
-            $request->file('thumbnail')
+            $request->file('file')
         );
 
         return redirect()
@@ -103,7 +102,7 @@ class AuctionTemplateController extends Controller
         AuctionTemplate $auctionTemplate,
         UpdateAuctionTemplateAction $action
     ): RedirectResponse {
-        $data = $request->safe()->except(['file', 'thumbnail']);
+        $data = $request->safe()->except(['file']);
         if ($request->has('is_active')) {
             $data['is_active'] = $request->boolean('is_active');
         }
@@ -111,8 +110,7 @@ class AuctionTemplateController extends Controller
         $action->execute(
             $auctionTemplate,
             $data,
-            $request->file('file'),
-            $request->file('thumbnail')
+            $request->file('file')
         );
 
         return redirect()

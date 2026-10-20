@@ -14,15 +14,15 @@ use Throwable;
 
 final class CreateAuctionTemplateAction
 {
-    public function execute(array $data, UploadedFile $file, ?UploadedFile $thumbnail = null): AuctionTemplate
+    public function execute(array $data, UploadedFile $file): AuctionTemplate
     {
         $storedPaths = [];
 
         try {
-            return DB::transaction(function () use ($data, $file, $thumbnail, &$storedPaths): AuctionTemplate {
+            return DB::transaction(function () use ($data, $file, &$storedPaths): AuctionTemplate {
                 $type = is_object($data['type']) ? $data['type']->value : (string) $data['type'];
 
-                // 1. Store PDF
+                // 1. Store template file
                 $filePath = $file->store("auction_templates/{$type}", 'central_public');
                 $storedPaths[] = $filePath;
                 $data['file_path'] = $filePath;
@@ -35,15 +35,6 @@ final class CreateAuctionTemplateAction
                 } else {
                     $guide = app(\App\Services\Admin\AuctionTemplates\AuctionTemplateService::class)->getFieldGuide();
                     $data['field_names'] = array_column($guide[$type]['fields'] ?? [], 'name');
-                }
-
-                // 3. Store Thumbnail if provided, or use image itself if template is image
-                if ($thumbnail instanceof UploadedFile) {
-                    $thumbPath = $thumbnail->store("auction_templates/{$type}/thumbnails", 'central_public');
-                    $storedPaths[] = $thumbPath;
-                    $data['thumbnail_path'] = $thumbPath;
-                } elseif (in_array(strtolower($file->getClientOriginalExtension()), ['png', 'jpg', 'jpeg', 'webp'], true)) {
-                    $data['thumbnail_path'] = $filePath;
                 }
 
                 $data['created_by'] = auth('admin')->id();

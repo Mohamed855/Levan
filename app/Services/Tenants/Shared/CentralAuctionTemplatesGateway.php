@@ -13,7 +13,7 @@ final class CentralAuctionTemplatesGateway
     /**
      * Get active templates formatted for select options.
      *
-     * @return array<int, array{value: int, label: string, thumbnail: string|null}>
+     * @return array<int, array{value: int, label: string}>
      */
     public function activeByType(string $type): array
     {
@@ -23,13 +23,10 @@ final class CentralAuctionTemplatesGateway
                 ->where('is_active', true)
                 ->whereNull('deleted_at')
                 ->orderBy('name')
-                ->get(['id', 'name', 'thumbnail_path'])
+                ->get(['id', 'name'])
                 ->map(fn ($t) => [
-                    'value'     => (int) $t->id,
-                    'label'     => $t->name,
-                    'thumbnail' => $t->thumbnail_path
-                        ? Storage::disk('central_public')->url($t->thumbnail_path)
-                        : null,
+                    'value' => (int) $t->id,
+                    'label' => $t->name,
                 ])
                 ->values()
                 ->toArray();

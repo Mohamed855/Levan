@@ -57,7 +57,6 @@ class AuctionTemplatesFeatureTest extends TestCase
             . "xref\n0 6\ntrailer\n<< /Root 1 0 R >>\n%%EOF";
 
         $pdfFile = UploadedFile::fake()->createWithContent('template.pdf', $rawPdf);
-        $thumbnail = UploadedFile::fake()->image('thumb.png', 400, 300);
 
         $action = app(CreateAuctionTemplateAction::class);
         $template = $action->execute([
@@ -65,7 +64,7 @@ class AuctionTemplatesFeatureTest extends TestCase
             'type' => AuctionTemplateType::BROCHURE->value,
             'description' => 'وصف القالب التجريبي',
             'is_active' => true,
-        ], $pdfFile, $thumbnail);
+        ], $pdfFile);
 
         $this->assertDatabaseHas('auction_templates', [
             'id' => $template->id,
@@ -74,7 +73,6 @@ class AuctionTemplatesFeatureTest extends TestCase
         ]);
 
         $this->assertNotNull($template->file_path);
-        $this->assertNotNull($template->thumbnail_path);
         $this->assertContains('auction_name', $template->field_names);
         $this->assertContains('auction_date', $template->field_names);
     }
@@ -258,7 +256,7 @@ class AuctionTemplatesFeatureTest extends TestCase
             'type' => AuctionTemplateType::SOCIAL->value,
             'description' => 'قالب صورة للتواصل الاجتماعي',
             'is_active' => true,
-        ], $imageFile, null);
+        ], $imageFile);
 
         $this->assertDatabaseHas('auction_templates', [
             'id' => $template->id,
@@ -267,8 +265,6 @@ class AuctionTemplatesFeatureTest extends TestCase
         ]);
 
         $this->assertNotNull($template->file_path);
-        // Image template should auto-use file_path as thumbnail if no explicit thumbnail given
-        $this->assertEquals($template->file_path, $template->thumbnail_path);
         $this->assertNotEmpty($template->field_names);
         $this->assertContains('auction_name', $template->field_names);
     }

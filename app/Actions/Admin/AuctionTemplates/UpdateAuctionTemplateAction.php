@@ -19,15 +19,13 @@ final class UpdateAuctionTemplateAction
     public function execute(
         AuctionTemplate $template,
         array $data,
-        ?UploadedFile $file = null,
-        ?UploadedFile $thumbnail = null
+        ?UploadedFile $file = null
     ): AuctionTemplate {
         $oldFilePath = null;
-        $oldThumbPath = null;
         $newStoredPaths = [];
 
         try {
-            return DB::transaction(function () use ($template, $data, $file, $thumbnail, &$oldFilePath, &$oldThumbPath, &$newStoredPaths): AuctionTemplate {
+            return DB::transaction(function () use ($template, $data, $file, &$oldFilePath, &$newStoredPaths): AuctionTemplate {
                 $type = isset($data['type'])
                     ? (is_object($data['type']) ? $data['type']->value : (string) $data['type'])
                     : $template->type->value;
@@ -47,28 +45,13 @@ final class UpdateAuctionTemplateAction
                         $guide = app(\App\Services\Admin\AuctionTemplates\AuctionTemplateService::class)->getFieldGuide();
                         $data['field_names'] = array_column($guide[$type]['fields'] ?? [], 'name');
                     }
-
-                    if (! $thumbnail && in_array(strtolower($file->getClientOriginalExtension()), ['png', 'jpg', 'jpeg', 'webp'], true)) {
-                        $data['thumbnail_path'] = $newFilePath;
-                    }
-                }
-
-                // Handle new thumbnail
-                if ($thumbnail instanceof UploadedFile) {
-                    $newThumbPath = $thumbnail->store("auction_templates/{$type}/thumbnails", 'central_public');
-                    $newStoredPaths[] = $newThumbPath;
-                    $oldThumbPath = $template->thumbnail_path;
-                    $data['thumbnail_path'] = $newThumbPath;
                 }
 
                 $template->update($data);
 
-                // Clean up old files on success
+                // Clean up old file on success
                 if ($oldFilePath && Storage::disk('central_public')->exists($oldFilePath)) {
                     Storage::disk('central_public')->delete($oldFilePath);
-                }
-                if ($oldThumbPath && Storage::disk('central_public')->exists($oldThumbPath)) {
-                    Storage::disk('central_public')->delete($oldThumbPath);
                 }
 
                 return $template->fresh();

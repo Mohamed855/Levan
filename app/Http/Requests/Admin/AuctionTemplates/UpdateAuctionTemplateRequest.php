@@ -38,7 +38,6 @@ class UpdateAuctionTemplateRequest extends WizardFormRequest
                 'max:30720',
                 new AuctionTemplateFileSpecificationRule($this->input('type')),
             ],
-            'thumbnail'   => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:5120'],
             'is_active'   => ['nullable', 'boolean'],
         ];
     }
@@ -50,7 +49,6 @@ class UpdateAuctionTemplateRequest extends WizardFormRequest
             'type'        => 'نوع القالب',
             'description' => 'الوصف',
             'file'        => 'ملف القالب (PDF أو صورة)',
-            'thumbnail'   => 'صورة المعاينة',
             'is_active'   => 'الحالة',
         ];
     }

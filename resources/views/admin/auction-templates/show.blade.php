@@ -18,9 +18,9 @@
                     <i class="ti {{ $template->type->icon() }} me-1"></i>{{ $template->type->label() }}
                 </span>
                 @if($template->is_active)
-                    <span class="badge bg-label-success"><i class="ti ti-check me-1"></i>نشط ومتاح للمستأجرين</span>
+                    <span class="badge bg-label-success">نشط ومتاح للمستأجرين</span>
                 @else
-                    <span class="badge bg-label-danger"><i class="ti ti-ban me-1"></i>معطل</span>
+                    <span class="badge bg-label-danger">معطل</span>
                 @endif
                 <span class="badge bg-label-secondary font-monospace">ID: {{ $template->id }}</span>
             </div>
@@ -44,13 +44,9 @@
             <div class="card mb-4 shadow-sm">
                 <div class="card-body text-center pt-4">
                     <div class="mx-auto mb-3">
-                        @if($template->thumbnail_url)
-                            <img src="{{ $template->thumbnail_url }}" alt="{{ $template->name }}" class="rounded-circle shadow-sm" style="width: 100px; height: 100px; object-fit: cover;">
-                        @else
-                            <span class="avatar-initial rounded-circle bg-label-{{ $template->type->color() }} d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
-                                <i class="ti {{ $template->type->icon() }} fs-1"></i>
-                            </span>
-                        @endif
+                        <span class="avatar-initial rounded-circle bg-label-{{ $template->type->color() }} d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                            <i class="ti {{ $template->type->icon() }} fs-1"></i>
+                        </span>
                     </div>
 
                     <h5 class="mb-1 fw-bold">{{ $template->name }}</h5>
@@ -65,10 +61,10 @@
                             <small class="text-muted">حقول مستخرجة</small>
                         </div>
                         <div>
-                            <h5 class="mb-0 text-{{ $template->is_active ? 'success' : 'danger' }}">
-                                <i class="ti {{ $template->is_active ? 'ti-check' : 'ti-ban' }}"></i>
+                            <h5 class="mb-0 text-{{ $template->is_active ? 'success' : 'danger' }} fw-bold">
+                                {{ $template->is_active ? 'نشط' : 'معطل' }}
                             </h5>
-                            <small class="text-muted">{{ $template->is_active ? 'نشط' : 'معطل' }}</small>
+                            <small class="text-muted">الحالة</small>
                         </div>
                     </div>
 
@@ -108,7 +104,7 @@
                             @php
                                 $isPdf = str_ends_with(strtolower($template->file_path), '.pdf');
                             @endphp
-                            <li class="d-flex align-items-center justify-content-between py-2 border-bottom">
+                            <li class="d-flex align-items-center justify-content-between py-2">
                                 <div class="d-flex align-items-center gap-2 text-truncate me-2">
                                     <i class="ti {{ $isPdf ? 'ti-file-type-pdf text-danger' : 'ti-photo text-primary' }} fs-4"></i>
                                     <div>
@@ -118,21 +114,6 @@
                                 </div>
                                 <a href="{{ $template->file_url }}" target="_blank" class="btn btn-sm btn-icon btn-label-primary" title="معاينة وتحميل الملف">
                                     <i class="ti ti-download"></i>
-                                </a>
-                            </li>
-                        @endif
-
-                        @if($template->thumbnail_url)
-                            <li class="d-flex align-items-center justify-content-between py-2">
-                                <div class="d-flex align-items-center gap-2 text-truncate me-2">
-                                    <i class="ti ti-photo text-info fs-4"></i>
-                                    <div>
-                                        <span class="text-truncate fw-medium d-block">صورة المعاينة</span>
-                                        <small class="text-muted">Thumbnail Image</small>
-                                    </div>
-                                </div>
-                                <a href="{{ $template->thumbnail_url }}" target="_blank" class="btn btn-sm btn-icon btn-label-info" title="عرض الصورة">
-                                    <i class="ti ti-eye"></i>
                                 </a>
                             </li>
                         @endif

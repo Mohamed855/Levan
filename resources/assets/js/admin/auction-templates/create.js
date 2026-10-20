@@ -46,50 +46,15 @@ document.addEventListener('DOMContentLoaded', () => {
             $('#review-file-name').text('لم يتم اختيار ملف بعد');
         }
 
-        // Thumbnail
-        const thumbInput = document.getElementById('thumbnail');
-        if (thumbInput && thumbInput.files && thumbInput.files.length > 0) {
-            const thumbFile = thumbInput.files[0];
-            $('#review-thumbnail-name').html(`
-                <span class="badge bg-label-info font-monospace">
-                    <i class="ti ti-photo me-1"></i>${escapeHtml(thumbFile.name)}
-                </span>
-            `);
-
-            // Update preview image
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const previewImg = document.getElementById('preview-template-img');
-                const previewIcon = document.getElementById('preview-template-icon');
-                if (previewImg) {
-                    previewImg.src = e.target.result;
-                    previewImg.classList.remove('d-none');
-                }
-                if (previewIcon) {
-                    previewIcon.classList.add('d-none');
-                }
-            };
-            reader.readAsDataURL(thumbFile);
-        } else {
-            $('#review-thumbnail-name').text('سيتم توليدها تلقائياً');
-            const previewImg = document.getElementById('preview-template-img');
-            const previewIcon = document.getElementById('preview-template-icon');
-            if (previewImg && !previewImg.dataset.existing) {
-                previewImg.classList.add('d-none');
-            }
-            if (previewIcon) {
-                previewIcon.classList.remove('d-none');
-            }
-        }
 
         // Status
         const isActive = $('#is_active').is(':checked');
         if (isActive) {
-            $('#preview-template-status').html('<span class="badge bg-label-success"><i class="ti ti-check me-1"></i>مفعل ومتاح للمستأجرين</span>');
-            $('#review-status').html('<span class="badge bg-label-success"><i class="ti ti-check me-1"></i>مفعل</span>');
+            $('#preview-template-status').html('<span class="badge bg-label-success">مفعل ومتاح للمستأجرين</span>');
+            $('#review-status').html('<span class="badge bg-label-success">مفعل</span>');
         } else {
-            $('#preview-template-status').html('<span class="badge bg-label-danger"><i class="ti ti-ban me-1"></i>معطل</span>');
-            $('#review-status').html('<span class="badge bg-label-danger"><i class="ti ti-ban me-1"></i>معطل</span>');
+            $('#preview-template-status').html('<span class="badge bg-label-danger">معطل</span>');
+            $('#review-status').html('<span class="badge bg-label-danger">معطل</span>');
         }
 
         // Specification Guide Synchronize
@@ -114,7 +79,6 @@ document.addEventListener('DOMContentLoaded', () => {
     $('#type').on('change', updateLivePreview);
     $('#description').on('input', updateLivePreview);
     $('#file').on('change', updateLivePreview);
-    $('#thumbnail').on('change', updateLivePreview);
     $('#is_active').on('change', updateLivePreview);
 
     // Quick jump step buttons in Step 3 Review

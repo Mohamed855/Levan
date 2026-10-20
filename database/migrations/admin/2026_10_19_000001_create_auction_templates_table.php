@@ -14,7 +14,6 @@ return new class extends Migration
             $table->enum('type', ['brochure', 'billboard', 'social'])->index();
             $table->text('description')->nullable();
             $table->string('file_path');
-            $table->string('thumbnail_path')->nullable();
             $table->json('field_names')->nullable();
             $table->boolean('is_active')->default(true)->index();
             $table->foreignId('created_by')->nullable()->constrained('admin_users')->nullOnDelete();

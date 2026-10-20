@@ -48,7 +48,6 @@ class AuctionTemplateDataTable extends AbstractDataTable
     {
         return [
             ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
-            ['data' => 'thumbnail', 'name' => 'thumbnail_path', 'title' => 'المعاينة', 'orderable' => false, 'searchable' => false, 'className' => 'text-center'],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم القالب', 'className' => 'text-start'],
             ['data' => 'type', 'name' => 'type', 'title' => 'النوع', 'className' => 'text-center'],
             ['data' => 'file', 'name' => 'file_path', 'title' => 'الملف', 'orderable' => false, 'searchable' => false, 'className' => 'text-center'],
@@ -62,17 +61,6 @@ class AuctionTemplateDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
-
-            ->addColumn('thumbnail', function ($row) {
-                if ($row->thumbnail_url) {
-                    return '<img src="'.e($row->thumbnail_url).'" alt="'.e($row->name).'" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">';
-                }
-
-                $icon = $row->type instanceof AuctionTemplateType ? $row->type->icon() : 'ti-file-description';
-                $color = $row->type instanceof AuctionTemplateType ? $row->type->color() : 'primary';
-
-                return '<span class="avatar-initial rounded-circle bg-label-'.e($color).' p-2"><i class="ti '.e($icon).' fs-4"></i></span>';
-            })
 
             ->editColumn('name', function ($row) {
                 $showUrl = route($this->route.'.show', $row->id);
@@ -134,7 +122,6 @@ class AuctionTemplateDataTable extends AbstractDataTable
     {
         return [
             'checkbox',
-            'thumbnail',
             'name',
             'type',
             'file',
@@ -154,7 +141,7 @@ class AuctionTemplateDataTable extends AbstractDataTable
 
     protected function getCustomOrder(): array
     {
-        return [5, 'desc'];
+        return [4, 'desc'];
     }
 
     protected function buttons(): array
