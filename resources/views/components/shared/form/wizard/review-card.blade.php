@@ -9,7 +9,7 @@
         </button>
     </div>
     <div @if ($bodyId) id="{{ $bodyId }}" @endif
-        class="card-body d-flex flex-column gap-3 mt-3">
+        class="card-body d-flex flex-column gap-3">
         {{ $slot }}
     </div>
 </article>

@@ -14,6 +14,10 @@
     @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
 @endsection
 
+@section('page-style')
+    @vite(['resources/assets/css/shared/dataTable.css', 'resources/assets/scss/tenant/pages/assignment-create.scss'])
+@endsection
+
 @section('page-script')
     @vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/tenant/auctions/create.js'])
 @endsection
@@ -48,6 +52,7 @@
                     data-draft-url="{{ tenant_route_name('wizard-drafts.store') }}"
                     data-draft-file-url="{{ tenant_route_name('wizard-drafts.file.destroy') }}"
                     data-assignment-properties-url="{{ tenant_route_name('assignments.properties', ':id') }}"
+                    data-property-image-fallback="{{ asset('static/brand/logos/logo.svg') }}"
                     data-draft-resource-key="tenant.auction-create">
                     @csrf
 
@@ -208,7 +213,7 @@
                                 <span class="badge bg-label-primary"><span id="selected-properties-count">0</span> عقار</span>
                             </div>
                             <div id="selected-properties-cards" class="assignment-selection__items">
-                                <p class="text-muted mb-0">لم يتم اختيار عقارات بعد.</p>
+                                <p class="text-muted mb-0" data-empty>لم يتم اختيار عقارات بعد.</p>
                             </div>
                         </section>
 

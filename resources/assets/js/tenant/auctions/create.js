@@ -40,8 +40,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const properties = [...selectedProperties.values()];
         count.textContent = String(properties.length);
         cards.innerHTML = properties.length
-            ? properties.map((property) => `<article class="assignment-property-card"><img class="assignment-property-card__image" src="${escapeHtml(property.image || propertyImageFallback)}" alt=""><div class="assignment-property-card__content"><code class="copyable-code">${escapeHtml(property.number || '-')}</code><h6 class="mb-1 text-body text-truncate">${escapeHtml(property.name)}</h6><p class="mb-0 text-muted small">${escapeHtml(property.city || '-')}</p></div><button type="button" class="btn btn-sm btn-icon btn-label-danger" data-remove-auction-property="${escapeHtml(property.id)}"><i class="ti ti-x" aria-hidden="true"></i></button></article>`).join('')
-            : '<p class="text-muted mb-0">لم يتم اختيار عقارات بعد.</p>';
+            ? properties.map((property) => `
+                <article class="assignment-property-card">
+                    <img class="assignment-property-card__image" src="${escapeHtml(property.image || propertyImageFallback)}" alt="" onerror="this.onerror=null;this.src='${escapeHtml(propertyImageFallback)}';">
+                    <div class="assignment-property-card__content">
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                            <code class="copyable-code">${escapeHtml(property.number || '-')}</code>
+                            ${property.type ? `<span class="badge bg-label-info">${escapeHtml(property.type)}</span>` : ''}
+                        </div>
+                        <h6 class="mb-1 text-body text-truncate" title="${escapeHtml(property.name)}">${escapeHtml(property.name)}</h6>
+                        <p class="mb-0 text-muted small"><i class="ti ti-map-pin me-1"></i>${escapeHtml(property.city || '-')}</p>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-icon btn-label-danger" data-remove-auction-property="${escapeHtml(property.id)}" aria-label="إزالة ${escapeHtml(property.name)}"><i class="ti ti-x" aria-hidden="true"></i></button>
+                </article>`).join('')
+            : '<p class="text-muted mb-0" data-empty>لم يتم اختيار عقارات بعد.</p>';
     }
 
     // Wizard draft restored handler
@@ -166,18 +178,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         res.properties.forEach(function(prop) {
                             const img = prop.main_image
                                 ? '/tenant-assets/' + encodeURI(prop.main_image)
-                                : '/assets/img/illustrations/page-pricing-standard.png';
+                                : propertyImageFallback;
 
                             html += `
                                 <tr>
                                     <td>
                                         <input type="checkbox" name="property_ids[]" value="${escapeHtml(prop.id)}" class="form-check-input property-select-check" data-form-control
-                                            data-area="${parseFloat(prop.area) || 0}" data-val="${parseFloat(prop.estimated_value) || 0}" data-number="${escapeHtml(prop.property_number)}" data-name="${escapeHtml(prop.name)}" data-city="${escapeHtml(prop.city || '')}" data-image="${escapeHtml(img)}">
+                                            data-area="${parseFloat(prop.area) || 0}" data-val="${parseFloat(prop.estimated_value) || 0}" data-number="${escapeHtml(prop.property_number)}" data-name="${escapeHtml(prop.name)}" data-type="${escapeHtml(prop.type || '')}" data-city="${escapeHtml(prop.city || '')}" data-image="${escapeHtml(img)}">
                                     </td>
                                     <td><code>${escapeHtml(prop.property_number)}</code></td>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <img src="${escapeHtml(img)}" class="rounded me-2" style="width:28px;height:28px;object-fit:cover" alt="" />
+                                            <img src="${escapeHtml(img)}" class="rounded me-2" style="width:28px;height:28px;object-fit:cover" alt="" onerror="this.onerror=null;this.src='${escapeHtml(propertyImageFallback)}';" />
                                             <span class="fw-medium">${escapeHtml(prop.name)}</span>
                                         </div>
                                     </td>
@@ -234,6 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 id: String(this.value),
                 number: this.dataset.number || '',
                 name: this.dataset.name || '',
+                type: this.dataset.type || '',
                 city: this.dataset.city || '',
                 image: this.dataset.image || propertyImageFallback,
             });
