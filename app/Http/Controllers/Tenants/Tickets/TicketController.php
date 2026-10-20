@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
 
 class TicketController extends Controller
 {
-    private $page = 'tenants.tickets';
+    private $page = 'tenant.tickets';
 
     private $route = 'tickets';
 

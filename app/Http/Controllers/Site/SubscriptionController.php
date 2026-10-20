@@ -80,7 +80,7 @@ class SubscriptionController extends Controller
         $taxAmount = round($finalTotal * $taxRate, 2);
         $priceWithoutTax = round($finalTotal - $taxAmount, 2);
 
-        return view('site.checkout', compact('plan', 'priceWithoutTax', 'taxAmount', 'banks', 'cities', 'otpStep', 'paymentStep', 'checkoutData', 'verification', 'appliedCoupon', 'finalTotal'));
+        return view('web.checkout', compact('plan', 'priceWithoutTax', 'taxAmount', 'banks', 'cities', 'otpStep', 'paymentStep', 'checkoutData', 'verification', 'appliedCoupon', 'finalTotal'));
     }
 
     //  Checkout store
@@ -339,7 +339,7 @@ class SubscriptionController extends Controller
             throw $e;
         }
 
-        return view('site.moyasar-checkout', [
+        return view('web.moyasar-checkout', [
             'amountInHalala' => $amountInHalala,
             'bill' => $bill,
             'callbackUrl' => route('site.plans.checkout.callback', ['bill' => $bill->bill_number]),

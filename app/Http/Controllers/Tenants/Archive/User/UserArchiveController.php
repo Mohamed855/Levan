@@ -44,7 +44,7 @@ class UserArchiveController extends Controller
                 ->orderBy('name')
                 ->get();
 
-            return $dataTable->render('tenants.archive.users.index', [
+            return $dataTable->render('tenant.archive.users.index', [
                 'roles' => $roles,
             ]);
         } catch (\Exception $e) {

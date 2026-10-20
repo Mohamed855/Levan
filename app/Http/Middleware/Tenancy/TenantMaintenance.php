@@ -19,7 +19,7 @@ class TenantMaintenance
             $maintenance = (bool) DB::connection('tenant')->table('settings')->value('maintenance_mode');
 
             if ($maintenance) {
-                return response()->view('tenants.errors.maintenance_mode', [], 503);
+                return response()->view('errors.maintenance_mode', [], 503);
             }
         } catch (\Throwable $e) {
             Log::warning('TenantMaintenance error: '.$e->getMessage());

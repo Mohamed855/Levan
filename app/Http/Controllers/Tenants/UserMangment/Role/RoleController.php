@@ -149,7 +149,7 @@ class RoleController extends Controller
             $roles = $this->roleService->getAllRoles();
             $permissions = $this->roleService->getGroupedPermissions();
 
-            return view('tenants.users_management.roles.index', compact('roles', 'permissions'));
+            return view('tenant.user-management.roles.index', compact('roles', 'permissions'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات. يرجى المحاولة لاحقاً.');
         }
@@ -166,7 +166,7 @@ class RoleController extends Controller
         try {
             $permissions = $this->roleService->getGroupedPermissions();
 
-            return view('tenants.users_management.roles.create', compact('permissions'));
+            return view('tenant.user-management.roles.create', compact('permissions'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'حدث خطأ أثناء تحضير النموذج.');
         }
@@ -204,7 +204,7 @@ class RoleController extends Controller
         try {
             $roleData = $this->roleService->getRoleWithDetails($role);
 
-            return view('tenants.users_management.roles.show', compact('role', 'roleData'));
+            return view('tenant.user-management.roles.show', compact('role', 'roleData'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'حدث خطأ أثناء عرض الدور.');
         }
@@ -221,7 +221,7 @@ class RoleController extends Controller
         try {
             $permissions = $this->roleService->getGroupedPermissions();
 
-            return view('tenants.users_management.roles.edit', compact('role', 'permissions'));
+            return view('tenant.user-management.roles.edit', compact('role', 'permissions'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'حدث خطأ أثناء تحضير النموذج.');
         }

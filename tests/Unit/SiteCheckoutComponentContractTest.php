@@ -11,7 +11,7 @@ final class SiteCheckoutComponentContractTest extends TestCase
 {
     public function test_checkout_uses_shared_form_components_for_fields(): void
     {
-        $view = file_get_contents(dirname(__DIR__, 2).'/resources/views/site/checkout.blade.php');
+        $view = file_get_contents(dirname(__DIR__, 2).'/resources/views/web/checkout.blade.php');
 
         $this->assertStringContainsString('<x-form.controls.input', $view);
         $this->assertStringContainsString('<x-form.controls.select', $view);

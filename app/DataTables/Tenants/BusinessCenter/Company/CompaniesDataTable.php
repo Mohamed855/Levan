@@ -131,7 +131,7 @@ class CompaniesDataTable extends AbstractDataTable
                 return Carbon::parse($row->created_at)->format('Y-m-d');
             })
             ->addColumn('actions', function ($row) {
-                return view('tenants.business_center.companies.action', ['id' => $row->id, 'route' => $this->route])->render();
+                return view('tenant.business-center.companies.action', ['id' => $row->id, 'route' => $this->route])->render();
             });
     }
 

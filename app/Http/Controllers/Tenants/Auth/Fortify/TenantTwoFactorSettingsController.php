@@ -22,7 +22,7 @@ class TenantTwoFactorSettingsController extends Controller
     {
         $user = Auth::guard('tenant')->user();
 
-        return view('tenants.auth.two-factor-settings', [
+        return view('tenant.auth.two-factor-settings', [
             'enabled' => (bool) ($user->two_factor_secret && ! is_null($user->two_factor_confirmed_at)),
         ]);
     }

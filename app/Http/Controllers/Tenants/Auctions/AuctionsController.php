@@ -41,7 +41,7 @@ class AuctionsController extends Controller
     {
         $statistics = $this->auctionService->getStatistics();
 
-        return $dataTable->render('tenants.auctions.index', [
+        return $dataTable->render('tenant.auctions.index', [
             'totalAuctions' => $statistics['total'],
             'activeAuctions' => $statistics['active'],
             'inPreparationAuctions' => $statistics['in_preparation'],
@@ -58,7 +58,7 @@ class AuctionsController extends Controller
             ->select(['id', 'name', 'assignment_number', 'issuing_entity'])
             ->get();
 
-        return view('tenants.auctions.create', [
+        return view('tenant.auctions.create', [
             'assignments'        => $assignments,
             'cityOptions'        => $this->cityOptionsGateway->optionsByName(),
             'brochureTemplates'  => $this->templatesGateway->activeByType('brochure'),
@@ -90,7 +90,7 @@ class AuctionsController extends Controller
     {
         $auction->load(['assignment', 'properties', 'attachments']);
 
-        return view('tenants.auctions.show', [
+        return view('tenant.auctions.show', [
             'auction' => $auction,
         ]);
     }
@@ -105,7 +105,7 @@ class AuctionsController extends Controller
             ->orderBy('property_number')
             ->get();
 
-        return view('tenants.auctions.edit', [
+        return view('tenant.auctions.edit', [
             'auction'            => $auction,
             'assignments'        => $assignments,
             'properties'         => $properties,

@@ -14,7 +14,7 @@ final class CreateFormDraftContractTest extends TestCase
 
         foreach ([
             $root.'/resources/views/admin/layouts/commonMaster.blade.php',
-            $root.'/resources/views/tenants/layouts/commonMaster.blade.php',
+            $root.'/resources/views/tenant/layouts/commonMaster.blade.php',
         ] as $layout) {
             $content = file_get_contents($layout);
 

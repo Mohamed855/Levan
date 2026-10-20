@@ -39,7 +39,7 @@ class CompanyArchiveController extends Controller
     public function index(ArchivedCompaniesDataTable $dataTable)
     {
         try {
-            return $dataTable->render('tenants.archive.companies.index');
+            return $dataTable->render('tenant.archive.companies.index');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'حدث خطأ أثناء جلب البيانات');
         }

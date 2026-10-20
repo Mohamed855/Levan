@@ -11,7 +11,7 @@ DataTable / index / filters / buttons: Not applicable (KPI widget cards and dash
 Create UI + draft resource key + restore/purge evidence: Not applicable
 Edit UI: Chart display settings modal and widget reorder interface
 Review step: Not applicable
-Show UI + child tables + attachments: resources/views/tenants/dashboard/index.blade.php
+Show UI + child tables + attachments: resources/views/tenant/dashboard/index.blade.php
 Archive controller / DataTable / views: Not applicable
 Shared components and JavaScript contracts: chart.js integrations, apexcharts wrapper, date range picker
 Files and storage lifecycle: Not applicable (data metrics only)

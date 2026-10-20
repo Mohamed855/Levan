@@ -21,7 +21,6 @@ class DataTableDetailsControlContractTest extends TestCase
     {
         $root = dirname(__DIR__, 2);
         $sources = [
-            $root.'/resources/js',
             $root.'/resources/assets/js',
             $root.'/app/DataTables',
         ];

@@ -50,7 +50,7 @@ class AuctionArchiveDataTable extends AbstractDataTable
                 return $row->deleted_at ? Carbon::parse($row->deleted_at)->format('Y-m-d H:i') : '-';
             })
             ->addColumn('actions', function ($row) {
-                return view('tenants.archive.auctions.action', ['row' => $row])->render();
+                return view('tenant.archive.auctions.action', ['row' => $row])->render();
             });
     }
 

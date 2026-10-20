@@ -9,7 +9,7 @@ use Spatie\Permission\Models\Role;
 
 final class AdminRoleDataTable extends AbstractDataTable
 {
-    private string $page = 'admin.admin_mangment.roles';
+    private string $page = 'admin.user-management.roles';
 
     private string $route = 'admin.roles';
 

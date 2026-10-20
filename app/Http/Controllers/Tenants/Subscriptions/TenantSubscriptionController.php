@@ -46,7 +46,7 @@ class TenantSubscriptionController extends Controller
         $plans = $this->billingGateway->activePlans();
 
         //
-        return view('tenants.subscription.index', [
+        return view('tenant.subscriptions.index', [
             'subscription_data' => $subscription,
             'subscription_formatted' => $formatted,
             'plans' => $plans,
@@ -68,7 +68,7 @@ class TenantSubscriptionController extends Controller
             $taxAmount = round($plan->yearly_renewal_price * $taxRate, 2);
             $priceWithoutTax = round($plan->yearly_renewal_price - $taxAmount, 2);
 
-            return view('tenants.subscription.renew.checkout', compact('plan', 'priceWithoutTax', 'taxAmount'));
+            return view('tenant.subscriptions.renew.checkout', compact('plan', 'priceWithoutTax', 'taxAmount'));
             //
         } catch (\Exception $e) {
             report($e);
@@ -149,7 +149,7 @@ class TenantSubscriptionController extends Controller
             $taxAmount = round($total * $taxRate, 2);
             $priceWithoutTax = round($total - $taxAmount, 2);
 
-            return view('tenants.subscription.upgrade.checkout', compact('newLicensesCount', 'plan', 'total', 'priceWithoutTax', 'taxAmount'));
+            return view('tenant.subscriptions.upgrade.checkout', compact('newLicensesCount', 'plan', 'total', 'priceWithoutTax', 'taxAmount'));
             //
         } catch (\Exception $e) {
             report($e);
@@ -252,7 +252,7 @@ class TenantSubscriptionController extends Controller
 
     private function showMoyasarCheckout($bill, string $description, string $callbackUrl, string $backUrl)
     {
-        return view('tenants.payment.moyasar-checkout', [
+        return view('tenant.payment.moyasar-checkout', [
             'amountInHalala' => $this->moyasarFormConfiguration->amountInHalala((float) $bill->amount),
             'backUrl' => $backUrl,
             'bill' => $bill,

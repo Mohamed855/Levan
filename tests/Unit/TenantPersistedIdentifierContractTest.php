@@ -41,7 +41,7 @@ class TenantPersistedIdentifierContractTest extends TestCase
 
     public function test_tenant_blades_do_not_submit_literal_arabic_option_values(): void
     {
-        $views = $this->filesIn('resources/views/tenants', 'blade.php');
+        $views = $this->filesIn('resources/views/tenant', 'blade.php');
 
         foreach ($views as $view) {
             $content = file_get_contents($view);

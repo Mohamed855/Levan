@@ -43,7 +43,7 @@ class AssignmentsController extends Controller
     public function index(AssignmentsDataTable $dataTable)
     {
         $statistics = $this->assignmentService->getStatistics();
-        return $dataTable->render('tenants.assignments.index', [
+        return $dataTable->render('tenant.assignments.index', [
             'totalAssignments' => $statistics['total'],
             'activeAssignments' => $statistics['active'],
             'underReviewAssignments' => $statistics['under_review'],
@@ -58,7 +58,7 @@ class AssignmentsController extends Controller
         $generatedAssignmentNumber = $this->assignmentService->generateAssignmentNumber();
         $tenantImage = SettingsHelper::get('image');
 
-        return $dataTable->render('tenants.assignments.create', [
+        return $dataTable->render('tenant.assignments.create', [
             'generatedAssignmentNumber' => $generatedAssignmentNumber,
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
             'propertyImageFallback' => $tenantImage ? tasset($tenantImage) : asset('static/brand/logos/logo.svg'),
@@ -104,14 +104,14 @@ class AssignmentsController extends Controller
     {
         $assignment->load(['properties', 'auctions', 'attachments', 'assignmentImage']);
 
-        return view('tenants.assignments.show', [
+        return view('tenant.assignments.show', [
             'assignment' => $assignment,
         ]);
     }
 
     public function edit(Assignment $assignment): View
     {
-        return view('tenants.assignments.edit', [
+        return view('tenant.assignments.edit', [
             'assignment' => $assignment,
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
         ]);

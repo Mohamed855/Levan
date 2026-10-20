@@ -21,7 +21,7 @@ class AuctionArchiveController extends Controller
 
     public function index(AuctionArchiveDataTable $dataTable)
     {
-        return $dataTable->render('tenants.archive.auctions.index');
+        return $dataTable->render('tenant.archive.auctions.index');
     }
 
     public function restore(ArchiveItemIdRequest $request, RestoreAuctionAction $action)

@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class AuctionTemplateDataTable extends AbstractDataTable
 {
-    private string $page = 'admin.auction_templates';
+    private string $page = 'admin.auction-templates';
 
     private string $route = 'admin.auction-templates';
 

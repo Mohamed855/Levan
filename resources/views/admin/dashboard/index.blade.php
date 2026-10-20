@@ -11,11 +11,11 @@
 @endsection
 
 @section('toastr')
-    @vite(['resources/css/toastr.css', 'resources/js/toastr.js'])
+    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
 @endsection
 
 @section('page-style')
-    @vite(['resources/css/dataTable.css', 'resources/scss/admin/pages/dashboard.scss'])
+    @vite(['resources/assets/css/shared/dataTable.css', 'resources/assets/scss/admin/pages/dashboard.scss'])
 @endsection
 
 @section('page-script')

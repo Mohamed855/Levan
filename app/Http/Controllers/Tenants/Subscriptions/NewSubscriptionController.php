@@ -21,7 +21,7 @@ use Illuminate\Http\Request;
 
 class NewSubscriptionController extends Controller
 {
-    private $page = 'tenants.subscription.new_subscription.';
+    private $page = 'tenant.subscriptions.new_subscription.';
 
     public function __construct(
         private MoyasarCallbackHandler $moyasarCallbackHandler,
@@ -146,7 +146,7 @@ class NewSubscriptionController extends Controller
 
     private function showMoyasarCheckout($bill, $plan)
     {
-        return view('tenants.payment.moyasar-checkout', [
+        return view('tenant.payment.moyasar-checkout', [
             'amountInHalala' => $this->moyasarFormConfiguration->amountInHalala((float) $bill->amount),
             'backUrl' => tenant_route_name('subscribe.checkout', ['plan' => $plan->id]),
             'bill' => $bill,

@@ -61,7 +61,7 @@ class UserController extends Controller
         $subscription = $this->subscriptionManager->getTenantSubscription($tenant->id);
         $formatted = $this->subscriptionFormatter->format($subscription);
 
-        return $dataTable->render('tenants.users_management.users.index', [
+        return $dataTable->render('tenant.user-management.users.index', [
             'totalUsers' => $statistics['total'],
             'activeUsers' => $statistics['active'],
             'inactiveUsers' => $statistics['inactive'],
@@ -84,7 +84,7 @@ class UserController extends Controller
 
         $roles = Role::query()->where('guard_name', 'tenant')->select('id', 'name')->orderBy('name')->get();
 
-        return view('tenants.users_management.users.create', compact('generatedEmployeeNumber', 'roles'));
+        return view('tenant.user-management.users.create', compact('generatedEmployeeNumber', 'roles'));
     }
 
     /*
@@ -119,7 +119,7 @@ class UserController extends Controller
         $user->load('roles');
         $roles = Role::query()->where('guard_name', 'tenant')->select('id', 'name')->orderBy('name')->get();
 
-        return view('tenants.users_management.users.edit', compact('user', 'roles'));
+        return view('tenant.user-management.users.edit', compact('user', 'roles'));
     }
 
     /*
@@ -161,7 +161,7 @@ class UserController extends Controller
 
         $sessionsData = $this->userService->getUserSessionsData($user->id);
 
-        return view('tenants.users_management.users.show', compact('user', 'recentActivities', 'sessionsData'));
+        return view('tenant.user-management.users.show', compact('user', 'recentActivities', 'sessionsData'));
     }
 
     /*
@@ -179,7 +179,7 @@ class UserController extends Controller
             ->get();
         $sessionsData = $this->userService->getUserSessionsData($user->id);
 
-        return view('tenants.users_management.users.show', compact('user', 'recentActivities', 'sessionsData'));
+        return view('tenant.user-management.users.show', compact('user', 'recentActivities', 'sessionsData'));
     }
 
     /*
@@ -267,7 +267,7 @@ class UserController extends Controller
     */
     public function showChangePasswordForm(): View
     {
-        return view('tenants.users_management.users.reset');
+        return view('tenant.user-management.users.reset');
     }
 
     /*

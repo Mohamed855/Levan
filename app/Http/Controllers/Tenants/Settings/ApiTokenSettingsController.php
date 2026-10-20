@@ -23,7 +23,7 @@ class ApiTokenSettingsController extends Controller
     {
         $logs = ApiRequestLog::latest()->paginate(20);
 
-        return view('tenants.settings.api_token.index', compact('logs'));
+        return view('tenant.settings.api_token.index', compact('logs'));
     }
 
     /*

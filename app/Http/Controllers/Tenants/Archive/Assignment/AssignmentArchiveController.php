@@ -21,7 +21,7 @@ class AssignmentArchiveController extends Controller
 
     public function index(AssignmentArchiveDataTable $dataTable)
     {
-        return $dataTable->render('tenants.archive.assignments.index');
+        return $dataTable->render('tenant.archive.assignments.index');
     }
 
     public function restore(ArchiveItemIdRequest $request, RestoreAssignmentAction $action)

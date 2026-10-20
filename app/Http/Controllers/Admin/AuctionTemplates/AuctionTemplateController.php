@@ -22,7 +22,7 @@ use Illuminate\View\View;
 
 class AuctionTemplateController extends Controller
 {
-    private string $page = 'admin.auction_templates';
+    private string $page = 'admin.auction-templates';
 
     public function __construct(
         private readonly AuctionTemplateService $service

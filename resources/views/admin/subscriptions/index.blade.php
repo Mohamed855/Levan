@@ -12,11 +12,11 @@
 @endsection
 
 @section('toastr')
-    @vite(['resources/css/toastr.css', 'resources/js/toastr.js'])
+    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
 @endsection
 
 @section('page-style')
-    @vite(['resources/css/dataTable.css'])
+    @vite(['resources/assets/css/shared/dataTable.css'])
 @endsection
 
 @section('page-script')
@@ -76,7 +76,7 @@
     </div>
 
     {{-- Confirmation Modal for Accept/Reject --}}
-    @include('admin.subscription_manage.partials.confirm_modal')
+    @include('admin.subscription-management.partials.confirm_modal')
 @endsection
 
 @push('scripts')

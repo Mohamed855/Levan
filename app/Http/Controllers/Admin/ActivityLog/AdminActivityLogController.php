@@ -78,7 +78,7 @@ class AdminActivityLogController extends Controller
             ]),
         ];
 
-        return view('admin.activity_logs.index', [
+        return view('admin.activity-logs.index', [
             'users' => $users,
             'statistics' => $statistics,
             'filterOptions' => $filterOptions,
@@ -91,7 +91,7 @@ class AdminActivityLogController extends Controller
         $activityData = $this->prepareActivityData($activity);
         $arabicEvent = $activityData['event_arabic'];
 
-        return view('admin.activity_logs.show', compact('activity', 'arabicEvent', 'activityData'));
+        return view('admin.activity-logs.show', compact('activity', 'arabicEvent', 'activityData'));
     }
 
     /*

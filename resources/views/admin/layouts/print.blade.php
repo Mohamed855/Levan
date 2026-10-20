@@ -11,7 +11,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}" />
     <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
 
-    @vite(['resources/assets/vendor/fonts/tabler-icons.scss', 'resources/scss/admin/print.scss'])
+    @vite(['resources/assets/vendor/fonts/tabler-icons.scss', 'resources/assets/scss/admin/print.scss'])
 
     @yield('print-style')
 </head>

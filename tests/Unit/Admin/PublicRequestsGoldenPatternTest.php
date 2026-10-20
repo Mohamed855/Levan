@@ -24,10 +24,10 @@ final class PublicRequestsGoldenPatternTest extends TestCase
     public function test_public_request_views_use_shared_index_and_form_components(): void
     {
         $root = dirname(__DIR__, 3);
-        $contactIndex = file_get_contents($root . '/resources/views/admin/public_requests/contact/index.blade.php');
-        $trialIndex = file_get_contents($root . '/resources/views/admin/public_requests/trial/index.blade.php');
-        $contactShow = file_get_contents($root . '/resources/views/admin/public_requests/contact/show.blade.php');
-        $trialShow = file_get_contents($root . '/resources/views/admin/public_requests/trial/show.blade.php');
+        $contactIndex = file_get_contents($root . '/resources/views/admin/public-requests/contact/index.blade.php');
+        $trialIndex = file_get_contents($root . '/resources/views/admin/public-requests/trial/index.blade.php');
+        $contactShow = file_get_contents($root . '/resources/views/admin/public-requests/contact/show.blade.php');
+        $trialShow = file_get_contents($root . '/resources/views/admin/public-requests/trial/show.blade.php');
 
         foreach ([$contactIndex, $trialIndex] as $indexView) {
             self::assertStringContainsString('<x-ui.stat-card', $indexView);
@@ -49,8 +49,8 @@ final class PublicRequestsGoldenPatternTest extends TestCase
     {
         $root = dirname(__DIR__, 3);
         $views = [
-            $root . '/resources/views/tenants/assignments/index.blade.php',
-            $root . '/resources/views/tenants/auctions/index.blade.php',
+            $root . '/resources/views/tenant/assignments/index.blade.php',
+            $root . '/resources/views/tenant/auctions/index.blade.php',
         ];
 
         foreach ($views as $view) {

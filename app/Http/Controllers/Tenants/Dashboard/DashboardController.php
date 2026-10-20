@@ -26,7 +26,7 @@ final class DashboardController extends Controller
             return response()->json(['success' => true, 'stats' => $data['stats']]);
         }
 
-        return response()->view('tenants.dashboard.index', $data);
+        return response()->view('tenant.dashboard.index', $data);
     }
 
     public function getStatisticsData(Request $request): JsonResponse

@@ -15,7 +15,7 @@ class PasswordChangeController extends Controller
      */
     public function showChangeForm()
     {
-        return view('tenants.auth.passwords.change');
+        return view('tenant.auth.passwords.change');
     }
 
     /**

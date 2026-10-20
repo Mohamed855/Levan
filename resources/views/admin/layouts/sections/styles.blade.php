@@ -6,14 +6,14 @@
 
 
 <!-- Vendor Styles -->
-@vite(['resources/assets/css/tenants/demo.css', 
+@vite(['resources/assets/css/shared/demo.css',
 'resources/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.scss',
  'resources/assets/vendor/libs/typeahead-js/typeahead.scss' , 
   'resources/assets/css/shared/main.css'])
 @yield('vendor-style')
 
 <!-- Custom Design System -->
-@vite(['resources/scss/admin/app.scss'])
+@vite(['resources/assets/scss/admin/app.scss'])
 
 <!-- Page Styles -->
 @yield('page-style')

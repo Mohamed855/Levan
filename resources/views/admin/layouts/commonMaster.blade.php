@@ -47,7 +47,7 @@ $contentLayout = isset($container) ? ($container === 'container-xxl' ? 'layout-c
 
 </head>
 
-{{-- Flash data passed as data-attributes so resources/js/shared/toastr-flash.js can read them --}}
+{{-- Flash data passed as data-attributes so resources/assets/js/shared/toastr-flash.js can read them --}}
 <body
     data-flash-success="{{ Session::get('success') }}"
     data-flash-error="{{ Session::get('error') }}"

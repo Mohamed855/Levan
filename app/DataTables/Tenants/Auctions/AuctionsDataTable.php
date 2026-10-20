@@ -83,7 +83,7 @@ class AuctionsDataTable extends AbstractDataTable
                 return '<span class="text-muted">-</span>';
             })
             ->addColumn('actions', function ($row) {
-                return view('tenants.auctions.action', ['row' => $row, 'route' => $this->route])->render();
+                return view('tenant.auctions.action', ['row' => $row, 'route' => $this->route])->render();
             });
     }
 

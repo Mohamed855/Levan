@@ -21,7 +21,7 @@ class PropertyArchiveController extends Controller
 
     public function index(PropertyArchiveDataTable $dataTable)
     {
-        return $dataTable->render('tenants.archive.properties.index');
+        return $dataTable->render('tenant.archive.properties.index');
     }
 
     public function restore(ArchiveItemIdRequest $request, RestorePropertyAction $action)

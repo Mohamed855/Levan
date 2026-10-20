@@ -17,7 +17,7 @@ use Spatie\Permission\Models\Role;
 
 class AdminRoleController extends Controller
 {
-    private $page = 'admin.admin_mangment.roles';
+    private $page = 'admin.user-management.roles';
 
     private $route = 'admin.roles';
 

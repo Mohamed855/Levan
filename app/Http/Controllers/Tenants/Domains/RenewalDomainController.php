@@ -21,7 +21,7 @@ class RenewalDomainController extends Controller
             (int) $request->validated('domain_id'),
         );
 
-        return view('tenants.domain_setting.renewalpayment', [
+        return view('tenant.domains.renewalpayment', [
             'domain' => $preview['domain'],
             'unitPrice' => $preview['unit_price'],
         ]);

@@ -10,7 +10,7 @@ class SettingManagePaymentDataTable extends AbstractDataTable
 {
     private $page = 'admin.paymenttransaction';
 
-    private $route = 'admin.paymentTransaction';
+    private $route = 'admin.payment-transactions';
 
     // table id
     protected function getTableId()

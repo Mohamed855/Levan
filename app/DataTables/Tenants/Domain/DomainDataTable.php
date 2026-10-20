@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 
 class DomainDataTable extends AbstractDataTable
 {
-    private $page = 'tenants.domain_setting';
+    private $page = 'tenant.domains';
 
     private $route = 'domains.setting';
 

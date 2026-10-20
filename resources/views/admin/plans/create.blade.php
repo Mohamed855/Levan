@@ -3,7 +3,7 @@
 @section('title', 'إضافة باقة جديدة')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss', 'resources/scss/shared/package-card.scss'])
+    @vite(['resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss', 'resources/assets/scss/shared/package-card.scss'])
 @endsection
 
 @section('vendor-script')
@@ -11,7 +11,7 @@
 @endsection
 
 @section('toastr')
-    @vite(['resources/css/toastr.css', 'resources/js/toastr.js'])
+    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
 @endsection
 
 @section('page-script')

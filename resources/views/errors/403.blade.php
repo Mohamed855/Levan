@@ -1,4 +1,4 @@
-@extends('site.layouts.main')
+@extends('web.layouts.main')
 @section('title', 'غير مصرح بالوصول | 403')
 @section('content')
     <main class="site-error-page">

@@ -7,7 +7,7 @@ use App\Models\Admin\Bills\Bill;
 
 class BillsDataTable extends AbstractDataTable
 {
-    private $page = 'tenants.bills';
+    private $page = 'tenant.bills';
 
     private $route = 'bills';
 

@@ -83,9 +83,9 @@ final class AuctionOutputService
             $coverImageBase64 = $this->getCoverImageBase64($auction);
             $tenantName = (string) (tenant()?->name ?? 'لوت LOT');
 
-            $viewName = "tenants.auctions.outputs.{$type}";
+            $viewName = "tenant.auctions.outputs.{$type}";
             if (! view()->exists($viewName)) {
-                $viewName = 'tenants.auctions.outputs.brochure';
+                $viewName = 'tenant.auctions.outputs.brochure';
             }
 
             $html = view($viewName, [

@@ -35,7 +35,7 @@ Route
 | Guard          | `auth:admin`                     | `auth:tenant`                                         |
 | Namespace      | `Admin`                          | `Tenants`                                             |
 | Routes         | `routes/admin.php`               | `routes/tenant.php`                                   |
-| Views          | `resources/views/admin/{module}` | `resources/views/tenants/{module}`                    |
+| Views          | `resources/views/admin/{module}` | `resources/views/tenant/{module}`                    |
 | Drafts         | جدول `wizard_drafts` المركزي     | جدول `wizard_drafts` داخل قاعدة كل مستأجر             |
 | اختبار العزل   | صلاحية وسجل مركزي                | Tenant A لا يرى أو يعدل بيانات Tenant B               |
 

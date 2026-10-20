@@ -108,7 +108,7 @@ class TicketsDataTable extends AbstractDataTable
             })
 
             ->addColumn('actions', function ($row) {
-                return view('tenants.tickets.action', [
+                return view('tenant.tickets.action', [
                     'row' => $row,
                     'route' => $this->route,
                 ])->render();

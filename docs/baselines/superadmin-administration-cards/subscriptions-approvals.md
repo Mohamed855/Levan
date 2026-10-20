@@ -9,9 +9,9 @@ Actions / Services / Gateways: App\Services\Admin\Subscriptions\AdminSubscriptio
 Models / Enums / Events / Jobs: App\Models\Admin\Subscription\Subscription, App\Models\Admin\Plans\Plan, App\Models\Admin\Tenants\Tenant
 DataTable / index / filters / buttons: App\DataTables\Admin\Subscriptions\SubscriptionDataTable, App\DataTables\Admin\SubscriptionMangment\subscriptionMangmentDataTable
 Create UI + draft resource key + restore/purge evidence: resources/views/admin/subscriptions/create.blade.php (multi-step wizard with draft support, resource key admin.subscription-create)
-Edit UI: Modal adjustments in resources/views/admin/subscription_manage/index.blade.php
+Edit UI: Modal adjustments in resources/views/admin/subscription-management/index.blade.php
 Review step: step-subscription-review in resources/views/admin/subscriptions/create.blade.php
-Show UI + child tables + attachments: Not applicable (subscription records inspected via data-tables and confirmation modals in resources/views/admin/subscription_manage/index.blade.php)
+Show UI + child tables + attachments: Not applicable (subscription records inspected via data-tables and confirmation modals in resources/views/admin/subscription-management/index.blade.php)
 Archive controller / DataTable / views: Not applicable (financial subscriptions are immutable audit records)
 Shared components and JavaScript contracts: table-status-toggle.js, form-validation.js
 Files and storage lifecycle: Bank transfer deposit receipts verified via secure attachment urls

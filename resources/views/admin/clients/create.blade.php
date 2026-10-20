@@ -11,7 +11,7 @@
 @endsection
 
 @section('toastr')
-    @vite(['resources/css/toastr.css', 'resources/js/toastr.js'])
+    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
 @endsection
 
 @php

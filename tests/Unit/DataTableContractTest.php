@@ -14,10 +14,10 @@ class DataTableContractTest extends TestCase
     {
         $layout = file_get_contents(dirname(__DIR__, 2) . '/resources/views/components/shared/layout/scripts.blade.php');
         $handler = file_get_contents(dirname(__DIR__, 2) . '/resources/assets/js/shared/table-status-toggle.js');
-        $feedback = file_get_contents(dirname(__DIR__, 2) . '/resources/js/shared/datatable-feedback.js');
+        $feedback = file_get_contents(dirname(__DIR__, 2) . '/resources/assets/js/shared/datatable-feedback.js');
 
         $this->assertStringContainsString("'resources/assets/js/shared/table-status-toggle.js'", $layout);
-        $this->assertStringContainsString("'resources/js/shared/datatable-feedback.js'", $layout);
+        $this->assertStringContainsString("'resources/assets/js/shared/datatable-feedback.js'", $layout);
         $this->assertStringContainsString("\ninitializeTableStatusToggles();", $handler);
         $this->assertStringContainsString('response?.is_active ?? response?.status ?? response?.new_status', $handler);
         $this->assertStringContainsString('processing.dt.sharedDataTableFeedback', $feedback);
@@ -89,7 +89,7 @@ class DataTableContractTest extends TestCase
         $viewsPath = dirname(__DIR__, 2) . '/resources/views';
         $directories = [
             $viewsPath . '/admin',
-            $viewsPath . '/tenants',
+            $viewsPath . '/tenant',
         ];
 
         foreach ($directories as $directory) {

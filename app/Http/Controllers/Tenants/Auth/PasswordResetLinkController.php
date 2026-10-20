@@ -14,7 +14,7 @@ class PasswordResetLinkController extends Controller
      */
     public function create(): View
     {
-        return view('tenants.auth.forgot-password');
+        return view('tenant.auth.forgot-password');
     }
 
     public function store(SendPasswordResetLinkRequest $request)

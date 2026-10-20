@@ -40,7 +40,7 @@ class PropertiesController extends Controller
         $statistics = $this->propertyService->getStatistics();
         $assignments = Assignment::select(['id', 'name', 'assignment_number'])->get();
 
-        return $dataTable->render('tenants.properties.index', [
+        return $dataTable->render('tenant.properties.index', [
             'totalProperties' => $statistics['total'],
             'activeProperties' => $statistics['active'],
             'completedProperties' => $statistics['completed'],
@@ -56,7 +56,7 @@ class PropertiesController extends Controller
         $assignments = Assignment::where('is_active', true)->select(['id', 'name', 'assignment_number'])->get();
         $generatedPropertyNumber = $this->propertyService->generatePropertyNumber();
 
-        return view('tenants.properties.create', [
+        return view('tenant.properties.create', [
             'assignments' => $assignments,
             'generatedPropertyNumber' => $generatedPropertyNumber,
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
@@ -86,7 +86,7 @@ class PropertiesController extends Controller
     {
         $property->load(['assignment', 'auctions', 'boundaries', 'owners', 'units', 'attachments', 'creator']);
 
-        return view('tenants.properties.show', [
+        return view('tenant.properties.show', [
             'property' => $property,
         ]);
     }
@@ -96,7 +96,7 @@ class PropertiesController extends Controller
         $property->load(['boundaries', 'owners', 'units', 'attachments', 'assignment']);
         $assignments = Assignment::select(['id', 'name', 'assignment_number'])->get();
 
-        return view('tenants.properties.edit', [
+        return view('tenant.properties.edit', [
             'property' => $property,
             'assignments' => $assignments,
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),

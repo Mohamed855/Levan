@@ -47,7 +47,7 @@ class CompanyController extends Controller
         try {
             $statistics = $this->companyService->getCompanyStatistics();
 
-            return $dataTable->render('tenants.business_center.companies.index', [
+            return $dataTable->render('tenant.business-center.companies.index', [
                 'totalCompanies' => $statistics['total'],
                 'activeCompanies' => $statistics['active'],
                 'inactiveCompanies' => $statistics['inactive'],
@@ -67,7 +67,7 @@ class CompanyController extends Controller
     */
     public function create(): View
     {
-        return view('tenants.business_center.companies.create');
+        return view('tenant.business-center.companies.create');
     }
 
     /*
@@ -102,7 +102,7 @@ class CompanyController extends Controller
     {
         $data = $this->companyService->getCompanyDetails($company);
 
-        return view('tenants.business_center.companies.show', array_merge($data, [
+        return view('tenant.business-center.companies.show', array_merge($data, [
             'company' => $company,
             'portfolios' => collect(),
             'customers' => collect(),
@@ -129,7 +129,7 @@ class CompanyController extends Controller
     */
     public function edit(Company $company): View
     {
-        return view('tenants.business_center.companies.edit', compact('company'));
+        return view('tenant.business-center.companies.edit', compact('company'));
     }
 
     /*

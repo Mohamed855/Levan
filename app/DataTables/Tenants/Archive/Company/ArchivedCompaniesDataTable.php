@@ -125,7 +125,7 @@ class ArchivedCompaniesDataTable extends AbstractDataTable
                 return Carbon::parse($row->created_at)->format('Y-m-d');
             })
             ->addColumn('actions', function ($row) {
-                return view('tenants.archive.companies.action', ['id' => $row->id, 'route' => $this->route])->render();
+                return view('tenant.archive.companies.action', ['id' => $row->id, 'route' => $this->route])->render();
             });
     }
 

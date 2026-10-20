@@ -20,7 +20,7 @@ class TenantTwoFactorChallengeController extends Controller
             return redirect(tenant_route_name('login'));
         }
 
-        return view('tenants.auth.two-factor-challenge');
+        return view('tenant.auth.two-factor-challenge');
     }
 
     public function store(TenantTwoFactorChallengeRequest $request, ResolveTwoFactorLogin $resolver, PersistAuthenticationStateAction $authenticationState): RedirectResponse

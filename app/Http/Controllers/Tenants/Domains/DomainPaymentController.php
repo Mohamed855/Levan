@@ -35,7 +35,7 @@ class DomainPaymentController extends Controller
                 $request->validated('domain'),
             );
 
-            return view('tenants.payment.moyasar-checkout', array_merge(
+            return view('tenant.payment.moyasar-checkout', array_merge(
                 $this->paymentService->checkoutData(
                     $attempt,
                     tenant_route_name('domains.payment.callbacknewdomain', ['attempt' => $attempt->public_id]),
@@ -94,7 +94,7 @@ class DomainPaymentController extends Controller
                 (int) $request->validated('years'),
             );
 
-            return view('tenants.payment.moyasar-checkout', array_merge(
+            return view('tenant.payment.moyasar-checkout', array_merge(
                 $this->paymentService->checkoutData(
                     $attempt,
                     tenant_route_name('domains.moyasar.renewal.callback', ['attempt' => $attempt->public_id]),
@@ -133,7 +133,7 @@ class DomainPaymentController extends Controller
                 $request->validated('epp_code'),
             );
 
-            return view('tenants.payment.moyasar-checkout', array_merge(
+            return view('tenant.payment.moyasar-checkout', array_merge(
                 $this->paymentService->checkoutData(
                     $attempt,
                     tenant_route_name('domains.payment.callback.transfer', ['attempt' => $attempt->public_id]),

@@ -24,7 +24,7 @@ class LandingPageController extends Controller
             ? Faq::query()->active()->latest()->get()
             : collect();
 
-        return view('site.index', compact('plans', 'ourClients', 'portfolios', 'faqs'));
+        return view('web.index', compact('plans', 'ourClients', 'portfolios', 'faqs'));
     }
 
     public function contactRequest(StoreContactRequest $request)
@@ -45,6 +45,6 @@ class LandingPageController extends Controller
 
     public function privacyPolicy()
     {
-        return view('site.privacy-policy');
+        return view('web.privacy-policy');
     }
 }

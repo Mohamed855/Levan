@@ -28,7 +28,7 @@ class PermissionController extends Controller
             ]);
         }
 
-        return view('tenants.permissions.index', compact('permissions'));
+        return view('tenant.permissions.index', compact('permissions'));
     }
 
     public function store(Request $request)

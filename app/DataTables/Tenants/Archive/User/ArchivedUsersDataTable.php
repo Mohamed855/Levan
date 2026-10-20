@@ -132,7 +132,7 @@ class ArchivedUsersDataTable extends AbstractDataTable
                 return Carbon::parse($row->deleted_at)->format('Y-m-d');
             })
             ->addColumn('actions', function ($row) {
-                return view('tenants.archive.users.action', ['id' => $row->id, 'route' => $this->route])->render();
+                return view('tenant.archive.users.action', ['id' => $row->id, 'route' => $this->route])->render();
             });
     }
 

@@ -79,7 +79,7 @@ class DomainController extends Controller
         try {
             $statistics = $this->domain_service->getDomainStatistics();
 
-            return $dataTable->render('tenants.domain_setting.setting', [
+            return $dataTable->render('tenant.domains.setting', [
                 'totalDomains' => $statistics['total'],
                 'activeDomains' => $statistics['active'],
                 'inactiveDomains' => $statistics['inactive'],
@@ -93,12 +93,12 @@ class DomainController extends Controller
 
     public function linkDomain()
     {
-        return view('tenants.domain_setting.linkdomain');
+        return view('tenant.domains.linkdomain');
     }
 
     public function linkSubDomain()
     {
-        return view('tenants.domain_setting.linksubdomain');
+        return view('tenant.domains.linksubdomain');
     }
 
     public function transferDom(Request $request)
@@ -107,27 +107,27 @@ class DomainController extends Controller
         $domain = $request->get('domain');
         $message = $request->get('message');
 
-        return view('tenants.domain_setting.transferdom', compact('step', 'domain', 'message'));
+        return view('tenant.domains.transferdom', compact('step', 'domain', 'message'));
     }
 
     public function faq()
     {
-        return view('tenants.domain_setting.faq');
+        return view('tenant.domains.faq');
     }
 
     public function explain()
     {
-        return view('tenants.domain_setting.explain');
+        return view('tenant.domains.explain');
     }
 
     public function newdomain()
     {
-        return view('tenants.domain_setting.index');
+        return view('tenant.domains.index');
     }
 
     public function subdomainblade()
     {
-        return view('tenants.domain_setting.explain-create-subdomain');
+        return view('tenant.domains.explain-create-subdomain');
     }
 
     protected function createCpanelAccount($domain)

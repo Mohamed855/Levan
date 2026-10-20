@@ -22,7 +22,7 @@ class NotificationController extends Controller
     */
     public function index(NotificationsDataTable $dataTable)
     {
-        return $dataTable->render('tenants.notifications.index');
+        return $dataTable->render('tenant.notifications.index');
     }
 
     /*
@@ -33,7 +33,7 @@ class NotificationController extends Controller
     */
     public function allPage(NotificationsDataTable $dataTable)
     {
-        return $dataTable->render('tenants.notifications.all');
+        return $dataTable->render('tenant.notifications.all');
     }
 
     /*

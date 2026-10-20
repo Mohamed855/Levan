@@ -106,7 +106,7 @@ class ActivityLogController extends Controller
         $statistics = $this->getStatistics();
         $users = User::select('id', 'name')->orderBy('name')->get();
 
-        return view('tenants.activity_logs.index', [
+        return view('tenant.activity-logs.index', [
             'users' => $users,
             'statistics' => $statistics,
         ]);
@@ -125,7 +125,7 @@ class ActivityLogController extends Controller
         // تحضير البيانات للعرض
         $activityData = $this->prepareActivityData($activity);
 
-        return view('tenants.activity_logs.show', [
+        return view('tenant.activity-logs.show', [
             'activity' => $activity,
             'activityData' => $activityData,
         ]);
@@ -357,7 +357,7 @@ class ActivityLogController extends Controller
             ];
         })->sortByDesc('date')->values();
 
-        return view('tenants.activity_logs.archives', compact('archives'));
+        return view('tenant.activity-logs.archives', compact('archives'));
     }
 
     /*

@@ -60,7 +60,7 @@ class AssignmentsDataTable extends AbstractDataTable
             ->editColumn('start_date', fn ($row): string => $row->start_date?->format('Y-m-d') ?? '-')
             ->editColumn('end_date', fn ($row): string => $row->end_date?->format('Y-m-d') ?? '-')
             ->editColumn('status', fn ($row): string => '<span class="badge '.e($row->status_badge_class).'">'.e($row->status_label).'</span>')
-            ->addColumn('actions', fn ($row): string => view('tenants.assignments.action', ['row' => $row, 'route' => $this->route])->render());
+            ->addColumn('actions', fn ($row): string => view('tenant.assignments.action', ['row' => $row, 'route' => $this->route])->render());
     }
 
     private function copyableCode(string $code): string

@@ -47,7 +47,7 @@ class CompanyLetterMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.company-letter',
+            view: 'emails.tenant.company-letter',
             with: [
                 'subject' => $this->emailSubject,
                 'body' => $this->emailBody,

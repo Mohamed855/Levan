@@ -108,7 +108,7 @@ class PropertiesDataTable extends AbstractDataTable
                 return '<span class="badge '.$statusClass.'">'.$statusText.'</span>';
             })
             ->addColumn('actions', function ($row): string {
-                return view('tenants.properties.action', ['row' => $row, 'route' => $this->route])->render();
+                return view('tenant.properties.action', ['row' => $row, 'route' => $this->route])->render();
             });
     }
 

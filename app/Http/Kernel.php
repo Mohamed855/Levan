@@ -121,7 +121,7 @@ class Kernel extends HttpKernel
         'tenant.path' => InitializeTenancyByPath::class, // عبر الـ path-based
         'tenant.domain' => InitializeTenancyByDomain::class,  // للـ subdomain-based
 
-        'tenant.subscription' => CheckSubscription::class, // لتاكد من الاشتراك
+        'tenant.subscriptions' => CheckSubscription::class, // لتاكد من الاشتراك
         'tenant.license' => EnsureUserHasActiveLicense::class, // للتأكد من وجود ترخيص نشط
         'tenant.maintenance' => TenantMaintenance::class, // وضع الصيانة للtenant
         'tenant.redirect' => TenantDomainRedirect::class, // إعادة التوجيه من Path إلى Domain إذا كان Domain مفعّل

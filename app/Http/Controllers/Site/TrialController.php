@@ -15,7 +15,7 @@ class TrialController extends Controller
 
     public function index()
     {
-        return view('site.trial');
+        return view('web.trial');
     }
 
     public function demoRequest(StoreTrialRequest $request)

@@ -11,7 +11,7 @@ DataTable / index / filters / buttons: Server-side Yajra DataTables in AdminActi
 Create UI + draft resource key + restore/purge evidence: Not applicable (logs automatically written by Spatie Activitylog)
 Edit UI: Not applicable
 Review step: Not applicable
-Show UI + child tables + attachments: resources/views/admin/activity_logs/show.blade.php
+Show UI + child tables + attachments: resources/views/admin/activity-logs/show.blade.php
 Archive controller / DataTable / views: Not applicable
 Shared components and JavaScript contracts: date-filter.js
 Files and storage lifecycle: Not applicable

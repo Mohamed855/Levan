@@ -32,14 +32,14 @@ final class ContactRequestController extends Controller
             'label' => $status->label(),
         ])->all()];
 
-        return $dataTable->render('admin.public_requests.contact.index', compact('stats', 'filterOptions'));
+        return $dataTable->render('admin.public-requests.contact.index', compact('stats', 'filterOptions'));
     }
 
     public function show(ContactRequest $contactRequest)
     {
         $this->authorize('view', $contactRequest);
 
-        return view('admin.public_requests.contact.show', compact('contactRequest'));
+        return view('admin.public-requests.contact.show', compact('contactRequest'));
     }
     public function reply(ReplyContactRequest $request, ContactRequest $contactRequest) { $this->authorize('reply', $contactRequest); $this->replyAction->execute($contactRequest, $request->validated('reply'), $request->user('admin')); return back()->with('success', 'تم إرسال الرد بنجاح.'); }
 }

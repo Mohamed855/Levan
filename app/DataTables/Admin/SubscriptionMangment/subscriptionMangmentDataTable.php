@@ -8,7 +8,7 @@ use App\Services\Shared\Subscription\SubscriptionManager;
 
 class subscriptionMangmentDataTable extends AbstractDataTable
 {
-    private $page = 'admin.subscription_manage';
+    private $page = 'admin.subscription-management';
 
     // table id
     protected function getTableId()

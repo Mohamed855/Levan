@@ -146,7 +146,7 @@ class NotificationsDataTable extends AbstractDataTable
             })
             ->addColumn('actions', function ($row) {
                 // استخدام ملف Blade منفصل للأزرار
-                return view('tenants.notifications.action', [
+                return view('tenant.notifications.action', [
                     'id' => $row->id,
                     'notification' => $row,
                 ])->render();

@@ -110,7 +110,7 @@ class TenantAuthenticationContractTest extends TestCase
             'two-factor-challenge.blade.php',
             'register.blade.php',
         ] as $view) {
-            $content = file_get_contents(dirname(__DIR__, 2).'/resources/views/tenants/auth/'.$view);
+            $content = file_get_contents(dirname(__DIR__, 2).'/resources/views/tenant/auth/'.$view);
 
             $this->assertStringContainsString('data-form-validate', $content);
             $this->assertStringContainsString("tenant_route_name('form-validation')", $content);
@@ -129,7 +129,7 @@ class TenantAuthenticationContractTest extends TestCase
 
     public function test_two_factor_setup_uses_the_shared_validation_contract(): void
     {
-        $content = file_get_contents(dirname(__DIR__, 2).'/resources/views/tenants/auth/two-factor-settings.blade.php');
+        $content = file_get_contents(dirname(__DIR__, 2).'/resources/views/tenant/auth/two-factor-settings.blade.php');
 
         $this->assertStringContainsString('data-form-validate', $content);
         $this->assertStringContainsString("tenant_route_name('wizard-drafts.validate-step')", $content);

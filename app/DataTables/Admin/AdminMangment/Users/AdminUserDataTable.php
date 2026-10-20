@@ -8,7 +8,7 @@ use App\Models\Admin\AdminMangment\Users\AdminUser;
 
 class AdminUserDataTable extends AbstractDataTable
 {
-    private $page = 'admin.admin_mangment.users';
+    private $page = 'admin.user-management.users';
 
     private $route = 'admin.users';
 

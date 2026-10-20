@@ -19,7 +19,7 @@ use Illuminate\Http\Request;
 
 class BillsController extends Controller
 {
-    protected const VIEW_PATH = 'tenants.bills';
+    protected const VIEW_PATH = 'tenant.bills';
     // protected const ROUTE_NAME =  "admin.subscriptionManage";
 
     public function __construct(
@@ -121,7 +121,7 @@ class BillsController extends Controller
                 return redirect()->to(tenant_route_name('bills.index'))->with('error', 'هذه الفاتورة غير متاحة للدفع.');
             }
 
-            return view('tenants.payment.moyasar-checkout', [
+            return view('tenant.payment.moyasar-checkout', [
                 'amountInHalala' => $this->moyasarFormConfiguration->amountInHalala((float) $bill->amount),
                 'backUrl' => tenant_route_name('bills.show', $bill->id),
                 'bill' => $bill,

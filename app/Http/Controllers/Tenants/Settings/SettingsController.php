@@ -24,7 +24,7 @@ class SettingsController extends Controller
     {
         $settings = Settings::firstOrNew();
 
-        return view('tenants.settings.settings', compact('settings'));
+        return view('tenant.settings.settings', compact('settings'));
     }
 
     /*
@@ -62,6 +62,6 @@ class SettingsController extends Controller
     */
     public function center()
     {
-        return view('tenants.settings.center');
+        return view('tenant.settings.center');
     }
 }

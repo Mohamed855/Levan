@@ -19,12 +19,12 @@ class NewPasswordController extends Controller
      */
     public function create(Request $request): View
     {
-        return view('tenants.auth.reset-password', ['request' => $request]);
+        return view('tenant.auth.reset-password', ['request' => $request]);
     }
 
     public function resetPasswordForm()
     {
-        return view('tenants.auth.reset-password');
+        return view('tenant.auth.reset-password');
     }
 
     /**

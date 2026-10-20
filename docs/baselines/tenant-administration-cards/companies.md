@@ -8,11 +8,11 @@ Policy registration + abilities: CompanyPolicy registered in AuthServiceProvider
 Actions / Services / Gateways: CompanyService (including transactional logo lifecycle); archive controller record actions
 Models / Enums / Events / Jobs: Company, CompanyAttachment
 DataTable / index / filters / buttons: CompaniesDataTable (5 lifecycle stat cards, copy/excel/mass-delete, add button, status switch)
-Create UI + draft resource key + restore/purge evidence: resources/views/tenants/business_center/companies/create.blade.php + draft support
-Edit UI: resources/views/tenants/business_center/companies/edit.blade.php
+Create UI + draft resource key + restore/purge evidence: resources/views/tenant/business-center/companies/create.blade.php + draft support
+Edit UI: resources/views/tenant/business-center/companies/edit.blade.php
 Review step: Not applicable (standard open grid form)
-Show UI + child tables + attachments: resources/views/tenants/business_center/companies/show.blade.php (asymmetric two-column: company profile + contracts subtable)
-Archive controller / DataTable / views: CompanyArchiveController, CompanyArchiveDataTable, resources/views/tenants/archive/companies/index.blade.php
+Show UI + child tables + attachments: resources/views/tenant/business-center/companies/show.blade.php (asymmetric two-column: company profile + contracts subtable)
+Archive controller / DataTable / views: CompanyArchiveController, CompanyArchiveDataTable, resources/views/tenant/archive/companies/index.blade.php
 Shared components and JavaScript contracts: table-status-toggle.js, form-validation.js, copyable-code-wrapper
 Files and storage lifecycle: Company commercial registry and logo uploads on tenant disk with rollback on failure
 Tests: Tests\Feature\TenantCrudFeatureTest, Tests\Unit\TenantAssetPolicyContractTest
