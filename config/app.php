@@ -1,5 +1,8 @@
 <?php
 
+use Illuminate\Support\Facades\Facade;
+use Illuminate\Support\ServiceProvider;
+
 return [
 
     /*
@@ -13,8 +16,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'LOT'),
-    'version' => env('APP_VERSION', '1.0.0'),
+    'name' => env('APP_NAME', 'Laravel'),
 
     /*
     |--------------------------------------------------------------------------
@@ -55,15 +57,9 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
-    'next_version_url' => env('NEXT_VERSION_URL'),
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:3000'),
 
-    'upgrade_secret' => env('UPGRADE_SECRET'),
-
-    'upgrade_hmac_max_age_seconds' => (int) env('UPGRADE_HMAC_MAX_AGE_SECONDS', 300),
-
-    'upgrade_legacy_secret_until' => env('UPGRADE_LEGACY_SECRET_UNTIL', '2026-11-05T00:00:00+03:00'),
-
-    'upgrade_api_rate_limit' => (int) env('UPGRADE_API_RATE_LIMIT', 5),
+    'asset_url' => env('ASSET_URL'),
 
     /*
     |--------------------------------------------------------------------------
@@ -91,7 +87,29 @@ return [
 
     'locale' => env('APP_LOCALE', 'en'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Application Fallback Locale
+    |--------------------------------------------------------------------------
+    |
+    | The fallback locale determines the locale to use when the default one
+    | is not available. You may change the value to correspond to any of
+    | the languages which are currently supported by your application.
+    |
+    */
+
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Faker Locale
+    |--------------------------------------------------------------------------
+    |
+    | This locale will be used by the Faker PHP library when generating fake
+    | data for your database seeds. For example, this will be used to get
+    | localized telephone numbers, street address information and more.
+    |
+    */
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
@@ -133,5 +151,40 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Autoloaded Service Providers
+    |--------------------------------------------------------------------------
+    |
+    | The service providers listed here will be automatically loaded on any
+    | requests to your application. You may add your own services to the
+    | arrays below to provide additional features to this application.
+    |
+    */
+
+    'providers' => ServiceProvider::defaultProviders()->merge([
+        // Package Service Providers...
+    ])->merge([
+        // Application Service Providers...
+        // App\Providers\AppServiceProvider::class,
+    ])->merge([
+        // Added Service Providers (Do not remove this line)...
+    ])->toArray(),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Class Aliases
+    |--------------------------------------------------------------------------
+    |
+    | This array of class aliases will be registered when this application
+    | is started. You may add any additional class aliases which should
+    | be loaded to the array. For speed, all aliases are lazy loaded.
+    |
+    */
+
+    'aliases' => Facade::defaultAliases()->merge([
+        // 'Example' => App\Facades\Example::class,
+    ])->toArray(),
 
 ];
