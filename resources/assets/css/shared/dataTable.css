@@ -19,6 +19,40 @@
     margin: 0;
 }
 
+.btn-export {
+    background-color: rgba(29, 79, 68, 0.08) !important;
+    border-color: transparent !important;
+    color: var(--primary-color) !important;
+}
+
+.btn-export:hover,
+.btn-export:focus,
+.btn-export:active,
+.btn-export.show,
+.btn-export.active {
+    background-color: rgba(29, 79, 68, 0.16) !important;
+    border-color: transparent !important;
+    color: var(--primary-color-deep, #12332C) !important;
+}
+
+.dataTable tbody td .btn.bg-label-primary,
+.dataTable tbody td .btn-icon.bg-label-primary {
+    background-color: rgba(29, 79, 68, 0.08) !important;
+    border-color: transparent !important;
+    color: var(--primary-color) !important;
+}
+
+.dataTable tbody td .btn.bg-label-primary:hover,
+.dataTable tbody td .btn.bg-label-primary:focus,
+.dataTable tbody td .btn.bg-label-primary:active,
+.dataTable tbody td .btn-icon.bg-label-primary:hover,
+.dataTable tbody td .btn-icon.bg-label-primary:focus,
+.dataTable tbody td .btn-icon.bg-label-primary:active {
+    background-color: rgba(29, 79, 68, 0.16) !important;
+    border-color: transparent !important;
+    color: var(--primary-color-deep, #12332C) !important;
+}
+
 .dataTables_processing {
     background-color: var(--primary-color) !important;
     color: white !important;

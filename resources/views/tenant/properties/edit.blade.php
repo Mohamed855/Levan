@@ -105,7 +105,7 @@
                                         'direction' => $b->direction?->value ?? $b->direction,
                                         'border_type' => $b->border_type,
                                         'border_description' => $b->border_description,
-                                        'length' => $b->length,
+                                        'length' => (isset($b->length) && $b->length !== '' && $b->length !== null) ? $b->length : 0,
                                     ],
                                 )
                                 ->toArray()

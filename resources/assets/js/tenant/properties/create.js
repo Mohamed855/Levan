@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     row.querySelector('select[name*="[direction]"]').value = data.direction ?? '';
     row.querySelector('select[name*="[border_type]"]').value = data.border_type ?? '';
     row.querySelector('input[name*="[border_description]"]').value = data.border_description ?? '';
-    row.querySelector('input[name*="[length]"]').value = data.length ?? '';
+    row.querySelector('input[name*="[length]"]').value = (data.length !== undefined && data.length !== '' && data.length !== null) ? data.length : 0;
 
     return row;
   }

@@ -20,6 +20,7 @@ class DashboardService
             'stats' => [
                 'total_users' => User::query()->count(),
                 'active_users' => User::query()->where('status', 'active')->count(),
+                'total_teams' => 0,
                 ...$subscription,
             ],
             'tenant' => tenant(),

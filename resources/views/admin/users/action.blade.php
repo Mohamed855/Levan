@@ -1,15 +1,15 @@
 <div class="d-flex justify-content-center gap-2">
-   <a href="{{ route('admin.users.profile' , $row->id) }}" class="btn btn-icon btn-label-primary">
+   <a href="{{ route('admin.users.profile' , $row->id) }}" class="btn btn-icon btn-label-primary bg-label-primary">
         <i class="ti ti-eye"></i>
     </a>
     @can('users.edit')
-    <a href="{{ route($route . '.edit', $row->id) }}" class="btn btn-icon btn-label-primary">
+    <a href="{{ route($route . '.edit', $row->id) }}" class="btn btn-icon btn-label-primary bg-label-primary">
         <i class="ti ti-edit"></i>
     </a>
     @endcan
 
     @can('users.delete')
-    <button type="button" class="btn btn-icon btn-label-primary js-delete-btn" data-id="{{ $row->id }}">
+    <button type="button" class="btn btn-icon btn-label-primary bg-label-primary js-delete-btn" data-id="{{ $row->id }}">
         <i class="ti ti-trash"></i>
     </button>
 

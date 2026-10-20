@@ -51,7 +51,7 @@
                         <div class="content-left">
                             <span class="text-muted d-block mb-1">فرق العمل</span>
                             <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $stats['total_teams'] }}</h4>
+                                <h4 class="mb-0 me-2">{{ $stats['total_teams'] ?? 0 }}</h4>
                             </div>
                             <small class="text-muted">المجموعات التشغيلية</small>
                         </div>

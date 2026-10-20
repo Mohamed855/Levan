@@ -107,25 +107,25 @@
                             'direction' => 'north',
                             'border_type' => 'street',
                             'border_description' => '',
-                            'length' => '',
+                            'length' => 0,
                         ],
                         [
                             'direction' => 'south',
                             'border_type' => 'parcel',
                             'border_description' => '',
-                            'length' => '',
+                            'length' => 0,
                         ],
                         [
                             'direction' => 'east',
                             'border_type' => 'parcel',
                             'border_description' => '',
-                            'length' => '',
+                            'length' => 0,
                         ],
                         [
                             'direction' => 'west',
                             'border_type' => 'street',
                             'border_description' => '',
-                            'length' => '',
+                            'length' => 0,
                         ],
                     ];
                     $bordersData = old('boundaries', $defaultBorders);

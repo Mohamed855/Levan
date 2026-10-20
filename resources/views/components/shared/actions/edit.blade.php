@@ -3,7 +3,7 @@
     'title' => 'تعديل',
     'permission' => null,
     'icon' => 'ti ti-edit',
-    'class' => 'btn-icon btn-label-primary',
+    'class' => 'btn-icon btn-label-primary bg-label-primary',
 ])
 
 @if (! $permission)

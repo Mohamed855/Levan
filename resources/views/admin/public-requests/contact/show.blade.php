@@ -66,7 +66,7 @@
                             data-form-validate>
                             @csrf
                             <x-form.controls.textarea name="reply" label="نص الرد" rows="8" required
-                                placeholder="اكتب الرد المرسل إلى العميل..." />
+                                placeholder="اكتب الرد المرسل إلى العميل..." col="col-12" />
                             <div class="d-flex justify-content-end">
                                 <button class="btn btn-primary">
                                     <i class="ti ti-send me-1"></i> إرسال الرد

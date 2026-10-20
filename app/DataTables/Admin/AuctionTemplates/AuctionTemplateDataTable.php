@@ -77,8 +77,10 @@ class AuctionTemplateDataTable extends AbstractDataTable
             })
 
             ->editColumn('name', function ($row) {
+                $showUrl = route($this->route . '.show', $row->id);
                 $desc = $row->description ? '<small class="text-muted d-block text-truncate" style="max-width: 250px;">' . e($row->description) . '</small>' : '';
-                return '<div><span class="fw-medium text-heading">' . e($row->name) . '</span>' . $desc . '</div>';
+
+                return '<div><a href="' . $showUrl . '" class="text-body fw-medium d-block">' . e($row->name) . '</a>' . $desc . '</div>';
             })
 
             ->editColumn('type', function ($row) {
@@ -97,7 +99,7 @@ class AuctionTemplateDataTable extends AbstractDataTable
                 }
 
                 $url = route($this->route . '.fields', $row);
-                return '<button type="button" class="btn btn-xs btn-label-primary js-view-template-fields" data-url="' . e($url) . '" data-bs-toggle="modal" data-bs-target="#templateFieldsModal">'
+                return '<button type="button" class="btn btn-xs btn-label-primary bg-label-primary js-view-template-fields" data-url="' . e($url) . '" data-bs-toggle="modal" data-bs-target="#templateFieldsModal">'
                     . '<i class="ti ti-list-check me-1"></i>' . $count . ' حقل'
                     . '</button>';
             })

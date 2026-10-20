@@ -80,7 +80,7 @@ class AdminTicketsDataTable extends AbstractDataTable
                 return $row->created_at?->format('Y-m-d');
             })
             ->addColumn('actions', function ($row) {
-                return '<a href="'.route($this->route.'.show', $row->ticket_number).'" class="btn btn-icon btn-label-primary" title="عرض التذكرة"><i class="ti ti-eye"></i></a>';
+                return '<a href="'.route($this->route.'.show', $row->ticket_number).'" class="btn btn-icon btn-label-primary bg-label-primary" title="عرض التذكرة"><i class="ti ti-eye"></i></a>';
             });
     }
 

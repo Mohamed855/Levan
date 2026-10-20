@@ -4,7 +4,7 @@
     'title' => 'حذف',
     'permission' => null,
     'icon' => 'ti ti-trash',
-    'class' => 'btn-icon btn-label-primary',
+    'class' => 'btn-icon btn-label-primary bg-label-primary',
 ])
 
 @if (! $permission)

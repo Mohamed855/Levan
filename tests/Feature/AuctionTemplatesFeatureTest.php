@@ -344,5 +344,54 @@ class AuctionTemplatesFeatureTest extends TestCase
             }
         }
     }
+
+    public function test_superadmin_can_view_create_wizard_with_canonical_contracts(): void
+    {
+        $response = $this->actingAs($this->admin, 'admin')
+            ->get(route('admin.auction-templates.create'));
+
+        $response->assertOk();
+        $response->assertSee('wizard-validation');
+        $response->assertSee('data-form-validate');
+        $response->assertSee('data-draft-resource-key="admin.auction-template-create"', false);
+        $response->assertSee('step-basic-info');
+        $response->assertSee('step-files');
+        $response->assertSee('step-review');
+        $response->assertSee('assignment-review');
+        $response->assertSee('data-edit-step');
+        $response->assertSee('preview-template-name');
+    }
+
+    public function test_superadmin_can_view_edit_page_with_canonical_contracts(): void
+    {
+        $template = AuctionTemplate::create([
+            'name' => 'قالب فحص شاشة التعديل ' . uniqid(),
+            'type' => AuctionTemplateType::BROCHURE,
+            'file_path' => 'auction_templates/brochure/test.pdf',
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($this->admin, 'admin')
+            ->get(route('admin.auction-templates.edit', $template));
+
+        $response->assertOk();
+        $response->assertSee('auction-template-edit-form');
+        $response->assertSee('تعديل قالب المزاد:');
+        $response->assertSee('data-form-validate');
+        $response->assertSee($template->name);
+    }
+
+    public function test_superadmin_index_displays_five_lifecycle_stat_cards(): void
+    {
+        $response = $this->actingAs($this->admin, 'admin')
+            ->get(route('admin.auction-templates.index'));
+
+        $response->assertOk();
+        $response->assertSee('إجمالي القوالب');
+        $response->assertSee('قوالب مفعلة');
+        $response->assertSee('قوالب البروشور');
+        $response->assertSee('اللوحات الإعلانية');
+        $response->assertSee('قوالب معطلة');
+    }
 }
 

@@ -33,32 +33,22 @@
         <x-slot:stats>
             <x-ui.stat-card title="إجمالي القوالب" :value="$statistics['total']" subtitle="جميع القوالب المسجلة" icon="ti-files"
                 color="primary" />
+            <x-ui.stat-card title="قوالب مفعلة" :value="$statistics['active']" subtitle="متاحة للاستخدام" icon="ti-check"
+                color="success" />
             <x-ui.stat-card title="قوالب البروشور" :value="$statistics['brochure']" subtitle="قوالب الكتيبات التعريفية"
                 icon="ti-file-description" color="info" />
             <x-ui.stat-card title="اللوحات الإعلانية" :value="$statistics['billboard']" subtitle="قوالب اللوحات الخارجية" icon="ti-ad"
                 color="warning" />
-            <x-ui.stat-card title="السوشيال ميديا" :value="$statistics['social']" subtitle="قوالب المنشورات والشبكات"
-                icon="ti-brand-instagram" color="success" />
             <x-ui.stat-card title="قوالب معطلة" :value="$statistics['inactive']" subtitle="غير متاحة للمستأجرين" icon="ti-ban"
                 color="danger" />
         </x-slot:stats>
 
-        @if ($errors->any())
-            <div class="alert alert-danger mb-4">
-                <ul class="mb-0">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
         <x-slot:filters>
             <x-data-table.filters table="#auction-templates-table">
-                <x-filter.select id="filter-type" filterKey="type" label="نوع القالب" placeholder="جميع الأنواع"
-                    :options="$typeFilterOptions ?? []" />
-                <x-filter.select id="filter-status" filterKey="is_active" label="حالة القالب" placeholder="جميع الحالات"
-                    :options="$statusFilterOptions ?? []" />
+                <x-filter.select id="filter-type" filterKey="type" table="#auction-templates-table" label="نوع القالب"
+                    placeholder="جميع الأنواع" :enum="\App\Enums\Admin\AuctionTemplates\AuctionTemplateType::class" />
+                <x-filter.select id="filter-status" filterKey="is_active" table="#auction-templates-table" label="حالة القالب"
+                    placeholder="جميع الحالات" :options="$statusFilterOptions ?? []" />
             </x-data-table.filters>
         </x-slot:filters>
 

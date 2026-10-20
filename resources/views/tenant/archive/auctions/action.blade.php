@@ -2,11 +2,11 @@
     <form action="{{ tenant_route_name('archive.auctions.restore', $row->id) }}" method="POST" class="d-inline">
         @csrf
         @method('PATCH')
-        <button type="submit" class="btn btn-icon btn-label-primary" title="استعادة المزاد">
+        <button type="submit" class="btn btn-icon btn-label-primary bg-label-primary" title="استعادة المزاد">
             <i class="ti ti-rotate"></i>
         </button>
     </form>
-    <button type="button" class="btn btn-icon btn-label-primary js-force-delete"
+    <button type="button" class="btn btn-icon btn-label-primary bg-label-primary js-force-delete"
         data-url="{{ tenant_route_name('archive.auctions.force-delete', $row->id) }}"
         title="حذف نهائي">
         <i class="ti ti-trash"></i>

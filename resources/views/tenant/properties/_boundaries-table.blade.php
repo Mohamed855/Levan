@@ -52,7 +52,7 @@
                     <td>
                         <x-form.controls.input name="boundaries[{{ $idx }}][length]"
                             id="boundaries-{{ $idx }}-length" type="number" step="0.01"
-                            :value="$border['length'] ?? null" placeholder="0.00" required col="" />
+                            :value="(isset($border['length']) && $border['length'] !== '' && $border['length'] !== null) ? $border['length'] : 0" placeholder="0.00" required col="" />
                     </td>
                     <td class="text-center">
                         <button type="button" class="btn btn-icon btn-sm btn-label-danger btn-remove-border" aria-label="حذف الحد">
@@ -84,7 +84,7 @@
         <td>
             <x-form.controls.input name="boundaries[__INDEX__][length]"
                 id="boundaries-__INDEX__-length" type="number" step="0.01"
-                placeholder="0.00" required col="" />
+                value="0" placeholder="0.00" required col="" />
         </td>
         <td class="text-center">
             <button type="button" class="btn btn-icon btn-sm btn-label-danger btn-remove-border" aria-label="حذف الحد">

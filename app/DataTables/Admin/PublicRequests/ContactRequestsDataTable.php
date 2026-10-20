@@ -36,7 +36,7 @@ final class ContactRequestsDataTable extends AbstractDataTable
         return $datatable
             ->editColumn('status', fn ($row) => '<span class="badge bg-label-'.($row->status->value === 'pending' ? 'warning' : 'success').'">'.$row->status->label().'</span>')
             ->editColumn('created_at', fn ($row) => $row->created_at?->format('Y-m-d H:i'))
-            ->addColumn('actions', fn ($row) => '<div class="d-flex justify-content-center"><a class="btn btn-sm btn-icon btn-label-primary" href="'.route('admin.contact-requests.show', $row).'" title="عرض"><i class="ti ti-eye"></i></a></div>');
+            ->addColumn('actions', fn ($row) => '<div class="d-flex justify-content-center"><a class="btn btn-sm btn-icon btn-label-primary bg-label-primary" href="'.route('admin.contact-requests.show', $row).'" title="عرض"><i class="ti ti-eye"></i></a></div>');
     }
 
     protected function rawColumns(): array

@@ -14,6 +14,7 @@ final class AuctionTemplateService
     {
         $counts = AuctionTemplate::query()
             ->selectRaw('COUNT(*) as total')
+            ->selectRaw("SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) as active")
             ->selectRaw("SUM(CASE WHEN type = 'brochure' THEN 1 ELSE 0 END) as brochure")
             ->selectRaw("SUM(CASE WHEN type = 'billboard' THEN 1 ELSE 0 END) as billboard")
             ->selectRaw("SUM(CASE WHEN type = 'social' THEN 1 ELSE 0 END) as social")
@@ -22,6 +23,7 @@ final class AuctionTemplateService
 
         return [
             'total'     => (int) ($counts->total ?? 0),
+            'active'    => (int) ($counts->active ?? 0),
             'brochure'  => (int) ($counts->brochure ?? 0),
             'billboard' => (int) ($counts->billboard ?? 0),
             'social'    => (int) ($counts->social ?? 0),
