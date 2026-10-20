@@ -17,11 +17,15 @@
 @php
     $companyPlans = $plans
         ->map(function ($plan) {
+            $cycle = $plan->subscription_billing_cycle instanceof \BackedEnum
+                ? $plan->subscription_billing_cycle->value
+                : ($plan->subscription_billing_cycle?->value ?? $plan->subscription_billing_cycle);
+
             return [
                 'id' => $plan->id,
                 'name' => $plan->name,
                 'subscription_duration_type' => $plan->subscription_duration_type,
-                'subscription_billing_cycle' => $plan->subscription_billing_cycle,
+                'subscription_billing_cycle' => $cycle ? (string) $cycle : null,
             ];
         })
         ->values();
@@ -142,7 +146,6 @@
                         'plan_id',
                         'start_date',
                         'end_date',
-                        'total_users',
                         'payment_type',
                         'payment_method',
                         'receipt_upload',
@@ -154,12 +157,10 @@
                         <div class="row g-4">
                             <x-form.controls.select name="plan_id" label="الباقة" :options="$plans"
                                 placeholder="اختر الباقة" required col="col-md-6" />
-                            <x-form.controls.input name="start_date" type="date" label="تاريخ البداية" :value="now()->toDateString()"
+                            <x-form.controls.input name="start_date" type="date" label="تاريخ البداية" :value="old('start_date', now()->toDateString())"
                                 required col="col-md-6" />
                             <x-form.controls.input name="end_date" type="date" label="تاريخ النهاية"
-                                help="يُحسب تلقائياً حسب نوع الباقة، ويمكن تعديله عند الحاجة." col="col-md-6" />
-                            <x-form.controls.input name="total_users" type="number" label="إجمالي المستخدمين"
-                                min="1" step="1" inputmode="numeric" col="col-md-6" />
+                                help="يُحسب تلقائياً حسب نوع الباقة، ويمكن تعديله عند الحاجة." required col="col-md-6" />
                             <x-form.controls.select name="payment_type" label="حالة الدفع" :enum="\App\Enums\Admin\Billing\BillStatus::class"
                                 placeholder="اختر حالة الدفع"
                                 data-validation-dependents="payment_method receipt_upload trial_end_date" required
@@ -193,78 +194,85 @@
 
                     <!-- 4. مراجعة واعتماد -->
                     <x-form.wizard.step id="review-step">
-                        <div class="row g-4">
-                            <div class="col-12 col-lg-6">
-                                <div class="card border shadow-none h-100">
-                                    <div class="card-header bg-secondary">
-                                        <h6 class="mb-0"><i class="ti ti-building text-primary me-1"
-                                                aria-hidden="true"></i>بيانات العميل</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <dl class="row mb-0 small">
-                                            <dt class="col-5 text-muted">اسم العميل / الشركة</dt>
-                                            <dd class="col-7 fw-semibold" id="review-company-name">-</dd>
-                                            <dt class="col-5 text-muted">السجل التجاري</dt>
-                                            <dd class="col-7 fw-semibold" id="review-commercial-number">-</dd>
-                                            <dt class="col-5 text-muted">الرقم الضريبي</dt>
-                                            <dd class="col-7 fw-semibold" id="review-tax-number">-</dd>
-                                            <dt class="col-5 text-muted">المدينة</dt>
-                                            <dd class="col-7 fw-semibold" id="review-city">-</dd>
-                                            <dt class="col-5 text-muted">العنوان</dt>
-                                            <dd class="col-7 fw-semibold" id="review-address">-</dd>
-                                        </dl>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 col-lg-6">
-                                <div class="card border shadow-none h-100">
-                                    <div class="card-header bg-secondary">
-                                        <h6 class="mb-0"><i class="ti ti-user text-primary me-1"
-                                                aria-hidden="true"></i>المستخدم المسؤول</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <dl class="row mb-0 small">
-                                            <dt class="col-5 text-muted">الاسم</dt>
-                                            <dd class="col-7 fw-semibold" id="review-admin-name">-</dd>
-                                            <dt class="col-5 text-muted">رقم الجوال</dt>
-                                            <dd class="col-7 fw-semibold" id="review-admin-phone">-</dd>
-                                            <dt class="col-5 text-muted">البريد الإلكتروني</dt>
-                                            <dd class="col-7 fw-semibold" id="review-admin-email">-</dd>
-                                        </dl>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 col-lg-6">
-                                <div class="card border shadow-none h-100">
-                                    <div class="card-header bg-secondary">
-                                        <h6 class="mb-0"><i class="ti ti-packages text-primary me-1"
-                                                aria-hidden="true"></i>الاشتراك والدفع</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <dl class="row mb-0 small">
-                                            <dt class="col-5 text-muted">الباقة</dt>
-                                            <dd class="col-7 fw-semibold" id="review-plan-name">-</dd>
-                                            <dt class="col-5 text-muted">تاريخ البداية</dt>
-                                            <dd class="col-7 fw-semibold" id="review-start-date">-</dd>
-                                            <dt class="col-5 text-muted">تاريخ النهاية</dt>
-                                            <dd class="col-7 fw-semibold" id="review-end-date">-</dd>
-                                            <dt class="col-5 text-muted">حالة الدفع</dt>
-                                            <dd class="col-7 fw-semibold" id="review-payment-status">-</dd>
-                                            <dt class="col-5 text-muted">وسيلة الدفع</dt>
-                                            <dd class="col-7 fw-semibold" id="review-payment-method">-</dd>
-                                            <dt class="col-5 text-muted">حالة التفعيل</dt>
-                                            <dd class="col-7" id="review-activation-status">-</dd>
-                                        </dl>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 col-lg-6">
-                                <div class="alert alert-warning mb-0 d-flex align-items-center gap-2 h-100"
+                        <div class="row g-4 mb-4 assignment-review">
+                            <div class="col-lg-9 d-flex flex-column gap-4">
+                                <x-form.wizard.review-card title="بيانات العميل" step="1"
+                                    class="assignment-review__card">
+                                    <dl class="row mb-0 small">
+                                        <dt class="col-5 text-muted">اسم العميل / الشركة</dt>
+                                        <dd class="col-7 fw-semibold" id="review-company-name">-</dd>
+                                        <dt class="col-5 text-muted">السجل التجاري</dt>
+                                        <dd class="col-7 fw-semibold" id="review-commercial-number">-</dd>
+                                        <dt class="col-5 text-muted">الرقم الضريبي</dt>
+                                        <dd class="col-7 fw-semibold" id="review-tax-number">-</dd>
+                                        <dt class="col-5 text-muted">المدينة</dt>
+                                        <dd class="col-7 fw-semibold" id="review-city">-</dd>
+                                        <dt class="col-5 text-muted">العنوان</dt>
+                                        <dd class="col-7 fw-semibold" id="review-address">-</dd>
+                                    </dl>
+                                </x-form.wizard.review-card>
+
+                                <x-form.wizard.review-card title="المستخدم المسؤول" step="2"
+                                    class="assignment-review__card">
+                                    <dl class="row mb-0 small">
+                                        <dt class="col-5 text-muted">الاسم</dt>
+                                        <dd class="col-7 fw-semibold" id="review-admin-name">-</dd>
+                                        <dt class="col-5 text-muted">رقم الجوال</dt>
+                                        <dd class="col-7 fw-semibold" id="review-admin-phone">-</dd>
+                                        <dt class="col-5 text-muted">البريد الإلكتروني</dt>
+                                        <dd class="col-7 fw-semibold" id="review-admin-email">-</dd>
+                                    </dl>
+                                </x-form.wizard.review-card>
+
+                                <x-form.wizard.review-card title="الاشتراك والدفع" step="3"
+                                    class="assignment-review__card">
+                                    <dl class="row mb-0 small">
+                                        <dt class="col-5 text-muted">الباقة</dt>
+                                        <dd class="col-7 fw-semibold" id="review-plan-name">-</dd>
+                                        <dt class="col-5 text-muted">تاريخ البداية</dt>
+                                        <dd class="col-7 fw-semibold" id="review-start-date">-</dd>
+                                        <dt class="col-5 text-muted">تاريخ النهاية</dt>
+                                        <dd class="col-7 fw-semibold" id="review-end-date">-</dd>
+                                        <dt class="col-5 text-muted">حالة الدفع</dt>
+                                        <dd class="col-7 fw-semibold" id="review-payment-status">-</dd>
+                                        <dt class="col-5 text-muted">وسيلة الدفع</dt>
+                                        <dd class="col-7 fw-semibold" id="review-payment-method">-</dd>
+                                        <dt class="col-5 text-muted">حالة التفعيل</dt>
+                                        <dd class="col-7" id="review-activation-status">-</dd>
+                                    </dl>
+                                </x-form.wizard.review-card>
+
+                                <div class="alert alert-warning mb-0 d-flex align-items-center gap-2"
                                     role="alert">
                                     <i class="ti ti-alert-triangle fs-3" aria-hidden="true"></i>
                                     <span>برجاء مراجعة البيانات قبل الاعتماد. سيتم إنشاء العميل واشتراكه وحساب المدير الخاص
                                         بالعميل.</span>
                                 </div>
+                            </div>
+
+                            <div class="col-lg-3">
+                                <article class="card assignment-preview h-100">
+                                    <div
+                                        class="assignment-preview__image bg-label-primary d-flex flex-column justify-content-center align-items-center p-4 text-center">
+                                        <i class="ti ti-building fs-1 mb-2 text-primary" aria-hidden="true"></i>
+                                        <h5 class="mb-1 text-primary" id="preview-client-company">اسم الشركة</h5>
+                                        <small class="text-muted" id="preview-client-city">المدينة</small>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-muted small">المسؤول:</span>
+                                            <span class="fw-semibold small" id="preview-client-admin">-</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-muted small">الباقة:</span>
+                                            <span class="badge bg-label-info" id="preview-client-plan">-</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-muted small">الحالة:</span>
+                                            <span class="badge bg-label-success" id="preview-client-status">مفعل فوراً</span>
+                                        </div>
+                                    </div>
+                                </article>
                             </div>
                         </div>
 

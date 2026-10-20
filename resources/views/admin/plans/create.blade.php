@@ -178,8 +178,68 @@
                     </x-form.wizard.step>
 
                     <x-form.wizard.step id="review-validation" :fields="[]">
-                        <div class="row g-4 justify-content-center">
-                            <div class="col-12 col-sm-9 col-md-6 col-lg-3">
+                        <div class="row g-4 mb-4 assignment-review">
+                            <div class="col-lg-9 d-flex flex-column gap-4">
+                                <x-form.wizard.review-card title="الأساسيات والميزات" step="1"
+                                    class="assignment-review__card">
+                                    <dl class="row mb-0 small">
+                                        <dt class="col-5 text-muted">اسم الباقة</dt>
+                                        <dd class="col-7 fw-semibold" id="plan-review-name">-</dd>
+                                        <dt class="col-5 text-muted">كود الباقة</dt>
+                                        <dd class="col-7 fw-semibold font-monospace" id="plan-review-code">-</dd>
+                                        <dt class="col-5 text-muted">نوع الباقة</dt>
+                                        <dd class="col-7 fw-semibold" id="plan-review-type">-</dd>
+                                        <dt class="col-5 text-muted">لون الباقة</dt>
+                                        <dd class="col-7 fw-semibold" id="plan-review-color">-</dd>
+                                        <dt class="col-5 text-muted">حالة التفعيل</dt>
+                                        <dd class="col-7 fw-semibold" id="plan-review-status">-</dd>
+                                        <dt class="col-5 text-muted">تاريخ بدء الإتاحة</dt>
+                                        <dd class="col-7 fw-semibold" id="plan-review-available-from">-</dd>
+                                        <dt class="col-5 text-muted">الوصف</dt>
+                                        <dd class="col-7 fw-semibold" id="plan-review-description">-</dd>
+                                        <dt class="col-5 text-muted">الميزات المشمولة</dt>
+                                        <dd class="col-7" id="plan-review-features">-</dd>
+                                    </dl>
+                                </x-form.wizard.review-card>
+
+                                <x-form.wizard.review-card title="التسعير والفوترة" step="2"
+                                    class="assignment-review__card">
+                                    <dl class="row mb-0 small">
+                                        <dt class="col-5 text-muted">السعر الأساسي</dt>
+                                        <dd class="col-7 fw-semibold" id="plan-review-price">-</dd>
+                                        <dt class="col-5 text-muted">دورة الفوترة الأساسية</dt>
+                                        <dd class="col-7 fw-semibold" id="plan-review-billing-cycle">-</dd>
+                                        <dt class="col-5 text-muted">نسبة الخصم</dt>
+                                        <dd class="col-7 fw-semibold" id="plan-review-discount">-</dd>
+                                        <dt class="col-5 text-muted">السعر بعد الخصم</dt>
+                                        <dd class="col-7 fw-semibold text-primary" id="plan-review-final-price">-</dd>
+                                        <dt class="col-5 text-muted">سعر العرض السنوي</dt>
+                                        <dd class="col-7 fw-semibold" id="plan-review-renewal-price">-</dd>
+                                    </dl>
+                                </x-form.wizard.review-card>
+
+                                <x-form.wizard.review-card title="الحدود والصلاحيات" step="3"
+                                    class="assignment-review__card">
+                                    <dl class="row mb-0 small">
+                                        <dt class="col-5 text-muted">وضع الحدود</dt>
+                                        <dd class="col-7 fw-semibold" id="plan-review-limits-mode">-</dd>
+                                        <dt class="col-5 text-muted">عدد المستخدمين المشمولين</dt>
+                                        <dd class="col-7 fw-semibold" id="plan-review-users">-</dd>
+                                        <dt class="col-5 text-muted">سعر ترخيص المستخدم الإضافي</dt>
+                                        <dd class="col-7 fw-semibold" id="plan-review-extra-user-price">-</dd>
+                                        <dt class="col-5 text-muted">حد العقارات</dt>
+                                        <dd class="col-7 fw-semibold" id="plan-review-properties">-</dd>
+                                        <dt class="col-5 text-muted">حصة التخزين</dt>
+                                        <dd class="col-7 fw-semibold" id="plan-review-storage">-</dd>
+                                        <dt class="col-5 text-muted">حد المزادات النشطة</dt>
+                                        <dd class="col-7 fw-semibold" id="plan-review-auctions">-</dd>
+                                        <dt class="col-5 text-muted">إدارة الدومينات</dt>
+                                        <dd class="col-7 fw-semibold" id="plan-review-domain">-</dd>
+                                    </dl>
+                                </x-form.wizard.review-card>
+                            </div>
+
+                            <div class="col-lg-3">
                                 <x-ui.package-card preview />
                             </div>
                         </div>

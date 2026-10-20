@@ -69,6 +69,10 @@ class CompanyService
                 $data['receipt_path'] = $receiptPath;
             }
 
+            $plan = Plan::findOrFail($data['plan_id']);
+            $totalUsers = $plan->included_users;
+            $data['total_users'] = $totalUsers;
+
             $metadata = [
                 'plan_id' => $data['plan_id'],
                 'billing_name' => $data['name'],
@@ -82,14 +86,13 @@ class CompanyService
                 'billing_commercial_number' => $data['commercial_number'],
                 'start_date' => $data['start_date'] ?? null,
                 'end_date' => $data['end_date'] ?? null,
-                'total_users' => $data['total_users'] ?? null,
+                'total_users' => $totalUsers,
                 'activate_immediately' => ! empty($data['activate_immediately']),
                 'email_notifications_enabled' => isset($data['email_notifications_enabled']) ? (bool) $data['email_notifications_enabled'] : true,
                 'two_factor_enabled' => ! empty($data['two_factor_enabled']),
                 'external_integrations_enabled' => ! empty($data['external_integrations_enabled']),
             ];
 
-            $plan = Plan::findOrFail($data['plan_id']);
             $discount = (($data['has_discount'] ?? 'no') === 'yes') ? (float) ($data['discount_value'] ?? 0) : 0;
             $amount = ($data['payment_type'] ?? '') === 'trial' ? 0.00 : max(0.00, (float) $plan->price_after_discount - $discount);
 

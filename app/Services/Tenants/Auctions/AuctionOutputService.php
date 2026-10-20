@@ -183,6 +183,19 @@ final class AuctionOutputService
         $overlayPath = $temporaryDirectory.'/images.pdf';
 
         try {
+            if (! empty($template->field_definitions)) {
+                $this->pdfForms->uncompress($templatePath, $structurePath);
+                $this->createTextOverlay(
+                    $this->pdfWidgets->pageSizes($structurePath),
+                    $template->field_definitions,
+                    $this->templateFieldData($auction, $type, $template),
+                    $overlayPath,
+                );
+                $this->pdfForms->stamp($templatePath, $overlayPath, $outputPath);
+
+                return $outputPath;
+            }
+
             $this->pdfForms->fill($templatePath, $this->templateFieldData($auction, $type, $template), $filledPath);
 
             $imagePaths = $this->imageFieldPaths($auction, $template);
@@ -234,7 +247,14 @@ final class AuctionOutputService
 
         $values = $this->templateFieldData($auction, $type, $template);
         $zones = array_filter($template->field_definitions ?? [], static fn (mixed $zone): bool => is_array($zone));
-        $html = sprintf('<div style="position:relative;width:%Fmm;height:%Fmm;background-image:url(%s);background-size:100%% 100%%;">', $width, $height, e($this->imageDataUri($templatePath)));
+        $html = sprintf(
+            '<div style="position:relative;width:%Fmm;height:%Fmm;"><img src="%s" style="position:absolute;left:0;top:0;width:%Fmm;height:%Fmm;" />',
+            $width,
+            $height,
+            e(str_replace('\\', '/', $templatePath)),
+            $width,
+            $height,
+        );
 
         foreach ($zones as $zone) {
             $key = $zone['key'] ?? null;
@@ -339,6 +359,61 @@ final class AuctionOutputService
                         $this->pointsToMillimeters(abs($top - $bottom)),
                     );
                 }
+            }
+            $mpdf->WriteHTML($html.'</div>');
+        }
+
+        $mpdf->Output($outputPath, 'F');
+    }
+
+    /**
+     * @param  list<array{float, float}>  $pageSizes
+     * @param  list<array{key: string, page: int, x: float, y: float, width: float, height: float}>  $zones
+     * @param  array<string, string>  $values
+     */
+    private function createTextOverlay(array $pageSizes, array $zones, array $values, string $outputPath): void
+    {
+        if ($pageSizes === []) {
+            throw new RuntimeException('The PDF template does not contain readable pages.');
+        }
+
+        $first = $pageSizes[0];
+        $mpdf = new Mpdf([
+            'mode' => 'utf-8',
+            'format' => [$this->pointsToMillimeters($first[0]), $this->pointsToMillimeters($first[1])],
+            'margin_top' => 0,
+            'margin_bottom' => 0,
+            'margin_left' => 0,
+            'margin_right' => 0,
+        ]);
+        $mpdf->autoScriptToLang = true;
+        $mpdf->autoLangToFont = true;
+
+        foreach ($pageSizes as $index => [$width, $height]) {
+            if ($index > 0) {
+                $mpdf->AddPageByArray([
+                    'sheet-size' => [$this->pointsToMillimeters($width), $this->pointsToMillimeters($height)],
+                    'margin-top' => 0,
+                    'margin-bottom' => 0,
+                    'margin-left' => 0,
+                    'margin-right' => 0,
+                ]);
+            }
+
+            $html = '<div style="position:relative;width:100%;height:100%;">';
+            foreach ($zones as $zone) {
+                if (($zone['page'] ?? 1) !== $index + 1 || ! isset($values[$zone['key'] ?? ''])) {
+                    continue;
+                }
+
+                $html .= sprintf(
+                    '<div style="position:absolute;left:%F%%;top:%F%%;width:%F%%;height:%F%%;overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center;direction:rtl;font-size:11pt;font-weight:bold;">%s</div>',
+                    ((float) $zone['x']) * 100,
+                    ((float) $zone['y']) * 100,
+                    ((float) $zone['width']) * 100,
+                    ((float) $zone['height']) * 100,
+                    e($values[$zone['key']]),
+                );
             }
             $mpdf->WriteHTML($html.'</div>');
         }

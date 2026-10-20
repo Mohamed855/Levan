@@ -40,10 +40,11 @@ final class UpdateAuctionTemplateAction
                     $data['file_path'] = $newFilePath;
 
                     $absolutePath = Storage::disk('central_public')->path($newFilePath);
-                    if (str_starts_with((string) $file->getMimeType(), 'image/')) {
-                        $definitions = json_decode((string) ($data['field_definitions'] ?? '[]'), true);
-                        $data['field_definitions'] = app(AuctionTemplateFieldDefinitionService::class)->normalize(is_array($definitions) ? $definitions : []);
-                        $data['field_names'] = array_column($data['field_definitions'], 'key');
+                    $definitions = json_decode((string) ($data['field_definitions'] ?? '[]'), true);
+                    $definitions = app(AuctionTemplateFieldDefinitionService::class)->normalize(is_array($definitions) ? $definitions : []);
+                    if ($definitions !== []) {
+                        $data['field_definitions'] = $definitions;
+                        $data['field_names'] = array_column($definitions, 'key');
                     } else {
                         $extracted = $this->createAction->extractFieldNames($absolutePath);
                         if (empty($extracted)) {

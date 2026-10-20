@@ -42,10 +42,10 @@ class UpdateAuctionTemplateRequest extends WizardFormRequest
             ],
             'is_active' => ['nullable', 'boolean'],
             'field_definitions' => [
-                Rule::requiredIf($this->isImageUpload()),
+                Rule::requiredIf($this->hasFile('file')),
                 'nullable',
                 'json',
-                Rule::when($this->isImageUpload(), [new AuctionTemplateFieldDefinitionsRule($this->requiredFieldNames())]),
+                Rule::when($this->hasFile('file'), [new AuctionTemplateFieldDefinitionsRule($this->requiredFieldNames())]),
             ],
         ];
     }
@@ -70,11 +70,6 @@ class UpdateAuctionTemplateRequest extends WizardFormRequest
             'file.mimes' => 'يجب أن يكون الملف بصيغة PDF أو صورة (PNG, JPG, WEBP).',
             'file.max' => 'أقصى حجم للملف هو 30 ميجابايت.',
         ];
-    }
-
-    private function isImageUpload(): bool
-    {
-        return str_starts_with((string) $this->file('file')?->getMimeType(), 'image/');
     }
 
     /** @return list<string> */

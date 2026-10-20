@@ -53,10 +53,53 @@ document.addEventListener('DOMContentLoaded', () => {
     return year + '-' + month + '-' + day;
   };
 
+  const addMonths = (date, months) => {
+    const d = new Date(date.getTime());
+    const targetMonth = d.getMonth() + months;
+    d.setMonth(targetMonth);
+    if (d.getMonth() !== ((targetMonth % 12) + 12) % 12) {
+      d.setDate(0);
+    }
+    return d;
+  };
+
+  const addYears = (date, years) => {
+    const d = new Date(date.getTime());
+    const targetYear = d.getFullYear() + years;
+    d.setFullYear(targetYear);
+    if (d.getFullYear() !== targetYear) {
+      d.setDate(0);
+    }
+    return d;
+  };
+
   const syncEndDate = () => {
-    const selectedPlan = plans.find((plan) => String(plan.id) === String(planId?.value));
     const endDate = form.querySelector('[name="end_date"]');
-    if (!selectedPlan || !startDate?.value || !endDate) {
+    if (!endDate) {
+      return;
+    }
+
+    if (startDate && !startDate.value) {
+      startDate.value = formatDate(new Date());
+    }
+
+    const selectedPlan = plans.find((plan) => String(plan.id) === String(planId?.value));
+    if (!selectedPlan || !startDate?.value) {
+      return;
+    }
+
+    const cycle = (selectedPlan.subscription_billing_cycle || '').toLowerCase();
+    const isMonthly = cycle === 'monthly';
+    const isYearly = cycle === 'yearly';
+    const isQuarterly = cycle === 'quarterly';
+
+    if (!isMonthly && !isYearly && !isQuarterly) {
+      if (endDate.dataset.autoCalculated === 'true') {
+        endDate.value = '';
+        delete endDate.dataset.autoCalculated;
+        endDate.dispatchEvent(new Event('input', { bubbles: true }));
+        endDate.dispatchEvent(new Event('change', { bubbles: true }));
+      }
       return;
     }
 
@@ -65,18 +108,21 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const end = new Date(start);
-    if (
-      selectedPlan.subscription_duration_type === 'limited' &&
-      selectedPlan.subscription_billing_cycle === 'monthly'
-    ) {
-      end.setMonth(end.getMonth() + 1);
-    } else {
-      end.setFullYear(end.getFullYear() + 1);
+    let end;
+    if (isMonthly) {
+      end = addMonths(start, 1);
+    } else if (isQuarterly) {
+      end = addMonths(start, 3);
+    } else if (isYearly) {
+      end = addYears(start, 1);
     }
 
-    endDate.value = formatDate(end);
-    endDate.dispatchEvent(new Event('change', { bubbles: true }));
+    if (end) {
+      endDate.value = formatDate(end);
+      endDate.dataset.autoCalculated = 'true';
+      endDate.dispatchEvent(new Event('input', { bubbles: true }));
+      endDate.dispatchEvent(new Event('change', { bubbles: true }));
+    }
   };
 
   const setReviewValue = (id, value) => {
@@ -122,6 +168,18 @@ document.addEventListener('DOMContentLoaded', () => {
       reviewActivation.className = 'badge ' + (isImmediate ? 'bg-label-success' : 'bg-label-warning');
       reviewActivation.textContent = isImmediate ? 'مفعل فوراً' : 'قيد المراجعة';
     }
+
+    setReviewValue('preview-client-company', form.querySelector('[name="company_name"]')?.value || 'اسم الشركة');
+    setReviewValue('preview-client-city', selectedText('city_id'));
+    setReviewValue('preview-client-admin', form.querySelector('[name="name"]')?.value || '-');
+    setReviewValue('preview-client-plan', selectedPlan?.name || '-');
+
+    const previewStatus = document.getElementById('preview-client-status');
+    if (previewStatus) {
+      const isImmediate = form.querySelector('[name="activate_immediately"]')?.checked;
+      previewStatus.className = 'badge ' + (isImmediate ? 'bg-label-success' : 'bg-label-warning');
+      previewStatus.textContent = isImmediate ? 'مفعل فوراً' : 'قيد المراجعة';
+    }
   };
 
   if (window.jQuery?.fn.select2) {
@@ -140,16 +198,24 @@ document.addEventListener('DOMContentLoaded', () => {
   paymentMethod?.addEventListener('change', syncPaymentFields);
   discountType?.addEventListener('change', syncDiscountField);
   planId?.addEventListener('change', syncEndDate);
+  if (window.jQuery && planId) {
+    window.jQuery(planId).on('change', syncEndDate);
+  }
   startDate?.addEventListener('change', syncEndDate);
+  startDate?.addEventListener('input', syncEndDate);
 
-  form.addEventListener('change', updateReview);
-  form.closest('[data-form-stepper]')?.addEventListener('shown.bs-stepper', (event) => {
-    if (event.detail?.indexStep === 3) {
-      updateReview();
-    }
+  const endDate = form.querySelector('[name="end_date"]');
+  endDate?.addEventListener('input', () => {
+    delete endDate.dataset.autoCalculated;
   });
+
+  form.addEventListener('input', updateReview);
+  form.addEventListener('change', updateReview);
+  form.addEventListener('stepChanged', updateReview);
+  form.closest('[data-form-stepper]')?.addEventListener('shown.bs-stepper', updateReview);
 
   syncPaymentFields();
   syncDiscountField();
   syncEndDate();
+  updateReview();
 });

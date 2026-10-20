@@ -988,6 +988,7 @@ function initStepper(form) {
 
   const state = getFormState(form);
   state.stepper = new window.Stepper(stepperElement, { linear: false });
+  stepperElement.bsStepper = state.stepper;
 
   const getSteps = () => Array.from(stepperElement.querySelectorAll('[data-form-step]'));
 
@@ -1034,13 +1035,22 @@ function initStepper(form) {
       const trigger = event.target.closest('.step-trigger');
       const nextButton = event.target.closest('[data-wizard-next], .btn-next:not(.btn-submit)');
       const previousButton = event.target.closest('[data-wizard-prev], .btn-prev');
+      const editStepButton = event.target.closest('[data-edit-step]');
 
-      if (!trigger && !nextButton && !previousButton) {
+      if (!trigger && !nextButton && !previousButton && !editStepButton) {
         return;
       }
 
       event.preventDefault();
       event.stopImmediatePropagation();
+
+      if (editStepButton) {
+        const target = Number(editStepButton.dataset.editStep);
+        if (target >= 1) {
+          moveTo(target - 1);
+        }
+        return;
+      }
 
       // Header clicks are informational only and cannot jump steps ahead
       if (trigger) {

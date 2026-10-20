@@ -1,14 +1,17 @@
 .template-placement-canvas {
   position: relative;
-  display: inline-block;
-  max-width: 100%;
+  width: min(100%, 860px);
   cursor: crosshair;
+  touch-action: none;
+  user-select: none;
 
-  img {
+  img,
+  canvas {
     display: block;
-    max-width: 100%;
-    max-height: 700px;
-    object-fit: contain;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    user-select: none;
   }
 }
 
@@ -42,5 +45,19 @@
     border: 0;
     background: transparent;
     color: var(--bs-danger);
+  }
+
+  .template-placement-resize {
+    position: absolute;
+    bottom: -0.45rem;
+    left: -0.45rem;
+    display: grid;
+    width: 0.9rem;
+    height: 0.9rem;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--bs-primary);
+    color: #fff;
+    cursor: nwse-resize;
   }
 }

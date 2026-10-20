@@ -123,7 +123,7 @@ class SecurityHeadersMiddleware
 
         $csp = implode('; ', array_filter([
             // للسماح بإطارات reCAPTCHA
-            "frame-src 'self' https://www.google.com https://www.recaptcha.net https://www.google.com/recaptcha/api.js https://api.moyasar.com https://payment.moyasar.com",
+            "frame-src 'self' blob: https://www.google.com https://www.recaptcha.net https://www.google.com/recaptcha/api.js https://api.moyasar.com https://payment.moyasar.com",
 
             "default-src 'none'",
 

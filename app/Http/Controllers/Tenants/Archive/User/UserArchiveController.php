@@ -63,6 +63,20 @@ class UserArchiveController extends Controller
         try {
             $user = User::onlyTrashed()->findOrFail($request->validated('id'));
             $this->authorize('restore', $user);
+
+            $gateway = app(\App\Services\Tenants\Shared\CentralSubscriptionContextGateway::class);
+            if (! $gateway->canAddUser(User::query()->count())) {
+                $limitInfo = $gateway->getUserLimitInfo();
+                $limit = $limitInfo['user_limit'] ?? 1;
+                $message = "لا يمكن استرجاع المستخدم، لقد تم الوصول إلى الحد الأقصى للمستخدمين المسموح به في باقتك ({$limit} مستخدم).";
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json(['success' => false, 'message' => $message], 422);
+                }
+
+                return redirect()->back()->with('error', $message);
+            }
+
             $this->userArchiveService->restoreUser($user);
 
             if ($request->ajax() || $request->wantsJson()) {

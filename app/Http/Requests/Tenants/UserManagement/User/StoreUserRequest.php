@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Tenants\UserManagement\User;
 
 use App\Http\Requests\Concerns\WizardFormRequest;
+use App\Models\Tenants\UserMangment\User\User;
+use App\Services\Tenants\Shared\CentralSubscriptionContextGateway;
 
 class StoreUserRequest extends WizardFormRequest
 {
@@ -137,6 +139,24 @@ class StoreUserRequest extends WizardFormRequest
             'role_id' => 'الدور',
 
         ];
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Additional Validation Checks
+    |--------------------------------------------------------------------------
+    */
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            $gateway = app(CentralSubscriptionContextGateway::class);
+            $currentUsersCount = User::query()->count();
+            if (! $gateway->canAddUser($currentUsersCount)) {
+                $limitInfo = $gateway->getUserLimitInfo();
+                $limit = $limitInfo['user_limit'] ?? 1;
+                $validator->errors()->add('user_limit', "لا يمكن إضافة مستخدم جديد، لقد تم الوصول إلى الحد الأقصى للمستخدمين المسموح به في باقتك ({$limit} مستخدم).");
+            }
+        });
     }
 
     /*

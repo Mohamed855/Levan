@@ -99,6 +99,28 @@ class AdminDashboardCrudFeatureTest extends TestCase
             ->assertJsonValidationErrors(['company_name']);
     }
 
+    public function test_client_wizard_validates_end_date_is_required_in_subscription_step(): void
+    {
+        $this->postJson($this->adminUrl('wizard-drafts/validate-step'), [
+            'target_path' => '/admin/clients',
+            'fields' => ['end_date', 'start_date'],
+            'start_date' => now()->toDateString(),
+            'end_date' => '',
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors(['end_date']);
+    }
+
+    public function test_client_wizard_validates_end_date_must_be_after_or_equal_to_start_date(): void
+    {
+        $this->postJson($this->adminUrl('wizard-drafts/validate-step'), [
+            'target_path' => '/admin/clients',
+            'fields' => ['end_date', 'start_date'],
+            'start_date' => now()->toDateString(),
+            'end_date' => now()->subDay()->toDateString(),
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors(['end_date']);
+    }
+
     /**
      * Test 2: Admin Users CRUD, Profile, Unique Checks & Archive Lifecycle
      */
@@ -941,7 +963,6 @@ class AdminDashboardCrudFeatureTest extends TestCase
             'password_confirmation' => 'Password123!',
             'plan_id' => $plan->id,
             'start_date' => $startDate,
-            'total_users' => max(1, $plan->included_users),
             'payment_type' => 'paid',
             'payment_method' => 'cash',
             'has_discount' => 'no',
@@ -961,6 +982,7 @@ class AdminDashboardCrudFeatureTest extends TestCase
             $tenantDatabase = $tenant->db_database;
             $subscription = Subscription::where('tenant_id', $tenant->id)->firstOrFail();
             $this->assertSame($expectedEndDate, Carbon::parse($subscription->ends_at)->toDateString());
+            $this->assertSame($plan->included_users, $subscription->total_users);
 
             $tableResponse = $this->withHeaders([
                 'X-Requested-With' => 'XMLHttpRequest',

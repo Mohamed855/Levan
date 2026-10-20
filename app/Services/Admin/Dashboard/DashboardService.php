@@ -229,7 +229,14 @@ class DashboardService
             'tickets' => 'التذاكر',
         ];
 
-        return Activity::with(['causer', 'subject'])
+        return Activity::query()
+            ->where(function ($q) {
+                $q->whereNull('causer_type')->orWhere('causer_type', 'not like', 'App\\Models\\Tenants%');
+            })
+            ->where(function ($q) {
+                $q->whereNull('subject_type')->orWhere('subject_type', 'not like', 'App\\Models\\Tenants%');
+            })
+            ->with(['causer', 'subject'])
             ->latest()
             ->limit($limit)
             ->get()

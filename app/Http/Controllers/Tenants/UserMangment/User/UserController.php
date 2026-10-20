@@ -14,6 +14,7 @@ use App\Http\Requests\Tenants\Users\UpdateUserProfileImageRequest;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\shared\Subscription\SubscriptionFormatter;
 use App\Services\shared\Subscription\SubscriptionManager;
+use App\Services\Tenants\Shared\CentralSubscriptionContextGateway;
 use App\Services\Tenants\UserManagement\User\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -36,7 +37,8 @@ class UserController extends Controller
     public function __construct(
         private UserService $userService,
         private SubscriptionManager $subscriptionManager,
-        private SubscriptionFormatter $subscriptionFormatter
+        private SubscriptionFormatter $subscriptionFormatter,
+        private CentralSubscriptionContextGateway $subscriptionGateway
     ) {
         $this->authorizeResource(User::class, 'user');
         $this->middleware('auth');
@@ -78,8 +80,17 @@ class UserController extends Controller
     |--------------------------------------------------------------------------
     | Show the form for creating a new user.
     */
-    public function create(): View
+    public function create(): View|RedirectResponse
     {
+        $currentUsersCount = User::query()->count();
+        if (! $this->subscriptionGateway->canAddUser($currentUsersCount)) {
+            $limitInfo = $this->subscriptionGateway->getUserLimitInfo();
+            $limit = $limitInfo['user_limit'] ?? 1;
+
+            return redirect()->to(tenant_route_name('users.index'))
+                ->with('error', "لا يمكن إضافة مستخدم جديد، لقد تم الوصول إلى الحد الأقصى للمستخدمين المسموح به في باقتك ({$limit} مستخدم).");
+        }
+
         $generatedEmployeeNumber = $this->userService->generateNextEmployeeNumber();
 
         $roles = Role::query()->where('guard_name', 'tenant')->select('id', 'name')->orderBy('name')->get();
@@ -95,6 +106,15 @@ class UserController extends Controller
     */
     public function store(StoreUserRequest $request): RedirectResponse
     {
+        $currentUsersCount = User::query()->count();
+        if (! $this->subscriptionGateway->canAddUser($currentUsersCount)) {
+            $limitInfo = $this->subscriptionGateway->getUserLimitInfo();
+            $limit = $limitInfo['user_limit'] ?? 1;
+
+            return redirect()->to(tenant_route_name('users.index'))
+                ->with('error', "لا يمكن إضافة مستخدم جديد، لقد تم الوصول إلى الحد الأقصى للمستخدمين المسموح به في باقتك ({$limit} مستخدم).");
+        }
+
         try {
             $this->userService->createUser($request->validated());
 

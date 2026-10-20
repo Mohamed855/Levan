@@ -34,8 +34,8 @@ final class CreateAuctionTemplateAction
                 $data['file_path'] = $filePath;
 
                 $absolutePath = Storage::disk('central_public')->path($filePath);
-                if ($this->isImage($file)) {
-                    $definitions = $this->fieldDefinitions->normalize(json_decode((string) ($data['field_definitions'] ?? '[]'), true) ?: []);
+                $definitions = $this->fieldDefinitions->normalize(json_decode((string) ($data['field_definitions'] ?? '[]'), true) ?: []);
+                if ($definitions !== []) {
                     $data['field_definitions'] = $definitions;
                     $data['field_names'] = array_column($definitions, 'key');
                 } else {
@@ -108,10 +108,5 @@ final class CreateAuctionTemplateAction
         }
 
         return $fields;
-    }
-
-    private function isImage(UploadedFile $file): bool
-    {
-        return str_starts_with((string) $file->getMimeType(), 'image/');
     }
 }

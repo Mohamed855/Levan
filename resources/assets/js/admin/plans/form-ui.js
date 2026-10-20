@@ -1,14 +1,17 @@
 'use strict';
 
-document.addEventListener('DOMContentLoaded', function () {
+function initPlanFormUI() {
   const form = document.querySelector('form[data-form-validate]');
   if (!form) return;
 
-  const getInput = (id) => document.getElementById(id);
+  const getInput = (id) => document.getElementById(id) || form.querySelector(`[name="${id}"]`);
   const getValue = (id, fallback = '') => getInput(id)?.value?.trim() || fallback;
   const getSelectLabel = (id, fallback = '') => {
-    const select = getInput(id);
-    return select?.options?.[select.selectedIndex]?.text?.trim() || select?.dataset.planLabel || fallback;
+    const select = getInput(id) || form.querySelector(`select[name="${id}"]`);
+    if (!select) return fallback;
+    const option = select.options?.[select.selectedIndex];
+    const text = option?.text?.trim();
+    return text || select.dataset.planLabel || fallback;
   };
   const setText = (card, field, value) => {
     card.querySelectorAll(`[data-plan-field="${field}"]`).forEach((element) => {
@@ -40,9 +43,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (window.jQuery) {
     const $ = window.jQuery;
+
+    // Listen to changes on all selects via jQuery (catches Select2 selection events)
+    $(form).on('change.planPreview select2:select select2:clear', 'select', function () {
+      if (this.id === 'limits_mode') {
+        toggleLimitsMode();
+      }
+      updatePackageCards();
+    });
+
     $(form).find('.select2').each(function () {
       const $select = $(this);
-      if ($select.hasClass('select2-hidden-accessible')) return;
+      const isColor = this.id === 'color';
+
+      if ($select.hasClass('select2-hidden-accessible')) {
+        if (isColor) {
+          $select.select2('destroy');
+        } else {
+          $select.on('change select2:select select2:clear', updatePackageCards);
+          return;
+        }
+      }
 
       $select.wrap('<div class="position-relative"></div>');
       const select2Options = {
@@ -54,13 +75,15 @@ document.addEventListener('DOMContentLoaded', function () {
         dir: 'rtl'
       };
 
-      if (this.id === 'color') {
+      if (isColor) {
         select2Options.templateResult = formatPlanColor;
         select2Options.templateSelection = formatPlanColor;
       }
 
-      $select.select2(select2Options).on('change', function () {
+      $select.select2(select2Options).on('change select2:select select2:clear', function () {
         this.dispatchEvent(new Event('input', { bubbles: true }));
+        this.dispatchEvent(new Event('change', { bubbles: true }));
+        updatePackageCards();
       });
     });
   }
@@ -178,6 +201,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (Object.prototype.hasOwnProperty.call(event.detail?.data || {}, 'features')) {
       restoreDraftFeatures(event.detail.data.features);
     }
+    updatePackageCards();
   });
 
   function renderFeatures(card) {
@@ -209,6 +233,62 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  function updatePlanReviewCards() {
+    const price = Number.parseFloat(getValue('price', '0')) || 0;
+    const discount = Math.min(100, Math.max(0, Number.parseFloat(getValue('discount_percentage', '0')) || 0));
+    const finalPrice = Math.max(0, price - (price * discount / 100));
+    const renewalPrice = Number.parseFloat(getValue('yearly_renewal_price', '0')) || 0;
+    const extraPrice = Number.parseFloat(getValue('extra_user_license_price', '0')) || 0;
+    const isUnlimited = getValue('limits_mode', 'limited') === 'unlimited';
+    const formatPrice = (value) => value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const limitValue = (id, suffix) => isUnlimited ? 'غير محدود' : `${getValue(id, '—')} ${suffix}`;
+
+    const setReview = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val || '—';
+    };
+
+    setReview('plan-review-name', getValue('name'));
+    setReview('plan-review-code', getValue('code'));
+    setReview('plan-review-type', getSelectLabel('plan_type'));
+    setReview('plan-review-color', getSelectLabel('color'));
+    setReview('plan-review-status', getSelectLabel('is_active', getValue('is_active') === '1' ? 'مفعل' : 'معطل'));
+    setReview('plan-review-available-from', getValue('available_from') || 'متاح فوراً');
+    setReview('plan-review-description', getValue('description'));
+
+    const featuresEl = document.getElementById('plan-review-features');
+    if (featuresEl) {
+      const features = Array.from(featuresList?.querySelectorAll('input[name*="features"]') ?? [])
+        .map((input) => input.value.trim())
+        .filter(Boolean);
+      if (features.length === 0) {
+        featuresEl.textContent = 'لا توجد ميزات مضافة';
+      } else {
+        featuresEl.replaceChildren();
+        features.forEach((feature) => {
+          const badge = document.createElement('span');
+          badge.className = 'badge bg-label-primary me-1 mb-1';
+          badge.textContent = feature;
+          featuresEl.appendChild(badge);
+        });
+      }
+    }
+
+    setReview('plan-review-price', `${formatPrice(price)} ر.س`);
+    setReview('plan-review-billing-cycle', getSelectLabel('subscription_billing_cycle'));
+    setReview('plan-review-discount', `${discount}%`);
+    setReview('plan-review-final-price', `${formatPrice(finalPrice)} ر.س`);
+    setReview('plan-review-renewal-price', renewalPrice > 0 ? `${formatPrice(renewalPrice)} ر.س` : 'غير محدد');
+
+    setReview('plan-review-limits-mode', isUnlimited ? 'غير محدود' : 'محدد');
+    setReview('plan-review-users', limitValue('included_users', 'مستخدم'));
+    setReview('plan-review-extra-user-price', isUnlimited ? 'غير مطبق' : `${formatPrice(extraPrice)} ر.س`);
+    setReview('plan-review-properties', limitValue('properties_limit', 'عقار'));
+    setReview('plan-review-storage', limitValue('storage_quota_gb', 'GB'));
+    setReview('plan-review-auctions', limitValue('active_auctions_limit', 'مزاد'));
+    setReview('plan-review-domain', getSelectLabel('domain_management_enabled', getValue('domain_management_enabled') === '1' ? 'مفعل' : 'معطل'));
+  }
+
   function updatePackageCards(event) {
     const cards = document.querySelectorAll('[data-package-card]');
     if (!cards.length) return;
@@ -219,9 +299,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const isUnlimited = getValue('limits_mode', 'limited') === 'unlimited';
     const formatPrice = (value) => value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const limitValue = (id, suffix) => isUnlimited ? 'غير محدود' : `${getValue(id, '—')} ${suffix}`;
+    const selectedColor = getValue('color', 'purple');
 
     cards.forEach((card) => {
-      card.dataset.planColor = getValue('color', 'purple');
+      card.dataset.planColor = selectedColor;
+      card.setAttribute('data-plan-color', selectedColor);
+
       setText(card, 'name', getValue('name', 'اسم الباقة'));
       setText(card, 'type', getSelectLabel('plan_type', 'باقة مخصصة'));
       setText(card, 'description', getValue('description', 'أضف وصفاً واضحاً يشرح قيمة الباقة لعملائك.'));
@@ -238,6 +321,8 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       renderFeatures(card);
     });
+
+    updatePlanReviewCards();
 
     const reviewStep = getInput('review-validation');
     const previewAside = document.querySelector('[data-package-preview-aside]');
@@ -279,6 +364,16 @@ document.addEventListener('DOMContentLoaded', function () {
   form.addEventListener('change', updatePackageCards);
   form.addEventListener('stepChanged', updatePackageCards);
 
+  if (window.jQuery) {
+    window.jQuery(form).on('input change select2:select select2:clear', updatePackageCards);
+  }
+
+  // Also bind directly on all inputs, selects, and textareas to guarantee reactivity
+  form.querySelectorAll('input, select, textarea').forEach((control) => {
+    control.addEventListener('input', updatePackageCards);
+    control.addEventListener('change', updatePackageCards);
+  });
+
   const stepperElement = document.getElementById('plan-wizard');
   if (stepperElement) {
     stepperElement.addEventListener('show.bs-stepper', updatePackageCards);
@@ -286,6 +381,11 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   toggleLimitsMode();
-  toggleBranchesLimit();
   updatePackageCards();
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initPlanFormUI);
+} else {
+  initPlanFormUI();
+}

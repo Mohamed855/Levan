@@ -75,7 +75,6 @@ class ClientsDataTable extends AbstractDataTable
             ['data' => 'tax_number', 'name' => 'tax_number', 'title' => 'الرقم الضريبي'],
             ['data' => 'commercial_number', 'name' => 'commercial_number', 'title' => 'السجل التجاري'],
             ['data' => 'plan', 'name' => 'plan', 'title' => 'الباقة الحالية', 'orderable' => false, 'searchable' => false],
-            ['data' => 'total_users', 'name' => 'total_users', 'title' => 'إجمالي المستخدمين', 'orderable' => false, 'searchable' => false],
             ['data' => 'used_users', 'name' => 'used_users', 'title' => 'المقاعد المستخدمة', 'orderable' => false, 'searchable' => false],
             ['data' => 'starts_at', 'name' => 'starts_at', 'title' => 'بداية آخر اشتراك', 'orderable' => false, 'searchable' => false],
             ['data' => 'ends_at', 'name' => 'ends_at', 'title' => 'نهاية آخر اشتراك', 'orderable' => false, 'searchable' => false],
@@ -104,7 +103,6 @@ class ClientsDataTable extends AbstractDataTable
                     .'</a>';
             })
             ->addColumn('plan', fn (Tenant $row) => $row->lastSubscription?->plan?->name ?: '-')
-            ->addColumn('total_users', fn (Tenant $row) => $row->lastSubscription ? ($row->lastSubscription->total_users ?: $row->lastSubscription->plan?->included_users ?: '-') : '-')
             ->addColumn('used_users', fn (Tenant $row) => $row->lastSubscription ? $row->lastSubscription->used_users : '-')
             ->addColumn('starts_at', fn (Tenant $row) => $row->lastSubscription?->starts_at?->format('Y-m-d') ?: '-')
             ->addColumn('ends_at', function (Tenant $row) {

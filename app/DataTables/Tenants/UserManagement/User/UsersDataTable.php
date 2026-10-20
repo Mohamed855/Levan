@@ -224,6 +224,17 @@ class UsersDataTable extends AbstractDataTable
 
     private function getAddButton(): array
     {
+        $canAdd = app(\App\Services\Tenants\Shared\CentralSubscriptionContextGateway::class)
+            ->canAddUser(User::query()->count());
+
+        if (! $canAdd) {
+            return [
+                'text' => '<i class="fas fa-plus-circle me-1"></i> إضافة مستخدم',
+                'className' => 'btn btn-secondary btn-add disabled',
+                'action' => "function(){ toastr.error('لا يمكن إضافة مستخدم جديد، لقد تم الوصول إلى الحد الأقصى للمستخدمين المسموح به في باقتك.'); }",
+            ];
+        }
+
         return [
             'text' => '<i class="fas fa-plus-circle me-1"></i> إضافة مستخدم',
             'className' => 'btn btn-primary btn-add',

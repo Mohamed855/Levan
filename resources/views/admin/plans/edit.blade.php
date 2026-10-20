@@ -191,12 +191,82 @@
             </x-form.wizard.step>
 
             <x-form.wizard.step id="review-validation" :fields="[]">
-                <div class="row justify-content-center">
-                    <div class="col-lg-7"><x-ui.package-card :plan="$plan"
-                            preview /><x-form.wizard.actions><x-form.wizard.previous-button />
-                            <div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.save-button /></div>
-                        </x-form.wizard.actions></div>
+                <div class="row g-4 mb-4 assignment-review">
+                    <div class="col-lg-9 d-flex flex-column gap-4">
+                        <x-form.wizard.review-card title="الأساسيات والميزات" step="1"
+                            class="assignment-review__card">
+                            <dl class="row mb-0 small">
+                                <dt class="col-5 text-muted">اسم الباقة</dt>
+                                <dd class="col-7 fw-semibold" id="plan-review-name">{{ $plan->name }}</dd>
+                                <dt class="col-5 text-muted">كود الباقة</dt>
+                                <dd class="col-7 fw-semibold font-monospace" id="plan-review-code">{{ $plan->code }}</dd>
+                                <dt class="col-5 text-muted">نوع الباقة</dt>
+                                <dd class="col-7 fw-semibold" id="plan-review-type">{{ $plan->plan_type?->label() ?? $plan->plan_type }}</dd>
+                                <dt class="col-5 text-muted">لون الباقة</dt>
+                                <dd class="col-7 fw-semibold" id="plan-review-color">{{ $plan->color?->label() ?? $plan->color }}</dd>
+                                <dt class="col-5 text-muted">حالة التفعيل</dt>
+                                <dd class="col-7 fw-semibold" id="plan-review-status">{{ $plan->is_active ? 'مفعل' : 'معطل' }}</dd>
+                                <dt class="col-5 text-muted">تاريخ بدء الإتاحة</dt>
+                                <dd class="col-7 fw-semibold" id="plan-review-available-from">{{ $plan->available_from ? $plan->available_from->format('Y-m-d') : 'متاح فوراً' }}</dd>
+                                <dt class="col-5 text-muted">الوصف</dt>
+                                <dd class="col-7 fw-semibold" id="plan-review-description">{{ $plan->description ?? '—' }}</dd>
+                                <dt class="col-5 text-muted">الميزات المشمولة</dt>
+                                <dd class="col-7" id="plan-review-features">
+                                    @foreach($plan->features ?? [] as $feature)
+                                        <span class="badge bg-label-primary me-1 mb-1">{{ $feature }}</span>
+                                    @endforeach
+                                </dd>
+                            </dl>
+                        </x-form.wizard.review-card>
+
+                        <x-form.wizard.review-card title="التسعير والفوترة" step="2"
+                            class="assignment-review__card">
+                            <dl class="row mb-0 small">
+                                <dt class="col-5 text-muted">السعر الأساسي</dt>
+                                <dd class="col-7 fw-semibold" id="plan-review-price">{{ number_format($plan->price, 2) }} ر.س</dd>
+                                <dt class="col-5 text-muted">دورة الفوترة الأساسية</dt>
+                                <dd class="col-7 fw-semibold" id="plan-review-billing-cycle">{{ $currentCycleLabel }}</dd>
+                                <dt class="col-5 text-muted">نسبة الخصم</dt>
+                                <dd class="col-7 fw-semibold" id="plan-review-discount">{{ $plan->discount_percentage }}%</dd>
+                                <dt class="col-5 text-muted">السعر بعد الخصم</dt>
+                                <dd class="col-7 fw-semibold text-primary" id="plan-review-final-price">{{ number_format($plan->price - ($plan->price * $plan->discount_percentage / 100), 2) }} ر.س</dd>
+                                <dt class="col-5 text-muted">سعر العرض السنوي</dt>
+                                <dd class="col-7 fw-semibold" id="plan-review-renewal-price">{{ $plan->yearly_renewal_price ? number_format($plan->yearly_renewal_price, 2) . ' ر.س' : 'غير محدد' }}</dd>
+                            </dl>
+                        </x-form.wizard.review-card>
+
+                        <x-form.wizard.review-card title="الحدود والصلاحيات" step="3"
+                            class="assignment-review__card">
+                            <dl class="row mb-0 small">
+                                <dt class="col-5 text-muted">وضع الحدود</dt>
+                                <dd class="col-7 fw-semibold" id="plan-review-limits-mode">{{ $plan->limits_mode?->label() ?? ($currentLimitsMode === 'unlimited' ? 'غير محدود' : 'محدد') }}</dd>
+                                <dt class="col-5 text-muted">عدد المستخدمين المشمولين</dt>
+                                <dd class="col-7 fw-semibold" id="plan-review-users">{{ $currentLimitsMode === 'unlimited' ? 'غير محدود' : ($plan->included_users . ' مستخدم') }}</dd>
+                                <dt class="col-5 text-muted">سعر ترخيص المستخدم الإضافي</dt>
+                                <dd class="col-7 fw-semibold" id="plan-review-extra-user-price">{{ $currentLimitsMode === 'unlimited' ? 'غير مطبق' : (number_format($plan->extra_user_license_price, 2) . ' ر.س') }}</dd>
+                                <dt class="col-5 text-muted">حد العقارات</dt>
+                                <dd class="col-7 fw-semibold" id="plan-review-properties">{{ $currentLimitsMode === 'unlimited' ? 'غير محدود' : ($plan->properties_limit . ' عقار') }}</dd>
+                                <dt class="col-5 text-muted">حصة التخزين</dt>
+                                <dd class="col-7 fw-semibold" id="plan-review-storage">{{ $currentLimitsMode === 'unlimited' ? 'غير محدود' : ($plan->storage_quota_gb . ' GB') }}</dd>
+                                <dt class="col-5 text-muted">حد المزادات النشطة</dt>
+                                <dd class="col-7 fw-semibold" id="plan-review-auctions">{{ $currentLimitsMode === 'unlimited' ? 'غير محدود' : ($plan->active_auctions_limit . ' مزاد') }}</dd>
+                                <dt class="col-5 text-muted">إدارة الدومينات</dt>
+                                <dd class="col-7 fw-semibold" id="plan-review-domain">{{ $plan->domain_management_enabled ? 'مفعل' : 'معطل' }}</dd>
+                            </dl>
+                        </x-form.wizard.review-card>
+                    </div>
+
+                    <div class="col-lg-3">
+                        <x-ui.package-card :plan="$plan" preview />
+                    </div>
                 </div>
+                <x-form.wizard.actions>
+                    <x-form.wizard.previous-button />
+                    <div class="d-flex gap-2">
+                        <x-form.wizard.draft-button />
+                        <x-form.wizard.save-button />
+                    </div>
+                </x-form.wizard.actions>
             </x-form.wizard.step>
         </form>
     </x-form.wizard.stepper>

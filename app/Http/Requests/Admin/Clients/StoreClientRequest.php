@@ -36,8 +36,7 @@ class StoreClientRequest extends WizardFormRequest
             // Step 3: Subscription & Payment
             'plan_id' => ['required', 'exists:plans,id'],
             'start_date' => ['required', 'date'],
-            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
-            'total_users' => ['nullable', 'integer', 'min:1'],
+            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'payment_type' => ['required', 'in:paid,unpaid,trial'],
             'payment_method' => ['nullable', 'required_if:payment_type,paid', 'in:bank_transfer,online,cash'],
             'receipt_upload' => [
@@ -84,6 +83,10 @@ class StoreClientRequest extends WizardFormRequest
             'password.confirmed' => 'تأكيد كلمة المرور غير متطابق',
             'plan_id.required' => 'يرجى اختيار الباقة',
             'start_date.required' => 'يرجى تحديد تاريخ البداية',
+            'start_date.date' => 'تاريخ البداية يجب أن يكون تاريخاً صالحاً',
+            'end_date.required' => 'يرجى تحديد تاريخ النهاية',
+            'end_date.date' => 'تاريخ النهاية يجب أن يكون تاريخاً صالحاً',
+            'end_date.after_or_equal' => 'تاريخ النهاية يجب أن يكون بعد تاريخ البداية أو مساوياً له',
             'payment_type.required' => 'يرجى تحديد حالة الدفع',
             'payment_method.required_if' => 'يرجى اختيار وسيلة الدفع',
             'receipt_upload.required' => 'يرجى رفع إيصال التحويل البنكي',
@@ -114,7 +117,6 @@ class StoreClientRequest extends WizardFormRequest
             'plan_id' => 'الباقة',
             'start_date' => 'تاريخ البداية',
             'end_date' => 'تاريخ النهاية',
-            'total_users' => 'إجمالي المستخدمين',
             'payment_type' => 'حالة الدفع',
             'payment_method' => 'وسيلة الدفع',
             'receipt_upload' => 'إيصال التحويل البنكي',

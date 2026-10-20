@@ -173,6 +173,7 @@
         "node-waves": "0.7.6",
         "nouislider": "15.7.2",
         "numeral": "2.0.6",
+        "pdfjs-dist": "^4.10.38",
         "pdfmake": "0.2.10",
         "perfect-scrollbar": "1.5.5",
         "plyr": "3.7.8",

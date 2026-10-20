@@ -144,3 +144,37 @@
     }
 }
 
+// Wizard Review Card & Preview Card (Golden Pattern & AGENTS.md Rule 7)
+.wizard-review-card,
+.assignment-review__card,
+.assignment-preview {
+    border: 1px solid rgba(29, 79, 68, 0.1);
+    box-shadow: 0 0.25rem 1rem rgba(34, 48, 62, 0.06);
+    border-radius: 0.75rem;
+    overflow: hidden;
+
+    .card-header {
+        border-bottom: 1px solid rgba(29, 79, 68, 0.08);
+        padding: 1rem 1.25rem;
+
+        h5 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--primary-color, #1D4F44);
+            margin-bottom: 0;
+        }
+    }
+
+    .card-body {
+        padding: 1.25rem;
+    }
+}
+
+.assignment-preview__image {
+    inline-size: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-start-start-radius: inherit;
+    border-start-end-radius: inherit;
+}
+
