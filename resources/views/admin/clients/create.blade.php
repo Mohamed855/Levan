@@ -196,7 +196,7 @@
                         <div class="row g-4">
                             <div class="col-12 col-lg-6">
                                 <div class="card border shadow-none h-100">
-                                    <div class="card-header bg-light">
+                                    <div class="card-header bg-secondary">
                                         <h6 class="mb-0"><i class="ti ti-building text-primary me-1"
                                                 aria-hidden="true"></i>بيانات العميل</h6>
                                     </div>
@@ -218,7 +218,7 @@
                             </div>
                             <div class="col-12 col-lg-6">
                                 <div class="card border shadow-none h-100">
-                                    <div class="card-header bg-light">
+                                    <div class="card-header bg-secondary">
                                         <h6 class="mb-0"><i class="ti ti-user text-primary me-1"
                                                 aria-hidden="true"></i>المستخدم المسؤول</h6>
                                     </div>
@@ -236,7 +236,7 @@
                             </div>
                             <div class="col-12 col-lg-6">
                                 <div class="card border shadow-none h-100">
-                                    <div class="card-header bg-light">
+                                    <div class="card-header bg-secondary">
                                         <h6 class="mb-0"><i class="ti ti-packages text-primary me-1"
                                                 aria-hidden="true"></i>الاشتراك والدفع</h6>
                                     </div>

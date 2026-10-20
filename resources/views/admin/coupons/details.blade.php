@@ -361,7 +361,7 @@
                                         </div>
                                     </div>
                                 @else
-                                    <div class="card border mb-0 bg-light">
+                                    <div class="card border mb-0 bg-secondary">
                                         <div class="card-body d-flex align-items-center py-3">
                                             <div
                                                 class="avatar avatar-md me-3 bg-secondary rounded-circle d-flex align-items-center justify-content-center">
@@ -448,7 +448,7 @@
                                 @foreach ($tenants as $tenant)
                                     <div class="card border mb-4">
                                         <div
-                                            class="card-header bg-light py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                            class="card-header bg-secondary py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
                                             <div class="d-flex align-items-center gap-2">
                                                 <div
                                                     class="avatar avatar-sm bg-label-primary rounded-circle d-flex align-items-center justify-content-center">

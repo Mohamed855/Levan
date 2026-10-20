@@ -73,7 +73,8 @@
                     {{-- الخطوة 2: ملفات القالب والإعدادات --}}
                     <x-form.wizard.step id="step-files" :fields="['file', 'thumbnail', 'is_active']">
                         <div class="row g-4">
-                            <x-form.controls.file name="file" id="file" label="ملف القالب (PDF أو صورة تصميم عالية الدقة)"
+                            <x-form.controls.file name="file" id="file"
+                                label="ملف القالب (PDF أو صورة تصميم عالية الدقة)"
                                 accept=".pdf,application/pdf,image/png,image/jpeg,image/webp" required col="col-md-6"
                                 help="يمكن رفع ملف PDF جاهز أو صورة تصميم عالية الدقة (PNG, JPG, WEBP). الحد الأقصى 30 ميجابايت." />
 
@@ -83,9 +84,10 @@
 
                             <div class="col-12">
                                 <div class="card border shadow-none mb-0">
-                                    <div class="card-header bg-light py-2">
+                                    <div class="card-header bg-secondary py-2">
                                         <h6 class="mb-0 fw-bold">
-                                            <i class="ti ti-list-check me-1 text-primary"></i>البيانات المطبوعة تلقائياً وفقاً لنوع القالب
+                                            <i class="ti ti-list-check me-1 text-primary"></i>البيانات المطبوعة تلقائياً
+                                            وفقاً لنوع القالب
                                         </h6>
                                     </div>
                                     <div class="card-body p-0">
@@ -93,7 +95,8 @@
                                             @foreach ($fieldGuide as $key => $guide)
                                                 <div class="accordion-item">
                                                     <h2 class="accordion-header" id="heading-{{ $key }}">
-                                                        <button class="accordion-button {{ $loop->first ? '' : 'collapsed' }} py-2"
+                                                        <button
+                                                            class="accordion-button {{ $loop->first ? '' : 'collapsed' }} py-2"
                                                             type="button" data-bs-toggle="collapse"
                                                             data-bs-target="#collapse-{{ $key }}"
                                                             aria-expanded="{{ $loop->first ? 'true' : 'false' }}">
@@ -192,9 +195,11 @@
                                     </div>
                                     <div class="card-body">
                                         <p class="mb-2" id="preview-template-status">
-                                            <span class="badge bg-label-success"><i class="ti ti-check me-1"></i>مفعل ومتاح للمستأجرين</span>
+                                            <span class="badge bg-label-success"><i class="ti ti-check me-1"></i>مفعل
+                                                ومتاح للمستأجرين</span>
                                         </p>
-                                        <p class="text-muted mb-0 small" id="preview-template-desc">وصف القالب وملاحظات التصميم</p>
+                                        <p class="text-muted mb-0 small" id="preview-template-desc">وصف القالب وملاحظات
+                                            التصميم</p>
                                     </div>
                                 </article>
                             </div>

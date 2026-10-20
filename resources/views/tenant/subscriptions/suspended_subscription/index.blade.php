@@ -113,7 +113,7 @@
                                         </div>
                                     @endif
                                     <div class="card-body p-4 d-flex flex-column">
-                                        <div class="text-center mb-4 py-4 bg-light">
+                                        <div class="text-center mb-4 py-4 bg-secondary">
                                             <div class="d-flex justify-content-center align-items-start mb-2">
                                                 <sup class="h5 text-muted mt-2"><span class="icon-saudi_riyal"></span></sup>
                                                 <h1 class="price-toggle price-monthly text-primary mb-0 mx-2 display-4 fw-bold"
@@ -137,7 +137,7 @@
                                         </div>
 
                                         <!-- Additional Licenses -->
-                                        <div class="mb-4 p-3 bg-light">
+                                        <div class="mb-4 p-3 bg-secondary">
                                             <label class="form-label fw-bold mb-2">
                                                 عدد التراخيص الإضافية
                                             </label>

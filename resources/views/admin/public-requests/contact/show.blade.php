@@ -45,7 +45,8 @@
                     </dl>
                     <hr>
                     <h6 class="mb-2">الرسالة</h6>
-                    <div class="bg-lighter rounded p-3" style="white-space: pre-wrap;">{{ $contactRequest->message }}</div>
+                    <div class="bg-secondary rounded p-3" style="white-space: pre-wrap;">{{ $contactRequest->message }}
+                    </div>
                 </div>
             </div>
         </div>

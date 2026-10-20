@@ -32,7 +32,7 @@
 
                 <div class="background-image-container"
                     style="position: relative; width: 100%; height: 100%; overflow: hidden;">
-                    <img src="{{ asset('static/dashboard/backgrounds/cta-bg-light3.png') }}" alt="صورة الغلاف"
+                    <img src="{{ asset('static/dashboard/backgrounds/cta-bg-secondary3.png') }}" alt="صورة الغلاف"
                         class="rounded-top" style="width: 100%; height: 143px !important; object-fit: cover;">
                 </div>
                 <div class="user-profile-header d-flex flex-column flex-lg-row text-sm-start text-center mb-5">
@@ -206,7 +206,7 @@
                                                     </div>
                                                     <div class="d-flex align-items-center gap-2">
                                                         <span class="text-muted small">الكود:</span>
-                                                        <code class="bg-light px-2 py-1 rounded fw-bold"
+                                                        <code class="bg-secondary px-2 py-1 rounded fw-bold"
                                                             style="font-size: 14px;">{{ $coupon->code }}</code>
                                                         <i class="ti ti-copy text-primary cursor-pointer"
                                                             onclick="navigator.clipboard.writeText('{{ $coupon->code }}')"

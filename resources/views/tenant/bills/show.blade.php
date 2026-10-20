@@ -17,7 +17,7 @@
 
             <div class="card border-0 shadow-sm">
                 {{-- رأس الفاتورة --}}
-                <div class="card-body border-bottom bg-light-subtle rounded-top p-4">
+                <div class="card-body border-bottom bg-secondary-subtle rounded-top p-4">
                     <div class="d-flex justify-content-between flex-wrap gap-3">
                         <div class="d-flex gap-2 align-items-center">
                             {{-- <div class="app-brand-logo">
@@ -102,7 +102,7 @@
 
                     <div class="row g-1">
                         <div class="col-lg-12">
-                            <div class="border rounded p-3 bg-light-subtle h-100">
+                            <div class="border rounded p-3 bg-secondary-subtle h-100">
 
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>المجموع </span>
@@ -154,7 +154,7 @@
                 </div>
 
                 {{-- ملاحظات ختامية --}}
-                <div class="card-body border-top bg-light-subtle rounded-bottom">
+                <div class="card-body border-top bg-secondary-subtle rounded-bottom">
                     <p class="text-muted mb-0">
                         شكرًا لاستخدامكم <strong>{{ $settings->office_name }}</strong>. نتطلع لخدمتكم دائمًا.
                     </p>

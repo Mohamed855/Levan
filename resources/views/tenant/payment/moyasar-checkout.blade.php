@@ -31,7 +31,7 @@
                         </div>
 
                         <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center bg-lighter rounded p-3 mb-5">
+                            <div class="d-flex justify-content-between align-items-center bg-secondary rounded p-3 mb-5">
                                 <span class="text-muted">إجمالي الفاتورة</span>
                                 <span class="h5 mb-0">{{ number_format($amount ?? $bill->amount, 2) }} <span
                                         class="icon-saudi_riyal fs-6"></span></span>

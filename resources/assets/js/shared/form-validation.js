@@ -921,6 +921,7 @@ async function validateFields(form, fieldNames, { force = false } = {}) {
     }
 
     if (response.ok && payload.success) {
+      state.lastValidationErrors = null;
       fields.forEach((field) => setFieldValid(form, field));
       state.successfulValidations.set(requestKey, requestSignature);
       return true;
@@ -929,6 +930,7 @@ async function validateFields(form, fieldNames, { force = false } = {}) {
     state.successfulValidations.delete(requestKey);
 
     const errors = payload.errors || {};
+    state.lastValidationErrors = errors;
     fields.forEach((field) => {
       const hasError = Object.keys(errors).some((errorField) => fieldMatches(errorField, field));
       if (!hasError) {
@@ -1053,7 +1055,10 @@ function initStepper(form) {
             const visibleError = currentStep.querySelector(
               '[data-form-error]:not([hidden]):not([style*="display: none"]), .invalid-feedback:not([hidden]):not([style*="display: none"]), .is-invalid [data-form-error]'
             );
-            const errorMessage = visibleError?.textContent?.trim() || 'يرجى تصحيح الأخطاء قبل الانتقال للخطوة التالية.';
+            const serverErrors = state.lastValidationErrors ? Object.values(state.lastValidationErrors).flat().filter(Boolean) : [];
+            const boundaryInput = currentStep.querySelector('input[name="boundary_geojson"]');
+            const boundaryError = (boundaryInput && !boundaryInput.value) ? 'برجاء تحديد حدود العقار علي الصورة الجوية.' : null;
+            const errorMessage = visibleError?.textContent?.trim() || boundaryError || serverErrors[0] || 'يرجى تصحيح الأخطاء قبل الانتقال للخطوة التالية.';
             if (window.toastr?.error) {
               window.toastr.error(errorMessage);
             }

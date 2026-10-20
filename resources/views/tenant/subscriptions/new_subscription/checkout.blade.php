@@ -47,7 +47,8 @@
                                     <i class="ti ti-shield-lock fs-4"></i>
                                     <div>
                                         <h6 class="alert-heading mb-1">الدفع الآمن بالبطاقة</h6>
-                                        <p class="mb-0">بعد مراجعة الطلب ستنتقل إلى نموذج Moyasar الآمن لإدخال بيانات البطاقة مباشرة.</p>
+                                        <p class="mb-0">بعد مراجعة الطلب ستنتقل إلى نموذج Moyasar الآمن لإدخال بيانات
+                                            البطاقة مباشرة.</p>
                                     </div>
                                 </div>
                             </div>
@@ -81,8 +82,8 @@
                                 <!-- قسم الكوبون -->
                                 <div class="mb-4">
                                     <div class="d-flex gap-2">
-                                        <input type="text" id="coupon_code_input" name="coupon_code_display" data-validation-skip
-                                            class="form-control" placeholder="أدخل كود الخصم">
+                                        <input type="text" id="coupon_code_input" name="coupon_code_display"
+                                            data-validation-skip class="form-control" placeholder="أدخل كود الخصم">
 
                                         <button type="button" id="apply-coupon-btn" class="btn btn-outline-primary">
                                             <i class="ti ti-discount-2 me-1"></i>
@@ -147,7 +148,7 @@
                                         </button>
                                     </div>
 
-                                    <div class="mt-6 p-3 bg-light rounded">
+                                    <div class="mt-6 p-3 bg-secondary rounded">
                                         <p class="mb-2 text-muted small">
                                             <i class="ti ti-lock text-success me-2"></i>
                                             حماية وأمان البيانات والخصوصية

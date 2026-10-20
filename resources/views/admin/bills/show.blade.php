@@ -18,7 +18,7 @@
             <div class="card border-0 shadow-sm">
 
                 {{-- هيدر الفاتورة --}}
-                <div class="card-body border-bottom bg-light-subtle rounded-top p-4">
+                <div class="card-body border-bottom bg-secondary-subtle rounded-top p-4">
                     <div class="d-flex justify-content-between flex-wrap gap-3">
                         <div class="d-flex gap-2 align-items-center">
                             <div>
@@ -78,7 +78,7 @@
                         </div>
                     @endif
 
-                    <div class="border rounded p-3 bg-light-subtle">
+                    <div class="border rounded p-3 bg-secondary-subtle">
                         <div class="d-flex justify-content-between mb-2">
                             <span class="text-muted">المجموع قبل الضريبة</span>
                             <span class="fw-medium">
@@ -143,7 +143,7 @@
                 @endif
 
                 {{-- فوتر --}}
-                <div class="card-body border-top bg-light-subtle rounded-bottom text-center">
+                <div class="card-body border-top bg-secondary-subtle rounded-bottom text-center">
                     <p class="text-muted mb-0 small">
                         شكرًا لاستخدامكم <strong>{{ $settings->office_name }}</strong>. نتطلع لخدمتكم دائمًا.
                     </p>
@@ -277,14 +277,16 @@
                 </div>
 
                 {{-- Modal الرفض --}}
-                <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+                <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel"
+                    aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="rejectModalLabel">
                                     <i class="ti ti-ban text-danger me-2"></i>تأكيد الرفض
                                 </h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="إغلاق"></button>
                             </div>
                             <form action="{{ route('admin.bills.reject', $bill->id) }}" method="POST">
                                 @csrf
@@ -295,7 +297,8 @@
                                         placeholder="يرجى كتابة سبب رفض الفاتورة..." required></textarea>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
+                                    <button type="button" class="btn btn-label-secondary"
+                                        data-bs-dismiss="modal">إلغاء</button>
                                     <button type="submit" class="btn btn-danger">تأكيد الرفض</button>
                                 </div>
                             </form>

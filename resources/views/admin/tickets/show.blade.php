@@ -54,7 +54,7 @@
                 </div>
                 <div class="card-body pt-4">
                     <h6 class="fw-bold mb-2">{{ $ticket->title }}</h6>
-                    <div class="p-3 bg-lighter rounded mb-3 text-secondary"
+                    <div class="p-3 bg-secondary rounded mb-3 text-secondary"
                         style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6;">{{ $ticket->description }}
                     </div>
 
@@ -88,7 +88,7 @@
                                 $isAdmin = in_array($reply->sender_type, ['support_user', 'admin']);
                             @endphp
                             <div class="d-flex {{ $isAdmin ? 'justify-content-start' : 'justify-content-end' }} mb-4">
-                                <div class="card border {{ $isAdmin ? 'bg-primary-subtle border-primary' : 'bg-light border-secondary' }} shadow-none"
+                                <div class="card border {{ $isAdmin ? 'bg-primary-subtle border-primary' : 'bg-secondary border-secondary' }} shadow-none"
                                     style="max-width: 80%;">
                                     <div class="card-body p-3">
                                         <div class="d-flex justify-content-between align-items-center mb-2 gap-3">
@@ -312,7 +312,7 @@
                         <div class="d-flex flex-column gap-2">
                             @foreach ($allAttachments as $attachment)
                                 <a href="{{ $attachment['url'] }}" target="_blank"
-                                    class="d-flex align-items-center justify-content-between p-2 border rounded text-decoration-none text-body bg-light">
+                                    class="d-flex align-items-center justify-content-between p-2 border rounded text-decoration-none text-body bg-secondary">
                                     <div class="d-flex align-items-center text-truncate me-2">
                                         <i class="ti ti-paperclip text-primary me-2"></i>
                                         <div class="d-flex flex-column text-truncate">
@@ -365,7 +365,7 @@
                             </div>
                         @endif
                         @if (!empty($ticket->survey_result['comment']))
-                            <div class="mt-2 p-2 bg-light rounded small">
+                            <div class="mt-2 p-2 bg-secondary rounded small">
                                 <em>"{{ $ticket->survey_result['comment'] }}"</em>
                             </div>
                         @endif

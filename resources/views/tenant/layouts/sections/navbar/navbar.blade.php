@@ -76,7 +76,7 @@
                         @can('system.settings')
                             <div class="col-12">
                                 <a href="{{ tenant_route_name('settings.index') }}"
-                                    class="d-flex align-items-center p-3 border rounded hover-bg-light text-decoration-none">
+                                    class="d-flex align-items-center p-3 border rounded hover-bg-secondary text-decoration-none">
                                     <div class="avatar avatar-md me-3">
                                         <span class="avatar-initial rounded bg-label-primary">
                                             <i class="ti ti-settings ti-lg"></i>
@@ -95,7 +95,7 @@
                         @can('users.view')
                             <div class="col-6">
                                 <a href="{{ tenant_route_name('users.index') }}"
-                                    class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
+                                    class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
                                     <div class="avatar avatar-md mx-auto mb-2">
                                         <span class="avatar-initial rounded bg-label-success">
                                             <i class="ti ti-users ti-lg"></i>
@@ -109,7 +109,7 @@
                         @can('roles.view')
                             <div class="col-6">
                                 <a href="{{ tenant_route_name('roles.index') }}"
-                                    class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
+                                    class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
                                     <div class="avatar avatar-md mx-auto mb-2">
                                         <span class="avatar-initial rounded bg-label-info">
                                             <i class="ti ti-shield-lock ti-lg"></i>
@@ -124,7 +124,7 @@
                         @can('activity_log.view')
                             <div class="col-6">
                                 <a href="{{ tenant_route_name('activity-logs.index') }}"
-                                    class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
+                                    class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
                                     <div class="avatar avatar-md mx-auto mb-2">
                                         <span class="avatar-initial rounded bg-label-warning">
                                             <i class="ti ti-activity ti-lg"></i>
@@ -138,7 +138,7 @@
                         @can('message_logs.view')
                             <div class="col-6">
                                 <a href="{{ tenant_route_name('communication.message-individual-logs.index') }}"
-                                    class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
+                                    class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
                                     <div class="avatar avatar-md mx-auto mb-2">
                                         <span class="avatar-initial rounded bg-label-info">
                                             <i class="ti ti-message ti-lg"></i>
@@ -152,7 +152,7 @@
                         @can('subscriptions.view')
                             <div class="col-6">
                                 <a href="{{ tenant_route_name('subscriptions.index') }}"
-                                    class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
+                                    class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
                                     <div class="avatar avatar-md mx-auto mb-2">
                                         <span class="avatar-initial rounded bg-secondary">
                                             <i class="ti ti-settings-cog ti-lg"></i>
@@ -167,7 +167,7 @@
                         @can('bills.view')
                             <div class="col-12">
                                 <a href="{{ tenant_route_name('bills.index') }}"
-                                    class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
+                                    class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
                                     <div class="avatar avatar-md mx-auto mb-2">
                                         <span class="avatar-initial rounded bg-label-primary">
                                             <i class="ti ti-receipt ti-lg"></i>
@@ -199,8 +199,8 @@
         <!-- Notification -->
         <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-2 me-xl-2">
             <a class="nav-link btn btn-text-secondary btn-icon rounded-pill dropdown-toggle hide-arrow"
-                href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside"
-                aria-expanded="false" id="notificationDropdown">
+                href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"
+                id="notificationDropdown">
                 <span class="position-relative">
                     <i class="ti ti-bell ti-md"></i>
                     <span class="badge rounded-pill bg-danger badge-dot badge-notifications border"

@@ -15,15 +15,25 @@
 @endsection
 
 @php
-    $companyOptions = $companies->map(fn($c) => [
-        'value' => $c->id,
-        'label' => $c->company_name . ' (' . ($c->commercial_number ?? $c->id) . ')'
-    ])->values()->all();
+    $companyOptions = $companies
+        ->map(
+            fn($c) => [
+                'value' => $c->id,
+                'label' => $c->company_name . ' (' . ($c->commercial_number ?? $c->id) . ')',
+            ],
+        )
+        ->values()
+        ->all();
 
-    $planOptions = $plans->map(fn($p) => [
-        'value' => $p->id,
-        'label' => $p->name . ' (' . number_format($p->price_after_discount, 2) . ' ر.س)'
-    ])->values()->all();
+    $planOptions = $plans
+        ->map(
+            fn($p) => [
+                'value' => $p->id,
+                'label' => $p->name . ' (' . number_format($p->price_after_discount, 2) . ' ر.س)',
+            ],
+        )
+        ->values()
+        ->all();
 @endphp
 
 @section('page-script')
@@ -73,14 +83,14 @@
                     <x-form.wizard.step id="step-company-plan" :fields="['company_id', 'plan_id']">
                         <div class="row g-4">
                             <!-- اختيار الشركة -->
-                            <x-form.controls.select name="company_id" id="company_id" label="الشركة المستفيدة"
-                                required :options="$companyOptions" placeholder="اختر الشركة (فقط الشركات ذات الاشتراكات المنتهية)"
+                            <x-form.controls.select name="company_id" id="company_id" label="الشركة المستفيدة" required
+                                :options="$companyOptions" placeholder="اختر الشركة (فقط الشركات ذات الاشتراكات المنتهية)"
                                 help="يتم عرض الشركات التي ليس لها اشتراك حالي أو انتهت صلاحية آخر اشتراك لها فقط."
                                 col="col-md-6" />
 
                             <!-- اختيار الباقة -->
-                            <x-form.controls.select name="plan_id" id="plan_id" label="الباقة المطلوبة"
-                                required :options="$planOptions" placeholder="اختر الباقة" col="col-md-6" />
+                            <x-form.controls.select name="plan_id" id="plan_id" label="الباقة المطلوبة" required
+                                :options="$planOptions" placeholder="اختر الباقة" col="col-md-6" />
 
                             <!-- بطاقة بيانات الشركة المحددة (للقراءة فقط) -->
                             <div class="col-12" id="company-details-card" style="display: none;">
@@ -108,7 +118,8 @@
                                             </div>
                                             <div class="col-12 mt-2 pt-2 border-top border-primary">
                                                 <small class="text-muted d-block">آخر اشتراك للشركة:</small>
-                                                <span class="fw-semibold" id="company-last-sub-text">لا يوجد اشتراك سابق</span>
+                                                <span class="fw-semibold" id="company-last-sub-text">لا يوجد اشتراك
+                                                    سابق</span>
                                             </div>
                                         </div>
                                     </div>
@@ -123,17 +134,20 @@
                                 <div class="row g-4">
                                     <x-form.controls.input name="sub_plan_users_display" id="sub_plan_users_display"
                                         label="عدد المستخدمين المسموح به" value="-" readonly disabled col="col-md-6"
-                                        class="bg-light" />
-                                    <x-form.controls.input name="sub_plan_properties_display" id="sub_plan_properties_display"
-                                        label="حد العقارات" value="-" readonly disabled col="col-md-6" class="bg-light" />
+                                        class="bg-secondary" />
+                                    <x-form.controls.input name="sub_plan_properties_display"
+                                        id="sub_plan_properties_display" label="حد العقارات" value="-" readonly
+                                        disabled col="col-md-6" class="bg-secondary" />
                                     <x-form.controls.input name="sub_plan_storage_display" id="sub_plan_storage_display"
-                                        label="المساحة التخزينية" value="-" readonly disabled col="col-md-6" class="bg-light" />
+                                        label="المساحة التخزينية" value="-" readonly disabled col="col-md-6"
+                                        class="bg-secondary" />
                                     <x-form.controls.input name="sub_plan_auctions_display" id="sub_plan_auctions_display"
-                                        label="المزادات النشطة" value="-" readonly disabled col="col-md-6" class="bg-light" />
+                                        label="المزادات النشطة" value="-" readonly disabled col="col-md-6"
+                                        class="bg-secondary" />
                                     <div class="col-12">
                                         <label class="form-label">المميزات والخصائص المضمنة:</label>
                                         <div id="sub_plan_features_display"
-                                            class="d-flex flex-wrap gap-1 p-2 bg-light rounded min-h-px-40">
+                                            class="d-flex flex-wrap gap-1 p-2 bg-secondary rounded min-h-px-40">
                                             <span class="text-muted">اختر الباقة لعرض مميزاتها</span>
                                         </div>
                                     </div>
@@ -172,8 +186,7 @@
                             <!-- تاريخ النهاية -->
                             <x-form.controls.input type="date" name="end_date" id="sub_end_date"
                                 label="تاريخ نهاية الاشتراك"
-                                help="يتم احتسابه تلقائياً بناءً على دورة الفوترة للباقة ويمكن تعديله"
-                                col="col-md-6" />
+                                help="يتم احتسابه تلقائياً بناءً على دورة الفوترة للباقة ويمكن تعديله" col="col-md-6" />
 
                             <!-- حالة الدفع -->
                             <x-form.controls.select name="payment_type" id="sub_payment-status" label="حالة الدفع"
@@ -233,7 +246,7 @@
                             <!-- ملخص الشركة -->
                             <div class="col-md-6">
                                 <div class="card border h-100 shadow-none">
-                                    <div class="card-header bg-light py-2">
+                                    <div class="card-header bg-secondary py-2">
                                         <h6 class="mb-0 fw-bold"><i class="ti ti-building me-1"></i> الشركة المستفيدة</h6>
                                     </div>
                                     <div class="card-body pt-3">
@@ -256,7 +269,8 @@
                                             </tr>
                                             <tr>
                                                 <td class="text-muted ps-0">آخر اشتراك منتهٍ:</td>
-                                                <td class="fw-semibold text-end text-danger" id="sub_review-last-sub">-</td>
+                                                <td class="fw-semibold text-end text-danger" id="sub_review-last-sub">-
+                                                </td>
                                             </tr>
                                         </table>
                                     </div>
@@ -266,14 +280,16 @@
                             <!-- ملخص الباقة والحدود -->
                             <div class="col-md-6">
                                 <div class="card border h-100 shadow-none">
-                                    <div class="card-header bg-light py-2">
-                                        <h6 class="mb-0 fw-bold"><i class="ti ti-package me-1"></i> تفاصيل الباقة والحدود</h6>
+                                    <div class="card-header bg-secondary py-2">
+                                        <h6 class="mb-0 fw-bold"><i class="ti ti-package me-1"></i> تفاصيل الباقة والحدود
+                                        </h6>
                                     </div>
                                     <div class="card-body pt-3">
                                         <table class="table table-sm table-borderless mb-0">
                                             <tr>
                                                 <td class="text-muted ps-0">الباقة:</td>
-                                                <td class="fw-semibold text-end text-primary" id="sub_review-plan-name">-</td>
+                                                <td class="fw-semibold text-end text-primary" id="sub_review-plan-name">-
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td class="text-muted ps-0">عدد المستخدمين:</td>
@@ -303,8 +319,9 @@
                             <!-- ملخص الاشتراك والدفع -->
                             <div class="col-12">
                                 <div class="card border shadow-none">
-                                    <div class="card-header bg-light py-2">
-                                        <h6 class="mb-0 fw-bold"><i class="ti ti-file-invoice me-1"></i> مدة الاشتراك والمالية</h6>
+                                    <div class="card-header bg-secondary py-2">
+                                        <h6 class="mb-0 fw-bold"><i class="ti ti-file-invoice me-1"></i> مدة الاشتراك
+                                            والمالية</h6>
                                     </div>
                                     <div class="card-body pt-3">
                                         <div class="row g-4">
@@ -326,11 +343,13 @@
                                             </div>
                                             <div class="col-md-6 mt-3 pt-3 border-top">
                                                 <small class="text-muted d-block">حالة التفعيل المتوقعة</small>
-                                                <span id="sub_review-activation-status" class="badge bg-label-success">مفعل فوراً</span>
+                                                <span id="sub_review-activation-status"
+                                                    class="badge bg-label-success">مفعل فوراً</span>
                                             </div>
                                             <div class="col-md-6 mt-3 pt-3 border-top text-md-end">
                                                 <small class="text-muted d-block">المبلغ الإجمالي النهائي</small>
-                                                <span class="h4 fw-bold text-primary mb-0" id="sub_review-final-total">0.00 ر.س</span>
+                                                <span class="h4 fw-bold text-primary mb-0"
+                                                    id="sub_review-final-total">0.00 ر.س</span>
                                             </div>
                                         </div>
                                     </div>
@@ -342,7 +361,8 @@
                             <x-form.wizard.previous-button />
                             <div class="d-flex gap-2">
                                 <x-form.wizard.draft-button />
-                                <x-form.wizard.save-button text="اعتماد وإنشاء الاشتراك" class="btn-success btn-lg" id="btn-submit-subscription" />
+                                <x-form.wizard.save-button text="اعتماد وإنشاء الاشتراك" class="btn-success btn-lg"
+                                    id="btn-submit-subscription" />
                             </div>
                         </x-form.wizard.actions>
                     </x-form.wizard.step>

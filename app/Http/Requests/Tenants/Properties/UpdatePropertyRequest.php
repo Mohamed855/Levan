@@ -13,6 +13,7 @@ use App\Enums\Tenants\Properties\PropertyUnitType;
 use App\Enums\Tenants\Properties\PropertyUnitUsage;
 use App\Enums\Tenants\Properties\PropertyUsageClassification;
 use App\Http\Requests\Concerns\WizardFormRequest;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\Rule;
 
 class UpdatePropertyRequest extends WizardFormRequest
@@ -64,7 +65,7 @@ class UpdatePropertyRequest extends WizardFormRequest
             'aerial_image' => [
                 'nullable',
                 function ($attribute, $value, $fail) {
-                    if ($value instanceof \Illuminate\Http\UploadedFile) {
+                    if ($value instanceof UploadedFile) {
                         if (! $value->isValid() || ! in_array($value->getMimeType(), ['image/jpeg', 'image/png', 'image/webp'])) {
                             $fail('يجب أن تكون صورة العقار المحددة صورة صالحة (JPG, PNG, WEBP).');
                         }
@@ -138,8 +139,8 @@ class UpdatePropertyRequest extends WizardFormRequest
             'administrative_region.required' => 'المنطقة الإدارية مطلوبة.',
             'plan_number.required' => 'رقم المخطط مطلوب.',
             'parcel_number.required' => 'رقم القطعة مطلوب.',
-            'boundary_geojson.required' => 'يجب تحديد مضلع حدود العقار على الصورة.',
-            'boundary_geojson.coordinates.0.min' => 'يجب أن يحتوي تحديد العقار على ثلاث نقاط على الأقل لتكوين مضلع.',
+            'boundary_geojson.required' => 'برجاء تحديد حدود العقار علي الصورة الجوية.',
+            'boundary_geojson.coordinates.0.min' => 'برجاء تحديد حدود العقار علي الصورة الجوية.',
             'deed_number.required' => 'رقم الصك مطلوب.',
             'deed_date.required' => 'تاريخ الصك مطلوب.',
             'issuing_authority.required' => 'جهة إصدار الصك مطلوبة.',

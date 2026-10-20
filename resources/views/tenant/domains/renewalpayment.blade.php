@@ -62,7 +62,7 @@
                                 @endfor
                             </div>
 
-                            <div class="bg-lighter rounded p-3 mt-5 d-flex align-items-center justify-content-between">
+                            <div class="bg-secondary rounded p-3 mt-5 d-flex align-items-center justify-content-between">
                                 <span class="text-muted">إجمالي الخيار الحالي</span>
                                 <strong>{{ number_format($selectedTotal, 2) }} <span
                                         class="icon-saudi_riyal fs-6"></span></strong>

@@ -40,7 +40,8 @@
                                     <i class="ti ti-shield-lock fs-4"></i>
                                     <div>
                                         <h6 class="alert-heading mb-1">الدفع الآمن بالبطاقة</h6>
-                                        <p class="mb-0">بعد مراجعة الفاتورة ستنتقل إلى نموذج Moyasar الآمن لإدخال بيانات البطاقة مباشرة.</p>
+                                        <p class="mb-0">بعد مراجعة الفاتورة ستنتقل إلى نموذج Moyasar الآمن لإدخال بيانات
+                                            البطاقة مباشرة.</p>
                                     </div>
                                 </div>
                             </div>
@@ -126,7 +127,7 @@
                                         </button>
                                     </div>
 
-                                    <div class="mt-6 p-3 bg-light rounded">
+                                    <div class="mt-6 p-3 bg-secondary rounded">
                                         <p class="mb-2 text-muted small">
                                             <i class="ti ti-lock text-success me-2"></i>
                                             حماية وأمان البيانات والخصوصية

@@ -76,7 +76,7 @@
                     @can('system.settings')
                         <div class="col-12">
                             <a href="{{ route('admin.settings.index') }}"
-                                class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
+                                class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
                                 <div class="avatar avatar-md mx-auto mb-2">
                                     <span class="avatar-initial rounded bg-label-primary">
                                         <i class="ti ti-settings ti-lg"></i>
@@ -91,7 +91,7 @@
                     @can('roles.view')
                         <div class="col-6">
                             <a href="{{ route('admin.roles.index') }}"
-                                class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
+                                class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
                                 <div class="avatar avatar-md mx-auto mb-2">
                                     <span class="avatar-initial rounded bg-label-info">
                                         <i class="ti ti-shield-lock ti-lg"></i>
@@ -106,7 +106,7 @@
                     @can('activity_log.view')
                         <div class="col-6">
                             <a href="{{ route('admin.activity-logs.index') }}"
-                                class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
+                                class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
                                 <div class="avatar avatar-md mx-auto mb-2">
                                     <span class="avatar-initial rounded bg-label-warning">
                                         <i class="ti ti-activity ti-lg"></i>
@@ -121,7 +121,7 @@
                     @can('domain_extension_prices.settings')
                         <div class="col-6">
                             <a href="{{ route('admin.settings.domains.index') }}"
-                                class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
+                                class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
                                 <div class="avatar avatar-md mx-auto mb-2">
                                     <span class="avatar-initial rounded bg-secondary">
                                         <i class="ti ti-world ti-lg"></i>
@@ -136,7 +136,7 @@
                     @can('bank_settings.view')
                         <div class="col-6">
                             <a href="{{ route('admin.settings.banks.index') }}"
-                                class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
+                                class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
                                 <div class="avatar avatar-md mx-auto mb-2">
                                     <span class="avatar-initial rounded bg-secondary">
                                         <i class="ti ti-building-bank ti-lg"></i>
@@ -164,25 +164,25 @@
                             <div class="row g-2">
                                 <div class="col-6">
                                     <a href="{{ route('admin.archives.index') }}"
-                                        class="d-block p-2 text-center border rounded hover-bg-light text-decoration-none">
+                                        class="d-block p-2 text-center border rounded hover-bg-secondary text-decoration-none">
                                         <small class="text-muted">المستخدمين</small>
                                     </a>
                                 </div>
                                 <div class="col-6">
                                     <a href="{{ route('admin.archives.plans.index') }}"
-                                        class="d-block p-2 text-center border rounded hover-bg-light text-decoration-none">
+                                        class="d-block p-2 text-center border rounded hover-bg-secondary text-decoration-none">
                                         <small class="text-muted">الباقات</small>
                                     </a>
                                 </div>
                                 <div class="col-6">
                                     <a href="{{ route('admin.archives.coupons.index') }}"
-                                        class="d-block p-2 text-center border rounded hover-bg-light text-decoration-none">
+                                        class="d-block p-2 text-center border rounded hover-bg-secondary text-decoration-none">
                                         <small class="text-muted">الكوبونات</small>
                                     </a>
                                 </div>
                                 <div class="col-6">
                                     <a href="{{ route('admin.archives.tenants.index') }}"
-                                        class="d-block p-2 text-center border rounded hover-bg-light text-decoration-none">
+                                        class="d-block p-2 text-center border rounded hover-bg-secondary text-decoration-none">
                                         <small class="text-muted">الشركات</small>
                                     </a>
                                 </div>
@@ -199,8 +199,7 @@
         <!-- Notification -->
         <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-2 me-xl-2">
             <a class="nav-link btn btn-text-secondary btn-icon rounded-pill dropdown-toggle hide-arrow"
-                href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside"
-                aria-expanded="false">
+                href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                 <span class="position-relative">
                     <i class="ti ti-bell ti-md"></i>
                     <span class="badge rounded-pill bg-danger badge-dot badge-notifications border"></span>

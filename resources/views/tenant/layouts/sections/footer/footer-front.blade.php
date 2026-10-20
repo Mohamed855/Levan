@@ -1,10 +1,9 @@
 <!-- Footer: Start -->
 <footer class="landing-footer bg-body footer-text">
     <div class="footer-top position-relative overflow-hidden z-1">
-        <img src="{{ asset('static/dashboard/backgrounds/cta-bg-light3.png') }}"
-            alt="footer bg" class="footer-bg banner-bg-img z-n1"
-            data-app-light-img="backgrounds/cta-bg-light3.png"
-            data-app-dark-img="backgrounds/cta-bg-light3.png" />
+        <img src="{{ asset('static/dashboard/backgrounds/cta-bg-secondary3.png') }}" alt="footer bg"
+            class="footer-bg banner-bg-img z-n1" data-app-light-img="backgrounds/cta-bg-secondary3.png"
+            data-app-dark-img="backgrounds/cta-bg-secondary3.png" />
         <div class="container">
             <div class="row gx-0 gy-6 g-lg-10">
                 <div class="col-lg-5">
