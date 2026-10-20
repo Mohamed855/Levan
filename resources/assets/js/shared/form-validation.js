@@ -269,6 +269,13 @@ function parseDependencies(control) {
     .filter(Boolean);
 }
 
+function passwordConfirmationDependencies(control) {
+  const name = String(control.name || '');
+  const suffix = '_confirmation';
+
+  return name.endsWith(suffix) ? [name.slice(0, -suffix.length)] : [];
+}
+
 function getTargetMethod(form) {
   return String(
     form.dataset.validationMethod ||
@@ -728,8 +735,9 @@ function validateControlClientSide(form, control) {
     }
 
     // Password confirmation match
-    if (name === 'password_confirmation') {
-      const pwd = form.querySelector('[name="password"]')?.value;
+    const [passwordField] = passwordConfirmationDependencies(control);
+    if (passwordField) {
+      const pwd = form.querySelector(`[name="${CSS.escape(passwordField)}"]`)?.value;
       if (pwd && value !== pwd) {
         setFieldError(form, name, 'تأكيد كلمة المرور غير مطابق');
         return false;
@@ -797,9 +805,9 @@ function isStepValid(form, step) {
       if (control.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
         return false;
       }
-      if (control.name === 'password_confirmation') {
-
-        const pwd = form.querySelector('[name="password"]')?.value;
+      const [passwordField] = passwordConfirmationDependencies(control);
+      if (passwordField) {
+        const pwd = form.querySelector(`[name="${CSS.escape(passwordField)}"]`)?.value;
         if (pwd && val !== pwd) {
           return false;
         }
@@ -1126,7 +1134,13 @@ function initForm(form) {
   initSelect2Controls(form);
 
   const getStepForControl = (control) => control.closest('[data-form-step], .content');
-  const validationFieldsForControl = (control) => [control.name, ...parseDependencies(control)];
+  const validationFieldsForControl = (control) => [
+    ...new Set([
+      control.name,
+      ...parseDependencies(control),
+      ...passwordConfirmationDependencies(control),
+    ]),
+  ];
   const activeControlValidations = new WeakMap();
   const validationTimers = new WeakMap();
   const validateImmediately = (control, step, { force = false } = {}) => {

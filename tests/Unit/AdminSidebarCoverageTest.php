@@ -51,13 +51,23 @@ class AdminSidebarCoverageTest extends TestCase
         $this->assertStringNotContainsString("@can('trial_requests.view')", $ticketsBlock);
     }
 
+    public function test_public_request_links_display_cached_pending_counts(): void
+    {
+        $sidebar = file_get_contents(dirname(__DIR__, 2).'/resources/views/admin/layouts/sections/menu/verticalMenu.blade.php');
+
+        $this->assertStringContainsString('admin:pending_contact_requests_count', $sidebar);
+        $this->assertStringContainsString('admin:pending_trial_requests_count', $sidebar);
+        $this->assertStringContainsString('ContactRequestStatus::PENDING', $sidebar);
+        $this->assertStringContainsString('TrialRequestStatus::PENDING', $sidebar);
+    }
+
     public function test_default_admin_seeder_assigns_every_current_admin_permission(): void
     {
         $seeder = file_get_contents(dirname(__DIR__, 2).'/database/seeders/admin/AdminUserSeeder.php');
         $permissionsSeeder = file_get_contents(dirname(__DIR__, 2).'/database/seeders/admin/PermissionsRolesSeeder.php');
 
         $this->assertStringContainsString("syncRoles(['SuperAdmin'])", $seeder);
-        $this->assertStringContainsString("syncPermissions(Permission::where(\"guard_name\", \"admin\")->get())", $seeder);
+        $this->assertStringContainsString('syncPermissions(Permission::where("guard_name", "admin")->get())', $seeder);
         $this->assertStringContainsString('$roleSuperAdmin->syncPermissions(Permission::where(\'guard_name\', \'admin\')->get())', $permissionsSeeder);
     }
 }

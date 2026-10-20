@@ -4,7 +4,7 @@
     'subtitle' => null,
     'icon' => null,
     'color' => 'primary',
-    'col' => 'col-sm-4 col-lg-6 col-xxl-2',
+    'col' => 'col-sm-6 col-xl',
     'valueClass' => null,
     'avatarClass' => 'rounded',
 ])

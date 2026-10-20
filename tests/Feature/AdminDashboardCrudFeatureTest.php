@@ -87,6 +87,18 @@ class AdminDashboardCrudFeatureTest extends TestCase
         $response->assertSee('لوحة القيادة');
     }
 
+    public function test_client_wizard_returns_a_validation_error_for_an_existing_company_name(): void
+    {
+        $client = Tenant::query()->firstOrFail();
+
+        $this->postJson($this->adminUrl('wizard-drafts/validate-step'), [
+            'target_path' => '/admin/clients',
+            'fields' => ['company_name'],
+            'company_name' => $client->company_name,
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors(['company_name']);
+    }
+
     /**
      * Test 2: Admin Users CRUD, Profile, Unique Checks & Archive Lifecycle
      */
@@ -1090,9 +1102,6 @@ class AdminDashboardCrudFeatureTest extends TestCase
             $this->get($this->adminUrl("bills/{$bill->id}/print"))->assertStatus(200);
         }
     }
-
-
-
 
     /**
      * Test 10: Activity Logs & DataTables AJAX endpoints across all admin modules

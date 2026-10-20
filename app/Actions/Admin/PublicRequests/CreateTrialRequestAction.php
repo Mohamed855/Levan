@@ -11,11 +11,15 @@ final class CreateTrialRequestAction
 {
     public function execute(array $data): TrialRequest
     {
-        return TrialRequest::create([
+        $request = TrialRequest::create([
             'customer_name' => $data['customer_name'],
             'customer_email' => $data['customer_email'],
             'customer_phone' => $data['customer_phone'],
             'status' => TrialRequestStatus::PENDING,
         ]);
+
+        cache()->forget('admin:pending_trial_requests_count');
+
+        return $request;
     }
 }

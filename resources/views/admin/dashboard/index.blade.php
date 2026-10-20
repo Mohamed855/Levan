@@ -30,33 +30,31 @@
 @endsection
 
 @section('content')
-    {{-- KPI Cards (6 كروت) --}}
     <div class="row g-4 mb-4">
-        <x-ui.stat-card col="col-sm-4 col-lg-6 col-xxl-2" title="طلبات الاشتراك الجديدة" :value="number_format($kpis['new_subscription_requests'])"
-            subtitle="طلبات قيد المراجعة" icon="ti-user-plus" color="primary" />
+        <x-ui.stat-card title="طلبات الاشتراك الجديدة" :value="number_format($kpis['new_subscription_requests'])" subtitle="طلبات قيد المراجعة" icon="ti-user-plus"
+            color="primary" />
 
-        <x-ui.stat-card col="col-sm-4 col-lg-6 col-xxl-2" title="الشركات المشتركة" :value="number_format($kpis['subscribed_companies'])"
-            subtitle="شركات لديها اشتراك نشط" icon="ti-building" color="success" />
+        <x-ui.stat-card title="الشركات المشتركة" :value="number_format($kpis['subscribed_companies'])" subtitle="شركات لديها اشتراك نشط" icon="ti-building"
+            color="success" />
 
-        <x-ui.stat-card col="col-sm-4 col-lg-6 col-xxl-2" title="الاشتراكات النشطة" :value="number_format($kpis['active_subscriptions'])"
-            subtitle="اشتراكات فعّالة حالياً" icon="ti-file-text" color="info" />
+        <x-ui.stat-card title="الاشتراكات النشطة" :value="number_format($kpis['active_subscriptions'])" subtitle="اشتراكات فعّالة حالياً" icon="ti-file-text"
+            color="info" />
 
-        <x-ui.stat-card col="col-sm-4 col-lg-6 col-xxl-2" title="الاشتراكات المعلقة" :value="number_format($kpis['suspended_subscriptions'])"
-            subtitle="اشتراكات موقوفة مؤقتاً" icon="ti-clock" color="warning" />
+        <x-ui.stat-card title="الاشتراكات المعلقة" :value="number_format($kpis['suspended_subscriptions'])" subtitle="اشتراكات موقوفة مؤقتاً" icon="ti-clock"
+            color="warning" />
 
-        <x-ui.stat-card col="col-sm-4 col-lg-6 col-xxl-2" title="القوالب المركزية" :value="number_format($kpis['central_templates'])"
-            subtitle="قالب متاح للتطبيق" icon="ti-template" color="danger" />
+        <x-ui.stat-card title="القوالب المركزية" :value="number_format($kpis['central_templates'])" subtitle="قالب متاح للتطبيق" icon="ti-template"
+            color="danger" />
 
-        <x-ui.stat-card col="col-sm-4 col-lg-6 col-xxl-2" title="المدفوعات هذا الشهر" :value="number_format($kpis['monthly_payments'], 0)"
-            subtitle="ر.س إجمالي هذا الشهر" icon="ti-wallet" color="dark" />
+        <x-ui.stat-card title="المدفوعات هذا الشهر" :value="number_format($kpis['monthly_payments'], 0)" subtitle="ر.س إجمالي هذا الشهر" icon="ti-wallet"
+            color="dark" />
     </div>
 
-    {{-- Charts Row --}}
     <div class="row g-4 mb-4">
         <div class="col-md-6">
             <x-admin.dashboard-panel class="h-100" title="استخدام المنصة" icon="ti-chart-bar">
                 <x-slot:headerAction>
-                    <select id="platform-activity-range" class="form-select select2 chart-range-select" style="max-width: 250px;">
+                    <select id="platform-activity-range" class="form-select select2 chart-range-select">
                         <x-form.controls.enum-options :enum="\App\Enums\Admin\Dashboard\ActivityRange::class" :selected="null" />
                     </select>
                 </x-slot:headerAction>

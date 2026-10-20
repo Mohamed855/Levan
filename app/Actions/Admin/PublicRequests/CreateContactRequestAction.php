@@ -11,11 +11,15 @@ final class CreateContactRequestAction
 {
     public function execute(array $data): ContactRequest
     {
-        return ContactRequest::create([
+        $request = ContactRequest::create([
             'customer_name' => $data['customer_name'],
             'customer_email' => $data['customer_email'],
             'message' => $data['message'],
             'status' => ContactRequestStatus::PENDING,
         ]);
+
+        cache()->forget('admin:pending_contact_requests_count');
+
+        return $request;
     }
 }

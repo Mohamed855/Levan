@@ -14,7 +14,7 @@ class AdminUserStoreRequest extends WizardFormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255', 'min:2', 'regex:/^[\pL\s\-\.]+$/u'],
+            'name' => ['required', 'string', 'max:255', 'min:3', 'regex:/^[\pL\s\-\.]+$/u'],
             'email' => ['required', 'email:rfc', 'max:255', 'unique:admin_users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'phone' => ['required', 'string', 'size:10', 'regex:/^05[0-9]{8}$/'],
@@ -28,7 +28,7 @@ class AdminUserStoreRequest extends WizardFormRequest
             'name.required' => 'الاسم مطلوب',
             'name.string' => 'الاسم يجب أن يكون نص',
             'name.max' => 'الاسم يجب ألا يزيد عن 255 حرف',
-            'name.min' => 'الاسم يجب ألا يقل عن حرفين',
+            'name.min' => 'الاسم يجب ألا يقل عن 3 أحرف',
             'name.regex' => 'الاسم يجب أن يحتوي على أحرف فقط',
 
             // email

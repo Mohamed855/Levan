@@ -13,10 +13,15 @@ final class ApproveTrialRequestAction
 {
     public function execute(TrialRequest $request, AdminUser $admin): TrialRequest
     {
-        return DB::transaction(function () use ($request, $admin): TrialRequest {
+        $trialRequest = DB::transaction(function () use ($request, $admin): TrialRequest {
             abort_unless($request->status === TrialRequestStatus::PENDING, 409, 'Request already processed.');
             $request->update(['status' => TrialRequestStatus::APPROVED, 'processed_at' => now(), 'processed_by' => $admin->getKey()]);
+
             return $request->refresh();
         });
+
+        cache()->forget('admin:pending_trial_requests_count');
+
+        return $trialRequest;
     }
 }

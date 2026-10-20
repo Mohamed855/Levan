@@ -18,9 +18,9 @@ class StoreClientRequest extends WizardFormRequest
     {
         return [
             // Step 1: Client details
-            'company_name' => ['required', 'string', 'max:255'],
-            'commercial_number' => ['required', 'string', 'digits:10'],
-            'tax_number' => ['required', 'string', 'digits:15', 'regex:/^3\d{14}$/'],
+            'company_name' => ['required', 'string', 'max:255', 'unique:tenants,company_name'],
+            'commercial_number' => ['required', 'string', 'digits:10', 'unique:tenants,commercial_number'],
+            'tax_number' => ['required', 'string', 'digits:15', 'regex:/^3\d{14}$/', 'unique:tenants,tax_number'],
             'city_id' => ['required', 'exists:cities,id'],
             'address' => ['required', 'string', 'max:1000'],
             'email_notifications_enabled' => ['nullable', 'boolean'],
@@ -58,9 +58,14 @@ class StoreClientRequest extends WizardFormRequest
     {
         return [
             'company_name.required' => 'يرجى إدخال اسم العميل / الشركة',
+            'company_name.unique' => 'اسم العميل / الشركة غير متاح',
             'commercial_number.required' => 'يرجى إدخال رقم السجل التجاري',
             'commercial_number.digits' => 'رقم السجل التجاري يجب أن يتكون من 10 أرقام',
+            'commercial_number.unique' => 'رقم السجل التجاري غير متاح',
             'tax_number.required' => 'يرجى إدخال الرقم الضريبي',
+            'tax_number.digits' => 'الرقم الضريبي يجب أن يتكون من 15 رقماً',
+            'tax_number.regex' => 'الرقم الضريبي يجب أن يبدأ بـ 3',
+            'tax_number.unique' => 'الرقم الضريبي غير متاح',
             'city_id.required' => 'يرجى اختيار المدينة',
             'address.required' => 'يرجى إدخال العنوان',
             'name.required' => 'يرجى إدخال اسم المسؤول',

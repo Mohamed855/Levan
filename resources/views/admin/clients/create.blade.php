@@ -63,8 +63,7 @@
                 <form id="client-wizard-form" action="{{ route('admin.clients.store') }}" method="POST"
                     enctype="multipart/form-data" autocomplete="off" data-form-validate
                     data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}"
-                    data-draft-url="{{ route('admin.wizard-drafts.store') }}"
-                    data-draft-resource-key="admin.client-create">
+                    data-draft-url="{{ route('admin.wizard-drafts.store') }}" data-draft-resource-key="admin.client-create">
                     @csrf
 
                     <!-- 1. بيانات العميل -->
@@ -98,11 +97,11 @@
                                         aria-hidden="true"></i>إعدادات العميل الخاصة</h6>
                             </div>
                             <x-form.controls.checkbox name="email_notifications_enabled" label="تنبيهات البريد"
-                                :checked="true" col="col-md-6">إرسال إشعارات البريد.</x-form.controls.checkbox>
+                                :checked="true" col="col-md-4">إرسال إشعارات البريد.</x-form.controls.checkbox>
                             <x-form.controls.checkbox name="two_factor_enabled" label="التحقق الثنائي (2FA)"
-                                col="col-md-6">فرض 2FA على مستخدمي العميل.</x-form.controls.checkbox>
+                                col="col-md-4">فرض 2FA على مستخدمي العميل.</x-form.controls.checkbox>
                             <x-form.controls.checkbox name="external_integrations_enabled" label="التكاملات الخارجية"
-                                col="col-md-6">السماح بربط API والأنظمة.</x-form.controls.checkbox>
+                                col="col-md-4">السماح بربط API والأنظمة.</x-form.controls.checkbox>
                         </div>
 
                         <x-form.wizard.actions>

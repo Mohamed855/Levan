@@ -21,7 +21,7 @@ use Spatie\Permission\Models\Role;
 
 class AdminUserController extends Controller
 {
-    private $page = 'admin.user-management.users';
+    private $page = 'admin.users';
 
     private $route = 'admin.users';
 

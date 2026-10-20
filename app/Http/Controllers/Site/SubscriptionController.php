@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Site;
 
-use App\Enums\Admin\Billing\BillType;
 use App\Enums\Admin\Billing\BillStatus;
+use App\Enums\Admin\Billing\BillType;
 use App\Enums\Admin\Billing\PaymentMethod;
 use App\Exceptions\Payment\PaymentInitiationException;
 use App\Exceptions\Payment\PaymentVerificationException;
 use App\Exceptions\Subscription\SubscriptionCreationException;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Site\SubscriptionCheckoutRequest;
 use App\Http\Requests\Site\CompleteCheckoutPaymentRequest;
+use App\Http\Requests\Site\SubscriptionCheckoutRequest;
 use App\Http\Requests\Site\VerifyCheckoutOtpRequest;
 use App\Models\Admin\Bank\Bank;
 use App\Models\Admin\Bills\Bill;
@@ -22,8 +22,10 @@ use App\Services\shared\Payment\Moyasar\MoyasarCallbackHandler;
 use App\Services\shared\Payment\Moyasar\MoyasarFormConfiguration;
 use App\Services\shared\Subscription\SubscriptionService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 
 class SubscriptionController extends Controller
 {
@@ -43,16 +45,15 @@ class SubscriptionController extends Controller
 
         $verification = request()->session()->get('checkout_verification');
         if (is_array($verification)
-            && ! isset($verification['verified_at'])
             && (int) ($verification['expires_at'] ?? 0) < now()->timestamp) {
-            request()->session()->forget('checkout_verification');
+            request()->session()->forget(['checkout_verification', 'checkout_coupon_code']);
             $verification = null;
         }
 
         $otpStep = is_array($verification) && ! isset($verification['verified_at']) && (int) ($verification['plan_id'] ?? 0) === (int) $plan->getKey() && isset($verification['otp_hash']);
         $paymentStep = is_array($verification) && isset($verification['verified_at']) && (int) ($verification['plan_id'] ?? 0) === (int) $plan->getKey();
         $checkoutData = is_array($verification)
-            ? collect($verification)->except(['plan_id', 'expires_at', 'otp_hash', 'verified_at'])->all()
+            ? collect($verification)->except(['plan_id', 'expires_at', 'otp_hash', 'verified_at', 'billing_password_hash'])->all()
             : [];
         $banks = Bank::where('is_active', true)->get();
         $cities = City::all();
@@ -91,6 +92,8 @@ class SubscriptionController extends Controller
         }
 
         $checkout = $request->validated();
+        $checkout['billing_password_hash'] = Hash::make($checkout['billing_password']);
+        unset($checkout['billing_password'], $checkout['billing_password_confirmation']);
         $checkout['plan_id'] = $plan->getKey();
         $checkout['expires_at'] = now()->addMinutes(2)->timestamp;
         $couponCode = $checkout['coupon_code'] ?? $request->session()->get('checkout_coupon_code');
@@ -117,7 +120,7 @@ class SubscriptionController extends Controller
     {
         abort_unless($this->isPublicPlan($plan), 404);
         $checkout = request()->session()->get('checkout_verification', []);
-        $safeInput = collect($checkout)->except(['plan_id', 'expires_at', 'otp_hash', 'billing_password', 'billing_password_confirmation'])->all();
+        $safeInput = collect($checkout)->except(['plan_id', 'expires_at', 'otp_hash', 'billing_password', 'billing_password_hash', 'billing_password_confirmation'])->all();
         // إزالة تأكيد OTP حتى يعود لخطوة تعديل البيانات مع الحفاظ على البيانات في الجلسة عند عمل Reload
         unset($checkout['verified_at'], $checkout['otp_hash']);
         request()->session()->put('checkout_verification', $checkout);
@@ -138,8 +141,11 @@ class SubscriptionController extends Controller
             return back()->withErrors(['otp' => 'رمز التحقق غير صحيح أو منتهي الصلاحية.']);
         }
 
-        $request->session()->forget('checkout_verification');
-        $request->session()->put('checkout_verification', [...$verification, 'verified_at' => now()->timestamp]);
+        $request->session()->put('checkout_verification', [
+            ...$verification,
+            'verified_at' => now()->timestamp,
+            'expires_at' => now()->addHour()->timestamp,
+        ]);
 
         return redirect()->route('site.plans.checkout', $plan);
     }
@@ -149,7 +155,12 @@ class SubscriptionController extends Controller
         abort_unless($this->isPublicPlan($plan), 404);
 
         $verification = $request->session()->get('checkout_verification');
-        abort_unless(is_array($verification) && isset($verification['verified_at']), 404);
+        if (! $this->hasVerifiedCheckout($verification, $plan)) {
+            $request->session()->forget(['checkout_verification', 'checkout_coupon_code']);
+
+            return redirect()->route('site.plans.checkout', $plan)
+                ->withErrors(['payment_method' => 'انتهت صلاحية محاولة الدفع، يرجى البدء مرة أخرى.']);
+        }
 
         $validated = $request->validated();
         $couponCode = ! empty($validated['coupon_code'])
@@ -193,7 +204,7 @@ class SubscriptionController extends Controller
             }
 
             if ($bill) {
-                return redirect()->route('site.plans.checkout', ['plan' => $bill->metadata['plan_id']])
+                return redirect()->to($this->retryCheckoutUrl($bill))
                     ->with('error', $e->getMessage());
             }
 
@@ -211,12 +222,24 @@ class SubscriptionController extends Controller
             }
 
             if ($bill) {
-                return redirect()->route('site.plans.checkout', ['plan' => $bill->metadata['plan_id']])
+                return redirect()->to($this->retryCheckoutUrl($bill))
                     ->with('error', 'تعذر التحقق من الدفع مؤقتًا، يرجى المحاولة مرة أخرى.');
             }
 
             return redirect()->route('site.index')->with('error', 'حدث خطأ أثناء معالجة نتيجة الدفع');
         }
+    }
+
+    public function retryCheckout(string $billNumber)
+    {
+        $bill = $this->findCheckoutBill($billNumber);
+        abort_unless($bill && in_array($bill->status, [BillStatus::PENDING, BillStatus::UNPAID], true), 404);
+        abort_if($bill->due_date && now()->isAfter($bill->due_date), 410);
+
+        $plan = Plan::publiclyAvailable()->find($bill->metadata['plan_id'] ?? null);
+        abort_unless($plan, 404);
+
+        return $this->showMoyasarCheckout($bill, $plan);
     }
 
     /*
@@ -239,7 +262,7 @@ class SubscriptionController extends Controller
                 'billing_name' => $request->billing_name,
                 'billing_email' => $request->billing_email,
                 'billing_phone' => $request->billing_phone,
-                'billing_password' => $request->billing_password,
+                'billing_password_hash' => $request->billing_password_hash ?? Hash::make((string) $request->billing_password),
 
                 'billing_company_name' => $request->billing_company_name,
                 'billing_commercial_number' => $request->billing_commercial_number,
@@ -282,6 +305,8 @@ class SubscriptionController extends Controller
                 return redirect()->route('site.index')->with('success', 'تم استلام طلبك بنجاح.');
             }
 
+            request()->session()->forget(['checkout_verification', 'checkout_coupon_code']);
+
             $moyasarView = $this->showMoyasarCheckout($pendingBill, $plan);
 
             return $moyasarView;
@@ -304,6 +329,14 @@ class SubscriptionController extends Controller
         $checkout = request()->session()->get('checkout_verification');
 
         return is_array($checkout)
+            && (int) ($checkout['plan_id'] ?? 0) === (int) $plan->getKey()
+            && (int) ($checkout['expires_at'] ?? 0) >= now()->timestamp;
+    }
+
+    private function hasVerifiedCheckout(?array $checkout, Plan $plan): bool
+    {
+        return is_array($checkout)
+            && isset($checkout['verified_at'])
             && (int) ($checkout['plan_id'] ?? 0) === (int) $plan->getKey()
             && (int) ($checkout['expires_at'] ?? 0) >= now()->timestamp;
     }
@@ -361,5 +394,14 @@ class SubscriptionController extends Controller
         return $bill && ($bill->metadata['checkout_source'] ?? null) === 'site_checkout'
             ? $bill
             : null;
+    }
+
+    private function retryCheckoutUrl(Bill $bill): string
+    {
+        return URL::temporarySignedRoute(
+            'site.plans.checkout.retry',
+            $bill->due_date ?? now()->addHour(),
+            ['billNumber' => $bill->bill_number],
+        );
     }
 }

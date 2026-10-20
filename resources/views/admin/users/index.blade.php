@@ -21,7 +21,7 @@
             updateUserRole: "{{ route('admin.roles.update-user-role', ':id') }}"
         };
     </script>
-    @vite(['resources/assets/js/admin/user-management/users/index.js'])
+    @vite(['resources/assets/js/admin/users/index.js'])
 @endsection
 
 @section('toastr')
@@ -35,16 +35,14 @@
 @section('content')
 
     <div id="top_card" class="row g-4 mb-4">
-        <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي المستخدمين" :value="$totalUsers"
-            subtitle="إجمالي المستخدمين" icon="ti-users" color="primary" />
-        <x-ui.stat-card col="col-sm-6 col-xl" title="المستخدمين النشطين" :value="$activeUsers"
-            subtitle="المستخدمين النشطين" icon="ti-user-check" color="success" />
-        <x-ui.stat-card col="col-sm-6 col-xl" title="المستخدمين غير النشطين" :value="$inactiveUsers"
-            subtitle="المستخدمين غير النشطين" icon="ti-user-off" color="warning" />
-        <x-ui.stat-card col="col-sm-6 col-xl" title="المستخدمين المؤرشفين" :value="$archivedUsers"
-            subtitle="يمكن استعادتها من الأرشيف" icon="ti-archive" color="danger" />
-        <x-ui.stat-card col="col-sm-6 col-xl" title="SuperAdmin" :value="$superAdminUsers"
-            subtitle="حسابات محمية" icon="ti-shield-check" color="info" />
+        <x-ui.stat-card title="إجمالي المستخدمين" :value="$totalUsers" subtitle="إجمالي المستخدمين" icon="ti-users"
+            color="primary" />
+        <x-ui.stat-card title="المستخدمين النشطين" :value="$activeUsers" subtitle="المستخدمين النشطين" icon="ti-user-check"
+            color="success" />
+        <x-ui.stat-card title="المستخدمين غير النشطين" :value="$inactiveUsers" subtitle="المستخدمين غير النشطين"
+            icon="ti-user-off" color="warning" />
+        <x-ui.stat-card title="المستخدمين المؤرشفين" :value="$archivedUsers" subtitle="يمكن استعادتها من الأرشيف"
+            icon="ti-archive" color="danger" />
     </div>
 
     @if ($errors->any())
@@ -59,8 +57,8 @@
 
     {{-- Filters Card --}}
     <x-data-table.filters table="#users-table">
-        <x-filter.select id="filter-status" filterKey="status" label="حالة المستخدمين"
-            placeholder="اختر حالة المستخدم" :options="$filterOptions['statuses']" />
+        <x-filter.select id="filter-status" filterKey="status" label="حالة المستخدمين" placeholder="اختر حالة المستخدم"
+            :options="$filterOptions['statuses']" />
         <x-filter.select id="filter-role" filterKey="role" label="دور المستخدم" placeholder="اختر الدور"
             :options="$filterOptions['roles']" />
     </x-data-table.filters>

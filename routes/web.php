@@ -23,6 +23,9 @@ Route::name('site.')->group(function () {
 
     Route::prefix('')->name('plans.')->group(function () {
         Route::get('checkout/callback', [SubscriptionController::class, 'handlePaymentCallback'])->name('checkout.callback');
+        Route::get('checkout/retry/{billNumber}', [SubscriptionController::class, 'retryCheckout'])
+            ->middleware('signed')
+            ->name('checkout.retry');
         Route::post('checkout/{plan}', [SubscriptionController::class, 'processCheckout'])
             ->defaults('shared_form_validation', true)
             ->name('checkout.store');

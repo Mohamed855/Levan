@@ -11,7 +11,7 @@ final class CentralAdminUsersRolesGoldenPatternTest extends TestCase
     public function test_roles_index_uses_its_own_datatable_and_shared_page_structure(): void
     {
         $dataTable = file_get_contents(app_path('DataTables/Admin/AdminMangment/Roles/AdminRoleDataTable.php'));
-        $index = file_get_contents(resource_path('views/admin/user-management/roles/index.blade.php'));
+        $index = file_get_contents(resource_path('views/admin/roles/index.blade.php'));
 
         self::assertStringContainsString('return Role::query()', $dataTable);
         self::assertStringContainsString("return 'roles-table'", $dataTable);
@@ -23,7 +23,7 @@ final class CentralAdminUsersRolesGoldenPatternTest extends TestCase
 
     public function test_admin_users_index_has_the_five_card_golden_pattern(): void
     {
-        $index = file_get_contents(resource_path('views/admin/user-management/users/index.blade.php'));
+        $index = file_get_contents(resource_path('views/admin/users/index.blade.php'));
 
         self::assertSame(5, substr_count($index, '<x-ui.stat-card'));
         self::assertSame(5, substr_count($index, 'col="col-sm-6 col-xl"'));
@@ -32,7 +32,7 @@ final class CentralAdminUsersRolesGoldenPatternTest extends TestCase
     public function test_user_role_assignment_remains_available_from_the_users_table(): void
     {
         $dataTable = file_get_contents(app_path('DataTables/Admin/AdminMangment/Users/AdminUserDataTable.php'));
-        $index = file_get_contents(resource_path('views/admin/user-management/users/index.blade.php'));
+        $index = file_get_contents(resource_path('views/admin/users/index.blade.php'));
 
         self::assertStringContainsString('edit-role-link', $dataTable);
         self::assertStringContainsString('editUserRoleModal', $index);
@@ -52,8 +52,8 @@ final class CentralAdminUsersRolesGoldenPatternTest extends TestCase
 
     public function test_role_forms_use_shared_validation_controls_and_the_create_draft_contract(): void
     {
-        $create = file_get_contents(resource_path('views/admin/user-management/roles/create.blade.php'));
-        $edit = file_get_contents(resource_path('views/admin/user-management/roles/edit.blade.php'));
+        $create = file_get_contents(resource_path('views/admin/roles/create.blade.php'));
+        $edit = file_get_contents(resource_path('views/admin/roles/edit.blade.php'));
 
         self::assertStringContainsString('x-form.controls.input', $create);
         self::assertStringContainsString('data-form-validate', $create);
@@ -73,5 +73,18 @@ final class CentralAdminUsersRolesGoldenPatternTest extends TestCase
         self::assertStringContainsString("Rule::exists('permissions', 'name')->where('guard_name', 'admin')", $updateRequest);
         self::assertStringContainsString("Permission::query()->where('guard_name', 'admin')->get()->groupBy('section')", $service);
         self::assertStringContainsString("\$role->name === 'SuperAdmin'", $service);
+    }
+
+    public function test_admin_user_and_role_views_use_their_top_level_view_and_asset_boundaries(): void
+    {
+        $userController = file_get_contents(app_path('Http/Controllers/Admin/AdminMangment/Users/AdminUserController.php'));
+        $roleController = file_get_contents(app_path('Http/Controllers/Admin/AdminMangment/Roles/AdminRoleController.php'));
+        $userIndex = file_get_contents(resource_path('views/admin/users/index.blade.php'));
+
+        self::assertStringContainsString("'admin.users'", $userController);
+        self::assertStringContainsString("'admin.roles'", $roleController);
+        self::assertStringContainsString('resources/assets/js/admin/users/index.js', $userIndex);
+        self::assertFileExists(resource_path('assets/js/admin/users/index.js'));
+        self::assertFileExists(resource_path('assets/js/admin/roles/index.js'));
     }
 }

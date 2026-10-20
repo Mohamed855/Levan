@@ -69,7 +69,7 @@ class TenantInitializer
             'employee_number' => 'EMP001',
             'email' => $metadata['billing_email'],
             'email_verified_at' => now(),
-            'password' => Hash::make($metadata['billing_password']),
+            'password' => $metadata['billing_password_hash'] ?? Hash::make($metadata['billing_password']),
             'phone' => $metadata['billing_phone'],
             'status' => 'active',
             'created_at' => now(),

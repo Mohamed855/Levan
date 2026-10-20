@@ -43,27 +43,27 @@
     @endif
 
     <div class="row g-4 mb-4">
-        <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي الاشتراكات" :value="$totalSubscriptions ?? 0"
-            subtitle="جميع اشتراكات الشركات" icon="ti-packages" color="primary" />
+        <x-ui.stat-card title="إجمالي الاشتراكات" :value="$totalSubscriptions ?? 0" subtitle="جميع اشتراكات الشركات" icon="ti-packages"
+            color="primary" />
 
-        <x-ui.stat-card col="col-sm-6 col-xl" title="الاشتراكات النشطة" :value="$activeSubscriptions ?? 0"
-            subtitle="اشتراكات سارية حالياً" icon="ti-circle-check" color="success" />
+        <x-ui.stat-card title="الاشتراكات النشطة" :value="$activeSubscriptions ?? 0" subtitle="اشتراكات سارية حالياً" icon="ti-circle-check"
+            color="success" />
 
-        <x-ui.stat-card col="col-sm-6 col-xl" title="طلبات جديدة معلقة" :value="$pendingSubscriptions ?? 0"
-            subtitle="بانتظار الموافقة" icon="ti-clock-pause" color="warning" />
+        <x-ui.stat-card title="طلبات جديدة معلقة" :value="$pendingSubscriptions ?? 0" subtitle="بانتظار الموافقة" icon="ti-clock-pause"
+            color="warning" />
 
-        <x-ui.stat-card col="col-sm-6 col-xl" title="تقارب على الانتهاء" :value="$expiringSubscriptions ?? 0"
-            subtitle="خلال 30 يوماً" icon="ti-alert-triangle" color="info" />
+        <x-ui.stat-card title="تقارب على الانتهاء" :value="$expiringSubscriptions ?? 0" subtitle="خلال 30 يوماً" icon="ti-alert-triangle"
+            color="info" />
 
-        <x-ui.stat-card col="col-sm-6 col-xl" title="الاشتراكات المنتهية" :value="$expiredSubscriptions ?? 0"
-            subtitle="انتهت صلاحيتها" icon="ti-clock-x" color="danger" />
+        <x-ui.stat-card title="الاشتراكات المنتهية" :value="$expiredSubscriptions ?? 0" subtitle="انتهت صلاحيتها" icon="ti-clock-x"
+            color="danger" />
     </div>
 
     @if (!($isPendingPage ?? false) && !($isExpiringPage ?? false) && !($isExpiredPage ?? false))
         {{-- Filters Card --}}
         <x-data-table.filters table="#subscriptions-table">
-            <x-filter.select id="filter-status" filterKey="status" label="حالة الشركات"
-                placeholder="اختر حالة الشركة" :enum="\App\Enums\Admin\Subscriptions\SubscriptionStatus::class" />
+            <x-filter.select id="filter-status" filterKey="status" label="حالة الشركات" placeholder="اختر حالة الشركة"
+                :enum="\App\Enums\Admin\Subscriptions\SubscriptionStatus::class" />
         </x-data-table.filters>
     @endif
 

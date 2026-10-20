@@ -17,10 +17,14 @@ final class ReplyToContactRequestAction
         $updated = DB::transaction(function () use ($request, $reply, $admin): ContactRequest {
             abort_unless($request->status === ContactRequestStatus::PENDING, 409, 'Request already processed.');
             $request->update(['reply' => $reply, 'status' => ContactRequestStatus::REPLIED, 'replied_at' => now(), 'replied_by' => $admin->getKey()]);
+
             return $request->refresh();
         });
 
+        cache()->forget('admin:pending_contact_requests_count');
+
         SendContactReplyMailJob::dispatch($updated->customer_email, $updated->customer_name, $updated->message, $updated->reply)->onQueue('email');
+
         return $updated;
     }
 }

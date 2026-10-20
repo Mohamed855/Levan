@@ -96,11 +96,11 @@
 
 /* ── Chart range select ── */
 .chart-range-select {
-    max-width: 250px;
+    max-width: 150px;
     width: 100%;
 
     & + .select2-container {
-        max-width: 250px !important;
+        max-width: 150px !important;
         width: 100% !important;
     }
 }

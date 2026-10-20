@@ -2,6 +2,7 @@
 
 namespace App\Services\Admin\Dashboard;
 
+use App\Enums\Admin\PublicRequests\TrialRequestStatus;
 use App\Enums\Admin\Subscriptions\SubscriptionStatus;
 use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Tenants\Tenant;
@@ -76,14 +77,13 @@ class DashboardService
     // ==========================================
 
     /**
-     * إجمالي النشاط للمنصة (عدد سجلات الـ activity_log في كل tenant)
-     * مجمّعة حسب اليوم/الأسبوع/الشهر بناءً على المدة المختارة
+     * إجمالي الاشتراكات المعلقة والنشطة، مع طلبات التجربة المعتمدة، حسب الفترة.
      */
     public function getPlatformActivity(string $range = '1month'): array
     {
         [$startDate, $groupFormat, $labelFormat, $carbonInterval] = $this->resolveRangeConfig($range);
 
-        $data = $this->aggregateActivityFromSubscriptions($startDate, $groupFormat, $labelFormat, $carbonInterval);
+        $data = $this->aggregatePlatformActivity($startDate, $groupFormat, $labelFormat, $carbonInterval);
 
         return $data;
     }
@@ -98,16 +98,31 @@ class DashboardService
         };
     }
 
-    private function aggregateActivityFromSubscriptions(
+    private function aggregatePlatformActivity(
         Carbon $startDate,
         string $groupFormat,
         string $labelFormat,
         string $interval
     ): array {
-        $rawData = DB::connection('mysql')
+        $subscriptionData = DB::connection('mysql')
             ->table('subscriptions')
             ->selectRaw('DATE_FORMAT(created_at, ?) as period, COUNT(*) as total', [$groupFormat])
             ->where('created_at', '>=', $startDate)
+            ->whereIn('status', [
+                SubscriptionStatus::PENDING->value,
+                SubscriptionStatus::ACTIVE->value,
+            ])
+            ->groupBy('period')
+            ->orderBy('period')
+            ->get()
+            ->keyBy('period');
+
+        $approvedTrialData = DB::connection('mysql')
+            ->table('trial_requests')
+            ->selectRaw('DATE_FORMAT(processed_at, ?) as period, COUNT(*) as total', [$groupFormat])
+            ->where('status', TrialRequestStatus::APPROVED->value)
+            ->whereNotNull('processed_at')
+            ->where('processed_at', '>=', $startDate)
             ->groupBy('period')
             ->orderBy('period')
             ->get()
@@ -120,7 +135,8 @@ class DashboardService
         while ($cursor->lte($now)) {
             $key = $cursor->format($this->phpFormatFromMySql($groupFormat));
             $label = $cursor->locale('ar')->translatedFormat($this->phpLabelFormat($labelFormat));
-            $count = $rawData->get($key)?->total ?? 0;
+            $count = ($subscriptionData->get($key)?->total ?? 0)
+                + ($approvedTrialData->get($key)?->total ?? 0);
 
             $periods[] = ['label' => $label, 'count' => (int) $count];
 

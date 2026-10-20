@@ -3,10 +3,14 @@
 namespace Tests\Feature;
 
 use App\Enums\Admin\Billing\BillStatus;
+use App\Enums\Admin\Billing\BillType;
+use App\Enums\Admin\Billing\PaymentMethod;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\Bills\Bill;
 use App\Models\Admin\City;
 use App\Models\Admin\Plans\Plan;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\URL;
 use Tests\TestCase;
 
 class MoyasarRegistrationCheckoutFeatureTest extends TestCase
@@ -50,22 +54,22 @@ class MoyasarRegistrationCheckoutFeatureTest extends TestCase
 
         $unique = rand(10000, 99999);
         $companyName = "شركة تجريبية {$unique}";
-        $commercialNumber = "1010" . rand(100000, 999999);
+        $commercialNumber = '1010'.rand(100000, 999999);
         $email = "demo_owner_{$unique}@example.com";
-        $phone = "05" . rand(10000000, 99999999);
+        $phone = '05'.rand(10000000, 99999999);
 
         $city = City::first();
 
         $payload = [
-            'billing_company_name'      => $companyName,
+            'billing_company_name' => $companyName,
             'billing_commercial_number' => $commercialNumber,
-            'billing_tax_number'        => '300000000000003',
-            'billing_city_id'           => $city?->id,
-            'billing_address'           => 'الرياض، حي الصحافة',
-            'billing_name'              => 'أحمد محمد',
-            'billing_email'             => $email,
-            'billing_phone'             => $phone,
-            'billing_password'          => 'Secret1234!',
+            'billing_tax_number' => '300000000000003',
+            'billing_city_id' => $city?->id,
+            'billing_address' => 'الرياض، حي الصحافة',
+            'billing_name' => 'أحمد محمد',
+            'billing_email' => $email,
+            'billing_phone' => $phone,
+            'billing_password' => 'Secret1234!',
             'billing_password_confirmation' => 'Secret1234!',
         ];
 
@@ -98,11 +102,15 @@ class MoyasarRegistrationCheckoutFeatureTest extends TestCase
         $this->assertSame($email, $pendingBill->metadata['billing_email']);
         $this->assertSame($companyName, $pendingBill->metadata['billing_company_name']);
         $this->assertSame($phone, $pendingBill->metadata['billing_phone']);
+        $this->assertArrayNotHasKey('billing_password', $pendingBill->metadata);
+        $this->assertTrue(Hash::check('Secret1234!', $pendingBill->metadata['billing_password_hash']));
+        $response->assertSessionMissing('checkout_verification');
     }
 
     public function test_editing_checkout_clears_otp_state_and_keeps_customer_data_safe(): void
     {
         $response = $this->withSession([
+            'checkout_coupon_code' => 'EXPIRED-CHECKOUT',
             'checkout_verification' => [
                 'plan_id' => $this->publicPlan->id,
                 'billing_company_name' => 'Editable Company',
@@ -118,6 +126,55 @@ class MoyasarRegistrationCheckoutFeatureTest extends TestCase
             ->assertOk()
             ->assertDontSee('checkout-otp-timer', false)
             ->assertDontSee('Secret1234!', false);
+    }
+
+    public function test_expired_verified_checkout_is_removed_from_the_session(): void
+    {
+        $response = $this->withSession([
+            'checkout_verification' => [
+                'plan_id' => $this->publicPlan->id,
+                'billing_email' => 'expired@example.test',
+                'billing_password_hash' => Hash::make('Secret1234!'),
+                'verified_at' => now()->subHour()->timestamp,
+                'expires_at' => now()->subMinute()->timestamp,
+            ],
+        ])->get(route('site.plans.checkout', $this->publicPlan));
+
+        $response->assertOk();
+        $response->assertSessionMissing('checkout_verification');
+        $response->assertSessionMissing('checkout_coupon_code');
+    }
+
+    public function test_failed_payment_can_be_retried_through_a_signed_short_lived_bill_link(): void
+    {
+        config()->set('services.moyasar.mode', 'test');
+        config()->set('services.moyasar.publishable', 'pk_test_feature_checkout');
+
+        $bill = Bill::create([
+            'amount' => $this->publicPlan->price_after_discount,
+            'original_amount' => $this->publicPlan->price_after_discount,
+            'type' => BillType::NEW_SUBSCRIPTION,
+            'payment_method' => PaymentMethod::ONLINE,
+            'status' => BillStatus::PENDING,
+            'due_date' => now()->addHour(),
+            'metadata' => [
+                'plan_id' => $this->publicPlan->id,
+                'checkout_source' => 'site_checkout',
+                'billing_email' => 'retry@example.test',
+                'billing_password_hash' => Hash::make('Secret1234!'),
+            ],
+        ]);
+
+        $retryUrl = URL::temporarySignedRoute('site.plans.checkout.retry', now()->addMinutes(30), [
+            'billNumber' => $bill->bill_number,
+        ]);
+
+        $this->get($retryUrl)
+            ->assertOk()
+            ->assertSee('mysr-form', false);
+
+        $this->get(route('site.plans.checkout.retry', ['billNumber' => $bill->bill_number]))
+            ->assertForbidden();
     }
 
     public function test_checkout_rejects_a_phone_number_already_used_by_an_admin_user(): void

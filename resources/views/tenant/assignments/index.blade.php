@@ -86,7 +86,6 @@
                 });
             }
         });
-
     </script>
 @endsection
 
@@ -94,22 +93,19 @@
 
     <x-data-table.page table-id="assignments-table">
         <x-slot:stats>
-            <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي الإسنادات" :value="$totalAssignments" subtitle="جميع الحالات"
-                icon="ti-file-text" color="primary" />
-            <x-ui.stat-card col="col-sm-6 col-xl" title="إسناد نشط" :value="$activeAssignments" subtitle="الإسنادات النشطة"
-                icon="ti-circle-check" color="success" />
-            <x-ui.stat-card col="col-sm-6 col-xl" title="قيد المراجعة" :value="$underReviewAssignments" subtitle="تحت التدقيق"
-                icon="ti-clock" color="warning" />
-            <x-ui.stat-card col="col-sm-6 col-xl" title="متوقف" :value="$suspendedAssignments" subtitle="إسنادات معلقة" icon="ti-ban"
-                color="danger" />
-            <x-ui.stat-card col="col-sm-6 col-xl" title="محول لمزادات" :value="$auctionedAssignments" subtitle="تم ربطه بمزاد"
-                icon="ti-flag" color="info" />
+            <x-ui.stat-card title="إجمالي الإسنادات" :value="$totalAssignments" subtitle="جميع الحالات" icon="ti-file-text"
+                color="primary" />
+            <x-ui.stat-card title="إسناد نشط" :value="$activeAssignments" subtitle="الإسنادات النشطة" icon="ti-circle-check"
+                color="success" />
+            <x-ui.stat-card title="قيد المراجعة" :value="$underReviewAssignments" subtitle="تحت التدقيق" icon="ti-clock" color="warning" />
+            <x-ui.stat-card title="متوقف" :value="$suspendedAssignments" subtitle="إسنادات معلقة" icon="ti-ban" color="danger" />
+            <x-ui.stat-card title="محول لمزادات" :value="$auctionedAssignments" subtitle="تم ربطه بمزاد" icon="ti-flag" color="info" />
         </x-slot:stats>
 
         <x-slot:filters>
             <x-data-table.filters table="#assignments-table">
-                <x-filter.select id="filter-category" filterKey="category" label="تصنيف الإسناد" placeholder="جميع التصنيفات"
-                    :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class" />
+                <x-filter.select id="filter-category" filterKey="category" label="تصنيف الإسناد"
+                    placeholder="جميع التصنيفات" :enum="\App\Enums\Tenants\Assignments\AssignmentCategory::class" />
                 <x-filter.select id="filter-status" filterKey="status" label="حالة الإسناد" placeholder="جميع الحالات"
                     :enum="\App\Enums\Tenants\Assignments\AssignmentStatus::class" />
                 <div class="col-md-6 col-lg-3">
