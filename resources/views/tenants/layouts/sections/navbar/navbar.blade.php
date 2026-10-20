@@ -149,20 +149,6 @@
                             </div>
                         @endcan
 
-                        {{-- المجموعات --}}
-                        @can('system.groups')
-                            <div class="col-6">
-                                <a href="{{ tenant_route_name('teams.index') }}"
-                                    class="d-block p-3 text-center border rounded hover-bg-light text-decoration-none">
-                                    <div class="avatar avatar-md mx-auto mb-2">
-                                        <span class="avatar-initial rounded bg-label-dark">
-                                            <i class="ti ti-users-group ti-lg"></i>
-                                        </span>
-                                    </div>
-                                    <small class="text-muted fw-medium">المجموعات</small>
-                                </a>
-                            </div>
-                        @endcan
                         @can('subscriptions.view')
                             <div class="col-6">
                                 <a href="{{ tenant_route_name('subscriptions.index') }}"

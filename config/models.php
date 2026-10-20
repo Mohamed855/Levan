@@ -17,7 +17,6 @@ use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Models\Tenants\Properties\Property;
-use App\Models\Tenants\UserMangment\Team\Team;
 use App\Models\Tenants\UserMangment\User\User;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Permission\Models\Role;
@@ -28,7 +27,6 @@ return [
     'Assignment' => Assignment::class,
     'Property' => Property::class,
     'Auction' => Auction::class,
-    'Team' => Team::class,
     'Role' => Role::class,
     'Activity' => Activity::class,
 

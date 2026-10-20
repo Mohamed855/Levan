@@ -1,7 +1,7 @@
 Administration: Tenant Support Tickets
 Boundary: tenant
 Scope / aggregate root: Customer technical support tickets, replies, attachment exchanges, feedback surveys
-Routes + middleware + guard: routes/tenant/tenant.php (tickets.*) + auth:tenant + tickets permission
+Routes + middleware + guard: routes/tenant.php (tickets.*) + auth:tenant + tickets permission
 Controller: App\Http\Controllers\Tenants\Tickets\TicketController
 FormRequests: TicketRequest, TicketReplyRequest, SubmitTicketSurveyRequest, RateTicketReplyRequest
 Policy registration + abilities: Tenant route capabilities (tickets.view and tickets.create); ticket records remain in the central integration and are accessed only through the tenant-scoped gateway.

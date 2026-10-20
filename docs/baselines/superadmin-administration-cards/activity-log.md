@@ -1,7 +1,7 @@
 Administration: Central Audit Activity Log
 Boundary: central
 Scope / aggregate root: Central audit log of all administrator mutations, login history, security events, subject attribute diffs
-Routes + middleware + guard: routes/admin/admin.php (admin.activity-logs.*) + auth:admin + permission:activity_log.view
+Routes + middleware + guard: routes/admin.php (admin.activity-logs.*) + auth:admin + permission:activity_log.view
 Controller: App\Http\Controllers\Admin\ActivityLog\AdminActivityLogController
 FormRequests: App\Http\Requests\Admin\ActivityLog\AdminActivityLogIndexRequest
 Policy registration + abilities: Not applicable (read-only activity audit log guarded by permission:activity_log.view middleware)

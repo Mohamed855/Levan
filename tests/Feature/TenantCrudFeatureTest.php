@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\BusinessCenter\Company\Company;
-use App\Models\Tenants\UserMangment\Team\Team;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -41,84 +40,6 @@ class TenantCrudFeatureTest extends TestCase
     }
 
 
-
-    /**
-     * Test 2: Team CRUD Lifecycle
-     */
-    public function test_teams_crud_lifecycle(): void
-    {
-        $teamLeader = User::create([
-            'name' => 'قائد فريق اختباري',
-            'employee_number' => 'LEAD' . random_int(1000, 9999),
-            'email' => 'team-leader-' . random_int(1000, 9999) . '@levan.test',
-            'password' => bcrypt('Password123!'),
-            'status' => 'active',
-            'license_seat_id' => $this->user->license_seat_id,
-        ]);
-        $teamMember = User::create([
-            'name' => 'عضو فريق اختباري',
-            'employee_number' => 'TEAM' . random_int(1000, 9999),
-            'email' => 'team-member-' . random_int(1000, 9999) . '@levan.test',
-            'password' => bcrypt('Password123!'),
-            'status' => 'active',
-            'license_seat_id' => $this->user->license_seat_id,
-        ]);
-
-        // 1. Index
-        $indexResponse = $this->get($this->tenantUrl('teams'));
-        $indexResponse->assertStatus(200);
-
-        // 2. Create view
-        $createResponse = $this->get($this->tenantUrl('teams/create'));
-        $createResponse->assertStatus(200);
-
-        // 3. Store
-        $teamName = 'فريق تحصيل اختباري ' . rand(100, 999);
-        $storeResponse = $this->post($this->tenantUrl('teams'), [
-            'name'        => $teamName,
-            'description' => 'وصف الفريق للاختبار',
-            'members' => [$teamLeader->id, $teamMember->id],
-            'leaders' => [$teamLeader->id],
-        ]);
-        $storeResponse->assertStatus(302);
-
-        $team = Team::where('name', $teamName)->first();
-        $this->assertNotNull($team, 'Team was not created in database.');
-
-        // 4. Show view
-        $showResponse = $this->get($this->tenantUrl("teams/{$team->id}"));
-        $showResponse->assertStatus(200);
-
-        // 5. Edit view
-        $editResponse = $this->get($this->tenantUrl("teams/{$team->id}/edit"));
-        $editResponse->assertStatus(200);
-
-        // 6. Update
-        $updatedName = $teamName . ' معدل';
-        $updateResponse = $this->put($this->tenantUrl("teams/{$team->id}"), [
-            'name'        => $updatedName,
-            'description' => 'وصف الفريق المحدث',
-            'members' => [$teamLeader->id, $teamMember->id],
-            'leaders' => [$teamMember->id],
-        ]);
-        $updateResponse->assertStatus(302);
-        $team->refresh();
-        $this->assertEquals($updatedName, $team->name);
-
-        // 7. Toggle Status
-        $toggleResponse = $this->patch($this->tenantUrl("teams/{$team->id}/toggle-status"), [
-            'status' => 'inactive',
-        ]);
-        $toggleResponse->assertStatus(200);
-        $toggleResponse->assertJson(['success' => true]);
-
-        // 8. Destroy
-        $destroyResponse = $this->delete($this->tenantUrl("teams/{$team->id}"));
-        $destroyResponse->assertStatus(302);
-        $this->assertSoftDeleted('teams', ['id' => $team->id]);
-        $teamLeader->forceDelete();
-        $teamMember->forceDelete();
-    }
 
     /**
      * Test 3: Role CRUD Lifecycle
@@ -329,7 +250,6 @@ class TenantCrudFeatureTest extends TestCase
     {
         $endpoints = [
             'users',
-            'teams',
             'roles',
             'companies',
             'archive/users',

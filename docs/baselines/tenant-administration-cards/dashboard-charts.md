@@ -1,7 +1,7 @@
 Administration: Tenant Dashboard & Chart Settings
 Boundary: tenant
 Scope / aggregate root: Tenant KPI summary, performance widgets, chart display preferences
-Routes + middleware + guard: routes/tenant/tenant.php (dashboard.*, charSetting.*) + auth:tenant
+Routes + middleware + guard: routes/tenant.php (dashboard.*, charSetting.*) + auth:tenant
 Controller: App\Http\Controllers\Tenants\dashboard\DashboardController, App\Http\Controllers\Tenants\ChartSetting\ChartSettingController
 FormRequests: UpdateChartVisibilityRequest
 Policy registration + abilities: dashboard.view route capability; chart visibility update is protected by its typed FormRequest.

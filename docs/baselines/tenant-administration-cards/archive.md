@@ -1,7 +1,7 @@
 Administration: Tenant Centralized Archive
 Boundary: tenant
 Scope / aggregate root: Soft-deleted tenant entities restoration and permanent purge (Users, Companies, Contracts, Portfolios, Customers, Collections, Assignments, Properties, Auctions)
-Routes + middleware + guard: routes/tenant/tenant.php (archives.*) + auth:tenant + permission per entity
+Routes + middleware + guard: routes/tenant.php (archives.*) + auth:tenant + permission per entity
 Controller: App\Http\Controllers\Tenants\Archive\UserArchiveController, CompanyArchiveController, ContractArchiveController, PortfolioArchiveController, CustomerArchiveController, AssignmentArchiveController, PropertyArchiveController, AuctionArchiveController
 FormRequests: TenantArchiveRestoreRequest, TenantArchiveForceDeleteRequest
 Policy registration + abilities: Entity policies restore and forceDelete abilities

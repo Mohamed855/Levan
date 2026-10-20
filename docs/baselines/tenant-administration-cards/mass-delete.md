@@ -1,7 +1,7 @@
 Administration: Tenant Mass Delete
 Boundary: tenant
 Scope / aggregate root: Multi-record deletion across authorized tenant models registered in config/models.php
-Routes + middleware + guard: routes/tenant/tenant.php (mass-delete) + auth:tenant
+Routes + middleware + guard: routes/tenant.php (mass-delete) + auth:tenant
 Controller: App\Http\Controllers\Tenants\DeleteBulk\MassDeleteController
 FormRequests: MassDeleteRequest
 Policy registration + abilities: Per-record policy delete check for every ID in payload

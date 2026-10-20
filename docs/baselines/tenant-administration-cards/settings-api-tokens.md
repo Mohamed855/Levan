@@ -1,7 +1,7 @@
 Administration: Tenant Settings & API Tokens
 Boundary: tenant
 Scope / aggregate root: Tenant configuration, company brand customization, API access tokens
-Routes + middleware + guard: routes/tenant/tenant.php (settings.*, api-tokens.*) + auth:tenant + settings permission
+Routes + middleware + guard: routes/tenant.php (settings.*, api-tokens.*) + auth:tenant + settings permission
 Controller: App\Http\Controllers\Tenants\Settings\SettingsController, App\Http\Controllers\Tenants\Settings\ApiTokenSettingsController
 FormRequests: UpdateTenantSettingsRequest, StoreApiTokenRequest
 Policy registration + abilities: Typed settings and token FormRequests plus route capabilities; token work is explicitly delegated across the Tenant/Central boundary.

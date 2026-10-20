@@ -119,7 +119,6 @@ Status: Gap | Partial | Compliant
 | Activity log | `admin.activity-logs.*` · `AdminActivityLogController` | central audit log | AdminActivityLogIndexRequest + ActivityLogPolicy + Scoped Query | DT + View | F,S | Gap ([بطاقة الإدارة](superadmin-administration-cards/activity-log.md)) |
 | Central archive | `admin.archives.*` · `Archive\{AdminUser,Plan,Coupon,Tenant,Bill}*Controller` | soft-deleted central records | Restore/ForceDeleteRequests + CentralArchivePolicy + RestoreCentralRecordAction | archive DT | F,U,S | Gap ([بطاقة الإدارة](superadmin-administration-cards/central-archive.md)) |
 | Central mass delete | `admin.mass-delete` · `AdminMassDeleteController` | explicit `config/models.php` allow-list | MassDeleteRequest + MassDeletePolicy + DeleteCentralRecordsAction | shared handler | F,U,S | Gap ([بطاقة الإدارة](superadmin-administration-cards/central-mass-delete.md)) |
-| API integrations | `admin.api-layer.*` · `APILayerController` | external provider calls/cache | APILayerRequest + APILayerService + Error Sanitization | API | F,U,S | Gap ([بطاقة الإدارة](superadmin-administration-cards/api-integrations.md)) |
 
 ## 3. Tenant — identity, configuration, subscriptions
 
@@ -141,13 +140,6 @@ Status: Gap | Partial | Compliant
 | الإدارة (owner) | routes/controllers | البيانات والتبعيات | Request/Policy | UI | Tests | الحالة |
 |---|---|---|---|---|---|---|
 | Companies | `companies.*` · `BusinessCenter\Company\CompanyController`, `Archive\Company\CompanyArchiveController` | tenant companies/files | CRUD requests + CompanyPolicy + CompanyService + archive actions | DT + forms/archive | F,U,I,S | Compliant ([بطاقة الإدارة](tenant-administration-cards/companies.md)) |
-| Contracts | `contracts.*` · `BusinessCenter\Contract\ContractController`, archive controller | contracts/company relations/files | CRUD requests + ContractPolicy + ContractService + archive lifecycle | DT + forms/archive | F,U,I,S | Compliant ([بطاقة الإدارة](tenant-administration-cards/contracts.md)) |
-| Portfolios | `portfolios.*` · `BusinessCenter\Portfolio\PortfolioController`, archive controller | company portfolios/files | CRUD requests + PortfolioPolicy + PortfolioService + archive actions | DT + forms/archive | F,U,I,S | Compliant ([بطاقة الإدارة](tenant-administration-cards/portfolios.md)) |
-| Tasks | `tasks.*`, `my-tasks.*` · `TaskController`, `MyTaskController` | assignee/task exports | TaskPolicy + scoped export requests + TaskService | DT + View | F,U,I,S | Compliant ([بطاقة الإدارة](tenant-administration-cards/tasks.md)) |
-| Customers core | `customers.*` · `BusinessCenter\Customer\CustomerController`, archive controller | customers/company/portfolio relations | CRUD requests + CustomerPolicy (manager-scope) + CustomerService | DT + forms/archive | F,U,I,S | Compliant ([بطاقة الإدارة](tenant-administration-cards/customers-core.md)) |
-| Customer communications | `customers.{comments,notes,attachments,phones,letters,sms}.*` · `Customer{Comment,Note,Attachment,PhoneRequest,Sms}Controller`, `CompanyLetterController` | customer-owned subresources/files/messages | parent customer check + subresource ownership + services | Views/API | F,U,I,S | Compliant ([بطاقة الإدارة](tenant-administration-cards/customer-communications.md)) |
-| Customer finance | `customers.{payments,payment-plans,settlements,payment-history}.*`, `collections.*`, `collection-process.*`, `collection-targets.*`, `collection-import.*`, `payment-reconciliation.*` | balances/installments/settlements and supporting collection workflows | parent check + collection permission + financial services | DT + forms/API | F,U,I,S | Compliant ([بطاقة الإدارة](tenant-administration-cards/customer-finance.md)) |
-| Customer bulk ops | `customers.{import,export,bulk-update,distribution,update-requests,follow}.*` · `Customer{Import,Export,BulkUpdate,Distribution,UpdateRequest,Follow}Controller`, `GetCustomerImportController` | files/jobs/progress/cache/owner | CustomerPolicy + CustomerUpdateRequestPolicy + scoped temp files/jobs | API + View | F,U,I,S | Compliant ([بطاقة الإدارة](tenant-administration-cards/customer-bulk-ops.md)) |
 
 ## 5. Tenant — assignments, assets, collections, communication and domains
 
@@ -156,8 +148,6 @@ Status: Gap | Partial | Compliant
 | Assignments | `assignments.*` + archive · `AssignmentsController`, archive controller | assignment → property → auction lifecycle | wizard requests + safe unassigned-property validation/action lock + registered resource Policy + archive lifecycle Actions | DT + wizard/archive | F,U,I,S | Compliant |
 | Properties | `properties.*` + archive · `PropertiesController`, archive controller | property/assignment/files/status | wizard requests + isolation baseline + lifecycle flow coverage + registered resource Policy + archive/files Actions + relation delete guard | DT + wizard/archive | F,U,I,S | Compliant |
 | Auctions | `auctions.*` + archive · `AuctionsController`, archive controller | auction/properties/attachments | wizard requests + Create/Update Actions + assignment-property invariant + registered resource Policy + archive/files Actions + drafts lifecycle | DT + wizard/drafts/archive | F,U,I,S | Compliant |
-| Communication logs | `communication.*` · `MessageLogController`, `MessageIndividualLogController` | message log/recipients | MessageLogPolicy + MessageIndividualLogPolicy + typed permissioned export | DT + View | F,U,I,S | Compliant ([بطاقة الإدارة](tenant-administration-cards/communication-logs.md)) |
-| Reports | `reports.{company,customer,customer-follow,executive,financial,performance}.*` · six report controllers | filters/export files/jobs/progress | route permissions + TenantExportAccess owner authorization | Reports/API | F,U,I,S | Compliant ([بطاقة الإدارة](tenant-administration-cards/reports.md)) |
 | Domains & cPanel | `domains.*` · `DomainController`, `CheckMultipleDomainController`, `GetDomainInfoController`, `DomainPaymentController`, `RenewalDomainController`, `CpanelController`, `__LinkDomain\LinkDomainController` | central domain gateway, provider API/cache/payment | typed permissions + CentralDomainGateway + services config | DT + forms/API | F,U,I,S | Compliant ([بطاقة الإدارة](tenant-administration-cards/domains-cpanel.md)) |
 
 
@@ -167,7 +157,7 @@ Status: Gap | Partial | Compliant
 Administration: Tenant Assignments
 Boundary: tenant
 Scope / aggregate root: Assignment (1:M with Properties, 1:M with Auctions, polymorphic Attachments)
-Routes + middleware + guard: routes/tenant/tenant.php (prefix 'assignments', resource routes, toggle-status, properties, selected-properties) + auth:tenant + authorizeResource + Spatie permissions
+Routes + middleware + guard: routes/tenant.php (prefix 'assignments', resource routes, toggle-status, properties, selected-properties) + auth:tenant + authorizeResource + Spatie permissions
 Controller: App\Http\Controllers\Tenants\Assignments\AssignmentsController
 FormRequests: StoreAssignmentRequest, UpdateAssignmentRequest, SelectedAssignmentPropertiesRequest, UpdateResourceStatusRequest
 Policy registration + abilities: App\Policies\Tenants\Assignments\AssignmentPolicy registered in AuthServiceProvider (viewAny, view, create, update, delete, restore, forceDelete)
@@ -192,7 +182,7 @@ Status: Compliant
 Administration: Tenant Properties
 Boundary: tenant
 Scope / aggregate root: Property (M:1 Assignment, M:M Auctions, 1:M Boundaries/Owners/Units, polymorphic Attachments)
-Routes + middleware + guard: routes/tenant/tenant.php (prefix 'properties', resource routes, toggle-status, search-location) + auth:tenant + authorizeResource + Spatie permissions
+Routes + middleware + guard: routes/tenant.php (prefix 'properties', resource routes, toggle-status, search-location) + auth:tenant + authorizeResource + Spatie permissions
 Controller: App\Http\Controllers\Tenants\Properties\PropertiesController
 FormRequests: StorePropertyRequest, UpdatePropertyRequest, SearchPropertyLocationRequest, UpdateResourceStatusRequest
 Policy registration + abilities: App\Policies\Tenants\Properties\PropertyPolicy registered in AuthServiceProvider (viewAny, view, create, update, delete, restore, forceDelete)
@@ -217,7 +207,7 @@ Status: Compliant
 Administration: Tenant Auctions
 Boundary: tenant
 Scope / aggregate root: Auction (M:1 Assignment, M:M Properties via auction_properties pivot with sort_order, 1:M AuctionAttachments)
-Routes + middleware + guard: routes/tenant/tenant.php (prefix 'auctions', resource routes, toggle-status) + auth:tenant + authorizeResource + Spatie permissions
+Routes + middleware + guard: routes/tenant.php (prefix 'auctions', resource routes, toggle-status) + auth:tenant + authorizeResource + Spatie permissions
 Controller: App\Http\Controllers\Tenants\Auctions\AuctionsController
 FormRequests: StoreAuctionRequest, UpdateAuctionRequest, UpdateResourceStatusRequest
 Policy registration + abilities: App\Policies\Tenants\Auctions\AuctionPolicy registered in AuthServiceProvider (viewAny, view, create, update, delete, restore, forceDelete)

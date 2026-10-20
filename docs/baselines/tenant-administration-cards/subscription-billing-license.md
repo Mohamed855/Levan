@@ -1,7 +1,7 @@
 Administration: Tenant Subscription, Billing, License & Versions
 Boundary: tenant
 Scope / aggregate root: Tenant commercial subscription lifecycle, invoice history, payment verification, license validation, platform version notes
-Routes + middleware + guard: routes/tenant/tenant.php (subscribe.*, subscriptions.*, bills.*, licenses.*, versions.*) + auth:tenant
+Routes + middleware + guard: routes/tenant.php (subscribe.*, subscriptions.*, bills.*, licenses.*, versions.*) + auth:tenant
 Controller: App\Http\Controllers\Tenants\Subscriptions\NewSubscriptionController, TenantSubscriptionController, App\Http\Controllers\Tenants\Bills\BillsController, App\Http\Controllers\Tenants\License\LicenseController, App\Http\Controllers\Tenants\Versions\VersionController
 FormRequests: dedicated subscription, bill-receipt, license, and version FormRequests
 Policy registration + abilities: route capabilities and typed requests; all central state is accessed through explicit gateways.

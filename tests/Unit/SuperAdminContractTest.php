@@ -97,7 +97,7 @@ class SuperAdminContractTest extends TestCase
     public function test_admin_login_uses_the_shared_validation_contract(): void
     {
         $view = file_get_contents(dirname(__DIR__, 2).'/resources/views/admin/auth/login.blade.php');
-        $routes = file_get_contents(dirname(__DIR__, 2).'/routes/admin/admin-auth.php');
+        $routes = file_get_contents(dirname(__DIR__, 2).'/routes/admin.php');
 
         $this->assertStringContainsString('data-form-validate', $view);
         $this->assertStringContainsString("route('admin.form-validation')", $view);
@@ -157,7 +157,7 @@ class SuperAdminContractTest extends TestCase
 
     public function test_subscription_management_approval_routes_and_requests_use_their_specific_permissions(): void
     {
-        $routes = file_get_contents(dirname(__DIR__, 2).'/routes/admin/admin.php');
+        $routes = file_get_contents(dirname(__DIR__, 2).'/routes/admin.php');
 
         $this->assertStringContainsString("Route::middleware('can:subscriptions.pending.approve')->group", $routes);
         $this->assertStringContainsString("Route::middleware('can:subscriptions.pending.reject')->group", $routes);

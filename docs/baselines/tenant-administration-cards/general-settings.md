@@ -1,7 +1,7 @@
 Administration: Tenant General Settings & Dictionaries
 Boundary: tenant
 Scope / aggregate root: Lookup dictionaries: Countries, Payment Methods, Contact Methods, Document Request Reasons, Customer Statuses, Message Templates
-Routes + middleware + guard: routes/tenant/tenant.php (general-settings.*) + auth:tenant + permission per capability
+Routes + middleware + guard: routes/tenant.php (general-settings.*) + auth:tenant + permission per capability
 Controller: App\Http\Controllers\Tenants\GeneralSetting\{Country,PaymentMethod,ContactMethod,DocumentRequest,CustomerStatus}\*Controller, MessageTemplateController
 FormRequests: SaveGeneralSettingRequest, SaveDocumentRequestReasonRequest, SaveSettingsCustomerStatusRequest, StoreMessageTemplateRequest, UpdateMessageTemplateRequest, PreviewMessageTemplateRequest
 Policy registration + abilities: Dedicated CountryPolicy, PaymentMethodPolicy, ContactMethodPolicy, DocumentRequestReasonPolicy, CustomerStatusPolicy, and MessageTemplatePolicy registered in AuthServiceProvider

@@ -1,7 +1,7 @@
 Administration: Central Public Trial Requests
 Boundary: central
 Scope / aggregate root: TrialRequest and its approval/rejection workflow
-Routes + middleware + guard: routes/admin/admin.php (admin.trial-requests.*) + auth:admin + trial_requests.view/approve/reject
+Routes + middleware + guard: routes/admin.php (admin.trial-requests.*) + auth:admin + trial_requests.view/approve/reject
 Controller: AppHttpControllersAdminPublicRequestsTrialRequestController
 FormRequests: AppHttpRequestsAdminPublicRequestsRejectTrialRequest
 Policy registration + abilities: AppPoliciesAdminPublicRequestsTrialRequestPolicy (viewAny, view, approve, reject)

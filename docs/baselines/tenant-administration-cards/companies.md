@@ -1,7 +1,7 @@
 Administration: Tenant Business Center: Companies
 Boundary: tenant
 Scope / aggregate root: Business center company entities, tax information, contact records, company contracts
-Routes + middleware + guard: routes/tenant/tenant.php (companies.*) + auth:tenant + companies permission
+Routes + middleware + guard: routes/tenant.php (companies.*) + auth:tenant + companies permission
 Controller: App\Http\Controllers\Tenants\BusinessCenter\Company\CompanyController, App\Http\Controllers\Tenants\Archive\Company\CompanyArchiveController
 FormRequests: StoreCompanyRequest, UpdateCompanyRequest, UpdateResourceStatusRequest
 Policy registration + abilities: CompanyPolicy registered in AuthServiceProvider

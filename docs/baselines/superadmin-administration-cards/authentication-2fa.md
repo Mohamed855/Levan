@@ -1,7 +1,7 @@
 Administration: SuperAdmin Authentication & Two-Factor Challenge
 Boundary: central
 Scope / aggregate root: Admin session lifecycle, brute-force rate-limiting, TOTP 2FA secret generation, QR codes, recovery codes, authentication logging
-Routes + middleware + guard: routes/admin/admin-auth.php (admin.login, admin.logout, admin.two-factor.*) + guest:admin / auth:admin
+Routes + middleware + guard: routes/admin.php (admin.login, admin.logout, admin.two-factor.*) + guest:admin / auth:admin
 Controller: App\Http\Controllers\Admin\Auth\AdminAuthController, App\Http\Controllers\Admin\Auth\AdminTwoFactorChallengeController, App\Http\Controllers\Admin\Auth\AdminTwoFactorSettingsController
 FormRequests: App\Http\Requests\Admin\Auth\AdminLoginRequest, App\Http\Requests\Admin\Auth\AdminTwoFactorChallengeRequest, App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest, App\Http\Requests\Admin\Auth\ConfirmAdminTwoFactorRequest
 Policy registration + abilities: Not applicable (guest authentication and admin self-service 2FA configuration)

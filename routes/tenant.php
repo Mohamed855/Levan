@@ -13,7 +13,16 @@ use App\Http\Controllers\Tenants\Assignments\AssignmentsController;
 use App\Http\Controllers\Tenants\Auctions\AuctionOutputController;
 use App\Http\Controllers\Tenants\Auctions\AuctionsController;
 use App\Http\Controllers\Tenants\Auth\Fortify\TenantTwoFactorSettingsController;
+use App\Http\Controllers\Tenants\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Tenants\Auth\ConfirmablePasswordController;
+use App\Http\Controllers\Tenants\Auth\EmailVerificationNotificationController;
+use App\Http\Controllers\Tenants\Auth\EmailVerificationPromptController;
+use App\Http\Controllers\Tenants\Auth\Fortify\TenantTwoFactorChallengeController;
+use App\Http\Controllers\Tenants\Auth\NewPasswordController;
 use App\Http\Controllers\Tenants\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Tenants\Auth\RegisteredUserController;
+use App\Http\Controllers\Tenants\Auth\VerifyEmailController;
+use App\Http\Controllers\Tenants\Auth\PasswordController;
 use App\Http\Controllers\Tenants\Bills\BillsController;
 use App\Http\Controllers\Tenants\BusinessCenter\Company\CompanyController;
 use App\Http\Controllers\Tenants\ChartSetting\ChartSettingController;
@@ -35,7 +44,6 @@ use App\Http\Controllers\Tenants\Subscriptions\NewSubscriptionController;
 use App\Http\Controllers\Tenants\Subscriptions\TenantSubscriptionController;
 use App\Http\Controllers\Tenants\Tickets\TicketController;
 use App\Http\Controllers\Tenants\UserMangment\Role\RoleController;
-use App\Http\Controllers\Tenants\UserMangment\Team\TeamController;
 use App\Http\Controllers\Tenants\UserMangment\User\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -58,8 +66,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
                 UserController::class.'@updateImage',
                 UserController::class.'@updateBackgroundImage',
                 UserController::class.'@updatePassword',
-                TeamController::class.'@store',
-                TeamController::class.'@update',
                 RoleController::class.'@store',
                 RoleController::class.'@update',
                 SettingsController::class.'@update',
@@ -279,16 +285,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
 
         /*
         |--------------------------------------------------------------------------
-        | Team Management
-        |--------------------------------------------------------------------------
-        */
-        Route::prefix('teams')->name('teams.')->group(function () {
-            Route::patch('{team}/toggle-status', [TeamController::class, 'toggleStatus'])->name('toggle-status');
-            Route::resource('/', TeamController::class)->parameters(['' => 'team']);
-        });
-
-        /*
-        |--------------------------------------------------------------------------
         | Roles & Permissions
         |--------------------------------------------------------------------------
         */
@@ -448,4 +444,51 @@ Route::middleware('guest')->prefix('forgot-password')->group(function () {
     Route::name('password.email')->post('/', [PasswordResetLinkController::class, 'store']);
 });
 
-require __DIR__.'/tenant-auth.php';
+Route::get('impersonate', [AuthenticatedSessionController::class, 'impersonate'])
+    ->name('impersonate');
+
+Route::middleware('guest:tenant')->group(function () {
+    Route::match(['post', 'put', 'patch'], 'form-validation', [WizardDraftController::class, 'validateStep'])
+        ->defaults('shared_form_validation_actions', [
+            AuthenticatedSessionController::class . '@store',
+            RegisteredUserController::class . '@store',
+            PasswordResetLinkController::class . '@store',
+            NewPasswordController::class . '@store',
+            TenantTwoFactorChallengeController::class . '@store',
+        ])
+        ->name('form-validation');
+
+    Route::name('register')->get('register', [RegisteredUserController::class, 'create']);
+    Route::post('register', [RegisteredUserController::class, 'store']);
+    Route::name('login')->get('login', [AuthenticatedSessionController::class, 'create']);
+    Route::post('login', [AuthenticatedSessionController::class, 'store']);
+    Route::name('password.request')->get('forgot-password', [PasswordResetLinkController::class, 'create']);
+    Route::name('password.email')->post('forgot-password', [PasswordResetLinkController::class, 'store']);
+    Route::name('password.reset')->get('reset-password/{token}', [NewPasswordController::class, 'create']);
+    Route::name('password.store')->post('reset-password', [NewPasswordController::class, 'store']);
+
+    Route::get('two-factor-challenge', [TenantTwoFactorChallengeController::class, 'create'])->name('tenants.two-factor.login');
+    Route::post('two-factor-challenge', [TenantTwoFactorChallengeController::class, 'store'])->name('tenants.two-factor.store')->middleware('throttle:5,1');
+    Route::get('two-factor-challenge/cancel', [TenantTwoFactorChallengeController::class, 'cancel'])->name('tenants.two-factor.cancel');
+});
+
+Route::middleware('auth:tenant')->group(function () {
+    Route::name('verification.notice')->get('verify-email', EmailVerificationPromptController::class);
+    Route::name('verification.verify')->get('verify-email/{id}/{hash}', VerifyEmailController::class)->middleware(['signed', 'throttle:6,1']);
+    Route::name('verification.send')->post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])->middleware('throttle:6,1');
+    Route::name('password.confirm')->get('confirm-password', [ConfirmablePasswordController::class, 'show']);
+    Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
+    Route::name('password.update')->put('password', [PasswordController::class, 'update']);
+    Route::name('logout')->post('logout', [AuthenticatedSessionController::class, 'destroy']);
+
+    Route::name('tenants.two-factor.')->group(function () {
+        Route::get('two-factor-authentication', [TenantTwoFactorSettingsController::class, 'show'])->name('index');
+        Route::post('two-factor-authentication', [TenantTwoFactorSettingsController::class, 'enable'])->name('enable');
+        Route::delete('two-factor-authentication', [TenantTwoFactorSettingsController::class, 'disable'])->name('disable');
+        Route::post('confirmed-two-factor-authentication', [TenantTwoFactorSettingsController::class, 'confirm'])
+            ->defaults('shared_form_validation', true)
+            ->name('confirm');
+        Route::get('two-factor-qr-code', [TenantTwoFactorSettingsController::class, 'qrCode'])->name('qr-code');
+        Route::post('two-factor-recovery-codes', [TenantTwoFactorSettingsController::class, 'recoveryCodes'])->name('recovery-codes');
+    });
+});

@@ -1,7 +1,7 @@
 Administration: Central Technical Support Tickets
 Boundary: central
 Scope / aggregate root: Customer technical support tickets, staff responses, department assignment, ticket resolution
-Routes + middleware + guard: routes/admin/admin.php (admin.tickets.*) + auth:admin + permission:tickets.*, system.settings
+Routes + middleware + guard: routes/admin.php (admin.tickets.*) + auth:admin + permission:tickets.*, system.settings
 Controller: App\Http\Controllers\Admin\Tickets\AdminTicketController
 FormRequests: App\Http\Requests\Admin\Tickets\ReplyTicketRequest, App\Http\Requests\Admin\Tickets\UpdateTicketStatusRequest, App\Http\Requests\Admin\Tickets\ToggleTicketsServiceRequest
 Policy registration + abilities: App\Policies\Admin\Tickets\TicketPolicy registered in AuthServiceProvider for Ticket::class

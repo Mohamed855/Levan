@@ -38,7 +38,6 @@ class PermissionsRolesSeeder extends Seeder
                 'users.edit',
                 'users.delete',
                 'system.groups',
-                'teams.manage',
             ],
             'business_center' => [
                 'companies.view',

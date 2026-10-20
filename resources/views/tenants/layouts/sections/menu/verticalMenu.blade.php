@@ -37,19 +37,10 @@
         </li>
 
         {{-- إدارة الشركة وفريق العمل --}}
-        @canany(['users.view', 'system.groups', 'roles.view'])
+        @canany(['users.view', 'roles.view'])
             <li class="menu-header small">
                 <span class="menu-header-text">الشركة وفريق العمل</span>
             </li>
-
-            @can('system.groups')
-                <li class="menu-item @if (Helpers::isActiveRoute('teams.*')) active @endif">
-                    <a href="{{ tenant_route_name('teams.index') }}" class="menu-link">
-                        <i class="menu-icon tf-icons ti ti-users-group"></i>
-                        <div>فرق العمل</div>
-                    </a>
-                </li>
-            @endcan
 
             @can('users.view')
                 <li class="menu-item @if (Helpers::isActiveRoute('users.*')) active @endif">

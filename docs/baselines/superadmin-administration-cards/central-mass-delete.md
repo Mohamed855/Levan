@@ -1,7 +1,7 @@
 Administration: Central Mass Delete
 Boundary: central
 Scope / aggregate root: Multi-record deletion across authorized central models registered in AdminMassDeleteController::ALLOWED_MODELS
-Routes + middleware + guard: routes/admin/admin.php (admin.mass-delete) + auth:admin
+Routes + middleware + guard: routes/admin.php (admin.mass-delete) + auth:admin
 Controller: App\Http\Controllers\Admin\DeleteBulk\AdminMassDeleteController
 FormRequests: App\Http\Requests\Admin\DeleteBulk\MassDeleteRequest
 Policy registration + abilities: Per-record policy delete check for every loaded record instance in selection payload

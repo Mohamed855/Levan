@@ -1,7 +1,7 @@
 Administration: Central Archive for Soft-Deleted Records
 Boundary: central
 Scope / aggregate root: Restoration and permanent deletion of central soft-deleted models (AdminUsers, Plans, Coupons, Tenants, Bills)
-Routes + middleware + guard: routes/admin/admin.php (admin.archives.*) + auth:admin + permission per model
+Routes + middleware + guard: routes/admin.php (admin.archives.*) + auth:admin + permission per model
 Controller: App\Http\Controllers\Admin\Archive\AdminUser\AdminUserController, App\Http\Controllers\Admin\Archive\Plan\PlanArchiveController, App\Http\Controllers\Admin\Archive\Coupon\CouponArchiveController, App\Http\Controllers\Admin\Archive\Tenant\TenantArchiveController, App\Http\Controllers\Admin\Archive\Bill\BillArchiveController
 FormRequests: App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest
 Policy registration + abilities: Per-model policies restore and forceDelete abilities (AdminUserPolicy, PlanPolicy, CouponPolicy, TenantPolicy, BillPolicy)

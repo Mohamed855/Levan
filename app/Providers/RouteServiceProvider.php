@@ -62,7 +62,7 @@ class RouteServiceProvider extends ServiceProvider
                 $routes->as("central-domain-{$index}.");
             }
 
-            $routes->group(base_path('routes/site/site.php'));
+            $routes->group(base_path('routes/web.php'));
         }
     }
 
@@ -77,7 +77,7 @@ class RouteServiceProvider extends ServiceProvider
                 $routes->as("central-domain-{$index}.");
             }
 
-            $routes->group(base_path('routes/admin/admin.php'));
+            $routes->group(base_path('routes/admin.php'));
         }
     }
 
@@ -97,7 +97,7 @@ class RouteServiceProvider extends ServiceProvider
                 ->prefix('{tenant}')
                 ->name($index === 0 ? 'path.' : "central-domain-{$index}.path.")
                 ->where(['tenant' => '^(?!(?i)(admin|api)(?:\/|$))[^/]+$'])
-                ->group(base_path('routes/tenant/tenant.php'));
+                ->group(base_path('routes/tenant.php'));
         }
 
         Route::middleware([
@@ -105,7 +105,7 @@ class RouteServiceProvider extends ServiceProvider
             'prevent.central',
             'tenant.domain',
             'tenant.maintenance',
-        ])->name('domain.')->group(base_path('routes/tenant/tenant.php'));
+        ])->name('domain.')->group(base_path('routes/tenant.php'));
     }
 
     /**

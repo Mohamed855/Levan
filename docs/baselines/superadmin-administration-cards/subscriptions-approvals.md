@@ -1,7 +1,7 @@
 Administration: Central Subscriptions & Tenant Approval Workflow
 Boundary: central
 Scope / aggregate root: Tenant subscription records, manual bank transfer verification, plan upgrades/downgrades, subscription approvals and rejections
-Routes + middleware + guard: routes/admin/admin.php (admin.subscriptions.*, admin.subscriptionManage.*) + auth:admin + permission:subscriptions.*, subscriptions.pending.*
+Routes + middleware + guard: routes/admin.php (admin.subscriptions.*, admin.subscriptionManage.*) + auth:admin + permission:subscriptions.*, subscriptions.pending.*
 Controller: App\Http\Controllers\Admin\Subscriptions\SubscriptionController, App\Http\Controllers\Admin\SubscriptionManagement\SubscriptionManagementController
 FormRequests: App\Http\Requests\Admin\Subscriptions\StoreSubscriptionRequest, App\Http\Requests\Admin\SubscriptionManagement\StoreSubscriptionRequest, App\Http\Requests\Admin\SubscriptionManagement\UpdateCompanySubscriptionRequest, App\Http\Requests\Admin\SubscriptionManagement\FinalizeCompanySubscriptionRequest, App\Http\Requests\Admin\SubscriptionManagement\RejectSubscriptionRequest, App\Http\Requests\Admin\SubscriptionManagement\MassAcceptSubscriptionsRequest, App\Http\Requests\Admin\SubscriptionManagement\MassRejectSubscriptionsRequest
 Policy registration + abilities: App\Policies\Admin\Subscriptions\SubscriptionPolicy registered in AuthServiceProvider for Subscription::class

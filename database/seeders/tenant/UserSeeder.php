@@ -2,7 +2,6 @@
 
 namespace Database\Seeders\tenant;
 
-use App\Models\Tenants\UserMangment\Team\Team;
 use App\Models\Tenants\UserMangment\User\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -12,8 +11,6 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        $team = Team::first();
-
         // 1. Admin User
         $admin = User::updateOrCreate(
             ['email' => 'demo@levan.com'],
@@ -25,8 +22,6 @@ class UserSeeder extends Seeder
                 'phone'             => '0500000001',
                 'status'            => 'active',
                 'image'             => '',
-                'team_id'           => $team?->id,
-                'is_team_leader'    => true,
                 'global_uid'        => '00000000-0000-0000-0000-000000000001',
                 'license_seat_id'   => '11111111-1111-1111-1111-000000000001',
             ]
@@ -72,8 +67,6 @@ class UserSeeder extends Seeder
                     'phone'             => $agentData['phone'],
                     'status'            => 'active',
                     'image'             => '',
-                    'team_id'           => $team?->id,
-                    'is_team_leader'    => false,
                     'global_uid'        => $agentData['global_uid'],
                     'license_seat_id'   => $agentData['license_seat_id'],
                 ]

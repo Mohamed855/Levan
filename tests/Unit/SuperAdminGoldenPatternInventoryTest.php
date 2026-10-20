@@ -49,16 +49,15 @@ class SuperAdminGoldenPatternInventoryTest extends TestCase
         'activity-log.md',
         'central-archive.md',
         'central-mass-delete.md',
-        'api-integrations.md',
         'public-contact-requests.md',
         'public-trial-requests.md',
     ];
 
-    public function test_superadmin_inventory_has_exactly_18_families(): void
+    public function test_superadmin_inventory_has_exactly_17_families(): void
     {
         $manifest = file_get_contents(dirname(__DIR__, 2).'/docs/baselines/golden-pattern-manifest.md');
 
-        $this->assertCount(18, self::SUPERADMIN_CARD_FILES);
+        $this->assertCount(17, self::SUPERADMIN_CARD_FILES);
         $this->assertStringContainsString('Central / Super Admin', $manifest);
     }
 

@@ -24,7 +24,6 @@ class Kernel extends ConsoleKernel
         // $schedule->command('import:cleanup-sessions')->dailyAt('12:00');
 
         // اغلاق فترات العمل الغير نشطة بعد 10 دقائق من آخر نشاط
-        $schedule->command('collection:close-inactive-periods')->everyMinute()->withoutOverlapping();
 
         // For Export Monthly Activity Logs
         $schedule->command('activity-logs:export-monthly')->monthlyOn(1, '00:01');
@@ -44,7 +43,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('message-logs:delete-old')->dailyAt('03:00');
 
         // ============ SMS Credit Top-Up ============
-        $schedule->command('payment-plan:reminders')->dailyAt('06:00');
 
         $schedule->job(new TransferDomainJob)
             ->hourly()

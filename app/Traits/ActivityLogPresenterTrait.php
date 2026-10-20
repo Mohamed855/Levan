@@ -8,17 +8,8 @@ trait ActivityLogPresenterTrait
     {
         return [
             'companies' => 'الشركات',
-            'contracts' => 'العقود',
-            'customers' => 'العملاء',
-            'customer_follow' => 'المتابعات',
-            'customer_payment_plan' => 'خطط السداد',
-            'customer_phone' => 'أرقام الاتصال',
-            'customer_settlement' => 'طلبات التسوية',
-            'customer_update_requests' => 'طلبات تحديث بيانات العميل',
             'users' => 'المستخدمين',
             'admin_users' => 'إدارة المستخدمين',
-            'portfolios' => 'المحافظ',
-            'collections' => 'التحصيلات',
             'auth' => 'تسجيل الدخول',
         ];
     }
@@ -27,16 +18,7 @@ trait ActivityLogPresenterTrait
     {
         return [
             'Company' => 'شركة',
-            'Contract' => 'عقد',
-            'Customer' => 'عميل',
-            'CustomerFollow' => 'متابعة',
-            'CustomerPaymentPlan' => 'خطة سداد',
-            'CustomerPhone' => 'رقم هاتف',
-            'CustomerSettlement' => 'تسوية',
-            'CustomerUpdateRequest' => 'طلب تحديث بيانات العميل',
             'User' => 'مستخدم',
-            'Portfolio' => 'محفظة',
-            'Collection' => 'تحصيل',
         ];
     }
 

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services\Tenants\Dashboard;
 
-use App\Models\Tenants\UserMangment\Team\Team;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Services\Tenants\Shared\CentralSubscriptionContextGateway;
 
@@ -21,7 +20,6 @@ class DashboardService
             'stats' => [
                 'total_users' => User::query()->count(),
                 'active_users' => User::query()->where('status', 'active')->count(),
-                'total_teams' => Team::query()->count(),
                 ...$subscription,
             ],
             'tenant' => tenant(),

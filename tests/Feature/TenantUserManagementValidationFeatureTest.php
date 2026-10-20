@@ -62,18 +62,6 @@ class TenantUserManagementValidationFeatureTest extends TestCase
         $limitedUser->forceDelete();
     }
 
-    public function test_team_requires_two_members_and_one_leader(): void
-    {
-        $this->actingAs($this->owner, 'tenant')
-            ->postJson($this->tenantUrl('teams'), [
-                'name' => 'فريق غير مكتمل',
-                'members' => [],
-                'leaders' => [],
-            ])
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors(['members', 'leaders']);
-    }
-
     public function test_role_identifier_must_use_english_database_key_format(): void
     {
         $this->actingAs($this->owner, 'tenant')

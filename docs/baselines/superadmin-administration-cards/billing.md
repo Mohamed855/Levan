@@ -1,7 +1,7 @@
 Administration: Central Billing & Receipts
 Boundary: central
 Scope / aggregate root: Central invoices, receipt auditing, payment reconciliation, manual activation
-Routes + middleware + guard: routes/admin/admin.php (admin.bills.*) + auth:admin + permission:financial_transactions.view, subscriptions.pending.*
+Routes + middleware + guard: routes/admin.php (admin.bills.*) + auth:admin + permission:financial_transactions.view, subscriptions.pending.*
 Controller: App\Http\Controllers\Admin\Bills\AdminBillsController
 FormRequests: App\Http\Requests\Admin\Bills\RejectBillRequest, App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest
 Policy registration + abilities: App\Policies\Admin\Bills\BillPolicy registered in AuthServiceProvider for Bill::class

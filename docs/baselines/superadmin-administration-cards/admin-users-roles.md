@@ -1,7 +1,7 @@
 Administration: Central Administrator Users & Roles
 Boundary: central
 Scope / aggregate root: SuperAdmin users, Spatie admin guard roles and permissions assignment
-Routes + middleware + guard: routes/admin/admin.php (admin.users.*, admin.roles.*) + auth:admin + Spatie permissions (users.*, roles.*)
+Routes + middleware + guard: routes/admin.php (admin.users.*, admin.roles.*) + auth:admin + Spatie permissions (users.*, roles.*)
 Controller: App\Http\Controllers\Admin\AdminMangment\Users\AdminUserController, App\Http\Controllers\Admin\AdminMangment\Roles\AdminRoleController
 FormRequests: App\Http\Requests\Admin\AdminMangment\Users\AdminUserStoreRequest, App\Http\Requests\Admin\AdminMangment\Users\AdminUserUpdateRequest, App\Http\Requests\Admin\AdminMangment\Users\BulkDeleteAdminUsersRequest, App\Http\Requests\Admin\AdminMangment\Users\CheckAdminUserEmailUniqueRequest, App\Http\Requests\Admin\AdminMangment\Users\CheckAdminUserNameUniqueRequest, App\Http\Requests\Admin\AdminMangment\Users\CheckAdminUserPhoneUniqueRequest, App\Http\Requests\Admin\AdminMangment\Role\AdminStoreRoleRequest, App\Http\Requests\Admin\AdminMangment\Role\AdminUpdateRoleRequest, App\Http\Requests\Admin\AdminMangment\Role\AdminUpdateUserPermissionsRequest, App\Http\Requests\Admin\AdminMangment\Role\AdminUpdateUserRoleRequest
 Policy registration + abilities: App\Policies\Admin\Users\AdminUserPolicy, App\Policies\Shared\RolePolicy registered in AuthServiceProvider

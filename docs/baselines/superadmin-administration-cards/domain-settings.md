@@ -1,7 +1,7 @@
 Administration: Central Domain Settings & Control TLDs
 Boundary: central
 Scope / aggregate root: Platform allowed domain names, central domains for tenant subdomains, DNS server configuration
-Routes + middleware + guard: routes/admin/admin.php (admin.settings.domains.*) + auth:admin + permission:domain_extension_prices.settings
+Routes + middleware + guard: routes/admin.php (admin.settings.domains.*) + auth:admin + permission:domain_extension_prices.settings
 Controller: App\Http\Controllers\Admin\Settings\Domain\SettingsDomainController
 FormRequests: App\Http\Requests\Admin\Settings\Domain\StoreControlDomainRequest, App\Http\Requests\Admin\Settings\Domain\UpdateControlDomainRequest
 Policy registration + abilities: App\Policies\Admin\Settings\ControlDomainPolicy registered in AuthServiceProvider for ControlDomain::class

@@ -34,7 +34,7 @@ Route
 | قاعدة البيانات | الاتصال المركزي                  | اتصال قاعدة المستأجر المهيأ بواسطة tenancy middleware |
 | Guard          | `auth:admin`                     | `auth:tenant`                                         |
 | Namespace      | `Admin`                          | `Tenants`                                             |
-| Routes         | `routes/admin/admin.php`         | `routes/tenant/tenant.php`                            |
+| Routes         | `routes/admin.php`               | `routes/tenant.php`                                   |
 | Views          | `resources/views/admin/{module}` | `resources/views/tenants/{module}`                    |
 | Drafts         | جدول `wizard_drafts` المركزي     | جدول `wizard_drafts` داخل قاعدة كل مستأجر             |
 | اختبار العزل   | صلاحية وسجل مركزي                | Tenant A لا يرى أو يعدل بيانات Tenant B               |
@@ -125,8 +125,8 @@ tests/Feature/{PhpBoundary}/{Module}/{Entity}IsolationTest.php     # Tenant فق
 
 ### مكانه ومسؤوليته
 
--   Central: `routes/admin/admin.php` داخل مجموعة `admin.` و`auth:admin`.
--   Tenant: `routes/tenant/tenant.php` داخل مجموعة `auth:tenant` وبعد تهيئة tenancy، وتضاف `tenant.subscription` و`tenant.license` عند اعتماد الإدارة عليهما.
+-   Central: `routes/admin.php` داخل مجموعة `admin.` و`auth:admin`.
+-   Tenant: `routes/tenant.php` داخل مجموعة `auth:tenant` وبعد تهيئة tenancy، وتضاف `tenant.subscription` و`tenant.license` عند اعتماد الإدارة عليهما.
 -   الـroute يعرّف HTTP contract فقط؛ لا يحتوي business logic أو closures لتنفيذ عمليات الإدارة.
 
 ### الشكل القياسي

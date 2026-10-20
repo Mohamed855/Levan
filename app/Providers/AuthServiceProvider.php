@@ -21,7 +21,6 @@ use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Models\Tenants\Properties\Property;
-use App\Models\Tenants\UserMangment\Team\Team;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Policies\Admin\AuctionTemplates\AuctionTemplatePolicy;
 use App\Policies\Admin\Bills\BillPolicy;
@@ -42,7 +41,6 @@ use App\Policies\Tenants\Assignments\AssignmentPolicy;
 use App\Policies\Tenants\Auctions\AuctionPolicy;
 use App\Policies\Tenants\BusinessCenter\Company\CompanyPolicy;
 use App\Policies\Tenants\Properties\PropertyPolicy;
-use App\Policies\Tenants\UserManagement\Team\TeamPolicy;
 use App\Policies\Tenants\UserManagement\User\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Spatie\Activitylog\Models\Activity;
@@ -74,7 +72,6 @@ class AuthServiceProvider extends ServiceProvider
         Property::class => PropertyPolicy::class,
         Auction::class => AuctionPolicy::class,
         Company::class => CompanyPolicy::class,
-        Team::class => TeamPolicy::class,
         User::class => UserPolicy::class,
         Activity::class => ActivityLogPolicy::class,
         Role::class => RolePolicy::class,

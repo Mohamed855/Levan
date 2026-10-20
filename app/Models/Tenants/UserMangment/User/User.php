@@ -2,7 +2,6 @@
 
 namespace App\Models\Tenants\UserMangment\User;
 
-use App\Models\Tenants\UserMangment\Team\Team;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -43,8 +42,6 @@ class User extends Authenticatable
         'email',
         'password',
         'phone',
-        'team_id',
-        'is_team_leader',
         'status',
         'image',
         'last_login_at',
@@ -145,8 +142,6 @@ class User extends Authenticatable
                 'name' => 'اسم المستخدم',
                 'email' => 'البريد الإلكتروني',
                 'phone' => 'رقم الهاتف',
-                'team_id' => 'المجموعة',
-                'is_team_leader' => 'صفة القيادة',
                 'status' => 'حالة المستخدم',
                 'image' => 'صورة المستخدم',
             ];
@@ -192,14 +187,6 @@ class User extends Authenticatable
             }
 
             switch ($field) {
-                case 'team_id':
-                    $team = Team::find($value);
-
-                    return $team ? $team->name : 'غير محدد';
-
-                case 'is_team_leader':
-                    return $value ? 'قائد فريق' : 'عضو عادي';
-
                 case 'status':
                     return $value === 'active' ? 'نشط' : 'غير نشط';
 
@@ -277,70 +264,6 @@ class User extends Authenticatable
 
     /*
     |--------------------------------------------------------------------------
-    | Team Relationship
-    |--------------------------------------------------------------------------
-    */
-    public function team()
-    {
-        return $this->belongsTo(Team::class);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Team Helper Methods
-    |--------------------------------------------------------------------------
-    */
-    public function isTeamLeader(): bool
-    {
-        return $this->is_team_leader && $this->team_id !== null;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Check if User has a Team
-    |--------------------------------------------------------------------------
-    */
-    public function hasTeam(): bool
-    {
-        return $this->team_id !== null;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Check if user can manage team data
-    |--------------------------------------------------------------------------
-    */
-    public function canManageTeam(): bool
-    {
-        if (! $this->isTeamLeader() || ! $this->hasTeam()) {
-            return false;
-        }
-
-        try {
-            return $this->hasPermissionTo('teams.manage');
-        } catch (\Throwable) {
-            return false;
-        }
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Get all team member IDs including the leader
-    |--------------------------------------------------------------------------
-    */
-    public function teamMemberIds(): array
-    {
-        if (! $this->hasTeam()) {
-            return [];
-        }
-
-        return User::where('team_id', $this->team_id)
-            ->pluck('id')
-            ->toArray();
-    }
-
-    /*
-    |--------------------------------------------------------------------------
     | Filter users based on current user permissions
     |--------------------------------------------------------------------------
     */
@@ -354,10 +277,6 @@ class User extends Authenticatable
 
         if ($user->hasPermissionTo('dashboard.view')) {
             return $query;
-        }
-
-        if ($user->canManageTeam()) {
-            return $query->where('team_id', $user->team_id);
         }
 
         return $query->where('id', $user->id);

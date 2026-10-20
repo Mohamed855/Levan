@@ -42,23 +42,14 @@ class TenantGoldenPatternInventoryTest extends TestCase
     public const REMEDIATION_CARD_FILES = [
         'archive.md',
         'authentication-2fa.md',
-        'communication-logs.md',
         'companies.md',
-        'contracts.md',
-        'customer-bulk-ops.md',
-        'customer-communications.md',
-        'customer-finance.md',
-        'customers-core.md',
         'dashboard-charts.md',
         'domains-cpanel.md',
         'general-settings.md',
         'mass-delete.md',
         'notifications-activity.md',
-        'portfolios.md',
-        'reports.md',
         'settings-api-tokens.md',
         'subscription-billing-license.md',
-        'tasks.md',
         'tickets.md',
         'users-teams-roles.md',
     ];
@@ -67,15 +58,8 @@ class TenantGoldenPatternInventoryTest extends TestCase
         'authentication-2fa.md',
         'archive.md',
         'companies.md',
-        'contracts.md',
-        'customers-core.md',
-        'customer-communications.md',
-        'customer-bulk-ops.md',
-        'customer-finance.md',
         'dashboard-charts.md',
         'domains-cpanel.md',
-        'communication-logs.md',
-        'reports.md',
         'settings-api-tokens.md',
         'subscription-billing-license.md',
         'tickets.md',
@@ -83,17 +67,15 @@ class TenantGoldenPatternInventoryTest extends TestCase
         'general-settings.md',
         'mass-delete.md',
         'notifications-activity.md',
-        'portfolios.md',
-        'tasks.md',
     ];
 
-    public function test_tenant_inventory_has_exactly_24_families_with_three_closed(): void
+    public function test_tenant_inventory_has_exactly_15_families_with_three_closed(): void
     {
         $manifest = file_get_contents(dirname(__DIR__, 2).'/docs/baselines/golden-pattern-manifest.md');
 
         $this->assertSame(3, count(self::CLOSED_FAMILIES));
-        $this->assertSame(21, count(self::REMEDIATION_CARD_FILES));
-        $this->assertSame(24, count(self::CLOSED_FAMILIES) + count(self::REMEDIATION_CARD_FILES));
+        $this->assertSame(12, count(self::REMEDIATION_CARD_FILES));
+        $this->assertSame(15, count(self::CLOSED_FAMILIES) + count(self::REMEDIATION_CARD_FILES));
 
         $verifiedFiles = self::VERIFIED_COMPLIANT_CARD_FILES;
         $remediationFiles = self::REMEDIATION_CARD_FILES;

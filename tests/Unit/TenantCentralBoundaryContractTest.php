@@ -54,7 +54,7 @@ final class TenantCentralBoundaryContractTest extends TestCase
     {
         $projectRoot = dirname(__DIR__, 2);
         $source = file_get_contents($projectRoot.'/app/Http/Controllers/Tenants/Domains/DomainLookupController.php');
-        $routes = file_get_contents($projectRoot.'/routes/tenant/tenant.php');
+        $routes = file_get_contents($projectRoot.'/routes/tenant.php');
 
         $this->assertStringContainsString('CentralDomainGateway', $source);
         $this->assertStringContainsString("middleware('can:domain.view')", $source);

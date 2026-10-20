@@ -1,7 +1,7 @@
 Administration: Promotional Discount Coupons
 Boundary: central
 Scope / aggregate root: Discount coupons, percentage/fixed discounts, expiration dates, usage limits, plan applicability
-Routes + middleware + guard: routes/admin/admin.php (admin.coupons.*) + auth:admin + permission:coupons.*
+Routes + middleware + guard: routes/admin.php (admin.coupons.*) + auth:admin + permission:coupons.*
 Controller: App\Http\Controllers\Admin\Coupons\AdminCouponController
 FormRequests: App\Http\Requests\Admin\Coupons\CouponRequest
 Policy registration + abilities: App\Policies\Admin\Coupons\CouponPolicy registered in AuthServiceProvider for Coupon::class

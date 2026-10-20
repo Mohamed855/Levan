@@ -1,7 +1,7 @@
 Administration: Tenant Notifications & Activity Logs
 Boundary: tenant
 Scope / aggregate root: User notification inbox/read tracking and tenant system activity audit logs
-Routes + middleware + guard: routes/tenant/tenant.php (notifications.*, activity-logs.*) + auth:tenant
+Routes + middleware + guard: routes/tenant.php (notifications.*, activity-logs.*) + auth:tenant
 Controller: App\Http\Controllers\Tenants\Notification\NotificationController, App\Http\Controllers\Tenants\activity_log\ActivityLogController
 FormRequests: MarkNotificationReadRequest, MarkAllNotificationsReadRequest, DeleteNotificationRequest, MassDeleteNotificationsRequest, ActivityLogIndexRequest, ExportActivityLogsRequest, DownloadActivityLogExportRequest
 Policy registration + abilities: Notifications are always scoped through the authenticated user's notification relation; ActivityLogPolicy is registered in AuthServiceProvider (viewAny/view/delete).

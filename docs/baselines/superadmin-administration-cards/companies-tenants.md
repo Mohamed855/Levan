@@ -1,7 +1,7 @@
 Administration: Central Companies & Tenant Provisioning
 Boundary: central
 Scope / aggregate root: Tenant company accounts, tenant domain initialization, database migration dispatch, tenant status lifecycle
-Routes + middleware + guard: routes/admin/admin.php (admin.companies.*, admin.clients.*) + auth:admin + permission:clients.*
+Routes + middleware + guard: routes/admin.php (admin.companies.*, admin.clients.*) + auth:admin + permission:clients.*
 Controller: App\Http\Controllers\Admin\Clients\ClientController
 FormRequests: App\Http\Requests\Admin\Clients\StoreClientRequest, App\Http\Requests\Admin\Clients\UpdateClientRequest, App\Http\Requests\Admin\Clients\CheckAdminEmailUniqueRequest, App\Http\Requests\Admin\Clients\CheckAdminPhoneUniqueRequest, App\Http\Requests\Admin\Clients\CheckCommercialNumberUniqueRequest, App\Http\Requests\Admin\Clients\CheckCompanyNameUniqueRequest, App\Http\Requests\Admin\Clients\CheckTaxNumberUniqueRequest
 Policy registration + abilities: App\Policies\Admin\Clients\ClientPolicy registered in AuthServiceProvider for Client::class and App\Policies\Admin\Tenants\TenantPolicy registered in AuthServiceProvider for Tenant::class

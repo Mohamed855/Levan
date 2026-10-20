@@ -1,7 +1,7 @@
 Administration: Central Bank Accounts Settings
 Boundary: central
 Scope / aggregate root: Central company bank accounts for subscription transfer deposits, IBAN, bank logos
-Routes + middleware + guard: routes/admin/admin.php (admin.settings.banks.*) + auth:admin + permission:bank_settings.*
+Routes + middleware + guard: routes/admin.php (admin.settings.banks.*) + auth:admin + permission:bank_settings.*
 Controller: App\Http\Controllers\Admin\Settings\Bank\SettingsBankController
 FormRequests: App\Http\Requests\Admin\Settings\Bank\StoreBankRequest, App\Http\Requests\Admin\Settings\Bank\UpdateBankRequest
 Policy registration + abilities: App\Policies\Admin\Settings\BankPolicy registered in AuthServiceProvider for Bank::class

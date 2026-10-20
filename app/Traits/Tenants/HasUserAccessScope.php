@@ -17,11 +17,6 @@ trait HasUserAccessScope
         return 'user';
     }
 
-    public function scopeForTeam(Builder $query, int $teamId): Builder
-    {
-        return $query->whereHas($this->getUserRelationName(), fn ($relation) => $relation->where('team_id', $teamId));
-    }
-
     public function scopeForTeamMembers(Builder $query, array $memberIds): Builder
     {
         return $query->whereHas($this->getUserRelationName(), fn ($relation) => $relation->whereIn('id', $memberIds));
@@ -32,10 +27,4 @@ trait HasUserAccessScope
         return $query->withoutGlobalScope(UserAccessScope::class);
     }
 
-    public function getTeamNameAttribute(): string
-    {
-        $relation = $this->getUserRelationName();
-
-        return method_exists($this, $relation) ? ($this->$relation?->team?->name ?? 'غير محدد') : 'غير محدد';
-    }
 }

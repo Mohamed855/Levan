@@ -1,7 +1,7 @@
 Administration: Tenant Users, Teams, and Roles
 Boundary: tenant
 Scope / aggregate root: Tenant User, Team, and Spatie Role & Permission management
-Routes + middleware + guard: routes/tenant/tenant.php (users.*, teams.*, roles.*) + auth:tenant + Spatie permissions
+Routes + middleware + guard: routes/tenant.php (users.*, teams.*, roles.*) + auth:tenant + Spatie permissions
 Controller: App\Http\Controllers\Tenants\UserMangment\UserController, TeamController, RoleController
 FormRequests: StoreUserRequest, UpdateUserRequest, TeamStoreRequest, TeamUpdateRequest, RoleStoreRequest, RoleUpdateRequest, UpdateResourceStatusRequest
 Policy registration + abilities: UserPolicy, TeamPolicy, RolePolicy registered in AuthServiceProvider

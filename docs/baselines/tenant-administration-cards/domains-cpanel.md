@@ -1,7 +1,7 @@
 Administration: Tenant Domains & cPanel Integration
 Boundary: tenant
 Scope / aggregate root: Tenant custom domain management, DNS lookup, domain purchase/connect/renew, cPanel web hosting automation
-Routes + middleware + guard: routes/tenant/tenant.php (domains.*) + auth:tenant + domains permission
+Routes + middleware + guard: routes/tenant.php (domains.*) + auth:tenant + domains permission
 Controller: App\Http\Controllers\Tenants\Domains\DomainController, DomainLookupController, CheckMultipleDomainController, GetDomainInfoController, DomainPaymentController, RenewalDomainController, CpanelController, __LinkDomain\LinkDomainController
 FormRequests: DomainLookupRequest, ConnectDomainRequest, CheckTransferDomainRequest, SuggestDomainNamesRequest, SuggestDomainAlternativesRequest
 Policy registration + abilities: domain.connect and payment route capabilities, with typed requests and explicit Central gateway boundaries.

@@ -1,7 +1,7 @@
 Administration: Tenant Authentication & 2FA
 Boundary: tenant
 Scope / aggregate root: Tenant user session, password management, email verification, two-factor authentication challenge and setup
-Routes + middleware + guard: routes/tenant/tenant.php (login, logout, register, password.*, verification.*, tenants.two-factor.*) + guest:tenant / auth:tenant
+Routes + middleware + guard: routes/tenant.php (login, logout, register, password.*, verification.*, tenants.two-factor.*) + guest:tenant / auth:tenant
 Controller: App\Http\Controllers\Tenants\Auth\AuthenticatedSessionController, RegisteredUserController, PasswordResetLinkController, NewPasswordController, ConfirmablePasswordController, VerifyEmailController, Fortify\TenantTwoFactorAuthenticatedSessionController, Fortify\TenantTwoFactorQrCodeController, Fortify\TenantTwoFactorSecretKeyController, Fortify\TenantRecoveryCodeController
 FormRequests: LoginRequest, TenantProfileUploadRequest, TenantTwoFactorChallengeRequest, Fortify\TenantTwoFactorConfirmedRequest
 Policy registration + abilities: UserPolicy (profile/account), Session/Auth flows bypass policy via guest guard

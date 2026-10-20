@@ -16,8 +16,6 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('phone', 20)->nullable();
-            $table->foreignId('team_id')->nullable()->constrained('teams')->nullOnDelete();
-            $table->boolean('is_team_leader')->default(false);
             $table->string('status')->default('active');
             $table->string('image')->nullable();
             $table->timestamp('last_login_at')->nullable();

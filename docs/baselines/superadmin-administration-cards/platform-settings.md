@@ -1,7 +1,7 @@
 Administration: Platform Global Settings
 Boundary: central
 Scope / aggregate root: Central system settings, brand logo/favicon, SMTP mail configuration, payment gateways credentials, caching
-Routes + middleware + guard: routes/admin/admin.php (admin.settings.*) + auth:admin + permission:system.settings
+Routes + middleware + guard: routes/admin.php (admin.settings.*) + auth:admin + permission:system.settings
 Controller: App\Http\Controllers\Admin\Settings\SettingsController
 FormRequests: App\Http\Requests\Admin\Settings\AdminMainSettingsRequest
 Policy registration + abilities: Not applicable (system settings aggregate view guarded by permission:system.settings middleware)

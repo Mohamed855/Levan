@@ -1,7 +1,7 @@
 Administration: Subscription Plans & Pricing Tiers
 Boundary: central
 Scope / aggregate root: Central SaaS subscription plans, feature limits, billing cycles, pricing rules, plan ordering
-Routes + middleware + guard: routes/admin/admin.php (admin.plans.*) + auth:admin + permission:plans.*
+Routes + middleware + guard: routes/admin.php (admin.plans.*) + auth:admin + permission:plans.*
 Controller: App\Http\Controllers\Admin\Plans\PlanController
 FormRequests: App\Http\Requests\Admin\Plans\PlanRequest, App\Http\Requests\Admin\Plans\PlanReorderRequest
 Policy registration + abilities: App\Policies\Admin\Plans\PlanPolicy registered in AuthServiceProvider for Plan::class

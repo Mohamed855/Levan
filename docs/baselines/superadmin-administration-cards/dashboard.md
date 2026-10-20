@@ -1,7 +1,7 @@
 Administration: SuperAdmin Executive Dashboard
 Boundary: central
 Scope / aggregate root: Executive platform metrics, tenant and user count aggregates, active subscriptions breakdown, MRR/ARR financial stats
-Routes + middleware + guard: routes/admin/admin.php (admin.dashboard, admin.dashboard.platform-activity) + auth:admin + permission:dashboard.main
+Routes + middleware + guard: routes/admin.php (admin.dashboard, admin.dashboard.platform-activity) + auth:admin + permission:dashboard.main
 Controller: App\Http\Controllers\Admin\Dashboard\DashboardController
 FormRequests: App\Http\Requests\Admin\Dashboard\PlatformActivityRequest
 Policy registration + abilities: Not applicable (executive KPI aggregation view guarded by permission:dashboard.main middleware)

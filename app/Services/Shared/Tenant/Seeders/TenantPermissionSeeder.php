@@ -102,7 +102,6 @@ class TenantPermissionSeeder implements TenantSeeder
             'users.create',
             'users.edit',
             'users.delete',
-            'teams.manage',
         ],
 
         'collection_management' => [

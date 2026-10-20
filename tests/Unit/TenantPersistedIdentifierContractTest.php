@@ -12,10 +12,6 @@ use ReflectionEnum;
 
 class TenantPersistedIdentifierContractTest extends TestCase
 {
-    private const NON_PERSISTED_HEADER_ENUMS = [
-        'App\\Enums\\Tenants\\CustomerImport\\CustomerImportFields',
-    ];
-
     public function test_tenant_backed_enums_use_non_arabic_persisted_values(): void
     {
         $enumFiles = $this->phpFilesIn('app/Enums/Tenants');
@@ -23,7 +19,7 @@ class TenantPersistedIdentifierContractTest extends TestCase
         foreach ($enumFiles as $file) {
             $class = 'App\\Enums\\Tenants\\'.str_replace(['/', '.php'], ['\\', ''], substr($file, strlen(dirname(__DIR__, 2).'/app/Enums/Tenants/')));
 
-            if (in_array($class, self::NON_PERSISTED_HEADER_ENUMS, true) || ! enum_exists($class)) {
+            if (! enum_exists($class)) {
                 continue;
             }
 

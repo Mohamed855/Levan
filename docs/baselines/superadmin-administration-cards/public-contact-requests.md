@@ -1,7 +1,7 @@
 Administration: Central Public Contact Requests
 Boundary: central
 Scope / aggregate root: ContactRequest and its single reply workflow
-Routes + middleware + guard: routes/admin/admin.php (admin.contact-requests.*) + auth:admin + contact_requests.view/reply
+Routes + middleware + guard: routes/admin.php (admin.contact-requests.*) + auth:admin + contact_requests.view/reply
 Controller: AppHttpControllersAdminPublicRequestsContactRequestController
 FormRequests: AppHttpRequestsAdminPublicRequestsReplyContactRequest
 Policy registration + abilities: AppPoliciesAdminPublicRequestsContactRequestPolicy (viewAny, view, reply)
