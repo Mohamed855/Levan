@@ -141,80 +141,100 @@
             </div>
         </div>
 
-        {{-- Right column: Fields and mapping comparison table --}}
+        {{-- Right column: Approved Specifications & Preview --}}
         <div class="col-xl-8 col-lg-7 col-md-7">
+            {{-- Specifications Card --}}
             <div class="card mb-4 shadow-sm">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">
-                        <i class="ti ti-list-check me-2 text-primary"></i>مطابقة حقول القالب مع النظام
+                        <i class="ti ti-ruler-measure me-2 text-primary"></i>المواصفات والمعايير المعتمدة لهذا القالب
                     </h5>
-                    <span class="badge bg-label-info">{{ $template->type->label() }}</span>
+                    <span class="badge bg-label-{{ $template->type->color() }}">
+                        <i class="ti {{ $template->type->icon() }} me-1"></i>{{ $template->type->label() }}
+                    </span>
                 </div>
-                <div class="table-responsive">
-                    <table class="table table-striped table-bordered w-100 mb-0">
-                        <thead>
-                            <tr>
-                                <th>اسم الحقل البرمجي</th>
-                                <th>البيان المقابل في المزاد</th>
-                                <th class="text-center">الأهمية</th>
-                                <th class="text-center">حالة الاعتماد في القالب</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @php
-                                $expected = $typeGuide['fields'] ?? [];
-                                $extracted = $template->field_names ?? [];
-                            @endphp
-                            @forelse($expected as $field)
-                                @php
-                                    $found = in_array($field['name'], $extracted, true);
-                                @endphp
-                                <tr>
-                                    <td><code class="text-primary font-monospace">{{ $field['name'] }}</code></td>
-                                    <td>{{ $field['label'] }}</td>
-                                    <td class="text-center">
-                                        @if($field['required'])
-                                            <span class="badge bg-label-warning">إلزامي</span>
-                                        @else
-                                            <span class="badge bg-label-info">اختياري</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @if($found)
-                                            <span class="badge bg-label-success"><i class="ti ti-check me-1"></i>متطابق وموجود</span>
-                                        @else
-                                            @if($field['required'])
-                                                <span class="badge bg-label-danger"><i class="ti ti-alert-triangle me-1"></i>مطلوب وغير موجود</span>
-                                            @else
-                                                <span class="badge bg-label-secondary">غير موجود</span>
-                                            @endif
-                                        @endif
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="text-center py-3 text-muted">لا توجد حقول قياسية محددة.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                @php
-                    $unexpected = array_diff($extracted, array_column($expected, 'name'));
-                @endphp
-                @if(count($unexpected) > 0)
-                    <div class="card-body border-top">
-                        <h6 class="fw-bold text-heading mb-2">
-                            <i class="ti ti-info-circle me-1 text-info"></i>حقول إضافية وُجدت في الـ PDF غير محددة بالنموذج القياسي:
-                        </h6>
-                        <div class="d-flex flex-wrap gap-1">
-                            @foreach($unexpected as $unField)
-                                <span class="badge bg-label-dark font-monospace">{{ $unField }}</span>
-                            @endforeach
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <div class="p-3 border rounded bg-light">
+                                <span class="text-muted d-block small mb-1">المقاس والأبعاد القياسية:</span>
+                                @if($template->type->value === 'brochure')
+                                    <h6 class="mb-0 fw-bold text-primary"><i class="ti ti-dimensions me-1"></i>A4 رأسي (210 × 297 مم)</h6>
+                                    <small class="text-muted">كتيّب متعدد الصفحات قابل للطباعة</small>
+                                @elseif($template->type->value === 'social')
+                                    <h6 class="mb-0 fw-bold text-info"><i class="ti ti-aspect-ratio me-1"></i>مربع 1:1 (1080 × 1080 بكسل)</h6>
+                                    <small class="text-muted">منشور منصات التواصل الاجتماعي</small>
+                                @else
+                                    <h6 class="mb-0 fw-bold text-warning"><i class="ti ti-device-tv me-1"></i>عرضي Landscape 16:9</h6>
+                                    <small class="text-muted">لوحات الطرق والشاشات الإعلانية</small>
+                                @endif
+                            </div>
                         </div>
+
+                        <div class="col-sm-6">
+                            <div class="p-3 border rounded bg-light">
+                                <span class="text-muted d-block small mb-1">صيغة الملف المدعومة:</span>
+                                <h6 class="mb-0 fw-bold text-heading">
+                                    <i class="ti ti-file-code me-1"></i>{{ str_ends_with(strtolower($template->file_path), '.pdf') ? 'مستند PDF رقمي' : 'صورة تصميم عالية الدقة' }}
+                                </h6>
+                                <small class="text-muted">{{ strtoupper(pathinfo($template->file_path, PATHINFO_EXTENSION)) }} Format</small>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="alert alert-primary mb-0 d-flex align-items-center" role="alert">
+                                <i class="ti ti-info-circle fs-4 me-2"></i>
+                                <div>
+                                    هذا القالب يمثل طبقة التصميم الأساسية (Background Artboard). يقوم النظام آلياً بحقن بيانات المزاد، شعار المنشأة، الباركود الذكي QR، وتفاصيل وصور العقارات بدقة 100% دون أي تدخل يدوي من المستأجر.
+                                </div>
+                            </div>
+                        </div>
+
+                        @if(!empty($template->field_names))
+                            <div class="col-12">
+                                <span class="text-muted small d-block mb-1">الحقول المدعومة برمجياً:</span>
+                                <div class="d-flex flex-wrap gap-1">
+                                    @foreach($template->field_names as $fieldName)
+                                        <code class="badge bg-label-secondary font-monospace">{{ $fieldName }}</code>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                     </div>
-                @endif
+                </div>
+            </div>
+
+            {{-- Live Design Preview Card --}}
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-eye me-2 text-primary"></i>معاينة تصميم القالب المعتمد
+                    </h5>
+                    @if($template->file_url)
+                        <a href="{{ $template->file_url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="ti ti-external-link me-1"></i>فتح في نافذة جديدة
+                        </a>
+                    @endif
+                </div>
+                <div class="card-body text-center p-3 bg-light rounded-bottom">
+                    @php
+                        $ext = strtolower(pathinfo($template->file_path, PATHINFO_EXTENSION));
+                    @endphp
+                    @if(in_array($ext, ['png', 'jpg', 'jpeg', 'webp'], true))
+                        <div class="p-2 bg-white rounded shadow-sm d-inline-block" style="max-width: 100%;">
+                            <img src="{{ $template->file_url }}" alt="{{ $template->name }}" class="img-fluid rounded" style="max-height: 480px; object-fit: contain;">
+                        </div>
+                    @elseif($ext === 'pdf')
+                        <div class="ratio ratio-16x9 bg-white rounded shadow-sm overflow-hidden" style="min-height: 420px;">
+                            <iframe src="{{ $template->file_url }}#toolbar=0" title="{{ $template->name }}" style="border: none; width: 100%; height: 100%;"></iframe>
+                        </div>
+                    @else
+                        <div class="py-5 text-muted">
+                            <i class="ti ti-file-unknown fs-1 d-block mb-2"></i>
+                            لا تتوفر معاينة مباشرة لهذا الملف. يمكنك تحميله للمراجعة.
+                        </div>
+                    @endif
+                </div>
             </div>
         </div>
     </div>

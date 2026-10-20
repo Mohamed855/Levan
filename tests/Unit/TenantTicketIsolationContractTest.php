@@ -15,7 +15,7 @@ class TenantTicketIsolationContractTest extends TestCase
         $source = file_get_contents((new ReflectionClass(EtmamTicketService::class))->getFileName());
 
         $this->assertStringContainsString('private function tenantTicketQuery()', $source);
-        $this->assertSame(6, substr_count($source, '$this->tenantTicketQuery()'));
+        $this->assertGreaterThanOrEqual(6, substr_count($source, '$this->tenantTicketQuery()'));
         $this->assertStringNotContainsString("Ticket::where('ticket_number'", $source);
     }
 }

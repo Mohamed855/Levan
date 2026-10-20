@@ -31,15 +31,14 @@
 @section('content')
     <x-data-table.page table-id="auction-templates-table">
         <x-slot:stats>
-            <x-ui.stat-card title="إجمالي القوالب" :value="$statistics['total']" subtitle="جميع القوالب المسجلة" icon="ti-files"
+            <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي القوالب" :value="$statistics['total']" subtitle="جميع القوالب المسجلة" icon="ti-files"
                 color="primary" />
-            <x-ui.stat-card title="قوالب مفعلة" :value="$statistics['active']" subtitle="متاحة للاستخدام" icon="ti-check"
-                color="success" />
-            <x-ui.stat-card title="قوالب البروشور" :value="$statistics['brochure']" subtitle="قوالب الكتيبات التعريفية"
+            <x-ui.stat-card col="col-sm-6 col-xl" title="قوالب مفعلة" :value="$statistics['active']" subtitle="متاحة للاستخدام" icon="ti-check" color="success" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="قوالب البروشور" :value="$statistics['brochure']" subtitle="قوالب الكتيبات التعريفية"
                 icon="ti-file-description" color="info" />
-            <x-ui.stat-card title="اللوحات الإعلانية" :value="$statistics['billboard']" subtitle="قوالب اللوحات الخارجية" icon="ti-ad"
+            <x-ui.stat-card col="col-sm-6 col-xl" title="اللوحات الإعلانية" :value="$statistics['billboard']" subtitle="قوالب اللوحات الخارجية" icon="ti-ad"
                 color="warning" />
-            <x-ui.stat-card title="قوالب معطلة" :value="$statistics['inactive']" subtitle="غير متاحة للمستأجرين" icon="ti-ban"
+            <x-ui.stat-card col="col-sm-6 col-xl" title="قوالب معطلة" :value="$statistics['inactive']" subtitle="غير متاحة للمستأجرين" icon="ti-ban"
                 color="danger" />
         </x-slot:stats>
 
@@ -47,8 +46,8 @@
             <x-data-table.filters table="#auction-templates-table">
                 <x-filter.select id="filter-type" filterKey="type" table="#auction-templates-table" label="نوع القالب"
                     placeholder="جميع الأنواع" :enum="\App\Enums\Admin\AuctionTemplates\AuctionTemplateType::class" />
-                <x-filter.select id="filter-status" filterKey="is_active" table="#auction-templates-table" label="حالة القالب"
-                    placeholder="جميع الحالات" :options="$statusFilterOptions ?? []" />
+                <x-filter.select id="filter-status" filterKey="is_active" table="#auction-templates-table"
+                    label="حالة القالب" placeholder="جميع الحالات" :options="$statusFilterOptions ?? []" />
             </x-data-table.filters>
         </x-slot:filters>
 
@@ -59,49 +58,4 @@
             ) !!}
         </x-slot:table>
     </x-data-table.page>
-
-    {{-- Modal to inspect extracted template fields --}}
-    <div class="modal fade" id="templateFieldsModal" tabindex="-1" aria-labelledby="templateFieldsModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="templateFieldsModalLabel">
-                        <i class="ti ti-list-check me-2 text-primary"></i>تفاصيل حقول القالب: <span id="modalTemplateName"
-                            class="text-primary fw-bold"></span>
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="text-muted">إجمالي الحقول المستخرجة: <span id="modalTotalFields"
-                                class="badge bg-label-primary font-monospace"></span></span>
-                    </div>
-
-                    <div class="table-responsive">
-                        <table class="table table-sm table-hover border">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>اسم الحقل في PDF</th>
-                                    <th>البيان المقابل</th>
-                                    <th class="text-center">الأهمية</th>
-                                    <th class="text-center">حالة الحقل في القالب</th>
-                                </tr>
-                            </thead>
-                            <tbody id="modal-fields-tbody">
-                                <tr>
-                                    <td colspan="4" class="text-center py-4">جاري التحميل...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div id="modal-extra-fields" class="mt-3 d-none"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إغلاق</button>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection

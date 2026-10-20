@@ -393,5 +393,101 @@ class AuctionTemplatesFeatureTest extends TestCase
         $response->assertSee('اللوحات الإعلانية');
         $response->assertSee('قوالب معطلة');
     }
+
+    public function test_specification_rule_enforces_type_dimensions_and_formats(): void
+    {
+        $brochureRule = new \App\Rules\AuctionTemplateFileSpecificationRule('brochure');
+        $socialRule = new \App\Rules\AuctionTemplateFileSpecificationRule('social');
+        $billboardRule = new \App\Rules\AuctionTemplateFileSpecificationRule('billboard');
+
+        // 1. Brochure must be PDF, rejecting images
+        $imageFile = UploadedFile::fake()->image('brochure.png', 1080, 1080);
+        $v1 = Validator::make(['file' => $imageFile], ['file' => [$brochureRule]]);
+        $this->assertTrue($v1->fails());
+
+        // 2. Social must be square (rejecting non-square images like 1200x600)
+        $wideImage = UploadedFile::fake()->image('social_wide.png', 1200, 600);
+        $v2 = Validator::make(['file' => $wideImage], ['file' => [$socialRule]]);
+        $this->assertTrue($v2->fails());
+
+        $squareImage = UploadedFile::fake()->image('social_square.png', 1080, 1080);
+        $v3 = Validator::make(['file' => $squareImage], ['file' => [$socialRule]]);
+        $this->assertTrue($v3->passes());
+
+        // 3. Billboard must be landscape (rejecting portrait like 600x1200)
+        $portraitImage = UploadedFile::fake()->image('billboard_portrait.png', 600, 1200);
+        $v4 = Validator::make(['file' => $portraitImage], ['file' => [$billboardRule]]);
+        $this->assertTrue($v4->fails());
+
+        $landscapeImage = UploadedFile::fake()->image('billboard_landscape.png', 1920, 1080);
+        $v5 = Validator::make(['file' => $landscapeImage], ['file' => [$billboardRule]]);
+        $this->assertTrue($v5->passes());
+    }
+
+    public function test_auction_output_service_generates_social_png_image(): void
+    {
+        $tenant = Tenant::first();
+        if (! $tenant) {
+            $this->markTestSkipped('No tenant found in database.');
+        }
+
+        $template = AuctionTemplate::create([
+            'name' => 'قالب سوشيال تجريبي ' . uniqid(),
+            'type' => AuctionTemplateType::SOCIAL,
+            'file_path' => 'auction_templates/social/test.png',
+            'is_active' => true,
+        ]);
+
+        // Place a mock template image on disk
+        $disk = Storage::disk('central_public');
+        $disk->put('auction_templates/social/test.png', base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='));
+
+        tenancy()->initialize($tenant);
+
+        try {
+            $assignment = Assignment::firstOrCreate(
+                ['assignment_number' => 'ASN-IMG-' . uniqid()],
+                [
+                    'name' => 'إسناد فحص الصور',
+                    'issuing_entity' => 'مركز الإسناد والتصفية (إنفاذ)',
+                    'is_active' => true,
+                ]
+            );
+
+            $auction = Auction::create([
+                'assignment_id' => $assignment->id,
+                'name' => 'مزاد لوت سوشيال التجريبي',
+                'description' => 'مزاد فحص توليد صورة السوشيال',
+                'start_date' => now()->toDateString(),
+                'start_time' => '16:00',
+                'end_date' => now()->addDays(2)->toDateString(),
+                'end_time' => '18:00',
+                'type' => 'electronic',
+                'category' => 'lands',
+                'city' => 'جدة',
+                'platform_name' => 'سعودي مزاد',
+                'social_template_id' => $template->id,
+                'status' => 'active',
+                'is_active' => true,
+            ]);
+
+            $service = app(AuctionOutputService::class);
+            $pngPath = $service->generateSocialImage($auction);
+
+            $this->assertFileExists($pngPath);
+            $content = file_get_contents($pngPath);
+            // Verify PNG header: 89 50 4E 47 0D 0A 1A 0A
+            $this->assertStringStartsWith("\x89PNG\r\n\x1a\n", $content);
+
+            if (file_exists($pngPath)) {
+                @unlink($pngPath);
+            }
+        } finally {
+            if (tenancy()->initialized) {
+                tenancy()->end();
+            }
+            $disk->delete('auction_templates/social/test.png');
+        }
+    }
 }
 

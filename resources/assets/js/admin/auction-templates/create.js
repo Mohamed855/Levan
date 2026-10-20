@@ -92,26 +92,20 @@ document.addEventListener('DOMContentLoaded', () => {
             $('#review-status').html('<span class="badge bg-label-danger"><i class="ti ti-ban me-1"></i>معطل</span>');
         }
 
-        // Field Guide Synchronize
-        if (typeVal && window.auctionTemplateFieldGuides && window.auctionTemplateFieldGuides[typeVal]) {
-            const guide = window.auctionTemplateFieldGuides[typeVal];
-            const fields = guide.fields || [];
-            let html = '<div class="d-flex flex-wrap gap-1">';
-            fields.forEach(f => {
-                const badgeColor = f.required ? 'bg-label-primary' : 'bg-label-secondary';
-                html += `<span class="badge ${badgeColor}" title="${escapeHtml(f.name)}">${escapeHtml(f.label)}${f.required ? ' *' : ''}</span>`;
-            });
-            html += '</div>';
-            $('#review-field-guide').html(html);
-
-            // Also open corresponding accordion item in Step 2 if present
-            const targetCollapse = document.getElementById('collapse-' + typeVal);
-            if (targetCollapse && typeof bootstrap !== 'undefined') {
-                const bsCollapse = bootstrap.Collapse.getOrCreateInstance(targetCollapse);
-                bsCollapse.show();
-            }
+        // Specification Guide Synchronize
+        $('.spec-guide-item').addClass('d-none');
+        if (typeVal === 'brochure') {
+            $('#spec-guide-brochure').removeClass('d-none');
+            if (fileInput) fileInput.setAttribute('accept', '.pdf,application/pdf');
+        } else if (typeVal === 'social') {
+            $('#spec-guide-social').removeClass('d-none');
+            if (fileInput) fileInput.setAttribute('accept', '.pdf,application/pdf,image/png,image/jpeg,image/webp');
+        } else if (typeVal === 'billboard') {
+            $('#spec-guide-billboard').removeClass('d-none');
+            if (fileInput) fileInput.setAttribute('accept', '.pdf,application/pdf,image/png,image/jpeg,image/webp');
         } else {
-            $('#review-field-guide').text('اختر نوع القالب لعرض الحقول المعتمدة');
+            $('#spec-guide-default').removeClass('d-none');
+            if (fileInput) fileInput.setAttribute('accept', '.pdf,application/pdf,image/png,image/jpeg,image/webp');
         }
     }
 

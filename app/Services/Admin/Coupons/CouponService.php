@@ -65,6 +65,7 @@ class CouponService
             'total' => (clone $baseQuery)->count(),
             'active' => (clone $baseQuery)->where('is_active', 1)->count(),
             'inactive' => (clone $baseQuery)->where('is_active', 0)->count(),
+            'expired' => (clone $baseQuery)->whereNotNull('expiry_date')->where('expiry_date', '<', now()->toDateString())->count(),
         ];
     }
 

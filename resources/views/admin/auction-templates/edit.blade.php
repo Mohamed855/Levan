@@ -107,75 +107,41 @@
                         :value="$template->description" rows="3" col="col-12" />
 
                     {{-- Extracted Fields Summary --}}
-                    @if (!empty($template->field_names))
-                        <div class="col-12">
-                            <label class="form-label text-primary fw-bold">البيانات المعتمدة للتوليد في هذا القالب
-                                ({{ count($template->field_names) }} بيان):</label>
-                            <div class="p-3 border rounded bg-secondary d-flex flex-wrap gap-1">
-                                @foreach ($template->field_names as $fname)
-                                    <span class="badge bg-label-dark font-monospace">{{ $fname }}</span>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
-
-                    {{-- Field Guide Accordion Full-width --}}
+                    {{-- كارت المعايير والمواصفات المعتمدة لملف القالب --}}
                     <div class="col-12">
-                        <div class="card border shadow-none mb-0">
-                            <div class="card-header bg-secondary py-2">
-                                <h6 class="mb-0 fw-bold">
-                                    <i class="ti ti-list-check me-1 text-primary"></i>دليل البيانات المطبوعة تلقائياً وفقاً
-                                    لنوع القالب
-                                </h6>
-                            </div>
-                            <div class="card-body p-0">
-                                <div class="accordion accordion-flush" id="fieldGuideAccordion">
-                                    @foreach ($fieldGuide as $key => $guide)
-                                        <div class="accordion-item">
-                                            <h2 class="accordion-header" id="heading-{{ $key }}">
-                                                <button
-                                                    class="accordion-button {{ $template->type->value === $key ? '' : 'collapsed' }} py-2"
-                                                    type="button" data-bs-toggle="collapse"
-                                                    data-bs-target="#collapse-{{ $key }}"
-                                                    aria-expanded="{{ $template->type->value === $key ? 'true' : 'false' }}">
-                                                    <span
-                                                        class="badge bg-label-{{ $key === 'brochure' ? 'primary' : ($key === 'billboard' ? 'warning' : 'info') }} me-2">
-                                                        {{ count($guide['fields']) }} بيان
-                                                    </span>
-                                                    {{ $guide['title'] }}
-                                                </button>
-                                            </h2>
-                                            <div id="collapse-{{ $key }}"
-                                                class="accordion-collapse collapse {{ $template->type->value === $key ? 'show' : '' }}"
-                                                data-bs-parent="#fieldGuideAccordion">
-                                                <div class="accordion-body p-2">
-                                                    <div class="table-responsive">
-                                                        <table class="table table-sm table-striped mb-0 small">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>اسم الحقل البرمجي</th>
-                                                                    <th>البيان المطبوع تلقائياً</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                @foreach ($guide['fields'] as $field)
-                                                                    <tr>
-                                                                        <td><code>{{ $field['name'] }}</code></td>
-                                                                        <td>
-                                                                            {{ $field['label'] }}
-                                                                            @if ($field['required'])
-                                                                                <span class="text-danger">*</span>
-                                                                            @endif
-                                                                        </td>
-                                                                    </tr>
-                                                                @endforeach
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endforeach
+                        <div class="card border border-primary-subtle shadow-none bg-label-primary mb-0">
+                            <div class="card-body p-3">
+                                <div class="d-flex align-items-start gap-3">
+                                    <div
+                                        class="avatar avatar-md bg-primary text-white rounded d-flex align-items-center justify-content-center flex-shrink-0">
+                                        <i class="ti ti-ruler-measure fs-3"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 fw-bold text-primary">المعايير المعتمدة لملف هذا القالب
+                                            ({{ $template->type->label() }}):</h6>
+                                        @if ($template->type->value === 'brochure')
+                                            <p class="mb-0 text-heading small">
+                                                <i class="ti ti-file-type-pdf text-danger me-1"></i>
+                                                <strong>ملف مستند PDF</strong> بمقاس صفحات <strong>A4 رأسي (210×297
+                                                    مم)</strong>، يُستخدم ككتيّب متعدد الصفحات للطباعة وعرض تفاصيل المزاد
+                                                والعقارات المشمولة.
+                                            </p>
+                                        @elseif($template->type->value === 'social')
+                                            <p class="mb-0 text-heading small">
+                                                <i class="ti ti-brand-instagram text-info me-1"></i>
+                                                <strong>صورة عالية الدقة أو PDF</strong> بنسبة أبعاد <strong>مربعة
+                                                    1:1</strong> (المقاس الموصى به <strong>1080×1080 بكسل</strong>) مخصص
+                                                للنشر الرقمي.
+                                            </p>
+                                        @else
+                                            <p class="mb-0 text-heading small">
+                                                <i class="ti ti-ad text-warning me-1"></i>
+                                                <strong>صورة أو PDF</strong> بتنسيق <strong>عرضي عريض Landscape</strong>
+                                                (بنسبة <strong>16:9</strong> بدقة 1920×1080 بكسل أو A4 أفقي 297×210 مم) مخصص
+                                                للشاشات واللوحات الخارجية.
+                                            </p>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -60,4 +60,18 @@ final class AuctionOutputController extends Controller
             abort(500, $e->getMessage());
         }
     }
+
+    public function socialImage(Auction $auction): BinaryFileResponse
+    {
+        $this->authorize('view', $auction);
+
+        try {
+            $path = $this->service->generateSocialImage($auction);
+            $fileName = "منشور-سوشيال-ميديا-مزاد-{$auction->id}.png";
+
+            return response()->download($path, $fileName)->deleteFileAfterSend(true);
+        } catch (Throwable $e) {
+            abort(500, $e->getMessage());
+        }
+    }
 }

@@ -62,10 +62,15 @@ class AdminBillsController extends Controller
             ];
 
             return $dataTable->render(self::VIEW_PATH.'.index', [
+                'totalBills' => $stats->sum(),
+                'paidBills' => $stats->get(BillStatus::PAID->value, 0),
+                'unpaidBills' => $stats->get(BillStatus::UNPAID->value, 0),
+                'pendingBills' => $stats->get(BillStatus::PENDING->value, 0) + $stats->get(BillStatus::PENDING_VERIFICATION->value, 0),
+                'rejectedBills' => $stats->get(BillStatus::REJECTED->value, 0),
                 'billcounts' => $stats->sum(),
                 'paidbills' => $stats->get(BillStatus::PAID->value, 0),
                 'unpaidbills' => $stats->get(BillStatus::UNPAID->value, 0),
-                'pendingbills' => $stats->get(BillStatus::PENDING->value, 0),
+                'pendingbills' => $stats->get(BillStatus::PENDING->value, 0) + $stats->get(BillStatus::PENDING_VERIFICATION->value, 0),
                 'filterOptions' => $filterOptions,
             ]);
         } catch (\Exception $e) {

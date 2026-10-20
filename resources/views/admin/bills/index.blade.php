@@ -29,43 +29,39 @@
 @endsection
 
 @section('content')
-    <div class="mb-4 row g-4">
-        <x-ui.stat-card col="col-sm-6 col-xl-3" title="المعاملات" :value="$billcounts" subtitle="إجمالي المعاملات"
-            icon="ti-receipt-2" color="primary" />
+    <x-ui.validation-errors class="mb-4" />
 
-        <x-ui.stat-card col="col-sm-6 col-xl-3" title="المعاملات المدفوعة" :value="$paidbills"
-            subtitle="إجمالي المعاملات المدفوعة" icon="ti-cash" color="success" />
+    <x-data-table.page table-id="bill-table">
+        <x-slot:stats>
+            <x-ui.stat-card col="col-sm-6 col-xl" title="المعاملات" :value="$totalBills ?? ($billcounts ?? 0)" subtitle="إجمالي المعاملات"
+                icon="ti-receipt-2" color="primary" />
 
-        <x-ui.stat-card col="col-sm-6 col-xl-3" title="المعاملات الغير مدفوعة" :value="$unpaidbills"
-            subtitle="إجمالي المعاملات الغير مدفوعة" icon="ti-file-invoice" color="warning" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="المعاملات المدفوعة" :value="$paidBills ?? ($paidbills ?? 0)"
+                subtitle="إجمالي المعاملات المدفوعة" icon="ti-cash" color="success" />
 
-        <x-ui.stat-card col="col-sm-6 col-xl-3" title="معاملات لم يوافق عليها" :value="$pendingbills"
-            subtitle="إجمالي المعاملات التي لم يوافق عليها" icon="ti-ban" color="danger" />
-    </div>
+            <x-ui.stat-card col="col-sm-6 col-xl" title="المعاملات غير المدفوعة" :value="$unpaidBills ?? ($unpaidbills ?? 0)"
+                subtitle="إجمالي المعاملات غير المدفوعة" icon="ti-file-invoice" color="warning" />
 
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+            <x-ui.stat-card col="col-sm-6 col-xl" title="بانتظار المعالجة" :value="$pendingBills ?? ($pendingbills ?? 0)"
+                subtitle="معاملات قيد المراجعة" icon="ti-clock-pause" color="info" />
 
-    <x-data-table.filters table="#bill-table">
-        <x-filter.select id="filter-status" filterKey="type" label="نوع العملية"
-            placeholder="اختر نوع العملية" :options="$filterOptions['operationTypes'] ?? []" />
-        <x-filter.select id="filter-paid" filterKey="status" label="حالة العملية"
-            placeholder="اختر حالة العملية" :options="$filterOptions['statuses'] ?? []" />
-        <x-filter.select id="filter-type" filterKey="payment_method" label="نوع الدفع"
-            placeholder="اختر نوع الدفع" :options="$filterOptions['paymentTypes'] ?? []" />
-    </x-data-table.filters>
+            <x-ui.stat-card col="col-sm-6 col-xl" title="معاملات مرفوضة" :value="$rejectedBills ?? 0"
+                subtitle="إجمالي المعاملات المرفوضة" icon="ti-ban" color="danger" />
+        </x-slot:stats>
 
-    <div class="card">
-        <div class="card-body">
+        <x-slot:filters>
+            <x-data-table.filters table="#bill-table">
+                <x-filter.select id="filter-status" filterKey="type" label="نوع العملية"
+                    placeholder="اختر نوع العملية" :options="$filterOptions['operationTypes'] ?? []" />
+                <x-filter.select id="filter-paid" filterKey="status" label="حالة العملية"
+                    placeholder="اختر حالة العملية" :options="$filterOptions['statuses'] ?? []" />
+                <x-filter.select id="filter-type" filterKey="payment_method" label="نوع الدفع"
+                    placeholder="اختر نوع الدفع" :options="$filterOptions['paymentTypes'] ?? []" />
+            </x-data-table.filters>
+        </x-slot:filters>
+
+        <x-slot:table>
             {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'bill-table'], false) !!}
-        </div>
-    </div>
-
+        </x-slot:table>
+    </x-data-table.page>
 @endsection

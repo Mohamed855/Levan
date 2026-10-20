@@ -33,41 +33,33 @@
 @endsection
 
 @section('content')
+    <x-data-table.page table-id="users-table">
+        <x-slot:stats>
+            <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي المستخدمين" :value="$totalUsers" subtitle="إجمالي المستخدمين" icon="ti-users"
+                color="primary" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="المستخدمين النشطين" :value="$activeUsers" subtitle="المستخدمين النشطين" icon="ti-user-check"
+                color="success" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="مدراء النظام" :value="$superAdminUsers" subtitle="صلاحيات كاملة" icon="ti-shield-lock"
+                color="info" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="المستخدمين غير النشطين" :value="$inactiveUsers" subtitle="المستخدمين غير النشطين"
+                icon="ti-user-off" color="warning" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="المستخدمين المؤرشفين" :value="$archivedUsers" subtitle="يمكن استعادتها من الأرشيف"
+                icon="ti-archive" color="danger" />
+        </x-slot:stats>
 
-    <div id="top_card" class="row g-4 mb-4">
-        <x-ui.stat-card title="إجمالي المستخدمين" :value="$totalUsers" subtitle="إجمالي المستخدمين" icon="ti-users"
-            color="primary" />
-        <x-ui.stat-card title="المستخدمين النشطين" :value="$activeUsers" subtitle="المستخدمين النشطين" icon="ti-user-check"
-            color="success" />
-        <x-ui.stat-card title="المستخدمين غير النشطين" :value="$inactiveUsers" subtitle="المستخدمين غير النشطين"
-            icon="ti-user-off" color="warning" />
-        <x-ui.stat-card title="المستخدمين المؤرشفين" :value="$archivedUsers" subtitle="يمكن استعادتها من الأرشيف"
-            icon="ti-archive" color="danger" />
-    </div>
+        <x-slot:filters>
+            <x-data-table.filters table="#users-table">
+                <x-filter.select id="filter-status" filterKey="status" table="#users-table" label="حالة المستخدمين" placeholder="اختر حالة المستخدم"
+                    :options="$filterOptions['statuses']" />
+                <x-filter.select id="filter-role" filterKey="role" table="#users-table" label="دور المستخدم" placeholder="اختر الدور"
+                    :options="$filterOptions['roles']" />
+            </x-data-table.filters>
+        </x-slot:filters>
 
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    {{-- Filters Card --}}
-    <x-data-table.filters table="#users-table">
-        <x-filter.select id="filter-status" filterKey="status" label="حالة المستخدمين" placeholder="اختر حالة المستخدم"
-            :options="$filterOptions['statuses']" />
-        <x-filter.select id="filter-role" filterKey="role" label="دور المستخدم" placeholder="اختر الدور"
-            :options="$filterOptions['roles']" />
-    </x-data-table.filters>
-
-    <div class="card">
-        <div class="card-body">
+        <x-slot:table>
             {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'users-table'], false) !!}
-        </div>
-    </div>
+        </x-slot:table>
+    </x-data-table.page>
 
     <x-bootstrap.modal id="editUserRoleModal" title="تعديل دور المشرف" icon="ti-user-shield">
         <form id="updateUserRoleForm">

@@ -78,10 +78,30 @@ final class AuctionOutputService
             }
 
             // Prepare dynamic auction data
-            $auction->loadMissing(['assignment', 'properties']);
+            $auction->loadMissing(['assignment', 'properties.boundaries']);
             $qrCodeBase64 = $this->generateQrCodeDataUri($auction->platform_url ?: 'https://lot.sa');
             $coverImageBase64 = $this->getCoverImageBase64($auction);
             $tenantName = (string) (tenant()?->name ?? 'لوت LOT');
+
+            $propertiesData = $auction->properties->map(function ($property) {
+                return [
+                    'id'              => $property->id,
+                    'name'            => (string) $property->name,
+                    'property_number' => (string) ($property->property_number ?? '-'),
+                    'type_label'      => method_exists($property->type, 'label') ? $property->type->label() : (string) ($property->type ?? 'عقار'),
+                    'city'            => (string) ($property->city ?? '-'),
+                    'district'        => (string) ($property->district ?? '-'),
+                    'area'            => $property->area ? number_format((float) $property->area, 2) . ' م²' : '-',
+                    'deed_number'     => (string) ($property->deed_number ?? '-'),
+                    'deed_date'       => $property->deed_date ? (string) $property->deed_date : '-',
+                    'estimated_value' => $property->estimated_value ? number_format((float) $property->estimated_value, 2) . ' ر.س' : '-',
+                    'main_image'      => $this->resolveFileBase64($property->main_image),
+                    'aerial_image'    => $this->resolveFileBase64($property->aerial_image),
+                    'boundaries'      => $property->boundaries ?? collect(),
+                    'google_maps_url' => (string) ($property->google_maps_url ?? ''),
+                    'short_description' => (string) ($property->short_description ?? ''),
+                ];
+            });
 
             $viewName = "tenant.auctions.outputs.{$type}";
             if (! view()->exists($viewName)) {
@@ -90,6 +110,7 @@ final class AuctionOutputService
 
             $html = view($viewName, [
                 'auction'          => $auction,
+                'propertiesData'   => $propertiesData,
                 'template'         => $template,
                 'qrCodeBase64'     => $qrCodeBase64,
                 'coverImageBase64' => $coverImageBase64,
@@ -186,27 +207,118 @@ final class AuctionOutputService
         }
     }
 
+    public function generateSocialImage(Auction $auction): string
+    {
+        if (! $auction->social_template_id) {
+            throw new RuntimeException('لم يتم ربط قالب منصات التواصل بهذا المزاد.');
+        }
+
+        $template = $this->gateway->findActive($auction->social_template_id, 'social');
+        if (! $template) {
+            throw new RuntimeException('القالب المرتبط غير نشط أو غير موجود في النظام.');
+        }
+
+        $templatePath = Storage::disk('central_public')->path($template->file_path);
+        if (! file_exists($templatePath)) {
+            throw new RuntimeException('ملف القالب غير موجود على الخادم.');
+        }
+
+        $outputDir = storage_path('app/outputs');
+        if (! File::isDirectory($outputDir)) {
+            File::makeDirectory($outputDir, 0755, true, true);
+        }
+
+        $outputPath = $outputDir . DIRECTORY_SEPARATOR . "auction_{$auction->id}_social_" . time() . '.png';
+
+        // 1080x1080 canvas
+        $canvas = imagecreatetruecolor(1080, 1080);
+        $emerald = imagecolorallocate($canvas, 29, 79, 68); // #1D4F44
+        $white = imagecolorallocate($canvas, 255, 255, 255);
+        imagefill($canvas, 0, 0, $emerald);
+
+        // Blend template image if image format
+        $ext = strtolower(pathinfo($templatePath, PATHINFO_EXTENSION));
+        if (in_array($ext, ['png', 'jpg', 'jpeg', 'webp'], true)) {
+            $src = match ($ext) {
+                'png' => @imagecreatefrompng($templatePath),
+                'webp' => @imagecreatefromwebp($templatePath),
+                default => @imagecreatefromjpeg($templatePath),
+            };
+            if ($src) {
+                imagecopyresampled($canvas, $src, 0, 0, 0, 0, 1080, 1080, imagesx($src), imagesy($src));
+                imagedestroy($src);
+            }
+        }
+
+        // Blend cover image if present
+        $coverPath = $this->resolveFilePath($auction->cover_image);
+        if ($coverPath && file_exists($coverPath)) {
+            $coverExt = strtolower(pathinfo($coverPath, PATHINFO_EXTENSION));
+            $coverImg = match ($coverExt) {
+                'png' => @imagecreatefrompng($coverPath),
+                'webp' => @imagecreatefromwebp($coverPath),
+                default => @imagecreatefromjpeg($coverPath),
+            };
+            if ($coverImg) {
+                // Card border/background
+                imagefilledrectangle($canvas, 80, 220, 1000, 780, $white);
+                imagecopyresampled($canvas, $coverImg, 95, 235, 0, 0, 890, 530, imagesx($coverImg), imagesy($coverImg));
+                imagedestroy($coverImg);
+            }
+        }
+
+        imagepng($canvas, $outputPath, 9);
+        imagedestroy($canvas);
+
+        return $outputPath;
+    }
+
     private function getCoverImageBase64(Auction $auction): string
     {
-        if (! $auction->cover_image) {
+        return $this->resolveFileBase64($auction->cover_image);
+    }
+
+    private function resolveFileBase64(?string $path): string
+    {
+        if (! $path) {
             return '';
         }
 
-        try {
-            $path = public_path($auction->cover_image);
-            if (! file_exists($path)) {
-                $path = Storage::disk('public')->path($auction->cover_image);
-            }
-
-            if (file_exists($path)) {
-                $data = file_get_contents($path);
-                $mime = mime_content_type($path) ?: 'image/jpeg';
+        $fullPath = $this->resolveFilePath($path);
+        if ($fullPath && file_exists($fullPath)) {
+            try {
+                $data = file_get_contents($fullPath);
+                $mime = mime_content_type($fullPath) ?: 'image/jpeg';
                 return 'data:' . $mime . ';base64,' . base64_encode($data);
+            } catch (Throwable $e) {
+                Log::warning('Image read error: ' . $e->getMessage());
             }
-        } catch (Throwable $e) {
-            Log::warning('Cover image read error: ' . $e->getMessage());
         }
 
         return '';
+    }
+
+    private function resolveFilePath(?string $path): ?string
+    {
+        if (! $path) {
+            return null;
+        }
+
+        $fullPath = public_path($path);
+        if (file_exists($fullPath)) {
+            return $fullPath;
+        }
+
+        $fullPath = Storage::disk('public')->path($path);
+        if (file_exists($fullPath)) {
+            return $fullPath;
+        }
+
+        $fullPath = Storage::disk('central_public')->path($path);
+        if (file_exists($fullPath)) {
+            return $fullPath;
+        }
+
+        return null;
     }
 }

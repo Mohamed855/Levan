@@ -329,6 +329,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
             Route::name('brochure')->get('{auction}/brochure', [AuctionOutputController::class, 'brochure']);
             Route::name('billboard')->get('{auction}/billboard', [AuctionOutputController::class, 'billboard']);
             Route::name('social')->get('{auction}/social', [AuctionOutputController::class, 'social']);
+            Route::name('social-image')->get('{auction}/social-image', [AuctionOutputController::class, 'socialImage']);
         });
         Route::resource('auctions', AuctionsController::class)
             ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);

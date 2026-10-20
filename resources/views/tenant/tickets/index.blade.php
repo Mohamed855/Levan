@@ -23,32 +23,40 @@
 @endsection
 
 @section('content')
+    <x-ui.validation-errors class="mb-4" />
 
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    <x-data-table.page table-id="tickets-table">
+        <x-slot:stats>
+            <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي التذاكر" :value="number_format($stats['total'] ?? 0)" subtitle="جميع تذاكر الدعم الخاصة بك"
+                icon="ti-messages" color="primary" />
 
-    {{-- Filters Card --}}
-    <x-data-table.filters table="#tickets-table" reset-id="btn-reset-filters">
-        <div>
-            <label class="form-label" for="filter-status">حالة التذكرة</label>
-            <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر حالة التذكرة">
-                <option value=""></option>
-                <x-form.controls.enum-options :enum="\App\Enums\Tenants\Tickets\TicketStatus::class" />
-            </select>
-        </div>
-    </x-data-table.filters>
+            <x-ui.stat-card col="col-sm-6 col-xl" title="تذاكر جديدة" :value="number_format($stats['open'] ?? 0)"
+                subtitle="بانتظار رد الدعم الفني" icon="ti-bell-ringing" color="warning" />
 
-    <div class="card">
-        <div class="card-body">
+            <x-ui.stat-card col="col-sm-6 col-xl" title="قيد المعالجة" :value="number_format($stats['in_progress'] ?? 0)" subtitle="جارٍ العمل على حلها"
+                icon="ti-clock" color="info" />
+
+            <x-ui.stat-card col="col-sm-6 col-xl" title="تم الحل" :value="number_format($stats['resolved'] ?? 0)" subtitle="تم حل المشكلة"
+                icon="ti-circle-check" color="success" />
+
+            <x-ui.stat-card col="col-sm-6 col-xl" title="تذاكر مغلقة" :value="number_format($stats['closed'] ?? 0)" subtitle="مغلقة نهائياً"
+                icon="ti-lock" color="danger" />
+        </x-slot:stats>
+
+        <x-slot:filters>
+            <x-data-table.filters table="#tickets-table" reset-id="btn-reset-filters">
+                <div>
+                    <label class="form-label" for="filter-status">حالة التذكرة</label>
+                    <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر حالة التذكرة">
+                        <option value=""></option>
+                        <x-form.controls.enum-options :enum="\App\Enums\Tenants\Tickets\TicketStatus::class" />
+                    </select>
+                </div>
+            </x-data-table.filters>
+        </x-slot:filters>
+
+        <x-slot:table>
             {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'tickets-table'], false) !!}
-        </div>
-    </div>
-
+        </x-slot:table>
+    </x-data-table.page>
 @endsection

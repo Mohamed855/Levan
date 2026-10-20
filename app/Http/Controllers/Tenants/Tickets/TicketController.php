@@ -48,7 +48,9 @@ class TicketController extends Controller
     public function index(TicketsDataTable $dataTable)
     {
         try {
-            return $dataTable->render($this->page.'.index');
+            $stats = $this->ticketService->getTenantTicketStats();
+
+            return $dataTable->render($this->page.'.index', compact('stats'));
         } catch (\Exception $e) {
             report($e);
 

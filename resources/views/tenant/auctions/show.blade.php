@@ -96,9 +96,14 @@
                             @endif
 
                             @if($auction->social_template_id)
-                                <a href="{{ tenant_route_name('auctions.social', $auction->id) }}"
+                                <a href="{{ tenant_route_name('auctions.social-image', $auction->id) }}"
                                    class="btn btn-outline-info d-flex align-items-center justify-content-between" target="_blank">
-                                    <span><i class="ti ti-brand-instagram me-2"></i>تحميل منشور السوشيال ميديا</span>
+                                    <span><i class="ti ti-photo me-2"></i>تحميل بوست السوشيال ميديا (صورة PNG)</span>
+                                    <i class="ti ti-download"></i>
+                                </a>
+                                <a href="{{ tenant_route_name('auctions.social', $auction->id) }}"
+                                   class="btn btn-outline-secondary d-flex align-items-center justify-content-between" target="_blank">
+                                    <span><i class="ti ti-brand-instagram me-2"></i>تحميل بوست السوشيال ميديا (مستند PDF)</span>
                                     <i class="ti ti-download"></i>
                                 </a>
                             @endif

@@ -82,62 +82,54 @@
                                 accept="image/png,image/jpeg,image/webp" col="col-md-6"
                                 help="تُعرض للمستأجرين في شاشة إنشاء وتعديل المزاد لتسهيل اختيار القالب (في حال تركه فارغاً سيتم اعتماده تلقائياً من التصميم المرفوع)." />
 
-                            <div class="col-12">
-                                <div class="card border shadow-none mb-0">
-                                    <div class="card-header bg-secondary py-2">
-                                        <h6 class="mb-0 fw-bold">
-                                            <i class="ti ti-list-check me-1 text-primary"></i>البيانات المطبوعة تلقائياً
-                                            وفقاً لنوع القالب
-                                        </h6>
-                                    </div>
-                                    <div class="card-body p-0">
-                                        <div class="accordion accordion-flush" id="fieldGuideAccordion">
-                                            @foreach ($fieldGuide as $key => $guide)
-                                                <div class="accordion-item">
-                                                    <h2 class="accordion-header" id="heading-{{ $key }}">
-                                                        <button
-                                                            class="accordion-button {{ $loop->first ? '' : 'collapsed' }} py-2"
-                                                            type="button" data-bs-toggle="collapse"
-                                                            data-bs-target="#collapse-{{ $key }}"
-                                                            aria-expanded="{{ $loop->first ? 'true' : 'false' }}">
-                                                            <span
-                                                                class="badge bg-label-{{ $key === 'brochure' ? 'primary' : ($key === 'billboard' ? 'warning' : 'info') }} me-2">
-                                                                {{ count($guide['fields']) }} حقل
-                                                            </span>
-                                                            {{ $guide['title'] }}
-                                                        </button>
-                                                    </h2>
-                                                    <div id="collapse-{{ $key }}"
-                                                        class="accordion-collapse collapse {{ $loop->first ? 'show' : '' }}"
-                                                        data-bs-parent="#fieldGuideAccordion">
-                                                        <div class="accordion-body p-2">
-                                                            <div class="table-responsive">
-                                                                <table class="table table-sm table-striped mb-0 small">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th>اسم الحقل البرمجي</th>
-                                                                            <th>البيان المطبوع تلقائياً</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                        @foreach ($guide['fields'] as $field)
-                                                                            <tr>
-                                                                                <td><code>{{ $field['name'] }}</code></td>
-                                                                                <td>
-                                                                                    {{ $field['label'] }}
-                                                                                    @if ($field['required'])
-                                                                                        <span class="text-danger">*</span>
-                                                                                    @endif
-                                                                                </td>
-                                                                            </tr>
-                                                                        @endforeach
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                            {{-- كارت المعايير والمواصفات المعتمدة لملف القالب --}}
+                            <div class="col-12" id="specifications-guide-wrapper">
+                                <div class="card border border-primary-subtle shadow-none bg-label-primary mb-0">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-start gap-3">
+                                            <div
+                                                class="avatar avatar-md bg-primary text-white rounded d-flex align-items-center justify-content-center flex-shrink-0">
+                                                <i class="ti ti-ruler-measure fs-3"></i>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-1 fw-bold text-primary">المعايير المعتمدة للملف وفقاً لنوع
+                                                    القالب المحدد:</h6>
+
+                                                <div id="spec-guide-brochure" class="spec-guide-item d-none">
+                                                    <p class="mb-1 text-heading small">
+                                                        <i class="ti ti-file-type-pdf text-danger me-1"></i>
+                                                        <strong>قالب البروشور:</strong> يجب رفع ملف مستند
+                                                        <strong>PDF</strong>، بمقاس صفحات <strong>A4 رأسي (210×297
+                                                            مم)</strong>. يُستخدم ككتيّب متعدد الصفحات للطباعة وعرض تفاصيل
+                                                        المزاد والعقارات المشمولة.
+                                                    </p>
                                                 </div>
-                                            @endforeach
+
+                                                <div id="spec-guide-social" class="spec-guide-item d-none">
+                                                    <p class="mb-1 text-heading small">
+                                                        <i class="ti ti-brand-instagram text-info me-1"></i>
+                                                        <strong>قالب السوشيال ميديا:</strong> يجب أن يكون صورة عالية الدقة
+                                                        (PNG, JPG, WEBP) أو PDF، بنسبة أبعاد <strong>مربعة 1:1</strong>
+                                                        (المقاس الموصى به <strong>1080×1080 بكسل</strong>) مخصص للنشر
+                                                        الرقمي.
+                                                    </p>
+                                                </div>
+
+                                                <div id="spec-guide-billboard" class="spec-guide-item d-none">
+                                                    <p class="mb-1 text-heading small">
+                                                        <i class="ti ti-ad text-warning me-1"></i>
+                                                        <strong>قالب اللوحة الإعلانية:</strong> يجب أن يكون بتنسيق
+                                                        <strong>عرضي عريض Landscape</strong> (بنسبة <strong>16:9</strong>
+                                                        بدقة 1920×1080 بكسل أو A4 أفقي 297×210 مم) مخصص للشاشات واللوحات
+                                                        الخارجية.
+                                                    </p>
+                                                </div>
+
+                                                <div id="spec-guide-default" class="spec-guide-item">
+                                                    <p class="mb-0 text-muted small">يرجى اختيار نوع القالب في الخطوة الأولى
+                                                        لعرض الأبعاد والمواصفات المعتمدة له بدقة.</p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -172,11 +164,6 @@
                                     <div><strong>ملف القالب:</strong> <span id="review-file-name">-</span></div>
                                     <div><strong>صورة المعاينة:</strong> <span id="review-thumbnail-name">-</span></div>
                                     <div><strong>حالة التفعيل:</strong> <span id="review-status">-</span></div>
-                                </x-form.wizard.review-card>
-
-                                <x-form.wizard.review-card title="البيانات المعتمدة للتوليد التلقائي" step="2"
-                                    class="assignment-review__card">
-                                    <div id="review-field-guide" class="small text-muted">-</div>
                                 </x-form.wizard.review-card>
                             </div>
 

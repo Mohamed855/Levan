@@ -34,16 +34,19 @@
     <x-data-table.page table-id="clients-table">
         <x-slot:stats>
             <x-ui.stat-card title="إجمالي العملاء" :value="$totalClients ?? ($totalCompanies ?? 0)" subtitle="جميع العملاء المسجلين" icon="ti-building"
-                color="primary" />
+                color="primary" col="col-sm-6 col-xl" />
 
             <x-ui.stat-card title="العملاء النشطون" :value="$activeClients ?? ($activeCompanies ?? 0)" subtitle="عملاء مفعلون ونشطون" icon="ti-circle-check"
-                color="success" />
+                color="success" col="col-sm-6 col-xl" />
 
             <x-ui.stat-card title="العملاء الموقوفون" :value="$suspendedClients ?? ($suspendedCompanies ?? 0)" subtitle="عملاء موقوفون مؤقتاً" icon="ti-ban"
-                color="danger" />
+                color="danger" col="col-sm-6 col-xl" />
 
             <x-ui.stat-card title="بانتظار التفعيل" :value="$pendingClients ?? ($pendingCompanies ?? 0)" subtitle="عملاء جدد بانتظار الاعتماد"
-                icon="ti-clock-pause" color="warning" />
+                icon="ti-clock-pause" color="warning" col="col-sm-6 col-xl" />
+
+            <x-ui.stat-card title="بدون اشتراك" :value="$withoutSubscriptionClients ?? ($withoutSubscriptionCompanies ?? 0)" subtitle="عملاء بلا اشتراك فعّال"
+                icon="ti-alert-circle" color="info" col="col-sm-6 col-xl" />
 
         </x-slot:stats>
 

@@ -6,6 +6,7 @@ namespace App\Http\Requests\Admin\AuctionTemplates;
 
 use App\Enums\Admin\AuctionTemplates\AuctionTemplateType;
 use App\Http\Requests\Concerns\WizardFormRequest;
+use App\Rules\AuctionTemplateFileSpecificationRule;
 use Illuminate\Validation\Rule;
 
 class StoreAuctionTemplateRequest extends WizardFormRequest
@@ -26,7 +27,13 @@ class StoreAuctionTemplateRequest extends WizardFormRequest
             ],
             'type'        => ['required', Rule::enum(AuctionTemplateType::class)],
             'description' => ['nullable', 'string', 'max:1000'],
-            'file'        => ['required', 'file', 'mimes:pdf,png,jpg,jpeg,webp', 'max:30720'],
+            'file'        => [
+                'required',
+                'file',
+                'mimes:pdf,png,jpg,jpeg,webp',
+                'max:30720',
+                new AuctionTemplateFileSpecificationRule($this->input('type')),
+            ],
             'thumbnail'   => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:5120'],
             'is_active'   => ['nullable', 'boolean'],
         ];

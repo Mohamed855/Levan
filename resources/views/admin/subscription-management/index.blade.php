@@ -32,49 +32,42 @@
 @endsection
 
 @section('content')
-    @if ($errors->any())
-        <div class="alert alert-danger mb-4">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    <x-ui.validation-errors class="mb-4" />
 
-    <div class="row g-4 mb-4">
-        <x-ui.stat-card title="إجمالي الاشتراكات" :value="$totalSubscriptions ?? 0" subtitle="جميع اشتراكات الشركات" icon="ti-packages"
-            color="primary" />
+    <x-data-table.page table-id="subscriptions-table">
+        <x-slot:stats>
+            <x-ui.stat-card title="إجمالي الاشتراكات" :value="$totalSubscriptions ?? 0" subtitle="جميع اشتراكات الشركات" icon="ti-packages"
+                color="primary" col="col-sm-6 col-xl" />
 
-        <x-ui.stat-card title="الاشتراكات النشطة" :value="$activeSubscriptions ?? 0" subtitle="اشتراكات سارية حالياً" icon="ti-circle-check"
-            color="success" />
+            <x-ui.stat-card title="الاشتراكات النشطة" :value="$activeSubscriptions ?? 0" subtitle="اشتراكات سارية حالياً" icon="ti-circle-check"
+                color="success" col="col-sm-6 col-xl" />
 
-        <x-ui.stat-card title="طلبات جديدة معلقة" :value="$pendingSubscriptions ?? 0" subtitle="بانتظار الموافقة" icon="ti-clock-pause"
-            color="warning" />
+            <x-ui.stat-card title="طلبات جديدة معلقة" :value="$pendingSubscriptions ?? 0" subtitle="بانتظار الموافقة" icon="ti-clock-pause"
+                color="warning" col="col-sm-6 col-xl" />
 
-        <x-ui.stat-card title="تقارب على الانتهاء" :value="$expiringSubscriptions ?? 0" subtitle="خلال 30 يوماً" icon="ti-alert-triangle"
-            color="info" />
+            <x-ui.stat-card title="تقارب على الانتهاء" :value="$expiringSubscriptions ?? 0" subtitle="خلال 30 يوماً" icon="ti-alert-triangle"
+                color="info" col="col-sm-6 col-xl" />
 
-        <x-ui.stat-card title="الاشتراكات المنتهية" :value="$expiredSubscriptions ?? 0" subtitle="انتهت صلاحيتها" icon="ti-clock-x"
-            color="danger" />
-    </div>
+            <x-ui.stat-card title="الاشتراكات المنتهية" :value="$expiredSubscriptions ?? 0" subtitle="انتهت صلاحيتها" icon="ti-clock-x"
+                color="danger" col="col-sm-6 col-xl" />
+        </x-slot:stats>
 
-    @if (!($isPendingPage ?? false) && !($isExpiringPage ?? false) && !($isExpiredPage ?? false))
-        {{-- Filters Card --}}
-        <x-data-table.filters table="#subscriptions-table">
-            <x-filter.select id="filter-status" filterKey="status" label="حالة الشركات" placeholder="اختر حالة الشركة"
-                :enum="\App\Enums\Admin\Subscriptions\SubscriptionStatus::class" />
-        </x-data-table.filters>
-    @endif
+        @if (!($isPendingPage ?? false) && !($isExpiringPage ?? false) && !($isExpiredPage ?? false))
+            <x-slot:filters>
+                <x-data-table.filters table="#subscriptions-table">
+                    <x-filter.select id="filter-status" filterKey="status" label="حالة الشركات" placeholder="اختر حالة الشركة"
+                        :enum="\App\Enums\Admin\Subscriptions\SubscriptionStatus::class" />
+                </x-data-table.filters>
+            </x-slot:filters>
+        @endif
 
-    <div class="card">
-        <div class="card-body">
+        <x-slot:table>
             {!! $dataTable->table(
                 ['class' => 'table table-striped table-bordered w-100', 'id' => 'subscriptions-table'],
                 false,
             ) !!}
-        </div>
-    </div>
+        </x-slot:table>
+    </x-data-table.page>
 
     {{-- Confirmation Modal for Accept/Reject --}}
     @include('admin.subscription-management.partials.confirm_modal')

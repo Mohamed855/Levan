@@ -54,6 +54,19 @@ class EtmamTicketService
         return true;
     }
 
+    public function getTenantTicketStats(): array
+    {
+        $base = $this->tenantTicketQuery();
+
+        return [
+            'total' => (clone $base)->count(),
+            'open' => (clone $base)->where('status', 'open')->count(),
+            'in_progress' => (clone $base)->where('status', 'in_progress')->count(),
+            'resolved' => (clone $base)->whereIn('status', ['resolved', 'resolved_pending_survey'])->count(),
+            'closed' => (clone $base)->where('status', 'closed')->count(),
+        ];
+    }
+
     /**
      * Check if creating new tickets is enabled by admin.
      */

@@ -26,123 +26,36 @@
         };
     </script>
     @vite(['resources/assets/js/admin/coupons/index.js'])
-    <script>
-        function copyTextToClipboard(text, onSuccess, onError) {
-            if (!text) return;
-
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(text).then(function() {
-                    if (typeof onSuccess === 'function') onSuccess();
-                }).catch(function() {
-                    fallbackCopyText(text, onSuccess, onError);
-                });
-            } else {
-                fallbackCopyText(text, onSuccess, onError);
-            }
-        }
-
-        function fallbackCopyText(text, onSuccess, onError) {
-            try {
-                const textArea = document.createElement('textarea');
-                textArea.value = text;
-                textArea.style.position = 'fixed';
-                textArea.style.top = '-9999px';
-                textArea.style.left = '-9999px';
-                textArea.setAttribute('readonly', '');
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                textArea.setSelectionRange(0, textArea.value.length);
-                const successful = document.execCommand('copy');
-                document.body.removeChild(textArea);
-
-                if (successful) {
-                    if (typeof onSuccess === 'function') onSuccess();
-                } else if (typeof onError === 'function') {
-                    onError();
-                }
-            } catch (err) {
-                if (typeof onError === 'function') onError();
-            }
-        }
-
-        $(document).ready(function() {
-            $(document).on('click', '.copyable-code-wrapper, .copyable-code, .copy-icon', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                const $wrapper = $(this).closest('.copyable-code-wrapper');
-                const code = ($wrapper.length ? $wrapper.data('code') : null) || $(this).data('code') || $(
-                    this).text().trim();
-                const $icon = $wrapper.length ? $wrapper.find('.copy-icon, .ti-copy') : $(this).parent()
-                    .find('.ti-copy, .copy-icon');
-
-                if (!code) return;
-
-                copyTextToClipboard(code, function() {
-                    const originalClass = $icon.attr('class') || 'ti ti-copy text-muted copy-icon';
-                    $icon.removeClass('ti-copy text-muted').addClass('ti ti-check text-success');
-
-                    if (typeof toastr !== 'undefined') {
-                        toastr.success('تم نسخ الكود: ' + code, 'نجح!', {
-                            closeButton: true,
-                            progressBar: true,
-                            timeOut: 2000,
-                            positionClass: 'toast-top-right'
-                        });
-                    }
-
-                    setTimeout(function() {
-                        $icon.attr('class', originalClass);
-                    }, 2000);
-                }, function() {
-                    if (typeof toastr !== 'undefined') {
-                        toastr.error('تعذر نسخ الكود');
-                    } else {
-                        alert('تعذر نسخ الكود: ' + code);
-                    }
-                });
-            });
-        });
-    </script>
 @endsection
 
 @section('content')
-    <div class="row g-4 mb-4">
-        <x-ui.stat-card col="col-sm-6 col-xl-3" title="إجمالي الكوبونات" :value="$totalPlans" subtitle="إجمالي الكوبونات"
-            icon="ti-ticket" color="primary" />
-        <x-ui.stat-card col="col-sm-6 col-xl-3" title="الكوبونات النشطة" :value="$activecoupons" subtitle="الكوبونات النشطة"
-            icon="ti-rosette-discount" color="success" />
-        <x-ui.stat-card col="col-sm-6 col-xl-3" title="الكوبونات الغير نشطة" :value="$inactivecoupons"
-            subtitle="الكوبونات الغير نشطة" icon="ti-rosette-discount-off" color="warning" />
-        <x-ui.stat-card col="col-sm-6 col-xl-3" title="عدد الكوبونات المستخدمة" :value="$couponCount"
-            subtitle="عدد الكوبونات المستخدمة" icon="ti-discount-check" color="danger" />
-    </div>
+    <x-ui.validation-errors class="mb-4" />
 
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    <x-data-table.page table-id="coupon-table">
+        <x-slot:stats>
+            <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي الكوبونات" :value="$totalCoupons ?? ($totalPlans ?? 0)" subtitle="جميع الكوبونات المسجلة"
+                icon="ti-ticket" color="primary" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="الكوبونات النشطة" :value="$activeCoupons ?? ($activecoupons ?? 0)" subtitle="كوبونات مفعلة حالياً"
+                icon="ti-rosette-discount" color="success" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="الكوبونات غير النشطة" :value="$inactiveCoupons ?? ($inactivecoupons ?? 0)"
+                subtitle="كوبونات معطلة مؤقتاً" icon="ti-rosette-discount-off" color="warning" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="الكوبونات المنتهية" :value="$expiredCoupons ?? 0"
+                subtitle="تجاوزت تاريخ الصلاحية" icon="ti-calendar-off" color="danger" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="مرات الاستخدام" :value="$usedCount ?? ($couponCount ?? 0)"
+                subtitle="إجمالي استخدام الكوبونات" icon="ti-discount-check" color="info" />
+        </x-slot:stats>
 
-    {{-- Filters Card --}}
-    <x-data-table.filters table="#coupon-table">
-        <x-filter.select id="filter-status" filterKey="is_active" label="حالة الكوبونات"
-            placeholder="اختر حالة الكوبون" :options="$filterOptions['statuses'] ?? []" />
-        <x-filter.select id="filter-type" filterKey="discount_type" label="نوع الخصم"
-            placeholder="اختر نوع الخصم" :options="$filterOptions['types'] ?? []" />
-    </x-data-table.filters>
+        <x-slot:filters>
+            <x-data-table.filters table="#coupon-table">
+                <x-filter.select id="filter-status" filterKey="is_active" label="حالة الكوبونات"
+                    placeholder="اختر حالة الكوبون" :options="$filterOptions['statuses'] ?? []" />
+                <x-filter.select id="filter-type" filterKey="discount_type" label="نوع الخصم"
+                    placeholder="اختر نوع الخصم" :options="$filterOptions['types'] ?? []" />
+            </x-data-table.filters>
+        </x-slot:filters>
 
-    <div class="card">
-        <div class="card-body">
+        <x-slot:table>
             {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'coupon-table'], false) !!}
-        </div>
-    </div>
-
-
-
+        </x-slot:table>
+    </x-data-table.page>
 @endsection

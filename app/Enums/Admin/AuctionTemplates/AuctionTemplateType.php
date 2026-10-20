@@ -6,16 +6,16 @@ namespace App\Enums\Admin\AuctionTemplates;
 
 enum AuctionTemplateType: string
 {
-    case BROCHURE  = 'brochure';
+    case BROCHURE = 'brochure';
     case BILLBOARD = 'billboard';
-    case SOCIAL    = 'social';
+    case SOCIAL = 'social';
 
     public function label(): string
     {
         return match ($this) {
-            self::BROCHURE  => 'قالب البروشور',
+            self::BROCHURE => 'قالب البروشور',
             self::BILLBOARD => 'قالب اللوحة الإعلانية',
-            self::SOCIAL    => 'قالب منصات التواصل الاجتماعي',
+            self::SOCIAL => 'قالب منصات التواصل الاجتماعي',
         };
     }
 
@@ -31,9 +31,9 @@ enum AuctionTemplateType: string
     public function color(): string
     {
         return match ($this) {
-            self::BROCHURE  => 'primary',
+            self::BROCHURE => 'primary',
             self::BILLBOARD => 'warning',
-            self::SOCIAL    => 'info',
+            self::SOCIAL => 'info',
         };
     }
 
@@ -43,7 +43,6 @@ enum AuctionTemplateType: string
             fn (self $t) => [
                 'value' => $t->value,
                 'label' => $t->label(),
-                'icon'  => $t->icon(),
                 'color' => $t->color(),
             ],
             self::cases()

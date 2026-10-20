@@ -28,30 +28,22 @@
     </script>
     @vite(['resources/assets/js/admin/plans/index.js'])
 @endsection
-
 @section('content')
+    <x-ui.validation-errors class="mb-4" />
+
     <x-data-table.page table-id="plans-table">
         <x-slot:stats>
             <x-ui.stat-card title="إجمالي الباقات" :value="$totalPlans" subtitle="جميع الباقات المعرفة" icon="ti-packages"
-                color="primary" />
-            <x-ui.stat-card title="الباقات النشطة" :value="$activePlans" subtitle="متاحة للاشتراك" icon="ti-bolt" color="success" />
+                color="primary" col="col-sm-6 col-xl" />
+            <x-ui.stat-card title="الباقات النشطة" :value="$activePlans" subtitle="متاحة للاشتراك" icon="ti-bolt" color="success"
+                col="col-sm-6 col-xl" />
             <x-ui.stat-card title="الباقات غير النشطة" :value="$inactivePlans" subtitle="غير متاحة للاشتراك" icon="ti-calendar-off"
-                color="warning" />
+                color="warning" col="col-sm-6 col-xl" />
             <x-ui.stat-card title="متاحة الآن" :value="$availablePlans" subtitle="ضمن تاريخ الإتاحة" icon="ti-circle-check"
-                color="info" />
+                color="info" col="col-sm-6 col-xl" />
             <x-ui.stat-card title="مجدولة" :value="$futurePlans" subtitle="تتاح مستقبلاً" icon="ti-calendar-time"
-                color="danger" />
+                color="danger" col="col-sm-6 col-xl" />
         </x-slot:stats>
-
-        @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul class="mb-0">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
 
         <x-slot:filters>
             <x-data-table.filters table="#plans-table">

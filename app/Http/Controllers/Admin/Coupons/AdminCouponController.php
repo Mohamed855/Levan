@@ -64,10 +64,6 @@ class AdminCouponController extends Controller
         try {
             $statistics = $this->couponService->getCouponStatistics();
             $coupon = Bill::WhereNotNull('tenant_id')->whereNotNull('coupon_id')->get()->count();
-            // $tenant_id = Bill::WhereNotNull('tenant_id')->whereNotNull('coupon_id')->get()->value('tenant_id');
-
-            // $coupon_details = Coupon::where('id', $coupon->id)->first();
-            // $tenant = Tenant::where('id', $tenant_id)->first();
             $filterOptions = [
                 'statuses' => [
                     ['value' => 'active', 'label' => 'نشط'],
@@ -80,13 +76,16 @@ class AdminCouponController extends Controller
             ];
 
             return $dataTable->render($this->page.'.index', [
+                'totalCoupons' => $statistics['total'],
+                'activeCoupons' => $statistics['active'],
+                'inactiveCoupons' => $statistics['inactive'],
+                'expiredCoupons' => $statistics['expired'],
+                'usedCount' => $coupon,
                 'totalPlans' => $statistics['total'],
                 'activecoupons' => $statistics['active'],
                 'inactivecoupons' => $statistics['inactive'],
                 'couponCount' => $coupon,
                 'filterOptions' => $filterOptions,
-                // 'tenantUsedCouponCount' => $tenant->count()
-
             ]);
         } catch (\Exception $e) {
             report($e);
