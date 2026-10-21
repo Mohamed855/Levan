@@ -1,0 +1,486 @@
+/* =============================================================================
+   Tenant Login Page Styles
+   - Split Layout (Form on Right in RTL, Media on Left)
+   - Secondary color background for form side
+   - Primary color typography & interactive elements
+   - Media side with background photo & dark overlay
+   ============================================================================= */
+
+:root {
+    --tenant-login-primary: var(--primary-color, #1D4F44);
+    --tenant-login-secondary: var(--secondary-color, #f3edea);
+    --tenant-login-secondary-dark: var(--secondary-color-dark, #e9ddd8);
+}
+
+.tenant-login-container {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+    direction: rtl;
+    background-color: var(--tenant-login-secondary);
+    font-family: var(--font-family-base, 'Zain', sans-serif);
+    overflow-x: hidden;
+}
+
+/* -----------------------------------------------------------------------------
+   Right Side: Login Form
+   ----------------------------------------------------------------------------- */
+.tenant-login-form-side {
+    width: 50%;
+    min-height: 100vh;
+    background-color: var(--tenant-login-secondary);
+    color: var(--tenant-login-primary);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 3rem 64px 2rem 64px;
+    position: relative;
+    order: 1; /* In RTL flex row, order: 1 is the RIGHT side */
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.tenant-brand-watermark {
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 320px;
+    height: 320px;
+    opacity: 0.045;
+    pointer-events: none;
+    color: var(--tenant-login-primary);
+    z-index: 1;
+}
+
+.tenant-login-form-inner {
+    width: 100%;
+    max-width: 440px;
+    margin: auto;
+    position: relative;
+    z-index: 2;
+    padding: 1.25rem 0;
+}
+
+.tenant-login-logo-wrapper {
+    margin-bottom: 2.25rem;
+    text-align: right;
+}
+
+.tenant-login-logo-img {
+    height: 3rem;
+    width: auto;
+    max-width: 220px;
+    object-fit: contain;
+}
+
+.tenant-login-title {
+    color: var(--tenant-login-primary);
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    line-height: 1.25;
+}
+
+.tenant-login-subtitle {
+    color: rgba(55, 38, 50, 0.78);
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 1.75rem;
+    line-height: 1.5;
+}
+
+/* Form Controls & Inputs */
+.tenant-login-form-side .form-label {
+    color: var(--tenant-login-primary) !important;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.tenant-login-form-side .input-group-merge {
+    background-color: #ffffff;
+    border: 1px solid rgba(55, 38, 50, 0.16);
+    border-radius: 10px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+}
+
+.tenant-login-form-side .input-group-merge:focus-within {
+    border-color: var(--tenant-login-primary);
+    box-shadow: 0 0 0 3px rgba(55, 38, 50, 0.12);
+}
+
+.tenant-login-form-side .input-group-merge .form-control {
+    background-color: transparent !important;
+    border: none !important;
+    height: 3rem !important;
+    min-height: 3rem !important;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--tenant-login-primary) !important;
+    box-shadow: none !important;
+    padding: 10px 14px !important;
+}
+
+.tenant-login-form-side .input-group-merge .form-control::placeholder {
+    color: rgba(55, 38, 50, 0.42) !important;
+    font-size: 13.5px;
+}
+
+.tenant-login-form-side .input-group-merge .input-group-text {
+    background-color: transparent !important;
+    border: none !important;
+    color: rgba(55, 38, 50, 0.55);
+    font-size: 18px;
+    padding: 0 14px;
+}
+
+.tenant-login-form-side .input-group-merge .input-group-text:hover {
+    color: var(--tenant-login-primary);
+}
+
+.tenant-login-form-side .input-group-merge.is-invalid,
+.tenant-login-form-side .input-group-merge:has(.is-invalid),
+.tenant-login-form-side .input-group-merge:has(.form-control.is-invalid),
+.tenant-login-form-side [data-form-field].is-invalid .input-group-merge,
+.tenant-login-form-side [data-form-field].has-error .input-group-merge {
+    border: 1px solid #ea5455 !important;
+    box-shadow: none !important;
+}
+
+.tenant-login-form-side .input-group-merge.is-invalid .input-group-text,
+.tenant-login-form-side .input-group-merge:has(.is-invalid) .input-group-text,
+.tenant-login-form-side .input-group-merge:has(.form-control.is-invalid) .input-group-text,
+.tenant-login-form-side .input-group-merge .form-control.is-invalid ~ .input-group-text,
+.tenant-login-form-side .input-group-merge .input-group-text.is-invalid,
+.tenant-login-form-side .input-group-merge [data-password-toggle].is-invalid,
+.tenant-login-form-side [data-form-field].is-invalid [data-password-toggle],
+.tenant-login-form-side [data-form-field].has-error [data-password-toggle] {
+    border: 1px solid #ea5455 !important;
+}
+
+.tenant-login-form-side .form-control:not(.input-group .form-control) {
+    background-color: #ffffff !important;
+    border: 1px solid rgba(55, 38, 50, 0.16) !important;
+    border-radius: 10px !important;
+    height: 3rem !important;
+    padding: 10px 14px !important;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--tenant-login-primary) !important;
+    box-shadow: none !important;
+}
+
+.tenant-login-form-side .form-control:not(.input-group .form-control):focus {
+    border-color: var(--tenant-login-primary) !important;
+    box-shadow: 0 0 0 3px rgba(55, 38, 50, 0.12) !important;
+}
+
+/* Autofill styling */
+.tenant-login-form-side input:-webkit-autofill,
+.tenant-login-form-side input:-webkit-autofill:hover,
+.tenant-login-form-side input:-webkit-autofill:focus,
+.tenant-login-form-side input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 50px white inset !important;
+    -webkit-text-fill-color: var(--tenant-login-primary) !important;
+    box-shadow: 0 0 0 50px white inset !important;
+    background-color: white !important;
+    color: var(--tenant-login-primary) !important;
+    caret-color: var(--tenant-login-primary) !important;
+}
+
+.tenant-login-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 6px;
+    margin-bottom: 1.5rem;
+    font-size: 13.5px;
+}
+
+.tenant-login-options .form-check-input {
+    width: 17px;
+    height: 17px;
+    border-radius: 0.25rem;
+    border: 1.5px solid rgba(55, 38, 50, 0.35);
+    background-color: #ffffff;
+    cursor: pointer;
+}
+
+.tenant-login-options .form-check-input:checked {
+    background-color: var(--tenant-login-primary);
+    border-color: var(--tenant-login-primary);
+}
+
+.tenant-login-options .form-check-label {
+    color: var(--tenant-login-primary);
+    font-weight: 500;
+    cursor: pointer;
+    user-select: none;
+}
+
+.tenant-forgot-link {
+    color: var(--tenant-login-primary);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.tenant-forgot-link:hover {
+    color: var(--tenant-login-primary);
+    text-decoration: underline;
+    opacity: 0.85;
+}
+
+.btn-tenant-login {
+    width: 100%;
+    height: 3rem;
+    background-color: var(--tenant-login-primary);
+    color: #ffffff !important;
+    border: none;
+    border-radius: 10px;
+    font-size: 15.5px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 0.25rem 0.75rem rgba(55, 38, 50, 0.18);
+}
+
+.btn-tenant-login:hover {
+    background-color: #261922;
+    box-shadow: 0 6px 18px rgba(55, 38, 50, 0.28);
+    color: #ffffff !important;
+}
+
+.btn-tenant-login i {
+    font-size: 18px;
+}
+
+.tenant-login-footer {
+    text-align: center;
+    color: rgba(55, 38, 50, 0.65);
+    font-size: 0.75rem;
+    margin-top: 1.5rem;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.tenant-footer-link {
+    color: rgba(55, 38, 50, 0.85);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.tenant-footer-link:hover {
+    color: var(--tenant-login-primary);
+}
+
+.footer-logo {
+    height: 14px;
+    width: auto;
+    object-fit: contain;
+}
+
+/* -----------------------------------------------------------------------------
+   Left Side: Media & Content
+   ----------------------------------------------------------------------------- */
+.tenant-login-media-side {
+    width: 50%;
+    min-height: 100vh;
+    position: relative;
+    background-image: url('/static/auth/backgrounds/tenant-login-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    order: 2; /* In RTL flex row, order: 2 is the LEFT side */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+}
+
+.tenant-media-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        rgba(35, 20, 31, 0.72) 0%,
+        rgba(25, 14, 22, 0.78) 50%,
+        rgba(18, 9, 16, 0.9) 100%
+    );
+    z-index: 1;
+}
+
+.tenant-media-content {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 56px 64px 2.75rem 64px;
+    color: #ffffff;
+    box-sizing: border-box;
+}
+
+.tenant-media-header {
+    text-align: right;
+}
+
+.tenant-header-line {
+    width: 2.25rem;
+    height: 3px;
+    background-color: #d4a373;
+    border-radius: 2px;
+    margin-bottom: 0.75rem;
+}
+
+.tenant-header-tagline {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.tenant-header-tagline span {
+    display: block;
+}
+
+.tenant-media-body {
+    text-align: right;
+    max-width: 560px;
+    margin-top: auto;
+    margin-bottom: auto;
+    padding: 30px 0;
+}
+
+.tenant-media-title {
+    color: #ffffff;
+    font-size: 38px;
+    font-weight: 800;
+    line-height: 1.35;
+    margin-bottom: 18px;
+    text-shadow: 0 2px 0.75rem rgba(0, 0, 0, 0.35);
+}
+
+.tenant-media-desc {
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 16.5px;
+    line-height: 1.85;
+    font-weight: 400;
+    max-width: 480px;
+    text-shadow: 0 1px 0.5rem rgba(0, 0, 0, 0.25);
+}
+
+.tenant-media-features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: auto;
+}
+
+.tenant-feature-card {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 0.75rem;
+    padding: 1rem 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.tenant-feature-card:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.tenant-feature-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.14);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: #ffffff;
+}
+
+.tenant-feature-text {
+    font-size: 13.5px;
+    font-weight: 600;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.95);
+    text-align: right;
+}
+
+/* -----------------------------------------------------------------------------
+   Responsive Breakpoints
+   ----------------------------------------------------------------------------- */
+@media (max-width: 1200px) {
+    .tenant-login-form-side {
+        padding: 2.5rem 2.5rem 1.5rem 2.5rem;
+    }
+
+    .tenant-media-content {
+        padding: 2.5rem 2.5rem 2rem 2.5rem;
+    }
+
+    .tenant-media-title {
+        font-size: 2rem;
+    }
+
+    .tenant-media-desc {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 991px) {
+    .tenant-login-media-side {
+        display: none !important;
+    }
+
+    .tenant-login-form-side {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 2rem 1.5rem !important;
+        min-height: 100vh;
+    }
+
+    .tenant-login-form-inner {
+        max-width: 440px;
+    }
+}
+
+@media (max-width: 480px) {
+    .tenant-login-title {
+        font-size: 26px;
+    }
+
+    .tenant-login-subtitle {
+        font-size: 14.5px;
+    }
+
+    .tenant-brand-watermark {
+        width: 220px;
+        height: 220px;
+        top: -30px;
+        right: -30px;
+    }
+}

@@ -1,0 +1,220 @@
+// =============================================================================
+// Buttons — Action button patterns used across all pages
+// =============================================================================
+
+// Button stability: avoid transform jumps on hover/active
+.btn {
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    transform: none !important;
+
+    &:hover,
+    &:focus,
+    &:active {
+        transform: none !important;
+    }
+
+    > * {
+        transform: none !important;
+    }
+
+    &:disabled,
+    &.disabled {
+        opacity: var(--disabled-opacity, 0.65);
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+}
+
+// Button loading state
+.btn.is-loading {
+    position: relative;
+    pointer-events: none;
+    cursor: wait;
+    opacity: 0.85;
+
+    .btn-text {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        width: 1.125rem;
+        height: 1.125rem;
+        top: 50%;
+        left: 50%;
+        margin-top: -0.5625rem;
+        margin-left: -0.5625rem;
+        border: 2px solid currentColor;
+        border-right-color: transparent;
+        border-radius: 50%;
+        animation: btn-spinner-spin 0.65s linear infinite;
+    }
+}
+
+// =============================================================================
+// Unified Brand Button Variants & Darken Hover States
+// =============================================================================
+
+.btn-primary {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #fff !important;
+    font-weight: 500;
+
+    &:hover,
+    &:focus,
+    &:active,
+    &.active,
+    &.show {
+        background-color: var(--primary-color-deep, #12332C) !important;
+        border-color: var(--primary-color-deep, #12332C) !important;
+        color: #fff !important;
+    }
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color) !important;
+    border-color: var(--secondary-color-dark, #EADFCC) !important;
+    color: var(--primary-color) !important;
+    font-weight: 500;
+
+    &:hover,
+    &:focus,
+    &:active,
+    &.active,
+    &.show {
+        background-color: var(--secondary-color-dark, #EADFCC) !important;
+        border-color: var(--secondary-color-dark, #EADFCC) !important;
+        color: var(--primary-color-deep, #12332C) !important;
+    }
+}
+
+.btn-outline-primary {
+    background-color: transparent !important;
+    border-color: var(--primary-color) !important;
+    color: var(--primary-color) !important;
+    font-weight: 500;
+
+    &:hover,
+    &:focus,
+    &:active,
+    &.active,
+    &.show {
+        background-color: rgba(29, 79, 68, 0.08) !important;
+        border-color: var(--primary-color-deep, #12332C) !important;
+        color: var(--primary-color-deep, #12332C) !important;
+    }
+}
+
+.btn-outline-secondary {
+    background-color: transparent !important;
+    border-color: var(--secondary-color-dark, #EADFCC) !important;
+    color: var(--primary-color) !important;
+    font-weight: 500;
+
+    &:hover,
+    &:focus,
+    &:active,
+    &.active,
+    &.show {
+        background-color: var(--secondary-color) !important;
+        border-color: var(--secondary-color-dark, #EADFCC) !important;
+        color: var(--primary-color-deep, #12332C) !important;
+    }
+}
+
+.btn-label-primary,
+.btn.bg-label-primary,
+.btn-icon.bg-label-primary {
+    background-color: rgba(29, 79, 68, 0.08) !important;
+    border-color: transparent !important;
+    color: var(--primary-color) !important;
+    font-weight: 500;
+
+    &:hover,
+    &:focus,
+    &:active,
+    &.active,
+    &.show {
+        background-color: rgba(29, 79, 68, 0.16) !important;
+        border-color: transparent !important;
+        color: var(--primary-color-deep, #12332C) !important;
+    }
+}
+
+.btn-label-secondary {
+    background-color: rgba(234, 223, 204, 0.5) !important;
+    border-color: transparent !important;
+    color: var(--primary-color) !important;
+    font-weight: 500;
+
+    &:hover,
+    &:focus,
+    &:active,
+    &.active,
+    &.show {
+        background-color: var(--secondary-color-dark, #EADFCC) !important;
+        border-color: transparent !important;
+        color: var(--primary-color-deep, #12332C) !important;
+    }
+}
+
+// Icon action buttons in tables & headers
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+    &.btn-text-secondary:hover {
+        background-color: rgba(29, 79, 68, 0.08) !important;
+        color: var(--primary-color-deep, #12332C) !important;
+    }
+
+    &.btn-text-primary:hover {
+        background-color: rgba(29, 79, 68, 0.12) !important;
+        color: var(--primary-color-deep, #12332C) !important;
+    }
+}
+
+// Standard "add" button rendered by DataTables buttons plugin
+.btn-add {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #fff !important;
+    font-weight: 500;
+
+    &:hover,
+    &:focus,
+    &:active {
+        background-color: var(--primary-color-deep, #12332C) !important;
+        border-color: var(--primary-color-deep, #12332C) !important;
+        color: #fff !important;
+    }
+}
+
+// Unified generic spinner
+.spinner {
+    display: inline-block;
+    width: 2rem;
+    height: 2rem;
+    border: 3px solid rgba(29, 79, 68, 0.15);
+    border-top-color: var(--primary-color, #1D4F44);
+    border-radius: 50%;
+    animation: btn-spinner-spin 0.75s linear infinite;
+
+    &.spinner-sm {
+        width: 1.25rem;
+        height: 1.25rem;
+        border-width: 2px;
+    }
+
+    &.spinner-lg {
+        width: 3rem;
+        height: 3rem;
+        border-width: 0.25rem;
+    }
+}
+

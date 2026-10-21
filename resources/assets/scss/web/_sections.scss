@@ -1,0 +1,55 @@
+// =============================================================================
+// Shared Section Layouts & Section Headers
+// =============================================================================
+
+.section-area {
+  padding-block: clamp(4.5rem, 7vw, 7.5rem);
+  position: relative;
+  z-index: 1;
+
+  &--alt {
+    background-color: rgba(234, 223, 204, 0.45);
+    border-top: 1px solid var(--site-border);
+    border-bottom: 1px solid var(--site-border);
+  }
+}
+
+.section-header {
+  max-width: 680px;
+  margin-inline: auto;
+  margin-bottom: clamp(2.5rem, 4.5vw, 4rem);
+
+  &.text-center {
+    text-align: center;
+  }
+
+  &.text-right {
+    text-align: right;
+  }
+
+  .section-eyebrow {
+    display: inline-block;
+    color: var(--site-gold);
+    font-size: var(--site-font-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+
+  .section-title {
+    font-size: clamp(1.65rem, 2.8vw, 2.35rem);
+    font-weight: 850;
+    color: var(--site-primary);
+    line-height: 1.25;
+    margin-bottom: 0.85rem;
+    letter-spacing: -0.02em;
+  }
+
+  .section-desc {
+    font-size: var(--site-font-base);
+    color: var(--site-muted);
+    line-height: 1.7;
+    margin: 0;
+  }
+}

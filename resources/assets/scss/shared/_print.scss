@@ -1,0 +1,100 @@
+// =============================================================================
+// Print — shared print media styles
+// Replaces:
+//   - <style> in admin/archive/bill/show.blade.php
+// =============================================================================
+
+// Small utility used on non-print layouts (e.g., archive bill show)
+.print-btn {
+    position: relative;
+    top: 7px;
+    z-index: 1000;
+}
+
+@media print {
+    // ── Hide layout chrome ──────────────────────────────────────────────────
+    .layout-navbar,
+    .layout-menu,
+    .layout-footer,
+    .app-brand,
+    button,
+    .btn,
+    .modal,
+    .card-header h6 i,
+    .print-btn {
+        display: none !important;
+    }
+
+    // ── Sidebar-less full-width layout ──────────────────────────────────────
+    .col-xl-3.col-md-4 {
+        display: none !important;
+    }
+
+    .col-xl-9.col-md-8 {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+    }
+
+    .invoice-preview {
+        padding: 0 !important;
+    }
+
+    // ── Cards & borders ─────────────────────────────────────────────────────
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #dee2e6 !important;
+    }
+
+    .border-1.border-light.border-dashed {
+        display: none;
+    }
+
+    // ── Tables ──────────────────────────────────────────────────────────────
+    table {
+        page-break-inside: auto;
+    }
+
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    // ── Page & colors ───────────────────────────────────────────────────────
+    @page {
+        size: A4;
+        margin: 1cm;
+    }
+
+    body {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    // ── Typography ──────────────────────────────────────────────────────────
+    * {
+        font-size: 12pt !important;
+    }
+
+    h6,
+    .fs-5,
+    .fs-6 {
+        font-size: 14pt !important;
+    }
+
+    // ── Backgrounds ─────────────────────────────────────────────────────────
+    .bg-light-subtle,
+    .bg-body-tertiary,
+    thead {
+        background-color: #f8f9fa !important;
+    }
+
+    .badge {
+        border: 1px solid #dee2e6;
+        padding: 0.25rem 0.5rem;
+    }
+}

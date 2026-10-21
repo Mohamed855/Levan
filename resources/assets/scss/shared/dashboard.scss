@@ -1,0 +1,47 @@
+@import 'bootstrap/scss/bootstrap';
+
+:root[dir='rtl'] {
+  direction: rtl;
+}
+
+.layout-wrapper {
+  min-height: 100vh;
+  background: #f8f7fa;
+}
+
+.layout-page {
+  min-height: 100vh;
+  margin-inline-start: 16.25rem;
+}
+
+.layout-menu {
+  position: fixed;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 16.25rem;
+  overflow-y: auto;
+  z-index: 1030;
+}
+
+.layout-navbar {
+  min-height: 4.5rem;
+  margin: 1rem;
+}
+
+.content-wrapper {
+  min-height: calc(100vh - 9rem);
+}
+
+.content-footer {
+  margin-top: auto;
+}
+
+@media (max-width: 1199.98px) {
+  .layout-page {
+    margin-inline-start: 0;
+  }
+
+  .layout-menu {
+    transform: translateX(100%);
+  }
+}

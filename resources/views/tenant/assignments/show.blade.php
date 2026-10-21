@@ -1,0 +1,4 @@
+@extends('layouts.dashboard')
+@section('title','تفاصيل الإسناد')
+@section('dashboard-scope','tenant')
+@section('content')<div class="d-flex gap-2 mb-4"><a class="btn btn-label-secondary" href="{{ route('tenant.assignments.index') }}">العودة للرئيسية</a><a class="btn btn-primary" href="{{ route('tenant.assignments.edit',$assignment) }}">تعديل البيانات</a></div><div class="card"><div class="card-body"><h5>{{ $assignment->name }}</h5><dl class="row"><dt class="col-3">الرقم</dt><dd class="col-9">{{ $assignment->assignment_number }}</dd><dt class="col-3">الجهة</dt><dd class="col-9">{{ $assignment->issuing_entity }}</dd><dt class="col-3">العقارات</dt><dd class="col-9">{{ $assignment->properties->count() }}</dd><dt class="col-3">المزادات</dt><dd class="col-9">{{ $assignment->auctions->count() }}</dd></dl></div></div>@endsection

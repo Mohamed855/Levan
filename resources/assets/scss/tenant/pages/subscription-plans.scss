@@ -1,0 +1,45 @@
+// =============================================================================
+// Subscription Plans Cards Styling
+// Used in tenants/subscription/new_subscription/index.blade.php
+// =============================================================================
+
+.plan-card {
+    box-shadow: 0 0.5rem 25px rgba(0, 0, 0, 0.06);
+    transition: all 0.25s ease;
+    border: 1px solid #eee;
+}
+
+.plan-price {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1a2942;
+}
+
+.plan-old-price {
+    opacity: 0.6;
+}
+
+.plan-badge {
+    font-size: 13px;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1px;
+}
+
+.plan-section-title {
+    font-size: 14px;
+    opacity: 0.8;
+    margin-top: 0.5rem;
+}
+
+.plan-feature {
+    font-weight: 600;
+    color: #2c365e;
+    font-size: 15px;
+}
+
+.price-note {
+    font-size: 13px;
+    color: #6c757d;
+    margin-top: 0.25rem;
+    opacity: 0.85;
+}

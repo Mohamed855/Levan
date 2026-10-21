@@ -1,0 +1,1 @@
+@extends('layouts.dashboard') @section('title','تعديل عقار') @section('dashboard-scope','tenant') @section('content')<form method="POST" action="{{ route('tenant.properties.update',$property) }}">@csrf @method('PUT') @include('tenant.properties.partials.form')</form>@endsection

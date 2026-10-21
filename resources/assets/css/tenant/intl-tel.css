@@ -1,0 +1,53 @@
+.iti {
+    display: block !important;
+    direction: rtl;
+    text-align: right;
+}
+
+.iti__selected-flag {
+    float: right !important;
+}
+
+.iti__country-list {
+    text-align: right;
+}
+
+.iti__country-name {
+    direction: rtl;
+}
+
+.iti__flag-container {
+    direction: ltr;
+}
+
+.iti {
+    display: block !important;
+    direction: rtl;
+    text-align: right;
+}
+
+.iti__selected-flag {
+    float: right !important;
+}
+
+.iti__country-list {
+    text-align: right;
+}
+
+.iti__country-name {
+    direction: rtl;
+}
+
+.iti__flag-container {
+    direction: ltr;
+    /* للحفاظ على ترتيب العلم ورمز الاتصال بشكل صحيح */
+}
+
+/* أنماط لرسائل التحقق */
+#message.invalid-message {
+    color: red;
+}
+
+#message.valid-message {
+    color: green;
+}

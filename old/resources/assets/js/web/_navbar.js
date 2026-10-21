@@ -8,7 +8,6 @@ export function initNavbar() {
   const hamburger = document.querySelector('.site-hamburger');
   const drawer = document.querySelector('.site-mobile-drawer');
   const drawerClose = document.querySelector('.site-mobile-close');
-  const drawerLinks = document.querySelectorAll('.site-mobile-nav a');
 
   // Sticky header & Back to top visibility
   function handleScroll() {
@@ -43,31 +42,135 @@ export function initNavbar() {
   }
 
   // Mobile Drawer Toggle
+  const closeDrawer = () => {
+    if (drawer) {
+      drawer.classList.remove('is-open');
+      document.body.style.overflow = '';
+    }
+  };
+
   if (hamburger && drawer) {
     hamburger.addEventListener('click', () => {
       drawer.classList.add('is-open');
       document.body.style.overflow = 'hidden';
     });
 
-    const closeDrawer = () => {
-      drawer.classList.remove('is-open');
-      document.body.style.overflow = '';
-    };
-
     drawerClose?.addEventListener('click', closeDrawer);
 
     drawer.addEventListener('click', (e) => {
       if (e.target === drawer) closeDrawer();
     });
+  }
 
-    drawerLinks.forEach((link) => {
-      link.addEventListener('click', closeDrawer);
+  // Smooth scroll helper without modifying URL
+  function scrollToSection(targetId) {
+    if (!targetId || targetId === 'home') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return true;
+    }
+
+    const targetElement = document.getElementById(targetId);
+    if (!targetElement) return false;
+
+    const headerHeight = header ? header.getBoundingClientRect().height : 0;
+    const offset = headerHeight + 16;
+    const targetTop = targetElement.getBoundingClientRect().top + window.scrollY - offset;
+
+    window.scrollTo({
+      top: Math.max(0, targetTop),
+      behavior: 'smooth',
+    });
+
+    return true;
+  }
+
+  // Resolve target section ID for in-page anchors
+  function getAnchorTargetId(link) {
+    const rawHref = link.getAttribute('href');
+    if (!rawHref) return null;
+
+    // Direct hash e.g. href="#home" or href="#pricing"
+    if (rawHref.startsWith('#')) {
+      const id = rawHref.substring(1);
+      return id && id !== '!' ? id : null;
+    }
+
+    // Relative path with hash, e.g. "/#home" or "./#home"
+    if (rawHref.startsWith('/#') || rawHref.startsWith('./#')) {
+      const id = rawHref.split('#')[1];
+      return id || null;
+    }
+
+    // Full URL or relative URL containing a hash
+    const hashIdx = rawHref.indexOf('#');
+    if (hashIdx !== -1) {
+      const id = rawHref.substring(hashIdx + 1);
+      if (!id || id === '!') return null;
+
+      try {
+        const url = new URL(link.href, window.location.href);
+        const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+        const linkPath = url.pathname.replace(/\/$/, '') || '/';
+
+        // Check if both are same path and same host (or localhost/127.0.0.1 interchangeable)
+        const isLoopback = (host) => host === 'localhost' || host === '127.0.0.1';
+        const isSameHost = url.hostname === window.location.hostname ||
+          (isLoopback(url.hostname) && isLoopback(window.location.hostname));
+
+        if (isSameHost && linkPath === currentPath) {
+          return id;
+        }
+      } catch {
+        if (document.getElementById(id) || id === 'home') {
+          return id;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  // Intercept navigation link clicks in capture phase to prevent URL hash mutation completely
+  document.addEventListener(
+    'click',
+    (e) => {
+      const link = e.target.closest('a[href]');
+      if (!link) return;
+
+      const targetId = getAnchorTargetId(link);
+      if (targetId) {
+        const targetElement = targetId === 'home' ? true : document.getElementById(targetId);
+        if (targetElement) {
+          // Immediately prevent the browser from updating the URL hash
+          e.preventDefault();
+          e.stopPropagation();
+
+          scrollToSection(targetId);
+          closeDrawer();
+
+          // Safety check: ensure hash never remains in address bar
+          if (window.location.hash) {
+            history.replaceState(null, '', window.location.pathname + window.location.search);
+          }
+        }
+      }
+    },
+    true // Capture phase: intercepted before any default browser anchor navigation
+  );
+
+  // If page was loaded with a hash in URL, strip it immediately from the address bar
+  if (window.location.hash) {
+    const hashId = window.location.hash.substring(1);
+    // Instant synchronous URL cleanup so the hash never flickers
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+    requestAnimationFrame(() => {
+      scrollToSection(hashId);
     });
   }
 
   // Active link highlighting on scroll
   const sections = document.querySelectorAll('section[id]');
-  const navLinks = document.querySelectorAll('.site-nav a');
+  const navLinks = document.querySelectorAll('.site-nav a, .site-mobile-nav a');
 
   if (sections.length && navLinks.length) {
     const observer = new IntersectionObserver(

@@ -1,0 +1,11 @@
+.nav-tabs .nav-link,
+.nav-pills .nav-link {
+    justify-content: start !important;
+}
+
+.nav-tabs .nav-link.active,
+.nav-tabs .nav-link.active:hover,
+.nav-tabs .nav-link.active:focus {
+    box-shadow: none !important;
+    border-left: 5px solid;
+}

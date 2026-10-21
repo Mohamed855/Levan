@@ -1,0 +1,5 @@
+@extends('layouts.dashboard')
+@section('title','إنشاء إسناد')
+@section('dashboard-scope','tenant')
+@section('content')<form method="POST" action="{{ route('tenant.assignments.store') }}" data-wizard-resource="tenant.assignments.create" data-wizard-url="{{ route('tenant.wizard-drafts.index') }}">@csrf <input type="hidden" name="_wizard_draft_id" data-wizard-draft-id><input type="hidden" name="_wizard_resource_key" value="tenant.assignments.create">@include('tenant.assignments.partials.form')</form><x-shared.wizard.draft-modal resource-key="tenant.assignments.create" />@endsection
+@push('dashboard-scripts')@vite('resources/assets/js/shared/wizard-draft.js')@endpush

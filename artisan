@@ -7,6 +7,12 @@ define('LARAVEL_START', microtime(true));
 
 require __DIR__.'/vendor/autoload.php';
 
+if (PHP_OS_FAMILY === 'Windows') {
+    if (!isset($_ENV['SYSTEMROOT'])) {
+        $_ENV['SYSTEMROOT'] = getenv('SystemRoot') ?: getenv('WINDIR') ?: 'C:\\WINDOWS';
+    }
+}
+
 $app = require_once __DIR__.'/bootstrap/app.php';
 
 $status = $app->make(Kernel::class)->handle(
