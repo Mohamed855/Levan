@@ -30,6 +30,10 @@
                     <input class="form-check-input" type="checkbox" id="remember_me" name="remember" @checked(old('remember'))>
                     <label class="form-check-label" for="remember_me">تذكرني في هذا الجهاز</label>
                 </div>
+
+                <a href="{{ route('tenant.password.request') }}" class="auth-link">
+                    نسيت كلمة المرور؟
+                </a>
             </div>
 
             <button class="btn-auth-primary" type="submit"><span>تسجيل الدخول</span><i class="ti ti-arrow-left" aria-hidden="true"></i></button>
