@@ -1,0 +1,4 @@
+<?php $__env->startSection('title','الصفحة غير موجودة | 404'); ?>
+<?php $__env->startSection('content'); ?><main class="site-error-page"><div class="container site-error-container"><article class="site-error-card"><div class="site-error-code">404</div><h1 class="site-error-title">الصفحة غير موجودة</h1><p class="site-error-desc">تعذر العثور على الصفحة المطلوبة.</p><div class="site-error-actions"><a href="<?php echo e(route('site.index')); ?>" class="site-error-btn">العودة للرئيسية</a><a href="<?php echo e(route('site.index')); ?>#contact" class="site-error-btn-outline">تواصل مع الدعم</a></div></article></div></main><?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('web.layouts.main', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\Levan\old\resources\views/errors/404.blade.php ENDPATH**/ ?>

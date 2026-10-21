@@ -2,6 +2,10 @@
 
 @section('title', 'إنشاء قالب مزاد')
 
+@section('vendor-style')
+    @vite(['resources/assets/vendor/libs/select2/select2.scss'])
+@endsection
+
 @section('page-style')
     @vite(['resources/assets/scss/shared/template-designer.scss'])
 @endsection
@@ -14,6 +18,10 @@
         @include('admin.auction-templates.partials.form')
     </form>
     <x-shared.wizard.draft-modal resource-key="admin.auction-templates.create" />
+@endsection
+
+@section('vendor-script')
+    @vite(['resources/assets/vendor/libs/select2/select2.js'])
 @endsection
 
 @section('page-script')

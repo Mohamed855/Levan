@@ -1,14 +1,108 @@
 <?php
 
 declare(strict_types=1);
+
 namespace App\Http\Controllers\Tenant\Properties;
+
 use App\Actions\Tenant\Properties\SavePropertyAction;
+use App\DataTables\Tenant\Properties\PropertyDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\Properties\StorePropertyRequest;
 use App\Http\Requests\Tenant\Properties\UpdatePropertyRequest;
 use App\Models\Tenant\Assignment;
 use App\Models\Tenant\Property;
+use App\Services\Tenants\Properties\PropertyService;
+use App\Services\Tenants\Shared\CentralCityOptionsGateway;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-final class PropertyController extends Controller { public function index(Request $request):View{$q=Property::query()->with('assignment:id,assignment_number')->latest();$q->when($request->assignment_id,fn($q,$v)=>$q->where('assignment_id',$v));return view('tenant.properties.index',['properties'=>$q->paginate(20)->withQueryString(),'assignments'=>Assignment::query()->orderBy('assignment_number')->get(['id','assignment_number'])]);} public function create():View{return view('tenant.properties.create',['property'=>new Property(),'assignments'=>Assignment::query()->orderBy('assignment_number')->get()]);} public function store(StorePropertyRequest $request,SavePropertyAction $action):RedirectResponse{$property=$action->create($request->user('tenant'),$request->validated());return to_route('tenant.properties.show',$property);} public function show(Property $property):View{return view('tenant.properties.show',['property'=>$property->load('assignment','boundaries','owners','units')]);} public function edit(Property $property):View{return view('tenant.properties.edit',['property'=>$property->load('boundaries','owners','units'),'assignments'=>Assignment::query()->orderBy('assignment_number')->get()]);} public function update(UpdatePropertyRequest $request,Property $property,SavePropertyAction $action):RedirectResponse{$action->update($property,$request->user('tenant'),$request->validated());return to_route('tenant.properties.show',$property);} public function toggleStatus(Property $property):RedirectResponse{$property->update(['is_active'=>!$property->is_active]);return back();} }
+
+final class PropertyController extends Controller
+{
+    public function __construct(
+        protected PropertyService $propertyService,
+        protected CentralCityOptionsGateway $cityOptionsGateway
+    ) {
+        $this->middleware('auth:tenant');
+    }
+
+    public function index(PropertyDataTable $dataTable)
+    {
+        $statistics = $this->propertyService->getStatistics();
+        $assignments = Assignment::select(['id', 'name', 'assignment_number'])->get();
+
+        return $dataTable->render('tenant.properties.index', [
+            'totalProperties' => $statistics['total'],
+            'activeProperties' => $statistics['active'],
+            'completedProperties' => $statistics['completed'],
+            'unlinkedProperties' => $statistics['unlinked'],
+            'needsReviewProperties' => $statistics['needs_review'],
+            'assignments' => $assignments,
+            'cityOptions' => $this->cityOptionsGateway->optionsByName(),
+        ]);
+    }
+
+    public function create(): View
+    {
+        $assignments = Assignment::where('is_active', true)->select(['id', 'name', 'assignment_number'])->get();
+        $generatedPropertyNumber = $this->propertyService->generatePropertyNumber();
+
+        return view('tenant.properties.create', [
+            'assignments' => $assignments,
+            'cityOptions' => $this->cityOptionsGateway->optionsByName(),
+            'generatedPropertyNumber' => $generatedPropertyNumber,
+        ]);
+    }
+
+    public function store(StorePropertyRequest $request, SavePropertyAction $action): RedirectResponse
+    {
+        $property = $action->create($request->user('tenant'), $request->validated());
+
+        return redirect()->route('tenant.properties.show', $property)->with('success', 'تم إنشاء العقار بنجاح');
+    }
+
+    public function show(Property $property): View
+    {
+        return view('tenant.properties.show', [
+            'property' => $property->load(['assignment', 'boundaries', 'owners', 'units', 'attachments', 'auctions']),
+        ]);
+    }
+
+    public function edit(Property $property): View
+    {
+        $assignments = Assignment::where('is_active', true)->orWhere('id', $property->assignment_id)->select(['id', 'name', 'assignment_number'])->get();
+
+        return view('tenant.properties.edit', [
+            'property' => $property->load(['assignment', 'boundaries', 'owners', 'units', 'attachments']),
+            'assignments' => $assignments,
+            'cityOptions' => $this->cityOptionsGateway->optionsByName(),
+        ]);
+    }
+
+    public function update(UpdatePropertyRequest $request, Property $property, SavePropertyAction $action): RedirectResponse
+    {
+        $action->update($property, $request->user('tenant'), $request->validated());
+
+        return redirect()->route('tenant.properties.show', $property)->with('success', 'تم تحديث العقار بنجاح');
+    }
+
+    public function toggleStatus(Property $property): mixed
+    {
+        $newStatus = $this->propertyService->toggleStatus($property);
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json(['success' => true, 'is_active' => $newStatus]);
+        }
+
+        return back()->with('success', 'تم تحديث حالة العقار بنجاح');
+    }
+
+    public function destroy(Property $property): mixed
+    {
+        $this->propertyService->deleteProperty($property);
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'تم نقل العقار إلى سلة المهملات']);
+        }
+
+        return redirect()->route('tenant.properties.index')->with('success', 'تم نقل العقار إلى سلة المهملات بنجاح');
+    }
+}

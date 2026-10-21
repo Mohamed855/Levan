@@ -36,10 +36,11 @@ Route::middleware('auth:tenant')->group(function (): void {
     Route::resource('users', TenantUserController::class);
     Route::patch('users/{user}/toggle-status', [TenantUserController::class, 'toggleStatus'])->name('users.toggle-status');
     Route::resource('roles', TenantRoleController::class);
-    Route::resource('auctions', AuctionController::class)->except(['destroy']);
-    Route::resource('assignments', AssignmentController::class)->except(['destroy']);
+    Route::resource('auctions', AuctionController::class);
+    Route::post('assignments/selected-properties', [AssignmentController::class, 'selectedProperties'])->name('assignments.selected-properties');
+    Route::resource('assignments', AssignmentController::class);
     Route::patch('assignments/{assignment}/toggle-status', [AssignmentController::class, 'toggleStatus'])->name('assignments.toggle-status');
-    Route::resource('properties', PropertyController::class)->except(['destroy']);
+    Route::resource('properties', PropertyController::class);
     Route::patch('properties/{property}/toggle-status', [PropertyController::class, 'toggleStatus'])->name('properties.toggle-status');
     Route::resource('companies', \App\Http\Controllers\Tenant\Companies\CompanyController::class);
     Route::patch('companies/{company}/toggle-status', [\App\Http\Controllers\Tenant\Companies\CompanyController::class, 'toggleStatus'])->name('companies.toggle-status');

@@ -14,7 +14,7 @@
                 @if ($isEdit)
                     <x-form.controls.input name="type_display" label="نوع القالب" :value="$template->type instanceof \BackedEnum ? $template->type->value : (string) $template->type" disabled col="col-12" />
                 @else
-                    <x-form.controls.select name="type" label="نوع القالب" :value="$typeValue" :options="['brochure' => 'كتيب مزاد متعدد الصفحات', 'billboard' => 'لوحة إعلانية', 'social' => 'منشور اجتماعي']" required :select2="false" col="col-12" />
+                    <x-form.controls.select name="type" label="نوع القالب" :value="$typeValue" :options="['brochure' => 'كتيب مزاد متعدد الصفحات', 'billboard' => 'لوحة إعلانية', 'social' => 'منشور اجتماعي']" required col="col-12" />
                 @endif
                 <x-form.controls.textarea name="description" label="وصف القالب" :value="$template->description" col="col-12" />
                 <input type="hidden" name="is_active" value="0">

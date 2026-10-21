@@ -1,5 +1,9 @@
 <?php $__env->startSection('title', 'إنشاء قالب مزاد'); ?>
 
+<?php $__env->startSection('vendor-style'); ?>
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/assets/vendor/libs/select2/select2.scss']); ?>
+<?php $__env->stopSection(); ?>
+
 <?php $__env->startSection('page-style'); ?>
     <?php echo app('Illuminate\Foundation\Vite')(['resources/assets/scss/shared/template-designer.scss']); ?>
 <?php $__env->stopSection(); ?>
@@ -33,6 +37,10 @@
 <?php $component = $__componentOriginal79bd8f308c2a741acd5126b45ccc15bb; ?>
 <?php unset($__componentOriginal79bd8f308c2a741acd5126b45ccc15bb); ?>
 <?php endif; ?>
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('vendor-script'); ?>
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/assets/vendor/libs/select2/select2.js']); ?>
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('page-script'); ?>

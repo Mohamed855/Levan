@@ -58,14 +58,14 @@
                 <?php else: ?>
                     <?php if (isset($component)) { $__componentOriginale539220c855c3bd8ed4510f56a521559 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginale539220c855c3bd8ed4510f56a521559 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'ba6ca0197cdb4927d0fc392270fc125b::form.controls.select','data' => ['name' => 'type','label' => 'نوع القالب','value' => $typeValue,'options' => ['brochure' => 'كتيب مزاد متعدد الصفحات', 'billboard' => 'لوحة إعلانية', 'social' => 'منشور اجتماعي'],'required' => true,'select2' => false,'col' => 'col-12']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'ba6ca0197cdb4927d0fc392270fc125b::form.controls.select','data' => ['name' => 'type','label' => 'نوع القالب','value' => $typeValue,'options' => ['brochure' => 'كتيب مزاد متعدد الصفحات', 'billboard' => 'لوحة إعلانية', 'social' => 'منشور اجتماعي'],'required' => true,'col' => 'col-12']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('form.controls.select'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['name' => 'type','label' => 'نوع القالب','value' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($typeValue),'options' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(['brochure' => 'كتيب مزاد متعدد الصفحات', 'billboard' => 'لوحة إعلانية', 'social' => 'منشور اجتماعي']),'required' => true,'select2' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(false),'col' => 'col-12']); ?>
+<?php $component->withAttributes(['name' => 'type','label' => 'نوع القالب','value' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($typeValue),'options' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(['brochure' => 'كتيب مزاد متعدد الصفحات', 'billboard' => 'لوحة إعلانية', 'social' => 'منشور اجتماعي']),'required' => true,'col' => 'col-12']); ?>
 <?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::processComponentKey($component); ?>
 
 <?php echo $__env->renderComponent(); ?>

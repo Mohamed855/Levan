@@ -2,8 +2,16 @@
 
 @section('title', 'تعديل قالب مزاد')
 
+@section('vendor-style')
+    @vite(['resources/assets/vendor/libs/select2/select2.scss'])
+@endsection
+
 @section('page-style')
     @vite(['resources/assets/scss/shared/template-designer.scss'])
+@endsection
+
+@section('vendor-script')
+    @vite(['resources/assets/vendor/libs/select2/select2.js'])
 @endsection
 
 @section('page-script')

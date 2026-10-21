@@ -1,0 +1,184 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\DataTables\Tenant\Auctions;
+
+use App\DataTables\Abstract\AbstractDataTable;
+use App\Models\Tenant\Auction;
+use Carbon\Carbon;
+
+class AuctionDataTable extends AbstractDataTable
+{
+    private string $route = 'tenant.auctions';
+
+    protected function getTableId(): string
+    {
+        return 'auctions-table';
+    }
+
+    protected function resource()
+    {
+        return Auction::query()
+            ->with(['assignment'])
+            ->withCount('properties');
+    }
+
+    protected function getColumns(): array
+    {
+        return [
+            ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
+            ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'title' => '#', 'orderable' => false, 'searchable' => false, 'width' => '40px'],
+            ['data' => 'name', 'name' => 'name', 'title' => 'اسم المزاد', 'width' => '200px'],
+            ['data' => 'assignment', 'name' => 'assignment_id', 'title' => 'الإسناد', 'width' => '150px'],
+            ['data' => 'start_date', 'name' => 'start_date', 'title' => 'تاريخ البداية', 'width' => '130px'],
+            ['data' => 'end_date', 'name' => 'end_date', 'title' => 'تاريخ النهاية', 'width' => '130px'],
+            ['data' => 'properties_count', 'name' => 'properties_count', 'title' => 'عدد العقارات', 'width' => '90px', 'className' => 'text-center'],
+            ['data' => 'outputs', 'name' => 'outputs', 'title' => 'المخرجات', 'orderable' => false, 'searchable' => false, 'width' => '110px', 'className' => 'text-center'],
+            ['data' => 'status', 'name' => 'status', 'title' => 'الحالة', 'width' => '100px', 'className' => 'text-center'],
+            ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
+        ];
+    }
+
+    protected function addCustomColumns($datatable): void
+    {
+        $datatable
+            ->addColumn('checkbox', function ($row) {
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
+            })
+            ->editColumn('name', function ($row) {
+                $showUrl = route($this->route.'.show', $row->id);
+
+                return '<div>
+                    <a href="'.$showUrl.'" class="text-body fw-medium d-block">'.e($row->name).'</a>
+                    <small class="text-muted">'.e($row->type_label).' - '.e($row->city).'</small>
+                </div>';
+            })
+            ->addColumn('assignment', function ($row) {
+                if (! $row->assignment) {
+                    return '-';
+                }
+
+                return '<a href="'.route('tenant.assignments.show', $row->assignment_id).'" class="text-body fw-medium">'.e($row->assignment->name).'</a>';
+            })
+            ->editColumn('start_date', function ($row) {
+                $date = Carbon::parse($row->start_date)->format('Y/m/d');
+                $time = $row->start_time ? Carbon::parse($row->start_time)->format('h:i A') : '';
+
+                return '<div>'.$date.'</div><small class="text-muted">'.$time.'</small>';
+            })
+            ->editColumn('end_date', function ($row) {
+                $date = Carbon::parse($row->end_date)->format('Y/m/d');
+                $time = $row->end_time ? Carbon::parse($row->end_time)->format('h:i A') : '';
+
+                return '<div>'.$date.'</div><small class="text-muted">'.$time.'</small>';
+            })
+            ->editColumn('properties_count', function ($row) {
+                return '<span class="badge bg-label-info">'.(int) $row->properties_count.'</span>';
+            })
+            ->editColumn('status', function ($row) {
+                return '<span class="badge '.$row->status_badge_class.'">'.e($row->status_label).'</span>';
+            })
+            ->addColumn('outputs', function ($row) {
+                $badges = [];
+                $hasBrochure = !empty($row->template_versions['brochure']) || !empty($row->template_snapshot['brochure']);
+                $hasBillboard = !empty($row->template_versions['billboard']) || !empty($row->template_snapshot['billboard']);
+                $hasSocial = !empty($row->template_versions['social']) || !empty($row->template_snapshot['social']);
+
+                if ($hasBrochure) {
+                    $badges[] = '<a href="'.route('tenant.auctions.preview', ['auction' => $row->id, 'type' => 'brochure']).'" target="_blank" class="badge bg-label-primary me-1" title="معاينة البروشور">بروشور</a>';
+                }
+                if ($hasBillboard) {
+                    $badges[] = '<a href="'.route('tenant.auctions.preview', ['auction' => $row->id, 'type' => 'billboard']).'" target="_blank" class="badge bg-label-warning me-1" title="معاينة اللوحة">لوحة</a>';
+                }
+                if ($hasSocial) {
+                    $badges[] = '<a href="'.route('tenant.auctions.preview', ['auction' => $row->id, 'type' => 'social']).'" target="_blank" class="badge bg-label-info" title="معاينة السوشيال">سوشيال</a>';
+                }
+
+                return !empty($badges) ? implode('', $badges) : '<span class="text-muted">—</span>';
+            })
+            ->addColumn('actions', function ($row) {
+                return view('tenant.auctions.action', ['row' => $row, 'route' => 'auctions'])->render();
+            });
+    }
+
+    protected function rawColumns(): array
+    {
+        return ['checkbox', 'name', 'assignment', 'start_date', 'end_date', 'properties_count', 'status', 'outputs', 'actions'];
+    }
+
+    protected function applyCustomFilters($query)
+    {
+        $request = request();
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('assignment_id')) {
+            $query->where('assignment_id', $request->integer('assignment_id'));
+        }
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('start_date', '>=', $request->start_date);
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('end_date', '<=', $request->end_date);
+        }
+
+        if ($request->filled('city')) {
+            $query->where('city', $request->string('city')->toString());
+        }
+
+        return $query;
+    }
+
+    protected function buttons(): array
+    {
+        return [
+            $this->getActionsDropdownButton(),
+            $this->getAddButton(),
+        ];
+    }
+
+    private function getActionsDropdownButton(): array
+    {
+        $buttons = [
+            ['extend' => 'copy', 'text' => 'نسخ'],
+            ['extend' => 'excel', 'text' => 'إكسل'],
+        ];
+
+        if (auth('tenant')->user()?->can('auctions.delete') ?? true) {
+            $buttons[] = [
+                'text' => 'حذف المحدد',
+                'className' => 'btn btn-default btn-delete-selected',
+                'action' => 'function() { handleMassDelete(); }',
+            ];
+        }
+
+        return [
+            'extend' => 'collection',
+            'className' => 'btn btn-export',
+            'text' => 'الإجراءات',
+            'buttons' => $buttons,
+        ];
+    }
+
+    private function getAddButton(): array
+    {
+        if (auth('tenant')->user()?->can('auctions.create') ?? true) {
+            return [
+                'text' => '<i class="ti ti-plus me-1"></i> إضافة مزاد',
+                'className' => 'btn btn-primary btn-add',
+                'action' => "function(){ window.location.href='".route($this->route.'.create')."'; }",
+            ];
+        }
+
+        return [];
+    }
+}

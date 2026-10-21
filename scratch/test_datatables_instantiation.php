@@ -40,6 +40,10 @@ $classes = [
     \App\DataTables\Tenant\Roles\TenantRoleDataTable::class,
     \App\DataTables\Tenant\Tickets\TenantTicketDataTable::class,
     \App\DataTables\Tenant\Users\TenantUserDataTable::class,
+    \App\DataTables\Tenant\Properties\PropertyDataTable::class,
+    \App\DataTables\Tenant\Assignments\AssignmentDataTable::class,
+    \App\DataTables\Tenant\Assignments\AssignmentPropertySelectionDataTable::class,
+    \App\DataTables\Tenant\Auctions\AuctionDataTable::class,
 ];
 
 echo "Testing 30 DataTable instantiations...\n";
