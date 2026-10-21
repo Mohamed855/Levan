@@ -9,6 +9,8 @@ use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Auctions\AuctionAttachment;
 use App\Models\Tenants\Properties\Property;
+use App\Models\Tenants\UserMangment\User;
+use App\Services\Tenants\Shared\CentralAuctionTemplatesGateway;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -17,16 +19,30 @@ use Throwable;
 
 final class CreateAuctionAction
 {
+    public function __construct(
+        private readonly CentralAuctionTemplatesGateway $templates
+    ) {}
+
     /**
-     * @param array<string, mixed> $data
+     * @param array<string, mixed>|User $userOrData
+     * @param array<string, mixed>|int|null $dataOrCreatorId
      * @param array<int, UploadedFile> $attachments
      */
     public function execute(
-        array $data,
-        ?int $creatorId = null,
+        mixed $userOrData,
+        mixed $dataOrCreatorId = null,
         ?UploadedFile $coverImage = null,
         array $attachments = []
     ): Auction {
+        if ($userOrData instanceof User) {
+            $user = $userOrData;
+            $data = (array) $dataOrCreatorId;
+            $creatorId = $user->id;
+        } else {
+            $data = (array) $userOrData;
+            $creatorId = is_int($dataOrCreatorId) ? $dataOrCreatorId : null;
+        }
+
         $storedPaths = [];
 
         try {
@@ -59,6 +75,11 @@ final class CreateAuctionAction
                     }
                 }
 
+                // Process template snapshots
+                [$versions, $snapshots] = $this->snapshots((array) ($data['template_versions'] ?? []));
+                $data['template_versions'] = $versions;
+                $data['template_snapshot'] = $snapshots;
+
                 if ($coverImage instanceof UploadedFile) {
                     $coverPath = $coverImage->store('auctions/covers', 'tenant_public');
                     $storedPaths[] = $coverPath;
@@ -75,9 +96,12 @@ final class CreateAuctionAction
                     $data['target_path']
                 );
 
-                $data['created_by'] = $creatorId ?? (int) auth('tenant')->id();
-                $data['status'] = AuctionStatus::PENDING_APPROVAL->value;
-                $statusValue = $data['status'];
+                $creator = $creatorId ?? auth('tenant')->id() ?? auth()->id();
+                $data['created_by'] = $creator ? (int) $creator : null;
+                if (! isset($data['status'])) {
+                    $data['status'] = AuctionStatus::PENDING_APPROVAL->value;
+                }
+                $statusValue = is_object($data['status']) ? $data['status']->value : (string) $data['status'];
                 $data['is_active'] = $statusValue === AuctionStatus::ACTIVE->value;
 
                 $auction = Auction::query()->create($data);
@@ -109,8 +133,44 @@ final class CreateAuctionAction
                 return $auction->load(['properties', 'attachments', 'assignment']);
             });
         } catch (Throwable $e) {
-            Storage::disk('tenant_public')->delete($storedPaths);
+            if (! empty($storedPaths)) {
+                Storage::disk('tenant_public')->delete($storedPaths);
+            }
             throw $e;
         }
+    }
+
+    /**
+     * @param array<string, mixed> $selected
+     * @return array{array<string, int>, array<string, array<string, mixed>>}
+     */
+    public function snapshots(array $selected): array
+    {
+        $versions = [];
+        $snapshots = [];
+
+        foreach ($selected as $type => $versionId) {
+            if (blank($versionId)) {
+                continue;
+            }
+
+            $version = $this->templates->findPublished((int) $versionId, (string) $type);
+            if (! $version) {
+                throw ValidationException::withMessages([
+                    'template_versions.'.$type => 'نسخة القالب غير متاحة للنشر.',
+                ]);
+            }
+
+            $versions[$type] = $version->id;
+            $snapshots[$type] = [
+                'template_id' => $version->auction_template_id,
+                'template_name' => $version->template->name,
+                'type' => (string) $type,
+                'version' => $version->version,
+                'schema' => $version->schema,
+            ];
+        }
+
+        return [$versions, $snapshots];
     }
 }

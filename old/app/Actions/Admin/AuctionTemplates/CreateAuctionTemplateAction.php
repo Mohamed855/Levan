@@ -4,99 +4,103 @@ declare(strict_types=1);
 
 namespace App\Actions\Admin\AuctionTemplates;
 
+use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\AuctionTemplates\AuctionTemplate;
-use App\Services\Admin\AuctionTemplates\AuctionTemplateFieldDefinitionService;
+use App\Models\Admin\AuctionTemplates\AuctionTemplateVersion;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\ValidationException;
-use mikehaertl\pdftk\Pdf;
-use Throwable;
+use Illuminate\Support\Str;
 
 final class CreateAuctionTemplateAction
 {
-    public function __construct(
-        private readonly AuctionTemplateFieldDefinitionService $fieldDefinitions,
-    ) {}
-
-    public function execute(array $data, UploadedFile $file): AuctionTemplate
+    /** @param array<string, mixed> $data */
+    public function execute(AdminUser|array $userOrData, mixed $dataOrFile = null, ?UploadedFile $file = null): AuctionTemplate
     {
-        $storedPaths = [];
+        if ($userOrData instanceof AdminUser) {
+            $user = $userOrData;
+            $data = (array) $dataOrFile;
+        } else {
+            $data = $userOrData;
+            $user = auth('admin')->user() ?? AdminUser::find($data['created_by'] ?? null) ?? AdminUser::first();
+            if ($dataOrFile instanceof UploadedFile) {
+                $file = $dataOrFile;
+            }
+        }
 
-        try {
-            return DB::transaction(function () use ($data, $file, &$storedPaths): AuctionTemplate {
-                $type = is_object($data['type']) ? $data['type']->value : (string) $data['type'];
+        return DB::transaction(function () use ($user, $data, $file): AuctionTemplate {
+            $type = is_object($data['type']) ? $data['type']->value : (string) $data['type'];
 
-                // 1. Store template file
+            $filePath = null;
+            $extractedFields = [];
+            if ($file instanceof UploadedFile) {
                 $filePath = $file->store("auction_templates/{$type}", 'central_public');
-                $storedPaths[] = $filePath;
-                $data['file_path'] = $filePath;
+                $absolutePath = \Illuminate\Support\Facades\Storage::disk('central_public')->path($filePath);
+                $extractedFields = $this->extractFieldNames($absolutePath);
 
-                $absolutePath = Storage::disk('central_public')->path($filePath);
-                $definitions = $this->fieldDefinitions->normalize(json_decode((string) ($data['field_definitions'] ?? '[]'), true) ?: []);
-                if ($definitions !== []) {
-                    $data['field_definitions'] = $definitions;
-                    $data['field_names'] = array_column($definitions, 'key');
-                } else {
-                    $extracted = $this->extractFieldNames($absolutePath);
-                    if (empty($extracted)) {
-                        throw ValidationException::withMessages([
-                            'file' => 'يجب أن يحتوي ملف PDF على حقول مسماة قابلة للتعبئة قبل استخدامه كقالب مزاد.',
-                        ]);
-                    }
-                    $data['field_names'] = $extracted;
-                    $data['field_definitions'] = null;
-                }
-
-                if (empty($data['field_names'])) {
-                    throw ValidationException::withMessages([
-                        'field_definitions' => 'يجب تحديد مواضع الحقول داخل التصميم.',
+                if (empty($extractedFields) && empty($data['schema']) && empty($data['field_definitions'])) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'file' => 'يجب أن يحتوي ملف PDF على حقول مسماة قابلة للتعبئة قبل استخدامه كقالب مزاد.',
                     ]);
                 }
-
-                $data['created_by'] = auth('admin')->id();
-
-                return AuctionTemplate::create($data);
-            });
-        } catch (Throwable $e) {
-            foreach ($storedPaths as $path) {
-                Storage::disk('central_public')->delete($path);
             }
-            throw $e;
-        }
+
+            $templateData = [
+                'name' => $data['name'],
+                'type' => $type,
+                'description' => $data['description'] ?? null,
+                'status' => 'draft',
+                'is_active' => (bool) ($data['is_active'] ?? true),
+                'created_by' => $user?->id ?? (int) auth('admin')->id(),
+            ];
+
+            if (\Illuminate\Support\Facades\Schema::hasColumn('auction_templates', 'file_path')) {
+                $templateData['file_path'] = $filePath ?? ($data['file_path'] ?? null);
+            }
+
+            if (! empty($extractedFields) && \Illuminate\Support\Facades\Schema::hasColumn('auction_templates', 'field_names')) {
+                $templateData['field_names'] = $extractedFields;
+            }
+
+            $template = AuctionTemplate::query()->create($templateData);
+
+            $schema = $data['schema'] ?? null;
+            if (is_string($schema)) {
+                $schema = json_decode($schema, true);
+            }
+            if (empty($schema)) {
+                $schema = [
+                    'canvas' => ['width' => $type === 'billboard' ? 1200 : 794, 'height' => $type === 'billboard' ? 628 : 1123],
+                    'pages' => [
+                        [
+                            'id' => (string) Str::uuid(),
+                            'background' => ['color' => '#ffffff', 'image' => null],
+                            'elements' => [],
+                        ],
+                    ],
+                ];
+            }
+
+            AuctionTemplateVersion::query()->create([
+                'auction_template_id' => $template->id,
+                'version' => 1,
+                'schema' => $schema,
+                'status' => 'draft',
+                'created_by' => $user?->id ?? (int) auth('admin')->id(),
+            ]);
+
+            return $template->load('versions');
+        });
     }
 
     /**
-     * Extract field names using pdftk with fallback to PDF stream parsing.
+     * Extract field names from PDF.
+     *
+     * @return array<int, string>
      */
     public function extractFieldNames(string $absolutePath): array
     {
         $fields = [];
-
-        // Try pdftk first
-        try {
-            $options = [];
-            if ($pdftkPath = config('services.pdftk.path', env('PDFTK_PATH'))) {
-                $options['command'] = $pdftkPath;
-            }
-
-            $pdf = new Pdf($absolutePath, $options);
-            $dataFields = $pdf->getDataFields();
-
-            if ($dataFields && is_iterable($dataFields)) {
-                $fields = collect($dataFields)
-                    ->pluck('FieldName')
-                    ->filter()
-                    ->values()
-                    ->toArray();
-            }
-        } catch (Throwable $e) {
-            Log::warning('pdftk getDataFields failed: '.$e->getMessage());
-        }
-
-        // Fallback: parse PDF form field keys /T (fieldName)
-        if (empty($fields) && file_exists($absolutePath)) {
+        if (file_exists($absolutePath)) {
             $content = @file_get_contents($absolutePath);
             if ($content !== false && preg_match_all('/\/T\s*\(([^)]+)\)/', $content, $matches)) {
                 $fields = collect($matches[1])

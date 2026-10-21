@@ -50,7 +50,8 @@ class AuctionTemplateDataTable extends AbstractDataTable
             ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم القالب', 'className' => 'text-start'],
             ['data' => 'type', 'name' => 'type', 'title' => 'النوع', 'className' => 'text-center'],
-            ['data' => 'file', 'name' => 'file_path', 'title' => 'الملف', 'orderable' => false, 'searchable' => false, 'className' => 'text-center'],
+            ['data' => 'version', 'name' => 'current_version', 'title' => 'الإصدار الحالي', 'className' => 'text-center'],
+            ['data' => 'status', 'name' => 'status', 'title' => 'حالة النشر', 'className' => 'text-center'],
             ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإضافة', 'className' => 'text-center'],
             ['data' => 'is_active', 'name' => 'is_active', 'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
@@ -77,14 +78,16 @@ class AuctionTemplateDataTable extends AbstractDataTable
                 return '<span class="badge bg-label-'.e($color).'">'.e($label).'</span>';
             })
 
-            ->addColumn('file', function ($row) {
-                if (! $row->file_url) {
-                    return '<span class="text-muted">-</span>';
-                }
+            ->addColumn('version', function ($row) {
+                return $row->current_version
+                    ? '<span class="badge bg-label-info font-monospace">إصدار '.e((string) $row->current_version).'</span>'
+                    : '<span class="text-muted">—</span>';
+            })
 
-                return '<a href="'.e($row->file_url).'" target="_blank" class="btn btn-icon btn-sm btn-label-primary" title="عرض ملف PDF">'
-                    .'<i class="ti ti-file-type-pdf fs-5"></i>'
-                    .'</a>';
+            ->addColumn('status', function ($row) {
+                $isPublished = $row->status === 'published';
+                return '<span class="badge '.($isPublished ? 'bg-label-success' : 'bg-label-warning').'">'
+                    .($isPublished ? 'منشور' : 'مسودة').'</span>';
             })
 
             ->editColumn('created_at', function ($row) {
@@ -123,7 +126,8 @@ class AuctionTemplateDataTable extends AbstractDataTable
             'checkbox',
             'name',
             'type',
-            'file',
+            'version',
+            'status',
             'created_at',
             'is_active',
             'actions',

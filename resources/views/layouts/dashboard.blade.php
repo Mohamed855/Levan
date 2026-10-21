@@ -40,13 +40,4 @@
     </div>
 
     <x-shared.toastr />
-@endsection
-
-@section('page-script')
-    @vite([
-        'resources/assets/vendor/js/bootstrap.js',
-        'resources/assets/js/shared/app.js',
-        'resources/assets/js/shared/table-status-toggle.js',
-    ])
-    @stack('dashboard-scripts')
-@endsection
+@endsection

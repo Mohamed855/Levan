@@ -50,9 +50,14 @@ class UpdateAuctionRequest extends WizardFormRequest
             ],
 
             // Step 4: Marketing Templates & Attachments
+            'template_versions' => ['nullable', 'array'],
+            'template_versions.brochure' => ['nullable', 'integer', new \App\Rules\PublishedTemplateVersionRule('brochure')],
+            'template_versions.billboard' => ['nullable', 'integer', new \App\Rules\PublishedTemplateVersionRule('billboard')],
+            'template_versions.social' => ['nullable', 'integer', new \App\Rules\PublishedTemplateVersionRule('social')],
             'brochure_template_id' => ['nullable', 'integer', new ExistsInCentralAuctionTemplates('brochure')],
             'billboard_template_id' => ['nullable', 'integer', new ExistsInCentralAuctionTemplates('billboard')],
             'social_template_id' => ['nullable', 'integer', new ExistsInCentralAuctionTemplates('social')],
+            'cover_image' => ['nullable', 'image', 'max:10240'],
             'attachments' => ['nullable', 'array'],
             'attachments.*' => ['file', 'max:10240', 'mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx'],
 

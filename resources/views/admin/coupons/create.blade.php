@@ -1,0 +1,1 @@
+@extends('layouts.dashboard') @section('title','إضافة كوبون') @section('dashboard-scope','admin') @section('content')<form method="POST" action="{{ route('admin.coupons.store') }}">@csrf @include('admin.coupons.partials.form')</form>@endsection

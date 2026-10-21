@@ -227,21 +227,25 @@
                     </x-form.wizard.step>
 
                     {{-- الخطوة 4: الإعدادات والملفات --}}
-                    <x-form.wizard.step id="step-settings" :fields="['brochure_template_id', 'billboard_template_id', 'social_template_id', 'attachments']">
+                    <x-form.wizard.step id="step-settings" :fields="['template_versions', 'cover_image', 'attachments']">
                         <div class="row g-4">
                             <div class="col-12">
-                                <h6 class="fw-bold mb-3"><i class="ti ti-palette me-1"></i>القوالب التسويقية المعتمدة:
+                                <h6 class="fw-bold mb-3"><i class="ti ti-palette me-1"></i>القوالب التسويقية المنشورة والمعتمدة:
                                 </h6>
                             </div>
 
-                            <x-form.controls.select name="brochure_template_id" label="قالب البروشور" col="col-md-6"
-                                :options="$brochureTemplates" placeholder="اختر قالب البروشور..." />
+                            <x-form.controls.select name="template_versions[brochure]" id="template_versions_brochure" label="قالب البروشور المعتمد" col="col-md-4"
+                                :options="$templateOptions['brochure'] ?? $brochureTemplates" placeholder="اختر نسخة قالب البروشور..." />
 
-                            <x-form.controls.select name="billboard_template_id" label="قالب اللوحة الإعلانية"
-                                col="col-md-6" :options="$billboardTemplates" placeholder="اختر قالب اللوحة..." />
+                            <x-form.controls.select name="template_versions[billboard]" id="template_versions_billboard" label="قالب اللوحة الإعلانية"
+                                col="col-md-4" :options="$templateOptions['billboard'] ?? $billboardTemplates" placeholder="اختر نسخة قالب اللوحة..." />
 
-                            <x-form.controls.select name="social_template_id" label="قالب منصات التواصل" col="col-md-6"
-                                :options="$socialTemplates" placeholder="اختر قالب منصات التواصل..." />
+                            <x-form.controls.select name="template_versions[social]" id="template_versions_social" label="قالب منصات التواصل" col="col-md-4"
+                                :options="$templateOptions['social'] ?? $socialTemplates" placeholder="اختر نسخة قالب منصات التواصل..." />
+
+                            <div class="col-12">
+                                <x-form.controls.file name="cover_image" label="صورة غلاف المزاد (للاستخدام في القوالب)" accept="image/*" col="col-md-6" help="صورة تظهر في مخرجات المزاد والقوالب التسويقية" />
+                            </div>
 
                             <div class="col-12 mt-4 border-top pt-3">
                                 <h6 class="fw-bold mb-3"><i class="ti ti-paperclip me-1"></i>مرفقات ووثائق المزاد:</h6>

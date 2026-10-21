@@ -21,6 +21,8 @@ implementation_plan.md
 /public/tenants
 /storage/*.key
 /storage/pail
+/storage/framework/composer-cache
+/database/tenant*
 /vendor
 Homestead.json
 Homestead.yaml

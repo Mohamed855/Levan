@@ -122,17 +122,21 @@
                         rows="2" />
 
                     <div class="col-12">
-                        <h6 class="fw-bold mb-1"><i class="ti ti-palette me-1"></i>القوالب التسويقية المعتمدة:</h6>
+                        <h6 class="fw-bold mb-1"><i class="ti ti-palette me-1"></i>القوالب التسويقية المنشورة والمعتمدة:</h6>
                     </div>
 
-                    <x-form.controls.select name="brochure_template_id" label="قالب البروشور" col="col-md-6"
-                        :value="$auction->brochure_template_id" :options="$brochureTemplates" placeholder="اختر قالب البروشور..." />
+                    <x-form.controls.select name="template_versions[brochure]" label="قالب البروشور المعتمد" col="col-md-4"
+                        :value="$auction->template_versions['brochure'] ?? $auction->brochure_template_id" :options="$templateOptions['brochure'] ?? $brochureTemplates" placeholder="اختر نسخة قالب البروشور..." />
 
-                    <x-form.controls.select name="billboard_template_id" label="قالب اللوحة الإعلانية" col="col-md-6"
-                        :value="$auction->billboard_template_id" :options="$billboardTemplates" placeholder="اختر قالب اللوحة..." />
+                    <x-form.controls.select name="template_versions[billboard]" label="قالب اللوحة الإعلانية" col="col-md-4"
+                        :value="$auction->template_versions['billboard'] ?? $auction->billboard_template_id" :options="$templateOptions['billboard'] ?? $billboardTemplates" placeholder="اختر نسخة قالب اللوحة..." />
 
-                    <x-form.controls.select name="social_template_id" label="قالب منصات التواصل" col="col-md-6"
-                        :value="$auction->social_template_id" :options="$socialTemplates" placeholder="اختر قالب منصات التواصل..." />
+                    <x-form.controls.select name="template_versions[social]" label="قالب منصات التواصل" col="col-md-4"
+                        :value="$auction->template_versions['social'] ?? $auction->social_template_id" :options="$templateOptions['social'] ?? $socialTemplates" placeholder="اختر نسخة قالب منصات التواصل..." />
+
+                    <div class="col-12">
+                        <x-form.controls.file name="cover_image" label="تحديث صورة الغلاف (للاستخدام في القوالب)" accept="image/*" col="col-md-6" help="صورة تظهر في مخرجات المزاد والقوالب التسويقية" />
+                    </div>
 
                     <x-form.controls.file name="attachments" id="attachments" label="إضافة مرفقات" multiple
                         accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx"

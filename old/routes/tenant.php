@@ -326,6 +326,7 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         */
         Route::prefix('auctions')->name('auctions.')->group(function () {
             Route::name('toggle-status')->patch('{auction}/toggle-status', [AuctionsController::class, 'toggleStatus']);
+            Route::name('preview')->get('{auction}/preview/{type}', [AuctionsController::class, 'preview']);
             Route::name('brochure')->get('{auction}/brochure', [AuctionOutputController::class, 'brochure']);
             Route::name('billboard')->get('{auction}/billboard', [AuctionOutputController::class, 'billboard']);
             Route::name('social')->get('{auction}/social', [AuctionOutputController::class, 'social']);

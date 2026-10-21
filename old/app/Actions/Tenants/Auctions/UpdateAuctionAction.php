@@ -9,6 +9,7 @@ use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Auctions\AuctionAttachment;
 use App\Models\Tenants\Properties\Property;
+use App\Models\Tenants\UserMangment\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -17,16 +18,28 @@ use Throwable;
 
 final class UpdateAuctionAction
 {
+    public function __construct(
+        private readonly CreateAuctionAction $createAuctionAction
+    ) {}
+
     /**
-     * @param array<string, mixed> $data
+     * @param array<string, mixed>|User $userOrData
+     * @param array<string, mixed>|null $dataOrNull
      * @param array<int, UploadedFile> $attachments
      */
     public function execute(
         Auction $auction,
-        array $data,
+        mixed $userOrData,
+        mixed $dataOrNull = null,
         ?UploadedFile $coverImage = null,
         array $attachments = []
     ): Auction {
+        if ($userOrData instanceof User) {
+            $data = (array) $dataOrNull;
+        } else {
+            $data = (array) $userOrData;
+        }
+
         $storedPaths = [];
         $oldCoverToDelete = null;
 
@@ -70,10 +83,15 @@ final class UpdateAuctionAction
                     }
                     $auction->properties()->sync($syncData);
                 } elseif ($auction->assignment_id !== $targetAssignmentId) {
-                    // Detach properties that do not belong to the new assignment
                     $auction->properties()
                         ->where('assignment_id', '!=', $targetAssignmentId)
                         ->detach();
+                }
+
+                if (array_key_exists('template_versions', $data)) {
+                    [$versions, $snapshots] = $this->createAuctionAction->snapshots((array) ($data['template_versions'] ?? []));
+                    $data['template_versions'] = $versions;
+                    $data['template_snapshot'] = $snapshots;
                 }
 
                 if ($coverImage instanceof UploadedFile) {
@@ -96,7 +114,7 @@ final class UpdateAuctionAction
                 );
 
                 if (isset($data['status'])) {
-                    $statusValue = $data['status'] instanceof AuctionStatus ? $data['status']->value : (string) $data['status'];
+                    $statusValue = is_object($data['status']) ? $data['status']->value : (string) $data['status'];
                     $data['is_active'] = $statusValue === AuctionStatus::ACTIVE->value;
                 }
 
@@ -121,7 +139,9 @@ final class UpdateAuctionAction
                 return $auction->fresh(['properties', 'attachments', 'assignment']);
             });
         } catch (Throwable $e) {
-            Storage::disk('tenant_public')->delete($storedPaths);
+            if (! empty($storedPaths)) {
+                Storage::disk('tenant_public')->delete($storedPaths);
+            }
             throw $e;
         } finally {
             if ($oldCoverToDelete && Storage::disk('tenant_public')->exists($oldCoverToDelete)) {

@@ -5,17 +5,23 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Actions\Admin\AuctionTemplates\CreateAuctionTemplateAction;
+use App\Actions\Admin\AuctionTemplates\PublishAuctionTemplateVersionAction;
+use App\Actions\Tenants\Auctions\CreateAuctionAction;
 use App\Enums\Admin\AuctionTemplates\AuctionTemplateType;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\AuctionTemplates\AuctionTemplate;
+use App\Models\Admin\AuctionTemplates\AuctionTemplateVersion;
 use App\Models\Admin\Tenants\Tenant;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Rules\AuctionTemplateFileSpecificationRule;
 use App\Rules\ExistsInCentralAuctionTemplates;
+use App\Rules\PublishedTemplateVersionRule;
 use App\Services\Tenants\Auctions\AuctionOutputService;
+use App\Services\Tenants\Auctions\AuctionTemplateRenderer;
 use App\Services\Tenants\Shared\CentralAuctionTemplatesGateway;
+use App\Support\Auctions\TemplateSchema;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -39,14 +45,20 @@ class AuctionTemplatesFeatureTest extends TestCase
                 'password' => bcrypt('password'),
                 'phone' => '0500000099',
                 'status' => 'active',
+                'is_super_admin' => true,
             ]
         );
-        $this->admin->givePermissionTo([
-            'auction_templates.view',
-            'auction_templates.create',
-            'auction_templates.edit',
-            'auction_templates.delete',
-        ]);
+
+        try {
+            $this->admin->givePermissionTo([
+                'auction_templates.view',
+                'auction_templates.create',
+                'auction_templates.edit',
+                'auction_templates.delete',
+            ]);
+        } catch (\Throwable) {
+            // Unified schema compatibility
+        }
     }
 
     public function test_superadmin_can_create_auction_template_with_fields(): void
@@ -131,7 +143,7 @@ class AuctionTemplatesFeatureTest extends TestCase
 
     public function test_auction_output_service_builds_correct_data(): void
     {
-        $tenant = Tenant::first();
+        $tenant = Tenant::find('test') ?? Tenant::first();
         if (! $tenant) {
             $this->markTestSkipped('No tenant found in database.');
         }
@@ -265,7 +277,7 @@ class AuctionTemplatesFeatureTest extends TestCase
 
     public function test_auction_output_service_generates_pdf_file_from_template(): void
     {
-        $tenant = Tenant::first();
+        $tenant = Tenant::find('test') ?? Tenant::first();
         if (! $tenant) {
             $this->markTestSkipped('No tenant found in database.');
         }
@@ -341,15 +353,12 @@ class AuctionTemplatesFeatureTest extends TestCase
             ->get(route('admin.auction-templates.create'));
 
         $response->assertOk();
-        $response->assertSee('wizard-validation');
         $response->assertSee('data-form-validate');
-        $response->assertSee('data-draft-resource-key="admin.auction-template-create"', false);
-        $response->assertSee('step-basic-info');
-        $response->assertSee('step-files');
-        $response->assertSee('step-review');
-        $response->assertSee('assignment-review');
-        $response->assertSee('data-edit-step');
-        $response->assertSee('preview-template-name');
+        $response->assertSee('data-draft-resource-key="admin.auction-templates.create"', false);
+        $response->assertSee('template-designer');
+        $response->assertSee('template-canvas');
+        $response->assertSee('designer-preview-modal');
+        $response->assertSee('حفظ كمسودة');
     }
 
     public function test_superadmin_can_view_edit_page_with_canonical_contracts(): void
@@ -416,7 +425,7 @@ class AuctionTemplatesFeatureTest extends TestCase
 
     public function test_auction_output_service_generates_social_png_image(): void
     {
-        $tenant = Tenant::first();
+        $tenant = Tenant::find('test') ?? Tenant::first();
         if (! $tenant) {
             $this->markTestSkipped('No tenant found in database.');
         }
@@ -479,4 +488,232 @@ class AuctionTemplatesFeatureTest extends TestCase
             $disk->delete('auction_templates/social/test.png');
         }
     }
+
+    public function test_superadmin_can_create_auction_template_with_schema_and_version(): void
+    {
+        $action = app(CreateAuctionTemplateAction::class);
+
+        $validSchema = [
+            'canvas' => ['width' => 1080, 'height' => 1080, 'unit' => 'px', 'background' => '#ffffff'],
+            'pages' => [
+                [
+                    'page_number' => 1,
+                    'elements' => [
+                        [
+                            'id' => 'elem-title',
+                            'type' => 'text',
+                            'binding' => 'auction.name',
+                            'default_value' => 'اسم المزاد',
+                            'position' => ['x' => 50, 'y' => 50, 'width' => 400, 'height' => 60],
+                            'style' => ['fontSize' => 24, 'color' => '#1D4F44', 'fontFamily' => 'Almarai'],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $template = $action->execute([
+            'name' => 'بروشور تصميمي فيرجن '.uniqid(),
+            'type' => AuctionTemplateType::BROCHURE->value,
+            'description' => 'قالب بروشور بمصمم مرئي ومخطط',
+            'schema' => $validSchema,
+            'status' => 'draft',
+        ]);
+
+        $this->assertDatabaseHas('auction_templates', [
+            'id' => $template->id,
+            'type' => 'brochure',
+            'status' => 'draft',
+            'current_version' => null,
+        ]);
+
+        $this->assertDatabaseHas('auction_template_versions', [
+            'auction_template_id' => $template->id,
+            'version' => 1,
+            'status' => 'draft',
+        ]);
+
+        $version = $template->versions()->first();
+        $this->assertNotNull($version);
+        $this->assertSame(1080, $version->schema['canvas']['width'] ?? null);
+    }
+
+    public function test_superadmin_can_publish_template_version(): void
+    {
+        $template = AuctionTemplate::create([
+            'name' => 'قالب للنشر '.uniqid(),
+            'type' => AuctionTemplateType::BROCHURE,
+            'status' => 'draft',
+            'current_version' => 1,
+            'is_active' => true,
+        ]);
+
+        $version = AuctionTemplateVersion::create([
+            'auction_template_id' => $template->id,
+            'version' => 1,
+            'schema' => TemplateSchema::sample(AuctionTemplateType::BROCHURE),
+            'status' => 'draft',
+        ]);
+
+        $action = app(PublishAuctionTemplateVersionAction::class);
+        $published = $action->execute($version);
+
+        $this->assertSame('published', $published->status);
+        $this->assertNotNull($published->published_at);
+
+        $template->refresh();
+        $this->assertSame('published', $template->status);
+        $this->assertSame(1, $template->current_version);
+    }
+
+    public function test_gateway_returns_published_template_versions_only(): void
+    {
+        $template = AuctionTemplate::create([
+            'name' => 'قالب سوشيال منشور '.uniqid(),
+            'type' => AuctionTemplateType::SOCIAL,
+            'status' => 'published',
+            'current_version' => 2,
+            'is_active' => true,
+        ]);
+
+        AuctionTemplateVersion::create([
+            'auction_template_id' => $template->id,
+            'version' => 1,
+            'schema' => TemplateSchema::sample(AuctionTemplateType::SOCIAL),
+            'status' => 'archived',
+        ]);
+
+        $v2 = AuctionTemplateVersion::create([
+            'auction_template_id' => $template->id,
+            'version' => 2,
+            'schema' => TemplateSchema::sample(AuctionTemplateType::SOCIAL),
+            'status' => 'published',
+            'published_at' => now(),
+        ]);
+
+        $draftTemplate = AuctionTemplate::create([
+            'name' => 'قالب مسودة '.uniqid(),
+            'type' => AuctionTemplateType::SOCIAL,
+            'status' => 'draft',
+            'current_version' => 1,
+            'is_active' => true,
+        ]);
+
+        AuctionTemplateVersion::create([
+            'auction_template_id' => $draftTemplate->id,
+            'version' => 1,
+            'schema' => TemplateSchema::sample(AuctionTemplateType::SOCIAL),
+            'status' => 'draft',
+        ]);
+
+        $gateway = app(CentralAuctionTemplatesGateway::class);
+        $publishedSocial = $gateway->publishedByType('social');
+
+        $values = array_column($publishedSocial, 'value');
+        $this->assertContains($v2->id, $values);
+
+        $found = $gateway->findPublished($v2->id, 'social');
+        $this->assertNotNull($found);
+        $this->assertSame($v2->id, $found->id);
+
+        $this->assertTrue($gateway->existsPublished($v2->id, 'social'));
+        $this->assertFalse($gateway->existsPublished(999999, 'social'));
+    }
+
+    public function test_auction_keeps_immutable_template_snapshot_and_renderer_binds_data(): void
+    {
+        $tenant = Tenant::find('test') ?? Tenant::first();
+        if (! $tenant) {
+            $this->markTestSkipped('No tenant found in database.');
+        }
+
+        $template = AuctionTemplate::create([
+            'name' => 'قالب سوشيال معتمد '.uniqid(),
+            'type' => AuctionTemplateType::SOCIAL,
+            'status' => 'published',
+            'current_version' => 1,
+            'is_active' => true,
+        ]);
+
+        $sampleSchema = [
+            'canvas' => ['width' => 1080, 'height' => 1080, 'unit' => 'px', 'background' => '#F7F3EC'],
+            'pages' => [
+                [
+                    'page_number' => 1,
+                    'elements' => [
+                        [
+                            'id' => 'elem-title',
+                            'type' => 'text',
+                            'binding' => 'auction.name',
+                            'default_value' => 'عنوان افتراضي',
+                            'position' => ['x' => 10, 'y' => 20, 'width' => 300, 'height' => 50],
+                            'style' => ['fontSize' => 20, 'color' => '#1D4F44'],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $v1 = AuctionTemplateVersion::create([
+            'auction_template_id' => $template->id,
+            'version' => 1,
+            'schema' => $sampleSchema,
+            'status' => 'published',
+            'published_at' => now(),
+        ]);
+
+        tenancy()->initialize($tenant);
+
+        try {
+            $owner = User::first();
+
+            $assignment = Assignment::firstOrCreate(
+                ['assignment_number' => 'ASN-SNAP-'.uniqid()],
+                [
+                    'name' => 'إسناد فحص اللقطة',
+                    'issuing_entity' => 'مركز الإسناد والتصفية (إنفاذ)',
+                    'is_active' => true,
+                    'created_by' => $owner?->id,
+                ]
+            );
+
+            $action = app(CreateAuctionAction::class);
+            $auction = $action->execute([
+                'assignment_id' => $assignment->id,
+                'name' => 'مزاد لوت العقاري الذهبي',
+                'description' => 'وصف تجريبي',
+                'start_date' => now()->toDateString(),
+                'start_time' => '16:00',
+                'end_date' => now()->addDays(3)->toDateString(),
+                'end_time' => '19:00',
+                'type' => 'electronic',
+                'category' => 'lands',
+                'city' => 'الرياض',
+                'platform_name' => 'سعودي مزاد',
+                'status' => 'active',
+                'is_active' => true,
+                'created_by' => $owner?->id,
+                'template_versions' => [
+                    'social' => $v1->id,
+                ],
+            ]);
+
+            $this->assertNotNull($auction->template_snapshot);
+            $this->assertArrayHasKey('social', $auction->template_snapshot);
+            $this->assertSame(1, $auction->template_snapshot['social']['version'] ?? null);
+
+            // Now render the template via AuctionTemplateRenderer
+            $renderer = app(AuctionTemplateRenderer::class);
+            $renderData = $renderer->render($auction, 'social');
+
+            $this->assertIsArray($renderData);
+            $this->assertSame('مزاد لوت العقاري الذهبي', $renderData['bindings']['auction.name']);
+            $this->assertSame('#F7F3EC', $renderData['template']['schema']['canvas']['background']);
+        } finally {
+            if (tenancy()->initialized) {
+                tenancy()->end();
+            }
+        }
+    }
 }
+

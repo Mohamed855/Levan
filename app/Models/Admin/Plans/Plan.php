@@ -26,6 +26,11 @@ class Plan extends Model
 
     public function isUnlimited(): bool { return $this->limits_mode === 'unlimited'; }
 
+    public function subscriptions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\App\Models\Admin\Subscriptions\Subscription::class, 'plan_id');
+    }
+
     public function scopePubliclyAvailable(Builder $query): Builder
     {
         return $query->where('is_active', true)

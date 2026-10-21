@@ -1,9 +1,6 @@
 <?php
 
 use App\Http\Controllers\Admin\Auth\AuthenticatedSessionController as AdminAuthenticatedSessionController;
-use App\Http\Controllers\Tenant\Auth\AuthenticatedSessionController as TenantAuthenticatedSessionController;
-use App\Http\Controllers\Tenant\Auth\NewPasswordController as TenantNewPasswordController;
-use App\Http\Controllers\Tenant\Auth\PasswordResetLinkController as TenantPasswordResetLinkController;
 use App\Http\Controllers\Web\CheckoutController;
 use App\Http\Controllers\Web\FormValidationController;
 use App\Http\Controllers\Web\LandingPageController;
@@ -41,20 +38,5 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
     Route::post('logout', [AdminAuthenticatedSessionController::class, 'destroy'])->middleware('auth:admin')->name('logout');
 });
 
-Route::prefix('tenant')->name('tenant.')->group(function (): void {
-    Route::middleware('guest:tenant')->group(function (): void {
-        Route::get('login', [TenantAuthenticatedSessionController::class, 'create'])->name('login');
-        Route::post('login', [TenantAuthenticatedSessionController::class, 'store'])->middleware('throttle:5,1')->name('login.store');
-
-        Route::get('forgot-password', [TenantPasswordResetLinkController::class, 'create'])->name('password.request');
-        Route::post('forgot-password', [TenantPasswordResetLinkController::class, 'store'])->name('password.email');
-        Route::get('reset-password/{token}', [TenantNewPasswordController::class, 'create'])->name('password.reset');
-        Route::post('reset-password', [TenantNewPasswordController::class, 'store'])->name('password.store');
-    });
-
-    Route::post('logout', [TenantAuthenticatedSessionController::class, 'destroy'])->middleware('auth:tenant')->name('logout');
-});
-
 require __DIR__.'/admin.php';
-require __DIR__.'/tenant.php';
 

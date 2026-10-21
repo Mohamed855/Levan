@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin\AuctionTemplates;
 
-use App\Enums\Admin\AuctionTemplates\AuctionTemplateType;
 use App\Http\Requests\Concerns\WizardFormRequest;
-use App\Rules\AuctionTemplateFieldDefinitionsRule;
-use App\Rules\AuctionTemplateFileSpecificationRule;
-use App\Services\Admin\AuctionTemplates\AuctionTemplateService;
+use App\Models\Admin\AuctionTemplates\AuctionTemplate;
+use App\Rules\TemplateSchemaRule;
 use Illuminate\Validation\Rule;
 
 class StoreAuctionTemplateRequest extends WizardFormRequest
@@ -20,6 +18,8 @@ class StoreAuctionTemplateRequest extends WizardFormRequest
 
     public function rules(): array
     {
+        $type = (string) $this->input('type');
+
         return [
             'name' => [
                 'required',
@@ -27,21 +27,11 @@ class StoreAuctionTemplateRequest extends WizardFormRequest
                 'max:255',
                 Rule::unique('auction_templates', 'name')->whereNull('deleted_at'),
             ],
-            'type' => ['required', Rule::enum(AuctionTemplateType::class)],
+            'type' => ['required', Rule::in(AuctionTemplate::TYPES)],
             'description' => ['nullable', 'string', 'max:1000'],
-            'file' => [
-                'required',
-                'file',
-                'mimes:pdf,png,jpg,jpeg,webp',
-                'max:30720',
-                new AuctionTemplateFileSpecificationRule($this->input('type')),
-            ],
             'is_active' => ['nullable', 'boolean'],
-            'field_definitions' => [
-                'required',
-                'json',
-                new AuctionTemplateFieldDefinitionsRule($this->requiredFieldNames()),
-            ],
+            'schema' => ['required', 'json', new TemplateSchemaRule($type)],
+            'file' => ['nullable', 'file', 'max:30720'],
         ];
     }
 
@@ -51,7 +41,7 @@ class StoreAuctionTemplateRequest extends WizardFormRequest
             'name' => 'اسم القالب',
             'type' => 'نوع القالب',
             'description' => 'الوصف',
-            'file' => 'ملف القالب (PDF أو صورة)',
+            'schema' => 'مخطط القالب',
             'is_active' => 'الحالة',
         ];
     }
@@ -62,16 +52,7 @@ class StoreAuctionTemplateRequest extends WizardFormRequest
             'name.required' => 'يرجى إدخال اسم القالب.',
             'name.unique' => 'اسم القالب مستخدم بالفعل.',
             'type.required' => 'يرجى اختيار نوع القالب.',
-            'file.required' => 'يرجى رفع ملف القالب (PDF أو صورة التصميم).',
-            'file.mimes' => 'يجب أن يكون الملف بصيغة PDF أو صورة (PNG, JPG, WEBP).',
-            'file.max' => 'أقصى حجم للملف هو 30 ميجابايت.',
+            'schema.required' => 'مخطط القالب مطلوب.',
         ];
-    }
-
-    /** @return list<string> */
-    private function requiredFieldNames(): array
-    {
-        return app(AuctionTemplateService::class)
-            ->requiredFieldNames((string) $this->input('type'));
     }
 }

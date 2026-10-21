@@ -8,10 +8,13 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('auction_templates', function (Blueprint $table) {
-            $table->json('field_definitions')->nullable()->after('field_names');
-        });
+        if (! Schema::hasColumn('auction_templates', 'field_definitions')) {
+            Schema::table('auction_templates', function (Blueprint $table) {
+                $table->json('field_definitions')->nullable()->after('field_names');
+            });
+        }
     }
+
 
     public function down(): void
     {

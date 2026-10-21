@@ -17,6 +17,9 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        \Illuminate\Support\Facades\Blade::anonymousComponentPath(resource_path('views/components/shared'));
+        \Illuminate\Support\Facades\Blade::anonymousComponentPath(resource_path('views/components/shared'), 'shared');
+
         Gate::before(function (object $user, string $ability): ?bool {
             return in_array(HasRolesAndPermissions::class, class_uses_recursive($user), true)
                 ? $user->hasPermissionTo($ability)

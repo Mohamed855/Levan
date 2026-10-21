@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin\AuctionTemplates;
 
 use App\Actions\Admin\AuctionTemplates\CreateAuctionTemplateAction;
+use App\Actions\Admin\AuctionTemplates\PublishAuctionTemplateVersionAction;
 use App\Actions\Admin\AuctionTemplates\UpdateAuctionTemplateAction;
 use App\DataTables\Admin\AuctionTemplates\AuctionTemplateDataTable;
 use App\Enums\Admin\AuctionTemplates\AuctionTemplateType;
@@ -14,8 +15,9 @@ use App\Http\Requests\Admin\AuctionTemplates\UpdateAuctionTemplateRequest;
 use App\Http\Requests\Admin\AuctionTemplates\UpdateAuctionTemplateStatusRequest;
 use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
 use App\Models\Admin\AuctionTemplates\AuctionTemplate;
+use App\Models\Admin\AuctionTemplates\AuctionTemplateVersion;
 use App\Services\Admin\AuctionTemplates\AuctionTemplateService;
-use App\Services\Shared\Wizard\WizardDraftService;
+use App\Support\Auctions\TemplateSchema;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -31,7 +33,7 @@ class AuctionTemplateController extends Controller
         $this->authorizeResource(AuctionTemplate::class, 'auction_template');
         $this->middleware('can:auction_templates.view')->only(['index', 'show', 'showFields']);
         $this->middleware('can:auction_templates.create')->only(['create', 'store']);
-        $this->middleware('can:auction_templates.edit')->only(['edit', 'update', 'toggleStatus']);
+        $this->middleware('can:auction_templates.edit')->only(['edit', 'update', 'toggleStatus', 'publish']);
         $this->middleware('can:auction_templates.delete')->only(['destroy']);
     }
 
@@ -55,6 +57,7 @@ class AuctionTemplateController extends Controller
     public function create(): View
     {
         return view($this->page . '.create', [
+            'template'    => new AuctionTemplate(),
             'typeOptions' => AuctionTemplateType::options(),
             'fieldGuide'  => $this->service->getFieldGuide(),
         ]);
@@ -62,25 +65,32 @@ class AuctionTemplateController extends Controller
 
     public function store(
         StoreAuctionTemplateRequest $request,
-        CreateAuctionTemplateAction $action
+        CreateAuctionTemplateAction $action,
+        TemplateSchema $schema
     ): RedirectResponse {
-        $data = $request->safe()->except(['file']);
+        $data = $request->validated();
+        if (isset($data['schema'])) {
+            $data['schema'] = $schema->validate($data['schema'], (string) $data['type']);
+        }
         $data['is_active'] = $request->boolean('is_active', true);
 
-        $action->execute(
+        $template = $action->execute(
+            $request->user('admin'),
             $data,
             $request->file('file')
         );
 
         return redirect()
-            ->route('admin.auction-templates.index')
-            ->with('success', 'تم إضافة قالب المزاد بنجاح واستخراج حقوله.');
+            ->route('admin.auction-templates.show', $template->id)
+            ->with('success', 'تم حفظ قالب المزاد بنجاح.');
     }
 
     public function show(AuctionTemplate $auctionTemplate): View
     {
+        $auctionTemplate->load(['versions.creator', 'creator']);
         $fieldGuide = $this->service->getFieldGuide();
-        $typeGuide = $fieldGuide[$auctionTemplate->type->value] ?? null;
+        $typeValue = is_object($auctionTemplate->type) ? $auctionTemplate->type->value : (string) $auctionTemplate->type;
+        $typeGuide = $fieldGuide[$typeValue] ?? null;
 
         return view($this->page . '.show', [
             'template'  => $auctionTemplate,
@@ -90,6 +100,8 @@ class AuctionTemplateController extends Controller
 
     public function edit(AuctionTemplate $auctionTemplate): View
     {
+        $auctionTemplate->load('versions');
+
         return view($this->page . '.edit', [
             'template'    => $auctionTemplate,
             'typeOptions' => AuctionTemplateType::options(),
@@ -100,22 +112,38 @@ class AuctionTemplateController extends Controller
     public function update(
         UpdateAuctionTemplateRequest $request,
         AuctionTemplate $auctionTemplate,
-        UpdateAuctionTemplateAction $action
+        UpdateAuctionTemplateAction $action,
+        TemplateSchema $schema
     ): RedirectResponse {
-        $data = $request->safe()->except(['file']);
+        $data = $request->validated();
+        $typeValue = is_object($auctionTemplate->type) ? $auctionTemplate->type->value : (string) $auctionTemplate->type;
+        if (isset($data['schema'])) {
+            $data['schema'] = $schema->validate($data['schema'], $typeValue);
+        }
         if ($request->has('is_active')) {
             $data['is_active'] = $request->boolean('is_active');
         }
 
         $action->execute(
             $auctionTemplate,
+            $request->user('admin'),
             $data,
             $request->file('file')
         );
 
         return redirect()
-            ->route('admin.auction-templates.index')
-            ->with('success', 'تم تحديث قالب المزاد بنجاح.');
+            ->route('admin.auction-templates.show', $auctionTemplate->id)
+            ->with('success', 'تم تحديث القالب وحفظ نسخة جديدة من المخطط.');
+    }
+
+    public function publish(
+        AuctionTemplate $auctionTemplate,
+        AuctionTemplateVersion $version,
+        PublishAuctionTemplateVersionAction $action
+    ): RedirectResponse {
+        $action->execute($auctionTemplate, $version);
+
+        return redirect()->back()->with('success', 'تم نشر النسخة بنجاح وهي جاهزة للاستخدام.');
     }
 
     public function destroy(AdminAuthenticatedRequest $request, AuctionTemplate $auctionTemplate): JsonResponse|RedirectResponse
@@ -146,7 +174,8 @@ class AuctionTemplateController extends Controller
     public function showFields(AuctionTemplate $auctionTemplate): JsonResponse
     {
         $fieldGuide = $this->service->getFieldGuide();
-        $expected = $fieldGuide[$auctionTemplate->type->value]['fields'] ?? [];
+        $typeValue = is_object($auctionTemplate->type) ? $auctionTemplate->type->value : (string) $auctionTemplate->type;
+        $expected = $fieldGuide[$typeValue]['fields'] ?? [];
         $extracted = $auctionTemplate->field_names ?? [];
 
         $fieldComparison = array_map(function ($field) use ($extracted) {
@@ -158,19 +187,14 @@ class AuctionTemplateController extends Controller
             ];
         }, $expected);
 
-        $unexpected = array_values(array_diff($extracted, array_column($expected, 'name')));
-
         return response()->json([
-            'template'   => [
+            'template' => [
                 'id'          => $auctionTemplate->id,
                 'name'        => $auctionTemplate->name,
-                'type'        => $auctionTemplate->type->label(),
-                'file_url'    => $auctionTemplate->file_url,
-                'fields_count'=> count($extracted),
+                'type'        => $typeValue,
+                'totalFields' => count($extracted),
             ],
-            'comparison' => $fieldComparison,
-            'unexpected' => $unexpected,
-            'all_fields' => $extracted,
+            'fields'   => $fieldComparison,
         ]);
     }
 }

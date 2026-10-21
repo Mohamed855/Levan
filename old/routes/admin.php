@@ -164,6 +164,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
     // Auction Templates Management
     Route::prefix('auction-templates')->name('auction-templates.')->group(function () {
         Route::patch('{auction_template}/toggle-status', [AuctionTemplateController::class, 'toggleStatus'])->name('toggle-status');
+        Route::post('{auction_template}/versions/{version}/publish', [AuctionTemplateController::class, 'publish'])->name('versions.publish');
         Route::get('{auction_template}/fields', [AuctionTemplateController::class, 'showFields'])->name('fields');
         Route::resource('/', AuctionTemplateController::class)->parameters(['' => 'auction_template']);
     });

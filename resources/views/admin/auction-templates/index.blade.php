@@ -1,9 +1,150 @@
 @extends('layouts.dashboard')
+
 @section('title', 'قوالب المزادات')
 @section('dashboard-scope', 'admin')
+
+@section('vendor-style')
+    @vite([
+        'resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
+        'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
+        'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss',
+        'resources/assets/vendor/libs/select2/select2.scss',
+        'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss',
+    ])
+@endsection
+
+@section('vendor-script')
+    @vite([
+        'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js',
+        'resources/assets/vendor/libs/select2/select2.js',
+        'resources/assets/vendor/libs/sweetalert2/sweetalert2.js',
+    ])
+    {!! $dataTable->scripts() !!}
+@endsection
+
+@section('page-script')
+    <script>
+        window.routes = {
+            massDelete: "{{ route('admin.mass-delete') }}"
+        };
+
+        $(function () {
+            const tableWrapper = $('#auction-templates-table_wrapper');
+
+            tableWrapper.on('click', '#select-all', function () {
+                const table = $('#auction-templates-table').DataTable();
+                $('.row-checkbox', table.rows({ search: 'applied' }).nodes()).prop('checked', this.checked);
+            });
+
+            tableWrapper.on('change', '.row-checkbox', function () {
+                if (!this.checked) {
+                    $('#select-all').prop('checked', false);
+                }
+            });
+
+            $('#auction-templates-table').on('draw.dt', function () {
+                $('#select-all').prop('checked', false);
+            });
+        });
+
+        function handleMassDelete() {
+            const selectedIds = [];
+            $('.row-checkbox:checked').each(function () {
+                selectedIds.push($(this).val());
+            });
+
+            if (selectedIds.length === 0) {
+                if (typeof toastr !== 'undefined') {
+                    toastr.warning('يرجى تحديد قالب واحد على الأقل');
+                }
+                return;
+            }
+
+            if (typeof confirmDeleteSelectedmss === 'function') {
+                confirmDeleteSelectedmss(selectedIds, window.routes.massDelete, 'AuctionTemplate');
+            }
+        }
+
+        window.handleMassDelete = handleMassDelete;
+    </script>
+@endsection
+
 @section('content')
-<section class="row g-4 mb-4">@foreach ($statistics as $statistic)<div class="col-sm-6 col-xl"><x-shared.ui.stat-card :label="$statistic['label']" :value="$statistic['value']" :icon="$statistic['icon']" :tone="$statistic['tone']" /></div>@endforeach</section>
-<section class="card"><div class="card-header d-flex flex-wrap gap-3 justify-content-between align-items-center"><h5 class="mb-0">قوالب المزادات</h5><a href="{{ route('admin.auction-templates.create') }}" class="btn btn-primary">إضافة قالب</a></div>
-<div class="card-body border-bottom"><form class="row g-3" method="GET"><div class="col-md-4"><select name="type" class="form-select"><option value="">كل الأنواع</option>@foreach($filters['types'] as $type)<option value="{{ $type }}" @selected(request('type') === $type)>{{ $type }}</option>@endforeach</select></div><div class="col-md-4"><select name="status" class="form-select"><option value="">كل الحالات</option>@foreach($filters['statuses'] as $status)<option value="{{ $status }}" @selected(request('status') === $status)>{{ $status }}</option>@endforeach</select></div><div class="col-md-4"><button class="btn btn-label-primary">تطبيق الفلاتر</button></div></form></div>
-<div class="table-responsive"><table class="table table-hover"><thead><tr><th><input type="checkbox" aria-label="تحديد الكل"></th><th>القالب</th><th>النوع</th><th>الإصدار</th><th>الحالة</th><th>نشط</th><th>الإجراءات</th></tr></thead><tbody>@forelse($templates as $template)<tr><td><input type="checkbox" value="{{ $template->id }}" aria-label="تحديد {{ $template->name }}"></td><td>{{ $template->name }}</td><td><span class="badge bg-label-primary">{{ $template->type }}</span></td><td>{{ $template->current_version ?? '—' }}</td><td><span class="badge {{ $template->status === 'published' ? 'bg-label-success' : 'bg-label-warning' }}">{{ $template->status }}</span></td><td>{{ $template->is_active ? 'نعم' : 'لا' }}</td><td><a class="btn btn-sm btn-label-primary" href="{{ route('admin.auction-templates.show', $template) }}">عرض</a></td></tr>@empty<tr><td colspan="7" class="text-center py-5 text-muted">لا توجد قوالب مطابقة.</td></tr>@endforelse</tbody></table></div><div class="card-body">{{ $templates->links() }}</div></section>
+    <x-data-table.page table-id="auction-templates-table">
+        <x-slot:stats>
+            <x-ui.stat-card
+                col="col-sm-6 col-xl"
+                title="إجمالي القوالب"
+                :value="$statistics['total']"
+                subtitle="كل قوالب المزادات"
+                icon="ti-templates"
+                color="primary"
+            />
+            <x-ui.stat-card
+                col="col-sm-6 col-xl"
+                title="قوالب منشورة"
+                :value="$statistics['published']"
+                subtitle="جاهزة للاستخدام"
+                icon="ti-world-check"
+                color="success"
+            />
+            <x-ui.stat-card
+                col="col-sm-6 col-xl"
+                title="قوالب مسودة"
+                :value="$statistics['draft']"
+                subtitle="قيد الإعداد والتطوير"
+                icon="ti-pencil"
+                color="warning"
+            />
+            <x-ui.stat-card
+                col="col-sm-6 col-xl"
+                title="قوالب نشطة"
+                :value="$statistics['active']"
+                subtitle="مفعلة في النظام"
+                icon="ti-toggle-right"
+                color="info"
+            />
+            <x-ui.stat-card
+                col="col-sm-6 col-xl"
+                title="قوالب الكتيبات"
+                :value="$statistics['brochure']"
+                subtitle="كتيبات تسويقية"
+                icon="ti-notebook"
+                color="danger"
+            />
+        </x-slot:stats>
+
+        <x-slot:filters>
+            <x-data-table.filters table="#auction-templates-table">
+                <x-filter.select
+                    id="filter-type"
+                    filterKey="type"
+                    table="#auction-templates-table"
+                    label="نوع القالب"
+                    placeholder="اختر النوع"
+                    :options="$filterOptions['types']"
+                />
+                <x-filter.select
+                    id="filter-status"
+                    filterKey="status"
+                    table="#auction-templates-table"
+                    label="حالة النشر"
+                    placeholder="اختر حالة النشر"
+                    :options="$filterOptions['statuses']"
+                />
+                <x-filter.select
+                    id="filter-active"
+                    filterKey="is_active"
+                    table="#auction-templates-table"
+                    label="حالة التفعيل"
+                    placeholder="اختر الحالة"
+                    :options="$filterOptions['is_active']"
+                />
+            </x-data-table.filters>
+        </x-slot:filters>
+
+        <x-slot:table>
+            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'auction-templates-table'], false) !!}
+        </x-slot:table>
+    </x-data-table.page>
 @endsection

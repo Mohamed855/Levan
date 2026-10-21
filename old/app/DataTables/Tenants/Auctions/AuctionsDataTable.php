@@ -80,7 +80,22 @@ class AuctionsDataTable extends AbstractDataTable
                 return '<span class="badge '.$row->status_badge_class.'">'.e($row->status_label).'</span>';
             })
             ->addColumn('outputs', function ($row) {
-                return '<span class="text-muted">-</span>';
+                $badges = [];
+                $hasBrochure = !empty($row->template_versions['brochure']) || !empty($row->template_snapshot['brochure']) || $row->brochure_template_id;
+                $hasBillboard = !empty($row->template_versions['billboard']) || !empty($row->template_snapshot['billboard']) || $row->billboard_template_id;
+                $hasSocial = !empty($row->template_versions['social']) || !empty($row->template_snapshot['social']) || $row->social_template_id;
+
+                if ($hasBrochure) {
+                    $badges[] = '<a href="'.tenant_route_name('auctions.preview', ['auction' => $row->id, 'type' => 'brochure']).'" target="_blank" class="badge bg-label-primary me-1" title="معاينة البروشور">بروشور</a>';
+                }
+                if ($hasBillboard) {
+                    $badges[] = '<a href="'.tenant_route_name('auctions.preview', ['auction' => $row->id, 'type' => 'billboard']).'" target="_blank" class="badge bg-label-warning me-1" title="معاينة اللوحة">لوحة</a>';
+                }
+                if ($hasSocial) {
+                    $badges[] = '<a href="'.tenant_route_name('auctions.preview', ['auction' => $row->id, 'type' => 'social']).'" target="_blank" class="badge bg-label-info" title="معاينة السوشيال">سوشيال</a>';
+                }
+
+                return !empty($badges) ? implode('', $badges) : '<span class="text-muted">—</span>';
             })
             ->addColumn('actions', function ($row) {
                 return view('tenant.auctions.action', ['row' => $row, 'route' => $this->route])->render();

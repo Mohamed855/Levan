@@ -37,16 +37,16 @@
                             required col="col-md-6 mb-3" help="يُحفظ معرفاً إنجليزياً فقط، وتُترجم التسمية في الواجهة." />
 
                         <div class="mb-3" data-form-field data-field-name="permissions">
-                            <label for="permissions" class="form-label">الصلاحيات</label>
-                            <div id="permissions-treeview">
-
+                            <div class="d-flex justify-content-between align-items-center my-3 gap-3">
+                                <label for="permissions" class="form-label">الصلاحيات</label>
                                 <!-- تحديد الكل العام -->
-                                <div class="form-check mb-3">
+                                <div class="form-check d-flex align-items-center gap-2">
                                     <input type="checkbox" name="select_all" value="1" class="form-check-input"
                                         id="select-all" data-validation-skip>
                                     <label class="form-check-label" for="select-all">تحديد الكل</label>
                                 </div>
-
+                            </div>
+                            <div id="permissions-treeview">
                                 <!-- الأقسام -->
                                 <div style="display: flex; flex-wrap: wrap; gap: 1.25rem;">
                                     @foreach ($permissions as $section => $perms)
@@ -115,9 +115,9 @@
                         <div class="d-flex justify-content-between">
                             <x-form.wizard.previous-button :href="tenant_route_name('roles.index')" text="العودة" />
                             <div class="d-flex gap-2">
-                            <x-form.wizard.draft-button />
-                            <button type="submit" class="btn btn-primary">حفظ</button>
-                        </div>
+                                <x-form.wizard.draft-button />
+                                <button type="submit" class="btn btn-primary">حفظ</button>
+                            </div>
                     </form>
 
                 </div>

@@ -35,7 +35,23 @@ class AdminUser extends Authenticatable
             'email_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
             'password' => 'hashed',
+            'status' => \App\Enums\Admin\Users\AdminUserStatus::class,
         ];
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->roles->contains('name', 'SuperAdmin');
+    }
+
+    public function coupons(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\App\Models\Admin\Coupon::class, 'admin_user_id');
+    }
+
+    public function getImageAttribute(): ?string
+    {
+        return null;
     }
 
     protected static function newFactory(): Factory

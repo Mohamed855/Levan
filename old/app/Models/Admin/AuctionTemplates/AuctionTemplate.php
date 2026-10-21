@@ -11,12 +11,15 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
 class AuctionTemplate extends Model
 {
     use ActivityLogTrait, HasFactory, SoftDeletes;
+
+    public const TYPES = ['brochure', 'billboard', 'social'];
 
     protected $connection = 'mysql';
 
@@ -26,10 +29,12 @@ class AuctionTemplate extends Model
         'name',
         'type',
         'description',
+        'status',
         'file_path',
         'field_names',
         'field_definitions',
         'is_active',
+        'current_version',
         'created_by',
     ];
 
@@ -40,12 +45,28 @@ class AuctionTemplate extends Model
             'field_names' => 'array',
             'field_definitions' => 'array',
             'is_active' => 'boolean',
+            'current_version' => 'integer',
         ];
     }
 
     public function creator(): BelongsTo
     {
         return $this->belongsTo(AdminUser::class, 'created_by');
+    }
+
+    public function versions(): HasMany
+    {
+        return $this->hasMany(AuctionTemplateVersion::class, 'auction_template_id')->orderByDesc('version');
+    }
+
+    public function publishedVersions(): HasMany
+    {
+        return $this->versions()->where('status', 'published');
+    }
+
+    public function scopePublished(Builder $query): Builder
+    {
+        return $query->where('status', 'published')->where('is_active', true);
     }
 
     public function scopeActive(Builder $query): Builder

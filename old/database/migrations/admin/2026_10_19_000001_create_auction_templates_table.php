@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('name');
             $table->enum('type', ['brochure', 'billboard', 'social'])->index();
             $table->text('description')->nullable();
-            $table->string('file_path');
+            $table->string('file_path')->nullable();
             $table->json('field_names')->nullable();
             $table->json('field_definitions')->nullable();
             $table->boolean('is_active')->default(true)->index();

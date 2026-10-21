@@ -69,38 +69,68 @@
                 </div>
             </div>
 
-            {{-- كارت مخرجات المزاد التسويقية --}}
-            @if($auction->brochure_template_id || $auction->billboard_template_id || $auction->social_template_id)
+            {{-- كارت مخرجات ومعاينة المزاد التسويقية --}}
+            @php
+                $hasTemplates = !empty($auction->template_versions) || !empty($auction->template_snapshot) || $auction->brochure_template_id || $auction->billboard_template_id || $auction->social_template_id;
+                $hasBrochure = !empty($auction->template_versions['brochure']) || !empty($auction->template_snapshot['brochure']) || $auction->brochure_template_id;
+                $hasBillboard = !empty($auction->template_versions['billboard']) || !empty($auction->template_snapshot['billboard']) || $auction->billboard_template_id;
+                $hasSocial = !empty($auction->template_versions['social']) || !empty($auction->template_snapshot['social']) || $auction->social_template_id;
+            @endphp
+            @if($hasTemplates)
                 <div class="card mb-4 shadow-sm border-primary">
                     <div class="card-header bg-label-primary py-3">
                         <h6 class="card-title mb-0 text-primary fw-bold">
-                            <i class="ti ti-printer me-1"></i>مخرجات المزاد التسويقية (Fillable PDF)
+                            <i class="ti ti-palette me-1"></i>مخرجات ومعاينة القوالب المعتمدة
                         </h6>
                     </div>
                     <div class="card-body pt-3">
                         <div class="d-grid gap-2">
-                            @if($auction->brochure_template_id)
-                                <a href="{{ tenant_route_name('auctions.brochure', $auction->id) }}"
-                                   class="btn btn-outline-primary d-flex align-items-center justify-content-between" target="_blank">
-                                    <span><i class="ti ti-file-description me-2"></i>تحميل كتيب البروشور</span>
-                                    <i class="ti ti-download"></i>
-                                </a>
+                            @if($hasBrochure)
+                                <div class="d-flex gap-2">
+                                    <a href="{{ tenant_route_name('auctions.preview', ['auction' => $auction->id, 'type' => 'brochure']) }}"
+                                       class="btn btn-primary flex-grow-1 d-flex align-items-center justify-content-between" target="_blank">
+                                        <span><i class="ti ti-eye me-2"></i>معاينة كتيب البروشور</span>
+                                        <i class="ti ti-external-link"></i>
+                                    </a>
+                                    @if($auction->brochure_template_id)
+                                        <a href="{{ tenant_route_name('auctions.brochure', $auction->id) }}"
+                                           class="btn btn-outline-primary" target="_blank" title="تحميل PDF">
+                                            <i class="ti ti-download"></i>
+                                        </a>
+                                    @endif
+                                </div>
                             @endif
 
-                            @if($auction->billboard_template_id)
-                                <a href="{{ tenant_route_name('auctions.billboard', $auction->id) }}"
-                                   class="btn btn-outline-warning d-flex align-items-center justify-content-between" target="_blank">
-                                    <span><i class="ti ti-ad me-2"></i>تحميل اللوحة الإعلانية</span>
-                                    <i class="ti ti-download"></i>
-                                </a>
+                            @if($hasBillboard)
+                                <div class="d-flex gap-2">
+                                    <a href="{{ tenant_route_name('auctions.preview', ['auction' => $auction->id, 'type' => 'billboard']) }}"
+                                       class="btn btn-warning flex-grow-1 d-flex align-items-center justify-content-between" target="_blank">
+                                        <span><i class="ti ti-eye me-2"></i>معاينة اللوحة الإعلانية</span>
+                                        <i class="ti ti-external-link"></i>
+                                    </a>
+                                    @if($auction->billboard_template_id)
+                                        <a href="{{ tenant_route_name('auctions.billboard', $auction->id) }}"
+                                           class="btn btn-outline-warning" target="_blank" title="تحميل PDF">
+                                            <i class="ti ti-download"></i>
+                                        </a>
+                                    @endif
+                                </div>
                             @endif
 
-                            @if($auction->social_template_id)
-                                <a href="{{ tenant_route_name('auctions.social', $auction->id) }}"
-                                   class="btn btn-outline-info d-flex align-items-center justify-content-between" target="_blank">
-                                    <span><i class="ti ti-brand-instagram me-2"></i>تحميل بوست السوشيال ميديا</span>
-                                    <i class="ti ti-download"></i>
-                                </a>
+                            @if($hasSocial)
+                                <div class="d-flex gap-2">
+                                    <a href="{{ tenant_route_name('auctions.preview', ['auction' => $auction->id, 'type' => 'social']) }}"
+                                       class="btn btn-info flex-grow-1 d-flex align-items-center justify-content-between" target="_blank">
+                                        <span><i class="ti ti-eye me-2"></i>معاينة منشورات التواصل</span>
+                                        <i class="ti ti-external-link"></i>
+                                    </a>
+                                    @if($auction->social_template_id)
+                                        <a href="{{ tenant_route_name('auctions.social', $auction->id) }}"
+                                           class="btn btn-outline-info" target="_blank" title="تحميل PDF">
+                                            <i class="ti ti-download"></i>
+                                        </a>
+                                    @endif
+                                </div>
                             @endif
                         </div>
                     </div>

@@ -14,7 +14,11 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Route as RouteFacade;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class WizardDraftController extends Controller
@@ -32,7 +36,7 @@ class WizardDraftController extends Controller
             'data' => $draft?->draft_data ?? [],
             'draft_id' => $draft?->getKey(),
             'step' => $draft?->last_step,
-            'files' => $this->fileManifest($draft?->draft_files ?? []),
+            'files' => $this->fileManifest($draft?->draft_files ?? [], $validated['resource_key']),
         ]);
     }
 
@@ -70,6 +74,26 @@ class WizardDraftController extends Controller
             'success' => $removed,
             'message' => $removed ? 'تم حذف الملف من المسودة.' : 'الملف غير موجود في المسودة.',
         ], $removed ? 200 : 404);
+    }
+
+    public function showFile(Request $request): Response
+    {
+        $validated = $request->validate([
+            'resource_key' => ['required', 'string', 'max:255'],
+            'file_key' => ['required', 'string', 'max:255'],
+        ]);
+
+        $draft = $this->drafts->find($request, $validated['resource_key']);
+        abort_unless($draft, 404);
+
+        $file = Arr::get($draft->draft_files ?? [], $validated['file_key']);
+        abort_unless(is_array($file) && ! empty($file['path']) && Storage::disk('local')->exists($file['path']), 404);
+
+        return Storage::disk('local')->response(
+            $file['path'],
+            $file['name'] ?? basename($file['path']),
+            ['Content-Type' => $file['mime'] ?? 'application/octet-stream']
+        );
     }
 
     public function validateStep(ValidateWizardStepRequest $request): JsonResponse
@@ -209,24 +233,40 @@ class WizardDraftController extends Controller
         );
     }
 
-    private function fileManifest(array $files, string $prefix = ''): array
+    private function fileManifest(array $files, string $resourceKey = '', string $prefix = ''): array
     {
         $names = [];
 
         foreach ($files as $key => $file) {
+            $fullKey = $prefix === '' ? (string) $key : $prefix.'.'.$key;
+
             if (is_array($file) && ! array_key_exists('name', $file)) {
-                $names[$key] = $this->fileManifest($file, $prefix === '' ? (string) $key : $prefix.'.'.$key);
+                $names[$key] = $this->fileManifest($file, $resourceKey, $fullKey);
 
                 continue;
             }
 
             if (is_array($file) && isset($file['name'])) {
-                $names[$key] = [
-                    'key' => $prefix === '' ? (string) $key : $prefix.'.'.$key,
+                $item = [
+                    'key' => $fullKey,
                     'name' => $file['name'],
                     'mime' => $file['mime'] ?? null,
                     'size' => $file['size'] ?? null,
                 ];
+
+                if ($resourceKey !== '') {
+                    $guard = auth('admin')->check() ? 'admin' : 'tenant';
+                    $routeName = $guard === 'admin' ? 'admin.wizard-drafts.file.show' : 'tenant.wizard-drafts.file.show';
+
+                    if (RouteFacade::has($routeName)) {
+                        $item['url'] = route($routeName, [
+                            'resource_key' => $resourceKey,
+                            'file_key' => $fullKey,
+                        ]);
+                    }
+                }
+
+                $names[$key] = $item;
             }
         }
 

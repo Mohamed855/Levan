@@ -662,9 +662,9 @@ $form-floating-label-transform-rtl: scale(0.85) translateY(-0.5rem) translateX(-
 $form-feedback-valid-color: $success !default;
 $form-feedback-invalid-color: $danger !default;
 
-$form-select-feedback-icon-padding: $form-select-indicator-padding + $input-height-inner !default; // (C)
-$form-select-feedback-icon-padding-sm: $form-select-indicator-padding + $input-height-inner-sm !default; // (C)
-$form-select-feedback-icon-padding-lg: $form-select-indicator-padding + $input-height-inner-lg !default; // (C)
+$form-select-feedback-icon-padding: calc(#{$form-select-indicator-padding} + #{$input-height-inner}) !default; // (C)
+$form-select-feedback-icon-padding-sm: calc(#{$form-select-indicator-padding} + #{$input-height-inner-sm}) !default; // (C)
+$form-select-feedback-icon-padding-lg: calc(#{$form-select-indicator-padding} + #{$input-height-inner-lg}) !default; // (C)
 // scss-docs-end form-feedback-variables
 
 // * Navs
