@@ -17,7 +17,9 @@ final class AuctionManagementPagesTest extends TestCase
 
     public function test_admin_can_open_the_template_listing_and_designer(): void
     {
+        $this->seed(\Database\Seeders\AccessControlSeeder::class);
         $admin = AdminUser::factory()->create();
+        $admin->assignRole(\App\Models\Access\Role::query()->where('guard', 'admin')->where('name', 'SuperAdmin')->firstOrFail());
         AuctionTemplate::query()->create(['name' => 'قالب تجريبي', 'type' => 'brochure', 'status' => 'draft', 'created_by' => $admin->id]);
         $this->actingAs($admin, 'admin')->get(route('admin.auction-templates.index'))->assertOk()->assertSee('قوالب المزادات');
         $this->actingAs($admin, 'admin')->get(route('admin.auction-templates.create'))->assertOk()->assertSee('مصمم القالب');

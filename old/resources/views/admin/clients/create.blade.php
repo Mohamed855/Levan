@@ -17,9 +17,10 @@
 @php
     $companyPlans = $plans
         ->map(function ($plan) {
-            $cycle = $plan->subscription_billing_cycle instanceof \BackedEnum
-                ? $plan->subscription_billing_cycle->value
-                : ($plan->subscription_billing_cycle?->value ?? $plan->subscription_billing_cycle);
+            $cycle =
+                $plan->subscription_billing_cycle instanceof \BackedEnum
+                    ? $plan->subscription_billing_cycle->value
+                    : $plan->subscription_billing_cycle?->value ?? $plan->subscription_billing_cycle;
 
             return [
                 'id' => $plan->id,
@@ -179,7 +180,8 @@
                                 label="مبلغ الخصم / التسوية (ر.س)" min="0" step="0.01" inputmode="decimal"
                                 col="col-md-6" />
                             <x-form.controls.checkbox name="activate_immediately" label="تفعيل العميل والاشتراك فوراً"
-                                :checked="true" col="col-md-6">يصبح العميل والاشتراك متاحين مباشرة حتى لو لم يتم الدفع
+                                :checked="true" col="col-md-6">يصبح العميل والاشتراك متاحين مباشرة حتى لو لم يتم
+                                الدفع
                                 بعد.</x-form.controls.checkbox>
                         </div>
 
@@ -242,8 +244,7 @@
                                     </dl>
                                 </x-form.wizard.review-card>
 
-                                <div class="alert alert-warning mb-0 d-flex align-items-center gap-2"
-                                    role="alert">
+                                <div class="alert alert-warning mb-0 d-flex align-items-center gap-2" role="alert">
                                     <i class="ti ti-alert-triangle fs-3" aria-hidden="true"></i>
                                     <span>برجاء مراجعة البيانات قبل الاعتماد. سيتم إنشاء العميل واشتراكه وحساب المدير الخاص
                                         بالعميل.</span>
@@ -269,7 +270,8 @@
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center">
                                             <span class="text-muted small">الحالة:</span>
-                                            <span class="badge bg-label-success" id="preview-client-status">مفعل فوراً</span>
+                                            <span class="badge bg-label-success" id="preview-client-status">مفعل
+                                                فوراً</span>
                                         </div>
                                     </div>
                                 </article>

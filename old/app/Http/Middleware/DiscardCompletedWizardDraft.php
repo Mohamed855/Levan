@@ -28,12 +28,15 @@ class DiscardCompletedWizardDraft
             $resourceKey = $request->input('_wizard_resource_key') ?: $request->attributes->get('wizard_resource_key');
             $tenantId = $request->attributes->get('wizard_tenant_id') ?? (tenant()?->getKey() ?? '');
 
-            if ($draftId) {
+            if ($draftId || $resourceKey) {
                 $query = WizardDraft::query()
-                    ->where('id', $draftId)
                     ->where('guard', $guard)
                     ->where('user_id', $userId)
                     ->where('tenant_id', $tenantId);
+
+                if ($draftId) {
+                    $query->where('id', $draftId);
+                }
 
                 if ($resourceKey) {
                     $query->where('resource_key', $resourceKey);
@@ -48,9 +51,12 @@ class DiscardCompletedWizardDraft
 
     private function wasStoredSuccessfully(Request $request, Response $response): bool
     {
-        $hasDraftId = $request->filled('_wizard_draft_id') || $request->attributes->has('wizard_draft_id');
+        $hasDraftIdentifier = $request->filled('_wizard_draft_id')
+            || $request->attributes->has('wizard_draft_id')
+            || $request->filled('_wizard_resource_key')
+            || $request->attributes->has('wizard_resource_key');
 
-        if (! $request->isMethod('POST') || ! $hasDraftId) {
+        if (! $request->isMethod('POST') || ! $hasDraftIdentifier) {
             return false;
         }
 

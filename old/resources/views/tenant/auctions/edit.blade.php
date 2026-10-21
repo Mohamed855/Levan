@@ -122,7 +122,8 @@
                         rows="2" />
 
                     <div class="col-12">
-                        <h6 class="fw-bold mb-1"><i class="ti ti-palette me-1"></i>القوالب التسويقية المنشورة والمعتمدة:</h6>
+                        <h6 class="fw-bold mb-1"><i class="ti ti-palette me-1"></i>القوالب التسويقية المنشورة والمعتمدة:
+                        </h6>
                     </div>
 
                     <x-form.controls.select name="template_versions[brochure]" label="قالب البروشور المعتمد" col="col-md-4"
@@ -135,7 +136,8 @@
                         :value="$auction->template_versions['social'] ?? $auction->social_template_id" :options="$templateOptions['social'] ?? $socialTemplates" placeholder="اختر نسخة قالب منصات التواصل..." />
 
                     <div class="col-12">
-                        <x-form.controls.file name="cover_image" label="تحديث صورة الغلاف (للاستخدام في القوالب)" accept="image/*" col="col-md-6" help="صورة تظهر في مخرجات المزاد والقوالب التسويقية" />
+                        <x-form.controls.file name="cover_image" label="تحديث صورة الغلاف (للاستخدام في القوالب)"
+                            accept="image/*" col="col-md-6" help="صورة تظهر في مخرجات المزاد والقوالب التسويقية" />
                     </div>
 
                     <x-form.controls.file name="attachments" id="attachments" label="إضافة مرفقات" multiple

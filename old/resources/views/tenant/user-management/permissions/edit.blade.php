@@ -23,12 +23,13 @@
                         </div>
                     @endif
 
-                    <form action="{{ tenant_route_name('permissions.update', $permission->id) }}" method="POST" data-form-validate>
+                    <form action="{{ tenant_route_name('permissions.update', $permission->id) }}" method="POST"
+                        data-form-validate>
                         @csrf
                         @method('PUT')
                         <div class="row g-4 mb-4">
-                            <x-form.controls.input name="name" id="name" label="اسم الصلاحية"
-                                :value="old('name', $permission->name)" required col="col-md-6" />
+                            <x-form.controls.input name="name" id="name" label="اسم الصلاحية" :value="old('name', $permission->name)"
+                                required col="col-md-6" />
                         </div>
                         <div class="d-flex justify-content-between">
                             <x-form.wizard.previous-button :href="tenant_route_name('permissions.index')" text="العودة" />

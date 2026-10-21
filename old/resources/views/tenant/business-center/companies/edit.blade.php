@@ -45,7 +45,8 @@
                     @endif
 
                     <form id="wizard-validation-form" action="{{ tenant_route_name('companies.update', $company) }}"
-                        method="POST" enctype="multipart/form-data" novalidate data-form-validate data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
+                        method="POST" enctype="multipart/form-data" novalidate data-form-validate
+                        data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                         @csrf
                         @method('PUT')
 
@@ -57,9 +58,8 @@
 
                                 {{-- نسبة المستهدف --}}
                                 <x-form.controls.input type="number" name="target_percentage" id="target_percentage"
-                                    label="نسبة المستهدف الشهري (%)" placeholder="مثال: 10"
-                                    :value="old('target_percentage', $company->current_target_percentage)"
-                                    step="0.01" min="0" max="100"
+                                    label="نسبة المستهدف الشهري (%)" placeholder="مثال: 10" :value="old('target_percentage', $company->current_target_percentage)" step="0.01"
+                                    min="0" max="100"
                                     help="النسبة المئوية من إجمالي المحفظة (مثال: 10 تعني 10%)" col="col-md-6">
                                     @if ($company->currentTarget)
                                         <div class="alert alert-info py-2 mt-2 mb-0">
@@ -75,110 +75,108 @@
 
                                 {{-- شعار الشركة --}}
                                 <x-form.controls.image-upload name="logo" id="logo" label="شعار الشركة"
-                                    :value="$company->logo_url ? tasset($company->logo_url) : null"
-                                    accept=".jpg,.jpeg,.png,.webp"
+                                    :value="$company->logo_url ? tasset($company->logo_url) : null" accept=".jpg,.jpeg,.png,.webp"
                                     hint="الأنواع: JPG, JPEG, PNG — الحجم الأقصى: 2MB" col="col-md-6" />
                             </div>
 
-                                {{-- المفوضون --}}
-                                <div class="col-12 mb-4">
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <label class="form-label mb-0">المفوّضون</label>
-                                        <button type="button" class="btn btn-primary btn-sm" id="btn-add-person">
-                                            <i class="ti ti-plus me-1"></i>إضافة مفوّض
-                                        </button>
-                                    </div>
-
-                                    <div id="authorized-people-list">
-                                        @php
-                                            $oldPeople = old(
-                                                'authorized_people',
-                                                $company->authorizedPeople
-                                                    ->map(
-                                                        fn($p) => [
-                                                            'name' => $p->name,
-                                                            'phone' => $p->phone,
-                                                            'email' => $p->email,
-                                                            'position' => $p->position,
-                                                            'is_default' => $p->is_default,
-                                                        ],
-                                                    )
-                                                    ->toArray(),
-                                            );
-                                        @endphp
-                                        @if (!empty($oldPeople))
-                                            @foreach ($oldPeople as $idx => $person)
-                                                <div class="authorized-person-item mb-3 p-3 border rounded">
-                                                    <div class="row g-4">
-                                                        <div class="col-md-3">
-                                                            <label class="form-label small">اسم المفوّض</label>
-                                                            <input type="text" class="form-control"
-                                                                name="authorized_people[{{ $idx }}][name]"
-                                                                placeholder="ادخل اسم المفوّض"
-                                                                value="{{ $person['name'] ?? '' }}">
-                                                        </div>
-                                                        <div class="col-md-2">
-                                                            <label class="form-label small">رقم الهاتف</label>
-                                                            <input type="text" class="form-control phone-input"
-                                                                name="authorized_people[{{ $idx }}][phone]"
-                                                                placeholder="ادخل رقم الهاتف"
-                                                                value="{{ $person['phone'] ?? '' }}" maxlength="10">
-                                                        </div>
-                                                        <div class="col-md-3">
-                                                            <label class="form-label small">البريد الإلكتروني</label>
-                                                            <input type="email" class="form-control email-input"
-                                                                name="authorized_people[{{ $idx }}][email]"
-                                                                placeholder="ادخل البريد الإلكتروني"
-                                                                value="{{ $person['email'] ?? '' }}">
-                                                        </div>
-                                                        <div class="col-md-2">
-                                                            <label class="form-label small">المنصب</label>
-                                                            <input type="text" class="form-control"
-                                                                name="authorized_people[{{ $idx }}][position]"
-                                                                placeholder="ادخل المنصب"
-                                                                value="{{ $person['position'] ?? '' }}">
-                                                        </div>
-                                                        <div
-                                                            class="col-md-1 d-flex align-items-center justify-content-center">
-                                                            <div class="form-check mt-4">
-                                                                <input class="form-check-input default-person-radio"
-                                                                    type="radio" name="default_person"
-                                                                    value="{{ $idx }}"
-                                                                    {{ $person['is_default'] ?? false ? 'checked' : '' }}>
-                                                                <label class="form-check-label small text-muted">
-                                                                    افتراضي
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-1 d-flex align-items-end">
-                                                            <button type="button"
-                                                                class="btn btn-outline-danger btn-sm btn-remove-person w-100">
-                                                                حذف
-                                                            </button>
-                                                        </div>
-                                                        <input type="hidden"
-                                                            name="authorized_people[{{ $idx }}][is_default]"
-                                                            value="{{ $person['is_default'] ?? false ? '1' : '0' }}"
-                                                            class="is-default-input">
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        @endif
-                                    </div>
-                                </div>
-
-                                {{-- أزرار التحكم --}}
-                                <div class="col-12 d-flex justify-content-between mt-4">
-                                    <x-form.wizard.previous-button :href="tenant_route_name('companies.index')" text="العودة" />
-                                    <button type="submit" class="btn btn-primary btn-next btn-submit">
-                                        تحديث
+                            {{-- المفوضون --}}
+                            <div class="col-12 mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <label class="form-label mb-0">المفوّضون</label>
+                                    <button type="button" class="btn btn-primary btn-sm" id="btn-add-person">
+                                        <i class="ti ti-plus me-1"></i>إضافة مفوّض
                                     </button>
                                 </div>
+
+                                <div id="authorized-people-list">
+                                    @php
+                                        $oldPeople = old(
+                                            'authorized_people',
+                                            $company->authorizedPeople
+                                                ->map(
+                                                    fn($p) => [
+                                                        'name' => $p->name,
+                                                        'phone' => $p->phone,
+                                                        'email' => $p->email,
+                                                        'position' => $p->position,
+                                                        'is_default' => $p->is_default,
+                                                    ],
+                                                )
+                                                ->toArray(),
+                                        );
+                                    @endphp
+                                    @if (!empty($oldPeople))
+                                        @foreach ($oldPeople as $idx => $person)
+                                            <div class="authorized-person-item mb-3 p-3 border rounded">
+                                                <div class="row g-4">
+                                                    <div class="col-md-3">
+                                                        <label class="form-label small">اسم المفوّض</label>
+                                                        <input type="text" class="form-control"
+                                                            name="authorized_people[{{ $idx }}][name]"
+                                                            placeholder="ادخل اسم المفوّض"
+                                                            value="{{ $person['name'] ?? '' }}">
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <label class="form-label small">رقم الهاتف</label>
+                                                        <input type="text" class="form-control phone-input"
+                                                            name="authorized_people[{{ $idx }}][phone]"
+                                                            placeholder="ادخل رقم الهاتف"
+                                                            value="{{ $person['phone'] ?? '' }}" maxlength="10">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label small">البريد الإلكتروني</label>
+                                                        <input type="email" class="form-control email-input"
+                                                            name="authorized_people[{{ $idx }}][email]"
+                                                            placeholder="ادخل البريد الإلكتروني"
+                                                            value="{{ $person['email'] ?? '' }}">
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <label class="form-label small">المنصب</label>
+                                                        <input type="text" class="form-control"
+                                                            name="authorized_people[{{ $idx }}][position]"
+                                                            placeholder="ادخل المنصب"
+                                                            value="{{ $person['position'] ?? '' }}">
+                                                    </div>
+                                                    <div class="col-md-1 d-flex align-items-center justify-content-center">
+                                                        <div class="form-check mt-4">
+                                                            <input class="form-check-input default-person-radio"
+                                                                type="radio" name="default_person"
+                                                                value="{{ $idx }}"
+                                                                {{ $person['is_default'] ?? false ? 'checked' : '' }}>
+                                                            <label class="form-check-label small text-muted">
+                                                                افتراضي
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-1 d-flex align-items-end">
+                                                        <button type="button"
+                                                            class="btn btn-outline-danger btn-sm btn-remove-person w-100">
+                                                            حذف
+                                                        </button>
+                                                    </div>
+                                                    <input type="hidden"
+                                                        name="authorized_people[{{ $idx }}][is_default]"
+                                                        value="{{ $person['is_default'] ?? false ? '1' : '0' }}"
+                                                        class="is-default-input">
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    @endif
+                                </div>
+                            </div>
+
+                            {{-- أزرار التحكم --}}
+                            <div class="col-12 d-flex justify-content-between mt-4">
+                                <x-form.wizard.previous-button :href="tenant_route_name('companies.index')" text="العودة" />
+                                <button type="submit" class="btn btn-primary btn-next btn-submit">
+                                    تحديث
+                                </button>
                             </div>
                         </div>
-                    </form>
                 </div>
+                </form>
             </div>
         </div>
+    </div>
     </div>
 @endsection

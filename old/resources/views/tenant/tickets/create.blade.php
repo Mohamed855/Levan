@@ -60,12 +60,15 @@
                                     label="تصنيف التذكرة" placeholder="اختر التصنيف" required select2 col="col-md-6">
                                     <option value=""> </option>
                                     @foreach ($sections as $section)
-                                        <option value="{{ $section['id'] ?? '' }}" {{ old('ticketing_sections_id') == ($section['id'] ?? '') ? 'selected' : '' }}>{{ $section['name'] ?? '' }}</option>
+                                        <option value="{{ $section['id'] ?? '' }}"
+                                            {{ old('ticketing_sections_id') == ($section['id'] ?? '') ? 'selected' : '' }}>
+                                            {{ $section['name'] ?? '' }}</option>
                                     @endforeach
                                 </x-form.controls.select>
 
-                                <x-form.controls.textarea name="description" id="description" label="وصف المشكلة" rows="5"
-                                    placeholder="اشرح تفاصيل المشكلة التي تواجهها..." required col="col-md-6" />
+                                <x-form.controls.textarea name="description" id="description" label="وصف المشكلة"
+                                    rows="5" placeholder="اشرح تفاصيل المشكلة التي تواجهها..." required
+                                    col="col-md-6" />
 
                                 <x-form.controls.file name="attachments" id="attachments" label="المرفقات (اختياري)"
                                     multiple accept="image/*,application/pdf,.doc,.docx,.txt"

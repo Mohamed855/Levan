@@ -183,6 +183,72 @@ class WizardDraftCleanupTest extends TestCase
         WizardDraft::query()->findOrFail($draft['draft_id'])->delete();
     }
 
+    public function test_draft_file_url_is_exposed_in_manifest_and_can_be_served_and_streamed(): void
+    {
+        Storage::fake('local');
+        $resourceKey = '/admin/draft-avatar-'.Str::uuid();
+
+        $this->post($this->adminUrl('wizard-drafts'), [
+            'resource_key' => $resourceKey,
+            'step' => 1,
+            'avatar' => UploadedFile::fake()->image('avatar.jpg'),
+        ], ['Accept' => 'application/json'])->assertOk();
+
+        $draft = $this->getJson($this->adminUrl('wizard-drafts').'?resource_key='.urlencode($resourceKey))
+            ->assertOk()
+            ->json();
+
+        $this->assertArrayHasKey('avatar', $draft['files']);
+        $avatarFile = $draft['files']['avatar'];
+        $this->assertArrayHasKey('url', $avatarFile);
+        $this->assertNotEmpty($avatarFile['url']);
+
+        $fileResponse = $this->get($avatarFile['url']);
+        $fileResponse->assertOk();
+
+        $draftRecord = WizardDraft::query()->findOrFail($draft['draft_id']);
+        $storedPath = $draftRecord->draft_files['avatar']['path'];
+        $this->assertTrue(Storage::disk('local')->exists($storedPath));
+
+        $this->deleteJson($this->adminUrl('wizard-drafts').'?resource_key='.urlencode($resourceKey))
+            ->assertOk();
+
+        $this->assertDatabaseMissing('wizard_drafts', ['id' => $draft['draft_id']]);
+        $this->assertFalse(Storage::disk('local')->exists($storedPath));
+        $this->assertEmpty(Storage::disk('local')->allFiles('wizard-drafts/'.$draft['draft_id']));
+    }
+
+    public function test_draft_storage_directory_is_purged_when_resource_is_created_successfully(): void
+    {
+        Storage::fake('local');
+        $this->createdEmail = 'wizard-draft-storage-'.Str::lower(Str::random(12)).'@gmail.com';
+        $resourceKey = '/admin/users';
+
+        $draft = $this->postJson($this->adminUrl('wizard-drafts'), [
+            'resource_key' => $resourceKey,
+            'step' => 1,
+            'name' => 'Wizard Draft User',
+            'email' => $this->createdEmail,
+            'phone' => '0501234567',
+            'attachment' => UploadedFile::fake()->create('attachment.pdf', 50, 'application/pdf'),
+        ])->assertOk()->json();
+
+        $draftRecord = WizardDraft::query()->findOrFail($draft['draft_id']);
+        $storedPath = $draftRecord->draft_files['attachment']['path'];
+        $this->assertTrue(Storage::disk('local')->exists($storedPath));
+
+        $this->post($this->adminUrl('users'), [
+            '_wizard_draft_id' => $draft['draft_id'],
+            '_wizard_resource_key' => $resourceKey,
+            'password' => 'secure-password',
+            'password_confirmation' => 'secure-password',
+        ])->assertRedirect($this->adminUrl('users'));
+
+        $this->assertDatabaseMissing('wizard_drafts', ['id' => $draft['draft_id']]);
+        $this->assertFalse(Storage::disk('local')->exists($storedPath));
+        $this->assertEmpty(Storage::disk('local')->allFiles('wizard-drafts/'.$draft['draft_id']));
+    }
+
     private function adminUrl(string $path): string
     {
         return 'http://localhost/admin/'.ltrim($path, '/');

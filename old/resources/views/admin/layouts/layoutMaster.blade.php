@@ -5,9 +5,6 @@
     $configData = App\Helpers\Helpers::appClasses();
 @endphp
 
-@if (!isset($excludeJquery) || !$excludeJquery)
-    <script src="{{ asset('static/shared/js/cdn/jquery-init.js') }}"></script>
-@endif
 
 @isset($configData['layout'])
     @include(

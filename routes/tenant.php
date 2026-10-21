@@ -57,6 +57,30 @@ Route::middleware('auth:tenant')->group(function (): void {
         Route::delete('/', [\App\Http\Controllers\Tenant\Notifications\TenantNotificationController::class, 'destroy'])->name('destroy');
         Route::post('/mass-delete', [\App\Http\Controllers\Tenant\Notifications\TenantNotificationController::class, 'massDelete'])->name('mass-delete');
     });
+    Route::get('settings', [\App\Http\Controllers\Tenant\Settings\TenantSettingController::class, 'index'])->name('settings.index');
+    Route::put('settings', [\App\Http\Controllers\Tenant\Settings\TenantSettingController::class, 'update'])->name('settings.update');
+    Route::get('activity-log', [\App\Http\Controllers\Tenant\ActivityLog\TenantActivityLogController::class, 'index'])->name('activity-log.index');
+    Route::get('activity-log/{id}', [\App\Http\Controllers\Tenant\ActivityLog\TenantActivityLogController::class, 'show'])->name('activity-log.show');
+
+    Route::prefix('archives')->name('archives.')->group(function (): void {
+        Route::prefix('properties')->name('properties.')->group(function (): void {
+            Route::get('/', [\App\Http\Controllers\Tenant\Archive\Properties\PropertyArchiveController::class, 'index'])->name('index');
+            Route::patch('/{id}/restore', [\App\Http\Controllers\Tenant\Archive\Properties\PropertyArchiveController::class, 'restore'])->name('restore');
+            Route::delete('/{id}/force-delete', [\App\Http\Controllers\Tenant\Archive\Properties\PropertyArchiveController::class, 'forceDelete'])->name('force-delete');
+        });
+
+        Route::prefix('assignments')->name('assignments.')->group(function (): void {
+            Route::get('/', [\App\Http\Controllers\Tenant\Archive\Assignments\AssignmentArchiveController::class, 'index'])->name('index');
+            Route::patch('/{id}/restore', [\App\Http\Controllers\Tenant\Archive\Assignments\AssignmentArchiveController::class, 'restore'])->name('restore');
+            Route::delete('/{id}/force-delete', [\App\Http\Controllers\Tenant\Archive\Assignments\AssignmentArchiveController::class, 'forceDelete'])->name('force-delete');
+        });
+
+        Route::prefix('companies')->name('companies.')->group(function (): void {
+            Route::get('/', [\App\Http\Controllers\Tenant\Archive\Companies\CompanyArchiveController::class, 'index'])->name('index');
+            Route::patch('/{id}/restore', [\App\Http\Controllers\Tenant\Archive\Companies\CompanyArchiveController::class, 'restore'])->name('restore');
+            Route::delete('/{id}/force-delete', [\App\Http\Controllers\Tenant\Archive\Companies\CompanyArchiveController::class, 'forceDelete'])->name('force-delete');
+        });
+    });
 });
 
 

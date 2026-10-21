@@ -30,21 +30,25 @@ final class UpdateAuctionAction
     public function execute(
         Auction $auction,
         mixed $userOrData,
-        mixed $dataOrNull = null,
-        ?UploadedFile $coverImage = null,
-        array $attachments = []
+        mixed $dataOrCover = null,
+        mixed $coverOrAttachments = null,
+        mixed $attachments = []
     ): Auction {
         if ($userOrData instanceof User) {
-            $data = (array) $dataOrNull;
+            $data = (array) $dataOrCover;
+            $cover = $coverOrAttachments instanceof UploadedFile ? $coverOrAttachments : null;
+            $files = is_array($attachments) ? $attachments : [];
         } else {
             $data = (array) $userOrData;
+            $cover = $dataOrCover instanceof UploadedFile ? $dataOrCover : ($coverOrAttachments instanceof UploadedFile ? $coverOrAttachments : null);
+            $files = is_array($coverOrAttachments) ? $coverOrAttachments : (is_array($dataOrCover) && $dataOrCover !== $data ? $dataOrCover : (is_array($attachments) ? $attachments : []));
         }
 
         $storedPaths = [];
         $oldCoverToDelete = null;
 
         try {
-            return DB::transaction(function () use ($auction, $data, $coverImage, $attachments, &$storedPaths, &$oldCoverToDelete): Auction {
+            return DB::transaction(function () use ($auction, $data, $cover, $files, &$storedPaths, &$oldCoverToDelete): Auction {
                 $targetAssignmentId = (int) ($data['assignment_id'] ?? $auction->assignment_id);
                 $assignment = Assignment::query()
                     ->whereKey($targetAssignmentId)
@@ -94,8 +98,8 @@ final class UpdateAuctionAction
                     $data['template_snapshot'] = $snapshots;
                 }
 
-                if ($coverImage instanceof UploadedFile) {
-                    $coverPath = $coverImage->store('auctions/covers', 'tenant_public');
+                if ($cover instanceof UploadedFile) {
+                    $coverPath = $cover->store('auctions/covers', 'tenant_public');
                     $storedPaths[] = $coverPath;
                     $data['cover_image'] = $coverPath;
                     if ($auction->cover_image) {
@@ -120,7 +124,7 @@ final class UpdateAuctionAction
 
                 $auction->update($data);
 
-                foreach ($attachments as $file) {
+                foreach ($files as $file) {
                     if ($file instanceof UploadedFile) {
                         $path = $file->store('auctions/attachments', 'tenant_public');
                         $storedPaths[] = $path;

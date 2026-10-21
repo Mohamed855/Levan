@@ -81,4 +81,32 @@ final class CentralBillingGateway
             return $bill;
         });
     }
+
+    public function currentSubscription(): ?array
+    {
+        $tenantId = (string) tenant('id');
+
+        return Tenancy::central(function () use ($tenantId): ?array {
+            $subscription = \App\Models\Admin\Subscriptions\Subscription::query()
+                ->with('plan')
+                ->where('tenant_id', $tenantId)
+                ->latest()
+                ->first();
+
+            if (! $subscription) {
+                return null;
+            }
+
+            $daysRemaining = $subscription->ends_at ? (int) now()->diffInDays($subscription->ends_at, false) : null;
+
+            return [
+                'plan_name' => $subscription->plan?->name ?? 'باقة النظام',
+                'status' => $subscription->status,
+                'ends_at' => $subscription->ends_at?->format('Y-m-d'),
+                'days_remaining' => $daysRemaining !== null ? max(0, $daysRemaining) : null,
+                'is_expired' => $daysRemaining !== null && $daysRemaining <= 0,
+            ];
+        });
+    }
 }
+

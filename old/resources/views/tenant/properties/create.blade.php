@@ -142,10 +142,10 @@
                                         placeholder="مثال: حي العارض" required col="col-md-6" />
                                     <x-form.controls.input name="administrative_region" label="المنطقة الإدارية"
                                         placeholder="مثال: منطقة الرياض" required col="col-md-6" />
-                                    <x-form.controls.input name="plan_number" type="number" step="1" min="0" label="رقم المخطط" placeholder="مثال: 2357"
-                                        required col="col-md-6" />
-                                    <x-form.controls.input name="parcel_number" type="number" step="1" min="0" label="رقم القطعة" placeholder="مثال: 1288"
-                                        required col="col-md-6" />
+                                    <x-form.controls.input name="plan_number" type="number" step="1" min="0"
+                                        label="رقم المخطط" placeholder="مثال: 2357" required col="col-md-6" />
+                                    <x-form.controls.input name="parcel_number" type="number" step="1" min="0"
+                                        label="رقم القطعة" placeholder="مثال: 1288" required col="col-md-6" />
                                     <x-form.controls.input name="google_maps_url" label="رابط الموقع"
                                         placeholder="https://maps.google.com" :required="false" col="col-md-6"
                                         help="رابط موقع العقار على خرائط جوجل إن وُجد." />
@@ -174,8 +174,8 @@
             {{-- الخطوة 3: الملكية والتفاصيل --}}
             <x-form.wizard.step id="property-ownership-validation" :fields="['deed_number', 'deed_date', 'issuing_authority', 'ownership_type', 'owners']">
                 <div class="row g-4">
-                    <x-form.controls.input name="deed_number" type="number" step="1" min="0" label="رقم الصك" placeholder="أدخل رقم الصك" required
-                        col="col-md-6" />
+                    <x-form.controls.input name="deed_number" type="number" step="1" min="0" label="رقم الصك"
+                        placeholder="أدخل رقم الصك" required col="col-md-6" />
                     <x-form.controls.input name="deed_date" type="date" label="تاريخ الصك" required col="col-md-6" />
                     <x-form.controls.input name="issuing_authority" label="جهة الإصدار"
                         placeholder="مثال: كتابة العدل الأولى بالرياض" required col="col-md-6" />
@@ -213,7 +213,8 @@
                                                 @endif
                                             </div>
                                             <div class="row g-3">
-                                                <div class="col-md-6" data-form-field data-field-name="owners[{{ $idx }}][owner_name]">
+                                                <div class="col-md-6" data-form-field
+                                                    data-field-name="owners[{{ $idx }}][owner_name]">
                                                     <label class="form-label">اسم المالك <span
                                                             class="text-danger">*</span></label>
                                                     <input type="text" name="owners[{{ $idx }}][owner_name]"
@@ -221,7 +222,8 @@
                                                         placeholder="أدخل اسم المالك" data-form-control required>
                                                     <div class="invalid-feedback" data-form-error hidden></div>
                                                 </div>
-                                                <div class="col-md-6" data-form-field data-field-name="owners[{{ $idx }}][national_id_or_cr]">
+                                                <div class="col-md-6" data-form-field
+                                                    data-field-name="owners[{{ $idx }}][national_id_or_cr]">
                                                     <label class="form-label">رقم الهوية / السجل التجاري <span
                                                             class="text-danger">*</span></label>
                                                     <input type="number" step="1" min="0"
@@ -242,10 +244,11 @@
                     {{-- بيانات الوكيل (اختياري) --}}
                     <x-form.controls.input name="agent_name" label="اسم الوكيل (اختياري)" placeholder="أدخل اسم الوكيل"
                         :required="false" col="col-md-6" />
-                    <x-form.controls.input name="agent_national_id" type="number" step="1" min="0" label="رقم هوية الوكيل (اختياري)"
-                        placeholder="أدخل رقم هوية الوكيل" :required="false" col="col-md-6" />
-                    <x-form.controls.input name="agency_number" type="number" step="1" min="0" label="رقم الوكالة (اختياري)"
-                        placeholder="أدخل رقم الوكالة" :required="false" col="col-md-6" />
+                    <x-form.controls.input name="agent_national_id" type="number" step="1" min="0"
+                        label="رقم هوية الوكيل (اختياري)" placeholder="أدخل رقم هوية الوكيل" :required="false"
+                        col="col-md-6" />
+                    <x-form.controls.input name="agency_number" type="number" step="1" min="0"
+                        label="رقم الوكالة (اختياري)" placeholder="أدخل رقم الوكالة" :required="false" col="col-md-6" />
                     <x-form.controls.input name="agency_date" type="date" label="تاريخ الوكالة (اختياري)"
                         :required="false" col="col-md-6" />
 
@@ -287,11 +290,14 @@
                                                             class="form-control form-control-sm"
                                                             value="{{ $unit['unit_number'] ?? '' }}"
                                                             placeholder="وحدة ..." data-form-control></td>
-                                                    <td><select name="units[{{ $idx }}][unit_type]" class="form-select form-select-sm select2"
+                                                    <td><select name="units[{{ $idx }}][unit_type]"
+                                                            class="form-select form-select-sm select2"
                                                             data-select2-search="false" data-form-control>
                                                             <option value=""></option>
                                                             @foreach (\App\Enums\Tenants\Properties\PropertyUnitType::cases() as $unitType)
-                                                                <option value="{{ $unitType->value }}" @selected(($unit['unit_type'] ?? '') === $unitType->value)>{{ $unitType->label() }}</option>
+                                                                <option value="{{ $unitType->value }}"
+                                                                    @selected(($unit['unit_type'] ?? '') === $unitType->value)>{{ $unitType->label() }}
+                                                                </option>
                                                             @endforeach
                                                         </select></td>
                                                     <td><input type="number" step="0.01"
@@ -299,16 +305,20 @@
                                                             class="form-control form-control-sm"
                                                             value="{{ $unit['area'] ?? '' }}" placeholder="المساحة"
                                                             data-form-control></td>
-                                                    <td><select name="units[{{ $idx }}][current_use]" class="form-select form-select-sm select2"
+                                                    <td><select name="units[{{ $idx }}][current_use]"
+                                                            class="form-select form-select-sm select2"
                                                             data-select2-search="false" data-form-control>
                                                             <option value=""></option>
                                                             @foreach (\App\Enums\Tenants\Properties\PropertyUnitUsage::cases() as $unitUsage)
-                                                                <option value="{{ $unitUsage->value }}" @selected(($unit['current_use'] ?? '') === $unitUsage->value)>{{ $unitUsage->label() }}</option>
+                                                                <option value="{{ $unitUsage->value }}"
+                                                                    @selected(($unit['current_use'] ?? '') === $unitUsage->value)>{{ $unitUsage->label() }}
+                                                                </option>
                                                             @endforeach
                                                         </select></td>
                                                     <td>
                                                         <select name="units[{{ $idx }}][status]"
-                                                            class="form-select form-select-sm select2" data-select2-search="false" data-form-control>
+                                                            class="form-select form-select-sm select2"
+                                                            data-select2-search="false" data-form-control>
                                                             @foreach (\App\Enums\Tenants\Properties\PropertyUnitStatus::cases() as $unitStatus)
                                                                 <option value="{{ $unitStatus->value }}"
                                                                     {{ ($unit['status'] ?? '') === $unitStatus->value ? 'selected' : '' }}>

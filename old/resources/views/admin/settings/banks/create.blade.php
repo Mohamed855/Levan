@@ -21,8 +21,7 @@
         <div class="card">
             <div class="card-body">
                 <form action="{{ route('admin.settings.banks.store') }}" method="POST" enctype="multipart/form-data"
-                    data-form-validate
-                    data-draft-url="{{ route('admin.wizard-drafts.store') }}"
+                    data-form-validate data-draft-url="{{ route('admin.wizard-drafts.store') }}"
                     data-draft-file-url="{{ route('admin.wizard-drafts.file.destroy') }}"
                     data-draft-resource-key="admin.bank-create">
                     @csrf
@@ -39,8 +38,8 @@
 
                         <!-- رقم الآيبان -->
                         <x-form.controls.input name="iban" id="iban" label="رقم الآيبان (IBAN)"
-                            placeholder="SA0000000000000000000000" maxlength="24"
-                            help="يجب أن يبدأ بـ SA ويتكون من 24 رقم" required col="col-md-6" />
+                            placeholder="SA0000000000000000000000" maxlength="24" help="يجب أن يبدأ بـ SA ويتكون من 24 رقم"
+                            required col="col-md-6" />
 
                         <!-- رقم الحساب -->
                         <x-form.controls.input name="account_number" id="account_number" label="رقم الحساب"

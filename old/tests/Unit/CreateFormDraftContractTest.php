@@ -87,7 +87,6 @@ final class CreateFormDraftContractTest extends TestCase
         $this->assertStringContainsString('replace(/\/[^/]+\/edit\/?$/, \'\')', $script);
 
         $wizardFiles = [
-            $root.'/resources/views/admin/auction-templates/create.blade.php',
             $root.'/resources/views/tenant/auctions/create.blade.php',
             $root.'/resources/views/tenant/user-management/users/create.blade.php',
             $root.'/resources/views/tenant/user-management/users/edit.blade.php',

@@ -390,16 +390,10 @@
                         <form action="{{ tenant_route_name('domains.subdomain') }}" method="POST">
                             @csrf
                             <div class="row g-4 align-items-end">
-                                <x-form.controls.input
-                                    name="subdomain"
-                                    id="subdomain"
-                                    label="اسم النطاق الفرعي"
+                                <x-form.controls.input name="subdomain" id="subdomain" label="اسم النطاق الفرعي"
                                     placeholder="مثال: blog أو store أو app"
-                                    help="استخدم حروف إنجليزية صغيرة وأرقام وشرطة (-) فقط"
-                                    required
-                                    col="col-md-6"
-                                    :input-group="true"
-                                >
+                                    help="استخدم حروف إنجليزية صغيرة وأرقام وشرطة (-) فقط" required col="col-md-6"
+                                    :input-group="true">
                                     <span class="input-group-text">.levan.com</span>
                                 </x-form.controls.input>
                                 <div class="col-md-6 mb-3">

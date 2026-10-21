@@ -322,7 +322,7 @@ class TenantAssetModulesFeatureTest extends TestCase
         $this->assertSame($assignment->id, $secondProperty->fresh()->assignment_id);
 
         $auctionName = 'Lifecycle auction '.uniqid();
-        $this->post($this->tenantUrl('auctions'), [
+        $response = $this->post($this->tenantUrl('auctions'), [
             'name' => $auctionName,
             'description' => 'Lifecycle auction description.',
             'start_date' => now()->addDay()->toDateString(),
@@ -336,9 +336,10 @@ class TenantAssetModulesFeatureTest extends TestCase
             'assignment_id' => $assignment->id,
             'platform_name' => 'Auction platform',
             'property_ids' => [$firstProperty->id],
-        ])->assertRedirect($this->tenantUrl('auctions'));
+        ]);
 
-        $auction = Auction::where('name', $auctionName)->firstOrFail();
+        $auction = Auction::where('name', $auctionName)->latest('id')->firstOrFail();
+        $response->assertRedirect($this->tenantUrl('auctions/'.$auction->id));
         $this->assertSame($assignment->id, $auction->assignment_id);
         $this->assertSame('pending_approval', $auction->status);
         $this->assertEquals([$firstProperty->id], $auction->properties()->pluck('properties.id')->all());
@@ -595,7 +596,7 @@ class TenantAssetModulesFeatureTest extends TestCase
         $prop2->update(['assignment_id' => $assignment->id]);
 
         $auctionName = 'Sort Order Auction '.uniqid();
-        $this->actingAs($this->owner, 'tenant')
+        $response = $this->actingAs($this->owner, 'tenant')
             ->post($this->tenantUrl('auctions'), [
                 'name' => $auctionName,
                 'description' => 'Sort order auction description.',
@@ -610,10 +611,10 @@ class TenantAssetModulesFeatureTest extends TestCase
                 'assignment_id' => $assignment->id,
                 'platform_name' => 'Auction platform',
                 'property_ids' => [$prop2->id, $prop1->id],
-            ])
-            ->assertRedirect($this->tenantUrl('auctions'));
+            ]);
 
-        $auction = Auction::where('name', $auctionName)->firstOrFail();
+        $auction = Auction::where('name', $auctionName)->latest('id')->firstOrFail();
+        $response->assertRedirect($this->tenantUrl('auctions/'.$auction->id));
         $this->assertDatabaseHas('auction_properties', [
             'auction_id' => $auction->id,
             'property_id' => $prop2->id,
@@ -662,7 +663,7 @@ class TenantAssetModulesFeatureTest extends TestCase
                 'assignment_id' => $assignmentA->id,
                 'property_ids' => [$propA2->id],
             ])
-            ->assertRedirect($this->tenantUrl('auctions'));
+            ->assertRedirect($this->tenantUrl("auctions/{$auction->id}"));
 
         $this->assertEquals([$propA2->id], $auction->fresh()->properties()->pluck('properties.id')->all());
 
@@ -678,7 +679,7 @@ class TenantAssetModulesFeatureTest extends TestCase
                 'assignment_id' => $assignmentB->id,
                 'property_ids' => [$propB1->id],
             ])
-            ->assertRedirect($this->tenantUrl('auctions'));
+            ->assertRedirect($this->tenantUrl("auctions/{$auction->id}"));
 
         $freshAuction = $auction->fresh();
         $this->assertSame($assignmentB->id, $freshAuction->assignment_id);
@@ -738,7 +739,7 @@ class TenantAssetModulesFeatureTest extends TestCase
 
         $this->assertDatabaseHas('wizard_drafts', ['id' => $draft['draft_id']]);
 
-        $this->actingAs($this->owner, 'tenant')
+        $response = $this->actingAs($this->owner, 'tenant')
             ->post($this->tenantUrl('auctions'), [
                 '_wizard_draft_id' => $draft['draft_id'],
                 '_wizard_resource_key' => $resourceKey,
@@ -755,8 +756,10 @@ class TenantAssetModulesFeatureTest extends TestCase
                 'assignment_id' => $assignment->id,
                 'platform_name' => 'Auction platform',
                 'property_ids' => [$prop->id],
-            ])
-            ->assertRedirect($this->tenantUrl('auctions'));
+            ]);
+
+        $auction = \App\Models\Tenants\Auctions\Auction::where('name', 'Final Auction From Draft')->latest('id')->firstOrFail();
+        $response->assertRedirect($this->tenantUrl('auctions/'.$auction->id));
 
         $this->assertDatabaseMissing('wizard_drafts', ['id' => $draft['draft_id']]);
     }

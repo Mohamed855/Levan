@@ -14,15 +14,16 @@
                     </a>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.settings.domains.update', $domain->id) }}" method="POST" data-form-validate>
+                    <form action="{{ route('admin.settings.domains.update', $domain->id) }}" method="POST"
+                        data-form-validate>
                         @csrf
                         @method('PUT')
                         <div class="row g-4">
                             <x-form.controls.input name="domain_extension" id="domain_extension" label="الامتداد"
                                 :value="old('domain_extension', $domain->domain_extension)" required col="col-md-6" />
 
-                            <x-form.controls.input type="number" step="0.01" name="price" id="price" label="السعر"
-                                :value="old('price', $domain->price)" required col="col-md-6" />
+                            <x-form.controls.input type="number" step="0.01" name="price" id="price"
+                                label="السعر" :value="old('price', $domain->price)" required col="col-md-6" />
                         </div>
 
                         <div class="mt-4 d-flex gap-2">

@@ -36,6 +36,7 @@ Route::name('password.reset')->get('reset-password/{token}', [NewPasswordControl
 Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active', 'admin.2fa.force'])->group(function () {
     Route::prefix('wizard-drafts')->name('wizard-drafts.')->group(function () {
         Route::get('/', [WizardDraftController::class, 'show'])->name('index');
+        Route::get('file', [WizardDraftController::class, 'showFile'])->name('file.show');
         Route::match(['post', 'put', 'patch'], '/', [WizardDraftController::class, 'store'])->name('store');
         Route::delete('/', [WizardDraftController::class, 'destroy'])->name('destroy');
         Route::delete('file', [WizardDraftController::class, 'destroyFile'])->name('file.destroy');

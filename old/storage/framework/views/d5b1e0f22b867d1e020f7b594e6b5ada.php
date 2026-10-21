@@ -6,9 +6,6 @@
     $configData = App\Helpers\Helpers::appClasses();
 ?>
 
-<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!isset($excludeJquery) || !$excludeJquery): ?>
-    <script src="<?php echo e(asset('static/shared/js/cdn/jquery-init.js')); ?>"></script>
-<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($configData['layout'])): ?>
     <?php echo $__env->make(

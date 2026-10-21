@@ -22,8 +22,8 @@
                             <x-form.controls.input name="domain_extension" id="domain_extension" label="الامتداد"
                                 placeholder=".com" required col="col-md-6" />
 
-                            <x-form.controls.input type="number" step="0.01" name="price" id="price" label="السعر"
-                                placeholder="2000" required col="col-md-6" />
+                            <x-form.controls.input type="number" step="0.01" name="price" id="price"
+                                label="السعر" placeholder="2000" required col="col-md-6" />
                         </div>
 
                         <div class="mt-4 d-flex gap-2">

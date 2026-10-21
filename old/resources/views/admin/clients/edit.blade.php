@@ -100,9 +100,11 @@
                             <x-form.controls.checkbox name="email_notifications_enabled" label="تنبيهات البريد"
                                 :checked="$settings->email_notifications_enabled ?? true" col="col-md-6">إرسال إشعارات البريد.</x-form.controls.checkbox>
                             <x-form.controls.checkbox name="two_factor_enabled" label="التحقق الثنائي (2FA)"
-                                :checked="$settings->two_factor_enabled ?? false" col="col-md-6">فرض 2FA على مستخدمي العميل.</x-form.controls.checkbox>
+                                :checked="$settings->two_factor_enabled ?? false" col="col-md-6">فرض 2FA على مستخدمي
+                                العميل.</x-form.controls.checkbox>
                             <x-form.controls.checkbox name="external_integrations_enabled" label="التكاملات الخارجية"
-                                :checked="$settings->external_integrations_enabled ?? false" col="col-md-6">السماح بربط API والأنظمة.</x-form.controls.checkbox>
+                                :checked="$settings->external_integrations_enabled ?? false" col="col-md-6">السماح بربط API
+                                والأنظمة.</x-form.controls.checkbox>
                         </div>
 
                         <x-form.wizard.actions>

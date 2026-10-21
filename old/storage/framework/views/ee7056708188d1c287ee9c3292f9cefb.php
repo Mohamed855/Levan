@@ -41,6 +41,10 @@ $contentLayout = isset($container) ? ($container === 'container-xxl' ? 'layout-c
 
     <?php echo $__env->make('admin.layouts.sections.styles' . $isFront, array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!isset($excludeJquery) || !$excludeJquery): ?>
+        <script src="<?php echo e(asset('static/shared/js/cdn/jquery-init.js')); ?>"></script>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
     <?php echo $__env->make('admin.layouts.sections.scriptsIncludes' . $isFront, array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
     <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">

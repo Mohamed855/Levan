@@ -167,18 +167,58 @@ textarea.form-control:focus {
 
 // File Uploads & Dropzone
 input[type="file"].form-control,
-.form-control[type="file"],
-.dropzone {
+.form-control[type="file"] {
+    padding: 0.25rem 0.75rem !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    line-height: 32px;
     border: 1px dashed rgba(29, 79, 68, 0.28) !important;
-    border-radius: 0.5rem !important;
+    border-radius: 8px !important;
     box-shadow: none !important;
     background-color: rgba(247, 243, 236, 0.35);
-    transition: border-color 0.15s ease;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+    cursor: pointer;
 
     &:hover,
     &:focus {
         border-color: var(--primary-color) !important;
         box-shadow: none !important;
+        background-color: rgba(247, 243, 236, 0.55);
+    }
+
+    &::file-selector-button {
+        padding: 0.35rem 0.85rem;
+        margin: -0.25rem -0.75rem;
+        margin-inline-end: 0.85rem;
+        color: #fff;
+        background-color: var(--primary-color);
+        border: 0;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.8125rem;
+        transition: background-color 0.15s ease;
+        cursor: pointer;
+
+        &:hover {
+            background-color: #12332c;
+        }
+    }
+}
+
+.dropzone {
+    border: 1px dashed rgba(29, 79, 68, 0.28) !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    background-color: rgba(247, 243, 236, 0.35);
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+    cursor: pointer;
+
+    &:hover,
+    &:focus {
+        border-color: var(--primary-color) !important;
+        box-shadow: none !important;
+        background-color: rgba(247, 243, 236, 0.55);
     }
 }
 

@@ -30,6 +30,7 @@ final class AccessControlSeeder extends Seeder
                 'control_domains.view', 'control_domains.create', 'control_domains.update',
                 'faq.view', 'faq.create', 'faq.update',
                 'activity_log.view',
+                'archives.view', 'archives.restore', 'archives.force_delete',
             ],
             'tenant' => [
                 'users.view', 'users.create', 'users.update', 'users.delete',

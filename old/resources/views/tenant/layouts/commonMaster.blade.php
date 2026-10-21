@@ -45,6 +45,10 @@ $contentLayout = isset($container) ? ($container === 'container-xxl' ? 'layout-c
     <!-- Include Styles -->
     @include('tenant/layouts.sections/styles' . $isFront)
 
+    @if (!isset($excludeJquery) || !$excludeJquery)
+        <script src="{{ asset('static/shared/js/cdn/jquery-init.js') }}"></script>
+    @endif
+
     <!-- Include Scripts for customizer, helper, analytics, config -->
     @include('tenant/layouts/sections/scriptsIncludes' . $isFront)
 

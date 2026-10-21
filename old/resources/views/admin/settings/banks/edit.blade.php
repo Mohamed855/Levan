@@ -27,25 +27,23 @@
 
                     <div class="row g-4">
                         <!-- اسم البنك -->
-                        <x-form.controls.input name="bank_name" id="bank_name" label="اسم البنك"
-                            :value="old('bank_name', $bank->bank_name)" required col="col-md-6" />
+                        <x-form.controls.input name="bank_name" id="bank_name" label="اسم البنك" :value="old('bank_name', $bank->bank_name)" required
+                            col="col-md-6" />
 
                         <!-- اسم الحساب -->
-                        <x-form.controls.input name="account_name" id="account_name" label="اسم الحساب"
-                            :value="old('account_name', $bank->account_name)" required col="col-md-6" />
+                        <x-form.controls.input name="account_name" id="account_name" label="اسم الحساب" :value="old('account_name', $bank->account_name)"
+                            required col="col-md-6" />
 
                         <!-- رقم الآيبان -->
-                        <x-form.controls.input name="iban" id="iban" label="رقم الآيبان (IBAN)"
-                            :value="old('iban', $bank->iban)" maxlength="24"
-                            help="يجب أن يبدأ بـ SA ويتكون من 24 رقم" required col="col-md-6" />
+                        <x-form.controls.input name="iban" id="iban" label="رقم الآيبان (IBAN)" :value="old('iban', $bank->iban)"
+                            maxlength="24" help="يجب أن يبدأ بـ SA ويتكون من 24 رقم" required col="col-md-6" />
 
                         <!-- رقم الحساب -->
                         <x-form.controls.input name="account_number" id="account_number" label="رقم الحساب"
                             :value="old('account_number', $bank->account_number)" required col="col-md-6" />
 
                         <!-- أيقونة البنك -->
-                        <x-form.controls.image-upload name="icon" id="icon" label="أيقونة البنك"
-                            :value="$bank->icon ? asset('storage/' . $bank->icon) : null"
+                        <x-form.controls.image-upload name="icon" id="icon" label="أيقونة البنك" :value="$bank->icon ? asset('storage/' . $bank->icon) : null"
                             accept="image/jpeg,image/png,image/jpg,image/svg+xml"
                             hint="اترك الحقل فارغاً للإبقاء على الصورة الحالية" col="col-md-6" />
                     </div>
@@ -67,7 +65,6 @@
     </div>
 
     <script>
-
         document.getElementById('iban').addEventListener('input', function(e) {
             let value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
             if (!value.startsWith('SA')) {

@@ -59,45 +59,45 @@
 
                                 {{-- نسبة المستهدف --}}
                                 <x-form.controls.input type="number" name="target_percentage" id="target_percentage"
-                                    label="نسبة المستهدف الشهري (%)" placeholder="مثال: 10" :value="old('target_percentage')"
-                                    step="0.01" min="0" max="100"
+                                    label="نسبة المستهدف الشهري (%)" placeholder="مثال: 10" :value="old('target_percentage')" step="0.01"
+                                    min="0" max="100"
                                     help="النسبة المئوية من إجمالي المحفظة (مثال: 10 تعني 10%)" required col="col-md-6" />
 
                                 {{-- شعار الشركة --}}
                                 <x-form.controls.image-upload name="logo" id="logo" label="شعار الشركة"
-                                    accept=".jpg,.jpeg,.png,.webp"
-                                    hint="الأنواع: JPG, JPEG, PNG — الحجم الأقصى: 2MB" required col="col-md-6" />
+                                    accept=".jpg,.jpeg,.png,.webp" hint="الأنواع: JPG, JPEG, PNG — الحجم الأقصى: 2MB"
+                                    required col="col-md-6" />
                             </div>
 
-                                {{-- المفوضون --}}
-                                <div class="col-12 mb-4">
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <label class="form-label mb-0">المفوّضون</label>
-                                        <button type="button" class="btn btn-primary btn-sm" id="btn-add-person">
-                                            <i class="ti ti-plus me-1"></i>إضافة مفوّض
-                                        </button>
-                                    </div>
-
-                                    <div id="authorized-people-list">
-                                        <!-- Dynamic rows will be added here -->
-                                    </div>
+                            {{-- المفوضون --}}
+                            <div class="col-12 mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <label class="form-label mb-0">المفوّضون</label>
+                                    <button type="button" class="btn btn-primary btn-sm" id="btn-add-person">
+                                        <i class="ti ti-plus me-1"></i>إضافة مفوّض
+                                    </button>
                                 </div>
 
-                                {{-- أزرار التحكم --}}
-                                <div class="mt-4 d-flex justify-content-between">
-                                    <x-form.wizard.previous-button :href="tenant_route_name('companies.index')" text="العودة" />
-                                    <div class="d-flex gap-2">
-                                        <x-form.wizard.draft-button />
-                                        <button type="submit" class="btn btn-primary btn-next btn-submit">
-                                            حفظ
-                                        </button>
-                                    </div>
+                                <div id="authorized-people-list">
+                                    <!-- Dynamic rows will be added here -->
+                                </div>
+                            </div>
+
+                            {{-- أزرار التحكم --}}
+                            <div class="mt-4 d-flex justify-content-between">
+                                <x-form.wizard.previous-button :href="tenant_route_name('companies.index')" text="العودة" />
+                                <div class="d-flex gap-2">
+                                    <x-form.wizard.draft-button />
+                                    <button type="submit" class="btn btn-primary btn-next btn-submit">
+                                        حفظ
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                    </form>
                 </div>
+                </form>
             </div>
         </div>
+    </div>
     </div>
 @endsection

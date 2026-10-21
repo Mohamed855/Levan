@@ -38,7 +38,7 @@ foreach ($attributes->all() as $__key => $__value) {
 
 unset($__defined_vars, $__key, $__value); ?>
 
-<button type="<?php echo e($type); ?>" data-wizard-draft <?php if($step !== null): ?> data-step="<?php echo e($step); ?>" <?php endif; ?> <?php echo e($attributes->class(['btn', 'btn-secondary', 'btn-save-draft', 'waves-effect', 'waves-light'])); ?>>
+<button type="<?php echo e($type); ?>" data-wizard-draft data-save-draft <?php if($step !== null): ?> data-step="<?php echo e($step); ?>" <?php endif; ?> <?php echo e($attributes->class(['btn', 'btn-secondary', 'btn-save-draft', 'waves-effect', 'waves-light'])); ?>>
     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($icon): ?><i class="<?php echo e($icon); ?>" aria-hidden="true"></i><?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     <?php echo e($slot->isNotEmpty() ? $slot : $text); ?>
 

@@ -41,6 +41,10 @@ $contentLayout = isset($container) ? ($container === 'container-xxl' ? 'layout-c
 
     @include('admin.layouts.sections.styles' . $isFront)
 
+    @if (!isset($excludeJquery) || !$excludeJquery)
+        <script src="{{ asset('static/shared/js/cdn/jquery-init.js') }}"></script>
+    @endif
+
     @include('admin.layouts.sections.scriptsIncludes' . $isFront)
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
