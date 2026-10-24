@@ -12,6 +12,8 @@
 
             <x-shared.form.controls.input name="price" type="number" label="السعر" :value="$plan->price" min="0"
                 step="0.01" required col="col-md-4" />
+            <x-shared.form.controls.input name="extra_user_license_price" type="number" label="سعر الترخيص الإضافي" :value="$plan->extra_user_license_price"
+                min="0" step="0.01" required col="col-md-4" />
             <x-shared.form.controls.input name="discount_percentage" type="number" label="نسبة الخصم"
                 :value="$plan->discount_percentage" min="0" max="100" step="0.01" col="col-md-4" />
             <x-shared.form.controls.select name="limits_mode" label="وضع الحدود" :value="$plan->limits_mode" :options="['limited' => 'محدودة', 'unlimited' => 'غير محدودة']"

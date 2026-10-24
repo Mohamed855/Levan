@@ -59,6 +59,20 @@
                 </div>
             </div>
 
+            @if($ticket->attachments->isNotEmpty())
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header"><h5 class="card-title mb-0">مرفقات التذكرة</h5></div>
+                    <div class="list-group list-group-flush">
+                        @foreach($ticket->attachments as $attachment)
+                            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="{{ route('admin.tickets.attachments.download', [$ticket, $attachment->id]) }}">
+                                <span><i class="ti ti-paperclip me-1"></i>{{ $attachment->original_name }}</span>
+                                <small class="text-muted">{{ number_format($attachment->size / 1024, 1) }} KB</small>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             {{-- Replies thread --}}
             <div class="card mb-4 shadow-sm">
                 <div class="card-header border-bottom d-flex justify-content-between align-items-center">
@@ -74,7 +88,7 @@
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <div class="d-flex align-items-center gap-2">
                                         <span class="badge {{ $reply->admin_user_id ? 'bg-primary' : 'bg-secondary' }}">
-                                            {{ $reply->admin_user_id ? 'فريق الدعم (' . ($reply->adminUser?->name ?? 'الإدارة') . ')' : 'المستأجر' }}
+                                            {{ $reply->admin_user_id ? 'فريق الدعم (' . ($reply->adminUser?->name ?? 'الإدارة') . ')' : 'المستأجر (' . ($reply->tenant_user_name ?? 'مستخدم غير معروف') . ')' }}
                                         </span>
                                     </div>
                                     <small class="text-muted font-monospace">{{ $reply->created_at?->format('Y-m-d H:i') }}</small>
@@ -121,7 +135,7 @@
         {{-- Left / Sidebar controls --}}
         <div class="col-lg-4">
             {{-- Status changer --}}
-            @can('tickets.reply')
+            @can('tickets.update')
                 <div class="card mb-4 shadow-sm">
                     <div class="card-header border-bottom">
                         <h5 class="card-title mb-0">
@@ -149,6 +163,24 @@
                             <button type="submit" class="btn btn-outline-primary w-100">
                                 <i class="ti ti-check me-1"></i> حفظ الحالة
                             </button>
+                        </form>
+                    </div>
+                </div>
+            @endcan
+
+            @can('tickets.update')
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header border-bottom"><h5 class="card-title mb-0"><i class="ti ti-headset me-2 text-primary"></i>خدمة الدعم</h5></div>
+                    <div class="card-body pt-4">
+                        <form method="POST" action="{{ route('admin.tickets.service', $ticket) }}">
+                            @csrf
+                            @method('PATCH')
+                            <input type="hidden" name="service_enabled" value="0">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" role="switch" id="service-enabled" name="service_enabled" value="1" @checked($ticket->service_enabled)>
+                                <label class="form-check-label" for="service-enabled">السماح بمتابعة خدمة الدعم لهذه التذكرة</label>
+                            </div>
+                            <button type="submit" class="btn btn-outline-primary w-100">حفظ إعداد الخدمة</button>
                         </form>
                     </div>
                 </div>

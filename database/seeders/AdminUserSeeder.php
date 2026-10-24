@@ -13,6 +13,10 @@ final class AdminUserSeeder extends Seeder
 {
     public function run(): void
     {
+        if (! app()->environment(['local', 'testing'])) {
+            return;
+        }
+
         $superAdminRole = Role::query()->where('guard', 'admin')->where('name', 'SuperAdmin')->first()
             ?? Role::query()->firstOrCreate(['guard' => 'admin', 'name' => 'SuperAdmin'], ['display_name' => 'المدير العام']);
 

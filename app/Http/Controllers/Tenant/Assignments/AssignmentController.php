@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\Assignments\SelectedAssignmentPropertiesRequest;
 use App\Http\Requests\Tenant\Assignments\StoreAssignmentRequest;
 use App\Http\Requests\Tenant\Assignments\UpdateAssignmentRequest;
+use App\Http\Requests\Tenant\Assignments\UpdateAssignmentStatusRequest;
 use App\Models\Tenant\Assignment;
 use App\Models\Tenant\Property;
 use App\Services\Tenants\Assignments\AssignmentService;
@@ -27,7 +28,10 @@ final class AssignmentController extends Controller
         protected AssignmentService $assignmentService,
         protected CentralCityOptionsGateway $cityOptionsGateway
     ) {
-        $this->middleware('auth:tenant');
+        $this->middleware('can:assignments.view')->only(['index', 'show']);
+        $this->middleware('can:assignments.create')->only(['create', 'store', 'selectedProperties']);
+        $this->middleware('can:auctions.create')->only(['properties']);
+        $this->middleware('can:assignments.edit')->only(['edit', 'update', 'toggleStatus', 'destroy']);
     }
 
     public function index(AssignmentDataTable $dataTable)
@@ -46,6 +50,8 @@ final class AssignmentController extends Controller
 
     public function create(AssignmentPropertySelectionDataTable $dataTable)
     {
+        $this->authorize('create', Assignment::class);
+
         $generatedAssignmentNumber = $this->assignmentService->generateAssignmentNumber();
 
         return $dataTable->render('tenant.assignments.create', [
@@ -57,6 +63,8 @@ final class AssignmentController extends Controller
 
     public function store(StoreAssignmentRequest $request, CreateAssignmentAction $action): RedirectResponse
     {
+        $this->authorize('create', Assignment::class);
+
         try {
             $assignment = $action->execute($request->validated(), (int) $request->user('tenant')->id);
 
@@ -89,8 +97,27 @@ final class AssignmentController extends Controller
         return response()->json(['data' => $properties]);
     }
 
+    public function properties(Assignment $assignment): JsonResponse
+    {
+        $this->authorize('view', $assignment);
+
+        return response()->json([
+            'data' => $assignment->properties()
+                ->where('is_active', true)
+                ->orderBy('property_number')
+                ->get(['id', 'property_number', 'name'])
+                ->map(static fn (Property $property): array => [
+                    'id' => (string) $property->id,
+                    'property_number' => $property->property_number,
+                    'name' => $property->name,
+                ]),
+        ]);
+    }
+
     public function show(Assignment $assignment): View
     {
+        $this->authorize('view', $assignment);
+
         $assignment->load(['properties', 'auctions', 'attachments', 'assignmentImage']);
 
         return view('tenant.assignments.show', [
@@ -100,6 +127,8 @@ final class AssignmentController extends Controller
 
     public function edit(Assignment $assignment): View
     {
+        $this->authorize('update', $assignment);
+
         return view('tenant.assignments.edit', [
             'assignment' => $assignment,
             'cityOptions' => $this->cityOptionsGateway->optionsByName(),
@@ -111,6 +140,8 @@ final class AssignmentController extends Controller
         Assignment $assignment,
         UpdateAssignmentAction $action
     ): RedirectResponse {
+        $this->authorize('update', $assignment);
+
         try {
             $action->execute(
                 $assignment,
@@ -129,9 +160,10 @@ final class AssignmentController extends Controller
         }
     }
 
-    public function toggleStatus(Assignment $assignment): mixed
+    public function toggleStatus(UpdateAssignmentStatusRequest $request, Assignment $assignment): mixed
     {
-        $newStatus = ! $assignment->is_active;
+        $this->authorize('update', $assignment);
+        $newStatus = $request->boolean('is_active');
         $assignment->update([
             'is_active' => $newStatus,
             'status' => $newStatus ? 'active' : 'suspended',
@@ -146,6 +178,7 @@ final class AssignmentController extends Controller
 
     public function destroy(Assignment $assignment): mixed
     {
+        $this->authorize('delete', $assignment);
         if ($assignment->properties()->exists() || $assignment->auctions()->exists()) {
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json(['success' => false, 'message' => 'لا يمكن حذف الإسناد لوجود عقارات أو مزادات مرتبطة به'], 422);

@@ -49,7 +49,7 @@ final class TemplateSchema
             'pages.*.id' => ['required', 'string', 'max:80', 'distinct'],
             'pages.*.background' => ['nullable', 'array'],
             'pages.*.background.color' => ['nullable', 'regex:/^#[A-Fa-f0-9]{6}$/'],
-            'pages.*.background.image' => ['nullable', 'string', 'max:2048'],
+            'pages.*.background.image' => ['nullable', 'string', 'max:2048', 'regex:/^[A-Za-z0-9_./-]+$/'],
             'pages.*.elements' => ['required', 'array', 'max:100'],
             'pages.*.elements.*.id' => ['required', 'string', 'max:80'],
             'pages.*.elements.*.type' => ['required', 'in:'.implode(',', self::ELEMENT_TYPES)],
@@ -76,6 +76,8 @@ final class TemplateSchema
 
         $validator->after(function ($validator) use ($schema): void {
             $elementIds = [];
+            $canvasWidth = (float) Arr::get($schema, 'canvas.width', 0);
+            $canvasHeight = (float) Arr::get($schema, 'canvas.height', 0);
             foreach (Arr::get($schema, 'pages', []) as $pageIndex => $page) {
                 foreach (($page['elements'] ?? []) as $elementIndex => $element) {
                     $path = "pages.{$pageIndex}.elements.{$elementIndex}";
@@ -92,6 +94,10 @@ final class TemplateSchema
                     }
                     if ($type === 'text' && blank($element['content'] ?? null)) {
                         $validator->errors()->add("{$path}.content", 'محتوى النص مطلوب لعنصر النص.');
+                    }
+                    if (((float) ($element['x'] ?? 0)) + ((float) ($element['width'] ?? 0)) > $canvasWidth
+                        || ((float) ($element['y'] ?? 0)) + ((float) ($element['height'] ?? 0)) > $canvasHeight) {
+                        $validator->errors()->add($path, 'يجب أن يبقى العنصر بالكامل داخل مساحة تصميم القالب.');
                     }
                 }
             }

@@ -6,10 +6,11 @@ namespace App\Http\Requests\Admin\Tenants;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use App\Models\Admin\PublicRequests\TrialRequest;
 
 final class StoreTenantRequest extends FormRequest
 {
-    public function authorize(): bool { return $this->user('admin') !== null; }
+    public function authorize(): bool { return $this->user('admin')?->hasPermissionTo('tenants.create') ?? false; }
 
     public function rules(): array
     {
@@ -26,7 +27,16 @@ final class StoreTenantRequest extends FormRequest
             'plan_id'             => ['required', Rule::exists('plans', 'id')],
             'price'               => ['required', 'numeric', 'min:0'],
             'subscription_status' => ['required', Rule::in(['active', 'pending', 'trial'])],
-            'trial_request_id'    => ['nullable', 'integer'],
+            'trial_request_id'    => [
+                'nullable',
+                'integer',
+                Rule::exists('trial_requests', 'id'),
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if ($value !== null && TrialRequest::query()->whereKey($value)->where('status', 'pending')->doesntExist()) {
+                        $fail('طلب التجربة المحدد لم يعد معلقاً.');
+                    }
+                },
+            ],
         ];
     }
 }

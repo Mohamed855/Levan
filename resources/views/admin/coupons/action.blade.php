@@ -1,4 +1,10 @@
 <div class="d-flex justify-content-center gap-2">
+    @can('coupons.view')
+        <a href="{{ route('admin.coupons.show', $row) }}" class="btn btn-icon btn-label-info bg-label-info" title="تفاصيل الاستخدام">
+            <i class="ti ti-eye"></i>
+        </a>
+    @endcan
+
     @can('coupons.edit')
         <a href="{{ route('admin.coupons.edit', $row->id) }}" class="btn btn-icon btn-label-primary bg-label-primary" title="تعديل الكوبون">
             <i class="ti ti-edit"></i>

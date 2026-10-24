@@ -9,6 +9,7 @@ use App\DataTables\Admin\Faqs\FaqDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Faqs\StoreFaqRequest;
 use App\Http\Requests\Admin\Faqs\UpdateFaqRequest;
+use App\Http\Requests\Admin\UpdateActiveStatusRequest;
 use App\Models\Admin\Faq;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -46,11 +47,15 @@ final class FaqController extends Controller
 
     public function create(): View
     {
+        $this->authorize('create', Faq::class);
+
         return view('admin.faqs.create', ['faq' => new Faq()]);
     }
 
     public function store(StoreFaqRequest $request, SaveFaqAction $action): RedirectResponse
     {
+        $this->authorize('create', Faq::class);
+
         $action->create($request->validated());
 
         return to_route('admin.faqs.index')->with('success', 'تم إضافة السؤال الشائع بنجاح.');
@@ -58,6 +63,8 @@ final class FaqController extends Controller
 
     public function edit(Faq $faq): View
     {
+        $this->authorize('update', $faq);
+
         return view('admin.faqs.edit', compact('faq'));
     }
 
@@ -66,14 +73,18 @@ final class FaqController extends Controller
         Faq $faq,
         SaveFaqAction $action
     ): RedirectResponse {
+        $this->authorize('update', $faq);
+
         $action->update($faq, $request->validated());
 
         return to_route('admin.faqs.index')->with('success', 'تم تحديث السؤال الشائع بنجاح.');
     }
 
-    public function toggleStatus(Faq $faq, SaveFaqAction $action): JsonResponse
+    public function toggleStatus(UpdateActiveStatusRequest $request, Faq $faq, SaveFaqAction $action): JsonResponse
     {
-        $status = $action->toggleStatus($faq);
+        $this->authorize('update', $faq);
+
+        $status = $action->updateStatus($faq, $request->boolean('is_active'));
 
         return response()->json([
             'success'   => true,
@@ -87,6 +98,8 @@ final class FaqController extends Controller
         Faq $faq,
         SaveFaqAction $action
     ): RedirectResponse|JsonResponse {
+        $this->authorize('delete', $faq);
+
         $action->delete($faq);
 
         if ($request->ajax() || $request->wantsJson()) {

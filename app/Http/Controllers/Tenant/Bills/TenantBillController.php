@@ -4,18 +4,22 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenant\Bills;
 
+use App\Actions\Tenant\Bills\SubmitBankTransferReceiptAction;
 use App\DataTables\Tenant\Bills\TenantBillDataTable;
 use App\Enums\Admin\Bills\BillStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenant\Bills\SubmitBankTransferReceiptRequest;
 use App\Services\Tenants\Shared\CentralBillingGateway;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 final class TenantBillController extends Controller
 {
     public function __construct(
-        private readonly CentralBillingGateway $billingGateway
+        private readonly CentralBillingGateway $billingGateway,
+        private readonly SubmitBankTransferReceiptAction $submitReceipt,
     ) {
         $this->middleware('can:bills.view');
     }
@@ -30,7 +34,7 @@ final class TenantBillController extends Controller
     public function show(int|string $bill): View
     {
         $billModel = $this->billingGateway->billForCurrentTenant($bill);
-        $settings = $this->billingGateway->platformSettings();
+        $platformGeneral = $this->billingGateway->platformGeneralSettings();
 
         $vatRate = 0.15;
         $vatAmount = round((float) $billModel->amount * $vatRate, 2);
@@ -38,7 +42,7 @@ final class TenantBillController extends Controller
 
         return view('tenant.bills.show', [
             'bill' => $billModel,
-            'settings' => $settings,
+            'platformGeneral' => $platformGeneral,
             'vatRate' => $vatRate,
             'vatAmount' => $vatAmount,
             'priceWithoutTax' => $priceWithoutTax,
@@ -62,23 +66,27 @@ final class TenantBillController extends Controller
         ]);
     }
 
-    public function uploadReceipt(Request $request, int|string $bill): RedirectResponse
+    public function uploadReceipt(SubmitBankTransferReceiptRequest $request, int|string $bill): RedirectResponse
     {
-        $request->validate([
-            'receipt' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
-            'bank_id' => ['required', 'integer'],
-        ], [
-            'receipt.required' => 'يرجى إرفاق إشعار أو إيصال التحويل.',
-            'receipt.mimes' => 'يجب أن يكون الإشعار صورة (JPG, PNG) أو ملف PDF.',
-            'receipt.max' => 'يجب ألا يتجاوز حجم الملف 5 ميجابايت.',
-            'bank_id.required' => 'يرجى اختيار الحساب البنكي المحول إليه.',
-        ]);
+        $receipt = $request->file('receipt');
+        abort_unless($receipt instanceof UploadedFile, 422, 'إشعار التحويل غير صالح.');
 
-        $path = $request->file('receipt')->store('receipts/'.tenant('id'), 'public');
-
-        $this->billingGateway->submitBankTransferReceipt($bill, $path, (int) $request->input('bank_id'));
+        $this->submitReceipt->execute(
+            $bill,
+            $receipt,
+            (int) $request->validated('bank_id'),
+        );
 
         return redirect()->route('tenant.bills.show', $bill)
             ->with('success', 'تم رفع إشعار التحويل بنجاح، وسيتم تدقيقه من قبل الإدارة.');
+    }
+
+    public function receipt(int|string $bill)
+    {
+        $billModel = $this->billingGateway->billForCurrentTenant($bill);
+        $path = $this->billingGateway->receiptPathForCurrentTenant($billModel);
+        abort_unless(Storage::disk('local')->exists($path), 404);
+
+        return Storage::disk('local')->download($path, 'receipt-'.$billModel->bill_number.'.'.pathinfo($path, PATHINFO_EXTENSION));
     }
 }

@@ -17,7 +17,7 @@ final class TenantArchiveController extends Controller
     public function __construct(private readonly ManageCentralArchiveAction $archive)
     {
         $this->middleware('can:tenants.view')->only('index');
-        $this->middleware('can:tenants.create')->only(['restore', 'forceDelete']);
+        $this->middleware('can:tenants.delete')->only(['restore', 'forceDelete']);
     }
 
     public function index(TenantArchiveDataTable $dataTable)

@@ -16,6 +16,7 @@
             total: {{ $plan->price_after_discount }},
             appliedCoupon: @json($appliedCoupon ?? null),
             finalTotal: {{ $finalTotal ?? $plan->price_after_discount }},
+            couponQuoteUrl: @json(route('site.plans.checkout.coupon-quote', $plan)),
         };
     </script>
     @vite(['resources/assets/vendor/libs/jquery/jquery.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/js/shared/form-validation.js', 'resources/assets/js/web/checkout.js', 'resources/assets/js/shared/payment/apply-coupon.js'])

@@ -15,6 +15,8 @@ final class UpdateAuctionTemplateAction
     public function execute(AuctionTemplate $template, AdminUser $user, array $data): AuctionTemplate
     {
         return DB::transaction(function () use ($template, $user, $data): AuctionTemplate {
+            $template = AuctionTemplate::query()->lockForUpdate()->findOrFail($template->getKey());
+
             $template->update([
                 'name' => $data['name'],
                 'description' => $data['description'] ?? null,

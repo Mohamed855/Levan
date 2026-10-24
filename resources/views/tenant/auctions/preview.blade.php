@@ -1,4 +1,5 @@
-@extends('tenant.layouts.layoutMaster')
+@extends('layouts.dashboard')
+@section('dashboard-scope', 'tenant')
 
 @section('title', 'معاينة مخرج المزاد — ' . ($output['template']['template_name'] ?? ''))
 

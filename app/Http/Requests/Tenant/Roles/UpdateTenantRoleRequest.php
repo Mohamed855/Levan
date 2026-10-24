@@ -10,7 +10,7 @@ use Illuminate\Validation\Rule;
 
 final class UpdateTenantRoleRequest extends FormRequest
 {
-    public function authorize(): bool { return $this->user('tenant') !== null; }
+    public function authorize(): bool { return $this->user('tenant')?->hasPermissionTo('roles.update') ?? false; }
     public function rules(): array
     {
         /** @var Role $role */

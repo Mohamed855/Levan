@@ -46,7 +46,7 @@ class AdminUser extends Authenticatable
 
     public function coupons(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(\App\Models\Admin\Coupon::class, 'admin_user_id');
+        return $this->hasMany(\App\Models\Admin\Coupon::class, 'created_by');
     }
 
     public function getImageAttribute(): ?string

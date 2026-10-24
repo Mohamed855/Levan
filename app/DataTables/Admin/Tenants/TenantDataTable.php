@@ -169,7 +169,7 @@ class TenantDataTable extends AbstractDataTable
             ['extend' => 'excel', 'text' => 'إكسل'],
         ];
 
-        if (auth()->user()?->can('tenants.delete') || auth()->user()?->can('companies.delete')) {
+        if (auth('admin')->user()?->can('tenants.delete')) {
             $buttons[] = [
                 'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
@@ -187,7 +187,7 @@ class TenantDataTable extends AbstractDataTable
 
     private function getAddButton(): array
     {
-        if (auth()->user()?->can('tenants.create')) {
+        if (auth('admin')->user()?->can('tenants.create')) {
             return [
                 'text' => '<i class="ti ti-plus me-1"></i> إضافة عميل',
                 'className' => 'btn btn-primary btn-add',

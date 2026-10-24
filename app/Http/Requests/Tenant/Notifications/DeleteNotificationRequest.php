@@ -10,13 +10,13 @@ final class DeleteNotificationRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user('tenant') !== null;
+        return $this->user('tenant')?->hasPermissionTo('notifications.view') ?? false;
     }
 
     public function rules(): array
     {
         return [
-            'id' => ['required', 'string'],
+            'id' => ['required', 'uuid'],
         ];
     }
 }

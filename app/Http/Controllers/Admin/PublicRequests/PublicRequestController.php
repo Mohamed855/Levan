@@ -71,8 +71,9 @@ final class PublicRequestController extends Controller
     public function approve(
         ApproveTrialRequest $request,
         TrialRequest $trialRequest,
-        ProcessPublicRequestAction $action,
     ): RedirectResponse {
+        abort_unless($trialRequest->status === 'pending', 409, 'هذا الطلب لم يعد معلقاً.');
+
         return to_route('admin.tenants.create', [
             'trial_request_id'      => $trialRequest->id,
             'company_name'          => $trialRequest->customer_name,

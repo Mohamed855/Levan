@@ -19,6 +19,8 @@ final class StoreTenantTicketRequest extends FormRequest
             'subject' => ['required', 'string', 'max:255'],
             'department' => ['required', 'string', 'in:technical,billing,general,auctions'],
             'description' => ['required', 'string', 'min:10', 'max:10000'],
+            'attachments' => ['nullable', 'array', 'max:5'],
+            'attachments.*' => ['file', 'mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx', 'max:5120'],
         ];
     }
 
@@ -28,6 +30,7 @@ final class StoreTenantTicketRequest extends FormRequest
             'subject' => 'عنوان التذكرة',
             'department' => 'القسم المعني',
             'description' => 'تفاصيل المشكلة / الطلب',
+            'attachments' => 'مرفقات التذكرة',
         ];
     }
 

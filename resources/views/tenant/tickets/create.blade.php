@@ -30,7 +30,7 @@
                 </h5>
             </div>
             <div class="card-body pt-4">
-                <form action="{{ route('tenant.tickets.store') }}" method="POST">
+                <form action="{{ route('tenant.tickets.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
                     <div class="mb-3">
@@ -59,6 +59,15 @@
                         <label class="form-label" for="description">تفاصيل المشكلة / الطلب <span class="text-danger">*</span></label>
                         <textarea name="description" id="description" rows="5" class="form-control @error('description') is-invalid @enderror" placeholder="اشرح بالتفصيل ما واجهته أو الاستفسار المطلوب مع ذكر أرقام العمليات ذات الصلة إن وُجدت" required>{{ old('description') }}</textarea>
                         @error('description')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label" for="attachments">مرفقات التذكرة</label>
+                        <input type="file" name="attachments[]" id="attachments" class="form-control @error('attachments.*') is-invalid @enderror" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx" multiple>
+                        <div class="form-text">حتى 5 ملفات، بحد أقصى 5 ميجابايت للملف الواحد.</div>
+                        @error('attachments.*')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>

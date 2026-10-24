@@ -31,13 +31,12 @@ final class SaveFaqAction
         });
     }
 
-    public function toggleStatus(Faq $faq): bool
+    public function updateStatus(Faq $faq, bool $isActive): bool
     {
-        return DB::transaction(function () use ($faq): bool {
-            $status = ! $faq->is_active;
-            $faq->update(['is_active' => $status]);
+        return DB::transaction(function () use ($faq, $isActive): bool {
+            $faq->update(['is_active' => $isActive]);
 
-            return $status;
+            return $isActive;
         });
     }
 

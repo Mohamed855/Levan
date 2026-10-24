@@ -10,16 +10,19 @@ use App\DataTables\Tenant\Auctions\AuctionDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\Auctions\StoreAuctionRequest;
 use App\Http\Requests\Tenant\Auctions\UpdateAuctionRequest;
+use App\Http\Requests\Tenant\Auctions\UpdateAuctionStatusRequest;
 use App\Models\Tenant\Assignment;
 use App\Models\Tenant\Auction;
 use App\Models\Tenant\Property;
 use App\Services\Auctions\AuctionTemplateRenderer;
+use App\Services\Auctions\AuctionSnapshotPdfExporter;
 use App\Services\Auctions\CentralAuctionTemplateGateway;
 use App\Services\Shared\Wizard\WizardDraftService;
 use App\Services\Tenants\Auctions\AuctionService;
 use App\Services\Tenants\Shared\CentralCityOptionsGateway;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\View\View;
 
 final class AuctionController extends Controller
@@ -29,7 +32,9 @@ final class AuctionController extends Controller
         private readonly AuctionService $auctionService,
         private readonly CentralCityOptionsGateway $cityOptionsGateway
     ) {
-        $this->middleware('auth:tenant');
+        $this->middleware('can:auctions.view')->only(['index', 'show', 'preview', 'download']);
+        $this->middleware('can:auctions.create')->only(['create', 'store']);
+        $this->middleware('can:auctions.edit')->only(['edit', 'update', 'toggleStatus', 'destroy']);
     }
 
     public function index(AuctionDataTable $dataTable)
@@ -49,6 +54,8 @@ final class AuctionController extends Controller
 
     public function create(): View
     {
+        $this->authorize('create', Auction::class);
+
         return view('tenant.auctions.create', [
             'auction' => new Auction(),
             'templateOptions' => $this->templateOptions(),
@@ -58,6 +65,8 @@ final class AuctionController extends Controller
 
     public function store(StoreAuctionRequest $request, StoreAuctionAction $action, WizardDraftService $drafts): RedirectResponse
     {
+        $this->authorize('create', Auction::class);
+
         $data = $this->dataWithCover($request);
         $auction = $action->execute($request->user('tenant'), $data);
         $drafts->discard($request, 'tenant.auctions.create');
@@ -68,6 +77,8 @@ final class AuctionController extends Controller
 
     public function show(Auction $auction): View
     {
+        $this->authorize('view', $auction);
+
         return view('tenant.auctions.show', [
             'auction' => $auction->load(['assignment', 'properties', 'attachments']),
         ]);
@@ -75,6 +86,8 @@ final class AuctionController extends Controller
 
     public function edit(Auction $auction): View
     {
+        $this->authorize('update', $auction);
+
         return view('tenant.auctions.edit', [
             'auction' => $auction->load('properties'),
             'templateOptions' => $this->templateOptions(),
@@ -84,6 +97,8 @@ final class AuctionController extends Controller
 
     public function update(UpdateAuctionRequest $request, Auction $auction, UpdateAuctionAction $action): RedirectResponse
     {
+        $this->authorize('update', $auction);
+
         $data = $this->dataWithCover($request);
         $action->execute($auction, $request->user('tenant'), $data);
 
@@ -91,9 +106,11 @@ final class AuctionController extends Controller
             ->with('success', 'تم تحديث المزاد مع الحفاظ على توافق القوالب.');
     }
 
-    public function toggleStatus(Auction $auction): mixed
+    public function toggleStatus(UpdateAuctionStatusRequest $request, Auction $auction): mixed
     {
-        $newStatus = $this->auctionService->toggleStatus($auction);
+        $this->authorize('update', $auction);
+        $newStatus = $request->boolean('is_active');
+        $auction->update(['is_active' => $newStatus, 'status' => $newStatus ? 'active' : 'suspended']);
         if (request()->ajax() || request()->wantsJson()) {
             return response()->json(['success' => true, 'is_active' => $newStatus]);
         }
@@ -103,6 +120,7 @@ final class AuctionController extends Controller
 
     public function destroy(Auction $auction): mixed
     {
+        $this->authorize('delete', $auction);
         $this->auctionService->deleteAuction($auction);
         if (request()->ajax() || request()->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'تم نقل المزاد إلى المحذوفات بنجاح']);
@@ -113,12 +131,24 @@ final class AuctionController extends Controller
 
     public function preview(Auction $auction, string $type, AuctionTemplateRenderer $renderer): View
     {
+        $this->authorize('view', $auction);
         abort_unless(in_array($type, ['brochure', 'billboard', 'social'], true), 404);
 
         return view('tenant.auctions.preview', [
             'output' => $renderer->render($auction, $type),
             'type' => $type,
             'auction' => $auction,
+        ]);
+    }
+
+    public function download(Auction $auction, string $type, AuctionSnapshotPdfExporter $exporter): Response
+    {
+        $this->authorize('view', $auction);
+        abort_unless(in_array($type, ['brochure', 'billboard', 'social'], true), 404);
+
+        return response($exporter->make($auction, $type), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => sprintf('attachment; filename="auction-%d-%s.pdf"', $auction->id, $type),
         ]);
     }
 

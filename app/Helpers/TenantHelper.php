@@ -46,7 +46,7 @@ if (! function_exists('tenant_route_name')) {
             return route($name, $parameters, $absolute);
         }
 
-        return '#';
+        throw new \LogicException("Unknown tenant route [{$name}].");
     }
 }
 

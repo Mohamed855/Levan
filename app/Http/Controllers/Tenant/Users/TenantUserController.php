@@ -9,8 +9,11 @@ use App\DataTables\Tenant\Users\TenantUserDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\Users\StoreTenantUserRequest;
 use App\Http\Requests\Tenant\Users\UpdateTenantUserRequest;
+use App\Http\Requests\Tenant\Users\UpdateTenantUserStatusRequest;
 use App\Models\Access\Role;
 use App\Models\Tenant\User;
+use App\Services\Tenant\Shared\CentralLicenseGateway;
+use DomainException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -53,11 +56,15 @@ final class TenantUserController extends Controller
 
     public function create(): View
     {
+        $this->authorize('create', User::class);
+
         return view('tenant.users.create', ['user' => new User(), 'roles' => $this->roles()]);
     }
 
     public function store(StoreTenantUserRequest $request, SaveTenantUserAction $action): RedirectResponse
     {
+        $this->authorize('create', User::class);
+
         $user = $action->create($request->validated());
 
         return to_route('tenant.users.show', $user)->with('success', 'تم إنشاء المستخدم بنجاح.');
@@ -65,16 +72,22 @@ final class TenantUserController extends Controller
 
     public function show(User $user): View
     {
+        $this->authorize('view', $user);
+
         return view('tenant.users.show', ['user' => $user->load('roles')]);
     }
 
     public function edit(User $user): View
     {
+        $this->authorize('update', $user);
+
         return view('tenant.users.edit', ['user' => $user->load('roles'), 'roles' => $this->roles()]);
     }
 
     public function update(UpdateTenantUserRequest $request, User $user, SaveTenantUserAction $action): RedirectResponse
     {
+        $this->authorize('update', $user);
+
         if ($user->is($request->user('tenant')) && $request->validated('status') !== 'active') {
             return back()->withInput()->withErrors(['status' => 'لا يمكنك تعطيل حسابك أثناء تسجيل الدخول.']);
         }
@@ -84,10 +97,11 @@ final class TenantUserController extends Controller
         return to_route('tenant.users.show', $user)->with('success', 'تم حفظ بيانات المستخدم بنجاح.');
     }
 
-    public function toggleStatus(Request $request, User $user): JsonResponse
+    public function toggleStatus(UpdateTenantUserStatusRequest $request, User $user): JsonResponse
     {
+        $this->authorize('update', $user);
         abort_if($user->is($request->user('tenant')), 422, 'لا يمكنك تعطيل حسابك أثناء تسجيل الدخول.');
-        $newStatus = $user->status === 'active' ? 'inactive' : 'active';
+        $newStatus = $request->validated('status');
         $user->update(['status' => $newStatus]);
 
         return response()->json([
@@ -98,10 +112,21 @@ final class TenantUserController extends Controller
         ]);
     }
 
-    public function destroy(Request $request, User $user): RedirectResponse|JsonResponse
+    public function destroy(Request $request, User $user, CentralLicenseGateway $licenses): RedirectResponse|JsonResponse
     {
+        $this->authorize('delete', $user);
         abort_if($user->is($request->user('tenant')), 422, 'لا يمكنك أرشفة حسابك أثناء تسجيل الدخول.');
-        $user->delete();
+
+        try {
+            $licenses->releaseCurrentTenantUser((int) $user->getKey());
+            $user->delete();
+        } catch (DomainException $exception) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $exception->getMessage()], 409);
+            }
+
+            return back()->with('error', $exception->getMessage());
+        }
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([

@@ -6,6 +6,7 @@ namespace App\Models\Admin\Tenants;
 
 use App\Models\Admin\Subscriptions\Subscription;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Stancl\Tenancy\Contracts\TenantWithDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDomains;
@@ -15,6 +16,7 @@ final class Tenant extends BaseTenant implements TenantWithDatabase
 {
     use HasDatabase;
     use HasDomains;
+    use SoftDeletes;
 
     protected $fillable = [
         'id',

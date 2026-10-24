@@ -20,7 +20,8 @@ final class AdminActivityLogController extends Controller
 
     public function __construct()
     {
-        $this->middleware('can:activity_log.view');
+        $this->middleware('can:activity_log.view')->only(['index', 'show']);
+        $this->middleware('can:activity_log.delete')->only('destroy');
     }
 
     public function index(ActivityLogDataTable $dataTable)
@@ -52,6 +53,8 @@ final class AdminActivityLogController extends Controller
 
     public function show(ActivityLog $activityLog): View
     {
+        $this->authorize('view', $activityLog);
+
         $activityLog->load(['causer', 'subject']);
         $activityData = $this->prepareActivityData($activityLog);
 
@@ -60,6 +63,8 @@ final class AdminActivityLogController extends Controller
 
     public function destroy(Request $request, ActivityLog $activityLog): RedirectResponse|JsonResponse
     {
+        $this->authorize('delete', $activityLog);
+
         $activityLog->delete();
 
         if ($request->ajax() || $request->wantsJson()) {

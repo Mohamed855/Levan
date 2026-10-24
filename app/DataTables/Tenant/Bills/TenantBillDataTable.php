@@ -150,15 +150,6 @@ class TenantBillDataTable extends AbstractDataTable
 
     public function getStats(): array
     {
-        $tenantId = (string) tenant('id');
-        $base = \App\Models\Admin\Bill::query()->where('tenant_id', $tenantId);
-
-        return [
-            'total' => (clone $base)->count(),
-            'paid' => (clone $base)->where('status', BillStatus::PAID->value)->count(),
-            'pending_verification' => (clone $base)->where('status', BillStatus::PENDING_VERIFICATION->value)->count(),
-            'unpaid' => (clone $base)->where('status', BillStatus::UNPAID->value)->count(),
-            'overdue' => (clone $base)->whereIn('status', [BillStatus::OVERDUE->value, BillStatus::REJECTED->value, BillStatus::CANCELLED->value])->count(),
-        ];
+        return (new CentralBillingGateway())->statsForCurrentTenant();
     }
 }

@@ -101,10 +101,11 @@
                                 <div class="row g-4">
                                     <div class="col-12">
                                         <div class="form-check form-switch mb-2">
+                                            <input type="hidden" name="sms_enabled" value="0">
                                             <input class="form-check-input" type="checkbox" name="sms_enabled" id="sms_enabled" value="1" {{ old('sms_enabled', $settings->getValue('sms_enabled')) ? 'checked' : '' }}>
-                                            <label class="form-check-label fw-bold" for="sms_enabled">تفعيل إرسال الرسائل النصية التلقائية للمستفيدين</label>
+                                            <label class="form-check-label fw-bold" for="sms_enabled">تفعيل إعدادات الرسائل النصية للمستأجر</label>
                                         </div>
-                                        <small class="text-muted d-block">عند التفعيل سيتم إرسال إشعارات SMS للمشترين والمشاركين في المزادات.</small>
+                                        <small class="text-warning d-block">لا يوجد حالياً adapter لمزوّد SMS في التطبيق؛ الحفظ لا يرسل رسائل حتى اعتماد المزود وتوصيل التكامل.</small>
                                     </div>
 
                                     <div class="col-md-6">
@@ -124,7 +125,7 @@
 
                                     <div class="col-md-12">
                                         <label class="form-label" for="sms_api_key">مفتاح الربط البرمجي (API Key / Token)</label>
-                                        <input type="password" name="sms_api_key" id="sms_api_key" class="form-control font-monospace" value="{{ old('sms_api_key', $settings->getValue('sms_api_key')) }}" placeholder="أدخل رمز الـ API السري">
+                                        <input type="password" name="sms_api_key" id="sms_api_key" class="form-control font-monospace" value="" placeholder="اتركه فارغاً للحفاظ على المفتاح الحالي">
                                     </div>
                                 </div>
                             </div>
@@ -141,14 +142,16 @@
                                 <div class="row g-4">
                                     <div class="col-12">
                                         <div class="form-check form-switch mb-2">
+                                            <input type="hidden" name="maintenance_mode" value="0">
                                             <input class="form-check-input" type="checkbox" name="maintenance_mode" id="maintenance_mode" value="1" {{ old('maintenance_mode', $settings->getValue('maintenance_mode')) ? 'checked' : '' }}>
                                             <label class="form-check-label fw-bold" for="maintenance_mode">وضع الصيانة المؤقت للمستأجر</label>
                                         </div>
-                                        <small class="text-muted d-block">إيقاف استقبال المزايدات الجديدة مؤقتاً لأغراض التحديث أو الجرد.</small>
+                                        <small class="text-warning d-block">لا يوجد middleware يطبق الحجب حالياً؛ الحفظ يسجل التفضيل فقط إلى أن تعتمد سياسة الحجب ومساراتها.</small>
                                     </div>
 
                                     <div class="col-12">
                                         <div class="form-check form-switch mb-2">
+                                            <input type="hidden" name="breadcrumb_visibility" value="0">
                                             <input class="form-check-input" type="checkbox" name="breadcrumb_visibility" id="breadcrumb_visibility" value="1" {{ old('breadcrumb_visibility', $settings->getValue('breadcrumb_visibility', true)) ? 'checked' : '' }}>
                                             <label class="form-check-label fw-bold" for="breadcrumb_visibility">إظهار شريط التتبع (Breadcrumb) في الشاشات</label>
                                         </div>
@@ -156,10 +159,11 @@
 
                                     <div class="col-12">
                                         <div class="form-check form-switch mb-2">
+                                            <input type="hidden" name="force_two_factor_auth" value="0">
                                             <input class="form-check-input" type="checkbox" name="force_two_factor_auth" id="force_two_factor_auth" value="1" {{ old('force_two_factor_auth', $settings->getValue('force_two_factor_auth')) ? 'checked' : '' }}>
                                             <label class="form-check-label fw-bold" for="force_two_factor_auth">فرض المصادقة الثنائية (2FA) على جميع موظفي المنشأة</label>
                                         </div>
-                                        <small class="text-muted d-block">إلزام جميع المستخدمين بتفعيل رمز التحقق عند تسجيل الدخول لحماية البيانات.</small>
+                                        <small class="text-muted d-block">إلزام جميع المستخدمين بإدخال رمز تحقق يُرسل إلى بريدهم الإلكتروني عند تسجيل الدخول.</small>
                                     </div>
                                 </div>
                             </div>

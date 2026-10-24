@@ -141,7 +141,7 @@ class ActivityLogDataTable extends AbstractDataTable
             ]],
         ];
 
-        if (auth('admin')->user()?->can('activity_log.view')) {
+        if (auth('admin')->user()?->can('activity_log.delete')) {
             $buttons[] = [
                 'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',

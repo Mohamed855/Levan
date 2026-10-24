@@ -28,8 +28,31 @@
 @section('page-script')
     <script>
         window.routes = {
-            massDelete: "{{ route('admin.mass-delete') }}"
+            massDelete: "{{ route('admin.mass-delete') }}",
+            massAccept: "{{ route('admin.subscriptions.mass-accept') }}",
+            massReject: "{{ route('admin.subscriptions.mass-reject') }}"
         };
+
+        function selectedSubscriptionIds() {
+            return $('.row-checkbox:checked').map(function () { return $(this).val(); }).get();
+        }
+
+        async function reviewSelectedSubscriptions(mode) {
+            const ids = selectedSubscriptionIds();
+            if (ids.length === 0) { toastr.warning('يرجى تحديد اشتراك واحد على الأقل'); return; }
+            const reason = mode === 'reject' ? window.prompt('سبب الرفض (اختياري):') : null;
+            if (mode === 'reject' && reason === null) return;
+            const response = await fetch(mode === 'accept' ? window.routes.massAccept : window.routes.massReject, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' },
+                body: JSON.stringify({ ids, reason })
+            });
+            const payload = await response.json();
+            if (!response.ok) { toastr.error(payload.message || 'تعذر إتمام المراجعة.'); return; }
+            toastr.success(payload.message);
+            $('#subscriptions-table').DataTable().ajax.reload(null, false);
+        }
+        window.reviewSelectedSubscriptions = reviewSelectedSubscriptions;
 
         function handleMassDelete() {
             const selectedIds = [];
@@ -91,12 +114,20 @@
         <x-slot:filters>
             <x-data-table.filters table="#subscriptions-table">
                 <x-filter.select id="filter-status" filterKey="status" label="حالة الاشتراك" placeholder="اختر حالة الاشتراك"
-                    :options="$filterOptions['statuses'] ?? []" />
+                    :options="$filterOptions['statuses'] ?? []" :value="$initialStatus ?? null" />
                 <x-filter.select id="filter-plan" filterKey="plan_id" label="الباقة" placeholder="اختر الباقة"
                     :options="$filterOptions['plans'] ?? []" />
                 <x-filter.select id="filter-expiring" filterKey="expiring_in" label="قرب الانتهاء" placeholder="قرب الانتهاء"
-                    :options="$filterOptions['expiring'] ?? []" />
+                    :options="$filterOptions['expiring'] ?? []" :value="$initialExpiring ?? null" />
             </x-data-table.filters>
+            @can('subscriptions.update')
+                @if(($initialStatus ?? null) === 'pending')
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    <button type="button" class="btn btn-success" onclick="reviewSelectedSubscriptions('accept')"><i class="ti ti-check me-1"></i> قبول المحدد</button>
+                    <button type="button" class="btn btn-outline-danger" onclick="reviewSelectedSubscriptions('reject')"><i class="ti ti-x me-1"></i> رفض المحدد</button>
+                </div>
+                @endif
+            @endcan
         </x-slot:filters>
 
         <x-slot:table>

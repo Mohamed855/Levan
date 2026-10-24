@@ -11,6 +11,7 @@ use App\Http\Requests\Admin\Roles\StoreAdminRoleRequest;
 use App\Http\Requests\Admin\Roles\UpdateAdminRoleRequest;
 use App\Models\Access\Permission;
 use App\Models\Access\Role;
+use App\Support\Access\AdminPermissionCatalog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -43,15 +44,20 @@ final class AdminRoleController extends Controller
 
     public function create(): View
     {
+        $this->authorize('create', Role::class);
+
         return view('admin.roles.create', [
             'role' => new Role(['guard' => 'admin']),
             'permissions' => $this->permissions(),
+            'permissionGroups' => $this->permissionGroups(),
         ]);
     }
 
     public function show(Role $role): View
     {
         $this->assertAdminRole($role);
+        $this->authorize('view', $role);
+
         return view('admin.roles.show', [
             'role' => $role->load('permissions', 'adminUsers'),
         ]);
@@ -60,14 +66,19 @@ final class AdminRoleController extends Controller
     public function edit(Role $role): View
     {
         $this->assertAdminRole($role);
+        $this->authorize('update', $role);
+
         return view('admin.roles.edit', [
             'role' => $role->load('permissions'),
             'permissions' => $this->permissions(),
+            'permissionGroups' => $this->permissionGroups(),
         ]);
     }
 
     public function store(StoreAdminRoleRequest $request, SaveAdminRoleAction $action): RedirectResponse
     {
+        $this->authorize('create', Role::class);
+
         $role = $action->create($request->validated());
         return to_route('admin.roles.show', $role)->with('success', 'تم إنشاء الدور بنجاح.');
     }
@@ -75,6 +86,7 @@ final class AdminRoleController extends Controller
     public function update(UpdateAdminRoleRequest $request, Role $role, SaveAdminRoleAction $action): RedirectResponse
     {
         $this->assertAdminRole($role);
+        $this->authorize('update', $role);
         abort_if(in_array($role->name, ['manager', 'SuperAdmin'], true), 422, 'لا يمكن تعديل دور النظام الأساسي.');
         $action->update($role, $request->validated());
         return to_route('admin.roles.show', $role)->with('success', 'تم حفظ الدور بنجاح.');
@@ -83,6 +95,7 @@ final class AdminRoleController extends Controller
     public function destroy(Request $request, Role $role): JsonResponse|RedirectResponse
     {
         $this->assertAdminRole($role);
+        $this->authorize('delete', $role);
         abort_if(in_array($role->name, ['manager', 'SuperAdmin'], true), 422, 'لا يمكن حذف دور النظام الأساسي.');
         abort_if($role->adminUsers()->exists(), 422, 'لا يمكن حذف دور مسند لمستخدمين.');
 
@@ -103,5 +116,12 @@ final class AdminRoleController extends Controller
     private function permissions()
     {
         return Permission::query()->where('guard', 'admin')->orderBy('display_name')->get();
+    }
+
+    private function permissionGroups()
+    {
+        return $this->permissions()->groupBy(
+            fn (Permission $permission): string => AdminPermissionCatalog::group($permission)
+        );
     }
 }

@@ -45,7 +45,7 @@ final class AssignmentArchiveController extends Controller
     {
         $assignment = Assignment::onlyTrashed()->findOrFail($id);
 
-        if ($assignment->properties()->exists() || $assignment->auctions()->exists()) {
+        if ($assignment->properties()->withTrashed()->exists() || $assignment->auctions()->withTrashed()->exists()) {
             $msg = 'لا يمكن الحذف النهائي للإسناد لوجود عقارات أو مزادات تابعة له.';
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json(['success' => false, 'message' => $msg], 422);

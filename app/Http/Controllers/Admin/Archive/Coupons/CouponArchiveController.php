@@ -17,7 +17,8 @@ final class CouponArchiveController extends Controller
     public function __construct(private readonly ManageCentralArchiveAction $archive)
     {
         $this->middleware('can:coupons.view')->only('index');
-        $this->middleware('can:coupons.update')->only(['restore', 'forceDelete']);
+        $this->middleware('can:coupons.update')->only('restore');
+        $this->middleware('can:coupons.delete')->only('forceDelete');
     }
 
     public function index(CouponArchiveDataTable $dataTable)

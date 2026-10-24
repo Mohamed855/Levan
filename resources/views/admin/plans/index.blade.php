@@ -74,6 +74,10 @@
 @section('content')
     <x-ui.validation-errors class="mb-4" />
 
+    @can('plans.update')
+        <div class="d-flex justify-content-end mb-3"><a href="{{ route('admin.plans.reorder.form') }}" class="btn btn-label-primary"><i class="ti ti-sort-ascending me-1"></i>ترتيب الباقات</a></div>
+    @endcan
+
     <x-data-table.page table-id="plans-table">
         <x-slot:stats>
             <x-ui.stat-card title="إجمالي الباقات" :value="$totalPlans" subtitle="جميع الباقات المعرفة" icon="ti-packages"

@@ -34,9 +34,9 @@
                         <div class="d-flex svg-illustration mb-4 gap-2 align-items-center">
                             <span class="app-brand-text fw-bold fs-4 text-primary">لوت LOT</span>
                         </div>
-                        <p class="mb-2">{{ $settings?->company_name ?? 'منصة لوت للمزادات' }}</p>
-                        <p class="mb-2">{{ $settings?->company_address ?? 'المملكة العربية السعودية' }}</p>
-                        <p class="mb-0">{{ $settings?->company_phone ?? '' }}</p>
+                        <p class="mb-2">{{ $platformGeneral['office_name'] ?? 'منصة لوت للمزادات' }}</p>
+                        <p class="mb-2">{{ $platformGeneral['office_address'] ?? 'المملكة العربية السعودية' }}</p>
+                        <p class="mb-0">{{ $platformGeneral['phone_number'] ?? '' }}</p>
                     </div>
                     <div>
                         <h4 class="fw-bold text-md-end mb-2">فاتورة ضريبية</h4>
@@ -223,7 +223,7 @@
                                 <small class="text-muted">{{ $bill->metadata['submitted_at'] ?? 'مرفق' }}</small>
                             </div>
                         </div>
-                        <a href="{{ asset('storage/' . $bill->metadata['receipt_path']) }}" target="_blank" class="btn btn-sm btn-label-primary">
+                        <a href="{{ route('tenant.bills.receipt', $bill->id) }}" class="btn btn-sm btn-label-primary">
                             <i class="ti ti-eye"></i> معاينة
                         </a>
                     </div>

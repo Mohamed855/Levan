@@ -9,6 +9,7 @@ use App\DataTables\Tenant\Companies\CompanyDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\Companies\StoreCompanyRequest;
 use App\Http\Requests\Tenant\Companies\UpdateCompanyRequest;
+use App\Http\Requests\Tenant\Companies\UpdateCompanyStatusRequest;
 use App\Models\Tenant\Company;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -47,11 +48,15 @@ final class CompanyController extends Controller
 
     public function create(): View
     {
+        $this->authorize('create', Company::class);
+
         return view('tenant.companies.create', ['company' => new Company()]);
     }
 
     public function store(StoreCompanyRequest $request, SaveCompanyAction $action): RedirectResponse
     {
+        $this->authorize('create', Company::class);
+
         $company = $action->create($request->validated(), $request->file('logo'));
 
         return to_route('tenant.companies.show', $company)->with('success', 'تم إضافة الشركة بنجاح.');
@@ -59,6 +64,8 @@ final class CompanyController extends Controller
 
     public function show(Company $company): View
     {
+        $this->authorize('view', $company);
+
         return view('tenant.companies.show', [
             'company' => $company->load('authorizedPeople'),
         ]);
@@ -66,6 +73,8 @@ final class CompanyController extends Controller
 
     public function edit(Company $company): View
     {
+        $this->authorize('update', $company);
+
         return view('tenant.companies.edit', [
             'company' => $company->load('authorizedPeople'),
         ]);
@@ -76,14 +85,17 @@ final class CompanyController extends Controller
         Company $company,
         SaveCompanyAction $action
     ): RedirectResponse {
+        $this->authorize('update', $company);
+
         $action->update($company, $request->validated(), $request->file('logo'));
 
         return to_route('tenant.companies.show', $company)->with('success', 'تم حفظ بيانات الشركة بنجاح.');
     }
 
-    public function toggleStatus(Company $company, SaveCompanyAction $action): JsonResponse
+    public function toggleStatus(UpdateCompanyStatusRequest $request, Company $company, SaveCompanyAction $action): JsonResponse
     {
-        $newStatus = $action->toggleStatus($company);
+        $this->authorize('update', $company);
+        $newStatus = $action->updateStatus($company, $request->validated('status'));
 
         return response()->json([
             'success'   => true,
@@ -98,6 +110,7 @@ final class CompanyController extends Controller
         Company $company,
         SaveCompanyAction $action
     ): RedirectResponse|JsonResponse {
+        $this->authorize('delete', $company);
         $action->delete($company);
 
         if ($request->ajax() || $request->wantsJson()) {

@@ -11,6 +11,7 @@ use App\Models\Admin\AdminUser;
 use App\Models\Tenant\Assignment;
 use App\Models\Tenant\User;
 use App\Services\Auctions\AuctionTemplateRenderer;
+use App\Services\Auctions\AuctionSnapshotPdfExporter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -63,5 +64,6 @@ final class AuctionTemplateCompatibilityTest extends TestCase
         $this->assertSame(1, $auction->template_snapshot['brochure']['version']);
         $this->assertSame(24, $auction->template_snapshot['brochure']['schema']['pages'][0]['elements'][0]['style']['font_size']);
         $this->assertSame('نص تجريبي نص تجريبي', app(AuctionTemplateRenderer::class)->render($auction, 'brochure')['bindings']['auction.name']);
+        $this->assertStringStartsWith('%PDF-', app(AuctionSnapshotPdfExporter::class)->make($auction, 'brochure'));
     }
 }

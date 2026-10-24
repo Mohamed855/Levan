@@ -100,4 +100,21 @@ final class AuctionTemplateDesignerTest extends TestCase
             'type' => 'brochure',
         ]);
     }
+
+    public function test_user_with_delete_permission_can_delete_a_template_without_edit_permission(): void
+    {
+        $admin = AdminUser::factory()->create();
+        $admin->givePermissionTo('auction_templates.delete');
+        $template = AuctionTemplate::query()->create([
+            'name' => 'قالب للحذف',
+            'type' => 'brochure',
+            'status' => 'draft',
+            'created_by' => $this->admin->id,
+        ]);
+
+        $response = $this->actingAs($admin, 'admin')->delete(route('admin.auction-templates.destroy', $template));
+
+        $response->assertRedirect(route('admin.auction-templates.index'));
+        $this->assertSoftDeleted('auction_templates', ['id' => $template->id]);
+    }
 }

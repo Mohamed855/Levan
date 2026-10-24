@@ -11,7 +11,7 @@ use Illuminate\Validation\Rule;
 
 final class UpdateAuctionTemplateRequest extends WizardFormRequest
 {
-    public function authorize(): bool { return $this->user('admin') !== null; }
+    public function authorize(): bool { return $this->user('admin')?->hasPermissionTo('auction_templates.edit') ?? false; }
 
     public function rules(): array
     {

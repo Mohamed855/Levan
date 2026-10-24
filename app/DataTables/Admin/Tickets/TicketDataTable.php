@@ -122,7 +122,7 @@ class TicketDataTable extends AbstractDataTable
             ]],
         ];
 
-        if (auth('admin')->user()?->can('tickets.update')) {
+        if (auth('admin')->user()?->can('tickets.delete')) {
             $buttons[] = [
                 'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',

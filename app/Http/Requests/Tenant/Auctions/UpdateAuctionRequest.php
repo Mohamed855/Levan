@@ -8,6 +8,8 @@ use App\Rules\PublishedTemplateVersionRule;
 
 final class UpdateAuctionRequest extends StoreAuctionRequest
 {
+    public function authorize(): bool { return $this->user('tenant')?->hasPermissionTo('auctions.edit') ?? false; }
+
     public function rules(): array
     {
         return array_merge($this->baseRules(), [

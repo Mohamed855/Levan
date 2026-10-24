@@ -10,14 +10,14 @@ final class MassDeleteNotificationsRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user('tenant') !== null;
+        return $this->user('tenant')?->hasPermissionTo('notifications.view') ?? false;
     }
 
     public function rules(): array
     {
         return [
-            'ids' => ['required', 'array'],
-            'ids.*' => ['required', 'string'],
+            'ids' => ['required', 'array', 'min:1', 'max:100'],
+            'ids.*' => ['required', 'uuid', 'distinct'],
         ];
     }
 }

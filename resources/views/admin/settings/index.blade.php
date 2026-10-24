@@ -107,6 +107,7 @@
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <div class="form-check form-switch mb-2">
+                                            <input type="hidden" name="maintenance_mode" value="0">
                                             <input class="form-check-input" type="checkbox" name="maintenance_mode" value="1" id="switch-maintenance" @checked(old('maintenance_mode', $general['maintenance_mode'] ?? false))>
                                             <label class="form-check-label fw-bold" for="switch-maintenance">وضع الصيانة (Maintenance Mode)</label>
                                         </div>
@@ -114,6 +115,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-check form-switch mb-2">
+                                            <input type="hidden" name="trial_days_mode" value="0">
                                             <input class="form-check-input" type="checkbox" name="trial_days_mode" value="1" id="switch-trial" @checked(old('trial_days_mode', $general['trial_days_mode'] ?? true))>
                                             <label class="form-check-label fw-bold" for="switch-trial">تفعيل الفترة التجريبية للعملاء الجدد</label>
                                         </div>
@@ -159,6 +161,7 @@
                             <div class="card-header border-bottom d-flex justify-content-between align-items-center">
                                 <h5 class="card-title mb-0">إعدادات بوابة إتمام (ETMAM Integration)</h5>
                                 <div class="form-check form-switch mb-0">
+                                    <input type="hidden" name="etmam_enabled" value="0">
                                     <input class="form-check-input" type="checkbox" name="etmam_enabled" value="1" id="switch-etmam" @checked(old('etmam_enabled', $etmam['etmam_enabled'] ?? false))>
                                     <label class="form-check-label fw-bold" for="switch-etmam">تفعيل الربط</label>
                                 </div>
@@ -175,11 +178,11 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">رمز التوثيق (API Token)</label>
-                                        <input type="password" name="etmam_api_token" class="form-control font-monospace" value="{{ old('etmam_api_token', $etmam['etmam_api_token'] ?? '') }}">
+                                        <input type="password" name="etmam_api_token" class="form-control font-monospace" value="" placeholder="اتركه فارغاً للحفاظ على الرمز الحالي">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">المفتاح السري (HMAC Secret)</label>
-                                        <input type="password" name="etmam_hmac_secret" class="form-control font-monospace" value="{{ old('etmam_hmac_secret', $etmam['etmam_hmac_secret'] ?? '') }}">
+                                        <input type="password" name="etmam_hmac_secret" class="form-control font-monospace" value="" placeholder="اتركه فارغاً للحفاظ على السر الحالي">
                                     </div>
                                 </div>
                             </div>
@@ -227,10 +230,11 @@
                             </div>
                             <div class="card-body pt-4">
                                 <div class="form-check form-switch mb-3">
+                                    <input type="hidden" name="force_two_factor_auth" value="0">
                                     <input class="form-check-input" type="checkbox" name="force_two_factor_auth" value="1" id="switch-2fa" @checked(old('force_two_factor_auth', $security['force_two_factor_auth'] ?? false))>
                                     <label class="form-check-label fw-bold" for="switch-2fa">إلزام المصادقة الثنائية (2FA) لجميع مديري النظام</label>
                                 </div>
-                                <small class="text-muted d-block">عند التفعيل، لن يتمكن أي مشرف من تسجيل الدخول إلا بعد إكمال إعداد المصادقة عبر تطبيق الموثق (Authenticator App).</small>
+                                <small class="text-muted d-block">عند التفعيل، لن يتمكن أي مشرف من تسجيل الدخول إلا بعد إدخال رمز تحقق يُرسل إلى بريده الإلكتروني.</small>
                             </div>
                         </div>
                     </div>

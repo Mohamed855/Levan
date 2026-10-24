@@ -12,11 +12,11 @@ class Plan extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['name', 'code', 'plan_type', 'color', 'description', 'price', 'discount_percentage', 'limits_mode', 'included_users', 'properties_limit', 'storage_quota_gb', 'active_auctions_limit', 'domain_management_enabled', 'features', 'is_active', 'sort_order', 'subscription_billing_cycle', 'subscription_duration_type', 'available_from'];
+    protected $fillable = ['name', 'code', 'plan_type', 'color', 'description', 'price', 'extra_user_license_price', 'discount_percentage', 'limits_mode', 'included_users', 'properties_limit', 'storage_quota_gb', 'active_auctions_limit', 'domain_management_enabled', 'features', 'is_active', 'sort_order', 'subscription_billing_cycle', 'subscription_duration_type', 'available_from'];
 
     protected function casts(): array
     {
-        return ['price' => 'decimal:2', 'discount_percentage' => 'decimal:2', 'features' => 'array', 'is_active' => 'boolean', 'available_from' => 'datetime', 'domain_management_enabled' => 'boolean'];
+        return ['price' => 'decimal:2', 'extra_user_license_price' => 'decimal:2', 'discount_percentage' => 'decimal:2', 'features' => 'array', 'is_active' => 'boolean', 'available_from' => 'datetime', 'domain_management_enabled' => 'boolean'];
     }
 
     public function getPriceAfterDiscountAttribute(): float

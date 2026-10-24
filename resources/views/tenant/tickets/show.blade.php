@@ -71,7 +71,7 @@
                         <div class="w-100" style="max-width: 85%;">
                             <div class="d-flex justify-content-between align-items-center mb-1 {{ $isAdmin ? '' : 'flex-row-reverse' }}">
                                 <span class="fw-bold fs-6 {{ $isAdmin ? 'text-primary' : 'text-success' }}">
-                                    {{ $isAdmin ? ($reply->adminUser?->name ?? 'فريق دعم لوت') : 'فريق العمل' }}
+                                    {{ $isAdmin ? ($reply->adminUser?->name ?? 'فريق دعم لوت') : ($reply->tenant_user_name ?? 'فريق العمل') }}
                                 </span>
                                 <small class="text-muted">{{ $reply->created_at?->diffForHumans() }}</small>
                             </div>
@@ -89,7 +89,22 @@
             </div>
         </div>
 
+        @if($ticket->attachments->isNotEmpty())
+            <div class="card mb-4">
+                <div class="card-header"><h5 class="card-title mb-0">مرفقات التذكرة</h5></div>
+                <div class="list-group list-group-flush">
+                    @foreach($ticket->attachments as $attachment)
+                        <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="{{ route('tenant.tickets.attachments.download', [$ticket->id, $attachment->id]) }}">
+                            <span><i class="ti ti-paperclip me-1"></i>{{ $attachment->original_name }}</span>
+                            <small class="text-muted">{{ number_format($attachment->size / 1024, 1) }} KB</small>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
         {{-- نموذج إضافة رد --}}
+        @if($ticket->service_enabled)
         <div class="card">
             <div class="card-header py-3 border-bottom">
                 <h5 class="card-title mb-0 fw-bold">
@@ -116,6 +131,11 @@
                 </form>
             </div>
         </div>
+        @else
+            <div class="alert alert-warning mb-0">
+                <i class="ti ti-headset-off me-1"></i> خدمة الدعم لهذه التذكرة متوقفة حالياً. تواصل مع إدارة المنصة إذا احتجت متابعة إضافية.
+            </div>
+        @endif
     </div>
 
     {{-- العمود الأيسر: بطاقة معلومات التذكرة وحالتها --}}

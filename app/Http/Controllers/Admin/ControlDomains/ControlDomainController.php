@@ -9,6 +9,7 @@ use App\DataTables\Admin\ControlDomains\ControlDomainDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ControlDomains\StoreControlDomainRequest;
 use App\Http\Requests\Admin\ControlDomains\UpdateControlDomainRequest;
+use App\Http\Requests\Admin\UpdateActiveStatusRequest;
 use App\Models\Admin\ControlDomain;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -46,11 +47,15 @@ final class ControlDomainController extends Controller
 
     public function create(): View
     {
+        $this->authorize('create', ControlDomain::class);
+
         return view('admin.control-domains.create', ['controlDomain' => new ControlDomain()]);
     }
 
     public function store(StoreControlDomainRequest $request, SaveControlDomainAction $action): RedirectResponse
     {
+        $this->authorize('create', ControlDomain::class);
+
         $action->create($request->validated());
 
         return to_route('admin.control-domains.index')->with('success', 'تم إضافة النطاق بنجاح.');
@@ -58,6 +63,8 @@ final class ControlDomainController extends Controller
 
     public function edit(ControlDomain $controlDomain): View
     {
+        $this->authorize('update', $controlDomain);
+
         return view('admin.control-domains.edit', compact('controlDomain'));
     }
 
@@ -66,14 +73,18 @@ final class ControlDomainController extends Controller
         ControlDomain $controlDomain,
         SaveControlDomainAction $action
     ): RedirectResponse {
+        $this->authorize('update', $controlDomain);
+
         $action->update($controlDomain, $request->validated());
 
         return to_route('admin.control-domains.index')->with('success', 'تم تحديث النطاق بنجاح.');
     }
 
-    public function toggleStatus(ControlDomain $controlDomain, SaveControlDomainAction $action): JsonResponse
+    public function toggleStatus(UpdateActiveStatusRequest $request, ControlDomain $controlDomain, SaveControlDomainAction $action): JsonResponse
     {
-        $status = $action->toggleStatus($controlDomain);
+        $this->authorize('update', $controlDomain);
+
+        $status = $action->updateStatus($controlDomain, $request->boolean('is_active'));
 
         return response()->json([
             'success'   => true,
@@ -87,6 +98,8 @@ final class ControlDomainController extends Controller
         ControlDomain $controlDomain,
         SaveControlDomainAction $action
     ): RedirectResponse|JsonResponse {
+        $this->authorize('delete', $controlDomain);
+
         $action->delete($controlDomain);
 
         if ($request->ajax() || $request->wantsJson()) {

@@ -5,31 +5,16 @@
 @section('content')
 
 @php
-    $statusColors = [
-        'paid'      => 'success',
-        'pending'   => 'warning',
-        'overdue'   => 'danger',
-        'cancelled' => 'secondary',
-        'refunded'  => 'dark',
-    ];
-    $statusLabels = [
-        'paid'      => 'مدفوعة',
-        'pending'   => 'قيد المعالجة',
-        'overdue'   => 'متأخرة',
-        'cancelled' => 'ملغاة',
-        'refunded'  => 'مسترجعة',
-    ];
-    $typeLabels = [
-        'subscription' => 'اشتراك',
-        'renewal'      => 'تجديد',
-        'upgrade'      => 'ترقية',
-    ];
-    $paymentLabels = [
-        'bank_transfer' => 'تحويل بنكي',
-        'credit_card'   => 'بطاقة ائتمان',
-        'mada'          => 'مدى',
-        'cash'          => 'نقدي',
-    ];
+    $statusColors = [];
+    $statusLabels = [];
+    foreach (\App\Enums\Admin\Bills\BillStatus::cases() as $status) {
+        $statusColors[$status->value] = $status->color();
+        $statusLabels[$status->value] = $status->label();
+    }
+    $paymentLabels = [];
+    foreach (\App\Enums\Admin\Bills\PaymentMethod::cases() as $method) {
+        $paymentLabels[$method->value] = $method->label();
+    }
 @endphp
 
 <div class="row g-4">
@@ -46,15 +31,15 @@
                 <h5 class="mb-1 font-monospace">{{ $bill->bill_number }}</h5>
                 <p class="text-muted mb-3">{{ $bill->tenant?->company_name ?? 'بدون عميل محدد' }}</p>
 
-                <span class="badge bg-label-{{ $statusColors[$bill->status] ?? 'primary' }} fs-6 px-3 py-2">
-                    {{ $statusLabels[$bill->status] ?? $bill->status }}
+                <span class="badge bg-label-{{ $bill->status->color() }} fs-6 px-3 py-2">
+                    {{ $bill->status->label() }}
                 </span>
             </div>
             <div class="card-body border-top">
                 <ul class="list-unstyled mb-0">
                     <li class="d-flex justify-content-between py-2 border-bottom">
                         <span class="text-muted">نوع الفاتورة</span>
-                        <span class="fw-semibold">{{ $typeLabels[$bill->type] ?? $bill->type }}</span>
+                        <span class="fw-semibold">{{ $bill->type->label() }}</span>
                     </li>
                     <li class="d-flex justify-content-between py-2 border-bottom">
                         <span class="text-muted">المبلغ الإجمالي</span>
@@ -68,7 +53,7 @@
                     </li>
                     <li class="d-flex justify-content-between py-2 border-bottom">
                         <span class="text-muted">طريقة الدفع</span>
-                        <span class="fw-semibold">{{ $paymentLabels[$bill->payment_method] ?? ($bill->payment_method ?: '—') }}</span>
+                        <span class="fw-semibold">{{ $bill->payment_method?->label() ?? '—' }}</span>
                     </li>
                     <li class="d-flex justify-content-between py-2 border-bottom">
                         <span class="text-muted">تاريخ الإصدار</span>
@@ -87,6 +72,16 @@
                 </ul>
             </div>
         </div>
+
+        @if($hasBankTransferReceipt)
+            <a href="{{ route('admin.bills.bank-transfer.receipt', $bill) }}" class="btn btn-label-primary w-100 mb-3">
+                <i class="ti ti-paperclip me-1"></i> عرض إشعار التحويل الخاص
+            </a>
+        @endif
+
+        <a href="{{ route('admin.bills.print', $bill) }}" target="_blank" rel="noopener" class="btn btn-label-secondary w-100 mb-3">
+            <i class="ti ti-printer me-1"></i> طباعة الفاتورة
+        </a>
 
         {{-- Update Status Card --}}
         @can('bills.update')
@@ -128,8 +123,8 @@
                                 <label for="payment_method" class="form-label">طريقة الدفع</label>
                                 <select name="payment_method" id="payment_method" class="form-select @error('payment_method') is-invalid @enderror">
                                     <option value="">— احتفظ بالطريقة الحالية —</option>
-                                    @foreach(['bank_transfer' => 'تحويل بنكي', 'credit_card' => 'بطاقة ائتمان', 'mada' => 'مدى', 'cash' => 'نقدي'] as $val => $label)
-                                        <option value="{{ $val }}" @selected(old('payment_method', $bill->payment_method) === $val)>{{ $label }}</option>
+                                    @foreach($paymentLabels as $val => $label)
+                                        <option value="{{ $val }}" @selected(old('payment_method', $bill->payment_method?->value) === $val)>{{ $label }}</option>
                                     @endforeach
                                 </select>
                                 @error('payment_method')
@@ -150,6 +145,26 @@
                             <button type="submit" class="btn btn-primary w-100">
                                 <i class="ti ti-check me-1"></i> حفظ وتحديث الحالة
                             </button>
+                        </form>
+                    </div>
+                </div>
+            @endif
+        @endcan
+
+        @can('bills.update')
+            @if($bill->status === \App\Enums\Admin\Bills\BillStatus::PENDING_VERIFICATION)
+                <div class="card mb-4">
+                    <div class="card-header"><h6 class="mb-0"><i class="ti ti-building-bank me-1"></i>مراجعة التحويل البنكي</h6></div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ route('admin.bills.bank-transfer.approve', $bill) }}" class="mb-3">
+                            @csrf
+                            <button type="submit" class="btn btn-success w-100"><i class="ti ti-check me-1"></i>اعتماد التحويل وتفعيل الاشتراك</button>
+                        </form>
+                        <form method="POST" action="{{ route('admin.bills.bank-transfer.reject', $bill) }}">
+                            @csrf
+                            <label for="bank-transfer-reason" class="form-label">سبب الرفض</label>
+                            <textarea name="reason" id="bank-transfer-reason" rows="3" required class="form-control mb-2">{{ old('reason') }}</textarea>
+                            <button type="submit" class="btn btn-outline-danger w-100"><i class="ti ti-x me-1"></i>رفض التحويل</button>
                         </form>
                     </div>
                 </div>
@@ -227,7 +242,7 @@
                     <tbody>
                         <tr>
                             <td>
-                                <span class="fw-semibold">رسوم {{ $typeLabels[$bill->type] ?? $bill->type }}</span>
+                                <span class="fw-semibold">رسوم {{ $bill->type->label() }}</span>
                             </td>
                             <td>
                                 <span class="text-muted">فاتورة رقم {{ $bill->bill_number }}</span>
@@ -258,9 +273,35 @@
             @if(!empty($bill->metadata) && is_array($bill->metadata))
                 <div class="card-body border-top">
                     <h6 class="fw-semibold mb-2">بيانات إضافية (Metadata)</h6>
-                    <pre class="bg-light p-3 rounded mb-0 text-start" dir="ltr" style="font-size: 0.85rem;">{{ json_encode($bill->metadata, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
+                    @php($displayMetadata = \Illuminate\Support\Arr::except($bill->metadata, ['provisioning', 'billing_password_hash', 'otp_hash']))
+                    <pre class="bg-light p-3 rounded mb-0 text-start" dir="ltr" style="font-size: 0.85rem;">{{ json_encode($displayMetadata, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
                 </div>
             @endif
+        </div>
+
+        {{-- Status Change History / Audit Trail Card --}}
+        <div class="card mb-4">
+            <div class="card-header"><h5 class="card-title mb-0"><i class="ti ti-credit-card me-1"></i>سجل محاولات الدفع والتوفيق</h5></div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light"><tr><th>المزود</th><th>المرجع الخارجي</th><th>الطريقة</th><th>المبلغ</th><th>الحالة</th><th>الدفع</th><th>سبب الفشل</th></tr></thead>
+                    <tbody>
+                        @forelse ($bill->paymentAttempts as $attempt)
+                            <tr>
+                                <td>{{ $attempt->provider }}</td>
+                                <td class="font-monospace">{{ $attempt->provider_payment_id ?? '—' }}</td>
+                                <td>{{ $attempt->payment_method }}</td>
+                                <td>{{ number_format((float) $attempt->amount, 2) }} {{ $attempt->currency }}</td>
+                                <td>{{ $attempt->status }}</td>
+                                <td>{{ $attempt->paid_at?->format('Y-m-d H:i') ?? '—' }}</td>
+                                <td>{{ $attempt->failure_reason ?? '—' }}</td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="7" class="text-center py-3 text-muted">لا توجد محاولة دفع مرتبطة بهذه الفاتورة.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         {{-- Status Change History / Audit Trail Card --}}

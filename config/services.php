@@ -35,4 +35,21 @@ return [
         ],
     ],
 
+    'moyasar' => [
+        'mode' => env('MOYASAR_MODE', 'test'),
+        'publishable_key' => env('MOYASAR_PUBLISHABLE_KEY'),
+        'secret_key' => env('MOYASAR_SECRET_KEY'),
+        'base_url' => env('MOYASAR_BASE_URL', 'https://api.moyasar.com/v1'),
+        'timeout' => env('MOYASAR_TIMEOUT', 15),
+        'verify_ssl' => env('MOYASAR_VERIFY_SSL', true),
+    ],
+
+    'namecheap' => [
+        'api_user' => env('NAMECHEAP_API_USER'),
+        'api_key' => env('NAMECHEAP_API_KEY'),
+        'client_ip' => env('NAMECHEAP_CLIENT_IP'),
+        'base_url' => env('NAMECHEAP_BASE_URL', 'https://api.namecheap.com/xml.response'),
+        'timeout' => env('NAMECHEAP_TIMEOUT', 15),
+    ],
+
 ];

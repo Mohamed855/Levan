@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin\Tenants;
 
 use App\Actions\Admin\Tenants\ProvisionTenantAction;
+use App\Actions\Admin\Tenants\UpdateTenantAction;
 use App\Actions\Admin\PublicRequests\ProcessPublicRequestAction;
 use App\DataTables\Admin\Tenants\TenantDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Tenants\StoreTenantRequest;
+use App\Http\Requests\Admin\Tenants\UpdateTenantRequest;
 use App\Models\Admin\City;
 use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\PublicRequests\TrialRequest;
@@ -18,6 +20,14 @@ use Illuminate\View\View;
 
 final class TenantController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:tenants.view')->only(['index', 'show']);
+        $this->middleware('can:tenants.create')->only(['create', 'store']);
+        $this->middleware('can:tenants.update')->only(['edit', 'update']);
+        $this->middleware('can:tenants.delete')->only('destroy');
+    }
+
     public function index(TenantDataTable $dataTable): mixed
     {
         $statistics = [
@@ -49,11 +59,15 @@ final class TenantController extends Controller
 
     public function create(): View
     {
+        $this->authorize('create', Tenant::class);
+
         return view('admin.tenants.create', ['plans' => Plan::query()->where('is_active', true)->orderBy('name')->get(), 'cities' => City::query()->orderBy('name')->get()]);
     }
 
     public function store(StoreTenantRequest $request, ProvisionTenantAction $action, ProcessPublicRequestAction $processAction): RedirectResponse
     {
+        $this->authorize('create', Tenant::class);
+
         $validated = $request->validated();
         $tenant = $action->execute($validated);
 
@@ -70,11 +84,44 @@ final class TenantController extends Controller
 
     public function show(Tenant $tenant): View
     {
+        $this->authorize('view', $tenant);
+
         return view('admin.tenants.show', ['tenant' => $tenant->load(['subscriptions.plan', 'subscriptions.currentPeriod'])]);
+    }
+
+    public function edit(Tenant $tenant): View
+    {
+        $this->authorize('update', $tenant);
+        $settingData = [];
+
+        tenancy()->initialize($tenant);
+        try {
+            $settingData = \App\Models\Tenant\Setting::query()->first()?->data ?? [];
+        } finally {
+            if (tenancy()->initialized) {
+                tenancy()->end();
+            }
+        }
+
+        return view('admin.tenants.edit', [
+            'tenant' => $tenant,
+            'cities' => City::query()->orderBy('name')->get(),
+            'forceTwoFactorAuth' => (bool) ($settingData['force_two_factor_auth'] ?? false),
+        ]);
+    }
+
+    public function update(UpdateTenantRequest $request, Tenant $tenant, UpdateTenantAction $action): RedirectResponse
+    {
+        $this->authorize('update', $tenant);
+        $action->execute($tenant, $request->validated());
+
+        return to_route('admin.tenants.show', $tenant)->with('success', 'تم تحديث بيانات العميل ومالك المنشأة وإعداد 2FA.');
     }
 
     public function destroy(Tenant $tenant): mixed
     {
+        $this->authorize('delete', $tenant);
+
         $tenant->delete();
 
         if (request()->ajax() || request()->wantsJson()) {

@@ -27,7 +27,7 @@ class TenantArchiveDataTable extends AbstractDataTable
     {
         return [
             ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox', 'width' => '10px'],
-            ['data' => 'name', 'name' => 'name', 'title' => 'اسم المستأجر / الجهة'],
+            ['data' => 'company_name', 'name' => 'company_name', 'title' => 'اسم المستأجر / الجهة'],
             ['data' => 'id', 'name' => 'id', 'title' => 'معرف المستأجر'],
             ['data' => 'deleted_at', 'name' => 'deleted_at', 'title' => 'تاريخ الحذف'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '100px'],
@@ -38,7 +38,7 @@ class TenantArchiveDataTable extends AbstractDataTable
     {
         $datatable
             ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
-            ->editColumn('name', fn ($row) => '<span class="fw-bold text-heading">'.e($row->name ?? $row->id).'</span>')
+            ->editColumn('company_name', fn ($row) => '<span class="fw-bold text-heading">'.e($row->company_name ?? $row->id).'</span>')
             ->editColumn('id', fn ($row) => '<span class="font-monospace text-muted" dir="ltr">'.e($row->id).'</span>')
             ->editColumn('deleted_at', fn ($row) => $row->deleted_at?->format('Y-m-d H:i') ?? '-')
             ->addColumn('actions', function ($row) {
@@ -48,12 +48,12 @@ class TenantArchiveDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'name', 'id', 'actions'];
+        return ['checkbox', 'company_name', 'id', 'actions'];
     }
 
     protected function getSearchableColumns(): array
     {
-        return ['name', 'id'];
+        return ['company_name', 'id'];
     }
 
     protected function getCustomOrder(): array

@@ -57,7 +57,7 @@
                     <!-- Registration Form -->
                     <x-web.contact-form data-form-validate :action="route('site.trial.store')" :validation-url="route('site.form-validation')" fields="trial"
                         title="طلب تجربة مجانية" subtitle="انضم إلينا الآن"
-                        desc="أدخل بياناتك وسنقوم بتفعيل حسابك التجريبي وتزويدك ببيانات الدخول مباشرة." />
+                        desc="أدخل بياناتك وسيراجع فريقنا الطلب ثم يتواصل معك لاستكمال تفعيل التجربة." />
 
                     <!-- Info Cards -->
                     <x-web.contact-info />

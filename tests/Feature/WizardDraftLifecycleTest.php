@@ -38,4 +38,28 @@ final class WizardDraftLifecycleTest extends TestCase
         $this->assertDatabaseMissing('wizard_drafts', ['id' => $draft->id]);
         Storage::disk('local')->assertMissing($path);
     }
+
+    public function test_tenant_can_remove_one_file_without_discarding_its_draft(): void
+    {
+        Storage::fake('local');
+        $user = User::factory()->create();
+        $resource = 'tenant.auctions.create';
+
+        $this->actingAs($user, 'tenant')->post(route('tenant.wizard-drafts.store'), [
+            'resource_key' => $resource,
+            'cover_image' => UploadedFile::fake()->image('cover.png'),
+        ])->assertOk();
+
+        $draft = WizardDraft::query()->where('resource_key', $resource)->firstOrFail();
+        $path = $draft->draft_files['cover_image']['path'];
+
+        $this->actingAs($user, 'tenant')->deleteJson(route('tenant.wizard-drafts.file.destroy'), [
+            'resource_key' => $resource,
+            'file_key' => 'cover_image',
+        ])->assertOk()->assertJsonPath('success', true);
+
+        $this->assertDatabaseHas('wizard_drafts', ['id' => $draft->id]);
+        Storage::disk('local')->assertMissing($path);
+        $this->assertSame([], $draft->fresh()->draft_files);
+    }
 }

@@ -13,12 +13,14 @@ return new class extends Migration
             $table->string('status')->default('active')->after('password');
             $table->timestamp('last_login_at')->nullable()->after('remember_token');
             $table->ipAddress('last_login_ip')->nullable()->after('last_login_at');
+            $table->softDeletes();
         });
     }
 
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table): void {
+            $table->dropSoftDeletes();
             $table->dropColumn(['phone', 'status', 'last_login_at', 'last_login_ip']);
         });
     }

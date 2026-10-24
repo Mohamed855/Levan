@@ -1,4 +1,5 @@
-@extends('tenant.layouts.layoutMaster')
+@extends('layouts.dashboard')
+@section('dashboard-scope', 'tenant')
 
 @section('title', 'إضافة إسناد جديد')
 

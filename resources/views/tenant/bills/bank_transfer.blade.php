@@ -40,8 +40,8 @@
                             <div class="border rounded p-3 bg-body-tertiary">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <div class="d-flex align-items-center gap-2">
-                                        @if($bank->logo)
-                                            <img src="{{ asset('storage/' . $bank->logo) }}" alt="{{ $bank->name }}" class="rounded" style="width: 38px; height: 38px; object-fit: contain;">
+                                        @if($bank->logo_path)
+                                            <img src="{{ asset('storage/' . $bank->logo_path) }}" alt="{{ $bank->name }}" class="rounded" style="width: 38px; height: 38px; object-fit: contain;">
                                         @else
                                             <div class="avatar avatar-sm bg-label-primary rounded d-flex align-items-center justify-content-center">
                                                 <i class="ti ti-building-bank"></i>

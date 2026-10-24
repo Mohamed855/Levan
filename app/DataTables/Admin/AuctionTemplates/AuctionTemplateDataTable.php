@@ -144,7 +144,7 @@ class AuctionTemplateDataTable extends AbstractDataTable
             ]],
         ];
 
-        if (auth('admin')->user()?->can('auction_templates.edit')) {
+        if (auth('admin')->user()?->can('auction_templates.delete')) {
             $buttons[] = [
                 'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',

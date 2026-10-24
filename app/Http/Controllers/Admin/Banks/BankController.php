@@ -9,6 +9,7 @@ use App\DataTables\Admin\Banks\BankDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Banks\StoreBankRequest;
 use App\Http\Requests\Admin\Banks\UpdateBankRequest;
+use App\Http\Requests\Admin\UpdateActiveStatusRequest;
 use App\Models\Admin\Bank;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -46,11 +47,15 @@ final class BankController extends Controller
 
     public function create(): View
     {
+        $this->authorize('create', Bank::class);
+
         return view('admin.banks.create', ['bank' => new Bank()]);
     }
 
     public function store(StoreBankRequest $request, SaveBankAction $action): RedirectResponse
     {
+        $this->authorize('create', Bank::class);
+
         $action->create($request->validated(), $request->file('logo'));
 
         return to_route('admin.banks.index')->with('success', 'تم إضافة الحساب البنكي بنجاح.');
@@ -58,19 +63,25 @@ final class BankController extends Controller
 
     public function edit(Bank $bank): View
     {
+        $this->authorize('update', $bank);
+
         return view('admin.banks.edit', compact('bank'));
     }
 
     public function update(UpdateBankRequest $request, Bank $bank, SaveBankAction $action): RedirectResponse
     {
+        $this->authorize('update', $bank);
+
         $action->update($bank, $request->validated(), $request->file('logo'));
 
         return to_route('admin.banks.index')->with('success', 'تم تحديث بيانات الحساب البنكي بنجاح.');
     }
 
-    public function toggleStatus(Request $request, Bank $bank, SaveBankAction $action): JsonResponse|RedirectResponse
+    public function toggleStatus(UpdateActiveStatusRequest $request, Bank $bank, SaveBankAction $action): JsonResponse|RedirectResponse
     {
-        $status = $action->toggleStatus($bank);
+        $this->authorize('update', $bank);
+
+        $status = $action->updateStatus($bank, $request->boolean('is_active'));
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
@@ -85,6 +96,8 @@ final class BankController extends Controller
 
     public function destroy(Request $request, Bank $bank): JsonResponse|RedirectResponse
     {
+        $this->authorize('delete', $bank);
+
         $bank->delete();
 
         if ($request->ajax() || $request->wantsJson()) {

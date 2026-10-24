@@ -41,6 +41,8 @@ final class TenantRoleController extends Controller
 
     public function create(): View
     {
+        $this->authorize('create', Role::class);
+
         return view('tenant.roles.create', [
             'role'        => new Role(['guard' => 'tenant']),
             'permissions' => $this->permissions(),
@@ -50,6 +52,7 @@ final class TenantRoleController extends Controller
     public function show(Role $role): View
     {
         $this->assertTenantRole($role);
+        $this->authorize('view', $role);
 
         return view('tenant.roles.show', [
             'role' => $role->load('permissions', 'tenantUsers'),
@@ -59,6 +62,7 @@ final class TenantRoleController extends Controller
     public function edit(Role $role): View
     {
         $this->assertTenantRole($role);
+        $this->authorize('update', $role);
 
         return view('tenant.roles.edit', [
             'role'        => $role->load('permissions'),
@@ -68,6 +72,8 @@ final class TenantRoleController extends Controller
 
     public function store(StoreTenantRoleRequest $request, SaveTenantRoleAction $action): RedirectResponse
     {
+        $this->authorize('create', Role::class);
+
         $role = $action->create($request->validated());
 
         return to_route('tenant.roles.show', $role)->with('success', 'تم إنشاء الدور بنجاح.');
@@ -76,6 +82,7 @@ final class TenantRoleController extends Controller
     public function update(UpdateTenantRoleRequest $request, Role $role, SaveTenantRoleAction $action): RedirectResponse
     {
         $this->assertTenantRole($role);
+        $this->authorize('update', $role);
         $action->update($role, $request->validated());
 
         return to_route('tenant.roles.show', $role)->with('success', 'تم حفظ الدور بنجاح.');
@@ -84,6 +91,7 @@ final class TenantRoleController extends Controller
     public function destroy(Request $request, Role $role): RedirectResponse|JsonResponse
     {
         $this->assertTenantRole($role);
+        $this->authorize('delete', $role);
         abort_if(in_array($role->name, ['tenant_owner', 'tenant_manager', 'tenant_user'], true), 422, 'لا يمكن حذف دور النظام.');
         abort_if($role->tenantUsers()->exists(), 422, 'لا يمكن حذف دور مرتبط بمستخدمين.');
 

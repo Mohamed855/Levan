@@ -12,6 +12,8 @@ final class TicketReply extends Model
     protected $fillable = [
         'ticket_id',
         'admin_user_id',
+        'tenant_user_id',
+        'tenant_user_name',
         'message',
     ];
 

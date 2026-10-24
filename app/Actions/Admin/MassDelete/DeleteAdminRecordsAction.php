@@ -11,7 +11,7 @@ final class DeleteAdminRecordsAction
 {
     public function execute(Collection $records): int
     {
-        return DB::connection('mysql')->transaction(function () use ($records): int {
+        return DB::connection(config('tenancy.database.central_connection', config('database.default')))->transaction(function () use ($records): int {
             return $records->sum(fn ($record): int => (int) $record->delete());
         });
     }

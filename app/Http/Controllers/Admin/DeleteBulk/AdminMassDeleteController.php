@@ -60,7 +60,7 @@ class AdminMassDeleteController extends Controller
         ],
         'AdminUser' => [
             'class' => AdminUser::class,
-            'permission' => 'users.delete',
+            'permission' => 'admin_users.update',
         ],
         'AuctionTemplate' => [
             'class' => AuctionTemplate::class,

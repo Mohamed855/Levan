@@ -10,7 +10,7 @@ use Illuminate\Validation\Rule;
 
 final class StoreAuctionRequest extends WizardFormRequest
 {
-    public function authorize(): bool { return $this->user('tenant') !== null; }
+    public function authorize(): bool { return $this->user('tenant')?->hasPermissionTo('auctions.create') ?? false; }
 
     public function rules(): array
     {

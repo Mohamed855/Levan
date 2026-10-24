@@ -9,6 +9,7 @@ use App\DataTables\Tenant\Notifications\TenantNotificationDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\Notifications\DeleteNotificationRequest;
 use App\Http\Requests\Tenant\Notifications\MarkNotificationReadRequest;
+use App\Http\Requests\Tenant\Notifications\MarkAllNotificationsReadRequest;
 use App\Http\Requests\Tenant\Notifications\MassDeleteNotificationsRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ final class TenantNotificationController extends Controller
     public function __construct(
         private readonly ManageUserNotificationsAction $notifications
     ) {
-        $this->middleware('auth:tenant');
+        $this->middleware('can:notifications.view');
     }
 
     public function index(TenantNotificationDataTable $dataTable)
@@ -47,7 +48,7 @@ final class TenantNotificationController extends Controller
         ]);
     }
 
-    public function markAllAsRead(Request $request): JsonResponse
+    public function markAllAsRead(MarkAllNotificationsReadRequest $request): JsonResponse
     {
         $this->notifications->markAllAsRead($request->user('tenant'));
 

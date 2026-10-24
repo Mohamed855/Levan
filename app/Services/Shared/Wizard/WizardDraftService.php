@@ -36,6 +36,33 @@ final class WizardDraftService
         return $draft ? (bool) $draft->delete() : false;
     }
 
+    public function removeFile(Request $request, string $resourceKey, string $fileKey): bool
+    {
+        if (! preg_match('/^[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)*$/', $fileKey)) {
+            return false;
+        }
+
+        $draft = $this->find($request, $resourceKey);
+        $files = $draft?->draft_files ?? [];
+        $file = Arr::get($files, $fileKey);
+
+        if (! $draft || ! is_array($file) || ! is_string($file['path'] ?? null)) {
+            return false;
+        }
+
+        $path = $file['path'];
+        if (! str_starts_with($path, 'wizard-drafts/'.$draft->id.'/')) {
+            return false;
+        }
+
+        Storage::disk('local')->delete($path);
+        Arr::forget($files, $fileKey);
+        $draft->draft_files = $files;
+        $draft->save();
+
+        return true;
+    }
+
     /** @return array{array<string,mixed>,array<string,mixed>} */
     public function mergeIntoRequest(Request $request, string $draftId, string $resourceKey): array
     {

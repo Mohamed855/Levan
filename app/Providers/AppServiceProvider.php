@@ -2,6 +2,14 @@
 
 namespace App\Providers;
 
+use App\Contracts\Tenants\BankTransferReceiptGateway;
+use App\Contracts\Payments\PaymentGateway;
+use App\Contracts\Domains\DomainAvailabilityProvider;
+use App\Contracts\Payments\PaidCheckoutProvisioner;
+use App\Services\Payments\MoyasarGateway;
+use App\Services\Domains\NamecheapAvailabilityProvider;
+use App\Actions\Web\ProvisionPaidCheckoutAction;
+use App\Services\Tenants\Shared\CentralBillingGateway;
 use App\Traits\HasRolesAndPermissions;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -13,6 +21,10 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         require_once app_path('Helpers/TenantHelper.php');
+        $this->app->bind(BankTransferReceiptGateway::class, CentralBillingGateway::class);
+        $this->app->bind(PaymentGateway::class, MoyasarGateway::class);
+        $this->app->bind(DomainAvailabilityProvider::class, NamecheapAvailabilityProvider::class);
+        $this->app->bind(PaidCheckoutProvisioner::class, ProvisionPaidCheckoutAction::class);
     }
 
     public function boot(): void
@@ -20,7 +32,12 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Blade::anonymousComponentPath(resource_path('views/components/shared'));
         \Illuminate\Support\Facades\Blade::anonymousComponentPath(resource_path('views/components/shared'), 'shared');
 
-        Gate::before(function (object $user, string $ability): ?bool {
+        Gate::before(function (object $user, string $ability, array $arguments = []): ?bool {
+            // Record abilities must reach their policy so ownership checks cannot be bypassed.
+            if ($arguments !== [] || ! str_contains($ability, '.')) {
+                return null;
+            }
+
             return in_array(HasRolesAndPermissions::class, class_uses_recursive($user), true)
                 ? $user->hasPermissionTo($ability)
                 : null;

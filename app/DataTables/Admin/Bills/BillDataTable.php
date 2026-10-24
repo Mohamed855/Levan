@@ -7,6 +7,7 @@ namespace App\DataTables\Admin\Bills;
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Enums\Admin\Bills\BillStatus;
 use App\Enums\Admin\Bills\BillType;
+use App\Enums\Admin\Bills\PaymentMethod;
 use App\Models\Admin\Bill;
 use Carbon\Carbon;
 
@@ -64,7 +65,12 @@ class BillDataTable extends AbstractDataTable
                 if (! $row->payment_method) {
                     return '<span class="text-muted">-</span>';
                 }
-                return '<span class="badge bg-label-info">'.e($row->payment_method).'</span>';
+
+                $method = $row->payment_method instanceof PaymentMethod
+                    ? $row->payment_method
+                    : PaymentMethod::tryFrom((string) $row->payment_method);
+
+                return '<span class="badge bg-label-info">'.e($method?->label() ?? (string) $row->payment_method).'</span>';
             })
             ->editColumn('status', function ($row) {
                 $status = $row->status instanceof BillStatus ? $row->status : BillStatus::tryFrom((string) $row->status);
@@ -142,7 +148,7 @@ class BillDataTable extends AbstractDataTable
             ]],
         ];
 
-        if (auth('admin')->user()?->can('bills.update')) {
+        if (auth('admin')->user()?->can('bills.delete')) {
             $buttons[] = [
                 'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',

@@ -21,7 +21,7 @@ final class UpdateTicketStatusRequest extends FormRequest
 
     public function authorize(): bool
     {
-        return $this->user('admin')?->can('tickets.reply') ?? false;
+        return $this->user('admin')?->can('tickets.update') ?? false;
     }
 
     public function rules(): array

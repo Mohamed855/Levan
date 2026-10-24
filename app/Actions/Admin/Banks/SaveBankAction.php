@@ -13,41 +13,68 @@ final class SaveBankAction
 {
     public function create(array $data, ?UploadedFile $logo = null): Bank
     {
-        return DB::transaction(function () use ($data, $logo): Bank {
-            if ($logo) {
-                $data['logo_path'] = $logo->store('banks', 'public');
-            }
+        $logoPath = $logo?->store('banks', 'public');
 
+        try {
+            return DB::transaction(function () use ($data, $logoPath): Bank {
+            if ($logoPath !== null) {
+                $data['logo_path'] = $logoPath;
+            }
             $data['is_active'] = (bool) ($data['is_active'] ?? true);
 
             return Bank::create($data);
-        });
+            });
+        } catch (\Throwable $exception) {
+            if ($logoPath !== null && Storage::disk('public')->exists($logoPath)) {
+                Storage::disk('public')->delete($logoPath);
+            }
+
+            throw $exception;
+        }
     }
 
     public function update(Bank $bank, array $data, ?UploadedFile $logo = null): Bank
     {
-        return DB::transaction(function () use ($bank, $data, $logo): Bank {
-            if ($logo) {
-                if ($bank->logo_path) {
-                    Storage::disk('public')->delete($bank->logo_path);
-                }
-                $data['logo_path'] = $logo->store('banks', 'public');
+        $logoPath = $logo?->store('banks', 'public');
+
+        try {
+            return DB::transaction(function () use ($bank, $data, $logoPath): Bank {
+            $lockedBank = Bank::query()->lockForUpdate()->findOrFail($bank->getKey());
+            $previousLogoPath = $lockedBank->logo_path;
+
+            if ($logoPath !== null) {
+                $data['logo_path'] = $logoPath;
             }
 
             if (array_key_exists('is_active', $data)) {
                 $data['is_active'] = (bool) $data['is_active'];
             }
 
-            $bank->update($data);
+            $lockedBank->update($data);
 
-            return $bank;
-        });
+            if ($logoPath !== null && $previousLogoPath !== null && $previousLogoPath !== $logoPath) {
+                DB::afterCommit(function () use ($previousLogoPath): void {
+                    if (Storage::disk('public')->exists($previousLogoPath)) {
+                        Storage::disk('public')->delete($previousLogoPath);
+                    }
+                });
+            }
+
+            return $lockedBank->refresh();
+            });
+        } catch (\Throwable $exception) {
+            if ($logoPath !== null && Storage::disk('public')->exists($logoPath)) {
+                Storage::disk('public')->delete($logoPath);
+            }
+
+            throw $exception;
+        }
     }
 
-    public function toggleStatus(Bank $bank): bool
+    public function updateStatus(Bank $bank, bool $isActive): bool
     {
-        $newStatus = ! $bank->is_active;
-        $bank->update(['is_active' => $newStatus]);
-        return $newStatus;
+        $bank->update(['is_active' => $isActive]);
+
+        return $isActive;
     }
 }

@@ -45,7 +45,7 @@ final class PropertyArchiveController extends Controller
     {
         $property = Property::onlyTrashed()->findOrFail($id);
 
-        if ($property->auctions()->exists()) {
+        if ($property->auctions()->withTrashed()->exists()) {
             $msg = 'لا يمكن الحذف النهائي للعقار لوجود مزادات مرتبطة به.';
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json(['success' => false, 'message' => $msg], 422);

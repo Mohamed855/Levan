@@ -26,7 +26,7 @@ final class SaveCompanyAction
             ]);
 
             if (! empty($data['authorized_people']) && is_array($data['authorized_people'])) {
-                foreach ($data['authorized_people'] as $person) {
+                foreach ($this->authorizedPeople($data['authorized_people']) as $person) {
                     if (! empty($person['name'])) {
                         $company->authorizedPeople()->create([
                             'name'       => $person['name'],
@@ -62,7 +62,7 @@ final class SaveCompanyAction
 
             if (isset($data['authorized_people']) && is_array($data['authorized_people'])) {
                 $company->authorizedPeople()->delete();
-                foreach ($data['authorized_people'] as $person) {
+                foreach ($this->authorizedPeople($data['authorized_people']) as $person) {
                     if (! empty($person['name'])) {
                         $company->authorizedPeople()->create([
                             'name'       => $person['name'],
@@ -79,18 +79,36 @@ final class SaveCompanyAction
         });
     }
 
-    public function toggleStatus(Company $company): string
+    public function updateStatus(Company $company, string $status): string
     {
-        return DB::transaction(function () use ($company): string {
-            $newStatus = $company->status === 'active' ? 'inactive' : 'active';
-            $company->update(['status' => $newStatus]);
+        return DB::transaction(function () use ($company, $status): string {
+            $company->update(['status' => $status]);
 
-            return $newStatus;
+            return $status;
         });
     }
 
     public function delete(Company $company): void
     {
         DB::transaction(fn () => $company->delete());
+    }
+
+    /** @param array<int, array<string, mixed>> $people @return array<int, array<string, mixed>> */
+    private function authorizedPeople(array $people): array
+    {
+        $validPeople = array_values(array_filter($people, fn (array $person): bool => filled($person['name'] ?? null)));
+        $defaultFound = false;
+
+        foreach ($validPeople as $index => $person) {
+            $isDefault = (bool) ($person['is_default'] ?? false) && ! $defaultFound;
+            $validPeople[$index]['is_default'] = $isDefault;
+            $defaultFound = $defaultFound || $isDefault;
+        }
+
+        if ($validPeople !== [] && ! $defaultFound) {
+            $validPeople[0]['is_default'] = true;
+        }
+
+        return $validPeople;
     }
 }

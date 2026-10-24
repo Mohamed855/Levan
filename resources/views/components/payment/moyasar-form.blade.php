@@ -3,6 +3,7 @@
     'callbackUrl',
     'description',
     'publishableKey',
+    'metadata' => [],
 ])
 
 @php($formId = 'moyasar-form-' . uniqid())
@@ -36,6 +37,7 @@
                 description: @json($description),
                 publishable_api_key: @json($publishableKey),
                 callback_url: @json($callbackUrl),
+                metadata: @json($metadata),
                 methods: ['creditcard'],
                 supported_networks: ['mada', 'visa', 'mastercard', 'amex'],
             });

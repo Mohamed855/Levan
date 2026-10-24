@@ -10,6 +10,7 @@ use App\Enums\Admin\Users\AdminUserStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Users\StoreAdminUserRequest;
 use App\Http\Requests\Admin\Users\UpdateAdminUserRequest;
+use App\Http\Requests\Admin\Users\UpdateAdminUserStatusRequest;
 use App\Models\Access\Role;
 use App\Models\Admin\AdminUser;
 use Illuminate\Http\JsonResponse;
@@ -62,6 +63,8 @@ final class AdminUserController extends Controller
 
     public function create(): View
     {
+        $this->authorize('create', AdminUser::class);
+
         return view('admin.users.create', [
             'user' => new AdminUser(),
             'roles' => $this->roles(),
@@ -70,6 +73,8 @@ final class AdminUserController extends Controller
 
     public function edit(AdminUser $user): View
     {
+        $this->authorize('view', $user);
+
         return view('admin.users.edit', [
             'user' => $user->load('roles'),
             'roles' => $this->roles(),
@@ -78,22 +83,28 @@ final class AdminUserController extends Controller
 
     public function store(StoreAdminUserRequest $request, SaveAdminUserAction $action): RedirectResponse
     {
-        $user = $action->create($request->validated());
+        $this->authorize('create', AdminUser::class);
+
+        $user = $action->create($request->validated(), $request->user('admin'));
         return to_route('admin.users.index')->with('success', 'تم إضافة المستخدم بنجاح.');
     }
 
     public function update(UpdateAdminUserRequest $request, AdminUser $user, SaveAdminUserAction $action): RedirectResponse
     {
+        $this->authorize('update', $user);
+
         $data = $request->validated();
         if (blank($data['password'] ?? null)) {
             unset($data['password']);
         }
-        $action->update($user, $data);
+        $action->update($user, $data, $request->user('admin'));
         return to_route('admin.users.index')->with('success', 'تم حفظ المستخدم بنجاح.');
     }
 
-    public function toggle(Request $request, AdminUser $user): JsonResponse|RedirectResponse
+    public function toggle(UpdateAdminUserStatusRequest $request, AdminUser $user, SaveAdminUserAction $action): JsonResponse|RedirectResponse
     {
+        $this->authorize('update', $user);
+
         if ($user->is(auth('admin')->user())) {
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json(['success' => false, 'message' => 'لا يمكنك تعطيل حسابك الشخصي.'], 422);
@@ -101,9 +112,10 @@ final class AdminUserController extends Controller
             return back()->with('error', 'لا يمكنك تعطيل حسابك الشخصي.');
         }
 
-        $currentStatus = $user->status instanceof AdminUserStatus ? $user->status->value : (string) $user->status;
-        $newStatus = $currentStatus === 'active' ? 'inactive' : 'active';
-        $user->update(['status' => $newStatus]);
+        $newStatus = $request->boolean('is_active')
+            ? AdminUserStatus::ACTIVE->value
+            : AdminUserStatus::INACTIVE->value;
+        $user = $action->updateStatus($user, $newStatus);
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
@@ -119,6 +131,8 @@ final class AdminUserController extends Controller
 
     public function destroy(Request $request, AdminUser $user): JsonResponse|RedirectResponse
     {
+        $this->authorize('delete', $user);
+
         if ($user->is(auth('admin')->user())) {
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json(['success' => false, 'message' => 'لا يمكنك حذف حسابك الشخصي.'], 422);

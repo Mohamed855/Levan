@@ -8,7 +8,7 @@ final class StorePlanRequest extends WizardFormRequest
 {
     public function authorize(): bool
     {
-        return $this->user('admin') !== null;
+        return $this->user('admin')?->hasPermissionTo('plans.create') ?? false;
     }
 
     public function validationData(): array
@@ -35,6 +35,7 @@ final class StorePlanRequest extends WizardFormRequest
             'color' => ['required', 'string', 'max:30'],
             'description' => ['nullable', 'string', 'max:1000'],
             'price' => ['required', 'numeric', 'min:0'],
+            'extra_user_license_price' => ['required', 'numeric', 'min:0'],
             'discount_percentage' => ['nullable', 'numeric', 'between:0,100'],
             'limits_mode' => ['required', Rule::in(['limited', 'unlimited'])],
             'included_users' => ['nullable', 'integer', 'min:1'],

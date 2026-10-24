@@ -44,4 +44,22 @@ enum SubscriptionStatus: string
             self::cases()
         );
     }
+
+    /** @return array<string, list<string>> */
+    public static function allowedTransitions(): array
+    {
+        return [
+            self::PENDING->value => [self::ACTIVE->value, self::CANCELLED->value],
+            self::TRIAL->value => [self::ACTIVE->value, self::SUSPENDED->value, self::CANCELLED->value],
+            self::ACTIVE->value => [self::SUSPENDED->value, self::CANCELLED->value],
+            self::SUSPENDED->value => [self::ACTIVE->value, self::CANCELLED->value],
+            self::EXPIRED->value => [self::ACTIVE->value],
+            self::CANCELLED->value => [],
+        ];
+    }
+
+    public static function canTransition(string $from, string $to): bool
+    {
+        return in_array($to, self::allowedTransitions()[$from] ?? [], true);
+    }
 }

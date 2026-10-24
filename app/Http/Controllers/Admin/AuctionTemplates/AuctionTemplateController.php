@@ -12,6 +12,7 @@ use App\Enums\Admin\AuctionTemplates\AuctionTemplateType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\AuctionTemplates\StoreAuctionTemplateRequest;
 use App\Http\Requests\Admin\AuctionTemplates\UpdateAuctionTemplateRequest;
+use App\Http\Requests\Admin\UpdateActiveStatusRequest;
 use App\Models\Admin\AuctionTemplate;
 use App\Models\Admin\AuctionTemplateVersion;
 use App\Services\Shared\Wizard\WizardDraftService;
@@ -27,7 +28,8 @@ final class AuctionTemplateController extends Controller
     {
         $this->middleware('can:auction_templates.view')->only(['index', 'show']);
         $this->middleware('can:auction_templates.create')->only(['create', 'store']);
-        $this->middleware('can:auction_templates.edit')->only(['edit', 'update', 'toggleStatus', 'destroy']);
+        $this->middleware('can:auction_templates.edit')->only(['edit', 'update', 'toggleStatus']);
+        $this->middleware('can:auction_templates.delete')->only('destroy');
         $this->middleware('can:auction_templates.publish')->only('publish');
     }
 
@@ -59,6 +61,7 @@ final class AuctionTemplateController extends Controller
 
     public function create(): View
     {
+        $this->authorize('create', AuctionTemplate::class);
         return view('admin.auction-templates.create', ['template' => new AuctionTemplate()]);
     }
 
@@ -68,6 +71,7 @@ final class AuctionTemplateController extends Controller
         TemplateSchema $schema,
         WizardDraftService $drafts
     ): RedirectResponse {
+        $this->authorize('create', AuctionTemplate::class);
         $data = $request->validated();
         $data['schema'] = $schema->validate($data['schema'], $data['type']);
         $template = $action->execute($request->user('admin'), $data);
@@ -78,6 +82,7 @@ final class AuctionTemplateController extends Controller
 
     public function show(AuctionTemplate $auctionTemplate): View
     {
+        $this->authorize('view', $auctionTemplate);
         return view('admin.auction-templates.show', [
             'template' => $auctionTemplate->load('versions.creator'),
         ]);
@@ -85,6 +90,7 @@ final class AuctionTemplateController extends Controller
 
     public function edit(AuctionTemplate $auctionTemplate): View
     {
+        $this->authorize('update', $auctionTemplate);
         return view('admin.auction-templates.edit', [
             'template' => $auctionTemplate->load('versions'),
         ]);
@@ -96,6 +102,7 @@ final class AuctionTemplateController extends Controller
         UpdateAuctionTemplateAction $action,
         TemplateSchema $schema
     ): RedirectResponse {
+        $this->authorize('update', $auctionTemplate);
         $data = $request->validated();
         if (isset($data['schema'])) {
             $data['schema'] = $schema->validate($data['schema'], $auctionTemplate->type);
@@ -110,14 +117,16 @@ final class AuctionTemplateController extends Controller
         AuctionTemplateVersion $version,
         PublishAuctionTemplateVersionAction $action
     ): RedirectResponse {
+        $this->authorize('publish', $auctionTemplate);
         $action->execute($auctionTemplate, $version);
 
         return back()->with('success', 'تم نشر النسخة وهي جاهزة للاستخدام.');
     }
 
-    public function toggleStatus(Request $request, AuctionTemplate $auctionTemplate): JsonResponse|RedirectResponse
+    public function toggleStatus(UpdateActiveStatusRequest $request, AuctionTemplate $auctionTemplate): JsonResponse|RedirectResponse
     {
-        $newActive = ! $auctionTemplate->is_active;
+        $this->authorize('update', $auctionTemplate);
+        $newActive = $request->boolean('is_active');
         $auctionTemplate->update(['is_active' => $newActive]);
 
         if ($request->ajax() || $request->wantsJson()) {
@@ -133,6 +142,7 @@ final class AuctionTemplateController extends Controller
 
     public function destroy(Request $request, AuctionTemplate $auctionTemplate): JsonResponse|RedirectResponse
     {
+        $this->authorize('delete', $auctionTemplate);
         $auctionTemplate->delete();
 
         if ($request->ajax() || $request->wantsJson()) {

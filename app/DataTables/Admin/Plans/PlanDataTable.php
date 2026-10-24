@@ -170,7 +170,7 @@ class PlanDataTable extends AbstractDataTable
             })
 
             ->editColumn('is_active', function ($row) {
-                if (! auth()->user()?->can('plans.edit')) {
+                if (! auth('admin')->user()?->can('plans.update')) {
                     return $row->is_active
                         ? '<span class="badge bg-success">مفعل</span>'
                         : '<span class="badge bg-danger">غير مفعل</span>';
@@ -300,7 +300,7 @@ class PlanDataTable extends AbstractDataTable
             ['extend' => 'excel', 'text' => 'إكسل'],
         ];
 
-        if (auth()->user()?->can('plans.delete')) {
+        if (auth('admin')->user()?->can('plans.delete')) {
             $buttons[] = [
                 'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
@@ -318,7 +318,7 @@ class PlanDataTable extends AbstractDataTable
 
     private function getAddButton(): array
     {
-        if (auth()->user()?->can('plans.create')) {
+        if (auth('admin')->user()?->can('plans.create')) {
             return [
                 'text' => '<i class="ti ti-plus me-1"></i> إضافة باقة',
                 'className' => 'btn btn-primary btn-add',

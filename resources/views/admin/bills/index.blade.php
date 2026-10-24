@@ -132,6 +132,14 @@
                     placeholder="اختر النوع"
                     :options="$filterOptions['types']"
                 />
+                <x-filter.select
+                    id="filter-payment-method"
+                    filterKey="payment_method"
+                    table="#bill-table"
+                    label="طريقة الدفع"
+                    placeholder="اختر الطريقة"
+                    :options="$filterOptions['paymentMethods']"
+                />
             </x-data-table.filters>
         </x-slot:filters>
 

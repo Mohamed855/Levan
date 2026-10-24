@@ -17,8 +17,12 @@ final class SaveTenantSettingsAction
      */
     public function execute(array $data, ?UploadedFile $imageFile = null): Setting
     {
-        return DB::transaction(function () use ($data, $imageFile): Setting {
-            $setting = Setting::query()->first() ?? new Setting();
+        $newImagePath = $imageFile?->store('settings/tenant', 'public');
+
+        try {
+            return DB::transaction(function () use ($data, $newImagePath): Setting {
+            $setting = Setting::query()->lockForUpdate()->first() ?? new Setting();
+            $previousImagePath = $setting->image;
 
             if (isset($data['office_name'])) {
                 $setting->office_name = $data['office_name'];
@@ -28,11 +32,8 @@ final class SaveTenantSettingsAction
                 $setting->logo_text = $data['logo_text'];
             }
 
-            if ($imageFile) {
-                if ($setting->image && Storage::disk('public')->exists($setting->image)) {
-                    Storage::disk('public')->delete($setting->image);
-                }
-                $setting->image = $imageFile->store('settings/tenant', 'public');
+            if ($newImagePath !== null) {
+                $setting->image = $newImagePath;
             }
 
             $currentData = $setting->data ?? [];
@@ -44,8 +45,8 @@ final class SaveTenantSettingsAction
             if (array_key_exists('sms_sender_id', $data)) {
                 $currentData['sms_sender_id'] = $data['sms_sender_id'];
             }
-            if (array_key_exists('sms_api_key', $data)) {
-                $currentData['sms_api_key'] = $data['sms_api_key'];
+            if (filled($data['sms_api_key'] ?? null)) {
+                $currentData['sms_api_key'] = encrypt($data['sms_api_key']);
             }
             if (array_key_exists('sms_enabled', $data)) {
                 $currentData['sms_enabled'] = (bool) $data['sms_enabled'];
@@ -65,7 +66,22 @@ final class SaveTenantSettingsAction
             $setting->data = $currentData;
             $setting->save();
 
+            if ($newImagePath !== null && $previousImagePath !== null && $previousImagePath !== $newImagePath) {
+                DB::afterCommit(function () use ($previousImagePath): void {
+                    if (Storage::disk('public')->exists($previousImagePath)) {
+                        Storage::disk('public')->delete($previousImagePath);
+                    }
+                });
+            }
+
             return $setting;
-        });
+            });
+        } catch (\Throwable $exception) {
+            if ($newImagePath !== null && Storage::disk('public')->exists($newImagePath)) {
+                Storage::disk('public')->delete($newImagePath);
+            }
+
+            throw $exception;
+        }
     }
 }

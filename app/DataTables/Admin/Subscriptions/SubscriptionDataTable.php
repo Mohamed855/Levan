@@ -148,7 +148,7 @@ class SubscriptionDataTable extends AbstractDataTable
             ['extend' => 'excel', 'text' => 'إكسل'],
         ];
 
-        if (auth()->user()?->can('subscriptions.delete')) {
+        if (auth('admin')->user()?->can('subscriptions.delete')) {
             $buttons[] = [
                 'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',

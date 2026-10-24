@@ -9,7 +9,7 @@ use Illuminate\Validation\Rule;
 
 final class StoreTenantUserRequest extends FormRequest
 {
-    public function authorize(): bool { return $this->user('tenant') !== null; }
+    public function authorize(): bool { return $this->user('tenant')?->hasPermissionTo('users.create') ?? false; }
 
     public function rules(): array
     {

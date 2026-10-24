@@ -5,22 +5,44 @@ declare(strict_types=1);
 namespace App\Http\Requests\Admin\Bills;
 
 use App\Models\Admin\Bill;
+use App\Enums\Admin\Bills\BillStatus;
+use App\Enums\Admin\Bills\PaymentMethod;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 final class UpdateBillStatusRequest extends FormRequest
 {
     public const ALLOWED_TRANSITIONS = [
-        'pending'   => ['paid', 'overdue', 'cancelled'],
-        'overdue'   => ['paid', 'cancelled'],
-        'paid'      => ['refunded'],
-        'cancelled' => ['pending'],
-        'refunded'  => [],
+        'pending'              => ['paid', 'overdue', 'cancelled'],
+        'unpaid'               => ['paid', 'overdue', 'cancelled'],
+        'partially_paid'       => ['paid', 'refunded', 'cancelled'],
+        'overdue'              => ['paid', 'cancelled'],
+        'paid'                 => ['refunded'],
+        'pending_verification' => [],
+        'rejected'             => ['unpaid', 'cancelled'],
+        'cancelled'            => ['unpaid'],
+        'refunded'             => [],
+        'trial'                => ['unpaid', 'cancelled'],
     ];
 
     public static function allowedTransitions(): array
     {
         return self::ALLOWED_TRANSITIONS;
+    }
+
+    /** @return list<string> */
+    public static function allowedTransitionsFor(Bill $bill): array
+    {
+        $currentStatus = $bill->status instanceof BillStatus ? $bill->status->value : (string) $bill->status;
+        $allowed = self::ALLOWED_TRANSITIONS[$currentStatus] ?? [];
+
+        // Payment confirmation for a checkout must run its dedicated, idempotent
+        // settlement path so provisioning and coupon redemption cannot be skipped.
+        if (($bill->metadata['checkout_source'] ?? null) !== null) {
+            $allowed = array_values(array_diff($allowed, ['paid']));
+        }
+
+        return $allowed;
     }
 
     public function authorize(): bool
@@ -33,13 +55,14 @@ final class UpdateBillStatusRequest extends FormRequest
     {
         /** @var Bill|null $bill */
         $bill = $this->route('bill');
-        $currentStatus = $bill instanceof Bill ? $bill->status : 'pending';
-        $allowed = self::ALLOWED_TRANSITIONS[$currentStatus] ?? [];
+        $allowed = $bill instanceof Bill
+            ? self::allowedTransitionsFor($bill)
+            : self::ALLOWED_TRANSITIONS[BillStatus::PENDING->value];
 
         return [
             'status'         => ['required', 'string', Rule::in($allowed)],
             'settled_amount' => ['nullable', 'numeric', 'min:0'],
-            'payment_method' => ['nullable', 'string', 'max:50'],
+            'payment_method' => ['nullable', Rule::enum(PaymentMethod::class)],
             'notes'          => ['nullable', 'string', 'max:500'],
         ];
     }

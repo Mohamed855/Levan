@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace App\Http\Controllers\Admin\Plans;
 use App\Actions\Admin\Plans\SavePlanAction;
+use App\Actions\Admin\Plans\ReorderPlansAction;
 use App\DataTables\Admin\Plans\PlanDataTable;
 use App\Enums\Admin\Plans\PlanLimitsMode;
 use App\Enums\Admin\Plans\PlanType;
@@ -9,6 +10,8 @@ use App\Enums\Admin\Subscriptions\SubscriptionBillingCycle;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Plans\StorePlanRequest;
 use App\Http\Requests\Admin\Plans\UpdatePlanRequest;
+use App\Http\Requests\Admin\Plans\UpdatePlanStatusRequest;
+use App\Http\Requests\Admin\Plans\ReorderPlansRequest;
 use App\Models\Admin\Plans\Plan;
 use App\Services\Shared\Wizard\WizardDraftService;
 use Illuminate\Http\JsonResponse;
@@ -17,6 +20,14 @@ use Illuminate\View\View;
 
 final class PlanController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:plans.view')->only(['index', 'show']);
+        $this->middleware('can:plans.create')->only(['create', 'store']);
+        $this->middleware('can:plans.update')->only(['edit', 'update', 'toggleStatus', 'reorderForm', 'reorder']);
+        $this->middleware('can:plans.delete')->only('destroy');
+    }
+
     public function index(PlanDataTable $dataTable): mixed
     {
         $statistics = [
@@ -68,29 +79,62 @@ final class PlanController extends Controller
         ]);
     }
 
-    public function create(): View { return view('admin.plans.create', ['plan' => new Plan]); }
+    public function create(): View
+    {
+        $this->authorize('create', Plan::class);
+
+        return view('admin.plans.create', ['plan' => new Plan]);
+    }
 
     public function store(StorePlanRequest $request, SavePlanAction $action, WizardDraftService $drafts): RedirectResponse
     {
+        $this->authorize('create', Plan::class);
+
         $plan = $action->create($request->validated());
         $drafts->discard($request, 'admin.plans.create');
 
         return to_route('admin.plans.show', $plan)->with('success', 'تم إنشاء الباقة بنجاح.');
     }
 
-    public function show(Plan $plan): View { return view('admin.plans.show', compact('plan')); }
-    public function edit(Plan $plan): View { return view('admin.plans.edit', compact('plan')); }
+    public function show(Plan $plan): View
+    {
+        $this->authorize('view', $plan);
+
+        return view('admin.plans.show', compact('plan'));
+    }
+
+    public function edit(Plan $plan): View
+    {
+        $this->authorize('update', $plan);
+
+        return view('admin.plans.edit', compact('plan'));
+    }
+
+    public function reorderForm(): View
+    {
+        return view('admin.plans.reorder', ['plans' => Plan::query()->orderBy('sort_order')->orderBy('id')->get()]);
+    }
+
+    public function reorder(ReorderPlansRequest $request, ReorderPlansAction $action): RedirectResponse
+    {
+        $action->execute($request->validated('order'));
+
+        return to_route('admin.plans.index')->with('success', 'تم حفظ ترتيب الباقات.');
+    }
 
     public function update(UpdatePlanRequest $request, Plan $plan, SavePlanAction $action): RedirectResponse
     {
+        $this->authorize('update', $plan);
+
         $action->update($plan, $request->validated());
 
         return to_route('admin.plans.show', $plan)->with('success', 'تم حفظ التعديلات.');
     }
 
-    public function toggleStatus(Plan $plan): mixed
+    public function toggleStatus(UpdatePlanStatusRequest $request, Plan $plan): mixed
     {
-        $plan->update(['is_active' => ! $plan->is_active]);
+        $this->authorize('update', $plan);
+        $plan->update(['is_active' => $request->boolean('is_active')]);
 
         if (request()->ajax() || request()->wantsJson()) {
             return response()->json([
@@ -105,6 +149,8 @@ final class PlanController extends Controller
 
     public function destroy(Plan $plan): mixed
     {
+        $this->authorize('delete', $plan);
+
         if ($plan->subscriptions()->exists()) {
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json(['success' => false, 'message' => 'لا يمكن حذف باقة مرتبطة باشتراكات، استخدم زر التعطيل بدلاً من ذلك.'], 422);

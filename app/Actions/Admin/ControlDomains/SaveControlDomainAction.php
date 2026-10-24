@@ -29,13 +29,12 @@ final class SaveControlDomainAction
         });
     }
 
-    public function toggleStatus(ControlDomain $controlDomain): bool
+    public function updateStatus(ControlDomain $controlDomain, bool $isActive): bool
     {
-        return DB::transaction(function () use ($controlDomain): bool {
-            $status = ! $controlDomain->is_active;
-            $controlDomain->update(['is_active' => $status]);
+        return DB::transaction(function () use ($controlDomain, $isActive): bool {
+            $controlDomain->update(['is_active' => $isActive]);
 
-            return $status;
+            return $isActive;
         });
     }
 
