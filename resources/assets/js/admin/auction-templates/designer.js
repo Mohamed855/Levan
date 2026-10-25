@@ -114,7 +114,7 @@ function initTemplateDesigners() {
       const fields = BINDINGS_BY_TYPE[currentType] || BINDINGS_BY_TYPE.brochure;
 
       if (countBadge) {
-        countBadge.textContent = `${fields.length} بيان`;
+        countBadge.textContent = `${fields.length} متغير`;
       }
       if (badgesContainer) {
         badgesContainer.innerHTML = fields
@@ -153,7 +153,14 @@ function initTemplateDesigners() {
 
       canvas.innerHTML = page().elements
         .map((e) => {
-          return `<div role="button" tabindex="0" class="template-designer__element is-${e.type} ${e.id === selectedId ? 'is-selected' : ''}" data-element-id="${e.id}" style="left:${e.x}px;top:${e.y}px;width:${e.width}px;height:${e.height}px;color:${e.style?.color || '#173f35'};background-color:${e.style?.background_color || 'transparent'};font-size:${e.style?.font_size || 24}px;font-weight:${e.style?.font_weight || 'normal'};font-family:${normalizeFont(e.style?.font_family || DEFAULT_FONT)};text-align:${e.style?.text_align || 'right'};border-radius:${e.style?.border_radius || 0}px">${display(e)}<span class="template-designer__resize-handles">${['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'].map((h) => `<i data-resize-handle="${h}"></i>`).join('')}</span></div>`;
+          const leftPct = (e.x / schema.canvas.width) * 100;
+          const topPct = (e.y / schema.canvas.height) * 100;
+          const widthPct = (e.width / schema.canvas.width) * 100;
+          const heightPct = (e.height / schema.canvas.height) * 100;
+          const fontSize = e.style?.font_size || 24;
+          const borderRadius = e.style?.border_radius || 0;
+
+          return `<div role="button" tabindex="0" class="template-designer__element is-${e.type} ${e.id === selectedId ? 'is-selected' : ''}" data-element-id="${e.id}" style="left:${leftPct}%;top:${topPct}%;width:${widthPct}%;height:${heightPct}%;color:${e.style?.color || '#173f35'};background-color:${e.style?.background_color || 'transparent'};font-size:${fontSize}px;font-size:calc(${fontSize} * 100cqw / ${schema.canvas.width});font-weight:${e.style?.font_weight || 'normal'};font-family:${normalizeFont(e.style?.font_family || DEFAULT_FONT)};text-align:${e.style?.text_align || 'right'};border-radius:calc(${borderRadius} * 100cqw / ${schema.canvas.width})">${display(e)}<span class="template-designer__resize-handles">${['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'].map((h) => `<i data-resize-handle="${h}"></i>`).join('')}</span></div>`;
         })
         .join('');
 
@@ -187,11 +194,11 @@ function initTemplateDesigners() {
 
       box.innerHTML = `
         <div class="mb-3">
-          <label class="form-label">${isText ? 'محتوى النص' : 'البيان المرتبط'}</label>
+          <label class="form-label">${isText ? 'محتوى النص' : (isImage ? 'نوع الصورة' : 'نوع المتغير')}</label>
           ${isText
             ? `<input class="form-control" data-property="content" value="${esc(e.content)}">`
             : `<select class="form-select" data-property="binding">
-                ${currentBindings.map((b) => `<option value="${b.key}" ${e.binding === b.key ? 'selected' : ''}>${esc(b.label)} (${b.key})${b.required ? ' *' : ''}</option>`).join('')}
+                ${currentBindings.map((b) => `<option value="${b.key}" ${e.binding === b.key ? 'selected' : ''}>${esc(b.label)}${b.required ? ' *' : ''}</option>`).join('')}
               </select>`
           }
         </div>
@@ -348,9 +355,9 @@ function initTemplateDesigners() {
                 ${schema.pages.map((p, i) => `
                   <div class="w-100 text-center">
                     <span class="badge bg-secondary mb-2">صفحة ${i + 1}</span>
-                    <div style="position:relative;margin:0 auto;width:min(100%, ${schema.canvas.width}px);aspect-ratio:${schema.canvas.width}/${schema.canvas.height};background-color:${p.background.color || '#fff'};${p.background.image_preview || p.background.image ? `background-image:url('${p.background.image_preview || p.background.image}');background-size:cover;background-position:${p.background.position_x ?? 50}% ${p.background.position_y ?? 50}%;` : ''}border:1px solid #ddd;border-radius:4px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+                    <div style="position:relative;margin:0 auto;width:min(100%, ${schema.canvas.width}px);aspect-ratio:${schema.canvas.width}/${schema.canvas.height};background-color:${p.background.color || '#fff'};${p.background.image_preview || p.background.image ? `background-image:url('${p.background.image_preview || p.background.image}');background-size:cover;background-position:${p.background.position_x ?? 50}% ${p.background.position_y ?? 50}%;` : ''}border:1px solid #ddd;border-radius:4px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.08);container-type:inline-size;">
                       ${p.elements.map((el) => `
-                        <div style="position:absolute;left:${el.x}px;top:${el.y}px;width:${el.width}px;height:${el.height}px;color:${el.style?.color || '#173f35'};font-size:${el.style?.font_size || 24}px;font-family:${normalizeFont(el.style?.font_family || DEFAULT_FONT)};text-align:${el.style?.text_align || 'right'};border-radius:${el.style?.border_radius || 0}px;display:flex;align-items:center;">
+                        <div style="position:absolute;left:${(el.x / schema.canvas.width) * 100}%;top:${(el.y / schema.canvas.height) * 100}%;width:${(el.width / schema.canvas.width) * 100}%;height:${(el.height / schema.canvas.height) * 100}%;color:${el.style?.color || '#173f35'};font-size:calc(${el.style?.font_size || 24} * 100cqw / ${schema.canvas.width});font-family:${normalizeFont(el.style?.font_family || DEFAULT_FONT)};text-align:${el.style?.text_align || 'right'};border-radius:calc(${el.style?.border_radius || 0} * 100cqw / ${schema.canvas.width});display:flex;align-items:center;">
                           ${display(el)}
                         </div>
                       `).join('')}
@@ -388,7 +395,13 @@ function initTemplateDesigners() {
       if (!e) return;
       const prop = ev.target.dataset.property;
       const sty = ev.target.dataset.style;
-      if (prop) e[prop] = ev.target.type === 'number' ? Number(ev.target.value) : ev.target.value;
+      if (prop) {
+        e[prop] = ev.target.type === 'number' ? Number(ev.target.value) : ev.target.value;
+        if (['x', 'y', 'width', 'height'].includes(prop)) {
+          const clamped = clampRect(e, schema.canvas);
+          Object.assign(e, clamped);
+        }
+      }
       if (sty) {
         e.style ||= {};
         e.style[sty] = ev.target.type === 'number' ? Number(ev.target.value) : ev.target.value;
@@ -454,22 +467,31 @@ function initTemplateDesigners() {
         : clampRect({ ...interaction.orig, x: interaction.orig.x + d.x, y: interaction.orig.y + d.y }, schema.canvas);
 
       Object.assign(interaction.e, next);
-      interaction.target.style.left = `${next.x}px`;
-      interaction.target.style.top = `${next.y}px`;
-      interaction.target.style.width = `${next.width}px`;
-      interaction.target.style.height = `${next.height}px`;
+      interaction.target.style.left = `${(next.x / schema.canvas.width) * 100}%`;
+      interaction.target.style.top = `${(next.y / schema.canvas.height) * 100}%`;
+      interaction.target.style.width = `${(next.width / schema.canvas.width) * 100}%`;
+      interaction.target.style.height = `${(next.height / schema.canvas.height) * 100}%`;
       persist();
     });
 
     root.addEventListener('pointerup', () => {
-      interaction = null;
+      if (interaction) {
+        interaction = null;
+        renderProperties();
+      }
     });
 
     root.addEventListener('pointercancel', () => {
-      interaction = null;
+      if (interaction) {
+        interaction = null;
+        renderProperties();
+      }
     });
 
     form?.addEventListener('submit', persist);
+    form?.querySelectorAll?.('[data-wizard-draft], [data-save-draft], .btn-save-draft')?.forEach?.((btn) => {
+      btn.addEventListener('click', persist, true);
+    });
 
     const handleDraftRestored = (event) => {
       try {
