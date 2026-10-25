@@ -35,7 +35,8 @@
                 <div class="card-body">
                     <div class="mb-3 text-center">
                         <img src="{{ $auction->cover_image ? tasset($auction->cover_image) : asset('assets/img/illustrations/page-pricing-enterprise.png') }}"
-                            alt="{{ $auction->name }}" class="rounded" style="width: 100px; height: 100px; object-fit: cover;">
+                            alt="{{ $auction->name }}" class="rounded"
+                            style="width: 100px; height: 100px; object-fit: cover;">
                     </div>
                     <h5 class="text-center">{{ $auction->name }}</h5>
                     <p class="text-muted small">{{ $auction->description ?? 'لا يوجد وصف مضاف.' }}</p>
@@ -52,11 +53,14 @@
                             @endif
                         </li>
                         <li class="mb-2"><span class="fw-bold me-1">الجهة المشرفة:</span>
-                            <span>{{ $auction->supervising_entity ?? '-' }}</span></li>
+                            <span>{{ $auction->supervising_entity ?? '-' }}</span>
+                        </li>
                         <li class="mb-2"><span class="fw-bold me-1">مدير المشروع:</span>
-                            <span>{{ $auction->project_manager_name ?? '-' }}</span></li>
+                            <span>{{ $auction->project_manager_name ?? '-' }}</span>
+                        </li>
                         <li class="mb-2"><span class="fw-bold me-1">منصة المزاد:</span>
-                            <span>{{ $auction->platform_name ?? '-' }}</span></li>
+                            <span>{{ $auction->platform_name ?? '-' }}</span>
+                        </li>
                         @if ($auction->platform_url)
                             <li class="mb-2"><span class="fw-bold me-1">رابط المزاد:</span>
                                 <a href="{{ $auction->platform_url }}" target="_blank" class="text-primary">زيارة المنصة <i
@@ -64,9 +68,11 @@
                             </li>
                         @endif
                         <li class="mb-2"><span class="fw-bold me-1">تاريخ البداية:</span>
-                            <span>{{ $auction->start_date?->format('Y-m-d') }} {{ $auction->start_time }}</span></li>
+                            <span>{{ $auction->start_date?->format('Y-m-d') }} {{ $auction->start_time }}</span>
+                        </li>
                         <li class="mb-2"><span class="fw-bold me-1">تاريخ النهاية:</span>
-                            <span>{{ $auction->end_date?->format('Y-m-d') }} {{ $auction->end_time }}</span></li>
+                            <span>{{ $auction->end_date?->format('Y-m-d') }} {{ $auction->end_time }}</span>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -83,41 +89,54 @@
                     <h6 class="card-title mb-0 text-primary fw-bold">
                         <i class="ti ti-file-analytics me-1"></i>ملفات وتقارير المزاد
                     </h6>
-                    @if($isReady)
+                    @if ($isReady)
                         <span class="badge bg-success">جاهز للتحميل</span>
                     @elseif($isProcessing)
-                        <span class="badge bg-warning"><i class="ti ti-loader ti-spin me-1"></i>قيد التجهيز</span>
+                        <span class="badge bg-warning"><i class="ti ti-loader ti-spin me-1"></i>قيد الإعداد</span>
                     @elseif($isFailed)
-                        <span class="badge bg-danger">فشل التجهيز</span>
+                        <span class="badge bg-danger">فشل الإعداد</span>
                     @else
-                        <span class="badge bg-secondary">غير مجهز</span>
+                        <span class="badge bg-secondary">غير مجهز بعد</span>
                     @endif
                 </div>
                 <div class="card-body pt-3">
-                    @if($isFailed)
+                    @if ($isFailed)
                         <div class="alert alert-danger p-2 small mb-3">
-                            <i class="ti ti-alert-circle me-1"></i> {{ $gen->error_message ?? 'تعذر تجهيز الملفات تلقائياً.' }}
+                            <i class="ti ti-alert-circle me-1"></i>
+                            {{ $gen->error_message ?? 'تعذر تجهيز الملفات تلقائياً.' }}
                         </div>
                     @endif
 
                     <div class="d-grid gap-2">
                         <a href="{{ $isReady && filled($gen->outputs_path) ? tenant_route_name('auctions.reports.download', ['auction' => $auction->id, 'type' => 'outputs']) : 'javascript:void(0)' }}"
-                           class="btn btn-primary d-flex align-items-center justify-content-between {{ !$isReady || blank($gen->outputs_path) ? 'disabled' : '' }}"
-                           @if(!$isReady || blank($gen->outputs_path)) disabled aria-disabled="true" @endif>
+                            class="btn btn-primary d-flex align-items-center justify-content-between {{ !$isReady || blank($gen->outputs_path) ? 'disabled' : '' }}"
+                            @if (!$isReady || blank($gen->outputs_path)) disabled aria-disabled="true" @endif>
                             <span><i class="ti ti-file-text me-2"></i>تحميل مخرجات المزاد</span>
                             <i class="ti ti-download"></i>
                         </a>
 
                         <a href="{{ $isReady && filled($gen->report_path) ? tenant_route_name('auctions.reports.download', ['auction' => $auction->id, 'type' => 'report']) : 'javascript:void(0)' }}"
-                           class="btn btn-success d-flex align-items-center justify-content-between {{ !$isReady || blank($gen->report_path) ? 'disabled' : '' }}"
-                           @if(!$isReady || blank($gen->report_path)) disabled aria-disabled="true" @endif>
+                            class="btn btn-success d-flex align-items-center justify-content-between {{ !$isReady || blank($gen->report_path) ? 'disabled' : '' }}"
+                            @if (!$isReady || blank($gen->report_path)) disabled aria-disabled="true" @endif>
                             <span><i class="ti ti-file-analytics me-2"></i>تحميل تقرير المزاد</span>
                             <i class="ti ti-download"></i>
                         </a>
 
-                        @if($isFailed)
+                        @if ($isReady)
+                            <button type="button" id="btn-retry-reports" class="btn btn-outline-secondary btn-sm mt-1">
+                                <i class="ti ti-refresh me-1"></i> إعادة توليد الملفات
+                            </button>
+                        @elseif ($isProcessing)
+                            <button type="button" id="btn-retry-reports" class="btn btn-outline-warning mt-2">
+                                <i class="ti ti-bolt me-1"></i> توليد الملفات الآن فوراً
+                            </button>
+                        @elseif ($isFailed)
                             <button type="button" id="btn-retry-reports" class="btn btn-outline-danger mt-2">
                                 <i class="ti ti-refresh me-1"></i> إعادة محاولة التجهيز
+                            </button>
+                        @else
+                            <button type="button" id="btn-retry-reports" class="btn btn-primary mt-2">
+                                <i class="ti ti-player-play me-1"></i> بدء تجهيز ملفات المزاد
                             </button>
                         @endif
                     </div>
@@ -135,10 +154,12 @@
                                 <li class="d-flex align-items-center justify-content-between gap-2 py-2 border-bottom">
                                     <div class="d-flex align-items-center gap-2 text-truncate">
                                         <i class="ti ti-file text-primary fs-5" aria-hidden="true"></i>
-                                        <span class="text-truncate" title="{{ $attachment->file_name }}">{{ $attachment->file_name }}</span>
+                                        <span class="text-truncate"
+                                            title="{{ $attachment->file_name }}">{{ $attachment->file_name }}</span>
                                     </div>
                                     <a href="{{ tasset($attachment->file_path) }}" target="_blank"
-                                        class="btn btn-sm btn-icon btn-label-primary" title="تنزيل {{ $attachment->file_name }}">
+                                        class="btn btn-sm btn-icon btn-label-primary"
+                                        title="تنزيل {{ $attachment->file_name }}">
                                         <i class="ti ti-download" aria-hidden="true"></i>
                                     </a>
                                 </li>
@@ -196,58 +217,62 @@
 @endsection
 
 @section('page-script')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const statusUrl = @json(tenant_route_name('auctions.reports.status', $auction->id));
-    const retryUrl = @json(tenant_route_name('auctions.reports.retry', $auction->id));
-    const csrfToken = '{{ csrf_token() }}';
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusUrl = @json(tenant_route_name('auctions.reports.status', $auction->id));
+            const retryUrl = @json(tenant_route_name('auctions.reports.retry', $auction->id));
+            const csrfToken = '{{ csrf_token() }}';
 
-    const retryBtn = document.getElementById('btn-retry-reports');
-    if (retryBtn) {
-        retryBtn.addEventListener('click', function () {
-            retryBtn.disabled = true;
-            retryBtn.innerHTML = '<i class="ti ti-loader ti-spin me-1"></i> جاري الإرسال...';
+            const retryBtn = document.getElementById('btn-retry-reports');
+            if (retryBtn) {
+                retryBtn.addEventListener('click', function() {
+                    retryBtn.disabled = true;
+                    retryBtn.innerHTML = '<i class="ti ti-loader ti-spin me-1"></i> جاري تجهيز الملفات...';
 
-            fetch(retryUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json'
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    if (window.toastr) {
-                        toastr.success(data.message);
-                    }
-                    setTimeout(() => location.reload(), 1000);
-                } else {
-                    alert(data.message || 'حدث خطأ');
-                    retryBtn.disabled = false;
-                }
-            })
-            .catch(() => {
-                alert('حدث خطأ في الاتصال');
-                retryBtn.disabled = false;
-            });
+                    fetch(retryUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                if (window.toastr) {
+                                    toastr.success(data.message);
+                                }
+                                setTimeout(() => location.reload(), 1000);
+                            } else {
+                                alert(data.message || 'حدث خطأ');
+                                retryBtn.disabled = false;
+                            }
+                        })
+                        .catch(() => {
+                            alert('حدث خطأ في الاتصال');
+                            retryBtn.disabled = false;
+                        });
+                });
+            }
+
+            @if ($auction->latestReportGeneration && in_array($auction->latestReportGeneration->status, ['queued', 'processing']))
+                const pollInterval = setInterval(() => {
+                    fetch(statusUrl, {
+                            headers: {
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.status === 'ready' || data.status === 'failed') {
+                                clearInterval(pollInterval);
+                                location.reload();
+                            }
+                        })
+                        .catch(() => {});
+                }, 3000);
+            @endif
         });
-    }
-
-    @if($auction->latestReportGeneration && in_array($auction->latestReportGeneration->status, ['queued', 'processing']))
-        const pollInterval = setInterval(() => {
-            fetch(statusUrl, { headers: { 'Accept': 'application/json' } })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === 'ready' || data.status === 'failed') {
-                        clearInterval(pollInterval);
-                        location.reload();
-                    }
-                })
-                .catch(() => {});
-        }, 3000);
-    @endif
-});
-</script>
+    </script>
 @endsection

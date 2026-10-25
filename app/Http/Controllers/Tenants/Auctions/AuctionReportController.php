@@ -110,27 +110,30 @@ final class AuctionReportController extends Controller
     }
 
     /**
-     * إعادة محاولة توليد الملفات (عند الفشل).
+     * إعادة محاولة / بدء توليد ملفات المزاد.
      */
     public function retry(Request $request, Auction $auction): JsonResponse
     {
         $this->authorize('view', $auction);
 
-        $generation = $auction->latestReportGeneration;
+        $tenantId = (string) (tenant('id') ?: tenant()?->id);
 
-        abort_unless(
-            $generation && $generation->status === 'failed',
-            422,
-            'لا يوجد إصدار فاشل لإعادة المحاولة.',
-        );
+        try {
+            $generation = GenerateAuctionReportsJob::dispatchSyncNow(
+                $auction->loadMissing(['assignment', 'properties', 'attachments']),
+                $tenantId,
+            );
 
-        $tenantId = (string) tenant('id');
-
-        GenerateAuctionReportsJob::dispatchAfterCommit($auction->load(['assignment', 'properties', 'attachments']), $tenantId);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'تمت جدولة إعادة التوليد بنجاح.',
-        ]);
+            return response()->json([
+                'success' => true,
+                'status' => $generation->status,
+                'message' => $generation->isReady() ? 'تم تجهيز ملفات المزاد بنجاح.' : 'تمت معالجة طلب التجهيز.',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'تعذر تجهيز الملفات: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

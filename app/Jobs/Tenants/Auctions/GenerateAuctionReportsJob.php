@@ -39,14 +39,19 @@ class GenerateAuctionReportsJob implements ShouldQueue
         AuctionReportRenderer $renderer,
         BrowserDocumentRenderer $pdfRenderer,
     ): void {
-        $tenant = Tenant::findOrFail($this->tenantId);
+        $alreadyInitialized = tenancy()->initialized && tenant('id') === $this->tenantId;
 
-        tenancy()->initialize($tenant);
+        if (! $alreadyInitialized) {
+            $tenant = Tenant::findOrFail($this->tenantId);
+            tenancy()->initialize($tenant);
+        }
 
         try {
             $this->generate($dataBuilder, $renderer, $pdfRenderer);
         } finally {
-            tenancy()->end();
+            if (! $alreadyInitialized) {
+                tenancy()->end();
+            }
         }
     }
 
@@ -159,5 +164,30 @@ class GenerateAuctionReportsJob implements ShouldQueue
             ->afterCommit();
 
         return $generation;
+    }
+
+    /**
+     * إنشاء إصدار وتوليد الملفات فوراً بشكل متزامن.
+     */
+    public static function dispatchSyncNow(Auction $auction, string $tenantId): AuctionReportGeneration
+    {
+        $dataBuilder = app(AuctionReportDataBuilder::class);
+        $renderer = app(AuctionReportRenderer::class);
+        $pdfRenderer = app(BrowserDocumentRenderer::class);
+
+        $snapshot = $dataBuilder->build($auction);
+        $revisionToken = (string) Str::uuid();
+
+        /** @var AuctionReportGeneration $generation */
+        $generation = $auction->reportGenerations()->create([
+            'revision_token' => $revisionToken,
+            'status' => 'queued',
+            'snapshot' => $snapshot,
+        ]);
+
+        $job = new static($tenantId, $auction->id, $generation->id, $revisionToken);
+        $job->handle($dataBuilder, $renderer, $pdfRenderer);
+
+        return $generation->fresh();
     }
 }
