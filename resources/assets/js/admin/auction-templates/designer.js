@@ -32,7 +32,15 @@ function initTemplateDesigners() {
       canvas.style.aspectRatio = `${schema.canvas.width}/${schema.canvas.height}`; Object.assign(canvas.style, backgroundStyle(page().background));
       canvas.innerHTML = page().elements.map((e) => `<div role="button" tabindex="0" class="template-designer__element is-${e.type} ${e.id === selectedId ? 'is-selected' : ''}" data-element-id="${e.id}" style="left:${e.x}px;top:${e.y}px;width:${e.width}px;height:${e.height}px;color:${e.style?.color || '#173f35'};background-color:${e.style?.background_color || 'transparent'};font-size:${e.style?.font_size || 24}px;font-weight:${e.style?.font_weight || 'normal'};font-family:${normalizeFont(e.style?.font_family || DEFAULT_FONT)};text-align:${e.style?.text_align || 'right'};border-radius:${e.style?.border_radius || 0}px">${display(e)}<span class="template-designer__resize-handles">${['nw','n','ne','e','se','s','sw','w'].map((h) => `<i data-resize-handle="${h}"></i>`).join('')}</span></div>`).join('');
       const color = root.querySelector('[data-background-color]'); if (color) color.value = page().background.color || '#ffffff';
-      const fit = root.querySelector('[data-background-fit]'); if (fit) fit.value = page().background.fit || 'cover';
+      const positionControls = root.querySelector('[data-background-position-controls]');
+      positionControls?.classList.toggle('d-none', !(page().background.image_preview || page().background.image));
+      root.querySelectorAll('[data-background-position]').forEach((control) => {
+        const axis = control.dataset.backgroundPosition;
+        const value = page().background[`position_${axis}`] ?? 50;
+        control.value = value;
+        const output = root.querySelector(`[data-background-position-value="${axis}"]`);
+        if (output) output.textContent = `${value}%`;
+      });
     }
     function renderProperties() {
       const box = root.querySelector('[data-properties]'); if (!box) return; const e = selected();
@@ -44,13 +52,14 @@ function initTemplateDesigners() {
     root.addEventListener('click', (ev) => {
       const p = ev.target.closest('[data-page-index]'); if (p) { pageIndex = Number(p.dataset.pageIndex); selectedId = null; render(); return; }
       const add = ev.target.closest('[data-add-element]')?.dataset.addElement; if (add) { const e = { id: id(), type: add, x: 60, y: 60, width: add === 'image' ? 220 : 280, height: add === 'image' ? 180 : 54, content: add === 'text' ? 'نص جديد' : null, binding: add === 'variable' ? 'auction.name' : add === 'image' ? 'auction.cover_image' : null, style: { color: '#173f35', font_size: 24, font_weight: 'normal', font_family: DEFAULT_FONT, text_align: 'right', border_radius: 0 } }; page().elements.push(e); selectedId = e.id; render(); return; }
-      if (ev.target.closest('[data-add-page]') && type === 'brochure') { schema.pages.push({ id: id(), background: { color: '#ffffff', image: null, fit: 'cover' }, elements: [] }); pageIndex = schema.pages.length - 1; selectedId = null; render(); return; }
+      if (ev.target.closest('[data-add-page]') && type === 'brochure') { schema.pages.push({ id: id(), background: { color: '#ffffff', image: null, fit: 'cover', position_x: 50, position_y: 50 }, elements: [] }); pageIndex = schema.pages.length - 1; selectedId = null; render(); return; }
       if (ev.target.closest('[data-delete-element]') && selectedId) { page().elements = page().elements.filter((e) => e.id !== selectedId); selectedId = null; render(); return; }
       const el = ev.target.closest('[data-element-id]'); if (el) { selectedId = el.dataset.elementId; renderProperties(); root.querySelectorAll('[data-element-id]').forEach((n) => n.classList.toggle('is-selected', n.dataset.elementId === selectedId)); }
     });
     root.addEventListener('input', (ev) => {
       if (ev.target.matches('[data-background-color]')) { setPageBackground(page(), { color: ev.target.value }); renderCanvas(); persist(); return; }
-      if (ev.target.matches('[data-background-fit]')) { setPageBackground(page(), { fit: ev.target.value }); renderCanvas(); persist(); return; }
+      const backgroundPosition = ev.target.dataset.backgroundPosition;
+      if (backgroundPosition) { setPageBackground(page(), { [`position_${backgroundPosition}`]: Number(ev.target.value) }); renderCanvas(); persist(); return; }
       const e = selected(); if (!e) return; const prop = ev.target.dataset.property; const sty = ev.target.dataset.style;
       if (prop) e[prop] = ev.target.type === 'number' ? Number(ev.target.value) : ev.target.value;
       if (sty) { e.style ||= {}; e.style[sty] = ev.target.type === 'number' ? Number(ev.target.value) : ev.target.value; }

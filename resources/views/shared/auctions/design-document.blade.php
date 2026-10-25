@@ -8,9 +8,13 @@
 @endonce
 <div class="auction-design-document d-grid gap-4">
 @foreach(($schema['pages'] ?? []) as $page)
-    @php($bg = $page['background'] ?? [])
+    @php
+        $bg = $page['background'] ?? [];
+        $backgroundPositionX = max(0, min(100, (float) ($bg['position_x'] ?? 50)));
+        $backgroundPositionY = max(0, min(100, (float) ($bg['position_y'] ?? 50)));
+    @endphp
     <div class="auction-design-page position-relative overflow-hidden border rounded shadow-sm"
-         style="width:min(100%, {{ (int) $canvas['width'] }}px);aspect-ratio:{{ (int)$canvas['width'] }}/{{ (int)$canvas['height'] }};background-color:{{ $bg['color'] ?? '#ffffff' }};@if(!empty($bg['image']))background-image:url('{{ str_starts_with($bg['image'], 'auction_') ? Storage::disk('central_public')->url($bg['image']) : Storage::disk('tenant_public')->url($bg['image']) }}');background-size:{{ $bg['fit'] ?? 'cover' }};background-position:center;background-repeat:no-repeat;@endif">
+         style="width:min(100%, {{ (int) $canvas['width'] }}px);aspect-ratio:{{ (int)$canvas['width'] }}/{{ (int)$canvas['height'] }};background-color:{{ $bg['color'] ?? '#ffffff' }};@if(!empty($bg['image']))background-image:url('{{ str_starts_with($bg['image'], 'auction_') ? Storage::disk('central_public')->url($bg['image']) : Storage::disk('tenant_public')->url($bg['image']) }}');background-size:cover;background-position:{{ $backgroundPositionX }}% {{ $backgroundPositionY }}%;background-repeat:no-repeat;@endif">
         @foreach(($page['elements'] ?? []) as $element)
             @php
                 $style = $element['style'] ?? [];

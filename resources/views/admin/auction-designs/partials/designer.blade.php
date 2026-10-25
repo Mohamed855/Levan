@@ -16,14 +16,24 @@
         <label class="btn btn-outline-primary btn-sm mb-0">خلفية الصفحة
             <input type="file" class="d-none" accept="image/png,image/jpeg,image/webp" data-background-image>
         </label>
-        <label class="d-flex align-items-center gap-2 mb-0">
-            <select class="form-select form-select-sm" data-background-fit>
-                <option disabled selected>ملاءمة الصورة</option>
-                <option value="cover">تغطية</option>
-                <option value="contain">احتواء</option>
-                <option value="fill">تمديد</option>
-            </select>
-        </label>
+        <div class="row g-3 flex-grow-1 d-none" data-background-position-controls>
+            <label class="col-md-6 mb-0">
+                <span class="d-flex justify-content-between small mb-1">
+                    <span>موضع الخلفية أفقيًا</span>
+                    <output data-background-position-value="x">50%</output>
+                </span>
+                <input type="range" class="form-range" min="0" max="100" step="1" value="50"
+                    data-background-position="x">
+            </label>
+            <label class="col-md-6 mb-0">
+                <span class="d-flex justify-content-between small mb-1">
+                    <span>موضع الخلفية رأسيًا</span>
+                    <output data-background-position-value="y">50%</output>
+                </span>
+                <input type="range" class="form-range" min="0" max="100" step="1" value="50"
+                    data-background-position="y">
+            </label>
+        </div>
     </div>
     <div class="template-designer__canvas template-canvas" data-canvas></div>
 </div>

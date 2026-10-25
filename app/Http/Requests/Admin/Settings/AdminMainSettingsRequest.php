@@ -13,6 +13,16 @@ class AdminMainSettingsRequest extends FormRequest
         return $this->user('admin')?->can('system.settings') ?? false;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('google_maps_embed_url') && is_string($this->input('google_maps_embed_url'))) {
+            $value = trim($this->input('google_maps_embed_url'));
+            if (preg_match('/src=["\']([^"\']+)["\']/i', $value, $matches)) {
+                $this->merge(['google_maps_embed_url' => $matches[1]]);
+            }
+        }
+    }
+
     public function rules(): array
     {
         return [

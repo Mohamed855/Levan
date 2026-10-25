@@ -1,13 +1,13 @@
+import { setPageBackground } from './backgrounds.js';
+
 export function createDesignState(schema, type, createId, getCanvas) {
   const normalized = schema && typeof schema === 'object' ? structuredClone(schema) : {};
   normalized.canvas ||= getCanvas(type);
   normalized.pages = Array.isArray(normalized.pages) && normalized.pages.length
     ? normalized.pages
-    : [{ id: createId(), background: { color: '#ffffff', image: null, fit: 'cover' }, elements: [] }];
+    : [{ id: createId(), background: { color: '#ffffff', image: null, fit: 'cover', position_x: 50, position_y: 50 }, elements: [] }];
   normalized.pages.forEach((page) => {
-    page.background ||= {};
-    page.background.color ||= '#ffffff';
-    page.background.fit ||= 'cover';
+    setPageBackground(page, {});
     page.elements ||= [];
   });
   return { schema: normalized, pageIndex: 0, selectedId: null };

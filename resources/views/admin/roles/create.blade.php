@@ -80,7 +80,7 @@
                                                         <div class="accordion-body">
 
                                                             <!-- تحديد الكل داخل القسم -->
-                                                            <div class="form-check mb-2">
+                                                            <div class="form-check my-2">
                                                                 <input type="checkbox"
                                                                     class="form-check-input section-select-all"
                                                                     id="section-select-all-{{ $loop->index }}"

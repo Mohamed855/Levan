@@ -294,11 +294,14 @@
 
 
         <!-- User -->
+        @php
+            $adminUser = Auth::guard('admin')->user();
+        @endphp
         <li class="nav-item navbar-dropdown dropdown-user dropdown">
             <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
                 <div class="avatar avatar-online">
-                    <img src="{{ Auth::user()->profile_photo_url ?? asset('static/brand/logos/logo.svg') }}"
-                        alt="{{ Auth::user()->name }}" class="rounded-circle" width="40" height="40">
+                    <img src="{{ $adminUser?->profile_photo_url ?? asset('static/brand/logos/logo.svg') }}"
+                        alt="{{ $adminUser?->name ?? 'Admin' }}" class="rounded-circle" width="40" height="40">
                 </div>
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
@@ -306,13 +309,13 @@
                     <a class="dropdown-item mt-0" href="#">
                         <div class="d-flex align-items-center">
                             <div class="avatar avatar-online me-2">
-                                <img src="{{ Auth::user()->profile_photo_url ?? asset('static/brand/logos/logo.svg') }}"
-                                    alt="{{ Auth::user()->name }}" class="rounded-circle" width="40"
+                                <img src="{{ $adminUser?->profile_photo_url ?? asset('static/brand/logos/logo.svg') }}"
+                                    alt="{{ $adminUser?->name ?? 'Admin' }}" class="rounded-circle" width="40"
                                     height="40">
                             </div>
                             <div class="flex-grow-1">
-                                <h6 class="mb-0">{{ Auth::user()->name }}</h6>
-                                <small class="text-muted">{{ Auth::user()->getRoleNames()->implode(', ') }}</small>
+                                <h6 class="mb-0">{{ $adminUser?->name ?? 'Admin' }}</h6>
+                                <small class="text-muted">{{ $adminUser?->getRoleNames()->implode(', ') ?? '' }}</small>
                             </div>
                         </div>
                     </a>

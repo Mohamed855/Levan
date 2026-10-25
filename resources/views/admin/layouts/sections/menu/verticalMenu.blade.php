@@ -58,14 +58,14 @@
             </li>
         @endcan
 
-        @if (auth()->user()?->can('clients.view') || auth()->user()?->can('companies.view'))
+        @canany(['clients.view', 'companies.view'])
             <li class="menu-item @if (Route::is('admin.clients.*')) active open @endif">
                 <a href="{{ route('admin.clients.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons ti ti-building"></i>
                     <div>إدارة العملاء</div>
                 </a>
             </li>
-        @endif
+        @endcanany
 
         <li class="menu-header small">
             <span class="menu-header-text">القوالب</span>

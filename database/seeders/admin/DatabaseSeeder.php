@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             PublicPlanSeeder::class,
             TrialPlanSeeder::class,
             TestTenantSeeder::class,
+            FaqSeeder::class,
         ]);
     }
 }

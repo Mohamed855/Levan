@@ -64,11 +64,11 @@
                                     class="btn btn-label-success">
                                     <i class="ti ti-dashboard me-1"></i>لوحة التحكم
                                 </a>
-                                @if (auth()->user()?->can('clients.edit') || auth()->user()?->can('companies.edit'))
+                                @canany(['clients.edit', 'companies.edit'])
                                     <a href="{{ route('admin.clients.edit', $target->id) }}" class="btn btn-label-primary">
                                         <i class="ti ti-edit me-1"></i>تعديل
                                     </a>
-                                @endif
+                                @endcanany
                                 <a href="{{ route('admin.clients.index') }}" class="btn btn-secondary">
                                     <i class="ti ti-arrow-right me-1"></i>رجوع
                                 </a>

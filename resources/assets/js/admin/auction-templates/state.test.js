@@ -5,6 +5,8 @@ import { createDesignState, replaceSchema } from './state.js';
 test('createDesignState supplies a valid page background', () => {
   const state = createDesignState(null, 'social', () => 'page-1', () => ({ width: 1, height: 1 }));
   assert.equal(state.schema.pages[0].background.fit, 'cover');
+  assert.equal(state.schema.pages[0].background.position_x, 50);
+  assert.equal(state.schema.pages[0].background.position_y, 50);
 });
 
 test('replaceSchema resets selection and page index', () => {

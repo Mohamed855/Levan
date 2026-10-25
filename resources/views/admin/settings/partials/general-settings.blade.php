@@ -95,9 +95,15 @@
                             <div class="text-danger small">{{ $message }}</div>
                         @enderror
                     </div>
-                    @foreach (['facebook_url' => 'رابط Facebook', 'x_url' => 'رابط X', 'linkedin_url' => 'رابط LinkedIn', 'google_maps_embed_url' => 'رابط Google Maps Embed'] as $field => $label)
+                    @foreach (['facebook_url' => 'رابط Facebook', 'x_url' => 'رابط X', 'linkedin_url' => 'رابط LinkedIn'] as $field => $label)
                         <div class="mb-4 col-md-6"><label for="{{ $field }}" class="form-label">{{ $label }}</label><input class="form-control" type="url" id="{{ $field }}" name="{{ $field }}" value="{{ old($field, $settings->{$field} ?? '') }}" />@error($field)<div class="text-danger small">{{ $message }}</div>@enderror</div>
                     @endforeach
+                    <div class="mb-4 col-md-6">
+                        <label for="google_maps_embed_url" class="form-label">رابط Google Maps Embed</label>
+                        <input class="form-control" type="text" id="google_maps_embed_url" name="google_maps_embed_url" value="{{ old('google_maps_embed_url', $settings->google_maps_embed_url ?? '') }}" placeholder="https://www.google.com/maps/embed?pb=..." />
+                        <div class="form-text">يمكنك إدخال رابط التضمين مباشرة أو كود iframe بالكامل من خرائط جوجل.</div>
+                        @error('google_maps_embed_url')<div class="text-danger small">{{ $message }}</div>@enderror
+                    </div>
                     {{--
                     <div class="mb-4 col-md-6">
                         <label for="trial_days_mode" class="form-label">فترة التجربة</label>

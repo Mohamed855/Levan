@@ -84,5 +84,11 @@ class AuthServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->registerPolicies();
+
+        \Illuminate\Support\Facades\Gate::before(function ($user, string $ability) {
+            if ($user instanceof AdminUser && $user->isSuperAdmin()) {
+                return true;
+            }
+        });
     }
 }
