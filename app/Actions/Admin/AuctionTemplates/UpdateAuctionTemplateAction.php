@@ -7,8 +7,10 @@ namespace App\Actions\Admin\AuctionTemplates;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\AuctionTemplates\AuctionTemplate;
 use App\Models\Admin\AuctionTemplates\AuctionTemplateVersion;
+use App\Services\Admin\AuctionTemplates\AuctionDesignAssetService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 final class UpdateAuctionTemplateAction
 {
@@ -43,7 +45,7 @@ final class UpdateAuctionTemplateAction
 
             if ($file instanceof UploadedFile) {
                 $filePath = $file->store("auction_templates/{$type}", 'central_public');
-                if (\Illuminate\Support\Facades\Schema::hasColumn('auction_templates', 'file_path')) {
+                if (Schema::hasColumn('auction_templates', 'file_path')) {
                     $updateData['file_path'] = $filePath;
                 }
             }
@@ -57,6 +59,11 @@ final class UpdateAuctionTemplateAction
                 }
 
                 $latestVersion = (int) $template->versions()->max('version');
+                $versionPrefix = "auction_templates/{$template->id}/versions/".($latestVersion + 1);
+                $uploads = (array) ($data['page_backgrounds'] ?? []);
+                if ($uploads !== []) {
+                    $schema = app(AuctionDesignAssetService::class)->finalizeSchema($schema, $uploads, $versionPrefix);
+                }
                 AuctionTemplateVersion::query()->create([
                     'auction_template_id' => $template->id,
                     'version' => $latestVersion + 1,

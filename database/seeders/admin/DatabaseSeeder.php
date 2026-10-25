@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             CitySeeder::class,
             PermissionsRolesSeeder::class,
+            AuctionTemplateSamplesPermissionsSeeder::class,
             AdminUserSeeder::class,
             SettingsSeeder::class,
             PublicPlanSeeder::class,

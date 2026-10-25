@@ -100,6 +100,11 @@
                     <div>قوالب المزادات</div>
                 </a>
             </li>
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('auction_template_samples.view')): ?>
+            <li class="menu-item <?php if(Route::is('admin.auction-template-samples.*')): ?> active <?php endif; ?>">
+                <a href="<?php echo e(route('admin.auction-template-samples.index')); ?>" class="menu-link"><i class="menu-icon tf-icons ti ti-layout-grid"></i><div>مكتبة عينات القوالب</div></a>
+            </li>
+            <?php endif; ?>
         <?php endif; ?>
 
         <li class="menu-header small">

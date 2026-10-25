@@ -32,6 +32,8 @@ class StoreAuctionTemplateRequest extends WizardFormRequest
             'is_active' => ['nullable', 'boolean'],
             'schema' => ['required', 'json', new TemplateSchemaRule($type)],
             'file' => ['nullable', 'file', 'max:30720'],
+            'page_backgrounds' => ['nullable', 'array'],
+            'page_backgrounds.*' => ['nullable', 'file', 'mimes:png,jpg,jpeg,webp', 'max:10240', 'dimensions:max_width=10000,max_height=10000'],
         ];
     }
 

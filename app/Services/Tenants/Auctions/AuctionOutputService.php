@@ -45,6 +45,11 @@ final class AuctionOutputService
 
     public function generate(Auction $auction, string $type, ?int $templateId): string
     {
+        if (is_array($auction->template_snapshot[$type] ?? null)) {
+            $outputDir = storage_path('app/outputs');
+            if (! File::isDirectory($outputDir)) File::makeDirectory($outputDir, 0755, true, true);
+            return app(AuctionSnapshotExporter::class)->pdf($auction, $type, $outputDir."/auction_{$auction->id}_{$type}_".time().'.pdf');
+        }
         if (! $templateId) {
             throw new RuntimeException("لم يتم ربط قالب {$type} بهذا المزاد.");
         }

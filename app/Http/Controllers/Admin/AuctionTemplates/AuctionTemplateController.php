@@ -51,15 +51,15 @@ class AuctionTemplateController extends Controller
             ['value' => '0', 'label' => 'معطل'],
         ];
 
-        return $dataTable->render($this->page . '.index', compact('statistics', 'typeOptions', 'typeFilterOptions', 'statusFilterOptions'));
+        return $dataTable->render($this->page.'.index', compact('statistics', 'typeOptions', 'typeFilterOptions', 'statusFilterOptions'));
     }
 
     public function create(): View
     {
-        return view($this->page . '.create', [
-            'template'    => new AuctionTemplate(),
+        return view($this->page.'.create', [
+            'template' => new AuctionTemplate,
             'typeOptions' => AuctionTemplateType::options(),
-            'fieldGuide'  => $this->service->getFieldGuide(),
+            'fieldGuide' => $this->service->getFieldGuide(),
         ]);
     }
 
@@ -69,6 +69,7 @@ class AuctionTemplateController extends Controller
         TemplateSchema $schema
     ): RedirectResponse {
         $data = $request->validated();
+        $data['page_backgrounds'] = $request->file('page_backgrounds', []);
         if (isset($data['schema'])) {
             $data['schema'] = $schema->validate($data['schema'], (string) $data['type']);
         }
@@ -92,8 +93,8 @@ class AuctionTemplateController extends Controller
         $typeValue = is_object($auctionTemplate->type) ? $auctionTemplate->type->value : (string) $auctionTemplate->type;
         $typeGuide = $fieldGuide[$typeValue] ?? null;
 
-        return view($this->page . '.show', [
-            'template'  => $auctionTemplate,
+        return view($this->page.'.show', [
+            'template' => $auctionTemplate,
             'typeGuide' => $typeGuide,
         ]);
     }
@@ -102,10 +103,10 @@ class AuctionTemplateController extends Controller
     {
         $auctionTemplate->load('versions');
 
-        return view($this->page . '.edit', [
-            'template'    => $auctionTemplate,
+        return view($this->page.'.edit', [
+            'template' => $auctionTemplate,
             'typeOptions' => AuctionTemplateType::options(),
-            'fieldGuide'  => $this->service->getFieldGuide(),
+            'fieldGuide' => $this->service->getFieldGuide(),
         ]);
     }
 
@@ -116,6 +117,7 @@ class AuctionTemplateController extends Controller
         TemplateSchema $schema
     ): RedirectResponse {
         $data = $request->validated();
+        $data['page_backgrounds'] = $request->file('page_backgrounds', []);
         $typeValue = is_object($auctionTemplate->type) ? $auctionTemplate->type->value : (string) $auctionTemplate->type;
         if (isset($data['schema'])) {
             $data['schema'] = $schema->validate($data['schema'], $typeValue);
@@ -166,7 +168,7 @@ class AuctionTemplateController extends Controller
 
         return response()->json([
             'success' => $updated,
-            'status'  => $auctionTemplate->is_active,
+            'status' => $auctionTemplate->is_active,
             'message' => $auctionTemplate->is_active ? 'تم تفعيل القالب بنجاح.' : 'تم تعطيل القالب بنجاح.',
         ]);
     }
@@ -180,21 +182,21 @@ class AuctionTemplateController extends Controller
 
         $fieldComparison = array_map(function ($field) use ($extracted) {
             return [
-                'name'     => $field['name'],
-                'label'    => $field['label'],
+                'name' => $field['name'],
+                'label' => $field['label'],
                 'required' => $field['required'],
-                'found'    => in_array($field['name'], $extracted, true),
+                'found' => in_array($field['name'], $extracted, true),
             ];
         }, $expected);
 
         return response()->json([
             'template' => [
-                'id'          => $auctionTemplate->id,
-                'name'        => $auctionTemplate->name,
-                'type'        => $typeValue,
+                'id' => $auctionTemplate->id,
+                'name' => $auctionTemplate->name,
+                'type' => $typeValue,
                 'totalFields' => count($extracted),
             ],
-            'fields'   => $fieldComparison,
+            'fields' => $fieldComparison,
         ]);
     }
 }

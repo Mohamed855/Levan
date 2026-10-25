@@ -7,9 +7,13 @@ namespace App\Actions\Admin\AuctionTemplates;
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\AuctionTemplates\AuctionTemplate;
 use App\Models\Admin\AuctionTemplates\AuctionTemplateVersion;
+use App\Services\Admin\AuctionTemplates\AuctionDesignAssetService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 final class CreateAuctionTemplateAction
 {
@@ -34,11 +38,11 @@ final class CreateAuctionTemplateAction
             $extractedFields = [];
             if ($file instanceof UploadedFile) {
                 $filePath = $file->store("auction_templates/{$type}", 'central_public');
-                $absolutePath = \Illuminate\Support\Facades\Storage::disk('central_public')->path($filePath);
+                $absolutePath = Storage::disk('central_public')->path($filePath);
                 $extractedFields = $this->extractFieldNames($absolutePath);
 
                 if (empty($extractedFields) && empty($data['schema']) && empty($data['field_definitions'])) {
-                    throw \Illuminate\Validation\ValidationException::withMessages([
+                    throw ValidationException::withMessages([
                         'file' => 'يجب أن يحتوي ملف PDF على حقول مسماة قابلة للتعبئة قبل استخدامه كقالب مزاد.',
                     ]);
                 }
@@ -53,11 +57,11 @@ final class CreateAuctionTemplateAction
                 'created_by' => $user?->id ?? (int) auth('admin')->id(),
             ];
 
-            if (\Illuminate\Support\Facades\Schema::hasColumn('auction_templates', 'file_path')) {
+            if (Schema::hasColumn('auction_templates', 'file_path')) {
                 $templateData['file_path'] = $filePath ?? ($data['file_path'] ?? null);
             }
 
-            if (! empty($extractedFields) && \Illuminate\Support\Facades\Schema::hasColumn('auction_templates', 'field_names')) {
+            if (! empty($extractedFields) && Schema::hasColumn('auction_templates', 'field_names')) {
                 $templateData['field_names'] = $extractedFields;
             }
 
@@ -80,6 +84,12 @@ final class CreateAuctionTemplateAction
                 ];
             }
 
+            $versionPrefix = "auction_templates/{$template->id}/versions/1";
+            $uploads = (array) ($data['page_backgrounds'] ?? []);
+            if ($uploads !== [] || $this->hasReferencedAssets($schema)) {
+                $schema = app(AuctionDesignAssetService::class)->finalizeSchema($schema, $uploads, $versionPrefix);
+            }
+
             AuctionTemplateVersion::query()->create([
                 'auction_template_id' => $template->id,
                 'version' => 1,
@@ -90,6 +100,17 @@ final class CreateAuctionTemplateAction
 
             return $template->load('versions');
         });
+    }
+
+    private function hasReferencedAssets(array $schema): bool
+    {
+        foreach (($schema['pages'] ?? []) as $page) {
+            if (! empty($page['background']['image']) && ! str_starts_with((string) $page['background']['image'], 'data:')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

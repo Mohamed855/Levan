@@ -25,6 +25,33 @@
   touch-action: none;
   box-sizing: border-box;
 
+  .template-designer__resize-handles {
+    display: none;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  &.is-selected .template-designer__resize-handles { display: block; }
+
+  [data-resize-handle] {
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    border: 1px solid #fff;
+    background: #17604f;
+    border-radius: 50%;
+    pointer-events: auto;
+  }
+  [data-resize-handle="nw"] { top: -5px; left: -5px; cursor: nwse-resize; }
+  [data-resize-handle="n"] { top: -5px; left: calc(50% - 5px); cursor: ns-resize; }
+  [data-resize-handle="ne"] { top: -5px; right: -5px; cursor: nesw-resize; }
+  [data-resize-handle="e"] { top: calc(50% - 5px); right: -5px; cursor: ew-resize; }
+  [data-resize-handle="se"] { bottom: -5px; right: -5px; cursor: nwse-resize; }
+  [data-resize-handle="s"] { bottom: -5px; left: calc(50% - 5px); cursor: ns-resize; }
+  [data-resize-handle="sw"] { bottom: -5px; left: -5px; cursor: nesw-resize; }
+  [data-resize-handle="w"] { top: calc(50% - 5px); left: -5px; cursor: ew-resize; }
+
   &:active {
     cursor: grabbing;
   }

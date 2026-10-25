@@ -19,6 +19,7 @@
         "mpdf/mpdf": "^8.3",
         "predis/predis": "^3.2",
         "spatie/laravel-activitylog": "^5.0",
+        "spatie/browsershot": "^5.4",
         "spatie/laravel-permission": "^8.0",
         "stancl/tenancy": "^3.10",
         "yajra/laravel-datatables": "^12.0",

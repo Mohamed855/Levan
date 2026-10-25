@@ -139,26 +139,7 @@
                 <div class="d-flex gap-2" data-page-tabs></div>
             </div>
             <div class="card-body">
-                <div class="d-flex flex-wrap gap-2 my-3 align-items-center">
-                    <button class="btn btn-outline-primary btn-sm" type="button" data-add-element="text">
-                        <i class="ti ti-typography me-1"></i>إضافة نص
-                    </button>
-                    <button class="btn btn-outline-primary btn-sm" type="button" data-add-element="variable">
-                        <i class="ti ti-variable me-1"></i>إضافة متغير
-                    </button>
-                    <button class="btn btn-outline-primary btn-sm" type="button" data-add-element="image">
-                        <i class="ti ti-photo me-1"></i>إضافة صورة
-                    </button>
-                    <button class="btn btn-outline-secondary btn-sm" type="button" data-add-page>
-                        <i class="ti ti-plus me-1"></i>إضافة صفحة
-                    </button>
-                    <label class="d-flex align-items-center gap-2 ms-auto small mb-0">
-                        لون الخلفية
-                        <input class="form-control form-control-color" data-background-color type="color"
-                            value="#ffffff" title="اختر لون خلفية الصفحة">
-                    </label>
-                </div>
-                <div class="template-designer__canvas template-canvas" data-canvas></div>
+                <?php echo $__env->make('admin.auction-designs.partials.designer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['schema'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :

@@ -169,6 +169,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active'
         Route::get('{auction_template}/fields', [AuctionTemplateController::class, 'showFields'])->name('fields');
         Route::resource('/', AuctionTemplateController::class)->parameters(['' => 'auction_template']);
     });
+    Route::prefix('auction-template-samples')->name('auction-template-samples.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\AuctionTemplateSamplesController::class, 'index'])->name('index');
+        Route::get('create', [\App\Http\Controllers\Admin\AuctionTemplateSamplesController::class, 'create'])->name('create');
+        Route::get('{sample}/edit', [\App\Http\Controllers\Admin\AuctionTemplateSamplesController::class, 'edit'])->name('edit');
+        Route::get('library', [\App\Http\Controllers\Admin\AuctionTemplateSamplesController::class, 'library'])->name('library');
+        Route::get('{sample}/design', [\App\Http\Controllers\Admin\AuctionTemplateSamplesController::class, 'design'])->name('design');
+        Route::post('/', [\App\Http\Controllers\Admin\AuctionTemplateSamplesController::class, 'store'])->name('store');
+        Route::put('{sample}', [\App\Http\Controllers\Admin\AuctionTemplateSamplesController::class, 'update'])->name('update');
+        Route::delete('{sample}', [\App\Http\Controllers\Admin\AuctionTemplateSamplesController::class, 'destroy'])->name('destroy');
+    });
     Route::resource('faqs', FaqController::class)->except('show');
 
     Route::prefix('bills')->name('bills.')->group(function () {
