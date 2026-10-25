@@ -15,10 +15,7 @@ use App\Http\Requests\Tenants\UpdateResourceStatusRequest;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Properties\Property;
-use App\Services\Tenants\Auctions\AuctionOutputService;
 use App\Services\Tenants\Auctions\AuctionService;
-use App\Services\Tenants\Auctions\AuctionTemplateRenderer;
-use App\Services\Tenants\Shared\CentralAuctionTemplatesGateway;
 use App\Services\Tenants\Shared\CentralCityOptionsGateway;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -29,11 +26,10 @@ class AuctionsController extends Controller
     public function __construct(
         protected AuctionService $auctionService,
         protected CentralCityOptionsGateway $cityOptionsGateway,
-        protected CentralAuctionTemplatesGateway $templatesGateway
     ) {
         $this->middleware('auth:tenant');
         $this->authorizeResource(Auction::class, 'auction');
-        $this->middleware('can:auctions.view')->only(['index', 'show', 'preview']);
+        $this->middleware('can:auctions.view')->only(['index', 'show']);
         $this->middleware('can:auctions.create')->only(['create', 'store']);
         $this->middleware('can:auctions.edit')->only(['edit', 'update', 'toggleStatus']);
         $this->middleware('can:auctions.delete')->only(['destroy']);
@@ -60,19 +56,9 @@ class AuctionsController extends Controller
             ->select(['id', 'name', 'assignment_number', 'issuing_entity'])
             ->get();
 
-        $templateOptions = [
-            'brochure' => $this->templatesGateway->publishedByType('brochure'),
-            'billboard' => $this->templatesGateway->publishedByType('billboard'),
-            'social' => $this->templatesGateway->publishedByType('social'),
-        ];
-
         return view('tenant.auctions.create', [
-            'assignments'        => $assignments,
-            'cityOptions'        => $this->cityOptionsGateway->optionsByName(),
-            'templateOptions'    => $templateOptions,
-            'brochureTemplates'  => $templateOptions['brochure'],
-            'billboardTemplates' => $templateOptions['billboard'],
-            'socialTemplates'    => $templateOptions['social'],
+            'assignments' => $assignments,
+            'cityOptions' => $this->cityOptionsGateway->optionsByName(),
         ]);
     }
 
@@ -83,11 +69,15 @@ class AuctionsController extends Controller
                 $request->validated(),
                 (int) $request->user('tenant')?->getAuthIdentifier(),
                 $request->file('cover_image'),
-                $request->file('attachments', [])
+                $request->file('attachments', []),
+                $request->file('report_image'),
+                $request->file('marketing_evidence', []),
+                (array) $request->file('board_images_before', []),
+                (array) $request->file('board_images_after', []),
             );
 
             return redirect()->to(tenant_route_name('auctions.show', $auction->id))
-                ->with('success', 'تم إنشاء المزاد بنجاح وحفظ لقطات القوالب المعتمدة.');
+                ->with('success', 'تم إنشاء المزاد بنجاح وبدأ تجهيز ملفات التقارير.');
         } catch (\Exception $e) {
             return redirect()->back()
                 ->withInput()
@@ -97,7 +87,7 @@ class AuctionsController extends Controller
 
     public function show(Auction $auction): View
     {
-        $auction->load(['assignment', 'properties', 'attachments']);
+        $auction->load(['assignment', 'properties', 'attachments', 'latestReportGeneration']);
 
         return view('tenant.auctions.show', [
             'auction' => $auction,
@@ -106,7 +96,7 @@ class AuctionsController extends Controller
 
     public function edit(Auction $auction): View
     {
-        $auction->load(['assignment', 'properties', 'attachments']);
+        $auction->load(['assignment', 'properties.pivot', 'attachments']);
         $assignments = Assignment::select(['id', 'name', 'assignment_number', 'issuing_entity'])->get();
         $properties = Property::query()
             ->where('assignment_id', $auction->assignment_id)
@@ -114,21 +104,11 @@ class AuctionsController extends Controller
             ->orderBy('property_number')
             ->get();
 
-        $templateOptions = [
-            'brochure' => $this->templatesGateway->publishedByType('brochure'),
-            'billboard' => $this->templatesGateway->publishedByType('billboard'),
-            'social' => $this->templatesGateway->publishedByType('social'),
-        ];
-
         return view('tenant.auctions.edit', [
-            'auction'            => $auction,
-            'assignments'        => $assignments,
-            'properties'         => $properties,
-            'cityOptions'        => $this->cityOptionsGateway->optionsByName(),
-            'templateOptions'    => $templateOptions,
-            'brochureTemplates'  => $templateOptions['brochure'],
-            'billboardTemplates' => $templateOptions['billboard'],
-            'socialTemplates'    => $templateOptions['social'],
+            'auction'     => $auction,
+            'assignments' => $assignments,
+            'properties'  => $properties,
+            'cityOptions' => $this->cityOptionsGateway->optionsByName(),
         ]);
     }
 
@@ -142,27 +122,21 @@ class AuctionsController extends Controller
                 $auction,
                 $request->validated(),
                 $request->file('cover_image'),
-                $request->file('attachments', [])
+                $request->file('attachments', []),
+                [],
+                $request->file('report_image'),
+                $request->file('marketing_evidence', []),
+                (array) $request->file('board_images_before', []),
+                (array) $request->file('board_images_after', []),
             );
 
             return redirect()->to(tenant_route_name('auctions.show', $auction->id))
-                ->with('success', 'تم تحديث المزاد بنجاح مع الحفاظ على توافق القوالب.');
+                ->with('success', 'تم تحديث المزاد بنجاح وبدأ إعادة تجهيز ملفات التقارير.');
         } catch (\Exception $e) {
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'حدث خطأ أثناء تحديث المزاد: '.$e->getMessage());
         }
-    }
-
-    public function preview(Auction $auction, string $type, AuctionTemplateRenderer $renderer): View
-    {
-        abort_unless(in_array($type, ['brochure', 'billboard', 'social'], true), 404);
-
-        return view('tenant.auctions.preview', [
-            'output'  => $renderer->render($auction, $type),
-            'type'    => $type,
-            'auction' => $auction,
-        ]);
     }
 
     public function destroy(TenantAuthenticatedRequest $request, Auction $auction)

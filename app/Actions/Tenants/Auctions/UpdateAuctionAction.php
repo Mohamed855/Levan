@@ -8,8 +8,8 @@ use App\Enums\Tenants\Auctions\AuctionStatus;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Auctions\AuctionAttachment;
-use App\Models\Tenants\Properties\Property;
-use App\Models\Tenants\UserMangment\User;
+use App\Models\Tenants\UserMangment\User\User;
+use App\Services\Tenants\Auctions\AuctionReportInputService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -19,20 +19,27 @@ use Throwable;
 final class UpdateAuctionAction
 {
     public function __construct(
-        private readonly CreateAuctionAction $createAuctionAction
+        private readonly AuctionReportInputService $reportInputs,
     ) {}
 
     /**
      * @param array<string, mixed>|User $userOrData
      * @param array<string, mixed>|null $dataOrNull
      * @param array<int, UploadedFile> $attachments
+     * @param array<int, UploadedFile> $marketingEvidence
+     * @param array<int|string, array<int, UploadedFile>> $boardImagesBefore
+     * @param array<int|string, array<int, UploadedFile>> $boardImagesAfter
      */
     public function execute(
         Auction $auction,
         mixed $userOrData,
         mixed $dataOrCover = null,
         mixed $coverOrAttachments = null,
-        mixed $attachments = []
+        mixed $attachments = [],
+        ?UploadedFile $reportImage = null,
+        array $marketingEvidence = [],
+        array $boardImagesBefore = [],
+        array $boardImagesAfter = [],
     ): Auction {
         if ($userOrData instanceof User) {
             $data = (array) $dataOrCover;
@@ -44,11 +51,17 @@ final class UpdateAuctionAction
             $files = is_array($coverOrAttachments) ? $coverOrAttachments : (is_array($dataOrCover) && $dataOrCover !== $data ? $dataOrCover : (is_array($attachments) ? $attachments : []));
         }
 
+        if (! $reportImage instanceof UploadedFile && blank($auction->report_image)) {
+            throw ValidationException::withMessages([
+                'report_image' => 'صورة التقرير مطلوبة للحفظ النهائي.',
+            ]);
+        }
+
         $storedPaths = [];
-        $oldCoverToDelete = null;
+        $pathsToDelete = [];
 
         try {
-            return DB::transaction(function () use ($auction, $data, $cover, $files, &$storedPaths, &$oldCoverToDelete): Auction {
+            $updated = DB::transaction(function () use ($auction, $data, $cover, $files, $reportImage, $marketingEvidence, $boardImagesBefore, $boardImagesAfter, &$storedPaths, &$pathsToDelete): Auction {
                 $targetAssignmentId = (int) ($data['assignment_id'] ?? $auction->assignment_id);
                 $assignment = Assignment::query()
                     ->whereKey($targetAssignmentId)
@@ -61,41 +74,24 @@ final class UpdateAuctionAction
                     ]);
                 }
 
-                $propertyIds = isset($data['property_ids'])
-                    ? array_values(array_unique(array_map('intval', (array) $data['property_ids'])))
-                    : null;
+                $currentProperties = $auction->properties()->get();
+                $propertyIds = array_key_exists('property_ids', $data)
+                    ? $this->reportInputs->validatePropertyIds((array) $data['property_ids'], $targetAssignmentId)
+                    : $currentProperties->pluck('id')->map(static fn (mixed $id): int => (int) $id)->all();
+                $syncData = $this->reportInputs->pivotData(
+                    $propertyIds,
+                    (array) ($data['property_results'] ?? []),
+                    $currentProperties,
+                );
 
-                if ($propertyIds !== null) {
-                    if (! empty($propertyIds)) {
-                        $validPropertyCount = Property::query()
-                            ->whereKey($propertyIds)
-                            ->where('assignment_id', $targetAssignmentId)
-                            ->whereNull('deleted_at')
-                            ->lockForUpdate()
-                            ->count();
-
-                        if ($validPropertyCount !== count($propertyIds)) {
-                            throw ValidationException::withMessages([
-                                'property_ids' => 'يجب أن تكون جميع العقارات المختارة تابعة للإسناد المختار وغير محذوفة.',
-                            ]);
-                        }
-                    }
-
-                    $syncData = [];
-                    foreach ($propertyIds as $index => $propId) {
-                        $syncData[$propId] = ['sort_order' => $index + 1];
-                    }
-                    $auction->properties()->sync($syncData);
-                } elseif ($auction->assignment_id !== $targetAssignmentId) {
-                    $auction->properties()
-                        ->where('assignment_id', '!=', $targetAssignmentId)
-                        ->detach();
-                }
-
-                if (array_key_exists('template_versions', $data)) {
-                    [$versions, $snapshots] = $this->createAuctionAction->snapshots((array) ($data['template_versions'] ?? []));
-                    $data['template_versions'] = $versions;
-                    $data['template_snapshot'] = $snapshots;
+                $removedPropertyIds = $currentProperties->pluck('id')
+                    ->map(static fn (mixed $id): int => (int) $id)
+                    ->diff($propertyIds)
+                    ->all();
+                if ($removedPropertyIds !== []) {
+                    $orphanedEvidence = $auction->attachments()->whereIn('property_id', $removedPropertyIds)->get();
+                    $pathsToDelete = array_merge($pathsToDelete, $orphanedEvidence->pluck('file_path')->filter()->all());
+                    $auction->attachments()->whereIn('property_id', $removedPropertyIds)->delete();
                 }
 
                 if ($cover instanceof UploadedFile) {
@@ -103,18 +99,40 @@ final class UpdateAuctionAction
                     $storedPaths[] = $coverPath;
                     $data['cover_image'] = $coverPath;
                     if ($auction->cover_image) {
-                        $oldCoverToDelete = $auction->cover_image;
+                        $pathsToDelete[] = $auction->cover_image;
                     }
+                }
+
+                if ($reportImage instanceof UploadedFile) {
+                    $reportImagePath = $reportImage->store('auctions/report-images', 'tenant_public');
+                    $storedPaths[] = $reportImagePath;
+                    $data['report_image'] = $reportImagePath;
+                    if ($auction->report_image) {
+                        $pathsToDelete[] = $auction->report_image;
+                    }
+                }
+
+                if (array_key_exists('marketing', $data)) {
+                    $data['marketing_data'] = $data['marketing'];
                 }
 
                 unset(
                     $data['property_ids'],
+                    $data['property_results'],
+                    $data['marketing'],
                     $data['attachments'],
+                    $data['marketing_evidence'],
+                    $data['board_images_before'],
+                    $data['board_images_after'],
                     $data['_wizard_draft_id'],
                     $data['_wizard_resource_key'],
                     $data['_wizard_step'],
                     $data['fields'],
-                    $data['target_path']
+                    $data['target_path'],
+                    $data['template_versions'],
+                    $data['brochure_template_id'],
+                    $data['billboard_template_id'],
+                    $data['social_template_id'],
                 );
 
                 if (isset($data['status'])) {
@@ -123,6 +141,7 @@ final class UpdateAuctionAction
                 }
 
                 $auction->update($data);
+                $auction->properties()->sync($syncData);
 
                 foreach ($files as $file) {
                     if ($file instanceof UploadedFile) {
@@ -140,6 +159,15 @@ final class UpdateAuctionAction
                     }
                 }
 
+                $this->reportInputs->storeEvidence(
+                    $auction,
+                    $marketingEvidence,
+                    $boardImagesBefore,
+                    $boardImagesAfter,
+                    $propertyIds,
+                    $storedPaths,
+                );
+
                 return $auction->fresh(['properties', 'attachments', 'assignment']);
             });
         } catch (Throwable $e) {
@@ -147,10 +175,10 @@ final class UpdateAuctionAction
                 Storage::disk('tenant_public')->delete($storedPaths);
             }
             throw $e;
-        } finally {
-            if ($oldCoverToDelete && Storage::disk('tenant_public')->exists($oldCoverToDelete)) {
-                Storage::disk('tenant_public')->delete($oldCoverToDelete);
-            }
         }
+
+        Storage::disk('tenant_public')->delete(array_values(array_unique($pathsToDelete)));
+
+        return $updated;
     }
 }

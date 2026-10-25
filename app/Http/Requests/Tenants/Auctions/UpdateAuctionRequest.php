@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Tenants\Auctions;
 
 use App\Enums\Tenants\Auctions\AuctionCategory;
 use App\Enums\Tenants\Auctions\AuctionStatus;
 use App\Enums\Tenants\Auctions\AuctionType;
 use App\Http\Requests\Concerns\WizardFormRequest;
-use App\Rules\ExistsInCentralAuctionTemplates;
+use App\Models\Tenants\Auctions\Auction;
 use Illuminate\Validation\Rule;
 
 class UpdateAuctionRequest extends WizardFormRequest
@@ -34,6 +36,7 @@ class UpdateAuctionRequest extends WizardFormRequest
             // Step 2: Assignment & Platform
             'assignment_id' => ['required', Rule::exists('assignments', 'id')->whereNull('deleted_at')],
             'supervising_entity' => ['nullable', 'string', 'max:255'],
+            'project_manager_name' => ['required', 'string', 'max:255'],
             'platform_name' => ['nullable', 'string', 'max:255'],
             'platform_url' => ['nullable', 'url', 'max:255'],
             'notes' => ['nullable', 'string', 'max:500'],
@@ -49,17 +52,40 @@ class UpdateAuctionRequest extends WizardFormRequest
                 ),
             ],
 
-            // Step 4: Marketing Templates & Attachments
-            'template_versions' => ['nullable', 'array'],
-            'template_versions.brochure' => ['nullable', 'integer', new \App\Rules\PublishedTemplateVersionRule('brochure')],
-            'template_versions.billboard' => ['nullable', 'integer', new \App\Rules\PublishedTemplateVersionRule('billboard')],
-            'template_versions.social' => ['nullable', 'integer', new \App\Rules\PublishedTemplateVersionRule('social')],
-            'brochure_template_id' => ['nullable', 'integer', new ExistsInCentralAuctionTemplates('brochure')],
-            'billboard_template_id' => ['nullable', 'integer', new ExistsInCentralAuctionTemplates('billboard')],
-            'social_template_id' => ['nullable', 'integer', new ExistsInCentralAuctionTemplates('social')],
+            // Step 4: Results, marketing and files
+            'property_results' => ['nullable', Rule::array($this->selectedPropertyKeys())],
+            'property_results.*' => ['array'],
+            'property_results.*.status' => ['required', Rule::in(['pending', 'sold', 'unsold'])],
+            'property_results.*.opening_price' => ['nullable', 'numeric', 'min:0'],
+            'property_results.*.sale_price' => ['nullable', 'required_if:property_results.*.status,sold', 'numeric', 'min:0'],
+            'property_results.*.participants_count' => ['nullable', 'integer', 'min:0'],
+            'property_results.*.bids_count' => ['nullable', 'integer', 'min:0'],
+            'property_results.*.unsold_reason' => ['nullable', 'required_if:property_results.*.status,unsold', 'string', 'max:2000'],
+            'property_results.*.board_location' => ['nullable', 'string', 'max:255'],
+            'property_results.*.board_notes' => ['nullable', 'string', 'max:1000'],
+            'marketing' => ['nullable', 'array'],
+            'marketing.campaigns' => ['nullable', 'array', 'max:50'],
+            'marketing.campaigns.*.platform' => ['required', 'string', 'max:100'],
+            'marketing.campaigns.*.reach' => ['nullable', 'integer', 'min:0'],
+            'marketing.campaigns.*.impressions' => ['nullable', 'integer', 'min:0'],
+            'marketing.campaigns.*.engagements' => ['nullable', 'integer', 'min:0'],
+            'marketing.campaigns.*.clicks' => ['nullable', 'integer', 'min:0'],
+            'marketing.campaigns.*.url' => ['nullable', 'url', 'max:2048'],
+            'marketing.links' => ['nullable', 'array', 'max:50'],
+            'marketing.links.*.label' => ['required', 'string', 'max:255'],
+            'marketing.links.*.url' => ['required', 'url', 'max:2048'],
             'cover_image' => ['nullable', 'image', 'max:10240'],
+            'report_image' => [Rule::requiredIf(fn (): bool => ! $this->hasRetainedReportImage()), 'nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
             'attachments' => ['nullable', 'array'],
             'attachments.*' => ['file', 'max:10240', 'mimes:pdf,png,jpg,jpeg,doc,docx,xls,xlsx'],
+            'marketing_evidence' => ['nullable', 'array'],
+            'marketing_evidence.*' => ['file', 'max:10240', 'mimes:pdf,png,jpg,jpeg,webp'],
+            'board_images_before' => ['nullable', Rule::array($this->selectedPropertyKeys())],
+            'board_images_before.*' => ['array'],
+            'board_images_before.*.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
+            'board_images_after' => ['nullable', Rule::array($this->selectedPropertyKeys())],
+            'board_images_after.*' => ['array'],
+            'board_images_after.*.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
 
             // Step 5: Status
             'status' => ['nullable', Rule::enum(AuctionStatus::class)],
@@ -83,6 +109,9 @@ class UpdateAuctionRequest extends WizardFormRequest
             'property_ids.*.exists' => 'يجب أن تكون جميع العقارات المختارة تابعة للإسناد المختار.',
             'property_ids.*.distinct' => 'لا يمكن اختيار العقار نفسه أكثر من مرة.',
             'platform_url.url' => 'رابط المنصة يجب أن يكون رابطاً صالحاً.',
+            'project_manager_name.required' => 'اسم مدير المشروع مطلوب.',
+            'report_image.required' => 'صورة التقرير مطلوبة للحفظ النهائي.',
+            'report_image.image' => 'يجب أن تكون صورة التقرير ملف صورة صالحًا.',
         ];
     }
 
@@ -101,9 +130,26 @@ class UpdateAuctionRequest extends WizardFormRequest
             'expected_properties_count' => 'عدد العقارات المتوقع',
             'assignment_id' => 'الإسناد المرتبط',
             'supervising_entity' => 'الجهة المشرفة',
+            'project_manager_name' => 'مدير المشروع',
             'platform_name' => 'منصة المزاد',
             'platform_url' => 'رابط المزاد على المنصة',
             'property_ids' => 'العقارات المرتبطة',
+            'property_results' => 'نتائج العقارات',
+            'report_image' => 'صورة التقرير',
+            'marketing' => 'بيانات التسويق',
         ];
+    }
+
+    /** @return list<string> */
+    private function selectedPropertyKeys(): array
+    {
+        return array_map(static fn (mixed $id): string => (string) $id, (array) $this->input('property_ids', []));
+    }
+
+    private function hasRetainedReportImage(): bool
+    {
+        $auction = $this->route('auction');
+
+        return $auction instanceof Auction && filled($auction->report_image);
     }
 }

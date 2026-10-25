@@ -84,7 +84,16 @@ class Property extends Model
     public function auctions(): BelongsToMany
     {
         return $this->belongsToMany(Auction::class, 'auction_properties', 'property_id', 'auction_id')
-            ->withPivot('sort_order')
+            ->withPivot([
+                'sort_order',
+                'result_status',
+                'opening_price',
+                'sale_price',
+                'participants_count',
+                'bids_count',
+                'unsold_reason',
+                'board_data',
+            ])
             ->withTimestamps();
     }
 

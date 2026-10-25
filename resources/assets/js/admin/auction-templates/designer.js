@@ -1,4 +1,4 @@
-import { backgroundStyle, setPageBackground } from './backgrounds.js';
+import { backgroundStyle, resolveBackgroundImageUrl, setPageBackground } from './backgrounds.js';
 import { clampRect, pointerDelta, resizeRect } from './geometry.js';
 import { DESIGNER_FONTS, DEFAULT_FONT, normalizeFont } from './fonts.js';
 import { activePage, createDesignState, replaceSchema } from './state.js';
@@ -308,13 +308,16 @@ function initTemplateDesigners() {
           const p1 = s.schema?.pages?.[0] || { elements: [], background: { color: '#ffffff' } };
           const pagesCount = s.schema?.pages?.length || 1;
           const varElements = p1.elements.filter((e) => e.type === 'variable');
+          const bgImg = p1.background?.image_preview || p1.background?.image;
+          const bgUrl = resolveBackgroundImageUrl(bgImg);
+          const bgStyle = bgUrl ? `background-image:url('${bgUrl}');background-size:cover;background-position:${p1.background?.position_x ?? 50}% ${p1.background?.position_y ?? 50}%;background-repeat:no-repeat;` : '';
 
           return `
             <div class="col-md-6 col-lg-4">
               <div class="card h-100 template-sample-card border shadow-sm">
                 <div class="template-sample-card__preview-wrapper d-flex align-items-center justify-content-center">
                   <div class="template-sample-card__preview w-100 position-relative shadow-sm"
-                       style="aspect-ratio: ${sCanvas.width} / ${sCanvas.height}; max-height: 220px; background-color: ${p1.background?.color || '#ffffff'}; border-radius: 6px; overflow: hidden; container-type: inline-size;">
+                       style="aspect-ratio: ${sCanvas.width} / ${sCanvas.height}; max-height: 220px; background-color: ${p1.background?.color || '#ffffff'}; ${bgStyle} border-radius: 6px; overflow: hidden; container-type: inline-size;">
                     ${p1.elements.map((el) => {
                       const elLeft = (el.x / sCanvas.width) * 100;
                       const elTop = (el.y / sCanvas.height) * 100;
@@ -509,11 +512,14 @@ function initTemplateDesigners() {
           const body = previewModalEl.querySelector('[data-preview-body]');
           if (body) {
             body.innerHTML = `
-              <div class="d-flex flex-column align-items-center gap-4 p-3 bg-success mb-3 rounded">
-                ${schema.pages.map((p, i) => `
+              <div class="d-flex flex-column align-items-center gap-4 p-3 bg-light mb-3 rounded">
+                ${schema.pages.map((p, i) => {
+                  const bgUrl = resolveBackgroundImageUrl(p.background?.image_preview || p.background?.image);
+                  const bgStyle = bgUrl ? `background-image:url('${bgUrl}');background-size:cover;background-position:${p.background?.position_x ?? 50}% ${p.background?.position_y ?? 50}%;background-repeat:no-repeat;` : '';
+                  return `
                   <div class="w-100 text-center">
                     <span class="badge bg-secondary mb-2">صفحة ${i + 1}</span>
-                    <div style="position:relative;margin:0 auto;width:min(100%, ${schema.canvas.width}px);aspect-ratio:${schema.canvas.width}/${schema.canvas.height};background-color:${p.background.color || '#fff'};${p.background.image_preview || p.background.image ? `background-image:url('${p.background.image_preview || p.background.image}');background-size:cover;background-position:${p.background.position_x ?? 50}% ${p.background.position_y ?? 50}%;` : ''}border:1px solid #ddd;border-radius:4px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.08);container-type:inline-size;">
+                    <div style="position:relative;margin:0 auto;width:min(100%, ${schema.canvas.width}px);aspect-ratio:${schema.canvas.width}/${schema.canvas.height};background-color:${p.background?.color || '#fff'};${bgStyle}border:1px solid #ddd;border-radius:4px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.08);container-type:inline-size;">
                       ${p.elements.map((el) => `
                         <div style="position:absolute;left:${(el.x / schema.canvas.width) * 100}%;top:${(el.y / schema.canvas.height) * 100}%;width:${(el.width / schema.canvas.width) * 100}%;height:${(el.height / schema.canvas.height) * 100}%;color:${el.style?.color || '#173f35'};font-size:calc(${el.style?.font_size || 24} * 100cqw / ${schema.canvas.width});font-family:${normalizeFont(el.style?.font_family || DEFAULT_FONT)};text-align:${el.style?.text_align || 'right'};border-radius:calc(${el.style?.border_radius || 0} * 100cqw / ${schema.canvas.width});display:flex;align-items:center;">
                           ${display(el)}
@@ -521,7 +527,7 @@ function initTemplateDesigners() {
                       `).join('')}
                     </div>
                   </div>
-                `).join('')}
+                `;}).join('')}
               </div>
             `;
           }

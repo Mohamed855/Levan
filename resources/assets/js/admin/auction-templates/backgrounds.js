@@ -5,6 +5,14 @@ export function normalizeBackgroundPosition(value) {
   return Math.max(0, Math.min(100, numeric));
 }
 
+export function resolveBackgroundImageUrl(image) {
+  if (!image) return null;
+  if (image.startsWith('data:') || image.startsWith('http://') || image.startsWith('https://') || image.startsWith('/')) {
+    return image;
+  }
+  return `/storage/${image}`;
+}
+
 export function backgroundStyle(background = {}) {
   const style = {
     backgroundColor: background.color || '#ffffff',
@@ -15,7 +23,8 @@ export function backgroundStyle(background = {}) {
   };
   const image = background.image_preview || background.image;
   if (image) {
-    style.backgroundImage = `url("${String(image).replace(/"/g, '%22')}")`;
+    const url = resolveBackgroundImageUrl(image);
+    style.backgroundImage = `url("${String(url).replace(/"/g, '%22')}")`;
     style.backgroundPosition = `${normalizeBackgroundPosition(background.position_x)}% ${normalizeBackgroundPosition(background.position_y)}%`;
   }
   return style;

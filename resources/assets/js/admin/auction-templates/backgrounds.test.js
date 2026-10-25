@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { backgroundStyle, setPageBackground } from './backgrounds.js';
+import { backgroundStyle, resolveBackgroundImageUrl, setPageBackground } from './backgrounds.js';
 
 test('backgrounds always use cover with centered default position', () => {
   const page = { background: { image: 'auction_templates/background.webp', fit: 'contain' } };
@@ -33,4 +33,13 @@ test('background style clears a previous page image when the active page has non
   assert.equal(style.backgroundSize, 'cover');
   assert.equal(style.backgroundPosition, '50% 50%');
   assert.equal(style.backgroundRepeat, 'no-repeat');
+});
+
+test('resolveBackgroundImageUrl prefixes relative storage paths and preserves absolute/data urls', () => {
+  assert.equal(resolveBackgroundImageUrl(null), null);
+  assert.equal(resolveBackgroundImageUrl(''), null);
+  assert.equal(resolveBackgroundImageUrl('auction_templates/samples/brochure-1.png'), '/storage/auction_templates/samples/brochure-1.png');
+  assert.equal(resolveBackgroundImageUrl('/static/samples/brochure-1.png'), '/static/samples/brochure-1.png');
+  assert.equal(resolveBackgroundImageUrl('https://example.com/bg.png'), 'https://example.com/bg.png');
+  assert.equal(resolveBackgroundImageUrl('data:image/png;base64,abc'), 'data:image/png;base64,abc');
 });

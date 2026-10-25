@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models\Tenants\Auctions;
 
 use App\Models\Tenants\Assignments\Assignment;
@@ -29,10 +31,13 @@ class Auction extends Model
         'city',
         'expected_properties_count',
         'supervising_entity',
+        'project_manager_name',
         'platform_name',
         'platform_url',
         'notes',
         'cover_image',
+        'report_image',
+        'marketing_data',
         'template_versions',
         'template_snapshot',
         'template_bindings',
@@ -55,6 +60,7 @@ class Auction extends Model
         'brochure_template_id' => 'integer',
         'billboard_template_id' => 'integer',
         'social_template_id' => 'integer',
+        'marketing_data' => 'array',
     ];
 
     public function assignment(): BelongsTo
@@ -65,13 +71,33 @@ class Auction extends Model
     public function properties(): BelongsToMany
     {
         return $this->belongsToMany(Property::class, 'auction_properties', 'auction_id', 'property_id')
-            ->withPivot('sort_order')
+            ->withPivot([
+                'sort_order',
+                'result_status',
+                'opening_price',
+                'sale_price',
+                'participants_count',
+                'bids_count',
+                'unsold_reason',
+                'board_data',
+            ])
+            ->orderByPivot('sort_order')
             ->withTimestamps();
     }
 
     public function attachments(): HasMany
     {
         return $this->hasMany(AuctionAttachment::class, 'auction_id');
+    }
+
+    public function reportGenerations(): HasMany
+    {
+        return $this->hasMany(AuctionReportGeneration::class)->latest('id');
+    }
+
+    public function latestReportGeneration()
+    {
+        return $this->hasOne(AuctionReportGeneration::class)->latestOfMany('id');
     }
 
     public function creator(): BelongsTo

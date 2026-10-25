@@ -28,7 +28,7 @@
             ['id' => 'step-basic-info', 'title' => 'البيانات الأساسية'],
             ['id' => 'step-assignment', 'title' => 'الإسناد والمنصة'],
             ['id' => 'step-properties', 'title' => 'العقارات المرتبطة'],
-            ['id' => 'step-settings', 'title' => 'الإعدادات والملفات'],
+            ['id' => 'step-settings', 'title' => 'النتائج والملفات'],
             ['id' => 'step-review', 'title' => 'المراجعة والإرسال'],
         ];
     @endphp
@@ -109,7 +109,7 @@
                     </x-form.wizard.step>
 
                     {{-- الخطوة 2: الإسناد والجهات والمنصة --}}
-                    <x-form.wizard.step id="step-assignment" :fields="['assignment_id', 'supervising_entity', 'platform_name', 'platform_url', 'notes']">
+                    <x-form.wizard.step id="step-assignment" :fields="['assignment_id', 'supervising_entity', 'project_manager_name', 'platform_name', 'platform_url', 'notes']">
                         <div class="row g-4">
                             <x-form.controls.select name="assignment_id" id="assignment_id" label="الإسناد المرتبط بالمزاد"
                                 required col="col-md-6" placeholder="اختر الإسناد المسجل..." :options="$assignments
@@ -121,17 +121,14 @@
                                     )
                                     ->toArray()">
                                 <x-slot:append>
-                                    {{-- كارت ملخص الإسناد المختار --}}
                                     <div id="selected-assignment-card"
                                         class="card bg-label-primary border-primary mt-3 d-none">
                                         <div class="card-body p-3">
                                             <h6 class="fw-bold mb-2"><i class="ti ti-file-certificate me-1"></i>بيانات
-                                                الإسناد
-                                                المختار:</h6>
+                                                الإسناد المختار:</h6>
                                             <div class="small">
                                                 <div><strong>رقم الإسناد:</strong> <span id="asg-summary-num">-</span></div>
-                                                <div><strong>الجهة المسندة:</strong> <span id="asg-summary-entity">-</span>
-                                                </div>
+                                                <div><strong>الجهة المسندة:</strong> <span id="asg-summary-entity">-</span></div>
                                                 <div><strong>الحالة:</strong> <span id="asg-summary-status">-</span></div>
                                             </div>
                                         </div>
@@ -142,6 +139,9 @@
                             <x-form.controls.input name="supervising_entity" id="supervising_entity"
                                 label="الجهة المشرفة على المزاد" placeholder="مثال: مركز الإسناد والتصفية - إنفاذ" required
                                 col="col-md-6" />
+
+                            <x-form.controls.input name="project_manager_name" label="اسم مدير المشروع"
+                                placeholder="مثال: محمد عبدالله" required col="col-md-6" />
 
                             <x-form.controls.input name="platform_name" label="منصة المزاد"
                                 placeholder="مثال: منصة مباشر للمزادات" required col="col-md-6" />
@@ -175,8 +175,7 @@
                                     <div class="badge bg-label-primary fs-6 p-2">المحددة: <span
                                             id="selected-props-count">0</span></div>
                                     <div class="badge bg-label-info fs-6 p-2">إجمالي المساحة: <span
-                                            id="selected-props-area">0
-                                            م²</span></div>
+                                            id="selected-props-area">0 م²</span></div>
                                     <div class="badge bg-label-success fs-6 p-2">إجمالي القيمة: <span
                                             id="selected-props-val">0 ر.س</span></div>
                                 </div>
@@ -230,35 +229,91 @@
                         </x-form.wizard.actions>
                     </x-form.wizard.step>
 
-                    {{-- الخطوة 4: الإعدادات والملفات --}}
-                    <x-form.wizard.step id="step-settings" :fields="['template_versions', 'cover_image', 'attachments']">
+                    {{-- الخطوة 4: النتائج والتسويق والملفات --}}
+                    <x-form.wizard.step id="step-settings" :fields="['report_image', 'cover_image', 'property_results', 'marketing', 'attachments', 'marketing_evidence']">
                         <div class="row g-4">
+                            {{-- صور المزاد والتقرير --}}
                             <div class="col-12">
-                                <h6 class="fw-bold mb-3"><i class="ti ti-palette me-1"></i>القوالب التسويقية المنشورة
-                                    والمعتمدة:
-                                </h6>
+                                <h6 class="fw-bold mb-3"><i class="ti ti-photo me-1"></i>صور التقرير والمزاد</h6>
                             </div>
 
-                            <x-form.controls.select name="template_versions[brochure]" id="template_versions_brochure"
-                                label="قالب البروشور المعتمد" col="col-md-4" :options="$templateOptions['brochure'] ?? $brochureTemplates"
-                                placeholder="اختر نسخة قالب البروشور..." />
+                            <x-form.controls.image-upload name="report_image" label="صورة غلاف التقرير"
+                                help="مطلوبة — تظهر في غلاف ملف تقرير المزاد (JPG/PNG/WebP، بحد أقصى 10MB)"
+                                required col="col-md-6" accept="image/jpeg,image/png,image/webp" />
 
-                            <x-form.controls.select name="template_versions[billboard]" id="template_versions_billboard"
-                                label="قالب اللوحة الإعلانية" col="col-md-4" :options="$templateOptions['billboard'] ?? $billboardTemplates"
-                                placeholder="اختر نسخة قالب اللوحة..." />
+                            <x-form.controls.image-upload name="cover_image" label="صورة غلاف المزاد"
+                                help="تظهر في مخرجات المزاد الرئيسية (اختيارية)"
+                                col="col-md-6" accept="image/*" />
 
-                            <x-form.controls.select name="template_versions[social]" id="template_versions_social"
-                                label="قالب منصات التواصل" col="col-md-4" :options="$templateOptions['social'] ?? $socialTemplates"
-                                placeholder="اختر نسخة قالب منصات التواصل..." />
-
-                            <div class="col-12">
-                                <x-form.controls.file name="cover_image" label="صورة غلاف المزاد (للاستخدام في القوالب)"
-                                    accept="image/*" col="col-md-6"
-                                    help="صورة تظهر في مخرجات المزاد والقوالب التسويقية" />
+                            {{-- نتائج العقارات --}}
+                            <div class="col-12 border-top pt-3">
+                                <h6 class="fw-bold mb-3"><i class="ti ti-chart-bar me-1"></i>نتائج عقارات المزاد</h6>
+                                <p class="text-muted small mb-3">سجّل نتيجة كل عقار في المزاد (يمكن تركها pending وتحديثها لاحقاً عند التعديل).</p>
+                                <div id="property-results-container">
+                                    <p class="text-muted" id="results-empty-msg">اختر العقارات في الخطوة السابقة أولاً.</p>
+                                </div>
                             </div>
 
-                            <div class="col-12 mt-4 border-top pt-3">
-                                <h6 class="fw-bold mb-3"><i class="ti ti-paperclip me-1"></i>مرفقات ووثائق المزاد:</h6>
+                            {{-- بيانات التسويق --}}
+                            <div class="col-12 border-top pt-3">
+                                <h6 class="fw-bold mb-3"><i class="ti ti-speakerphone me-1"></i>بيانات التسويق والحملات</h6>
+
+                                <section class="assignment-properties-table-card mb-4" aria-live="polite">
+                                    <header class="assignment-properties-table-card__header">
+                                        <h6 class="mb-0">حملات التسويق</h6>
+                                        <button type="button" class="btn btn-sm btn-primary" id="add-campaign-btn">
+                                            <i class="ti ti-plus me-1"></i> إضافة حملة
+                                        </button>
+                                    </header>
+                                    <div class="p-3">
+                                        <div id="campaigns-container">
+                                            <p class="text-muted mb-0" id="campaigns-empty">لا توجد حملات مضافة بعد.</p>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <section class="assignment-properties-table-card mb-4" aria-live="polite">
+                                    <header class="assignment-properties-table-card__header">
+                                        <h6 class="mb-0">روابط التسويق</h6>
+                                        <button type="button" class="btn btn-sm btn-primary" id="add-link-btn">
+                                            <i class="ti ti-plus me-1"></i> إضافة رابط
+                                        </button>
+                                    </header>
+                                    <div class="p-3">
+                                        <div id="links-container">
+                                            <p class="text-muted mb-0" id="links-empty">لا توجد روابط مضافة بعد.</p>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <x-form.controls.file name="marketing_evidence[]" label="أدلة وصور حملات التسويق" multiple
+                                    :required="false" accept=".pdf,.png,.jpg,.jpeg,.webp"
+                                    help="صور الإعلانات والمنشورات والإثباتات (الحد الأقصى لكل ملف: 10MB)"
+                                    col="col-md-6" />
+                            </div>
+
+                            {{-- صور اللوحات --}}
+                            <div class="col-12 border-top pt-3">
+                                <h6 class="fw-bold mb-3"><i class="ti ti-billboard me-1"></i>صور اللوحات الإعلانية</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">صور اللوحات قبل المزاد</label>
+                                        <div id="board-before-container">
+                                            <p class="text-muted small">اختر العقارات أولاً لإضافة صور لوحاتها.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">صور اللوحات بعد المزاد</label>
+                                        <div id="board-after-container">
+                                            <p class="text-muted small">اختر العقارات أولاً لإضافة صور لوحاتها.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- المرفقات الرسمية --}}
+                            <div class="col-12 border-top pt-3">
+                                <h6 class="fw-bold mb-3"><i class="ti ti-paperclip me-1"></i>مرفقات ووثائق المزاد</h6>
                                 <x-form.controls.file name="attachments[]" label="ملفات إضافية" multiple
                                     :required="false" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx"
                                     help="الحد الأقصى لكل ملف: 10MB" col="col-md-6" />
@@ -302,6 +357,7 @@
                                     class="assignment-review__card">
                                     <div><strong>الإسناد:</strong> <span id="review-assignment-name">-</span></div>
                                     <div><strong>الجهة المشرفة:</strong> <span id="review-supervising">-</span></div>
+                                    <div><strong>مدير المشروع:</strong> <span id="review-project-manager">-</span></div>
                                     <div><strong>المنصة:</strong> <span id="review-platform">-</span></div>
                                 </x-form.wizard.review-card>
                                 <x-form.wizard.review-card title="العقارات المشمولة" step="3"
@@ -309,15 +365,11 @@
                                     <div><strong>العقارات المحددة:</strong> <span id="review-selected-props-count">0
                                             عقارات</span></div>
                                 </x-form.wizard.review-card>
-                                <x-form.wizard.review-card title="الإعدادات والملفات" step="4"
+                                <x-form.wizard.review-card title="النتائج والملفات" step="4"
                                     class="assignment-review__card">
-                                    <div><strong>قالب البروشور:</strong> <span id="review-brochure-template">-</span></div>
-                                    <div><strong>قالب اللوحة الإعلانية:</strong> <span
-                                            id="review-billboard-template">-</span></div>
-                                    <div><strong>قالب منصات التواصل:</strong> <span id="review-social-template">-</span>
-                                    </div>
-                                    <div><strong>المرفقات والوثائق:</strong> <span id="review-attachments-count">0
-                                            ملف</span></div>
+                                    <div><strong>صورة التقرير:</strong> <span id="review-report-image">غير محددة</span></div>
+                                    <div><strong>صورة الغلاف:</strong> <span id="review-cover-image">غير محددة</span></div>
+                                    <div><strong>المرفقات:</strong> <span id="review-attachments-count">0 ملف</span></div>
                                 </x-form.wizard.review-card>
                             </div>
                             <div class="col-lg-3">

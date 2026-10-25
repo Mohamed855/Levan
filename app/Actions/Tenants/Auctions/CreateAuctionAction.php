@@ -8,9 +8,8 @@ use App\Enums\Tenants\Auctions\AuctionStatus;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Auctions\AuctionAttachment;
-use App\Models\Tenants\Properties\Property;
-use App\Models\Tenants\UserMangment\User;
-use App\Services\Tenants\Shared\CentralAuctionTemplatesGateway;
+use App\Models\Tenants\UserMangment\User\User;
+use App\Services\Tenants\Auctions\AuctionReportInputService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -20,19 +19,26 @@ use Throwable;
 final class CreateAuctionAction
 {
     public function __construct(
-        private readonly CentralAuctionTemplatesGateway $templates
+        private readonly AuctionReportInputService $reportInputs,
     ) {}
 
     /**
      * @param array<string, mixed>|User $userOrData
      * @param array<string, mixed>|int|null $dataOrCreatorId
      * @param array<int, UploadedFile> $attachments
+     * @param array<int, UploadedFile> $marketingEvidence
+     * @param array<int|string, array<int, UploadedFile>> $boardImagesBefore
+     * @param array<int|string, array<int, UploadedFile>> $boardImagesAfter
      */
     public function execute(
         mixed $userOrData,
         mixed $dataOrCreatorId = null,
         ?UploadedFile $coverImage = null,
-        array $attachments = []
+        array $attachments = [],
+        ?UploadedFile $reportImage = null,
+        array $marketingEvidence = [],
+        array $boardImagesBefore = [],
+        array $boardImagesAfter = [],
     ): Auction {
         if ($userOrData instanceof User) {
             $user = $userOrData;
@@ -43,10 +49,16 @@ final class CreateAuctionAction
             $creatorId = is_int($dataOrCreatorId) ? $dataOrCreatorId : null;
         }
 
+        if (! $reportImage instanceof UploadedFile) {
+            throw ValidationException::withMessages([
+                'report_image' => 'صورة التقرير مطلوبة للحفظ النهائي.',
+            ]);
+        }
+
         $storedPaths = [];
 
         try {
-            return DB::transaction(function () use ($data, $creatorId, $coverImage, $attachments, &$storedPaths): Auction {
+            return DB::transaction(function () use ($data, $creatorId, $coverImage, $attachments, $reportImage, $marketingEvidence, $boardImagesBefore, $boardImagesAfter, &$storedPaths): Auction {
                 $assignmentId = (int) ($data['assignment_id'] ?? 0);
                 $assignment = Assignment::query()
                     ->whereKey($assignmentId)
@@ -59,26 +71,8 @@ final class CreateAuctionAction
                     ]);
                 }
 
-                $propertyIds = array_values(array_unique(array_map('intval', (array) ($data['property_ids'] ?? []))));
-                if (! empty($propertyIds)) {
-                    $validPropertyCount = Property::query()
-                        ->whereKey($propertyIds)
-                        ->where('assignment_id', $assignmentId)
-                        ->whereNull('deleted_at')
-                        ->lockForUpdate()
-                        ->count();
-
-                    if ($validPropertyCount !== count($propertyIds)) {
-                        throw ValidationException::withMessages([
-                            'property_ids' => 'يجب أن تكون جميع العقارات المختارة تابعة للإسناد المختار وغير محذوفة.',
-                        ]);
-                    }
-                }
-
-                // Process template snapshots
-                [$versions, $snapshots] = $this->snapshots((array) ($data['template_versions'] ?? []));
-                $data['template_versions'] = $versions;
-                $data['template_snapshot'] = $snapshots;
+                $propertyIds = $this->reportInputs->validatePropertyIds((array) ($data['property_ids'] ?? []), $assignmentId);
+                $pivotData = $this->reportInputs->pivotData($propertyIds, (array) ($data['property_results'] ?? []));
 
                 if ($coverImage instanceof UploadedFile) {
                     $coverPath = $coverImage->store('auctions/covers', 'tenant_public');
@@ -86,14 +80,28 @@ final class CreateAuctionAction
                     $data['cover_image'] = $coverPath;
                 }
 
+                $reportImagePath = $reportImage->store('auctions/report-images', 'tenant_public');
+                $storedPaths[] = $reportImagePath;
+                $data['report_image'] = $reportImagePath;
+                $data['marketing_data'] = $data['marketing'] ?? null;
+
                 unset(
                     $data['property_ids'],
+                    $data['property_results'],
+                    $data['marketing'],
                     $data['attachments'],
+                    $data['marketing_evidence'],
+                    $data['board_images_before'],
+                    $data['board_images_after'],
                     $data['_wizard_draft_id'],
                     $data['_wizard_resource_key'],
                     $data['_wizard_step'],
                     $data['fields'],
-                    $data['target_path']
+                    $data['target_path'],
+                    $data['template_versions'],
+                    $data['brochure_template_id'],
+                    $data['billboard_template_id'],
+                    $data['social_template_id'],
                 );
 
                 $creator = $creatorId ?? auth('tenant')->id() ?? auth()->id();
@@ -106,13 +114,7 @@ final class CreateAuctionAction
 
                 $auction = Auction::query()->create($data);
 
-                if (! empty($propertyIds)) {
-                    $syncData = [];
-                    foreach ($propertyIds as $index => $propId) {
-                        $syncData[$propId] = ['sort_order' => $index + 1];
-                    }
-                    $auction->properties()->sync($syncData);
-                }
+                $auction->properties()->sync($pivotData);
 
                 foreach ($attachments as $file) {
                     if ($file instanceof UploadedFile) {
@@ -130,6 +132,15 @@ final class CreateAuctionAction
                     }
                 }
 
+                $this->reportInputs->storeEvidence(
+                    $auction,
+                    $marketingEvidence,
+                    $boardImagesBefore,
+                    $boardImagesAfter,
+                    $propertyIds,
+                    $storedPaths,
+                );
+
                 return $auction->load(['properties', 'attachments', 'assignment']);
             });
         } catch (Throwable $e) {
@@ -140,37 +151,4 @@ final class CreateAuctionAction
         }
     }
 
-    /**
-     * @param array<string, mixed> $selected
-     * @return array{array<string, int>, array<string, array<string, mixed>>}
-     */
-    public function snapshots(array $selected): array
-    {
-        $versions = [];
-        $snapshots = [];
-
-        foreach ($selected as $type => $versionId) {
-            if (blank($versionId)) {
-                continue;
-            }
-
-            $version = $this->templates->findPublished((int) $versionId, (string) $type);
-            if (! $version) {
-                throw ValidationException::withMessages([
-                    'template_versions.'.$type => 'نسخة القالب غير متاحة للنشر.',
-                ]);
-            }
-
-            $versions[$type] = $version->id;
-            $snapshots[$type] = [
-                'template_id' => $version->auction_template_id,
-                'template_name' => $version->template->name,
-                'type' => (string) $type,
-                'version' => $version->version,
-                'schema' => $version->schema,
-            ];
-        }
-
-        return [$versions, $snapshots];
-    }
 }
