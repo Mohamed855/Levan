@@ -2,126 +2,496 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Tenant\Assignments\AssignmentController;
-use App\Http\Controllers\Tenant\Auctions\AuctionController;
-use App\Http\Controllers\Tenant\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Tenant\Auth\NewPasswordController;
-use App\Http\Controllers\Tenant\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Tenant\Properties\PropertyController;
-use App\Http\Controllers\Tenant\Roles\TenantRoleController;
-use App\Http\Controllers\Tenant\Users\TenantUserController;
-use App\Http\Controllers\Tenant\Dashboard\DashboardController;
-use App\Http\Controllers\Tenant\DeleteBulk\TenantMassDeleteController;
 use App\Http\Controllers\Shared\Wizard\WizardDraftController;
+use App\Http\Controllers\Tenants\activity_log\ActivityLogController;
+use App\Http\Controllers\Tenants\Archive\Assignment\AssignmentArchiveController;
+use App\Http\Controllers\Tenants\Archive\Auction\AuctionArchiveController;
+use App\Http\Controllers\Tenants\Archive\Company\CompanyArchiveController;
+use App\Http\Controllers\Tenants\Archive\Property\PropertyArchiveController;
+use App\Http\Controllers\Tenants\Archive\User\UserArchiveController;
+use App\Http\Controllers\Tenants\Assignments\AssignmentsController;
+use App\Http\Controllers\Tenants\Auctions\AuctionOutputController;
+use App\Http\Controllers\Tenants\Auctions\AuctionsController;
+use App\Http\Controllers\Tenants\Auth\Fortify\TenantTwoFactorSettingsController;
+use App\Http\Controllers\Tenants\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Tenants\Auth\ConfirmablePasswordController;
+use App\Http\Controllers\Tenants\Auth\EmailVerificationNotificationController;
+use App\Http\Controllers\Tenants\Auth\EmailVerificationPromptController;
+use App\Http\Controllers\Tenants\Auth\Fortify\TenantTwoFactorChallengeController;
+use App\Http\Controllers\Tenants\Auth\NewPasswordController;
+use App\Http\Controllers\Tenants\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Tenants\Auth\RegisteredUserController;
+use App\Http\Controllers\Tenants\Auth\VerifyEmailController;
+use App\Http\Controllers\Tenants\Auth\PasswordController;
+use App\Http\Controllers\Tenants\Bills\BillsController;
+use App\Http\Controllers\Tenants\BusinessCenter\Company\CompanyController;
+use App\Http\Controllers\Tenants\ChartSetting\ChartSettingController;
+use App\Http\Controllers\Tenants\Dashboard\DashboardController;
+use App\Http\Controllers\Tenants\DeleteBulk\MassDeleteController;
+use App\Http\Controllers\Tenants\Domains\CheckMultipleDomainController as DomainsCheckMultipleDomainController;
+use App\Http\Controllers\Tenants\Domains\CpanelController;
+use App\Http\Controllers\Tenants\Domains\DomainController;
+use App\Http\Controllers\Tenants\Domains\DomainLookupController;
+use App\Http\Controllers\Tenants\Domains\DomainPaymentController;
+use App\Http\Controllers\Tenants\Domains\GetDomainInfoController;
+use App\Http\Controllers\Tenants\Domains\RenewalDomainController;
+use App\Http\Controllers\Tenants\License\LicenseController;
+use App\Http\Controllers\Tenants\Notification\NotificationController;
+use App\Http\Controllers\Tenants\Properties\PropertiesController;
+use App\Http\Controllers\Tenants\Settings\ApiTokenSettingsController;
+use App\Http\Controllers\Tenants\Settings\SettingsController;
+use App\Http\Controllers\Tenants\Subscriptions\NewSubscriptionController;
+use App\Http\Controllers\Tenants\Subscriptions\TenantSubscriptionController;
+use App\Http\Controllers\Tenants\Tickets\TicketController;
+use App\Http\Controllers\Tenants\UserMangment\Role\RoleController;
+use App\Http\Controllers\Tenants\UserMangment\User\UserController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('guest:tenant')->group(function (): void {
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
-    Route::post('login', [AuthenticatedSessionController::class, 'store'])->middleware('throttle:5,1')->name('login.store');
-    Route::get('two-factor', [AuthenticatedSessionController::class, 'twoFactorCreate'])->name('two-factor.create');
-    Route::post('two-factor', [AuthenticatedSessionController::class, 'twoFactorStore'])->middleware('throttle:5,1')->name('two-factor.store');
-    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
-    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
-    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
-    Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.store');
-});
+/*
+|============================================================================
+| Tenant Routes (Phase 1: Cleaned & Streamlined for Auction & Real Estate)
+|============================================================================
+*/
 
-Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->middleware('auth:tenant')->name('logout');
-
-Route::middleware('auth:tenant')->group(function (): void {
-    Route::get('/', DashboardController::class)->name('dashboard');
-    Route::post('mass-delete', TenantMassDeleteController::class)->name('mass-delete');
-    Route::prefix('wizard-drafts')->name('wizard-drafts.')->group(function (): void {
+Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
+    Route::prefix('wizard-drafts')->name('wizard-drafts.')->group(function () {
         Route::get('/', [WizardDraftController::class, 'show'])->name('index');
-        Route::post('/', [WizardDraftController::class, 'store'])->name('store');
+        Route::get('file', [WizardDraftController::class, 'showFile'])->name('file.show');
+        Route::match(['post', 'put', 'patch'], '/', [WizardDraftController::class, 'store'])->name('store');
         Route::delete('/', [WizardDraftController::class, 'destroy'])->name('destroy');
-        Route::post('validate-step', [WizardDraftController::class, 'validateStep'])->name('validate-step');
         Route::delete('file', [WizardDraftController::class, 'destroyFile'])->name('file.destroy');
+        Route::match(['post', 'put', 'patch'], 'validate-step', [WizardDraftController::class, 'validateStep'])
+            ->defaults('shared_form_validation_actions', [
+                UserController::class.'@store',
+                UserController::class.'@update',
+                UserController::class.'@updateImage',
+                UserController::class.'@updateBackgroundImage',
+                UserController::class.'@updatePassword',
+                RoleController::class.'@store',
+                RoleController::class.'@update',
+                SettingsController::class.'@update',
+                CompanyController::class.'@store',
+                CompanyController::class.'@update',
+                AssignmentsController::class.'@store',
+                AssignmentsController::class.'@update',
+                PropertiesController::class.'@store',
+                PropertiesController::class.'@update',
+                AuctionsController::class.'@store',
+                AuctionsController::class.'@update',
+                TicketController::class.'@store',
+                TicketController::class.'@reply',
+                TicketController::class.'@rateReply',
+                TicketController::class.'@submitSurvey',
+                BillsController::class.'@uploadReceipt',
+                BillsController::class.'@processCheckout',
+                TenantSubscriptionController::class.'@processRenew',
+                TenantSubscriptionController::class.'@processLicense',
+                NewSubscriptionController::class.'@checkoutStore',
+                TenantSubscriptionController::class.'@licenseCheckout',
+                TenantTwoFactorSettingsController::class.'@confirm',
+            ])
+            ->name('validate-step');
     });
-    Route::get('auctions/{auction}/preview/{type}', [AuctionController::class, 'preview'])->name('auctions.preview');
-    Route::get('auctions/{auction}/download/{type}', [AuctionController::class, 'download'])->name('auctions.download');
-    Route::resource('users', TenantUserController::class);
-    Route::patch('users/{user}/toggle-status', [TenantUserController::class, 'toggleStatus'])->name('users.toggle-status');
-    Route::resource('roles', TenantRoleController::class);
-    Route::resource('auctions', AuctionController::class);
-    Route::post('assignments/selected-properties', [AssignmentController::class, 'selectedProperties'])->name('assignments.selected-properties');
-    Route::get('assignments/{assignment}/properties', [AssignmentController::class, 'properties'])->name('assignments.properties');
-    Route::resource('assignments', AssignmentController::class);
-    Route::patch('assignments/{assignment}/toggle-status', [AssignmentController::class, 'toggleStatus'])->name('assignments.toggle-status');
-    Route::resource('properties', PropertyController::class);
-    Route::patch('properties/{property}/toggle-status', [PropertyController::class, 'toggleStatus'])->name('properties.toggle-status');
-    Route::resource('companies', \App\Http\Controllers\Tenant\Companies\CompanyController::class);
-    Route::patch('companies/{company}/toggle-status', [\App\Http\Controllers\Tenant\Companies\CompanyController::class, 'toggleStatus'])->name('companies.toggle-status');
-    Route::get('bills', [\App\Http\Controllers\Tenant\Bills\TenantBillController::class, 'index'])->name('bills.index');
-    Route::get('bills/{bill}', [\App\Http\Controllers\Tenant\Bills\TenantBillController::class, 'show'])->name('bills.show');
-    Route::get('bills/{bill}/bank-transfer', [\App\Http\Controllers\Tenant\Bills\TenantBillController::class, 'bankTransfer'])->name('bills.bank-transfer');
-    Route::post('bills/{bill}/upload-receipt', [\App\Http\Controllers\Tenant\Bills\TenantBillController::class, 'uploadReceipt'])->name('bills.upload-receipt');
-    Route::get('bills/{bill}/receipt', [\App\Http\Controllers\Tenant\Bills\TenantBillController::class, 'receipt'])->name('bills.receipt');
-    Route::prefix('subscriptions')->name('subscriptions.')->group(function (): void {
-        Route::get('/', [\App\Http\Controllers\Tenant\Subscriptions\TenantSubscriptionController::class, 'index'])->name('index');
-        Route::post('renew', [\App\Http\Controllers\Tenant\Subscriptions\TenantSubscriptionController::class, 'renew'])->name('renew');
-        Route::post('licenses', [\App\Http\Controllers\Tenant\Subscriptions\TenantSubscriptionController::class, 'licenses'])->name('licenses');
-        Route::get('payment/{billNumber}', [\App\Http\Controllers\Tenant\Subscriptions\TenantSubscriptionController::class, 'payment'])->name('payment');
-        Route::get('callback/{billNumber}', [\App\Http\Controllers\Tenant\Subscriptions\TenantSubscriptionController::class, 'callback'])->name('callback');
+
+    // الاشتراك والترقية
+    Route::prefix('subscribe')->name('subscribe.')->group(function () {
+        Route::name('index')->get('/', [NewSubscriptionController::class, 'index']);
+        Route::name('checkout')->get('plan/{plan}/checkout', [NewSubscriptionController::class, 'checkout']);
+        Route::name('checkout.store')->post('checkout', [NewSubscriptionController::class, 'checkoutStore'])
+            ->defaults('shared_form_validation', true);
+        Route::name('callback')->get('callback', [NewSubscriptionController::class, 'handleNewSubscriptionCallback']);
     });
-    Route::prefix('domains')->name('domains.')->group(function (): void {
-        Route::get('/', [\App\Http\Controllers\Tenant\Domains\ManagedDomainController::class, 'index'])->name('index');
-        Route::post('availability', \App\Http\Controllers\Tenant\Domains\DomainAvailabilityController::class)->name('availability');
-        Route::post('link', [\App\Http\Controllers\Tenant\Domains\ManagedDomainController::class, 'link'])->name('link');
-        Route::post('subdomains', [\App\Http\Controllers\Tenant\Domains\ManagedDomainController::class, 'createSubdomain'])->name('subdomains.store');
-        Route::post('{domain}/verify', [\App\Http\Controllers\Tenant\Domains\ManagedDomainController::class, 'verify'])->name('verify');
-        Route::delete('{domain}', [\App\Http\Controllers\Tenant\Domains\ManagedDomainController::class, 'destroy'])->name('destroy');
+
+    // الفواتير
+    Route::prefix('bills')->name('bills.')->group(function () {
+        Route::name('index')->get('/', [BillsController::class, 'index']);
+        Route::name('callback')->get('callback', [BillsController::class, 'callback']);
+        Route::name('show')->get('{id}', [BillsController::class, 'show']);
+        Route::name('checkout')->get('{id}/checkout', [BillsController::class, 'checkout']);
+        Route::name('checkout.process')->post('{id}/checkout', [BillsController::class, 'processCheckout'])
+            ->defaults('shared_form_validation', true);
+
+        // مسارات التحويل البنكي
+        Route::name('bank-transfer')->get('{id}/bank-transfer', [BillsController::class, 'bankTransfer']);
+        Route::name('upload-receipt')->post('{id}/upload-receipt', [BillsController::class, 'uploadReceipt'])
+            ->defaults('shared_form_validation', true);
     });
-    Route::resource('tickets', \App\Http\Controllers\Tenant\Tickets\TenantTicketController::class)->only(['index', 'create', 'store', 'show']);
-    Route::get('tickets/{ticket}/attachments/{attachment}', [\App\Http\Controllers\Tenant\Tickets\TenantTicketController::class, 'downloadAttachment'])->name('tickets.attachments.download');
-    Route::post('tickets/{ticket}/reply', [\App\Http\Controllers\Tenant\Tickets\TenantTicketController::class, 'reply'])->name('tickets.reply');
-    Route::prefix('notifications')->name('notifications.')->group(function (): void {
-        Route::get('/', [\App\Http\Controllers\Tenant\Notifications\TenantNotificationController::class, 'index'])->name('index');
-        Route::get('/unread-count', [\App\Http\Controllers\Tenant\Notifications\TenantNotificationController::class, 'unreadCount'])->name('unread-count');
-        Route::post('/mark-as-read', [\App\Http\Controllers\Tenant\Notifications\TenantNotificationController::class, 'markAsRead'])->name('mark-as-read');
-        Route::post('/mark-all-read', [\App\Http\Controllers\Tenant\Notifications\TenantNotificationController::class, 'markAllAsRead'])->name('mark-all-read');
-        Route::delete('/', [\App\Http\Controllers\Tenant\Notifications\TenantNotificationController::class, 'destroy'])->name('destroy');
-        Route::post('/mass-delete', [\App\Http\Controllers\Tenant\Notifications\TenantNotificationController::class, 'massDelete'])->name('mass-delete');
+
+    Route::prefix('subscriptions')->name('subscriptions.')->group(function () {
+        Route::name('index')->get('/', [TenantSubscriptionController::class, 'index']);
     });
-    Route::get('settings', [\App\Http\Controllers\Tenant\Settings\TenantSettingController::class, 'index'])->name('settings.index');
-    Route::put('settings', [\App\Http\Controllers\Tenant\Settings\TenantSettingController::class, 'update'])->name('settings.update');
-    Route::get('settings/api-token', [\App\Http\Controllers\Tenant\Settings\TenantApiTokenController::class, 'index'])->name('api-token.index');
-    Route::post('settings/api-token/rotate', [\App\Http\Controllers\Tenant\Settings\TenantApiTokenController::class, 'rotate'])->name('api-token.rotate');
-    Route::delete('settings/api-token', [\App\Http\Controllers\Tenant\Settings\TenantApiTokenController::class, 'revoke'])->name('api-token.revoke');
-    Route::get('activity-log', [\App\Http\Controllers\Tenant\ActivityLog\TenantActivityLogController::class, 'index'])->name('activity-log.index');
-    Route::get('activity-log/{id}', [\App\Http\Controllers\Tenant\ActivityLog\TenantActivityLogController::class, 'show'])->name('activity-log.show');
 
-    Route::prefix('archives')->name('archives.')->group(function (): void {
-        Route::prefix('properties')->name('properties.')->group(function (): void {
-            Route::get('/', [\App\Http\Controllers\Tenant\Archive\Properties\PropertyArchiveController::class, 'index'])->name('index');
-            Route::patch('/{id}/restore', [\App\Http\Controllers\Tenant\Archive\Properties\PropertyArchiveController::class, 'restore'])->name('restore');
-            Route::delete('/{id}/force-delete', [\App\Http\Controllers\Tenant\Archive\Properties\PropertyArchiveController::class, 'forceDelete'])->name('force-delete');
+    Route::middleware('tenant.license')->group(function () {
+        // الاشتراكات والتجديد
+        Route::prefix('subscriptions')->name('subscriptions.')->group(function () {
+            Route::prefix('renew')->name('renew.')->group(function () {
+                Route::get('/', [TenantSubscriptionController::class, 'renewCheckout'])->name('checkout');
+                Route::post('/', [TenantSubscriptionController::class, 'processRenew'])
+                    ->defaults('shared_form_validation', true)
+                    ->name('process');
+                Route::get('/callback', [TenantSubscriptionController::class, 'renewCallback'])->name('callback');
+            });
+
+            // شراء تراخيص إضافية
+            Route::prefix('licenses')->name('licenses.')->group(function () {
+                Route::get('/', [TenantSubscriptionController::class, 'licenseCheckout'])
+                    ->defaults('shared_form_validation', true)
+                    ->name('checkout');
+                Route::post('/', [TenantSubscriptionController::class, 'processLicense'])
+                    ->defaults('shared_form_validation', true)
+                    ->name('process');
+                Route::get('/callback', [TenantSubscriptionController::class, 'licenseCallback'])->name('callback');
+            });
+        });
+    });
+
+    // المسارات المحمية باشتراك وترخيص نشط
+    Route::middleware('tenant.subscription', 'tenant.license')->group(function () {
+
+        /*
+        |--------------------------------------------------------------------------
+        | الدعم الفني (Tickets) - محفوظ ويعمل بكامل كفاءته
+        |--------------------------------------------------------------------------
+        */
+        Route::name('tickets.')->prefix('tickets')->group(function () {
+            Route::resource('/', TicketController::class)->parameters(['' => 'ticket'])->only(['index', 'show', 'create', 'store']);
+            Route::name('reply')->post('/reply/{ticket}', [TicketController::class, 'reply'])
+                ->defaults('shared_form_validation', true);
+
+            // تقييم الرد
+            Route::name('replies.rate')->post('{ticket}/replies/{reply}/rate', [TicketController::class, 'rateReply'])
+                ->defaults('shared_form_validation', true);
+
+            // التقييم النهائي للتذكرة
+            Route::name('survey.submit')->post('{ticket}/survey', [TicketController::class, 'submitSurvey'])
+                ->defaults('shared_form_validation', true);
         });
 
-        Route::prefix('assignments')->name('assignments.')->group(function (): void {
-            Route::get('/', [\App\Http\Controllers\Tenant\Archive\Assignments\AssignmentArchiveController::class, 'index'])->name('index');
-            Route::patch('/{id}/restore', [\App\Http\Controllers\Tenant\Archive\Assignments\AssignmentArchiveController::class, 'restore'])->name('restore');
-            Route::delete('/{id}/force-delete', [\App\Http\Controllers\Tenant\Archive\Assignments\AssignmentArchiveController::class, 'forceDelete'])->name('force-delete');
+        Route::prefix('chartSetting')->name('charSetting.')->group(function () {
+            Route::name('update')->post('/dashboard/chart-visibility', [ChartSettingController::class, 'updateChartVisibility']);
         });
 
-        Route::prefix('companies')->name('companies.')->group(function (): void {
-            Route::get('/', [\App\Http\Controllers\Tenant\Archive\Companies\CompanyArchiveController::class, 'index'])->name('index');
-            Route::patch('/{id}/restore', [\App\Http\Controllers\Tenant\Archive\Companies\CompanyArchiveController::class, 'restore'])->name('restore');
-            Route::delete('/{id}/force-delete', [\App\Http\Controllers\Tenant\Archive\Companies\CompanyArchiveController::class, 'forceDelete'])->name('force-delete');
+        /*
+        |--------------------------------------------------------------------------
+        | إعدادات النطاقات (Domains)
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('domains')->name('domains.')->group(function () {
+            Route::name('setting')->get('setting', [DomainController::class, 'domainSetting']);
+            Route::name('newdomain')->get('newdomain', [DomainController::class, 'newdomain']);
+            Route::name('link-domain')->get('link-domain', [DomainController::class, 'linkDomain']);
+            Route::name('link-sub-domain')->get('link-sub-domain', [DomainController::class, 'linkSubDomain']);
+            Route::name('faq')->get('faq', [DomainController::class, 'faq']);
+            Route::name('explain')->get('explain', [DomainController::class, 'explain']);
+            Route::name('subdomainblade')->get('subdomain', [DomainController::class, 'subdomainblade']);
+
+            Route::name('get-domain-info')->get('getInfo/{domain}', [GetDomainInfoController::class, 'getDomainInfo']);
+
+            Route::name('payment.renewal')->match(['post', 'get'], 'renewal/payment', [RenewalDomainController::class, 'renewalDomainBlade']);
+            Route::name('renewal')->post('renewal', [RenewalDomainController::class, 'renewalDomain']);
+
+            Route::name('moyasar.renewal.callback')->get('renewal/payment/domain/callback', [DomainPaymentController::class, 'renewalCallback']);
+            Route::name('moyasar.renewal')->post('renewal/payment/domain', [DomainPaymentController::class, 'startRenewal']);
+
+            Route::name('check')->get('/check/{domain}', [DomainsCheckMultipleDomainController::class, 'checkSingle'])
+                ->where('domain', '[a-zA-Z0-9.-]+');
+
+            Route::post('/check-multiple', [DomainsCheckMultipleDomainController::class, 'checkMultiple'])
+                ->name('check-multiple');
+
+            Route::get('/suggest-alternatives', [DomainsCheckMultipleDomainController::class, 'suggestAlternatives'])
+                ->name('suggest-alternatives');
+
+            Route::get('/suggest-names', [DomainsCheckMultipleDomainController::class, 'suggestNames'])
+                ->name('suggest-names');
+
+            Route::delete('/cache/{domain}', [DomainsCheckMultipleDomainController::class, 'clearCache'])
+                ->name('cache.clear')
+                ->where('domain', '[a-zA-Z0-9.-]+');
+
+            Route::delete('/cache', [DomainsCheckMultipleDomainController::class, 'clearAllCache'])
+                ->name('cache.clear-all');
+
+            Route::name('apilayer')->match(['get', 'post'], 'check-domain/{domain}', [DomainLookupController::class, 'checkAvailability']);
+            Route::name('check-domain')->match(['get', 'post'], 'check-domainss/{domain}', [DomainLookupController::class, 'inspectDns']);
+            Route::name('checkSubDomain')->get('checkSubdomain/{subdomain}', [DomainLookupController::class, 'checkSubDomain']);
+
+            Route::name('payment.new')->post('payment', [DomainPaymentController::class, 'startRegistration'])->middleware('check.domain.balance');
+            Route::name('payment.callbacknewdomain')->get('payment/callbacknewDomain', [DomainPaymentController::class, 'registrationCallback']);
+            Route::name('process-transfer-payment')->post('process-transfer-payment', [DomainPaymentController::class, 'startTransfer']);
+            Route::name('payment.callback.transfer')->get('process-transfer-payment-callback', [DomainPaymentController::class, 'transferCallback']);
+
+            Route::name('checkExistTransferDomain')->post('checkExistTransferDomain/{domain}', [DomainLookupController::class, 'checkTransferAvailability']);
+
+            Route::name('linkDomainproccess')->post('link-domain-proccess', [DomainController::class, 'setupdnsForDomain']);
+            Route::post('/verify-dns', [DomainController::class, 'verifyDNS'])->name('domains.verify-dns');
+            Route::name('check-domain-exists')->post('check-domain-exists', [DomainController::class, 'checkDomainExists']);
+            Route::name('switch.active')->post('/switch-active', [DomainController::class, 'switchActiveDomain']);
+            Route::name('modifyaccount')->post('modifyaccount', [DomainController::class, 'modifyaccount']);
+            Route::name('testverify')->get('verifydns/{domain}/{method}', [DomainController::class, 'verifyDNSTest']);
+
+            Route::name('check.balance')->get('/check-balance', [DomainController::class, 'getBalance']);
+            Route::name('get.info.domain')->get('/get-domain-info/{domain}', [GetDomainInfoController::class, 'getDomainInfo']);
+            Route::name('get.result')->post('/check-domain-result/{domain}', [DomainController::class, 'calculateResults']);
+
+            Route::name('cpanel.limits')->get('check-cpanel-limits', [CpanelController::class, 'checkLimits']);
         });
 
-        Route::prefix('users')->name('users.')->group(function (): void {
-            Route::get('/', [\App\Http\Controllers\Tenant\Archive\Users\UserArchiveController::class, 'index'])->name('index');
-            Route::patch('/{id}/restore', [\App\Http\Controllers\Tenant\Archive\Users\UserArchiveController::class, 'restore'])->name('restore');
-            Route::delete('/{id}/force-delete', [\App\Http\Controllers\Tenant\Archive\Users\UserArchiveController::class, 'forceDelete'])->name('force-delete');
+        // التراخيص
+        Route::prefix('licenses')->name('licenses.')->group(function () {
+            Route::name('assign')->post('assign', [LicenseController::class, 'assign']);
+            Route::name('release')->post('release', [LicenseController::class, 'release']);
         });
 
-        Route::prefix('auctions')->name('auctions.')->group(function (): void {
-            Route::get('/', [\App\Http\Controllers\Tenant\Archive\Auctions\AuctionArchiveController::class, 'index'])->name('index');
-            Route::patch('/{id}/restore', [\App\Http\Controllers\Tenant\Archive\Auctions\AuctionArchiveController::class, 'restore'])->name('restore');
-            Route::delete('/{id}/force-delete', [\App\Http\Controllers\Tenant\Archive\Auctions\AuctionArchiveController::class, 'forceDelete'])->name('force-delete');
+        Route::get('/', function () {
+            return redirect(tenant_route_name('dashboard'));
         });
+
+        // لوحة القيادة
+        Route::prefix('dashboard')->middleware(['verified'])->group(function () {
+            Route::name('dashboard')->get('/', [DashboardController::class, 'index']);
+            Route::name('dashboard.statistics')->get('/statistics', [DashboardController::class, 'getStatisticsData']);
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Notifications
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('notifications')->name('notifications.')->group(function () {
+            Route::get('/all', [NotificationController::class, 'allPage'])->name('all');
+            Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->name('unread-count');
+            Route::post('/{id}/read', [NotificationController::class, 'markAsRead'])->name('mark-as-read');
+            Route::post('/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+            Route::post('/mass-delete', [NotificationController::class, 'massDelete'])->name('mass-delete');
+            Route::resource('/', NotificationController::class)
+                ->only(['index', 'destroy'])
+                ->parameters(['' => 'id']);
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | User Management
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('users')->name('users.')->group(function () {
+            Route::name('profile')->get('profile', [UserController::class, 'showProfile']);
+            Route::name('update-image')->post('{user}/image', [UserController::class, 'updateImage'])->defaults('shared_form_validation', true);
+            Route::name('update-background')->post('{user}/background', [UserController::class, 'updateBackgroundImage'])->defaults('shared_form_validation', true);
+            Route::name('toggle-status')->patch('{user}/toggle-status', [UserController::class, 'toggleStatus']);
+            Route::name('password.change')->get('password/change', [UserController::class, 'showChangePasswordForm']);
+            Route::name('password.update')->post('password/change', [UserController::class, 'updatePassword'])->defaults('shared_form_validation', true);
+            Route::resource('/', UserController::class)->parameters(['' => 'user']);
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Roles & Permissions
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('roles')->name('roles.')->group(function () {
+            Route::name('user.get')->get('users/{id}/get-roles', [RoleController::class, 'getUserRoles']);
+            Route::name('user.update')->post('users/{id}/update-roles', [RoleController::class, 'updateUserRoles']);
+            Route::name('user.status')->patch('users/{userId}/status', [RoleController::class, 'updateStatus']);
+            Route::resource('/', RoleController::class)->parameters(['' => 'role']);
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Assignments Management (الإسنادات)
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('assignments')->name('assignments.')->group(function () {
+            Route::name('selected-properties')->get('selected-properties', [AssignmentsController::class, 'selectedProperties']);
+            Route::name('properties')->get('{assignment}/properties', [AssignmentsController::class, 'getProperties']);
+            Route::name('toggle-status')->patch('{assignment}/toggle-status', [AssignmentsController::class, 'toggleStatus']);
+        });
+        Route::resource('assignments', AssignmentsController::class)
+            ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Properties Management (العقارات)
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('properties')->name('properties.')->group(function () {
+            Route::name('toggle-status')->patch('{property}/toggle-status', [PropertiesController::class, 'toggleStatus']);
+        });
+        Route::resource('properties', PropertiesController::class)
+            ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Auctions Management (المزادات ومخرجاتها)
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('auctions')->name('auctions.')->group(function () {
+            Route::name('toggle-status')->patch('{auction}/toggle-status', [AuctionsController::class, 'toggleStatus']);
+            Route::name('preview')->get('{auction}/preview/{type}', [AuctionsController::class, 'preview']);
+            Route::name('brochure')->get('{auction}/brochure', [AuctionOutputController::class, 'brochure']);
+            Route::name('billboard')->get('{auction}/billboard', [AuctionOutputController::class, 'billboard']);
+            Route::name('social')->get('{auction}/social', [AuctionOutputController::class, 'social']);
+            Route::name('social-image')->get('{auction}/social-image', [AuctionOutputController::class, 'socialImage']);
+        });
+        Route::resource('auctions', AuctionsController::class)
+            ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Company Management (الشركات / العملاء)
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('companies')->name('companies.')->group(function () {
+            Route::name('index')->get('/', [CompanyController::class, 'index']);
+            Route::name('create')->get('create', [CompanyController::class, 'create']);
+            Route::name('store')->post('/', [CompanyController::class, 'store']);
+            Route::name('show')->get('{company}', [CompanyController::class, 'show']);
+            Route::name('edit')->get('{company}/edit', [CompanyController::class, 'edit']);
+            Route::name('update')->put('{company}', [CompanyController::class, 'update']);
+            Route::name('destroy')->delete('{company}', [CompanyController::class, 'destroy']);
+            Route::name('toggle-status')->patch('{company}/toggle-status', [CompanyController::class, 'toggleStatus']);
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Settings & API Tokens
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('settings')->name('settings.')->group(function () {
+            Route::name('index')->get('/', [SettingsController::class, 'index']);
+            Route::name('update')->put('/', [SettingsController::class, 'update']);
+            Route::name('center')->get('/center', [SettingsController::class, 'center']);
+        });
+
+        Route::prefix('api-token-settings')->name('api-token-settings.')->group(function () {
+            Route::name('index')->get('/', [ApiTokenSettingsController::class, 'index']);
+            Route::name('regenerate')->post('/regenerate', [ApiTokenSettingsController::class, 'regenerate']);
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Activity Logs
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('activity-logs')->name('activity-logs.')->group(function () {
+            Route::name('index')->get('/', [ActivityLogController::class, 'index']);
+            Route::name('archives')->get('archives', [ActivityLogController::class, 'archives']);
+            Route::name('get-all-ids')->get('get-all-ids', [ActivityLogController::class, 'getAllIds']);
+            Route::name('export')->post('export', [ActivityLogController::class, 'export']);
+            Route::name('export-download')->get('export-download/{file}', [ActivityLogController::class, 'downloadExportFile']);
+            Route::name('show')->get('{id}', [ActivityLogController::class, 'show']);
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Archive (البيانات المحذوفة)
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('archive')->name('archive.')->group(function () {
+            // Company Archive
+            Route::prefix('companies')->name('companies.')->group(function () {
+                Route::name('index')->get('/', [CompanyArchiveController::class, 'index']);
+                Route::name('restore')->patch('{company}/restore', [CompanyArchiveController::class, 'restore']);
+                Route::name('force-delete')->delete('{company}/force-delete', [CompanyArchiveController::class, 'forceDelete']);
+                Route::name('mass-restore')->post('mass-restore', [CompanyArchiveController::class, 'massRestore']);
+                Route::name('mass-force-delete')->delete('mass-force-delete', [CompanyArchiveController::class, 'massForceDelete']);
+            });
+
+            // User Archive
+            Route::prefix('users')->name('users.')->group(function () {
+                Route::name('index')->get('/', [UserArchiveController::class, 'index']);
+                Route::name('restore')->patch('{user}/restore', [UserArchiveController::class, 'restore']);
+                Route::name('force-delete')->delete('{user}/force-delete', [UserArchiveController::class, 'forceDelete']);
+                Route::name('mass-restore')->post('mass-restore', [UserArchiveController::class, 'massRestore']);
+                Route::name('mass-force-delete')->delete('mass-force-delete', [UserArchiveController::class, 'massForceDelete']);
+            });
+
+            // Assignment Archive
+            Route::prefix('assignments')->name('assignments.')->group(function () {
+                Route::name('index')->get('/', [AssignmentArchiveController::class, 'index']);
+                Route::name('restore')->patch('{assignment}/restore', [AssignmentArchiveController::class, 'restore']);
+                Route::name('force-delete')->delete('{assignment}/force-delete', [AssignmentArchiveController::class, 'forceDelete']);
+            });
+
+            // Property Archive
+            Route::prefix('properties')->name('properties.')->group(function () {
+                Route::name('index')->get('/', [PropertyArchiveController::class, 'index']);
+                Route::name('restore')->patch('{property}/restore', [PropertyArchiveController::class, 'restore']);
+                Route::name('force-delete')->delete('{property}/force-delete', [PropertyArchiveController::class, 'forceDelete']);
+            });
+
+            // Auction Archive
+            Route::prefix('auctions')->name('auctions.')->group(function () {
+                Route::name('index')->get('/', [AuctionArchiveController::class, 'index']);
+                Route::name('restore')->patch('{auction}/restore', [AuctionArchiveController::class, 'restore']);
+                Route::name('force-delete')->delete('{auction}/force-delete', [AuctionArchiveController::class, 'forceDelete']);
+            });
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Bulk Delete Route
+        |--------------------------------------------------------------------------
+        */
+        Route::name('mass-delete')->post('/mass-delete', [MassDeleteController::class, 'massDelete']);
     });
 });
 
+/*
+|--------------------------------------------------------------------------
+| Authentication: Password Reset & Change
+|--------------------------------------------------------------------------
+*/
+Route::middleware('guest')->prefix('forgot-password')->group(function () {
+    Route::name('password.request')->get('/', [PasswordResetLinkController::class, 'create']);
+    Route::name('password.email')->post('/', [PasswordResetLinkController::class, 'store']);
+});
 
+Route::get('impersonate', [AuthenticatedSessionController::class, 'impersonate'])
+    ->name('impersonate');
+
+Route::middleware('guest:tenant')->group(function () {
+    Route::match(['post', 'put', 'patch'], 'form-validation', [WizardDraftController::class, 'validateStep'])
+        ->defaults('shared_form_validation_actions', [
+            AuthenticatedSessionController::class . '@store',
+            RegisteredUserController::class . '@store',
+            PasswordResetLinkController::class . '@store',
+            NewPasswordController::class . '@store',
+            TenantTwoFactorChallengeController::class . '@store',
+        ])
+        ->name('form-validation');
+
+    Route::name('register')->get('register', [RegisteredUserController::class, 'create']);
+    Route::post('register', [RegisteredUserController::class, 'store']);
+    Route::name('login')->get('login', [AuthenticatedSessionController::class, 'create']);
+    Route::post('login', [AuthenticatedSessionController::class, 'store']);
+    Route::name('password.request')->get('forgot-password', [PasswordResetLinkController::class, 'create']);
+    Route::name('password.email')->post('forgot-password', [PasswordResetLinkController::class, 'store']);
+    Route::name('password.reset')->get('reset-password/{token}', [NewPasswordController::class, 'create']);
+    Route::name('password.store')->post('reset-password', [NewPasswordController::class, 'store']);
+
+    Route::get('two-factor-challenge', [TenantTwoFactorChallengeController::class, 'create'])->name('tenants.two-factor.login');
+    Route::post('two-factor-challenge', [TenantTwoFactorChallengeController::class, 'store'])->name('tenants.two-factor.store')->middleware('throttle:5,1');
+    Route::get('two-factor-challenge/cancel', [TenantTwoFactorChallengeController::class, 'cancel'])->name('tenants.two-factor.cancel');
+});
+
+Route::middleware('auth:tenant')->group(function () {
+    Route::name('verification.notice')->get('verify-email', EmailVerificationPromptController::class);
+    Route::name('verification.verify')->get('verify-email/{id}/{hash}', VerifyEmailController::class)->middleware(['signed', 'throttle:6,1']);
+    Route::name('verification.send')->post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])->middleware('throttle:6,1');
+    Route::name('password.confirm')->get('confirm-password', [ConfirmablePasswordController::class, 'show']);
+    Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
+    Route::name('password.update')->put('password', [PasswordController::class, 'update']);
+    Route::name('logout')->post('logout', [AuthenticatedSessionController::class, 'destroy']);
+
+    Route::name('tenants.two-factor.')->group(function () {
+        Route::get('two-factor-authentication', [TenantTwoFactorSettingsController::class, 'show'])->name('index');
+        Route::post('two-factor-authentication', [TenantTwoFactorSettingsController::class, 'enable'])->name('enable');
+        Route::delete('two-factor-authentication', [TenantTwoFactorSettingsController::class, 'disable'])->name('disable');
+        Route::post('confirmed-two-factor-authentication', [TenantTwoFactorSettingsController::class, 'confirm'])
+            ->defaults('shared_form_validation', true)
+            ->name('confirm');
+        Route::get('two-factor-qr-code', [TenantTwoFactorSettingsController::class, 'qrCode'])->name('qr-code');
+        Route::post('two-factor-recovery-codes', [TenantTwoFactorSettingsController::class, 'recoveryCodes'])->name('recovery-codes');
+    });
+});

@@ -1,46 +1,44 @@
 <?php
 
-use App\Http\Controllers\Admin\Auth\AuthenticatedSessionController as AdminAuthenticatedSessionController;
-use App\Http\Controllers\Web\CheckoutController;
-use App\Http\Controllers\Web\CouponQuoteController;
-use App\Http\Controllers\Web\FormValidationController;
-use App\Http\Controllers\Web\LandingPageController;
-use App\Http\Controllers\Web\TrialController;
+use App\Http\Controllers\Shared\Wizard\WizardDraftController;
+use App\Http\Controllers\Site\LandingPageController;
+use App\Http\Controllers\Site\SubscriptionController;
+use App\Http\Controllers\Site\TrialController;
 use Illuminate\Support\Facades\Route;
 
-Route::name('site.')->group(function (): void {
+Route::name('site.')->group(function () {
     Route::get('/', [LandingPageController::class, 'index'])->name('index');
     Route::get('privacy-policy', [LandingPageController::class, 'privacyPolicy'])->name('privacy.policy');
-    Route::post('contact', [LandingPageController::class, 'storeContact'])->middleware('throttle:10,1')->name('contact.store');
+    Route::post('contact', [LandingPageController::class, 'contactRequest'])
+        ->defaults('shared_form_validation', true)
+        ->name('contact.store');
+    Route::match(['post', 'put', 'patch'], 'form-validation', [WizardDraftController::class, 'validateStep'])
+        ->defaults('shared_form_validation_actions', [
+            LandingPageController::class.'@contactRequest',
+            SubscriptionController::class.'@processCheckout',
+            SubscriptionController::class.'@completeCheckout',
+            TrialController::class.'@demoRequest',
+        ])
+        ->name('form-validation');
 
-    Route::post('form-validation', FormValidationController::class)->name('form-validation');
-
-    Route::prefix('checkout')->name('plans.checkout.')->group(function (): void {
-        Route::post('{plan}/coupon-quote', CouponQuoteController::class)->middleware('throttle:20,1')->name('coupon-quote');
-        Route::get('callback', [CheckoutController::class, 'callback'])->name('callback');
-        Route::get('retry/{billNumber}', [CheckoutController::class, 'retry'])->middleware('signed')->name('retry');
-        Route::post('{plan}', [CheckoutController::class, 'store'])->name('store');
-        Route::post('{plan}/verify-email', [CheckoutController::class, 'verifyEmail'])->name('verify.store');
-        Route::get('{plan}/edit', [CheckoutController::class, 'edit'])->name('edit');
-        Route::post('{plan}/payment', [CheckoutController::class, 'completePayment'])->name('payment');
+    Route::prefix('')->name('plans.')->group(function () {
+        Route::get('checkout/callback', [SubscriptionController::class, 'handlePaymentCallback'])->name('checkout.callback');
+        Route::get('checkout/retry/{billNumber}', [SubscriptionController::class, 'retryCheckout'])
+            ->middleware('signed')
+            ->name('checkout.retry');
+        Route::post('checkout/{plan}', [SubscriptionController::class, 'processCheckout'])
+            ->defaults('shared_form_validation', true)
+            ->name('checkout.store');
+        Route::post('checkout/{plan}/verify-email', [SubscriptionController::class, 'verifyOtp'])->name('checkout.verify.store');
+        Route::get('checkout/{plan}/edit', [SubscriptionController::class, 'editCheckout'])->name('checkout.edit');
+        Route::post('checkout/{plan}/payment', [SubscriptionController::class, 'completeCheckout'])
+            ->defaults('shared_form_validation', true)
+            ->name('checkout.payment');
+        Route::get('checkout/{plan}/details', [SubscriptionController::class, 'checkout'])->name('checkout');
     });
 
-    Route::get('checkout/{plan}/details', [CheckoutController::class, 'show'])->name('plans.checkout');
-
-    Route::get('trial', [TrialController::class, 'index'])->name('trial');
-    Route::post('trial', [TrialController::class, 'store'])->middleware('throttle:10,1')->name('trial.store');
+    Route::get('/trial', [TrialController::class, 'index'])->name('trial');
+    Route::post('/trial', [TrialController::class, 'demoRequest'])
+        ->defaults('shared_form_validation', true)
+        ->name('trial.store');
 });
-
-Route::prefix('admin')->name('admin.')->group(function (): void {
-    Route::middleware('guest:admin')->group(function (): void {
-        Route::get('login', [AdminAuthenticatedSessionController::class, 'create'])->name('login');
-        Route::post('login', [AdminAuthenticatedSessionController::class, 'store'])->middleware('throttle:5,1')->name('login.store');
-        Route::get('two-factor', [AdminAuthenticatedSessionController::class, 'twoFactorCreate'])->name('two-factor.create');
-        Route::post('two-factor', [AdminAuthenticatedSessionController::class, 'twoFactorStore'])->middleware('throttle:5,1')->name('two-factor.store');
-    });
-
-    Route::post('logout', [AdminAuthenticatedSessionController::class, 'destroy'])->middleware('auth:admin')->name('logout');
-});
-
-require __DIR__.'/admin.php';
-

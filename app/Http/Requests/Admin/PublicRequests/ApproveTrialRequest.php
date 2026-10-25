@@ -10,12 +10,11 @@ final class ApproveTrialRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user('admin')?->hasPermissionTo('public_requests.process') ?? false;
+        return $this->user('admin')?->can('trial_requests.approve') ?? false;
     }
 
     public function rules(): array
     {
-        // No additional input required for approval; the action validates business state.
         return [];
     }
 }

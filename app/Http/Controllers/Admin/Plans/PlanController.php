@@ -1,170 +1,192 @@
 <?php
+
 declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin\Plans;
-use App\Actions\Admin\Plans\SavePlanAction;
-use App\Actions\Admin\Plans\ReorderPlansAction;
+
 use App\DataTables\Admin\Plans\PlanDataTable;
 use App\Enums\Admin\Plans\PlanLimitsMode;
 use App\Enums\Admin\Plans\PlanType;
 use App\Enums\Admin\Subscriptions\SubscriptionBillingCycle;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\Plans\StorePlanRequest;
-use App\Http\Requests\Admin\Plans\UpdatePlanRequest;
-use App\Http\Requests\Admin\Plans\UpdatePlanStatusRequest;
-use App\Http\Requests\Admin\Plans\ReorderPlansRequest;
+use App\Http\Requests\Admin\Auth\AdminAuthenticatedRequest;
+use App\Http\Requests\Admin\Plans\PlanReorderRequest;
+use App\Http\Requests\Admin\Plans\PlanRequest;
 use App\Models\Admin\Plans\Plan;
-use App\Services\Shared\Wizard\WizardDraftService;
+use App\Services\Admin\Plans\PlanService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
-final class PlanController extends Controller
+class PlanController extends Controller
 {
-    public function __construct()
+    private string $page = 'admin.plans';
+
+    private string $route = 'admin.plans';
+
+    public function __construct(private readonly PlanService $planService)
     {
+        $this->middleware('auth:admin');
+        $this->authorizeResource(Plan::class, 'plan');
         $this->middleware('can:plans.view')->only(['index', 'show']);
         $this->middleware('can:plans.create')->only(['create', 'store']);
-        $this->middleware('can:plans.update')->only(['edit', 'update', 'toggleStatus', 'reorderForm', 'reorder']);
-        $this->middleware('can:plans.delete')->only('destroy');
+        $this->middleware('can:plans.edit')->only(['edit', 'update', 'toggleActive']);
+        $this->middleware('can:plans.delete')->only(['destroy']);
+        $this->middleware('can:plans.reorder')->only(['updateSortOrder']);
     }
 
-    public function index(PlanDataTable $dataTable): mixed
+    public function index(PlanDataTable $dataTable)
     {
-        $statistics = [
-            'total' => Plan::count(),
-            'active' => Plan::where('is_active', true)->count(),
-            'inactive' => Plan::where('is_active', false)->count(),
-            'available' => Plan::publiclyAvailable()->count(),
-            'future' => Plan::where('available_from', '>', now())->count(),
-        ];
+        try {
+            $statistics = $this->planService->getPlanStatistics();
 
-        $filterOptions = [
-            'statuses' => [
-                ['value' => 'active', 'label' => 'نشط'],
-                ['value' => 'inactive', 'label' => 'غير نشط'],
-            ],
-            'plan_types' => array_map(fn ($case) => [
-                'value' => $case->value,
-                'label' => $case->label(),
-            ], PlanType::cases()),
-            'billing_cycles' => array_map(fn ($case) => [
-                'value' => $case->value,
-                'label' => $case->label(),
-            ], SubscriptionBillingCycle::cases()),
-            'limits_modes' => array_map(fn ($case) => [
-                'value' => $case->value,
-                'label' => $case->label(),
-            ], PlanLimitsMode::cases()),
-            'availability' => [
-                ['value' => 'available', 'label' => 'متاحة الآن'],
-                ['value' => 'future', 'label' => 'مجدولة مستقبلاً'],
-            ],
-            'discounts' => [
-                ['value' => 'with_discount', 'label' => 'تحتوي على خصم'],
-                ['value' => 'without_discount', 'label' => 'بدون خصم'],
-            ],
-            'domains' => [
-                ['value' => 'active', 'label' => 'مفعلة'],
-                ['value' => 'inactive', 'label' => 'غير مفعلة'],
-            ],
-        ];
+            $filterOptions = [
+                'statuses' => [
+                    ['value' => 'active',   'label' => 'نشط'],
+                    ['value' => 'inactive', 'label' => 'غير نشط'],
+                ],
+                'plan_types' => array_map(fn ($case) => [
+                    'value' => $case->value,
+                    'label' => $case->label(),
+                ], PlanType::cases()),
+                'billing_cycles' => array_map(fn ($case) => [
+                    'value' => $case->value,
+                    'label' => $case->label(),
+                ], SubscriptionBillingCycle::cases()),
+                'limits_modes' => array_map(fn ($case) => [
+                    'value' => $case->value,
+                    'label' => $case->label(),
+                ], PlanLimitsMode::cases()),
+                'availability' => [
+                    ['value' => 'available', 'label' => 'متاحة الآن'],
+                    ['value' => 'future',    'label' => 'مجدولة مستقبلاً'],
+                ],
+                'discounts' => [
+                    ['value' => 'with_discount',    'label' => 'تحتوي على خصم'],
+                    ['value' => 'without_discount', 'label' => 'بدون خصم'],
+                ],
+                'domains' => [
+                    ['value' => 'active',   'label' => 'مفعلة'],
+                    ['value' => 'inactive', 'label' => 'غير مفعلة'],
+                ],
+                'most_requested' => [
+                    ['value' => 'yes', 'label' => 'الأكثر طلباً (نعم)'],
+                    ['value' => 'no',  'label' => 'غير الأكثر طلباً (لا)'],
+                ],
+            ];
 
-        return $dataTable->render('admin.plans.index', [
-            'totalPlans' => $statistics['total'],
-            'activePlans' => $statistics['active'],
-            'inactivePlans' => $statistics['inactive'],
-            'availablePlans' => $statistics['available'],
-            'futurePlans' => $statistics['future'],
-            'filterOptions' => $filterOptions,
-        ]);
+            return $dataTable->render($this->page.'.index', [
+                'totalPlans' => $statistics['total'],
+                'activePlans' => $statistics['active'],
+                'inactivePlans' => $statistics['inactive'],
+                'availablePlans' => $statistics['available'],
+                'futurePlans' => $statistics['future'],
+                'filterOptions' => $filterOptions,
+            ]);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return redirect()->back()->with('error', 'حدث خطأ أثناء جلب بيانات الباقات.');
+        }
+    }
+
+    public function show(Plan $plan): View|RedirectResponse
+    {
+        try {
+            $data = $this->planService->getPlanDetails($plan);
+
+            return view($this->page.'.show', [
+                'plan' => $data['plan'],
+                'subscriptions' => $data['subscriptions'],
+                'statistics' => $data['statistics'],
+                'mostRequestedPlanId' => $data['mostRequestedPlanId'],
+            ]);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return redirect()->route($this->route.'.index')->with('error', 'حدث خطأ أثناء جلب تفاصيل الباقة.');
+        }
     }
 
     public function create(): View
     {
-        $this->authorize('create', Plan::class);
-
-        return view('admin.plans.create', ['plan' => new Plan]);
+        return view($this->page.'.create');
     }
 
-    public function store(StorePlanRequest $request, SavePlanAction $action, WizardDraftService $drafts): RedirectResponse
+    public function store(PlanRequest $request): RedirectResponse
     {
-        $this->authorize('create', Plan::class);
+        $this->planService->create($request->validated());
 
-        $plan = $action->create($request->validated());
-        $drafts->discard($request, 'admin.plans.create');
-
-        return to_route('admin.plans.show', $plan)->with('success', 'تم إنشاء الباقة بنجاح.');
-    }
-
-    public function show(Plan $plan): View
-    {
-        $this->authorize('view', $plan);
-
-        return view('admin.plans.show', compact('plan'));
+        return redirect()->route($this->route.'.index')->with('success', __('plans.success.created'));
     }
 
     public function edit(Plan $plan): View
     {
-        $this->authorize('update', $plan);
+        $hasSubscriptions = $this->planService->hasSubscriptions($plan);
 
-        return view('admin.plans.edit', compact('plan'));
+        return view($this->page.'.edit', compact('plan', 'hasSubscriptions'));
     }
 
-    public function reorderForm(): View
+    public function update(PlanRequest $request, Plan $plan): RedirectResponse
     {
-        return view('admin.plans.reorder', ['plans' => Plan::query()->orderBy('sort_order')->orderBy('id')->get()]);
+        $this->planService->update($plan, $request->validated());
+
+        return redirect()->route($this->route.'.index')->with('success', __('plans.success.updated'));
     }
 
-    public function reorder(ReorderPlansRequest $request, ReorderPlansAction $action): RedirectResponse
+    public function destroy(AdminAuthenticatedRequest $request, Plan $plan): RedirectResponse
     {
-        $action->execute($request->validated('order'));
+        try {
+            $this->planService->delete($plan);
 
-        return to_route('admin.plans.index')->with('success', 'تم حفظ ترتيب الباقات.');
+            return redirect()->route($this->route.'.index')->with('success', __('plans.success.deleted'));
+        } catch (\DomainException $e) {
+            return redirect()->route($this->route.'.index')->with('error', $e->getMessage());
+        } catch (\Throwable $e) {
+            report($e);
+
+            return redirect()->route($this->route.'.index')->with('error', 'حدث خطأ غير متوقع أثناء حذف الباقة.');
+        }
     }
 
-    public function update(UpdatePlanRequest $request, Plan $plan, SavePlanAction $action): RedirectResponse
+    public function toggleActive(AdminAuthenticatedRequest $request, Plan $plan): JsonResponse
     {
-        $this->authorize('update', $plan);
+        try {
+            $plan = $this->planService->toggleActive($plan);
 
-        $action->update($plan, $request->validated());
-
-        return to_route('admin.plans.show', $plan)->with('success', 'تم حفظ التعديلات.');
-    }
-
-    public function toggleStatus(UpdatePlanStatusRequest $request, Plan $plan): mixed
-    {
-        $this->authorize('update', $plan);
-        $plan->update(['is_active' => $request->boolean('is_active')]);
-
-        if (request()->ajax() || request()->wantsJson()) {
             return response()->json([
                 'success' => true,
+                'message' => $plan->is_active ? 'تم تفعيل الباقة بنجاح' : 'تم تعطيل الباقة بنجاح',
                 'is_active' => $plan->is_active,
-                'message' => 'تم تحديث حالة الباقة بنجاح.',
             ]);
-        }
+        } catch (\Throwable $exception) {
+            report($exception);
 
-        return back()->with('success', 'تم تحديث حالة الباقة.');
+            return response()->json([
+                'success' => false,
+                'message' => 'تعذر تحديث حالة الباقة',
+            ], 500);
+        }
     }
 
-    public function destroy(Plan $plan): mixed
+    public function updateSortOrder(PlanReorderRequest $request): JsonResponse
     {
-        $this->authorize('delete', $plan);
+        try {
+            $order = $request->validated('order');
 
-        if ($plan->subscriptions()->exists()) {
-            if (request()->ajax() || request()->wantsJson()) {
-                return response()->json(['success' => false, 'message' => 'لا يمكن حذف باقة مرتبطة باشتراكات، استخدم زر التعطيل بدلاً من ذلك.'], 422);
-            }
+            $this->planService->reorder($order);
 
-            return back()->with('error', 'لا يمكن حذف باقة مرتبطة باشتراكات.');
+            return response()->json([
+                'success' => true,
+                'message' => __('plans.success.reordered'),
+            ]);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء تحديث الترتيب',
+            ], 500);
         }
-
-        $plan->delete();
-
-        if (request()->ajax() || request()->wantsJson()) {
-            return response()->json(['success' => true, 'message' => 'تم حذف الباقة بنجاح.']);
-        }
-
-        return to_route('admin.plans.index')->with('success', 'تم حذف الباقة بنجاح.');
     }
 }

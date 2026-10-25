@@ -1,26 +1,26 @@
 <div class="d-flex justify-content-center gap-2">
-    @can('coupons.view')
-        <a href="{{ route('admin.coupons.show', $row) }}" class="btn btn-icon btn-label-info bg-label-info" title="تفاصيل الاستخدام">
+
+   <a href="{{ route('admin.coupons.details', $row) }}" class="btn btn-icon btn-label-primary bg-label-primary">
             <i class="ti ti-eye"></i>
         </a>
-    @endcan
 
     @can('coupons.edit')
-        <a href="{{ route('admin.coupons.edit', $row->id) }}" class="btn btn-icon btn-label-primary bg-label-primary" title="تعديل الكوبون">
+        <a href="{{ route($route . '.edit', $row->id) }}" class="btn btn-icon btn-label-primary bg-label-primary">
             <i class="ti ti-edit"></i>
         </a>
     @endcan
 
     @can('coupons.delete')
-        <button type="button" class="btn btn-icon btn-label-primary bg-label-primary js-delete-btn" title="حذف الكوبون"
-            data-id="{{ $row->id }}">
+        <button type="button" class="btn btn-icon btn-label-primary bg-label-primary js-delete-btn" data-id="{{ $row->id }}">
             <i class="ti ti-trash"></i>
         </button>
 
-        <form id="delete-form-{{ $row->id }}" action="{{ route('admin.coupons.destroy', $row->id) }}"
-            method="POST" style="display: none;">
+        <form id="delete-form-{{ $row->id }}" action="{{ route($route . '.destroy', $row->id) }}" method="POST"
+            style="display: none;">
             @csrf
             @method('DELETE')
         </form>
     @endcan
+
+
 </div>

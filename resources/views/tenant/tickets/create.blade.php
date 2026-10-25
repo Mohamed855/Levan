@@ -1,86 +1,189 @@
-@extends('layouts.dashboard')
+@extends('tenant.layouts.layoutMaster')
 
-@section('title', 'فتح تذكرة دعم فني جديدة')
-@section('dashboard-scope', 'tenant')
+@section('title', 'رفع تذكرة ')
+
+@section('vendor-style')
+    @vite(['resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.scss'])
+@endsection
+
+@section('vendor-script')
+    @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/bs-stepper/bs-stepper.js'])
+@endsection
+
+@section('toastr')
+    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
+@endsection
+
+@section('page-script')
+    @vite(['resources/assets/js/shared/form-validation.js', 'resources/assets/js/tenant/tickets/form-validation.js'])
+@endsection
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-1">
-                <li class="breadcrumb-item"><a href="{{ route('tenant.tickets.index') }}">الدعم الفني</a></li>
-                <li class="breadcrumb-item active">فتح تذكرة جديدة</li>
-            </ol>
-        </nav>
-        <h4 class="mb-0 fw-bold">فتح تذكرة دعم فني جديدة</h4>
-    </div>
-    <div>
-        <a href="{{ route('tenant.tickets.index') }}" class="btn btn-label-secondary">
-            <i class="ti ti-arrow-right me-1"></i> العودة للقائمة
-        </a>
-    </div>
-</div>
-
-<div class="row justify-content-center">
-    <div class="col-lg-8 col-12">
-        <div class="card">
-            <div class="card-header border-bottom py-3">
-                <h5 class="card-title mb-0 fw-bold">
-                    <i class="ti ti-help me-2 text-primary"></i> بيانات المشكلة / الاستفسار
-                </h5>
-            </div>
-            <div class="card-body pt-4">
-                <form action="{{ route('tenant.tickets.store') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-
-                    <div class="mb-3">
-                        <label class="form-label" for="subject">عنوان التذكرة <span class="text-danger">*</span></label>
-                        <input type="text" name="subject" id="subject" class="form-control @error('subject') is-invalid @enderror" value="{{ old('subject') }}" placeholder="أدخل ملخصاً موجزاً للمشكلة أو الاستفسار" required>
-                        @error('subject')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label" for="department">القسم المعني <span class="text-danger">*</span></label>
-                        <select name="department" id="department" class="form-select @error('department') is-invalid @enderror" required>
-                            <option value="">اختر القسم المختص...</option>
-                            <option value="technical" {{ old('department') == 'technical' ? 'selected' : '' }}>الدعم الفني والتقني</option>
-                            <option value="billing" {{ old('department') == 'billing' ? 'selected' : '' }}>الفواتير والمالية</option>
-                            <option value="auctions" {{ old('department') == 'auctions' ? 'selected' : '' }}>إدارة المزادات والعمليات</option>
-                            <option value="general" {{ old('department') == 'general' ? 'selected' : '' }}>استفسارات عامة</option>
-                        </select>
-                        @error('department')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="form-label" for="description">تفاصيل المشكلة / الطلب <span class="text-danger">*</span></label>
-                        <textarea name="description" id="description" rows="5" class="form-control @error('description') is-invalid @enderror" placeholder="اشرح بالتفصيل ما واجهته أو الاستفسار المطلوب مع ذكر أرقام العمليات ذات الصلة إن وُجدت" required>{{ old('description') }}</textarea>
-                        @error('description')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="form-label" for="attachments">مرفقات التذكرة</label>
-                        <input type="file" name="attachments[]" id="attachments" class="form-control @error('attachments.*') is-invalid @enderror" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx" multiple>
-                        <div class="form-text">حتى 5 ملفات، بحد أقصى 5 ميجابايت للملف الواحد.</div>
-                        @error('attachments.*')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="d-flex gap-2 justify-content-end pt-3 border-top">
-                        <x-form.wizard.draft-button />
-                        <button type="submit" class="btn btn-primary">
-                            <i class="ti ti-send me-1"></i> إرسال التذكرة
+    <div class="row">
+        <div class="col-12 mb-6">
+            <div id="wizard-validation" class="bs-stepper mt-2">
+                <div class="bs-stepper-header">
+                    <div class="step" data-target="#info-validation">
+                        <button type="button" class="step-trigger">
+                            <span class="bs-stepper-circle">1</span>
+                            <span class="bs-stepper-label mt-1">
+                                <span class="bs-stepper-title">معلومات التذكرة</span>
+                            </span>
                         </button>
                     </div>
-                </form>
+                </div>
+
+                <div class="bs-stepper-content">
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <form id="wizard-validation-form" action="{{ tenant_route_name('tickets.store') }}" method="POST"
+                        enctype="multipart/form-data" novalidate data-form-validate
+                        data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}"
+                        data-draft-url="{{ tenant_route_name('wizard-drafts.store') }}"
+                        data-draft-resource-key="tenant.ticket-create">
+                        @csrf
+
+                        <div id="info-validation" class="content">
+                            <div class="row g-4">
+                                <x-form.controls.input name="title" id="title" label="عنوان التذكرة"
+                                    placeholder="أدخل عنوان التذكرة" required col="col-md-6" />
+
+                                <x-form.controls.select name="ticketing_sections_id" id="ticketing_sections_id"
+                                    label="تصنيف التذكرة" placeholder="اختر التصنيف" required select2 col="col-md-6">
+                                    <option value=""> </option>
+                                    @foreach ($sections as $section)
+                                        <option value="{{ $section['id'] ?? '' }}"
+                                            {{ old('ticketing_sections_id') == ($section['id'] ?? '') ? 'selected' : '' }}>
+                                            {{ $section['name'] ?? '' }}</option>
+                                    @endforeach
+                                </x-form.controls.select>
+
+                                <x-form.controls.textarea name="description" id="description" label="وصف المشكلة"
+                                    rows="5" placeholder="اشرح تفاصيل المشكلة التي تواجهها..." required
+                                    col="col-md-6" />
+
+                                <x-form.controls.file name="attachments" id="attachments" label="المرفقات (اختياري)"
+                                    multiple accept="image/*,application/pdf,.doc,.docx,.txt"
+                                    help="يمكنك رفع عدة صور أو ملفات (حد أقصى 5 ملفات، كل ملف حتى 5MB)"
+                                    onchange="previewFiles()" col="col-md-6">
+                                    <div id="file-count" class="mt-2" style="display: none;">
+                                        <span class="badge bg-primary">عدد الملفات المحددة: <span
+                                                id="count">0</span></span>
+                                    </div>
+                                    <div id="preview-container" class="preview-container"></div>
+                                </x-form.controls.file>
+                            </div>
+
+                            <div class="col-12 d-flex justify-content-between mt-5">
+                                <x-form.wizard.previous-button :href="tenant_route_name('tickets.index')" text="العودة" />
+                                <div class="d-flex gap-2">
+                                    <x-form.wizard.draft-button />
+                                    <button type="submit" class="btn btn-primary waves-effect waves-light btn-submit">
+                                        <i class="bx bx-save me-1"></i>
+                                        <span>حفظ </span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
+
+    <script>
+        let selectedFiles = [];
+
+        function previewFiles() {
+            const input = document.getElementById('attachments');
+            const previewContainer = document.getElementById('preview-container');
+            const fileCountDiv = document.getElementById('file-count');
+            const countSpan = document.getElementById('count');
+
+            // Clear previous previews
+            previewContainer.innerHTML = '';
+            selectedFiles = Array.from(input.files);
+
+            if (selectedFiles.length > 0) {
+                fileCountDiv.style.display = 'block';
+                countSpan.textContent = selectedFiles.length;
+
+                selectedFiles.forEach((file, index) => {
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'preview-item';
+                    previewItem.dataset.index = index;
+
+                    // Create remove button
+                    const removeBtn = document.createElement('button');
+                    removeBtn.className = 'remove-file';
+                    removeBtn.innerHTML = '×';
+                    removeBtn.type = 'button';
+                    removeBtn.onclick = () => removeFile(index);
+
+                    // Check if file is an image
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            previewItem.appendChild(img);
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        // For non-image files, show icon
+                        const fileIcon = document.createElement('div');
+                        fileIcon.className = 'file-icon';
+
+                        // Choose icon based on file type
+                        let iconClass = 'bx-file';
+                        if (file.type.includes('pdf')) {
+                            iconClass = 'bx-file-pdf';
+                        } else if (file.type.includes('word') || file.name.endsWith('.doc') || file.name.endsWith(
+                                '.docx')) {
+                            iconClass = 'bx-file-doc';
+                        } else if (file.type.includes('text')) {
+                            iconClass = 'bx-file-txt';
+                        }
+
+                        fileIcon.innerHTML = `<i class="bx ${iconClass}"></i>`;
+                        previewItem.appendChild(fileIcon);
+                    }
+
+                    // Add file name
+                    const fileName = document.createElement('div');
+                    fileName.className = 'file-name';
+                    fileName.textContent = file.name;
+                    fileName.title = file.name;
+                    previewItem.appendChild(fileName);
+
+                    previewItem.appendChild(removeBtn);
+                    previewContainer.appendChild(previewItem);
+                });
+            } else {
+                fileCountDiv.style.display = 'none';
+            }
+        }
+
+        function removeFile(index) {
+            // Remove file from selectedFiles array
+            selectedFiles.splice(index, 1);
+
+            // Update the file input
+            const input = document.getElementById('attachments');
+            const dt = new DataTransfer();
+            selectedFiles.forEach(file => dt.items.add(file));
+            input.files = dt.files;
+
+            // Refresh preview
+            previewFiles();
+        }
+    </script>
 @endsection

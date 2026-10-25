@@ -1,24 +1,18 @@
-@extends('layouts.dashboard')
+@extends('admin.layouts.layoutMaster')
 
 @section('title', 'إدارة الاشتراكات')
-@section('dashboard-scope', 'admin')
 
 @section('vendor-style')
-    @vite([
-        'resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
-        'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
-        'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss',
-        'resources/assets/vendor/libs/select2/select2.scss',
-        'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss',
-    ])
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite([
-        'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js',
-        'resources/assets/vendor/libs/select2/select2.js',
-    ])
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js', 'resources/assets/vendor/libs/select2/select2.js'])
     {!! $dataTable->scripts() !!}
+@endsection
+
+@section('toastr')
+    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
 @endsection
 
 @section('page-style')
@@ -29,109 +23,90 @@
     <script>
         window.routes = {
             massDelete: "{{ route('admin.mass-delete') }}",
-            massAccept: "{{ route('admin.subscriptions.mass-accept') }}",
-            massReject: "{{ route('admin.subscriptions.mass-reject') }}"
         };
-
-        function selectedSubscriptionIds() {
-            return $('.row-checkbox:checked').map(function () { return $(this).val(); }).get();
-        }
-
-        async function reviewSelectedSubscriptions(mode) {
-            const ids = selectedSubscriptionIds();
-            if (ids.length === 0) { toastr.warning('يرجى تحديد اشتراك واحد على الأقل'); return; }
-            const reason = mode === 'reject' ? window.prompt('سبب الرفض (اختياري):') : null;
-            if (mode === 'reject' && reason === null) return;
-            const response = await fetch(mode === 'accept' ? window.routes.massAccept : window.routes.massReject, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' },
-                body: JSON.stringify({ ids, reason })
-            });
-            const payload = await response.json();
-            if (!response.ok) { toastr.error(payload.message || 'تعذر إتمام المراجعة.'); return; }
-            toastr.success(payload.message);
-            $('#subscriptions-table').DataTable().ajax.reload(null, false);
-        }
-        window.reviewSelectedSubscriptions = reviewSelectedSubscriptions;
-
-        function handleMassDelete() {
-            const selectedIds = [];
-            $('.row-checkbox:checked').each(function () {
-                selectedIds.push($(this).val());
-            });
-
-            if (selectedIds.length === 0) {
-                if (typeof toastr !== 'undefined') {
-                    toastr.warning('يرجى تحديد اشتراك واحد على الأقل');
-                }
-                return;
-            }
-
-            if (typeof confirmDeleteSelectedmss === 'function') {
-                confirmDeleteSelectedmss(selectedIds, window.routes.massDelete, 'Subscription');
-            }
-        }
-        window.handleMassDelete = handleMassDelete;
-
-        $(document).ready(function () {
-            const tableWrapper = $('#subscriptions-table_wrapper');
-
-            tableWrapper.on('click', '#select-all', function () {
-                const table = $('#subscriptions-table').DataTable();
-                $('.row-checkbox', table.rows({ search: 'applied' }).nodes()).prop('checked', this.checked);
-            });
-
-            tableWrapper.on('change', '.row-checkbox', function () {
-                if (!this.checked) {
-                    $('#select-all').prop('checked', false);
-                }
-            });
-
-            $('#subscriptions-table').on('draw.dt', function () {
-                $('#select-all').prop('checked', false);
-            });
-        });
     </script>
+    @vite(['resources/assets/js/admin/subscriptions/index.js'])
 @endsection
 
 @section('content')
-    <x-ui.validation-errors class="mb-4" />
+    @if ($errors->any())
+        <div class="alert alert-danger mb-4">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-    <x-data-table.page table-id="subscriptions-table">
-        <x-slot:stats>
-            <x-ui.stat-card title="إجمالي الاشتراكات" :value="$stats['total'] ?? 0" subtitle="جميع الاشتراكات" icon="ti-packages"
-                color="primary" col="col-sm-6 col-xl" />
-            <x-ui.stat-card title="الاشتراكات النشطة" :value="$stats['active'] ?? 0" subtitle="سارية حالياً" icon="ti-circle-check"
-                color="success" col="col-sm-6 col-xl" />
-            <x-ui.stat-card title="الاشتراكات المعلقة" :value="$stats['pending'] ?? 0" subtitle="بانتظار الإجراء" icon="ti-clock-pause"
-                color="warning" col="col-sm-6 col-xl" />
-            <x-ui.stat-card title="الاشتراكات المنتهية" :value="$stats['expired'] ?? 0" subtitle="منتهية أو ملغاة" icon="ti-clock-x"
-                color="danger" col="col-sm-6 col-xl" />
-            <x-ui.stat-card title="أوشكت على الانتهاء" :value="$stats['expiring'] ?? 0" subtitle="خلال 30 يوماً" icon="ti-alert-triangle"
-                color="info" col="col-sm-6 col-xl" />
-        </x-slot:stats>
+    {{-- Dashboard Cards --}}
+    <div class="row g-4 mb-4">
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="إجمالي الاشتراكات" :value="$totalSubscriptions ?? 0"
+            subtitle="جميع الاشتراكات الصادرة" icon="ti-packages" color="primary" />
 
-        <x-slot:filters>
-            <x-data-table.filters table="#subscriptions-table">
-                <x-filter.select id="filter-status" filterKey="status" label="حالة الاشتراك" placeholder="اختر حالة الاشتراك"
-                    :options="$filterOptions['statuses'] ?? []" :value="$initialStatus ?? null" />
-                <x-filter.select id="filter-plan" filterKey="plan_id" label="الباقة" placeholder="اختر الباقة"
-                    :options="$filterOptions['plans'] ?? []" />
-                <x-filter.select id="filter-expiring" filterKey="expiring_in" label="قرب الانتهاء" placeholder="قرب الانتهاء"
-                    :options="$filterOptions['expiring'] ?? []" :value="$initialExpiring ?? null" />
-            </x-data-table.filters>
-            @can('subscriptions.update')
-                @if(($initialStatus ?? null) === 'pending')
-                <div class="d-flex flex-wrap gap-2 mt-3">
-                    <button type="button" class="btn btn-success" onclick="reviewSelectedSubscriptions('accept')"><i class="ti ti-check me-1"></i> قبول المحدد</button>
-                    <button type="button" class="btn btn-outline-danger" onclick="reviewSelectedSubscriptions('reject')"><i class="ti ti-x me-1"></i> رفض المحدد</button>
-                </div>
-                @endif
-            @endcan
-        </x-slot:filters>
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="الاشتراكات النشطة" :value="$activeSubscriptions ?? 0"
+            subtitle="اشتراكات سارية حالياً" icon="ti-circle-check" color="success" />
 
-        <x-slot:table>
-            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'subscriptions-table'], false) !!}
-        </x-slot:table>
-    </x-data-table.page>
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="الاشتراكات المعلقة" :value="$pendingSubscriptions ?? 0"
+            subtitle="اشتراكات بانتظار الدفع أو التفعيل" icon="ti-clock-pause" color="warning" />
+
+        <x-ui.stat-card col="col-sm-6 col-xl-3" title="الاشتراكات المنتهية" :value="$expiredSubscriptions ?? 0"
+            subtitle="اشتراكات منتهية أو ملغاة" icon="ti-clock-x" color="danger" />
+    </div>
+
+    {{-- Filters Card --}}
+    <x-data-table.filters table="#subscriptions-table">
+        <x-filter.select id="filter-sub-status" filterKey="status" label="حالة الاشتراك"
+            placeholder="اختر حالة الاشتراك" :options="$filterOptions['statuses'] ?? []" />
+        <x-filter.select id="filter-plan" filterKey="plan_id" label="الباقة"
+            placeholder="اختر الباقة" :options="$filterOptions['plans'] ?? []" />
+        <x-filter.select id="filter-city" filterKey="city_id" label="مدينة الشركة"
+            placeholder="اختر المدينة" :options="$filterOptions['cities'] ?? []" />
+        <x-filter.select id="filter-expiring" filterKey="expiring_in" label="قرب الانتهاء"
+            placeholder="قرب الانتهاء" :options="$filterOptions['expiring'] ?? []" />
+    </x-data-table.filters>
+
+    <div class="card">
+        <div class="card-body">
+            {!! $dataTable->table(
+                ['class' => 'table table-striped table-bordered w-100', 'id' => 'subscriptions-table'],
+                false,
+            ) !!}
+        </div>
+    </div>
+
+    {{-- Confirmation Modal for Accept/Reject --}}
+    @include('admin.subscription-management.partials.confirm_modal')
 @endsection
+
+@push('scripts')
+    <script>
+        $(function() {
+            // Delete subscription confirmation
+            $(document).on('click', '.js-delete-subscription-btn', function(e) {
+                e.preventDefault();
+                const id = $(this).data('id');
+                const number = $(this).data('number');
+                const form = document.getElementById('delete-subscription-form-' + id);
+
+                Swal.fire({
+                    title: 'حذف نهائي للاشتراك؟',
+                    text: 'سيتم حذف الاشتراك رقم (' + number + ') نهائياً مع كافة فتراته ومقاعده.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'نعم، حذف نهائي',
+                    cancelButtonText: 'إلغاء',
+                    customClass: {
+                        confirmButton: 'btn btn-danger me-3',
+                        cancelButton: 'btn btn-secondary'
+                    },
+                    buttonsStyling: false
+                }).then(function(result) {
+                    if (result.isConfirmed && form) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
+@endpush

@@ -1,7 +1,7 @@
 @php
-    $officeAddress = config('site.contact.address');
-    $phoneNumber = config('site.contact.phone');
-    $email = config('site.contact.email');
+    $officeAddress = \App\Helpers\Admin\Settings\AdminSettingsHelper::get('office_address');
+    $phoneNumber = \App\Helpers\Admin\Settings\AdminSettingsHelper::get('phone_number');
+    $email = \App\Helpers\Admin\Settings\AdminSettingsHelper::get('email');
     $phoneLink = preg_replace('/[^0-9+]/', '', (string) $phoneNumber);
 @endphp
 <div {{ $attributes->merge(['class' => 'contact-info-list scroll-revealed']) }}>

@@ -3,9 +3,6 @@
 .env
 .env.backup
 .env.production
-.env.testing
-.env.testing.*
-!.env.testing.example
 .phpactor.json
 .phpunit.result.cache
 implementation_plan.md
@@ -24,8 +21,6 @@ implementation_plan.md
 /public/tenants
 /storage/*.key
 /storage/pail
-/storage/framework/composer-cache
-/database/tenant*
 /vendor
 Homestead.json
 Homestead.yaml

@@ -395,6 +395,13 @@ function renderArchivedDraftFiles(form, files) {
     const input = form.querySelector(`input[type="file"][name="${CSS.escape(rootName)}"], input[type="file"][name="${CSS.escape(rootName)}[]"]`);
     if (!input) return;
 
+    const previewId = input.dataset.imageInput || input.id;
+    const previewImg = form.querySelector(`[data-image-preview="${CSS.escape(previewId)}"]`);
+    if (previewImg && file.url && (file.mime?.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(file.name))) {
+      previewImg.dataset.defaultSrc = previewImg.dataset.defaultSrc || previewImg.src;
+      previewImg.src = file.url;
+    }
+
     let list = input.parentElement?.querySelector('[data-archived-draft-files]');
     if (!list) {
       list = document.createElement('div');
@@ -404,10 +411,10 @@ function renderArchivedDraftFiles(form, files) {
     }
 
     const item = document.createElement('div');
-    item.className = 'd-flex align-items-center justify-content-between gap-2 rounded border p-2';
+    item.className = 'd-flex align-items-center justify-content-between gap-2 rounded border p-2 bg-light';
     const name = document.createElement('span');
-    name.className = 'text-truncate';
-    name.textContent = file.name;
+    name.className = 'text-truncate small';
+    name.innerHTML = `<i class="ti ti-file-check text-success me-1"></i>${file.name}`;
     const remove = document.createElement('button');
     remove.type = 'button';
     remove.className = 'btn btn-sm btn-icon btn-outline-danger';
@@ -599,7 +606,19 @@ function initDrafts(form) {
           }),
         });
         if (!response.ok) throw new Error('Unable to remove archived file.');
+        const container = removeFileButton.closest('[data-archived-draft-files]');
+        const input = container?.parentElement?.querySelector('input[type="file"]');
+        if (input) {
+          const previewId = input.dataset.imageInput || input.id;
+          const previewImg = form.querySelector(`[data-image-preview="${CSS.escape(previewId)}"]`);
+          if (previewImg && previewImg.dataset.defaultSrc) {
+            previewImg.src = previewImg.dataset.defaultSrc;
+          }
+        }
         removeFileButton.closest('.d-flex')?.remove();
+        if (container && container.children.length === 0) {
+          container.remove();
+        }
       } catch (_) {
         removeFileButton.disabled = false;
         window.toastr?.error?.('تعذر حذف الملف المؤرشف. يرجى المحاولة مرة أخرى.');
@@ -683,8 +702,15 @@ function validateControlClientSide(form, control) {
       return false;
     }
     if (control.type === 'file' && (!control.files || control.files.length === 0)) {
-      setFieldError(form, name, 'يرجى اختيار ملف');
-      return false;
+      const rootName = String(name).replace(/\[\]$/, '').split('.')[0];
+      const hasArchivedDraftFile = Boolean(
+        control.parentElement?.querySelector('[data-archived-draft-files] [data-draft-file-key]') ||
+        form.querySelector(`[data-archived-draft-files] [data-draft-file-key^="${CSS.escape(rootName)}"]`)
+      );
+      if (!hasArchivedDraftFile) {
+        setFieldError(form, name, 'يرجى اختيار ملف');
+        return false;
+      }
     }
     if (!value || value.trim() === '') {
       setFieldError(form, name, 'هذا الحقل مطلوب');

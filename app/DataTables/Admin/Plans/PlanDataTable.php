@@ -9,6 +9,7 @@ use App\Enums\Admin\Plans\PlanColor;
 use App\Enums\Admin\Plans\PlanType;
 use App\Enums\Admin\Subscriptions\SubscriptionBillingCycle;
 use App\Models\Admin\Plans\Plan;
+use App\Services\Admin\Plans\PlanService;
 
 class PlanDataTable extends AbstractDataTable
 {
@@ -33,11 +34,13 @@ class PlanDataTable extends AbstractDataTable
             ['data' => 'color', 'name' => 'color', 'title' => 'اللون', 'width' => '50px', 'className' => 'text-center align-middle', 'orderable' => true],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم الباقة', 'className' => 'text-start'],
             ['data' => 'code', 'name' => 'code', 'title' => 'الكود', 'className' => 'text-center'],
+            ['data' => 'is_most_requested', 'name' => 'is_most_requested', 'title' => 'الأكثر طلباً', 'width' => '95px', 'className' => 'text-center align-middle', 'orderable' => false, 'searchable' => false],
             ['data' => 'plan_type', 'name' => 'plan_type', 'title' => 'النوع', 'className' => 'text-center'],
             ['data' => 'subscription_billing_cycle', 'name' => 'subscription_billing_cycle', 'title' => 'دورة الفوترة', 'className' => 'text-center'],
             ['data' => 'price', 'name' => 'price', 'title' => 'السعر'],
             ['data' => 'discount_percentage', 'name' => 'discount_percentage', 'title' => 'الخصم', 'className' => 'text-center'],
             ['data' => 'price_after_discount', 'name' => 'price', 'title' => 'السعر النهائي'],
+            ['data' => 'yearly_renewal_price', 'name' => 'yearly_renewal_price', 'title' => 'العرض السنوي'],
             ['data' => 'limits_mode', 'name' => 'limits_mode', 'title' => 'الحدود', 'className' => 'text-center'],
             ['data' => 'included_users', 'name' => 'included_users', 'title' => 'المستخدمين', 'className' => 'text-center'],
             ['data' => 'properties_limit', 'name' => 'properties_limit', 'title' => 'العقارات', 'className' => 'text-center'],
@@ -50,8 +53,10 @@ class PlanDataTable extends AbstractDataTable
         ];
     }
 
-    protected function addCustomColumns($datatable): void
+    protected function addCustomColumns($datatable)
     {
+        $mostRequestedPlanId = app(PlanService::class)->getMostRequestedPlanId();
+
         $datatable
             ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
 
@@ -74,9 +79,17 @@ class PlanDataTable extends AbstractDataTable
                 return '<span class="badge bg-label-dark font-monospace">'.e($row->code ?? '-').'</span>';
             })
 
+            ->addColumn('is_most_requested', function ($row) use ($mostRequestedPlanId) {
+                $isMostRequested = ($mostRequestedPlanId !== null && (int) $row->id === (int) $mostRequestedPlanId);
+
+                return $isMostRequested
+                    ? '<span class="badge bg-label-success">نعم</span>'
+                    : '<span class="badge bg-label-danger">لا</span>';
+            })
+
             ->editColumn('plan_type', function ($row) {
                 $type = $row->plan_type instanceof PlanType ? $row->plan_type : PlanType::tryFrom((string) $row->plan_type);
-                $label = $type ? $type->label() : (string) ($row->plan_type ?? '-');
+                $label = $type ? $type->label() : (string) $row->plan_type;
                 $color = $type ? $type->color() : 'secondary';
 
                 return '<span class="badge bg-label-'.e($color).'">'.e($label).'</span>';
@@ -87,7 +100,7 @@ class PlanDataTable extends AbstractDataTable
                     ? $row->subscription_billing_cycle
                     : SubscriptionBillingCycle::tryFrom((string) $row->subscription_billing_cycle);
 
-                $label = $cycle ? $cycle->label() : (string) ($row->subscription_billing_cycle ?? '-');
+                $label = $cycle ? $cycle->label() : (string) $row->subscription_billing_cycle;
                 $color = $cycle ? $cycle->color() : 'info';
 
                 return '<span class="badge bg-label-'.e($color).'">'.e($label).'</span>';
@@ -106,7 +119,15 @@ class PlanDataTable extends AbstractDataTable
             })
 
             ->addColumn('price_after_discount', function ($row) {
-                return '<span class="text-success">'.number_format((float) $row->price_after_discount, 2).' ر.س</span>';
+                return '<span class="text-success">'.number_format($row->price_after_discount, 2).' ر.س</span>';
+            })
+
+            ->editColumn('yearly_renewal_price', function ($row) {
+                if (empty($row->yearly_renewal_price) || (float) $row->yearly_renewal_price <= 0) {
+                    return '<span class="text-muted">-</span>';
+                }
+
+                return '<span class="text-primary">'.number_format((float) $row->yearly_renewal_price, 2).' ر.س</span>';
             })
 
             ->editColumn('limits_mode', function ($row) {
@@ -170,14 +191,14 @@ class PlanDataTable extends AbstractDataTable
             })
 
             ->editColumn('is_active', function ($row) {
-                if (! auth('admin')->user()?->can('plans.update')) {
+                if (! auth()->user()?->can('plans.edit')) {
                     return $row->is_active
                         ? '<span class="badge bg-success">مفعل</span>'
                         : '<span class="badge bg-danger">غير مفعل</span>';
                 }
 
                 $checked = $row->is_active ? 'checked' : '';
-                $url = route('admin.plans.toggle-status', $row);
+                $url = route('admin.plans.toggle-active', $row);
 
                 return '
                     <div class="d-flex justify-content-center">
@@ -202,11 +223,13 @@ class PlanDataTable extends AbstractDataTable
             'code',
             'name',
             'color',
+            'is_most_requested',
             'plan_type',
             'subscription_billing_cycle',
             'price',
             'discount_percentage',
             'price_after_discount',
+            'yearly_renewal_price',
             'limits_mode',
             'included_users',
             'properties_limit',
@@ -269,6 +292,21 @@ class PlanDataTable extends AbstractDataTable
             }
         }
 
+        if ($request->filled('most_requested')) {
+            $mostRequestedId = app(PlanService::class)->getMostRequestedPlanId();
+            if ($request->most_requested === 'yes') {
+                if ($mostRequestedId) {
+                    $query->where('id', $mostRequestedId);
+                } else {
+                    $query->whereRaw('1 = 0');
+                }
+            } elseif ($request->most_requested === 'no') {
+                if ($mostRequestedId) {
+                    $query->where('id', '!=', $mostRequestedId);
+                }
+            }
+        }
+
         return $query;
     }
 
@@ -282,7 +320,7 @@ class PlanDataTable extends AbstractDataTable
 
     protected function getCustomOrder(): array
     {
-        return [2, 'asc']; // Sort by name
+        return [2, 'asc']; // Sort by code
     }
 
     protected function buttons(): array
@@ -300,7 +338,7 @@ class PlanDataTable extends AbstractDataTable
             ['extend' => 'excel', 'text' => 'إكسل'],
         ];
 
-        if (auth('admin')->user()?->can('plans.delete')) {
+        if (auth()->user()?->can('plans.delete')) {
             $buttons[] = [
                 'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
@@ -318,7 +356,7 @@ class PlanDataTable extends AbstractDataTable
 
     private function getAddButton(): array
     {
-        if (auth('admin')->user()?->can('plans.create')) {
+        if (auth()->user()?->can('plans.create')) {
             return [
                 'text' => '<i class="ti ti-plus me-1"></i> إضافة باقة',
                 'className' => 'btn btn-primary btn-add',

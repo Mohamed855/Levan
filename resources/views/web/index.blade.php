@@ -1,4 +1,4 @@
-@extends('layouts.web')
+@extends('web.layouts.main')
 
 @section('title', 'لوت LOT - المنصة المتقدمة لإدارة المزادات والأصول')
 
@@ -169,7 +169,7 @@
                 <div class="pricing-grid">
                     @foreach ($plans as $plan)
                         <div class="scroll-revealed">
-                            <x-shared.ui.package-card :plan="$plan" :action-url="route('site.plans.checkout', $plan->id)" />
+                            <x-ui.package-card :plan="$plan" :action-url="route('site.plans.checkout', $plan->id)" />
                         </div>
                     @endforeach
                 </div>
@@ -456,7 +456,7 @@
         </section>
 
         <!-- 10. Map Section -->
-        @php($googleMapsEmbedUrl = config('services.google_maps.embed_url'))
+        @php($googleMapsEmbedUrl = \App\Helpers\Admin\Settings\AdminSettingsHelper::get('google_maps_embed_url'))
         @if ($googleMapsEmbedUrl)
         <section id="map" class="map-section">
             <iframe

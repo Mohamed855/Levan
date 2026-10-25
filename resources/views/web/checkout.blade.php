@@ -1,9 +1,9 @@
-@extends('layouts.web')
+@extends('web.layouts.main')
 
 @section('title', 'لوت LOT - إتمام الطلب')
 
 @section('page-style')
-    @vite(['resources/assets/css/components/icons.css', 'resources/assets/vendor/libs/select2/select2.css'])
+    @vite(['resources/assets/css/components/icons.css', 'resources/assets/vendor/libs/select2/select2.scss'])
 @endsection
 
 @section('toastr')
@@ -16,7 +16,6 @@
             total: {{ $plan->price_after_discount }},
             appliedCoupon: @json($appliedCoupon ?? null),
             finalTotal: {{ $finalTotal ?? $plan->price_after_discount }},
-            couponQuoteUrl: @json(route('site.plans.checkout.coupon-quote', $plan)),
         };
     </script>
     @vite(['resources/assets/vendor/libs/jquery/jquery.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/js/shared/form-validation.js', 'resources/assets/js/web/checkout.js', 'resources/assets/js/shared/payment/apply-coupon.js'])
@@ -95,7 +94,7 @@
                                         action="{{ route('site.plans.checkout.verify.store', $plan) }}" data-form-validate
                                         novalidate>
                                         @csrf
-                                        <x-shared.form.controls.input name="otp" label="رمز التحقق" inputmode="numeric"
+                                        <x-form.controls.input name="otp" label="رمز التحقق" inputmode="numeric"
                                             maxlength="6" autocomplete="one-time-code" class="otp-input" required />
 
                                         <div class="d-flex align-items-center justify-content-between mt-3">
@@ -107,7 +106,7 @@
                             </div>
                         </div>
                         <aside class="checkout-summary-col">
-                            @include('partials.web.checkout-summary', [
+                            @include('web.partials.checkout-summary', [
                                 'showSubmitButton' => true,
                                 'formId' => 'otp-form',
                                 'submitId' => 'submit-otp-btn',
@@ -186,54 +185,54 @@
                                     </div>
                                     <div class="checkout-card-body">
                                         <div class="form-grid-2">
-                                            <x-shared.form.controls.input name="billing_company_name" label="اسم الشركة أو المؤسسة"
+                                            <x-form.controls.input name="billing_company_name" label="اسم الشركة أو المؤسسة"
                                                 placeholder="مثال: شركة لوت للمزادات العقارية" :value="old(
                                                     'billing_company_name',
                                                     $checkoutData['billing_company_name'] ?? '',
                                                 )" required />
 
-                                            <x-shared.form.controls.input name="billing_commercial_number" type="text"
+                                            <x-form.controls.input name="billing_commercial_number"
                                                 label="رقم السجل التجاري" placeholder="1010XXXXXX" inputmode="numeric"
-                                                pattern="[1-9][0-9]{9}" maxlength="10" :value="old(
+                                                maxlength="10" :value="old(
                                                     'billing_commercial_number',
                                                     $checkoutData['billing_commercial_number'] ?? '',
                                                 )" required />
 
-                                            <x-shared.form.controls.input name="billing_tax_number" type="text" label="الرقم الضريبي"
-                                                placeholder="3XXXXXXXXXXXXX3" inputmode="numeric" pattern="3[0-9]{13}3" maxlength="15"
+                                            <x-form.controls.input name="billing_tax_number" label="الرقم الضريبي"
+                                                placeholder="300XXXXXXXXXXXX" inputmode="numeric" maxlength="15"
                                                 :value="old(
                                                     'billing_tax_number',
                                                     $checkoutData['billing_tax_number'] ?? '',
                                                 )" required />
 
-                                            <x-shared.form.controls.select name="billing_city_id" label="المدينة"
+                                            <x-form.controls.select name="billing_city_id" label="المدينة"
                                                 placeholder="اختر المدينة" :options="$cities ?? []" :selected="old(
                                                     'billing_city_id',
                                                     $checkoutData['billing_city_id'] ?? '',
                                                 )" required />
 
-                                            <x-shared.form.controls.input name="billing_address" label="العنوان"
+                                            <x-form.controls.input name="billing_address" label="العنوان"
                                                 placeholder="الرياض، حي السليمانية" :value="old(
                                                     'billing_address',
                                                     $checkoutData['billing_address'] ?? '',
                                                 )" required />
 
-                                            <x-shared.form.controls.input name="billing_name" label="اسم المدير المسؤول"
+                                            <x-form.controls.input name="billing_name" label="اسم المدير المسؤول"
                                                 placeholder="أدخل اسم المدير" :value="old('billing_name', $checkoutData['billing_name'] ?? '')" required />
 
-                                            <x-shared.form.controls.input name="billing_email" type="email"
+                                            <x-form.controls.input name="billing_email" type="email"
                                                 label="البريد الإلكتروني للإدارة" placeholder="admin@company.com"
                                                 autocomplete="off" :value="old('billing_email', $checkoutData['billing_email'] ?? '')" required />
 
-                                            <x-shared.form.controls.input name="billing_phone" type="tel" label="رقم الجوال"
+                                            <x-form.controls.input name="billing_phone" type="tel" label="رقم الجوال"
                                                 placeholder="05XXXXXXXX" inputmode="numeric" maxlength="10" required
                                                 data-phone-format="international" dir="ltr" class="text-end"
                                                 :value="old('billing_phone', $checkoutData['billing_phone'] ?? '')" />
 
-                                            <x-shared.form.controls.password name="billing_password" label="كلمة المرور"
+                                            <x-form.controls.password name="billing_password" label="كلمة المرور"
                                                 placeholder="••••••••" required />
 
-                                            <x-shared.form.controls.password name="billing_password_confirmation"
+                                            <x-form.controls.password name="billing_password_confirmation"
                                                 label="تأكيد كلمة المرور" placeholder="••••••••" required />
                                         </div>
                                     </div>
@@ -401,7 +400,7 @@
 
                             <!-- Order Summary Column -->
                             <div class="checkout-summary-col">
-                                @include('partials.web.checkout-summary', [
+                                @include('web.partials.checkout-summary', [
                                     'showSubmitButton' => true,
                                     'showEditLink' => $paymentStep,
                                 ])

@@ -31,7 +31,7 @@
     $errorId = str_replace(['.', '[', ']'], '-', $fieldId) . '-error';
 @endphp
 
-<x-shared.form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help" :col="$col" :wrapper-id="$wrapperId">
+<x-form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help" :col="$col" :wrapper-id="$wrapperId">
     <select
         id="{{ $fieldId }}"
         @if ($controlName !== false) name="{{ $controlName ?? $fieldName }}" @endif
@@ -76,4 +76,4 @@
         {{ $slot ?? '' }}
     </select>
     {!! $append ?? '' !!}
-</x-shared.form.layout.field>
+</x-form.layout.field>

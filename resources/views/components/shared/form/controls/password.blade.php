@@ -15,7 +15,7 @@
     $errorId = str_replace(['.', '[', ']'], '-', $fieldId) . '-error';
 @endphp
 
-<x-shared.form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help"
+<x-form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help"
     :col="$col">
     <div @class([
         'input-group input-group-merge',
@@ -34,4 +34,4 @@
             <i class="ti ti-eye-off" aria-hidden="true"></i>
         </button>
     </div>
-</x-shared.form.layout.field>
+</x-form.layout.field>

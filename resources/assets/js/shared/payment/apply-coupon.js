@@ -70,15 +70,14 @@ document.addEventListener('DOMContentLoaded', function () {
         applyCouponBtn.innerHTML =
             '<span class="small">جاري التحقق...</span>';
 
-        fetch(window.paymentData.couponQuoteUrl, {
+        fetch('/api/central/coupon/validate-coupon', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
             },
             body: JSON.stringify({
                 coupon_code: couponCode,
+                total: originalTotal,
             })
         })
             .then(response => response.json())
@@ -114,6 +113,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // إزالة الكوبون
     removeCouponBtn?.addEventListener('click', function () {
+        // إشعار السيرفر بإزالة الكوبون من الجلسة
+        fetch('/api/central/coupon/remove-coupon', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).catch(() => {});
+
         // إخفاء صفوف الخصم
         discountRow?.classList.add('hidden');
 

@@ -14,7 +14,7 @@
     $errorId = str_replace(['.', '[', ']'], '-', $fieldId) . '-error';
 @endphp
 
-<x-shared.form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help" :col="$col">
+<x-form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help" :col="$col">
     <textarea
         id="{{ $fieldId }}"
         name="{{ $name }}"
@@ -24,4 +24,4 @@
         aria-invalid="{{ $errors->has($name) ? 'true' : 'false' }}"
         {{ $attributes->class(['form-control', 'is-invalid' => $errors->has($name)]) }}
     >{{ old($name, $value) }}</textarea>
-</x-shared.form.layout.field>
+</x-form.layout.field>

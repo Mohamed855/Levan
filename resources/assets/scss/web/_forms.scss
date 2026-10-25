@@ -85,19 +85,6 @@
   }
 }
 
-// Keep numeric fields clean; values remain editable by keyboard and touch.
-input[type='number'] {
-  appearance: textfield;
-  -moz-appearance: textfield;
-
-  &::-webkit-inner-spin-button,
-  &::-webkit-outer-spin-button {
-    appearance: none;
-    -webkit-appearance: none;
-    margin: 0;
-  }
-}
-
 // =============================================================================
 // Input Group & Password Toggle (Site)
 // =============================================================================
@@ -291,7 +278,6 @@ input[type='number'] {
   width: 100% !important;
 
   .select2-selection--single {
-    position: relative !important;
     height: 48px !important;
     min-height: 48px !important;
     background-color: #FFFFFF !important;
@@ -304,13 +290,10 @@ input[type='number'] {
     transition: border-color var(--site-transition-fast), box-shadow var(--site-transition-fast) !important;
 
     .select2-selection__rendered {
-      display: flex !important;
-      align-items: center !important;
-      height: 100% !important;
-      padding: 0 0 0 4rem !important;
+      padding: 0 !important;
       font-size: var(--site-font-base) !important;
       color: var(--site-ink) !important;
-      line-height: 1.4 !important;
+      line-height: normal !important;
       width: 100% !important;
       text-align: right !important;
 
@@ -321,16 +304,10 @@ input[type='number'] {
     }
 
     .select2-selection__clear {
-      position: absolute !important;
-      top: 50% !important;
-      left: 2.25rem !important;
-      transform: translateY(-50%) !important;
       color: rgba(29, 79, 68, 0.5) !important;
       font-size: 1.1rem !important;
-      margin: 0 !important;
-      float: none !important;
-      line-height: 1 !important;
-      z-index: 1 !important;
+      margin-left: 1.5rem !important;
+      float: left !important;
       cursor: pointer;
 
       &:hover {
@@ -343,7 +320,7 @@ input[type='number'] {
       width: 2.25rem !important;
       position: absolute !important;
       top: 0 !important;
-      left: 0.375rem !important;
+      left: 0.75rem !important;
       right: auto !important;
       display: flex !important;
       align-items: center !important;
@@ -364,7 +341,7 @@ input[type='number'] {
   &.select2-container--open {
     .select2-selection--single {
       border-color: var(--site-primary) !important;
-      box-shadow: none !important;
+      box-shadow: 0 0 0 3px rgba(var(--site-primary-rgb), 0.12) !important;
     }
   }
 
@@ -381,17 +358,16 @@ input[type='number'] {
     .select2-selection--single {
       .select2-selection__rendered {
         text-align: left !important;
-        padding: 0 4rem 0 0 !important;
       }
 
       .select2-selection__arrow {
-        right: 0.375rem !important;
+        right: 0.75rem !important;
         left: auto !important;
       }
 
       .select2-selection__clear {
-        right: 2.25rem !important;
-        left: auto !important;
+        margin-right: 1.5rem !important;
+        float: right !important;
       }
     }
   }
@@ -402,7 +378,7 @@ input[type='number'] {
   background-color: #FFFFFF !important;
   border: 1px solid var(--site-border) !important;
   border-radius: var(--site-radius-md) !important;
-  box-shadow: none !important;
+  box-shadow: var(--site-shadow-lg) !important;
   overflow: hidden !important;
   z-index: 1060 !important;
   font-family: inherit !important;
@@ -434,9 +410,6 @@ input[type='number'] {
     padding: 0.25rem 0 !important;
 
     .select2-results__option {
-      display: flex !important;
-      align-items: center !important;
-      min-height: 44px !important;
       padding: 0.65rem 1rem !important;
       font-size: var(--site-font-base) !important;
       color: var(--site-ink) !important;

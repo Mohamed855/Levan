@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Listeners\DeleteTenantDatabaseAfterForceDelete;
+use Illuminate\Contracts\Http\Kernel;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Stancl\JobPipeline\JobPipeline;
 use Stancl\Tenancy\Events;
+use Stancl\Tenancy\Events\RevertedToCentralContext;
+use Stancl\Tenancy\Events\TenancyEnded;
+use Stancl\Tenancy\Events\TenancyInitialized;
 use Stancl\Tenancy\Jobs;
 use Stancl\Tenancy\Listeners;
+use Stancl\Tenancy\Listeners\BootstrapTenancy;
+use Stancl\Tenancy\Listeners\RevertToCentralContext;
 use Stancl\Tenancy\Middleware;
 
 class TenancyServiceProvider extends ServiceProvider
@@ -27,9 +31,9 @@ class TenancyServiceProvider extends ServiceProvider
             Events\CreatingTenant::class => [],
             Events\TenantCreated::class => [
                 JobPipeline::make([
-                    Jobs\CreateDatabase::class,
-                    Jobs\MigrateDatabase::class,
-                    Jobs\SeedDatabase::class,
+                    // Jobs\CreateDatabase::class,
+                    // Jobs\MigrateDatabase::class,
+                    // Jobs\SeedDatabase::class,
 
                     // Your own jobs to prepare the tenant.
                     // Provision API keys, create S3 buckets, anything you want!
@@ -44,7 +48,11 @@ class TenancyServiceProvider extends ServiceProvider
             Events\TenantUpdated::class => [],
             Events\DeletingTenant::class => [],
             Events\TenantDeleted::class => [
-                DeleteTenantDatabaseAfterForceDelete::class,
+                JobPipeline::make([
+                    // Jobs\DeleteDatabase::class,
+                ])->send(function (Events\TenantDeleted $event) {
+                    return $event->tenant;
+                })->shouldBeQueued(false), // `false` by default, but you probably want to make this `true` for production.
             ],
 
             // Domain events
@@ -66,22 +74,17 @@ class TenancyServiceProvider extends ServiceProvider
 
             // Tenancy events
             Events\InitializingTenancy::class => [],
-            Events\TenancyInitialized::class => [
-                Listeners\BootstrapTenancy::class,
-                function (Events\TenancyInitialized $event): void {
-                    URL::defaults(['tenant' => $event->tenancy->tenant->getTenantKey()]);
-                },
+            TenancyInitialized::class => [
+                BootstrapTenancy::class,
             ],
-
-            Events\EndingTenancy::class => [],
-            Events\TenancyEnded::class => [
-                Listeners\RevertToCentralContext::class,
+            TenancyEnded::class => [
+                RevertToCentralContext::class,
             ],
 
             Events\BootstrappingTenancy::class => [],
             Events\TenancyBootstrapped::class => [],
             Events\RevertingToCentralContext::class => [],
-            Events\RevertedToCentralContext::class => [],
+            RevertedToCentralContext::class => [],
 
             // Resource syncing
             Events\SyncedResourceSaved::class => [
@@ -98,13 +101,59 @@ class TenancyServiceProvider extends ServiceProvider
         //
     }
 
+    // الكود الجديد -- يحتاج اختبار بعد تفعيله ليتاكد ان الجلسات لا تتداخل ببعض
     public function boot()
     {
         $this->bootEvents();
-        $this->mapRoutes();
-
         $this->makeTenancyMiddlewareHighestPriority();
+
+        //  عند تهيئة الـ tenant
+        Event::listen(TenancyInitialized::class, function (TenancyInitialized $event) {
+            $tenantId = $event->tenancy->tenant->getTenantKey();
+
+            // ← تأكد أن الطلب الحالي فعلاً داخل سياق التيننت
+            if (! app()->runningInConsole()) {
+                Config::set('session.cookie', 'tenant_'.$tenantId.'_session');
+                Config::set('session.path', '/'.$tenantId);
+            }
+
+            Config::set(
+                'filesystems.disks.tenant_public.root',
+                storage_path("app/tenants/{$tenantId}/public")
+            );
+            Config::set(
+                'filesystems.disks.tenant_public.url',
+                url("tenants/{$tenantId}/public")
+            );
+        });
+
+        Event::listen(TenancyEnded::class, function () {
+            if (! app()->runningInConsole()) {
+                Config::set('session.cookie', config('session.cookie')); // ← من config الأصلي
+                Config::set('session.path', '/');
+            }
+        });
     }
+
+    // public function boot()
+    // {
+
+    //     $this->bootEvents();
+
+    //     $this->makeTenancyMiddlewareHighestPriority();
+
+    //     Event::listen(TenancyInitialized::class, function () {
+    //         $tenantId = tenant('id');
+    //         Config::set('filesystems.disks.tenant_public.root', storage_path("app/tenants/{$tenantId}/public"));
+    //         Config::set('filesystems.disks.tenant_public.url', url("tenants/{$tenantId}/public"));
+    //     });
+
+    //     // // --- أعده للوضع المركزي عند الخروج من سياق المستأجر ---
+    //     // Event::listen(RevertedToCentralContext::class, function () {
+    //     //     Config::set('filesystems.disks.tenant_public.root', storage_path('app/public'));
+    //     //     Config::set('filesystems.disks.tenant_public.url', url('storage'));
+    //     // });
+    // }
 
     protected function bootEvents()
     {
@@ -119,37 +168,24 @@ class TenancyServiceProvider extends ServiceProvider
         }
     }
 
-    protected function mapRoutes()
-    {
-        $this->app->booted(function () {
-            if (file_exists(base_path('routes/tenant.php'))) {
-                Route::namespace(static::$controllerNamespace)
-                    ->prefix('{tenant}')
-                    ->name('tenant.')
-                    ->middleware([
-                        'web',
-                        Middleware\InitializeTenancyByPath::class,
-                    ])
-                    ->group(base_path('routes/tenant.php'));
-            }
-        });
-    }
+    protected function mapRoutes() {}
 
     protected function makeTenancyMiddlewareHighestPriority()
     {
         $tenancyMiddleware = [
+
             // Even higher priority than the initialization middleware
             Middleware\PreventAccessFromCentralDomains::class,
 
             Middleware\InitializeTenancyByDomain::class,
-            Middleware\InitializeTenancyBySubdomain::class,
-            Middleware\InitializeTenancyByDomainOrSubdomain::class,
+            // Middleware\InitializeTenancyBySubdomain::class,
+            // Middleware\InitializeTenancyByDomainOrSubdomain::class,
             Middleware\InitializeTenancyByPath::class,
-            Middleware\InitializeTenancyByRequestData::class,
+            // Middleware\InitializeTenancyByRequestData::class,
         ];
 
         foreach (array_reverse($tenancyMiddleware) as $middleware) {
-            $this->app[\Illuminate\Contracts\Http\Kernel::class]->prependToMiddlewarePriority($middleware);
+            $this->app[Kernel::class]->prependToMiddlewarePriority($middleware);
         }
     }
 }

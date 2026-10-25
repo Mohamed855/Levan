@@ -6,17 +6,17 @@
 ])
 
 @php
-    $planColor = old('color', $plan?->color instanceof \BackedEnum ? $plan->color->value : ($plan?->color ?? 'purple'));
+    $planColor = old('color', $plan?->color?->value ?? 'purple');
     $planName = old('name', $plan?->name ?? 'اسم الباقة');
-    $planTypeValue = $plan?->plan_type instanceof \BackedEnum ? $plan->plan_type->value : $plan?->plan_type;
-    $planType = old('plan_type_label', ['basic' => 'باقة أساسية', 'professional' => 'باقة احترافية', 'enterprise' => 'باقة مؤسسية'][$planTypeValue] ?? 'باقة مخصصة');
+    $planTypeValue = old('plan_type', $plan?->plan_type?->value ?? '');
+    $planType = \App\Enums\Admin\Plans\PlanType::tryFrom($planTypeValue)?->label() ?? 'باقة مخصصة';
     $description = old('description', $plan?->description ?? 'أضف وصفاً واضحاً يشرح قيمة الباقة لعملائك.');
     $price = (float) old('price', $plan?->price ?? 0);
     $discount = (float) old('discount_percentage', $plan?->discount_percentage ?? 0);
     $finalPrice = max(0, $price - ($price * $discount / 100));
-    $billingCycleValue = $plan?->subscription_billing_cycle instanceof \BackedEnum ? $plan->subscription_billing_cycle->value : $plan?->subscription_billing_cycle;
-    $billingCycle = old('subscription_billing_cycle_label', ['monthly' => 'شهري', 'quarterly' => 'كل ثلاثة أشهر', 'yearly' => 'سنوي'][$billingCycleValue] ?? 'شهري');
-    $limitsMode = old('limits_mode', $plan?->limits_mode instanceof \BackedEnum ? $plan->limits_mode->value : ($plan?->limits_mode ?? 'limited'));
+    $billingCycleValue = old('subscription_billing_cycle', $plan?->subscription_billing_cycle?->value ?? '');
+    $billingCycle = \App\Enums\Admin\Subscriptions\SubscriptionBillingCycle::tryFrom($billingCycleValue)?->label() ?? 'شهري';
+    $limitsMode = old('limits_mode', $plan?->limits_mode?->value ?? 'limited');
     $isUnlimited = $limitsMode === 'unlimited' || $plan?->isUnlimited();
     $features = array_values(array_filter(old('features', $plan?->features ?? []), static fn ($feature) => filled($feature)));
     $includedUsers = old('included_users', $plan?->included_users);
@@ -37,11 +37,11 @@
         </span>
         <div class="package-card__price-line">
             <span class="package-card__price-value" data-plan-field="final-price">{{ number_format($finalPrice, 2) }}</span>
-            <span class="package-card__currency">?.?</span>
+            <span class="package-card__currency">ر.س</span>
         </div>
         <span class="package-card__price-note" data-plan-field="billing-cycle">لكل {{ $billingCycle }}</span>
         <span class="package-card__original-price" data-plan-field="original-price" @if ($discount <= 0) hidden @endif>
-            {{ number_format($price, 2) }} ?.?
+            {{ number_format($price, 2) }} ر.س
         </span>
     </section>
 

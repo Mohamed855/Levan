@@ -1,20 +1,18 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\DataTables\Admin\Coupons;
 
 use App\DataTables\Abstract\AbstractDataTable;
-use App\Enums\Admin\Coupons\CouponDiscountType;
-use App\Models\Admin\Coupon;
+use App\Models\Admin\Coupons\Coupon;
 
 class CouponDataTable extends AbstractDataTable
 {
-    private string $page = 'admin.coupons';
+    private $page = 'admin.coupons';
 
-    private string $route = 'admin.coupons';
+    private $route = 'admin.coupons';
 
-    protected function getTableId(): string
+    // table id
+    protected function getTableId()
     {
         return 'coupon-table';
     }
@@ -35,75 +33,48 @@ class CouponDataTable extends AbstractDataTable
                 'searchable' => false,
                 'width' => '10px',
                 'className' => 'custom-checkbox',
+                'titleAttr' => 'تحديد الكل',
             ],
-            ['data' => 'name', 'name' => 'name', 'title' => 'اسم الكوبون', 'className' => 'text-start'],
-            ['data' => 'code', 'name' => 'code', 'title' => 'الكود', 'className' => 'text-start'],
-            ['data' => 'discount_type', 'name' => 'discount_type', 'title' => 'نوع الخصم'],
-            ['data' => 'discount_value', 'name' => 'discount_value', 'title' => 'قيمة الخصم'],
-            ['data' => 'max_discount', 'name' => 'max_discount', 'title' => 'الحد الأقصى للخصم'],
-            ['data' => 'expires_at', 'name' => 'expires_at', 'title' => 'تاريخ الانتهاء'],
-            ['data' => 'usage_limit', 'name' => 'usage_limit', 'title' => 'حد الاستخدام'],
-            ['data' => 'used_count', 'name' => 'used_count', 'title' => 'مرات الاستخدام'],
-            ['data' => 'is_active', 'name' => 'is_active', 'title' => 'الحالة'],
-            ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
+            ['data' => 'name',     'name' => 'name',   'title' => 'اسم الكوبون',   'className' => 'text-start'],
+            ['data' => 'code',     'name' => 'code',   'title' => 'الكود',          'className' => 'text-start'],
+
+            ['data' => 'discount_type',    'name' => 'discount_type',       'title' => 'نوع الخصم'],
+            ['data' => 'discount_value',   'name' => 'discount_value',      'title' => 'قيمة الخصم'],
+            ['data' => 'max_discount',     'name' => 'max_discount',        'title' => 'الحد الأقصى للخصم'],
+            ['data' => 'expiry_date',      'name' => 'expiry_date',         'title' => 'تاريخ الانتهاء'],
+            ['data' => 'usage_limit',      'name' => 'usage_limit',         'title' => 'حد الاستخدام'],
+            ['data' => 'used_count',      'name' => 'used_count',         'title' => 'مرات الاستخدام'],
+
+            ['data' => 'is_active',         'name' => 'is_active',          'title' => 'الحالة'],
+            ['data' => 'actions',           'name' => 'actions',            'title' => 'الإجراءات',      'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
 
-    protected function addCustomColumns($datatable): void
+    protected function addCustomColumns($datatable)
     {
         $datatable
-            ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
+            ->addColumn('checkbox', function ($row) {
+                return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
+            })
 
             ->editColumn('code', function ($row) {
-                $code = htmlspecialchars((string) $row->code, ENT_QUOTES, 'UTF-8');
-
-                return '<div class="d-inline-flex align-items-center gap-2 copyable-code-wrapper" data-code="'.$code.'" title="اضغط لنسخ الكود">'
-                    .'<code class="copyable-code" data-code="'.$code.'">'.$code.'</code>'
-                    .'<i class="ti ti-copy text-muted copy-icon"></i>'
-                    .'</div>';
+                return $this->copyableCode($row);
             })
 
             ->editColumn('discount_type', function ($row) {
-                $type = $row->discount_type instanceof CouponDiscountType
-                    ? $row->discount_type
-                    : CouponDiscountType::tryFrom((string) $row->discount_type);
-
-                $label = $type ? $type->label() : ($row->discount_type === 'percentage' ? 'نسبة مئوية' : 'مبلغ ثابت');
-                $color = $type ? $type->color() : ($row->discount_type === 'percentage' ? 'success' : 'primary');
-
-                return '<span class="badge bg-label-'.e($color).'">'.e($label).'</span>';
-            })
-
-            ->editColumn('discount_value', function ($row) {
-                if ($row->discount_type === 'percentage' || $row->discount_type === CouponDiscountType::PERCENTAGE) {
-                    return (float) $row->discount_value.' %';
-                }
-
-                return number_format((float) $row->discount_value, 2).' ر.س';
-            })
-
-            ->editColumn('max_discount', function ($row) {
-                return $row->max_discount ? number_format((float) $row->max_discount, 2).' ر.س' : '<span class="text-muted">-</span>';
-            })
-
-            ->editColumn('expires_at', function ($row) {
-                return $row->expires_at ? $row->expires_at->format('Y-m-d') : '<span class="text-muted">دائم</span>';
-            })
-
-            ->editColumn('usage_limit', function ($row) {
-                return $row->usage_limit ? (string) $row->usage_limit : '<span class="text-primary">∞</span>';
+                return $this->DiscountTypeBadge($row);
             })
 
             ->editColumn('is_active', function ($row) {
                 $user = auth('admin')->user() ?? auth()->user();
-                if (! $user?->can('coupons.edit') && ! $user?->can('coupons.update')) {
+                if (! $user?->can('coupons.edit')) {
                     return $row->is_active
                         ? '<span class="badge bg-success">مفعل</span>'
                         : '<span class="badge bg-danger">غير مفعل</span>';
                 }
 
                 $checked = $row->is_active ? 'checked' : '';
-                $url = route('admin.coupons.toggle-status', $row->id);
+                $url = route('admin.coupons.toggle-status', $row->id, false);
 
                 return '
                     <div class="d-flex justify-content-center">
@@ -118,6 +89,10 @@ class CouponDataTable extends AbstractDataTable
                     </div>';
             })
 
+            ->editColumn('expiry_date', function ($row) {
+                return $row->expiry_date?->format('Y-m-d');
+            })
+
             ->addColumn('actions', function ($row) {
                 return view($this->page.'.action', ['row' => $row, 'route' => $this->route])->render();
             });
@@ -125,7 +100,7 @@ class CouponDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'code', 'discount_type', 'max_discount', 'expires_at', 'usage_limit', 'is_active', 'actions'];
+        return ['checkbox', 'code', 'discount_type', 'is_active', 'status', 'actions'];
     }
 
     protected function applyCustomFilters($query)
@@ -138,6 +113,8 @@ class CouponDataTable extends AbstractDataTable
                 $query->where('is_active', 1);
             } elseif ($val === 'inactive' || $val === '0' || $val === 0) {
                 $query->where('is_active', 0);
+            } else {
+                $query->where('is_active', $val);
             }
         }
 
@@ -148,9 +125,12 @@ class CouponDataTable extends AbstractDataTable
         return $query;
     }
 
+    // الحقول المسموح البحث فيها
     protected function getSearchableColumns(): array
     {
-        return ['name', 'code'];
+        return [
+            'name',
+        ];
     }
 
     protected function getCustomOrder(): array
@@ -158,6 +138,7 @@ class CouponDataTable extends AbstractDataTable
         return [1, 'desc'];
     }
 
+    // Buttons
     protected function buttons(): array
     {
         return [
@@ -170,10 +151,12 @@ class CouponDataTable extends AbstractDataTable
     {
         $buttons = [
             ['extend' => 'copy', 'text' => 'نسخ'],
-            ['extend' => 'excel', 'text' => 'إكسل'],
+            ['extend' => 'excel', 'text' => 'إكسل', 'exportOptions' => [
+                'columns' => [11, 10, 9, 8, 7, 6, 5, 4, 3],
+            ]],
         ];
 
-        if (auth('admin')->user()?->can('coupons.delete')) {
+        if (auth()->user()?->can('coupons.delete')) {
             $buttons[] = [
                 'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
@@ -191,14 +174,48 @@ class CouponDataTable extends AbstractDataTable
 
     private function getAddButton(): array
     {
-        if (auth('admin')->user()?->can('coupons.create')) {
+        if (auth()->user()?->can('coupons.create')) {
             return [
-                'text' => '<i class="ti ti-plus me-1"></i> إضافة كوبون',
+                'text' => '<i class="fas fa-plus-circle me-1"></i> إضافة كوبون',
                 'className' => 'btn btn-primary btn-add',
                 'action' => "function(){ window.location.href='".route($this->route.'.create')."'; }",
             ];
+        } else {
+            return [];
         }
+    }
 
-        return [];
+    /*
+    |============================================================================
+    |                            Private Helper Methods
+    |============================================================================
+    */
+    private function copyableCode($row): string
+    {
+        $code = htmlspecialchars((string) $row->code, ENT_QUOTES, 'UTF-8');
+
+        return sprintf(
+            '<div class="d-inline-flex align-items-center gap-2 copyable-code-wrapper"
+                  data-code="%s"
+                  title="اضغط لنسخ الكود">
+                <code class="copyable-code"
+                      data-code="%s">
+                    %s
+                </code>
+                <i class="ti ti-copy text-muted copy-icon"></i>
+            </div>',
+            $code,
+            $code,
+            $code
+        );
+    }
+
+    private function DiscountTypeBadge($row): string
+    {
+        return sprintf(
+            '<span class="badge  bg-%s">%s</span>',
+            $row->discount_type->color(),
+            $row->discount_type->label()
+        );
     }
 }

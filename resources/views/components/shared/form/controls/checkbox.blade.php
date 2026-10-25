@@ -14,7 +14,7 @@
     $isChecked = old($name, $checked);
 @endphp
 
-<x-shared.form.layout.field :name="$name" :id="$fieldId" :help="$help" :col="$col">
+<x-form.layout.field :name="$name" :id="$fieldId" :help="$help" :col="$col">
     <div class="card border p-3 h-100">
         <div class="d-flex justify-content-between align-items-center gap-3">
             <div>
@@ -39,4 +39,4 @@
             </div>
         </div>
     </div>
-</x-shared.form.layout.field>
+</x-form.layout.field>

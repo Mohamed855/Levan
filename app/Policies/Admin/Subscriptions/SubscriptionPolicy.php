@@ -4,12 +4,33 @@ declare(strict_types=1);
 
 namespace App\Policies\Admin\Subscriptions;
 
-use App\Models\Admin\AdminUser;
-use App\Models\Admin\Subscriptions\Subscription;
+use App\Models\Admin\AdminMangment\Users\AdminUser;
+use App\Models\Admin\Subscription\Subscription;
 
-final class SubscriptionPolicy
+class SubscriptionPolicy
 {
-    public function view(AdminUser $user, Subscription $subscription): bool { return $user->hasPermissionTo('subscriptions.view'); }
-    public function update(AdminUser $user, Subscription $subscription): bool { return $user->hasPermissionTo('subscriptions.update'); }
-    public function delete(AdminUser $user, Subscription $subscription): bool { return $user->hasPermissionTo('subscriptions.delete'); }
+    public function viewAny(AdminUser $user): bool
+    {
+        return $user->can('subscriptions.view');
+    }
+
+    public function view(AdminUser $user, Subscription $subscription): bool
+    {
+        return $user->can('subscriptions.view');
+    }
+
+    public function create(AdminUser $user): bool
+    {
+        return $user->can('subscriptions.create');
+    }
+
+    public function update(AdminUser $user, Subscription $subscription): bool
+    {
+        return $user->can('subscriptions.toggle_status');
+    }
+
+    public function delete(AdminUser $user, Subscription $subscription): bool
+    {
+        return $user->can('subscriptions.delete');
+    }
 }

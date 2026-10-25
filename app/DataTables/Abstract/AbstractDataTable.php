@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\DataTables\Abstract;
 
 use Illuminate\Database\Eloquent\Builder;
@@ -16,7 +14,7 @@ abstract class AbstractDataTable extends DataTable
     |                            Abstract Methods
     |============================================================================
     */
-    abstract protected function getTableId(): string;
+    abstract protected function getTableId();
 
     abstract protected function resource();
 
@@ -45,7 +43,7 @@ abstract class AbstractDataTable extends DataTable
         $action = $this->request()->action;
         $actionMethod = $action === 'print' ? 'printPreview' : $action;
 
-        if (in_array($action, $this->actions, true) && method_exists($this, $actionMethod)) {
+        if (in_array($action, $this->actions) && method_exists($this, $actionMethod)) {
             $callback = [$this, $actionMethod];
 
             return app()->call($callback);
@@ -85,7 +83,7 @@ abstract class AbstractDataTable extends DataTable
         return $this->buildCollectionDataTable($query);
     }
 
-    // معالجة البيانات اذا كانت Builder
+    // معالجة البيانات اذاكانت Builder
     protected function buildEloquentDataTable($query)
     {
         $datatable = datatables()
@@ -101,7 +99,7 @@ abstract class AbstractDataTable extends DataTable
             });
     }
 
-    // معالجة البيانات اذا كانت collection
+    // معالجة البيانات اذاكانت collection
     protected function buildCollectionDataTable($query)
     {
         $rows = $this->formatRows($query);
@@ -118,7 +116,7 @@ abstract class AbstractDataTable extends DataTable
     |============================================================================
     */
     // تطبيق البحث العام في جميع الأعمدة القابلة للبحث
-    protected function applyGlobalSearch($instance): void
+    protected function applyGlobalSearch($instance)
     {
         if (request()->has('search') && ! empty(request('search.value'))) {
             $searchValue = request('search.value');
@@ -134,16 +132,16 @@ abstract class AbstractDataTable extends DataTable
         }
     }
 
-    protected function addSearchCondition($query, $column, $searchValue, $operator = 'or'): void
+    protected function addSearchCondition($query, $column, $searchValue, $operator = 'or')
     {
-        if (str_contains($column, '.')) {
+        if (strpos($column, '.') !== false) {
             // البحث في العلاقة
             [$relation, $field] = explode('.', $column, 2);
 
             $method = $operator === 'or' ? 'orWhereHas' : 'whereHas';
 
             $query->$method($relation, function ($relationQuery) use ($field, $searchValue) {
-                if (str_contains($field, '.')) {
+                if (strpos($field, '.') !== false) {
                     // علاقة متداخلة (مثل department.name)
                     $this->addSearchCondition($relationQuery, $field, $searchValue, 'and');
                 } else {
@@ -166,6 +164,7 @@ abstract class AbstractDataTable extends DataTable
     // لتطبيق الفلاتر من الطلب على الاستعلام
     protected function applyRequestFilters(Builder $q, array $fields): Builder
     {
+        Log::info('Applying request filters', ['fields' => $fields]);
         foreach ($fields as $field) {
             if ($val = request($field)) {
                 $q->where($field, $val);
@@ -180,7 +179,9 @@ abstract class AbstractDataTable extends DataTable
     |                          Helper Methods
     |============================================================================
     */
-    protected function addCustomColumns($datatable): void {}
+    // للتعامل مع تعديلات الحقول و  الحقول الاضافية
+
+    protected function addCustomColumns($datatable) {}
 
     protected function formatRows(Collection $rows): Collection
     {
@@ -240,6 +241,13 @@ abstract class AbstractDataTable extends DataTable
             '>';
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Define DataTable Buttons (Placeholder)
+    |--------------------------------------------------------------------------
+    | This method acts as a placeholder. Child classes MUST override this
+    | method to define their own complete button structure.
+    */
     protected function buttons(): array
     {
         return [];
@@ -257,6 +265,7 @@ abstract class AbstractDataTable extends DataTable
                 'zeroRecords' => 'لا توجد نتائج مطابقة.',
             ],
             'pageLength' => 10,
+
             'orderCellsTop' => true,
             'columnDefs' => [
                 [
@@ -272,6 +281,7 @@ abstract class AbstractDataTable extends DataTable
                     }',
                 ],
             ],
+
             'responsive' => false,
         ];
 

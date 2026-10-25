@@ -18,7 +18,7 @@
     $errorId = str_replace(['.', '[', ']'], '-', $fieldId) . '-error';
 @endphp
 
-<x-shared.form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help"
+<x-form.layout.field :name="$name" :label="$label" :id="$fieldId" :required="$required" :help="$help"
     :col="$col" :wrapper-id="$wrapperId" :wrapper-style="$wrapperStyle">
     @if ($inputGroup)
         <div class="input-group">
@@ -35,4 +35,4 @@
             {{ $attributes->class(['form-control', 'is-invalid' => $errors->has($name)]) }}>
         {{ $slot }}
     @endif
-</x-shared.form.layout.field>
+</x-form.layout.field>

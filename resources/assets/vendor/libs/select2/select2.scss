@@ -3,9 +3,6 @@
 
 @use '../../scss/_bootstrap-extended/include' as light;
 @use '../../scss/_bootstrap-extended/include-dark' as dark;
-@import 'bootstrap/scss/functions';
-@import 'bootstrap/scss/variables';
-@import 'bootstrap/scss/mixins';
 @import '../../scss/_custom-variables/libs';
 @import 'mixins';
 

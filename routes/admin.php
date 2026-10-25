@@ -1,108 +1,273 @@
 <?php
 
-declare(strict_types=1);
-
+use App\Http\Controllers\Admin\ActivityLog\AdminActivityLogController;
+use App\Http\Controllers\Admin\AdminMangment\Roles\AdminRoleController;
+use App\Http\Controllers\Admin\AdminMangment\Users\AdminUserController;
+use App\Http\Controllers\Admin\Auth\AdminAuthController;
+use App\Http\Controllers\Admin\Auth\AdminTwoFactorChallengeController;
+use App\Http\Controllers\Admin\Auth\AdminTwoFactorSettingsController;
 use App\Http\Controllers\Admin\AuctionTemplates\AuctionTemplateController;
-use App\Http\Controllers\Admin\Banks\BankController;
-use App\Http\Controllers\Admin\Bills\BillController;
-use App\Http\Controllers\Admin\Coupons\CouponController;
+use App\Http\Controllers\Admin\FaqController;
+use App\Http\Controllers\Admin\Archive\AdminUser\AdminUserController as AdminUserAdminUserController;
+use App\Http\Controllers\Admin\Archive\Bill\BillArchiveController;
+use App\Http\Controllers\Admin\Archive\Coupon\CouponArchiveController;
+use App\Http\Controllers\Admin\Archive\Plan\PlanArchiveController;
+use App\Http\Controllers\Admin\Archive\Tenant\TenantArchiveController;
+use App\Http\Controllers\Admin\Bills\AdminBillsController;
+use App\Http\Controllers\Admin\Clients\ClientController;
+use App\Http\Controllers\Admin\Coupons\AdminCouponController;
 use App\Http\Controllers\Admin\Dashboard\DashboardController;
 use App\Http\Controllers\Admin\DeleteBulk\AdminMassDeleteController;
 use App\Http\Controllers\Admin\Plans\PlanController;
-use App\Http\Controllers\Admin\PublicRequests\PublicRequestController;
-use App\Http\Controllers\Admin\Roles\AdminRoleController;
-use App\Http\Controllers\Admin\Settings\SettingController;
-use App\Http\Controllers\Admin\Subscriptions\SubscriptionController;
-use App\Http\Controllers\Admin\Tenants\TenantController;
-use App\Http\Controllers\Admin\Tickets\TicketController;
-use App\Http\Controllers\Admin\Users\AdminUserController;
+use App\Http\Controllers\Admin\Settings\Bank\SettingsBankController;
+use App\Http\Controllers\Admin\Settings\Domain\SettingsDomainController;
+use App\Http\Controllers\Admin\Settings\SettingsController;
+use App\Http\Controllers\Admin\SubscriptionManagement\SubscriptionManagementController;
+use App\Http\Controllers\Admin\Subscriptions\SubscriptionController as CentralSubscriptionController;
+use App\Http\Controllers\Admin\Tickets\AdminTicketController;
+use App\Http\Controllers\Admin\PublicRequests\ContactRequestController;
+use App\Http\Controllers\Admin\PublicRequests\TrialRequestController;
 use App\Http\Controllers\Shared\Wizard\WizardDraftController;
+use App\Http\Controllers\Tenants\Auth\NewPasswordController;
 use Illuminate\Support\Facades\Route;
 
+Route::name('password.reset')->get('reset-password/{token}', [NewPasswordController::class, 'create']);
 
-Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function (): void {
-    Route::post('mass-delete', [AdminMassDeleteController::class, 'massDelete'])->name('mass-delete');
-    Route::get('/', DashboardController::class)->name('dashboard');
-    Route::prefix('wizard-drafts')->name('wizard-drafts.')->group(function (): void {
+Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active', 'admin.2fa.force'])->group(function () {
+    Route::prefix('wizard-drafts')->name('wizard-drafts.')->group(function () {
         Route::get('/', [WizardDraftController::class, 'show'])->name('index');
-        Route::post('/', [WizardDraftController::class, 'store'])->name('store');
+        Route::get('file', [WizardDraftController::class, 'showFile'])->name('file.show');
+        Route::match(['post', 'put', 'patch'], '/', [WizardDraftController::class, 'store'])->name('store');
         Route::delete('/', [WizardDraftController::class, 'destroy'])->name('destroy');
+        Route::delete('file', [WizardDraftController::class, 'destroyFile'])->name('file.destroy');
+        Route::match(['post', 'put', 'patch'], 'validate-step', [WizardDraftController::class, 'validateStep'])->name('validate-step');
     });
-    Route::resource('auction-templates', AuctionTemplateController::class)->parameters(['auction-templates' => 'auctionTemplate']);
-    Route::patch('auction-templates/{auctionTemplate}/toggle-status', [AuctionTemplateController::class, 'toggleStatus'])->name('auction-templates.toggle-status');
-    Route::post('auction-templates/{auctionTemplate}/versions/{version}/publish', [AuctionTemplateController::class, 'publish'])->name('auction-templates.versions.publish');
-    Route::resource('plans', PlanController::class);
-    Route::get('plans-reorder', [PlanController::class, 'reorderForm'])->name('plans.reorder.form');
-    Route::put('plans-reorder', [PlanController::class, 'reorder'])->name('plans.reorder');
-    Route::patch('plans/{plan}/toggle-status', [PlanController::class, 'toggleStatus'])->name('plans.toggle-status');
-    Route::resource('tenants', TenantController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
-    Route::get('subscription-manage/pending', [SubscriptionController::class, 'pending'])->name('subscriptions.pending');
-    Route::get('subscription-manage/expiring', [SubscriptionController::class, 'expiring'])->name('subscriptions.expiring');
-    Route::get('subscription-manage/expired', [SubscriptionController::class, 'expired'])->name('subscriptions.expired');
-    Route::post('subscriptions/{subscription}/accept', [SubscriptionController::class, 'accept'])->name('subscriptions.accept');
-    Route::post('subscriptions/{subscription}/reject', [SubscriptionController::class, 'reject'])->name('subscriptions.reject');
-    Route::post('subscriptions/mass-accept', [SubscriptionController::class, 'massAccept'])->name('subscriptions.mass-accept');
-    Route::post('subscriptions/mass-reject', [SubscriptionController::class, 'massReject'])->name('subscriptions.mass-reject');
-    Route::resource('subscriptions', SubscriptionController::class)->only(['index', 'show', 'destroy']);
-    Route::patch('subscriptions/{subscription}/status', [SubscriptionController::class, 'updateStatus'])->name('subscriptions.status');
-    Route::get('bills/{bill}/print', [BillController::class, 'print'])->name('bills.print');
-    Route::resource('bills', BillController::class)->only(['index', 'show']);
-    Route::patch('bills/{bill}/status', [BillController::class, 'updateStatus'])->name('bills.status');
-    Route::post('bills/{bill}/bank-transfer/approve', [BillController::class, 'approveBankTransfer'])->name('bills.bank-transfer.approve');
-    Route::post('bills/{bill}/bank-transfer/reject', [BillController::class, 'rejectBankTransfer'])->name('bills.bank-transfer.reject');
-    Route::get('bills/{bill}/bank-transfer/receipt', [BillController::class, 'downloadBankTransferReceipt'])->name('bills.bank-transfer.receipt');
-    Route::resource('tickets', TicketController::class)->only(['index', 'show', 'destroy']);
-    Route::get('tickets/{ticket}/attachments/{attachment}', [TicketController::class, 'downloadAttachment'])->name('tickets.attachments.download');
-    Route::post('tickets/{ticket}/reply', [TicketController::class, 'reply'])->name('tickets.reply');
-    Route::patch('tickets/{ticket}/status', [TicketController::class, 'updateStatus'])->name('tickets.status');
-    Route::patch('tickets/{ticket}/service', [TicketController::class, 'updateService'])->name('tickets.service');
-    Route::resource('coupons', CouponController::class);
 
-    Route::patch('coupons/{coupon}/toggle-status', [CouponController::class, 'toggle'])->name('coupons.toggle-status');
-    Route::resource('users', AdminUserController::class)->except(['show']);
-    Route::patch('users/{user}/toggle-status', [AdminUserController::class, 'toggle'])->name('users.toggle-status');
-    Route::resource('roles', AdminRoleController::class);
-    Route::get('contact-requests', [PublicRequestController::class, 'contacts'])->name('contact-requests.index');
-    Route::get('contact-requests/{contactRequest}', [PublicRequestController::class, 'contact'])->name('contact-requests.show');
-    Route::post('contact-requests/{contactRequest}/reply', [PublicRequestController::class, 'reply'])->name('contact-requests.reply');
-    Route::get('trial-requests', [PublicRequestController::class, 'trials'])->name('trial-requests.index');
-    Route::post('trial-requests/{trialRequest}/approve', [PublicRequestController::class, 'approve'])->name('trial-requests.approve');
-    Route::post('trial-requests/{trialRequest}/reject', [PublicRequestController::class, 'reject'])->name('trial-requests.reject');
-    Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
-    Route::post('settings', [SettingController::class, 'update'])->name('settings.update');
-    Route::resource('banks', BankController::class)->except(['show']);
-    Route::patch('banks/{bank}/toggle-status', [BankController::class, 'toggleStatus'])->name('banks.toggle-status');
-    Route::resource('control-domains', \App\Http\Controllers\Admin\ControlDomains\ControlDomainController::class)->parameters(['control-domains' => 'controlDomain'])->except(['show']);
-    Route::patch('control-domains/{controlDomain}/toggle-status', [\App\Http\Controllers\Admin\ControlDomains\ControlDomainController::class, 'toggleStatus'])->name('control-domains.toggle-status');
-    Route::resource('faqs', \App\Http\Controllers\Admin\Faqs\FaqController::class)->except(['show']);
-    Route::patch('faqs/{faq}/toggle-status', [\App\Http\Controllers\Admin\Faqs\FaqController::class, 'toggleStatus'])->name('faqs.toggle-status');
-    Route::resource('activity-logs', \App\Http\Controllers\Admin\ActivityLogs\AdminActivityLogController::class)->parameters(['activity-logs' => 'activityLog'])->only(['index', 'show', 'destroy']);
+    Route::name('password.store')->post('reset-password', [NewPasswordController::class, 'updatePassword']);
 
-    Route::prefix('archives')->name('archives.')->group(function (): void {
-        Route::prefix('plans')->name('plans.')->group(function (): void {
-            Route::get('/', [\App\Http\Controllers\Admin\Archive\Plans\PlanArchiveController::class, 'index'])->name('index');
-            Route::patch('{id}/restore', [\App\Http\Controllers\Admin\Archive\Plans\PlanArchiveController::class, 'restore'])->name('restore');
-            Route::delete('{id}/force-delete', [\App\Http\Controllers\Admin\Archive\Plans\PlanArchiveController::class, 'forceDelete'])->name('force-delete');
+    Route::get('/', [DashboardController::class, 'dashboard'])->name('dashboard');
+    Route::get('dashboard/platform-activity', [DashboardController::class, 'platformActivity'])->name('dashboard.platform-activity');
+
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::prefix('banks')->name('banks.')->group(function () {
+            Route::resource('/', SettingsBankController::class)->except('show')->parameters(['' => 'bank']);
+            Route::patch('{bank}/toggle-status', [SettingsBankController::class, 'toggleStatus'])->name('toggle-status');
         });
-        Route::prefix('coupons')->name('coupons.')->group(function (): void {
-            Route::get('/', [\App\Http\Controllers\Admin\Archive\Coupons\CouponArchiveController::class, 'index'])->name('index');
-            Route::patch('{id}/restore', [\App\Http\Controllers\Admin\Archive\Coupons\CouponArchiveController::class, 'restore'])->name('restore');
-            Route::delete('{id}/force-delete', [\App\Http\Controllers\Admin\Archive\Coupons\CouponArchiveController::class, 'forceDelete'])->name('force-delete');
+
+        Route::prefix('domains')->name('domains.')->group(function () {
+            Route::resource('/', SettingsDomainController::class)->except('show')->parameters(['' => 'domain']);
+            Route::patch('{domain}/toggle-status', [SettingsDomainController::class, 'toggleStatus'])->name('toggle-status');
         });
-        Route::prefix('tenants')->name('tenants.')->group(function (): void {
-            Route::get('/', [\App\Http\Controllers\Admin\Archive\Tenants\TenantArchiveController::class, 'index'])->name('index');
-            Route::patch('{id}/restore', [\App\Http\Controllers\Admin\Archive\Tenants\TenantArchiveController::class, 'restore'])->name('restore');
-            Route::delete('{id}/force-delete', [\App\Http\Controllers\Admin\Archive\Tenants\TenantArchiveController::class, 'forceDelete'])->name('force-delete');
+
+        // اعدادات النظاام
+        Route::get('/', [SettingsController::class, 'index'])->name('index');
+        Route::put('/', [SettingsController::class, 'update'])->name('update');
+    });
+
+    // تنبيهات الاشتراكات
+    Route::prefix('subscription-manage')->name('subscriptionManage.')->group(function () {
+        Route::middleware('can:subscriptions.pending.view')->group(function () {
+            Route::get('pending', [SubscriptionManagementController::class, 'pending'])->name('pending');
+            Route::get('expiring', [SubscriptionManagementController::class, 'expiring'])->name('expiring');
+            Route::get('expired', [SubscriptionManagementController::class, 'expired'])->name('expired');
         });
-        Route::prefix('bills')->name('bills.')->group(function (): void {
-            Route::get('/', [\App\Http\Controllers\Admin\Archive\Bills\BillArchiveController::class, 'index'])->name('index');
-            Route::patch('{id}/restore', [\App\Http\Controllers\Admin\Archive\Bills\BillArchiveController::class, 'restore'])->name('restore');
-            Route::delete('{id}/force-delete', [\App\Http\Controllers\Admin\Archive\Bills\BillArchiveController::class, 'forceDelete'])->name('force-delete');
+
+        Route::middleware('can:subscriptions.pending.approve')->group(function () {
+            Route::post('{subscription}/accept', [SubscriptionManagementController::class, 'accept'])->name('accept');
+            Route::post('mass-accept', [SubscriptionManagementController::class, 'massAccept'])->name('mass-accept');
         });
-        Route::prefix('users')->name('users.')->group(function (): void {
-            Route::get('/', [\App\Http\Controllers\Admin\Archive\Users\AdminUserArchiveController::class, 'index'])->name('index');
-            Route::patch('{id}/restore', [\App\Http\Controllers\Admin\Archive\Users\AdminUserArchiveController::class, 'restore'])->name('restore');
-            Route::delete('{id}/force-delete', [\App\Http\Controllers\Admin\Archive\Users\AdminUserArchiveController::class, 'forceDelete'])->name('force-delete');
+
+        Route::middleware('can:subscriptions.pending.reject')->group(function () {
+            Route::post('{subscription}/reject', [SubscriptionManagementController::class, 'reject'])->name('reject');
+            Route::post('mass-reject', [SubscriptionManagementController::class, 'massReject'])->name('mass-reject');
+        });
+    });
+
+    // ادارة العملاء (Clients)
+    Route::prefix('clients')->name('clients.')->group(function () {
+        Route::post('check-commercial-number-unique', [ClientController::class, 'checkCommercialNumberUnique'])->name('check-commercial-number-unique');
+        Route::post('check-company-name-unique', [ClientController::class, 'checkCompanyNameUnique'])->name('check-company-name-unique');
+        Route::post('check-tax-number-unique', [ClientController::class, 'checkTaxNumberUnique'])->name('check-tax-number-unique');
+        Route::post('check-admin-email-unique', [ClientController::class, 'checkAdminEmailUnique'])->name('check-admin-email-unique');
+        Route::post('check-admin-phone-unique', [ClientController::class, 'checkAdminPhoneUnique'])->name('check-admin-phone-unique');
+        Route::get('plans/{plan}/duration', [ClientController::class, 'planDuration'])->name('plan-duration');
+        Route::resource('/', ClientController::class)->parameters(['' => 'client']);
+    });
+
+    // Backward compatibility aliases for companies
+    Route::prefix('companies')->name('companies.')->group(function () {
+        Route::post('check-commercial-number-unique', [ClientController::class, 'checkCommercialNumberUnique'])->name('check-commercial-number-unique');
+        Route::post('check-company-name-unique', [ClientController::class, 'checkCompanyNameUnique'])->name('check-company-name-unique');
+        Route::post('check-tax-number-unique', [ClientController::class, 'checkTaxNumberUnique'])->name('check-tax-number-unique');
+        Route::post('check-admin-email-unique', [ClientController::class, 'checkAdminEmailUnique'])->name('check-admin-email-unique');
+        Route::post('check-admin-phone-unique', [ClientController::class, 'checkAdminPhoneUnique'])->name('check-admin-phone-unique');
+        Route::get('plans/{plan}/duration', [ClientController::class, 'planDuration'])->name('plan-duration');
+        Route::resource('/', ClientController::class)->parameters(['' => 'client']);
+    });
+
+
+    // ادارة الاشتراكات
+    Route::prefix('subscriptions')->name('subscriptions.')->group(function () {
+        Route::patch('{subscription}/toggle-status', [CentralSubscriptionController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('plans/{plan}/duration', [CentralSubscriptionController::class, 'planDuration'])->name('plan-duration');
+        Route::get('companies/{company}/details', [CentralSubscriptionController::class, 'companyDetails'])->name('company-details');
+        Route::resource('/', CentralSubscriptionController::class)
+            ->only(['index', 'create', 'store', 'destroy'])
+            ->parameters(['' => 'subscription']);
+    });
+    // الكوبونات
+    Route::prefix('coupons')->name('coupons.')->group(function () {
+        Route::patch('{coupon}/toggle-status', [AdminCouponController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('details/{coupon}', [AdminCouponController::class, 'getCouponDetails'])->name('details');
+        Route::resource('/', AdminCouponController::class)->except('show')->parameters(['' => 'coupon']);
+    });
+
+    // Users
+    Route::prefix('users')->name('users.')->group(function () {
+        Route::post('bulk-delete', [AdminUserController::class, 'bulkDelete'])->name('bulk-delete');
+        Route::patch('{user}/toggle-status', [AdminUserController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('profile/{id}', [AdminUserController::class, 'showProfile'])->name('profile');
+        Route::resource('/', AdminUserController::class)->except('show')->parameters(['' => 'user']);
+
+        // check if email is unique via ajax
+        Route::post('check-email-unique', [AdminUserController::class, 'checkEmailUnique'])->name('check-email-unique');
+
+        Route::post('check-name-unique', [AdminUserController::class, 'checkNameUnique'])
+            ->name('check-name-unique');
+
+        Route::post('check-phone-unique', [AdminUserController::class, 'checkPhoneUnique'])
+            ->name('check-phone-unique');
+    });
+
+    // Roles
+    Route::prefix('roles')->name('roles.')->group(function () {
+        Route::resource('/', AdminRoleController::class)->except('show')->parameters(['' => 'role']);
+        Route::get('get-user-roles/{id}', [AdminRoleController::class, 'getUserRoles'])->name('get-user-roles'); // جلب الصلاحيات
+        Route::post('update-user-roles/{id}', [AdminRoleController::class, 'updateUserRoles'])->name('update-user-role'); // تعديل الصلاحية للمستخدم
+    });
+
+    // Activity Logs
+    Route::prefix('activity-logs')->name('activity-logs.')->group(function () {
+        Route::resource('/', AdminActivityLogController::class)
+            ->only(['index', 'show'])
+            ->parameters(['' => 'id']);
+    });
+
+    // Plans Management
+    Route::prefix('plans')->name('plans.')->group(function () {
+        Route::post('update-sort-order', [PlanController::class, 'updateSortOrder'])->name('update-sort-order');
+        Route::post('reorder', [PlanController::class, 'updateSortOrder'])->name('reorder');
+        Route::patch('{plan}/toggle-active', [PlanController::class, 'toggleActive'])->name('toggle-active');
+        Route::get('details/{plan}', [PlanController::class, 'show'])->name('details');
+        Route::resource('/', PlanController::class)->parameters(['' => 'plan']);
+    });
+
+    // Auction Templates Management
+    Route::prefix('auction-templates')->name('auction-templates.')->group(function () {
+        Route::patch('{auction_template}/toggle-status', [AuctionTemplateController::class, 'toggleStatus'])->name('toggle-status');
+        Route::post('{auction_template}/versions/{version}/publish', [AuctionTemplateController::class, 'publish'])->name('versions.publish');
+        Route::get('{auction_template}/fields', [AuctionTemplateController::class, 'showFields'])->name('fields');
+        Route::resource('/', AuctionTemplateController::class)->parameters(['' => 'auction_template']);
+    });
+    Route::resource('faqs', FaqController::class)->except('show');
+
+    Route::prefix('bills')->name('bills.')->group(function () {
+        Route::get('/{bill}/print', [AdminBillsController::class, 'print'])->name('print');
+        Route::post('/{bill}/verify', [AdminBillsController::class, 'verify'])->name('verify');
+        Route::post('/{bill}/reject', [AdminBillsController::class, 'reject'])->name('reject');
+        Route::post('{bill}/reactivate', [AdminBillsController::class, 'reactivate'])->name('reactivate');
+        Route::resource('/', AdminBillsController::class)
+            ->only(['index', 'show'])
+            ->parameters(['' => 'bill']);
+    });
+
+    // Tickets Management
+    Route::prefix('tickets')->name('tickets.')->group(function () {
+        Route::post('/toggle-service', [AdminTicketController::class, 'toggleService'])->name('toggleService');
+        Route::post('/{ticket}/reply', [AdminTicketController::class, 'reply'])->name('reply');
+        Route::post('/{ticket}/status', [AdminTicketController::class, 'updateStatus'])->name('updateStatus');
+        Route::resource('/', AdminTicketController::class)
+            ->only(['index', 'show'])
+            ->parameters(['' => 'ticket']);
+    });
+
+    Route::prefix('contact-requests')->name('contact-requests.')->group(function () {
+        Route::get('/', [ContactRequestController::class, 'index'])->name('index');
+        Route::get('{contactRequest}', [ContactRequestController::class, 'show'])->name('show');
+        Route::post('{contactRequest}/reply', [ContactRequestController::class, 'reply'])->name('reply');
+    });
+
+    Route::prefix('trial-requests')->name('trial-requests.')->group(function () {
+        Route::get('/', [TrialRequestController::class, 'index'])->name('index');
+        Route::get('{trialRequest}', [TrialRequestController::class, 'show'])->name('show');
+        Route::post('{trialRequest}/approve', [TrialRequestController::class, 'approve'])->name('approve');
+        Route::post('{trialRequest}/reject', [TrialRequestController::class, 'reject'])->name('reject');
+    });
+
+    // super admin archive routes
+    Route::prefix('archives')->name('archives.')->group(function () {
+        Route::get('/', [AdminUserAdminUserController::class, 'index'])->name('index');
+        Route::patch('{user}/toggle-status', [AdminUserController::class, 'toggleStatus'])->name('toggle-status');
+        Route::patch('/restore/{id}', [AdminUserAdminUserController::class, 'restore'])->name('restore');
+        Route::delete('/force-delete/{id}', [AdminUserAdminUserController::class, 'forceDelete'])->name('force-delete');
+
+        Route::prefix('plans')->name('plans.')->group(function () {
+            Route::get('/', [PlanArchiveController::class, 'index'])->name('index');
+            Route::patch('/restore/{id}', [PlanArchiveController::class, 'restore'])->name('restore');
+            Route::delete('/force-delete/{id}', [PlanArchiveController::class, 'forceDelete'])->name('force-delete');
+        });
+
+        Route::prefix('coupons')->name('coupons.')->group(function () {
+            Route::get('/', [CouponArchiveController::class, 'index'])->name('index');
+            Route::patch('/restore/{id}', [CouponArchiveController::class, 'restore'])->name('restore');
+            Route::delete('/force-delete/{id}', [CouponArchiveController::class, 'forceDelete'])->name('force-delete');
+        });
+
+        Route::prefix('tenants')->name('tenants.')->group(function () {
+            Route::get('/', [TenantArchiveController::class, 'index'])->name('index');
+            Route::patch('/restore/{id}', [TenantArchiveController::class, 'restore'])->name('restore');
+            Route::delete('/force-delete/{id}', [TenantArchiveController::class, 'forceDelete'])->name('force-delete');
+        });
+
+        Route::prefix('bills')->name('bills.')->group(function () {
+            Route::get('/', [BillArchiveController::class, 'index'])->name('index');
+            Route::patch('/restore/{id}', [BillArchiveController::class, 'restore'])->name('restore');
+            Route::delete('/force-delete/{id}', [BillArchiveController::class, 'forceDelete'])->name('force-delete');
+            Route::get('/{bill}', [AdminBillsController::class, 'show'])->name('show');
+        });
+    });
+
+    Route::name('mass-delete')->post('/mass-delete', [AdminMassDeleteController::class, 'massDelete']);
+});
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::middleware('guest:admin')->group(function () {
+        Route::match(['post', 'put', 'patch'], 'form-validation', [WizardDraftController::class, 'validateStep'])
+            ->defaults('shared_form_validation_actions', [
+                AdminAuthController::class . '@login',
+            ])
+            ->name('form-validation');
+
+        Route::get('login', [AdminAuthController::class, 'showLoginForm'])->name('login');
+        Route::post('login', [AdminAuthController::class, 'login'])
+            ->middleware('throttle:5,1')
+            ->defaults('shared_form_validation', true);
+
+        Route::get('two-factor-challenge', [AdminTwoFactorChallengeController::class, 'create'])->name('two-factor.login');
+        Route::post('two-factor-challenge', [AdminTwoFactorChallengeController::class, 'store'])->name('two-factor.store')->middleware('throttle:5,1');
+        Route::get('two-factor-challenge/cancel', [AdminTwoFactorChallengeController::class, 'cancel'])->name('two-factor.cancel');
+    });
+
+    Route::middleware(['auth:admin'])->group(function () {
+        Route::post('logout', [AdminAuthController::class, 'logout'])->name('logout');
+
+        Route::name('two-factor.')->group(function () {
+            Route::get('two-factor-authentication', [AdminTwoFactorSettingsController::class, 'show'])->name('index');
+            Route::post('two-factor-authentication', [AdminTwoFactorSettingsController::class, 'enable'])->name('enable');
+            Route::delete('two-factor-authentication', [AdminTwoFactorSettingsController::class, 'disable'])->name('disable');
+            Route::post('confirmed-two-factor-authentication', [AdminTwoFactorSettingsController::class, 'confirm'])->name('confirm');
+            Route::get('two-factor-qr-code', [AdminTwoFactorSettingsController::class, 'qrCode'])->name('qr-code');
+            Route::post('two-factor-recovery-codes', [AdminTwoFactorSettingsController::class, 'recoveryCodes'])->name('recovery-codes');
         });
     });
 });

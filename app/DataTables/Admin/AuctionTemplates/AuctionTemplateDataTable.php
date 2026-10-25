@@ -6,7 +6,7 @@ namespace App\DataTables\Admin\AuctionTemplates;
 
 use App\DataTables\Abstract\AbstractDataTable;
 use App\Enums\Admin\AuctionTemplates\AuctionTemplateType;
-use App\Models\Admin\AuctionTemplate;
+use App\Models\Admin\AuctionTemplates\AuctionTemplate;
 
 class AuctionTemplateDataTable extends AbstractDataTable
 {
@@ -21,7 +21,7 @@ class AuctionTemplateDataTable extends AbstractDataTable
 
     protected function resource()
     {
-        return AuctionTemplate::query()->withCount('versions');
+        return AuctionTemplate::query()->with('creator');
     }
 
     protected function applyCustomFilters($query)
@@ -30,10 +30,6 @@ class AuctionTemplateDataTable extends AbstractDataTable
 
         if ($request->filled('type')) {
             $query->where('type', $request->type);
-        }
-
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
         }
 
         if ($request->filled('is_active')) {
@@ -54,41 +50,52 @@ class AuctionTemplateDataTable extends AbstractDataTable
             ['data' => 'checkbox', 'name' => 'checkbox', 'title' => '<input type="checkbox" id="select-all">', 'orderable' => false, 'searchable' => false, 'className' => 'custom-checkbox'],
             ['data' => 'name', 'name' => 'name', 'title' => 'اسم القالب', 'className' => 'text-start'],
             ['data' => 'type', 'name' => 'type', 'title' => 'النوع', 'className' => 'text-center'],
+            ['data' => 'version', 'name' => 'current_version', 'title' => 'الإصدار الحالي', 'className' => 'text-center'],
             ['data' => 'status', 'name' => 'status', 'title' => 'حالة النشر', 'className' => 'text-center'],
-            ['data' => 'versions_count', 'name' => 'versions_count', 'title' => 'الإصدارات', 'searchable' => false, 'className' => 'text-center'],
             ['data' => 'created_at', 'name' => 'created_at', 'title' => 'تاريخ الإضافة', 'className' => 'text-center'],
             ['data' => 'is_active', 'name' => 'is_active', 'title' => 'الحالة', 'className' => 'text-center'],
             ['data' => 'actions', 'name' => 'actions', 'title' => 'الإجراءات', 'orderable' => false, 'searchable' => false, 'width' => '120px'],
         ];
     }
 
-    protected function addCustomColumns($datatable): void
+    protected function addCustomColumns($datatable)
     {
         $datatable
             ->addColumn('checkbox', fn ($row) => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">')
+
             ->editColumn('name', function ($row) {
                 $showUrl = route($this->route.'.show', $row->id);
                 $desc = $row->description ? '<small class="text-muted d-block text-truncate" style="max-width: 250px;">'.e($row->description).'</small>' : '';
+
                 return '<div><a href="'.$showUrl.'" class="text-body fw-medium d-block">'.e($row->name).'</a>'.$desc.'</div>';
             })
+
             ->editColumn('type', function ($row) {
                 $type = $row->type instanceof AuctionTemplateType ? $row->type : AuctionTemplateType::tryFrom((string) $row->type);
                 $label = $type ? $type->label() : (string) $row->type;
                 $color = $type ? $type->color() : 'secondary';
+
                 return '<span class="badge bg-label-'.e($color).'">'.e($label).'</span>';
             })
-            ->editColumn('status', function ($row) {
-                $colors = ['published' => 'success', 'draft' => 'warning', 'archived' => 'secondary'];
-                $labels = ['published' => 'منشور', 'draft' => 'مسودة', 'archived' => 'مؤرشف'];
-                $status = (string) $row->status;
-                $color = $colors[$status] ?? 'info';
-                $label = $labels[$status] ?? $status;
-                return '<span class="badge bg-label-'.$color.'">'.e($label).'</span>';
+
+            ->addColumn('version', function ($row) {
+                return $row->current_version
+                    ? '<span class="badge bg-label-info font-monospace">إصدار '.e((string) $row->current_version).'</span>'
+                    : '<span class="text-muted">—</span>';
             })
-            ->editColumn('versions_count', fn ($row) => '<span class="badge bg-label-info">'.number_format((int) $row->versions_count).'</span>')
-            ->editColumn('created_at', fn ($row) => $row->created_at ? '<span class="text-muted font-monospace">'.e($row->created_at->format('Y-m-d')).'</span>' : '-')
+
+            ->addColumn('status', function ($row) {
+                $isPublished = $row->status === 'published';
+                return '<span class="badge '.($isPublished ? 'bg-label-success' : 'bg-label-warning').'">'
+                    .($isPublished ? 'منشور' : 'مسودة').'</span>';
+            })
+
+            ->editColumn('created_at', function ($row) {
+                return $row->created_at ? '<span class="text-muted font-monospace">'.e($row->created_at->format('Y-m-d')).'</span>' : '-';
+            })
+
             ->editColumn('is_active', function ($row) {
-                if (! auth('admin')->user()?->can('auction_templates.edit')) {
+                if (! auth()->user()?->can('auction_templates.edit')) {
                     return $row->is_active
                         ? '<span class="badge bg-success">مفعل</span>'
                         : '<span class="badge bg-danger">غير مفعل</span>';
@@ -104,6 +111,7 @@ class AuctionTemplateDataTable extends AbstractDataTable
                         </div>
                     </div>';
             })
+
             ->addColumn('actions', function ($row) {
                 return view($this->page.'.action', [
                     'row' => $row,
@@ -114,17 +122,29 @@ class AuctionTemplateDataTable extends AbstractDataTable
 
     protected function rawColumns(): array
     {
-        return ['checkbox', 'name', 'type', 'status', 'versions_count', 'created_at', 'is_active', 'actions'];
+        return [
+            'checkbox',
+            'name',
+            'type',
+            'version',
+            'status',
+            'created_at',
+            'is_active',
+            'actions',
+        ];
     }
 
     protected function getSearchableColumns(): array
     {
-        return ['name', 'description'];
+        return [
+            'name',
+            'description',
+        ];
     }
 
     protected function getCustomOrder(): array
     {
-        return [5, 'desc'];
+        return [4, 'desc'];
     }
 
     protected function buttons(): array
@@ -139,12 +159,10 @@ class AuctionTemplateDataTable extends AbstractDataTable
     {
         $buttons = [
             ['extend' => 'copy', 'text' => 'نسخ'],
-            ['extend' => 'excel', 'text' => 'إكسل', 'exportOptions' => [
-                'columns' => [1, 2, 3, 4, 5],
-            ]],
+            ['extend' => 'excel', 'text' => 'إكسل'],
         ];
 
-        if (auth('admin')->user()?->can('auction_templates.delete')) {
+        if (auth()->user()?->can('auction_templates.delete')) {
             $buttons[] = [
                 'text' => 'حذف المحدد',
                 'className' => 'btn btn-default btn-delete-selected',
@@ -162,7 +180,7 @@ class AuctionTemplateDataTable extends AbstractDataTable
 
     private function getAddButton(): array
     {
-        if (auth('admin')->user()?->can('auction_templates.create')) {
+        if (auth()->user()?->can('auction_templates.create')) {
             return [
                 'text' => '<i class="ti ti-plus me-1"></i> إضافة قالب جديد',
                 'className' => 'btn btn-primary btn-add',

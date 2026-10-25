@@ -7,24 +7,21 @@ namespace App\Http\Controllers\Admin\DeleteBulk;
 use App\Actions\Admin\MassDelete\DeleteAdminRecordsAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\DeleteBulk\MassDeleteRequest;
-use App\Models\Access\Role;
-use App\Models\Admin\AdminUser;
-use App\Models\Admin\AuctionTemplate;
-use App\Models\Admin\Bank;
-use App\Models\Admin\Bill;
-use App\Models\Admin\ControlDomain;
-use App\Models\Admin\Coupon;
-use App\Models\Admin\Faq;
+use App\Models\Admin\AdminMangment\Users\AdminUser;
+use App\Models\Admin\AuctionTemplates\AuctionTemplate;
+use App\Models\Admin\Bank\Bank;
+use App\Models\Admin\Bills\Bill;
+use App\Models\Admin\ControlDomain\ControlDomain;
+use App\Models\Admin\Coupons\Coupon;
 use App\Models\Admin\Plans\Plan;
-use App\Models\Admin\PublicRequests\ContactRequest;
-use App\Models\Admin\PublicRequests\TrialRequest;
-use App\Models\Admin\Subscriptions\Subscription;
+use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Tenants\Tenant;
-use App\Models\Admin\Ticket;
+use App\Models\Admin\Tickets\Ticket;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use App\Models\Admin\ActivityLog;
+use Spatie\Activitylog\Models\Activity;
+use Spatie\Permission\Models\Role;
 
 class AdminMassDeleteController extends Controller
 {
@@ -44,7 +41,7 @@ class AdminMassDeleteController extends Controller
         ],
         'Tenant' => [
             'class' => Tenant::class,
-            'permission' => 'tenants.delete',
+            'permission' => 'companies.delete',
         ],
         'Subscription' => [
             'class' => Subscription::class,
@@ -60,7 +57,7 @@ class AdminMassDeleteController extends Controller
         ],
         'AdminUser' => [
             'class' => AdminUser::class,
-            'permission' => 'admin_users.update',
+            'permission' => 'users.delete',
         ],
         'AuctionTemplate' => [
             'class' => AuctionTemplate::class,
@@ -72,30 +69,14 @@ class AdminMassDeleteController extends Controller
         ],
         'Bank' => [
             'class' => Bank::class,
-            'permission' => 'banks.update',
+            'permission' => 'bank_settings.view',
         ],
         'ControlDomain' => [
             'class' => ControlDomain::class,
-            'permission' => 'control_domains.update',
-        ],
-        'Faq' => [
-            'class' => Faq::class,
-            'permission' => 'faq.update',
-        ],
-        'ContactRequest' => [
-            'class' => ContactRequest::class,
-            'permission' => 'public_requests.delete',
-        ],
-        'TrialRequest' => [
-            'class' => TrialRequest::class,
-            'permission' => 'public_requests.delete',
+            'permission' => 'domain_extension_prices.settings',
         ],
         'Activity' => [
-            'class' => ActivityLog::class,
-            'permission' => 'activity_log.view',
-        ],
-        'ActivityLog' => [
-            'class' => ActivityLog::class,
+            'class' => Activity::class,
             'permission' => 'activity_log.view',
         ],
     ];

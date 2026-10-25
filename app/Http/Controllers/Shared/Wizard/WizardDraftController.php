@@ -5,135 +5,271 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Shared\Wizard;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Tenant\Assignments\StoreAssignmentRequest;
-use App\Http\Requests\Tenant\Assignments\UpdateAssignmentRequest;
-use App\Http\Requests\Tenant\Auctions\StoreAuctionRequest;
-use App\Http\Requests\Tenant\Auctions\UpdateAuctionRequest;
-use App\Http\Requests\Tenant\Properties\StorePropertyRequest;
-use App\Http\Requests\Tenant\Properties\UpdatePropertyRequest;
+use App\Http\Requests\Shared\Wizard\DiscardWizardDraftRequest;
+use App\Http\Requests\Shared\Wizard\RemoveWizardDraftFileRequest;
+use App\Http\Requests\Shared\Wizard\StoreWizardDraftRequest;
+use App\Http\Requests\Shared\Wizard\ValidateWizardStepRequest;
 use App\Services\Shared\Wizard\WizardDraftService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Route;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Route as RouteFacade;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-final class WizardDraftController extends Controller
+class WizardDraftController extends Controller
 {
     public function __construct(private readonly WizardDraftService $drafts) {}
 
     public function show(Request $request): JsonResponse
     {
-        $key = $request->validate(['resource_key' => ['required', 'string', 'max:255']])['resource_key'];
-        $draft = $this->drafts->find($request, $key);
+        $validated = $request->validate([
+            'resource_key' => ['required', 'string', 'max:255'],
+        ]);
+        $draft = $this->drafts->find($request, $validated['resource_key']);
+
         return response()->json([
-            'draft_id' => $draft?->id,
             'data' => $draft?->draft_data ?? [],
-            'files' => $this->filesForClient($draft?->draft_files ?? []),
+            'draft_id' => $draft?->getKey(),
+            'step' => $draft?->last_step,
+            'files' => $this->fileManifest($draft?->draft_files ?? [], $validated['resource_key']),
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreWizardDraftRequest $request): JsonResponse
     {
-        $validated = $request->validate(['resource_key' => ['required', 'string', 'max:255'], 'step' => ['nullable', 'integer', 'min:1', 'max:100']]);
-        $draft = $this->drafts->save($request, $validated['resource_key'], (int) ($validated['step'] ?? 1));
-        return response()->json(['success' => true, 'draft_id' => $draft->id]);
+        $validated = $request->validated();
+        $draft = $this->drafts->save($request, $validated['resource_key'], (int) $validated['step']);
+
+        return response()->json([
+            'success' => true,
+            'draft_id' => $draft->getKey(),
+            'message' => 'تم حفظ المسودة بنجاح.',
+        ]);
     }
 
-    public function destroy(Request $request): JsonResponse
+    public function destroy(DiscardWizardDraftRequest $request): JsonResponse
     {
-        $key = $request->validate(['resource_key' => ['required', 'string', 'max:255']])['resource_key'];
-        $this->drafts->discard($request, $key);
-        return response()->json(['success' => true]);
+        $this->drafts->discard($request, $request->validated('resource_key'));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم حذف المسودة.',
+        ]);
     }
 
-    public function destroyFile(Request $request): JsonResponse
+    public function destroyFile(RemoveWizardDraftFileRequest $request): JsonResponse
+    {
+        $removed = $this->drafts->removeFile(
+            $request,
+            $request->validated('resource_key'),
+            $request->validated('file_key'),
+        );
+
+        return response()->json([
+            'success' => $removed,
+            'message' => $removed ? 'تم حذف الملف من المسودة.' : 'الملف غير موجود في المسودة.',
+        ], $removed ? 200 : 404);
+    }
+
+    public function showFile(Request $request): Response
     {
         $validated = $request->validate([
             'resource_key' => ['required', 'string', 'max:255'],
             'file_key' => ['required', 'string', 'max:255'],
         ]);
 
-        abort_unless($this->drafts->removeFile($request, $validated['resource_key'], $validated['file_key']), 404);
+        $draft = $this->drafts->find($request, $validated['resource_key']);
+        abort_unless($draft, 404);
 
-        return response()->json(['success' => true]);
+        $file = Arr::get($draft->draft_files ?? [], $validated['file_key']);
+        abort_unless(is_array($file) && ! empty($file['path']) && Storage::disk('local')->exists($file['path']), 404);
+
+        return Storage::disk('local')->response(
+            $file['path'],
+            $file['name'] ?? basename($file['path']),
+            ['Content-Type' => $file['mime'] ?? 'application/octet-stream']
+        );
     }
 
-    public function validateStep(Request $request): JsonResponse
+    public function validateStep(ValidateWizardStepRequest $request): JsonResponse
     {
-        $request->validate([
-            'target_path' => ['required', 'string', 'max:2048'],
-            'target_method' => ['required', 'in:POST,PUT,PATCH'],
-            'fields' => ['required', 'array', 'min:1'],
-            'fields.*' => ['string', 'max:255'],
-        ]);
+        $targetMethod = $request->validated('target_method');
+        if (! $targetMethod) {
+            $targetMethod = $request->input('_method') ?: ($request->isMethod('POST') ? 'POST' : $request->method());
+        }
+        $targetMethod = strtoupper((string) $targetMethod);
+        if (! in_array($targetMethod, ['POST', 'PUT', 'PATCH'], true)) {
+            $targetMethod = 'POST';
+        }
 
-        $formRequest = $this->formRequestFor($request);
-        abort_unless($formRequest->authorize(), 403);
-        (function (): void { $this->prepareForValidation(); })->call($formRequest);
+        $targetRoute = $this->resolveFormRoute(
+            $request->validated('target_path'),
+            $targetMethod,
+            $request,
+            $request->route()?->defaults['shared_form_validation_actions'] ?? [],
+        );
+        $formRequest = $this->makeResourceRequest($request, $targetRoute, $targetMethod);
 
-        $requestedRoots = collect($request->input('fields'))
-            ->map(static fn (string $field): string => explode('.', str_replace('[', '.', $field))[0])
-            ->unique();
-        $rules = collect($formRequest->rules())
-            ->filter(static fn (mixed $_, string $field): bool => $requestedRoots->contains(explode('.', $field)[0]))
-            ->all();
+        $authorized = (function (): bool {
+            return $this->passesAuthorization();
+        })->call($formRequest);
+        abort_unless($authorized, 403);
+        $this->prepareForValidation($formRequest);
+
+        $rules = $this->rulesForFields($formRequest->rules(), $request->validated('fields'));
         $validator = Validator::make(
-            $formRequest->validationData(),
+            $this->validationData($formRequest),
             $rules,
             method_exists($formRequest, 'messages') ? $formRequest->messages() : [],
             method_exists($formRequest, 'attributes') ? $formRequest->attributes() : [],
         );
 
         if ($validator->fails()) {
-            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+            ], 422);
         }
 
         return response()->json(['success' => true]);
     }
 
-    private function formRequestFor(Request $request): FormRequest
+    /**
+     * @param  list<string>  $allowedActions
+     */
+    private function resolveFormRoute(string $targetPath, string $targetMethod, Request $sourceRequest, array $allowedActions = []): Route
     {
-        $path = parse_url((string) $request->input('target_path'), PHP_URL_PATH);
+        $path = parse_url($targetPath, PHP_URL_PATH);
+
         if (! is_string($path) || ! str_starts_with($path, '/')) {
             throw new NotFoundHttpException;
         }
 
-        $route = app('router')->getRoutes()->match(Request::create($path, (string) $request->input('target_method')));
-        $requestClass = match ($route->getName()) {
-            'tenant.assignments.store' => StoreAssignmentRequest::class,
-            'tenant.assignments.update' => UpdateAssignmentRequest::class,
-            'tenant.auctions.store' => StoreAuctionRequest::class,
-            'tenant.auctions.update' => UpdateAuctionRequest::class,
-            'tenant.properties.store' => StorePropertyRequest::class,
-            'tenant.properties.update' => UpdatePropertyRequest::class,
-            default => throw new NotFoundHttpException,
-        };
+        try {
+            $routeRequest = Request::create($path, $targetMethod, [], [], [], [
+                'HTTP_HOST' => $sourceRequest->getHost(),
+                'HTTPS' => $sourceRequest->isSecure() ? 'on' : 'off',
+            ]);
+            $route = app('router')->getRoutes()->match($routeRequest);
+            $route->bind($routeRequest);
+            app('router')->substituteBindings($route);
+        } catch (\Throwable) {
+            throw new NotFoundHttpException;
+        }
 
-        /** @var FormRequest $formRequest */
-        $formRequest = $requestClass::createFrom($request);
-        $formRequest->setContainer(app());
-        $formRequest->setRedirector(app('redirect'));
-        $formRequest->setRouteResolver(static fn () => $route);
-        $formRequest->setUserResolver(static fn () => $request->user('tenant'));
+        $action = $route->getActionMethod();
+        $allowsSharedValidation = (bool) ($route->defaults['shared_form_validation'] ?? false);
+        abort_unless(in_array($action, ['store', 'update'], true) || $allowsSharedValidation, 404);
 
-        return $formRequest;
+        $normalizedRouteAction = ltrim($route->getActionName(), '\\');
+        $normalizedAllowedActions = array_map(
+            static fn (string $allowedAction): string => ltrim($allowedAction, '\\'),
+            $allowedActions,
+        );
+
+        abort_if($normalizedAllowedActions !== [] && ! in_array($normalizedRouteAction, $normalizedAllowedActions, true), 404);
+
+        return $route;
     }
 
-    /** @return array<string, mixed> */
-    private function filesForClient(array $files, string $prefix = ''): array
+    private function makeResourceRequest(Request $request, Route $route, string $targetMethod = 'POST'): FormRequest
     {
-        $result = [];
+        [$controller, $method] = explode('@', ltrim($route->getActionName(), '\\'));
+        $reflection = new \ReflectionMethod($controller, $method);
+
+        foreach ($reflection->getParameters() as $parameter) {
+            $type = $parameter->getType();
+            $class = $type instanceof \ReflectionNamedType ? $type->getName() : null;
+
+            if ($class && is_a($class, FormRequest::class, true)) {
+                /** @var FormRequest $formRequest */
+                // Preserve the authenticated user, session, files and input from the
+                // validation request. createFromBase() drops Laravel's user resolver,
+                // causing resource FormRequest::authorize() to fail for valid users.
+                $formRequest = $class::createFrom($request);
+                $formRequest->setContainer(app());
+                $formRequest->setRedirector(app('redirect'));
+                $formRequest->setRouteResolver(fn (): Route => $route);
+                $formRequest->setMethod($targetMethod);
+                $formRequest->server->set('REQUEST_METHOD', $targetMethod);
+
+                return $formRequest;
+            }
+        }
+
+        abort(422, 'This wizard does not have a dedicated store request.');
+    }
+
+    private function prepareForValidation(FormRequest $request): void
+    {
+        (function (): void {
+            $this->prepareForValidation();
+        })->call($request);
+    }
+
+    private function validationData(FormRequest $request): array
+    {
+        return (function (): array {
+            return $this->validationData();
+        })->call($request);
+    }
+
+    private function rulesForFields(array $rules, array $fields): array
+    {
+        $roots = array_unique(array_map(
+            static fn (string $field): string => preg_split('/[.\[]/', $field)[0],
+            $fields,
+        ));
+
+        return array_filter(
+            $rules,
+            static fn (string $ruleKey): bool => in_array(strtok($ruleKey, '.'), $roots, true),
+            ARRAY_FILTER_USE_KEY,
+        );
+    }
+
+    private function fileManifest(array $files, string $resourceKey = '', string $prefix = ''): array
+    {
+        $names = [];
+
         foreach ($files as $key => $file) {
-            $fileKey = $prefix === '' ? (string) $key : $prefix.'.'.$key;
-            if (is_array($file) && array_key_exists('path', $file)) {
-                $result[$key] = $file + ['key' => $fileKey];
+            $fullKey = $prefix === '' ? (string) $key : $prefix.'.'.$key;
+
+            if (is_array($file) && ! array_key_exists('name', $file)) {
+                $names[$key] = $this->fileManifest($file, $resourceKey, $fullKey);
+
                 continue;
             }
 
-            $result[$key] = is_array($file) ? $this->filesForClient($file, $fileKey) : $file;
+            if (is_array($file) && isset($file['name'])) {
+                $item = [
+                    'key' => $fullKey,
+                    'name' => $file['name'],
+                    'mime' => $file['mime'] ?? null,
+                    'size' => $file['size'] ?? null,
+                ];
+
+                if ($resourceKey !== '') {
+                    $guard = auth('admin')->check() ? 'admin' : 'tenant';
+                    $routeName = $guard === 'admin' ? 'admin.wizard-drafts.file.show' : 'tenant.wizard-drafts.file.show';
+
+                    if (RouteFacade::has($routeName)) {
+                        $item['url'] = route($routeName, [
+                            'resource_key' => $resourceKey,
+                            'file_key' => $fullKey,
+                        ]);
+                    }
+                }
+
+                $names[$key] = $item;
+            }
         }
 
-        return $result;
+        return $names;
     }
 }

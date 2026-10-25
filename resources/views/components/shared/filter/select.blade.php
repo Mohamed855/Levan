@@ -19,8 +19,8 @@
 ])
 
 @php
-    if ($enum && class_exists($enum)) {
-        $options = method_exists($enum, 'options') ? $enum::options() : [];
+    if ($enum) {
+        $options = \App\Support\SelectOptions::fromEnum($enum);
     }
 
     $customClass = $attributes->get('class', '');
@@ -66,7 +66,11 @@
         @endif
         @foreach ($options as $key => $option)
             @php
-                if (is_array($option)) {
+                if ($enum) {
+                    $optionValue = $key;
+                    $optionLabel = $option;
+                    $optionDisabled = false;
+                } elseif (is_array($option)) {
                     $optionValue = $option['value'] ?? $option['id'] ?? $key;
                     $optionLabel = $option['label'] ?? $option['name'] ?? $option['title'] ?? (string) $optionValue;
                     $optionDisabled = !empty($option['disabled']);

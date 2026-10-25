@@ -1,359 +1,367 @@
-@extends('layouts.dashboard')
-@section('title', 'تفاصيل الفاتورة — ' . $bill->bill_number)
-@section('dashboard-scope', 'admin')
+@extends('admin.layouts.layoutMaster')
+
+@section('title', ' الفاتورة')
+
+@section('page-style')
+    @vite(['resources/assets/css/components/icons.css', 'resources/assets/vendor/scss/pages/app-invoice.scss'])
+@endsection
+
+@section('toastr')
+    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
+@endsection
 
 @section('content')
+    <div class="row g-2 invoice-preview">
 
-@php
-    $statusColors = [];
-    $statusLabels = [];
-    foreach (\App\Enums\Admin\Bills\BillStatus::cases() as $status) {
-        $statusColors[$status->value] = $status->color();
-        $statusLabels[$status->value] = $status->label();
-    }
-    $paymentLabels = [];
-    foreach (\App\Enums\Admin\Bills\PaymentMethod::cases() as $method) {
-        $paymentLabels[$method->value] = $method->label();
-    }
-@endphp
+        {{-- ── المحتوى الرئيسي ── --}}
+        <div class="col-xl-9 col-md-8">
+            <div class="card border-0 shadow-sm">
 
-<div class="row g-4">
-    {{-- Left Column: Summary & Actions --}}
-    <div class="col-xl-4 col-lg-5 col-md-5 mb-4">
-        {{-- Profile Card --}}
-        <div class="card mb-4">
-            <div class="card-body text-center pt-5 pb-4">
-                <div class="avatar avatar-xl mb-3">
-                    <span class="avatar-initial rounded-circle bg-label-primary" style="font-size:1.5rem;">
-                        <i class="ti ti-receipt"></i>
-                    </span>
-                </div>
-                <h5 class="mb-1 font-monospace">{{ $bill->bill_number }}</h5>
-                <p class="text-muted mb-3">{{ $bill->tenant?->company_name ?? 'بدون عميل محدد' }}</p>
-
-                <span class="badge bg-label-{{ $bill->status->color() }} fs-6 px-3 py-2">
-                    {{ $bill->status->label() }}
-                </span>
-            </div>
-            <div class="card-body border-top">
-                <ul class="list-unstyled mb-0">
-                    <li class="d-flex justify-content-between py-2 border-bottom">
-                        <span class="text-muted">نوع الفاتورة</span>
-                        <span class="fw-semibold">{{ $bill->type->label() }}</span>
-                    </li>
-                    <li class="d-flex justify-content-between py-2 border-bottom">
-                        <span class="text-muted">المبلغ الإجمالي</span>
-                        <span class="fw-semibold text-primary">{{ number_format((float) $bill->amount, 2) }} ر.س</span>
-                    </li>
-                    <li class="d-flex justify-content-between py-2 border-bottom">
-                        <span class="text-muted">المبلغ المحصل</span>
-                        <span class="fw-semibold {{ $bill->settled_amount ? 'text-success' : 'text-muted' }}">
-                            {{ $bill->settled_amount ? number_format((float) $bill->settled_amount, 2) . ' ر.س' : '—' }}
-                        </span>
-                    </li>
-                    <li class="d-flex justify-content-between py-2 border-bottom">
-                        <span class="text-muted">طريقة الدفع</span>
-                        <span class="fw-semibold">{{ $bill->payment_method?->label() ?? '—' }}</span>
-                    </li>
-                    <li class="d-flex justify-content-between py-2 border-bottom">
-                        <span class="text-muted">تاريخ الإصدار</span>
-                        <span class="fw-semibold">{{ $bill->created_at?->format('Y-m-d H:i') ?? '—' }}</span>
-                    </li>
-                    <li class="d-flex justify-content-between py-2 border-bottom">
-                        <span class="text-muted">تاريخ الاستحقاق</span>
-                        <span class="fw-semibold">{{ $bill->due_at?->format('Y-m-d') ?? '—' }}</span>
-                    </li>
-                    <li class="d-flex justify-content-between py-2">
-                        <span class="text-muted">تاريخ السداد</span>
-                        <span class="fw-semibold {{ $bill->paid_at ? 'text-success' : 'text-muted' }}">
-                            {{ $bill->paid_at?->format('Y-m-d H:i') ?? '—' }}
-                        </span>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        @if($hasBankTransferReceipt)
-            <a href="{{ route('admin.bills.bank-transfer.receipt', $bill) }}" class="btn btn-label-primary w-100 mb-3">
-                <i class="ti ti-paperclip me-1"></i> عرض إشعار التحويل الخاص
-            </a>
-        @endif
-
-        <a href="{{ route('admin.bills.print', $bill) }}" target="_blank" rel="noopener" class="btn btn-label-secondary w-100 mb-3">
-            <i class="ti ti-printer me-1"></i> طباعة الفاتورة
-        </a>
-
-        {{-- Update Status Card --}}
-        @can('bills.update')
-            @if(count($allowedTransitions) > 0)
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h6 class="mb-0"><i class="ti ti-exchange me-1"></i> تغيير حالة الفاتورة</h6>
-                    </div>
-                    <div class="card-body">
-                        <form method="POST" action="{{ route('admin.bills.status', $bill) }}">
-                            @csrf
-                            @method('PATCH')
-
-                            <div class="mb-3">
-                                <label for="status" class="form-label">الحالة الجديدة <span class="text-danger">*</span></label>
-                                <select name="status" id="status" class="form-select @error('status') is-invalid @enderror" required>
-                                    <option value="">— اختر الحالة —</option>
-                                    @foreach($allowedTransitions as $s)
-                                        <option value="{{ $s }}" @selected(old('status') === $s)>{{ $statusLabels[$s] ?? $s }}</option>
-                                    @endforeach
-                                </select>
-                                @error('status')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                {{-- هيدر الفاتورة --}}
+                <div class="card-body border-bottom bg-secondary-subtle rounded-top p-4">
+                    <div class="d-flex justify-content-between flex-wrap gap-3">
+                        <div class="d-flex gap-2 align-items-center">
+                            <div>
+                                <div class="fw-bold fs-5">{{ $settings->office_name }}</div>
+                                <div class="text-muted small">{{ $settings->office_address }}</div>
                             </div>
-
-                            <div class="mb-3">
-                                <label for="settled_amount" class="form-label">المبلغ المحصل (ر.س)</label>
-                                <input type="number" step="0.01" min="0" name="settled_amount" id="settled_amount"
-                                       class="form-control @error('settled_amount') is-invalid @enderror"
-                                       value="{{ old('settled_amount', $bill->settled_amount ?? $bill->amount) }}"
-                                       placeholder="المبلغ الفعلي المستلم">
-                                @error('settled_amount')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="payment_method" class="form-label">طريقة الدفع</label>
-                                <select name="payment_method" id="payment_method" class="form-select @error('payment_method') is-invalid @enderror">
-                                    <option value="">— احتفظ بالطريقة الحالية —</option>
-                                    @foreach($paymentLabels as $val => $label)
-                                        <option value="{{ $val }}" @selected(old('payment_method', $bill->payment_method?->value) === $val)>{{ $label }}</option>
-                                    @endforeach
-                                </select>
-                                @error('payment_method')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="notes" class="form-label">ملاحظات العملية</label>
-                                <textarea name="notes" id="notes" rows="3"
-                                          class="form-control @error('notes') is-invalid @enderror"
-                                          placeholder="سبب التغيير أو مرجع الحوالة">{{ old('notes') }}</textarea>
-                                @error('notes')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i class="ti ti-check me-1"></i> حفظ وتحديث الحالة
-                            </button>
-                        </form>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold fs-6">فاتورة #{{ $bill->bill_number }}</div>
+                            <div class="text-muted small">تاريخ الإصدار: {{ $bill->created_at->format('Y/m/d') }}</div>
+                            <span class="badge bg-label-{{ $bill->status->color() }} mt-1">
+                                {{ $bill->status->label() }}
+                            </span>
+                        </div>
                     </div>
                 </div>
-            @endif
-        @endcan
 
-        @can('bills.update')
-            @if($bill->status === \App\Enums\Admin\Bills\BillStatus::PENDING_VERIFICATION)
-                <div class="card mb-4">
-                    <div class="card-header"><h6 class="mb-0"><i class="ti ti-building-bank me-1"></i>مراجعة التحويل البنكي</h6></div>
-                    <div class="card-body">
-                        <form method="POST" action="{{ route('admin.bills.bank-transfer.approve', $bill) }}" class="mb-3">
-                            @csrf
-                            <button type="submit" class="btn btn-success w-100"><i class="ti ti-check me-1"></i>اعتماد التحويل وتفعيل الاشتراك</button>
-                        </form>
-                        <form method="POST" action="{{ route('admin.bills.bank-transfer.reject', $bill) }}">
-                            @csrf
-                            <label for="bank-transfer-reason" class="form-label">سبب الرفض</label>
-                            <textarea name="reason" id="bank-transfer-reason" rows="3" required class="form-control mb-2">{{ old('reason') }}</textarea>
-                            <button type="submit" class="btn btn-outline-danger w-100"><i class="ti ti-x me-1"></i>رفض التحويل</button>
-                        </form>
-                    </div>
-                </div>
-            @endif
-        @endcan
-
-        <a href="{{ route('admin.bills.index') }}" class="btn btn-label-secondary w-100">
-            <i class="ti ti-arrow-right me-1"></i> العودة لقائمة الفواتير
-        </a>
-    </div>
-
-    {{-- Right Column: Detailed Breakdown & Tenant Info & Audit Trail --}}
-    <div class="col-xl-8 col-lg-7 col-md-7">
-        {{-- Tenant Summary Card --}}
-        <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">بيانات العميل</h5>
-                @if($bill->tenant)
-                    <a href="{{ route('admin.tenants.show', $bill->tenant) }}" class="btn btn-sm btn-label-primary">
-                        <i class="ti ti-external-link me-1"></i> ملف العميل
-                    </a>
-                @endif
-            </div>
-            <div class="card-body">
-                @if($bill->tenant)
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <span class="text-muted d-block small">اسم الشركة</span>
-                            <span class="fw-semibold fs-6">{{ $bill->tenant->company_name }}</span>
-                        </div>
-                        <div class="col-md-6">
-                            <span class="text-muted d-block small">السجل التجاري</span>
-                            <span class="fw-semibold">{{ $bill->tenant->commercial_number ?? '—' }}</span>
-                        </div>
-                        <div class="col-md-6">
-                            <span class="text-muted d-block small">الرقم الضريبي</span>
-                            <span class="fw-semibold">{{ $bill->tenant->tax_number ?? '—' }}</span>
-                        </div>
-                        <div class="col-md-6">
-                            <span class="text-muted d-block small">البريد الإلكتروني الرئيسي</span>
-                            <span class="fw-semibold">{{ $bill->tenant->primary_contact_email ?? '—' }}</span>
-                        </div>
-                        <div class="col-md-6">
-                            <span class="text-muted d-block small">رقم جوال المسؤول</span>
-                            <span class="fw-semibold">{{ $bill->tenant->primary_contact_phone ?? '—' }}</span>
-                        </div>
-                        <div class="col-md-6">
-                            <span class="text-muted d-block small">العنوان</span>
-                            <span class="fw-semibold">{{ $bill->tenant->address ?? '—' }}</span>
-                        </div>
-                    </div>
-                @else
-                    <div class="text-center py-3 text-muted">
-                        <i class="ti ti-user-x fs-1 d-block mb-1"></i>
-                        لا توجد بيانات عميل مرتبطة بهذه الفاتورة مباشرة.
-                    </div>
-                @endif
-            </div>
-        </div>
-
-        {{-- Financial Breakdown Card --}}
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">تفاصيل المبالغ والبيانات الإضافية</h5>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>البند</th>
-                            <th>التفاصيل</th>
-                            <th class="text-end">القيمة</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <span class="fw-semibold">رسوم {{ $bill->type->label() }}</span>
-                            </td>
-                            <td>
-                                <span class="text-muted">فاتورة رقم {{ $bill->bill_number }}</span>
-                            </td>
-                            <td class="text-end fw-semibold">
-                                {{ number_format((float) $bill->amount, 2) }} ر.س
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tfoot class="table-light">
-                        <tr>
-                            <td colspan="2" class="fw-bold">الإجمالي النهائي</td>
-                            <td class="text-end fw-bold text-primary fs-6">
-                                {{ number_format((float) $bill->amount, 2) }} ر.س
-                            </td>
-                        </tr>
-                        @if($bill->settled_amount !== null)
-                            <tr>
-                                <td colspan="2" class="fw-bold text-success">المبلغ المسدد فعلياً</td>
-                                <td class="text-end fw-bold text-success fs-6">
-                                    {{ number_format((float) $bill->settled_amount, 2) }} ر.س
-                                </td>
-                            </tr>
-                        @endif
-                    </tfoot>
-                </table>
-            </div>
-            @if(!empty($bill->metadata) && is_array($bill->metadata))
-                <div class="card-body border-top">
-                    <h6 class="fw-semibold mb-2">بيانات إضافية (Metadata)</h6>
-                    @php($displayMetadata = \Illuminate\Support\Arr::except($bill->metadata, ['provisioning', 'billing_password_hash', 'otp_hash']))
-                    <pre class="bg-light p-3 rounded mb-0 text-start" dir="ltr" style="font-size: 0.85rem;">{{ json_encode($displayMetadata, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
-                </div>
-            @endif
-        </div>
-
-        {{-- Status Change History / Audit Trail Card --}}
-        <div class="card mb-4">
-            <div class="card-header"><h5 class="card-title mb-0"><i class="ti ti-credit-card me-1"></i>سجل محاولات الدفع والتوفيق</h5></div>
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light"><tr><th>المزود</th><th>المرجع الخارجي</th><th>الطريقة</th><th>المبلغ</th><th>الحالة</th><th>الدفع</th><th>سبب الفشل</th></tr></thead>
-                    <tbody>
-                        @forelse ($bill->paymentAttempts as $attempt)
-                            <tr>
-                                <td>{{ $attempt->provider }}</td>
-                                <td class="font-monospace">{{ $attempt->provider_payment_id ?? '—' }}</td>
-                                <td>{{ $attempt->payment_method }}</td>
-                                <td>{{ number_format((float) $attempt->amount, 2) }} {{ $attempt->currency }}</td>
-                                <td>{{ $attempt->status }}</td>
-                                <td>{{ $attempt->paid_at?->format('Y-m-d H:i') ?? '—' }}</td>
-                                <td>{{ $attempt->failure_reason ?? '—' }}</td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="7" class="text-center py-3 text-muted">لا توجد محاولة دفع مرتبطة بهذه الفاتورة.</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        {{-- Status Change History / Audit Trail Card --}}
-        @php
-            $history = $bill->metadata['history'] ?? [];
-        @endphp
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0"><i class="ti ti-history me-1"></i> سجل تغييرات الحالة</h5>
-            </div>
-            <div class="card-body p-0">
+                {{-- جدول البنود --}}
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
+                    <table class="table table-bordered align-middle mb-0">
+                        <thead style="background: #faf9fa;">
                             <tr>
-                                <th>من</th>
-                                <th>إلى</th>
-                                <th>بواسطة</th>
-                                <th>الملاحظات</th>
-                                <th>التاريخ</th>
+                                <th>البند</th>
+                                <th class="text-end" style="width:220px">المجموع (شامل الضريبة)</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($history as $item)
-                                <tr>
-                                    <td>
-                                        <span class="badge bg-label-secondary">
-                                            {{ $statusLabels[$item['from_status']] ?? $item['from_status'] }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-label-{{ $statusColors[$item['to_status']] ?? 'primary' }}">
-                                            {{ $statusLabels[$item['to_status']] ?? $item['to_status'] }}
-                                        </span>
-                                    </td>
-                                    <td>{{ $item['admin_name'] ?? ('مشرف #' . ($item['admin_id'] ?? '—')) }}</td>
-                                    <td>{{ $item['notes'] ?? '—' }}</td>
-                                    <td class="text-muted small">
-                                        {{ !empty($item['changed_at']) ? \Carbon\Carbon::parse($item['changed_at'])->format('Y-m-d H:i') : '—' }}
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="text-center py-3 text-muted">لا يوجد سجل تغييرات سابقة لهذه الفاتورة.</td>
-                                </tr>
-                            @endforelse
+                            <tr>
+                                <td>
+                                    {{ $bill->type->label() }}
+                                    {{-- تفاصيل إضافية لشراء التراخيص --}}
+                                    @if (!empty($bill->metadata['new_licenses_count']))
+                                        <br>
+                                        <small class="text-muted">
+                                            {{ $bill->metadata['new_licenses_count'] }} ترخيص
+                                            × {{ number_format($bill->metadata['license_unit_price'] ?? 0, 2) }} ر.س
+                                        </small>
+                                    @endif
+                                </td>
+                                <td class="text-end fw-semibold">
+                                    {{ number_format($bill->amount, 2) }}
+                                    <span class="icon-saudi_riyal ms-1"></span>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
+
+                {{-- ملخص المبالغ --}}
+                <div class="card-body border-top">
+                    @if ($bill->coupon_code)
+                        <div class="alert alert-success d-flex justify-content-between align-items-center py-2 mb-3">
+                            <span class="fw-semibold">
+                                <i class="ti ti-discount-2 me-1"></i> كوبون الخصم مطبّق
+                            </span>
+                            <span class="badge bg-success">{{ $bill->coupon_code }}</span>
+                        </div>
+                    @endif
+
+                    <div class="border rounded p-3 bg-secondary-subtle">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">المجموع قبل الضريبة</span>
+                            <span class="fw-medium">
+                                {{ number_format($priceWithoutTax, 2) }}
+                                <span class="icon-saudi_riyal ms-1"></span>
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between border-top pt-2 mb-2">
+                            <span class="text-muted">ضريبة القيمة المضافة ({{ (int) ($vatRate * 100) }}%)</span>
+                            <span class="fw-medium">
+                                {{ number_format($vatAmount, 2) }}
+                                <span class="icon-saudi_riyal ms-1"></span>
+                            </span>
+                        </div>
+                        @if ($discount > 0)
+                            <div class="d-flex justify-content-between border-top pt-2 mb-2">
+                                <span class="text-muted">الخصم</span>
+                                <span class="fw-medium text-success">
+                                    - {{ number_format($discount, 2) }}
+                                    <span class="icon-saudi_riyal ms-1"></span>
+                                </span>
+                            </div>
+                        @endif
+                        @if ($bill->settlement_amount && $bill->settlement_amount != 0)
+                            <div class="d-flex justify-content-between border-top pt-2 mb-2">
+                                <span class="text-muted">التسوية</span>
+                                <span class="fw-medium text-warning">
+                                    {{ number_format($bill->settlement_amount, 2) }}
+                                    <span class="icon-saudi_riyal ms-1"></span>
+                                </span>
+                            </div>
+                        @endif
+                        <div class="d-flex justify-content-between border-top pt-2">
+                            <span class="fw-bold text-primary fs-6">الإجمالي</span>
+                            <span class="fw-bold text-primary fs-6">
+                                {{ number_format($bill->amount, 2) }}
+                                <span class="icon-saudi_riyal ms-1"></span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 text-end">
+                        <a href="{{ route('admin.bills.print', $bill->id) }}" class="btn btn-primary btn-sm">
+                            <i class="ti ti-printer me-1"></i> طباعة الفاتورة
+                        </a>
+                    </div>
+                </div>
+
+                {{-- سبب الرفض --}}
+                @if ($bill->reject_reason)
+                    <div class="card-body border-top">
+                        <div class="alert alert-danger mb-0">
+                            <div class="d-flex align-items-start">
+                                <i class="ti ti-alert-circle me-2 mt-1 fs-5"></i>
+                                <div>
+                                    <h6 class="alert-heading mb-1">اخر سبب الرفض</h6>
+                                    <p class="mb-0 small">{{ $bill->reject_reason }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- فوتر --}}
+                <div class="card-body border-top bg-secondary-subtle rounded-bottom text-center">
+                    <p class="text-muted mb-0 small">
+                        شكرًا لاستخدامكم <strong>{{ $settings->office_name }}</strong>. نتطلع لخدمتكم دائمًا.
+                    </p>
+                </div>
+
             </div>
         </div>
-    </div>
-</div>
 
+        {{-- ── الشريط الجانبي ── --}}
+        <div class="col-xl-3 col-md-4">
+
+            {{-- ── بطاقة معلومات الفاتورة ── --}}
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header py-3">
+                    <h6 class="card-title mb-0">
+                        <i class="ti ti-file-description text-primary me-2"></i>
+                        معلومات الفاتورة
+                    </h6>
+                </div>
+                <div class="card-body pt-0 pb-2">
+                    <div class="list-group list-group-flush">
+
+                        {{-- رقم الفاتورة --}}
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                            <span class="text-muted small"><i class="ti ti-file-invoice me-1"></i>رقم الفاتورة</span>
+                            <span class="badge bg-label-primary fw-bold">{{ $bill->bill_number }}</span>
+                        </div>
+
+                        {{-- تاريخ الإصدار --}}
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                            <span class="text-muted small"><i class="ti ti-calendar me-1"></i>تاريخ الإصدار</span>
+                            <span class="fw-medium small">{{ $bill->created_at->format('Y/m/d') }}</span>
+                        </div>
+
+                        {{-- نوع الفاتورة --}}
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                            <span class="text-muted small"><i class="ti ti-category me-1"></i>النوع</span>
+                            <span class="badge bg-label-info">{{ $bill->type->label() }}</span>
+                        </div>
+
+                        {{-- حالة الفاتورة --}}
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                            <span class="text-muted small"><i class="ti ti-status-change me-1"></i>الحالة</span>
+                            <span class="badge bg-label-{{ $bill->status->color() }}">{{ $bill->status->label() }}</span>
+                        </div>
+
+                        {{-- طريقة الدفع --}}
+                        @if ($bill->payment_method)
+                            <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                <span class="text-muted small"><i class="ti ti-credit-card me-1"></i>طريقة الدفع</span>
+                                <span class="badge bg-label-dark">{{ $bill->payment_method->label() }}</span>
+                            </div>
+                        @endif
+
+
+                        {{-- تم التحقق بواسطة --}}
+                        @if ($bill->verified_by)
+                            <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                <span class="text-muted small"><i class="ti ti-user-check me-1"></i>تحقق بواسطة</span>
+                                <span class="fw-medium small">{{ $bill->verifiedBy?->name ?? 'غير محدد' }}</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                <span class="text-muted small"><i class="ti ti-calendar-check me-1"></i>تاريخ
+                                    التحقق</span>
+                                <span class="fw-medium small">{{ $bill->verified_at }}</span>
+                            </div>
+                        @endif
+
+                        {{-- عدد التراخيص --}}
+                        @isset($bill->metadata['new_licenses_count'])
+                            <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                <span class="text-muted small"><i class="ti ti-users me-1"></i>عدد التراخيص</span>
+                                <span class="badge bg-label-info">{{ $bill->metadata['new_licenses_count'] }} ترخيص</span>
+                            </div>
+                        @endisset
+
+                        {{-- سعر الترخيص --}}
+                        @isset($bill->metadata['license_unit_price'])
+                            <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                <span class="text-muted small"><i class="ti ti-license me-1"></i>سعر الترخيص</span>
+                                <span class="badge bg-label-info">
+                                    {{ number_format($bill->metadata['license_unit_price'], 2) }}
+                                    <span class="icon-saudi_riyal ms-1"></span>
+                                </span>
+                            </div>
+                        @endisset
+
+                        {{-- الإيصال --}}
+                        @if ($bill->invoice_url)
+                            <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                <span class="text-muted small"><i class="ti ti-paperclip me-1"></i>إيصال التحويل</span>
+                                <a href="{{ asset('storage/' . $bill->invoice_url) }}" target="_blank"
+                                    class="btn btn-sm btn-outline-primary">عرض</a>
+                            </div>
+                        @endif
+
+                        {{-- البنك --}}
+                        @if ($bill->bank && $bill->status->value === 'pending_verification')
+                            <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                <span class="text-muted small"><i class="ti ti-building-bank me-1"></i>البنك</span>
+                                <span class="badge bg-secondary">{{ $bill->bank->bank_name }}</span>
+                            </div>
+                        @endif
+
+                    </div>
+                </div>
+            </div>
+
+            {{-- ── أزرار التحقق (pending_verification فقط) ── --}}
+            @if ($bill->status->value === 'pending_verification')
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body">
+                        <p class="text-muted small mb-3">
+                            <i class="ti ti-info-circle me-1"></i>
+                            يرجى مراجعة الإيصال قبل التأكيد أو الرفض.
+                        </p>
+                        <div class="d-flex gap-2">
+                            <form action="{{ route('admin.bills.verify', $bill->id) }}" method="POST"
+                                class="m-0 flex-fill">
+                                @csrf
+                                <button type="submit" class="btn btn-success btn-sm w-100">
+                                    <i class="ti ti-check me-1"></i> تأكيد
+                                </button>
+                            </form>
+                            <button type="button" class="btn btn-danger btn-sm flex-fill" data-bs-toggle="modal"
+                                data-bs-target="#rejectModal">
+                                <i class="ti ti-x me-1"></i> رفض
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Modal الرفض --}}
+                <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="rejectModalLabel">
+                                    <i class="ti ti-ban text-danger me-2"></i>تأكيد الرفض
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="إغلاق"></button>
+                            </div>
+                            <form action="{{ route('admin.bills.reject', $bill->id) }}" method="POST">
+                                @csrf
+                                <div class="modal-body">
+                                    <label for="reject_reason" class="form-label">سبب الرفض <span
+                                            class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="reject_reason" name="reject_reason" rows="3"
+                                        placeholder="يرجى كتابة سبب رفض الفاتورة..." required></textarea>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-label-secondary"
+                                        data-bs-dismiss="modal">إلغاء</button>
+                                    <button type="submit" class="btn btn-danger">تأكيد الرفض</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            {{-- ── بيانات العميل ── --}}
+            <div class="card border-0 shadow-sm">
+                <div class="card-header py-3">
+                    <h6 class="card-title mb-0">
+                        <i class="ti ti-user text-primary me-2"></i>
+                        بيانات العميل
+                    </h6>
+                </div>
+                <div class="card-body pt-0 pb-2">
+                    @php $metadata = $bill->metadata ?? []; @endphp
+                    @if (!empty($metadata))
+                        <div class="list-group list-group-flush">
+
+                            @if (!empty($metadata['billing_name']))
+                                <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                    <span class="text-muted small"><i class="ti ti-user me-1"></i>الاسم</span>
+                                    <span class="fw-medium small">{{ $metadata['billing_name'] }}</span>
+                                </div>
+                            @endif
+
+                            @if (!empty($metadata['billing_email']))
+                                <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                    <span class="text-muted small"><i class="ti ti-mail me-1"></i>البريد</span>
+                                    <span class="fw-medium small">{{ $metadata['billing_email'] }}</span>
+                                </div>
+                            @endif
+
+                            @if (!empty($metadata['billing_phone']))
+                                <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                    <span class="text-muted small"><i class="ti ti-phone me-1"></i>الجوال</span>
+                                    <span class="fw-medium small">{{ $metadata['billing_phone'] }}</span>
+                                </div>
+                            @endif
+
+                            @if (!empty($metadata['billing_company_name']))
+                                <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                    <span class="text-muted small"><i class="ti ti-building me-1"></i>الشركة</span>
+                                    <span class="fw-medium small">{{ $metadata['billing_company_name'] }}</span>
+                                </div>
+                            @endif
+
+                            @if (!empty($metadata['billing_commercial_number']))
+                                <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                    <span class="text-muted small"><i class="ti ti-id-badge me-1"></i>السجل التجاري</span>
+                                    <span class="fw-medium small">{{ $metadata['billing_commercial_number'] }}</span>
+                                </div>
+                            @endif
+
+                        </div>
+                    @else
+                        <p class="text-muted my-3 text-center small">لا توجد بيانات</p>
+                    @endif
+                </div>
+            </div>
+
+        </div>
+    </div>
 @endsection

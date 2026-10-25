@@ -1,16 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
 namespace App\Policies\Admin;
-
-use App\Models\Admin\AdminUser;
-use App\Models\Admin\Faq;
-
-final class FaqPolicy
-{
-    public function view(AdminUser $user, Faq $faq): bool { return $user->hasPermissionTo('faq.view'); }
-    public function create(AdminUser $user): bool { return $user->hasPermissionTo('faq.create'); }
-    public function update(AdminUser $user, Faq $faq): bool { return $user->hasPermissionTo('faq.update'); }
-    public function delete(AdminUser $user, Faq $faq): bool { return $user->hasPermissionTo('faq.update'); }
-}
+use App\Models\Admin\Faq; use App\Models\Admin\AdminMangment\Users\AdminUser;
+final class FaqPolicy { public function viewAny(AdminUser $u):bool{return $u->can('faqs.view');} public function view(AdminUser $u,Faq $f):bool{return $u->can('faqs.view');} public function create(AdminUser $u):bool{return $u->can('faqs.create');} public function update(AdminUser $u,Faq $f):bool{return $u->can('faqs.edit');} public function delete(AdminUser $u,Faq $f):bool{return $u->can('faqs.delete');} }

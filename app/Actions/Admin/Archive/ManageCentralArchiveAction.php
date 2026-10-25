@@ -7,15 +7,15 @@ namespace App\Actions\Admin\Archive;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
-final class ManageCentralArchiveAction
+class ManageCentralArchiveAction
 {
     public function restore(Model $model): void
     {
-        DB::transaction(fn () => $model->restore());
+        DB::connection('mysql')->transaction(fn () => $model->restore());
     }
 
     public function forceDelete(Model $model): void
     {
-        DB::transaction(fn () => $model->forceDelete());
+        DB::connection('mysql')->transaction(fn () => $model->forceDelete());
     }
 }

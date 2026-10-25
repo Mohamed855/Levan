@@ -1,24 +1,18 @@
-@extends('layouts.dashboard')
+@extends('admin.layouts.layoutMaster')
 
 @section('title', 'الباقات')
-@section('dashboard-scope', 'admin')
 
 @section('vendor-style')
-    @vite([
-        'resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
-        'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
-        'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss',
-        'resources/assets/vendor/libs/select2/select2.scss',
-        'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss',
-    ])
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite([
-        'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js',
-        'resources/assets/vendor/libs/select2/select2.js',
-    ])
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
     {!! $dataTable->scripts() !!}
+@endsection
+
+@section('toastr')
+    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
 @endsection
 
 @section('page-style')
@@ -30,53 +24,11 @@
         window.routes = {
             massDelete: "{{ route('admin.mass-delete') }}"
         };
-
-        function handleMassDelete() {
-            const selectedIds = [];
-            $('.row-checkbox:checked').each(function () {
-                selectedIds.push($(this).val());
-            });
-
-            if (selectedIds.length === 0) {
-                if (typeof toastr !== 'undefined') {
-                    toastr.warning('يرجى تحديد باقة واحدة على الأقل');
-                }
-                return;
-            }
-
-            if (typeof confirmDeleteSelectedmss === 'function') {
-                confirmDeleteSelectedmss(selectedIds, window.routes.massDelete, 'Plan');
-            }
-        }
-        window.handleMassDelete = handleMassDelete;
-
-        $(document).ready(function () {
-            const tableWrapper = $('#plans-table_wrapper');
-
-            tableWrapper.on('click', '#select-all', function () {
-                const table = $('#plans-table').DataTable();
-                $('.row-checkbox', table.rows({ search: 'applied' }).nodes()).prop('checked', this.checked);
-            });
-
-            tableWrapper.on('change', '.row-checkbox', function () {
-                if (!this.checked) {
-                    $('#select-all').prop('checked', false);
-                }
-            });
-
-            $('#plans-table').on('draw.dt', function () {
-                $('#select-all').prop('checked', false);
-            });
-        });
     </script>
+    @vite(['resources/assets/js/admin/plans/index.js'])
 @endsection
-
 @section('content')
     <x-ui.validation-errors class="mb-4" />
-
-    @can('plans.update')
-        <div class="d-flex justify-content-end mb-3"><a href="{{ route('admin.plans.reorder.form') }}" class="btn btn-label-primary"><i class="ti ti-sort-ascending me-1"></i>ترتيب الباقات</a></div>
-    @endcan
 
     <x-data-table.page table-id="plans-table">
         <x-slot:stats>
@@ -108,6 +60,8 @@
                     placeholder="اختر حالة الخصم" :options="$filterOptions['discounts'] ?? []" />
                 <x-filter.select id="filter-domain" filterKey="domain_management_enabled" label="إدارة الدومينات"
                     placeholder="اختر حالة الدومين" :options="$filterOptions['domains'] ?? []" />
+                <x-filter.select id="filter-most-requested" filterKey="most_requested" label="الأكثر طلباً"
+                    placeholder="اختر الأكثر طلباً" :options="$filterOptions['most_requested'] ?? []" />
             </x-data-table.filters>
         </x-slot:filters>
 

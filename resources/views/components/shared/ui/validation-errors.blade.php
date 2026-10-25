@@ -1,4 +1,4 @@
-@if (isset($errors) && $errors->any())
+@if ($errors->any())
     <div {{ $attributes->merge(['class' => 'alert alert-danger']) }} role="alert">
         <ul class="mb-0">
             @foreach ($errors->all() as $error)

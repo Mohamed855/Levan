@@ -1,4 +1,4 @@
-@extends('layouts.web')
+@extends('web.layouts.main')
 
 @section('title', 'إتمام الدفع | لوت LOT')
 
@@ -56,7 +56,7 @@
                                 </div>
 
                                 <x-payment.moyasar-form :amount-in-halala="$amountInHalala" :callback-url="$callbackUrl" :description="$description"
-                                    :publishable-key="$publishableKey" :metadata="['checkout_token' => $bill->paymentAttempts->first()?->checkout_token, 'bill_number' => $bill->bill_number]" />
+                                    :publishable-key="$publishableKey" />
 
                                 @if ($mode === 'test')
                                     <p class="moyasar-test-notice">أنت تستخدم بيئة الاختبار؛ استخدم بيانات البطاقة التجريبية

@@ -31,7 +31,10 @@
 
   &.is-selected {
     border-color: #17604f !important;
-    box-shadow: 0 0 0 2px rgba(23, 96, 79, 0.25);
+    box-shadow: 0 0 0 2px rgba(23, 96, 79, 0.4) !important;
+    outline: 2px solid #17604f !important;
+    outline-offset: 1px;
+    z-index: 10;
   }
 
   &.is-variable {

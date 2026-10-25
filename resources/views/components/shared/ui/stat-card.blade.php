@@ -1,38 +1,31 @@
 @props([
-    'title' => null,
-    'label' => null,
-    'value' => 0,
+    'title',
+    'value',
     'subtitle' => null,
-    'icon' => 'ti-chart-bar',
-    'color' => null,
-    'tone' => null,
-    'col' => null,
+    'icon' => null,
+    'color' => 'primary',
+    'col' => 'col-sm-6 col-xl',
     'valueClass' => null,
     'avatarClass' => 'rounded',
 ])
 
 @php
-    $displayTitle = $title ?? $label ?? '';
-    $themeColor = $color ?? $tone ?? 'primary';
-    $bgClass = str_starts_with($themeColor, 'bg-') ? $themeColor : 'bg-label-' . $themeColor;
-    $iconClass = str_contains($icon ?? '', 'ti ') ? $icon : 'ti ' . ($icon ?? 'ti-chart-bar') . ' ti-26px';
+    $bgClass = str_starts_with($color, 'bg-') ? $color : 'bg-label-' . $color;
+    $iconClass = str_contains($icon ?? '', 'ti ') ? $icon : 'ti ' . ($icon ?? '') . ' ti-26px';
     $isCircle = in_array($avatarClass, ['circle', 'rounded-circle'], true);
-    $formattedValue = is_numeric($value) ? number_format((float) $value) : $value;
 @endphp
 
-@if ($col)
 <div class="{{ $col }}">
-@endif
     <div {{ $attributes->merge(['class' => 'card h-100']) }}>
         <div class="card-body">
             <div class="d-flex align-items-start justify-content-between h-100">
                 <div class="content-left d-flex flex-column justify-content-between h-100">
-                    <span class="text-heading">{{ $displayTitle }}</span>
+                    <span class="text-heading">{{ $title }}</span>
                     <div class="d-flex align-items-center my-1">
-                        <h4 class="mb-0 me-2 {{ $valueClass }}">{{ $formattedValue }}</h4>
+                        <h4 class="mb-0 me-2 {{ $valueClass }}">{{ $value }}</h4>
                     </div>
                     @if ($subtitle)
-                        <small class="mb-0 text-muted">{{ $subtitle }}</small>
+                        <small class="mb-0">{{ $subtitle }}</small>
                     @endif
                 </div>
                 @if ($icon)
@@ -48,6 +41,4 @@
             @endif
         </div>
     </div>
-@if ($col)
 </div>
-@endif

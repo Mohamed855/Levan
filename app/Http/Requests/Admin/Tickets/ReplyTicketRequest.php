@@ -6,7 +6,7 @@ namespace App\Http\Requests\Admin\Tickets;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-final class ReplyTicketRequest extends FormRequest
+class ReplyTicketRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -16,23 +16,19 @@ final class ReplyTicketRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'message' => ['required', 'string', 'min:2', 'max:5000'],
+            'message' => ['required', 'string', 'min:2'],
+            'attachments' => ['nullable', 'array'],
+            'attachments.*' => ['file', 'max:10240', 'mimes:jpg,jpeg,png,pdf,doc,docx'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'message.required' => 'حقل الرد مطلوب.',
-            'message.min'      => 'يجب أن يحتوي الرد على حرفين على الأقل.',
-            'message.max'      => 'الحد الأقصى للرد هو 5000 حرف.',
-        ];
-    }
-
-    public function attributes(): array
-    {
-        return [
-            'message' => 'نص الرد',
+            'message.required' => 'نص الرد مطلوب',
+            'message.min' => 'يجب أن يحتوي الرد على حرفين على الأقل',
+            'attachments.*.max' => 'حجم الملف يجب ألا يتجاوز 10 ميجابايت',
+            'attachments.*.mimes' => 'نوع الملف غير مدعوم',
         ];
     }
 }

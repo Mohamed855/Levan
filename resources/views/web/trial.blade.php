@@ -1,4 +1,4 @@
-@extends('layouts.web')
+@extends('web.layouts.main')
 
 @section('title', 'لوت LOT - التجربة المجانية')
 
@@ -57,7 +57,7 @@
                     <!-- Registration Form -->
                     <x-web.contact-form data-form-validate :action="route('site.trial.store')" :validation-url="route('site.form-validation')" fields="trial"
                         title="طلب تجربة مجانية" subtitle="انضم إلينا الآن"
-                        desc="أدخل بياناتك وسيراجع فريقنا الطلب ثم يتواصل معك لاستكمال تفعيل التجربة." />
+                        desc="أدخل بياناتك وسنقوم بتفعيل حسابك التجريبي وتزويدك ببيانات الدخول مباشرة." />
 
                     <!-- Info Cards -->
                     <x-web.contact-info />

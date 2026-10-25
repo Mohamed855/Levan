@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Enums\Admin\Subscriptions;
 
 enum SubscriptionStatus: string
@@ -11,6 +9,7 @@ enum SubscriptionStatus: string
     case SUSPENDED = 'suspended';
     case CANCELLED = 'cancelled';
     case EXPIRED = 'expired';
+
     case TRIAL = 'trial';
 
     public function label(): string
@@ -43,23 +42,5 @@ enum SubscriptionStatus: string
             fn (self $t) => ['id' => $t->value, 'name' => $t->label()],
             self::cases()
         );
-    }
-
-    /** @return array<string, list<string>> */
-    public static function allowedTransitions(): array
-    {
-        return [
-            self::PENDING->value => [self::ACTIVE->value, self::CANCELLED->value],
-            self::TRIAL->value => [self::ACTIVE->value, self::SUSPENDED->value, self::CANCELLED->value],
-            self::ACTIVE->value => [self::SUSPENDED->value, self::CANCELLED->value],
-            self::SUSPENDED->value => [self::ACTIVE->value, self::CANCELLED->value],
-            self::EXPIRED->value => [self::ACTIVE->value],
-            self::CANCELLED->value => [],
-        ];
-    }
-
-    public static function canTransition(string $from, string $to): bool
-    {
-        return in_array($to, self::allowedTransitions()[$from] ?? [], true);
     }
 }

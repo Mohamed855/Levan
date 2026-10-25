@@ -1,195 +1,601 @@
-@extends('layouts.dashboard')
+@extends('tenant.layouts.layoutMaster')
 
-@section('title', 'تذكرة #' . $ticket->ticket_number)
-@section('dashboard-scope', 'tenant')
+@section('title', 'تفاصيل التذكرة #' . $ticket->ticket_number)
+
+@section('vendor-style')
+    @vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.scss', 'resources/assets/css/tenant/tickets/show.css'])
+@endsection
+
+@section('vendor-script')
+    @vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.js', 'resources/assets/js/tenant/tickets/show.js'])
+
+    @if ($ticket->status === 'resolved_pending_survey')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var modalEl = document.getElementById('ticketSurveyModal');
+                if (modalEl) {
+                    var surveyModal = new bootstrap.Modal(modalEl, {
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                    surveyModal.show();
+                }
+            });
+        </script>
+    @endif
+@endsection
+
+@section('toastr')
+    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
+@endsection
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-1">
-                <li class="breadcrumb-item"><a href="{{ route('tenant.tickets.index') }}">الدعم الفني</a></li>
-                <li class="breadcrumb-item active">تذكرة #{{ $ticket->ticket_number }}</li>
-            </ol>
-        </nav>
-        <h4 class="mb-0 fw-bold">تذكرة رقم <span class="text-primary font-monospace">#{{ $ticket->ticket_number }}</span></h4>
-    </div>
-    <div>
-        <a href="{{ route('tenant.tickets.index') }}" class="btn btn-label-secondary">
-            <i class="ti ti-arrow-right me-1"></i> العودة لقائمة التذاكر
-        </a>
-    </div>
-</div>
+    {{-- مودال تقييم التذكرة --}}
+    <div class="modal fade" id="ticketSurveyModal" tabindex="-1" aria-labelledby="ticketSurveyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
 
-<div class="row">
-    {{-- العمود الأيمن: موضوع التذكرة وسجل المحادثة ونموذج الرد --}}
-    <div class="col-xl-8 col-lg-7 col-md-7 mb-4">
-        {{-- بطاقة التذكرة الأصلية --}}
-        <div class="card mb-4 border-0 shadow-sm">
-            <div class="card-header bg-label-primary py-3 d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0 fw-bold text-primary">
-                    <i class="ti ti-message-2 me-2"></i> {{ $ticket->subject }}
-                </h5>
-                <span class="badge bg-{{ $ticket->status->color() }}">{{ $ticket->status->label() }}</span>
-            </div>
-            <div class="card-body pt-3">
-                <div class="d-flex align-items-center gap-2 mb-3 text-muted small">
-                    <span><i class="ti ti-calendar me-1"></i> تم الفتح في: {{ $ticket->created_at?->format('Y-m-d H:i') }}</span>
-                    <span>•</span>
-                    <span><i class="ti ti-category me-1"></i> القسم: {{ $ticket->department }}</span>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ticketSurveyModalLabel">
+                        <i class="ti ti-star text-warning me-2"></i>
+                        تقييم التذكرة #{{ $ticket->ticket_number }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
                 </div>
-                <div class="p-3 bg-body-tertiary rounded">
-                    <p class="mb-0" style="white-space: pre-line;">{{ $ticket->description }}</p>
-                </div>
-            </div>
-        </div>
 
-        {{-- سجل الردود والمحادثة --}}
-        <div class="card mb-4">
-            <div class="card-header py-3 border-bottom">
-                <h5 class="card-title mb-0 fw-bold">
-                    <i class="ti ti-messages me-2 text-primary"></i> المحادثات والردود ({{ $ticket->replies->count() }})
-                </h5>
-            </div>
-            <div class="card-body pt-4">
-                @forelse($ticket->replies as $reply)
-                    @php
-                        $isAdmin = $reply->admin_user_id !== null;
-                    @endphp
-                    <div class="d-flex mb-4 {{ $isAdmin ? 'flex-row' : 'flex-row-reverse' }} gap-3">
-                        <div class="avatar avatar-md flex-shrink-0">
-                            @if($isAdmin)
-                                <div class="avatar-initial rounded-circle bg-label-primary">
-                                    <i class="ti ti-headset"></i>
-                                </div>
-                            @else
-                                <div class="avatar-initial rounded-circle bg-label-success">
-                                    <i class="ti ti-user"></i>
-                                </div>
-                            @endif
-                        </div>
-                        <div class="w-100" style="max-width: 85%;">
-                            <div class="d-flex justify-content-between align-items-center mb-1 {{ $isAdmin ? '' : 'flex-row-reverse' }}">
-                                <span class="fw-bold fs-6 {{ $isAdmin ? 'text-primary' : 'text-success' }}">
-                                    {{ $isAdmin ? ($reply->adminUser?->name ?? 'فريق دعم لوت') : ($reply->tenant_user_name ?? 'فريق العمل') }}
-                                </span>
-                                <small class="text-muted">{{ $reply->created_at?->diffForHumans() }}</small>
-                            </div>
-                            <div class="p-3 rounded {{ $isAdmin ? 'bg-primary-subtle border border-primary-subtle text-dark' : 'bg-body-tertiary border text-dark' }}">
-                                <p class="mb-0" style="white-space: pre-line;">{{ $reply->message }}</p>
-                            </div>
-                        </div>
-                    </div>
-                @empty
-                    <div class="text-center py-4 text-muted">
-                        <i class="ti ti-clock-check fs-2 mb-2 d-block"></i>
-                        لم يتم إضافة أي ردود حتى الآن. سيقوم فريق الدعم بالرد قريباً.
-                    </div>
-                @endforelse
-            </div>
-        </div>
-
-        @if($ticket->attachments->isNotEmpty())
-            <div class="card mb-4">
-                <div class="card-header"><h5 class="card-title mb-0">مرفقات التذكرة</h5></div>
-                <div class="list-group list-group-flush">
-                    @foreach($ticket->attachments as $attachment)
-                        <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="{{ route('tenant.tickets.attachments.download', [$ticket->id, $attachment->id]) }}">
-                            <span><i class="ti ti-paperclip me-1"></i>{{ $attachment->original_name }}</span>
-                            <small class="text-muted">{{ number_format($attachment->size / 1024, 1) }} KB</small>
-                        </a>
-                    @endforeach
-                </div>
-            </div>
-        @endif
-
-        {{-- نموذج إضافة رد --}}
-        @if($ticket->service_enabled)
-        <div class="card">
-            <div class="card-header py-3 border-bottom">
-                <h5 class="card-title mb-0 fw-bold">
-                    <i class="ti ti-corner-down-left me-2 text-primary"></i> إضافة رد جديد
-                </h5>
-            </div>
-            <div class="card-body pt-4">
-                <form action="{{ route('tenant.tickets.reply', $ticket->id) }}" method="POST">
+                <form action="{{ tenant_route_name('tickets.survey.submit', $ticket->ticket_number) }}" method="POST"
+                    novalidate data-form-validate
+                    data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                     @csrf
 
-                    <div class="mb-3">
-                        <label class="form-label" for="reply-message">رسالتك <span class="text-danger">*</span></label>
-                        <textarea name="message" id="reply-message" rows="4" class="form-control @error('message') is-invalid @enderror" placeholder="اكتب ردك أو استفسارك الإضافي هنا..." required>{{ old('message') }}</textarea>
-                        @error('message')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                    <div class="modal-body text-center">
+                        <p class="mb-3 fw-bold fs-5">
+                            شاركنا تجربتك! هل تم حل مشكلتك بنجاح؟
+                        </p>
+                        <div class="d-flex justify-content-center gap-3 mb-4 choice-buttons" data-form-field
+                            data-field-name="solved">
+                            <input type="radio" class="btn-check" name="solved" id="solvedYes" value="1"
+                                autocomplete="off" required data-form-control {{ old('solved') == '1' ? 'checked' : '' }}>
+                            <label class="btn btn-outline-success" for="solvedYes">
+                                نعم، تم الحل
+                            </label>
+
+                            <input type="radio" class="btn-check" name="solved" id="solvedNo" value="0"
+                                autocomplete="off" required data-form-control {{ old('solved') == '0' ? 'checked' : '' }}>
+                            <label class="btn btn-outline-danger" for="solvedNo">
+                                لا، لم تُحل
+                            </label>
+                        </div>
+
+                        <div id="ratingSection" style="display: {{ old('solved') == '1' ? 'block' : 'none' }};">
+                            <hr class="my-4">
+
+                            @foreach ($surveyQuestions as $field => $label)
+                                <div class="my-4">
+                                    <label class="form-label d-block mb-2 fw-semibold">{{ $label }}</label>
+
+                                    <input type="hidden" name="{{ $field }}" value="{{ old($field) }}"
+                                        data-validation-skip />
+
+                                    <div class="d-flex justify-content-center">
+                                        <div class="survey-stars" data-target="{{ $field }}">
+                                            @for ($i = 1; $i <= 5; $i++)
+                                                <span class="survey-star" data-value="{{ $i }}">★</span>
+                                            @endfor
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <hr class="my-4">
+                        <div class="mt-3">
+                            <textarea name="comment" class="form-control" data-form-control rows="3"
+                                placeholder="شاركنا رأيك أو أي ملاحظات لديك...">{{ old('comment') }}</textarea>
+                        </div>
                     </div>
 
-                    <div class="d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="ti ti-send me-1"></i> إرسال الرد
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
+                        <button type="submit" class="btn btn-primary" id="submitSurveyBtn">
+                            <i class="ti ti-send me-1"></i> إرسال التقييم
                         </button>
                     </div>
                 </form>
+
             </div>
         </div>
-        @else
-            <div class="alert alert-warning mb-0">
-                <i class="ti ti-headset-off me-1"></i> خدمة الدعم لهذه التذكرة متوقفة حالياً. تواصل مع إدارة المنصة إذا احتجت متابعة إضافية.
-            </div>
-        @endif
     </div>
 
-    {{-- العمود الأيسر: بطاقة معلومات التذكرة وحالتها --}}
-    <div class="col-xl-4 col-lg-5 col-md-5 mb-4">
-        <div class="card mb-4">
-            <div class="card-body">
-                <h5 class="card-title mb-3 fw-bold">معلومات التذكرة</h5>
-                <div class="text-center py-3">
-                    <div class="avatar avatar-xl mx-auto mb-3 bg-label-{{ $ticket->status->color() }} rounded-circle d-flex align-items-center justify-content-center">
-                        <i class="ti ti-headset fs-1 text-{{ $ticket->status->color() }}"></i>
-                    </div>
-                    <span class="badge bg-{{ $ticket->status->color() }} fs-6">{{ $ticket->status->label() }}</span>
-                </div>
+    {{-- رأس الصفحة --}}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1">
+                <i class="ti ti-ticket text-primary me-2"></i>
+                تذكرة #{{ $ticket->ticket_number }}
+            </h4>
+            <p class="text-muted mb-0">{{ $ticket->title }}</p>
+        </div>
+        <div>
+            <a href="{{ tenant_route_name('tickets.index') }}" class="btn btn-secondary">
+                <i class="ti ti-arrow-right me-1"></i> العودة لقائمة التذاكر
+            </a>
+        </div>
+    </div>
 
-                <div class="border-top pt-3 mt-2">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">رقم التذكرة:</span>
-                        <div class="d-flex align-items-center gap-1">
-                            <span class="fw-bold font-monospace text-primary">#{{ $ticket->ticket_number }}</span>
-                            <button type="button" class="btn btn-xs btn-label-secondary" onclick="navigator.clipboard.writeText('{{ $ticket->ticket_number }}'); toastr.success('تم نسخ رقم التذكرة');" title="نسخ">
-                                <i class="ti ti-copy"></i>
+    @if ($errors->any())
+        <div class="alert alert-danger mb-4">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <div class="row g-4">
+        {{-- العمود الرئيسي --}}
+        <div class="col-lg-8">
+            {{-- تفاصيل التذكرة --}}
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center border-bottom">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-file-text me-2 text-primary"></i>
+                        تفاصيل التذكرة
+                    </h5>
+                    <div class="d-flex align-items-center gap-2">
+                        {!! $status !!}
+                        @if ($ticket->status === 'resolved_pending_survey')
+                            <button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="modal"
+                                data-bs-target="#ticketSurveyModal">
+                                <i class="ti ti-star me-1"></i> قيّم التذكرة الآن
                             </button>
+                        @endif
+                    </div>
+                </div>
+                <div class="card-body pt-4">
+                    <h6 class="fw-bold mb-2">{{ $ticket->title }}</h6>
+                    <div class="p-3 bg-secondary rounded mb-3 text-secondary"
+                        style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6;">{{ $ticket->description }}
+                    </div>
+
+                    @if (!empty($ticket->attachments) && count($ticket->attachments) > 0)
+                        <div class="mt-3">
+                            <h6 class="small text-muted mb-2"><i class="ti ti-paperclip me-1"></i> المرفقات:</h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach ($ticket->attachments as $file)
+                                    @php
+                                        $fileUrl = is_array($file) ? $file['url'] ?? '' : $file;
+                                        $fileName = is_array($file) ? $file['name'] ?? 'مرفق' : 'مرفق';
+                                        $fullUrl = Str::startsWith($fileUrl, 'http')
+                                            ? $fileUrl
+                                            : Storage::url($fileUrl);
+                                    @endphp
+                                    <a href="{{ $fullUrl }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                        <i class="ti ti-download me-1"></i> {{ $fileName }}
+                                    </a>
+                                @endforeach
+                            </div>
                         </div>
+                    @endif
+                </div>
+            </div>
+
+            {{-- المحادثة والردود --}}
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header border-bottom">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-messages me-2 text-info"></i>
+                        المحادثة والردود ({{ count($replies['data'] ?? $replies) }})
+                    </h5>
+                </div>
+                <div class="card-body pt-4">
+                    <div class="chat-history-wrapper overflow-auto pe-1" style="max-height: 550px;">
+                        @php
+                            $repliesList = $replies['data'] ?? (is_iterable($replies) ? $replies : []);
+                        @endphp
+                        @forelse($repliesList as $reply)
+                            @php
+                                $senderType = is_array($reply)
+                                    ? $reply['sender_type'] ?? ''
+                                    : $reply->sender_type ?? '';
+                                $isTenant = $senderType === 'tenant_user';
+                                $message = is_array($reply) ? $reply['message'] ?? '' : $reply->message ?? '';
+                                $createdAt = is_array($reply) ? $reply['created_at'] ?? '' : $reply->created_at ?? '';
+                                $supportName = is_array($reply)
+                                    ? $reply['support_user_name'] ?? ($reply['user_name'] ?? 'موظف الدعم')
+                                    : $reply->support_user_name ?? ($reply->user_name ?? 'موظف الدعم');
+                                $replyAttachments = is_array($reply)
+                                    ? $reply['attachments'] ?? []
+                                    : $reply->attachments ?? [];
+                                $replyRating = is_array($reply)
+                                    ? $reply['rating']['rating'] ?? ($reply['rating'] ?? null)
+                                    : $reply->rating->rating ?? ($reply->rating ?? null);
+                                $replyId = is_array($reply) ? $reply['id'] ?? null : $reply->id ?? null;
+                            @endphp
+                            {{-- رسائل المستأجر في اليمين (justify-content-start في RTL)، ورسائل الدعم/Super Admin في اليسار (justify-content-end في RTL) --}}
+                            <div class="d-flex {{ $isTenant ? 'justify-content-start' : 'justify-content-end' }} mb-4">
+                                <div class="card border {{ $isTenant ? 'bg-primary-subtle border-primary' : 'bg-secondary border-secondary' }} shadow-none"
+                                    style="max-width: 80%;">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-2 gap-3">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="badge {{ $isTenant ? 'bg-primary' : 'bg-secondary' }}">
+                                                    {{ $isTenant ? 'أنت (' . ($ticket->customer_name ?? 'المستأجر') . ')' : 'فريق الدعم (' . $supportName . ')' }}
+                                                </span>
+                                            </div>
+                                            <small class="text-muted" style="font-size: 0.75rem;">
+                                                {{ $createdAt ? \Carbon\Carbon::parse($createdAt)->diffForHumans() : '' }}
+                                            </small>
+                                        </div>
+                                        <div class="text-dark" style="white-space: pre-wrap; line-height: 1.5;">
+                                            {{ $message }}</div>
+
+                                        {{-- المرفقات --}}
+                                        @if (!empty($replyAttachments) && count($replyAttachments) > 0)
+                                            <div class="mt-2 pt-2 border-top">
+                                                @foreach ($replyAttachments as $att)
+                                                    @php
+                                                        $attUrl = is_array($att) ? $att['url'] ?? '' : $att;
+                                                        $attName = is_array($att) ? $att['name'] ?? 'مرفق' : 'مرفق';
+                                                        $fullAttUrl = Str::startsWith($attUrl, 'http')
+                                                            ? $attUrl
+                                                            : Storage::url($attUrl);
+                                                    @endphp
+                                                    <a href="{{ $fullAttUrl }}" target="_blank"
+                                                        class="badge bg-label-info text-decoration-none me-1">
+                                                        <i class="ti ti-paperclip me-1"></i> {{ $attName }}
+                                                    </a>
+                                                @endforeach
+                                            </div>
+                                        @endif
+
+                                        {{-- تقييم الردود (فقط لردود الدعم الفني) --}}
+                                        @if (!$isTenant && $replyId)
+                                            <form method="POST" class="m-0" novalidate data-form-validate
+                                                data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}"
+                                                action="{{ tenant_route_name('tickets.replies.rate', ['ticket' => $ticket->ticket_number, 'reply' => $replyId]) }}">
+                                                @csrf
+                                                <div
+                                                    class="d-flex align-items-center justify-content-between mt-2 pt-2 border-top">
+                                                    <small class="text-muted">تقييم هذا الرد:</small>
+                                                    <div class="reply-rating">
+                                                        @for ($i = 1; $i <= 5; $i++)
+                                                            <button type="submit" name="stars"
+                                                                value="{{ $i }}"
+                                                                class="reply-star-btn {{ $replyRating && $i <= (is_numeric($replyRating) ? $replyRating : 0) ? 'rated' : '' }}"
+                                                                title="{{ $i }} من 5">
+                                                                ★
+                                                            </button>
+                                                        @endfor
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="text-center py-4 text-muted">
+                                <i class="ti ti-message-off fs-1 mb-2 d-block"></i>
+                                لا توجد ردود بعد على هذه التذكرة.
+                            </div>
+                        @endforelse
                     </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">القسم:</span>
-                        <span class="fw-semibold">{{ $ticket->department }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">تاريخ الإنشاء:</span>
-                        <span>{{ $ticket->created_at?->format('Y-m-d H:i') }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">آخر تحديث:</span>
-                        <span>{{ $ticket->updated_at?->diffForHumans() }}</span>
-                    </div>
+
+                    {{-- نموذج إضافة رد --}}
+                    <hr class="my-4">
+                    @if (in_array($ticket->status, ['open', 'in_progress', 'reopened']))
+                        <form action="{{ tenant_route_name('tickets.reply', $ticket->ticket_number) }}" method="POST"
+                            enctype="multipart/form-data" novalidate data-form-validate
+                            data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
+                            @csrf
+                            <div class="mb-3" data-form-field data-field-name="message">
+                                <label class="form-label fw-bold" for="replyMessage">إضافة رد على التذكرة:</label>
+                                <div class="position-relative border rounded @error('message') border-danger @enderror"
+                                    style="background-color: var(--bs-paper-bg, var(--bs-card-bg, #fff));">
+                                    <textarea class="form-control border-0 shadow-none" id="replyMessage" name="message" data-form-control
+                                        rows="4" placeholder="اكتب ردك هنا..."
+                                        style="resize: vertical; min-height: 140px; margin-bottom: 3rem; background: transparent;" required>{{ old('message') }}</textarea>
+
+                                    {{-- شريط المرفقات المدمج داخل الـ textarea --}}
+                                    <div class="position-absolute bottom-0 start-0 end-0 px-3 py-2 border-top d-flex justify-content-between align-items-center rounded-bottom"
+                                        dir="rtl"
+                                        style="z-index: 5; height: 3rem; background-color: var(--bs-paper-bg, var(--bs-card-bg, #fff));">
+                                        {{-- النص ع اليمين --}}
+                                        <div id="attachment-status-container" class="d-flex align-items-center">
+                                            <span id="attachment-status-text"
+                                                class="badge bg-label-primary small d-none align-items-center">
+                                                <i class="ti ti-paperclip me-1"></i> <span
+                                                    id="attachment-count-label"></span>
+                                                <i class="ti ti-x ms-2 cursor-pointer" id="btn-clear-attachments"
+                                                    title="إلغاء المرفقات"></i>
+                                            </span>
+                                        </div>
+
+                                        {{-- الـ icon ع الشمال --}}
+                                        <div class="d-flex align-items-center">
+                                            <input type="file" id="attachments" name="attachments[]" data-form-control
+                                                multiple class="d-none" accept="image/*,application/pdf,.doc,.docx">
+                                            <button type="button" id="btn-trigger-attachments"
+                                                class="btn btn-icon mb-0 cursor-pointer" title="إرفاق ملفات">
+                                                <i class="ti ti-paperclip fs-5"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                @error('message')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                                @error('attachments.*')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="ti ti-send me-1"></i> إرسال الرد
+                                </button>
+                            </div>
+                        </form>
+                    @else
+                        <div class="alert alert-info mb-0">
+                            <i class="ti ti-info-circle me-2"></i>
+                            لا يمكن إضافة ردود على هذه التذكرة في حالتها الحالية
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-header py-3 border-bottom">
-                <h6 class="card-title mb-0 fw-bold">
-                    <i class="ti ti-info-circle me-1 text-info"></i> إرشادات الدعم الفني
-                </h6>
+        {{-- العمود الجانبي --}}
+        <div class="col-lg-4">
+            {{-- بطاقة تقييم الخدمة إذا كانت التذكرة تم حلها وبانتظار التقييم --}}
+            @if ($ticket->status === 'resolved_pending_survey')
+                <div class="card mb-4 shadow-sm border-warning">
+                    <div class="card-header bg-warning-subtle py-3 border-bottom border-warning">
+                        <h5 class="card-title mb-0 text-warning">
+                            <i class="ti ti-star me-2"></i> تقييم خدمة الدعم
+                        </h5>
+                    </div>
+                    <div class="card-body pt-3">
+                        <p class="small text-muted mb-3">
+                            تم حل التذكرة بنجاح من قبل فريق الدعم. نرجو منك تقييم جودة الخدمة المقدمة لإتمام إغلاق التذكرة.
+                        </p>
+                        <button type="button" class="btn btn-warning w-100" data-bs-toggle="modal"
+                            data-bs-target="#ticketSurveyModal">
+                            <i class="ti ti-star me-1"></i> قيّم التذكرة الآن
+                        </button>
+                    </div>
+                </div>
+            @endif
+
+            {{-- بيانات ومعلومات التذكرة --}}
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header border-bottom">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-info-circle me-2 text-info"></i> معلومات التذكرة
+                    </h5>
+                </div>
+                <div class="card-body pt-3">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-3 d-flex justify-content-between align-items-center">
+                            <span class="text-muted">القسم:</span>
+                            <span
+                                class="badge bg-label-primary">{{ is_array($section) ? $section['name'] ?? 'الدعم الفني' : $section->name ?? 'الدعم الفني' }}</span>
+                        </li>
+                        <li class="mb-3 d-flex justify-content-between align-items-center">
+                            <span class="text-muted">الحالة:</span>
+                            <span>{!! $status !!}</span>
+                        </li>
+                        <li class="mb-3 d-flex justify-content-between align-items-center">
+                            <span class="text-muted">صاحب التذكرة:</span>
+                            <span class="fw-semibold">{{ $ticket->customer_name ?? '-' }}</span>
+                        </li>
+                        <li class="mb-3 d-flex justify-content-between align-items-center">
+                            <span class="text-muted">البريد الإلكتروني:</span>
+                            <span>{{ $ticket->customer_email ?? '-' }}</span>
+                        </li>
+                        <li class="mb-3 d-flex justify-content-between align-items-center">
+                            <span class="text-muted">رقم الهاتف:</span>
+                            <span>{{ $ticket->customer_phone ?? '-' }}</span>
+                        </li>
+                        <li class="mb-3 d-flex justify-content-between align-items-center">
+                            <span class="text-muted">تاريخ الإنشاء:</span>
+                            <span
+                                class="small">{{ $ticket->created_at ? \Carbon\Carbon::parse($ticket->created_at)->format('Y-m-d H:i') : '-' }}</span>
+                        </li>
+                        <li class="mb-3 d-flex justify-content-between align-items-center">
+                            <span class="text-muted">منذ:</span>
+                            <span
+                                class="small text-muted">{{ $ticket->created_at ? \Carbon\Carbon::parse($ticket->created_at)->diffForHumans() : '-' }}</span>
+                        </li>
+                        @if (!empty($ticket->resolved_at))
+                            <li class="mb-3 d-flex justify-content-between align-items-center">
+                                <span class="text-muted">تاريخ المعالجة:</span>
+                                <span
+                                    class="small">{{ \Carbon\Carbon::parse($ticket->resolved_at)->format('Y-m-d H:i') }}</span>
+                            </li>
+                        @endif
+                        @if (!empty($ticket->closed_at))
+                            <li class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted">تاريخ الإغلاق:</span>
+                                <span
+                                    class="small">{{ \Carbon\Carbon::parse($ticket->closed_at)->format('Y-m-d H:i') }}</span>
+                            </li>
+                        @endif
+                    </ul>
+                </div>
             </div>
-            <div class="card-body pt-3 small text-muted">
-                <ul class="ps-3 mb-0">
-                    <li class="mb-2">فريق الدعم الفني متاح على مدار الساعة للرد على استفساراتكم.</li>
-                    <li class="mb-2">يمكنك الرد في أي وقت لإضافة تفاصيل أو ملفات جديدة.</li>
-                    <li>عند حل المشكلة، يمكنك إبلاغنا أو ترك التذكرة ليتم إغلاقها تلقائياً.</li>
-                </ul>
+
+            @php
+                $allAttachments = [];
+                if (!empty($ticket->attachments) && is_iterable($ticket->attachments)) {
+                    foreach ($ticket->attachments as $att) {
+                        $url = is_array($att) ? $att['url'] ?? '' : (is_object($att) ? $att->url ?? '' : (string) $att);
+                        $name = is_array($att)
+                            ? $att['name'] ?? 'مرفق التذكرة'
+                            : (is_object($att)
+                                ? $att->name ?? 'مرفق التذكرة'
+                                : 'مرفق التذكرة');
+                        $fullUrl = Str::startsWith($url, 'http') ? $url : Storage::url($url);
+                        $allAttachments[] = [
+                            'name' => $name,
+                            'url' => $fullUrl,
+                            'source' => 'التذكرة الأصلية',
+                        ];
+                    }
+                }
+                $repliesCollection = $replies['data'] ?? (is_iterable($replies) ? $replies : []);
+                if (!empty($repliesCollection) && is_iterable($repliesCollection)) {
+                    foreach ($repliesCollection as $reply) {
+                        $replyAtts = is_array($reply) ? $reply['attachments'] ?? [] : $reply->attachments ?? [];
+                        $sender = is_array($reply) ? $reply['sender_type'] ?? '' : $reply->sender_type ?? '';
+                        $sourceLabel = $sender === 'tenant_user' ? 'ردك' : 'رد الدعم الفني';
+                        if (!empty($replyAtts) && is_iterable($replyAtts)) {
+                            foreach ($replyAtts as $att) {
+                                $url = is_array($att)
+                                    ? $att['url'] ?? ''
+                                    : (is_object($att)
+                                        ? $att->url ?? ''
+                                        : (string) $att);
+                                $name = is_array($att)
+                                    ? $att['name'] ?? 'مرفق رد'
+                                    : (is_object($att)
+                                        ? $att->name ?? 'مرفق رد'
+                                        : 'مرفق رد');
+                                $fullUrl = Str::startsWith($url, 'http') ? $url : Storage::url($url);
+                                $allAttachments[] = [
+                                    'name' => $name,
+                                    'url' => $fullUrl,
+                                    'source' => $sourceLabel,
+                                ];
+                            }
+                        }
+                    }
+                }
+            @endphp
+
+            {{-- مرفقات التذكرة والمحادثة --}}
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="ti ti-paperclip text-warning me-2"></i> المرفقات
+                    </h5>
+                    @if (count($allAttachments) > 0)
+                        <span class="badge bg-label-primary">{{ count($allAttachments) }}</span>
+                    @endif
+                </div>
+                <div class="card-body pt-3">
+                    @if (count($allAttachments) > 0)
+                        <div class="d-flex flex-column gap-2">
+                            @foreach ($allAttachments as $attachment)
+                                <a href="{{ $attachment['url'] }}" target="_blank"
+                                    class="d-flex align-items-center justify-content-between p-2 border rounded text-decoration-none text-body bg-secondary">
+                                    <div class="d-flex align-items-center text-truncate me-2">
+                                        <i class="ti ti-paperclip text-warning me-2"></i>
+                                        <div class="d-flex flex-column text-truncate">
+                                            <span class="small fw-semibold text-truncate">{{ $attachment['name'] }}</span>
+                                            <small class="text-muted"
+                                                style="font-size: 0.75rem;">{{ $attachment['source'] }}</small>
+                                        </div>
+                                    </div>
+                                    <i class="ti ti-download text-muted"></i>
+                                </a>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-muted text-center mb-0 small">لا توجد مرفقات لهذه التذكرة.</p>
+                    @endif
+                </div>
             </div>
+
+            {{-- نتيجة تقييم العميل إذا تمت مسبقاً --}}
+            @if (!empty($ticket->survey_result))
+                <div class="card shadow-sm border-warning mb-4">
+                    <div class="card-header bg-warning-subtle py-3 border-bottom border-warning">
+                        <h6 class="card-title mb-0 text-warning">
+                            <i class="ti ti-star-filled me-1"></i> تقييمك للخدمة
+                        </h6>
+                    </div>
+                    <div class="card-body pt-3">
+                        <div class="mb-2">
+                            <strong>هل تم حل المشكلة؟:</strong>
+                            <span
+                                class="badge {{ $ticket->survey_result['solved'] ?? false ? 'bg-success' : 'bg-danger' }}">
+                                {{ $ticket->survey_result['solved'] ?? false ? 'نعم' : 'لا' }}
+                            </span>
+                        </div>
+                        @if (isset($ticket->survey_result['agent_rating']))
+                            <div class="mb-1 small">
+                                <span class="text-muted">تقييم موظف الدعم:</span>
+                                <span class="text-warning">★ {{ $ticket->survey_result['agent_rating'] }}/5</span>
+                            </div>
+                        @endif
+                        @if (isset($ticket->survey_result['system_rating']))
+                            <div class="mb-1 small">
+                                <span class="text-muted">تقييم النظام:</span>
+                                <span class="text-warning">★ {{ $ticket->survey_result['system_rating'] }}/5</span>
+                            </div>
+                        @endif
+                        @if (isset($ticket->survey_result['solution_rating']))
+                            <div class="mb-1 small">
+                                <span class="text-muted">جودة الحل:</span>
+                                <span class="text-warning">★ {{ $ticket->survey_result['solution_rating'] }}/5</span>
+                            </div>
+                        @endif
+                        @if (!empty($ticket->survey_result['comment']))
+                            <div class="mt-2 p-2 bg-secondary rounded small">
+                                <em>"{{ $ticket->survey_result['comment'] }}"</em>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
-</div>
+@endsection
+
+@section('page-script')
+    @vite(['resources/assets/js/shared/form-validation.js'])
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var fileInput = document.getElementById('attachments');
+            var triggerBtn = document.getElementById('btn-trigger-attachments');
+            var statusText = document.getElementById('attachment-status-text');
+            var countLabel = document.getElementById('attachment-count-label');
+            var clearBtn = document.getElementById('btn-clear-attachments');
+
+            if (triggerBtn && fileInput) {
+                triggerBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    fileInput.click();
+                });
+            }
+
+            if (fileInput) {
+                fileInput.addEventListener('change', function() {
+                    var count = this.files ? this.files.length : 0;
+                    if (count > 0) {
+                        countLabel.textContent = 'تم إرفاق ' + count + ' ملف';
+                        statusText.classList.remove('d-none');
+                        statusText.classList.add('d-inline-flex');
+                    } else {
+                        countLabel.textContent = '';
+                        statusText.classList.add('d-none');
+                        statusText.classList.remove('d-inline-flex');
+                    }
+                });
+            }
+
+            if (clearBtn && fileInput) {
+                clearBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    fileInput.value = '';
+                    fileInput.dispatchEvent(new Event('change'));
+                });
+            }
+        });
+    </script>
 @endsection

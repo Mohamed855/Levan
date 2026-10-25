@@ -2,41 +2,40 @@
 
 declare(strict_types=1);
 
-use App\Models\Access\Role;
-use App\Models\Admin\AdminUser;
-use App\Models\Admin\AuctionTemplate;
-use App\Models\Admin\Bank;
-use App\Models\Admin\Bill;
-use App\Models\Admin\ControlDomain;
-use App\Models\Admin\Coupon;
+use App\Models\Admin\AdminMangment\Users\AdminUser;
+use App\Models\Admin\AuctionTemplates\AuctionTemplate;
+use App\Models\Admin\Bank\Bank;
+use App\Models\Admin\Bills\Bill;
+use App\Models\Admin\ControlDomain\ControlDomain;
 use App\Models\Admin\Faq;
+use App\Models\Admin\Coupons\Coupon;
 use App\Models\Admin\Plans\Plan;
-use App\Models\Admin\PublicRequests\ContactRequest;
-use App\Models\Admin\PublicRequests\TrialRequest;
-use App\Models\Admin\Subscriptions\Subscription;
+use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Tenants\Tenant;
-use App\Models\Admin\Ticket;
-use App\Models\Tenant\Assignment;
-use App\Models\Tenant\Auction;
-use App\Models\Tenant\Property;
-use App\Models\Tenant\User as TenantUser;
-use App\Models\Admin\ActivityLog;
+use App\Models\Admin\Tickets\Ticket;
+use App\Models\Tenants\Assignments\Assignment;
+use App\Models\Tenants\Auctions\Auction;
+use App\Models\Tenants\BusinessCenter\Company\Company;
+use App\Models\Tenants\Properties\Property;
+use App\Models\Tenants\UserMangment\User\User;
+use Spatie\Activitylog\Models\Activity;
+use Spatie\Permission\Models\Role;
 
 return [
-    'User' => TenantUser::class,
+    'User' => User::class,
+    'Company' => Company::class,
     'Assignment' => Assignment::class,
     'Property' => Property::class,
     'Auction' => Auction::class,
     'Role' => Role::class,
-    'Company' => \App\Models\Tenant\Company::class,
-    'Activity' => ActivityLog::class,
-    'ActivityLog' => ActivityLog::class,
+    'Activity' => Activity::class,
 
     // Super Admin models
     'Plan' => Plan::class,
     'AdminUser' => AdminUser::class,
     'Coupon' => Coupon::class,
     'Tenant' => Tenant::class,
+    'Client' => \App\Models\Admin\Client::class,
     'Subscription' => Subscription::class,
     'Bill' => Bill::class,
     'Ticket' => Ticket::class,
@@ -44,6 +43,4 @@ return [
     'Bank' => Bank::class,
     'ControlDomain' => ControlDomain::class,
     'Faq' => Faq::class,
-    'ContactRequest' => ContactRequest::class,
-    'TrialRequest' => TrialRequest::class,
 ];

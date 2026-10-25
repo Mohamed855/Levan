@@ -1,4 +1,0 @@
-<?php
-declare(strict_types=1);
-use Illuminate\Database\Migrations\Migration; use Illuminate\Database\Schema\Blueprint; use Illuminate\Support\Facades\Schema;
-return new class extends Migration { public function up():void{Schema::table('contact_requests',function(Blueprint $t):void{$t->text('reply')->nullable();$t->foreignId('replied_by')->nullable()->constrained('admin_users')->nullOnDelete();$t->timestamp('replied_at')->nullable();});Schema::table('trial_requests',function(Blueprint $t):void{$t->foreignId('processed_by')->nullable()->constrained('admin_users')->nullOnDelete();$t->timestamp('processed_at')->nullable();$t->text('rejection_reason')->nullable();});} public function down():void{Schema::table('trial_requests',fn(Blueprint $t)=>$t->dropConstrainedForeignId('processed_by'));Schema::table('contact_requests',function(Blueprint $t):void{$t->dropConstrainedForeignId('replied_by');$t->dropColumn(['reply','replied_at']);});} };

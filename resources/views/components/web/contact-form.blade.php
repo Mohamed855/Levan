@@ -29,24 +29,24 @@
         <div class="row g-3">
             @if ($fields === 'contact')
                 {{-- Contact Fields: Name + Email + Message --}}
-                <x-shared.form.controls.input id="contact_customer_name" name="customer_name" label="الاسم"
+                <x-form.controls.input id="contact_customer_name" name="customer_name" label="الاسم"
                     placeholder="أدخل اسمك الكامل" minlength="3" required col="col-12 col-md-6" />
 
-                <x-shared.form.controls.input id="contact_customer_email" name="customer_email" type="email"
+                <x-form.controls.input id="contact_customer_email" name="customer_email" type="email"
                     label="البريد الإلكتروني" placeholder="example@domain.com" col="col-12 col-md-6" />
 
-                <x-shared.form.controls.textarea id="contact_message" name="message" label="الرسالة أو الاستفسار"
+                <x-form.controls.textarea id="contact_message" name="message" label="الرسالة أو الاستفسار"
                     placeholder="اكتب استفسارك أو رسالتك بالتفصيل هنا..." rows="5" minlength="10" required
                     col="col-12" />
             @else
                 {{-- Trial Fields: Name + Email + Phone --}}
-                <x-shared.form.controls.input id="trial_customer_name" name="customer_name" label="الاسم الكامل"
+                <x-form.controls.input id="trial_customer_name" name="customer_name" label="الاسم الكامل"
                     placeholder="أدخل اسمك الكامل أو اسم جهة العمل" required col="col-12" />
 
-                <x-shared.form.controls.input id="trial_customer_email" name="customer_email" type="email"
+                <x-form.controls.input id="trial_customer_email" name="customer_email" type="email"
                     label="البريد الإلكتروني" placeholder="name@company.com" required col="col-12 col-md-6" />
 
-                <x-shared.form.controls.input id="trial_customer_phone" name="customer_phone" type="tel" label="رقم الهاتف"
+                <x-form.controls.input id="trial_customer_phone" name="customer_phone" type="tel" label="رقم الهاتف"
                     placeholder="05XXXXXXXX" dir="ltr" data-phone-format="mobile" required col="col-12 col-md-6"
                     class="text-end" />
             @endif

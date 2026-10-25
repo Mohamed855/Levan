@@ -12,6 +12,8 @@ import { defineConfig } from "vite";
  */
 function getBladeViteEntries() {
     const entries = new Set([
+        "resources/assets/vendor/scss/rtl/core.scss",
+        "resources/assets/vendor/scss/rtl/theme-semi-dark.scss",
         "resources/assets/scss/web/site.scss",
         "resources/assets/js/web/site.js",
     ]);
@@ -47,16 +49,6 @@ function libsWindowAssignment() {
 }
 
 export default defineConfig({
-    css: {
-        preprocessorOptions: {
-            scss: {
-                includePaths: [
-                    "node_modules",
-                    "node_modules/bootstrap/scss",
-                ],
-            },
-        },
-    },
     build: {
         // PDFMake is loaded only by the DataTables PDF export path.
         chunkSizeWarningLimit: 2048,

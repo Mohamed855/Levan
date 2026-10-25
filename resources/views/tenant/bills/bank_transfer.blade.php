@@ -1,108 +1,57 @@
-@extends('layouts.dashboard')
+@extends('tenant.layouts.layoutMaster')
 
-@section('title', 'السداد عبر التحويل البنكي - فاتورة #' . $bill->bill_number)
-@section('dashboard-scope', 'tenant')
+@section('title', ' الفاتورة')
+
+@section('vendor-style')
+    @vite(['resources/assets/css/components/icons.css', 'resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/animate-css/animate.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
+@endsection
+
+@section('vendor-script')
+    @vite(['resources/assets/vendor/libs/moment/moment.js', 'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/cleavejs/cleave.js', 'resources/assets/vendor/libs/cleavejs/cleave-phone.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
+@endsection
+
+@section('toastr')
+    @vite(['resources/assets/css/shared/toastr.css', 'resources/assets/js/shared/toastr.js'])
+@endsection
+
+@section('page-script')
+    @vite(['resources/assets/js/shared/form-validation.js'])
+@endsection
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-1">
-                <li class="breadcrumb-item"><a href="{{ route('tenant.bills.index') }}">الفواتير</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('tenant.bills.show', $bill->id) }}">فاتورة #{{ $bill->bill_number }}</a></li>
-                <li class="breadcrumb-item active">التحويل البنكي</li>
-            </ol>
-        </nav>
-        <h4 class="mb-0 fw-bold">السداد عبر التحويل البنكي لفاتورة <span class="text-primary font-monospace">#{{ $bill->bill_number }}</span></h4>
-    </div>
-    <div>
-        <a href="{{ route('tenant.bills.show', $bill->id) }}" class="btn btn-label-secondary">
-            <i class="ti ti-arrow-right me-1"></i> العودة لتفاصيل الفاتورة
-        </a>
-    </div>
-</div>
-
-<div class="row">
-    {{-- بيانات الحسابات البنكية المتاحة --}}
-    <div class="col-lg-7 col-12 mb-4">
-        <div class="card mb-4">
-            <div class="card-header bg-label-primary py-3">
-                <h5 class="card-title mb-0 text-primary fw-bold">
-                    <i class="ti ti-building-bank me-2"></i> الحسابات البنكية المعتمدة
-                </h5>
-            </div>
-            <div class="card-body pt-4">
-                <p class="text-muted mb-4">يرجى تحويل المبلغ المطلوب (<span class="fw-bold text-dark">{{ number_format((float) $bill->amount, 2) }} ر.س</span>) إلى أحد الحسابات التالية مع كتابة رقم الفاتورة في وصف الحوالة:</p>
-
-                <div class="row g-3">
-                    @forelse($banks as $bank)
-                        <div class="col-12">
-                            <div class="border rounded p-3 bg-body-tertiary">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <div class="d-flex align-items-center gap-2">
-                                        @if($bank->logo_path)
-                                            <img src="{{ asset('storage/' . $bank->logo_path) }}" alt="{{ $bank->name }}" class="rounded" style="width: 38px; height: 38px; object-fit: contain;">
-                                        @else
-                                            <div class="avatar avatar-sm bg-label-primary rounded d-flex align-items-center justify-content-center">
-                                                <i class="ti ti-building-bank"></i>
-                                            </div>
-                                        @endif
-                                        <h6 class="fw-bold mb-0">{{ $bank->name }}</h6>
-                                    </div>
-                                    <span class="badge bg-label-success">حساب معتمد</span>
-                                </div>
-
-                                <div class="row g-2 mt-2 pt-2 border-top">
-                                    <div class="col-sm-6">
-                                        <small class="text-muted d-block">اسم صاحب الحساب:</small>
-                                        <span class="fw-semibold">{{ $bank->account_name }}</span>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <small class="text-muted d-block">رقم الحساب:</small>
-                                        <span class="fw-semibold font-monospace">{{ $bank->account_number }}</span>
-                                    </div>
-                                    <div class="col-12">
-                                        <small class="text-muted d-block">رقم الآيبان (IBAN):</small>
-                                        <div class="d-flex align-items-center gap-2 mt-1">
-                                            <span class="fw-bold font-monospace fs-6 text-primary">{{ $bank->iban }}</span>
-                                            <button type="button" class="btn btn-xs btn-label-secondary copyable-code-wrapper" onclick="navigator.clipboard.writeText('{{ $bank->iban }}'); toastr.success('تم نسخ الآيبان إلى الحافظة');" title="نسخ الآيبان">
-                                                <i class="ti ti-copy"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="col-12 text-center py-4 text-muted">
-                            <i class="ti ti-alert-circle fs-2 mb-2 d-block"></i>
-                            لا توجد حسابات بنكية مسجلة حالياً. يرجى التواصل مع الدعم الفني.
-                        </div>
-                    @endforelse
+    <div class="row g-2">
+        <div class="col-6">
+            <div class="card px-3 ">
+                <div class="card-header py-4">
+                    <h6 class="card-title mb-0">
+                        <i class="ti ti-repeat text-primary me-2"></i>
+                        دفع الفاتورة
+                    </h6>
                 </div>
-            </div>
-        </div>
-    </div>
+                <div class="border-1 border-light border-dashed mb-2"></div>
 
-    {{-- نموذج رفع الإيصال --}}
-    <div class="col-lg-5 col-12 mb-4">
-        <div class="card">
-            <div class="card-header border-bottom py-3">
-                <h5 class="card-title mb-0 fw-bold">
-                    <i class="ti ti-upload me-2 text-primary"></i> تأكيد السداد وإرفاق الإشعار
-                </h5>
-            </div>
-            <div class="card-body pt-4">
-                <form action="{{ route('tenant.bills.upload-receipt', $bill->id) }}" method="POST" enctype="multipart/form-data">
+                <div class="alert alert-outline-warning d-flex justify-content-around my-3 mx-3" role="alert">
+                    <p class="m-0 fw-bold">رقم الفاتورة: {{ $bill->bill_number }}</p>
+                    <p class="m-0 fw-bold">المبلغ المستحق: {{ number_format($amount, 2) }} <span
+                            class="icon-saudi_riyal"></span></p>
+                </div>
+
+                <form action="{{ tenant_route_name('bills.upload-receipt', $bill->id) }}" method="POST"
+                    enctype="multipart/form-data" novalidate data-form-validate
+                    data-validation-url="{{ tenant_route_name('wizard-drafts.validate-step') }}">
                     @csrf
 
-                    <div class="mb-3">
-                        <label class="form-label" for="bank_id">الحساب المحول إليه <span class="text-danger">*</span></label>
-                        <select name="bank_id" id="bank_id" class="form-select @error('bank_id') is-invalid @enderror" required>
-                            <option value="">اختر الحساب البنكي...</option>
-                            @foreach($banks as $bank)
-                                <option value="{{ $bank->id }}" {{ old('bank_id') == $bank->id ? 'selected' : '' }}>
-                                    {{ $bank->name }} - {{ $bank->account_name }}
+                    <!-- اختيار البنك -->
+                    <div class="form-group mb-3" data-form-field data-field-name="bank_id">
+                        <label for="bank_id" class="form-label">
+                            البنك المحول إليه
+                        </label>
+
+                        <select class="form-select select2 @error('bank_id') is-invalid @enderror" id="bank_id" data-form-control
+                            name="bank_id" data-placeholder="اختر البنك" required>
+                            <option value=""></option>
+                            @foreach ($banks as $bank)
+                                <option value="{{ $bank->id }}" @selected(old('bank_id') == $bank->id)>{{ $bank->bank_name }}
                                 </option>
                             @endforeach
                         </select>
@@ -111,28 +60,149 @@
                         @enderror
                     </div>
 
-                    <div class="mb-4">
-                        <label class="form-label" for="receipt">صورة الإشعار / ملف التحويل <span class="text-danger">*</span></label>
-                        <input type="file" name="receipt" id="receipt" class="form-control @error('receipt') is-invalid @enderror" accept=".jpg,.jpeg,.png,.pdf" required>
-                        <div class="form-text">الصيغ المقبولة: JPG, PNG, PDF (الحد الأقصى: 5 ميجابايت).</div>
+                    <div class="form-group mb-3" data-form-field data-field-name="receipt">
+                        <label for="receipt">إيصال التحويل</label>
+                        <input type="file" class="form-control @error('receipt') is-invalid @enderror" id="receipt" data-form-control
+                            name="receipt" value="{{ old('receipt') }}" required>
                         @error('receipt')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
 
-                    <div class="alert alert-warning py-2 small mb-4">
-                        <i class="ti ti-info-circle me-1"></i> سيتم تدقيق الحوالة وتفعيل الخدمات فور تأكيد وصول المبلغ من قبل الإدارة المالية.
+                    {{-- <div class="form-group mb-3">
+                        <label for="transfer_date">تاريخ التحويل</label>
+                        <input type="date" class="form-control @error('transfer_date') is-invalid @enderror"
+                            id="transfer_date" value="{{ old('transfer_date') }}" name="transfer_date" required>
+                        @error('transfer_date')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
 
-                    <div class="d-flex gap-2 justify-content-end">
-                        <x-form.wizard.draft-button />
-                        <button type="submit" class="btn btn-primary">
-                            <i class="ti ti-send me-1"></i> إرسال الإشعار للتدقيق
-                        </button>
+                    <div class="form-group mb-3">
+                        <label for="notes">ملاحظات (اختياري)</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3">{{ old('notes') }}</textarea>
+                    </div> --}}
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="submit" class="btn btn-primary">رفع الإيصال</button>
+                    </div>
+
+                    <div class="alert alert-warning d-flex align-items-center mt-2" role="alert">
+                        <i class="ti ti-clock me-2 fs-5"></i>
+                        <div>
+                            <strong>معلومات هامة:</strong> بعد رفع الإيصال، سيقوم فريقنا بالتحقق منه خلال <strong>يوم عمل
+                                واحد</strong>. سيتم تفعيل اشتراكك فورًا بعد تأكيد الدفع
+                        </div>
                     </div>
                 </form>
             </div>
         </div>
+
+        <div class="col-lg-6 col-md-12">
+            <div class="card shadow-sm border-0 ">
+                <div class="card-header py-4">
+                    <h6 class="card-title mb-0">
+                        <i class="ti ti-building-bank text-primary me-2"></i>
+                        البنوك المتاحة للتحويل
+                    </h6>
+                </div>
+                <div class="border-1 border-light border-dashed mb-2"></div>
+
+                <div class="card-body p-4">
+                    @if (count($banks) > 0)
+                        <div class="accordion" id="banksAccordion">
+                            @foreach ($banks as $index => $bank)
+                                <div class="accordion-item border mb-3 shadow-sm">
+                                    <h2 class="accordion-header" id="heading{{ $index }}">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapse{{ $index }}" aria-expanded="false"
+                                            aria-controls="collapse{{ $index }}">
+                                            <div class="d-flex align-items-center w-100">
+                                                <img class="me-3 rounded-circle border" width="50" height="50"
+                                                    src="{{ tasset($bank->icon) }}" alt="{{ $bank->bank_name }}">
+                                                <div>
+                                                    <h6 class="mb-0 fw-bold">{{ $bank->bank_name }}</h6>
+                                                    <small class="text-muted">اضغط لعرض التفاصيل</small>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse{{ $index }}" class="accordion-collapse collapse"
+                                        aria-labelledby="heading{{ $index }}" data-bs-parent="#banksAccordion">
+                                        <div class="accordion-body">
+                                            <div class="row">
+
+                                                <div class="col-md-12">
+                                                    <div class="d-flex align-items-center mb-3">
+                                                        <i class="ti ti-user-circle text-primary me-2 fs-5"></i>
+                                                        <div>
+                                                            <small class="text-muted d-block">اسم الحساب</small>
+                                                            <span class="fw-semibold">{{ $bank->account_name }}</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="d-flex align-items-center mb-3">
+                                                        <i class="ti ti-credit-card text-primary me-2 fs-5"></i>
+                                                        <div>
+                                                            <small class="text-muted d-block">رقم الحساب</small>
+                                                            <span class="fw-semibold">{{ $bank->account_number }}</span>
+
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="ti ti-id text-primary me-2 fs-5"></i>
+                                                        <div>
+                                                            <small class="text-muted d-block">رقم IBAN</small>
+                                                            <span class="fw-semibold">{{ $bank->iban }}</span>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="alert alert-outline-dark mt-3 d-flex align-items-center">
+                            <i class="ti ti-info-circle me-2 fs-5"></i>
+                            <div>
+                                <strong>ملاحظة هامة:</strong> يرجى التأكد من إدخال المعلومات بشكل صحيح عند إجراء التحويل.
+                            </div>
+                        </div>
+                    @else
+                        <div class="alert alert-warning d-flex align-items-center">
+                            <i class="ti ti-alert-triangle me-2 fs-5"></i>
+                            <div>
+                                لا توجد معلومات بنكية متاحة حالياً. يرجى التواصل مع الإدارة.
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
     </div>
-</div>
+
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2({
+                allowClear: true,
+                placeholder: function() {
+                    return $(this).data('placeholder') || 'الكل';
+                },
+                dir: 'rtl', // دعم اللغة العربية
+                language: {
+                    noResults: function() {
+                        return "لا توجد نتائج";
+                    },
+                    searching: function() {
+                        return "جاري البحث...";
+                    }
+                }
+            });
+        });
+    </script>
 @endsection
