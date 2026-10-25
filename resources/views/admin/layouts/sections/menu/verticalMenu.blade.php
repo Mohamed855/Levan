@@ -78,11 +78,6 @@
                     <div>قوالب المزادات</div>
                 </a>
             </li>
-            @can('auction_template_samples.view')
-            <li class="menu-item @if (Route::is('admin.auction-template-samples.*')) active @endif">
-                <a href="{{ route('admin.auction-template-samples.index') }}" class="menu-link"><i class="menu-icon tf-icons ti ti-layout-grid"></i><div>مكتبة عينات القوالب</div></a>
-            </li>
-            @endcan
         @endcan
 
         <li class="menu-header small">

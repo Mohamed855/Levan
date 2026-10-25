@@ -6,7 +6,6 @@ namespace App\Providers;
 
 use App\Models\Admin\AdminMangment\Users\AdminUser;
 use App\Models\Admin\AuctionTemplates\AuctionTemplate;
-use App\Models\Admin\AuctionTemplates\AuctionTemplateSample;
 use App\Models\Admin\Bank\Bank;
 use App\Models\Admin\Faq;
 use App\Models\Admin\Bills\Bill;
@@ -24,7 +23,6 @@ use App\Models\Tenants\BusinessCenter\Company\Company;
 use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Policies\Admin\AuctionTemplates\AuctionTemplatePolicy;
-use App\Policies\Admin\AuctionTemplates\AuctionTemplateSamplePolicy;
 use App\Policies\Admin\Bills\BillPolicy;
 use App\Policies\Admin\Coupons\CouponPolicy;
 use App\Policies\Admin\FaqPolicy;
@@ -59,7 +57,6 @@ class AuthServiceProvider extends ServiceProvider
     protected $policies = [
         Faq::class => FaqPolicy::class,
         AuctionTemplate::class => AuctionTemplatePolicy::class,
-        AuctionTemplateSample::class => AuctionTemplateSamplePolicy::class,
         Plan::class => PlanPolicy::class,
         Tenant::class => TenantPolicy::class,
         \App\Models\Admin\Client::class => \App\Policies\Admin\Clients\ClientPolicy::class,

@@ -60,6 +60,8 @@
             {{-- الخطوة 1: البيانات الأساسية --}}
             <x-form.wizard.step id="property-basic-validation" :fields="['name', 'type', 'usage_classification', 'area', 'is_active', 'short_description']">
                 <div class="row g-4">
+                    <x-form.controls.input name="property_number_display" label="رقم العقار" :value="$property->property_number"
+                        readonly col="col-md-6" help="رقم العقار معرّف ثابت لا يمكن تغييره." />
                     <x-form.controls.input name="name" label="اسم العقار" :value="$property->name"
                         placeholder="مثال: فيلا النخيل" required col="col-md-6" />
                     <x-form.controls.select name="type" label="نوع العقار" :value="$property->type?->value ?? $property->type" required col="col-md-6"

@@ -33,8 +33,8 @@
                         @method('PUT')
 
                         <x-form.controls.input name="name" label="معرّف الدور" :value="$role->name"
-                            placeholder="مثال: collection_manager" required col="col-md-6 mb-3"
-                            help="يُحفظ معرفاً إنجليزياً فقط، وتُترجم التسمية في الواجهة." />
+                            placeholder="مثال: collection_manager" readonly required col="col-md-6 mb-3"
+                            help="معرّف الدور ثابت ولا يمكن تعديله بعد الإنشاء للحفاظ على استقرار الصلاحيات." />
 
                         <div class="mb-3" data-form-field data-field-name="permissions">
                             <div class="d-flex justify-content-between align-items-center my-3 gap-3">

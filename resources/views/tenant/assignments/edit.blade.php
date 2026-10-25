@@ -61,8 +61,8 @@
                         'assignment_image',
                     ]">
                         <div class="row g-6">
-                            <x-form.controls.input name="assignment_number" label="رقم الإسناد" :value="$assignment->assignment_number" required
-                                col="col-md-6" class="font-monospace text-uppercase" />
+                            <x-form.controls.input name="assignment_number" label="رقم الإسناد" :value="$assignment->assignment_number" readonly required
+                                col="col-md-6" class="font-monospace text-uppercase" help="رقم الإسناد معرّف ثابت لا يمكن تعديله." />
 
                             <x-form.controls.input name="name" label="اسم الإسناد" :value="$assignment->name" required
                                 col="col-md-6" />

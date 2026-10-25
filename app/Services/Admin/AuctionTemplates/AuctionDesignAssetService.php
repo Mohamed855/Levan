@@ -15,7 +15,7 @@ final class AuctionDesignAssetService
 
     private const MIME = ['image/png' => 'png', 'image/jpeg' => 'jpg', 'image/webp' => 'webp'];
 
-    public function finalizeSchema(array $schema, array $uploads, string $targetPrefix, array $allowedSourcePrefixes = ['auction_template_samples/', 'auction_templates/']): array
+    public function finalizeSchema(array $schema, array $uploads, string $targetPrefix, array $allowedSourcePrefixes = ['auction_templates/']): array
     {
         $disk = Storage::disk('central_public');
         $created = [];

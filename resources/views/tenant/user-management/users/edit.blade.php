@@ -51,7 +51,8 @@
                             <x-form.controls.input name="name" label="الاسم الكامل" :value="$user->name"
                                 placeholder="ادخل الاسم الكامل" required />
                             <x-form.controls.input name="employee_number" label="الرقم الوظيفي" :value="$user->employee_number"
-                                placeholder="ادخل الرقم الوظيفي" required style="text-transform: uppercase;" />
+                                placeholder="ادخل الرقم الوظيفي" readonly required style="text-transform: uppercase;"
+                                help="الرقم الوظيفي ثابت لا يمكن تعديله." />
                             <x-form.controls.input name="email" type="email" label="البريد الإلكتروني" :value="$user->email"
                                 placeholder="ادخل البريد الإلكتروني" autocomplete="off" required />
                             <x-form.controls.input name="phone" label="رقم الهاتف" :value="$user->phone"

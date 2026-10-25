@@ -168,7 +168,7 @@ class SessionManagerService
         return session()->has($key);
     }
 
-    //  تحديث بيانات معينة في الجلسة
+    //  تحديث بيانات منموذج في الجلسة
     public function update(string $key, array $data): void
     {
         $existing = session($key, []);

@@ -41,22 +41,8 @@ function initTemplateDesigners() {
       box.innerHTML = `<div class="mb-3"><label class="form-label">${isText ? 'محتوى النص' : 'البيان المرتبط'}</label>${isText ? `<input class="form-control" data-property="content" value="${esc(e.content)}">` : `<select class="form-select" data-property="binding">${bindings.map((b) => `<option value="${b}" ${e.binding === b ? 'selected' : ''}>${b}</option>`).join('')}</select>`}</div><div class="row g-2 mb-3">${['x','y','width','height'].map((p) => `<div class="col-6"><label class="form-label">${p.toUpperCase()} (px)</label><input class="form-control" type="number" min="${p === 'width' || p === 'height' ? 20 : 0}" data-property="${p}" value="${Math.round(e[p])}"></div>`).join('')}</div>${!e.type.includes('image') ? `<div class="row g-2 mb-3"><div class="col-6"><label class="form-label">الخط</label><select class="form-select" data-style="font_family">${DESIGNER_FONTS.map(([v,l]) => `<option value="${v}" ${normalizeFont(style.font_family) === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div><div class="col-6"><label class="form-label">حجم الخط</label><input class="form-control" type="number" min="6" data-style="font_size" value="${style.font_size || 24}"></div></div>` : ''}<button type="button" class="btn btn-outline-danger btn-sm w-100" data-delete-element>حذف العنصر</button>`;
     }
     const render = () => { renderTabs(); renderCanvas(); renderProperties(); persist(); };
-    const shelf = root.querySelector('[data-sample-shelf]');
-    if (shelf) {
-      fetch(`${shelf.dataset.libraryUrl}?type=${encodeURIComponent(type)}`, { headers: { Accept: 'application/json' } })
-        .then((r) => r.ok ? r.json() : Promise.reject(new Error('library')))
-        .then((payload) => {
-          const cards = root.querySelector('[data-sample-cards]'); const items = payload.data || [];
-          if (!cards) return;
-          cards.innerHTML = items.length ? items.map((s) => `<button type="button" class="btn btn-light border p-1 text-start" data-sample-id="${s.id}" title="${esc(s.name)}"><img src="${s.thumbnail_url}" alt="${esc(s.name)}" style="width:92px;height:62px;object-fit:cover"><span class="d-block small mt-1">${esc(s.name)}</span></button>`).join('') : '<span class="text-muted small">لا توجد عينات متاحة.</span>';
-        }).catch(() => { const cards = root.querySelector('[data-sample-cards]'); if (cards) cards.innerHTML = '<span class="text-danger small">تعذر تحميل العينات.</span>'; });
-    }
     root.addEventListener('click', (ev) => {
       const p = ev.target.closest('[data-page-index]'); if (p) { pageIndex = Number(p.dataset.pageIndex); selectedId = null; render(); return; }
-      const sample = ev.target.closest('[data-sample-id]'); if (sample) {
-        if (!window.confirm('سيؤدي تطبيق العينة إلى استبدال التصميم الحالي بالكامل. هل تريد المتابعة؟')) return;
-        fetch(`${shelf.dataset.libraryUrl.replace(/\/library$/, '')}/${sample.dataset.sampleId}/design`, { headers: { Accept: 'application/json' } }).then((r) => r.ok ? r.json() : Promise.reject(new Error('sample'))).then((payload) => { const next = payload.data?.schema; if (!next) throw new Error('schema'); replaceSchema(state, next, id, canvasFor, type); schema = state.schema; selectedId = null; pageIndex = 0; render(); }).catch(() => window.alert('تعذر تطبيق العينة.')); return;
-      }
       const add = ev.target.closest('[data-add-element]')?.dataset.addElement; if (add) { const e = { id: id(), type: add, x: 60, y: 60, width: add === 'image' ? 220 : 280, height: add === 'image' ? 180 : 54, content: add === 'text' ? 'نص جديد' : null, binding: add === 'variable' ? 'auction.name' : add === 'image' ? 'auction.cover_image' : null, style: { color: '#173f35', font_size: 24, font_weight: 'normal', font_family: DEFAULT_FONT, text_align: 'right', border_radius: 0 } }; page().elements.push(e); selectedId = e.id; render(); return; }
       if (ev.target.closest('[data-add-page]') && type === 'brochure') { schema.pages.push({ id: id(), background: { color: '#ffffff', image: null, fit: 'cover' }, elements: [] }); pageIndex = schema.pages.length - 1; selectedId = null; render(); return; }
       if (ev.target.closest('[data-delete-element]') && selectedId) { page().elements = page().elements.filter((e) => e.id !== selectedId); selectedId = null; render(); return; }

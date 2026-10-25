@@ -58,12 +58,8 @@
 
                             <!-- الكود -->
                             <x-form.controls.input name="code" id="code" label="كود الكوبون"
-                                help="سيتم تحويل الكود إلى أحرف كبيرة تلقائيًا" :value="$coupon->code" required col="col-md-6"
-                                :input-group="true" class="font-monospace" style="text-transform: uppercase;">
-                                <button type="button" class="btn btn-secondary btn-generate-code" id="btn-generate-code">
-                                    <i class="ti ti-wand"></i> توليد
-                                </button>
-                            </x-form.controls.input>
+                                help="كود الكوبون ثابت ولا يمكن تعديله بعد إطلاقه." :value="$coupon->code" readonly required col="col-md-6"
+                                class="font-monospace" style="text-transform: uppercase;" />
 
                             <!-- نوع الخصم -->
                             <x-form.controls.select name="discount_type" id="discount_type" label="نوع الخصم" required

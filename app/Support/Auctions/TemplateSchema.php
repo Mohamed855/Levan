@@ -119,7 +119,7 @@ final class TemplateSchema
         $validator->after(function ($v) use ($schema): void {
             foreach ($schema['pages'] as $pi => $page) {
                 $image = $page['background']['image'] ?? null;
-                if ($image !== null && (preg_match('#^(https?:|file:|//|\\\\|/)#i', (string) $image) || str_contains((string) $image, '..') || ! preg_match('#^(auction_template_samples|auction_templates)/#', (string) $image))) {
+                if ($image !== null && (preg_match('#^(https?:|file:|//|\\\\|/)#i', (string) $image) || str_contains((string) $image, '..') || ! preg_match('#^auction_templates/#', (string) $image))) {
                     $v->errors()->add("pages.$pi.background.image", 'مسار الصورة غير آمن.');
                 }
                 foreach ($page['elements'] as $ei => $el) {

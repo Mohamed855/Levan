@@ -59,10 +59,10 @@
                             <x-form.controls.input name="company_name" label="اسم العميل / الشركة" :value="$target->company_name"
                                 maxlength="255" required col="col-md-6" />
                             <x-form.controls.input name="commercial_number" label="رقم السجل التجاري" :value="$target->commercial_number"
-                                maxlength="10" inputmode="numeric" pattern="[0-9]*" data-digits-only required
-                                col="col-md-6" />
+                                maxlength="10" inputmode="numeric" pattern="[0-9]*" data-digits-only readonly required
+                                col="col-md-6" help="رقم السجل التجاري ثابت للشركة." />
                             <x-form.controls.input name="tax_number" label="الرقم الضريبي" :value="$target->tax_number" maxlength="50"
-                                col="col-md-6" />
+                                readonly col="col-md-6" help="الرقم الضريبي ثابت للشركة." />
                             <x-form.controls.select name="city_id" label="المدينة" :options="$cities" :value="$target->city_id"
                                 placeholder="اختر المدينة" required col="col-md-6" />
                             <x-form.controls.textarea name="address" label="العنوان" :value="$target->address" rows="2"

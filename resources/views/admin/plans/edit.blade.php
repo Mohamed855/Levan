@@ -46,9 +46,7 @@
         <x-ui.validation-errors class="mb-4" />
 
         <form id="plan-wizard-form" action="{{ route('admin.plans.update', $plan->id) }}" method="POST" autocomplete="off"
-            data-form-validate data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}"
-            data-draft-url="{{ route('admin.wizard-drafts.store') }}"
-            data-draft-resource-key="admin.plan-edit-{{ $plan->id }}">
+            data-form-validate data-validation-url="{{ route('admin.wizard-drafts.validate-step') }}">
             @csrf
             @method('PUT')
 
@@ -112,7 +110,7 @@
                         rows="2" col="col-md-6" />
                 </div>
                 <x-form.wizard.actions><x-form.wizard.previous-button :href="route('admin.plans.index')" text="رجوع" />
-                    <div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button /></div>
+                    <div class="d-flex gap-2"><x-form.wizard.next-button /></div>
                 </x-form.wizard.actions>
             </x-form.wizard.step>
 
@@ -141,7 +139,7 @@
                         col="col-md-6" help="عرض سنوي اختياري للباقات الشهرية والربع سنوية." />
                 </div>
                 <x-form.wizard.actions><x-form.wizard.previous-button />
-                    <div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button /></div>
+                    <div class="d-flex gap-2"><x-form.wizard.next-button /></div>
                 </x-form.wizard.actions>
             </x-form.wizard.step>
 
@@ -185,7 +183,7 @@
                         label="إدارة الدومينات" required :value="$plan->domain_management_enabled ? '1' : '0'" col="col-md-6" :enum="\App\Enums\Shared\ActivationStatus::class" />
                 </div>
                 <x-form.wizard.actions><x-form.wizard.previous-button />
-                    <div class="d-flex gap-2"><x-form.wizard.draft-button /><x-form.wizard.next-button
+                    <div class="d-flex gap-2"><x-form.wizard.next-button
                             text="التالي للمراجعة" /></div>
                 </x-form.wizard.actions>
             </x-form.wizard.step>
@@ -290,7 +288,6 @@
                 <x-form.wizard.actions>
                     <x-form.wizard.previous-button />
                     <div class="d-flex gap-2">
-                        <x-form.wizard.draft-button />
                         <x-form.wizard.save-button />
                     </div>
                 </x-form.wizard.actions>
