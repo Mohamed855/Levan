@@ -11,6 +11,8 @@ final class BrowsershotDocumentRenderer implements BrowserDocumentRenderer
 {
     public function pdf(string $html, string $outputPath): string
     {
+        ini_set('memory_limit', '512M');
+
         $instance = Browsershot::html($html);
 
         if ($node = config('auction-renderer.node_binary')) {
@@ -23,11 +25,14 @@ final class BrowsershotDocumentRenderer implements BrowserDocumentRenderer
             $instance->setChromePath($chrome);
         }
 
-        $instance->timeout((int) config('auction-renderer.timeout', 120))
+        $timeout = max(180, (int) config('auction-renderer.timeout', 180));
+
+        $instance->timeout($timeout)
             ->format('A4')
             ->margins(0, 0, 0, 0)
             ->showBackground()
             ->waitUntilNetworkIdle()
+            ->waitForFunction('document.body.getAttribute("data-report-ready") === "true"')
             ->save($outputPath);
 
         return $outputPath;
