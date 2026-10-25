@@ -2,13 +2,16 @@
 
 namespace Database\Seeders\tenant;
 
+use App\Jobs\Tenants\Auctions\GenerateAuctionReportsJob;
 use App\Models\Tenants\Assignments\Assignment;
-use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Auctions\AuctionAttachment;
+use App\Models\Tenants\Properties\Property;
 use App\Models\Tenants\UserMangment\User\User;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 class AuctionsAndPropertiesSeeder extends Seeder
 {
@@ -328,8 +331,16 @@ class AuctionsAndPropertiesSeeder extends Seeder
         }
 
         // ---------------------------------------------------------
-        // 3. Create Auctions
+        // 3. Create Auctions & Generate Sample Reports
         // ---------------------------------------------------------
+        $sampleReportPath = 'auctions/report-images/sample-report-cover.png';
+        if (! Storage::disk('tenant_public')->exists($sampleReportPath)) {
+            $sourceFile = public_path('static/samples/auction-templates/brochure-1.png');
+            if (File::exists($sourceFile)) {
+                Storage::disk('tenant_public')->put($sampleReportPath, File::get($sourceFile));
+            }
+        }
+
         $auctionsData = [
             [
                 'assignment_id'            => $assignment1->id,
@@ -344,11 +355,26 @@ class AuctionsAndPropertiesSeeder extends Seeder
                 'city'                     => 'الرياض',
                 'expected_properties_count'=> 3,
                 'supervising_entity'       => 'مركز الإسناد والتصفية (إنفاذ)',
+                'project_manager_name'     => 'م. فهد بن عبدالعزيز',
                 'platform_name'            => 'منصة سومات للمزادات الإلكترونية',
                 'platform_url'             => 'https://soum.sa',
+                'report_image'             => $sampleReportPath,
+                'marketing_data'           => [
+                    'campaigns' => [
+                        ['platform' => 'Instagram', 'reach' => 32000, 'impressions' => 58000, 'engagements' => 2400, 'clicks' => 890],
+                        ['platform' => 'Twitter/X', 'reach' => 22000, 'impressions' => 41000, 'engagements' => 1350, 'clicks' => 510],
+                    ],
+                    'links' => [
+                        ['label' => 'حملة إطلاق المزاد', 'url' => 'https://soum.sa/dorra-riyadh'],
+                    ],
+                ],
                 'status'                   => 'active',
                 'is_active'                => true,
-                'properties_to_sync'       => ['PROP-001', 'PROP-002', 'PROP-003'],
+                'properties_to_sync'       => [
+                    'PROP-001' => ['sort_order' => 1, 'result_status' => 'sold', 'opening_price' => 2500000.00, 'sale_price' => 3100000.00, 'participants_count' => 18, 'bids_count' => 45],
+                    'PROP-002' => ['sort_order' => 2, 'result_status' => 'sold', 'opening_price' => 1800000.00, 'sale_price' => 2250000.00, 'participants_count' => 14, 'bids_count' => 32],
+                    'PROP-003' => ['sort_order' => 3, 'result_status' => 'unsold', 'opening_price' => 4000000.00, 'sale_price' => null, 'participants_count' => 5, 'bids_count' => 12, 'unsold_reason' => 'عدم وصول المزايدات للسعر التحفظي المحدد من المحكمة'],
+                ],
             ],
             [
                 'assignment_id'            => $assignment2->id,
@@ -363,11 +389,21 @@ class AuctionsAndPropertiesSeeder extends Seeder
                 'city'                     => 'جدة',
                 'expected_properties_count'=> 2,
                 'supervising_entity'       => 'محكمة التنفيذ بجدة',
+                'project_manager_name'     => 'أ. سلطان الحربي',
                 'platform_name'            => 'قاعة ليلتي للمناسبات - جدة',
                 'platform_url'             => null,
+                'report_image'             => $sampleReportPath,
+                'marketing_data'           => [
+                    'campaigns' => [
+                        ['platform' => 'Instagram', 'reach' => 19000, 'impressions' => 34000, 'engagements' => 1400, 'clicks' => 460],
+                    ],
+                ],
                 'status'                   => 'in_preparation',
                 'is_active'                => true,
-                'properties_to_sync'       => ['PROP-004', 'PROP-005'],
+                'properties_to_sync'       => [
+                    'PROP-004' => ['sort_order' => 1, 'result_status' => 'sold', 'opening_price' => 8500000.00, 'sale_price' => 10200000.00, 'participants_count' => 22, 'bids_count' => 58],
+                    'PROP-005' => ['sort_order' => 2, 'result_status' => 'pending', 'opening_price' => 6000000.00, 'sale_price' => null, 'participants_count' => null, 'bids_count' => null],
+                ],
             ],
             [
                 'assignment_id'            => $assignment4->id,
@@ -382,11 +418,21 @@ class AuctionsAndPropertiesSeeder extends Seeder
                 'city'                     => 'الرياض',
                 'expected_properties_count'=> 2,
                 'supervising_entity'       => 'وزارة العدل',
+                'project_manager_name'     => 'م. عبدالله القحطاني',
                 'platform_name'            => 'منصة مباشر للمزادات',
                 'platform_url'             => 'https://mubasher.sa',
+                'report_image'             => $sampleReportPath,
+                'marketing_data'           => [
+                    'campaigns' => [
+                        ['platform' => 'Instagram', 'reach' => 28000, 'impressions' => 48000, 'engagements' => 1950, 'clicks' => 730],
+                    ],
+                ],
                 'status'                   => 'in_preparation',
                 'is_active'                => true,
-                'properties_to_sync'       => ['PROP-007', 'PROP-008'],
+                'properties_to_sync'       => [
+                    'PROP-007' => ['sort_order' => 1, 'result_status' => 'sold', 'opening_price' => 3200000.00, 'sale_price' => 3750000.00, 'participants_count' => 16, 'bids_count' => 39],
+                    'PROP-008' => ['sort_order' => 2, 'result_status' => 'pending', 'opening_price' => 2900000.00, 'sale_price' => null, 'participants_count' => null, 'bids_count' => null],
+                ],
             ],
             [
                 'assignment_id'            => $assignment1->id,
@@ -401,8 +447,10 @@ class AuctionsAndPropertiesSeeder extends Seeder
                 'city'                     => 'الرياض',
                 'expected_properties_count'=> 1,
                 'supervising_entity'       => 'مركز الإسناد والتصفية',
+                'project_manager_name'     => 'مدير تجريبي',
                 'platform_name'            => 'منصة سومات',
                 'platform_url'             => 'https://soum.sa',
+                'report_image'             => null,
                 'status'                   => 'suspended',
                 'is_active'                => false,
                 'properties_to_sync'       => [],
@@ -419,18 +467,20 @@ class AuctionsAndPropertiesSeeder extends Seeder
                 array_merge($aucData, ['created_by' => $userId])
             );
 
-            // Sync properties to auction
+            // Sync properties to auction with results and ordering
             if (! empty($propsToSync)) {
-                $propIds = [];
+                $syncData = [];
                 $order = 1;
-                foreach ($propsToSync as $code) {
+                foreach ($propsToSync as $key => $val) {
+                    $code = is_array($val) ? $key : $val;
+                    $pivotAttrs = is_array($val) ? $val : ['sort_order' => $order++];
                     if (isset($createdProperties[$code])) {
                         $prop = $createdProperties[$code];
-                        $propIds[$prop->id] = ['sort_order' => $order++];
+                        $syncData[$prop->id] = $pivotAttrs;
                         $prop->update(['status' => 'assigned_to_auction']);
                     }
                 }
-                $auction->properties()->sync($propIds);
+                $auction->properties()->sync($syncData);
             }
 
             // Create sample attachment
@@ -447,6 +497,18 @@ class AuctionsAndPropertiesSeeder extends Seeder
                     'channels'   => ['web', 'social', 'whatsapp'],
                 ]
             );
+
+            // Generate reports for active seeded auctions
+            if (! $isArchived) {
+                try {
+                    $tenantId = (string) (tenant('id') ?: tenant()?->id);
+                    if ($tenantId) {
+                        GenerateAuctionReportsJob::dispatchSyncNow($auction, $tenantId);
+                    }
+                } catch (\Throwable $e) {
+                    // Seeding remains resilient even if Browsershot is offline
+                }
+            }
 
             if ($isArchived && ! $auction->trashed()) {
                 $auction->delete();
