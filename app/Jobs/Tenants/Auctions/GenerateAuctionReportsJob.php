@@ -104,13 +104,13 @@ class GenerateAuctionReportsJob implements ShouldQueue
             $pdfRenderer->pdf($outputsHtml, $outputsTmp);
             $pdfRenderer->pdf($reportHtml, $reportTmp);
 
-            // تخزين الملفات في مسار معزول
-            Storage::disk('tenant_private')->putFileAs(
+            // تخزين الملفات في مسار معزول بـ UUID
+            Storage::disk('tenant_public')->putFileAs(
                 $baseDir,
                 new \Illuminate\Http\File($outputsTmp),
                 'outputs.pdf',
             );
-            Storage::disk('tenant_private')->putFileAs(
+            Storage::disk('tenant_public')->putFileAs(
                 $baseDir,
                 new \Illuminate\Http\File($reportTmp),
                 'report.pdf',

@@ -10,7 +10,7 @@ use App\Http\Controllers\Tenants\Archive\Company\CompanyArchiveController;
 use App\Http\Controllers\Tenants\Archive\Property\PropertyArchiveController;
 use App\Http\Controllers\Tenants\Archive\User\UserArchiveController;
 use App\Http\Controllers\Tenants\Assignments\AssignmentsController;
-use App\Http\Controllers\Tenants\Auctions\AuctionOutputController;
+use App\Http\Controllers\Tenants\Auctions\AuctionReportController;
 use App\Http\Controllers\Tenants\Auctions\AuctionsController;
 use App\Http\Controllers\Tenants\Auth\Fortify\TenantTwoFactorSettingsController;
 use App\Http\Controllers\Tenants\Auth\AuthenticatedSessionController;
@@ -327,11 +327,11 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         */
         Route::prefix('auctions')->name('auctions.')->group(function () {
             Route::name('toggle-status')->patch('{auction}/toggle-status', [AuctionsController::class, 'toggleStatus']);
-            Route::name('preview')->get('{auction}/preview/{type}', [AuctionsController::class, 'preview']);
-            Route::name('brochure')->get('{auction}/brochure', [AuctionOutputController::class, 'brochure']);
-            Route::name('billboard')->get('{auction}/billboard', [AuctionOutputController::class, 'billboard']);
-            Route::name('social')->get('{auction}/social', [AuctionOutputController::class, 'social']);
-            Route::name('social-image')->get('{auction}/social-image', [AuctionOutputController::class, 'socialImage']);
+            Route::prefix('{auction}/reports')->name('reports.')->group(function () {
+                Route::name('status')->get('status', [AuctionReportController::class, 'status']);
+                Route::name('download')->get('download/{type}', [AuctionReportController::class, 'download']);
+                Route::name('retry')->post('retry', [AuctionReportController::class, 'retry']);
+            });
         });
         Route::resource('auctions', AuctionsController::class)
             ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);

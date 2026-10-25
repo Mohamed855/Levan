@@ -20,7 +20,7 @@ class AuctionsDataTable extends AbstractDataTable
     protected function resource()
     {
         return Auction::query()
-            ->with(['assignment'])
+            ->with(['assignment', 'latestReportGeneration'])
             ->withCount('properties');
     }
 
@@ -80,22 +80,32 @@ class AuctionsDataTable extends AbstractDataTable
                 return '<span class="badge '.$row->status_badge_class.'">'.e($row->status_label).'</span>';
             })
             ->addColumn('outputs', function ($row) {
-                $badges = [];
-                $hasBrochure = !empty($row->template_versions['brochure']) || !empty($row->template_snapshot['brochure']) || $row->brochure_template_id;
-                $hasBillboard = !empty($row->template_versions['billboard']) || !empty($row->template_snapshot['billboard']) || $row->billboard_template_id;
-                $hasSocial = !empty($row->template_versions['social']) || !empty($row->template_snapshot['social']) || $row->social_template_id;
-
-                if ($hasBrochure) {
-                    $badges[] = '<a href="'.tenant_route_name('auctions.preview', ['auction' => $row->id, 'type' => 'brochure']).'" target="_blank" class="badge bg-label-primary me-1" title="معاينة البروشور">بروشور</a>';
-                }
-                if ($hasBillboard) {
-                    $badges[] = '<a href="'.tenant_route_name('auctions.preview', ['auction' => $row->id, 'type' => 'billboard']).'" target="_blank" class="badge bg-label-warning me-1" title="معاينة اللوحة">لوحة</a>';
-                }
-                if ($hasSocial) {
-                    $badges[] = '<a href="'.tenant_route_name('auctions.preview', ['auction' => $row->id, 'type' => 'social']).'" target="_blank" class="badge bg-label-info" title="معاينة السوشيال">سوشيال</a>';
+                $gen = $row->latestReportGeneration;
+                if (! $gen) {
+                    return '<span class="text-muted">—</span>';
                 }
 
-                return !empty($badges) ? implode('', $badges) : '<span class="text-muted">—</span>';
+                if ($gen->isReady()) {
+                    $buttons = [];
+                    if (filled($gen->outputs_path)) {
+                        $buttons[] = '<a href="'.tenant_route_name('auctions.reports.download', ['auction' => $row->id, 'type' => 'outputs']).'" class="badge bg-label-primary me-1" title="تحميل مخرجات المزاد"><i class="ti ti-file-text me-1"></i>المخرجات</a>';
+                    }
+                    if (filled($gen->report_path)) {
+                        $buttons[] = '<a href="'.tenant_route_name('auctions.reports.download', ['auction' => $row->id, 'type' => 'report']).'" class="badge bg-label-success" title="تحميل تقرير المزاد"><i class="ti ti-file-analytics me-1"></i>التقرير</a>';
+                    }
+
+                    return !empty($buttons) ? implode('', $buttons) : '<span class="badge bg-label-success">جاهز</span>';
+                }
+
+                if ($gen->isProcessing() || $gen->status === 'queued') {
+                    return '<span class="badge bg-label-warning"><i class="ti ti-loader ti-spin me-1"></i>قيد التجهيز</span>';
+                }
+
+                if ($gen->isFailed()) {
+                    return '<span class="badge bg-label-danger" title="'.e($gen->error_message ?? 'فشل التوليد').'"><i class="ti ti-alert-triangle me-1"></i>فشل</span>';
+                }
+
+                return '<span class="text-muted">—</span>';
             })
             ->addColumn('actions', function ($row) {
                 return view('tenant.auctions.action', ['row' => $row, 'route' => $this->route])->render();

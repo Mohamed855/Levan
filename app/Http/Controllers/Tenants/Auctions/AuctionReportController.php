@@ -46,6 +46,18 @@ final class AuctionReportController extends Controller
     }
 
     /**
+     * تنزيل ملف التقرير بحسب النوع (outputs أو report).
+     */
+    public function download(Auction $auction, string $type): StreamedResponse|RedirectResponse
+    {
+        return match ($type) {
+            'outputs' => $this->downloadOutputs($auction),
+            'report' => $this->downloadReport($auction),
+            default => abort(404, 'نوع التقرير غير مدعوم.'),
+        };
+    }
+
+    /**
      * تنزيل مخرجات المزاد (التصميم الأول).
      */
     public function downloadOutputs(Auction $auction): StreamedResponse|RedirectResponse

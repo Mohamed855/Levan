@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Tenants\Auctions;
 
 use App\Enums\Tenants\Auctions\AuctionStatus;
+use App\Jobs\Tenants\Auctions\GenerateAuctionReportsJob;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Auctions\AuctionAttachment;
@@ -178,6 +179,10 @@ final class UpdateAuctionAction
         }
 
         Storage::disk('tenant_public')->delete(array_values(array_unique($pathsToDelete)));
+
+        if (tenancy()->initialized && tenant('id')) {
+            GenerateAuctionReportsJob::dispatchAfterCommit($updated, (string) tenant('id'));
+        }
 
         return $updated;
     }

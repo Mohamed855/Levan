@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Tenants\Auctions;
 
 use App\Enums\Tenants\Auctions\AuctionStatus;
+use App\Jobs\Tenants\Auctions\GenerateAuctionReportsJob;
 use App\Models\Tenants\Assignments\Assignment;
 use App\Models\Tenants\Auctions\Auction;
 use App\Models\Tenants\Auctions\AuctionAttachment;
@@ -143,6 +144,12 @@ final class CreateAuctionAction
 
                 return $auction->load(['properties', 'attachments', 'assignment']);
             });
+
+            if (tenancy()->initialized && tenant('id')) {
+                GenerateAuctionReportsJob::dispatchAfterCommit($auction, (string) tenant('id'));
+            }
+
+            return $auction;
         } catch (Throwable $e) {
             if (! empty($storedPaths)) {
                 Storage::disk('tenant_public')->delete($storedPaths);

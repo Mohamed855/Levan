@@ -53,6 +53,8 @@
                         </li>
                         <li class="mb-2"><span class="fw-bold me-1">الجهة المشرفة:</span>
                             <span>{{ $auction->supervising_entity ?? '-' }}</span></li>
+                        <li class="mb-2"><span class="fw-bold me-1">مدير المشروع:</span>
+                            <span>{{ $auction->project_manager_name ?? '-' }}</span></li>
                         <li class="mb-2"><span class="fw-bold me-1">منصة المزاد:</span>
                             <span>{{ $auction->platform_name ?? '-' }}</span></li>
                         @if ($auction->platform_url)
@@ -69,73 +71,58 @@
                 </div>
             </div>
 
-            {{-- كارت مخرجات ومعاينة المزاد التسويقية --}}
+            {{-- كارت ملفات وتقارير المزاد --}}
             @php
-                $hasTemplates = !empty($auction->template_versions) || !empty($auction->template_snapshot) || $auction->brochure_template_id || $auction->billboard_template_id || $auction->social_template_id;
-                $hasBrochure = !empty($auction->template_versions['brochure']) || !empty($auction->template_snapshot['brochure']) || $auction->brochure_template_id;
-                $hasBillboard = !empty($auction->template_versions['billboard']) || !empty($auction->template_snapshot['billboard']) || $auction->billboard_template_id;
-                $hasSocial = !empty($auction->template_versions['social']) || !empty($auction->template_snapshot['social']) || $auction->social_template_id;
+                $gen = $auction->latestReportGeneration;
+                $isReady = $gen?->isReady();
+                $isProcessing = $gen && in_array($gen->status, ['queued', 'processing']);
+                $isFailed = $gen?->isFailed();
             @endphp
-            @if($hasTemplates)
-                <div class="card mb-4 shadow-sm border-primary">
-                    <div class="card-header bg-label-primary py-3">
-                        <h6 class="card-title mb-0 text-primary fw-bold">
-                            <i class="ti ti-palette me-1"></i>مخرجات ومعاينة القوالب المعتمدة
-                        </h6>
-                    </div>
-                    <div class="card-body pt-3">
-                        <div class="d-grid gap-2">
-                            @if($hasBrochure)
-                                <div class="d-flex gap-2">
-                                    <a href="{{ tenant_route_name('auctions.preview', ['auction' => $auction->id, 'type' => 'brochure']) }}"
-                                       class="btn btn-primary flex-grow-1 d-flex align-items-center justify-content-between" target="_blank">
-                                        <span><i class="ti ti-eye me-2"></i>معاينة كتيب البروشور</span>
-                                        <i class="ti ti-external-link"></i>
-                                    </a>
-                                    @if($auction->brochure_template_id)
-                                        <a href="{{ tenant_route_name('auctions.brochure', $auction->id) }}"
-                                           class="btn btn-outline-primary" target="_blank" title="تحميل PDF">
-                                            <i class="ti ti-download"></i>
-                                        </a>
-                                    @endif
-                                </div>
-                            @endif
-
-                            @if($hasBillboard)
-                                <div class="d-flex gap-2">
-                                    <a href="{{ tenant_route_name('auctions.preview', ['auction' => $auction->id, 'type' => 'billboard']) }}"
-                                       class="btn btn-warning flex-grow-1 d-flex align-items-center justify-content-between" target="_blank">
-                                        <span><i class="ti ti-eye me-2"></i>معاينة اللوحة الإعلانية</span>
-                                        <i class="ti ti-external-link"></i>
-                                    </a>
-                                    @if($auction->billboard_template_id)
-                                        <a href="{{ tenant_route_name('auctions.billboard', $auction->id) }}"
-                                           class="btn btn-outline-warning" target="_blank" title="تحميل PDF">
-                                            <i class="ti ti-download"></i>
-                                        </a>
-                                    @endif
-                                </div>
-                            @endif
-
-                            @if($hasSocial)
-                                <div class="d-flex gap-2">
-                                    <a href="{{ tenant_route_name('auctions.preview', ['auction' => $auction->id, 'type' => 'social']) }}"
-                                       class="btn btn-info flex-grow-1 d-flex align-items-center justify-content-between" target="_blank">
-                                        <span><i class="ti ti-eye me-2"></i>معاينة منشورات التواصل</span>
-                                        <i class="ti ti-external-link"></i>
-                                    </a>
-                                    @if($auction->social_template_id)
-                                        <a href="{{ tenant_route_name('auctions.social', $auction->id) }}"
-                                           class="btn btn-outline-info" target="_blank" title="تحميل PDF">
-                                            <i class="ti ti-download"></i>
-                                        </a>
-                                    @endif
-                                </div>
-                            @endif
+            <div class="card mb-4 shadow-sm border-primary">
+                <div class="card-header bg-label-primary py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="card-title mb-0 text-primary fw-bold">
+                        <i class="ti ti-file-analytics me-1"></i>ملفات وتقارير المزاد
+                    </h6>
+                    @if($isReady)
+                        <span class="badge bg-success">جاهز للتحميل</span>
+                    @elseif($isProcessing)
+                        <span class="badge bg-warning"><i class="ti ti-loader ti-spin me-1"></i>قيد التجهيز</span>
+                    @elseif($isFailed)
+                        <span class="badge bg-danger">فشل التجهيز</span>
+                    @else
+                        <span class="badge bg-secondary">غير مجهز</span>
+                    @endif
+                </div>
+                <div class="card-body pt-3">
+                    @if($isFailed)
+                        <div class="alert alert-danger p-2 small mb-3">
+                            <i class="ti ti-alert-circle me-1"></i> {{ $gen->error_message ?? 'تعذر تجهيز الملفات تلقائياً.' }}
                         </div>
+                    @endif
+
+                    <div class="d-grid gap-2">
+                        <a href="{{ $isReady && filled($gen->outputs_path) ? tenant_route_name('auctions.reports.download', ['auction' => $auction->id, 'type' => 'outputs']) : 'javascript:void(0)' }}"
+                           class="btn btn-primary d-flex align-items-center justify-content-between {{ !$isReady || blank($gen->outputs_path) ? 'disabled' : '' }}"
+                           @if(!$isReady || blank($gen->outputs_path)) disabled aria-disabled="true" @endif>
+                            <span><i class="ti ti-file-text me-2"></i>تحميل مخرجات المزاد</span>
+                            <i class="ti ti-download"></i>
+                        </a>
+
+                        <a href="{{ $isReady && filled($gen->report_path) ? tenant_route_name('auctions.reports.download', ['auction' => $auction->id, 'type' => 'report']) : 'javascript:void(0)' }}"
+                           class="btn btn-success d-flex align-items-center justify-content-between {{ !$isReady || blank($gen->report_path) ? 'disabled' : '' }}"
+                           @if(!$isReady || blank($gen->report_path)) disabled aria-disabled="true" @endif>
+                            <span><i class="ti ti-file-analytics me-2"></i>تحميل تقرير المزاد</span>
+                            <i class="ti ti-download"></i>
+                        </a>
+
+                        @if($isFailed)
+                            <button type="button" id="btn-retry-reports" class="btn btn-outline-danger mt-2">
+                                <i class="ti ti-refresh me-1"></i> إعادة محاولة التجهيز
+                            </button>
+                        @endif
                     </div>
                 </div>
-            @endif
+            </div>
 
             @if ($auction->attachments->isNotEmpty())
                 <div class="card mb-4">
@@ -206,4 +193,61 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('page-script')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const statusUrl = @json(tenant_route_name('auctions.reports.status', $auction->id));
+    const retryUrl = @json(tenant_route_name('auctions.reports.retry', $auction->id));
+    const csrfToken = '{{ csrf_token() }}';
+
+    const retryBtn = document.getElementById('btn-retry-reports');
+    if (retryBtn) {
+        retryBtn.addEventListener('click', function () {
+            retryBtn.disabled = true;
+            retryBtn.innerHTML = '<i class="ti ti-loader ti-spin me-1"></i> جاري الإرسال...';
+
+            fetch(retryUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    if (window.toastr) {
+                        toastr.success(data.message);
+                    }
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    alert(data.message || 'حدث خطأ');
+                    retryBtn.disabled = false;
+                }
+            })
+            .catch(() => {
+                alert('حدث خطأ في الاتصال');
+                retryBtn.disabled = false;
+            });
+        });
+    }
+
+    @if($auction->latestReportGeneration && in_array($auction->latestReportGeneration->status, ['queued', 'processing']))
+        const pollInterval = setInterval(() => {
+            fetch(statusUrl, { headers: { 'Accept': 'application/json' } })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'ready' || data.status === 'failed') {
+                        clearInterval(pollInterval);
+                        location.reload();
+                    }
+                })
+                .catch(() => {});
+        }, 3000);
+    @endif
+});
+</script>
 @endsection

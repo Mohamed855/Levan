@@ -25,6 +25,11 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->bind(PaymentGatewayInterface::class, MoyasarGateway::class);
 
+        $this->app->bind(
+            \App\Contracts\Auctions\BrowserDocumentRenderer::class,
+            \App\Services\Tenants\Auctions\BrowsershotDocumentRenderer::class,
+        );
+
         $this->app->bind(TenantInitializer::class, function ($app) {
             return new TenantInitializer([
                 PermissionsRolesSeeder::class,
