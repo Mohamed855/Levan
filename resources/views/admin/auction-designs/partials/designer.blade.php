@@ -8,6 +8,8 @@
                 class="ti ti-variable me-1"></i>إضافة متغير</button>
         <button class="btn btn-outline-primary btn-sm" type="button" data-add-element="image"><i
                 class="ti ti-photo me-1"></i>إضافة صورة</button>
+        <button class="btn btn-outline-primary btn-sm" type="button" data-preview-design><i
+                class="ti ti-eye me-1"></i>معاينة التصميم</button>
         <label class="d-flex align-items-center gap-2 ms-auto mb-0">لون الخلفية
             <input class="form-control form-control-color" data-background-color type="color" value="#ffffff">
         </label>
@@ -35,5 +37,7 @@
             </label>
         </div>
     </div>
-    <div class="template-designer__canvas template-canvas" data-canvas></div>
+    <div class="template-designer__workspace" data-designer-workspace>
+        <div class="template-designer__canvas template-canvas" data-canvas></div>
+    </div>
 </div>

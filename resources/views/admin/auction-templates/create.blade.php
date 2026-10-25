@@ -11,13 +11,14 @@
 @endsection
 
 @section('content')
-    <form method="POST" action="{{ route('admin.auction-templates.store') }}" id="auction-template-create-form" data-form-validate="true" data-wizard-resource="admin.auction-templates.create" data-draft-resource-key="admin.auction-templates.create" data-wizard-url="{{ route('admin.wizard-drafts.index') }}">
+    <form method="POST" action="{{ route('admin.auction-templates.store') }}" id="auction-template-create-form" data-form-validate
+        data-draft-url="{{ route('admin.wizard-drafts.store') }}"
+        data-draft-resource-key="admin.auction-templates.create">
         @csrf
         <input type="hidden" name="_wizard_draft_id" data-wizard-draft-id>
         <input type="hidden" name="_wizard_resource_key" value="admin.auction-templates.create">
         @include('admin.auction-templates.partials.form')
     </form>
-    <x-shared.wizard.draft-modal resource-key="admin.auction-templates.create" />
 @endsection
 
 @section('vendor-script')
@@ -25,8 +26,10 @@
 @endsection
 
 @section('page-script')
+    <script>
+        window.auctionTemplateFieldGuides = @json($fieldGuide);
+    </script>
     @vite([
-        'resources/assets/js/admin/auction-templates/designer.js',
-        'resources/assets/js/shared/wizard-draft.js'
+        'resources/assets/js/admin/auction-templates/designer.js'
     ])
 @endsection

@@ -15,6 +15,9 @@
 @endsection
 
 @section('page-script')
+    <script>
+        window.auctionTemplateFieldGuides = @json($fieldGuide);
+    </script>
     @vite(['resources/assets/js/admin/auction-templates/designer.js'])
 @endsection
 

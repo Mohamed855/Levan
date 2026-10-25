@@ -33,10 +33,14 @@
         <x-slot:stats>
             <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي القوالب" :value="$statistics['total']" subtitle="جميع القوالب المسجلة"
                 icon="ti-files" color="primary" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="قوالب مفعلة" :value="$statistics['active']" subtitle="القوالب النشطة المتاحة"
+                icon="ti-check" color="success" />
             <x-ui.stat-card col="col-sm-6 col-xl" title="قوالب البروشور" :value="$statistics['brochure']" subtitle="قوالب الكتيبات التعريفية"
                 icon="ti-file-description" color="info" />
             <x-ui.stat-card col="col-sm-6 col-xl" title="اللوحات الإعلانية" :value="$statistics['billboard']"
                 subtitle="قوالب اللوحات الخارجية" icon="ti-ad" color="warning" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="قوالب معطلة" :value="$statistics['inactive']" subtitle="القوالب غير المفعلة"
+                icon="ti-ban" color="danger" />
         </x-slot:stats>
 
         <x-slot:filters>
