@@ -28,6 +28,7 @@
 @section('page-script')
     <script>
         window.auctionTemplateFieldGuides = @json($fieldGuide);
+        window.auctionTemplateSamples = @json(\App\Support\Auctions\TemplateSchema::samplePresets());
     </script>
     @vite([
         'resources/assets/js/admin/auction-templates/designer.js'

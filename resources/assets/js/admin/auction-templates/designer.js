@@ -126,10 +126,10 @@ function initTemplateDesigners() {
       }
 
       // 3. Canvas Dimensions indicator
-      const dimsBadge = root.querySelector('[data-canvas-dims]');
-      if (dimsBadge) {
-        dimsBadge.textContent = canvasFor(currentType).label;
-      }
+      // const dimsBadge = root.querySelector('[data-canvas-dims]');
+      // if (dimsBadge) {
+      //   dimsBadge.textContent = canvasFor(currentType).label;
+      // }
     }
 
     function renderTabs() {
@@ -265,16 +265,174 @@ function initTemplateDesigners() {
         pageIndex = 0;
       }
 
-      // Clamp existing elements so none remain outside the new canvas dimensions
+      // Clear all existing elements because dimension changes affect placement & layout
       schema.pages.forEach((p) => {
-        p.elements.forEach((e) => {
-          if (e.x + e.width > dims.width) e.x = Math.max(0, dims.width - e.width);
-          if (e.y + e.height > dims.height) e.y = Math.max(0, dims.height - e.height);
-        });
+        p.elements = [];
       });
+      selectedId = null;
 
       updateGuides(type);
       render();
+    }
+
+    // Sample Library Modal Handlers
+    const samplesModalEl = document.getElementById('template-samples-modal');
+    function initSamplesModal() {
+      if (!samplesModalEl || samplesModalEl.__samplesInitialized) return;
+      samplesModalEl.__samplesInitialized = true;
+
+      const container = samplesModalEl.querySelector('[data-samples-container]');
+      const countEl = samplesModalEl.querySelector('[data-samples-count]');
+
+      function renderSampleList() {
+        if (!container) return;
+        const allSamples = Object.values(window.auctionTemplateSamples || {});
+        const filtered = allSamples.filter((s) => s.type === type);
+
+        if (countEl) {
+          countEl.textContent = `${filtered.length} نموذج متاح`;
+        }
+
+        if (!filtered.length) {
+          container.innerHTML = `
+            <div class="col-12 text-center py-5">
+              <i class="ti ti-layout-grid-add text-muted" style="font-size: 3rem;"></i>
+              <p class="text-muted mt-2">لا توجد نماذج جاهزة متوافقة مع هذا النوع حالياً.</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = filtered.map((s) => {
+          const sCanvas = s.schema?.canvas || canvasFor(s.type);
+          const p1 = s.schema?.pages?.[0] || { elements: [], background: { color: '#ffffff' } };
+          const pagesCount = s.schema?.pages?.length || 1;
+          const varElements = p1.elements.filter((e) => e.type === 'variable');
+
+          return `
+            <div class="col-md-6 col-lg-4">
+              <div class="card h-100 template-sample-card border shadow-sm">
+                <div class="template-sample-card__preview-wrapper d-flex align-items-center justify-content-center">
+                  <div class="template-sample-card__preview w-100 position-relative shadow-sm"
+                       style="aspect-ratio: ${sCanvas.width} / ${sCanvas.height}; max-height: 220px; background-color: ${p1.background?.color || '#ffffff'}; border-radius: 6px; overflow: hidden; container-type: inline-size;">
+                    ${p1.elements.map((el) => {
+                      const elLeft = (el.x / sCanvas.width) * 100;
+                      const elTop = (el.y / sCanvas.height) * 100;
+                      const elW = (el.width / sCanvas.width) * 100;
+                      const elH = (el.height / sCanvas.height) * 100;
+                      const fontSize = el.style?.font_size || 20;
+                      const textAlign = el.style?.text_align || 'right';
+                      const justify = textAlign === 'center' ? 'center' : (textAlign === 'left' ? 'flex-start' : 'flex-end');
+                      const bg = el.style?.background_color || (el.type === 'image' ? '#e9efed' : 'transparent');
+                      const radius = el.style?.border_radius || 0;
+                      const color = el.style?.color || '#123e33';
+                      const font = normalizeFont(el.style?.font_family || DEFAULT_FONT);
+                      const weight = el.style?.font_weight || 'normal';
+
+                      if (el.type === 'image') {
+                        return `
+                          <div style="position:absolute;left:${elLeft}%;top:${elTop}%;width:${elW}%;height:${elH}%;background:${bg};border-radius:calc(${radius} * 100cqw / ${sCanvas.width});display:flex;align-items:center;justify-content:center;border:1px dashed #7a948e;box-sizing:border-box;">
+                            <span style="font-size:calc(26 * 100cqw / ${sCanvas.width});">🖼️</span>
+                          </div>
+                        `;
+                      }
+
+                      return `
+                        <div style="position:absolute;left:${elLeft}%;top:${elTop}%;width:${elW}%;height:${elH}%;color:${color};font-size:calc(${fontSize} * 100cqw / ${sCanvas.width});font-family:${font};font-weight:${weight};background-color:${bg};border-radius:calc(${radius} * 100cqw / ${sCanvas.width});display:flex;align-items:center;justify-content:${justify};padding:0 calc(4 * 100cqw / ${sCanvas.width});box-sizing:border-box;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;">
+                          ${display(el)}
+                        </div>
+                      `;
+                    }).join('')}
+                    <span class="badge bg-dark bg-opacity-75 text-white position-absolute top-0 start-0 m-2 font-monospace" style="font-size: 10px;">
+                      ${sCanvas.width} × ${sCanvas.height}
+                    </span>
+                    ${pagesCount > 1 ? `
+                      <span class="badge bg-primary position-absolute top-0 end-0 m-2" style="font-size: 10px;">
+                        ${pagesCount} صفحات
+                      </span>
+                    ` : ''}
+                  </div>
+                </div>
+                <div class="card-body d-flex flex-column p-3">
+                  <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                    <h6 class="card-title fw-bold text-heading mb-0 text-truncate" title="${esc(s.title)}">
+                      ${esc(s.title)}
+                    </h6>
+                    <span class="badge bg-label-primary flex-shrink-0" style="font-size: 11px;">${esc(s.badge)}</span>
+                  </div>
+                  <p class="card-text text-muted small flex-grow-1 mb-3" style="min-height: 2.5rem; line-height: 1.6;">
+                    ${esc(s.description)}
+                  </p>
+                  <div class="d-flex align-items-center justify-content-between pt-2 border-top mt-auto">
+                    <span class="badge bg-label-secondary small">
+                      <i class="ti ti-variable me-1"></i>${varElements.length} متغيرات
+                    </span>
+                    <button type="button" class="btn btn-sm btn-primary" data-apply-sample="${s.id}">
+                      <i class="ti ti-check me-1"></i>تطبيق النموذج
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Apply button click
+      samplesModalEl.addEventListener('click', async (ev) => {
+        const btn = ev.target.closest('[data-apply-sample]');
+        if (!btn) return;
+        const sampleId = btn.dataset.applySample;
+        const samples = window.auctionTemplateSamples || {};
+        const sample = samples[sampleId];
+        if (!sample) return;
+
+        const hasExisting = schema.pages.some((p) => p.elements.length > 0);
+        if (hasExisting) {
+          let confirmed = false;
+          if (window.Swal) {
+            const res = await window.Swal.fire({
+              title: 'تطبيق النموذج الجاهز؟',
+              text: `هل ترغب في تطبيق نموذج "${sample.title}"؟ سيتم استبدال التصميم الحالي بمحتويات النموذج المختار.`,
+              icon: 'question',
+              showCancelButton: true,
+              confirmButtonText: 'نعم، تطبيق النموذج',
+              cancelButtonText: 'إلغاء',
+              customClass: {
+                confirmButton: 'btn btn-primary me-2',
+                cancelButton: 'btn btn-label-secondary',
+              },
+              buttonsStyling: false,
+            });
+            confirmed = res.isConfirmed;
+          } else {
+            confirmed = window.confirm(`هل ترغب في تطبيق نموذج "${sample.title}"؟ سيتم استبدال التصميم الحالي.`);
+          }
+          if (!confirmed) return;
+        }
+
+        // Apply schema
+        const clonedSchema = JSON.parse(JSON.stringify(sample.schema));
+        replaceSchema(state, clonedSchema, id, canvasFor, type);
+        schema = state.schema;
+        pageIndex = 0;
+        selectedId = null;
+
+        updateGuides(type);
+        render();
+        persist();
+
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+          bootstrap.Modal.getInstance(samplesModalEl)?.hide();
+        }
+
+        if (window.toastr) {
+          window.toastr.success(`تم تطبيق نموذج "${sample.title}" بنجاح.`);
+        }
+      });
+
+      // Expose render function for opening
+      samplesModalEl.__renderSampleList = renderSampleList;
     }
 
     // Handle Clicks
@@ -369,6 +527,19 @@ function initTemplateDesigners() {
           }
           if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
             bootstrap.Modal.getOrCreateInstance(previewModalEl).show();
+          }
+        }
+      }
+
+      // Samples modal button
+      if (ev.target.closest('[data-open-template-samples]')) {
+        initSamplesModal();
+        if (samplesModalEl) {
+          if (samplesModalEl.__renderSampleList) {
+            samplesModalEl.__renderSampleList();
+          }
+          if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            bootstrap.Modal.getOrCreateInstance(samplesModalEl).show();
           }
         }
       }
@@ -521,6 +692,7 @@ function initTemplateDesigners() {
     }
 
     // Initial guides & canvas setup
+    initSamplesModal();
     updateGuides(type);
     render();
   });

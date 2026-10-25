@@ -34,6 +34,199 @@ final class TemplateSchema
         return ['color' => '#173f35', 'background_color' => 'transparent', 'font_size' => 24, 'font_weight' => 400, 'font_family' => 'almarai', 'text_align' => 'right', 'line_height' => 1.4, 'border_radius' => 0];
     }
 
+    /**
+     * Pre-designed template presets / samples for brochure, billboard, and social.
+     *
+     * @return array<string, array{id: string, type: string, title: string, description: string, badge: string, schema: array<string, mixed>}>
+     */
+    public static function samplePresets(?string $type = null): array
+    {
+        $presets = [
+            'brochure-official-multipage' => [
+                'id' => 'brochure-official-multipage',
+                'type' => 'brochure',
+                'title' => 'بروشور تسويقي رسمي شامل',
+                'description' => 'كتيب تسويقي من صفحتين يشمل غلافاً رئيسياً عريضاً وجدولاً زمنياً وتفاصيل للمزايدة والشروط.',
+                'badge' => 'صفحتان • A4 رأسي',
+                'schema' => [
+                    'version' => self::SCHEMA_VERSION,
+                    'canvas' => ['width' => 794, 'height' => 1123],
+                    'pages' => [
+                        [
+                            'id' => 'page-1',
+                            'background' => ['color' => '#ffffff', 'image' => null, 'fit' => 'cover', 'position_x' => 50, 'position_y' => 50],
+                            'elements' => [
+                                ['id' => 'b1-tag', 'type' => 'text', 'content' => 'المملكة العربية السعودية • إعلان مزاد عقاري', 'x' => 50, 'y' => 40, 'width' => 694, 'height' => 35, 'style' => ['font_size' => 16, 'font_weight' => '700', 'font_family' => 'cairo', 'color' => '#17604f', 'text_align' => 'center']],
+                                ['id' => 'b1-name', 'type' => 'variable', 'binding' => 'auction.name', 'x' => 50, 'y' => 85, 'width' => 694, 'height' => 80, 'style' => ['font_size' => 32, 'font_weight' => '700', 'font_family' => 'cairo', 'color' => '#123e33', 'text_align' => 'center']],
+                                ['id' => 'b1-cover', 'type' => 'image', 'binding' => 'auction.cover_image', 'x' => 50, 'y' => 180, 'width' => 694, 'height' => 430, 'style' => ['border_radius' => 8]],
+                                ['id' => 'b1-desc', 'type' => 'variable', 'binding' => 'auction.description', 'x' => 50, 'y' => 630, 'width' => 694, 'height' => 110, 'style' => ['font_size' => 18, 'color' => '#4a5568', 'text_align' => 'right', 'font_family' => 'almarai']],
+                                ['id' => 'b1-city', 'type' => 'variable', 'binding' => 'auction.city', 'x' => 50, 'y' => 760, 'width' => 335, 'height' => 60, 'style' => ['font_size' => 20, 'font_weight' => '700', 'color' => '#17604f', 'background_color' => '#eef6f3', 'border_radius' => 6, 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'b1-count', 'type' => 'variable', 'binding' => 'auction.expected_properties_count', 'x' => 409, 'y' => 760, 'width' => 335, 'height' => 60, 'style' => ['font_size' => 20, 'font_weight' => '700', 'color' => '#17604f', 'background_color' => '#eef6f3', 'border_radius' => 6, 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'b1-start-date', 'type' => 'variable', 'binding' => 'auction.start_date', 'x' => 50, 'y' => 840, 'width' => 335, 'height' => 65, 'style' => ['font_size' => 20, 'font_weight' => '700', 'color' => '#ffffff', 'background_color' => '#17604f', 'border_radius' => 6, 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'b1-start-time', 'type' => 'variable', 'binding' => 'auction.start_time', 'x' => 409, 'y' => 840, 'width' => 335, 'height' => 65, 'style' => ['font_size' => 20, 'font_weight' => '700', 'color' => '#ffffff', 'background_color' => '#17604f', 'border_radius' => 6, 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'b1-supervisor', 'type' => 'variable', 'binding' => 'auction.supervising_entity', 'x' => 50, 'y' => 925, 'width' => 694, 'height' => 50, 'style' => ['font_size' => 18, 'font_weight' => '700', 'color' => '#17604f', 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'b1-platform', 'type' => 'variable', 'binding' => 'auction.platform_name', 'x' => 50, 'y' => 990, 'width' => 694, 'height' => 45, 'style' => ['font_size' => 16, 'color' => '#718096', 'text_align' => 'center', 'font_family' => 'almarai']],
+                            ],
+                        ],
+                        [
+                            'id' => 'page-2',
+                            'background' => ['color' => '#ffffff', 'image' => null, 'fit' => 'cover', 'position_x' => 50, 'position_y' => 50],
+                            'elements' => [
+                                ['id' => 'b2-title', 'type' => 'text', 'content' => 'تفاصيل المزايدة الإلكترونية والجدول الزمني', 'x' => 50, 'y' => 60, 'width' => 694, 'height' => 55, 'style' => ['font_size' => 26, 'font_weight' => '700', 'color' => '#123e33', 'text_align' => 'right', 'font_family' => 'cairo']],
+                                ['id' => 'b2-category', 'type' => 'variable', 'binding' => 'auction.category', 'x' => 50, 'y' => 135, 'width' => 335, 'height' => 55, 'style' => ['font_size' => 18, 'color' => '#17604f', 'background_color' => '#f4f8f6', 'border_radius' => 6, 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'b2-type', 'type' => 'variable', 'binding' => 'auction.type', 'x' => 409, 'y' => 135, 'width' => 335, 'height' => 55, 'style' => ['font_size' => 18, 'color' => '#17604f', 'background_color' => '#f4f8f6', 'border_radius' => 6, 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'b2-end-date', 'type' => 'variable', 'binding' => 'auction.end_date', 'x' => 50, 'y' => 210, 'width' => 335, 'height' => 60, 'style' => ['font_size' => 18, 'font_weight' => '700', 'color' => '#123e33', 'background_color' => '#e2efe9', 'border_radius' => 6, 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'b2-end-time', 'type' => 'variable', 'binding' => 'auction.end_time', 'x' => 409, 'y' => 210, 'width' => 335, 'height' => 60, 'style' => ['font_size' => 18, 'font_weight' => '700', 'color' => '#123e33', 'background_color' => '#e2efe9', 'border_radius' => 6, 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'b2-url', 'type' => 'variable', 'binding' => 'auction.platform_url', 'x' => 50, 'y' => 290, 'width' => 694, 'height' => 50, 'style' => ['font_size' => 16, 'color' => '#17604f', 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'b2-notes', 'type' => 'text', 'content' => 'تخضع كافة المزايدات للأنظمة واللوائح المعتمدة. يشترط التسجيل المسبق وسداد الضمان البنكي للدخول في المزايدة.', 'x' => 50, 'y' => 360, 'width' => 694, 'height' => 160, 'style' => ['font_size' => 18, 'color' => '#4a5568', 'text_align' => 'right', 'background_color' => '#f8faf9', 'border_radius' => 8, 'font_family' => 'almarai']],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'brochure-executive-summary' => [
+                'id' => 'brochure-executive-summary',
+                'type' => 'brochure',
+                'title' => 'بروشور تنفيذي ملخص',
+                'description' => 'صفحة واحدة أنيقة تضم صورة الغلاف الرئيسية مع ملخص بطاقات لمواعيد وموقع وبيانات المزاد.',
+                'badge' => 'صفحة واحدة • A4 رأسي',
+                'schema' => [
+                    'version' => self::SCHEMA_VERSION,
+                    'canvas' => ['width' => 794, 'height' => 1123],
+                    'pages' => [
+                        [
+                            'id' => 'page-1',
+                            'background' => ['color' => '#ffffff', 'image' => null, 'fit' => 'cover', 'position_x' => 50, 'position_y' => 50],
+                            'elements' => [
+                                ['id' => 'be-tag', 'type' => 'text', 'content' => 'فرصة استثمارية عقارية كبرى', 'x' => 50, 'y' => 45, 'width' => 694, 'height' => 35, 'style' => ['font_size' => 16, 'font_weight' => '700', 'font_family' => 'cairo', 'color' => '#c59b27', 'text_align' => 'center']],
+                                ['id' => 'be-name', 'type' => 'variable', 'binding' => 'auction.name', 'x' => 50, 'y' => 90, 'width' => 694, 'height' => 75, 'style' => ['font_size' => 30, 'font_weight' => '700', 'font_family' => 'cairo', 'color' => '#123e33', 'text_align' => 'center']],
+                                ['id' => 'be-cover', 'type' => 'image', 'binding' => 'auction.cover_image', 'x' => 50, 'y' => 180, 'width' => 694, 'height' => 460, 'style' => ['border_radius' => 10]],
+                                ['id' => 'be-city', 'type' => 'variable', 'binding' => 'auction.city', 'x' => 50, 'y' => 660, 'width' => 335, 'height' => 60, 'style' => ['font_size' => 20, 'font_weight' => '700', 'color' => '#17604f', 'background_color' => '#f2f8f5', 'border_radius' => 6, 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'be-count', 'type' => 'variable', 'binding' => 'auction.expected_properties_count', 'x' => 409, 'y' => 660, 'width' => 335, 'height' => 60, 'style' => ['font_size' => 20, 'font_weight' => '700', 'color' => '#17604f', 'background_color' => '#f2f8f5', 'border_radius' => 6, 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'be-start', 'type' => 'variable', 'binding' => 'auction.start_date', 'x' => 50, 'y' => 740, 'width' => 694, 'height' => 65, 'style' => ['font_size' => 22, 'font_weight' => '700', 'color' => '#ffffff', 'background_color' => '#123e33', 'border_radius' => 6, 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'be-platform', 'type' => 'variable', 'binding' => 'auction.platform_name', 'x' => 50, 'y' => 825, 'width' => 335, 'height' => 55, 'style' => ['font_size' => 18, 'color' => '#17604f', 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'be-supervisor', 'type' => 'variable', 'binding' => 'auction.supervising_entity', 'x' => 409, 'y' => 825, 'width' => 335, 'height' => 55, 'style' => ['font_size' => 18, 'color' => '#17604f', 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'be-url', 'type' => 'variable', 'binding' => 'auction.platform_url', 'x' => 50, 'y' => 900, 'width' => 694, 'height' => 45, 'style' => ['font_size' => 16, 'color' => '#718096', 'text_align' => 'center', 'font_family' => 'almarai']],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'billboard-split-showcase' => [
+                'id' => 'billboard-split-showcase',
+                'type' => 'billboard',
+                'title' => 'لوحة إعلانية عريضة منقسمة',
+                'description' => 'تصميم عرضي فخم 16:9 بصورة كبيرة على الجانب وعناوين ومعلومات المزاد على الجانب الآخر.',
+                'badge' => 'صفحة واحدة • 16:9 عريض',
+                'schema' => [
+                    'version' => self::SCHEMA_VERSION,
+                    'canvas' => ['width' => 1200, 'height' => 628],
+                    'pages' => [
+                        [
+                            'id' => 'page-1',
+                            'background' => ['color' => '#ffffff', 'image' => null, 'fit' => 'cover', 'position_x' => 50, 'position_y' => 50],
+                            'elements' => [
+                                ['id' => 'bb-cover', 'type' => 'image', 'binding' => 'auction.cover_image', 'x' => 580, 'y' => 40, 'width' => 580, 'height' => 548, 'style' => ['border_radius' => 12]],
+                                ['id' => 'bb-city', 'type' => 'variable', 'binding' => 'auction.city', 'x' => 40, 'y' => 50, 'width' => 220, 'height' => 45, 'style' => ['font_size' => 20, 'font_weight' => '700', 'color' => '#17604f', 'background_color' => '#eef6f3', 'border_radius' => 6, 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'bb-name', 'type' => 'variable', 'binding' => 'auction.name', 'x' => 40, 'y' => 110, 'width' => 510, 'height' => 110, 'style' => ['font_size' => 40, 'font_weight' => '700', 'font_family' => 'cairo', 'color' => '#123e33', 'text_align' => 'right']],
+                                ['id' => 'bb-start-date', 'type' => 'variable', 'binding' => 'auction.start_date', 'x' => 40, 'y' => 240, 'width' => 510, 'height' => 60, 'style' => ['font_size' => 24, 'font_weight' => '700', 'color' => '#ffffff', 'background_color' => '#17604f', 'border_radius' => 6, 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'bb-start-time', 'type' => 'variable', 'binding' => 'auction.start_time', 'x' => 40, 'y' => 315, 'width' => 240, 'height' => 50, 'style' => ['font_size' => 20, 'color' => '#17604f', 'background_color' => '#f4f8f6', 'border_radius' => 6, 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'bb-count', 'type' => 'variable', 'binding' => 'auction.expected_properties_count', 'x' => 300, 'y' => 315, 'width' => 250, 'height' => 50, 'style' => ['font_size' => 20, 'color' => '#17604f', 'background_color' => '#f4f8f6', 'border_radius' => 6, 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'bb-platform', 'type' => 'variable', 'binding' => 'auction.platform_name', 'x' => 40, 'y' => 380, 'width' => 510, 'height' => 55, 'style' => ['font_size' => 22, 'font_weight' => '700', 'color' => '#123e33', 'text_align' => 'right', 'font_family' => 'almarai']],
+                                ['id' => 'bb-url', 'type' => 'variable', 'binding' => 'auction.platform_url', 'x' => 40, 'y' => 445, 'width' => 510, 'height' => 45, 'style' => ['font_size' => 18, 'color' => '#718096', 'text_align' => 'right', 'font_family' => 'almarai']],
+                                ['id' => 'bb-supervisor', 'type' => 'variable', 'binding' => 'auction.supervising_entity', 'x' => 40, 'y' => 505, 'width' => 510, 'height' => 50, 'style' => ['font_size' => 18, 'color' => '#17604f', 'text_align' => 'right', 'font_family' => 'almarai']],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'billboard-impact-centered' => [
+                'id' => 'billboard-impact-centered',
+                'type' => 'billboard',
+                'title' => 'لوحة ترويجية مركزية مميزة',
+                'description' => 'عنوان مركزي ضخم وصورة أفقية بارزة مع شريط معلومات سفلي عريض للشاشات الخارجية.',
+                'badge' => 'صفحة واحدة • 16:9 عريض',
+                'schema' => [
+                    'version' => self::SCHEMA_VERSION,
+                    'canvas' => ['width' => 1200, 'height' => 628],
+                    'pages' => [
+                        [
+                            'id' => 'page-1',
+                            'background' => ['color' => '#ffffff', 'image' => null, 'fit' => 'cover', 'position_x' => 50, 'position_y' => 50],
+                            'elements' => [
+                                ['id' => 'bc-name', 'type' => 'variable', 'binding' => 'auction.name', 'x' => 60, 'y' => 40, 'width' => 1080, 'height' => 85, 'style' => ['font_size' => 44, 'font_weight' => '700', 'font_family' => 'cairo', 'color' => '#123e33', 'text_align' => 'center']],
+                                ['id' => 'bc-cover', 'type' => 'image', 'binding' => 'auction.cover_image', 'x' => 150, 'y' => 140, 'width' => 900, 'height' => 330, 'style' => ['border_radius' => 12]],
+                                ['id' => 'bc-city', 'type' => 'variable', 'binding' => 'auction.city', 'x' => 60, 'y' => 495, 'width' => 240, 'height' => 60, 'style' => ['font_size' => 22, 'font_weight' => '700', 'color' => '#17604f', 'background_color' => '#eef6f3', 'border_radius' => 6, 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'bc-start', 'type' => 'variable', 'binding' => 'auction.start_date', 'x' => 330, 'y' => 495, 'width' => 320, 'height' => 60, 'style' => ['font_size' => 22, 'font_weight' => '700', 'color' => '#ffffff', 'background_color' => '#17604f', 'border_radius' => 6, 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'bc-platform', 'type' => 'variable', 'binding' => 'auction.platform_name', 'x' => 680, 'y' => 495, 'width' => 230, 'height' => 60, 'style' => ['font_size' => 20, 'color' => '#123e33', 'background_color' => '#f4f8f6', 'border_radius' => 6, 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'bc-supervisor', 'type' => 'variable', 'binding' => 'auction.supervising_entity', 'x' => 940, 'y' => 495, 'width' => 200, 'height' => 60, 'style' => ['font_size' => 18, 'color' => '#17604f', 'background_color' => '#f4f8f6', 'border_radius' => 6, 'text_align' => 'center', 'font_family' => 'almarai']],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'social-promo-post' => [
+                'id' => 'social-promo-post',
+                'type' => 'social',
+                'title' => 'إعلان انستقرام وبوستات رقمية',
+                'description' => 'منشور مربع 1:1 بصورة علوية مميزة، عنوان عريض، وشارات لموعد المزاد وعدد العقارات.',
+                'badge' => 'صفحة واحدة • 1:1 مربع',
+                'schema' => [
+                    'version' => self::SCHEMA_VERSION,
+                    'canvas' => ['width' => 1080, 'height' => 1080],
+                    'pages' => [
+                        [
+                            'id' => 'page-1',
+                            'background' => ['color' => '#ffffff', 'image' => null, 'fit' => 'cover', 'position_x' => 50, 'position_y' => 50],
+                            'elements' => [
+                                ['id' => 'sp-cover', 'type' => 'image', 'binding' => 'auction.cover_image', 'x' => 50, 'y' => 50, 'width' => 980, 'height' => 500, 'style' => ['border_radius' => 14]],
+                                ['id' => 'sp-city', 'type' => 'variable', 'binding' => 'auction.city', 'x' => 50, 'y' => 575, 'width' => 280, 'height' => 55, 'style' => ['font_size' => 22, 'font_weight' => '700', 'color' => '#17604f', 'background_color' => '#eef6f3', 'border_radius' => 6, 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'sp-name', 'type' => 'variable', 'binding' => 'auction.name', 'x' => 50, 'y' => 645, 'width' => 980, 'height' => 110, 'style' => ['font_size' => 40, 'font_weight' => '700', 'font_family' => 'cairo', 'color' => '#123e33', 'text_align' => 'right']],
+                                ['id' => 'sp-start', 'type' => 'variable', 'binding' => 'auction.start_date', 'x' => 50, 'y' => 775, 'width' => 470, 'height' => 75, 'style' => ['font_size' => 26, 'font_weight' => '700', 'color' => '#ffffff', 'background_color' => '#17604f', 'border_radius' => 8, 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'sp-count', 'type' => 'variable', 'binding' => 'auction.expected_properties_count', 'x' => 560, 'y' => 775, 'width' => 470, 'height' => 75, 'style' => ['font_size' => 24, 'font_weight' => '700', 'color' => '#123e33', 'background_color' => '#eef6f3', 'border_radius' => 8, 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'sp-platform', 'type' => 'variable', 'binding' => 'auction.platform_name', 'x' => 50, 'y' => 875, 'width' => 980, 'height' => 60, 'style' => ['font_size' => 22, 'font_weight' => '700', 'color' => '#17604f', 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'sp-footer', 'type' => 'text', 'content' => 'للمزيد من التفاصيل والمزايدة، تفضل بزيارة رابط المزاد الرسمي', 'x' => 50, 'y' => 955, 'width' => 980, 'height' => 45, 'style' => ['font_size' => 16, 'color' => '#718096', 'text_align' => 'center', 'font_family' => 'almarai']],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'social-auction-card' => [
+                'id' => 'social-auction-card',
+                'type' => 'social',
+                'title' => 'بطاقة إشعار مزاد مدمجة',
+                'description' => 'بطاقة مركزية أنيقة مع ترويسة ذهبية، صورة في المنتصف، وشبكة مواعيد وتفاصيل.',
+                'badge' => 'صفحة واحدة • 1:1 مربع',
+                'schema' => [
+                    'version' => self::SCHEMA_VERSION,
+                    'canvas' => ['width' => 1080, 'height' => 1080],
+                    'pages' => [
+                        [
+                            'id' => 'page-1',
+                            'background' => ['color' => '#ffffff', 'image' => null, 'fit' => 'cover', 'position_x' => 50, 'position_y' => 50],
+                            'elements' => [
+                                ['id' => 'sc-header', 'type' => 'text', 'content' => 'إعلان مزاد عقاري رسمي', 'x' => 60, 'y' => 60, 'width' => 960, 'height' => 45, 'style' => ['font_size' => 20, 'font_weight' => '700', 'font_family' => 'cairo', 'color' => '#c59b27', 'text_align' => 'center']],
+                                ['id' => 'sc-name', 'type' => 'variable', 'binding' => 'auction.name', 'x' => 60, 'y' => 120, 'width' => 960, 'height' => 100, 'style' => ['font_size' => 38, 'font_weight' => '700', 'font_family' => 'cairo', 'color' => '#123e33', 'text_align' => 'center']],
+                                ['id' => 'sc-cover', 'type' => 'image', 'binding' => 'auction.cover_image', 'x' => 100, 'y' => 240, 'width' => 880, 'height' => 440, 'style' => ['border_radius' => 12]],
+                                ['id' => 'sc-city', 'type' => 'variable', 'binding' => 'auction.city', 'x' => 100, 'y' => 705, 'width' => 420, 'height' => 65, 'style' => ['font_size' => 24, 'color' => '#17604f', 'background_color' => '#f4f8f6', 'border_radius' => 6, 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'sc-count', 'type' => 'variable', 'binding' => 'auction.expected_properties_count', 'x' => 560, 'y' => 705, 'width' => 420, 'height' => 65, 'style' => ['font_size' => 24, 'color' => '#17604f', 'background_color' => '#f4f8f6', 'border_radius' => 6, 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'sc-start', 'type' => 'variable', 'binding' => 'auction.start_date', 'x' => 100, 'y' => 790, 'width' => 880, 'height' => 75, 'style' => ['font_size' => 26, 'font_weight' => '700', 'color' => '#ffffff', 'background_color' => '#17604f', 'border_radius' => 8, 'text_align' => 'center', 'font_family' => 'almarai']],
+                                ['id' => 'sc-platform', 'type' => 'variable', 'binding' => 'auction.platform_name', 'x' => 100, 'y' => 885, 'width' => 880, 'height' => 55, 'style' => ['font_size' => 20, 'color' => '#718096', 'text_align' => 'center', 'font_family' => 'almarai']],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        if ($type !== null) {
+            $typeVal = is_object($type) ? $type->value : (string) $type;
+            return array_filter($presets, fn ($p) => $p['type'] === $typeVal);
+        }
+
+        return $presets;
+    }
+
     public function decode(string|array $schema): array
     {
         if (is_array($schema)) {

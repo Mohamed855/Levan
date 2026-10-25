@@ -111,3 +111,27 @@
     border: 1px dotted #aeb8b5;
   }
 }
+
+.template-sample-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  border-radius: 0.75rem;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(18, 62, 51, 0.12) !important;
+    border-color: #17604f !important;
+  }
+
+  &__preview-wrapper {
+    background: #f8faf9;
+    min-height: 200px;
+    padding: 1.25rem;
+  }
+
+  &__preview {
+    border: 1px solid #dce4e1;
+    transition: transform 0.2s ease;
+  }
+}
+
