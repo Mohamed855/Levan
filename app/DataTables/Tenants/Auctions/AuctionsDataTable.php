@@ -88,13 +88,13 @@ class AuctionsDataTable extends AbstractDataTable
                 if ($gen->isReady()) {
                     $buttons = [];
                     if (filled($gen->outputs_path)) {
-                        $buttons[] = '<a href="'.tenant_route_name('auctions.reports.download', ['auction' => $row->id, 'type' => 'outputs']).'" class="badge bg-label-primary me-1" title="تحميل مخرجات المزاد"><i class="ti ti-file-text me-1"></i>المخرجات</a>';
+                        $buttons[] = '<a href="'.tenant_route_name('auctions.reports.download', ['auction' => $row->id, 'type' => 'outputs']).'" class="badge bg-label-secondary me-1" title="تحميل مخرجات المزاد"><i class="ti ti-file-text me-1"></i>المخرجات</a>';
                     }
                     if (filled($gen->report_path)) {
-                        $buttons[] = '<a href="'.tenant_route_name('auctions.reports.download', ['auction' => $row->id, 'type' => 'report']).'" class="badge bg-label-success" title="تحميل تقرير المزاد"><i class="ti ti-file-analytics me-1"></i>التقرير</a>';
+                        $buttons[] = '<a href="'.tenant_route_name('auctions.reports.download', ['auction' => $row->id, 'type' => 'report']).'" class="badge bg-label-secondary" title="تحميل تقرير المزاد"><i class="ti ti-file-analytics me-1"></i>التقرير</a>';
                     }
 
-                    return !empty($buttons) ? implode('', $buttons) : '<span class="badge bg-label-success">جاهز</span>';
+                    return ! empty($buttons) ? implode('', $buttons) : '<span class="badge bg-label-success">جاهز</span>';
                 }
 
                 if ($gen->isProcessing() || $gen->status === 'queued') {
