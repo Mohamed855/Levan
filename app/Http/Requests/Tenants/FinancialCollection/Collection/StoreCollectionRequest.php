@@ -139,8 +139,9 @@ class StoreCollectionRequest extends WizardFormRequest
     {
 
         if ($this->route('customer')) {
+            $customer = $this->route('customer');
             $this->merge([
-                'customer_id' => $this->route('customer')->id,
+                'customer_id' => is_object($customer) ? ($customer->id ?? $customer->getKey()) : $customer,
             ]);
         }
 

@@ -12,7 +12,7 @@
                 <div class="site-error-brand">
                     <a href="{{ Route::has('site.index') ? route('site.index') : url('/') }}"
                         aria-label="{{ __('الرئيسية') }}">
-                        <img src="{{ asset('static/brand/logos/logo.svg') }}" alt="Levan" height="48">
+                        <img src="{{ asset('static/brand/logos/lot/trans-profile.png') }}" alt="Levan">
                     </a>
                 </div>
 

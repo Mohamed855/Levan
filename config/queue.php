@@ -35,6 +35,16 @@ return [
             'driver' => 'sync',
         ],
 
+        'auction_reports' => [
+            'driver' => 'database',
+            'connection' => env('DB_CONNECTION', 'mysql'),
+            'table' => 'jobs',
+            'queue' => 'auction-reports',
+            'retry_after' => 600,
+            'after_commit' => true,
+            'central' => true,
+        ],
+
         'database' => [
             'driver' => 'database',
             'connection' => env('DB_QUEUE_CONNECTION'),

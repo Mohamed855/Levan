@@ -49,58 +49,78 @@ const Helpers = {
 
     // ---
     // Scroll To Active Menu Item
-    _scrollToActive(animate = false, duration = 500) {
+    _scrollToActive(animate = true, duration = 300) {
         const layoutMenu = this.getLayoutMenu()
-
         if (!layoutMenu) return
 
-        let activeEl = layoutMenu.querySelector('li.menu-item.active:not(.open)')
+        const element = layoutMenu.querySelector('.menu-inner')
+        if (!element) return
 
-        if (activeEl) {
-            // t = current time
-            // b = start value
-            // c = change in value
-            // d = duration
-            const easeInOutQuad = (t, b, c, d) => {
-                t /= d / 2
-                if (t < 1) return (c / 2) * t * t + b
-                t -= 1
-                return (-c / 2) * (t * (t - 2) - 1) + b
-            }
+        const findActive = () => {
+            // 1. Preferred: active child inside a submenu
+            const subActive = layoutMenu.querySelector('.menu-inner .menu-sub .menu-item.active')
+            if (subActive) return subActive
 
-            const element = this.getLayoutMenu().querySelector('.menu-inner')
+            // 2. Active top-level items
+            const topActive = layoutMenu.querySelectorAll('.menu-inner > .menu-item.active')
+            if (topActive.length > 0) return topActive[topActive.length - 1]
 
-            if (typeof activeEl === 'string') {
-                activeEl = document.querySelector(activeEl)
-            }
-            if (typeof activeEl !== 'number') {
-                activeEl = activeEl.getBoundingClientRect().top + element.scrollTop
-            }
+            // 3. Any active menu item
+            return layoutMenu.querySelector('.menu-inner .menu-item.active')
+        }
 
-            // If active element's top position is less than 2/3 (66%) of menu height than do not scroll
-            if (activeEl < parseInt((element.clientHeight * 2) / 3, 10)) return
+        const scrollAction = () => {
+            const activeEl = findActive()
+            if (!activeEl) return
 
-            const start = element.scrollTop
-            const change = activeEl - start - parseInt(element.clientHeight / 2, 10)
-            const startDate = +new Date()
-
-            if (animate === true) {
-                const animateScroll = () => {
-                    const currentDate = +new Date()
-                    const currentTime = currentDate - startDate
-                    const val = easeInOutQuad(currentTime, start, change, duration)
-                    element.scrollTop = val
-                    if (currentTime < duration) {
-                        requestAnimationFrame(animateScroll)
-                    } else {
-                        element.scrollTop = change
-                    }
+            // If active element is inside a closed parent submenu, ensure parent is open
+            const parentSub = activeEl.closest('.menu-sub')
+            if (parentSub) {
+                const parentItem = parentSub.closest('.menu-item')
+                if (parentItem && !parentItem.classList.contains('open')) {
+                    parentItem.classList.add('open')
                 }
-                animateScroll()
-            } else {
-                element.scrollTop = change
+            }
+
+            const menuRect = element.getBoundingClientRect()
+            const activeRect = activeEl.getBoundingClientRect()
+
+            // Calculate active element offset relative to scroll container
+            const relativeActiveTop = activeRect.top - menuRect.top + element.scrollTop
+            const targetScrollTop = Math.max(
+                0,
+                Math.round(relativeActiveTop - (element.clientHeight / 2) + (activeEl.clientHeight / 2))
+            )
+
+            // 1. Primary: native scrollIntoView
+            try {
+                activeEl.scrollIntoView({
+                    block: 'center',
+                    inline: 'nearest',
+                    behavior: animate ? 'smooth' : 'auto'
+                })
+            } catch (e) {}
+
+            // 2. Secondary: direct scrollTop positioning on .menu-inner
+            if (animate && typeof element.scrollTo === 'function') {
+                element.scrollTo({
+                    top: targetScrollTop,
+                    behavior: 'smooth'
+                })
+            }
+            element.scrollTop = targetScrollTop
+
+            // 3. PerfectScrollbar sync
+            if (window.Helpers && window.Helpers.menuPsScroll && typeof window.Helpers.menuPsScroll.update === 'function') {
+                window.Helpers.menuPsScroll.update()
             }
         }
+
+        // Execute immediately and in multiple ticks to catch font-load and submenu animation
+        scrollAction()
+        requestAnimationFrame(scrollAction)
+        setTimeout(scrollAction, 100)
+        setTimeout(scrollAction, 300)
     },
 
     // ---
@@ -541,7 +561,7 @@ const Helpers = {
     // *******************************************************************************
     // * Methods
 
-    scrollToActive(animate = false) {
+    scrollToActive(animate = true) {
         this._scrollToActive(animate)
     },
 

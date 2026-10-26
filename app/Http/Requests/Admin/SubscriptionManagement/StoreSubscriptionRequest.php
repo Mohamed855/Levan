@@ -15,7 +15,8 @@ class StoreSubscriptionRequest extends FormRequest
 
     public function rules()
     {
-        $tenantId = $this->route('tenant') ? $this->route('tenant')->id : null;
+        $tenant = $this->route('tenant');
+        $tenantId = is_object($tenant) ? ($tenant->id ?? $tenant->getKey()) : $tenant;
 
         return [
             'company_name' => 'required|string|min:2|max:255',

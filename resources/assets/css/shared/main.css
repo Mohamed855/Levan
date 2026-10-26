@@ -67,3 +67,77 @@ body {
     font-weight: 400;
     font-style: normal;
 }
+
+/* =============================================================================
+   Scrollbar Contract - Strictly Left Aligned in RTL Mode with Levan Primary Color
+   ============================================================================= */
+:root,
+:root[dir="rtl"],
+html,
+html[dir="rtl"] {
+    direction: rtl !important;
+    scrollbar-color: #1D4F44 #F7F3EC !important;
+    scrollbar-width: thin !important;
+}
+
+body,
+body[dir="rtl"] {
+    direction: rtl !important;
+}
+
+/* Universal Custom Scrollbar - Levan Primary Palette */
+* {
+    scrollbar-color: #1D4F44 #F7F3EC !important;
+    scrollbar-width: thin !important;
+}
+
+::-webkit-scrollbar {
+    width: 10px !important;
+    height: 10px !important;
+}
+::-webkit-scrollbar-track {
+    background: #F7F3EC !important;
+}
+::-webkit-scrollbar-thumb {
+    background-color: #1D4F44 !important;
+    border-radius: 6px !important;
+    border: 2px solid #F7F3EC !important;
+}
+::-webkit-scrollbar-thumb:hover {
+    background-color: #12332C !important;
+}
+
+/* Move scrollbar strictly to the FAR LEFT edge in Admin & Tenant Shells */
+html:has(.layout-wrapper),
+body:has(.layout-wrapper),
+html.layout-navbar-fixed,
+html.layout-menu-fixed {
+    height: 100% !important;
+    overflow: hidden !important;
+}
+.layout-wrapper {
+    height: 100vh !important;
+    overflow: hidden !important;
+}
+.layout-container {
+    height: 100vh !important;
+    overflow: hidden !important;
+}
+.layout-page {
+    height: 100vh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    direction: rtl !important;
+    scrollbar-color: #1D4F44 #F7F3EC !important;
+    scrollbar-width: thin !important;
+}
+
+/* Ensure sidebar never displays a scrollbar while preserving wheel navigation */
+#layout-menu {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+#layout-menu::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+}

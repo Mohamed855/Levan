@@ -106,25 +106,25 @@
                         [
                             'direction' => 'north',
                             'border_type' => 'street',
-                            'border_description' => '',
+                            'border_description' => 'عرض 20 متر',
                             'length' => 0,
                         ],
                         [
                             'direction' => 'south',
                             'border_type' => 'parcel',
-                            'border_description' => '',
+                            'border_description' => 'عرض 20 متر',
                             'length' => 0,
                         ],
                         [
                             'direction' => 'east',
                             'border_type' => 'parcel',
-                            'border_description' => '',
+                            'border_description' => 'عرض 20 متر',
                             'length' => 0,
                         ],
                         [
                             'direction' => 'west',
                             'border_type' => 'street',
-                            'border_description' => '',
+                            'border_description' => 'عرض 20 متر',
                             'length' => 0,
                         ],
                     ];

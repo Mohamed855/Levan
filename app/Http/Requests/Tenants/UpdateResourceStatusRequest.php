@@ -17,7 +17,7 @@ class UpdateResourceStatusRequest extends FormRequest
         $action = $this->route()?->getActionName() ?? '';
         $contract = $this->route('contract');
 
-        if (str_contains($action, 'ContractController@') && $contract) {
+        if (str_contains($action, 'ContractController@') && is_object($contract)) {
             $this->merge([
                 'status' => $contract->status === 'active' ? 'inactive' : 'active',
             ]);

@@ -1,25 +1,25 @@
-document.addEventListener('DOMContentLoaded', function () {
-    if (window.jQuery && typeof window.jQuery.fn.select2 === 'function') {
-        window.jQuery('#auction-activity-range').select2({
-            dir: 'rtl',
-            width: '100%',
+document.addEventListener("DOMContentLoaded", function () {
+    if (window.jQuery && typeof window.jQuery.fn.select2 === "function") {
+        window.jQuery("#auction-activity-range").select2({
+            dir: "rtl",
+            width: "100%",
             minimumResultsForSearch: Infinity,
         });
     }
 
     // ── الألوان الأساسية الخاصة بهوية ليفان ─────────────────────────
     const colors = {
-        primary:   '#1D4F44',
-        success:   '#28a745',
-        warning:   '#ffc107',
-        danger:    '#dc3545',
-        secondary: '#6c757d',
-        info:      '#17a2b8',
+        primary: "#1D4F44",
+        success: "#28a745",
+        warning: "#ffc107",
+        danger: "#dc3545",
+        secondary: "#6c757d",
+        info: "#17a2b8",
     };
 
-    if (typeof Chart !== 'undefined') {
-        Chart.defaults.font.family = 'Cairo, sans-serif';
-        Chart.defaults.color = '#666';
+    if (typeof Chart !== "undefined") {
+        Chart.defaults.font.family = "Cairo, sans-serif";
+        Chart.defaults.color = "#666";
     }
 
     const dashboardData = window.tenantDashboardData || {};
@@ -30,151 +30,204 @@ document.addEventListener('DOMContentLoaded', function () {
     let auctionChart = null;
 
     function buildAuctionChart(dataPoints) {
-        const ctx = document.getElementById('auctionActivityChart');
-        if (!ctx || typeof Chart === 'undefined') return;
+        const ctx = document.getElementById("auctionActivityChart");
+        if (!ctx || typeof Chart === "undefined") return;
 
         if (auctionChart) {
             auctionChart.destroy();
         }
 
         auctionChart = new Chart(ctx, {
-            type: 'line',
+            type: "line",
             data: {
-                labels: dataPoints.map(d => d.label),
+                labels: dataPoints.map((d) => d.label),
                 datasets: [
                     {
-                        label: 'عدد المزادات والصفقات',
-                        data: dataPoints.map(d => d.count),
+                        label: "عدد المزادات",
+                        data: dataPoints.map((d) => d.count),
                         borderColor: colors.primary,
-                        backgroundColor: 'rgba(29, 79, 68, 0.12)',
+                        backgroundColor: "rgba(29, 79, 68, 0.12)",
                         tension: 0.35,
                         fill: true,
                         pointRadius: 4,
                         pointHoverRadius: 7,
                         borderWidth: 2.5,
-                        yAxisID: 'y',
-                    }
-                ]
+                        yAxisID: "y",
+                    },
+                ],
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 interaction: {
                     intersect: false,
-                    mode: 'index',
+                    mode: "index",
                 },
                 plugins: {
                     legend: { display: false },
                     tooltip: {
                         backgroundColor: colors.primary,
-                        titleColor: '#fff',
-                        bodyColor: '#fff',
+                        titleColor: "#fff",
+                        bodyColor: "#fff",
                         padding: 10,
                         cornerRadius: 6,
                         callbacks: {
                             label: function (context) {
                                 const index = context.dataIndex;
                                 const point = dataPoints[index] || {};
-                                const sales = point.sales ? new Intl.NumberFormat('ar-SA').format(point.sales) + ' ر.س' : '0 ر.س';
-                                return [
-                                    ` المزادات المنفذة: ${point.count || 0}`,
-                                    ` المبيعات: ${sales}`
-                                ];
-                            }
-                        }
-                    }
+                                return ` عدد المزادات: ${point.count || 0}`;
+                            },
+                        },
+                    },
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grid: { color: '#f0f0f0' },
-                        ticks: { precision: 0 }
+                        grid: { color: "#f0f0f0" },
+                        ticks: { precision: 0 },
                     },
                     x: {
                         grid: { display: false },
                         ticks: {
                             maxTicksLimit: 12,
                             maxRotation: 45,
-                        }
-                    }
-                }
-            }
+                        },
+                    },
+                },
+            },
         });
     }
 
-    if (dashboardData.auctionActivity && dashboardData.auctionActivity.length > 0) {
+    if (
+        dashboardData.auctionActivity &&
+        dashboardData.auctionActivity.length > 0
+    ) {
         buildAuctionChart(dashboardData.auctionActivity);
     }
 
-    const rangeSelect = document.getElementById('auction-activity-range');
+    const rangeSelect = document.getElementById("auction-activity-range");
     if (rangeSelect) {
-        rangeSelect.addEventListener('change', function () {
+        rangeSelect.addEventListener("change", function () {
             const range = this.value;
-            const url = (dashboardData.auctionActivityUrl || '') + '?range=' + encodeURIComponent(range);
+            const url =
+                (dashboardData.auctionActivityUrl || "") +
+                "?range=" +
+                encodeURIComponent(range);
 
-            fetch(url, { credentials: 'same-origin' })
-                .then(r => r.json())
-                .then(json => {
+            fetch(url, { credentials: "same-origin" })
+                .then((r) => r.json())
+                .then((json) => {
                     if (json.data) {
                         buildAuctionChart(json.data);
                     }
                 })
-                .catch(err => console.error('Auction activity fetch error:', err));
+                .catch((err) =>
+                    console.error("Auction activity fetch error:", err),
+                );
         });
     }
 
     // ════════════════════════════════════════════════════════
-    // Chart 2: توزيع حالات المحفظة العقارية (Doughnut)
+    // Chart 2: توزيع حالات العقارات (Doughnut)
     // ════════════════════════════════════════════════════════
-    const statusCtx = document.getElementById('propertyStatusChart');
-    if (statusCtx && dashboardData.propertyStatus && dashboardData.propertyStatus.length > 0 && typeof Chart !== 'undefined') {
+    const statusCtx = document.getElementById("propertyStatusChart");
+    if (statusCtx && typeof Chart !== "undefined") {
+        const statusList = Array.isArray(dashboardData.propertyStatus)
+            ? dashboardData.propertyStatus
+            : [];
+        const totalCount = statusList.reduce(
+            (acc, curr) => acc + (Number(curr.count) || 0),
+            0,
+        );
+
         const colorMap = {
-            primary:   colors.primary,
-            success:   colors.success,
-            warning:   colors.warning,
-            danger:    colors.danger,
+            primary: colors.primary,
+            success: colors.success,
+            warning: colors.warning,
+            danger: colors.danger,
             secondary: colors.secondary,
-            info:      colors.info,
+            info: colors.info,
         };
 
-        const chartColors = dashboardData.propertyStatus.map(s => colorMap[s.color] || '#999');
+        const isEmpty = totalCount === 0;
+
+        const emptyTextPlugin = {
+            id: "emptyStatusPlugin",
+            afterDraw(chart) {
+                if (chart.config.data._isEmpty) {
+                    const {
+                        ctx,
+                        chartArea: { top, left, width, height },
+                    } = chart;
+                    ctx.save();
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.font = "600 13px Cairo, sans-serif";
+                    ctx.fillStyle = "#a1acb8";
+                    ctx.fillText(
+                        "لا توجد بيانات",
+                        left + width / 2,
+                        top + height / 2,
+                    );
+                    ctx.restore();
+                }
+            },
+        };
+
+        const chartLabels = isEmpty
+            ? ["لا توجد بيانات"]
+            : statusList.map((s) => s.label);
+
+        const chartData = isEmpty
+            ? [1]
+            : statusList.map((s) => Number(s.count) || 0);
+
+        const chartColors = isEmpty
+            ? ["rgba(67, 89, 113, 0.12)"]
+            : statusList.map((s) => colorMap[s.color] || "#999");
 
         new Chart(statusCtx, {
-            type: 'doughnut',
+            type: "doughnut",
             data: {
-                labels: dashboardData.propertyStatus.map(s => s.label),
-                datasets: [{
-                    data: dashboardData.propertyStatus.map(s => s.count),
-                    backgroundColor: chartColors,
-                    borderWidth: 0,
-                    hoverOffset: 8,
-                }]
+                _isEmpty: isEmpty,
+                labels: chartLabels,
+                datasets: [
+                    {
+                        data: chartData,
+                        backgroundColor: chartColors,
+                        borderWidth: 0,
+                        hoverOffset: isEmpty ? 0 : 8,
+                    },
+                ],
             },
+            plugins: [emptyTextPlugin],
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutout: '65%',
+                cutout: "65%",
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        backgroundColor: '#333',
-                        titleColor: '#fff',
-                        bodyColor: '#fff',
+                        enabled: !isEmpty,
+                        backgroundColor: "#333",
+                        titleColor: "#fff",
+                        bodyColor: "#fff",
                         padding: 10,
                         cornerRadius: 6,
                         callbacks: {
                             label: function (ctx) {
-                                const item = dashboardData.propertyStatus[ctx.dataIndex];
+                                const item = statusList[ctx.dataIndex];
+                                if (!item) return "";
                                 return ` ${item.label}: ${item.count} (${item.percentage}%)`;
-                            }
-                        }
-                    }
-                }
-            }
+                            },
+                        },
+                    },
+                },
+            },
         });
     }
 
-    window.addEventListener('resize', function () {
+    window.addEventListener("resize", function () {
         if (auctionChart) {
             auctionChart.resize();
         }

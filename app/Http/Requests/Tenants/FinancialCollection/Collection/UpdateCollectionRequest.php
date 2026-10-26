@@ -23,7 +23,8 @@ class UpdateCollectionRequest extends FormRequest
      */
     public function rules(): array
     {
-        $collectionId = $this->route('collection')->id ?? $this->route('collection');
+        $collection = $this->route('collection');
+        $collectionId = is_object($collection) ? ($collection->id ?? $collection->getKey()) : $collection;
 
         return [
             'customer_id' => [
@@ -147,8 +148,9 @@ class UpdateCollectionRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         if ($this->route('customer')) {
+            $customer = $this->route('customer');
             $this->merge([
-                'customer_id' => $this->route('customer')->id,
+                'customer_id' => is_object($customer) ? ($customer->id ?? $customer->getKey()) : $customer,
             ]);
         }
 

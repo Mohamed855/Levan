@@ -106,7 +106,7 @@
                                     fn($b) => [
                                         'direction' => $b->direction?->value ?? $b->direction,
                                         'border_type' => $b->border_type,
-                                        'border_description' => $b->border_description,
+                                        'border_description' => (isset($b->border_description) && $b->border_description !== '') ? $b->border_description : 'عرض 20 متر',
                                         'length' =>
                                             isset($b->length) && $b->length !== '' && $b->length !== null
                                                 ? $b->length

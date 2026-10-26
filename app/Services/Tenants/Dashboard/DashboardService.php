@@ -82,13 +82,6 @@ class DashboardService
             ->distinct('property_id')
             ->count('property_id');
 
-        // إجمالي المبيعات المحققة هذا الشهر
-        $monthlySales = (float) DB::table('auction_properties')
-            ->where('result_status', 'sold')
-            ->whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->sum('sale_price');
-
         $activeUsers = User::query()->where('status', 'active')->count();
         $totalSeats = (int) ($subscription['total_seats'] ?? 0);
 
@@ -97,7 +90,6 @@ class DashboardService
             'upcoming_auctions' => $upcomingAuctionsCount,
             'total_properties' => $totalProperties,
             'sold_properties' => $soldPropertiesCount,
-            'monthly_sales' => $monthlySales,
             'active_users' => $activeUsers,
             'total_seats' => $totalSeats,
             'total_assignments' => Assignment::query()->count(),
@@ -124,13 +116,6 @@ class DashboardService
                 ->groupBy('date')
                 ->pluck('count', 'date');
 
-            $sales = DB::table('auction_properties')
-                ->selectRaw('DATE(created_at) as date, SUM(COALESCE(sale_price, 0)) as total_sales')
-                ->where('created_at', '>=', $startDate)
-                ->where('result_status', 'sold')
-                ->groupBy('date')
-                ->pluck('total_sales', 'date');
-
             while ($cursor->lte($now)) {
                 $dateKey = $cursor->format('Y-m-d');
                 $label = $cursor->locale('ar')->translatedFormat('j M');
@@ -138,7 +123,6 @@ class DashboardService
                 $points[] = [
                     'label' => $label,
                     'count' => (int) ($auctions[$dateKey] ?? 0),
-                    'sales' => (float) ($sales[$dateKey] ?? 0),
                 ];
 
                 $cursor->addDay();
@@ -150,13 +134,6 @@ class DashboardService
                 ->groupBy('month')
                 ->pluck('count', 'month');
 
-            $monthlySales = DB::table('auction_properties')
-                ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, SUM(COALESCE(sale_price, 0)) as total_sales')
-                ->where('created_at', '>=', $startDate)
-                ->where('result_status', 'sold')
-                ->groupBy('month')
-                ->pluck('total_sales', 'month');
-
             while ($cursor->format('Y-m') <= $now->format('Y-m')) {
                 $monthKey = $cursor->format('Y-m');
                 $label = $cursor->locale('ar')->translatedFormat('M Y');
@@ -164,7 +141,6 @@ class DashboardService
                 $points[] = [
                     'label' => $label,
                     'count' => (int) ($monthlyAuctions[$monthKey] ?? 0),
-                    'sales' => (float) ($monthlySales[$monthKey] ?? 0),
                 ];
 
                 $cursor->addMonth();

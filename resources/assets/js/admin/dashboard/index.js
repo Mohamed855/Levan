@@ -106,7 +106,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Chart 2: توزيع حالات الاشتراكات (Doughnut)
     // ════════════════════════════════════════════════════════
     const statusCtx = document.getElementById('subscriptionStatusChart');
-    if (statusCtx && dashboardData.subscriptionStatus && dashboardData.subscriptionStatus.length > 0) {
+    if (statusCtx && typeof Chart !== 'undefined') {
+        const statusList = Array.isArray(dashboardData.subscriptionStatus) ? dashboardData.subscriptionStatus : [];
+        const totalCount = statusList.reduce((acc, curr) => acc + (Number(curr.count) || 0), 0);
 
         const colorMap = {
             primary:   colors.primary,
@@ -116,19 +118,41 @@ document.addEventListener('DOMContentLoaded', function () {
             secondary: colors.secondary,
         };
 
-        const chartColors = dashboardData.subscriptionStatus.map(s => colorMap[s.color] || '#999');
+        const isEmpty = totalCount === 0;
+
+        const emptyTextPlugin = {
+            id: 'emptyStatusPlugin',
+            afterDraw(chart) {
+                if (chart.config.data._isEmpty) {
+                    const { ctx, chartArea: { top, left, width, height } } = chart;
+                    ctx.save();
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.font = '600 13px Cairo, sans-serif';
+                    ctx.fillStyle = '#a1acb8';
+                    ctx.fillText('لا توجد بيانات', left + width / 2, top + height / 2);
+                    ctx.restore();
+                }
+            }
+        };
+
+        const chartLabels = isEmpty ? ['لا توجد بيانات'] : statusList.map(s => s.label);
+        const chartData   = isEmpty ? [1] : statusList.map(s => Number(s.count) || 0);
+        const chartColors = isEmpty ? ['rgba(67, 89, 113, 0.12)'] : statusList.map(s => colorMap[s.color] || '#999');
 
         new Chart(statusCtx, {
             type: 'doughnut',
             data: {
-                labels:   dashboardData.subscriptionStatus.map(s => s.label),
+                _isEmpty: isEmpty,
+                labels:   chartLabels,
                 datasets: [{
-                    data:            dashboardData.subscriptionStatus.map(s => s.count),
+                    data:            chartData,
                     backgroundColor: chartColors,
                     borderWidth:     0,
-                    hoverOffset:     8,
+                    hoverOffset:     isEmpty ? 0 : 8,
                 }]
             },
+            plugins: [emptyTextPlugin],
             options: {
                 responsive:          true,
                 maintainAspectRatio: false,
@@ -136,6 +160,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 plugins: {
                     legend: { display: false },
                     tooltip: {
+                        enabled:         !isEmpty,
                         backgroundColor: '#333',
                         titleColor:      '#fff',
                         bodyColor:       '#fff',
@@ -143,7 +168,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         cornerRadius:    6,
                         callbacks: {
                             label: function(ctx) {
-                                const item = dashboardData.subscriptionStatus[ctx.dataIndex];
+                                const item = statusList[ctx.dataIndex];
+                                if (!item) return '';
                                 return ` ${item.label}: ${item.count} (${item.percentage}%)`;
                             }
                         }

@@ -50,8 +50,8 @@ if (document.getElementById('layout-menu')) {
           ? window.templateCustomizer.settings.defaultShowDropdownOnHover // Use the config.js value
           : true // Use this if you are not using the config.js and want to set value directly from here
     });
-    // Change parameter to true if you want scroll animation
-    window.Helpers.scrollToActive((animate = false));
+    // Smooth auto-scroll to active menu item
+    window.Helpers.scrollToActive(true);
     window.Helpers.mainMenu = menu;
   });
 
@@ -559,6 +559,12 @@ if (typeof $ !== 'undefined') {
       searchInput.on('keyup', function () {
         psSearch.update();
       });
+    }
+  });
+
+  window.addEventListener('load', function () {
+    if (window.Helpers && typeof window.Helpers.scrollToActive === 'function') {
+      window.Helpers.scrollToActive(false);
     }
   });
 }

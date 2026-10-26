@@ -13,10 +13,11 @@ class UpdateUserBackgroundImageRequest extends FormRequest
     {
         $user = $this->user('tenant');
         $target = $this->route('user');
+        $targetId = is_object($target) ? ($target->id ?? $target->getKey()) : $target;
 
         return $user instanceof User
-            && $target instanceof User
-            && ((int) $user->id === (int) $target->id || $user->can('users.edit'));
+            && $targetId !== null
+            && ((int) $user->id === (int) $targetId || $user->can('users.edit'));
     }
 
     public function rules(): array

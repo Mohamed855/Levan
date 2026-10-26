@@ -27,6 +27,8 @@
     }
 
     .menu-inner {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
         scrollbar-width: none !important;
         -ms-overflow-style: none !important;
 
@@ -473,9 +475,34 @@ $menu-tab-bg: var(--menu-active-bg, #f8f7fa);
     }
 }
 
-// Ensure browser window scrollbar is strictly on the left in RTL mode
+// Ensure browser window scrollbar is strictly on the left in RTL mode with Levan primary color
 :root[dir="rtl"],
 html[dir="rtl"],
 html[dir="rtl"] body {
     direction: rtl !important;
+    scrollbar-color: #1D4F44 #F7F3EC !important;
+    scrollbar-width: thin !important;
+}
+
+html:has(.layout-wrapper),
+body:has(.layout-wrapper),
+html.layout-navbar-fixed,
+html.layout-menu-fixed {
+    height: 100% !important;
+    overflow: hidden !important;
+}
+
+.layout-wrapper,
+.layout-container {
+    height: 100vh !important;
+    overflow: hidden !important;
+}
+
+.layout-page {
+    height: 100vh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    direction: rtl !important;
+    scrollbar-color: #1D4F44 #F7F3EC !important;
+    scrollbar-width: thin !important;
 }

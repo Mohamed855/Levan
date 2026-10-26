@@ -46,7 +46,7 @@
                     </td>
                     <td>
                         <x-form.controls.input name="boundaries[{{ $idx }}][border_description]"
-                            id="boundaries-{{ $idx }}-border-description" :value="$border['border_description'] ?? null"
+                            id="boundaries-{{ $idx }}-border-description" :value="(isset($border['border_description']) && $border['border_description'] !== '' && $border['border_description'] !== null) ? $border['border_description'] : 'عرض 20 متر'"
                             placeholder="عرض 20 متر..." required col="" />
                     </td>
                     <td>
@@ -79,7 +79,7 @@
         </td>
         <td>
             <x-form.controls.input name="boundaries[__INDEX__][border_description]"
-                id="boundaries-__INDEX__-border-description" placeholder="عرض 20 متر..." required col="" />
+                id="boundaries-__INDEX__-border-description" value="عرض 20 متر" placeholder="عرض 20 متر..." required col="" />
         </td>
         <td>
             <x-form.controls.input name="boundaries[__INDEX__][length]"

@@ -158,6 +158,11 @@ class WizardDraftController extends Controller
             $route = app('router')->getRoutes()->match($routeRequest);
             $route->bind($routeRequest);
             app('router')->substituteBindings($route);
+            try {
+                app('router')->substituteImplicitBindings($route);
+            } catch (\Throwable) {
+                // If implicit binding cannot be substituted, route parameters retain raw values.
+            }
         } catch (\Throwable) {
             throw new NotFoundHttpException;
         }

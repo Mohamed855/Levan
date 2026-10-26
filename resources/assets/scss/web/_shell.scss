@@ -2,10 +2,38 @@
 // Shell Layout & Base Structure
 // =============================================================================
 
-html {
-  scroll-behavior: smooth;
+:root,
+:root[dir="rtl"],
+html,
+html[dir="rtl"] {
+  direction: rtl !important;
+  height: 100%;
+  overflow: hidden !important;
   text-size-adjust: 100%;
   box-sizing: border-box;
+}
+
+/* Universal Custom Scrollbar - Levan Primary Color on Left in RTL */
+* {
+  scrollbar-color: #1D4F44 var(--site-sand, #F7F3EC) !important;
+  scrollbar-width: thin !important;
+}
+
+::-webkit-scrollbar {
+  width: 10px !important;
+  height: 10px !important;
+}
+::-webkit-scrollbar-track {
+  background: var(--site-sand, #F7F3EC) !important;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #1D4F44 !important;
+  border-radius: 6px !important;
+  border: 2px solid var(--site-sand, #F7F3EC) !important;
+
+  &:hover {
+    background-color: var(--site-primary-deep, #12332C) !important;
+  }
 }
 
 *, *::before, *::after {
@@ -50,15 +78,19 @@ button, input, optgroup, select, textarea {
 body.site-shell {
   margin: 0;
   padding: 0;
-  direction: rtl;
+  height: 100%;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  direction: rtl !important;
+  scroll-behavior: smooth;
   font-family: var(--site-font-family);
   background-color: var(--site-sand);
   color: var(--site-ink);
   line-height: 1.65;
   font-size: var(--site-font-base);
-  overflow-x: hidden;
   position: relative;
-  min-height: 100vh;
+  scrollbar-color: #1D4F44 var(--site-sand, #F7F3EC) !important;
+  scrollbar-width: thin !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 

@@ -36,10 +36,10 @@
             </a>
         </li>
 
-        {{-- إدارة الشركة وفريق العمل --}}
+        {{-- إدارة الشركة والمستخدمين --}}
         @canany(['users.view', 'roles.view'])
             <li class="menu-header small">
-                <span class="menu-header-text">الشركة وفريق العمل</span>
+                <span class="menu-header-text">الشركة والمستخدمين</span>
             </li>
 
             @can('users.view')
