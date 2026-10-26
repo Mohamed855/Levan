@@ -38,11 +38,11 @@ window.confirmAction = function (options = {}) {
     const {
         title = 'تأكيد العملية',
         text = 'هل أنت متأكد من رغبتك في المتابعة؟',
-        variant = 'danger',
-        icon = null,
-        confirmText = 'تأكيد',
-        confirmClass = null,
-        cancelText = 'إلغاء',
+        variant = options.variant || (options.confirmButtonClass?.includes('primary') || options.confirmClass?.includes('primary') ? 'primary' : 'danger'),
+        icon = options.icon || null,
+        confirmText = options.confirmText || options.confirmButtonText || 'تأكيد',
+        confirmClass = options.confirmClass || options.confirmButtonClass || null,
+        cancelText = options.cancelText || options.cancelButtonText || 'إلغاء',
         showInput = false,
         inputLabel = '',
         inputValue = '',
@@ -53,14 +53,14 @@ window.confirmAction = function (options = {}) {
     const modalEl = document.getElementById('globalConfirmationModal');
     if (!modalEl) {
         if (window.confirm(`${title}\n${text}`)) {
-            if (typeof onConfirm === 'function') onConfirm();
+            if (typeof onConfirm === 'function') onConfirm(inputValue);
         } else {
             if (typeof onCancel === 'function') onCancel();
         }
         return;
     }
 
-    const config = VARIANT_CONFIGS[variant] || VARIANT_CONFIGS.danger;
+    const config = VARIANT_CONFIGS[variant] || VARIANT_CONFIGS.primary || VARIANT_CONFIGS.danger;
     const iconWrapper = document.getElementById('globalConfirmationModalIconWrapper');
     const iconEl = document.getElementById('globalConfirmationModalIcon');
     const headingEl = document.getElementById('globalConfirmationModalHeading');
@@ -78,7 +78,23 @@ window.confirmAction = function (options = {}) {
 
     if (iconWrapper) iconWrapper.className = config.wrapperClass;
     if (iconEl) {
-        iconEl.className = icon ? `ti ${icon} fs-2 text-${variant}` : config.iconClass;
+        if (icon) {
+            let iconClasses = icon.trim();
+            if (!iconClasses.includes('ti-') && !iconClasses.startsWith('ti')) {
+                iconClasses = `ti ti-${iconClasses}`;
+            } else if (!iconClasses.startsWith('ti')) {
+                iconClasses = `ti ${iconClasses}`;
+            }
+            if (!iconClasses.includes('fs-')) {
+                iconClasses += ' fs-2';
+            }
+            if (!iconClasses.includes('text-')) {
+                iconClasses += ` text-${variant}`;
+            }
+            iconEl.className = iconClasses;
+        } else {
+            iconEl.className = config.iconClass;
+        }
     }
 
     if (submitBtn) {
@@ -101,10 +117,20 @@ window.confirmAction = function (options = {}) {
         }
     }
 
-    let isConfirmed = false;
-    const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    const bs = window.bootstrap || (typeof bootstrap !== 'undefined' ? bootstrap : null);
+    if (!bs || !bs.Modal) {
+        if (window.confirm(`${title}\n${text}`)) {
+            if (typeof onConfirm === 'function') onConfirm(inputEl ? inputEl.value : '');
+        } else {
+            if (typeof onCancel === 'function') onCancel();
+        }
+        return;
+    }
 
-    // Clean up previous listeners
+    let isConfirmed = false;
+    const bsModal = bs.Modal.getOrCreateInstance(modalEl);
+
+    // Clean up previous listeners on submit button
     const newSubmitBtn = submitBtn.cloneNode(true);
     submitBtn.parentNode.replaceChild(newSubmitBtn, submitBtn);
 
@@ -117,12 +143,18 @@ window.confirmAction = function (options = {}) {
         }
     });
 
+    if (modalEl._confirmCancelHandler) {
+        modalEl.removeEventListener('hidden.bs.modal', modalEl._confirmCancelHandler);
+    }
+
     const handleHidden = function () {
         modalEl.removeEventListener('hidden.bs.modal', handleHidden);
+        modalEl._confirmCancelHandler = null;
         if (!isConfirmed && typeof onCancel === 'function') {
             onCancel();
         }
     };
+    modalEl._confirmCancelHandler = handleHidden;
     modalEl.addEventListener('hidden.bs.modal', handleHidden);
 
     bsModal.show();

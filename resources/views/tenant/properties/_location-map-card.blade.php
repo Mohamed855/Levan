@@ -55,13 +55,13 @@
         <div data-form-field data-field-name="aerial_image">
             <input type="hidden" name="aerial_image" id="property-aerial-image" data-form-control
                 value="{{ old('aerial_image', isset($property) && $property->aerial_image ? (str_starts_with($property->aerial_image, 'data:image/') || str_starts_with($property->aerial_image, 'http') ? $property->aerial_image : tasset($property->aerial_image)) : '') }}">
-            <div data-form-error class="invalid-feedback d-block text-danger mt-1" style="display: none;"></div>
+            <div data-form-error class="invalid-feedback d-block text-danger mt-1" style="display: none;" hidden></div>
         </div>
 
         <div data-form-field data-field-name="boundary_geojson">
             <input type="hidden" name="boundary_geojson" id="property-boundary-geojson" data-form-control
                 value="{{ old('boundary_geojson', isset($property) && $property->boundary_geojson ? (is_array($property->boundary_geojson) ? json_encode($property->boundary_geojson) : $property->boundary_geojson) : '') }}">
-            <div data-form-error class="invalid-feedback d-block text-danger mt-1" style="display: none;"></div>
+            <div data-form-error class="invalid-feedback d-block text-danger mt-1" style="display: none;" hidden></div>
         </div>
     </div>
 </div>
