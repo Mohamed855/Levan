@@ -130,10 +130,10 @@ $validation-messages: '';
   }
 
   &:focus-within {
-    box-shadow: $input-focus-box-shadow;
+    box-shadow: none !important;
     .form-control,
     .input-group-text {
-      box-shadow: none;
+      box-shadow: none !important;
     }
   }
   .was-validated & {

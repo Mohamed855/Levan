@@ -4,14 +4,14 @@
 .form-range {
   // Chrome specific
   &::-webkit-slider-thumb {
-    box-shadow: $form-range-thumb-box-shadow;
+    box-shadow: none;
 
     &:hover {
-      box-shadow: 0 0 0 0.5rem rgba($primary, 0.16);
+      box-shadow: none;
     }
     &:active,
     &:focus {
-      box-shadow: 0 0 0 13px rgba($primary, 0.16);
+      box-shadow: none;
       background-color: $primary;
       border-color: $primary;
     }
@@ -22,13 +22,13 @@
 
   // Mozilla specific
   &::-moz-range-thumb {
-    box-shadow: $form-range-thumb-box-shadow;
+    box-shadow: none;
     &:hover {
-      box-shadow: 0 0 0 0.5rem rgba($primary, 0.16);
+      box-shadow: none;
     }
     &:active,
     &:focus {
-      box-shadow: 0 0 0 13px rgba($primary, 0.16);
+      box-shadow: none;
       background-color: $primary;
       border-color: $primary;
     }

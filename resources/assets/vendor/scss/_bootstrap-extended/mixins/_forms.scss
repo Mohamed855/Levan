@@ -83,13 +83,13 @@
     &:checked {
       background-color: $background;
       border-color: $background;
-      box-shadow: 0 2px 6px 0 rgba($background, 0.3);
+      box-shadow: none;
     }
 
     &[type='checkbox']:indeterminate {
       background-color: $background;
       border-color: $background;
-      box-shadow: 0 2px 6px 0 rgba($background, 0.3);
+      box-shadow: none;
     }
   }
 

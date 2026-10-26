@@ -424,7 +424,7 @@ $input-btn-focus-width: 0.05rem !default;
 $input-btn-focus-color-opacity: 0.1 !default;
 $input-btn-focus-color: rgba($component-active-bg, $input-btn-focus-color-opacity) !default;
 $input-btn-focus-blur: 0.25rem !default;
-$input-btn-focus-box-shadow: 0 0 $input-btn-focus-blur $input-btn-focus-width $input-btn-focus-color !default;
+$input-btn-focus-box-shadow: none !default;
 
 $input-btn-padding-y-xs: 0.175rem !default; // (C)
 $input-btn-padding-x-xs: 0.75rem !default; // (C)
@@ -554,7 +554,7 @@ $input-border-hover-color: rgba-to-hex($gray-600, $rgba-to-hex-bg) !default; // 
 
 $input-focus-border-width: 2px !default; //(C)
 $input-focus-border-color: $component-active-bg !default;
-$input-focus-box-shadow: 0 2px 6px 0 rgba($component-active-bg, 0.3) !default;
+$input-focus-box-shadow: none !default;
 
 $input-placeholder-color: $text-muted !default;
 $input-plaintext-color: $headings-color !default;

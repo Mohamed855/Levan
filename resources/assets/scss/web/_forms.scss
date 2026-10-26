@@ -341,7 +341,8 @@
   &.select2-container--open {
     .select2-selection--single {
       border-color: var(--site-primary) !important;
-      box-shadow: 0 0 0 3px rgba(var(--site-primary-rgb), 0.12) !important;
+      box-shadow: none !important;
+      outline: none !important;
     }
   }
 
@@ -400,7 +401,8 @@
 
       &:focus {
         border-color: var(--site-primary) !important;
-        box-shadow: 0 0 0 2px rgba(var(--site-primary-rgb), 0.12) !important;
+        box-shadow: none !important;
+        outline: none !important;
       }
     }
   }
@@ -438,7 +440,8 @@
   border-color: var(--site-danger) !important;
 
   &:focus {
-    box-shadow: 0 0 0 3px rgba(var(--site-danger-rgb), 0.12) !important;
+    box-shadow: none !important;
+    outline: none !important;
   }
 }
 
