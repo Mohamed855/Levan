@@ -110,7 +110,7 @@
                                 <p class="text-muted mb-3">ابحث عن قسم إدارة DNS أو DNS Management في لوحة التحكم</p>
                                 <div class="row g-4">
                                     <div class="col-md-4">
-                                        <div class="card bg-label-primary">
+                                        <div class="card bg-primary">
                                             <div class="card-body text-center">
                                                 <i class="ti ti-settings ti-lg mb-2"></i>
                                                 <p class="mb-0 small">ابحث عن "DNS Management"</p>
@@ -118,7 +118,7 @@
                                         </div>
                                     </div>
                                     <div class="col-md-4">
-                                        <div class="card bg-label-primary">
+                                        <div class="card bg-primary">
                                             <div class="card-body text-center">
                                                 <i class="ti ti-server ti-lg mb-2"></i>
                                                 <p class="mb-0 small">أو "Advanced DNS"</p>
@@ -126,7 +126,7 @@
                                         </div>
                                     </div>
                                     <div class="col-md-4">
-                                        <div class="card bg-label-primary">
+                                        <div class="card bg-primary">
                                             <div class="card-body text-center">
                                                 <i class="ti ti-file-settings ti-lg mb-2"></i>
                                                 <p class="mb-0 small">أو "Manage DNS"</p>
@@ -234,7 +234,7 @@
                 </div>
 
                 <!-- أمثلة عملية -->
-                <div class="card mb-4 bg-label-info">
+                <div class="card mb-4 bg-info">
                     <div class="card-body">
                         <h5 class="card-title text-info">
                             <i class="ti ti-bulb me-2"></i>
@@ -349,7 +349,7 @@
                 </div>
                 <!-- إنشاء نطاق فرعي تلقائياً -->
                 <div class="card mb-4 border-success">
-                    <div class="card-header bg-label-success">
+                    <div class="card-header bg-success">
                         <h5 class="mb-0">
                             <i class="ti ti-rocket me-2"></i>
                             إنشاء نطاق فرعي تلقائياً

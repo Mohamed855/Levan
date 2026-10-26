@@ -35,7 +35,7 @@ Route
 | Guard          | `auth:admin`                     | `auth:tenant`                                         |
 | Namespace      | `Admin`                          | `Tenants`                                             |
 | Routes         | `routes/admin.php`               | `routes/tenant.php`                                   |
-| Views          | `resources/views/admin/{module}` | `resources/views/tenant/{module}`                    |
+| Views          | `resources/views/admin/{module}` | `resources/views/tenant/{module}`                     |
 | Drafts         | جدول `wizard_drafts` المركزي     | جدول `wizard_drafts` داخل قاعدة كل مستأجر             |
 | اختبار العزل   | صلاحية وسجل مركزي                | Tenant A لا يرى أو يعدل بيانات Tenant B               |
 
@@ -616,7 +616,7 @@ protected function buttons(): array
         1. توضع داخل بطاقة فرعية قياسية بنمط `.assignment-properties-table-card` داخل الخطوة.
         2. رأس البطاقة يحتوي على عنوان واضح، ووصف صغير، وزر إضافة أزرق في أقصى اليسار (`btn-sm btn-primary`).
         3. يوضع الجدول داخل `.table-responsive` ويلتزم بعقد الجداول العام نفسه حرفيًا: `table table-striped table-bordered w-100`؛ لا يستخدم تصميمًا أو classes محلية مختلفة.
-        4. زر الحذف لكل صف يكون أيقونة سلة مهملات حمراء موحدة `btn-icon btn-sm btn-label-danger`.
+        4. زر الحذف لكل صف يكون أيقونة سلة مهملات حمراء موحدة `btn-icon btn-sm btn-danger`.
         5. ترقيم وتسمية المدخلات المصفوفية (`items[idx][field]`) يعاد فهرستها برمجيًا عند الإضافة والحذف مع إطلاق حدث `change`.
 -   **خطوة الملفات والمستندات**:
     -   توزيع متوازن لحقول الرفع (`col-md-4` للحقول الفردية، و `col-md-6` أو `col-12` للمرفقات المتعددة).
@@ -657,7 +657,7 @@ protected function buttons(): array
         - قائمة البيانات الوصفية المنظمة (`info-container text-start` مع `list-unstyled`) لعرض الخصائص والمحددات الرسمية والتواريخ.
     - **كارت المستندات والمرفقات (Documents & Attachments Card)**:
         - يوضع إلزاميًا في العمود الأيسر أسفل كارت الهوية.
-        - يعرض قائمة المرفقات بتنسيق سطور أنيقة مع أيقونة الملف وزر تحميل مباشر في أقصى اليسار (`btn-icon btn-sm btn-label-primary` مع أيقونة `ti ti-download`).
+        - يعرض قائمة المرفقات بتنسيق سطور أنيقة مع أيقونة الملف وزر تحميل مباشر في أقصى اليسار (`btn-icon btn-sm btn-primary` مع أيقونة `ti ti-download`).
 3. **العمود الرئيسي الأيمن (`col-xl-8 col-lg-7 col-md-7`)**:
     - مخصص حصريًا لعرض **الجداول الفرعية والعلاقات التشغيلية التابعة (Child Subtables & Related Records)**.
     - كل علاقة تابعة (مثل الحدود، الملاك، الوحدات الفرعية، المزادات، العمليات، إلخ) توضع في بطاقة كلاسيكية مستقلة:

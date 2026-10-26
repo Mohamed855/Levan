@@ -55,7 +55,7 @@
                             :value="(isset($border['length']) && $border['length'] !== '' && $border['length'] !== null) ? $border['length'] : 0" placeholder="0.00" required col="" />
                     </td>
                     <td class="text-center">
-                        <button type="button" class="btn btn-icon btn-sm btn-label-danger btn-remove-border" aria-label="حذف الحد">
+                        <button type="button" class="btn btn-icon btn-sm btn-danger btn-remove-border" aria-label="حذف الحد">
                             <i class="ti ti-trash"></i>
                         </button>
                     </td>
@@ -87,7 +87,7 @@
                 value="0" placeholder="0.00" required col="" />
         </td>
         <td class="text-center">
-            <button type="button" class="btn btn-icon btn-sm btn-label-danger btn-remove-border" aria-label="حذف الحد">
+            <button type="button" class="btn btn-icon btn-sm btn-danger btn-remove-border" aria-label="حذف الحد">
                 <i class="ti ti-trash"></i>
             </button>
         </td>

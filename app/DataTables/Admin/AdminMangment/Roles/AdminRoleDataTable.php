@@ -42,8 +42,8 @@ final class AdminRoleDataTable extends AbstractDataTable
         $dataTable
             ->addColumn('checkbox', fn (Role $role): string => '<input type="checkbox" class="row-checkbox" value="'.$role->id.'">')
             ->editColumn('name', fn (Role $role): string => '<span class="fw-medium text-heading">'.e($role->name).'</span>')
-            ->editColumn('users_count', fn (Role $role): string => '<span class="badge bg-label-primary">'.number_format($role->users_count).'</span>')
-            ->editColumn('permissions_count', fn (Role $role): string => '<span class="badge bg-label-info">'.number_format($role->permissions_count).'</span>')
+            ->editColumn('users_count', fn (Role $role): string => '<span class="badge bg-primary">'.number_format($role->users_count).'</span>')
+            ->editColumn('permissions_count', fn (Role $role): string => '<span class="badge bg-info">'.number_format($role->permissions_count).'</span>')
             ->editColumn('created_at', fn (Role $role): string => $role->created_at?->locale('ar')->translatedFormat('d F Y') ?? '-')
             ->addColumn('actions', fn (Role $role): string => view($this->page.'.action', compact('role'))->render());
     }

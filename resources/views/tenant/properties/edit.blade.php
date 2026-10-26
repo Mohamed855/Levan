@@ -231,7 +231,7 @@
                                                 <h6 class="mb-0 text-muted owner-number">المالك #{{ $idx + 1 }}</h6>
                                                 @if ($idx > 0)
                                                     <button type="button"
-                                                        class="btn btn-icon btn-sm btn-label-danger btn-remove-owner"
+                                                        class="btn btn-icon btn-sm btn-danger btn-remove-owner"
                                                         aria-label="حذف المالك">
                                                         <i class="ti ti-trash"></i>
                                                     </button>
@@ -352,7 +352,7 @@
                                                     </td>
                                                     <td class="text-center">
                                                         <button type="button"
-                                                            class="btn btn-icon btn-sm btn-label-danger btn-remove-unit"
+                                                            class="btn btn-icon btn-sm btn-danger btn-remove-unit"
                                                             aria-label="حذف الوحدة"><i class="ti ti-trash"></i></button>
                                                     </td>
                                                 </tr>
@@ -405,7 +405,7 @@
                                         <span class="assignment-file-card__name"
                                             title="{{ $att->original_name }}">{{ $att->original_name }}</span>
                                         <a href="{{ tasset($att->file_path) }}" target="_blank"
-                                            class="btn btn-sm btn-icon btn-label-primary"><i
+                                            class="btn btn-sm btn-icon btn-primary"><i
                                                 class="ti ti-download"></i></a>
                                     </article>
                                 @endforeach

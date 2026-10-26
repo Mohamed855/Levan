@@ -85,7 +85,7 @@
             </div>
 
             <x-slot:footer>
-                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
                 <button type="submit" class="btn btn-primary" id="submitSurveyBtn">
                     <i class="ti ti-send me-1"></i> إرسال التقييم
                 </button>
@@ -229,7 +229,7 @@
                                                             : Storage::url($attUrl);
                                                     @endphp
                                                     <a href="{{ $fullAttUrl }}" target="_blank"
-                                                        class="badge bg-label-info text-decoration-none me-1">
+                                                        class="badge bg-info text-decoration-none me-1">
                                                         <i class="ti ti-paperclip me-1"></i> {{ $attName }}
                                                     </a>
                                                 @endforeach
@@ -291,7 +291,7 @@
                                         {{-- النص ع اليمين --}}
                                         <div id="attachment-status-container" class="d-flex align-items-center">
                                             <span id="attachment-status-text"
-                                                class="badge bg-label-primary small d-none align-items-center">
+                                                class="badge bg-primary small d-none align-items-center">
                                                 <i class="ti ti-paperclip me-1"></i> <span
                                                     id="attachment-count-label"></span>
                                                 <i class="ti ti-x ms-2 cursor-pointer" id="btn-clear-attachments"
@@ -368,7 +368,7 @@
                         <li class="mb-3 d-flex justify-content-between align-items-center">
                             <span class="text-muted">القسم:</span>
                             <span
-                                class="badge bg-label-primary">{{ is_array($section) ? $section['name'] ?? 'الدعم الفني' : $section->name ?? 'الدعم الفني' }}</span>
+                                class="badge bg-primary">{{ is_array($section) ? $section['name'] ?? 'الدعم الفني' : $section->name ?? 'الدعم الفني' }}</span>
                         </li>
                         <li class="mb-3 d-flex justify-content-between align-items-center">
                             <span class="text-muted">الحالة:</span>
@@ -469,7 +469,7 @@
                         <i class="ti ti-paperclip text-warning me-2"></i> المرفقات
                     </h5>
                     @if (count($allAttachments) > 0)
-                        <span class="badge bg-label-primary">{{ count($allAttachments) }}</span>
+                        <span class="badge bg-primary">{{ count($allAttachments) }}</span>
                     @endif
                 </div>
                 <div class="card-body pt-3">

@@ -73,7 +73,7 @@ class AuctionsDataTable extends AbstractDataTable
                 return '<div>'.$date.'</div><small class="text-muted">'.$time.'</small>';
             })
             ->editColumn('properties_count', function ($row) {
-                return '<span class="badge bg-label-info">'.(int) $row->properties_count.'</span>';
+                return '<span class="badge bg-info">'.(int) $row->properties_count.'</span>';
             })
             ->editColumn('status', function ($row) {
                 return '<span class="badge '.$row->status_badge_class.'">'.e($row->status_label).'</span>';
@@ -87,21 +87,21 @@ class AuctionsDataTable extends AbstractDataTable
                 if ($gen->isReady()) {
                     $buttons = [];
                     if (filled($gen->outputs_path)) {
-                        $buttons[] = '<a href="'.tenant_route_name('auctions.reports.download', ['auction' => $row->id, 'type' => 'outputs']).'" class="badge bg-label-secondary me-1" title="تحميل مخرجات المزاد"><i class="ti ti-file-text me-1"></i>المخرجات</a>';
+                        $buttons[] = '<a href="'.tenant_route_name('auctions.reports.download', ['auction' => $row->id, 'type' => 'outputs']).'" class="badge bg-secondary me-1" title="تحميل مخرجات المزاد"><i class="ti ti-file-text me-1"></i>المخرجات</a>';
                     }
                     if (filled($gen->report_path)) {
-                        $buttons[] = '<a href="'.tenant_route_name('auctions.reports.download', ['auction' => $row->id, 'type' => 'report']).'" class="badge bg-label-secondary" title="تحميل تقرير المزاد"><i class="ti ti-file-analytics me-1"></i>التقرير</a>';
+                        $buttons[] = '<a href="'.tenant_route_name('auctions.reports.download', ['auction' => $row->id, 'type' => 'report']).'" class="badge bg-secondary" title="تحميل تقرير المزاد"><i class="ti ti-file-analytics me-1"></i>التقرير</a>';
                     }
 
-                    return ! empty($buttons) ? implode('', $buttons) : '<span class="badge bg-label-success">جاهز</span>';
+                    return ! empty($buttons) ? implode('', $buttons) : '<span class="badge bg-success">جاهز</span>';
                 }
 
                 if ($gen->isProcessing() || $gen->status === 'queued') {
-                    return '<span class="badge bg-label-warning"><i class="ti ti-loader ti-spin me-1"></i>قيد التجهيز</span>';
+                    return '<span class="badge bg-warning"><i class="ti ti-loader ti-spin me-1"></i>قيد التجهيز</span>';
                 }
 
                 if ($gen->isFailed()) {
-                    return '<span class="badge bg-label-danger" title="'.e($gen->error_message ?? 'فشل التوليد').'"><i class="ti ti-alert-triangle me-1"></i>فشل</span>';
+                    return '<span class="badge bg-danger" title="'.e($gen->error_message ?? 'فشل التوليد').'"><i class="ti ti-alert-triangle me-1"></i>فشل</span>';
                 }
 
                 return '<span class="text-muted">—</span>';

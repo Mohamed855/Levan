@@ -16,7 +16,7 @@
         .card-title,
         h5,
         h4 {
-            color: var(--primary-color, #1D4F44);
+            color: var(--primary-color, #1d4f44);
             font-weight: 600;
             margin-bottom: 0;
         }
@@ -64,7 +64,7 @@
         margin-bottom: 0;
         font-size: 1.35rem;
         font-weight: 600;
-        color: var(--primary-color, #1D4F44);
+        color: var(--primary-color, #1d4f44);
     }
 }
 
@@ -77,27 +77,27 @@
     align-items: center;
     justify-content: center;
 
-    &.bg-label-primary {
+    &.bg-primary {
         background-color: rgba(29, 79, 68, 0.09) !important;
-        color: var(--primary-color, #1D4F44) !important;
+        color: var(--primary-color, #1d4f44) !important;
     }
 
-    &.bg-label-success {
+    &.bg-success {
         background-color: rgba(40, 199, 111, 0.12) !important;
         color: #28c76f !important;
     }
 
-    &.bg-label-info {
+    &.bg-info {
         background-color: rgba(0, 207, 232, 0.12) !important;
         color: #00cfe8 !important;
     }
 
-    &.bg-label-warning {
+    &.bg-warning {
         background-color: rgba(191, 135, 74, 0.14) !important;
-        color: #BF874A !important;
+        color: #bf874a !important;
     }
 
-    &.bg-label-danger {
+    &.bg-danger {
         background-color: rgba(234, 84, 85, 0.12) !important;
         color: #ea5455 !important;
     }
@@ -129,7 +129,7 @@
         font-size: 1.15rem;
         font-weight: 600;
         margin-bottom: 0.5rem;
-        color: var(--primary-color, #1D4F44);
+        color: var(--primary-color, #1d4f44);
     }
 
     .empty-state-description {
@@ -160,7 +160,7 @@
         h5 {
             font-size: 1.05rem;
             font-weight: 600;
-            color: var(--primary-color, #1D4F44);
+            color: var(--primary-color, #1d4f44);
             margin-bottom: 0;
         }
     }
@@ -177,4 +177,3 @@
     border-start-start-radius: inherit;
     border-start-end-radius: inherit;
 }
-

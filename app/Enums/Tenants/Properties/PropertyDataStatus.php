@@ -24,10 +24,10 @@ enum PropertyDataStatus: string
     public function badgeClass(): string
     {
         return match ($this) {
-            self::COMPLETED => 'bg-label-success',
-            self::NEEDS_REVIEW => 'bg-label-warning',
-            self::NEEDS_IMAGES => 'bg-label-info',
-            self::INCOMPLETE => 'bg-label-danger',
+            self::COMPLETED => 'bg-success',
+            self::NEEDS_REVIEW => 'bg-warning',
+            self::NEEDS_IMAGES => 'bg-info',
+            self::INCOMPLETE => 'bg-danger',
         };
     }
 }

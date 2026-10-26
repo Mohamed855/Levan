@@ -94,7 +94,7 @@
 
                             <!-- بطاقة بيانات الشركة المحددة (للقراءة فقط) -->
                             <div class="col-12" id="company-details-card" style="display: none;">
-                                <div class="card border border-primary bg-label-primary shadow-none mb-0">
+                                <div class="card border border-primary bg-primary shadow-none mb-0">
                                     <div class="card-body">
                                         <h6 class="card-title fw-bold text-primary mb-3">
                                             <i class="ti ti-building me-1"></i> بيانات الشركة المحددة
@@ -344,7 +344,7 @@
                                             <div class="col-md-6 mt-3 pt-3 border-top">
                                                 <small class="text-muted d-block">حالة التفعيل المتوقعة</small>
                                                 <span id="sub_review-activation-status"
-                                                    class="badge bg-label-success">مفعل فوراً</span>
+                                                    class="badge bg-success">مفعل فوراً</span>
                                             </div>
                                             <div class="col-md-6 mt-3 pt-3 border-top text-md-end">
                                                 <small class="text-muted d-block">المبلغ الإجمالي النهائي</small>

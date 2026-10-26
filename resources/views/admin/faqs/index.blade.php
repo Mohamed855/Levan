@@ -27,15 +27,15 @@
                             <td>{{ $faq->question }}</td>
                             <td>
                                 @if ($faq->is_active)
-                                    <span class="badge bg-label-success">مفعل</span>
+                                    <span class="badge bg-success">مفعل</span>
                                 @else
-                                    <span class="badge bg-label-danger">معطل</span>
+                                    <span class="badge bg-danger">معطل</span>
                                 @endif
                             </td>
                             <td>
                                 <div class="d-flex align-items-center gap-1">
                                     @can('faqs.edit')
-                                        <a href="{{ route('admin.faqs.edit', $faq) }}" class="btn btn-sm btn-icon btn-label-primary" title="تعديل">
+                                        <a href="{{ route('admin.faqs.edit', $faq) }}" class="btn btn-sm btn-icon btn-primary" title="تعديل">
                                             <i class="ti ti-edit"></i>
                                         </a>
                                     @endcan

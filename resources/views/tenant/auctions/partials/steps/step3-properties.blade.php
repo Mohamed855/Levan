@@ -10,11 +10,11 @@
             <small class="text-muted">حدد العقارات التي سيتم إدراجها رسمياً في هذا المزاد.</small>
         </div>
         <div class="d-flex gap-3 text-start">
-            <div class="badge bg-label-primary fs-6 p-2">المحددة: <span
+            <div class="badge bg-primary fs-6 p-2">المحددة: <span
                     id="selected-props-count">{{ $initialCount }}</span></div>
-            <div class="badge bg-label-info fs-6 p-2">إجمالي المساحة: <span
+            <div class="badge bg-info fs-6 p-2">إجمالي المساحة: <span
                     id="selected-props-area">0 م²</span></div>
-            <div class="badge bg-label-success fs-6 p-2">إجمالي القيمة: <span
+            <div class="badge bg-success fs-6 p-2">إجمالي القيمة: <span
                     id="selected-props-val">0 ر.س</span></div>
         </div>
     </div>
@@ -49,7 +49,7 @@
 <section class="assignment-selection mt-4" aria-live="polite">
     <div class="d-flex align-items-center justify-content-between mb-3">
         <h5 class="mb-0">العقارات المحددة</h5>
-        <span class="badge bg-label-primary"><span id="selected-properties-count">{{ $initialCount }}</span> عقار</span>
+        <span class="badge bg-primary"><span id="selected-properties-count">{{ $initialCount }}</span> عقار</span>
     </div>
     <div id="selected-properties-cards" class="assignment-selection__items">
         <p class="text-muted mb-0" data-empty {{ $initialCount > 0 ? 'hidden' : '' }}>لم يتم اختيار عقارات بعد.</p>

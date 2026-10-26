@@ -20,7 +20,7 @@
                     placeholder="مثال: properties.view" required />
             </div>
             <x-slot:footer>
-                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
                 <button type="submit" class="btn btn-primary">إضافة الصلاحية</button>
             </x-slot:footer>
         </form>
@@ -38,7 +38,7 @@
                 <input type="text" id="editModalPermissionName" name="name" class="form-control" required />
             </div>
             <x-slot:footer>
-                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
                 <button type="submit" class="btn btn-primary">تحديث الصلاحية</button>
             </x-slot:footer>
         </form>
@@ -90,14 +90,14 @@
                                 <td>{{ $permission->created_at }}</td>
                                 <td>
                                     <div class="d-flex justify-content-center gap-2">
-                                        <button type="button" class="btn btn-icon btn-label-primary js-edit-permission-btn"
+                                        <button type="button" class="btn btn-icon btn-primary js-edit-permission-btn"
                                             data-id="{{ $permission->id }}"
                                             data-name="{{ $permission->name }}"
                                             data-action="{{ tenant_route_name('permissions.update', $permission->id) }}"
                                             title="تعديل">
                                             <i class="ti ti-edit"></i>
                                         </button>
-                                        <button type="button" class="btn btn-icon btn-label-danger"
+                                        <button type="button" class="btn btn-icon btn-danger"
                                             onclick="confirmDelete({{ $permission->id }})"
                                             title="حذف">
                                             <i class="ti ti-trash"></i>

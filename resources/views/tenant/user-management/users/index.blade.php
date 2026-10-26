@@ -60,7 +60,7 @@
             <x-ui.stat-card col="col-sm-6 col-xl-3" title="التراخيص" :value="($subscription_formatted['used_users'] ?? 0) . ' / ' . ($subscription_formatted['total_users'] ?? 0)" :subtitle="'متبقي ' .
                 (($subscription_formatted['total_users'] ?? 0) - ($subscription_formatted['used_users'] ?? 0)) .
                 ' ترخيص'" icon="ti-license"
-                color="primary" valueClass="badge bg-label-primary rounded-pill">
+                color="primary" valueClass="badge bg-primary rounded-pill">
                 <div class="text-end">
                     {{ $subscription_formatted['total_users'] > 0 ? round(($subscription_formatted['used_users'] / $subscription_formatted['total_users']) * 100) : 0 }}%
                 </div>

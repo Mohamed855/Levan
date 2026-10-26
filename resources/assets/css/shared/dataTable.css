@@ -32,25 +32,25 @@
 .btn-export.active {
     background-color: rgba(29, 79, 68, 0.16) !important;
     border-color: transparent !important;
-    color: var(--primary-color-deep, #12332C) !important;
+    color: var(--primary-color-deep, #12332c) !important;
 }
 
-.dataTable tbody td .btn.bg-label-primary,
-.dataTable tbody td .btn-icon.bg-label-primary {
+.dataTable tbody td .btn.bg-primary,
+.dataTable tbody td .btn-icon.bg-primary {
     background-color: rgba(29, 79, 68, 0.08) !important;
     border-color: transparent !important;
     color: var(--primary-color) !important;
 }
 
-.dataTable tbody td .btn.bg-label-primary:hover,
-.dataTable tbody td .btn.bg-label-primary:focus,
-.dataTable tbody td .btn.bg-label-primary:active,
-.dataTable tbody td .btn-icon.bg-label-primary:hover,
-.dataTable tbody td .btn-icon.bg-label-primary:focus,
-.dataTable tbody td .btn-icon.bg-label-primary:active {
+.dataTable tbody td .btn.bg-primary:hover,
+.dataTable tbody td .btn.bg-primary:focus,
+.dataTable tbody td .btn.bg-primary:active,
+.dataTable tbody td .btn-icon.bg-primary:hover,
+.dataTable tbody td .btn-icon.bg-primary:focus,
+.dataTable tbody td .btn-icon.bg-primary:active {
     background-color: rgba(29, 79, 68, 0.16) !important;
     border-color: transparent !important;
-    color: var(--primary-color-deep, #12332C) !important;
+    color: var(--primary-color-deep, #12332c) !important;
 }
 
 .dataTables_processing {
@@ -80,9 +80,11 @@ label {
     width: 1rem;
     height: 1rem;
     cursor: pointer;
-    background-color: var(--bs-primary, #1D4F44);
-    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='black' d='M3.2 2.1 8 6.9l4.8-4.8 1.1 1.1L9.1 8l4.8 4.8-1.1 1.1L8 9.1l-4.8 4.8-1.1-1.1L6.9 8 2.1 3.2z'/%3E%3C/svg%3E") center / contain no-repeat;
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='black' d='M3.2 2.1 8 6.9l4.8-4.8 1.1 1.1L9.1 8l4.8 4.8-1.1 1.1L8 9.1l-4.8 4.8-1.1-1.1L6.9 8 2.1 3.2z'/%3E%3C/svg%3E") center / contain no-repeat;
+    background-color: var(--bs-primary, #1d4f44);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='black' d='M3.2 2.1 8 6.9l4.8-4.8 1.1 1.1L9.1 8l4.8 4.8-1.1 1.1L8 9.1l-4.8 4.8-1.1-1.1L6.9 8 2.1 3.2z'/%3E%3C/svg%3E")
+        center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='black' d='M3.2 2.1 8 6.9l4.8-4.8 1.1 1.1L9.1 8l4.8 4.8-1.1 1.1L8 9.1l-4.8 4.8-1.1-1.1L6.9 8 2.1 3.2z'/%3E%3C/svg%3E")
+        center / contain no-repeat;
 }
 
 .dataTables_length select {
@@ -113,11 +115,11 @@ label {
     width: 100% !important;
 }
 
-div.dataTables_processing>div:last-child>div {
+div.dataTables_processing > div:last-child > div {
     background: white;
 }
 
-.table-striped>tbody>tr:nth-of-type(even)>* {
+.table-striped > tbody > tr:nth-of-type(even) > * {
     --bs-table-color-type: initial !important;
     --bs-table-bg-type: initial !important;
 }
@@ -142,7 +144,17 @@ div.dataTables_processing>div:last-child>div {
     line-height: 1.4 !important;
 }
 
-.dataTable tbody td:not(.custom-checkbox):not(.dt-actions):not(.actions):not(.dt-checkboxes-cell):not(.td-no-clamp):not(:has(.btn)):not(:has(button)):not(:has(.badge)):not(:has(.form-switch)):not(:has(.js-table-status-toggle)):not(:has(.dropdown)):not(:has(i)):not(:has(svg)):not(:has(.avatar)):not(:has(.avatar-group)):not(:has(input[type="checkbox"])) {
+.dataTable
+    tbody
+    td:not(.custom-checkbox):not(.dt-actions):not(.actions):not(
+        .dt-checkboxes-cell
+    ):not(.td-no-clamp):not(:has(.btn)):not(:has(button)):not(:has(.badge)):not(
+        :has(.form-switch)
+    ):not(:has(.js-table-status-toggle)):not(:has(.dropdown)):not(:has(i)):not(
+        :has(svg)
+    ):not(:has(.avatar)):not(:has(.avatar-group)):not(
+        :has(input[type="checkbox"])
+    ) {
     min-width: 100px !important;
     max-width: 200px !important;
 }
@@ -201,8 +213,20 @@ div.dataTables_processing>div:last-child>div {
 }
 
 .dataTable tbody td > p,
-.dataTable tbody td > div:not(.form-check):not(.form-switch):not(.d-flex):not(.dropdown):not(.btn-group):not(.avatar-group):not(.copyable-code-wrapper):not(.table-cell-clamp):not(:has(.btn)):not(:has(button)):not(:has(i)):not(:has(svg)):not(:has(.badge)),
-.dataTable tbody td > a:not(.btn):not(.dropdown-item):not(.avatar):not(.badge):not(:has(i)):not(:has(svg)) {
+.dataTable
+    tbody
+    td
+    > div:not(.form-check):not(.form-switch):not(.d-flex):not(.dropdown):not(
+        .btn-group
+    ):not(.avatar-group):not(.copyable-code-wrapper):not(.table-cell-clamp):not(
+        :has(.btn)
+    ):not(:has(button)):not(:has(i)):not(:has(svg)):not(:has(.badge)),
+.dataTable
+    tbody
+    td
+    > a:not(.btn):not(.dropdown-item):not(.avatar):not(.badge):not(:has(i)):not(
+        :has(svg)
+    ) {
     display: inline-block !important;
     max-width: 200px !important;
     white-space: nowrap !important;
@@ -215,7 +239,7 @@ div.dataTables_processing>div:last-child>div {
 /* Single-click copyable entity code (strictly single-line, truncated at 200px with ellipsis) */
 .copyable-code-wrapper {
     background-color: rgba(29, 79, 68, 0.06);
-    color: var(--primary-color, #1D4F44);
+    color: var(--primary-color, #1d4f44);
     border: 1px dashed rgba(29, 79, 68, 0.25);
     border-radius: 6px;
     padding: 2px 0.5rem;
@@ -232,12 +256,14 @@ div.dataTables_processing>div:last-child>div {
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     vertical-align: middle;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
 }
 
 .copyable-code-wrapper:hover {
     background-color: rgba(29, 79, 68, 0.12);
-    color: var(--primary-color-deep, #12332C);
+    color: var(--primary-color-deep, #12332c);
 }
 
 .copyable-code-wrapper .copyable-code {
@@ -268,7 +294,7 @@ div.dataTables_processing>div:last-child>div {
 
 /* Standalone / Reusable Copyable Code (strictly single line, truncated at 200px) */
 .copyable-code {
-    color: var(--primary-color, #1D4F44) !important;
+    color: var(--primary-color, #1d4f44) !important;
     background-color: #f1f3f5;
     user-select: none;
     -webkit-user-select: none;
@@ -284,12 +310,14 @@ div.dataTables_processing>div:last-child>div {
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     vertical-align: middle;
-    transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+    transition:
+        background-color 0.15s ease-in-out,
+        color 0.15s ease-in-out;
 }
 
 .copyable-code:hover {
     background-color: rgba(29, 79, 68, 0.12);
-    color: var(--primary-color-deep, #12332C) !important;
+    color: var(--primary-color-deep, #12332c) !important;
 }
 
 .custom-checkbox {
@@ -321,23 +349,23 @@ input[type="checkbox"].row-checkbox,
 .custom-checkbox input[type="checkbox"]:checked,
 input[type="checkbox"].row-checkbox:checked,
 #select-all:checked {
-    background-color: var(--primary-color, #1D4F44) !important;
-    border-color: var(--primary-color, #1D4F44) !important;
+    background-color: var(--primary-color, #1d4f44) !important;
+    border-color: var(--primary-color, #1d4f44) !important;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='17' viewBox='0 0 15 14' fill='none'%3E%3Cpath d='M3.41667 7L6.33333 9.91667L12.1667 4.08333' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
 }
 
 .custom-checkbox input[type="checkbox"]:indeterminate,
 input[type="checkbox"].row-checkbox:indeterminate,
 #select-all:indeterminate {
-    background-color: var(--primary-color, #1D4F44) !important;
-    border-color: var(--primary-color, #1D4F44) !important;
+    background-color: var(--primary-color, #1d4f44) !important;
+    border-color: var(--primary-color, #1d4f44) !important;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2.5 6H9.5' stroke='%23fff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
 }
 
 .custom-checkbox input[type="checkbox"]:hover,
 input[type="checkbox"].row-checkbox:hover,
 #select-all:hover {
-    border-color: var(--primary-color, #1D4F44);
+    border-color: var(--primary-color, #1d4f44);
 }
 
 .dt-buttons .dt-button-collection .dropdown-item {
@@ -404,7 +432,6 @@ input[type="checkbox"].row-checkbox:hover,
 #customers-table th {
     color: #000 !important;
 }
-
 
 .table-responsive {
     overflow-x: auto !important;

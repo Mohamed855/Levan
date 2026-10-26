@@ -254,7 +254,7 @@
                             <div class="col-lg-3">
                                 <article class="card assignment-preview h-100">
                                     <div
-                                        class="assignment-preview__image bg-label-primary d-flex flex-column justify-content-center align-items-center p-4 text-center">
+                                        class="assignment-preview__image bg-primary d-flex flex-column justify-content-center align-items-center p-4 text-center">
                                         <i class="ti ti-building fs-1 mb-2 text-primary" aria-hidden="true"></i>
                                         <h5 class="mb-1 text-primary" id="preview-client-company">اسم الشركة</h5>
                                         <small class="text-muted" id="preview-client-city">المدينة</small>
@@ -266,11 +266,11 @@
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="text-muted small">الباقة:</span>
-                                            <span class="badge bg-label-info" id="preview-client-plan">-</span>
+                                            <span class="badge bg-info" id="preview-client-plan">-</span>
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center">
                                             <span class="text-muted small">الحالة:</span>
-                                            <span class="badge bg-label-success" id="preview-client-status">مفعل
+                                            <span class="badge bg-success" id="preview-client-status">مفعل
                                                 فوراً</span>
                                         </div>
                                     </div>

@@ -13,13 +13,13 @@
                 <i class="ti ti-layout-dashboard me-2 text-primary"></i>تفاصيل قالب المزاد: {{ $template->name }}
             </h4>
             <div class="d-flex align-items-center gap-2">
-                <span class="badge {{ $template->status === 'published' ? 'bg-label-success' : 'bg-label-warning' }}">
+                <span class="badge {{ $template->status === 'published' ? 'bg-success' : 'bg-warning' }}">
                     {{ $template->status === 'published' ? 'منشور ومتاح' : ($template->status ?? 'مسودة') }}
                 </span>
-                <span class="badge bg-label-primary">
+                <span class="badge bg-primary">
                     {{ $template->type instanceof \BackedEnum ? $template->type->value : (string) $template->type }}
                 </span>
-                <span class="badge bg-label-dark font-monospace">إصدار {{ $template->current_version ?: '1.0' }}</span>
+                <span class="badge bg-dark font-monospace">إصدار {{ $template->current_version ?: '1.0' }}</span>
             </div>
         </div>
         <div class="d-flex gap-2">
@@ -39,12 +39,12 @@
         <div class="col-xl-4 col-lg-5 col-md-5 mb-4">
             <div class="card mb-4">
                 <div class="card-body text-center">
-                    <div class="mx-auto mb-3 d-flex align-items-center justify-content-center bg-label-primary rounded"
+                    <div class="mx-auto mb-3 d-flex align-items-center justify-content-center bg-primary rounded"
                         style="width: 100px; height: 100px;">
                         <i class="ti ti-template text-primary" style="font-size: 3rem;"></i>
                     </div>
                     <h5 class="mb-1">{{ $template->name }}</h5>
-                    <span class="badge bg-label-primary mb-3">
+                    <span class="badge bg-primary mb-3">
                         {{ $template->type instanceof \BackedEnum ? $template->type->value : (string) $template->type }}
                     </span>
 
@@ -69,7 +69,7 @@
                             @endif
                             <li class="mb-2">
                                 <span class="fw-bold me-1">الحالة العامة:</span>
-                                <span class="badge {{ $template->status === 'published' ? 'bg-label-success' : 'bg-label-warning' }}">
+                                <span class="badge {{ $template->status === 'published' ? 'bg-success' : 'bg-warning' }}">
                                     {{ $template->status ?? 'draft' }}
                                 </span>
                             </li>
@@ -79,7 +79,7 @@
                             </li>
                             <li class="mb-2">
                                 <span class="fw-bold me-1">مفعل في النظام:</span>
-                                <span class="badge {{ $template->is_active ? 'bg-label-success' : 'bg-label-danger' }}">
+                                <span class="badge {{ $template->is_active ? 'bg-success' : 'bg-danger' }}">
                                     {{ $template->is_active ? 'نعم' : 'لا' }}
                                 </span>
                             </li>
@@ -96,7 +96,7 @@
                                     <span class="fw-bold d-block mb-2">الحقول المعرفة:</span>
                                     <div class="d-flex flex-wrap gap-1">
                                         @foreach ($template->field_names as $fieldName)
-                                            <span class="badge bg-label-info font-monospace">{{ $fieldName }}</span>
+                                            <span class="badge bg-info font-monospace">{{ $fieldName }}</span>
                                         @endforeach
                                     </div>
                                 </li>
@@ -131,7 +131,7 @@
                                 <tr>
                                     <td class="fw-bold font-monospace">إصدار {{ $version->version }}</td>
                                     <td>
-                                        <span class="badge {{ $version->status === 'published' ? 'bg-label-success' : 'bg-label-warning' }}">
+                                        <span class="badge {{ $version->status === 'published' ? 'bg-success' : 'bg-warning' }}">
                                             {{ $version->status === 'published' ? 'منشور ومتاح' : 'مسودة' }}
                                         </span>
                                     </td>
@@ -146,7 +146,7 @@
                                                 </button>
                                             </form>
                                         @else
-                                            <span class="badge bg-label-secondary">معتمد كإصدار نشط</span>
+                                            <span class="badge bg-secondary">معتمد كإصدار نشط</span>
                                         @endif
                                     </td>
                                 </tr>

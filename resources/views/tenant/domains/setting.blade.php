@@ -62,7 +62,7 @@
                             <small class="mb-0">عدد النطاقات المسجلة في حسابك</small>
                         </div>
                         <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-primary">
+                            <span class="avatar-initial rounded bg-primary">
                                 <i class="ti ti-world-www ti-26px"></i>
                             </span>
                         </div>
@@ -83,7 +83,7 @@
                             <small class="mb-0">نطاقات مفعّلة وتعمل حاليًا</small>
                         </div>
                         <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-success">
+                            <span class="avatar-initial rounded bg-success">
                                 <i class="ti ti-circle-check ti-26px"></i>
                             </span>
                         </div>
@@ -104,7 +104,7 @@
                             <small class="mb-0">نطاقات غير مفعّلة </small>
                         </div>
                         <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-warning">
+                            <span class="avatar-initial rounded bg-warning">
                                 <i class="ti ti-alert-circle ti-26px"></i>
                             </span>
                         </div>

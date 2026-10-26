@@ -83,7 +83,7 @@
                     <div class="col-12" data-form-field data-field-name="features">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <label class="form-label mb-0">ميزات الباقة <span class="text-danger">*</span></label>
-                            <button type="button" class="btn btn-label-primary btn-sm" id="btn-add-feature"><i
+                            <button type="button" class="btn btn-primary btn-sm" id="btn-add-feature"><i
                                     class="ti ti-plus me-1"></i>إضافة ميزة</button>
                         </div>
                         <div id="features-list">
@@ -93,7 +93,7 @@
                                         <div class="flex-grow-1"><input type="text" name="features[{{ $index }}]"
                                                 data-form-control class="form-control" value="{{ $feature }}"
                                                 placeholder="مثال: لوحة تحكم مخصصة" required></div><button type="button"
-                                            class="btn btn-icon btn-label-danger btn-remove-feature"
+                                            class="btn btn-icon btn-danger btn-remove-feature"
                                             aria-label="حذف الميزة"><i class="ti ti-trash"></i></button>
                                     </div>
                                 </div>
@@ -217,7 +217,7 @@
                                 <dt class="col-5 text-muted">الميزات المشمولة</dt>
                                 <dd class="col-7" id="plan-review-features">
                                     @foreach ($plan->features ?? [] as $feature)
-                                        <span class="badge bg-label-primary me-1 mb-1">{{ $feature }}</span>
+                                        <span class="badge bg-primary me-1 mb-1">{{ $feature }}</span>
                                     @endforeach
                                 </dd>
                             </dl>
@@ -299,7 +299,7 @@
             <div class="d-flex align-items-end gap-2">
                 <div class="flex-grow-1"><input type="text" name="features[{index}]" data-form-control
                         class="form-control" placeholder="مثال: لوحة تحكم مخصصة" required></div><button type="button"
-                    class="btn btn-icon btn-label-danger btn-remove-feature" aria-label="حذف الميزة"><i
+                    class="btn btn-icon btn-danger btn-remove-feature" aria-label="حذف الميزة"><i
                         class="ti ti-trash"></i></button>
             </div>
         </div>

@@ -88,7 +88,7 @@
                                         <td class="font-monospace">{{ $log->path }}</td>
                                         <td>
                                             <span
-                                                class="badge {{ $log->status_code < 300 ? 'bg-label-success' : 'bg-label-danger' }}">
+                                                class="badge {{ $log->status_code < 300 ? 'bg-success' : 'bg-danger' }}">
                                                 {{ $log->status_code }}
                                             </span>
                                         </td>

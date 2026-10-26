@@ -8,32 +8,32 @@
     border-radius: 6px;
     letter-spacing: 0.3px;
 
-    &.bg-label-primary {
+    &.bg-primary {
         background-color: rgba(29, 79, 68, 0.09) !important;
-        color: var(--primary-color, #1D4F44) !important;
+        color: var(--primary-color, #1d4f44) !important;
     }
 
-    &.bg-label-secondary {
+    &.bg-secondary {
         background-color: rgba(234, 223, 204, 0.6) !important;
-        color: var(--primary-color-deep, #12332C) !important;
+        color: var(--primary-color-deep, #12332c) !important;
     }
 
-    &.bg-label-success {
+    &.bg-success {
         background-color: rgba(40, 199, 111, 0.12) !important;
         color: #28c76f !important;
     }
 
-    &.bg-label-warning {
+    &.bg-warning {
         background-color: rgba(191, 135, 74, 0.14) !important;
-        color: #BF874A !important;
+        color: #bf874a !important;
     }
 
-    &.bg-label-info {
+    &.bg-info {
         background-color: rgba(0, 207, 232, 0.12) !important;
         color: #00cfe8 !important;
     }
 
-    &.bg-label-danger {
+    &.bg-danger {
         background-color: rgba(234, 84, 85, 0.12) !important;
         color: #ea5455 !important;
     }

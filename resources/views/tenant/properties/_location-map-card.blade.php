@@ -29,7 +29,7 @@
 
             {{-- شريط حالة التحديد --}}
             <div id="property-image-status-bar" class="d-none justify-content-between align-items-center mt-2 px-1">
-                <span id="points-count-badge" class="badge bg-label-info">0 نقاط محددة</span>
+                <span id="points-count-badge" class="badge bg-info">0 نقاط محددة</span>
                 <small id="polygon-status-text" class="text-muted">انقر على زوايا العقار لوضع نقاط الحدود، واسحب النقاط
                     لتعديلها</small>
             </div>
@@ -44,7 +44,7 @@
                     <span>تحميل الصورة المحددة</span>
                 </button>
             </div>
-            <button type="button" class="btn btn-label-danger btn-sm d-flex align-items-center gap-1 d-none"
+            <button type="button" class="btn btn-danger btn-sm d-flex align-items-center gap-1 d-none"
                 id="btn-clear-boundary" title="مسح التحديد وحذف الشكل المضلع">
                 <i class="ti ti-trash fs-5"></i>
                 <span>مسح التحديد</span>

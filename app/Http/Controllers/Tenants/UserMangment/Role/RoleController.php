@@ -94,7 +94,7 @@ class RoleController extends Controller
                     ->addColumn('role', function (User $user) {
                         $roleName = $user->roles->first()?->name ?? 'غير محدد';
 
-                        return '<span class="badge bg-label-primary">'.e($roleName).'</span>';
+                        return '<span class="badge bg-primary">'.e($roleName).'</span>';
                     })
                     ->addColumn('status', function (User $user) {
                         if (auth()->user()->can('roles.assign')) {
@@ -118,7 +118,7 @@ class RoleController extends Controller
                                 </div>
                             ';
                         } else {
-                            $statusClass = $user->status === 'active' ? 'bg-label-success' : 'bg-label-danger';
+                            $statusClass = $user->status === 'active' ? 'bg-success' : 'bg-danger';
                             $statusText = $user->status === 'active' ? 'نشط' : 'غير نشط';
 
                             return '<div class="d-flex justify-content-center"><span class="badge '.$statusClass.'">'.$statusText.'</span></div>';
@@ -132,7 +132,7 @@ class RoleController extends Controller
                             return '-';
                         }
 
-                        return '<button type="button" class="btn btn-icon btn-label-primary edit-role-link" data-user-id="'.e((string) $user->id).'" aria-label="تعديل دور المستخدم"><i class="ti ti-shield-check" aria-hidden="true"></i></button>';
+                        return '<button type="button" class="btn btn-icon btn-primary edit-role-link" data-user-id="'.e((string) $user->id).'" aria-label="تعديل دور المستخدم"><i class="ti ti-shield-check" aria-hidden="true"></i></button>';
                     })
                     ->orderColumn('name', fn ($query, $order) => $query->orderBy('name', $order))
                     ->orderColumn('email', fn ($query, $order) => $query->orderBy('email', $order))

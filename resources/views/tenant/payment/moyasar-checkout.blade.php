@@ -23,7 +23,7 @@
                                     <p class="text-muted mb-1">{{ $description }}</p>
                                     <h5 class="mb-0">الدفع الآمن</h5>
                                 </div>
-                                <span class="badge bg-label-success">
+                                <span class="badge bg-success">
                                     <i class="ti ti-lock me-1"></i>
                                     Moyasar
                                 </span>

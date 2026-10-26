@@ -9,7 +9,7 @@
                 لديك مسودة سابقة. هل تريد استرجاع البيانات والمتابعة من حيث توقفت أم بدء نموذج جديد؟
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-label-secondary" data-discard-draft>بدء جديد</button>
+                <button type="button" class="btn btn-secondary" data-discard-draft>بدء جديد</button>
                 <button type="button" class="btn btn-primary" data-restore-draft>استرجاع المسودة</button>
             </div>
         </div>

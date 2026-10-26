@@ -2,7 +2,7 @@
     <div class="text-center py-4">
         <div class="mb-3">
             <div id="subscriptionConfirmModalIcon"
-                class="avatar avatar-xl mx-auto rounded-circle d-flex align-items-center justify-content-center bg-label-success">
+                class="avatar avatar-xl mx-auto rounded-circle d-flex align-items-center justify-content-center bg-success">
                 <i class="ti ti-check ti-lg" aria-hidden="true"></i>
             </div>
         </div>
@@ -17,7 +17,7 @@
     </div>
 
     <x-slot:footer>
-        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
         <button type="button" class="btn btn-success" id="subscriptionConfirmModalSubmitBtn">تأكيد</button>
     </x-slot:footer>
 </x-bootstrap.modal>

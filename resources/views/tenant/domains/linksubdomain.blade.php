@@ -82,7 +82,7 @@
                             <div id="alertContainer"></div>
 
                             <div class="form-group-custom">
-                                <label class="form-label-custom">
+                                <label class="form-custom">
                                     <i class="ti ti-world me-2"></i>
                                     اسم الدومين الفرعي
                                 </label>
@@ -113,7 +113,7 @@
                                 <input type="hidden" id="domainName" name="domain">
 
                                 <div class="form-group-custom">
-                                    <label class="form-label-custom">
+                                    <label class="form-custom">
                                         <i class="ti ti-world me-2"></i>
                                         اسم الدومين الفرعي
                                         <span id="domainTypeBadge"></span>

@@ -157,7 +157,7 @@
                             <small class="mb-0">إجمالي السلف</small>
                         </div>
                         <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-primary">
+                            <span class="avatar-initial rounded bg-primary">
                                 <i class="ti ti-stack ti-26px"></i>
                             </span>
                         </div>
@@ -178,7 +178,7 @@
                             <small class="mb-0"> إجمالي السلف الجديدة </small>
                         </div>
                         <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-warning">
+                            <span class="avatar-initial rounded bg-warning">
                                 <i class="ti ti-hourglass ti-26px"></i>
                             </span>
                         </div>
@@ -200,7 +200,7 @@
 
                         </div>
                         <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-success">
+                            <span class="avatar-initial rounded bg-success">
                                 <i class="ti ti-file-check ti-26px"></i>
                             </span>
                         </div>
@@ -221,7 +221,7 @@
                             <small class="mb-0"> إجمالي السلف المرفوضة</small>
                         </div>
                         <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-danger">
+                            <span class="avatar-initial rounded bg-danger">
                                 <i class="ti ti-circle-x ti-26px"></i>
                             </span>
                         </div>

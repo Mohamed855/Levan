@@ -122,7 +122,7 @@
                                         <p class="mb-0 text-body text-success">
                                             <i class="ti ti-discount-2 me-1"></i>
                                             الخصم
-                                            <button type="button" class="btn btn-sm btn-label-danger p-0 ms-2"
+                                            <button type="button" class="btn btn-sm btn-danger p-0 ms-2"
                                                 id="remove-coupon">
                                                 <i class="ti ti-x"></i>
                                             </button>

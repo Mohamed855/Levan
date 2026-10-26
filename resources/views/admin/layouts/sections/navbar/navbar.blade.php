@@ -78,7 +78,7 @@
                             <a href="{{ route('admin.settings.index') }}"
                                 class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
                                 <div class="avatar avatar-md mx-auto mb-2">
-                                    <span class="avatar-initial rounded bg-label-primary">
+                                    <span class="avatar-initial rounded bg-primary">
                                         <i class="ti ti-settings ti-lg"></i>
                                     </span>
                                 </div>
@@ -93,7 +93,7 @@
                             <a href="{{ route('admin.roles.index') }}"
                                 class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
                                 <div class="avatar avatar-md mx-auto mb-2">
-                                    <span class="avatar-initial rounded bg-label-info">
+                                    <span class="avatar-initial rounded bg-info">
                                         <i class="ti ti-shield-lock ti-lg"></i>
                                     </span>
                                 </div>
@@ -108,7 +108,7 @@
                             <a href="{{ route('admin.activity-logs.index') }}"
                                 class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
                                 <div class="avatar avatar-md mx-auto mb-2">
-                                    <span class="avatar-initial rounded bg-label-warning">
+                                    <span class="avatar-initial rounded bg-warning">
                                         <i class="ti ti-activity ti-lg"></i>
                                     </span>
                                 </div>
@@ -155,7 +155,7 @@
                         <div class="border rounded p-2">
                             <div class="d-flex align-items-center mb-2 px-2">
                                 {{-- <div class="avatar avatar-sm me-2">
-                                        <span class="avatar-initial rounded bg-label-dark">
+                                        <span class="avatar-initial rounded bg-dark">
                                             <i class="ti ti-report"></i>
                                         </span>
                                     </div> --}}
@@ -210,7 +210,7 @@
                     <div class="dropdown-header d-flex align-items-center py-3">
                         <h6 class="mb-0 me-auto fw-bold">الإشعارات</h6>
                         <div class="d-flex align-items-center h6 mb-0">
-                            <span class="badge bg-label-primary me-2"> جديد</span>
+                            <span class="badge bg-primary me-2"> جديد</span>
                             <a href="javascript:void(0)" class="btn btn-text-secondary rounded-pill btn-icon"
                                 data-bs-toggle="tooltip" data-bs-placement="top" title="تحديد الكل كمقروء">
                                 <i class="ti ti-mail-opened text-heading"></i>
@@ -227,7 +227,7 @@
                             <div class="d-flex">
                                 <div class="flex-shrink-0 me-3">
                                     <div class="avatar">
-                                        <span class="avatar-initial rounded-circle bg-label-success">
+                                        <span class="avatar-initial rounded-circle bg-success">
                                             <i class="ti ti-check"></i>
                                         </span>
                                     </div>

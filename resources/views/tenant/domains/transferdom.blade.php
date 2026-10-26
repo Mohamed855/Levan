@@ -25,7 +25,7 @@
                                     <p class="text-muted mb-1">نقل نطاق إلى مسند</p>
                                     <h5 class="mb-0">الخطوة {{ min((int) $step, 3) }} من 3</h5>
                                 </div>
-                                <span class="badge bg-label-primary">نقل نطاق</span>
+                                <span class="badge bg-primary">نقل نطاق</span>
                             </div>
                         </div>
 

@@ -69,7 +69,7 @@
         </form>
 
         <x-slot:footer>
-            <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
             <button type="submit" form="updateUserRoleForm" class="btn btn-primary">حفظ التغيير</button>
         </x-slot:footer>
     </x-bootstrap.modal>

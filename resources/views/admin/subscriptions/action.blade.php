@@ -1,6 +1,6 @@
 @can('subscriptions.delete')
     <div class="d-flex justify-content-center gap-2">
-        <button type="button" class="btn btn-icon btn-label-primary bg-label-primary js-delete-subscription-btn" title="حذف نهائي للاشتراك"
+        <button type="button" class="btn btn-icon btn-primary bg-primary js-delete-subscription-btn" title="حذف نهائي للاشتراك"
             data-id="{{ $row->id }}" data-number="{{ $row->subscription_number }}">
             <i class="ti ti-trash"></i>
         </button>

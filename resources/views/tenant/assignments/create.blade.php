@@ -110,7 +110,7 @@
                 </div>
                 <section class="assignment-selection mt-4" aria-live="polite">
                     <div class="d-flex align-items-center justify-content-between mb-3">
-                        <h5 class="mb-0">العقارات المحددة</h5><span class="badge bg-label-primary"><span
+                        <h5 class="mb-0">العقارات المحددة</h5><span class="badge bg-primary"><span
                                 id="selected-properties-count">0</span> عقار</span>
                     </div>
                     <div id="selected-properties-cards" class="assignment-selection__items">
@@ -138,7 +138,7 @@
                             aria-labelledby="general-documents-title">
                             <div class="d-flex align-items-center justify-content-between mb-3">
                                 <h5 id="general-documents-title" class="mb-0">مستندات عامة</h5>
-                                <span class="badge bg-label-primary"><span id="general-documents-count">0</span>
+                                <span class="badge bg-primary"><span id="general-documents-count">0</span>
                                     ملف</span>
                             </div>
                             <div id="general-documents-cards" class="assignment-file-list" aria-live="polite">
@@ -151,7 +151,7 @@
                             aria-labelledby="additional-attachments-title">
                             <div class="d-flex align-items-center justify-content-between mb-3">
                                 <h5 id="additional-attachments-title" class="mb-0">مرفقات إضافية</h5>
-                                <span class="badge bg-label-primary"><span id="additional-attachments-count">0</span>
+                                <span class="badge bg-primary"><span id="additional-attachments-count">0</span>
                                     ملف</span>
                             </div>
                             <div id="additional-attachments-cards" class="assignment-file-list" aria-live="polite">
@@ -183,7 +183,7 @@
                                         aria-labelledby="review-general-documents-title">
                                         <div class="d-flex align-items-center justify-content-between mb-3">
                                             <h5 id="review-general-documents-title" class="mb-0">مستندات عامة</h5>
-                                            <span class="badge bg-label-primary"><span
+                                            <span class="badge bg-primary"><span
                                                     id="review-general-documents-count">0</span> ملف</span>
                                         </div>
                                         <div id="review-general-documents" class="assignment-file-list"></div>
@@ -194,7 +194,7 @@
                                         aria-labelledby="review-additional-attachments-title">
                                         <div class="d-flex align-items-center justify-content-between mb-3">
                                             <h5 id="review-additional-attachments-title" class="mb-0">مرفقات إضافية</h5>
-                                            <span class="badge bg-label-primary"><span
+                                            <span class="badge bg-primary"><span
                                                     id="review-additional-attachments-count">0</span> ملف</span>
                                         </div>
                                         <div id="review-additional-attachments" class="assignment-file-list"></div>

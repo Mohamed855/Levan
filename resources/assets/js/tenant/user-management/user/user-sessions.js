@@ -1,7 +1,7 @@
-'use strict';
+"use strict";
 
 $(document).ready(function () {
-    if ($('#sessions_tab').length && window.sessionsData) {
+    if ($("#sessions_tab").length && window.sessionsData) {
         initializeSessionsVisualization();
     }
 });
@@ -12,15 +12,15 @@ function initializeSessionsVisualization() {
 }
 
 function renderDaysTimeline(days) {
-    const container = $('#sessions-timeline-container');
+    const container = $("#sessions-timeline-container");
     container.empty();
 
     if (days.length === 0) {
         container.html(
             '<div class="text-center py-5">' +
-            '<i class="ti ti-calendar-off" style="font-size: 2rem; color: #ddd;"></i>' +
-            '<p class="text-muted mt-2 mb-0" style="font-size: 0.75rem;">لا توجد جلسات عمل في هذا الشهر</p>' +
-            '</div>'
+                '<i class="ti ti-calendar-off" style="font-size: 2rem; color: #ddd;"></i>' +
+                '<p class="text-muted mt-2 mb-0" style="font-size: 0.75rem;">لا توجد جلسات عمل في هذا الشهر</p>' +
+                "</div>",
         );
         return;
     }
@@ -35,20 +35,23 @@ function renderDaysTimeline(days) {
 
 function createDayRow(day, index) {
     const colorGradient = getColorGradient(index, 30);
-    let timelineHtml = '';
-    let timeAxisHtml = '';
+    let timelineHtml = "";
+    let timeAxisHtml = "";
 
     // استخراج الفترات ومعلومات الوقت
     const periods = day.timeline.periods || [];
-    const workRange = day.timeline.work_range || { start: '08:00', end: '16:00' };
+    const workRange = day.timeline.work_range || {
+        start: "08:00",
+        end: "16:00",
+    };
 
     if (periods.length > 0) {
-        let barsHtml = '';
-        
+        let barsHtml = "";
+
         periods.forEach((period) => {
-            const barColor = period.is_active ? '#4cc1bb' : colorGradient;
+            const barColor = period.is_active ? "#4cc1bb" : colorGradient;
             const tooltipText = `من ${period.start_time} إلى ${period.end_time}<br>المدة: ${period.duration}`;
-            
+
             barsHtml += `
                 <div style="position: absolute; top: 0; height: 100%; right: ${period.start_percent}%; width: ${period.width}%; background: ${barColor}; border-radius: 2px; cursor: pointer;" 
                      data-bs-toggle="tooltip" 
@@ -58,24 +61,31 @@ function createDayRow(day, index) {
         });
 
         // محور الوقت الديناميكي
-        const startHour = parseInt(workRange.start.split(':')[0]);
-        const endHour = parseInt(workRange.end.split(':')[0]);
+        const startHour = parseInt(workRange.start.split(":")[0]);
+        const endHour = parseInt(workRange.end.split(":")[0]);
         const hoursDiff = endHour - startHour;
-        
+
         let timeMarks = [];
         for (let i = 0; i <= hoursDiff; i += 2) {
             const hour = startHour + i;
             if (hour <= endHour) {
-                timeMarks.push(`<span>${hour.toString().padStart(2, '0')}:00</span>`);
+                timeMarks.push(
+                    `<span>${hour.toString().padStart(2, "0")}:00</span>`,
+                );
             }
         }
-        if (timeMarks.length < 4 || !timeMarks[timeMarks.length - 1].includes(workRange.end.split(':')[0])) {
+        if (
+            timeMarks.length < 4 ||
+            !timeMarks[timeMarks.length - 1].includes(
+                workRange.end.split(":")[0],
+            )
+        ) {
             timeMarks.push(`<span>${workRange.end}</span>`);
         }
 
         timeAxisHtml = `
             <div class="d-flex justify-content-between mt-1" style="font-size: 0.625rem; color: #999;">
-                ${timeMarks.join('')}
+                ${timeMarks.join("")}
             </div>
         `;
 
@@ -93,8 +103,12 @@ function createDayRow(day, index) {
         `;
     }
 
-    const todayBadge = day.is_today ? '<span class="badge bg-label-primary" style="font-size: 0.625rem; padding: 2px 6px; margin-right: 6px;">اليوم</span>' : '';
-    const activeBadge = day.is_active ? '<span class="badge bg-label-success" style="font-size: 0.625rem; padding: 2px 6px;">نشط</span>' : '';
+    const todayBadge = day.is_today
+        ? '<span class="badge bg-primary" style="font-size: 0.625rem; padding: 2px 6px; margin-right: 6px;">اليوم</span>'
+        : "";
+    const activeBadge = day.is_active
+        ? '<span class="badge bg-success" style="font-size: 0.625rem; padding: 2px 6px;">نشط</span>'
+        : "";
 
     const statsHtml = `
         <div style="font-size: 0.6875rem; color: #666; text-align: center;">

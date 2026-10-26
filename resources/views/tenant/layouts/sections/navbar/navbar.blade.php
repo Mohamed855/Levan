@@ -78,7 +78,7 @@
                                 <a href="{{ tenant_route_name('settings.index') }}"
                                     class="d-flex align-items-center p-3 border rounded hover-bg-secondary text-decoration-none">
                                     <div class="avatar avatar-md me-3">
-                                        <span class="avatar-initial rounded bg-label-primary">
+                                        <span class="avatar-initial rounded bg-primary">
                                             <i class="ti ti-settings ti-lg"></i>
                                         </span>
                                     </div>
@@ -97,7 +97,7 @@
                                 <a href="{{ tenant_route_name('users.index') }}"
                                     class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
                                     <div class="avatar avatar-md mx-auto mb-2">
-                                        <span class="avatar-initial rounded bg-label-success">
+                                        <span class="avatar-initial rounded bg-success">
                                             <i class="ti ti-users ti-lg"></i>
                                         </span>
                                     </div>
@@ -111,7 +111,7 @@
                                 <a href="{{ tenant_route_name('roles.index') }}"
                                     class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
                                     <div class="avatar avatar-md mx-auto mb-2">
-                                        <span class="avatar-initial rounded bg-label-info">
+                                        <span class="avatar-initial rounded bg-info">
                                             <i class="ti ti-shield-lock ti-lg"></i>
                                         </span>
                                     </div>
@@ -126,7 +126,7 @@
                                 <a href="{{ tenant_route_name('activity-logs.index') }}"
                                     class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
                                     <div class="avatar avatar-md mx-auto mb-2">
-                                        <span class="avatar-initial rounded bg-label-warning">
+                                        <span class="avatar-initial rounded bg-warning">
                                             <i class="ti ti-activity ti-lg"></i>
                                         </span>
                                     </div>
@@ -140,7 +140,7 @@
                                 <a href="{{ tenant_route_name('communication.message-individual-logs.index') }}"
                                     class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
                                     <div class="avatar avatar-md mx-auto mb-2">
-                                        <span class="avatar-initial rounded bg-label-info">
+                                        <span class="avatar-initial rounded bg-info">
                                             <i class="ti ti-message ti-lg"></i>
                                         </span>
                                     </div>
@@ -169,7 +169,7 @@
                                 <a href="{{ tenant_route_name('bills.index') }}"
                                     class="d-block p-3 text-center border rounded hover-bg-secondary text-decoration-none">
                                     <div class="avatar avatar-md mx-auto mb-2">
-                                        <span class="avatar-initial rounded bg-label-primary">
+                                        <span class="avatar-initial rounded bg-primary">
                                             <i class="ti ti-receipt ti-lg"></i>
                                         </span>
                                     </div>
@@ -212,7 +212,7 @@
                     <div class="dropdown-header d-flex align-items-center py-3">
                         <h6 class="mb-0 me-auto fw-bold">الإشعارات</h6>
                         <div class="d-flex align-items-center h6 mb-0">
-                            <span class="badge bg-label-primary me-2" id="unreadCountBadge">
+                            <span class="badge bg-primary me-2" id="unreadCountBadge">
                                 {{ auth()->user()?->unreadNotifications?->count() ?? 0 }} جديد
                             </span>
                             <a href="javascript:void(0)" onclick="markAllAsRead()"
@@ -230,14 +230,14 @@
                             @php
                                 $data = $notification->data;
                                 $iconColors = [
-                                    'success' => 'bg-label-success',
-                                    'warning' => 'bg-label-warning',
-                                    'info' => 'bg-label-info',
-                                    'danger' => 'bg-label-danger',
-                                    'primary' => 'bg-label-primary',
+                                    'success' => 'bg-success',
+                                    'warning' => 'bg-warning',
+                                    'info' => 'bg-info',
+                                    'danger' => 'bg-danger',
+                                    'primary' => 'bg-primary',
                                     'secondary' => 'bg-secondary',
                                 ];
-                                $colorClass = $iconColors[$data['type'] ?? 'info'] ?? 'bg-label-info';
+                                $colorClass = $iconColors[$data['type'] ?? 'info'] ?? 'bg-info';
                             @endphp
 
                             <li class="list-group-item list-group-item-action dropdown-notifications-item {{ $notification->read_at ? 'marked-as-read' : '' }}"

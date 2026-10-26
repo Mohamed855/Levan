@@ -176,7 +176,7 @@
                                     <i class="ti ti-ticket text-success me-2"></i>
                                     الكوبونات المُسندة
                                 </h6>
-                                <span class="badge bg-label-primary rounded-pill">{{ $coupons->count() }} كوبون</span>
+                                <span class="badge bg-primary rounded-pill">{{ $coupons->count() }} كوبون</span>
                             </div>
 
                             <div class="border-1 border-light border-dashed mb-2"></div>

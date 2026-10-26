@@ -25,7 +25,7 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">بيانات المتقدم</h5>
                     <span
-                        class="badge bg-label-{{ match ($trialRequest->status->value) {
+                        class="badge bg-{{ match ($trialRequest->status->value) {
                             'pending' => 'warning',
                             'approved' => 'success',
                             default => 'danger',
@@ -87,7 +87,7 @@
                 <p class="text-muted mb-3">يرجى توضيح سبب الرفض ليتم إشعار العميل وتسجيله في الطلب.</p>
                 <x-form.controls.textarea name="rejection_reason" label="سبب الرفض" rows="4" required />
                 <x-slot:footer>
-                    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
                     <button type="submit" class="btn btn-danger">تأكيد الرفض</button>
                 </x-slot:footer>
             </form>

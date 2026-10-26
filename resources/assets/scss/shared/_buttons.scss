@@ -4,7 +4,11 @@
 
 // Button stability: avoid transform jumps on hover/active
 .btn {
-    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    transition:
+        color 0.15s ease-in-out,
+        background-color 0.15s ease-in-out,
+        border-color 0.15s ease-in-out,
+        box-shadow 0.15s ease-in-out;
     transform: none !important;
 
     &:hover,
@@ -38,7 +42,7 @@
     }
 
     &::after {
-        content: '';
+        content: "";
         position: absolute;
         width: 1.125rem;
         height: 1.125rem;
@@ -68,15 +72,15 @@
     &:active,
     &.active,
     &.show {
-        background-color: var(--primary-color-deep, #12332C) !important;
-        border-color: var(--primary-color-deep, #12332C) !important;
+        background-color: var(--primary-color-deep, #12332c) !important;
+        border-color: var(--primary-color-deep, #12332c) !important;
         color: #fff !important;
     }
 }
 
 .btn-secondary {
     background-color: var(--secondary-color) !important;
-    border-color: var(--secondary-color-dark, #EADFCC) !important;
+    border-color: var(--secondary-color-dark, #eadfcc) !important;
     color: var(--primary-color) !important;
     font-weight: 500;
 
@@ -85,9 +89,9 @@
     &:active,
     &.active,
     &.show {
-        background-color: var(--secondary-color-dark, #EADFCC) !important;
-        border-color: var(--secondary-color-dark, #EADFCC) !important;
-        color: var(--primary-color-deep, #12332C) !important;
+        background-color: var(--secondary-color-dark, #eadfcc) !important;
+        border-color: var(--secondary-color-dark, #eadfcc) !important;
+        color: var(--primary-color-deep, #12332c) !important;
     }
 }
 
@@ -103,14 +107,14 @@
     &.active,
     &.show {
         background-color: rgba(29, 79, 68, 0.08) !important;
-        border-color: var(--primary-color-deep, #12332C) !important;
-        color: var(--primary-color-deep, #12332C) !important;
+        border-color: var(--primary-color-deep, #12332c) !important;
+        color: var(--primary-color-deep, #12332c) !important;
     }
 }
 
 .btn-outline-secondary {
     background-color: transparent !important;
-    border-color: var(--secondary-color-dark, #EADFCC) !important;
+    border-color: var(--secondary-color-dark, #eadfcc) !important;
     color: var(--primary-color) !important;
     font-weight: 500;
 
@@ -120,14 +124,14 @@
     &.active,
     &.show {
         background-color: var(--secondary-color) !important;
-        border-color: var(--secondary-color-dark, #EADFCC) !important;
-        color: var(--primary-color-deep, #12332C) !important;
+        border-color: var(--secondary-color-dark, #eadfcc) !important;
+        color: var(--primary-color-deep, #12332c) !important;
     }
 }
 
-.btn-label-primary,
-.btn.bg-label-primary,
-.btn-icon.bg-label-primary {
+.btn-primary,
+.btn.bg-primary,
+.btn-icon.bg-primary {
     background-color: rgba(29, 79, 68, 0.08) !important;
     border-color: transparent !important;
     color: var(--primary-color) !important;
@@ -140,11 +144,11 @@
     &.show {
         background-color: rgba(29, 79, 68, 0.16) !important;
         border-color: transparent !important;
-        color: var(--primary-color-deep, #12332C) !important;
+        color: var(--primary-color-deep, #12332c) !important;
     }
 }
 
-.btn-label-secondary {
+.btn-secondary {
     background-color: rgba(234, 223, 204, 0.5) !important;
     border-color: transparent !important;
     color: var(--primary-color) !important;
@@ -155,9 +159,9 @@
     &:active,
     &.active,
     &.show {
-        background-color: var(--secondary-color-dark, #EADFCC) !important;
+        background-color: var(--secondary-color-dark, #eadfcc) !important;
         border-color: transparent !important;
-        color: var(--primary-color-deep, #12332C) !important;
+        color: var(--primary-color-deep, #12332c) !important;
     }
 }
 
@@ -166,16 +170,19 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    transition:
+        background-color 0.15s ease,
+        color 0.15s ease,
+        border-color 0.15s ease;
 
     &.btn-text-secondary:hover {
         background-color: rgba(29, 79, 68, 0.08) !important;
-        color: var(--primary-color-deep, #12332C) !important;
+        color: var(--primary-color-deep, #12332c) !important;
     }
 
     &.btn-text-primary:hover {
         background-color: rgba(29, 79, 68, 0.12) !important;
-        color: var(--primary-color-deep, #12332C) !important;
+        color: var(--primary-color-deep, #12332c) !important;
     }
 }
 
@@ -189,8 +196,8 @@
     &:hover,
     &:focus,
     &:active {
-        background-color: var(--primary-color-deep, #12332C) !important;
-        border-color: var(--primary-color-deep, #12332C) !important;
+        background-color: var(--primary-color-deep, #12332c) !important;
+        border-color: var(--primary-color-deep, #12332c) !important;
         color: #fff !important;
     }
 }
@@ -201,7 +208,7 @@
     width: 2rem;
     height: 2rem;
     border: 3px solid rgba(29, 79, 68, 0.15);
-    border-top-color: var(--primary-color, #1D4F44);
+    border-top-color: var(--primary-color, #1d4f44);
     border-radius: 50%;
     animation: btn-spinner-spin 0.75s linear infinite;
 
@@ -217,4 +224,3 @@
         border-width: 0.25rem;
     }
 }
-

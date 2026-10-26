@@ -40,11 +40,11 @@ enum PlanColor: string
     public function badgeClass(): string
     {
         return match ($this) {
-            self::PURPLE => 'bg-label-primary',
-            self::BLUE => 'bg-label-info',
-            self::GREEN => 'bg-label-success',
-            self::ORANGE => 'bg-label-warning',
-            self::RED => 'bg-label-danger',
+            self::PURPLE => 'bg-primary',
+            self::BLUE => 'bg-info',
+            self::GREEN => 'bg-success',
+            self::ORANGE => 'bg-warning',
+            self::RED => 'bg-danger',
             self::GRAY => 'bg-secondary',
         };
     }

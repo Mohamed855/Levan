@@ -16,7 +16,7 @@
         <div class="card h-100">
             <div class="card-body">
                 <div id="specifications-guide-wrapper">
-                    <div class="card border border-primary-subtle shadow-none bg-label-primary mb-0">
+                    <div class="card border border-primary-subtle shadow-none bg-primary mb-0">
                         <div class="card-body p-3">
                             <div class="d-flex align-items-start gap-3">
                                 <div
@@ -68,7 +68,7 @@
                                 <h6 class="mb-0 fw-bold small text-heading">
                                     <i class="ti ti-list-check me-1 text-primary"></i>المتغيرات المعتمدة لهذا النوع
                                 </h6>
-                                <span class="badge bg-label-primary font-monospace" id="approved-fields-count"></span>
+                                <span class="badge bg-primary font-monospace" id="approved-fields-count"></span>
                             </div>
                             <p class="text-muted small mb-2">المتغيرات التي يدعمها هذا النوع وتُستبدل تلقائياً بقيم
                                 المزاد
@@ -116,7 +116,7 @@
             <div class="card-header d-flex flex-wrap gap-2 justify-content-between align-items-center">
                 <div>
                     <h5 class="mb-1">مصمم القالب</h5>
-                    {{-- <span class="badge bg-label-secondary font-monospace" data-canvas-dims>794 × 1123 px (A4
+                    {{-- <span class="badge bg-secondary font-monospace" data-canvas-dims>794 × 1123 px (A4
                         رأسي)</span> --}}
                     <small class="text-muted">ارسم المحتوى وحدد مواضع المتغيرات والصور على كل صفحة من القالب.</small>
                 </div>
@@ -173,14 +173,14 @@
             <div class="modal-body p-4">
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4 pb-2 border-bottom">
                     <span class="text-muted small">نماذج التصميم الجاهزة والمعتمدة لهذا النوع من القوالب</span>
-                    <span class="badge bg-label-primary px-3 py-2" data-samples-count></span>
+                    <span class="badge bg-primary px-3 py-2" data-samples-count></span>
                 </div>
                 <div class="row g-4" data-samples-container>
                     {{-- Dynamically populated via designer.js --}}
                 </div>
             </div>
             <div class="modal-footer border-top">
-                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إغلاق</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
             </div>
         </div>
     </div>

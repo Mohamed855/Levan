@@ -91,7 +91,7 @@ class ArchivedUsersDataTable extends AbstractDataTable
                 </div>';
             })
             ->editColumn('employee_number', function ($row) {
-                return '<span class="badge bg-label-primary">'.($row->employee_number ?? '-').'</span>';
+                return '<span class="badge bg-primary">'.($row->employee_number ?? '-').'</span>';
             })
             ->editColumn('email', function ($row) {
                 return '<span class="text-primary">'.($row->email ?? '-').'</span>';
@@ -109,7 +109,7 @@ class ArchivedUsersDataTable extends AbstractDataTable
                 return '<span class="text-muted">-</span>';
             })
             ->editColumn('status', function ($row) {
-                $statusClass = $row->status === 'active' ? 'bg-label-success' : 'bg-label-danger';
+                $statusClass = $row->status === 'active' ? 'bg-success' : 'bg-danger';
                 $statusText = $row->status === 'active' ? 'نشط' : 'غير نشط';
 
                 return '<span class="badge '.$statusClass.'">'.$statusText.'</span>';

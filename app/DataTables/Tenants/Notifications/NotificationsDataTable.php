@@ -109,14 +109,14 @@ class NotificationsDataTable extends AbstractDataTable
                 $typeText = $typeLabels[$type] ?? 'معلومات';
 
                 $typeColors = [
-                    'success' => 'bg-label-success',
-                    'warning' => 'bg-label-warning',
-                    'info' => 'bg-label-info',
-                    'danger' => 'bg-label-danger',
-                    'primary' => 'bg-label-primary',
+                    'success' => 'bg-success',
+                    'warning' => 'bg-warning',
+                    'info' => 'bg-info',
+                    'danger' => 'bg-danger',
+                    'primary' => 'bg-primary',
                     'secondary' => 'bg-secondary',
                 ];
-                $colorClass = $typeColors[$type] ?? 'bg-label-info';
+                $colorClass = $typeColors[$type] ?? 'bg-info';
 
                 return '<span class="badge '.$colorClass.'">'.$typeText.'</span>';
             })
@@ -125,9 +125,9 @@ class NotificationsDataTable extends AbstractDataTable
             })
             ->editColumn('read_at', function ($row) {
                 if ($row->read_at) {
-                    return '<span class="badge bg-label-success">مقروء</span>';
+                    return '<span class="badge bg-success">مقروء</span>';
                 } else {
-                    return '<span class="badge bg-label-danger cursor-pointer" onclick="markAsRead('.$row->id.')">غير مقروء</span>';
+                    return '<span class="badge bg-danger cursor-pointer" onclick="markAsRead('.$row->id.')">غير مقروء</span>';
                 }
             })
             ->addColumn('actions', function ($row) {

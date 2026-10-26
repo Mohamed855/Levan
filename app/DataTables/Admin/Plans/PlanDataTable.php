@@ -76,15 +76,15 @@ class PlanDataTable extends AbstractDataTable
             })
 
             ->editColumn('code', function ($row) {
-                return '<span class="badge bg-label-dark font-monospace">'.e($row->code ?? '-').'</span>';
+                return '<span class="badge bg-dark font-monospace">'.e($row->code ?? '-').'</span>';
             })
 
             ->addColumn('is_most_requested', function ($row) use ($mostRequestedPlanId) {
                 $isMostRequested = ($mostRequestedPlanId !== null && (int) $row->id === (int) $mostRequestedPlanId);
 
                 return $isMostRequested
-                    ? '<span class="badge bg-label-success">نعم</span>'
-                    : '<span class="badge bg-label-danger">لا</span>';
+                    ? '<span class="badge bg-success">نعم</span>'
+                    : '<span class="badge bg-danger">لا</span>';
             })
 
             ->editColumn('plan_type', function ($row) {
@@ -92,7 +92,7 @@ class PlanDataTable extends AbstractDataTable
                 $label = $type ? $type->label() : (string) $row->plan_type;
                 $color = $type ? $type->color() : 'secondary';
 
-                return '<span class="badge bg-label-'.e($color).'">'.e($label).'</span>';
+                return '<span class="badge bg-'.e($color).'">'.e($label).'</span>';
             })
 
             ->editColumn('subscription_billing_cycle', function ($row) {
@@ -103,7 +103,7 @@ class PlanDataTable extends AbstractDataTable
                 $label = $cycle ? $cycle->label() : (string) $row->subscription_billing_cycle;
                 $color = $cycle ? $cycle->color() : 'info';
 
-                return '<span class="badge bg-label-'.e($color).'">'.e($label).'</span>';
+                return '<span class="badge bg-'.e($color).'">'.e($label).'</span>';
             })
 
             ->editColumn('price', function ($row) {
@@ -115,7 +115,7 @@ class PlanDataTable extends AbstractDataTable
                     return '<span class="text-muted">-</span>';
                 }
 
-                return '<span class="badge bg-label-success">'.(float) $row->discount_percentage.' %</span>';
+                return '<span class="badge bg-success">'.(float) $row->discount_percentage.' %</span>';
             })
 
             ->addColumn('price_after_discount', function ($row) {
@@ -132,10 +132,10 @@ class PlanDataTable extends AbstractDataTable
 
             ->editColumn('limits_mode', function ($row) {
                 if ($row->isUnlimited()) {
-                    return '<span class="badge bg-label-primary"><i class="ti ti-infinity me-1"></i>غير محدود</span>';
+                    return '<span class="badge bg-primary"><i class="ti ti-infinity me-1"></i>غير محدود</span>';
                 }
 
-                return '<span class="badge bg-label-info">محدود</span>';
+                return '<span class="badge bg-info">محدود</span>';
             })
 
             ->editColumn('included_users', function ($row) {
@@ -172,19 +172,19 @@ class PlanDataTable extends AbstractDataTable
 
             ->editColumn('available_from', function ($row) {
                 if (! $row->available_from) {
-                    return '<span class="badge bg-label-success">متاحة فوراً</span>';
+                    return '<span class="badge bg-success">متاحة فوراً</span>';
                 }
 
                 if ($row->available_from->isFuture()) {
-                    return '<span class="badge bg-label-warning" title="'.e($row->available_from->format('Y-m-d H:i')).'">مجدولة '.e($row->available_from->format('Y-m-d')).'</span>';
+                    return '<span class="badge bg-warning" title="'.e($row->available_from->format('Y-m-d H:i')).'">مجدولة '.e($row->available_from->format('Y-m-d')).'</span>';
                 }
 
-                return '<span class="badge bg-label-info">'.e($row->available_from->format('Y-m-d')).'</span>';
+                return '<span class="badge bg-info">'.e($row->available_from->format('Y-m-d')).'</span>';
             })
 
             ->addColumn('domain_management', function ($row) {
                 if ($row->domain_management_enabled) {
-                    return '<span class="badge bg-label-success">مفعّلة</span>';
+                    return '<span class="badge bg-success">مفعّلة</span>';
                 }
 
                 return '<span class="badge bg-secondary">غير مفعّلة</span>';

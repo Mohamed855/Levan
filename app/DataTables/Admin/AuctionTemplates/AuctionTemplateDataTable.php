@@ -75,18 +75,18 @@ class AuctionTemplateDataTable extends AbstractDataTable
                 $label = $type ? $type->label() : (string) $row->type;
                 $color = $type ? $type->color() : 'secondary';
 
-                return '<span class="badge bg-label-'.e($color).'">'.e($label).'</span>';
+                return '<span class="badge bg-'.e($color).'">'.e($label).'</span>';
             })
 
             ->addColumn('version', function ($row) {
                 return $row->current_version
-                    ? '<span class="badge bg-label-info font-monospace">إصدار '.e((string) $row->current_version).'</span>'
+                    ? '<span class="badge bg-info font-monospace">إصدار '.e((string) $row->current_version).'</span>'
                     : '<span class="text-muted">—</span>';
             })
 
             ->addColumn('publication_status', function ($row) {
                 $isPublished = $row->status === 'published';
-                return '<span class="badge '.($isPublished ? 'bg-label-success' : 'bg-label-warning').'">'
+                return '<span class="badge '.($isPublished ? 'bg-success' : 'bg-warning').'">'
                     .($isPublished ? 'منشور' : 'مسودة').'</span>';
             })
 

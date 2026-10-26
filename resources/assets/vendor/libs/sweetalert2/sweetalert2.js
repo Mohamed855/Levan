@@ -1,16 +1,16 @@
-import SwalPlugin from 'sweetalert2/dist/sweetalert2';
+import SwalPlugin from "sweetalert2/dist/sweetalert2";
 
 const Swal = SwalPlugin.mixin({
-  buttonsStyling: false,
-  customClass: {
-    confirmButton: 'btn btn-primary',
-    cancelButton: 'btn btn-label-danger',
-    denyButton: 'btn btn-secondary'
-  }
+    buttonsStyling: false,
+    customClass: {
+        confirmButton: "btn btn-primary",
+        cancelButton: "btn btn-danger",
+        denyButton: "btn btn-secondary",
+    },
 });
 
 try {
-  window.Swal = Swal;
+    window.Swal = Swal;
 } catch (e) {}
 
 export { Swal };

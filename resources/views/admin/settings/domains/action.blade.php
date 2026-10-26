@@ -1,10 +1,10 @@
 <div class="d-flex justify-content-center gap-2">
 
-    <a href="{{ route($route . '.edit', $row->id) }}" class="btn btn-icon btn-label-primary bg-label-primary">
+    <a href="{{ route($route . '.edit', $row->id) }}" class="btn btn-icon btn-primary bg-primary">
         <i class="ti ti-edit"></i>
     </a>
 
-    <button type="button" class="btn btn-icon btn-label-primary bg-label-primary" onclick="confirmDelete({{ $row->id }})">
+    <button type="button" class="btn btn-icon btn-primary bg-primary" onclick="confirmDelete({{ $row->id }})">
         <i class="ti ti-trash"></i>
     </button>
 

@@ -2,9 +2,9 @@
 @section('title', 'معاينة مخرج المزاد')
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <a class="btn btn-label-secondary" href="{{ tenant_route_name('auctions.show', $auction->id) }}">العودة لتفاصيل
+        <a class="btn btn-secondary" href="{{ tenant_route_name('auctions.show', $auction->id) }}">العودة لتفاصيل
             المزاد</a>
-        <span class="badge bg-label-primary fs-6 p-2">نوع المخرج: {{ $type }}</span>
+        <span class="badge bg-primary fs-6 p-2">نوع المخرج: {{ $type }}</span>
     </div>
     <div class="card shadow-sm">
         <div class="card-header">

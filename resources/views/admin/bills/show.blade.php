@@ -29,7 +29,7 @@
                         <div class="text-end">
                             <div class="fw-bold fs-6">فاتورة #{{ $bill->bill_number }}</div>
                             <div class="text-muted small">تاريخ الإصدار: {{ $bill->created_at->format('Y/m/d') }}</div>
-                            <span class="badge bg-label-{{ $bill->status->color() }} mt-1">
+                            <span class="badge bg-{{ $bill->status->color() }} mt-1">
                                 {{ $bill->status->label() }}
                             </span>
                         </div>
@@ -169,7 +169,7 @@
                         {{-- رقم الفاتورة --}}
                         <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
                             <span class="text-muted small"><i class="ti ti-file-invoice me-1"></i>رقم الفاتورة</span>
-                            <span class="badge bg-label-primary fw-bold">{{ $bill->bill_number }}</span>
+                            <span class="badge bg-primary fw-bold">{{ $bill->bill_number }}</span>
                         </div>
 
                         {{-- تاريخ الإصدار --}}
@@ -181,20 +181,20 @@
                         {{-- نوع الفاتورة --}}
                         <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
                             <span class="text-muted small"><i class="ti ti-category me-1"></i>النوع</span>
-                            <span class="badge bg-label-info">{{ $bill->type->label() }}</span>
+                            <span class="badge bg-info">{{ $bill->type->label() }}</span>
                         </div>
 
                         {{-- حالة الفاتورة --}}
                         <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
                             <span class="text-muted small"><i class="ti ti-status-change me-1"></i>الحالة</span>
-                            <span class="badge bg-label-{{ $bill->status->color() }}">{{ $bill->status->label() }}</span>
+                            <span class="badge bg-{{ $bill->status->color() }}">{{ $bill->status->label() }}</span>
                         </div>
 
                         {{-- طريقة الدفع --}}
                         @if ($bill->payment_method)
                             <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
                                 <span class="text-muted small"><i class="ti ti-credit-card me-1"></i>طريقة الدفع</span>
-                                <span class="badge bg-label-dark">{{ $bill->payment_method->label() }}</span>
+                                <span class="badge bg-dark">{{ $bill->payment_method->label() }}</span>
                             </div>
                         @endif
 
@@ -216,7 +216,7 @@
                         @isset($bill->metadata['new_licenses_count'])
                             <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
                                 <span class="text-muted small"><i class="ti ti-users me-1"></i>عدد التراخيص</span>
-                                <span class="badge bg-label-info">{{ $bill->metadata['new_licenses_count'] }} ترخيص</span>
+                                <span class="badge bg-info">{{ $bill->metadata['new_licenses_count'] }} ترخيص</span>
                             </div>
                         @endisset
 
@@ -224,7 +224,7 @@
                         @isset($bill->metadata['license_unit_price'])
                             <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
                                 <span class="text-muted small"><i class="ti ti-license me-1"></i>سعر الترخيص</span>
-                                <span class="badge bg-label-info">
+                                <span class="badge bg-info">
                                     {{ number_format($bill->metadata['license_unit_price'], 2) }}
                                     <span class="icon-saudi_riyal ms-1"></span>
                                 </span>
@@ -287,7 +287,7 @@
                                 placeholder="يرجى كتابة سبب رفض الفاتورة..." required></textarea>
                         </div>
                         <x-slot:footer>
-                            <button type="button" class="btn btn-label-secondary"
+                            <button type="button" class="btn btn-secondary"
                                 data-bs-dismiss="modal">إلغاء</button>
                             <button type="submit" class="btn btn-danger">تأكيد الرفض</button>
                         </x-slot:footer>

@@ -27,7 +27,7 @@
                             <i class="ti ti-list-check ti-sm me-1"></i><span>ميزات الباقة</span>
                             @if (!empty($plan->features) && count($plan->features) > 0)
                                 <span
-                                    class="badge bg-label-primary rounded-pill ms-auto">{{ count($plan->features) }}</span>
+                                    class="badge bg-primary rounded-pill ms-auto">{{ count($plan->features) }}</span>
                             @endif
                         </a>
                     </li>
@@ -37,7 +37,7 @@
                             <i class="ti ti-building-store ti-sm me-1"></i><span>الاشتراكات والشركات</span>
                             @if ($subscriptions->count() > 0)
                                 <span
-                                    class="badge bg-label-primary rounded-pill ms-auto">{{ $subscriptions->count() }}</span>
+                                    class="badge bg-primary rounded-pill ms-auto">{{ $subscriptions->count() }}</span>
                             @endif
                         </a>
                     </li>
@@ -59,12 +59,12 @@
                             <div class="d-flex align-items-center gap-2">
                                 @can('plans.edit')
                                     <button type="button"
-                                        class="btn btn-sm {{ $plan->is_active ? 'btn-label-warning' : 'btn-label-success' }} js-toggle-details-status"
+                                        class="btn btn-sm {{ $plan->is_active ? 'btn-warning' : 'btn-success' }} js-toggle-details-status"
                                         onclick="togglePlanStatus({{ $plan->id }})">
                                         <i class="ti ti-power me-1"></i>
                                         <span>{{ $plan->is_active ? 'تعطيل الباقة' : 'تفعيل الباقة' }}</span>
                                     </button>
-                                    <a href="{{ route('admin.plans.edit', $plan->id) }}" class="btn btn-sm btn-label-primary">
+                                    <a href="{{ route('admin.plans.edit', $plan->id) }}" class="btn btn-sm btn-primary">
                                         <i class="ti ti-edit me-1"></i>تعديل الباقة
                                     </a>
                                 @endcan
@@ -89,15 +89,15 @@
                                         <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
                                             <h4 class="fw-bold mb-0 text-heading">{{ $plan->name }}</h4>
                                             <span
-                                                class="badge bg-label-dark font-monospace fw-bold fs-6">{{ $plan->code }}</span>
+                                                class="badge bg-dark font-monospace fw-bold fs-6">{{ $plan->code }}</span>
 
                                             <span
-                                                class="badge bg-label-{{ $plan->plan_type?->color() ?? 'primary' }} fs-6">
+                                                class="badge bg-{{ $plan->plan_type?->color() ?? 'primary' }} fs-6">
                                                 {{ $plan->plan_type?->label() ?? 'أساسي' }}
                                             </span>
 
                                             @if ($plan->is_active)
-                                                <span class="badge bg-label-success fs-6">
+                                                <span class="badge bg-success fs-6">
                                                     <i class="ti ti-circle-check me-1"></i>نشط
                                                 </span>
                                             @else
@@ -107,11 +107,11 @@
                                             @endif
 
                                             <span
-                                                class="badge bg-label-{{ $plan->isUnlimited() ? 'primary' : 'info' }} fs-6">
+                                                class="badge bg-{{ $plan->isUnlimited() ? 'primary' : 'info' }} fs-6">
                                                 {{ $plan->isUnlimited() ? 'حدود غير محدودة (∞)' : 'حدود محددة' }}
                                             </span>
 
-                                            <span class="badge bg-label-info fs-6">
+                                            <span class="badge bg-info fs-6">
                                                 دورة: {{ $plan->subscription_billing_cycle?->label() ?? 'شهري' }}
                                             </span>
 
@@ -134,7 +134,7 @@
                                                 <div class="text-muted small">
                                                     <del>{{ number_format((float) $plan->price, 2) }} ر.س</del>
                                                     <span
-                                                        class="badge bg-label-danger ms-1">{{ $plan->discount_percentage }}%
+                                                        class="badge bg-danger ms-1">{{ $plan->discount_percentage }}%
                                                         خصم</span>
                                                 </div>
                                             @endif
@@ -153,7 +153,7 @@
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
                                                 <div
-                                                    class="avatar bg-label-primary rounded p-2 me-3 d-flex align-items-center justify-content-center">
+                                                    class="avatar bg-primary rounded p-2 me-3 d-flex align-items-center justify-content-center">
                                                     <i class="ti ti-currency-riyal fs-4 text-primary"></i>
                                                 </div>
                                                 <div>
@@ -171,7 +171,7 @@
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
                                                 <div
-                                                    class="avatar bg-label-warning rounded p-2 me-3 d-flex align-items-center justify-content-center">
+                                                    class="avatar bg-warning rounded p-2 me-3 d-flex align-items-center justify-content-center">
                                                     <i class="ti ti-percentage fs-4 text-warning"></i>
                                                 </div>
                                                 <div>
@@ -189,7 +189,7 @@
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
                                                 <div
-                                                    class="avatar bg-label-success rounded p-2 me-3 d-flex align-items-center justify-content-center">
+                                                    class="avatar bg-success rounded p-2 me-3 d-flex align-items-center justify-content-center">
                                                     <i class="ti ti-tag fs-4 text-success"></i>
                                                 </div>
                                                 <div>
@@ -208,7 +208,7 @@
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
                                                 <div
-                                                    class="avatar bg-label-info rounded p-2 me-3 d-flex align-items-center justify-content-center">
+                                                    class="avatar bg-info rounded p-2 me-3 d-flex align-items-center justify-content-center">
                                                     <i class="ti ti-calendar-event fs-4 text-info"></i>
                                                 </div>
                                                 <div>
@@ -226,7 +226,7 @@
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
                                                 <div
-                                                    class="avatar bg-label-primary rounded p-2 me-3 d-flex align-items-center justify-content-center">
+                                                    class="avatar bg-primary rounded p-2 me-3 d-flex align-items-center justify-content-center">
                                                     <i class="ti ti-users fs-4 text-primary"></i>
                                                 </div>
                                                 <div>
@@ -262,7 +262,7 @@
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
                                                 <div
-                                                    class="avatar bg-label-info rounded p-2 me-3 d-flex align-items-center justify-content-center">
+                                                    class="avatar bg-info rounded p-2 me-3 d-flex align-items-center justify-content-center">
                                                     <i class="ti ti-building fs-4 text-info"></i>
                                                 </div>
                                                 <div>
@@ -280,7 +280,7 @@
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
                                                 <div
-                                                    class="avatar bg-label-warning rounded p-2 me-3 d-flex align-items-center justify-content-center">
+                                                    class="avatar bg-warning rounded p-2 me-3 d-flex align-items-center justify-content-center">
                                                     <i class="ti ti-server fs-4 text-warning"></i>
                                                 </div>
                                                 <div>
@@ -298,7 +298,7 @@
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
                                                 <div
-                                                    class="avatar bg-label-danger rounded p-2 me-3 d-flex align-items-center justify-content-center">
+                                                    class="avatar bg-danger rounded p-2 me-3 d-flex align-items-center justify-content-center">
                                                     <i class="ti ti-gavel fs-4 text-danger"></i>
                                                 </div>
                                                 <div>
@@ -316,7 +316,7 @@
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
                                                 <div
-                                                    class="avatar bg-label-primary rounded p-2 me-3 d-flex align-items-center justify-content-center">
+                                                    class="avatar bg-primary rounded p-2 me-3 d-flex align-items-center justify-content-center">
                                                     <i class="ti ti-world fs-4 text-primary"></i>
                                                 </div>
                                                 <div>
@@ -406,7 +406,7 @@
                                 <div class="col-md-3 col-sm-6">
                                     <div class="card border shadow-none">
                                         <div class="card-body p-3 d-flex align-items-center">
-                                            <div class="avatar bg-label-primary rounded p-2 me-3">
+                                            <div class="avatar bg-primary rounded p-2 me-3">
                                                 <i class="ti ti-receipt fs-4"></i>
                                             </div>
                                             <div>
@@ -420,7 +420,7 @@
                                 <div class="col-md-3 col-sm-6">
                                     <div class="card border shadow-none">
                                         <div class="card-body p-3 d-flex align-items-center">
-                                            <div class="avatar bg-label-info rounded p-2 me-3">
+                                            <div class="avatar bg-info rounded p-2 me-3">
                                                 <i class="ti ti-building fs-4"></i>
                                             </div>
                                             <div>
@@ -434,7 +434,7 @@
                                 <div class="col-md-3 col-sm-6">
                                     <div class="card border shadow-none">
                                         <div class="card-body p-3 d-flex align-items-center">
-                                            <div class="avatar bg-label-success rounded p-2 me-3">
+                                            <div class="avatar bg-success rounded p-2 me-3">
                                                 <i class="ti ti-bolt fs-4"></i>
                                             </div>
                                             <div>
@@ -448,7 +448,7 @@
                                 <div class="col-md-3 col-sm-6">
                                     <div class="card border shadow-none">
                                         <div class="card-body p-3 d-flex align-items-center">
-                                            <div class="avatar bg-label-warning rounded p-2 me-3">
+                                            <div class="avatar bg-warning rounded p-2 me-3">
                                                 <i class="ti ti-cash fs-4"></i>
                                             </div>
                                             <div>
@@ -493,7 +493,7 @@
                                                             class="badge bg-secondary font-monospace">{{ $subscription->tenant_id }}</span>
                                                     </td>
                                                     <td>
-                                                        <span class="badge bg-label-info">
+                                                        <span class="badge bg-info">
                                                             {{ $subscription->billing_cycle?->label() ?? ($subscription->currentPeriod?->billing_cycle_snapshot ?? 'شهري') }}
                                                         </span>
                                                     </td>
@@ -519,7 +519,7 @@
                                                         <div class="d-flex align-items-center gap-1">
                                                             {{-- رابط ملف العميل --}}
                                                             <a href="{{ route('admin.clients.show', $subscription->tenant_id) }}"
-                                                                class="btn btn-icon btn-label-primary btn-sm"
+                                                                class="btn btn-icon btn-primary btn-sm"
                                                                 title="عرض ملف العميل">
                                                                 <i class="ti ti-building"></i>
                                                             </a>

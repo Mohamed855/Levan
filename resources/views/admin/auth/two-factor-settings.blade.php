@@ -14,7 +14,7 @@
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center">
                         <div class="avatar avatar-sm me-3">
-                            <span class="avatar-initial rounded bg-label-primary">
+                            <span class="avatar-initial rounded bg-primary">
                                 <i class="ti ti-shield-lock ti-md"></i>
                             </span>
                         </div>
@@ -23,7 +23,7 @@
                             <small class="text-muted">حماية إضافية لحسابك عبر تطبيق مصادقة</small>
                         </div>
                     </div>
-                    <span id="statusBadge" class="badge {{ $enabled ? 'bg-label-success' : 'bg-secondary' }}">
+                    <span id="statusBadge" class="badge {{ $enabled ? 'bg-success' : 'bg-secondary' }}">
                         {{ $enabled ? 'مفعّلة' : 'غير مفعّلة' }}
                     </span>
                 </div>
@@ -109,17 +109,17 @@
 
                             <div class="col-12 col-md-7">
                                 <div class="d-flex mb-3">
-                                    <span class="badge bg-label-primary rounded-circle me-2"
+                                    <span class="badge bg-primary rounded-circle me-2"
                                         style="width:24px;height:24px;">1</span>
                                     <div>افتح تطبيق المصادقة على هاتفك (مثل Microsoft Authenticator)</div>
                                 </div>
                                 <div class="d-flex mb-3">
-                                    <span class="badge bg-label-primary rounded-circle me-2"
+                                    <span class="badge bg-primary rounded-circle me-2"
                                         style="width:24px;height:24px;">2</span>
                                     <div>امسح رمز QR الظاهر بجانب هذا النص</div>
                                 </div>
                                 <div class="d-flex mb-4">
-                                    <span class="badge bg-label-primary rounded-circle me-2"
+                                    <span class="badge bg-primary rounded-circle me-2"
                                         style="width:24px;height:24px;">3</span>
                                     <div>أدخل الكود المكوّن من 6 أرقام الظاهر في التطبيق</div>
                                 </div>
@@ -169,14 +169,14 @@
             const recoveryCodesList = $('#recoveryCodesList');
 
             function markEnabled() {
-                statusBadge.removeClass('bg-secondary').addClass('bg-label-success').text('مفعّلة');
+                statusBadge.removeClass('bg-secondary').addClass('bg-success').text('مفعّلة');
                 enabledActions.removeClass('d-none');
                 disabledActions.addClass('d-none');
                 setupPanel.addClass('d-none');
             }
 
             function markDisabled() {
-                statusBadge.removeClass('bg-label-success').addClass('bg-secondary').text('غير مفعّلة');
+                statusBadge.removeClass('bg-success').addClass('bg-secondary').text('غير مفعّلة');
                 enabledActions.addClass('d-none');
                 disabledActions.removeClass('d-none');
                 setupPanel.addClass('d-none');

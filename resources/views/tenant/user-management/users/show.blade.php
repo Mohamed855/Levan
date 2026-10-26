@@ -96,7 +96,7 @@
                                     accept="image/*" help="الصيغ المسموح بها: JPG, PNG, GIF. الحد الأقصى: 2MB"
                                     :max-size="2" col="col-12" />
                                 <x-slot:footer>
-                                    <button type="button" class="btn btn-label-secondary"
+                                    <button type="button" class="btn btn-secondary"
                                         data-bs-dismiss="modal">إلغاء</button>
                                     <button type="submit" class="btn btn-primary">
                                         <i class="ti ti-device-floppy me-1"></i> حفظ التغييرات
@@ -117,7 +117,7 @@
                                     accept="image/*" required help="الأبعاد الموصى بها: 1693 × 376 بكسل"
                                     :max-size="5" col="col-12" />
                                 <x-slot:footer>
-                                    <button type="button" class="btn btn-label-secondary"
+                                    <button type="button" class="btn btn-secondary"
                                         data-bs-dismiss="modal">إلغاء</button>
                                     <button type="submit" class="btn btn-primary" id="submitBackgroundBtn">
                                         <i class="ti ti-device-floppy me-1"></i> تحديث
@@ -172,7 +172,7 @@
                                                 <div class="d-flex align-items-start">
                                                     <div class="flex-shrink-0">
                                                         <div class="avatar avatar-sm">
-                                                            <span class="avatar-initial rounded bg-label-primary">
+                                                            <span class="avatar-initial rounded bg-primary">
                                                                 <i class="ti ti-user"></i>
                                                             </span>
                                                         </div>
@@ -191,7 +191,7 @@
                                                 <div class="d-flex align-items-start">
                                                     <div class="flex-shrink-0">
                                                         <div class="avatar avatar-sm">
-                                                            <span class="avatar-initial rounded bg-label-info">
+                                                            <span class="avatar-initial rounded bg-info">
                                                                 <i class="ti ti-mail"></i>
                                                             </span>
                                                         </div>
@@ -211,7 +211,7 @@
                                                 <div class="d-flex align-items-start">
                                                     <div class="flex-shrink-0">
                                                         <div class="avatar avatar-sm">
-                                                            <span class="avatar-initial rounded bg-label-success">
+                                                            <span class="avatar-initial rounded bg-success">
                                                                 <i class="ti ti-phone"></i>
                                                             </span>
                                                         </div>
@@ -232,7 +232,7 @@
                                                 <div class="d-flex align-items-start">
                                                     <div class="flex-shrink-0">
                                                         <div class="avatar avatar-sm">
-                                                            <span class="avatar-initial rounded bg-label-warning">
+                                                            <span class="avatar-initial rounded bg-warning">
                                                                 <i class="ti ti-id-badge"></i>
                                                             </span>
                                                         </div>
@@ -253,7 +253,7 @@
                                                     <div class="flex-shrink-0">
                                                         <div class="avatar avatar-sm">
                                                             <span
-                                                                class="avatar-initial rounded {{ $user->status === 'active' ? 'bg-label-success' : 'bg-label-danger' }}">
+                                                                class="avatar-initial rounded {{ $user->status === 'active' ? 'bg-success' : 'bg-danger' }}">
                                                                 <i
                                                                     class="ti ti-{{ $user->status === 'active' ? 'check' : 'x' }}"></i>
                                                             </span>
@@ -264,7 +264,7 @@
                                                             الحساب</div>
                                                         <div class="fw-semibold" style="font-size: 0.875rem;">
                                                             <span
-                                                                class="badge bg-label-{{ $user->status === 'active' ? 'success' : 'danger' }}">
+                                                                class="badge bg-{{ $user->status === 'active' ? 'success' : 'danger' }}">
                                                                 {{ $user->status === 'active' ? 'نشط' : 'غير نشط' }}
                                                             </span>
                                                         </div>
@@ -276,7 +276,7 @@
                                                 <div class="d-flex align-items-start">
                                                     <div class="flex-shrink-0">
                                                         <div class="avatar avatar-sm">
-                                                            <span class="avatar-initial rounded bg-label-primary">
+                                                            <span class="avatar-initial rounded bg-primary">
                                                                 <i class="ti ti-shield"></i>
                                                             </span>
                                                         </div>
@@ -288,7 +288,7 @@
                                                             @if ($user->roles->isNotEmpty())
                                                                 @foreach ($user->roles as $role)
                                                                     <span
-                                                                        class="badge bg-label-primary me-1">{{ $role->name }}</span>
+                                                                        class="badge bg-primary me-1">{{ $role->name }}</span>
                                                                 @endforeach
                                                             @else
                                                                 <span class="text-muted">غير محدد</span>
@@ -302,7 +302,7 @@
                                                 <div class="d-flex align-items-start">
                                                     <div class="flex-shrink-0">
                                                         <div class="avatar avatar-sm">
-                                                            <span class="avatar-initial rounded bg-label-info">
+                                                            <span class="avatar-initial rounded bg-info">
                                                                 <i class="ti ti-calendar"></i>
                                                             </span>
                                                         </div>

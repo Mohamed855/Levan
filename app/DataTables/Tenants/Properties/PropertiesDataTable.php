@@ -72,7 +72,7 @@ class PropertiesDataTable extends AbstractDataTable
                 return e($row->city ?: '-');
             })
             ->editColumn('type', function ($row): string {
-                return '<span class="badge bg-label-info">'.e($row->type_label).'</span>';
+                return '<span class="badge bg-info">'.e($row->type_label).'</span>';
             })
             ->editColumn('area', function ($row): string {
                 return number_format((float) $row->area).' م²';
@@ -87,11 +87,11 @@ class PropertiesDataTable extends AbstractDataTable
                 if ($row->assignment) {
                     $url = tenant_route_name('assignments.show', $row->assignment_id);
 
-                    return '<a href="'.$url.'" class="badge bg-label-primary text-decoration-none d-inline-flex align-items-center gap-1" title="'.e($row->assignment->name).'">'
+                    return '<a href="'.$url.'" class="badge bg-primary text-decoration-none d-inline-flex align-items-center gap-1" title="'.e($row->assignment->name).'">'
                         .'<i class="ti ti-link text-primary fs-6"></i> '.e(mb_strimwidth($row->assignment->name, 0, 15, '...')).'</a>';
                 }
 
-                return '<span class="badge bg-label-danger d-inline-flex align-items-center gap-1"><i class="ti ti-link-off text-danger fs-6"></i> غير مرتبط</span>';
+                return '<span class="badge bg-danger d-inline-flex align-items-center gap-1"><i class="ti ti-link-off text-danger fs-6"></i> غير مرتبط</span>';
             })
             ->editColumn('status', function ($row): string {
                 $canEdit = auth('tenant')->user()?->can('properties.edit');
@@ -102,7 +102,7 @@ class PropertiesDataTable extends AbstractDataTable
                     return '<div class="d-flex justify-content-center"><div class="form-check form-switch mb-0"><input type="checkbox" class="form-check-input js-table-status-toggle" id="prop_status_'.$row->id.'" data-url="'.e($url).'" data-active-value="active" data-inactive-value="inactive" '.$checked.' aria-label="تبديل حالة العقار"></div></div>';
                 }
 
-                $statusClass = $row->is_active ? 'bg-label-success' : 'bg-label-danger';
+                $statusClass = $row->is_active ? 'bg-success' : 'bg-danger';
                 $statusText = $row->is_active ? 'نشط' : 'متوقف';
 
                 return '<span class="badge '.$statusClass.'">'.$statusText.'</span>';

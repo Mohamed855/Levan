@@ -87,13 +87,13 @@ $switch-height: 1.35rem !default;
 $switch-height-sm: 1.125rem !default;
 $switch-height-lg: 1.75rem !default;
 
-$switch-label-font-size: $font-size-base !default;
-$switch-label-font-size-sm: $font-size-xs !default;
-$switch-label-font-size-lg: $font-size-lg !default;
+$switch-font-size: $font-size-base !default;
+$switch-font-size-sm: $font-size-xs !default;
+$switch-font-size-lg: $font-size-lg !default;
 
-$switch-label-line-height: 1.4 !default;
-$switch-label-line-height-sm: 1.6 !default;
-$switch-label-line-height-lg: 1.47 !default;
+$switch-line-height: 1.4 !default;
+$switch-line-height-sm: 1.6 !default;
+$switch-line-height-lg: 1.47 !default;
 
 $switch-spacer-x: 0.75rem !default;
 $switch-spacer-y: 0.75rem !default;
@@ -103,8 +103,8 @@ $switch-inner-spacer-sm: 0.17rem !default;
 
 $switch-square-border-radius: $border-radius !default;
 
-$switch-label-color: $headings-color !default;
-$switch-label-disabled-color: $text-muted !default;
+$switch-color: $headings-color !default;
+$switch-disabled-color: $text-muted !default;
 $switch-disabled-opacity: 0.45 !default;
 
 $switch-off-color: $gray-400 !default;

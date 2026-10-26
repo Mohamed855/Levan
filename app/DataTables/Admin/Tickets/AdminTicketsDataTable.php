@@ -62,7 +62,7 @@ class AdminTicketsDataTable extends AbstractDataTable
                     return '<span class="badge bg-secondary">'.e($row->tenant_id ?? 'عام').'</span>';
                 }
 
-                return '<span class="badge bg-label-info">'.e($tenant->company_name ?? $tenant->id).'</span>';
+                return '<span class="badge bg-info">'.e($tenant->company_name ?? $tenant->id).'</span>';
             })
             ->editColumn('customer_name', function ($row) {
                 return '<div><div class="fw-semibold">'.e($row->customer_name ?? '-').'</div>'.
@@ -79,7 +79,7 @@ class AdminTicketsDataTable extends AbstractDataTable
                 return $row->created_at?->format('Y-m-d');
             })
             ->addColumn('actions', function ($row) {
-                return '<a href="'.route($this->route.'.show', $row->ticket_number).'" class="btn btn-icon btn-label-primary bg-label-primary" title="عرض التذكرة"><i class="ti ti-eye"></i></a>';
+                return '<a href="'.route($this->route.'.show', $row->ticket_number).'" class="btn btn-icon btn-primary bg-primary" title="عرض التذكرة"><i class="ti ti-eye"></i></a>';
             });
     }
 

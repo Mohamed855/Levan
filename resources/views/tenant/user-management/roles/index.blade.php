@@ -65,7 +65,7 @@
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center justify-content-center gap-2">
-                                        <span class="badge bg-label-primary">{{ $role->users->count() }} مستخدم</span>
+                                        <span class="badge bg-primary">{{ $role->users->count() }} مستخدم</span>
                                         @if ($role->users->count() > 0)
                                             <ul class="list-unstyled d-flex align-items-center avatar-group mb-0">
                                                 @foreach ($role->users->take(4) as $user)
@@ -88,13 +88,13 @@
                                     <div class="d-flex justify-content-center gap-2">
                                         @can('roles.edit')
                                             <a href="{{ tenant_route_name('roles.edit', $role->id) }}"
-                                                class="btn btn-icon btn-label-primary" title="تعديل الدور">
+                                                class="btn btn-icon btn-primary" title="تعديل الدور">
                                                 <i class="ti ti-edit"></i>
                                             </a>
                                         @endcan
                                         @can('roles.delete')
                                             @if ($role->id != 1)
-                                                <button type="button" class="btn btn-icon btn-label-primary"
+                                                <button type="button" class="btn btn-icon btn-primary"
                                                     onclick="confirmDelete({{ $role->id }})" title="حذف الدور">
                                                     <i class="ti ti-trash"></i>
                                                 </button>
@@ -195,7 +195,7 @@
             </div>
 
             <x-slot:footer>
-                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
                 <button type="submit" class="btn btn-primary">تحديث</button>
             </x-slot:footer>
         </form>

@@ -73,10 +73,10 @@ class ActivityLogController extends Controller
                         $identifier = e(data_get($activity->properties, 'identifier', 'غير معروف'));
 
                         if ($activity->subject) {
-                            return '<span class="badge bg-label-warning me-1">محاولة دخول</span><span class="text-info">'.e($activity->subject->name).' ('.$identifier.')</span>';
+                            return '<span class="badge bg-warning me-1">محاولة دخول</span><span class="text-info">'.e($activity->subject->name).' ('.$identifier.')</span>';
                         }
 
-                        return '<span class="badge bg-label-warning me-1">محاولة دخول</span><span class="text-muted">'.$identifier.'</span>';
+                        return '<span class="badge bg-warning me-1">محاولة دخول</span><span class="text-muted">'.$identifier.'</span>';
                     }
 
                     if (! $activity->subject) {
@@ -251,7 +251,7 @@ class ActivityLogController extends Controller
     {
         $showUrl = tenant_route_name('activity-logs.show', $activity->id);
 
-        return '<a href="'.$showUrl.'" title="عرض التفاصيل" class="btn btn-icon btn-label-primary">
+        return '<a href="'.$showUrl.'" title="عرض التفاصيل" class="btn btn-icon btn-primary">
                 <i class="ti ti-logs"></i>
             </a>';
     }

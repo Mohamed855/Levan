@@ -47,7 +47,7 @@
             </p>
 
             <div class="form-group-custom">
-                <label class="form-label-custom">
+                <label class="form-custom">
                     <i class="ti ti-world"></i>
                     اسم الدومين
                 </label>
@@ -62,7 +62,7 @@
 
             <!-- طريقة الربط (تُحدد تلقائيًا) -->
             <div class="form-group-custom">
-                <label class="form-label-custom">
+                <label class="form-custom">
                     <i class="ti ti-settings"></i>
                     طريقة الربط (يتم تحديدها تلقائيًا)
                 </label>

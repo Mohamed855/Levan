@@ -96,7 +96,7 @@
                         @if ($plans->max('yearly_discount') > 0)
                             <div class="mt-n5 ms-n10 ml-2 mb-10 d-none d-sm-flex align-items-center gap-1">
                                 <i class="ti ti-corner-left-down ti-lg text-muted scaleX-n1-rtl"></i>
-                                <span class="badge badge-sm bg-label-primary  mb-3">وفر حتى
+                                <span class="badge badge-sm bg-primary  mb-3">وفر حتى
                                     {{ $plans->max('yearly_discount') }}%</span>
                             </div>
                         @endif

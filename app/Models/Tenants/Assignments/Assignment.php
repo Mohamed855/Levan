@@ -97,11 +97,11 @@ class Assignment extends Model
     public function getStatusBadgeClassAttribute(): string
     {
         return match ($this->status) {
-            'active' => 'bg-label-success',
-            'under_review' => 'bg-label-warning',
-            'suspended' => 'bg-label-danger',
-            'auctioned' => 'bg-label-info',
-            default => 'bg-label-primary',
+            'active' => 'bg-success',
+            'under_review' => 'bg-warning',
+            'suspended' => 'bg-danger',
+            'auctioned' => 'bg-info',
+            default => 'bg-primary',
         };
     }
 }

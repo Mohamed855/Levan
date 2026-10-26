@@ -241,10 +241,10 @@ class Property extends Model
         }
 
         return match ($this->data_status) {
-            'completed' => 'bg-label-success',
-            'needs_review' => 'bg-label-warning',
-            'needs_images' => 'bg-label-info',
-            'incomplete' => 'bg-label-danger',
+            'completed' => 'bg-success',
+            'needs_review' => 'bg-warning',
+            'needs_images' => 'bg-info',
+            'incomplete' => 'bg-danger',
             default => 'bg-secondary',
         };
     }

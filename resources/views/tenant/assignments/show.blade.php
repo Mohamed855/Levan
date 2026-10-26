@@ -42,7 +42,7 @@
                             alt="Logo" class="rounded" style="width: 100px; height: 100px; object-fit: cover;">
                     </div>
                     <h5 class="mb-1">{{ $assignment->name }}</h5>
-                    <span class="badge bg-label-primary mb-3">{{ $assignment->category_label }}</span>
+                    <span class="badge bg-primary mb-3">{{ $assignment->category_label }}</span>
 
                     <div class="d-flex justify-content-around my-3 py-2 border-top border-bottom">
                         <div>
@@ -94,7 +94,7 @@
                                         <i class="ti ti-file text-primary fs-5"></i>
                                         <span class="text-truncate" title="{{ $doc->original_name }}">{{ $doc->original_name }}</span>
                                     </div>
-                                    <a href="{{ tasset($doc->file_path) }}" target="_blank" class="btn btn-sm btn-icon btn-label-primary" title="عرض أو تحميل">
+                                    <a href="{{ tasset($doc->file_path) }}" target="_blank" class="btn btn-sm btn-icon btn-primary" title="عرض أو تحميل">
                                         <i class="ti ti-download"></i>
                                     </a>
                                 </li>
@@ -140,7 +140,7 @@
                                             {{ $prop->name }}
                                         </a>
                                     </td>
-                                    <td><span class="badge bg-label-info">{{ $prop->type_label }}</span></td>
+                                    <td><span class="badge bg-info">{{ $prop->type_label }}</span></td>
                                     <td>{{ number_format((float) $prop->area) }} م²</td>
                                     <td><span
                                             class="badge {{ $prop->data_status_badge_class }}">{{ $prop->data_status_label }}</span>

@@ -183,7 +183,7 @@
                                 <i class="ti ti-file-invoice me-1"></i>
                                 رقم الفاتورة
                             </span>
-                            <span class="badge bg-label-primary rounded-pill">{{ $bill->bill_number }}</span>
+                            <span class="badge bg-primary rounded-pill">{{ $bill->bill_number }}</span>
                         </div>
 
                         <!-- التاريخ -->
@@ -201,7 +201,7 @@
                                 <i class="ti ti-category me-1"></i>
                                 النوع
                             </span>
-                            <span class="badge bg-label-info">{{ $bill->type->label() }}</span>
+                            <span class="badge bg-info">{{ $bill->type->label() }}</span>
                         </div>
 
                         <!-- حالة الفاتورة -->
@@ -210,7 +210,7 @@
                                 <i class="ti ti-status-change me-1"></i>
                                 حالة الفاتورة
                             </span>
-                            <span class="badge bg-label-{{ $bill->status->color() }}">
+                            <span class="badge bg-{{ $bill->status->color() }}">
                                 {{ $bill->status->label() }}
                             </span>
                         </div>
@@ -222,7 +222,7 @@
                                     <i class="ti ti-credit-card me-1"></i>
                                     طريقة الدفع
                                 </span>
-                                <span class="badge bg-label-dark">{{ $bill->payment_method->label() }}</span>
+                                <span class="badge bg-dark">{{ $bill->payment_method->label() }}</span>
                             </div>
                         @endif
 

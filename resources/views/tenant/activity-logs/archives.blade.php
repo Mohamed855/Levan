@@ -21,7 +21,7 @@
                             <small class="mb-0">ملف مصدر</small>
                         </div>
                         <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-primary">
+                            <span class="avatar-initial rounded bg-primary">
                                 <i class="ti ti-files ti-26px"></i>
                             </span>
                         </div>
@@ -54,7 +54,7 @@
                             <small class="mb-0">حجم تقريبي</small>
                         </div>
                         <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-success">
+                            <span class="avatar-initial rounded bg-success">
                                 <i class="ti ti-database ti-26px"></i>
                             </span>
                         </div>
@@ -75,7 +75,7 @@
                             <small class="mb-0">{{ $archives->isNotEmpty() ? \Carbon\Carbon::parse($archives->first()['date'])->diffForHumans() : 'لا يوجد' }}</small>
                         </div>
                         <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-info">
+                            <span class="avatar-initial rounded bg-info">
                                 <i class="ti ti-calendar-event ti-26px"></i>
                             </span>
                         </div>
@@ -137,7 +137,7 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="badge bg-label-primary">{{ $archive['month'] }}</span>
+                                        <span class="badge bg-primary">{{ $archive['month'] }}</span>
                                     </td>
                                     <td>
                                         <span class="text-muted">{{ $archive['size'] }}</span>
@@ -150,7 +150,7 @@
                                     </td>
                                     <td>
                                         <a href="{{ tenant_route_name('activity-logs.download', basename($archive['path'])) }}" 
-                                           class="btn btn-icon btn-label-primary"
+                                           class="btn btn-icon btn-primary"
                                            title="تحميل الملف">
                                             <i class="ti ti-download"></i>
                                         </a>

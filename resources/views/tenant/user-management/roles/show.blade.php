@@ -17,8 +17,8 @@
                     onclick="navigator.clipboard.writeText('{{ $role->name }}'); toastr.success('تم نسخ اسم الدور');">
                     {{ $role->name }}
                 </code>
-                <span class="badge bg-label-info">{{ $role->guard_name }}</span>
-                <span class="badge bg-label-success">{{ $roleData['users_count'] ?? $role->users->count() }} مستخدم</span>
+                <span class="badge bg-info">{{ $role->guard_name }}</span>
+                <span class="badge bg-success">{{ $roleData['users_count'] ?? $role->users->count() }} مستخدم</span>
             </div>
         </div>
         <div class="d-flex gap-2">
@@ -38,12 +38,12 @@
         <div class="col-xl-4 col-lg-5 col-md-5 mb-4">
             <div class="card mb-4">
                 <div class="card-body text-center">
-                    <div class="mx-auto mb-3 d-flex align-items-center justify-content-center bg-label-primary rounded"
+                    <div class="mx-auto mb-3 d-flex align-items-center justify-content-center bg-primary rounded"
                         style="width: 100px; height: 100px;">
                         <i class="ti ti-shield-check text-primary" style="font-size: 3rem;"></i>
                     </div>
                     <h5 class="mb-1">{{ $role->name }}</h5>
-                    <span class="badge bg-label-primary mb-3">حارس النظام: {{ $role->guard_name }}</span>
+                    <span class="badge bg-primary mb-3">حارس النظام: {{ $role->guard_name }}</span>
 
                     <div class="d-flex justify-content-around my-3 py-2 border-top border-bottom">
                         <div>
@@ -118,7 +118,7 @@
                                     </td>
                                     <td><a href="mailto:{{ $user->email }}">{{ $user->email }}</a></td>
                                     <td>
-                                        <span class="badge {{ $user->status === 'active' ? 'bg-label-success' : 'bg-label-danger' }}">
+                                        <span class="badge {{ $user->status === 'active' ? 'bg-success' : 'bg-danger' }}">
                                             {{ $user->status === 'active' ? 'نشط' : 'غير نشط' }}
                                         </span>
                                     </td>
@@ -143,7 +143,7 @@
                     @if ($role->permissions->isNotEmpty())
                         <div class="d-flex flex-wrap gap-2">
                             @foreach ($role->permissions as $permission)
-                                <span class="badge bg-label-primary fs-6 py-2 px-3">
+                                <span class="badge bg-primary fs-6 py-2 px-3">
                                     <i class="ti ti-check me-1"></i>
                                     {{ trans()->has('permissions.' . $permission->name) ? __('permissions.' . $permission->name) : $permission->name }}
                                 </span>

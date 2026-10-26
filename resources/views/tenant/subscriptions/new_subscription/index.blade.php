@@ -46,7 +46,7 @@
                                         {{ number_format($plan->price) }}
                                     </span>
 
-                                    <span class="badge bg-label-danger mb-2">
+                                    <span class="badge bg-danger mb-2">
                                         وفر حتي {{ $plan->discount_percentage }}%
                                     </span>
 

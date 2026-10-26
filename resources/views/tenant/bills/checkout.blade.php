@@ -99,7 +99,7 @@
                                             id="discount-row">
                                             <p class="mb-0 text-body text-success">
                                                 الخصم
-                                                <button type="button" class="btn btn-sm btn-label-danger p-0 ms-2"
+                                                <button type="button" class="btn btn-sm btn-danger p-0 ms-2"
                                                     id="remove-coupon">
                                                 </button>
                                             </p>

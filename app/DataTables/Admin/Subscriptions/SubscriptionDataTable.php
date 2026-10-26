@@ -107,7 +107,7 @@ class SubscriptionDataTable extends AbstractDataTable
                 $auctions = $plan?->active_auctions_limit !== null ? $plan->active_auctions_limit : '∞';
 
                 return '<div class="d-flex flex-wrap gap-1">'
-                    .'<span class="badge bg-label-info" title="المستخدمون"><i class="ti ti-users ti-xs me-1"></i>'.$users.'</span>'
+                    .'<span class="badge bg-info" title="المستخدمون"><i class="ti ti-users ti-xs me-1"></i>'.$users.'</span>'
                     .'<span class="badge bg-secondary" title="العقارات"><i class="ti ti-building ti-xs me-1"></i>'.$props.'</span>'
                     .'<span class="badge bg-secondary" title="المساحة"><i class="ti ti-database ti-xs me-1"></i>'.$storage.'</span>'
                     .'<span class="badge bg-secondary" title="المزادات"><i class="ti ti-gavel ti-xs me-1"></i>'.$auctions.'</span>'
@@ -127,16 +127,16 @@ class SubscriptionDataTable extends AbstractDataTable
                     return '<span class="badge bg-secondary">-</span>';
                 }
                 if ($days <= 0) {
-                    return '<span class="badge bg-label-danger">منتهي (0 يوم)</span>';
+                    return '<span class="badge bg-danger">منتهي (0 يوم)</span>';
                 }
                 if ($days <= 7) {
-                    return '<span class="badge bg-label-danger fw-bold"><i class="ti ti-alert-triangle ti-xs me-1"></i>'.$days.' '.($days === 1 ? 'يوم' : ($days === 2 ? 'يومان' : 'أيام')).'</span>';
+                    return '<span class="badge bg-danger fw-bold"><i class="ti ti-alert-triangle ti-xs me-1"></i>'.$days.' '.($days === 1 ? 'يوم' : ($days === 2 ? 'يومان' : 'أيام')).'</span>';
                 }
                 if ($days <= 30) {
-                    return '<span class="badge bg-label-warning fw-semibold"><i class="ti ti-clock ti-xs me-1"></i>'.$days.' يوماً</span>';
+                    return '<span class="badge bg-warning fw-semibold"><i class="ti ti-clock ti-xs me-1"></i>'.$days.' يوماً</span>';
                 }
 
-                return '<span class="badge bg-label-success">'.$days.' يوماً</span>';
+                return '<span class="badge bg-success">'.$days.' يوماً</span>';
             })
             ->editColumn('status', function (Subscription $row) {
                 $isActive = $row->status === SubscriptionStatus::ACTIVE;

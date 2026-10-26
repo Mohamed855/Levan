@@ -51,9 +51,9 @@ class TenantDataTable extends AbstractDataTable
 
             ->addColumn('deleted_at', function ($row) {
                 if ($row->deleted_at !== null) {
-                    return '<span class="badge bg-label-danger">تم حذف العميل</span>';
+                    return '<span class="badge bg-danger">تم حذف العميل</span>';
                 } else {
-                    return '<span class="badge bg-label-success">نشط</span>';
+                    return '<span class="badge bg-success">نشط</span>';
                 }
             })
 

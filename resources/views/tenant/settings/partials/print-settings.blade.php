@@ -47,6 +47,6 @@
             class="mb-3 w-100 h-auto" id="previewHorizontalFooter" />
     </div>
     <x-slot:footer>
-        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">إغلاق</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
     </x-slot:footer>
 </x-bootstrap.modal>

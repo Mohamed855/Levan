@@ -19,7 +19,7 @@
                 </code>
                 <span class="badge {{ $property->data_status_badge_class }}">{{ $property->data_status_label }}</span>
                 @if ($property->assignment)
-                    <span class="badge bg-label-primary"><i class="ti ti-link me-1"></i>مرتبط بإسناد:
+                    <span class="badge bg-primary"><i class="ti ti-link me-1"></i>مرتبط بإسناد:
                         {{ $property->assignment->name }}</span>
                 @else
                     <span class="badge bg-secondary"><i class="ti ti-link-off me-1"></i>غير مرتبط بإسناد</span>
@@ -48,7 +48,7 @@
                             alt="{{ $property->name }}" class="rounded" style="width: 100px; height: 100px; object-fit: cover;">
                     </div>
                     <h5 class="mb-1">{{ $property->name }}</h5>
-                    <span class="badge bg-label-primary mb-3">{{ $property->type_label }}</span>
+                    <span class="badge bg-primary mb-3">{{ $property->type_label }}</span>
 
                     <div class="d-flex justify-content-around my-3 py-2 border-top border-bottom">
                         <div>
@@ -78,7 +78,7 @@
                             <li class="mb-2"><span class="fw-bold me-1">جهة الإصدار:</span> <span>{{ $property->issuing_authority ?? '-' }}</span></li>
                             <li class="mb-2"><span class="fw-bold me-1">نوع الملكية:</span> <span>{{ $property->ownership_type_label }}</span></li>
                             <li class="mb-2"><span class="fw-bold me-1">حالة العقار:</span>
-                                <span class="badge {{ $property->is_active ? 'bg-label-success' : 'bg-label-danger' }}">{{ $property->is_active ? 'نشط' : 'متوقف' }}</span>
+                                <span class="badge {{ $property->is_active ? 'bg-success' : 'bg-danger' }}">{{ $property->is_active ? 'نشط' : 'متوقف' }}</span>
                             </li>
                             @if ($property->google_maps_url)
                                 <li class="mb-2">
@@ -104,7 +104,7 @@
                 <div class="card mb-4">
                     <div class="card-header pb-2 d-flex justify-content-between align-items-center">
                         <h6 class="card-title mb-0"><i class="ti ti-photo-edit me-1 text-primary"></i> صورة العقار المحددة</h6>
-                        <a href="{{ tasset($property->aerial_image) }}" download="property-{{ $property->property_number }}-boundary.png" class="btn btn-xs btn-label-primary">
+                        <a href="{{ tasset($property->aerial_image) }}" download="property-{{ $property->property_number }}-boundary.png" class="btn btn-xs btn-primary">
                             <i class="ti ti-download me-1"></i> تحميل
                         </a>
                     </div>
@@ -130,7 +130,7 @@
                                         <i class="ti ti-file text-primary fs-5"></i>
                                         <span class="text-truncate" title="{{ $doc->original_name }}">{{ $doc->original_name }}</span>
                                     </div>
-                                    <a href="{{ tasset($doc->file_path) }}" target="_blank" class="btn btn-sm btn-icon btn-label-primary" title="عرض أو تحميل">
+                                    <a href="{{ tasset($doc->file_path) }}" target="_blank" class="btn btn-sm btn-icon btn-primary" title="عرض أو تحميل">
                                         <i class="ti ti-download"></i>
                                     </a>
                                 </li>
@@ -161,7 +161,7 @@
                         <tbody>
                             @forelse($property->boundaries as $boundary)
                                 <tr>
-                                    <td><span class="badge bg-label-primary">{{ $boundary->direction_label }}</span></td>
+                                    <td><span class="badge bg-primary">{{ $boundary->direction_label }}</span></td>
                                     <td>{{ $boundary->border_type ?: '-' }}</td>
                                     <td>{{ $boundary->border_description ?: '-' }}</td>
                                     <td class="fw-bold">{{ number_format((float) $boundary->length, 2) }} م</td>
@@ -229,7 +229,7 @@
                                     <td>{{ $unit->unit_type ?: '-' }}</td>
                                     <td>{{ number_format((float) $unit->area, 2) }} م²</td>
                                     <td>{{ $unit->current_use ?: '-' }}</td>
-                                    <td><span class="badge bg-label-info">{{ $unit->status?->label() ?? 'متاح' }}</span></td>
+                                    <td><span class="badge bg-info">{{ $unit->status?->label() ?? 'متاح' }}</span></td>
                                 </tr>
                             @endforeach
                         </tbody>

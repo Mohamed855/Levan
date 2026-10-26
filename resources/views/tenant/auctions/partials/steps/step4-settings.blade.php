@@ -14,9 +14,9 @@
             <label class="form-label fw-semibold">
                 صورة غلاف التقرير
                 @if ($auction->report_image)
-                    <span class="badge bg-label-success ms-1">محفوظة</span>
+                    <span class="badge bg-success ms-1">محفوظة</span>
                 @else
-                    <span class="badge bg-label-danger ms-1">مطلوبة</span>
+                    <span class="badge bg-danger ms-1">مطلوبة</span>
                 @endif
             </label>
             <x-form.controls.file 
@@ -154,7 +154,7 @@
                                         placeholder="النقرات" value="{{ $campaign['clicks'] ?? '' }}" min="0">
                                 </div>
                                 <div class="col-md-1">
-                                    <button type="button" class="btn btn-icon btn-sm btn-label-danger remove-campaign">
+                                    <button type="button" class="btn btn-icon btn-sm btn-danger remove-campaign">
                                         <i class="ti ti-trash"></i>
                                     </button>
                                 </div>
@@ -192,7 +192,7 @@
                                         placeholder="الرابط" value="{{ $link['url'] ?? '' }}" required>
                                 </div>
                                 <div class="col-md-1">
-                                    <button type="button" class="btn btn-icon btn-sm btn-label-danger remove-link">
+                                    <button type="button" class="btn btn-icon btn-sm btn-danger remove-link">
                                         <i class="ti ti-trash"></i>
                                     </button>
                                 </div>
@@ -242,7 +242,7 @@
     <div class="col-12 border-top pt-3">
         <h6 class="fw-bold mb-3"><i class="ti ti-paperclip me-1"></i>مرفقات ووثائق المزاد</h6>
         @if ($isEdit && $auction->attachments->where('category', 'auction_doc')->isNotEmpty())
-            <div class="card bg-label-secondary mb-3">
+            <div class="card bg-secondary mb-3">
                 <div class="card-body p-3">
                     <h6 class="mb-2 fw-semibold">المرفقات الحالية المسجلة:</h6>
                     <ul class="mb-0 ps-3">

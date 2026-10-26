@@ -55,12 +55,12 @@ trait CommonSettingController
                         $buttons = '<div class="d-flex justify-content-center">';
 
                         $buttons .= '
-                            <button type="button" class="btn btn-icon btn-label-primary btn-edit me-1" data-id="'.$row->id.'" data-name="'.htmlspecialchars($row->name, ENT_QUOTES, 'UTF-8').'">
+                            <button type="button" class="btn btn-icon btn-primary btn-edit me-1" data-id="'.$row->id.'" data-name="'.htmlspecialchars($row->name, ENT_QUOTES, 'UTF-8').'">
                                 <i class="ti ti-edit"></i>
                             </button>';
 
                         $buttons .= '
-                            <button type="button" class="btn btn-icon btn-label-primary" onclick="confirmDelete('.$row->id.')">
+                            <button type="button" class="btn btn-icon btn-primary" onclick="confirmDelete('.$row->id.')">
                                 <i class="ti ti-trash"></i>
                             </button>
 

@@ -18,7 +18,7 @@
                     AUC-{{ str_pad((string)$auction->id, 5, '0', STR_PAD_LEFT) }}
                 </code>
                 <span class="badge {{ $auction->status_badge_class }}">{{ $auction->status_label }}</span>
-                <span class="badge bg-label-info">{{ $auction->type_label }}</span>
+                <span class="badge bg-info">{{ $auction->type_label }}</span>
                 @if ($auction->city)
                     <span class="badge bg-secondary"><i class="ti ti-map-pin me-1"></i>{{ $auction->city }}</span>
                 @endif
@@ -47,7 +47,7 @@
                             style="width: 100px; height: 100px; object-fit: cover;">
                     </div>
                     <h5 class="mb-1">{{ $auction->name }}</h5>
-                    <span class="badge bg-label-primary mb-3">{{ $auction->category_label }}</span>
+                    <span class="badge bg-primary mb-3">{{ $auction->category_label }}</span>
 
                     <div class="d-flex justify-content-around my-3 py-2 border-top border-bottom">
                         <div>
@@ -111,7 +111,7 @@
                 $isFailed = $gen?->isFailed();
             @endphp
             <div class="card mb-4 shadow-sm border-primary">
-                <div class="card-header bg-label-primary py-3 d-flex justify-content-between align-items-center">
+                <div class="card-header bg-primary py-3 d-flex justify-content-between align-items-center">
                     <h6 class="card-title mb-0 text-primary fw-bold">
                         <i class="ti ti-file-analytics me-1"></i>ملفات وتقارير المزاد
                     </h6>
@@ -186,7 +186,7 @@
                                             title="{{ $attachment->file_name }}">{{ $attachment->file_name }}</span>
                                     </div>
                                     <a href="{{ tasset($attachment->file_path) }}" target="_blank"
-                                        class="btn btn-sm btn-icon btn-label-primary"
+                                        class="btn btn-sm btn-icon btn-primary"
                                         title="تنزيل {{ $attachment->file_name }}">
                                         <i class="ti ti-download" aria-hidden="true"></i>
                                     </a>
@@ -226,7 +226,7 @@
                                             {{ $prop->name }}
                                         </a>
                                     </td>
-                                    <td><span class="badge bg-label-info">{{ $prop->type_label }}</span></td>
+                                    <td><span class="badge bg-info">{{ $prop->type_label }}</span></td>
                                     <td>{{ number_format((float) $prop->area) }} م²</td>
                                     <td>{{ number_format((float) $prop->estimated_value) }} ر.س</td>
                                 </tr>

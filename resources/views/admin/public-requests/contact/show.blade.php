@@ -24,7 +24,7 @@
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">بيانات الطلب</h5>
-                    <span class="badge bg-label-{{ $contactRequest->status->value === 'pending' ? 'warning' : 'success' }}">
+                    <span class="badge bg-{{ $contactRequest->status->value === 'pending' ? 'warning' : 'success' }}">
                         {{ $contactRequest->status->label() }}
                     </span>
                 </div>

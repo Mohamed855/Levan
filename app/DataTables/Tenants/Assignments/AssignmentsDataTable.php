@@ -54,8 +54,8 @@ class AssignmentsDataTable extends AbstractDataTable
                 return $this->renderTableImage($image, (string) $row->name);
             })
             ->editColumn('name', fn ($row): string => '<a href="'.tenant_route_name($this->route.'.show', $row->id).'" class="text-body fw-medium">'.e($row->name).'</a>')
-            ->editColumn('category', fn ($row): string => '<span class="badge bg-label-primary">'.e($row->category_label).'</span>')
-            ->editColumn('properties_count', fn ($row): string => '<span class="badge bg-label-info">'.(int) $row->properties_count.'</span>')
+            ->editColumn('category', fn ($row): string => '<span class="badge bg-primary">'.e($row->category_label).'</span>')
+            ->editColumn('properties_count', fn ($row): string => '<span class="badge bg-info">'.(int) $row->properties_count.'</span>')
             ->editColumn('auctions_count', fn ($row): string => '<span class="badge bg-secondary">'.(int) $row->auctions_count.'</span>')
             ->editColumn('start_date', fn ($row): string => $row->start_date?->format('Y-m-d') ?? '-')
             ->editColumn('end_date', fn ($row): string => $row->end_date?->format('Y-m-d') ?? '-')

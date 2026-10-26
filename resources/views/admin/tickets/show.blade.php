@@ -102,7 +102,7 @@
                                             <div class="mt-2 pt-2 border-top">
                                                 @foreach ($reply->attachments as $att)
                                                     <a href="{{ Storage::url($att['url'] ?? $att) }}" target="_blank"
-                                                        class="badge bg-label-info text-decoration-none me-1">
+                                                        class="badge bg-info text-decoration-none me-1">
                                                         <i class="ti ti-paperclip me-1"></i> {{ $att['name'] ?? 'مرفق' }}
                                                     </a>
                                                 @endforeach
@@ -148,7 +148,7 @@
                                     {{-- النص ع اليمين --}}
                                     <div id="attachment-status-container" class="d-flex align-items-center">
                                         <span id="attachment-status-text"
-                                            class="badge bg-label-primary small d-none align-items-center">
+                                            class="badge bg-primary small d-none align-items-center">
                                             <i class="ti ti-paperclip me-1"></i> <span id="attachment-count-label"></span>
                                             <i class="ti ti-x ms-2 cursor-pointer" id="btn-clear-attachments"
                                                 title="إلغاء المرفقات"></i>
@@ -233,7 +233,7 @@
                         </li>
                         <li class="mb-3 d-flex justify-content-between align-items-center">
                             <span class="text-muted">القسم:</span>
-                            <span class="badge bg-label-primary">{{ $ticket->section?->name ?? 'الدعم الفني' }}</span>
+                            <span class="badge bg-primary">{{ $ticket->section?->name ?? 'الدعم الفني' }}</span>
                         </li>
                         <li class="d-flex justify-content-between align-items-center">
                             <span class="text-muted">تاريخ الإنشاء:</span>
@@ -298,7 +298,7 @@
                         <i class="ti ti-paperclip text-primary me-2"></i> المرفقات
                     </h5>
                     @if (count($allAttachments) > 0)
-                        <span class="badge bg-label-primary">{{ count($allAttachments) }}</span>
+                        <span class="badge bg-primary">{{ count($allAttachments) }}</span>
                     @endif
                 </div>
                 <div class="card-body pt-3">

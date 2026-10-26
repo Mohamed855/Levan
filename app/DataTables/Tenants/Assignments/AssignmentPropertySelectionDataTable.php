@@ -50,7 +50,7 @@ class AssignmentPropertySelectionDataTable extends AbstractDataTable
 
                 return $this->renderTableImage($image, (string) $property->name);
             })
-            ->editColumn('type', fn (Property $property): string => '<span class="badge bg-label-info">'.e($property->type_label).'</span>')
+            ->editColumn('type', fn (Property $property): string => '<span class="badge bg-info">'.e($property->type_label).'</span>')
             ->addColumn('location', fn (Property $property): string => e($property->city.($property->district ? ' - '.$property->district : '')))
             ->editColumn('area', fn (Property $property): string => number_format((float) $property->area).' م²')
             ->editColumn('data_status', fn (Property $property): string => '<span class="badge '.$property->data_status_badge_class.'">'.e($property->data_status_label).'</span>')

@@ -3,15 +3,15 @@
 
 .form-label,
 .col-form-label {
-  text-transform: $form-label-text-transform;
-  letter-spacing: $form-label-letter-spacing;
-  color: $headings-color;
+    text-transform: $form-text-transform;
+    letter-spacing: $form-letter-spacing;
+    color: $headings-color;
 }
 // Default (vertical ) form label size
-.form-label-lg {
-  @include font-size($input-font-size-lg);
+.form-lg {
+    @include font-size($input-font-size-lg);
 }
 
-.form-label-sm {
-  @include font-size($input-font-size-sm);
+.form-sm {
+    @include font-size($input-font-size-sm);
 }

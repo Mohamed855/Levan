@@ -7,7 +7,7 @@
     @if ($isPendingRow)
         @can('subscriptions.pending.approve')
         <button type="button"
-                class="btn btn-icon btn-label-success js-subscription-action"
+                class="btn btn-icon btn-success js-subscription-action"
                 title="قبول الاشتراك"
                 data-bs-toggle="tooltip"
                 data-action="accept"
@@ -19,7 +19,7 @@
 
         @can('subscriptions.pending.reject')
         <button type="button"
-                class="btn btn-icon btn-label-danger js-subscription-action"
+                class="btn btn-icon btn-danger js-subscription-action"
                 title="رفض الاشتراك"
                 data-bs-toggle="tooltip"
                 data-action="reject"

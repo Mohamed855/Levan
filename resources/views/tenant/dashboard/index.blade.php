@@ -36,7 +36,7 @@
                         <div class="d-flex align-items-center gap-2 mb-1">
                             <h4 class="welcome-title mb-0">مرحباً بك، {{ auth()->user()->name }} 👋</h4>
                             <span
-                                class="badge bg-label-primary font-monospace">{{ $tenant?->company_name ?? tenant('id') }}</span>
+                                class="badge bg-primary font-monospace">{{ $tenant?->company_name ?? tenant('id') }}</span>
                         </div>
                         <p class="welcome-sub mb-0">لوحة تحكم وإدارة المزادات العقارية ومتابعة الأداء التشغيلي والإداري</p>
                     </div>
@@ -45,10 +45,10 @@
                             <i class="ti ti-award text-success fs-5"></i>
                             <span>الباقة: <strong>{{ $subscription['plan_name'] ?? 'الأساسية' }}</strong></span>
                             <span
-                                class="badge bg-label-success ms-1">{{ $subscription['subscription_status'] ?? 'نشط' }}</span>
+                                class="badge bg-success ms-1">{{ $subscription['subscription_status'] ?? 'نشط' }}</span>
                         </div>
                         @can('settings.index')
-                            <a href="{{ tenant_route_name('settings.index') }}" class="btn btn-sm btn-icon btn-label-secondary"
+                            <a href="{{ tenant_route_name('settings.index') }}" class="btn btn-sm btn-icon btn-secondary"
                                 title="إعدادات المنشأة">
                                 <i class="ti ti-settings"></i>
                             </a>
@@ -136,7 +136,7 @@
                         <div class="col-4">
                             <a href="{{ tenant_route_name('auctions.create') }}" class="quick-action-box">
                                 <div class="avatar avatar-md mb-2">
-                                    <span class="avatar-initial rounded bg-label-primary">
+                                    <span class="avatar-initial rounded bg-primary">
                                         <i class="ti ti-gavel fs-4"></i>
                                     </span>
                                 </div>
@@ -149,7 +149,7 @@
                         <div class="col-4">
                             <a href="{{ tenant_route_name('properties.create') }}" class="quick-action-box">
                                 <div class="avatar avatar-md mb-2">
-                                    <span class="avatar-initial rounded bg-label-success">
+                                    <span class="avatar-initial rounded bg-success">
                                         <i class="ti ti-building-estate fs-4"></i>
                                     </span>
                                 </div>
@@ -162,7 +162,7 @@
                         <div class="col-4">
                             <a href="{{ tenant_route_name('assignments.create') }}" class="quick-action-box">
                                 <div class="avatar avatar-md mb-2">
-                                    <span class="avatar-initial rounded bg-label-info">
+                                    <span class="avatar-initial rounded bg-info">
                                         <i class="ti ti-file-plus fs-4"></i>
                                     </span>
                                 </div>
@@ -175,7 +175,7 @@
                         <div class="col-4">
                             <a href="{{ tenant_route_name('users.create') }}" class="quick-action-box">
                                 <div class="avatar avatar-md mb-2">
-                                    <span class="avatar-initial rounded bg-label-warning">
+                                    <span class="avatar-initial rounded bg-warning">
                                         <i class="ti ti-user-plus fs-4"></i>
                                     </span>
                                 </div>
@@ -188,7 +188,7 @@
                         <div class="col-4">
                             <a href="{{ tenant_route_name('assignments.index') }}" class="quick-action-box">
                                 <div class="avatar avatar-md mb-2">
-                                    <span class="avatar-initial rounded bg-label-secondary">
+                                    <span class="avatar-initial rounded bg-secondary">
                                         <i class="ti ti-folders fs-4"></i>
                                     </span>
                                 </div>
@@ -200,7 +200,7 @@
                     <div class="col-4">
                         <a href="{{ tenant_route_name('tickets.index') }}" class="quick-action-box">
                             <div class="avatar avatar-md mb-2">
-                                <span class="avatar-initial rounded bg-label-dark">
+                                <span class="avatar-initial rounded bg-dark">
                                     <i class="ti ti-headset fs-4"></i>
                                 </span>
                             </div>
@@ -214,7 +214,7 @@
             <x-ui.dashboard-panel class="flex-grow-1" title="أحدث الأنشطة" icon="ti-clock" body-class="p-0">
                 <x-slot:headerAction>
                     @can('activity_log.view')
-                        <a href="{{ tenant_route_name('activity-logs.index') }}" class="btn btn-sm btn-label-primary">
+                        <a href="{{ tenant_route_name('activity-logs.index') }}" class="btn btn-sm btn-primary">
                             عرض الكل
                         </a>
                     @endcan
@@ -243,7 +243,7 @@
                                                     <img src="{{ tasset($causer->image) }}" alt=""
                                                         class="rounded-circle object-fit-cover">
                                                 @else
-                                                    <span class="avatar-initial rounded-circle bg-label-primary">
+                                                    <span class="avatar-initial rounded-circle bg-primary">
                                                         <i class="ti ti-user ti-xs"></i>
                                                     </span>
                                                 @endif
@@ -253,7 +253,7 @@
                                     </td>
                                     <td>
                                         <div class="d-flex align-items-center gap-1">
-                                            <span class="badge bg-label-primary small dashboard-activity-event"
+                                            <span class="badge bg-primary small dashboard-activity-event"
                                                 title="{{ $activity->formatted_event }}">
                                                 {{ $activity->formatted_event }}
                                             </span>
@@ -286,7 +286,7 @@
                 body-class="p-0">
                 <x-slot:headerAction>
                     @can('auctions.view')
-                        <a href="{{ tenant_route_name('auctions.index') }}" class="btn btn-sm btn-label-primary">
+                        <a href="{{ tenant_route_name('auctions.index') }}" class="btn btn-sm btn-primary">
                             عرض الكل
                         </a>
                     @endcan
@@ -318,7 +318,7 @@
                                         <small class="text-muted">{{ $auction->city ?: '-' }}</small>
                                     </td>
                                     <td>
-                                        <span class="badge bg-label-info">{{ $auction->type_label }}</span>
+                                        <span class="badge bg-info">{{ $auction->type_label }}</span>
                                     </td>
                                     <td>
                                         <span class="fw-bold">{{ $auction->properties_count }}</span>
@@ -334,11 +334,11 @@
                                                     ? $auction->status->value
                                                     : (string) $auction->status;
                                             $badgeClass = match ($statusVal) {
-                                                'active' => 'bg-label-success',
-                                                'in_preparation' => 'bg-label-warning',
-                                                'pending_approval' => 'bg-label-info',
-                                                'completed' => 'bg-label-secondary',
-                                                default => 'bg-label-primary',
+                                                'active' => 'bg-success',
+                                                'in_preparation' => 'bg-warning',
+                                                'pending_approval' => 'bg-info',
+                                                'completed' => 'bg-secondary',
+                                                default => 'bg-primary',
                                             };
                                             $statusLabel =
                                                 $auction->status instanceof \App\Enums\Tenants\Auctions\AuctionStatus
@@ -353,7 +353,7 @@
                                     </td>
                                     <td class="text-center">
                                         <a href="{{ tenant_route_name('auctions.show', $auction) }}"
-                                            class="btn btn-sm btn-icon btn-label-primary" title="عرض تفاصيل المزاد">
+                                            class="btn btn-sm btn-icon btn-primary" title="عرض تفاصيل المزاد">
                                             <i class="ti ti-eye"></i>
                                         </a>
                                     </td>

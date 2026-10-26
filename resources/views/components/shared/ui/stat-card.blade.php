@@ -10,7 +10,7 @@
 ])
 
 @php
-    $bgClass = str_starts_with($color, 'bg-') ? $color : 'bg-label-' . $color;
+    $bgClass = str_starts_with($color, 'bg-') ? $color : 'bg-' . $color;
     $iconClass = str_contains($icon ?? '', 'ti ') ? $icon : 'ti ' . ($icon ?? '') . ' ti-26px';
     $isCircle = in_array($avatarClass, ['circle', 'rounded-circle'], true);
 @endphp

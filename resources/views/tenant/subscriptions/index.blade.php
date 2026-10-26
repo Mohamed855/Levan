@@ -33,7 +33,7 @@
                         </div>
 
                         <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-primary">
+                            <span class="avatar-initial rounded bg-primary">
                                 <i class="ti ti-playstation-circle ti-26px"></i>
                             </span>
                         </div>
@@ -56,7 +56,7 @@
                         </div>
 
                         <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-{{ $subscription_formatted['status_color'] }}">
+                            <span class="avatar-initial rounded bg-{{ $subscription_formatted['status_color'] }}">
                                 <i class="ti ti-help-circle ti-26px"></i>
                             </span>
                         </div>
@@ -76,7 +76,7 @@
                                     @if ($subscription_formatted['paid_days_remaining'] > 0)
                                         متبقي {{ $subscription_formatted['paid_days_remaining'] }} يوم
                                     @else
-                                        <span class="badge bg-label-danger">منتهية</span>
+                                        <span class="badge bg-danger">منتهية</span>
                                     @endif
                                     )
                                 </small>
@@ -91,7 +91,7 @@
                         </div>
 
                         <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-warning">
+                            <span class="avatar-initial rounded bg-warning">
                                 <i class="ti ti-calendar-event ti-26px"></i>
                             </span>
                         </div>
@@ -134,7 +134,7 @@
                         </div>
 
                         <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-primary">
+                            <span class="avatar-initial rounded bg-primary">
                                 <i class="ti ti-license ti-26px"></i>
                             </span>
                         </div>
@@ -169,7 +169,7 @@
                             <div class="d-flex flex-column">
                                 <small class="small mb-1"> حالة الاشتراك</small>
                                 <h6 class="mb-0">
-                                    <span class="badge bg-label-{{ $subscription_formatted['status_color'] }}">
+                                    <span class="badge bg-{{ $subscription_formatted['status_color'] }}">
                                         {{ $subscription_formatted['status'] }}
                                     </span>
                                 </h6>
@@ -213,11 +213,11 @@
                                 <small class="small mb-1">التجديد التلقائي</small>
                                 <h6 class="mb-0">
                                     @if ($subscription_formatted['auto_renew'])
-                                        <span class="badge bg-label-success">
+                                        <span class="badge bg-success">
                                             مفعّل
                                         </span>
                                     @else
-                                        <span class="badge bg-label-warning">
+                                        <span class="badge bg-warning">
                                             معطّل
                                         </span>
                                     @endif
@@ -328,7 +328,7 @@
                                         <tr class="">
                                             <td class="small pt-2">سيتم ترقية باقتك بعد التحديث للباقة </td>
                                             <td class="text-end small pt-2">
-                                                <span class="badge bg-label-info will-change-badge fw-bold"
+                                                <span class="badge bg-info will-change-badge fw-bold"
                                                     id="summary-new-range"></span>
                                             </td>
                                         </tr>
@@ -434,10 +434,10 @@
                 // عرض الباقة
                 if (calc.planChanged) {
                     newPlanBadge.textContent = calc.newPlan.name;
-                    newPlanBadge.className = 'badge bg-label-success will-change-badge';
+                    newPlanBadge.className = 'badge bg-success will-change-badge';
                 } else {
                     newPlanBadge.textContent = currentPlan.name;
-                    newPlanBadge.className = 'badge bg-label-info will-change-badge';
+                    newPlanBadge.className = 'badge bg-info will-change-badge';
                 }
 
                 // تفعيل/تعطيل الزر

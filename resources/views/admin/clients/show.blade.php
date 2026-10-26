@@ -31,7 +31,7 @@
                             <i class="ti ti-packages ti-sm me-1"></i><span>سجل الاشتراكات</span>
                             @if ($target->subscriptions->count() > 0)
                                 <span
-                                    class="badge bg-label-primary rounded-pill ms-auto">{{ $target->subscriptions->count() }}</span>
+                                    class="badge bg-primary rounded-pill ms-auto">{{ $target->subscriptions->count() }}</span>
                             @endif
                         </a>
                     </li>
@@ -61,11 +61,11 @@
                             </h6>
                             <div class="d-flex align-items-center gap-2">
                                 <a href="{{ url('/' . $target->id . '/dashboard') }}" target="_blank"
-                                    class="btn btn-label-success">
+                                    class="btn btn-success">
                                     <i class="ti ti-dashboard me-1"></i>لوحة التحكم
                                 </a>
                                 @canany(['clients.edit', 'companies.edit'])
-                                    <a href="{{ route('admin.clients.edit', $target->id) }}" class="btn btn-label-primary">
+                                    <a href="{{ route('admin.clients.edit', $target->id) }}" class="btn btn-primary">
                                         <i class="ti ti-edit me-1"></i>تعديل
                                     </a>
                                 @endcanany
@@ -82,7 +82,7 @@
                                 <div class="card-body d-flex align-items-center flex-wrap gap-3">
                                     <div class="flex-shrink-0">
                                         <div
-                                            class="avatar avatar-xl bg-label-primary rounded p-2 d-flex align-items-center justify-content-center">
+                                            class="avatar avatar-xl bg-primary rounded p-2 d-flex align-items-center justify-content-center">
                                             <i class="ti ti-building fs-1 text-primary"></i>
                                         </div>
                                     </div>
@@ -159,21 +159,21 @@
                                         <li class="list-group-item d-flex justify-content-between align-items-center py-3">
                                             <span class="text-muted">تنبيهات البريد الإلكتروني</span>
                                             <span
-                                                class="badge {{ $settings->email_notifications_enabled ? 'bg-label-success' : 'bg-secondary' }}">
+                                                class="badge {{ $settings->email_notifications_enabled ? 'bg-success' : 'bg-secondary' }}">
                                                 {{ $settings->email_notifications_enabled ? 'مفعلة' : 'معطلة' }}
                                             </span>
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between align-items-center py-3">
                                             <span class="text-muted">التحقق الثنائي (2FA)</span>
                                             <span
-                                                class="badge {{ $settings->two_factor_enabled ? 'bg-label-success' : 'bg-secondary' }}">
+                                                class="badge {{ $settings->two_factor_enabled ? 'bg-success' : 'bg-secondary' }}">
                                                 {{ $settings->two_factor_enabled ? 'مفعل' : 'معطل' }}
                                             </span>
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between align-items-center py-3">
                                             <span class="text-muted">التكاملات الخارجية</span>
                                             <span
-                                                class="badge {{ $settings->external_integrations_enabled ? 'bg-label-success' : 'bg-secondary' }}">
+                                                class="badge {{ $settings->external_integrations_enabled ? 'bg-success' : 'bg-secondary' }}">
                                                 {{ $settings->external_integrations_enabled ? 'مفعلة' : 'معطلة' }}
                                             </span>
                                         </li>
@@ -238,7 +238,7 @@
                                                 <td>{{ $sub->plan?->name ?: '-' }}</td>
                                                 <td>
                                                     <div class="d-flex flex-wrap gap-1">
-                                                        <span class="badge bg-label-info"><i
+                                                        <span class="badge bg-info"><i
                                                                 class="ti ti-users ti-xs me-1"></i>{{ $sub->total_users }}</span>
                                                         <span class="badge bg-secondary"><i
                                                                 class="ti ti-building ti-xs me-1"></i>{{ $sub->plan?->properties_limit ?? '∞' }}</span>
@@ -253,16 +253,16 @@
                                                     @if ($days === null)
                                                         <span class="badge bg-secondary">-</span>
                                                     @elseif ($days <= 0)
-                                                        <span class="badge bg-label-danger">منتهي</span>
+                                                        <span class="badge bg-danger">منتهي</span>
                                                     @elseif ($days <= 7)
-                                                        <span class="badge bg-label-danger fw-bold">{{ $days }}
+                                                        <span class="badge bg-danger fw-bold">{{ $days }}
                                                             يوم</span>
                                                     @elseif ($days <= 30)
                                                         <span
-                                                            class="badge bg-label-warning fw-semibold">{{ $days }}
+                                                            class="badge bg-warning fw-semibold">{{ $days }}
                                                             يوماً</span>
                                                     @else
-                                                        <span class="badge bg-label-success">{{ $days }}
+                                                        <span class="badge bg-success">{{ $days }}
                                                             يوماً</span>
                                                     @endif
                                                 </td>
@@ -284,7 +284,7 @@
                                                 <td>
                                                     @can('subscriptions.delete')
                                                         <button type="button"
-                                                            class="btn btn-icon btn-label-danger js-sub-delete-btn"
+                                                            class="btn btn-icon btn-danger js-sub-delete-btn"
                                                             data-id="{{ $sub->id }}"
                                                             data-number="{{ $sub->subscription_number }}">
                                                             <i class="ti ti-trash"></i>
@@ -336,7 +336,7 @@
                                                 بواسطة: {{ $activity->causer?->name ?? 'النظام' }}
                                                 @if ($activity->event)
                                                     &bull; الحدث: <span
-                                                        class="badge bg-label-info">{{ $activity->event }}</span>
+                                                        class="badge bg-info">{{ $activity->event }}</span>
                                                 @endif
                                             </p>
                                         </div>

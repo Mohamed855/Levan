@@ -100,7 +100,7 @@
                     <div class="col-4">
                         <a href="{{ route('admin.clients.create') }}" class="quick-action-box">
                             <div class="avatar avatar-md mb-4">
-                                <span class="avatar-initial rounded bg-label-primary">
+                                <span class="avatar-initial rounded bg-primary">
                                     <i class="ti ti-building fs-4"></i>
                                 </span>
                             </div>
@@ -110,7 +110,7 @@
                     <div class="col-4">
                         <a href="{{ route('admin.users.create') }}" class="quick-action-box">
                             <div class="avatar avatar-md mb-4">
-                                <span class="avatar-initial rounded bg-label-success">
+                                <span class="avatar-initial rounded bg-success">
                                     <i class="ti ti-user-cog fs-4"></i>
                                 </span>
                             </div>
@@ -120,7 +120,7 @@
                     <div class="col-4">
                         <a href="{{ route('admin.plans.create') }}" class="quick-action-box">
                             <div class="avatar avatar-md mb-4">
-                                <span class="avatar-initial rounded bg-label-info">
+                                <span class="avatar-initial rounded bg-info">
                                     <i class="ti ti-package fs-4"></i>
                                 </span>
                             </div>
@@ -130,7 +130,7 @@
                     <div class="col-4">
                         <a href="{{ route('admin.coupons.create') }}" class="quick-action-box">
                             <div class="avatar avatar-md mb-4">
-                                <span class="avatar-initial rounded bg-label-warning">
+                                <span class="avatar-initial rounded bg-warning">
                                     <i class="ti ti-ticket fs-4"></i>
                                 </span>
                             </div>
@@ -140,7 +140,7 @@
                     <div class="col-4">
                         <a href="{{ route('admin.subscriptionManage.expired') }}" class="quick-action-box">
                             <div class="avatar avatar-md mb-4">
-                                <span class="avatar-initial rounded bg-label-danger">
+                                <span class="avatar-initial rounded bg-danger">
                                     <i class="ti ti-timeline-event fs-4"></i>
                                 </span>
                             </div>
@@ -150,7 +150,7 @@
                     <div class="col-4">
                         <a href="{{ route('admin.tickets.index') }}" class="quick-action-box">
                             <div class="avatar avatar-md mb-4">
-                                <span class="avatar-initial rounded bg-label-dark">
+                                <span class="avatar-initial rounded bg-dark">
                                     <i class="ti ti-messages fs-4"></i>
                                 </span>
                             </div>
@@ -163,7 +163,7 @@
             {{-- أحدث الأنشطة --}}
             <x-admin.dashboard-panel class="flex-grow-1" title="أحدث الأنشطة" icon="ti-clock" body-class="p-0">
                 <x-slot:headerAction>
-                    <a href="{{ route('admin.activity-logs.index') }}" class="btn btn-sm btn-label-primary">
+                    <a href="{{ route('admin.activity-logs.index') }}" class="btn btn-sm btn-primary">
                         عرض الكل
                     </a>
                 </x-slot:headerAction>
@@ -202,7 +202,7 @@
                                     </td>
                                     <td>
                                         <div class="d-flex align-items-center gap-1">
-                                            <span class="badge bg-label-primary small dashboard-activity-event"
+                                            <span class="badge bg-primary small dashboard-activity-event"
                                                 title="{{ $activity->formatted_event }}">{{ $activity->formatted_event }}</span>
                                             @if ($activity->formatted_module)
                                                 <span class="text-muted small">({{ $activity->formatted_module }})</span>
@@ -231,7 +231,7 @@
         <div class="col-md-6">
             <x-admin.dashboard-panel class="h-100" title="أحدث طلبات الإشتراك" icon="ti-list" body-class="p-0">
                 <x-slot:headerAction>
-                    <a href="{{ route('admin.subscriptionManage.pending') }}" class="btn btn-sm btn-label-primary">
+                    <a href="{{ route('admin.subscriptionManage.pending') }}" class="btn btn-sm btn-primary">
                         عرض الكل
                     </a>
                 </x-slot:headerAction>
@@ -257,7 +257,7 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <span class="badge bg-label-info">
+                                        <span class="badge bg-info">
                                             {{ $request->plan->name ?? '-' }}
                                         </span>
                                     </td>
@@ -268,11 +268,11 @@
                                         <span class="fw-bold">{{ number_format($request->price, 2) }} ر.س</span>
                                     </td>
                                     <td>
-                                        <span class="badge bg-label-warning">قيد المراجعة</span>
+                                        <span class="badge bg-warning">قيد المراجعة</span>
                                     </td>
                                     <td class="text-center">
                                         <a href="{{ route('admin.subscriptionManage.pending') }}"
-                                            class="btn btn-icon btn-label-primary" title="عرض في الطلبات">
+                                            class="btn btn-icon btn-primary" title="عرض في الطلبات">
                                             <i class="ti ti-arrow-left"></i>
                                         </a>
                                     </td>

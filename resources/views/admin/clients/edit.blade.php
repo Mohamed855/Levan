@@ -35,7 +35,7 @@
                     {{ $target->company_name }}
                 </h5>
                 <div class="d-flex gap-2">
-                    <a href="{{ route('admin.clients.show', $target->id) }}" class="btn btn-sm btn-label-info">
+                    <a href="{{ route('admin.clients.show', $target->id) }}" class="btn btn-sm btn-info">
                         <i class="ti ti-eye me-1" aria-hidden="true"></i>عرض التفاصيل
                     </a>
                     <a href="{{ route('admin.clients.index') }}" class="btn btn-sm btn-secondary">

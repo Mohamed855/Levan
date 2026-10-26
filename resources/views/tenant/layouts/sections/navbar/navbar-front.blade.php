@@ -54,7 +54,7 @@
                 <div class="col-12 col-lg">
                   <div class="h6 d-flex align-items-center mb-3 mb-lg-5">
                     <div class="avatar flex-shrink-0 me-3">
-                      <span class="avatar-initial rounded bg-label-primary"><i
+                      <span class="avatar-initial rounded bg-primary"><i
                           class='ti ti-layout-grid ti-lg'></i></span>
                     </div>
                     <span class="ps-1">أقسام المنصة</span>
@@ -89,7 +89,7 @@
                 <div class="col-12 col-lg">
                   <div class="h6 d-flex align-items-center mb-3 mb-lg-5">
                     <div class="avatar flex-shrink-0 me-3">
-                      <span class="avatar-initial rounded bg-label-success"><i
+                      <span class="avatar-initial rounded bg-success"><i
                           class='ti ti-user-check ti-lg'></i></span>
                     </div>
                     <span class="ps-1">حساب المؤسسة</span>
@@ -126,7 +126,7 @@
                 <div class="col-12 col-lg">
                   <div class="h6 d-flex align-items-center mb-3 mb-lg-5">
                     <div class="avatar flex-shrink-0 me-3">
-                      <span class="avatar-initial rounded bg-label-info"><i class='ti ti-file-text ti-lg'></i></span>
+                      <span class="avatar-initial rounded bg-info"><i class='ti ti-file-text ti-lg'></i></span>
                     </div>
                     <span class="ps-1">الموارد والدعم</span>
                   </div>

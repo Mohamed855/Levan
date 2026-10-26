@@ -25,7 +25,7 @@
                 'label' => $a->name . ' (' . $a->assignment_number . ')',
             ])->toArray()">
             <x-slot:append>
-                <div id="selected-assignment-card" class="card bg-label-primary border-primary mt-3 d-none">
+                <div id="selected-assignment-card" class="card bg-primary border-primary mt-3 d-none">
                     <div class="card-body p-3">
                         <h6 class="fw-bold mb-2"><i class="ti ti-file-certificate me-1"></i>بيانات الإسناد المختار:</h6>
                         <div class="small">

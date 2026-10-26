@@ -26,7 +26,7 @@
                         <a class="py-3 nav-link fw-bold m-0" data-bs-toggle="tab" href="#couponUsage">
                             <i class="ti ti-receipt ti-sm me-1"></i><span>سجل الاستخدام</span>
                             @if ($tenants->count() > 0)
-                                <span class="badge bg-label-primary rounded-pill ms-auto">{{ $tenants->count() }}</span>
+                                <span class="badge bg-primary rounded-pill ms-auto">{{ $tenants->count() }}</span>
                             @endif
                         </a>
                     </li>
@@ -48,14 +48,14 @@
                             <div class="d-flex align-items-center gap-2">
                                 @can('coupons.edit')
                                     <button type="button"
-                                        class="btn btn-sm {{ $couponDetails->is_active ? 'btn-label-warning' : 'btn-label-success' }} js-toggle-details-status"
+                                        class="btn btn-sm {{ $couponDetails->is_active ? 'btn-warning' : 'btn-success' }} js-toggle-details-status"
                                         onclick="toggleDetailsStatus({{ $couponDetails->id }})">
                                         <i class="ti ti-power me-1"></i>
                                         <span>{{ $couponDetails->is_active ? 'تعطيل الكوبون' : 'تفعيل الكوبون' }}</span>
                                     </button>
                                 @endcan
                                 <a href="{{ route('admin.coupons.edit', $couponDetails->id) }}"
-                                    class="btn btn-sm btn-label-primary">
+                                    class="btn btn-sm btn-primary">
                                     <i class="ti ti-edit me-1"></i>تعديل الكوبون
                                 </a>
                                 <a href="{{ route('admin.coupons.index') }}" class="btn btn-secondary">
@@ -71,7 +71,7 @@
                                 <div class="card-body d-flex align-items-center flex-wrap gap-3">
                                     <div class="flex-shrink-0">
                                         <div
-                                            class="avatar avatar-xl bg-label-primary rounded p-2 d-flex align-items-center justify-content-center">
+                                            class="avatar avatar-xl bg-primary rounded p-2 d-flex align-items-center justify-content-center">
                                             <i class="ti ti-discount-2 fs-1 text-primary"></i>
                                         </div>
                                     </div>
@@ -90,11 +90,11 @@
                                         <div class="mb-1">
                                             @if ($couponDetails->is_active)
                                                 @if ($couponDetails->expiry_date && \Carbon\Carbon::parse($couponDetails->expiry_date)->isPast())
-                                                    <span class="badge bg-label-warning fs-6">
+                                                    <span class="badge bg-warning fs-6">
                                                         <i class="ti ti-clock-exclamation me-1"></i>منتهي الصلاحية
                                                     </span>
                                                 @else
-                                                    <span class="badge bg-label-success fs-6">
+                                                    <span class="badge bg-success fs-6">
                                                         <i class="ti ti-circle-check me-1"></i>نشط
                                                     </span>
                                                 @endif
@@ -300,9 +300,9 @@
                                                 <div>
                                                     <h6 class="mb-2">حالة الكوبون</h6>
                                                     @if ($couponDetails->is_active)
-                                                        <span class="badge bg-label-success">مفعل</span>
+                                                        <span class="badge bg-success">مفعل</span>
                                                     @else
-                                                        <span class="badge bg-label-danger">معطل</span>
+                                                        <span class="badge bg-danger">معطل</span>
                                                     @endif
                                                 </div>
                                             </div>
@@ -349,11 +349,11 @@
                                             </div>
                                             <div class="flex-shrink-0">
                                                 @if ($couponDetails->admin_user->is_super_admin)
-                                                    <span class="badge bg-label-primary fs-6">
+                                                    <span class="badge bg-primary fs-6">
                                                         <i class="ti ti-crown me-1"></i>مدير عام
                                                     </span>
                                                 @else
-                                                    <span class="badge bg-label-info fs-6">
+                                                    <span class="badge bg-info fs-6">
                                                         <i class="ti ti-user-check me-1"></i>مستخدم إداري
                                                     </span>
                                                 @endif
@@ -388,7 +388,7 @@
                                 <i class="ti ti-receipt text-primary me-2"></i>
                                 سجل استخدام الكوبون
                             </h6>
-                            <span class="badge bg-label-primary">
+                            <span class="badge bg-primary">
                                 {{ $tenants->count() }} {{ $tenants->count() == 1 ? 'عميل' : 'عملاء' }}
                             </span>
                         </div>
@@ -406,7 +406,7 @@
                                     <div class="col-md-4 mb-3">
                                         <div class="card border h-100">
                                             <div class="card-body d-flex align-items-center">
-                                                <div class="avatar bg-label-primary rounded p-2 me-3">
+                                                <div class="avatar bg-primary rounded p-2 me-3">
                                                     <i class="ti ti-building fs-4"></i>
                                                 </div>
                                                 <div>
@@ -419,7 +419,7 @@
                                     <div class="col-md-4 mb-3">
                                         <div class="card border h-100">
                                             <div class="card-body d-flex align-items-center">
-                                                <div class="avatar bg-label-info rounded p-2 me-3">
+                                                <div class="avatar bg-info rounded p-2 me-3">
                                                     <i class="ti ti-file-invoice fs-4"></i>
                                                 </div>
                                                 <div>
@@ -432,7 +432,7 @@
                                     <div class="col-md-4 mb-3">
                                         <div class="card border h-100">
                                             <div class="card-body d-flex align-items-center">
-                                                <div class="avatar bg-label-success rounded p-2 me-3">
+                                                <div class="avatar bg-success rounded p-2 me-3">
                                                     <i class="ti ti-currency-riyal fs-4"></i>
                                                 </div>
                                                 <div>
@@ -451,7 +451,7 @@
                                             class="card-header bg-secondary py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
                                             <div class="d-flex align-items-center gap-2">
                                                 <div
-                                                    class="avatar avatar-sm bg-label-primary rounded-circle d-flex align-items-center justify-content-center">
+                                                    class="avatar avatar-sm bg-primary rounded-circle d-flex align-items-center justify-content-center">
                                                     <i class="ti ti-building fs-5"></i>
                                                 </div>
                                                 <div>
@@ -460,7 +460,7 @@
                                                     <small class="text-muted">معرف العميل: {{ $tenant->id }}</small>
                                                 </div>
                                             </div>
-                                            <span class="badge bg-label-info">
+                                            <span class="badge bg-info">
                                                 <i class="ti ti-file-invoice me-1"></i>
                                                 {{ $tenant->bills->count() }}
                                                 {{ $tenant->bills->count() == 1 ? 'فاتورة' : 'فواتير' }}
@@ -499,11 +499,11 @@
                                                             </td>
                                                             <td>
                                                                 @if ($bill->payment_method == 'online')
-                                                                    <span class="badge bg-label-success"><i
+                                                                    <span class="badge bg-success"><i
                                                                             class="ti ti-credit-card me-1"></i>دفع
                                                                         إلكتروني</span>
                                                                 @else
-                                                                    <span class="badge bg-label-info"><i
+                                                                    <span class="badge bg-info"><i
                                                                             class="ti ti-building-bank me-1"></i>تحويل
                                                                         بنكي</span>
                                                                 @endif
@@ -512,20 +512,20 @@
                                                             </td>
                                                             <td>
                                                                 @if ($bill->status == 'paid')
-                                                                    <span class="badge bg-label-success"><i
+                                                                    <span class="badge bg-success"><i
                                                                             class="ti ti-check me-1"></i>مدفوع</span>
                                                                 @elseif ($bill->status == 'pending')
-                                                                    <span class="badge bg-label-warning"><i
+                                                                    <span class="badge bg-warning"><i
                                                                             class="ti ti-clock me-1"></i>قيد
                                                                         الانتظار</span>
                                                                 @else
-                                                                    <span class="badge bg-label-danger"><i
+                                                                    <span class="badge bg-danger"><i
                                                                             class="ti ti-x me-1"></i>ملغي</span>
                                                                 @endif
                                                             </td>
                                                             <td class="text-center">
                                                                 <a href="{{ route('admin.bills.show', $bill->id) }}"
-                                                                    class="btn btn-xs btn-label-primary">
+                                                                    class="btn btn-xs btn-primary">
                                                                     <i class="ti ti-eye me-1"></i>عرض الفاتورة
                                                                 </a>
                                                             </td>
@@ -602,11 +602,11 @@
                 if (btn) {
                     btn.innerHTML = '<i class="ti ti-check ti-xs me-1"></i><span>تم النسخ!</span>';
                     btn.classList.remove('btn-secondary');
-                    btn.classList.add('btn-label-success');
+                    btn.classList.add('btn-success');
 
                     setTimeout(() => {
                         btn.innerHTML = originalHtml;
-                        btn.classList.remove('btn-label-success');
+                        btn.classList.remove('btn-success');
                         btn.classList.add('btn-secondary');
                     }, 2000);
                 }
