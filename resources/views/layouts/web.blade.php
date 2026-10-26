@@ -60,7 +60,6 @@
     @unless ($hideFooter ?? false)
         @include('web.partials.footer')
 
-        <!-- Back to top button -->
         <button type="button" class="back-to-top" aria-label="الرجوع للأعلى">
             <i class="ti ti-chevron-up"></i>
         </button>
