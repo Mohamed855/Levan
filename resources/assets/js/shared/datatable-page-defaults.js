@@ -77,11 +77,139 @@ $(function () {
             });
         }
     });
+
+    // 6. Global Archive Force Delete Delegation (.js-force-delete)
+    $(document).on('click', '.js-force-delete', function (e) {
+        e.preventDefault();
+        const $btn = $(this);
+        const url = $btn.data('url') || $btn.attr('href');
+        if (!url) return;
+
+        const entityTitle = $btn.data('title') || 'هذا السجل';
+        const confirmMessage = $btn.data('message') || 'لن تتمكن من استرجاع ' + entityTitle + ' مجدداً!';
+
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'هل أنت متأكد من الحذف النهائي؟',
+                text: confirmMessage,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، احذف نهائياً',
+                cancelButtonText: 'إلغاء',
+                customClass: {
+                    confirmButton: 'btn btn-danger me-3',
+                    cancelButton: 'btn btn-secondary'
+                },
+                buttonsStyling: false
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: url,
+                        type: 'DELETE',
+                        data: {
+                            _token: $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                if (typeof toastr !== 'undefined') {
+                                    toastr.success(response.message || 'تم الحذف النهائي بنجاح');
+                                }
+                                reloadClosestDataTable($btn);
+                            }
+                        },
+                        error: function (xhr) {
+                            const errorMsg = xhr.responseJSON?.message || 'حدث خطأ أثناء الحذف النهائي';
+                            if (typeof toastr !== 'undefined') {
+                                toastr.error(errorMsg);
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    });
+
+    // 7. Global Archive Restore Delegation (.js-restore)
+    $(document).on('click', '.js-restore', function (e) {
+        e.preventDefault();
+        const $btn = $(this);
+        const url = $btn.data('url') || $btn.attr('href');
+        if (!url) return;
+
+        const entityTitle = $btn.data('title') || 'هذا السجل';
+
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'تأكيد الاستعادة',
+                text: 'هل أنت متأكد من رغبتك في استعادة ' + entityTitle + '؟',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، استعادة',
+                cancelButtonText: 'إلغاء',
+                customClass: {
+                    confirmButton: 'btn btn-primary me-3',
+                    cancelButton: 'btn btn-secondary'
+                },
+                buttonsStyling: false
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: url,
+                        type: 'PATCH',
+                        data: {
+                            _token: $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                if (typeof toastr !== 'undefined') {
+                                    toastr.success(response.message || 'تمت الاستعادة بنجاح');
+                                }
+                                reloadClosestDataTable($btn);
+                            }
+                        },
+                        error: function (xhr) {
+                            const errorMsg = xhr.responseJSON?.message || 'حدث خطأ أثناء الاستعادة';
+                            if (typeof toastr !== 'undefined') {
+                                toastr.error(errorMsg);
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    });
 });
 
 /**
+ * Helper to reload the nearest active DataTable
+ * @param {jQuery} [$element] - Element inside or near the target DataTable
+ */
+function reloadClosestDataTable($element) {
+    if ($element && $element.length) {
+        const $wrapper = $element.closest('.dataTables_wrapper');
+        const $table = $wrapper.length ? $wrapper.find('table.dataTable') : $('table.dataTable');
+        if ($table.length) {
+            $table.each(function () {
+                if ($.fn.DataTable.isDataTable(this)) {
+                    $(this).DataTable().ajax.reload(null, false);
+                }
+            });
+            return;
+        }
+    }
+
+    if (window.LaravelDataTables) {
+        Object.values(window.LaravelDataTables).forEach(function (dt) {
+            if (dt && typeof dt.ajax === 'object' && typeof dt.ajax.reload === 'function') {
+                dt.ajax.reload(null, false);
+            }
+        });
+    }
+}
+
+/**
  * Unified Mass Delete Helper
- * @param {string} modelName - Model name mapped in config/models.php
+ * @param {string} [modelName] - Model name mapped in config/models.php
  * @param {string} [deleteUrl] - Mass delete endpoint (defaults to window.routes.massDelete)
  * @param {string} [emptyWarning] - Warning message if no rows selected
  */
@@ -105,8 +233,15 @@ window.executeMassDelete = function (modelName, deleteUrl, emptyWarning) {
     }
 
     if (typeof confirmDeleteSelectedmss === 'function') {
-        confirmDeleteSelectedmss(selectedIds, targetUrl, modelName);
+        confirmDeleteSelectedmss(selectedIds, targetUrl, modelName || '');
     } else {
         console.error('confirmDeleteSelectedmss function is not available.');
     }
 };
+
+if (typeof window.handleMassDelete !== 'function') {
+    window.handleMassDelete = function (modelName, deleteUrl, emptyWarning) {
+        window.executeMassDelete(modelName, deleteUrl, emptyWarning);
+    };
+}
+

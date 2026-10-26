@@ -47,67 +47,44 @@
 @endsection
 
 @section('content')
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    <x-ui.validation-errors />
 
-    <div id="top_card" class="row g-4 mb-4">
-        <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين" :value="$totalUsers" subtitle="إجمالي المستخدمين"
-            icon="ti-users" color="primary" />
-        <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين النشطين" :value="$activeUsers" subtitle="المستخدمين النشطين"
-            icon="ti-user-check" color="success" />
-        <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين غير النشطين" :value="$inactiveUsers"
-            subtitle="المستخدمين غير النشطين" icon="ti-user-off" color="danger" />
-        <x-ui.stat-card col="col-sm-6 col-xl-3" title="التراخيص" :value="($subscription_formatted['used_users'] ?? 0) . ' / ' . ($subscription_formatted['total_users'] ?? 0)" :subtitle="'متبقي ' .
-            (($subscription_formatted['total_users'] ?? 0) - ($subscription_formatted['used_users'] ?? 0)) .
-            ' ترخيص'" icon="ti-license"
-            color="primary" valueClass="badge bg-label-primary rounded-pill">
-            <div class="text-end">
-                {{ $subscription_formatted['total_users'] > 0 ? round(($subscription_formatted['used_users'] / $subscription_formatted['total_users']) * 100) : 0 }}%
-            </div>
-            <div class="progress" style="height: 0.5rem;">
-                <div class="progress-bar bg-primary" role="progressbar"
-                    style="width: {{ $subscription_formatted['total_users'] > 0 ? ($subscription_formatted['used_users'] / $subscription_formatted['total_users']) * 100 : 0 }}%"
-                    aria-valuenow="{{ $subscription_formatted['used_users'] ?? 0 }}" aria-valuemin="0"
-                    aria-valuemax="{{ $subscription_formatted['total_users'] ?? 0 }}">
+    <x-data-table.page table-id="users-table">
+        <x-slot:stats>
+            <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين" :value="$totalUsers" subtitle="إجمالي المستخدمين"
+                icon="ti-users" color="primary" />
+            <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين النشطين" :value="$activeUsers" subtitle="المستخدمين النشطين"
+                icon="ti-user-check" color="success" />
+            <x-ui.stat-card col="col-sm-6 col-xl-3" title="المستخدمين غير النشطين" :value="$inactiveUsers"
+                subtitle="المستخدمين غير النشطين" icon="ti-user-off" color="danger" />
+            <x-ui.stat-card col="col-sm-6 col-xl-3" title="التراخيص" :value="($subscription_formatted['used_users'] ?? 0) . ' / ' . ($subscription_formatted['total_users'] ?? 0)" :subtitle="'متبقي ' .
+                (($subscription_formatted['total_users'] ?? 0) - ($subscription_formatted['used_users'] ?? 0)) .
+                ' ترخيص'" icon="ti-license"
+                color="primary" valueClass="badge bg-label-primary rounded-pill">
+                <div class="text-end">
+                    {{ $subscription_formatted['total_users'] > 0 ? round(($subscription_formatted['used_users'] / $subscription_formatted['total_users']) * 100) : 0 }}%
                 </div>
-            </div>
-        </x-ui.stat-card>
-    </div>
+                <div class="progress" style="height: 0.5rem;">
+                    <div class="progress-bar bg-primary" role="progressbar"
+                        style="width: {{ $subscription_formatted['total_users'] > 0 ? ($subscription_formatted['used_users'] / $subscription_formatted['total_users']) * 100 : 0 }}%"
+                        aria-valuenow="{{ $subscription_formatted['used_users'] ?? 0 }}" aria-valuemin="0"
+                        aria-valuemax="{{ $subscription_formatted['total_users'] ?? 0 }}">
+                    </div>
+                </div>
+            </x-ui.stat-card>
+        </x-slot:stats>
 
+        <x-slot:filters>
+            <x-data-table.filters table="#users-table" reset-id="btn-reset-filters">
+                <x-filter.select id="filter-status" filterKey="status" label="حالة المستخدم"
+                    placeholder="اختر حالة المستخدم" :enum="\App\Enums\Shared\ActivityStatus::class" />
+                <x-filter.select id="filter-role" filterKey="role" label="دور المستخدم"
+                    placeholder="اختر الدور" :options="$roles->pluck('name', 'id')" />
+            </x-data-table.filters>
+        </x-slot:filters>
 
-    {{-- Filters Card --}}
-    <x-data-table.filters table="#users-table" reset-id="btn-reset-filters">
-        <div>
-            <label class="form-label" for="filter-status">حالة المستخدم</label>
-            <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status"
-                data-placeholder="اختر حالة المستخدم">
-                <option value=""></option>
-                <x-form.controls.enum-options :enum="\App\Enums\Shared\ActivityStatus::class" />
-            </select>
-        </div>
-
-        <div>
-            <label class="form-label" for="filter-role">دور المستخدم</label>
-            <select id="filter-role" class="form-control select2" data-datatable-filter="true" data-filter-key="role"
-                data-placeholder="اختر الدور">
-                <option value=""></option>
-                @foreach ($roles as $role)
-                    <option value="{{ $role->id }}">{{ $role->name }}</option>
-                @endforeach
-            </select>
-        </div>
-    </x-data-table.filters>
-
-    <div class="card" id="card-users">
-        <div class="card-body">
-            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100']) !!}
-        </div>
-    </div>
+        <x-slot:table>
+            {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'id' => 'users-table'], false) !!}
+        </x-slot:table>
+    </x-data-table.page>
 @endsection

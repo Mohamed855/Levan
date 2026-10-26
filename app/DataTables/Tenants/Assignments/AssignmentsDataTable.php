@@ -63,13 +63,6 @@ class AssignmentsDataTable extends AbstractDataTable
             ->addColumn('actions', fn ($row): string => view('tenant.assignments.action', ['row' => $row, 'route' => $this->route])->render());
     }
 
-    private function copyableCode(string $code): string
-    {
-        $escaped = e($code);
-
-        return '<div class="d-inline-flex align-items-center gap-1 copyable-code-wrapper" data-code="'.$escaped.'" role="button" tabindex="0" title="اضغط لنسخ الرقم"><code class="copyable-code">'.$escaped.'</code><i class="ti ti-copy text-muted"></i></div>';
-    }
-
     protected function rawColumns(): array
     {
         return ['checkbox', 'assignment_number', 'image', 'name', 'category', 'properties_count', 'auctions_count', 'status', 'actions'];

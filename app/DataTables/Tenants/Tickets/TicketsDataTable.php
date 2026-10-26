@@ -84,11 +84,7 @@ class TicketsDataTable extends AbstractDataTable
     {
         $datatable
             ->editColumn('ticket_number', function ($row) {
-                return $this->routeName(
-                    tenant_route_name($this->route.'.show', $row->ticket_number),
-                    '#'.$row->ticket_number,
-                    'fw-bold text-primary'
-                );
+                return $this->copyableCode('#'.e($row->ticket_number));
             })
 
             ->editColumn('status', function ($row) {

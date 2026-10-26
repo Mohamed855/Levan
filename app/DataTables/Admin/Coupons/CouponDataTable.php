@@ -190,26 +190,6 @@ class CouponDataTable extends AbstractDataTable
     |                            Private Helper Methods
     |============================================================================
     */
-    private function copyableCode($row): string
-    {
-        $code = htmlspecialchars((string) $row->code, ENT_QUOTES, 'UTF-8');
-
-        return sprintf(
-            '<div class="d-inline-flex align-items-center gap-2 copyable-code-wrapper"
-                  data-code="%s"
-                  title="اضغط لنسخ الكود">
-                <code class="copyable-code"
-                      data-code="%s">
-                    %s
-                </code>
-                <i class="ti ti-copy text-muted copy-icon"></i>
-            </div>',
-            $code,
-            $code,
-            $code
-        );
-    }
-
     private function DiscountTypeBadge($row): string
     {
         return sprintf(

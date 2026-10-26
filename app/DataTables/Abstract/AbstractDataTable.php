@@ -312,4 +312,19 @@ abstract class AbstractDataTable extends DataTable
     {
         return '<a href="'.$route.'" class="'.$class.'" target="'.$target.'">'.$name.'</a>';
     }
+
+    protected function copyableCode(mixed $codeOrRow): string
+    {
+        $code = is_object($codeOrRow)
+            ? ($codeOrRow->code ?? $codeOrRow->bill_number ?? $codeOrRow->assignment_number ?? $codeOrRow->property_number ?? '')
+            : (string) ($codeOrRow ?? '');
+
+        if (empty($code)) {
+            return $this->emptyDataMessage();
+        }
+
+        $escaped = e($code);
+
+        return '<div class="d-inline-flex align-items-center gap-1 copyable-code-wrapper" data-code="'.$escaped.'" role="button" tabindex="0" title="اضغط لنسخ الرقم"><code class="copyable-code">'.$escaped.'</code><i class="ti ti-copy text-muted"></i></div>';
+    }
 }

@@ -24,49 +24,12 @@
         window.routes = {
             massDelete: "{{ route('admin.mass-delete') }}",
         };
-
-        $(function() {
-            const tableWrapper = $('#roles-table_wrapper');
-
-            tableWrapper.on('click', '#select-all', function() {
-                const table = $('#roles-table').DataTable();
-                $('.row-checkbox', table.rows({
-                    search: 'applied'
-                }).nodes()).prop('checked', this.checked);
-            });
-
-            tableWrapper.on('change', '.row-checkbox', function() {
-                if (!this.checked) {
-                    $('#select-all').prop('checked', false);
-                }
-            });
-
-            $('#roles-table').on('draw.dt', function() {
-                $('#select-all').prop('checked', false);
-            });
-        });
-
-        function handleMassDelete() {
-            const selectedIds = [];
-            $('.row-checkbox:checked').each(function() {
-                selectedIds.push($(this).val());
-            });
-
-            if (selectedIds.length === 0) {
-                if (typeof toastr !== 'undefined') {
-                    toastr.warning('يرجى تحديد دور واحد على الأقل');
-                }
-                return;
-            }
-
-            if (typeof confirmDeleteSelectedmss === 'function') {
-                confirmDeleteSelectedmss(selectedIds, window.routes.massDelete, 'Role');
-            }
-        }
-
-        window.handleMassDelete = handleMassDelete;
+        window.handleMassDelete = function() {
+            window.executeMassDelete('Role', window.routes.massDelete, 'يرجى تحديد دور واحد على الأقل');
+        };
     </script>
 @endsection
+
 
 @section('content')
     <x-ui.validation-errors />

@@ -60,7 +60,7 @@ class BillsDataTable extends AbstractDataTable
             })
 
             ->editColumn('bill_number', function ($row) {
-                return $this->routeName(tenant_route_name($this->route.'.show', $row->id), $row->bill_number);
+                return $this->copyableCode($row->bill_number);
             })
 
             ->editColumn('amount', function ($row) {

@@ -19,52 +19,18 @@
     @vite(['resources/assets/css/shared/dataTable.css'])
 @endsection
 
-@section('page-script')
-    <script>
-        $(document).on('click', '.js-force-delete', function() {
-            const url = $(this).data('url');
-            Swal.fire({
-                title: 'هل أنت متأكد من الحذف النهائي؟',
-                text: "لن تتمكن من استرجاع هذا العقار مجدداً!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'نعم، احذف نهائياً',
-                cancelButtonText: 'إلغاء',
-                customClass: {
-                    confirmButton: 'btn btn-danger me-3',
-                    cancelButton: 'btn btn-secondary'
-                },
-                buttonsStyling: false
-            }).then(function(result) {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: url,
-                        type: 'DELETE',
-                        data: {
-                            _token: $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                toastr.success(response.message);
-                                window.LaravelDataTables["properties-archive-table"].ajax
-                                    .reload();
-                            }
-                        },
-                        error: function() {
-                            toastr.error('حدث خطأ أثناء الحذف');
-                        }
-                    });
-                }
-            });
-        });
-    </script>
-@endsection
-
 @section('content')
     <x-data-table.archive-page>
+        <x-slot:filters>
+            <x-data-table.filters table="#properties-archive-table">
+                <x-filter.date id="filter-deleted-date" filterKey="deleted_at" target="#properties-archive-table" label="تاريخ الحذف" />
+            </x-data-table.filters>
+        </x-slot:filters>
+
         {!! $dataTable->table(
             ['class' => 'table table-striped table-bordered w-100', 'id' => 'properties-archive-table'],
             false,
         ) !!}
     </x-data-table.archive-page>
 @endsection
+

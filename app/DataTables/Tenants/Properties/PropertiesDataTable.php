@@ -112,22 +112,6 @@ class PropertiesDataTable extends AbstractDataTable
             });
     }
 
-    private function copyableCode(string $code): string
-    {
-        $escaped = htmlspecialchars($code, ENT_QUOTES, 'UTF-8');
-
-        return sprintf(
-            '<div class="d-inline-flex align-items-center gap-1 copyable-code-wrapper"
-                  data-code="%s"
-                  title="اضغط للنسخ">
-                <code class="copyable-code">%s</code>
-                <i class="ti ti-copy text-muted copy-icon"></i>
-            </div>',
-            $escaped,
-            $escaped
-        );
-    }
-
     protected function rawColumns(): array
     {
         return ['checkbox', 'property_number', 'image', 'name', 'type', 'deed_number', 'data_status', 'assignment_status', 'status', 'actions'];

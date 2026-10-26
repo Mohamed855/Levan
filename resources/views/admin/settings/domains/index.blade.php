@@ -26,70 +26,29 @@
             massDelete: "{{ route('admin.mass-delete') }}"
         };
 
-        $(document).ready(function () {
-            const tableWrapper = $('#domain-setting-table_wrapper');
-
-            tableWrapper.on('click', '#select-all', function () {
-                const table = $('#domain-setting-table').DataTable();
-                $('.row-checkbox', table.rows({ search: 'applied' }).nodes()).prop('checked', this.checked);
-            });
-
-            tableWrapper.on('change', '.row-checkbox', function () {
-                if (!this.checked) {
-                    $('#select-all').prop('checked', false);
-                }
-            });
-
-            $('#domain-setting-table').on('draw.dt', function () {
-                $('#select-all').prop('checked', false);
-            });
-        });
-
-        function handleMassDelete() {
-            const selectedIds = [];
-            $('.row-checkbox:checked').each(function () {
-                selectedIds.push($(this).val());
-            });
-
-            if (selectedIds.length === 0) {
-                if (typeof toastr !== 'undefined') {
-                    toastr.warning('يرجى تحديد امتداد واحد على الأقل');
-                }
-                return;
-            }
-
-            if (typeof confirmDeleteSelectedmss === 'function') {
-                confirmDeleteSelectedmss(selectedIds, window.routes.massDelete, 'ControlDomain');
-            }
-        }
-
-        window.handleMassDelete = handleMassDelete;
+        window.handleMassDelete = function () {
+            window.executeMassDelete('ControlDomain', window.routes.massDelete, 'يرجى تحديد امتداد واحد على الأقل');
+        };
     </script>
 @endsection
 
 @section('content')
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    <x-ui.validation-errors />
 
-    {{-- Filters Card --}}
-    <x-data-table.filters table="#domain-setting-table">
-        <x-filter.select id="filter-status" filterKey="status" label="الحالة"
-            placeholder="اختر الحالة" :options="$filterOptions['statuses'] ?? []" />
-    </x-data-table.filters>
+    <x-data-table.page table-id="domain-setting-table">
+        <x-slot:filters>
+            <x-data-table.filters table="#domain-setting-table">
+                <x-filter.select id="filter-status" filterKey="status" label="الحالة"
+                    placeholder="اختر الحالة" :options="$filterOptions['statuses'] ?? []" />
+            </x-data-table.filters>
+        </x-slot:filters>
 
-    <div class="card">
-        <div class="card-body">
+        <x-slot:table>
             {!! $dataTable->table(
                 ['class' => 'table table-striped table-bordered w-100', 'id' => 'domain-setting-table'],
                 false,
             ) !!}
-        </div>
-    </div>
+        </x-slot:table>
+    </x-data-table.page>
 @endsection
+

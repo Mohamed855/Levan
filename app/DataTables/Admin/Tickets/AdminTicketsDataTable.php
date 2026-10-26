@@ -55,7 +55,7 @@ class AdminTicketsDataTable extends AbstractDataTable
                 return '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">';
             })
             ->editColumn('ticket_number', function ($row) {
-                return $this->routeName(route($this->route.'.show', $row->ticket_number), '#'.e($row->ticket_number));
+                return $this->copyableCode('#'.e($row->ticket_number));
             })
             ->addColumn('tenant_name', function ($row) {
                 $tenant = $row->tenant;

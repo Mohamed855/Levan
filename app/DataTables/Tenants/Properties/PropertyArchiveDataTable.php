@@ -28,6 +28,14 @@ class PropertyArchiveDataTable extends AbstractDataTable
         return Property::onlyTrashed()->with('assignment');
     }
 
+    protected function applyCustomFilters($query)
+    {
+        $request = request();
+
+        return $query
+            ->when($request->filled('deleted_at'), fn ($q) => $q->whereDate('deleted_at', $request->deleted_at));
+    }
+
     protected function getColumns(): array
     {
         return [

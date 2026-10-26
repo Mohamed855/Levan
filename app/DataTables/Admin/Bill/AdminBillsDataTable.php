@@ -66,7 +66,7 @@ class AdminBillsDataTable extends AbstractDataTable
             })
 
             ->editColumn('bill_number', function ($row) {
-                return $this->routeName(route($this->route.'.show', $row->id), $row->bill_number);
+                return $this->copyableCode($row->bill_number);
             })
 
             ->editColumn('amount', function ($row) {

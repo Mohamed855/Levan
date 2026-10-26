@@ -29,6 +29,14 @@ class AssignmentArchiveDataTable extends AbstractDataTable
             ->withCount(['properties', 'auctions']);
     }
 
+    protected function applyCustomFilters($query)
+    {
+        $request = request();
+
+        return $query
+            ->when($request->filled('deleted_at'), fn ($q) => $q->whereDate('deleted_at', $request->deleted_at));
+    }
+
     protected function getColumns(): array
     {
         return [
