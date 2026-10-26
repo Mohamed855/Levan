@@ -43,6 +43,32 @@ class AppServiceProvider extends ServiceProvider
             'assignment' => Assignment::class,
         ]);
 
+        if ($this->app->runningInConsole() && class_exists(\Illuminate\Foundation\Console\ServeCommand::class)) {
+            $windowsVars = [
+                'SystemRoot', 'SystemDrive', 'windir', 'ComSpec', 'PATHEXT',
+                'TEMP', 'TMP', 'USERPROFILE', 'LOCALAPPDATA', 'APPDATA',
+                'ProgramData', 'ProgramFiles', 'ProgramFiles(x86)',
+            ];
+
+            $allAllowed = array_merge(\Illuminate\Foundation\Console\ServeCommand::$passthroughVariables, $windowsVars);
+            $matchedEnvKeys = [];
+
+            foreach (array_keys($_ENV) as $key) {
+                foreach ($allAllowed as $allowed) {
+                    if (strcasecmp($key, $allowed) === 0) {
+                        $matchedEnvKeys[] = $key;
+                        break;
+                    }
+                }
+            }
+
+            \Illuminate\Foundation\Console\ServeCommand::$passthroughVariables = array_values(array_unique(array_merge(
+                \Illuminate\Foundation\Console\ServeCommand::$passthroughVariables,
+                $windowsVars,
+                $matchedEnvKeys
+            )));
+        }
+
         $this->loadMigrationsFrom(database_path('migrations/admin'));
 
         Fortify::ignoreRoutes(); // مهم جدًا - عشان نسجلها احنا يدويًا داخل tenant group

@@ -230,7 +230,7 @@
                                     <i class="ti ti-credit-card me-1"></i>
                                     طريقة الدفع
                                 </span>
-                                <span class="badge bg-dark">{{ $bill->payment_method->label() }}</span>
+                                <span class="badge bg-dark text-white">{{ $bill->payment_method->label() }}</span>
                             </div>
                         @endif
 
@@ -335,7 +335,8 @@
 
                         <!-- أزرار التحكم -->
                         <div class="d-grid gap-2 mt-3">
-                            <form id="verifyBillForm" action="{{ route('admin.bills.verify', $bill->id) }}" method="POST" class="m-0">
+                            <form id="verifyBillForm" action="{{ route('admin.bills.verify', $bill->id) }}"
+                                method="POST" class="m-0">
                                 @csrf
                                 <button type="button" class="btn btn-success w-100 js-verify-bill-btn">
                                     تأكيد الإيصال
@@ -361,8 +362,7 @@
                                 placeholder="يرجى كتابة سبب رفض الفاتورة..." required></textarea>
                         </div>
                         <x-slot:footer>
-                            <button type="button" class="btn btn-secondary"
-                                data-bs-dismiss="modal">إلغاء</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
                             <button type="submit" class="btn btn-danger">تأكيد الرفض</button>
                         </x-slot:footer>
                     </form>

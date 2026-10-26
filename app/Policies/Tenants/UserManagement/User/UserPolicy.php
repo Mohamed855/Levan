@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Policies\Tenants\UserManagement\User;
 
 use App\Models\Tenants\UserMangment\User\User;
+use App\Services\Tenants\Shared\CentralTrialAccessGateway;
 
 class UserPolicy
 {
@@ -20,7 +21,7 @@ class UserPolicy
 
     public function create(User $user): bool
     {
-        return $user->can('users.create');
+        return $user->can('users.create') && ! app(CentralTrialAccessGateway::class)->isSingleUserTrial();
     }
 
     public function update(User $user, User $managedUser): bool

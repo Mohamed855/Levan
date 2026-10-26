@@ -27,6 +27,7 @@ class GenerateAuctionReportsJob implements ShouldQueue
     public int $timeout = 420;
     public int $tries = 3;
     public int $backoff = 60;
+    public bool $failOnTimeout = true;
 
     public function __construct(
         private readonly string $tenantId,
@@ -166,6 +167,44 @@ class GenerateAuctionReportsJob implements ShouldQueue
         return (int) AuctionReportGeneration::query()
             ->where('auction_id', $this->auctionId)
             ->max('id') === $this->generationId;
+    }
+
+    public function failed(?Throwable $exception): void
+    {
+        $previousTenant = tenancy()->initialized ? tenant() : null;
+        $alreadyInitialized = $previousTenant && (string) $previousTenant->getTenantKey() === $this->tenantId;
+
+        try {
+            if (! $alreadyInitialized) {
+                if (tenancy()->initialized) {
+                    tenancy()->end();
+                }
+                $tenant = Tenant::find($this->tenantId);
+                if (! $tenant) {
+                    return;
+                }
+                tenancy()->initialize($tenant);
+            }
+
+            AuctionReportGeneration::query()
+                ->whereKey($this->generationId)
+                ->where('revision_token', $this->revisionToken)
+                ->whereIn('status', ['queued', 'processing'])
+                ->update([
+                    'status' => 'failed',
+                    'error_message' => $exception?->getMessage() ?? 'Auction report generation failed.',
+                    'completed_at' => now(),
+                ]);
+        } finally {
+            if (! $alreadyInitialized) {
+                if (tenancy()->initialized) {
+                    tenancy()->end();
+                }
+                if ($previousTenant) {
+                    tenancy()->initialize($previousTenant);
+                }
+            }
+        }
     }
 
     private function assertPdfWasWritten(string $path): void

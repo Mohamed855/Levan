@@ -47,7 +47,7 @@
             color="danger" />
 
         <x-ui.stat-card title="المدفوعات هذا الشهر" :value="number_format($kpis['monthly_payments'], 0)" subtitle="ر.س إجمالي هذا الشهر" icon="ti-wallet"
-            color="dark" />
+            color="dark text-white" />
     </div>
 
     <div class="row g-4 mb-4">
@@ -150,7 +150,7 @@
                     <div class="col-4">
                         <a href="{{ route('admin.tickets.index') }}" class="quick-action-box">
                             <div class="avatar avatar-md mb-4">
-                                <span class="avatar-initial rounded bg-dark">
+                                <span class="avatar-initial rounded bg-dark text-white">
                                     <i class="ti ti-messages fs-4"></i>
                                 </span>
                             </div>

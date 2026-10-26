@@ -6,7 +6,10 @@
     "license": "Commercial",
     "scripts": {
         "dev": "vite",
-        "build": "vite build",
+        "build": "node scripts/vite-build.js",
+        "watch": "vite build --watch",
+        "whatch": "vite build --watch",
+        "build:watch": "vite build --watch",
         "test:auction-designer": "node --test resources/assets/js/admin/auction-templates/*.test.js"
     },
     "devDependencies": {

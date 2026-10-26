@@ -257,10 +257,14 @@
 
                     <div class="text-end">
                         @can('subscriptions.renew')
+                            @if ($subscription_formatted['status_value'] !== 'trial')
                             <a href="{{ tenant_route_name('subscriptions.renew.checkout') }}" class="btn btn-primary ">
                                 تجديد الاشتراك
                                 <i class="ti ti-refresh mx-2"></i>
                             </a>
+                            @else
+                                <span class="text-muted">تجربة مجانية بدون باقة — مستخدم واحد فقط. للتعاقد على باقة مدفوعة بعد التجربة، تواصل مع الإدارة.</span>
+                            @endif
                         @endcan
 
                     </div>

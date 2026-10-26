@@ -12,7 +12,7 @@
 <!-- Footer-->
 <footer class="content-footer footer bg-footer-theme no-print">
     <div class="{{ $containerFooter }}">
-        <div class="footer-container d-flex align-items-center justify-content-between py-4 flex-md-row flex-column">
+        <div class="footer-container d-flex align-items-center justify-content-between py-3 flex-md-row flex-column">
             <div class="text-body text-center">
                 جميع الحقوق محفوظة {{ date('Y') }} © . <a href="https://e-tec.sa" target="_blank" rel="noopener noreferrer" class="footer-link">إتمام لتقنية نظم المعلومات ❤️</a>
             </div>

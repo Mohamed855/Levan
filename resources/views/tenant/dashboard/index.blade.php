@@ -35,8 +35,7 @@
                     <div>
                         <div class="d-flex align-items-center gap-2 mb-1">
                             <h4 class="welcome-title mb-0">مرحباً بك، {{ auth()->user()->name }} 👋</h4>
-                            <span
-                                class="badge bg-primary font-monospace">{{ $tenant?->company_name ?? tenant('id') }}</span>
+                            <span class="badge bg-primary font-monospace">{{ $tenant?->company_name ?? tenant('id') }}</span>
                         </div>
                         <p class="welcome-sub mb-0">لوحة تحكم وإدارة المزادات العقارية ومتابعة الأداء التشغيلي والإداري</p>
                     </div>
@@ -44,8 +43,7 @@
                         <div class="license-pill">
                             <i class="ti ti-award text-success fs-5"></i>
                             <span>الباقة: <strong>{{ $subscription['plan_name'] ?? 'الأساسية' }}</strong></span>
-                            <span
-                                class="badge bg-success ms-1">{{ $subscription['subscription_status'] ?? 'نشط' }}</span>
+                            <span class="badge bg-success ms-1">{{ $subscription['subscription_status'] ?? 'نشط' }}</span>
                         </div>
                         @can('settings.index')
                             <a href="{{ tenant_route_name('settings.index') }}" class="btn btn-sm btn-icon btn-secondary"
@@ -71,10 +69,10 @@
             color="warning" />
 
         <x-ui.stat-card title="المزادات القادمة" :value="number_format($kpis['upcoming_auctions'])" subtitle="قيد الإعداد والاعتماد" icon="ti-calendar-event"
-            color="secondary" />
+            color="danger" />
 
         <x-ui.stat-card title="إجمالي العقارات" :value="number_format($kpis['total_properties'])" subtitle="إجمالي العقارات المسجلة" icon="ti-building"
-            color="dark" />
+            color="dark text-white" />
 
         <x-ui.stat-card title="العقارات المباعة" :value="number_format($kpis['sold_properties'])" subtitle="تمت ترسيتها بنجاح" icon="ti-circle-check"
             color="success" />
@@ -188,7 +186,7 @@
                         <div class="col-4">
                             <a href="{{ tenant_route_name('assignments.index') }}" class="quick-action-box">
                                 <div class="avatar avatar-md mb-2">
-                                    <span class="avatar-initial rounded bg-secondary">
+                                    <span class="avatar-initial rounded bg-secondary text-dark">
                                         <i class="ti ti-folders fs-4"></i>
                                     </span>
                                 </div>
@@ -200,7 +198,7 @@
                     <div class="col-4">
                         <a href="{{ tenant_route_name('tickets.index') }}" class="quick-action-box">
                             <div class="avatar avatar-md mb-2">
-                                <span class="avatar-initial rounded bg-dark">
+                                <span class="avatar-initial rounded bg-dark text-white">
                                     <i class="ti ti-headset fs-4"></i>
                                 </span>
                             </div>

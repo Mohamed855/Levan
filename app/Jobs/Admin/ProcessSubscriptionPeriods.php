@@ -8,6 +8,7 @@ use App\Models\Admin\Subscription\Subscription;
 use App\Models\Admin\Subscription\SubscriptionPeriod;
 use App\Models\Tenants\UserMangment\User\User;
 use App\Notifications\Tenants\General\GeneralNotification;
+use App\Services\Shared\Notifications\NotificationDeadlineScanner;
 use App\Services\shared\Subscription\SubscriptionManager;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
@@ -38,7 +39,7 @@ class ProcessSubscriptionPeriods implements ShouldQueue
             $this->expireActivesWithoutCurrentOrQueued();
 
             // 3. إرسال تنبيهات قبل الانتهاء (30 يوم و 7 أيام)
-            $this->sendExpirationReminders($now);
+            app(NotificationDeadlineScanner::class)->scan();
 
             Log::info('✅ انتهت معالجة الفترات والاشتراكات');
         });

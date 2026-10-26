@@ -110,7 +110,7 @@ Status: Gap | Partial | Compliant
 | Coupons | `admin.coupons.*` · `AdminCouponController` | coupons، plan applicability | CouponRequest + CouponPolicy + CouponService | DT + forms | F,U,S | Gap ([بطاقة الإدارة](superadmin-administration-cards/coupons.md)) |
 | Support | `admin.tickets.*` · `AdminTicketController` | tickets/replies/workflow | TicketReplyRequest + TicketPolicy + AdminTicketService | DT + View | F,U,S | Gap ([بطاقة الإدارة](superadmin-administration-cards/support-tickets.md)) |
 | Public contact requests | `admin.contact-requests.*` · `ContactRequestController` | central contact requests and replies | ReplyContactRequest + ContactRequestPolicy + ReplyToContactRequestAction | DT + shared detail/form components | U,S | Gap ([بطاقة الإدارة](superadmin-administration-cards/public-contact-requests.md)) |
-| Public trial requests | `admin.trial-requests.*` · `TrialRequestController` | central trial requests and approval workflow | RejectTrialRequest + TrialRequestPolicy + Approve/RejectTrialRequestAction | DT + shared detail/form components | U,S | Gap ([بطاقة الإدارة](superadmin-administration-cards/public-trial-requests.md)) |
+| Public trial requests | `site.trial.*`, `admin.trial-requests.*` · `TrialController`, `TrialRequestController` | verified full registration; resumable tenant provisioning; 7-day planless trial with one core admin | StoreTrialRequest + VerifyTrialOtpRequest + Approve/RejectTrialRequest + TrialRequestPolicy + Create/Approve/RejectTrialRequestAction | shared registration fields + OTP + client details/login link + DT | TrialRegistrationFlowTest, SiteCheckoutComponentContractTest | Implemented; legacy incomplete requests require resubmission |
 | Content clients | `admin.content_management.client.*` · `ContentManagement\Client\ClientController` | central marketing clients | ClientRequest + ClientPolicy + ContentClientAction | DT + forms | F,U,S | Gap ([بطاقة الإدارة](superadmin-administration-cards/content-clients.md)) |
 | Content portfolios | `admin.content_management.portfolio.*` · `ContentManagement\Portfolio\PortfolioController` | central marketing portfolio/files | PortfolioRequest + PortfolioPolicy + ContentPortfolioAction | DT + forms | F,U,S | Gap ([بطاقة الإدارة](superadmin-administration-cards/content-portfolios.md)) |
 | Platform settings | `admin.settings.*` · `SettingsController` | platform settings/cache | UpdatePlatformSettingsRequest + SettingsAction + Cache | View | F,U,S | Gap ([بطاقة الإدارة](superadmin-administration-cards/platform-settings.md)) |
@@ -238,3 +238,8 @@ Status: Compliant
 6. **Verification:** add focused Feature/Unit/isolation tests as each family becomes compliant, then run the full stage-10 acceptance gate.
 
 The initial status is intentionally **Gap**, not a failure declaration. This manifest proves the full per-administration contract and records missing evidence rather than assuming it.
+
+## Realtime dashboard notification extension (2026-10-27)
+
+Central and tenant dashboard inboxes: route/guard, request authorization and ownership policy, controller, service, delivery model, after-commit observer, deadline commands, shared UI and tests are mapped in [Dashboard notifications](../dashboard-notifications.md). Existing tenant notification/activity administration remains available.
+

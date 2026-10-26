@@ -3,7 +3,6 @@
 namespace App\Http\Middleware\Tenancy;
 
 use App\Enums\Admin\Billing\BillStatus;
-use Carbon\Carbon;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -56,7 +55,7 @@ class CheckSubscription
         }
 
         // فترة تجربة منتهية
-        if ($subscription->is_trial && now()->gt(Carbon::parse($subscription->trial_end_date))) {
+        if ($subscription->is_trial && $subscription->isTrialExpired()) {
             if (Auth::id() === 1) {
                 return redirect()->to(tenant_route_name('subscriptions.index'))->with('error', 'انتهت فترة التجربة. يرجى تجديد الاشتراك لمتابعة استخدام الخدمات.');
             }

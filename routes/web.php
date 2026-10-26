@@ -13,7 +13,10 @@ Route::name('site.')->group(function () {
 
     Route::prefix('trial')->group(function () {
         Route::get('/', [TrialController::class, 'index'])->name('trial');
-        Route::post('/', [TrialController::class, 'demoRequest'])->defaults('shared_form_validation', true)->name('trial.store');
+        Route::post('/', [TrialController::class, 'demoRequest'])->middleware('throttle:6,1')->defaults('shared_form_validation', true)->name('trial.store');
+        Route::get('edit', [TrialController::class, 'edit'])->name('trial.edit');
+        Route::post('verify-email', [TrialController::class, 'verify'])->middleware('throttle:10,1')->name('trial.verify');
+        Route::get('submitted', [TrialController::class, 'submitted'])->name('trial.submitted');
     });
 
     Route::name('plans.')->group(function () {

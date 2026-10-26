@@ -7,11 +7,12 @@ namespace App\Http\Controllers\Admin\PublicRequests;
 use App\Actions\Admin\PublicRequests\ApproveTrialRequestAction;
 use App\Actions\Admin\PublicRequests\RejectTrialRequestAction;
 use App\DataTables\Admin\PublicRequests\TrialRequestsDataTable;
+use App\Enums\Admin\PublicRequests\TrialRequestStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PublicRequests\ApproveTrialRequest;
 use App\Http\Requests\Admin\PublicRequests\RejectTrialRequest;
-use App\Enums\Admin\PublicRequests\TrialRequestStatus;
 use App\Models\Admin\PublicRequests\TrialRequest;
+use Illuminate\Validation\ValidationException;
 
 final class TrialRequestController extends Controller
 {
@@ -45,6 +46,28 @@ final class TrialRequestController extends Controller
 
         return view('admin.public-requests.trial.show', compact('trialRequest'));
     }
-    public function approve(ApproveTrialRequest $request, TrialRequest $trialRequest) { $this->authorize('approve', $trialRequest); $this->approveAction->execute($trialRequest, $request->user('admin')); return redirect()->route('admin.clients.create', ['trial_request' => $trialRequest->getKey()])->with('trial_prefill', ['name' => $trialRequest->customer_name, 'email' => $trialRequest->customer_email, 'phone' => $trialRequest->customer_phone]); }
-    public function reject(RejectTrialRequest $request, TrialRequest $trialRequest) { $this->authorize('reject', $trialRequest); $this->rejectAction->execute($trialRequest, $request->validated('rejection_reason'), $request->user('admin')); return back()->with('success', 'تم رفض طلب التجربة.'); }
+
+    public function approve(ApproveTrialRequest $request, TrialRequest $trialRequest)
+    {
+        $this->authorize('approve', $trialRequest);
+        try {
+            $this->approveAction->execute($trialRequest, $request->user('admin'));
+        } catch (ValidationException $exception) {
+            throw $exception;
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return back()->with('error', 'تعذر إنشاء حساب التجربة. يمكنك إعادة المحاولة من هذا الطلب.');
+        }
+
+        return redirect()->route('admin.trial-requests.show', $trialRequest)->with('success', 'تم إنشاء حساب العميل وتفعيل تجربة 7 أيام. رابط الدخول متاح أدناه.');
+    }
+
+    public function reject(RejectTrialRequest $request, TrialRequest $trialRequest)
+    {
+        $this->authorize('reject', $trialRequest);
+        $this->rejectAction->execute($trialRequest, $request->validated('rejection_reason'), $request->user('admin'));
+
+        return back()->with('success', 'تم رفض طلب التجربة.');
+    }
 }

@@ -5,10 +5,18 @@
 @mixin button-variant(
     $background: null,
     $border: null,
+    $color: null,
     $hover-background: null,
     $hover-border: null,
+    $hover-color: null,
     $active-background: null,
-    $active-border: null
+    $active-border: null,
+    $active-color: null,
+    $disabled-background: null,
+    $disabled-border: null,
+    $disabled-color: null,
+    $btn-box-shadow: null,
+    $btn-active-box-shadow: null
 ) {
 }
 @mixin template-button-variant(
@@ -187,14 +195,6 @@
     }
 }
 
-// Label
-@mixin button-variant(
-    $background: null,
-    $border: null,
-    $active-background: null,
-    $active-border: null
-) {
-}
 
 @mixin template-button-variant(
     $parent,
@@ -301,7 +301,10 @@
 @mixin button-outline-variant(
     $color: null,
     $color-hover: null,
-    $hover-color: null
+    $hover-color: null,
+    $active-background: null,
+    $active-border: null,
+    $active-color: null
 ) {
 }
 

@@ -40,43 +40,31 @@
                 <h4 class="footer-heading">روابط سريعة</h4>
                 <ul class="footer-links">
                     <li>
-                        <a href="{{ route('site.index') }}#home">
+                        <a href="/#home">
                             <i class="ti ti-chevron-left"></i>
                             الرئيسية
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('site.index') }}#services">
+                        <a href="/#services">
                             <i class="ti ti-chevron-left"></i>
                             المميزات
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('site.index') }}#pricing">
+                        <a href="/#pricing">
                             <i class="ti ti-chevron-left"></i>
                             الباقات والأسعار
                         </a>
                     </li>
-                    {{-- <li>
-                        <a href="{{ route('site.index') }}#portfolios">
-                            <i class="ti ti-chevron-left"></i>
-                            المحافظ
-                        </a>
-                    </li>
                     <li>
-                        <a href="{{ route('site.index') }}#clients">
-                            <i class="ti ti-chevron-left"></i>
-                            عملاؤنا
-                        </a>
-                    </li> --}}
-                    <li>
-                        <a href="{{ route('site.index') }}#faq">
+                        <a href="/#faq">
                             <i class="ti ti-chevron-left"></i>
                             الأسئلة الشائعة
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('site.index') }}#contact">
+                        <a href="/#contact">
                             <i class="ti ti-chevron-left"></i>
                             تواصل معنا
                         </a>

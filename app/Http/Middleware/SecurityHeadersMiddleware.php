@@ -121,6 +121,13 @@ class SecurityHeadersMiddleware
         // $connectSrc = "'self' https://cdn.jsdelivr.net https://www.google.com https://www.google.com/recaptcha/api.js";
         $connectSrc = "'self' http://127.0.0.1:5173 ws://127.0.0.1:5173 https://cdn.jsdelivr.net https://www.google.com https://www.google.com/recaptcha/api.js https://api.moyasar.com https://payment.moyasar.com";
 
+        $notificationHost = (string) config('broadcasting.connections.reverb.options.host', '127.0.0.1');
+        $notificationPort = (int) config('broadcasting.connections.reverb.options.port', 8081);
+        if (preg_match('/^[a-zA-Z0-9.\-]+$/', $notificationHost)) {
+            $notificationScheme = config('broadcasting.connections.reverb.options.useTLS') ? 'wss' : 'ws';
+            $connectSrc .= " {$notificationScheme}://{$notificationHost}:{$notificationPort}";
+        }
+
         $csp = implode('; ', array_filter([
             // للسماح بإطارات reCAPTCHA
             "frame-src 'self' blob: https://www.google.com https://www.recaptcha.net https://www.google.com/recaptcha/api.js https://api.moyasar.com https://payment.moyasar.com",

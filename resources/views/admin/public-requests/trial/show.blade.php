@@ -39,6 +39,29 @@
                         <dd class="col-sm-7 text-break">{{ $trialRequest->customer_email }}</dd>
                         <dt class="col-sm-5 text-muted">الهاتف</dt>
                         <dd class="col-sm-7" dir="ltr">{{ $trialRequest->customer_phone }}</dd>
+                        <dt class="col-sm-5 text-muted">الشركة</dt>
+                        <dd class="col-sm-7">{{ $trialRequest->company_name ?? 'طلب قديم غير مكتمل' }}</dd>
+                        <dt class="col-sm-5 text-muted">السجل التجاري</dt>
+                        <dd class="col-sm-7">{{ $trialRequest->commercial_number ?? '-' }}</dd>
+                        <dt class="col-sm-5 text-muted">الرقم الضريبي</dt>
+                        <dd class="col-sm-7">{{ $trialRequest->tax_number ?? '-' }}</dd>
+                        <dt class="col-sm-5 text-muted">المدينة</dt>
+                        <dd class="col-sm-7">{{ $trialRequest->city?->name ?? '-' }}</dd>
+                        <dt class="col-sm-5 text-muted">العنوان</dt>
+                        <dd class="col-sm-7">{{ $trialRequest->address ?? '-' }}</dd>
+                        <dt class="col-sm-5 text-muted">تأكيد البريد</dt>
+                        <dd class="col-sm-7">{{ $trialRequest->email_verified_at?->format('Y-m-d H:i') ?? 'غير مؤكد' }}</dd>
+                        @if ($trialRequest->provisioning_error)
+                            <dd class="col-12 text-danger">{{ $trialRequest->provisioning_error }}</dd>
+                        @endif
+                        @if ($trialRequest->status->value === 'approved' && $trialRequest->tenant)
+                            <dd class="col-12"><a class="btn btn-success" target="_blank" rel="noopener" href="{{ route('path.login', ['tenant' => $trialRequest->tenant_id]) }}">فتح رابط دخول العميل</a></dd>
+                            <dt class="col-sm-5 text-muted">بداية التجربة</dt>
+                            <dd class="col-sm-7">{{ $trialRequest->subscription?->starts_at?->format('Y-m-d H:i') }}</dd>
+                            <dt class="col-sm-5 text-muted">نهاية التجربة</dt>
+                            <dd class="col-sm-7">{{ $trialRequest->subscription?->ends_at?->format('Y-m-d H:i') }}</dd>
+                            <dd class="col-12">بدون باقة — مستخدم واحد (المدير الأساسي)</dd>
+                        @endif
                         <dt class="col-sm-5 text-muted">التاريخ</dt>
                         <dd class="col-sm-7">{{ $trialRequest->created_at?->format('Y-m-d H:i') ?? '-' }}</dd>
                         @if ($trialRequest->rejection_reason)
@@ -57,11 +80,14 @@
                 </div>
                 <div class="card-body">
                     @if ($trialRequest->status->value === 'pending')
-                        <p class="text-muted">اختر الإجراء المطلوب لهذا الطلب.</p>
+                        <p class="text-muted">الموافقة تنشئ حساب الشركة والمدير وتفعّل تجربة 7 أيام بدون باقة أو دفع.</p>
+                        @if (! $trialRequest->password_hash || ! $trialRequest->email_verified_at)
+                            <div class="alert alert-warning">الطلب قديم أو ناقص البيانات. يجب أن يقدم العميل طلبًا كاملًا مع تأكيد البريد أولًا.</div>
+                        @endif
                         <div class="d-flex align-items-center gap-2">
                             <form id="approveTrialForm" method="POST" action="{{ route('admin.trial-requests.approve', $trialRequest) }}" class="m-0 d-inline-flex">
                                 @csrf
-                                <button type="button" class="btn btn-sm btn-success js-approve-trial-btn">
+                                <button type="button" class="btn btn-sm btn-success js-approve-trial-btn" @disabled(! $trialRequest->password_hash || ! $trialRequest->email_verified_at || ($trialRequest->provisioning_status === 'processing' && $trialRequest->provisioning_started_at?->gt(now()->subMinutes(15))))>
                                     <i class="ti ti-check me-1"></i> موافقة وإنشاء شركة
                                 </button>
                             </form>

@@ -7,8 +7,8 @@
 html,
 html[dir="rtl"] {
   direction: rtl !important;
-  height: 100%;
-  overflow: hidden !important;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
   text-size-adjust: 100%;
   box-sizing: border-box;
 }
@@ -78,11 +78,9 @@ button, input, optgroup, select, textarea {
 body.site-shell {
   margin: 0;
   padding: 0;
-  height: 100%;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
+  min-height: 100vh;
+  overflow-x: hidden;
   direction: rtl !important;
-  scroll-behavior: smooth;
   font-family: var(--site-font-family);
   background-color: var(--site-sand);
   color: var(--site-ink);

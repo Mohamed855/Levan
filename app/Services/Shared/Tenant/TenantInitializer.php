@@ -33,9 +33,11 @@ class TenantInitializer
 
     public function createCoreSeat(Tenant $tenant, Subscription $subscription, User $user): void
     {
-        $seat = LicenseSeat::create([
+        $seat = LicenseSeat::firstOrCreate([
             'tenant_id' => $tenant->id,
             'subscription_id' => $subscription->id,
+            'is_core' => true,
+        ], [
             'assigned_user_uid' => $user->global_uid,
             'status' => 'assigned',
             'is_core' => true,
@@ -44,8 +46,11 @@ class TenantInitializer
 
         // العودة إلى بيئة التيننت لتحديث المستخدم
         tenancy()->initialize($tenant);
-        $user->update(['license_seat_id' => $seat->id]);
-        tenancy()->end();
+        try {
+            $user->update(['license_seat_id' => $seat->id]);
+        } finally {
+            tenancy()->end();
+        }
     }
 
     /*
@@ -57,14 +62,18 @@ class TenantInitializer
     */
     private function runMigrations(Tenant $tenant): void
     {
-        Artisan::call('tenants:migrate', [
+        $exitCode = Artisan::call('tenants:migrate', [
             '--tenants' => [$tenant->id],
+            '--force' => true,
         ]);
+        if ($exitCode !== 0) {
+            throw new \RuntimeException('Tenant database migrations failed: '.Artisan::output());
+        }
     }
 
     private function createFirstUser(array $metadata): User
     {
-        $user = User::create([
+        $user = User::firstOrCreate(['email' => $metadata['billing_email']], [
             'name' => $metadata['billing_name'] ?? 'مستخدم جديد',
             'employee_number' => 'EMP001',
             'email' => $metadata['billing_email'],
@@ -77,13 +86,14 @@ class TenantInitializer
         ]);
 
         $user->assignRole('Admin');
+        $user->forceFill(['email_verified_at' => now()])->save();
 
         return $user;
     }
 
     private function createSettings(array $metadata): void
     {
-        Settings::create([
+        Settings::firstOrCreate([], [
             'image' => 'default-office.png',
             'office_name' => $metadata['billing_company_name'],
             'logo_text' => 'لوت LOT',

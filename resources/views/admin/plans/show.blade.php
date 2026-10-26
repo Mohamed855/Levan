@@ -26,8 +26,7 @@
                         <a class="py-3 nav-link fw-bold m-0" data-bs-toggle="tab" href="#planFeatures">
                             <i class="ti ti-list-check ti-sm me-1"></i><span>ميزات الباقة</span>
                             @if (!empty($plan->features) && count($plan->features) > 0)
-                                <span
-                                    class="badge bg-primary rounded-pill ms-auto">{{ count($plan->features) }}</span>
+                                <span class="badge bg-primary rounded-pill ms-auto">{{ count($plan->features) }}</span>
                             @endif
                         </a>
                     </li>
@@ -36,8 +35,7 @@
                         <a class="py-3 nav-link fw-bold m-0" data-bs-toggle="tab" href="#planSubscriptions">
                             <i class="ti ti-building-store ti-sm me-1"></i><span>الاشتراكات والشركات</span>
                             @if ($subscriptions->count() > 0)
-                                <span
-                                    class="badge bg-primary rounded-pill ms-auto">{{ $subscriptions->count() }}</span>
+                                <span class="badge bg-primary rounded-pill ms-auto">{{ $subscriptions->count() }}</span>
                             @endif
                         </a>
                     </li>
@@ -89,10 +87,9 @@
                                         <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
                                             <h4 class="fw-bold mb-0 text-heading">{{ $plan->name }}</h4>
                                             <span
-                                                class="badge bg-dark font-monospace fw-bold fs-6">{{ $plan->code }}</span>
+                                                class="badge bg-dark text-white font-monospace fw-bold fs-6">{{ $plan->code }}</span>
 
-                                            <span
-                                                class="badge bg-{{ $plan->plan_type?->color() ?? 'primary' }} fs-6">
+                                            <span class="badge bg-{{ $plan->plan_type?->color() ?? 'primary' }} fs-6">
                                                 {{ $plan->plan_type?->label() ?? 'أساسي' }}
                                             </span>
 
@@ -106,8 +103,7 @@
                                                 </span>
                                             @endif
 
-                                            <span
-                                                class="badge bg-{{ $plan->isUnlimited() ? 'primary' : 'info' }} fs-6">
+                                            <span class="badge bg-{{ $plan->isUnlimited() ? 'primary' : 'info' }} fs-6">
                                                 {{ $plan->isUnlimited() ? 'حدود غير محدودة (∞)' : 'حدود محددة' }}
                                             </span>
 
@@ -133,8 +129,7 @@
                                             @if ($plan->discount_percentage > 0)
                                                 <div class="text-muted small">
                                                     <del>{{ number_format((float) $plan->price, 2) }} ر.س</del>
-                                                    <span
-                                                        class="badge bg-danger ms-1">{{ $plan->discount_percentage }}%
+                                                    <span class="badge bg-danger ms-1">{{ $plan->discount_percentage }}%
                                                         خصم</span>
                                                 </div>
                                             @endif

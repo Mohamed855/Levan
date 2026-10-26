@@ -63,18 +63,20 @@
         </div>
     </section>
 
-    <section class="package-card__features">
-        <h4>تشمل الباقة</h4>
-        <ul data-plan-features>
-            @forelse ($features as $feature)
-                @if (filled($feature))
-                    <li><i class="ti ti-circle-check" aria-hidden="true"></i><span>{{ $feature }}</span></li>
-                @endif
-            @empty
-                <li class="package-card__empty-feature">أضف ميزات الباقة لتظهر هنا.</li>
-            @endforelse
-        </ul>
-    </section>
+    @if ($preview || !empty($features))
+        <section class="package-card__features">
+            <h4>تشمل الباقة</h4>
+            <ul data-plan-features>
+                @forelse ($features as $feature)
+                    @if (filled($feature))
+                        <li><i class="ti ti-circle-check" aria-hidden="true"></i><span>{{ $feature }}</span></li>
+                    @endif
+                @empty
+                    <li class="package-card__empty-feature">أضف ميزات الباقة لتظهر هنا.</li>
+                @endforelse
+            </ul>
+        </section>
+    @endif
 
     @if ($actionUrl)
         <a href="{{ $actionUrl }}" class="package-card__action">{{ $actionLabel }}<i class="ti ti-arrow-left" aria-hidden="true"></i></a>

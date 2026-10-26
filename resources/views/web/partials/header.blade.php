@@ -9,10 +9,10 @@
 
             <!-- Desktop Navigation Links -->
             <nav class="site-nav" aria-label="التنقل الرئيسي">
-                <a href="{{ route('site.index') }}#home">الرئيسية</a>
-                <a href="{{ route('site.index') }}#services">المميزات</a>
-                <a href="{{ route('site.index') }}#pricing">الباقات</a>
-                <a href="{{ route('site.index') }}#faq">الأسئلة الشائعة</a>
+                <a href="/#home">الرئيسية</a>
+                <a href="/#services">المميزات</a>
+                <a href="/#pricing">الباقات</a>
+                <a href="/#faq">الأسئلة الشائعة</a>
             </nav>
 
             <!-- Actions: Hamburger on Mobile + Contact on Desktop -->
@@ -45,11 +45,11 @@
             </div>
 
             <nav class="site-mobile-nav">
-                <a href="{{ route('site.index') }}#home">الرئيسية</a>
-                <a href="{{ route('site.index') }}#services">المميزات</a>
-                <a href="{{ route('site.index') }}#pricing">الباقات والأسعار</a>
-                <a href="{{ route('site.index') }}#faq">الأسئلة الشائعة</a>
-                <a href="{{ route('site.index') }}#contact">تواصل معنا</a>
+                <a href="/#home">الرئيسية</a>
+                <a href="/#services">المميزات</a>
+                <a href="/#pricing">الباقات والأسعار</a>
+                <a href="/#faq">الأسئلة الشائعة</a>
+                <a href="/#contact">تواصل معنا</a>
             </nav>
         </div>
 

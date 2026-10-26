@@ -155,7 +155,7 @@
                         <div class="border rounded p-2">
                             <div class="d-flex align-items-center mb-2 px-2">
                                 {{-- <div class="avatar avatar-sm me-2">
-                                        <span class="avatar-initial rounded bg-dark">
+                                        <span class="avatar-initial rounded bg-dark text-white">
                                             <i class="ti ti-report"></i>
                                         </span>
                                     </div> --}}
@@ -196,71 +196,7 @@
         </li>
 
 
-        <!-- Notification -->
-        <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-2 me-xl-2">
-            <a class="nav-link btn btn-text-secondary btn-icon rounded-pill dropdown-toggle hide-arrow"
-                href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                <span class="position-relative">
-                    <i class="ti ti-bell ti-md"></i>
-                    <span class="badge rounded-pill bg-danger badge-dot badge-notifications border"></span>
-                </span>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end p-0" style="min-width: 350px;">
-                <li class="dropdown-menu-header border-bottom">
-                    <div class="dropdown-header d-flex align-items-center py-3">
-                        <h6 class="mb-0 me-auto fw-bold">الإشعارات</h6>
-                        <div class="d-flex align-items-center h6 mb-0">
-                            <span class="badge bg-primary me-2"> جديد</span>
-                            <a href="javascript:void(0)" class="btn btn-text-secondary rounded-pill btn-icon"
-                                data-bs-toggle="tooltip" data-bs-placement="top" title="تحديد الكل كمقروء">
-                                <i class="ti ti-mail-opened text-heading"></i>
-                            </a>
-                        </div>
-                    </div>
-                </li>
-
-
-                <li class="dropdown-notifications-list scrollable-container overflow-auto" style="max-height: 300px;">
-                    <ul class="list-group list-group-flush">
-                        <!-- إشعار جديد 1 -->
-                        {{-- <li class="list-group-item list-group-item-action dropdown-notifications-item">
-                            <div class="d-flex">
-                                <div class="flex-shrink-0 me-3">
-                                    <div class="avatar">
-                                        <span class="avatar-initial rounded-circle bg-success">
-                                            <i class="ti ti-check"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="small mb-1 fw-semibold">تم تحصيل مبلغ 15,000 ريال بنجاح</h6>
-                                    <p class="mb-1 small text-muted">من عميل: شركة الرياض للتجارة</p>
-                                    <small class="text-muted">منذ 5 دقائق</small>
-                                </div>
-                                <div class="flex-shrink-0 dropdown-notifications-actions">
-                                    <span class="badge badge-dot bg-primary"></span>
-                                    <a href="javascript:void(0)" class="dropdown-notifications-archive ms-2">
-                                        <span class="ti ti-x"></span>
-                                    </a>
-                                </div>
-                            </div>
-                        </li> --}}
-
-
-                    </ul>
-                </li>
-
-
-                <li class="border-top">
-                    <div class="d-grid p-4">
-                        <a class="btn btn-primary btn-sm d-flex" href="javascript:void(0);">
-                            <small class="align-middle">عرض كل الإشعارات</small>
-                        </a>
-                    </div>
-                </li>
-            </ul>
-        </li>
-        <!-- /Notification -->
+        @include('shared.dashboard-notification-menu', ['scope' => 'admin'])
 
 
         {{-- @if ($configData['hasCustomizer'] === true)
@@ -301,7 +237,8 @@
             <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
                 <div class="avatar avatar-online">
                     <img src="{{ $adminUser?->profile_photo_url ?? asset('static/brand/logos/logo.svg') }}"
-                        alt="{{ $adminUser?->name ?? 'Admin' }}" class="rounded-circle" width="40" height="40">
+                        alt="{{ $adminUser?->name ?? 'Admin' }}" class="rounded-circle" width="40"
+                        height="40">
                 </div>
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
@@ -315,7 +252,8 @@
                             </div>
                             <div class="flex-grow-1">
                                 <h6 class="mb-0">{{ $adminUser?->name ?? 'Admin' }}</h6>
-                                <small class="text-muted">{{ $adminUser?->getRoleNames()->implode(', ') ?? '' }}</small>
+                                <small
+                                    class="text-muted">{{ $adminUser?->getRoleNames()->implode(', ') ?? '' }}</small>
                             </div>
                         </div>
                     </a>

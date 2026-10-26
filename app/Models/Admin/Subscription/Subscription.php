@@ -217,11 +217,12 @@ class Subscription extends Model
 
     public function isTrialExpired(): bool
     {
-        if (! $this->trial_ends_at) {
+        $end = $this->ends_at ?? $this->currentPeriod?->period_end ?? ($this->trial_end_date ? Carbon::parse($this->trial_end_date)->endOfDay() : null);
+        if (! $end) {
             return false;
         }
 
-        return $this->trial_ends_at->isPast();
+        return $end->isPast();
     }
 
     public function scopeForLicensing($query)

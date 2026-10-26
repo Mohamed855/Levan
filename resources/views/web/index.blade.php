@@ -47,7 +47,7 @@
                         </p>
 
                         <div class="hero-actions">
-                            <a href="{{ $plans->isNotEmpty() ? route('site.plans.checkout', $plans->first()->id) : '#pricing' }}"
+                            <a href="{{ $plans->count() === 1 ? route('site.plans.checkout', $plans->first()->id) : '#pricing' }}"
                                 class="btn-hero-primary" role="button">
                                 <span>طلب اشتراك</span>
                                 <i class="ti ti-arrow-left"></i>

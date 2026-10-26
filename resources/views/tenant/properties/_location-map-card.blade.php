@@ -21,7 +21,7 @@
 
             {{-- حاوية الرسم التفاعلية مع الكانفاس --}}
             <div id="property-image-canvas-wrapper"
-                class="position-relative border rounded-3 overflow-hidden bg-dark text-center d-none flex-grow-1 d-flex align-items-center justify-content-center"
+                class="position-relative border rounded-3 overflow-hidden bg-dark text-white text-center d-none flex-grow-1 d-flex align-items-center justify-content-center"
                 style="min-height: 340px;">
                 <canvas id="property-drawing-canvas" class="img-fluid"
                     style="cursor: crosshair; max-height: 480px;"></canvas>

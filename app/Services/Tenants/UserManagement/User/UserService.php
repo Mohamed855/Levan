@@ -3,11 +3,11 @@
 namespace App\Services\Tenants\UserManagement\User;
 
 use App\Models\Tenants\UserMangment\User\User;
+use App\Services\Tenants\Shared\CentralTrialAccessGateway;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 
@@ -21,6 +21,8 @@ class UserService
     */
     public function createUser(array $data): User
     {
+        app(CentralTrialAccessGateway::class)->assertUserCreationAllowed();
+
         return DB::transaction(function () use ($data) {
 
             $roleId = $data['role_id'] ?? null;

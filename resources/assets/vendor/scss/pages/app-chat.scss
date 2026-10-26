@@ -37,7 +37,7 @@ $app-chat-shadow-light: light.$box-shadow-xs !default;
 $app-chat-shadow-dark: dark.$box-shadow-xs !default;
 
 $chat-bg-light: #f3f2f5;
-$chat-bg-dark: #202534;
+$chat-bg-dark text-white: #202534;
 
 // App Chat Global
 .app-chat {
@@ -421,9 +421,9 @@ $chat-bg-dark: #202534;
       }
 
       .app-chat-history {
-        background-color: $chat-bg-dark;
+        background-color: $chat-bg-dark text-white;
         .chat-history-wrapper {
-          background-color: $chat-bg-dark;
+          background-color: $chat-bg-dark text-white;
         }
 
         .chat-history-header,

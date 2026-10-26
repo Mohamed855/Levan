@@ -19,6 +19,7 @@ use App\Services\shared\Subscription\SubscriptionFormatter;
 use App\Services\shared\Subscription\SubscriptionManager;
 use App\Services\shared\Subscription\SubscriptionService;
 use App\Services\Tenants\Shared\CentralBillingGateway;
+use App\Services\Tenants\Shared\CentralTrialAccessGateway;
 use Illuminate\Http\Request;
 
 class TenantSubscriptionController extends Controller
@@ -62,6 +63,9 @@ class TenantSubscriptionController extends Controller
     */
     public function renewCheckout()
     {
+        if (app(CentralTrialAccessGateway::class)->isSingleUserTrial()) {
+            return redirect()->to(tenant_route_name('subscriptions.index'))->with('info', 'التجربة بدون باقة. اختر اشتراكًا مدفوعًا للمتابعة بعد انتهاء التجربة.');
+        }
         try {
             $plan = $this->getCentralPlan();
             $taxRate = 0.15;
@@ -140,6 +144,7 @@ class TenantSubscriptionController extends Controller
     */
     public function licenseCheckout(LicenseCheckoutRequest $request)
     {
+        app(CentralTrialAccessGateway::class)->assertUserCreationAllowed();
         try {
             $newLicensesCount = (int) $request->validated('new_licenses_count');
 
@@ -160,6 +165,7 @@ class TenantSubscriptionController extends Controller
 
     public function processLicense(ProcessLicensePaymentRequest $request)
     {
+        app(CentralTrialAccessGateway::class)->assertUserCreationAllowed();
         try {
             $validated = $request->validated();
             $newLicensesCount = (int) $validated['new_licenses_count'];

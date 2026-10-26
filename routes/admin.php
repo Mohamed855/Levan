@@ -27,36 +27,23 @@ use App\Http\Controllers\Admin\Settings\SettingsController;
 use App\Http\Controllers\Admin\SubscriptionManagement\SubscriptionManagementController;
 use App\Http\Controllers\Admin\Subscriptions\SubscriptionController as CentralSubscriptionController;
 use App\Http\Controllers\Admin\Tickets\AdminTicketController;
+use App\Http\Controllers\Shared\DashboardNotificationController;
 use App\Http\Controllers\Shared\Wizard\WizardDraftController;
 use App\Http\Controllers\Tenants\Auth\NewPasswordController;
 use Illuminate\Support\Facades\Route;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 Route::name('password.reset')->get('reset-password/{token}', [NewPasswordController::class, 'create']);
 
 Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'admin.active', 'admin.2fa.force'])->group(function () {
+    Route::prefix('dashboard-notifications')->name('dashboard-notifications.')->group(function () {
+        $controller = DashboardNotificationController::class;
+        Route::get('/', [$controller, 'feed'])->defaults('dashboard_scope', 'admin')->name('feed');
+        Route::get('all', [$controller, 'index'])->defaults('dashboard_scope', 'admin')->name('index');
+        Route::post('auth', [$controller, 'auth'])->defaults('dashboard_scope', 'admin')->name('auth');
+        Route::post('read-all', [$controller, 'readAll'])->defaults('dashboard_scope', 'admin')->name('read-all');
+        Route::post('{notification}/read', [$controller, 'read'])->whereUuid('notification')->defaults('dashboard_scope', 'admin')->name('read');
+        Route::delete('{notification}', [$controller, 'destroy'])->whereUuid('notification')->defaults('dashboard_scope', 'admin')->name('destroy');
+    });
     Route::prefix('wizard-drafts')->name('wizard-drafts.')->group(function () {
         Route::get('/', [WizardDraftController::class, 'show'])->name('index');
         Route::delete('/', [WizardDraftController::class, 'destroy'])->name('destroy');

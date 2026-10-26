@@ -20,7 +20,7 @@ final class CentralSubscriptionContextGateway
             $status = $subscription?->status;
 
             return [
-                'plan_name' => $subscription?->plan?->name ?? 'غير محدد',
+                'plan_name' => $subscription?->is_trial && ! $subscription->plan_id ? 'تجربة مجانية — بدون باقة' : ($subscription?->plan?->name ?? 'غير محدد'),
                 'subscription_status' => $status instanceof SubscriptionStatus
                     ? $status->label()
                     : ($status ? (string) $status : 'غير نشط'),

@@ -194,7 +194,7 @@
                         @if ($bill->payment_method)
                             <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
                                 <span class="text-muted small"><i class="ti ti-credit-card me-1"></i>طريقة الدفع</span>
-                                <span class="badge bg-dark">{{ $bill->payment_method->label() }}</span>
+                                <span class="badge bg-dark text-white">{{ $bill->payment_method->label() }}</span>
                             </div>
                         @endif
 
@@ -261,8 +261,8 @@
                             يرجى مراجعة الإيصال قبل التأكيد أو الرفض.
                         </p>
                         <div class="d-flex gap-2">
-                            <form id="verifyBillForm" action="{{ route('admin.bills.verify', $bill->id) }}" method="POST"
-                                class="m-0 flex-fill">
+                            <form id="verifyBillForm" action="{{ route('admin.bills.verify', $bill->id) }}"
+                                method="POST" class="m-0 flex-fill">
                                 @csrf
                                 <button type="button" class="btn btn-success btn-sm w-100 js-verify-bill-btn">
                                     <i class="ti ti-check me-1"></i> تأكيد
@@ -287,8 +287,7 @@
                                 placeholder="يرجى كتابة سبب رفض الفاتورة..." required></textarea>
                         </div>
                         <x-slot:footer>
-                            <button type="button" class="btn btn-secondary"
-                                data-bs-dismiss="modal">إلغاء</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
                             <button type="submit" class="btn btn-danger">تأكيد الرفض</button>
                         </x-slot:footer>
                     </form>

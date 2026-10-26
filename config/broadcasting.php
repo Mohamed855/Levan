@@ -29,6 +29,19 @@ return [
      */
 
     'connections' => [
+        'reverb' => [
+            'driver' => 'reverb',
+            'key' => env('REVERB_APP_KEY', substr(hash('sha256', config('app.key').':dashboard-key'), 0, 24)),
+            'secret' => env('REVERB_APP_SECRET', hash_hmac('sha256', 'dashboard-secret', (string) config('app.key'))),
+            'app_id' => env('REVERB_APP_ID', 'levan-dashboard'),
+            'options' => [
+                'host' => env('REVERB_HOST', '127.0.0.1'),
+                'port' => (int) env('REVERB_PORT', 8081),
+                'scheme' => env('REVERB_SCHEME', 'http'),
+                'useTLS' => env('REVERB_SCHEME', 'http') === 'https',
+            ],
+            'client_options' => ['connect_timeout' => 0.3, 'timeout' => 1],
+        ],
 
         'pusher' => [
             'driver' => 'pusher',

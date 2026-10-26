@@ -66,6 +66,7 @@ export function initNavbar() {
   function scrollToSection(targetId) {
     if (!targetId || targetId === 'home') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.documentElement.scrollTo?.({ top: 0, behavior: 'smooth' });
       return true;
     }
 
@@ -74,7 +75,8 @@ export function initNavbar() {
 
     const headerHeight = header ? header.getBoundingClientRect().height : 0;
     const offset = headerHeight + 16;
-    const targetTop = targetElement.getBoundingClientRect().top + window.scrollY - offset;
+    const currentScroll = window.scrollY || document.documentElement.scrollTop || 0;
+    const targetTop = targetElement.getBoundingClientRect().top + currentScroll - offset;
 
     window.scrollTo({
       top: Math.max(0, targetTop),
@@ -98,7 +100,12 @@ export function initNavbar() {
     // Relative path with hash, e.g. "/#home" or "./#home"
     if (rawHref.startsWith('/#') || rawHref.startsWith('./#')) {
       const id = rawHref.split('#')[1];
-      return id || null;
+      if (!id || id === '!') return null;
+      const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+      if (currentPath === '/' || document.getElementById(id) || id === 'home') {
+        return id;
+      }
+      return null;
     }
 
     // Full URL or relative URL containing a hash
@@ -112,12 +119,8 @@ export function initNavbar() {
         const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
         const linkPath = url.pathname.replace(/\/$/, '') || '/';
 
-        // Check if both are same path and same host (or localhost/127.0.0.1 interchangeable)
-        const isLoopback = (host) => host === 'localhost' || host === '127.0.0.1';
-        const isSameHost = url.hostname === window.location.hostname ||
-          (isLoopback(url.hostname) && isLoopback(window.location.hostname));
-
-        if (isSameHost && linkPath === currentPath) {
+        const isSamePath = linkPath === currentPath;
+        if (isSamePath || (currentPath === '/' && (document.getElementById(id) || id === 'home'))) {
           return id;
         }
       } catch {
@@ -163,9 +166,9 @@ export function initNavbar() {
     const hashId = window.location.hash.substring(1);
     // Instant synchronous URL cleanup so the hash never flickers
     history.replaceState(null, '', window.location.pathname + window.location.search);
-    requestAnimationFrame(() => {
+    setTimeout(() => {
       scrollToSection(hashId);
-    });
+    }, 100);
   }
 
   // Active link highlighting on scroll

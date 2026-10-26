@@ -140,7 +140,7 @@ $utilities: map-merge(
                     )
                 ),
         ),
-        "border-color": (
+        "border-label-color": (
             property: border-color,
             class: border-label,
             local-vars: (
@@ -898,15 +898,15 @@ $utilities: map-merge(
     }
 }
 
-// ! FIX: .bg-dark & .bg-dark color in dark mode
+// ! FIX: .bg-dark text-white & .bg-dark text-white color in dark mode
 @if $dark-style {
-    .bg-dark {
+    .bg-dark text-white {
         color: color-contrast($dark);
     }
 }
 
 // Anchor hover/focus bg colors
-a.bg-dark {
+a.bg-dark text-white {
     &:hover,
     &:focus {
         background-color: $gray-900 !important;
@@ -1017,10 +1017,10 @@ a.invert-bg-white {
     }
 }
 
-.invert-bg-dark {
+.invert-bg-dark text-white {
     background-color: if(not $dark-style, $gray-900, $white) !important;
 }
-a.invert-bg-dark {
+a.invert-bg-dark text-white {
     &:hover,
     &:focus {
         background-color: if(not $dark-style, $gray-900, $white) !important;

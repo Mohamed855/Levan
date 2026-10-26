@@ -24,6 +24,8 @@ final class TrialRequestsDataTable extends AbstractDataTable
         return [
             ['data' => 'id', 'name' => 'id', 'title' => 'رقم الطلب'],
             ['data' => 'customer_name', 'name' => 'customer_name', 'title' => 'الاسم'],
+            ['data' => 'company_name', 'name' => 'company_name', 'title' => 'الشركة'],
+            ['data' => 'commercial_number', 'name' => 'commercial_number', 'title' => 'السجل التجاري'],
             ['data' => 'customer_email', 'name' => 'customer_email', 'title' => 'البريد'],
             ['data' => 'customer_phone', 'name' => 'customer_phone', 'title' => 'الهاتف'],
             ['data' => 'status', 'name' => 'status', 'title' => 'الحالة'],
@@ -70,7 +72,7 @@ final class TrialRequestsDataTable extends AbstractDataTable
 
     protected function getSearchableColumns(): array
     {
-        return ['customer_name', 'customer_email', 'customer_phone'];
+        return ['customer_name', 'customer_email', 'customer_phone', 'company_name', 'commercial_number'];
     }
 
     protected function buttons(): array

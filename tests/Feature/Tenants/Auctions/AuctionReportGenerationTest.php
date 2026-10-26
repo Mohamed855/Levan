@@ -17,6 +17,32 @@ use Tests\Support\TenantAuctionReportTestCase;
 
 final class AuctionReportGenerationTest extends TenantAuctionReportTestCase
 {
+    public function test_terminal_worker_failure_marks_a_processing_generation_as_failed(): void
+    {
+        [$auction, $generation] = $this->generation('worker-timeout');
+        $generation->update(['status' => 'processing', 'started_at' => now()]);
+        $job = $this->job($auction, $generation);
+
+        $job->failed(new RuntimeException('Worker exceeded its timeout.'));
+
+        self::assertTrue($job->failOnTimeout);
+        self::assertSame('failed', $generation->fresh()->status);
+        self::assertSame('Worker exceeded its timeout.', $generation->fresh()->error_message);
+        self::assertNotNull($generation->fresh()->completed_at);
+        self::assertSame((string) $this->tenant->getTenantKey(), (string) tenant('id'));
+    }
+
+    public function test_terminal_failure_does_not_overwrite_a_ready_generation(): void
+    {
+        [$auction, $generation] = $this->generation('already-ready');
+        $generation->update(['status' => 'ready', 'outputs_path' => 'outputs.pdf', 'report_path' => 'report.pdf']);
+
+        $this->job($auction, $generation)->failed(new RuntimeException('Late worker failure.'));
+
+        self::assertSame('ready', $generation->fresh()->status);
+        self::assertNull($generation->fresh()->error_message);
+    }
+
     public function test_job_stores_both_documents_on_private_disk_only(): void
     {
         Storage::fake('tenant_private');

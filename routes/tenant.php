@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Shared\DashboardNotificationController;
 use App\Http\Controllers\Shared\Wizard\WizardDraftController;
 use App\Http\Controllers\Tenants\activity_log\ActivityLogController;
 use App\Http\Controllers\Tenants\Archive\Assignment\AssignmentArchiveController;
@@ -11,17 +12,17 @@ use App\Http\Controllers\Tenants\Archive\User\UserArchiveController;
 use App\Http\Controllers\Tenants\Assignments\AssignmentsController;
 use App\Http\Controllers\Tenants\Auctions\AuctionReportController;
 use App\Http\Controllers\Tenants\Auctions\AuctionsController;
-use App\Http\Controllers\Tenants\Auth\Fortify\TenantTwoFactorSettingsController;
 use App\Http\Controllers\Tenants\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Tenants\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Tenants\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Tenants\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Tenants\Auth\Fortify\TenantTwoFactorChallengeController;
+use App\Http\Controllers\Tenants\Auth\Fortify\TenantTwoFactorSettingsController;
 use App\Http\Controllers\Tenants\Auth\NewPasswordController;
+use App\Http\Controllers\Tenants\Auth\PasswordController;
 use App\Http\Controllers\Tenants\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Tenants\Auth\RegisteredUserController;
 use App\Http\Controllers\Tenants\Auth\VerifyEmailController;
-use App\Http\Controllers\Tenants\Auth\PasswordController;
 use App\Http\Controllers\Tenants\Bills\BillsController;
 use App\Http\Controllers\Tenants\ChartSetting\ChartSettingController;
 use App\Http\Controllers\Tenants\Dashboard\DashboardController;
@@ -52,6 +53,15 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
+    Route::prefix('dashboard-notifications')->name('dashboard-notifications.')->group(function () {
+        $controller = DashboardNotificationController::class;
+        Route::get('/', [$controller, 'feed'])->defaults('dashboard_scope', 'tenant')->name('feed');
+        Route::get('all', [$controller, 'index'])->defaults('dashboard_scope', 'tenant')->name('index');
+        Route::post('auth', [$controller, 'auth'])->defaults('dashboard_scope', 'tenant')->name('auth');
+        Route::post('read-all', [$controller, 'readAll'])->defaults('dashboard_scope', 'tenant')->name('read-all');
+        Route::post('{notification}/read', [$controller, 'read'])->whereUuid('notification')->defaults('dashboard_scope', 'tenant')->name('read');
+        Route::delete('{notification}', [$controller, 'destroy'])->whereUuid('notification')->defaults('dashboard_scope', 'tenant')->name('destroy');
+    });
     Route::prefix('wizard-drafts')->name('wizard-drafts.')->group(function () {
         Route::get('/', [WizardDraftController::class, 'show'])->name('index');
         Route::get('file', [WizardDraftController::class, 'showFile'])->name('file.show');
@@ -333,7 +343,6 @@ Route::middleware(['auth:tenant', 'tenant.2fa.force'])->group(function () {
         Route::resource('auctions', AuctionsController::class)
             ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
 
-
         /*
         |--------------------------------------------------------------------------
         | Settings & API Tokens
@@ -427,11 +436,11 @@ Route::get('impersonate', [AuthenticatedSessionController::class, 'impersonate']
 Route::middleware('guest:tenant')->group(function () {
     Route::match(['post', 'put', 'patch'], 'form-validation', [WizardDraftController::class, 'validateStep'])
         ->defaults('shared_form_validation_actions', [
-            AuthenticatedSessionController::class . '@store',
-            RegisteredUserController::class . '@store',
-            PasswordResetLinkController::class . '@store',
-            NewPasswordController::class . '@store',
-            TenantTwoFactorChallengeController::class . '@store',
+            AuthenticatedSessionController::class.'@store',
+            RegisteredUserController::class.'@store',
+            PasswordResetLinkController::class.'@store',
+            NewPasswordController::class.'@store',
+            TenantTwoFactorChallengeController::class.'@store',
         ])
         ->name('form-validation');
 

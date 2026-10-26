@@ -14,12 +14,12 @@
             </h4>
             <div class="d-flex align-items-center gap-2">
                 <span class="badge {{ $template->status === 'published' ? 'bg-success' : 'bg-warning' }}">
-                    {{ $template->status === 'published' ? 'منشور ومتاح' : ($template->status ?? 'مسودة') }}
+                    {{ $template->status === 'published' ? 'منشور ومتاح' : $template->status ?? 'مسودة' }}
                 </span>
                 <span class="badge bg-primary">
                     {{ $template->type instanceof \BackedEnum ? $template->type->value : (string) $template->type }}
                 </span>
-                <span class="badge bg-dark font-monospace">إصدار {{ $template->current_version ?: '1.0' }}</span>
+                <span class="badge bg-dark text-white font-monospace">إصدار {{ $template->current_version ?: '1.0' }}</span>
             </div>
         </div>
         <div class="d-flex gap-2">
@@ -54,7 +54,8 @@
                             <small class="text-muted">الإصدارات</small>
                         </div>
                         <div>
-                            <h5 class="mb-0 text-info">{{ is_array($template->field_names) ? count($template->field_names) : 0 }}</h5>
+                            <h5 class="mb-0 text-info">
+                                {{ is_array($template->field_names) ? count($template->field_names) : 0 }}</h5>
                             <small class="text-muted">الحقول المعرفة</small>
                         </div>
                     </div>
@@ -131,7 +132,8 @@
                                 <tr>
                                     <td class="fw-bold font-monospace">إصدار {{ $version->version }}</td>
                                     <td>
-                                        <span class="badge {{ $version->status === 'published' ? 'bg-success' : 'bg-warning' }}">
+                                        <span
+                                            class="badge {{ $version->status === 'published' ? 'bg-success' : 'bg-warning' }}">
                                             {{ $version->status === 'published' ? 'منشور ومتاح' : 'مسودة' }}
                                         </span>
                                     </td>
@@ -139,7 +141,9 @@
                                     <td>{{ $version->creator?->name ?? '—' }}</td>
                                     <td>
                                         @if ($version->status !== 'published')
-                                            <form method="POST" action="{{ route('admin.auction-templates.versions.publish', [$template, $version]) }}" class="d-inline">
+                                            <form method="POST"
+                                                action="{{ route('admin.auction-templates.versions.publish', [$template, $version]) }}"
+                                                class="d-inline">
                                                 @csrf
                                                 <button type="submit" class="btn btn-sm btn-success">
                                                     <i class="ti ti-check me-1"></i> اعتماد الإصدار
@@ -152,7 +156,8 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center py-4 text-muted">لا توجد إصدارات مسجلة لهذا القالب حتى الآن.</td>
+                                    <td colspan="5" class="text-center py-4 text-muted">لا توجد إصدارات مسجلة لهذا القالب
+                                        حتى الآن.</td>
                                 </tr>
                             @endforelse
                         </tbody>

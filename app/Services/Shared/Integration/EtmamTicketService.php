@@ -13,6 +13,45 @@ use Illuminate\Support\Str;
 
 class EtmamTicketService
 {
+    private function mirrorExternalTicket(array $response, array $data): void
+    {
+        try {
+            $remote = $response['data']['data'] ?? $response['data'] ?? [];
+            $number = $remote['ticket_number'] ?? null;
+            $tenantId = tenant('id') ?? $this->getConnector()->getTenantId();
+            if (! $number || ! $tenantId) {
+                return;
+            }
+            Ticket::firstOrCreate(['ticket_number' => $number, 'tenant_id' => $tenantId], [
+                'tenant_user_id' => auth('tenant')->id(),
+                'customer_name' => $data['customer_name'] ?? auth('tenant')->user()?->name,
+                'title' => $data['title'], 'description' => $data['description'],
+                'priority' => $data['priority'] ?? 'medium', 'status' => 'open',
+            ]);
+        } catch (\Throwable $exception) {
+            Log::warning('External ticket notification mirror failed.', ['error' => $exception->getMessage()]);
+        }
+    }
+
+    private function mirrorExternalReply(string $ticketNumber, string $message, string $senderType, ?string $senderName): void
+    {
+        try {
+            $query = auth('admin')->check() && ! tenancy()->initialized ? Ticket::query() : $this->tenantTicketQuery();
+            $ticket = $query->where('ticket_number', $ticketNumber)->first();
+            if (! $ticket) {
+                return;
+            }
+            TicketReply::create([
+                'ticket_id' => $ticket->id, 'ticket_number' => $ticketNumber,
+                'sender_type' => $senderType, 'message' => $message,
+                'user_id' => $senderType === 'support_user' ? auth('admin')->id() : auth('tenant')->id(),
+                'user_name' => $senderName ?? auth('tenant')->user()?->name,
+            ]);
+        } catch (\Throwable $exception) {
+            Log::warning('External reply notification mirror failed.', ['error' => $exception->getMessage()]);
+        }
+    }
+
     protected ?EtmamConnector $connector = null;
 
     protected function getConnector(): EtmamConnector
@@ -164,6 +203,8 @@ class EtmamTicketService
                 }
 
                 if ($response['success']) {
+                    $this->mirrorExternalTicket($response, $data);
+
                     return $response;
                 }
             } catch (\Throwable $e) {
@@ -308,6 +349,8 @@ class EtmamTicketService
                 }
 
                 if ($response['success']) {
+                    $this->mirrorExternalReply($ticketNumber, $message, $senderType, $senderName);
+
                     return $response;
                 }
             } catch (\Throwable $e) {

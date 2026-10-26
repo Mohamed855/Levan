@@ -9,12 +9,10 @@ use App\Models\Admin\Tickets\Ticket;
 use App\Models\Admin\Tickets\TicketReply;
 use App\Models\Admin\Tickets\TicketSection;
 use App\Models\Tenants\UserMangment\User\User;
-use App\Notifications\Tenants\General\GeneralNotification;
 use App\Services\shared\Integration\EtmamTicketService;
+use App\Services\Shared\Notifications\DashboardNotificationService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
 class AdminTicketService
 {
@@ -90,16 +88,6 @@ class AdminTicketService
         // Check if external Etmam is configured
         if ($this->etmamService->isEtmamConfigured()) {
             $response = $this->etmamService->addReply($ticketNumber, $message, $files, 'support_user', $senderName);
-            $ticket = Ticket::where('ticket_number', $ticketNumber)->first();
-            if ($ticket) {
-                $this->notifyTenant(
-                    $ticket,
-                    'رد جديد من الدعم الفني',
-                    "تمت إضافة رد جديد على التذكرة #{$ticketNumber}: ".Str::limit($message, 80),
-                    'info',
-                    'ti ti-message-dots'
-                );
-            }
 
             return $response;
         }
@@ -134,14 +122,7 @@ class AdminTicketService
             $ticket->update(['status' => 'in_progress']);
         }
 
-        // Notify tenant about new support reply
-        $this->notifyTenant(
-            $ticket,
-            'رد جديد من الدعم الفني',
-            "تمت إضافة رد جديد على التذكرة #{$ticketNumber}: ".Str::limit($message, 80),
-            'info',
-            'ti ti-message-dots'
-        );
+        // The committed TicketReply observer delivers the notification exactly once.
 
         return ['success' => true, 'message' => 'تم إرسال الرد بنجاح'];
     }
@@ -177,39 +158,12 @@ class AdminTicketService
      */
     private function notifyTenant(Ticket $ticket, string $title, string $message, string $type = 'info', string $icon = 'ti ti-ticket'): void
     {
-        try {
-            if (! $ticket->tenant_id) {
-                return;
-            }
-
-            $tenant = Tenant::find($ticket->tenant_id);
-            if (! $tenant) {
-                return;
-            }
-
-            $tenant->run(function () use ($ticket, $title, $message, $type, $icon) {
-                // Find target user in tenant DB
-                $user = null;
-                if ($ticket->tenant_user_id) {
-                    $user = User::find($ticket->tenant_user_id);
-                }
-
-                if (! $user) {
-                    $user = User::first();
-                }
-
-                if ($user) {
-                    $url = tenant_route_name('tickets.show', $ticket->ticket_number);
-                    $notification = new GeneralNotification($title, $message, $type, $icon, $url);
-                    $user->notifyNow($notification);
-                }
-            });
-        } catch (\Throwable $e) {
-            Log::error('Failed to notify tenant about ticket update', [
-                'ticket_number' => $ticket->ticket_number,
-                'error' => $e->getMessage(),
-            ]);
+        if (! $ticket->tenant_id) {
+            return;
         }
+        $notices = app(DashboardNotificationService::class);
+        $notices->tenant($ticket->tenant_id, "ticket.status:$ticket->id:$ticket->status", $notices::payload('ticket.status', $title, $message,
+            route('path.tickets.show', ['tenant' => $ticket->tenant_id, 'ticket' => $ticket->ticket_number], false), $type, $icon), $ticket->tenant_user_id);
     }
 
     /**

@@ -38,6 +38,7 @@
     'resources/assets/js/shared/table-status-toggle.js',
     'resources/assets/js/shared/datatable-page-defaults.js',
     'resources/assets/js/shared/form-validation.js',
+    'resources/assets/js/shared/dashboard-notifications.js',
 ])
 <!-- END: Shared JS -->
 
