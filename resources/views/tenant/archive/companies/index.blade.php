@@ -35,39 +35,34 @@
 @endsection
 
 @section('content')
-    <x-data-table.filters table="#archived-companies-table">
-        <div>
-            <x-filter.select
-                id="filter-status"
-                filterKey="status"
-                table="#archived-companies-table"
-                name="status"
-                label="حالة الشركة"
-                placeholder="اختر حالة الشركة"
-                :enum="\App\Enums\Shared\ActivityStatus::class"
-            />
-        </div>
+    <x-data-table.archive-page>
+        <x-slot:filters>
+            <x-data-table.filters table="#archived-companies-table">
+                <x-filter.select
+                    id="filter-status"
+                    filterKey="status"
+                    table="#archived-companies-table"
+                    name="status"
+                    label="حالة الشركة"
+                    placeholder="اختر حالة الشركة"
+                    :enum="\App\Enums\Shared\ActivityStatus::class"
+                />
 
-        <div>
-            <x-filter.select
-                id="filter-authorized-count"
-                filterKey="authorized_count"
-                table="#archived-companies-table"
-                name="authorized_count"
-                label="عدد المفوضين"
-                placeholder="اختر عدد المفوضين"
-                :enum="\App\Enums\Tenants\Companies\AuthorizedCountRange::class"
-            />
-        </div>
+                <x-filter.select
+                    id="filter-authorized-count"
+                    filterKey="authorized_count"
+                    table="#archived-companies-table"
+                    name="authorized_count"
+                    label="عدد المفوضين"
+                    placeholder="اختر عدد المفوضين"
+                    :enum="\App\Enums\Tenants\Companies\AuthorizedCountRange::class"
+                />
+            </x-data-table.filters>
+        </x-slot:filters>
 
-    </x-data-table.filters>
-
-    <div class="card">
-        <div class="card-body">
-            {!! $dataTable->table(
-                ['class' => 'table table-striped table-bordered w-100', 'id' => 'archived-companies-table'],
-                false,
-            ) !!}
-        </div>
-    </div>
+        {!! $dataTable->table(
+            ['class' => 'table table-striped table-bordered w-100', 'id' => 'archived-companies-table'],
+            false,
+        ) !!}
+    </x-data-table.archive-page>
 @endsection

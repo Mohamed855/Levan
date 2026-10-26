@@ -61,12 +61,10 @@
 @endsection
 
 @section('content')
-    <div class="card">
-        <div class="card-body">
-            {!! $dataTable->table(
-                ['class' => 'table table-striped table-bordered w-100', 'id' => 'auctions-archive-table'],
-                false,
-            ) !!}
-        </div>
-    </div>
+    <x-data-table.archive-page>
+        {!! $dataTable->table(
+            ['class' => 'table table-striped table-bordered w-100', 'id' => 'auctions-archive-table'],
+            false,
+        ) !!}
+    </x-data-table.archive-page>
 @endsection

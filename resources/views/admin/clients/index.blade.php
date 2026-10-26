@@ -29,7 +29,7 @@
 @endsection
 
 @section('content')
-    <x-ui.validation-errors class="mb-4" />
+    <x-ui.validation-errors />
 
     <x-data-table.page table-id="clients-table">
         <x-slot:stats>
@@ -45,8 +45,8 @@
             <x-ui.stat-card title="بانتظار التفعيل" :value="$pendingClients ?? ($pendingCompanies ?? 0)" subtitle="عملاء جدد بانتظار الاعتماد"
                 icon="ti-clock-pause" color="warning" col="col-sm-6 col-xl" />
 
-            <x-ui.stat-card title="بدون اشتراك" :value="$withoutSubscriptionClients ?? ($withoutSubscriptionCompanies ?? 0)" subtitle="عملاء بلا اشتراك فعّال"
-                icon="ti-alert-circle" color="info" col="col-sm-6 col-xl" />
+            <x-ui.stat-card title="بدون اشتراك" :value="$withoutSubscriptionClients ?? ($withoutSubscriptionCompanies ?? 0)" subtitle="عملاء بلا اشتراك فعّال" icon="ti-alert-circle"
+                color="info" col="col-sm-6 col-xl" />
 
         </x-slot:stats>
 
@@ -60,16 +60,8 @@
                     :options="$filterOptions['cities'] ?? []" />
                 <x-filter.select id="filter-expiring" filterKey="expiring_in" label="انتهاء الاشتراك"
                     placeholder="انتهاء الاشتراك" :options="$filterOptions['expiring'] ?? []" />
-                <div class="col-md-6 col-lg-3">
-                    <label class="form-label" for="filter-created-from">من تاريخ الإنشاء</label>
-                    <input id="filter-created-from" type="date" class="form-control" data-datatable-filter="true"
-                        data-filter-key="created_from" />
-                </div>
-                <div class="col-md-6 col-lg-3">
-                    <label class="form-label" for="filter-created-to">إلى تاريخ الإنشاء</label>
-                    <input id="filter-created-to" type="date" class="form-control" data-datatable-filter="true"
-                        data-filter-key="created_to" />
-                </div>
+                <x-filter.date id="filter-created-from" filterKey="created_from" label="من تاريخ الإنشاء" />
+                <x-filter.date id="filter-created-to" filterKey="created_to" label="إلى تاريخ الإنشاء" />
             </x-data-table.filters>
         </x-slot:filters>
 

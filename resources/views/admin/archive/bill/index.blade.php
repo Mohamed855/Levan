@@ -33,32 +33,21 @@
 @endsection
 
 @section('content')
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    <x-data-table.archive-page>
+        <x-slot:filters>
+            <x-data-table.filters table="#bill-archive-table">
+                <x-filter.select id="filter-type" filterKey="type" label="نوع الفاتورة" placeholder="اختر نوع الفاتورة"
+                    :options="$filterOptions['types'] ?? []" />
+                <x-filter.select id="filter-status" filterKey="status" label="حالة الدفع" placeholder="اختر حالة الدفع"
+                    :options="$filterOptions['statuses'] ?? []" />
+                <x-filter.select id="filter-payment-method" filterKey="payment_method" label="طريقة الدفع"
+                    placeholder="اختر طريقة الدفع" :options="$filterOptions['paymentMethods'] ?? []" />
+            </x-data-table.filters>
+        </x-slot:filters>
 
-    {{-- Filters Card --}}
-    <x-data-table.filters table="#bill-archive-table">
-        <x-filter.select id="filter-type" filterKey="type" label="نوع الفاتورة"
-            placeholder="اختر نوع الفاتورة" :options="$filterOptions['types'] ?? []" />
-        <x-filter.select id="filter-status" filterKey="status" label="حالة الدفع"
-            placeholder="اختر حالة الدفع" :options="$filterOptions['statuses'] ?? []" />
-        <x-filter.select id="filter-payment-method" filterKey="payment_method" label="طريقة الدفع"
-            placeholder="اختر طريقة الدفع" :options="$filterOptions['paymentMethods'] ?? []" />
-    </x-data-table.filters>
-
-    <div class="card">
-        <div class="card-body">
-            {!! $dataTable->table(
-                ['class' => 'table table-striped table-bordered w-100', 'id' => 'bill-archive-table'],
-                false,
-            ) !!}
-        </div>
-    </div>
+        {!! $dataTable->table(
+            ['class' => 'table table-striped table-bordered w-100', 'id' => 'bill-archive-table'],
+            false,
+        ) !!}
+    </x-data-table.archive-page>
 @endsection

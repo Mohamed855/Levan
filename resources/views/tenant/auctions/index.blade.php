@@ -25,56 +25,8 @@
             massDelete: "{{ tenant_route_name('mass-delete') }}"
         };
 
-        $(document).ready(function() {
-            function initializeComponents() {
-                if ($.fn.select2) {
-                    $('.select2').not('.select2-hidden-accessible').each(function() {
-                        $(this).select2({
-                            placeholder: $(this).data('placeholder') || 'اختر',
-                            allowClear: true,
-                            width: '100%',
-                            language: 'ar',
-                            dir: 'rtl'
-                        });
-                    });
-                }
-            }
-            initializeComponents();
-
-            $('#auctions-table').on('init.dt', function() {
-                const table = $(this).DataTable();
-                const tableWrapper = $('#auctions-table_wrapper');
-
-                tableWrapper.on('click', '#select-all', function() {
-                    $('.row-checkbox', table.rows({
-                        search: 'applied'
-                    }).nodes()).prop('checked', this.checked);
-                });
-
-                tableWrapper.on('change', '.row-checkbox', function() {
-                    if (!this.checked) {
-                        $('#select-all').prop('checked', false);
-                    }
-                });
-            });
-
-            $('#auctions-table').on('draw.dt', function() {
-                $('#select-all').prop('checked', false);
-            });
-        });
-
         function handleMassDelete() {
-            const selectedIds = [];
-            $('.row-checkbox:checked').each(function() {
-                selectedIds.push($(this).val());
-            });
-
-            if (selectedIds.length === 0) {
-                toastr.warning('يرجى تحديد مزاد واحد على الأقل');
-                return;
-            }
-
-            confirmDeleteSelectedmss(selectedIds, window.routes.massDelete, 'Auction');
+            window.executeMassDelete('Auction', window.routes.massDelete, 'يرجى تحديد مزاد واحد على الأقل');
         }
         window.handleMassDelete = handleMassDelete;
     </script>
@@ -103,16 +55,8 @@
                     placeholder="جميع الحالات" :enum="\App\Enums\Tenants\Auctions\AuctionStatus::class" />
                 <x-filter.select id="filter-assignment" filterKey="assignment_id" table="#auctions-table" label="الإسناد"
                     placeholder="جميع الإسنادات" :options="$assignments->pluck('name', 'id')->all()" />
-                <div class="col-md-6 col-lg-3">
-                    <label class="form-label" for="filter-start-date">تاريخ البداية</label>
-                    <input id="filter-start-date" type="date" class="form-control" data-datatable-filter="true"
-                        data-filter-key="start_date" data-datatable-target="#auctions-table" />
-                </div>
-                <div class="col-md-6 col-lg-3">
-                    <label class="form-label" for="filter-end-date">تاريخ النهاية</label>
-                    <input id="filter-end-date" type="date" class="form-control" data-datatable-filter="true"
-                        data-filter-key="end_date" data-datatable-target="#auctions-table" />
-                </div>
+                <x-filter.date id="filter-start-date" filterKey="start_date" target="#auctions-table" label="تاريخ البداية" />
+                <x-filter.date id="filter-end-date" filterKey="end_date" target="#auctions-table" label="تاريخ النهاية" />
                 <x-filter.select id="filter-city" filterKey="city" table="#auctions-table" label="المدينة"
                     placeholder="جميع المدن" :options="$cityOptions" />
             </x-data-table.filters>

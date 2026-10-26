@@ -8,8 +8,9 @@ use App\Actions\Admin\PublicRequests\CreateContactRequestAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Site\StoreContactRequest;
 use App\Jobs\Admin\Mail\SendContactMailJob;
-use App\Models\Admin\Plans\Plan;
 use App\Models\Admin\Faq;
+use App\Models\Admin\Plans\Plan;
+use Illuminate\Support\Facades\Schema;
 
 class LandingPageController extends Controller
 {
@@ -18,13 +19,9 @@ class LandingPageController extends Controller
     public function index()
     {
         $plans = Plan::publiclyAvailable()->orderBy('sort_order', 'asc')->get();
-        $ourClients = collect();
-        $portfolios = collect();
-        $faqs = \Illuminate\Support\Facades\Schema::hasTable('faqs')
-            ? Faq::query()->active()->latest()->get()
-            : collect();
+        $faqs = Schema::hasTable('faqs') ? Faq::query()->active()->latest()->get() : collect();
 
-        return view('web.index', compact('plans', 'ourClients', 'portfolios', 'faqs'));
+        return view('web.index', compact('plans', 'faqs'));
     }
 
     public function contactRequest(StoreContactRequest $request)

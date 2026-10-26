@@ -35,6 +35,7 @@
     'resources/assets/js/shared/datatable-feedback.js',
     'resources/assets/js/shared/table-cell-clamp.js',
     'resources/assets/js/shared/table-status-toggle.js',
+    'resources/assets/js/shared/datatable-page-defaults.js',
     'resources/assets/js/shared/form-validation.js',
 ])
 <!-- END: Shared JS -->

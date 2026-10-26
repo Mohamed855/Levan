@@ -34,16 +34,8 @@
     <x-data-table.filters table="#trial-requests-table">
         <x-filter.select id="filter-status" filterKey="status" label="الحالة"
             placeholder="اختر الحالة" :options="$filterOptions['statuses']" />
-        <div class="col-md-6 col-lg-3">
-            <label class="form-label" for="filter-date-from">من تاريخ</label>
-            <input id="filter-date-from" type="date" class="form-control" data-datatable-filter="true"
-                data-filter-key="date_from" />
-        </div>
-        <div class="col-md-6 col-lg-3">
-            <label class="form-label" for="filter-date-to">إلى تاريخ</label>
-            <input id="filter-date-to" type="date" class="form-control" data-datatable-filter="true"
-                data-filter-key="date_to" />
-        </div>
+        <x-filter.date id="filter-date-from" filterKey="date_from" label="من تاريخ" />
+        <x-filter.date id="filter-date-to" filterKey="date_to" label="إلى تاريخ" />
     </x-data-table.filters>
 
     <div class="card">

@@ -23,15 +23,15 @@
 @endsection
 
 @section('content')
-    <x-ui.validation-errors class="mb-4" />
+    <x-ui.validation-errors />
 
     <x-data-table.page table-id="tickets-table">
         <x-slot:stats>
-            <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي التذاكر" :value="number_format($stats['total'] ?? 0)" subtitle="جميع تذاكر الدعم الخاصة بك"
-                icon="ti-messages" color="primary" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="إجمالي التذاكر" :value="number_format($stats['total'] ?? 0)"
+                subtitle="جميع تذاكر الدعم الخاصة بك" icon="ti-messages" color="primary" />
 
-            <x-ui.stat-card col="col-sm-6 col-xl" title="تذاكر جديدة" :value="number_format($stats['open'] ?? 0)"
-                subtitle="بانتظار رد الدعم الفني" icon="ti-bell-ringing" color="warning" />
+            <x-ui.stat-card col="col-sm-6 col-xl" title="تذاكر جديدة" :value="number_format($stats['open'] ?? 0)" subtitle="بانتظار رد الدعم الفني"
+                icon="ti-bell-ringing" color="warning" />
 
             <x-ui.stat-card col="col-sm-6 col-xl" title="قيد المعالجة" :value="number_format($stats['in_progress'] ?? 0)" subtitle="جارٍ العمل على حلها"
                 icon="ti-clock" color="info" />
@@ -45,13 +45,8 @@
 
         <x-slot:filters>
             <x-data-table.filters table="#tickets-table" reset-id="btn-reset-filters">
-                <div>
-                    <label class="form-label" for="filter-status">حالة التذكرة</label>
-                    <select id="filter-status" class="form-control select2" data-datatable-filter="true" data-filter-key="status" data-placeholder="اختر حالة التذكرة">
-                        <option value=""></option>
-                        <x-form.controls.enum-options :enum="\App\Enums\Tenants\Tickets\TicketStatus::class" />
-                    </select>
-                </div>
+                <x-filter.select id="filter-status" filterKey="status" label="حالة التذكرة"
+                    placeholder="اختر حالة التذكرة" :enum="\App\Enums\Tenants\Tickets\TicketStatus::class" />
             </x-data-table.filters>
         </x-slot:filters>
 

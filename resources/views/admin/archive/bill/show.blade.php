@@ -12,8 +12,6 @@
 
 @section('content')
 
-
-
     <div class="row g-2 invoice-preview">
         <div class="col-xl-9 col-md-8">
 

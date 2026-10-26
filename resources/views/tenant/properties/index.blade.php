@@ -20,73 +20,15 @@
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/shared/table-status-toggle.js'])
     <script>
         window.routes = {
             massDelete: "{{ tenant_route_name('mass-delete') }}"
         };
 
-        $(document).ready(function() {
-            function initializeComponents() {
-                if ($.fn.select2) {
-                    $('.select2').not('.select2-hidden-accessible').each(function() {
-                        $(this).select2({
-                            placeholder: $(this).data('placeholder') || 'اختر',
-                            allowClear: true,
-                            width: '100%',
-                            language: 'ar',
-                            dir: 'rtl'
-                        });
-                    });
-                }
-            }
-            initializeComponents();
-
-            $('#properties-table').on('init.dt', function() {
-                const table = $(this).DataTable();
-                const tableWrapper = $('#properties-table_wrapper');
-
-                tableWrapper.on('click', '#select-all', function() {
-                    $('.row-checkbox', table.rows({
-                        search: 'applied'
-                    }).nodes()).prop('checked', this.checked);
-                });
-
-                tableWrapper.on('change', '.row-checkbox', function() {
-                    if (!this.checked) {
-                        $('#select-all').prop('checked', false);
-                    }
-                });
-            });
-
-            $('#properties-table').on('draw.dt', function() {
-                $('#select-all').prop('checked', false);
-            });
-        });
-
         function handleMassDelete() {
-            const selectedIds = [];
-            $('.row-checkbox:checked').each(function() {
-                selectedIds.push($(this).val());
-            });
-
-            if (selectedIds.length === 0) {
-                toastr.warning('يرجى تحديد عقار واحد على الأقل');
-                return;
-            }
-
-            confirmDeleteSelectedmss(selectedIds, window.routes.massDelete, 'Property');
+            window.executeMassDelete('Property', window.routes.massDelete, 'يرجى تحديد عقار واحد على الأقل');
         }
         window.handleMassDelete = handleMassDelete;
-
-        $(document).on('click', '.copyable-code-wrapper', function() {
-            const code = $(this).data('code');
-            if (code) {
-                navigator.clipboard.writeText(code).then(() => {
-                    toastr.success('تم النسخ: ' + code);
-                });
-            }
-        });
     </script>
 @endsection
 

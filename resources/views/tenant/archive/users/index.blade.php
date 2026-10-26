@@ -35,38 +35,34 @@
 @endsection
 
 @section('content')
-    <x-data-table.filters table="#archived-users-table">
-        <div>
-            <x-filter.select
-                id="filter-status"
-                filterKey="status"
-                table="#archived-users-table"
-                name="status"
-                label="حالة المستخدم"
-                placeholder="اختر حالة المستخدم"
-                :enum="\App\Enums\Shared\ActivityStatus::class"
-            />
-        </div>
+    <x-data-table.archive-page>
+        <x-slot:filters>
+            <x-data-table.filters table="#archived-users-table">
+                <x-filter.select
+                    id="filter-status"
+                    filterKey="status"
+                    table="#archived-users-table"
+                    name="status"
+                    label="حالة المستخدم"
+                    placeholder="اختر حالة المستخدم"
+                    :enum="\App\Enums\Shared\ActivityStatus::class"
+                />
 
-        <div>
-            <x-filter.select
-                id="filter-role"
-                filterKey="role"
-                table="#archived-users-table"
-                name="role"
-                label="الدور"
-                placeholder="اختر الدور"
-                :options="$roles->pluck('name', 'name')"
-            />
-        </div>
-    </x-data-table.filters>
+                <x-filter.select
+                    id="filter-role"
+                    filterKey="role"
+                    table="#archived-users-table"
+                    name="role"
+                    label="الدور"
+                    placeholder="اختر الدور"
+                    :options="$roles->pluck('name', 'name')"
+                />
+            </x-data-table.filters>
+        </x-slot:filters>
 
-    <div class="card">
-        <div class="card-body">
-            {!! $dataTable->table(
-                ['class' => 'table table-striped table-bordered w-100', 'id' => 'archived-users-table'],
-                false,
-            ) !!}
-        </div>
-    </div>
+        {!! $dataTable->table(
+            ['class' => 'table table-striped table-bordered w-100', 'id' => 'archived-users-table'],
+            false,
+        ) !!}
+    </x-data-table.archive-page>
 @endsection
